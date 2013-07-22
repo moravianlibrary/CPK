@@ -405,6 +405,11 @@ $config = array(
                             $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
                         );
                     },
+                    'solredgefaceted' => function ($sm) {
+                        return new \VuFind\Autocomplete\SolrEdgeFaceted(
+                            $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
+                        );
+                    },
                 ),
                 'invokables' => array(
                     'none' => 'VuFind\Autocomplete\None',
