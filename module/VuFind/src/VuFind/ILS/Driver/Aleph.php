@@ -398,6 +398,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
                 }
             }
         }
+        if (isset($this->config['Catalog']['preffered_pick_up_locations'])) {
+            $this->prefferedPickUpLocations = explode(',', $this->config['Catalog']['preffered_pick_up_locations']);
+        }
     }
 
     /**
@@ -1585,7 +1588,24 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
      */
     public function getDefaultPickUpLocation($patron, $holdInfo=null)
     {
-        return null;
+        if ($holdInfo != null) {
+            $details = $this->getHoldingInfoForItem($patron['id'], $holdInfo['id'], $holdInfo['item_id']);
+            $pickupLocations = $details['pickup-locations'];
+            if (isset($this->prefferedPickUpLocations)) {
+                foreach ($details['pickup-locations'] as $locationID => $locationDisplay) {
+                    if (in_array($locationID, $this->prefferedPickUpLocations)) {
+                        return $locationID;
+                    }
+                }
+            }
+            // nothing found or prefferedPickUpLocations is empty? Return the first locationId in pickupLocations array
+            reset($pickupLocations);
+            return key($pickupLocations);
+        } else if (isset($this->prefferedPickUpLocations)) {
+            return $this->prefferedPickUpLocations[0];
+        } else {
+            throw new ILSException('Missing Catalog/prefferedPickUpLocations config setting.');
+        }
     }
 
     /**
