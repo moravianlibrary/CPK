@@ -356,7 +356,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
 
         // Process config
         $this->host = $this->config['Catalog']['host'];
-        $this->bib = split(',', $this->config['Catalog']['bib']);
+        $this->bib = explode(',', $this->config['Catalog']['bib']);
         $this->useradm = $this->config['Catalog']['useradm'];
         $this->admlib = $this->config['Catalog']['admlib'];
         if (isset($this->config['Catalog']['wwwuser'])
@@ -374,7 +374,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
             $this->duedates = $this->config['duedates'];
         }
         $this->available_statuses
-            = split(',', $this->config['Catalog']['available_statuses']);
+            = explode(',', $this->config['Catalog']['available_statuses']);
         $this->quick_availability
             = isset($this->config['Catalog']['quick_availability'])
             ? $this->config['Catalog']['quick_availability'] : false;
@@ -558,7 +558,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         if (count($this->bib)==1) {
             return array($this->bib[0], $id);
         } else {
-            return split('-', $id);
+            return explode('-', $id);
         }
     }
 
@@ -1210,7 +1210,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         $credit_sign = (string) $xml->z305->{'z305-credit-debit'};
         $name = (string) $xml->z303->{'z303-name'};
         if (strstr($name, ",")) {
-            list($lastname, $firstname) = split(",", $name);
+            list($lastname, $firstname) = explode(",", $name);
         } else {
             $lastname = $name;
             $firstname = "";
@@ -1267,7 +1267,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
             $recordList['firstname'] = "";
         } else {
             list($recordList['lastname'], $recordList['firstname'])
-                = split(",", $address2);
+                = explode(",", $address2);
         }
         $recordList['address1'] = $address2;
         $recordList['address2'] = $address3;
@@ -1321,7 +1321,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         $patron=array();
         $name = $xml->z303->{'z303-name'};
         if (strstr($name, ",")) {
-            list($lastName, $firstName) = split(",", $name);
+            list($lastName, $firstName) = explode(",", $name);
         } else {
             $lastName = $name;
             $firstName = "";
@@ -1379,7 +1379,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         $requests = 0;
         $str = $xml->xpath('//item/queue/text()');
         if ($str != null) {
-            list($requests, $other) = split(' ', trim($str[0]));
+            list($requests, $other) = explode(' ', trim($str[0]));
         }
         $date = $xml->xpath('//last-interest-date/text()');
         $date = $date[0];
@@ -1413,7 +1413,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         $patron = $details['patron'];
         $requiredBy = $details['requiredBy'];
         $comment = $details['comment'];
-        list($month, $day, $year) = split("-", $requiredBy);
+        list($month, $day, $year) = explode("-", $requiredBy);
         $requiredBy = $year . str_pad($month, 2, "0", STR_PAD_LEFT)
             . str_pad($day, 2, "0", STR_PAD_LEFT);
         $patronId = $patron['id'];
