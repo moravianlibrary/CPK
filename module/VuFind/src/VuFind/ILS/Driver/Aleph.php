@@ -38,6 +38,7 @@
 namespace VuFind\ILS\Driver;
 use VuFind\Exception\ILS as ILSException;
 use Zend\Log\LoggerInterface;
+use VuFindHttp\HttpServiceInterface;
 
 /**
  * Aleph Translator Class
@@ -324,7 +325,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
      *
      * @return void
      */
-    public function setHttpService(\VuFindHttp\HttpServiceInterface $service)
+    public function setHttpService(HttpServiceInterface $service)
     {
         $this->httpService = $service;
     }
