@@ -503,28 +503,22 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         if ($this->debug_enabled) {
             $this->debug("URL: '$url'");
         }
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        if ($body != null) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-        }
-        $answer = curl_exec($ch);
-        if (!$answer) {
-            $error = curl_error($ch);
-            $message = "HTTP request failed with message: $error, URL: '$url'.";
-            if ($this->debug_enabled) {
-                $this->debug($message);
+        
+        $result = null;
+        try {
+            $client = $this->httpService->createClient($url);
+            $client->setMethod($method);
+            if ($body != null) {
+                $client->setRawBody($body);
             }
-            throw new ILSException($message);
+            $result = $client->send();
+        } catch (\Exception $e) {
+            throw new ILSException($e->getMessage());
         }
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        if ($http_code != 200) {
-            $message = "Request failed with http code: $http_code, "
-                . "URL: '$url' method: $method";
-            throw new ILSException($message);
+        if (!$result->isSuccess()) {
+            throw new ILSException('HTTP error');
         }
-        curl_close($ch);
+        $answer = $result->getBody();
         $answer = str_replace('xmlns=', 'ns=', $answer);
         $result = simplexml_load_string($answer);
         if (!$result) {
