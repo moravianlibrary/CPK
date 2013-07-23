@@ -1409,24 +1409,20 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         list($bib, $sys_no) = $this->parseId($details['id']);
         $recordId = $bib . $sys_no;
         $itemId = $details['item_id'];
-        $pickup_location = $details['pickUpLocation'];
         $patron = $details['patron'];
+        $pickupLocation = $details['pickUpLocation'];
+        if (!$pickupLocation) {
+            $pickupLocation = $this->getDefaultPickUpLocation($patron, $details);
+        }
         $requiredBy = $details['requiredBy'];
         $comment = $details['comment'];
         list($month, $day, $year) = explode("-", $requiredBy);
         $requiredBy = $year . str_pad($month, 2, "0", STR_PAD_LEFT)
             . str_pad($day, 2, "0", STR_PAD_LEFT);
         $patronId = $patron['id'];
-        if (!$pickup_location) {
-            $info = $this->getHoldingInfoForItem($patronId, $recordId, $itemId);
-            // FIXME: choose preffered location
-            foreach ($info['pickup-locations'] as $key => $value) {
-                $pickup_location = $key;
-            }
-        }
         $data = "post_xml=<?xml version='1.0' encoding='UTF-8'?>\n" .
             "<hold-request-parameters>\n" .
-            "   <pickup-location>$pickup_location</pickup-location>\n" .
+            "   <pickup-location>$pickupLocation</pickup-location>\n" .
             "   <last-interest-date>$requiredBy</last-interest-date>\n" .
             "   <note-1>$comment</note-1>\n".
             "</hold-request-parameters>\n";
