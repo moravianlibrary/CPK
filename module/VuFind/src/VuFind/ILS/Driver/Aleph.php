@@ -37,6 +37,7 @@
  */
 namespace VuFind\ILS\Driver;
 use VuFind\Exception\ILS as ILSException;
+use Zend\Log\LoggerInterface;
 
 /**
  * Aleph Translator Class
@@ -267,8 +268,15 @@ class AlephRestfulException extends \Exception
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class Aleph extends AbstractBase
+class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface
 {
+    /**
+     * Logger object for debug info (or false for no debugging).
+     *
+     * @var LoggerInterface|bool
+     */
+    protected $logger = false;
+    
     protected $duedates = false;
     protected $translator = false;
 
@@ -287,6 +295,18 @@ class Aleph extends AbstractBase
     public function __construct(\VuFind\Cache\Manager $cacheManager = null)
     {
         $this->cacheManager = $cacheManager;
+    }
+    
+    /**
+     * Set the logger
+     *
+     * @param LoggerInterface $logger Logger to use.
+     *
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -503,7 +523,9 @@ class Aleph extends AbstractBase
      */
     protected function debug($msg)
     {
-        print($msg . "<BR>");
+        if ($this->logger) {
+            $this->logger->debug($msg);
+        }
     }
 
     /**
