@@ -39,6 +39,7 @@ namespace VuFind\ILS\Driver;
 use VuFind\Exception\ILS as ILSException;
 use Zend\Log\LoggerInterface;
 use VuFindHttp\HttpServiceInterface;
+use DateTime;
 
 /**
  * Aleph Translator Class
@@ -1417,8 +1418,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         $comment = $details['comment'];
         // convert from MM-DD-YYYY to YYYYMMDD required by Aleph
         $requiredBy = $details['requiredBy'];
-        $requiredBy = \DateTime::createFromFormat('n-j-Y', $requiredBy);
-        if ($requiredBy === FALSE || \DateTime::getLastErrors()['warning_count'] > 0 ) {
+        $requiredBy = DateTime::createFromFormat('n-j-Y', $requiredBy);
+        if ($requiredBy === FALSE || DateTime::getLastErrors()['warning_count'] > 0 ) {
             return array(
                 'success'    => false,
                 'sysMessage' => 'requiredBy must be in MM-DD-YYYY format'
@@ -1493,22 +1494,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
      */
     public function parseDate($date)
     {
-        if ($date == "") {
+        if ($date == NULL || $date == "") {
             return "";
         } else if (preg_match("/^[0-9]{8}$/", $date) === 1) {
-            return substr($date, 6, 2) . "." .substr($date, 4, 2) . "."
-                . substr($date, 0, 4);
+            // 20120725
+            return DateTime::createFromFormat('Ynd', $date)->format('d.m.Y');
+        } else if (preg_match("/^[0-9]+\/[A-Za-z]{3}\/[0-9]{4}$/", $date) === 1) {
+            // 13/jan/2017
+            return DateTime::createFromFormat('d/M/Y', $date)->format('d.m.Y');
         } else {
-            list($day, $month, $year) = explode("/", $date, 3);
-            if (!is_numeric($month)) {
-                $translate_month = array(
-                    'jan' => 1, 'feb' => 2, 'mar' => 3, 'apr' => 4, 'may' => 5,
-                    'jun' => 6, 'jul' => 7, 'aug' => 8, 'sep' => 9, 'oct' => 10,
-                    'nov' => 11, 'dec' => 12
-                );
-                $month = $translate_month[strtolower($month)];
-            }
-            return $day . "." . $month . "." . $year;
+            throw new \Exception("Invalid date: $date");
         }
     }
 
