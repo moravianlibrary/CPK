@@ -268,7 +268,7 @@ class AlephRestfulException extends \Exception
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface
+class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuFindHttp\HttpServiceAwareInterface
 {
     /**
      * Logger object for debug info (or false for no debugging).
@@ -286,6 +286,13 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface
      * @var \VuFind\Cache\Manager
      */
     protected $cacheManager;
+    
+    /**
+     * HTTP service
+     *
+     * @var \VuFindHttp\HttpServiceInterface
+     */
+    protected $httpService = null;
 
     /**
      * Constructor
@@ -307,6 +314,18 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
+    }
+    
+    /**
+     * Set the HTTP service to be used for HTTP requests.
+     *
+     * @param HttpServiceInterface $service HTTP service
+     *
+     * @return void
+     */
+    public function setHttpService(\VuFindHttp\HttpServiceInterface $service)
+    {
+        $this->httpService = $service;
     }
 
     /**
