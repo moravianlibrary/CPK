@@ -1414,11 +1414,17 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         if (!$pickupLocation) {
             $pickupLocation = $this->getDefaultPickUpLocation($patron, $details);
         }
-        $requiredBy = $details['requiredBy'];
         $comment = $details['comment'];
-        list($month, $day, $year) = explode("-", $requiredBy);
-        $requiredBy = $year . str_pad($month, 2, "0", STR_PAD_LEFT)
-            . str_pad($day, 2, "0", STR_PAD_LEFT);
+        // convert from MM-DD-YYYY to YYYYMMDD required by Aleph
+        $requiredBy = $details['requiredBy'];
+        $requiredBy = \DateTime::createFromFormat('n-j-Y', $requiredBy);
+        if ($requiredBy === FALSE || \DateTime::getLastErrors()['warning_count'] > 0 ) {
+            return array(
+                'success'    => false,
+                'sysMessage' => 'requiredBy must be in MM-DD-YYYY format'
+            );
+        }
+        $requiredBy = $requiredBy->format('Ymd');
         $patronId = $patron['id'];
         $data = "post_xml=<?xml version='1.0' encoding='UTF-8'?>\n" .
             "<hold-request-parameters>\n" .
