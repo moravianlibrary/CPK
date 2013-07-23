@@ -270,12 +270,6 @@ class AlephRestfulException extends \Exception
  */
 class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuFindHttp\HttpServiceAwareInterface
 {
-    /**
-     * Logger object for debug info (or false for no debugging).
-     *
-     * @var LoggerInterface|bool
-     */
-    protected $logger = false;
     
     protected $duedates = false;
     protected $translator = false;
@@ -286,6 +280,13 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
      * @var \VuFind\Cache\Manager
      */
     protected $cacheManager;
+    
+    /**
+     * Logger object for debug info (or false for no debugging).
+     *
+     * @var LoggerInterface|bool
+     */
+    protected $logger = false;
     
     /**
      * HTTP service
