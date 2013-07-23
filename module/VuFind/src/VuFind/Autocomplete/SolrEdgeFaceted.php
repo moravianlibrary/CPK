@@ -44,6 +44,10 @@ class SolrEdgeFaceted implements AutocompleteInterface
     
     protected $searchClassId = 'Solr';
     
+    protected $autocompleteField;
+    
+    protected $facetField;
+    
     /**
      * Constructor
      *
@@ -70,65 +74,30 @@ class SolrEdgeFaceted implements AutocompleteInterface
             throw new \Exception('Please set configuration first.');
         }
 
-        $results = array("nazdar", "ahoj", get_class($this->searchObject->getParams()));
+        $results = array();
         try {
-            $this->handler = 'author_autocomplete';
-            $query = "author_autocomplete:($query)";
-            print "$query";
             $params = $this->searchObject->getParams();
-            $params->setBasicSearch($query, $this->handler);
-            $params->addFacet("authorStr");
-            print_r($this->searchObject->getFacetList());
-        } catch (\Exception $e) {
-            // Ignore errors -- just return empty results if we must.
-        }
-        /*
-        try {
-            $this->searchObject->getParams()->setBasicSearch(
-                $this->mungeQuery($query), $this->handler
-            );
-            $this->searchObject->getParams()->setSort($this->sortField);
-            foreach ($this->filters as $current) {
-                $this->searchObject->getParams()->addFilter($current);
-            }
-
-            // Perform the search:
-            $searchResults = $this->searchObject->getResults();
-
-            // Build the recommendation list -- first we'll try with exact matches;
-            // if we don't get anything at all, we'll try again with a less strict
-            // set of rules.
-            $results = $this->getSuggestionsFromSearch($searchResults, $query, true);
-            if (empty($results)) {
-                $results = $this->getSuggestionsFromSearch(
-                    $searchResults, $query, false
-                );
+            $options = $this->searchObject->getOptions();
+            $rawQuery = $this->autocompleteField . ':(' . $this->mungeQuery($query) . ')';
+            $options->addHiddenFilter($rawQuery);
+            $params->addFacet($this->facetField);
+            $params->setLimit(0);
+            $params->setFacetLimit(10);
+            $facets = $this->searchObject->getFacetList();
+            if (isset($facets[$this->facetField]['list'])) {
+                foreach ($facets[$this->facetField]['list'] as $filter) {
+                    $results[] = $filter['value'];
+                }
             }
         } catch (\Exception $e) {
             // Ignore errors -- just return empty results if we must.
         }
-        */
         return array_unique($results);
     }
     
-    /**
-     * mungeQuery
-     *
-     * Process the user query to make it suitable for a Solr query.
-     *
-     * @param string $query Incoming user query
-     *
-     * @return string       Processed query
-     */
-    protected function mungeQuery($query)
-    {
-        // Modify the query so it makes a nice, truncated autocomplete query:
+    protected function mungeQuery($query) {
         $forbidden = array(':', '(', ')', '*', '+', '"');
-        $query = str_replace($forbidden, " ", $query);
-        if (substr($query, -1) != " ") {
-            $query .= "*";
-        }
-        return $query;
+        return str_replace($forbidden, " ", $query);
     }
     
     /**
@@ -143,6 +112,7 @@ class SolrEdgeFaceted implements AutocompleteInterface
      */
     public function setConfig($params)
     {
+        list($this->autocompleteField, $this->facetField) = explode(':', $params, 2);
         $this->initSearchObject();
     }
     
@@ -158,6 +128,7 @@ class SolrEdgeFaceted implements AutocompleteInterface
         // Build a new search object:
         $this->searchObject = $this->resultsManager->get($this->searchClassId);
         $this->searchObject->getOptions()->spellcheckEnabled(false);
+        $this->searchObject->getOptions()->disableHighlighting();
         $this->searchObject->getParams()->recommendationsEnabled(false);
     }
     
