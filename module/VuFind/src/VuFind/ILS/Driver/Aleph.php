@@ -1522,8 +1522,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
             // 20120725
             return DateTime::createFromFormat('Ynd', $date)->format('d.m.Y');
         } else if (preg_match("/^[0-9]+\/[A-Za-z]{3}\/[0-9]{4}$/", $date) === 1) {
-            // 13/jan/2017
+            // 13/jan/2012
             return DateTime::createFromFormat('d/M/Y', $date)->format('d.m.Y');
+        } else if (preg_match("/^[0-9]+\/[0-9]+\/[0-9]{4}$/", $date) === 1) {
+            // 13/7/2012
+            return DateTime::createFromFormat('d/m/Y', $date)->format('d.m.Y');
         } else {
             throw new \Exception("Invalid date: $date");
         }
