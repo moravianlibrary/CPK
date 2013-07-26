@@ -255,6 +255,16 @@ class AlephTranslator
  */
 class AlephRestfulException extends \Exception
 {
+    protected $xmlResponse = false;
+    
+    public function setXmlResponse($body) {
+        $this->xmlResponse = $body;
+    }
+    
+    public function getXmlResponse() {
+        return $this->xmlResponse;
+    }
+    
 }
 
 /**
@@ -465,7 +475,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         $replyCode = (string) $result->{'reply-code'};
         if ($replyCode != "0000") {
             $replyText = (string) $result->{'reply-text'};
-            throw new AlephRestfulException($replyText, $replyCode);
+            $ex = new AlephRestfulException($replyText, $replyCode);
+            $ex->setXmlResponse($result);
+            throw new $ex;
         }
         return $result;
     }
@@ -520,6 +532,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
             throw new ILSException('HTTP error');
         }
         $answer = $result->getBody();
+        if ($this->debug_enabled) {
+            $this->debug("url: $url response: $answer");
+        }
         $answer = str_replace('xmlns=', 'ns=', $answer);
         $result = simplexml_load_string($answer);
         if (!$result) {
@@ -938,13 +953,20 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
     public function renewMyItems($details)
     {
         $patron = $details['patron'];
+        $error = false;
+        $result = array();
         foreach ($details['details'] as $id) {
-            $this->doRestDLFRequest(
-                array('patron', $patron['id'], 'circulationActions', 'loans', $id),
-                null, 'POST', null
-            );
+            try {
+                $this->doRestDLFRequest(
+                    array('patron', $patron['id'], 'circulationActions', 'loans', $id),
+                    null, 'POST', null
+                );
+                $result[$id] = array('success' => true);
+            } catch (AlephRestfulException $ex) {
+                $result[$id] = array('success' => false, 'sysMessage' => $ex->getMessage());
+            }
         }
-        return array('blocks' => false, 'details' => array());
+        return array('blocks' => false, 'details' => $result);
     }
 
     /**
