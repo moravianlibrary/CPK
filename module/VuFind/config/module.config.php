@@ -638,6 +638,11 @@ $config = array(
                             $sm->getServiceLocator()->get('VuFind\WorldCatUtils')
                         );
                     },
+                    'recommendlinks' => function($sm) {
+                        return new \VuFind\Recommend\RecommendLinks(
+                            $sm->getServiceLocator()->get('VuFind\Config')
+                        );
+                    },
                 ),
                 'invokables' => array(
                     'europeanaresultsdeferred' => 'VuFind\Recommend\EuropeanaResultsDeferred',
