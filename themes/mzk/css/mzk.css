@@ -1,0 +1,19 @@
+body {
+    background: #F5F5F5;
+}
+
+#logo {
+    background:url("../images/logo-mzk.png") no-repeat scroll left center transparent;
+    float:left;
+    height:64px;
+    width:129px;
+}
+
+.searchHomeForm {
+    background-color: #3CB9C3;
+    border: 0px solid #C6D880;
+}
+
+.searchHomeForm a, .searchHomeForm a:hover {
+    color: white;
+}
