@@ -255,16 +255,35 @@ class AlephTranslator
  */
 class AlephRestfulException extends \Exception
 {
+    /**
+     * XML response (false for none)
+     *
+     * @var string|bool
+     */
     protected $xmlResponse = false;
-    
-    public function setXmlResponse($body) {
+
+    /**
+     * Attach an XML response to the exception
+     *
+     * @param string $body XML
+     *
+     * @return void
+     */
+    public function setXmlResponse($body)
+    {
         $this->xmlResponse = $body;
     }
-    
-    public function getXmlResponse() {
+
+    /**
+     * Return XML response (false if none)
+     *
+     * @return string|bool
+     */
+    public function getXmlResponse()
+    {
         return $this->xmlResponse;
     }
-    
+
 }
 
 /**
@@ -280,10 +299,21 @@ class AlephRestfulException extends \Exception
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuFindHttp\HttpServiceAwareInterface
+class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
+    \VuFindHttp\HttpServiceAwareInterface
 {
-    
+    /**
+     * Duedate configuration
+     *
+     * @var array
+     */
     protected $duedates = false;
+
+    /**
+     * Translator object
+     *
+     * @var AlephTranslator
+     */
     protected $translator = false;
 
     /**
@@ -292,14 +322,14 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
      * @var \VuFind\Cache\Manager
      */
     protected $cacheManager;
-    
+
     /**
      * Logger object for debug info (or false for no debugging).
      *
      * @var LoggerInterface|bool
      */
     protected $logger = false;
-    
+
     /**
      * HTTP service
      *
@@ -316,7 +346,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
     {
         $this->cacheManager = $cacheManager;
     }
-    
+
     /**
      * Set the logger
      *
@@ -328,7 +358,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
     {
         $this->logger = $logger;
     }
-    
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -409,8 +439,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
                 }
             }
         }
-        if (isset($this->config['Catalog']['preffered_pick_up_locations'])) {
-            $this->prefferedPickUpLocations = explode(',', $this->config['Catalog']['preffered_pick_up_locations']);
+        if (isset($this->config['Catalog']['preferred_pick_up_locations'])) {
+            $this->preferredPickUpLocations = explode(
+                ',', $this->config['Catalog']['preferred_pick_up_locations']
+            );
         }
     }
 
@@ -477,7 +509,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
             $replyText = (string) $result->{'reply-text'};
             $ex = new AlephRestfulException($replyText, $replyCode);
             $ex->setXmlResponse($result);
-            throw new $ex;
+            throw $ex;
         }
         return $result;
     }
@@ -516,7 +548,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         if ($this->debug_enabled) {
             $this->debug("URL: '$url'");
         }
-        
+
         $result = null;
         try {
             $client = $this->httpService->createClient($url);
@@ -958,12 +990,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         foreach ($details['details'] as $id) {
             try {
                 $this->doRestDLFRequest(
-                    array('patron', $patron['id'], 'circulationActions', 'loans', $id),
+                    array(
+                        'patron', $patron['id'], 'circulationActions', 'loans', $id
+                    ),
                     null, 'POST', null
                 );
                 $result[$id] = array('success' => true);
             } catch (AlephRestfulException $ex) {
-                $result[$id] = array('success' => false, 'sysMessage' => $ex->getMessage());
+                $result[$id] = array(
+                    'success' => false, 'sysMessage' => $ex->getMessage()
+                );
             }
         }
         return array('blocks' => false, 'details' => $result);
@@ -1441,7 +1477,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
         // convert from MM-DD-YYYY to YYYYMMDD required by Aleph
         $requiredBy = $details['requiredBy'];
         $requiredBy = DateTime::createFromFormat('n-j-Y', $requiredBy);
-        if ($requiredBy === FALSE || DateTime::getLastErrors()['warning_count'] > 0 ) {
+        $dtErrs = DateTime::getLastErrors();
+        if ($requiredBy === false || $dtErrs['warning_count'] > 0 ) {
             return array(
                 'success'    => false,
                 'sysMessage' => 'requiredBy must be in MM-DD-YYYY format'
@@ -1516,7 +1553,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
      */
     public function parseDate($date)
     {
-        if ($date == NULL || $date == "") {
+        if ($date == null || $date == "") {
             return "";
         } else if (preg_match("/^[0-9]{8}$/", $date) === 1) {
             // 20120725
@@ -1605,22 +1642,29 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface, \VuF
     public function getDefaultPickUpLocation($patron, $holdInfo=null)
     {
         if ($holdInfo != null) {
-            $details = $this->getHoldingInfoForItem($patron['id'], $holdInfo['id'], $holdInfo['item_id']);
+            $details = $this->getHoldingInfoForItem(
+                $patron['id'], $holdInfo['id'], $holdInfo['item_id']
+            );
             $pickupLocations = $details['pickup-locations'];
-            if (isset($this->prefferedPickUpLocations)) {
-                foreach ($details['pickup-locations'] as $locationID => $locationDisplay) {
-                    if (in_array($locationID, $this->prefferedPickUpLocations)) {
+            if (isset($this->preferredPickUpLocations)) {
+                foreach (
+                    $details['pickup-locations'] as $locationID => $locationDisplay
+                ) {
+                    if (in_array($locationID, $this->preferredPickUpLocations)) {
                         return $locationID;
                     }
                 }
             }
-            // nothing found or prefferedPickUpLocations is empty? Return the first locationId in pickupLocations array
+            // nothing found or preferredPickUpLocations is empty? Return the first
+            // locationId in pickupLocations array
             reset($pickupLocations);
             return key($pickupLocations);
-        } else if (isset($this->prefferedPickUpLocations)) {
-            return $this->prefferedPickUpLocations[0];
+        } else if (isset($this->preferredPickUpLocations)) {
+            return $this->preferredPickUpLocations[0];
         } else {
-            throw new ILSException('Missing Catalog/prefferedPickUpLocations config setting.');
+            throw new ILSException(
+                'Missing Catalog/preferredPickUpLocations config setting.'
+            );
         }
     }
 
