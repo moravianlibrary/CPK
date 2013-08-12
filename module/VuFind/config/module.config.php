@@ -408,6 +408,11 @@ $config = array(
                             $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
                         );
                     },
+                    'solredgefaceted' => function ($sm) {
+                        return new \VuFind\Autocomplete\SolrEdgeFaceted(
+                            $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
+                        );
+                    },
                 ),
                 'invokables' => array(
                     'none' => 'VuFind\Autocomplete\None',
@@ -631,6 +636,11 @@ $config = array(
                     'worldcatterms' => function ($sm) {
                         return new \VuFind\Recommend\WorldCatTerms(
                             $sm->getServiceLocator()->get('VuFind\WorldCatUtils')
+                        );
+                    },
+                    'recommendlinks' => function($sm) {
+                        return new \VuFind\Recommend\RecommendLinks(
+                            $sm->getServiceLocator()->get('VuFind\Config')
                         );
                     },
                 ),
