@@ -1,11 +1,12 @@
 <?php
 namespace MZKCatalog\RecordDriver;
-use VuFind\RecordDriver\SolrDefault As ParentSolrDefault;
+use VuFind\RecordDriver\SolrMarc As ParentSolrDefault;
 
-class SolrDefault extends ParentSolrDefault
-{
-
-    public function getBibinfoForObalkyKnih() {
+class SolrMarc extends ParentSolrDefault
+{   
+    
+    public function getBibinfoForObalkyKnih()
+    {
         $bibinfo = array(
             "authors" => array($this->getPrimaryAuthor()),
             "title" => $this->getTitle(),
