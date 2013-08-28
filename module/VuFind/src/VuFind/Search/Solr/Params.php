@@ -91,7 +91,7 @@ class Params extends \VuFind\Search\Base\Params
             $this->setFacetLimit($config->Results_Settings->facet_limit);
         }
         
-        if ( isset($config->Results_Settings->multiselect_facets) ) {
+        if (isset($config->Results_Settings->multiselect_facets) ) {
             $this->setMultiselectFacets($config->Results_Settings->multiselect_facets);
         }
     }
@@ -112,13 +112,13 @@ class Params extends \VuFind\Search\Base\Params
                 if (substr($value, -1) == '*'
                     || preg_match('/\[[^\]]+\s+TO\s+[^\]]+\]/', $value)
                 ) {
-                    if ( in_array($field,$this->multiSelectFacets)) {
+                    if (in_array($field,$this->multiSelectFacets)) {
                         $orFilterQuery[$fileld][] = $field.':'.$value;
                     } else {
                         $filterQuery[] = $field.':'.$value;
                     }
                 } else {
-                    if ( in_array($field,$this->multiSelectFacets)) {
+                    if (in_array($field,$this->multiSelectFacets)) {
                         $orFilterQuery[$field][]  = $field.':"'.addcslashes($value, '"\\').'"';
                     } else {
                         $filterQuery[] = $field.':"'.addcslashes($value, '"\\').'"';
@@ -127,7 +127,7 @@ class Params extends \VuFind\Search\Base\Params
             }
         }
         
-        if ( !empty($orFilterQuery) ) {
+        if (!empty($orFilterQuery) ) {
             foreach ($orFilterQuery as $filter => $value) {
                $filterQuery[] = '{!tag='.$filter.'_filter}'. implode(' OR ', $value); 
            }
