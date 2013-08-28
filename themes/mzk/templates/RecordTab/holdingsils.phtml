@@ -46,53 +46,62 @@
   <? if ($openUrl): ?><?=$this->openUrl($openUrl);?><? endif; ?>
 <? endif; ?>
 <table cellpadding="2" cellspacing="0" border="0" class="citation">
+  <tr>
+    <th><?=$this->transEsc("item_status")?>&nbsp;</th>
+    <th><?=$this->transEsc("due date")?>&nbsp;</th>
+    <th><?=$this->transEsc("sublibrary")?>&nbsp;</th>
+    <th><?=$this->transEsc("collection")?>&nbsp;</th>
+    <th><?=$this->transEsc("location / second signature")?>&nbsp;</th>
+    <th><?=$this->transEsc("description")?>&nbsp;</th>
+    <th><?=$this->transEsc("note")?>&nbsp;</th>
+  <tr>
 <? foreach ($holdings as $row): ?>
   <? $check = (isset($row['check']) && $row['check']); ?>
-  <? if (isset($row['barcode']) && $row['barcode'] != ""): ?>
-    <tr>
-      <td>
-        <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->escapeHtml($row['status'])?></span>
-        <? if ($row['reserve'] == "Y"): ?>
-        <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
-        <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
-          <span class="unknown"><?=$this->transEsc("status_unknown_message")?></span>
-        <? else: ?>
-          <? if ($row['availability']): ?>
-            <? /* Begin Available Items (Holds) */ ?>
-            <div>
-            <? if (isset($row['link']) && $row['link']): ?>
-              <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>"><span><?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?></span></a>
-            <? endif; ?>
-            </div>
-          <? else: ?>
-            <div>
-            <? if (isset($row['link']) && $row['link']): ?>
-              <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>"><span><?=$this->transEsc($check ? "Check Recall" : "Recall This")?></span></a>
-            <? endif; ?>
-            </div>
+  <tr>
+    <td>
+      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->escapeHtml($row['status'])?></span>
+      <? if ($row['reserve'] == "Y"): ?>
+      <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
+      <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
+        <span class="unknown"><?=$this->transEsc("status_unknown_message")?></span>
+      <? else: ?>
+        <? if ($row['availability']): ?>
+          <? /* Begin Available Items (Holds) */ ?>
+          <div>
+          <? if (isset($row['link']) && $row['link']): ?>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>"><span><?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?></span></a>
           <? endif; ?>
+          </div>
+        <? else: ?>
+          <div>
+          <? if (isset($row['link']) && $row['link']): ?>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>"><span><?=$this->transEsc($check ? "Check Recall" : "Recall This")?></span></a>
+          <? endif; ?>
+          </div>
         <? endif; ?>
-      </td>
-      <td>
-        <?=$row['duedate']?>
-      </td>
-      <td>
-        <?=$row['sub_lib_desc']?>
-      </td>
-      <td>
-        <?=$row['collection_desc']?>
-      </td>
-      <td>
-        <?=$row['callnumber_second']?>
-      </td>
-      <td>
-        <?=$row['description']?>
-      </td>
-      <td>
-        <?=$row['note']?>
-      </td>
-    </tr>
-  <? endif; ?>
+      <? endif; ?>
+    </td>
+    <td>
+      <?=$row['duedate']?>
+    </td>
+    <td>
+      <?=$row['sub_lib_desc']?>
+    </td>
+    <td>
+      <?=$row['collection_desc']?>
+    </td>
+    <td>
+      <?=$row['callnumber_second']?>
+    </td>
+    <td>
+      <?=$row['description']?>
+    </td>
+    <td>
+      <? if ($row['notes'] != null):?>
+        <?=$row['notes'][0]?>
+      <? endif;?>
+    </td>
+  </tr>
 <? endforeach; ?>
 </table>
 
