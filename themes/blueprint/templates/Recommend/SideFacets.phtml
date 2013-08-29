@@ -15,6 +15,7 @@
   <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
     <strong><?=$this->transEsc('Remove Filters')?></strong>
     <ul class="filters">
+    <? $multiFacets = $params->getFacetSettings()['multiSelectFacets']; ?>
     <? $removedFilterLinks = array(); ?>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $filter): ?>
@@ -24,7 +25,7 @@
             } else {
                 $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value']);              
             }
-            if ( $filter['field'] == 'institution') {
+            if (in_array($filter['field'],$multiFacets)) {
                 $removedFilterLinks[$filter['value']] = $removeLink;
             }
             if ($filter['displayText'] == '[* TO *]') $filter['displayText'] = $this->translate('filter_wildcard');
@@ -60,7 +61,7 @@
         <dl class="narrowList navmenu">
           <dt><?=$this->transEsc($cluster['label'])?></dt>
           <? $multiFacets = $params->getFacetSettings()['multiSelectFacets']; ?>
-          <? if ($multiFacets && in_array(strtolower($title),$multiFacets)): ?>
+          <? if ($multiFacets && in_array($title,$multiFacets)): ?>
               <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>             
                     <? if (++$i == 6): ?>
                         <dd id="more<?=$this->escapeHtml($title)?>">
