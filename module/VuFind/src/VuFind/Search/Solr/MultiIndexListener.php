@@ -117,7 +117,12 @@ class MultiIndexListener
         $backend = $event->getTarget();
         if ($backend === $this->backend) {
             $params = $event->getParam('params');
-            $shards = explode(',', implode(',', $params->get('shards')));
+            $shards = $this->shards;
+            if ($params->get('shards') != null) {
+                $shards = explode(',', implode(',', $params->get('shards')));
+            } else {
+                $params->set('shards', implode(',', array_values($this->shards)));
+            }
             $fields = $this->getFields($shards);
             $specs  = $this->getSearchSpecs($fields);
             $backend->getQueryBuilder()->setSpecs($specs);
