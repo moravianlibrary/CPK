@@ -15,13 +15,18 @@
   <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
     <strong><?=$this->transEsc('Remove Filters')?></strong>
     <ul class="filters">
+    <? $multiFacets = $params->getFacetSettings()['multiSelectFacets']; ?>
+    <? $removedFilterLinks = array(); ?>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $filter): ?>
         <?
             if (isset($filter['specialType']) && $filter['specialType'] == 'keyword') {
                 $removeLink = $this->currentPath().$results->getUrlQuery()->replaceTerm($filter['value'], '');
             } else {
-                $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value']);
+                $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value']);              
+            }
+            if (in_array($filter['field'],$multiFacets)) {
+                $removedFilterLinks[$filter['value']] = $removeLink;
             }
             if ($filter['displayText'] == '[* TO *]') $filter['displayText'] = $this->translate('filter_wildcard');
         ?>
@@ -55,18 +60,37 @@
       <? else: ?>
         <dl class="narrowList navmenu">
           <dt><?=$this->transEsc($cluster['label'])?></dt>
-          <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
-            <? if (++$i == 6): ?>
-            <dd id="more<?=$this->escapeHtml($title)?>"><a href="#" onclick="moreFacets('<?=$this->escapeHtml($title)?>'); return false;"><?=$this->transEsc('more')?> ...</a></dd>
-          </dl>
-          <dl class="narrowList navmenu offscreen" id="narrowGroupHidden_<?=$this->escapeHtml($title)?>">
-            <? endif; ?>
-            <? if ($thisFacet['isApplied']): ?>
-              <dd><?=$this->escapeHtml($thisFacet['displayText'])?> <img src="<?=$this->imageLink('silk/tick.png')?>" alt="Selected"/></dd>
-            <? else: ?>
-              <dd><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>"><?=$this->escapeHtml($thisFacet['displayText'])?></a> (<?=$this->escapeHtml($thisFacet['count'])?>)</dd>
-            <? endif; ?>
-          <? endforeach; ?>
+          <? $multiFacets = $params->getFacetSettings()['multiSelectFacets']; ?>
+          <? if ($multiFacets && in_array($title,$multiFacets)): ?>
+              <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>             
+                    <? if (++$i == 6): ?>
+                        <dd id="more<?=$this->escapeHtml($title)?>">
+                        <a href="#" onclick="moreFacets('<?=$this->escapeHtml($title)?>'); return false;"><?=$this->transEsc('more')?> ...</a>
+                        </dd>
+                        </dl>
+                        <dl class="narrowList navmenu offscreen" id="narrowGroupHidden_<?=$this->escapeHtml($title)?>">
+                    <? endif; ?>
+                    <? if ($thisFacet['isApplied']): ?>
+                        <dd><a href="<?=$removedFilterLinks[$thisFacet['value']]?>"><input type="checkbox" name="checkbox" checked="checked" value="<?=$this->escapeHtml($thisFacet['displayText'])?>"/></a><?=$this->escapeHtml($thisFacet['displayText'])?></dd>
+                    <? else: ?>
+                        <dd><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>">
+                        <input type="checkbox" name="checkbox" value="<?=$this->escapeHtml($thisFacet['displayText'])?>"/><?=$this->escapeHtml($thisFacet['displayText'])?></a> (<?=$this->escapeHtml($thisFacet['count'])?>)</dd>
+                    <? endif; ?>
+               <? endforeach; ?>   
+          <? else: ?>
+              <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
+                   <? if (++$i == 6): ?>
+                        <dd id="more<?=$this->escapeHtml($title)?>"><a href="#" onclick="moreFacets('<?=$this->escapeHtml($title)?>'); return false;"><?=$this->transEsc('more')?> ...</a></dd>
+                        </dl>
+                        <dl class="narrowList navmenu offscreen" id="narrowGroupHidden_<?=$this->escapeHtml($title)?>">
+                    <? endif; ?>
+                    <? if ($thisFacet['isApplied']): ?>
+                        <dd><?=$this->escapeHtml($thisFacet['displayText'])?> <img src="<?=$this->imageLink('silk/tick.png')?>" alt="Selected"/></dd>
+                    <? else: ?>
+                        <dd><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>"><?=$this->escapeHtml($thisFacet['displayText'])?></a> (<?=$this->escapeHtml($thisFacet['count'])?>)</dd>
+                    <? endif; ?>
+               <? endforeach; ?>
+          <? endif;?>
           <? if ($i > 5): ?><dd><a href="#" onclick="lessFacets('<?=$this->escapeHtml($title)?>'); return false;"><?=$this->transEsc('less')?> ...</a></dd><? endif; ?>
         </dl>
       <? endif; ?>

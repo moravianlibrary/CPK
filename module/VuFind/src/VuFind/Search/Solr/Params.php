@@ -65,7 +65,14 @@ class Params extends \VuFind\Search\Base\Params
      * @var string
      */
     protected $facetSort = null;
-
+    
+    /**
+     * array of multi facets (Results_Settings->multiselect_facets in facets.ini)
+     * 
+     * @var array
+     */
+    protected $multiSelectFacets = array();
+    
     /**
      * Constructor
      *
@@ -83,6 +90,10 @@ class Params extends \VuFind\Search\Base\Params
         ) {
             $this->setFacetLimit($config->Results_Settings->facet_limit);
         }
+        
+        if (isset($config->Results_Settings->multiselect_facets) ) {
+            $this->setMultiselectFacets($config->Results_Settings->multiselect_facets);
+        }
     }
 
     /**
@@ -94,17 +105,32 @@ class Params extends \VuFind\Search\Base\Params
     {
         // Define Filter Query
         $filterQuery = $this->getOptions()->getHiddenFilters();
+        $orFilterQuery = array();
         foreach ($this->filterList as $field => $filter) {
             foreach ($filter as $value) {
                 // Special case -- allow trailing wildcards and ranges:
                 if (substr($value, -1) == '*'
                     || preg_match('/\[[^\]]+\s+TO\s+[^\]]+\]/', $value)
                 ) {
-                    $filterQuery[] = $field.':'.$value;
+                    if (in_array($field,$this->multiSelectFacets)) {
+                        $orFilterQuery[$fileld][] = $field.':'.$value;
+                    } else {
+                        $filterQuery[] = $field.':'.$value;
+                    }
                 } else {
-                    $filterQuery[] = $field.':"'.addcslashes($value, '"\\').'"';
+                    if (in_array($field,$this->multiSelectFacets)) {
+                        $orFilterQuery[$field][]  = $field.':"'.addcslashes($value, '"\\').'"';
+                    } else {
+                        $filterQuery[] = $field.':"'.addcslashes($value, '"\\').'"';
+                    }
                 }
             }
+        }
+        
+        if (!empty($orFilterQuery) ) {
+            foreach ($orFilterQuery as $filter => $value) {
+               $filterQuery[] = '{!tag='.$filter.'_filter}'. implode(' OR ', $value); 
+           }
         }
         return $filterQuery;
     }
@@ -121,7 +147,11 @@ class Params extends \VuFind\Search\Base\Params
         if (!empty($this->facetConfig)) {
             $facetSet['limit'] = $this->facetLimit;
             foreach ($this->facetConfig as $facetField => $facetName) {
-                $facetSet['field'][] = $facetField;
+                if (in_array($facetField, $this->multiSelectFacets)) {
+                   $facetSet['field'][] = '{!ex=' . $facetField . '_filter}' . $facetField;
+                } else {
+                    $facetSet['field'][] = $facetField;
+                }
             }
             if ($this->facetOffset != null) {
                 $facetSet['offset'] = $this->facetOffset;
@@ -208,6 +238,11 @@ class Params extends \VuFind\Search\Base\Params
     public function setFacetSort($s)
     {
         $this->facetSort = $s;
+    }
+    
+    public function setMultiselectFacets ($multiselectFacets) {
+        $this->multiSelectFacets = explode(',', $multiselectFacets);
+
     }
 
     /**
