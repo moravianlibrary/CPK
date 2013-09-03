@@ -36,5 +36,4 @@
   <? if (!$openUrlActive && empty($urls) && $this->driver->supportsAjaxStatus()): ?>
     <div class="status ajax_availability hide"><?=$this->transEsc('Loading')?>...</div>
   <? endif; ?>
-  <?=$this->record($this->driver)->getPreviews()?>
 </td>
