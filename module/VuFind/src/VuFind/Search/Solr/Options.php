@@ -58,6 +58,13 @@ class Options extends \VuFind\Search\Base\Options
      * @var array
      */
     protected $hiddenFilters = array();
+    
+    /**
+     * Preferred facets
+     * 
+     * @var array
+     */
+    protected $preferredFacets = array();
 
     /**
      * Constructor
@@ -143,6 +150,13 @@ class Options extends \VuFind\Search\Base\Options
         if (isset($facetSettings->Advanced_Settings->special_facets)) {
             $this->specialAdvancedFacets
                 = $facetSettings->Advanced_Settings->special_facets;
+        }
+        if (isset($facetSettings->Advanced_Settings->preferred_facets)) {
+            foreach ($facetSettings->Advanced_Settings->preferred_facets as $facetSettings) {
+                list($facetName, $facetValues) = explode(':', $facetSettings);
+                $facetValues = explode(',', $facetValues);
+                $this->preferredFacets[$facetName] = $facetValues;
+            }
         }
 
         // Load Spelling preferences
@@ -266,5 +280,10 @@ class Options extends \VuFind\Search\Base\Options
     public function getAdvancedSearchAction()
     {
         return 'search-advanced';
+    }
+    
+    public function getPreferredFacets()
+    {
+        return $this->preferredFacets;
     }
 }
