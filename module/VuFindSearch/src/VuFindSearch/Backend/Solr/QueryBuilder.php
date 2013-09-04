@@ -123,6 +123,14 @@ class QueryBuilder implements QueryBuilderInterface
      */
     public function build(AbstractQuery $query)
     {
+        $params = new ParamBag();
+
+        // Add spelling query if applicable -- note that we mus set this up before
+        // we process the main query in order to avoid unwanted extra syntax:
+        if ($this->createSpellingQuery) {
+            $params->set('spellcheck.q', $query->getAllTerms());
+        }
+
         if ($query instanceOf QueryGroup) {
             $query = $this->reduceQueryGroup($query);
         } else {
@@ -131,8 +139,6 @@ class QueryBuilder implements QueryBuilderInterface
 
         $string  = $query->getString() ?: '*:*';
         $handler = $this->getSearchHandler($query->getHandler());
-
-        $params  = new ParamBag();
 
         if ($this->containsAdvancedLuceneSyntax($string)) {
             if ($handler) {
@@ -165,11 +171,6 @@ class QueryBuilder implements QueryBuilderInterface
             }
         }
         $params->set('q', $string);
-
-        // Add spelling query if applicable:
-        if ($this->createSpellingQuery) {
-            $params->set('spellcheck.q', $query->getAllTerms());
-        }
 
         return $params;
     }
@@ -224,12 +225,13 @@ class QueryBuilder implements QueryBuilderInterface
         $searchString = preg_replace('/"[^"]*"/', 'quoted', $searchString);
 
         // Check for field specifiers:
-        if (preg_match("/[^\s]\:[^\s]/", $searchString)) {
+        if (preg_match("/[^\s\\\]\:[^\s]/", $searchString)) {
             return true;
         }
 
-        // Check for parentheses and range operators:
-        if (strstr($searchString, '(') && strstr($searchString, ')')) {
+        // Check for unescaped parentheses:
+        $stripped = str_replace(array('\(', '\)'), '', $searchString);
+        if (strstr($stripped, '(') && strstr($stripped, ')')) {
             return true;
         }
         $rangeReg = self::SOLR_RANGE_RE;
