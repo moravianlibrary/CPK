@@ -1324,6 +1324,33 @@ class AjaxController extends AbstractBase
         // output HTML encoded in JSON object
         return $this->output($html, self::STATUS_OK);
     }
+    
+    /**
+     * getFacetsAjax()
+     * 
+     */
+    protected function getFacetsAjax()
+    {
+        $this->writeSession();  // avoid session write timing bug
+        $facetName = $this->params()->fromQuery('facetName');
+        $facetLevel = $this->params()->fromQuery('facetLevel', false);
+        $facetPrefix = $this->params()->fromQuery('facetPrefix', '');
+        $prefix = explode('/', $facetPrefix, 2);
+        $prefix = isset($prefix[1]) ? $prefix[1] : $prefix[0];
+        $results = $this->getResultsManager()->get('Solr');
+        $params = $results->getParams();
+        $params->initFromRequest($this->getRequest()->getQuery());
+        $params->getOptions()->disableHighlighting();
+        $params->getOptions()->spellcheckEnabled(false);
+        if ($facetLevel !== false) {
+            $params->setFacetPrefix($facetLevel . "/" . $prefix);
+        } elseif ($prefix) {
+            $params->setFacetPrefix($prefix);
+        }
+        $facets = $results->getFullFieldFacets(array($facetName));
+        $result = $facets[$facetName]['data']['list'];
+        return $this->output($result, self::STATUS_OK);
+    }
 
     /**
      * Convenience method for accessing results
