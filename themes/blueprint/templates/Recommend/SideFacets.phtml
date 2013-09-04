@@ -62,7 +62,7 @@
         <dl class="narrowList navmenu">
           <dt><?=$this->transEsc($cluster['label'])?></dt>
           <? if (in_array($title, $multiFacets)): ?>
-              <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>             
+              <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
                     <? if (++$i == 6): ?>
                         <dd id="more<?=$this->escapeHtml($title)?>">
                         <a href="#" onclick="moreFacets('<?=$this->escapeHtml($title)?>'); return false;"><?=$this->transEsc('more')?> ...</a>
@@ -76,7 +76,20 @@
                         <dd><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>">
                         <input type="checkbox" name="checkbox" value="<?=$this->escapeHtml($thisFacet['displayText'])?>"/><?=$this->escapeHtml($thisFacet['displayText'])?></a> (<?=$this->escapeHtml($thisFacet['count'])?>)</dd>
                     <? endif; ?>
-               <? endforeach; ?>   
+               <? endforeach; ?>
+          <? elseif (in_array($title, $hierarchicalFacets)): ?>
+               <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
+                   <? if (++$i == 6): ?>
+                        <dd id="more<?=$this->escapeHtml($title)?>"><a href="#" onclick="moreFacets('<?=$this->escapeHtml($title)?>'); return false;"><?=$this->transEsc('more')?> ...</a></dd>
+                        </dl>
+                        <dl class="narrowList navmenu offscreen" id="narrowGroupHidden_<?=$this->escapeHtml($title)?>">
+                    <? endif; ?>
+                    <? if ($thisFacet['isApplied']): ?>
+                        <dd><?=$this->escapeHtml($thisFacet['displayText'])?> <img src="<?=$this->imageLink('silk/tick.png')?>" alt="Selected"/></dd>
+                    <? else: ?>
+                        <dd><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>"><?=$this->escapeHtml($thisFacet['displayText'])?></a> (<?=$this->escapeHtml($thisFacet['count'])?>)</dd>
+                    <? endif; ?>
+               <? endforeach; ?>
           <? else: ?>
               <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
                    <? if (++$i == 6): ?>
