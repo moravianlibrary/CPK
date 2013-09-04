@@ -167,6 +167,9 @@ class Params extends \VuFind\Search\Base\Params
                 } else {
                     $facetSet['field'][] = $facetField;
                 }
+                if (in_array($facetField, $this->hierarchicalFacets) && $this->facetPrefix == NULL) {
+                    $facetSet[self::PER_FIELD_PARAM . $facetField . '.facet.prefix'] = '0';
+                }
             }
             if ($this->facetOffset != null) {
                 $facetSet['offset'] = $this->facetOffset;
