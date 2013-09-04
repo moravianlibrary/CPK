@@ -68,7 +68,7 @@ class Params extends \VuFind\Search\Base\Params
     protected $facetSort = null;
     
     /**
-     * array of multi facets (Results_Settings->multiselect_facets in facets.ini)
+     * Array of multiple select facets that are connected by OR operator 
      * 
      * @var array
      */
@@ -93,7 +93,7 @@ class Params extends \VuFind\Search\Base\Params
         }
         
         if (isset($config->Results_Settings->multiselect_facets) ) {
-            $this->setMultiselectFacets($config->Results_Settings->multiselect_facets);
+            $this->setMultiselectFacets(explode(',', $config->Results_Settings->multiselect_facets));
         }
     }
 
@@ -241,9 +241,25 @@ class Params extends \VuFind\Search\Base\Params
         $this->facetSort = $s;
     }
     
-    public function setMultiselectFacets ($multiselectFacets) {
-        $this->multiSelectFacets = explode(',', $multiselectFacets);
+    /**
+     * Set multiple select facets
+     * 
+     * @param array $multiselectFacets the new array of multiple select facets
+     * 
+     * @return void
+     */
+    public function setMultiselectFacets($multiselectFacets) {
+        $this->multiSelectFacets = $multiselectFacets;
 
+    }
+    
+    /**
+     * Return multiple select facets
+     * 
+     * @return void
+     */
+    public function getMultiselectFacets() {
+        return $this->multiSelectFacets;
     }
 
     /**

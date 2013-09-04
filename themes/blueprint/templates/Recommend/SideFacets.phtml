@@ -1,4 +1,5 @@
 <? $results = $this->recommend->getResults(); ?>
+<? $multiFacets = $results->getParams()->getMultiselectFacets(); ?>
 <div class="sidegroup">
   <? if ($results->getResultTotal() > 0): ?><h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4><? endif; ?>
   <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
@@ -15,7 +16,6 @@
   <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
     <strong><?=$this->transEsc('Remove Filters')?></strong>
     <ul class="filters">
-    <? $multiFacets = $params->getFacetSettings()['multiSelectFacets']; ?>
     <? $removedFilterLinks = array(); ?>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $filter): ?>
@@ -25,7 +25,7 @@
             } else {
                 $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value']);              
             }
-            if (in_array($filter['field'],$multiFacets)) {
+            if (in_array($filter['field'], $multiFacets)) {
                 $removedFilterLinks[$filter['value']] = $removeLink;
             }
             if ($filter['displayText'] == '[* TO *]') $filter['displayText'] = $this->translate('filter_wildcard');
@@ -60,8 +60,7 @@
       <? else: ?>
         <dl class="narrowList navmenu">
           <dt><?=$this->transEsc($cluster['label'])?></dt>
-          <? $multiFacets = $params->getFacetSettings()['multiSelectFacets']; ?>
-          <? if ($multiFacets && in_array($title,$multiFacets)): ?>
+          <? if (in_array($title, $multiFacets)): ?>
               <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>             
                     <? if (++$i == 6): ?>
                         <dd id="more<?=$this->escapeHtml($title)?>">
