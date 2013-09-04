@@ -1,5 +1,6 @@
 <? $results = $this->recommend->getResults(); ?>
 <? $multiFacets = $results->getParams()->getMultiselectFacets(); ?>
+<? $hierarchicalFacets = $results->getParams()->getHierarchicalFacets(); ?>
 <div class="sidegroup">
   <? if ($results->getResultTotal() > 0): ?><h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4><? endif; ?>
   <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>

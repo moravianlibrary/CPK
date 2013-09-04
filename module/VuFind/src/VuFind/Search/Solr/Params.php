@@ -75,6 +75,13 @@ class Params extends \VuFind\Search\Base\Params
     protected $multiSelectFacets = array();
     
     /**
+     * Array of hiearchical facets
+     *
+     * @var array
+     */
+    protected $hierarchicalFacets = array();
+    
+    /**
      * Constructor
      *
      * @param \VuFind\Search\Base\Options  $options      Options to use
@@ -92,8 +99,12 @@ class Params extends \VuFind\Search\Base\Params
             $this->setFacetLimit($config->Results_Settings->facet_limit);
         }
         
-        if (isset($config->Results_Settings->multiselect_facets) ) {
+        if (isset($config->Results_Settings->multiselect_facets)) {
             $this->setMultiselectFacets(explode(',', $config->Results_Settings->multiselect_facets));
+        }
+        
+        if (isset($config->SpecialFacets->hierarchical)) {
+            $this->setHierarchicalFacets(explode(',', $config->SpecialFacets->hierarchical));
         }
     }
 
@@ -250,7 +261,6 @@ class Params extends \VuFind\Search\Base\Params
      */
     public function setMultiselectFacets($multiselectFacets) {
         $this->multiSelectFacets = $multiselectFacets;
-
     }
     
     /**
@@ -260,6 +270,22 @@ class Params extends \VuFind\Search\Base\Params
      */
     public function getMultiselectFacets() {
         return $this->multiSelectFacets;
+    }
+    
+    /**
+     * TODO
+     *
+     */
+    public function setHierarchicalFacets($facets) {
+        $this->hierarchicalFacets = $facets;
+    }
+    
+    /**
+     * TODO  
+     * 
+     */
+    public function getHierarchicalFacets() {
+        return $this->hierarchicalFacets;
     }
 
     /**
