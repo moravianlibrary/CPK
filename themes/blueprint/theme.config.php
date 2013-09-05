@@ -19,7 +19,7 @@ return array(
         'lightbox.js',
         'common.js',
         'jsTree/jquery.jstree.js',
-        'jsTreeHierarchy.js',
+        'jsTreeHierarchicalFacets.js',
     ),
     'favicon' => 'vufind-favicon.ico',
     'helpers' => array(
