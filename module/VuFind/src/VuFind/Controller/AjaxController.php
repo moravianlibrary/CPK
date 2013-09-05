@@ -1347,7 +1347,7 @@ class AjaxController extends AbstractBase
         } elseif ($prefix) {
             $params->setFacetPrefix($prefix);
         }
-        $facets = $results->getFullFieldFacets(array($facetName));
+        $facets = $results->getFullFieldFacets(array($facetName), false, -1, 'count');
         $result = $facets[$facetName]['data']['list'];
         return $this->output($result, self::STATUS_OK);
     }
