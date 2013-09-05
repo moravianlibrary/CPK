@@ -29,7 +29,6 @@ document.ready = function() {
 						var facetPrefix = node.attr('id').replace('JSTFacet', '');
 						var levelPattern = /\d+/g;
 						var facetLevel = parseInt(levelPattern.exec(facetPrefix)) + 1;
-						console.log(facetLevel);
 						var url = 
 							path
 							+ "/AJAX/JSON?method=getFacets&facetName=" + facetName
