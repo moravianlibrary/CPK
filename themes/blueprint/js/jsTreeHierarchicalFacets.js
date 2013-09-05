@@ -1,4 +1,4 @@
-document.ready = function() {
+$(document).ready(function() {
 	var urlParams = $('#urlParams').text();
 	var jsTreeContainers = $('.jstreeContainer');
 	$.each(jsTreeContainers, function(index, jsTreeContainer) {
@@ -71,4 +71,4 @@ document.ready = function() {
 			'plugins': ['themes', 'json_data']
 		});
 	});
-};
+});
