@@ -72,7 +72,7 @@
               <? endif; ?>                
               <ul class="offscreen">
                 <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
-                  <li><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>" id="<?= $thisFacet['value']?>JSTFacet"><?=$this->escapeHtml($thisFacet['displayText'])?> (<?=$this->escapeHtml($thisFacet['count'])?>)</a></li>
+                  <li <? if ($thisFacet['isApplied']) echo 'class="appliedJSTFacet"' ?>><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>" id="<?= $thisFacet['value']?>JSTFacet"><?=$this->escapeHtml($thisFacet['displayText'])?> (<?=$this->escapeHtml($thisFacet['count'])?>)</a></li>
                 <? endforeach; ?>
               </ul>
           <? elseif (in_array($title, $multiFacets)): ?>

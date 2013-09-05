@@ -1,4 +1,6 @@
 $(document).ready(function() {
+	// global variable for init checkboxes
+	init = false;
 	var urlParams = $('#urlParams').text();
 	var jsTreeContainers = $('.jstreeContainer');
 	$.each(jsTreeContainers, function(index, jsTreeContainer) {
@@ -21,6 +23,7 @@ $(document).ready(function() {
 				"state": "closed"
 			});
 		});
+		var appliedFacets = $('li.appliedJSTFacet');
 		// create jstree
 		var jstreeConfig = {
 				'json_data': {
@@ -40,7 +43,6 @@ $(document).ready(function() {
 							return url;
 						},
 						'success': function(data) {
-							console.log(data);
 							var facetsData = new Array();
 							if (data.status == "OK" && data.data != null) {
 								$.each(data.data, function(index, facet) {
@@ -79,15 +81,30 @@ $(document).ready(function() {
 				'real_checkboxes': true	
 			};
 		}
-		$('#' + facetName + 'JSTContainer')
+		var jstreeId = '#' + facetName + 'JSTContainer';
+		$(jstreeId)
 		.bind('check_node.jstree', function(event, data) {
-			var li = $(data.args[0]).parent().parent();
-			var input = $($('input', li)[0]);
-			var value = input.attr('id').replace('check_', '').replace('JSTFacet', '');
-			var url = path + "/Search/Results" + urlParams
-			+ "&filter%5B%5D="+ facetName
-			+ "%3A%22" + encodeURIComponent(value) + "%22";
-			window.location.href = url;
+			if (facetCheckBox == "true" && init) {
+				var li = $(data.args[0]).parent().parent();
+				var input = $($('input', li)[0]);
+				var value = input.attr('id').replace('check_', '').replace('JSTFacet', '');
+				var url = path + "/Search/Results" + urlParams
+				+ "&filter%5B%5D="+ facetName
+				+ "%3A%22" + encodeURIComponent(value) + "%22";
+				window.location.href = url;
+			}
+		})
+		.bind('loaded.jstree', function(event, data) {
+			if (facetCheckBox == "true") {
+				$.each(appliedFacets, function(index, facet) {
+					var id = $($('a', $(facet))[0]).attr('id');
+					// get actual li node
+					// TODO: $('#' + id) not working correctly
+					var li = document.getElementById(id);
+					$.jstree._reference(jstreeId).check_node(li);
+				});
+				init = true;
+			}
 		})
 		.jstree(jstreeConfig);
 	});
