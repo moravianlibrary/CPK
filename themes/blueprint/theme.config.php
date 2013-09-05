@@ -18,6 +18,8 @@ return array(
         'jquery-ui/js/jquery-ui.js',
         'lightbox.js',
         'common.js',
+        'jsTree/jquery.jstree.js',
+        'jsTreeHierarchicalFacets.js',
     ),
     'favicon' => 'vufind-favicon.ico',
     'helpers' => array(
