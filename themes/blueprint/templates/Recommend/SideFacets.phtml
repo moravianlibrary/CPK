@@ -62,7 +62,16 @@
       <? else: ?>
         <dl class="narrowList navmenu">
           <dt><?=$this->transEsc($cluster['label'])?></dt>
-          <? if (in_array($title, $multiFacets)): ?>
+          <? if (in_array($title, $hierarchicalFacets)): ?>
+            </dl>
+            <dl class="narrowList navmenu jstreeContainer" id="<?= $title?>JSTContainer">
+              <div class="offscreen facetName"><?= $title ?></div>
+              <ul class="offscreen">
+                <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
+                  <li><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>" id="<?= $thisFacet['value']?>JSTFacet"><?=$this->escapeHtml($thisFacet['displayText'])?> (<?=$this->escapeHtml($thisFacet['count'])?>)</a></li>
+                <? endforeach; ?>
+              </ul>
+          <? elseif (in_array($title, $multiFacets)): ?>
               <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
                     <? if (++$i == 6): ?>
                         <dd id="more<?=$this->escapeHtml($title)?>">
@@ -78,15 +87,6 @@
                         <input type="checkbox" name="checkbox" value="<?=$this->escapeHtml($thisFacet['displayText'])?>"/><?=$this->escapeHtml($thisFacet['displayText'])?></a> (<?=$this->escapeHtml($thisFacet['count'])?>)</dd>
                     <? endif; ?>
                <? endforeach; ?>
-          <? elseif (in_array($title, $hierarchicalFacets)): ?>
-            </dl>
-            <dl class="narrowList navmenu jstreeContainer" id="<?= $title?>JSTContainer">
-              <div class="offscreen facetName"><?= $title ?></div>
-              <ul class="offscreen">
-                <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
-                  <li><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>" id="<?= $thisFacet['value']?>JSTFacet"><?=$this->escapeHtml($thisFacet['displayText'])?> (<?=$this->escapeHtml($thisFacet['count'])?>)</a></li>
-                <? endforeach; ?>
-              </ul>
           <? else: ?>
               <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
                    <? if (++$i == 6): ?>
