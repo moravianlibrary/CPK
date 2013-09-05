@@ -65,7 +65,11 @@
           <? if (in_array($title, $hierarchicalFacets)): ?>
             </dl>
             <dl class="narrowList navmenu jstreeContainer" id="<?= $title?>JSTContainer">
-              <div class="offscreen facetName"><?= $title ?></div>
+              <? if (in_array($title, $multiFacets)): ?>
+                <div class="offscreen facetCheckBox">true</div>
+              <? else: ?>
+                <div class="offscreen facetCheckBox">false</div>
+              <? endif; ?>                
               <ul class="offscreen">
                 <? $i = 0; foreach ($cluster['list'] as $thisFacet): ?>
                   <li><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'])?>" id="<?= $thisFacet['value']?>JSTFacet"><?=$this->escapeHtml($thisFacet['displayText'])?> (<?=$this->escapeHtml($thisFacet['count'])?>)</a></li>
