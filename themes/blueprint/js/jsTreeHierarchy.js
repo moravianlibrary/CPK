@@ -65,7 +65,7 @@ document.ready = function() {
 				}
 			},
 			'themes' : {
-				'theme': 'default',
+				'theme': 'blueprint',
 				'icons': false,
 				'dots': false
 			},
