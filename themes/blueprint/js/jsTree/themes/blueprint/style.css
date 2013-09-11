@@ -25,6 +25,7 @@
 .jstree-blueprint .jstree-no-dots .jstree-closed > ins { background-position:0 0; }
 
 .jstree-blueprint .jstree-no-icons a .jstree-icon { display:none; }
+.jstree-blueprint .jstree-no-icons a.jstree-loading .jstree-icon { display:inline-block; }
 
 .jstree-blueprint .jstree-search { font-style:italic; }
 
