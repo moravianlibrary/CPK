@@ -65,6 +65,11 @@ class CombinedController extends AbstractSearch
      */
     public function resultAction()
     {
+        $this->writeSession();  // avoid session write timing bug
+
+        // Turn off search memory -- not relevant in this context:
+        $this->getSearchMemory()->disable();
+
         // Validate configuration:
         $searchClassId = $this->params()->fromQuery('id');
         $config = $this->getServiceLocator()->get('VuFind\Config')->get('combined')
@@ -113,6 +118,11 @@ class CombinedController extends AbstractSearch
             )
         );
 
+        // Remember the current URL, then disable memory so multi-search results
+        // don't overwrite it:
+        $this->rememberSearch($results);
+        $this->getSearchMemory()->disable();
+
         // Gather combined results:
         $combinedResults = array();
         $options = $this->getServiceLocator()
@@ -125,7 +135,9 @@ class CombinedController extends AbstractSearch
                 = explode('-', $currentOptions->getSearchAction());
             $combinedResults[$current] = $settings;
             $combinedResults[$current]['view']
-                = $this->forwardTo($controller, $action);
+                = (!isset($settings['ajax']) || !$settings['ajax'])
+                ? $this->forwardTo($controller, $action)
+                : $this->createViewModel(array('results' => $results));
         }
 
         // Build view model:

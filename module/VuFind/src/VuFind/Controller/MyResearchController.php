@@ -44,6 +44,68 @@ use VuFind\Exception\Auth as AuthException,
 class MyResearchController extends AbstractBase
 {
     /**
+     * Process an authentication error.
+     *
+     * @param AuthException $e Exception to process.
+     *
+     * @return void
+     */
+    protected function processAuthenticationException(AuthException $e)
+    {
+        $msg = $e->getMessage();
+        // If a Shibboleth-style login has failed and the user just logged
+        // out, we need to override the error message with a more relevant
+        // one:
+        if ($msg == 'authentication_error_admin'
+            && $this->getAuthManager()->userHasLoggedOut()
+            && $this->getSessionInitiator()
+        ) {
+            $msg = 'authentication_error_loggedout';
+        }
+        $this->flashMessenger()->setNamespace('error')->addMessage($msg);
+    }
+
+    /**
+     * Store a referer (if appropriate) to keep post-login redirect pointing
+     * to an appropriate location.
+     *
+     * @return void
+     */
+    protected function storeRefererForPostLoginRedirect()
+    {
+        // Get the referer -- if it's empty, there's nothing to store!
+        $referer = $this->getRequest()->getServer()->get('HTTP_REFERER');
+        if (empty($referer)) {
+            return;
+        }
+
+        // Normalize the referer URL so that inconsistencies in protocol
+        // and trailing slashes do not break comparisons; this same normalization
+        // is applied to all URLs examined below.
+        $refererNorm = trim(end(explode('://', $referer, 2)), '/');
+
+        // If the referer lives outside of VuFind, don't store it! We only
+        // want internal post-login redirects.
+        $baseUrl = $this->url()->fromRoute('home');
+        $baseUrlNorm = trim(end(explode('://', $baseUrl, 2)), '/');
+        if (0 !== strpos($refererNorm, $baseUrlNorm)) {
+            return;
+        }
+
+        // If the referer is the MyResearch/Home action, it probably means
+        // that the user is repeatedly mistyping their password. We should
+        // ignore this and instead rely on any previously stored referer.
+        $myResearchHomeUrl = $this->url()->fromRoute('myresearch-home');
+        $mrhuNorm = trim(end(explode('://', $myResearchHomeUrl, 2)), '/');
+        if ($mrhuNorm === $refererNorm) {
+            return;
+        }
+
+        // If we got this far, we want to store the referer:
+        $this->followup()->store(array(), $referer);
+    }
+
+    /**
      * Prepare and direct the home page where it needs to go
      *
      * @return mixed
@@ -58,26 +120,13 @@ class MyResearchController extends AbstractBase
             try {
                 $this->getAuthManager()->login($this->getRequest());
             } catch (AuthException $e) {
-                $msg = $e->getMessage();
-                // If a Shibboleth-style login has failed and the user just logged
-                // out, we need to override the error message with a more relevant
-                // one:
-                if ($msg == 'authentication_error_admin'
-                    && $this->getAuthManager()->userHasLoggedOut()
-                    && $this->getSessionInitiator()
-                ) {
-                    $msg = 'authentication_error_loggedout';
-                }
-                $this->flashMessenger()->setNamespace('error')->addMessage($msg);
+                $this->processAuthenticationException($e);
             }
         }
 
         // Not logged in?  Force user to log in:
         if (!$this->getAuthManager()->isLoggedIn()) {
-            $referer = $this->getRequest()->getServer()->get('HTTP_REFERER');
-            if (!empty($referer)) {
-                $this->followup()->store(array(), $referer);
-            }
+            $this->storeRefererForPostLoginRedirect();
             return $this->forwardTo('MyResearch', 'Login');
         }
 
@@ -599,8 +648,8 @@ class MyResearchController extends AbstractBase
                 $details = $this->getRecordRouter()->getActionRouteDetails(
                     $recordSource . '|' . $recordId, 'Save'
                 );
-                return $this->redirect()
-                    ->toRoute($details['route'], $details['params']);
+                return $this
+                    ->lightboxAwareRedirect($details['route'], $details['params']);
             }
 
             // Similarly, if the user is in the process of bulk-saving records,
@@ -613,12 +662,12 @@ class MyResearchController extends AbstractBase
                 foreach ($bulkIds as $id) {
                     $params[] = urlencode('ids[]') . '=' . urlencode($id);
                 }
-                $saveUrl = $this->url()->fromRoute('cart-save');
+                $saveUrl = $this->getLightboxAwareUrl('cart-save');
                 return $this->redirect()
                     ->toUrl($saveUrl . '?' . implode('&', $params));
             }
 
-            return $this->redirect()->toRoute('userList', array('id' => $finalId));
+            return $this->lightboxAwareRedirect('userList', array('id' => $finalId));
         } catch (\Exception $e) {
             switch(get_class($e)) {
             case 'VuFind\Exception\ListPermission':
@@ -677,7 +726,10 @@ class MyResearchController extends AbstractBase
             ->fromPost('listID', $this->params()->fromQuery('listID'));
 
         // Have we confirmed this?
-        if ($this->params()->fromPost('confirm')) {
+        $confirm = $this->params()->fromPost(
+            'confirm', $this->params()->fromQuery('confirm')
+        );
+        if ($confirm) {
             try {
                 $table = $this->getTable('UserList');
                 $list = $table->getExisting($listID);

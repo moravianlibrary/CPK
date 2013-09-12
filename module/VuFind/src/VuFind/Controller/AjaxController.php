@@ -1008,9 +1008,9 @@ class AjaxController extends AbstractBase
                 $this->params()->fromPost('id'),
                 $this->params()->fromPost('source', 'VuFind')
             );
+            $view = $this->createEmailViewModel();
             $this->getServiceLocator()->get('VuFind\Mailer')->sendRecord(
-                $this->params()->fromPost('to'), $this->params()->fromPost('from'),
-                $this->params()->fromPost('message'), $record,
+                $view->to, $view->from, $view->message, $record,
                 $this->getViewRenderer()
             );
             return $this->output(
@@ -1053,10 +1053,10 @@ class AjaxController extends AbstractBase
 
         // Attempt to send the email:
         try {
+            $view = $this->createEmailViewModel();
             $this->getServiceLocator()->get('VuFind\Mailer')->sendLink(
-                $this->params()->fromPost('to'), $this->params()->fromPost('from'),
-                $this->params()->fromPost('message'),
-                $url, $this->getViewRenderer(), $this->params()->fromPost('subject')
+                $view->to, $view->from, $view->message, $url,
+                $this->getViewRenderer(), $this->params()->fromPost('subject')
             );
             return $this->output(
                 $this->translate('email_success'), self::STATUS_OK

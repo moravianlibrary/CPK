@@ -73,7 +73,8 @@ class InjectSpellingListener
     /**
      * Constructor.
      *
-     * @param BackendInterface $backend Backend
+     * @param BackendInterface $backend      Backend
+     * @param array            $dictionaries Spelling dictionaries to use.
      *
      * @return void
      */
@@ -92,8 +93,12 @@ class InjectSpellingListener
      */
     public function attach(SharedEventManagerInterface $manager)
     {
-        $manager->attach('VuFind\Search', Service::EVENT_PRE, array($this, 'onSearchPre'));
-        $manager->attach('VuFind\Search', Service::EVENT_POST, array($this, 'onSearchPost'));
+        $manager->attach(
+            'VuFind\Search', Service::EVENT_PRE, array($this, 'onSearchPre')
+        );
+        $manager->attach(
+            'VuFind\Search', Service::EVENT_POST, array($this, 'onSearchPost')
+        );
     }
 
     /**
@@ -155,9 +160,11 @@ class InjectSpellingListener
             $result = $event->getTarget();
             $params = $event->getParam('params');
             $spellcheckQuery = $params->get('spellcheck.q');
-            $this->aggregateSpellcheck(
-                $result->getSpellcheck(), end($spellcheckQuery)
-            );
+            if (!empty($spellcheckQuery)) {
+                $this->aggregateSpellcheck(
+                    $result->getSpellcheck(), end($spellcheckQuery)
+                );
+            }
         }
     }
 

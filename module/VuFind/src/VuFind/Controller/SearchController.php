@@ -27,8 +27,7 @@
  */
 namespace VuFind\Controller;
 
-use VuFind\Exception\Mail as MailException, VuFind\Search\Memory,
-    VuFind\Solr\Utils as SolrUtils;
+use VuFind\Exception\Mail as MailException, VuFind\Solr\Utils as SolrUtils;
 
 /**
  * Redirects the user to the appropriate default VuFind action.
@@ -76,7 +75,7 @@ class SearchController extends AbstractSearch
     {
         // If a URL was explicitly passed in, use that; otherwise, try to
         // find the HTTP referrer.
-        $view = $this->createViewModel();
+        $view = $this->createEmailViewModel();
         $view->url = $this->params()->fromPost(
             'url', $this->params()->fromQuery(
                 'url', $this->getRequest()->getServer()->get('HTTP_REFERER')
@@ -105,11 +104,6 @@ class SearchController extends AbstractSearch
 
         // Process form submission:
         if ($this->params()->fromPost('submit')) {
-            // Send parameters back to view so form can be re-populated:
-            $view->to = $this->params()->fromPost('to');
-            $view->from = $this->params()->fromPost('from');
-            $view->message = $this->params()->fromPost('message');
-
             // Attempt to send the email and show an appropriate flash message:
             try {
                 // If we got this far, we're ready to send the email:
@@ -270,7 +264,7 @@ class SearchController extends AbstractSearch
                     $current->delete();
 
                     // We don't want to remember the last search after a purge:
-                    Memory::forgetSearch();
+                    $this->getSearchMemory()->forgetSearch();
                 } else {
                     // Otherwise add to the list
                     $unsaved[] = $minSO->deminify($this->getResultsManager());

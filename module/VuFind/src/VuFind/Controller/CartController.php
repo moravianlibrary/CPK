@@ -41,6 +41,11 @@ use VuFind\Exception\Mail as MailException,
 
 class CartController extends AbstractBase
 {
+    /**
+     * Session container
+     *
+     * @var SessionContainer
+     */
     protected $session;
 
     /**
@@ -180,16 +185,11 @@ class CartController extends AbstractBase
         if (!is_array($ids) || empty($ids)) {
             return $this->redirectToSource('error', 'bulk_noitems_advice');
         }
-        $view = $this->createViewModel();
+        $view = $this->createEmailViewModel();
         $view->records = $this->getRecordLoader()->loadBatch($ids);
 
         // Process form submission:
         if ($this->params()->fromPost('submit')) {
-            // Send parameters back to view so form can be re-populated:
-            $view->to = $this->params()->fromPost('to');
-            $view->from = $this->params()->fromPost('from');
-            $view->message = $this->params()->fromPost('message');
-
             // Build the URL to share:
             $params = array();
             foreach ($ids as $current) {
@@ -227,8 +227,12 @@ class CartController extends AbstractBase
         if (!is_array($ids) || empty($ids)) {
             return $this->redirectToSource('error', 'bulk_noitems_advice');
         }
-        $this->getRequest()->getQuery()->set('id', $ids);
-        return $this->forwardTo('Records', 'Home');
+        $callback = function ($i) {
+            return 'id[]=' . urlencode($i);
+        };
+        $query = '?print=true&' . implode('&', array_map($callback, $ids));
+        $url = $this->url()->fromRoute('records-home') . $query;
+        return $this->redirect()->toUrl($url);
     }
 
     /**
@@ -336,7 +340,7 @@ class CartController extends AbstractBase
         // Load record information first (no need to prompt for login if we just
         // need to display a "no records" error message):
         $ids = is_null($this->params()->fromPost('selectAll'))
-            ? $this->params()->fromPost('ids')
+            ? $this->params()->fromPost('ids', $this->params()->fromQuery('ids'))
             : $this->params()->fromPost('idsAll');
         if (!is_array($ids) || empty($ids)) {
             return $this->redirectToSource('error', 'bulk_noitems_advice');

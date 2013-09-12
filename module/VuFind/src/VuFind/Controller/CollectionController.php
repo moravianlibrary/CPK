@@ -50,7 +50,7 @@ class CollectionController extends AbstractRecord
 
         // Set default tab, if specified:
         if (isset($config->Collections->defaultTab)) {
-            $this->defaultTab = $config->Collections->defaultTab;
+            $this->fallbackDefaultTab = $config->Collections->defaultTab;
         }
     }
 
@@ -61,15 +61,8 @@ class CollectionController extends AbstractRecord
      */
     protected function getTabConfiguration()
     {
-        return array(
-            'VuFind\RecordDriver\AbstractBase'
-                => array(
-                    'tabs' => array(
-                        'CollectionList' => 'CollectionList',
-                        'HierarchyTree' => 'CollectionHierarchyTree',
-                    )
-                )
-        );
+        $cfg = $this->getServiceLocator()->get('Config');
+        return $cfg['vufind']['recorddriver_collection_tabs'];
     }
 
     /**

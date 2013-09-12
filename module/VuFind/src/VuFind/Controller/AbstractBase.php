@@ -63,6 +63,65 @@ class AbstractBase extends AbstractActionController
     }
 
     /**
+     * Create a new ViewModel to use as an email form.
+     *
+     * @param array $params Parameters to pass to ViewModel constructor.
+     *
+     * @return ViewModel
+     */
+    protected function createEmailViewModel($params = null)
+    {
+        // Build view:
+        $view = $this->createViewModel($params);
+
+        // Load configuration and current user for convenience:
+        $config = $this->getServiceLocator()->get('VuFind\Config')->get('config');
+        $view->disableFrom
+            = (isset($config->Mail->disable_from) && $config->Mail->disable_from);
+        $user = $this->getUser();
+
+        // Send parameters back to view so form can be re-populated:
+        if ($this->getRequest()->isPost()) {
+            $view->to = $this->params()->fromPost('to');
+            if (!$view->disableFrom) {
+                $view->from = $this->params()->fromPost('from');
+            }
+            $view->message = $this->params()->fromPost('message');
+        }
+
+        // Set default values if applicable:
+        if ((!isset($view->to) || empty($view->to)) && $user
+            && isset($config->Mail->user_email_in_to)
+            && $config->Mail->user_email_in_to
+        ) {
+            $view->to = $user->email;
+        }
+        if (!isset($view->from) || empty($view->from)) {
+            if ($user && isset($config->Mail->user_email_in_from)
+                && $config->Mail->user_email_in_from
+            ) {
+                $view->from = $user->email;
+            } else if (isset($config->Mail->default_from)
+                && $config->Mail->default_from
+            ) {
+                $view->from = $config->Mail->default_from;
+            }
+        }
+
+        // Fail if we're missing a from and the form element is disabled:
+        if ($view->disableFrom) {
+            if (empty($view->from)) {
+                $view->from = $config->Site->email;
+            }
+            if (empty($view->from)) {
+                throw new \Exception('Unable to determine email from address');
+            }
+        }
+
+        return $view;
+    }
+
+    /**
      * Get the account manager object.
      *
      * @return \VuFind\Auth\Manager
@@ -100,6 +159,70 @@ class AbstractBase extends AbstractActionController
     public function inLightbox()
     {
         return ($this->layout()->getTemplate() == 'layout/lightbox');
+    }
+
+    /**
+     * Get a URL for a route with lightbox awareness.
+     *
+     * @param string $route              Route name
+     * @param array  $params             Route parameters
+     * @param array  $options            RouteInterface-specific options to use in
+     * url generation, if any
+     * @param bool   $reuseMatchedParams Whether to reuse matched parameters
+     *
+     * @return string
+     */
+    public function getLightboxAwareUrl($route, $params = array(),
+        $options = array(), $reuseMatchedParams = false
+    ) {
+        // Rearrange the parameters if we're in a lightbox:
+        if ($this->inLightbox()) {
+            // Make sure we have a query:
+            $options['query'] = isset($options['query'])
+                ? $options['query'] : array();
+
+            // Map ID route parameter into a GET parameter if necessary:
+            if (isset($params['id'])) {
+                $options['query']['id'] = $params['id'];
+            }
+
+            // Change the current route into submodule/subaction lightbox params:
+            $parts = explode('-', $route);
+            $options['query']['submodule'] = $parts[0];
+            $options['query']['subaction'] = isset($parts[1]) ? $parts[1] : 'home';
+            $options['query']['method'] = 'getLightbox';
+
+            // Override the current route with the lightbox action:
+            $route = 'default';
+            $params['controller'] = 'AJAX';
+            $params['action'] = 'JSON';
+        }
+
+        // Build the URL:
+        return $this->url()
+            ->fromRoute($route, $params, $options, $reuseMatchedParams);
+    }
+
+    /**
+     * Lightbox-aware redirect -- if we're in a lightbox, go to a route that
+     * keeps us there; otherwise, go to the normal route.
+     *
+     * @param string $route              Route name
+     * @param array  $params             Route parameters
+     * @param array  $options            RouteInterface-specific options to use in
+     * url generation, if any
+     * @param bool   $reuseMatchedParams Whether to reuse matched parameters
+     *
+     * @return \Zend\Http\Response
+     */
+    public function lightboxAwareRedirect($route, $params = array(),
+        $options = array(), $reuseMatchedParams = false
+    ) {
+        return $this->redirect()->toUrl(
+            $this->getLightboxAwareUrl(
+                $route, $params, $options, $reuseMatchedParams
+            )
+        );
     }
 
     /**
@@ -319,5 +442,15 @@ class AbstractBase extends AbstractActionController
     protected function writeSession()
     {
         $this->getServiceLocator()->get('VuFind\SessionManager')->writeClose();
+    }
+
+    /**
+     * Get the search memory
+     *
+     * @return \VuFind\Search\Memory
+     */
+    public function getSearchMemory()
+    {
+        return $this->getServiceLocator()->get('VuFind\Search\Memory');
     }
 }
