@@ -348,7 +348,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     /**
      * Constructor
      *
-     * @param \VuFind\Cache\Manager $cacheManager Cache manager (optional)
+     * @param \VuFind\Date\Converter $dateConverter Date converter
+     * @param \VuFind\Cache\Manager $cacheManager   Cache manager (optional)
      */
     public function __construct(\VuFind\Date\Converter $dateConverter, \VuFind\Cache\Manager $cacheManager = null)
     {
