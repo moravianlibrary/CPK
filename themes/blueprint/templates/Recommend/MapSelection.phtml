@@ -1,0 +1,17 @@
+<div id="map" style="height: 480px; ">
+</div>
+<script>
+//create a map, setting mode to drawPoint initially
+var map = $("#map").geomap({
+    center: [-71.0595678, 42.3604823],
+    zoom: 8,
+    mode: "dragBox",
+    shift: "dragBox",
+    shape: function(e, geo) {
+        // the shape event triggers when a user draws a shape
+        // the geo object is a simple GeoJSON object: Point, LineString or Polygon
+        // we can append it directly to the map
+        map.geomap("append", geo);
+    }
+});
+</script>

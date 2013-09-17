@@ -644,6 +644,11 @@ $config = array(
                             $sm->getServiceLocator()->get('VuFind\WorldCatUtils')
                         );
                     },
+                    'mapselection' => function($sm) {
+                        return new \VuFind\Recommend\MapSelection(
+                            $sm->getServiceLocator()->get('VuFind\Config')
+                        );
+                    }
                 ),
                 'invokables' => array(
                     'europeanaresultsdeferred' => 'VuFind\Recommend\EuropeanaResultsDeferred',
