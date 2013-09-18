@@ -28,9 +28,9 @@
 namespace VuFind\Recommend;
 
 /**
- * FavoriteFacets Recommendations Module
+ * MapSelection Recommendations Module
  *
- * This class provides special facets for the Favorites area (tags/lists)
+ * This class provides geospatial search
  *
  * @category VuFind2
  * @package  Recommendations
@@ -40,6 +40,19 @@ namespace VuFind\Recommend;
  */
 class MapSelection implements RecommendInterface
 {
+    
+    protected $defaultCoordinates = array(11.20, 48.30, 19.40, 51.30);
+    
+    protected $selectedCoordinates = null;
+    
+    protected $params = null;
+    
+    protected $searchObject = null;
+    
+    protected $facetField = 'bbox_geo';
+    
+    protected $height = 480;
+    
     /**
      * setConfig
      *
@@ -68,7 +81,6 @@ class MapSelection implements RecommendInterface
      * @return void
      */
     public function init($params, $request) {
-        
     }
     
     /**
@@ -83,7 +95,47 @@ class MapSelection implements RecommendInterface
      * @return void
      */
     public function process($results) {
-        
+        $filters = $results->getParams()->getFilters();
+        $url = null;
+        foreach ($filters as $key => $value) {
+            if ($key == $this->facetField) {
+                $match = array();
+                if (preg_match( '/Intersects\(([0-9 \\-\\.]+)\)/', $value[0], $match)) {
+                    $this->selectedCoordinates = explode(' ', $match[1]);
+                }
+                $url = (string) $results->getUrlQuery()->removeFacet($this->facetField, $value[0], false);
+            }
+        }
+        if ($url == null) {
+            $url = (string) $results->getUrlQuery()->getParams(false);
+        }
+        $url = substr($url, 1);
+        $this->params = array();
+        parse_str($url, $this->params);
+    }
+    
+    public function getSelectedCoordinates() {
+        return $this->selectedCoordinates;
+    }
+    
+    public function getDefaultCoordinates() {
+        return $this->defaultCoordinates;
+    }
+    
+    public function getCoordinates() {
+        $result = $this->getSelectedCoordinates();
+        if ($result == null) {
+            $result = $this->getDefaultCoordinates();
+        }
+        return $result;
+    }
+    
+    public function getHeight() {
+        return $this->height;
+    }
+    
+    public function getParams() {
+        return $this->params;
     }
     
 }
