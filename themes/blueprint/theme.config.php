@@ -20,7 +20,6 @@ return array(
         'common.js',
         'jsTree/jquery.jstree.js',
         'jsTreeHierarchicalFacets.js',
-        'jquery-geo/jquery.geo-1.0.0-b1.5.min.js',
     ),
     'favicon' => 'vufind-favicon.ico',
     'helpers' => array(

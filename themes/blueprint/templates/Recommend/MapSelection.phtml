@@ -1,17 +1,31 @@
-<div id="map" style="height: 480px; ">
+<?
+  $this->headScript()->appendFile('jquery-geo/jquery.geo-1.0.0-b1.5.min.js');
+  $this->headScript()->appendFile('map_selection.js');
+  $geoField = 'bbox_geo';
+  $coordinates = $this->recommend->getCoordinates();
+  $height = $this->recommend->getHeight();
+?>
+<div id="geo_modes">
+  <input type="radio" name="mode" value="move"><?=$this->transEsc('Move map')?></input>
+  <input type="radio" name="mode" value="dragBox" checked="true"><?=$this->transEsc('Select rectangle')?></input>
+  <input type="text" name="coordinates" size="40" value="<?=implode(' ', $coordinates)?>"></input>
+  <form id="geo_form">
+    <? foreach($this->recommend->getParams() as $paramName => $paramValue): ?>
+      <? if(is_array($paramValue)): ?>
+        <? foreach($paramValue as $paramSubValue): ?>
+          <input type="hidden" name="<?= htmlspecialchars($paramName) ?>[]" value="<?= htmlspecialchars($paramSubValue) ?>">
+        <? endforeach; ?>
+      <? else: ?>
+          <input type="hidden" name="<?= htmlspecialchars($paramName) ?>" value="<?= htmlspecialchars($paramValue) ?>">
+      <? endif; ?>
+    <? endforeach; ?>
+    <input type="hidden" name="filter[]" id="geo_map_filter" value=''></input>
+    <input type="submit" name="submit" value="submit"></input>
+  </form>
 </div>
-<script>
-//create a map, setting mode to drawPoint initially
-var map = $("#map").geomap({
-    center: [-71.0595678, 42.3604823],
-    zoom: 8,
-    mode: "dragBox",
-    shift: "dragBox",
-    shape: function(e, geo) {
-        // the shape event triggers when a user draws a shape
-        // the geo object is a simple GeoJSON object: Point, LineString or Polygon
-        // we can append it directly to the map
-        map.geomap("append", geo);
-    }
-});
-</script>
+<div id="geo_map" style="height: <?=$height?>px; ">
+</div>
+<?
+  $js = "loadMapSelection('". $geoField . "', [" . implode(',', $coordinates) . "]);";
+  echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+?>

@@ -127,7 +127,7 @@ class UrlQueryHelper
      *
      * @return array
      */
-    protected function getParamArray()
+    public function getParamArray()
     {
         $params = $this->defaultParams;
 
