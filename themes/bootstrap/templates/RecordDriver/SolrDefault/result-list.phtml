@@ -127,17 +127,32 @@
   </div>
 
   <div class="span2 noprint">
+    <? /* Display qrcode if appropriate: */ ?>
+    <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
+      <?
+        // Add JS Variables for QrCode
+        $this->jsTranslations()->addStrings(array('qrcode_hide' => 'qrcode_hide', 'qrcode_show' => 'qrcode_show'));
+      ?>
+      <i class="icon-qrcode"></i> <a href="<?=$this->escapeHtml($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
+      <div class="qrcode hide">
+        <img alt="<?=$this->transEsc('QR Code')?>" class="img-polaroid" src="<?=$this->escapeHtml($QRCode);?>"/>
+      </div>
+    <? endif; ?>
+    
+    <? /* Add to favorites */ ?>
     <i class="icon-heart"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
 
+    <? /* Saved lists */ ?>
     <div class="savedLists info hide">
       <strong><?=$this->transEsc("Saved in")?>:</strong>
     </div>
 
+    <? /* Hierarchy tree link */ ?>
     <? $trees = $this->driver->tryMethod('getHierarchyTrees'); if (!empty($trees)): ?>
       <? foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
         <div class="hierarchyTreeLink">
           <input type="hidden" value="<?=$this->escapeHtml($hierarchyID)?>" class="hiddenHierarchyId" />
-          <i class="icon-leaf"></i>
+          <i class="icon-sitemap"></i>
           <a class="hierarchyTreeLinkText modal-link" href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>">
             <?=$this->transEsc('hierarchy_view_context')?><? if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><? endif; ?>
           </a>

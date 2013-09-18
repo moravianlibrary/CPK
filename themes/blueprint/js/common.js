@@ -1,4 +1,4 @@
-/*global getLightbox, path*/
+/*global getLightbox, path, vufindString*/
 
 /**
  * Initialize common functions and event handlers.
@@ -327,6 +327,17 @@ $(document).ready(function(){
     // assign click event to "viewCart" links
     $('a.viewCart').click(function() {
         var $dialog = getLightbox('Cart', 'Home', null, null, this.title, '', '', '', {viewCart:"1"});
+        return false;
+    });
+    
+    // handle QR code links
+    $('a.qrcodeLink').click(function() {
+        if ($(this).hasClass("active")) {
+            $(this).html(vufindString.qrcode_show).removeClass("active");
+        } else {
+            $(this).html(vufindString.qrcode_hide).addClass("active");
+        }
+        $(this).next('.qrcodeHolder').toggle();
         return false;
     });
 

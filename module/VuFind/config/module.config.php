@@ -102,6 +102,7 @@ $config = array(
             'missingrecord' => 'VuFind\Controller\MissingrecordController',
             'my-research' => 'VuFind\Controller\MyResearchController',
             'oai' => 'VuFind\Controller\OaiController',
+            'qrcode' => 'VuFind\Controller\QRCodeController',
             'pazpar2' => 'VuFind\Controller\Pazpar2Controller',
             'records' => 'VuFind\Controller\RecordsController',
             'search' => 'VuFind\Controller\SearchController',
@@ -623,6 +624,11 @@ $config = array(
                             $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
                         );
                     },
+                    'switchquery' => function ($sm) {
+                        return new \VuFind\Recommend\SwitchQuery(
+                            $sm->getServiceLocator()->get('VuFind\Search\BackendManager')
+                        );
+                    },
                     'topfacets' => function ($sm) {
                         return new \VuFind\Recommend\TopFacets(
                             $sm->getServiceLocator()->get('VuFind\Config')
@@ -1050,6 +1056,7 @@ $staticRoutes = array(
     'MyResearch/Favorites', 'MyResearch/Fines',
     'MyResearch/Holds', 'MyResearch/Home', 'MyResearch/Logout', 'MyResearch/Profile',
     'MyResearch/SaveSearch',
+    'QRCode/Show', 'QRCode/Unavailable',
     'OAI/Server', 'Pazpar2/Home', 'Pazpar2/Search', 'Records/Home',
     'Search/Advanced', 'Search/Email', 'Search/History', 'Search/Home',
     'Search/NewItem', 'Search/OpenSearch', 'Search/Reserves', 'Search/Results',
