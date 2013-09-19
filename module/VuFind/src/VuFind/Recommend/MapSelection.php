@@ -45,13 +45,11 @@ class MapSelection implements RecommendInterface
     
     protected $selectedCoordinates = null;
     
-    protected $params = null;
-    
-    protected $searchObject = null;
-    
     protected $facetField = 'bbox_geo';
     
     protected $height = 480;
+    
+    protected $searchParams = null;
     
     /**
      * setConfig
@@ -62,7 +60,8 @@ class MapSelection implements RecommendInterface
      *
      * @return void
      */
-    public function setConfig($settings) {
+    public function setConfig($settings)
+    {
         
     }
     
@@ -80,7 +79,9 @@ class MapSelection implements RecommendInterface
      *
      * @return void
      */
-    public function init($params, $request) {
+    public function init($params, $request)
+    {
+        
     }
     
     /**
@@ -94,7 +95,8 @@ class MapSelection implements RecommendInterface
      *
      * @return void
      */
-    public function process($results) {
+    public function process($results)
+    {
         $filters = $results->getParams()->getFilters();
         $url = null;
         foreach ($filters as $key => $value) {
@@ -103,26 +105,26 @@ class MapSelection implements RecommendInterface
                 if (preg_match( '/Intersects\(([0-9 \\-\\.]+)\)/', $value[0], $match)) {
                     $this->selectedCoordinates = explode(' ', $match[1]);
                 }
-                $url = (string) $results->getUrlQuery()->removeFacet($this->facetField, $value[0], false);
+                $this->searchParams = $results->getUrlQuery()->removeFacet($this->facetField, $value[0], false);
             }
         }
-        if ($url == null) {
-            $url = (string) $results->getUrlQuery()->getParams(false);
+        if ($this->searchParams == null) {
+            $this->searchParams = $results->getUrlQuery()->getParams(false);
         }
-        $url = substr($url, 1);
-        $this->params = array();
-        parse_str($url, $this->params);
     }
     
-    public function getSelectedCoordinates() {
+    public function getSelectedCoordinates()
+    {
         return $this->selectedCoordinates;
     }
     
-    public function getDefaultCoordinates() {
+    public function getDefaultCoordinates()
+    {
         return $this->defaultCoordinates;
     }
     
-    public function getCoordinates() {
+    public function getCoordinates()
+    {
         $result = $this->getSelectedCoordinates();
         if ($result == null) {
             $result = $this->getDefaultCoordinates();
@@ -134,8 +136,14 @@ class MapSelection implements RecommendInterface
         return $this->height;
     }
     
-    public function getParams() {
-        return $this->params;
+    public function getSearchParams()
+    {
+        return $this->searchParams;
+    }
+    
+    public function getFacetField()
+    {
+        return $this->facetField;
     }
     
 }

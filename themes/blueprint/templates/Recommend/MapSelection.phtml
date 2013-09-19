@@ -1,31 +1,20 @@
 <?
   $this->headScript()->appendFile('jquery-geo/jquery.geo-1.0.0-b1.5.min.js');
   $this->headScript()->appendFile('map_selection.js');
-  $geoField = 'bbox_geo';
+  $geoField = $this->recommend->getFacetField();
   $coordinates = $this->recommend->getCoordinates();
   $height = $this->recommend->getHeight();
+  $searchParams = $this->recommend->getSearchParams();
+  $showSelection = ($this->recommend->getSelectedCoordinates() != null);
 ?>
 <div id="geo_modes">
   <input type="radio" name="mode" value="move"><?=$this->transEsc('Move map')?></input>
   <input type="radio" name="mode" value="dragBox" checked="true"><?=$this->transEsc('Select rectangle')?></input>
-  <input type="text" name="coordinates" size="40" value="<?=implode(' ', $coordinates)?>"></input>
-  <form id="geo_form">
-    <? foreach($this->recommend->getParams() as $paramName => $paramValue): ?>
-      <? if(is_array($paramValue)): ?>
-        <? foreach($paramValue as $paramSubValue): ?>
-          <input type="hidden" name="<?= htmlspecialchars($paramName) ?>[]" value="<?= htmlspecialchars($paramSubValue) ?>">
-        <? endforeach; ?>
-      <? else: ?>
-          <input type="hidden" name="<?= htmlspecialchars($paramName) ?>" value="<?= htmlspecialchars($paramValue) ?>">
-      <? endif; ?>
-    <? endforeach; ?>
-    <input type="hidden" name="filter[]" id="geo_map_filter" value=''></input>
-    <input type="submit" name="submit" value="submit"></input>
-  </form>
 </div>
 <div id="geo_map" style="height: <?=$height?>px; ">
 </div>
 <?
-  $js = "loadMapSelection('". $geoField . "', [" . implode(',', $coordinates) . "]);";
+  $js = "loadMapSelection('". $geoField . "', [" . implode(', ', $coordinates) . "]," 
+      . " path, '" . $searchParams . "', " . (($showSelection) ? 'true' : 'false') . ");";
   echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $js, 'SET');
 ?>
