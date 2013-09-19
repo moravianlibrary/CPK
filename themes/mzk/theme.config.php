@@ -1,6 +1,6 @@
 <?php
 return array(
-    'extends' => 'obalkyknih',
+    'extends' => 'obalkyknih-blueprint',
     'css' => array(
         'mzk.css'
     ),
