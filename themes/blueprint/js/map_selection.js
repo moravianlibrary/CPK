@@ -1,4 +1,5 @@
 function loadMapSelection(facetField, boundingBox, baseURL, searchParams, showSelection) {
+    $("#geo_map").show();
     var map = $("#geo_map").geomap({
         bbox: boundingBox,
         mode: "dragBox",
