@@ -1,0 +1,20 @@
+<?
+  $this->headScript()->appendFile('jquery-geo/jquery.geo-1.0.0-b1.5.min.js');
+  $this->headScript()->appendFile('map_selection.js');
+  $geoField = $this->recommend->getFacetField();
+  $coordinates = $this->recommend->getCoordinates();
+  $height = $this->recommend->getHeight();
+  $searchParams = $this->recommend->getSearchParams();
+  $showSelection = ($this->recommend->getSelectedCoordinates() != null);
+?>
+<div id="geo_map" style="height: <?=$height?>px; display: none;">
+  <span id="geo_modes">
+    <input type="radio" name="mode" value="move"><strong><?=$this->transEsc('Move map')?></strong></input>
+    <input type="radio" name="mode" value="dragBox" checked="true"><strong><?=$this->transEsc('Select rectangle')?></strong></input>
+  </span>
+</div>
+<?
+  $js = "loadMapSelection('". $geoField . "', [" . implode(', ', $coordinates) . "]," 
+      . " path, '" . $searchParams . "', " . (($showSelection) ? 'true' : 'false') . ");";
+  echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+?>
