@@ -8,6 +8,10 @@ function loadMapSelection(facetField, boundingBox, baseURL, searchParams, showSe
             if (geo.type == 'Polygon') {
                 map.geomap("append", geo);
                 box = geo.bbox;
+                box[0] = Math.max(-180, box[0]);
+                box[1] = Math.max(-85, box[1]);
+                box[2] = Math.min(180, box[2]);
+                box[3] = Math.min(85, box[3]);
                 rawFilter = encodeURIComponent('bbox_geo:"Intersects(' + box.join(' ') + ')"');
                 location.href = baseURL + searchParams + "&" + 'filter[]=' + rawFilter;
             }
