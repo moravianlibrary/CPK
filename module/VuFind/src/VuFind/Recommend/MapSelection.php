@@ -40,16 +40,32 @@ namespace VuFind\Recommend;
  */
 class MapSelection implements RecommendInterface
 {
-    
+   
     protected $defaultCoordinates = array(11.20, 48.30, 19.40, 51.30);
-    
-    protected $selectedCoordinates = null;
     
     protected $facetField = 'bbox_geo';
     
     protected $height = 480;
     
+    protected $selectedCoordinates = null;
+    
     protected $searchParams = null;
+    
+    /**
+     * Configuration loader
+     *
+     * @var \VuFind\Config\PluginManager
+     */
+    protected $configLoader;
+    
+    /**
+     * Constructor
+     *
+     * @param \VuFind\Config\PluginManager $configLoader Configuration loader
+     */
+    public function __construct(\VuFind\Config\PluginManager $configLoader) {
+        $this->configLoader = $configLoader;
+    }
     
     /**
      * setConfig
@@ -62,7 +78,22 @@ class MapSelection implements RecommendInterface
      */
     public function setConfig($settings)
     {
-        
+        $settings = explode(':', $settings);
+        $mainSection = empty($settings[0]) ? 'MapSelection':$settings[0];
+        $iniName = isset($settings[1]) ? $settings[1] : 'searches';
+        $config = $this->configLoader->get($iniName);
+        if (isset($config->$mainSection)) {
+            $entries = $config->$mainSection;
+            if (isset($entries->default_coordinates)) {
+                $this->defaultCoordinates = explode(',', $entries->default_coordinates);
+            }
+            if (isset($entries->facet_field)) {
+                $this->facetField = $entries->facet_field;
+            }
+            if (isset($entries->height)) {
+                $this->height = $entries->height;
+            }
+        }
     }
     
     /**
