@@ -7,11 +7,11 @@
   $searchParams = $this->recommend->getSearchParams();
   $showSelection = ($this->recommend->getSelectedCoordinates() != null);
 ?>
-<div id="geo_modes">
-  <input type="radio" name="mode" value="move"><?=$this->transEsc('Move map')?></input>
-  <input type="radio" name="mode" value="dragBox" checked="true"><?=$this->transEsc('Select rectangle')?></input>
-</div>
-<div id="geo_map" style="height: <?=$height?>px; ">
+<div id="geo_map" style="height: <?=$height?>px; display: none;">
+  <span id="geo_modes">
+    <input type="radio" name="mode" value="move"><strong><?=$this->transEsc('Move map')?></strong></input>
+    <input type="radio" name="mode" value="dragBox" checked="true"><strong><?=$this->transEsc('Select rectangle')?></strong></input>
+  </span>
 </div>
 <?
   $js = "loadMapSelection('". $geoField . "', [" . implode(', ', $coordinates) . "]," 
