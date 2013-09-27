@@ -1,24 +1,24 @@
-function loadMapSelection(facetField, boundingBox, baseURL, searchParams, showSelection) {
-    $("#geo_map").show();
-    var map = $("#geo_map").geomap({
+function loadMapSelection(geoField, boundingBox, baseURL, searchParams, showSelection) {
+    $("#geo_search").show();
+    var map = $("#geo_search_map").geomap({
         bbox: boundingBox,
         mode: "dragBox",
         shift: "dragBox",
         shape: function(e, geo) {
             map.geomap("empty");
-            if (geo.type == 'Polygon') {
+            if (geo.type == "Polygon") {
                 map.geomap("append", geo);
                 box = geo.bbox;
                 box[0] = Math.max(-180, box[0]);
                 box[1] = Math.max(-85, box[1]);
                 box[2] = Math.min(180, box[2]);
                 box[3] = Math.min(85, box[3]);
-                rawFilter = encodeURIComponent('bbox_geo:"Intersects(' + box.join(' ') + ')"');
-                location.href = baseURL + searchParams + "&" + 'filter[]=' + rawFilter;
+                rawFilter = encodeURIComponent(geoField + ':"Intersects(' + box.join(' ') + ')"');
+                location.href = baseURL + searchParams + "&filter[]=" + rawFilter;
             }
         }
     });
-    $("#geo_modes [name=mode]").click(function() {
+    $("#geo_search_modes [name=mode]").change(function() {
         map.geomap("option", "mode", $(this).val());
     });
     if (showSelection) {
