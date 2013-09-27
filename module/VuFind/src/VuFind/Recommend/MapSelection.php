@@ -1,6 +1,6 @@
 <?php
 /**
- * FavoriteFacets Recommendations Module
+ * MapSelection Recommendations Module
  *
  * PHP version 5
  *
@@ -21,7 +21,7 @@
  *
  * @category VuFind2
  * @package  Recommendations
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Vaclav Rosecky <xrosecky@gmail.com>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:recommendation_modules Wiki
  */
@@ -43,7 +43,7 @@ class MapSelection implements RecommendInterface
    
     protected $defaultCoordinates = array(11.20, 48.30, 19.40, 51.30);
     
-    protected $facetField = 'bbox_geo';
+    protected $geoField = 'bbox_geo';
     
     protected $height = 480;
     
@@ -87,8 +87,8 @@ class MapSelection implements RecommendInterface
             if (isset($entries->default_coordinates)) {
                 $this->defaultCoordinates = explode(',', $entries->default_coordinates);
             }
-            if (isset($entries->facet_field)) {
-                $this->facetField = $entries->facet_field;
+            if (isset($entries->geo_field)) {
+                $this->geoField = $entries->geo_field;
             }
             if (isset($entries->height)) {
                 $this->height = $entries->height;
@@ -129,14 +129,13 @@ class MapSelection implements RecommendInterface
     public function process($results)
     {
         $filters = $results->getParams()->getFilters();
-        $url = null;
         foreach ($filters as $key => $value) {
-            if ($key == $this->facetField) {
+            if ($key == $this->geoField) {
                 $match = array();
                 if (preg_match( '/Intersects\(([0-9 \\-\\.]+)\)/', $value[0], $match)) {
                     $this->selectedCoordinates = explode(' ', $match[1]);
                 }
-                $this->searchParams = $results->getUrlQuery()->removeFacet($this->facetField, $value[0], false);
+                $this->searchParams = $results->getUrlQuery()->removeFacet($this->geoField, $value[0], false);
             }
         }
         if ($this->searchParams == null) {
@@ -144,37 +143,62 @@ class MapSelection implements RecommendInterface
         }
     }
     
+    /**
+     * getSelectedCoordinates
+     * 
+     * Return coordinates selected by user
+     * 
+     * @return array of floats
+     */
     public function getSelectedCoordinates()
     {
         return $this->selectedCoordinates;
     }
     
+    /**
+     * getDefaultCoordinates
+     *
+     * Return default coordinates from configuration
+     *
+     * @return array of floats
+     */
     public function getDefaultCoordinates()
     {
         return $this->defaultCoordinates;
     }
     
-    public function getCoordinates()
-    {
-        $result = $this->getSelectedCoordinates();
-        if ($result == null) {
-            $result = $this->getDefaultCoordinates();
-        }
-        return $result;
-    }
-    
+    /** 
+     * getHeight
+     * 
+     * Return height of map in pixels
+     * 
+     * @return number
+     */
     public function getHeight() {
         return $this->height;
     }
     
+    /**
+     * getSearchParams
+     * 
+     * Return search params without filter for geographic search
+     * 
+     */
     public function getSearchParams()
     {
         return $this->searchParams;
     }
     
-    public function getFacetField()
+    /**
+     * getGeoField
+     * 
+     * Return Solr field to use for geographic search
+     * 
+     * @return string
+     */
+    public function getGeoField()
     {
-        return $this->facetField;
+        return $this->geoField;
     }
     
 }
