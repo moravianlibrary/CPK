@@ -18,8 +18,10 @@
 <div class="authorbox">
   <div id="geo_search" style="display: none;">
     <div id="geo_search_modes">
-      <input type="radio" name="mode" value="move"><strong><?=$this->transEsc('Move map')?></strong></input>
-      <input type="radio" name="mode" value="dragBox" checked="true"><strong><?=$this->transEsc('Select rectangle')?></strong></input>
+      <input id="geo_search_move" type="radio" name="mode" value="move" />
+      <label for="geo_search_move"><?=$this->transEsc('Move map')?></label>
+      <input id="geo_search_bbox" type="radio" name="mode" value="dragBox" checked="checked" />
+      <label for="geo_search_bbox"><?=$this->transEsc('Select rectangle')?></label>
     </div>
     <div id="geo_search_map" style="height: <?=$height?>px;"></div>
   </div>
