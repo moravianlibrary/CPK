@@ -94,6 +94,8 @@
       </analyzer>
     </fieldType>
     <fieldType name="date" class="solr.TrieDateField" sortMissingLast="true" omitNorms="true" precisionStep="6"/>
+    <fieldType name="geo" class="solr.SpatialRecursivePrefixTreeFieldType"
+      distErrPct="0.025" maxDistErr="0.000009" units="degrees" />
   </types>
  <fields>
    <!-- Required by Solr 4.x -->
