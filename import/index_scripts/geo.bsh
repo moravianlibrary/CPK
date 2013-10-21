@@ -42,7 +42,7 @@ public Double coordinateToDecimal(String coordinateStr) {
 
 public boolean validateCoordinates(Double west, Double east, Double north, Double south) {
 	if (west == null || east == null || north == null || south == null) {
-        return false;
+		return false;
 	}
 	if (west > 180.0 || west < -180.0 || east > 180.0 || east < -180.0) {
 		return false;
@@ -53,4 +53,5 @@ public boolean validateCoordinates(Double west, Double east, Double north, Doubl
 	if (north < south || west > east) {
 		return false;
 	}
+	return true;
 }
