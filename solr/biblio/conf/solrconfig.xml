@@ -735,5 +735,7 @@
     <healthcheck type="file">server-enabled</healthcheck>
     -->
   </admin>
+  
+  <valueSourceParser name="geo_overlap" class="cz.mzk.solr.plugin.functions.BoundingBoxOverlapValueSourceParser" />
 
 </config>
