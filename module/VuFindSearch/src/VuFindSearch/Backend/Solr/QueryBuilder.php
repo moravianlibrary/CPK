@@ -80,9 +80,11 @@ class QueryBuilder implements QueryBuilderInterface
     public $caseSensitiveRanges = true;
 
     /**
-     * Force boolean operators to uppercase?
+     * Force boolean operators to uppercase? Set to true to make all Booleans
+     * case-sensitive; false to make no Booleans case-sensitive; comma-separated
+     * string to make only certain operators case sensitive.
      *
-     * @var bool
+     * @var bool|string
      */
     public $caseSensitiveBooleans = true;
 
@@ -214,10 +216,8 @@ class QueryBuilder implements QueryBuilderInterface
         // Build a regular expression to detect booleans -- AND/OR/NOT surrounded
         // by whitespace, or NOT leading the query and followed by whitespace.
         $boolReg = '/((\s+(AND|OR|NOT)\s+)|^NOT\s+)/';
-        if (!$this->caseSensitiveBooleans) {
-            $boolReg .= "i";
-        }
-        return preg_match($boolReg, $searchString) ? true : false;
+        $checkString = $this->capitalizeCaseInsensitiveBooleans($searchString);
+        return preg_match($boolReg, $checkString) ? true : false;
     }
 
     /**
@@ -298,20 +298,6 @@ class QueryBuilder implements QueryBuilderInterface
         foreach ($specs as $handler => $spec) {
             $this->specs[strtolower($handler)] = new SearchHandler($spec);
         }
-    }
-
-    /**
-     * Return search specs.
-     *
-     * @return array
-     */
-    public function getSpecs()
-    {
-        $specs = array();
-        foreach ($specs as $handler => $spec) {
-            $specs[$handler] = $spec->toArray();
-        }
-        return $specs;
     }
 
     /// Internal API
@@ -464,9 +450,8 @@ class QueryBuilder implements QueryBuilderInterface
 
         // Force boolean operators to uppercase if we are in a
         // case-insensitive mode:
-        if (!$this->caseSensitiveBooleans) {
-            $searchString = $this->capitalizeBooleans($searchString);
-        }
+        $searchString = $this->capitalizeCaseInsensitiveBooleans($searchString);
+
         // Adjust range operators if we are in a case-insensitive mode:
         if (!$this->caseSensitiveRanges) {
             $searchString = $this->capitalizeRanges($searchString);
@@ -604,22 +589,81 @@ class QueryBuilder implements QueryBuilderInterface
     }
 
     /**
-     * Capitalize boolean operators.
+     * Convert the caseSensitiveBooleans property into an array for use with the
+     * capitalizeBooleans function.
+     *
+     * @return array
+     */
+    protected function getBoolsToCap()
+    {
+        $allBools = array('AND', 'OR', 'NOT');
+        if ($this->caseSensitiveBooleans === false) {
+            return $allBools;
+        } else if ($this->caseSensitiveBooleans === true) {
+            return array();
+        }
+
+        // Callback function to clean up configuration settings:
+        $callback = function ($i) {
+            return strtoupper(trim($i));
+        };
+
+        // Return all values from $allBools not found in the configuration:
+        return array_values(
+            array_diff(
+                $allBools,
+                array_map($callback, explode(',', $this->caseSensitiveBooleans))
+            )
+        );
+    }
+
+    /**
+     * Wrapper around capitalizeBooleans that accounts for the caseSensitiveBooleans
+     * property of this class.
      *
      * @param string $string Search string
      *
      * @return string
      */
-    public function capitalizeBooleans($string)
+    protected function capitalizeCaseInsensitiveBooleans($string)
     {
+        return $this->capitalizeBooleans($string, $this->getBoolsToCap());
+    }
+
+    /**
+     * Capitalize boolean operators.
+     *
+     * @param string $string Search string
+     * @param array  $bools  Which booleans to capitalize (default = all)
+     *
+     * @return string
+     */
+    public function capitalizeBooleans($string, $bools = array('AND', 'OR', 'NOT'))
+    {
+        // Short-circuit if no Booleans were selected:
+        if (empty($bools)) {
+            return $string;
+        }
+
         // Load the "inside quotes" lookahead so we can use it to prevent
         // switching case of Boolean reserved words inside quotes, since
         // that can cause problems in case-sensitive fields when the reserved
         // words are actually used as search terms.
         $lookahead = self::$insideQuotes;
-        $regs = array("/\s+AND\s+{$lookahead}/i", "/\s+OR\s+{$lookahead}/i",
-                "/(\s+NOT\s+|^NOT\s+){$lookahead}/i", "/\(NOT\s+{$lookahead}/i");
-        $replace = array(' AND ', ' OR ', ' NOT ', '(NOT ');
+
+        // Create standard conversions:
+        $regs = $replace = array();
+        foreach ($bools as $bool) {
+            $regs[] = "/\s+{$bool}\s+{$lookahead}/i";
+            $replace[] = ' ' . $bool . ' ';
+        }
+
+        // Special extra case for NOT:
+        if (in_array('NOT', $bools)) {
+            $regs[] = "/\(NOT\s+{$lookahead}/i";
+            $replace[] = '(NOT ';
+        }
+
         return trim(preg_replace($regs, $replace, $string));
     }
 

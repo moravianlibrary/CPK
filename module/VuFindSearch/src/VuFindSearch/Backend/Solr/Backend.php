@@ -37,11 +37,9 @@ use VuFindSearch\Response\RecordCollectionFactoryInterface;
 
 use VuFindSearch\Backend\Solr\Response\Json\Terms;
 
-use VuFindSearch\Backend\BackendInterface;
+use VuFindSearch\Backend\AbstractBackend;
 use VuFindSearch\Feature\SimilarInterface;
 use VuFindSearch\Feature\RetrieveBatchInterface;
-
-use Zend\Log\LoggerInterface;
 
 use VuFindSearch\Backend\Exception\BackendException;
 use VuFindSearch\Backend\Exception\RemoteErrorException;
@@ -57,22 +55,9 @@ use VuFindSearch\Exception\InvalidArgumentException;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
-class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterface
+class Backend extends AbstractBackend
+    implements SimilarInterface, RetrieveBatchInterface
 {
-    /**
-     * Record collection factory.
-     *
-     * @var RecordCollectionFactoryInterface
-     */
-    protected $collectionFactory;
-
-    /**
-     * Logger, if any.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
     /**
      * Connector.
      *
@@ -81,18 +66,11 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
     protected $connector;
 
     /**
-     * Backend identifier.
-     *
-     * @var string
-     */
-    protected $identifier;
-
-    /**
      * Query builder.
      *
-     * @var QueryBuilderInterface
+     * @var QueryBuilder
      */
-    protected $queryBuilder;
+    protected $queryBuilder = null;
 
     /**
      * Constructor.
@@ -105,18 +83,6 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
     {
         $this->connector    = $connector;
         $this->identifier   = null;
-    }
-
-    /**
-     * Set the backend identifier.
-     *
-     * @param string $identifier Backend identifier
-     *
-     * @return void
-     */
-    public function setIdentifier($identifier)
-    {
-        $this->identifier = $identifier;
     }
 
     /**
@@ -207,7 +173,7 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
                 }
             }
         }
-
+        $this->injectSourceIdentifier($results);
         return $results;
     }
 
@@ -289,15 +255,15 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
     }
 
     /**
-     * Set the Logger.
+     * Set the query builder.
      *
-     * @param LoggerInterface $logger Logger
+     * @param QueryBuilder $queryBuilder Query builder
      *
      * @return void
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setQueryBuilder(QueryBuilder $queryBuilder)
     {
-        $this->logger = $logger;
+        $this->queryBuilder = $queryBuilder;
     }
 
     /**
@@ -313,41 +279,6 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
             $this->queryBuilder = new QueryBuilder();
         }
         return $this->queryBuilder;
-    }
-
-    /**
-     * Set the query builder.
-     *
-     * @param QueryBuilderInterface $queryBuilder Query builder
-     *
-     * @return void
-     */
-    public function setQueryBuilder(QueryBuilderInterface $queryBuilder)
-    {
-        $this->queryBuilder = $queryBuilder;
-    }
-
-    /**
-     * Return backend identifier.
-     *
-     * @return string
-     */
-    public function getIdentifier()
-    {
-        return $this->identifier;
-    }
-
-    /**
-     * Set the record collection factory.
-     *
-     * @param RecordCollectionFactoryInterface $factory Factory
-     *
-     * @return void
-     */
-    public function setRecordCollectionFactory(
-        RecordCollectionFactoryInterface $factory
-    ) {
-        $this->collectionFactory = $factory;
     }
 
     /**
@@ -376,38 +307,6 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
     }
 
     /// Internal API
-
-    /**
-     * Inject source identifier in record collection and all contained records.
-     *
-     * @param ResponseInterface $response Response
-     *
-     * @return void
-     */
-    protected function injectSourceIdentifier(RecordCollectionInterface $response)
-    {
-        $response->setSourceIdentifier($this->identifier);
-        foreach ($response as $record) {
-            $record->setSourceIdentifier($this->identifier);
-        }
-        return $response;
-    }
-
-    /**
-     * Send a message to the logger.
-     *
-     * @param string $level   Log level
-     * @param string $message Log message
-     * @param array  $context Log context
-     *
-     * @return void
-     */
-    protected function log($level, $message, array $context = array())
-    {
-        if ($this->logger) {
-            $this->logger->$level($message, $context);
-        }
-    }
 
     /**
      * Create record collection.
@@ -486,7 +385,7 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid response writer type: %s',
-                    print_r($params->get('wt'), true)
+                    implode(', ', $params->get('wt'))
                 )
             );
         }
@@ -494,7 +393,7 @@ class Backend implements BackendInterface, SimilarInterface, RetrieveBatchInterf
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid named list implementation type: %s',
-                    print_r($params->get('json.nl'), true)
+                    implode(', ', $params->get('json.nl'))
                 )
             );
         }

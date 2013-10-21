@@ -31,7 +31,6 @@ namespace VuFindTest\Backend\Solr;
 
 use VuFindSearch\Query\Query;
 use VuFindSearch\Backend\Solr\QueryBuilder;
-use PHPUnit_Framework_TestCase;
 
 /**
  * Unit tests for SOLR query builder
@@ -42,7 +41,7 @@ use PHPUnit_Framework_TestCase;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
-class QueryBuilderTest extends PHPUnit_Framework_TestCase
+class QueryBuilderTest extends \VuFindTest\Unit\TestCase
 {
     /**
      * Test capitalizeBooleans functionality.
@@ -79,6 +78,76 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase
                 $qb->capitalizeBooleans($current[0]), $current[1]
             );
         }
+    }
+
+    /**
+     * Test the selective capitalization functionality of capitalizeBooleans.
+     *
+     * @return void
+     */
+    public function testSelectiveBooleanCapitalization()
+    {
+        $qb = new QueryBuilder();
+        $in = 'this or that and the other not everything else (not me)';
+        $this->assertEquals(
+            'this OR that AND the other NOT everything else (NOT me)',
+            $qb->capitalizeBooleans($in, array('AND', 'OR', 'NOT'))
+        );
+        $this->assertEquals(
+            'this OR that and the other NOT everything else (NOT me)',
+            $qb->capitalizeBooleans($in, array('OR', 'NOT'))
+        );
+        $this->assertEquals(
+            'this or that and the other NOT everything else (NOT me)',
+            $qb->capitalizeBooleans($in, array('NOT'))
+        );
+        $this->assertEquals(
+            'this or that AND the other not everything else (not me)',
+            $qb->capitalizeBooleans($in, array('AND'))
+        );
+        $this->assertEquals(
+            'this OR that and the other not everything else (not me)',
+            $qb->capitalizeBooleans($in, array('OR'))
+        );
+    }
+
+    /**
+     * Test getBoolsToCap().
+     *
+     * @return void
+     */
+    public function testGetBoolsToCap()
+    {
+        $qb = new QueryBuilder();
+
+        // Default behavior: do not capitalize:
+        $this->assertEquals(
+            array(), $this->callMethod($qb, 'getBoolsToCap')
+        );
+
+        // Test "capitalize all":
+        $qb->caseSensitiveBooleans = false;
+        $this->assertEquals(
+            array('AND', 'OR', 'NOT'), $this->callMethod($qb, 'getBoolsToCap')
+        );
+
+        // Test selective capitalization:
+        $qb->caseSensitiveBooleans = ' not ';
+        $this->assertEquals(
+            array('AND', 'OR'), $this->callMethod($qb, 'getBoolsToCap')
+        );
+        $qb->caseSensitiveBooleans = 'NOT';
+        $this->assertEquals(
+            array('AND', 'OR'), $this->callMethod($qb, 'getBoolsToCap')
+        );
+        $qb->caseSensitiveBooleans = 'AND,OR';
+        $this->assertEquals(
+            array('NOT'), $this->callMethod($qb, 'getBoolsToCap')
+        );
+        $qb->caseSensitiveBooleans = 'and, or';
+        $this->assertEquals(
+            array('NOT'), $this->callMethod($qb, 'getBoolsToCap')
+        );
     }
 
     /**
@@ -154,12 +223,17 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase
             array('^10', '10'),                     // invalid boosts
             array('test^ test^6', 'test test6'),    // invalid boosts
             array('test^1 test^2', 'test^1 test^2'),// valid boosts
-            array('this / that', 'this that'),     // freestanding slash
+            array('this / that', 'this that'),      // freestanding slash
             array('/ this', 'this'),                // leading slash
             array('title /', 'title'),              // trailing slash
-            array('this - that', 'this that'),     // freestanding hyphen
+            array('this - that', 'this that'),      // freestanding hyphen
             array('- this', 'this'),                // leading hyphen
             array('title -', 'title'),              // trailing hyphen
+            array('AND', 'and'),                    // freestanding operator
+            array('OR', 'or'),                      // freestanding operator
+            array('NOT', 'not'),                    // freestanding operator
+            array('*bad', 'bad'),                   // leading wildcard
+            array('?bad', 'bad'),                   // leading wildcard
         );
         // @codingStandardsIgnoreEnd
 
@@ -230,6 +304,37 @@ class QueryBuilderTest extends PHPUnit_Framework_TestCase
         $response = $qb->build($q);
         $hlQ = $response->get('hl.q');
         $this->assertEquals('*:*', $hlQ[0]);
+    }
+
+    /**
+     * Test generation with spelling
+     *
+     * @return void
+     */
+    public function testSpelling()
+    {
+        $qb = new QueryBuilder(
+            array(
+                'test' => array(
+                    'DismaxFields' => array('test1'),
+                    'DismaxParams' => array(array('bq', 'boost'))
+                )
+            )
+        );
+
+        $q = new Query('my friend', 'test');
+
+        // No spellcheck.q if spellcheck query disabled:
+        $qb->setCreateSpellingQuery(false);
+        $response = $qb->build($q);
+        $spQ = $response->get('spellcheck.q');
+        $this->assertEquals(null, $spQ[0]);
+
+        // spellcheck.q if spellcheck query enabled:
+        $qb->setCreateSpellingQuery(true);
+        $response = $qb->build($q);
+        $spQ = $response->get('spellcheck.q');
+        $this->assertEquals('my friend', $spQ[0]);
     }
 
     /**

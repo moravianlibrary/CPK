@@ -1,4 +1,5 @@
 <?=$this->doctype('HTML5')?>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <html lang="<?=$this->layout()->userLang?>">
   <head>
     <?$this->headThemeResources()?>
@@ -68,10 +69,26 @@
         <?=$this->layout()->searchbox?>
         <? endif; ?>
       </div>
+      
       <? if((!isset($this->layout()->showBreadcrumbs) || $this->layout()->showBreadcrumbs == true) && $this->layout()->breadcrumbs !== false): ?>
-        <ul class="breadcrumb noprint">
-          <li class="active"><a href="<?=$this->url('home') ?>">Home</a> <span class="divider">&gt;</span></li>
+        <ul class="breadcrumb">
+        <? if(is_array($this->layout()->breadcrumbs)): ?>
+          <? if(count($this->layout()->breadcrumbs) > 1): ?>
+            <?=$this->render('breadcrumbs/multi.phtml', array(
+                'parents' => $this->layout()->breadcrumbs,
+                'title'   => $this->layout()->title,
+                'end'     => $this->layout()->breadcrumbEnd,
+                'from'    => $this->layout()->from
+              )) ?>
+          <? else: ?>
+            <?=$this->render('breadcrumbs/default.phtml', array(
+                'parents' => $this->layout()->breadcrumbs,
+                'title'   => $this->layout()->title
+              )) ?>
+          <? endif; ?>
+        <? else: ?>
           <?=$this->layout()->breadcrumbs ?>
+        <? endif; ?>
         </ul>
       <? endif; ?>
       <div class="main row-fluid">
