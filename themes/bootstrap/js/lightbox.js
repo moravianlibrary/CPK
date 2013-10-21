@@ -1,4 +1,4 @@
-/*global deparam, htmlEncode, path, rc4Encrypt, refreshCommentList, vufindString */
+/*global checkSaveStatuses, console, deparam, extractSource, getFullCartItems, hexEncode, htmlEncode, path, rc4Encrypt, refreshCommentList, vufindString */
 
 var lastLightboxURL,lastLightboxPOST; // Replacement for empty form actions
 var lightboxShown = false; // is the lightbox deployed?
@@ -10,9 +10,7 @@ var modalXHR; // Used for current in-progress XHR lightbox request
 // Cart actions based on submission
 // Change the content of the lightbox
 function changeModalContent(html) {
-  $('#modal .modal-body').html(html);
-  registerModalEvents($('#modal'));
-  registerModalForms($('#modal'));
+  $('#modal .modal-body').html(html).modal('show');
 }
 // Close the lightbox and run update functions
 function closeLightbox() {
@@ -42,7 +40,7 @@ function closeLightbox() {
         $('#cart-add').removeClass('hidden');
       }
     }
-    cartCount.html(cart.length)
+    cartCount.html(cart.length);
   }
 }
 // Make an error box appear in the lightbox, or insert one
@@ -183,6 +181,15 @@ function ajaxLogin(form) {
           data: {username:username, password:password},
           success: function(response) {
             if (response.status == 'OK') {
+              // If summon, reload
+              $('.hiddenSource').each(function(i, e) {
+                console.log(e.value);
+                if(e.value == 'Summon') {
+                  document.location.reload(true);
+                  return;
+                }
+              });
+              
               // Hide "log in" options and show "log out" options:
               $('#loginOptions').hide();
               $('.logoutOptions').show();
