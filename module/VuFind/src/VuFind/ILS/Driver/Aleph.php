@@ -548,7 +548,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $sep = (strpos($url, "?") === false)?'?':'&';
         if ($params != null) {
             foreach ($params as $key => $value) {
-                $url.= $sep . $key . "=" . $value;
+                $url.= $sep . $key . "=" . urlencode($value);
                 $sep = "&";
             }
         }
@@ -1720,6 +1720,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @throws ILSException
      * @return array     An array with the acquisitions data on success.
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getPurchaseHistory($id)
     {
@@ -1744,6 +1745,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @throws ILSException
      * @return array       Associative array with 'count' and 'results' keys
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getNewItems($page, $limit, $daysOld, $fundId = null)
     {
@@ -1805,6 +1807,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @throws ILSException
      * @return array An array of associative arrays representing reserve items.
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function findReserves($course, $inst, $dept)
     {

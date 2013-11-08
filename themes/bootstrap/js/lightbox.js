@@ -10,22 +10,56 @@ var modalXHR; // Used for current in-progress XHR lightbox request
 // Cart actions based on submission
 // Change the content of the lightbox
 function changeModalContent(html) {
+  var header = $('#modal .modal-header');
+  if(header.find('h3').html().length == 0) {
+    header.css('border-bottom-width', '0');
+  } else {
+    header.css('border-bottom-width', '1px');
+  }
   $('#modal .modal-body').html(html).modal({'show':true,'backdrop':false});
 }
 // Close the lightbox and run update functions
 function closeLightbox() {
+  lightboxShown = false;
+  $('#modal').modal('hide');
+}
+function closeLightboxActions() {
   if(modalXHR) {
     modalXHR.abort();
   }
-  lightboxShown = false;
-  $('#modal').modal('hide');
   // Reset content
   $('#modal').removeData('modal');
+  $('#modal').find('.modal-header h3').html('');
   $('#modal').find('.modal-body').html(vufindString.loading + "...");
   // Perform checks to update the page
   if(checkSaveStatuses) {
     checkSaveStatuses();
   }
+  
+  // Update tag list
+  var tagList = $('#tagList');
+  if (tagList.length > 0) {
+      tagList.empty();
+      var recordId = $('#record_id').val();
+      var recordSource = $('.hiddenSource').val();
+      var url = path + '/AJAX/JSON?' + $.param({method:'getRecordTags',id:recordId,'source':recordSource});
+      $.ajax({
+        dataType: 'json',
+        url: url,
+        success: function(response) {
+          if (response.status == 'OK') {
+            $.each(response.data, function(i, tag) {
+              var href = path + '/Tag?' + $.param({lookfor:tag.tag});
+              var html = (i>0 ? ', ' : ' ') + '<a href="' + htmlEncode(href) + '">' + htmlEncode(tag.tag) +'</a> (' + htmlEncode(tag.cnt) + ')';
+              tagList.append(html);
+            });
+          } else if (response.data && response.data.length > 0) {
+            tagList.append(response.data);
+          }
+        }
+      });
+  }
+  
   // Update cart items
   var cartCount = $('#cartItems strong');
   if(cartCount.length > 0) {
@@ -183,7 +217,6 @@ function ajaxLogin(form) {
             if (response.status == 'OK') {
               // If summon, reload
               $('.hiddenSource').each(function(i, e) {
-                console.log(e.value);
                 if(e.value == 'Summon') {
                   document.location.reload(true);
                   return;
@@ -333,7 +366,7 @@ $(document).ready(function() {
   });  
   // Reset Content
   $('#modal').on('hidden', function() {
-    closeLightbox();
+    closeLightboxActions();
   });
   /* --- MODAL LINK EVENTS --- */
   // Save record links
@@ -359,6 +392,11 @@ $(document).ready(function() {
   // Login link
   $('#loginOptions a').click(function() {
     return getLightbox('MyResearch','Login',{},{'loggingin':true});
+  });
+  // Tag lightbox
+  $('#tagRecord').click(function() {
+    var id = $('.hiddenId')[0].value;
+    return getLightbox('Record', 'AddTag', {id:id});
   });
   // Modal title
   $('.modal-link,.help-link').click(function() {
