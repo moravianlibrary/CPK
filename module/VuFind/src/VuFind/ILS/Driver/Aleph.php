@@ -661,37 +661,21 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param array  $ids IDs to search within library
      *
      * @return array
-<<<<<<< HEAD
-     * 
-     * Description of AVA tag:
-     * http://igelu.org/wp-content/uploads/2011/09/Staff-vs-Public-Data-views.pdf (page 28)
-     * 
-=======
      *
      * Description of AVA tag:
      * http://igelu.org/wp-content/uploads/2011/09/Staff-vs-Public-Data-views.pdf
      * (page 28)
      *
->>>>>>> upstream
      * a  ADM code - Institution Code
      * b  Sublibrary code - Library Code
      * c  Collection (first found) - Collection Code
      * d  Call number (first found)
-<<<<<<< HEAD
-     * e  Availability status  - If it is on loan (it has a Z36), if it is on hold shelf
-     *    (it has  Z37=S) or if it has a processing status. 
-     * f  Number of items (for entire sublibrary)
-     * g  Number of unavailable loans
-     * h  Multi-volume flag (Y/N) If first Z30-ENUMERATION-A is not blank or 0, then the 
-     *    flag=Y, otherwise the flag=N. 
-=======
      * e  Availability status  - If it is on loan (it has a Z36), if it is on hold
      *    shelf (it has  Z37=S) or if it has a processing status.
      * f  Number of items (for entire sublibrary)
      * g  Number of unavailable loans
      * h  Multi-volume flag (Y/N) If first Z30-ENUMERATION-A is not blank or 0, then
      *    the flag=Y, otherwise the flag=N.
->>>>>>> upstream
      * i  Number of loans (for ranking/sorting)
      * j  Collection code
      */
