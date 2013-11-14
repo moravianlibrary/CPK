@@ -15,19 +15,43 @@
   $basicSearch = $options->getSearchAction();
   $advSearch = $options->getAdvancedSearchAction();
   
-  $this->layout()->breadcrumbs .= '<li class="active">Search</li>';
+  $this->layout()->breadcrumbs = false;
 ?>
-<div class="searchHomeContent">
-  <? if ($this->ils()->getOfflineMode() == "ils-offline"): ?>
-    <div class="alert alert-warning">
-      <h2><?=$this->transEsc('ils_offline_title')?></h2>
-      <p><strong><?=$this->transEsc('ils_offline_status')?></strong></p>
-      <p><?=$this->transEsc('ils_offline_home_message')?></p>
-      <? $supportEmail = $this->escapeHtml($this->systemEmail()); ?>
-      <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
+<div class="row clearfix">
+  <div class="span6">
+    <?$userLang = $this->layout()->userLang?>
+    <img src="<?=$this->imageLink("fonoteka-deska-$userLang.png") ?>"></img>
+  </div>
+  <div class="span6 centering">
+    <div class="searchbox">
+      <?=$this->render("search/searchbox-mainpage.phtml")?>
     </div>
-  <? endif; ?>
-  <div class="hero-unit">
-    <?=$this->render("search/searchbox.phtml")?>
+    <div class="row clearfix">
+      <div class="span4">
+        <p><strong><?=$this->transEsc('Search Options')?></strong></p>
+        <ul>
+          <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
+          <li><a href="<?=$this->url('search-advanced')?>"><?=$this->transEsc('Advanced Search')?></a></li>
+        </ul>
+      </div>
+      <div class="span4">
+        <p><strong><?=$this->transEsc('Find More')?></strong></p>
+        <ul>
+          <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
+          <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
+        </ul>
+      </div>
+    </div>
+    <div>
+    <p class="homepage-citation">
+    "...aby každý stát soustředil a uchoval v nějaké národní diskotéce cenné desky obsahující jednak národní folklór,
+     jednak vynikající díla domácích skladatelů nebo výkonných umělců a uměleckých souborů, pokud jsou nahrána na
+     gramofonových deskách. Tak by vznikl skutečný archív národní hudby v autentickém a vrcholném provedení, archív 
+     sloužící k mezinárodní propagaci domácího umění, k rozšiřování rádiem, k vědeckému studiu atd. – <b>věc jistě žádoucí.</b>"
+     </p>
+     <p class="homepage-citation-author">
+     Karel Čapek
+     </p>
+     </div>
   </div>
 </div>
