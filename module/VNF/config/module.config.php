@@ -7,7 +7,7 @@ $config = array(
 			'recorddriver' => array (
 				'factories' => array(
 					'solrmkp' => function ($sm) {
-					    $driver = new \VuFind\RecordDriver\SolrMarc(
+					    $driver = new \VNF\RecordDriver\SolrMkp(
 					    		$sm->getServiceLocator()->get('VuFind\Config')->get('config'),
 					    		null,
 					    		$sm->getServiceLocator()->get('VuFind\Config')->get('searches')
