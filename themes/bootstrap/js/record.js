@@ -52,7 +52,7 @@ function deleteRecordComment(element, recordId, recordSource, commentId) {
     url: url,
     success: function(response) {
       if (response.status == 'OK') {
-        $($(element).parents('li')[0]).remove();
+        $($(element).parents('.comment')[0]).remove();
       }
     }
   });
@@ -80,7 +80,6 @@ function refreshCommentList(recordId, recordSource) {
 
 function registerAjaxCommentRecord() {
   $('form[name="commentRecord"]').unbind('submit').submit(function(){
-    if (!$(this).valid()) { return false; }
     var form = this;
     var id = form.id.value;
     var recordSource = form.source.value;
@@ -101,7 +100,10 @@ function registerAjaxCommentRecord() {
           refreshCommentList(id, recordSource);
           $(form).find('textarea[name="comment"]').val('');
         } else if (response.status == 'NEED_AUTH') {
-          return getLightbox('MyResearch', 'Login');
+          return getLightbox(
+            'Record', 'AddComment', data, data,
+            closeLightbox
+          );
         } else {
           $('#modal').find('.modal-body').html(response.data+'!');
           $('#modal').find('.modal-header h3').html('Error!');
@@ -116,9 +118,6 @@ function registerAjaxCommentRecord() {
   
 $(document).ready(function(){
   var id = document.getElementById('record_id').value;
-  
-  // register the record comment form to be submitted via AJAX
-  registerAjaxCommentRecord();
   
   // Cite lightbox
   $('#cite-record').click(function() {
@@ -140,6 +139,10 @@ $(document).ready(function(){
     var params = extractClassParams(this);
     return getLightbox(params['controller'], 'Save', {id:id});
   });
-    
+  
+  // register the record comment form to be submitted via AJAX
+  registerAjaxCommentRecord();
+  $('.delete').click(function(){deleteRecordComment(this, id, $('.hiddenSource').val(), this.id.substr(13));return false});
+  
   setUpCheckRequest();
 });
