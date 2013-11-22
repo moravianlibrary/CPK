@@ -74,17 +74,32 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
     public function testGetHoldingInfoForItem()
     {
         $response = new Response();
-        $response->setContent($this->getResponse('aleph', 'response_700.xml'));
+        $response->setContent($this->getResponse('aleph', 'itemsPerPatronResponse.xml'));
         $response->setStatusCode(Response::STATUS_CODE_200);
         $response->setReasonPhrase('OK');
         
-        $this->mockedHttpService->expects($this->any())->method('get')
-                ->with($this->equalTo("http://aleph.mylibrary.edu:1892/rest-dlf/patron/700/record/LIB01MZK01000748028/items/MZK50000748028000010"),
-                    $this->anything(),$this->anything())
-                ->will($this->returnValue($response));
+        $patronId = 'TEST';
+        $lib = $this->driverConfig['Catalog']['bib'];
+        $recordId = '000748028';
+        $libAndRecordId = $lib . $recordId; 
+        $itemId = 'LIB50000748028000010';
         
-        $this->driver->getHoldingInfoForItem('700', 'MZK01000748028', 'MZK50000748028000010');
-    } 
+        $url = "http://aleph.mylibrary.edu:1892/rest-dlf/patron/$patronId/record/$libAndRecordId/items/$itemId";
+        
+        $this->mockedHttpService->expects($this->any())->method('get')
+                ->with($this->equalTo($url),
+                    $this->equalTo(array()), $this->equalTo(null))
+                    ->will($this->returnValue($response));
+        $expectedResult = array (
+            'pickup-locations' => array (
+                'MZK' => 'Loan Department - Ground floor',
+            ),
+            'last-interest-date' => '29.11.2013',
+            'order' => 1
+        );
+        $realResult = $this->driver->getHoldingInfoForItem($patronId, $recordId, $itemId);
+        $this->assertEquals($expectedResult, $realResult);
+    }
 
     /**
      * Retrieve configuration from /fixtures/configs/ @param $version / @param $driver
@@ -96,14 +111,14 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
     protected function getDriverConfig($driver, $version = '2.0')
     {
         $file = realpath(
-                \VUFIND_PHPUNIT_MODULE_PATH . '/fixtures/configs/'.$version.'/'.$driver.'.ini'
+                \VUFIND_PHPUNIT_MODULE_PATH . '/fixtures/configs/' . $version .'/' . $driver . '.ini'
         );
         if (!$file) {
             throw new RuntimeException(
                     sprintf('Unable to get configuration for driver %s', $driver)
             );
         }
-        $config = parse_ini_file($file,true);
+        $config = parse_ini_file($file, true);
         return $config;
     }
     
@@ -116,7 +131,7 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
      */
     protected function getResponse($type, $name) {
         $file = realpath(
-                \VUFIND_PHPUNIT_MODULE_PATH . '/fixtures/response/'.$type.'/'.$name
+                \VUFIND_PHPUNIT_MODULE_PATH . '/fixtures/response/' . $type .'/' . $name
         );
         if (!$file) {
             throw new RuntimeException(
