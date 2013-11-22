@@ -1463,8 +1463,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $requests = 0;
         $str = $xml->xpath('//item/queue/text()');
-        if ($str != null) {
-            list($requests, $other) = explode(' ', trim($str[0]));
+        $matches = array();
+        if ($str != null && preg_match("/(\d) request\(s\) of (\d) items/", $str[0], $matches)) {
+            $requests = $matches[1];
         }
         $date = $xml->xpath('//last-interest-date/text()');
         $date = $date[0];
@@ -1519,7 +1520,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $body->addChild('note-l', $comment);
         $body = 'post_xml=' . $body->asXML();
         try {
-            $result = $this->doRestDLFRequest(
+            $this->doRestDLFRequest(
                 array(
                     'patron', $patronId, 'record', $recordId, 'items', $itemId,
                     'hold'
@@ -1678,7 +1679,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $pickupLocations = $details['pickup-locations'];
             if (isset($this->preferredPickUpLocations)) {
                 foreach (
-                    $details['pickup-locations'] as $locationID => $locationDisplay
+                    array_values($details['pickup-locations']) as $locationID
                 ) {
                     if (in_array($locationID, $this->preferredPickUpLocations)) {
                         return $locationID;
