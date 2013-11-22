@@ -477,17 +477,15 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'Call to doXRequest without X-Server configuration in Aleph.ini'
             );
         }
-        $url = "http://$this->host/X?op=$op";
-        $url = $this->appendQueryString($url, $params);
+        $url = 'http://' . $this->host . '/X';
+        $params += array('op' => $op);
         if ($auth) {
-            $url = $this->appendQueryString(
-                $url, array(
-                    'user_name' => $this->wwwuser,
-                    'user_password' => $this->wwwpasswd
-                )
-            );
+            $params += array(
+                'user_name' => $this->wwwuser,
+                'user_password' => $this->wwwpasswd
+            );  
         }
-        $result = $this->doHTTPRequest($url);
+        $result = $this->doHTTPRequest($url, $params);
         if ($result->error) {
             if ($this->debug_enabled) {
                 $this->debug(
@@ -512,13 +510,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected function doRestDLFRequest($path_elements, $params = null,
         $method='GET', $body = null
     ) {
-        $path = '';
-        foreach ($path_elements as $path_element) {
-            $path .= $path_element . "/";
-        }
-        $url = "http://$this->host:$this->dlfport/rest-dlf/" . $path;
-        $url = $this->appendQueryString($url, $params);
-        $result = $this->doHTTPRequest($url, $method, $body);
+        $path = implode('/', $path_elements);
+        $url = 'http://' . $this->host . ':' . $this->dlfport. '/rest-dlf/' . $path;
+        $result = $this->doHTTPRequest($url, $params, $method, $body);
         $replyCode = (string) $result->{'reply-code'};
         if ($replyCode != "0000") {
             $replyText = (string) $result->{'reply-text'};
@@ -536,26 +530,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     }
 
     /**
-     * Add values to an HTTP query string.
-     *
-     * @param string $url    URL so far
-     * @param array  $params Parameters to add
-     *
-     * @return string
-     */
-    protected function appendQueryString($url, $params)
-    {
-        $sep = (strpos($url, "?") === false)?'?':'&';
-        if ($params != null) {
-            foreach ($params as $key => $value) {
-                $url.= $sep . $key . "=" . urlencode($value);
-                $sep = "&";
-            }
-        }
-        return $url;
-    }
-
-    /**
      * Perform an HTTP request.
      *
      * @param string $url    URL of request
@@ -564,20 +538,31 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return SimpleXMLElement
      */
-    protected function doHTTPRequest($url, $method='GET', $body = null)
+    protected function doHTTPRequest($url, $params, $method='GET', $body = null)
     {
+        if ($params == null) {
+            $params = array();
+        }
         if ($this->debug_enabled) {
-            $this->debug("URL: '$url'");
+            $fullUrl = $this->appendQueryString($url, $params);
+            $this->debug("URL: '$fullUrl'");
         }
 
         $result = null;
         try {
-            $client = $this->httpService->createClient($url);
-            $client->setMethod($method);
-            if ($body != null) {
-                $client->setRawBody($body);
+            if ($method == 'GET') {
+                $result = $this->httpService->get($url, $params);
+            } else if ($method == 'POST') {
+                $url = $this->appendQueryString($url, $params);
+                $result = $this->httpService->post($url, $body);
+            } else {
+                $client = $this->httpService->createClient($url);
+                $client->setMethod($method);
+                if ($body != null) {
+                    $client->setRawBody($body);
+                }
+                $result = $client->send();
             }
-            $result = $client->send();
         } catch (\Exception $e) {
             throw new ILSException($e->getMessage());
         }
@@ -591,6 +576,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $answer = str_replace('xmlns=', 'ns=', $answer);
         $result = simplexml_load_string($answer);
         if (!$result) {
+            $url = appendQueryString($url, $params);
             if ($this->debug_enabled) {
                 $this->debug("XML is not valid, URL: $url");
             }
@@ -599,6 +585,24 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             );
         }
         return $result;
+    }
+    
+    /**
+     * Add values to an HTTP query string.
+     *
+     * @param string $url    URL so far
+     * @param array  $params Parameters to add
+     *
+     * @return string
+     */
+    protected function appendQueryString($url, $params)
+    {
+        $sep = (strpos($url, '?') === false)? '?' : '&';
+        foreach ($params as $key => $value) {
+                $url.= $sep . $key . '=' . urlencode($value);
+                $sep = '&';
+            }
+        return $url;
     }
 
     /**
