@@ -43,7 +43,11 @@ use RuntimeException;
  */
 class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
 {
-    
+
+    const FIXTURE_DIRECTORY = '/fixtures/ils/aleph/responses/';
+
+    const DLF_API_BASE_URL = 'http://aleph.mylibrary.edu:1892/rest-dlf';
+
     /**
      * Mocked HTTP service
      *
@@ -72,7 +76,8 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
     {
     }
     
-    public function setUp() {
+    public function setUp()
+    {
     }
     
     public function testMissingConfiguration()
@@ -93,12 +98,12 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
         $libAndRecordId = $lib . $recordId; 
         $itemId = 'LIB50000748028000010';
         
-        $expectedUrl = "http://aleph.mylibrary.edu:1892/rest-dlf/patron/$patronId/record/$libAndRecordId/items/$itemId";
+        $expectedUrl = DLF_API_BASE_URL . "/$patronId/record/$libAndRecordId/items/$itemId";
         
         $this->mockedHttpService->expects($this->any())->method('get')
-                ->with($this->equalTo($expectedUrl),
-                    $this->equalTo(array()), $this->equalTo(null))
-                    ->will($this->returnValue($response));
+            ->with($this->equalTo($expectedUrl),
+                $this->equalTo(array()), $this->equalTo(null))
+            ->will($this->returnValue($response));
         $expectedResult = array(
             'pickup-locations' => array(
                 'MZK' => 'Loan Department - Ground floor',
@@ -106,27 +111,28 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
             'last-interest-date' => '29.11.2013',
             'order' => 1
         );
-        $realResult = $this->driver->getHoldingInfoForItem($patronId, $recordId, $itemId);
-        $this->assertEquals($expectedResult, $realResult);
+        $real = $this->driver->getHoldingInfoForItem($patronId, $recordId, $itemId);
+        $this->assertEquals($expectedResult, $real);
     }
     
-    public function testGetMyProfileUsingRestDLF() {
+    public function testGetMyProfileUsingRestDLF()
+    {
         $this->setUpDriver('Aleph_XServer_disabled.ini');
         $patronId = 'TEST';
         $user = array('id' => 'TEST');
         
-        $patronAddressUrl = "http://aleph.mylibrary.edu:1892/rest-dlf/patron/$patronId/patronInformation/address";
+        $patronAddressUrl = DLF_API_BASE_URL . "/patron/$patronId/patronInformation/address";
         $patronAddressResponse = $this->getResponse('v20.2.10', 'patronInformationAddressResponse.xml');
         $this->mockedHttpService->expects($this->at(0))->method('get')
-                ->with($this->equalTo($patronAddressUrl),
-                    $this->equalTo(array()), $this->equalTo(null))
-                    ->will($this->returnValue($patronAddressResponse));
+            ->with($this->equalTo($patronAddressUrl),
+                $this->equalTo(array()), $this->equalTo(null))
+            ->will($this->returnValue($patronAddressResponse));
         
-        $patronRegistrationUrl = "http://aleph.mylibrary.edu:1892/rest-dlf/patron/$patronId/patronStatus/registration";
+        $patronRegistrationUrl = DLF_API_BASE_URL . "/patron/$patronId/patronStatus/registration";
         $patronRegistrationResponse = $this->getResponse('v20.2.10', 'patronStatusRegistration.xml');
         $this->mockedHttpService->expects($this->at(1))->method('get')
-        ->with($this->equalTo($patronRegistrationUrl),
-            $this->equalTo(array()), $this->equalTo(null))
+            ->with($this->equalTo($patronRegistrationUrl),
+                $this->equalTo(array()), $this->equalTo(null))
             ->will($this->returnValue($patronRegistrationResponse));
         
         $expectedResult = array(
@@ -150,18 +156,20 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
 
     /**
      * Setup Aleph driver using given configuration file
-     * @param string $config
+     *
+     * @param string $config configuration file to use
+     *
      * @throws RuntimeException
      * @return void
      */
     protected function setUpDriver($config)
     {
         $file = realpath(
-                \VUFIND_PHPUNIT_MODULE_PATH . '/fixtures/ils/aleph/configs/' . $config
+            \VUFIND_PHPUNIT_MODULE_PATH . FIXTURE_DIRECTORY . $config
         );
         if (!$file) {
             throw new RuntimeException(
-                    sprintf('Unable to get configuration for driver %s', $driver)
+                sprintf('Unable to get configuration for driver %s', $driver)
             );
         }
         $this->driverConfig = parse_ini_file($file, true);
@@ -173,20 +181,22 @@ class AlephTest extends \VuFindTest\Unit\ILSDriverTestCase
     }
     
     /**
-     * Retrieve response by name and version
-     * 
-     * @param string $version
-     * @param string $name
+     * Retrieve response by version and name
+     *
+     * @param string $version version
+     * @param string $name    name
+     *
      * @throws RuntimeException
      * @return \Zend\Http\Response 
      */
-    protected function getResponse($version, $name) {
+    protected function getResponse($version, $name)
+    {
         $file = realpath(
-                \VUFIND_PHPUNIT_MODULE_PATH . '/fixtures/ils/aleph/responses/' . $version .'/' . $name
+            \VUFIND_PHPUNIT_MODULE_PATH . FIXTURE_DIRECTORY . $version .'/' . $name
         );
         if (!$file) {
             throw new RuntimeException(
-                    sprintf('Unable to resolve fixture to fixture file: %s', $name)
+                sprintf('Unable to resolve fixture to fixture file: %s', $name)
             );
         }
         $content = file_get_contents($file);
