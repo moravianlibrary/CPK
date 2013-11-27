@@ -1342,7 +1342,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $address4 = (string) $address->{'z304-address-4'};
         $zip = (string) $address->{'z304-zip'};
         $phone = (string) $address->{'z304-telephone-1'};
-        $email = (string) $address->{'z404-email-address'};
+        $email = (string) $address->{'z304-email-address'};
         $dateFrom = (string) $address->{'z304-date-from'};
         $dateTo = (string) $address->{'z304-date-to'};
         if (strpos($address2, ",") === false) {
@@ -1358,8 +1358,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $recordList['zip'] = $zip;
         $recordList['phone'] = $phone;
         $recordList['email'] = $email;
-        $recordList['dateFrom'] = $dateFrom;
-        $recordList['dateTo'] = $dateTo;
+        $recordList['addressValidFrom'] = $this->parseDate($dateFrom);
+        $recordList['addressValidTo'] = $this->parseDate($dateTo);
         $recordList['id'] = $user['id'];
         $xml = $this->doRestDLFRequest(
             array('patron', $user['id'], 'patronStatus', 'registration')

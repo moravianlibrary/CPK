@@ -100,7 +100,7 @@
 		</z13>
 		<status>On Shelf</status>
 		<info type="HoldRequest"
-			href="http://aleph.mzk.cz:1892/rest-dlf/patron/TEST/record/LIB01000748028/items/LIB50000748028000010/hold"
+			href="http://aleph.mylibrary.edu:1892/rest-dlf/patron/TEST/record/LIB01000748028/items/LIB50000748028000010/hold"
 			allowed="Y">
 			<hold allowed="Y">
 				<pickup-locations usage="Mandatory">
@@ -120,7 +120,7 @@
 			</hold>
 		</info>
 		<info type="ShortLoan"
-			href="http://aleph.mzk.cz:1892/rest-dlf/patron/TEST/record/LIB01000748028/items/LIB50000748028000010/shortLoan"
+			href="http://aleph.mylibrary.edu:1892/rest-dlf/patron/TEST/record/LIB01000748028/items/LIB50000748028000010/shortLoan"
 			allowed="N">
 			<note type="error">The item has no short loan schedule</note>
 		</info>

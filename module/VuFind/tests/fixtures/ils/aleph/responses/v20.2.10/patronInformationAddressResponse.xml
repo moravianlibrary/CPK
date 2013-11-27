@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<get-pat-adrs>
+  <reply-text>ok</reply-text>
+  <reply-code>0000</reply-code>
+  <address-information updateable="Y">
+    <z304-address-1 usage="Mandatory" max_len="50">TEST</z304-address-1>
+    <z304-address-2 usage="Optional" max_len="50">John Smith</z304-address-2>
+    <z304-address-3 usage="Optional" max_len="50">Street 123</z304-address-3>
+    <z304-address-4 usage="Optional" max_len="50">12345 Springfield</z304-address-4>
+    <z304-address-5 usage="Optional" max_len="50"/>
+    <z304-date-from usage="Mandatory">20100830</z304-date-from>
+    <z304-date-to usage="Mandatory">20131231</z304-date-to>
+    <z304-zip usage="Optional" max_len="9"/>
+    <z304-telephone-1 usage="Optional" max_len="30">+042 123 456 789</z304-telephone-1>
+    <z304-telephone-2 usage="Optional" max_len="30"/>
+    <z304-telephone-3 usage="Optional" max_len="30">NE</z304-telephone-3>
+    <z304-telephone-4 usage="Optional" max_len="30"/>
+    <z304-sms-number usage="Optional" max_len="30"/>
+    <z303-want-sms usage="Optional">N</z303-want-sms>
+    <z303-plain-html usage="Optional" code=" "/>
+    <z304-email-address usage="Optional" max_len="60">john.smith@example.com</z304-email-address>
+    <mail-options usage="Read-Only">
+      <mail-option code="P">Email Body Only</mail-option>
+      <mail-option code="H">Attachment Only</mail-option>
+      <mail-option code="B">Attachment and Email Body</mail-option>
+    </mail-options>
+  </address-information>
+</get-pat-adrs>
