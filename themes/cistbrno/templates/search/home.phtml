@@ -1,0 +1,54 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('Search Home'));
+
+  // Disable top search box -- this page has a special layout.
+  $this->layout()->searchbox = false;
+
+  // Set default value if necessary:
+  if (!isset($this->searchClassId)) {
+    $this->searchClassId = 'Solr';
+  }
+
+  // Load search actions and settings (if any):
+  $options = $this->searchOptions($this->searchClassId);
+  $basicSearch = $options->getSearchAction();
+  $advSearch = $options->getAdvancedSearchAction();
+  
+  $this->layout()->breadcrumbs = false;
+?>
+<div class="row clearfix title-page">
+  <div class="span4">
+    <img src="<?=$this->imageLink('cb-books-bg.png') ?>"></img>
+  </div>
+  <div class="span6 centering">
+    <div class="searchbox-title">
+      <?=$this->transEsc('Books from Brno libraries')?>
+    </div>
+    <div class="searchbox">
+      <?=$this->render("search/searchbox-mainpage.phtml")?>
+    </div>
+    <div class="row clearfix">
+      <div class="span8">
+        <p><strong><?=$this->transEsc('Search Options')?></strong></p>
+        <ul>
+          <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
+          <li><a href="<?=$this->url('search-advanced')?>"><?=$this->transEsc('Advanced Search')?></a></li>
+        </ul>
+      </div>
+      <div class="span4">
+        <p><strong><?=$this->transEsc('Find More')?></strong></p>
+        <ul>
+          <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
+          <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row institutions">
+  <a href="http://www.muni.cz/"><img src="themes/cistbrno/images/cb-logo-mu.png"/></a>
+  <a href="http://www.vutbr.cz/"><img src="themes/cistbrno/images/cb-logo-vut.png"/></a>
+  <a href="http://www.kjm.cz/"><img src="themes/cistbrno/images/cb-logo-kjm.png"/></a>
+  <a href="http://www.mzk.cz/"><img src="themes/cistbrno/images/cb-logo-mzk.png"/></a>
+</div>
