@@ -54,14 +54,20 @@ class ShibbolethWithWAYF extends Shibboleth
      * @return array
      */
     public function getSessionInitiators() {
+        $config = $this->getConfig();
+        if (isset($config->Shibboleth->target)) {
+            $shibTarget = $config->Shibboleth->target;
+        } else {
+            $shibTarget = $target;
+        }
         // TODO: read from configuration
-        $institutions = array(
+        $providers = array(
             'muni' => 'https://login.ics.muni.cz/idp/shibboleth',
             'vut'  => 'https://idp2.civ.cvut.cz/idp/shibboleth',
             'mzk'  => 'https://shibboleth.mzk.cz/simplesaml/metadata.xml',
         );
         $initiators = array();
-        foreach ($institutions as $name => $entityId) {
+        foreach ($providers as $name => $entityId) {
             $loginUrl = $config->Shibboleth->login . '?target=' . urlencode($shibTarget) . '&entityID=' . urlencode($entityId);
             $initiators[$name] = $loginUrl;
         }
