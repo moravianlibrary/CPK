@@ -60,7 +60,12 @@ $config = array(
                 'invokables' => array(
                     'libraries' => 'MZKPortal\RecordTab\Libraries',
                 ),
-            ) /* recordtab */
+            ), /* recordtab */
+            'auth' => array(
+                'invokables' => array(
+                    'shibbolethWithWAYF' => 'MZKPortal\Auth\ShibbolethWithWAYF',
+                ),
+            ),
         ), /* plugin_managers */
         'recorddriver_tabs' => array(
             'MZKPortal\RecordDriver\SolrMarcMerged' => array(
@@ -77,7 +82,21 @@ $config = array(
                 ),
             )
         ) /* recorddriver_tabs */
-    ) /* vufind */
+    ), /* vufind */
+    'controllers' => array(
+        'invokables' => array(
+            'my-research' => 'MZKPortal\Controller\MyResearchController',
+        ),
+    ),
+    'service_manager' => array(
+        'factories' => array(
+            'VuFind\AuthManager' => function ($sm) {
+                return new \MZKPortal\Auth\Manager(
+                    $sm->get('VuFind\Config')->get('config')
+                );
+            },
+        ),
+    ),
 );
 
 return $config;
