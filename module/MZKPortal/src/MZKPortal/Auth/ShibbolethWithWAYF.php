@@ -53,7 +53,7 @@ class ShibbolethWithWAYF extends Shibboleth
      *
      * @return array
      */
-    public function getSessionInitiators() {
+    public function getSessionInitiators($target) {
         $config = $this->getConfig();
         if (isset($config->Shibboleth->target)) {
             $shibTarget = $config->Shibboleth->target;
