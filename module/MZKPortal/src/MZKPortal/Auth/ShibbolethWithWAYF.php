@@ -62,9 +62,9 @@ class ShibbolethWithWAYF extends Shibboleth
         }
         // TODO: read from configuration
         $providers = array(
+            'mzk'  => 'https://shibboleth.mzk.cz/simplesaml/metadata.xml',
             'muni' => 'https://login.ics.muni.cz/idp/shibboleth',
             'vut'  => 'https://idp2.civ.cvut.cz/idp/shibboleth',
-            'mzk'  => 'https://shibboleth.mzk.cz/simplesaml/metadata.xml',
         );
         $initiators = array();
         foreach ($providers as $name => $entityId) {

@@ -65,7 +65,11 @@ class Manager extends BaseManager
      */
     public function getSessionInitiators($target)
     {
-        return $this->getAuth()->getSessionInitiators($target);
+        if ($this->getAuth() instanceof ShibbolethWithWAYF) {
+           return $this->getAuth()->getSessionInitiators($target);
+        } else {
+            return false;
+        }
     }
 
 }
