@@ -431,6 +431,17 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
         return $items;
     }
 
+    public function placeHold($details)
+    {
+        $id = $details['id'];
+        $source = $this->getSource($id);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            $details['id'] = $this->getLocalId($id);
+            return $driver->placeHold($details);
+        }
+    }
+
     /**
      * Get Holding
      *
@@ -509,7 +520,6 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
      */
     public function patronLogin($username, $password)
     {
-
         $pos = strrpos($username, $this->delimiters['login']);
         $login = null;
         if ($pos > 0) {
@@ -687,6 +697,38 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
         }
         return false;
     }
+
+    public function getDefaultPickUpLocation($patron, $holdInfo=null) {
+        return $this->getPickUpLocationsOrDefault($patron, true, $holdInfo);
+    }
+
+    public function getPickUpLocations($patron, $holdInfo=null) {
+        return $this->getPickUpLocationsOrDefault($patron, false, $holdInfo);
+    }
+
+    protected function getPickUpLocationsOrDefault($patron, $default, $holdInfo=null) {
+        if ($holdInfo != null) {
+            $bibId = $holdInfo['id'];
+            $itemId = $holdInfo['item_id'];
+            $source = $this->getSource($bibId);
+            $driver = $this->getDriver($source);
+            if ($driver) {
+                $localHoldInfo = array(
+                    'id' => $this->getLocalId($bibId),
+                    'item_id' => $itemId,
+                );
+                $result = null;
+                if ($default) {
+                    $result = $driver->getDefaultPickUpLocation($patron, $localHoldInfo);
+                } else {
+                    $result = $driver->getPickUpLocations($patron, $localHoldInfo);
+                }
+                return $result;
+            }
+        }
+        return ($default) ? null : array();
+    }
+
     /**
      * Default method -- pass along calls to the driver if available; return
      * false otherwise.  This allows custom functions to be implemented in
