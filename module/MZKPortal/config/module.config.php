@@ -45,6 +45,19 @@ $config = array(
                         );
                         return $driver;
                     },
+                    'solrvut' => function ($sm) {
+                        $driver = new \MZKPortal\RecordDriver\SolrMarcVut(
+                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+                            null,
+                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+                        );
+                        $driver->attachILS(
+                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+                        );
+                        return $driver;
+                    },
                     'solrmerged' => function ($sm) {
                         $driver = new \MZKPortal\RecordDriver\SolrMarcMerged(
                             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
@@ -93,6 +106,12 @@ $config = array(
             'VuFind\AuthManager' => function ($sm) {
                 return new \MZKPortal\Auth\Manager(
                     $sm->get('VuFind\Config')->get('config')
+                );
+            },
+            'VuFind\ILSHoldLogic' => function ($sm) {
+                return new \MZKCommon\ILS\Logic\FlatHolds(
+                    $sm->get('VuFind\AuthManager'), $sm->get('VuFind\ILSConnection'),
+                    $sm->get('VuFind\HMAC'), $sm->get('VuFind\Config')->get('config')
                 );
             },
         ),
