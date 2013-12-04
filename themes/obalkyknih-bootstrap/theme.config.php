@@ -1,6 +1,10 @@
 <?php
 return array(
     'extends' => 'bootstrap',
+    'js' => array(
+        'obalkyknih/functions.js',
+        'obalkyknih/custom.js'
+    ),
     'css' => array(
         'obalkyknih.css'
     ),
