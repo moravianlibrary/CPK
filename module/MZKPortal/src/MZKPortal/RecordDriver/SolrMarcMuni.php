@@ -2,7 +2,7 @@
 namespace MZKPortal\RecordDriver;
 use MZKCommon\RecordDriver\SolrMarc;
 
-class SolrMarcMuni extends SolrMarc
+class SolrMarcMuni extends SolrMarcBase
 {
     
 }
