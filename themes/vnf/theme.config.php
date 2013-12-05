@@ -4,5 +4,5 @@ return array(
     'css' => array(
         'vnf.css'
     ),
-    'favicon' => 'vufind-favicon.ico',
+    'favicon' => 'favicon.ico',
 );
