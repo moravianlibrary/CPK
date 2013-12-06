@@ -45,7 +45,8 @@
   <? endif; ?>
   <? if ($openUrl): ?><?=$this->openUrl($openUrl);?><? endif; ?>
 <? endif; ?>
-<table cellpadding="2" cellspacing="0" border="0" class="citation">
+<table class="table table-striped">
+<tbody>
   <tr>
     <th><?=$this->transEsc("item status")?>&nbsp;</th>
     <th><?=$this->transEsc("due date")?>&nbsp;</th>
@@ -54,10 +55,12 @@
     <th><?=$this->transEsc("location / second signature")?>&nbsp;</th>
     <th><?=$this->transEsc("description")?>&nbsp;</th>
     <th><?=$this->transEsc("note")?>&nbsp;</th>
-  <tr>
+  </tr>
+<? $row = 0; ?>
 <? foreach ($holdings as $row): ?>
   <? $check = (isset($row['check']) && $row['check']); ?>
-  <tr>
+  <? $row++; ?>
+  <tr class="<?=(($row % 2) == 0)?'oddrow':'evenrow'?>">
     <td>
       <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->escapeHtml($row['status'])?></span>
       <? if ($row['reserve'] == "Y"): ?>
@@ -103,6 +106,7 @@
     </td>
   </tr>
 <? endforeach; ?>
+</tbody>
 </table>
 
 <? $history = $this->driver->getRealTimeHistory(); ?>
