@@ -44,6 +44,60 @@ use VuFind\Auth\Shibboleth as Shibboleth,
 class ShibbolethWithWAYF extends Shibboleth
 {
 
+    const SHIB_IDENTITY_PROVIDER_ENV = 'Shib-Identity-Provider';
+
+    const SEPARATOR = "\t";
+
+    protected $configLoader;
+
+    protected $shibbolethConfig = null;
+
+    protected $attribsToCheck = array(
+        'cat_username', 'email', 'lastname', 'firstname',
+        'college', 'major', 'home_library'
+    );
+
+    public function __construct(\VuFind\Config\PluginManager $configLoader)
+    {
+        $this->configLoader = $configLoader;
+    }
+
+    public function authenticate($request)
+    {
+        $this->init();
+        $entityId = $request->getServer()->get(self::SHIB_IDENTITY_PROVIDER_ENV);
+        $config = null;
+        $prefix = null;
+        foreach ($this->shibbolethConfig as $name => $configuration) {
+            if ($entityId == $configuration['entityId']) {
+                $config = $configuration;
+                $prefix = $name;
+                break;
+            }
+        }
+        if ($config == null) {
+            throw new AuthException('authentication_error_admin');
+        }
+        $username = $request->getServer()->get($config->username);
+        $user = $this->getUserTable()->getByUsername($username);
+        if (empty($username)) {
+            throw new AuthException('authentication_error_admin');
+        }
+        foreach ($this->attribsToCheck as $attribute) {
+            if (isset($config->$attribute)) {
+                $value = $request->getServer()->get($config->$attribute);
+                if ($attribute == 'cat_username') {
+                    $user->$attribute = $prefix . self::SEPARATOR . $value;
+                } else {
+                    $user->$attribute = $value;
+                }
+            }
+        }
+        // Save and return the user object:
+        $user->save();
+        return $user;
+    }
+
     /**
      * Get the URL to establish a session (needed when the internal VuFind login
      * form is inadequate).  Returns false when no session initiator is needed.
@@ -54,24 +108,26 @@ class ShibbolethWithWAYF extends Shibboleth
      * @return array
      */
     public function getSessionInitiators($target) {
+        $this->init();
         $config = $this->getConfig();
         if (isset($config->Shibboleth->target)) {
             $shibTarget = $config->Shibboleth->target;
         } else {
             $shibTarget = $target;
         }
-        // TODO: read from configuration
-        $providers = array(
-            'mzk'  => 'https://shibboleth.mzk.cz/simplesaml/metadata.xml',
-            'muni' => 'https://login.ics.muni.cz/idp/shibboleth',
-            'vut'  => 'https://idp2.civ.cvut.cz/idp/shibboleth',
-        );
         $initiators = array();
-        foreach ($providers as $name => $entityId) {
+        foreach ($this->shibbolethConfig as $name => $configuration) {
+            $entityId = $configuration['entityId'];
             $loginUrl = $config->Shibboleth->login . '?target=' . urlencode($shibTarget) . '&entityID=' . urlencode($entityId);
             $initiators[$name] = $loginUrl;
         }
         return $initiators;
+    }
+
+    protected function init() {
+        if ($this->shibbolethConfig == null) {
+            $this->shibbolethConfig = $this->configLoader->get('shibboleth');
+        }
     }
 
 }

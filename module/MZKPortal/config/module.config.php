@@ -75,8 +75,12 @@ $config = array(
                 ),
             ), /* recordtab */
             'auth' => array(
-                'invokables' => array(
-                    'shibbolethWithWAYF' => 'MZKPortal\Auth\ShibbolethWithWAYF',
+                'factories' => array(
+                    'shibbolethWithWAYF' => function ($sm) {
+                        return new \MZKPortal\Auth\ShibbolethWithWAYF(
+                            $sm->getServiceLocator()->get('VuFind\Config')
+                        );
+                    },
                 ),
             ),
         ), /* plugin_managers */
