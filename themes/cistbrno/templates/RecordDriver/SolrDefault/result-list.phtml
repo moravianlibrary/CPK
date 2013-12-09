@@ -1,13 +1,21 @@
+<?
+  $this->headScript()->appendFile('obalkyknih/functions.js');
+  $this->headScript()->appendFile('obalkyknih/custom.js');
+  $recordId = $this->driver->getUniqueID();
+  $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
+?>
 <div class="row-fluid result<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
-  <div class="span2 text-center left">
+  <div class="span2 text-center" id="cover_<?=$recordId?>">
     <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
-      <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
-        <img class="img-polaroid" src="<?=$this->escapeHtml($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
-      <? else: ?>
-        <img class="img-polaroid" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
-      <? endif; ?>
+      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
+        <script type="text/javascript">
+          $(document).ready(function() {
+            obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
+          });
+        </script>
+      <? endif;?>
     </a>
   </div>
   <div class="span7 middle">
