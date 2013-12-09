@@ -45,6 +45,11 @@
   <? endif; ?>
   <? if ($openUrl): ?><?=$this->openUrl($openUrl);?><? endif; ?>
 <? endif; ?>
+
+<? $holdLink = $this->driver->getHoldLink();?>
+<? if ($holdLink != null) : ?>
+  <a href="<?=$holdLink?>"><?=$this->transEsc("Holdings in catalogue")?></a>
+<? else : ?>
 <table class="table table-striped">
 <tbody>
   <tr>
@@ -108,6 +113,7 @@
 <? endforeach; ?>
 </tbody>
 </table>
+<? endif; ?>
 
 <? $history = $this->driver->getRealTimeHistory(); ?>
 <? if (is_array($history) && !empty($history)): ?>
