@@ -20,7 +20,11 @@ function changeModalContent(html) {
   $('#modal .modal-body').html(html).modal({'show':true,'backdrop':false});
 }
 // Close the lightbox and run update functions
+var closeAction = false;
 function closeLightbox() {
+  if(closeAction !== false) {
+    closeAction();
+  }
   $('#modal').modal('hide');
 }
 function closeLightboxActions() {
@@ -40,7 +44,7 @@ function closeLightboxActions() {
   var recordId = $('#record_id').val();
   var recordSource = $('.hiddenSource').val();
   // Perform checks to update the page
-  if(refreshCommentList) {
+  if(typeof refreshCommentList === 'function') {
     refreshCommentList(recordId, recordSource);
   }
   // Update tag list
@@ -90,6 +94,7 @@ function displayLightboxError(message) {
   } else {
     $('#modal .modal-body').prepend('<div class="alert alert-error">'+message+'</div>');
   }
+  $('.icon-spinner').remove();
 }
 
 /****************************/
@@ -121,7 +126,7 @@ function getLightboxByUrl(url, post, callback) {
       }
     },
     error:function(d,e) {
-      console.log(d,e);
+      console.log(url,e,d);
     }
   });
   lastLightboxURL = url;
@@ -231,14 +236,6 @@ function ajaxLogin(form) {
           data: {username:username, password:password},
           success: function(response) {
             if (response.status == 'OK') {
-              // If summon, reload
-              $('.hiddenSource').each(function(i, e) {
-                if(e.value == 'Summon') {
-                  document.location.reload(true);
-                  return;
-                }
-              });
-              
               // Hide "log in" options and show "log out" options:
               $('#loginOptions').hide();
               $('.logoutOptions').show();
@@ -281,6 +278,12 @@ function ajaxLogin(form) {
               } else if(lastLightboxPOST && lastLightboxPOST['loggingin']) {
                 closeLightbox();
               } else {
+                // If summon, queue reload
+                $('.hiddenSource').each(function(i, e) {
+                  if(e.value == 'Summon') {
+                    closeAction = function(){document.location.reload(true);};
+                  }
+                });
                 getLightboxByUrl(lastLightboxURL, lastLightboxPOST);
               }
             } else {
@@ -353,7 +356,9 @@ function registerModalEvents(modal) {
     $(this).attr("clicked", "true");
   });
   $(modal).find("form").submit(function() {
-    $(this).find('*[clicked="true"]').after(' <i class="icon-spinner icon-spin"></i> ');
+    if($(this).find('.icon-spinner').length == 0) {
+      $(this).find('*[clicked="true"]').after(' <i class="icon-spinner icon-spin"></i> ');
+    }
 });
 }
 // Prevent forms from submitting in the lightbox
@@ -416,7 +421,8 @@ $(document).ready(function() {
   // Tag lightbox
   $('#tagRecord').click(function() {
     var id = $('.hiddenId')[0].value;
-    return getLightbox('Record', 'AddTag', {id:id});
+    var parts = this.href.split('/');
+    return getLightbox(parts[parts.length-3], 'AddTag', {id:id});
   });
   // Modal title
   $('.modal-link,.help-link').click(function() {

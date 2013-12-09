@@ -31,6 +31,11 @@ namespace VuFindTest;
 
 use VuFindSearch\Service;
 use VuFindSearch\ParamBag;
+use VuFindSearch\Backend\BackendInterface;
+use VuFindSearch\Backend\Exception\BackendException;
+use VuFindSearch\Feature\RetrieveBatchInterface;
+use VuFindSearch\Query\Query;
+use VuFindSearch\Response\AbstractRecordCollection;
 
 use PHPUnit_Framework_TestCase as TestCase;
 
@@ -48,7 +53,7 @@ class SearchServiceTest extends TestCase
     /**
      * Mock backend
      *
-     * @var \VuFindSearch\Backend\BackendInterface
+     * @var BackendInterface
      */
     protected $backend = false;
 
@@ -74,12 +79,251 @@ class SearchServiceTest extends TestCase
         $service->retrieve('foo', 'bar', $params);
     }
 
+    /**
+     * Test exception-throwing retrieve action.
+     *
+     * @return void
+     * @expectedException VuFindSearch\Backend\Exception\BackendException
+     * @expectedExceptionMessage test
+     */
+    public function testRetrieveException()
+    {
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $params = new ParamBag(array('x' => 'y'));
+        $exception = new BackendException('test');
+        $backend->expects($this->once())->method('retrieve')
+            ->with($this->equalTo('bar'), $this->equalTo($params))
+            ->will($this->throwException($exception));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('error'), $this->equalTo($exception));
+        $service->retrieve('foo', 'bar', $params);
+    }
+
+    /**
+     * Test exception-throwing search action.
+     *
+     * @return void
+     * @expectedException VuFindSearch\Backend\Exception\BackendException
+     * @expectedExceptionMessage test
+     */
+    public function testSearchException()
+    {
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $exception = new BackendException('test');
+        $backend->expects($this->once())->method('search')
+            ->will($this->throwException($exception));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('error'), $this->equalTo($exception));
+        $service->search('foo', new Query('test'));
+    }
+
+    /**
+     * Test batch retrieve (with RetrieveBatchInterface).
+     *
+     * @return void
+     */
+    public function testRetrieveBatchInterface()
+    {
+        // Use a special backend for this test...
+        $this->backend = $this->getMock('VuFindTest\TestClassForRetrieveBatchInterface');
+
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $params = new ParamBag(array('x' => 'y'));
+        $ids = array('bar', 'baz');
+        $backend->expects($this->once(0))->method('retrieveBatch')
+            ->with($this->equalTo($ids), $this->equalTo($params))
+            ->will($this->returnValue('response'));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('post'), $this->equalTo('response'));
+        $service->retrieveBatch('foo', $ids, $params);
+
+        // Put the backend back to the default:
+        unset($this->backend);
+    }
+
+    /**
+     * Test batch retrieve (without RetrieveBatchInterface).
+     *
+     * @return void
+     */
+    public function testRetrieveBatchNoInterface()
+    {
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $mockRecord = $this->getMock('VuFindSearch\Response\RecordInterface');
+        $response1 = $this->getRecordCollection();
+        $response1->expects($this->once())->method('add')
+            ->with($this->equalTo($mockRecord));
+        $response2 = $this->getRecordCollection();
+        $response2->expects($this->once())->method('first')
+            ->will($this->returnValue($mockRecord));
+        $params = new ParamBag(array('x' => 'y'));
+        $backend->expects($this->at(0))->method('retrieve')
+            ->with($this->equalTo('bar'), $this->equalTo($params))
+            ->will($this->returnValue($response1));
+        $backend->expects($this->at(1))->method('retrieve')
+            ->with($this->equalTo('baz'), $this->equalTo($params))
+            ->will($this->returnValue($response2));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('post'), $this->equalTo($response1));
+        $service->retrieveBatch('foo', array('bar', 'baz'), $params);
+    }
+
+    /**
+     * Test exception-throwing batch retrieve action (with RetrieveBatchInterface).
+     *
+     * @return void
+     * @expectedException VuFindSearch\Backend\Exception\BackendException
+     * @expectedExceptionMessage test
+     */
+    public function testRetrieveBatchInterfaceException()
+    {
+        // Use a special backend for this test...
+        $this->backend = $this->getMock('VuFindTest\TestClassForRetrieveBatchInterface');
+
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $params = new ParamBag(array('x' => 'y'));
+        $exception = new BackendException('test');
+        $ids = array('bar', 'baz');
+        $backend->expects($this->once(0))->method('retrieveBatch')
+            ->with($this->equalTo($ids), $this->equalTo($params))
+            ->will($this->throwException($exception));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('error'), $this->equalTo($exception));
+        $service->retrieveBatch('foo', $ids, $params);
+
+        // Put the backend back to the default:
+        unset($this->backend);
+    }
+
+    /**
+     * Test exception-throwing batch retrieve action (without
+     * RetrieveBatchInterface).
+     *
+     * @return void
+     * @expectedException VuFindSearch\Backend\Exception\BackendException
+     * @expectedExceptionMessage test
+     */
+    public function testRetrieveBatchNoInterfaceException()
+    {
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $params = new ParamBag(array('x' => 'y'));
+        $exception = new BackendException('test');
+        $backend->expects($this->once())->method('retrieve')
+            ->with($this->equalTo('bar'), $this->equalTo($params))
+            ->will($this->throwException($exception));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('error'), $this->equalTo($exception));
+        $service->retrieveBatch('foo', array('bar'), $params);
+    }
+
+    /**
+     * Test similar action.
+     *
+     * @return void
+     */
+    public function testSimilar()
+    {
+        // Use a special backend for this test...
+        $this->backend = $this->getMock('VuFindTest\TestBackendClassForSimilar');
+
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $response = 'fake';
+        $params = new ParamBag(array('x' => 'y'));
+        $backend->expects($this->once())->method('similar')
+            ->with($this->equalTo('bar'), $this->equalTo($params))
+            ->will($this->returnValue($response));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('post'), $this->equalTo($response));
+        $service->similar('foo', 'bar', $params);
+
+        // Put the backend back to the default:
+        unset($this->backend);
+    }
+
+    /**
+     * Test exception-throwing similar action.
+     *
+     * @return void
+     * @expectedException VuFindSearch\Backend\Exception\BackendException
+     * @expectedExceptionMessage test
+     */
+    public function testSimilarException()
+    {
+        // Use a special backend for this test...
+        $this->backend = $this->getMock('VuFindTest\TestBackendClassForSimilar');
+
+        $service = $this->getService();
+        $backend = $this->getBackend();
+        $params = new ParamBag(array('x' => 'y'));
+        $exception = new BackendException('test');
+        $backend->expects($this->once())->method('similar')
+            ->with($this->equalTo('bar'), $this->equalTo($params))
+            ->will($this->throwException($exception));
+        $em = $service->getEventManager();
+        $em->expects($this->at(0))->method('trigger')
+            ->with($this->equalTo('pre'), $this->equalTo($backend));
+        $em->expects($this->at(1))->method('trigger')
+            ->with($this->equalTo('error'), $this->equalTo($exception));
+        $service->similar('foo', 'bar', $params);
+
+        // Put the backend back to the default:
+        unset($this->backend);
+    }
+
+    /**
+     * Test a failure to resolve.
+     *
+     * @return void
+     * @expectedException VuFindSearch\Exception\RuntimeException
+     * @expectedExceptionMessage Unable to resolve backend: retrieve, junk
+     */
+    public function testFailedResolve()
+    {
+        $mockResponse = $this->getMock('Zend\EventManager\ResponseCollection');
+        $mockResponse->expects($this->any())->method('stopped')->will($this->returnValue(false));
+        $em = $this->getMock('Zend\EventManager\EventManagerInterface');
+        $service = new Service();
+        $em->expects($this->any())->method('trigger')
+            ->with($this->equalTo('resolve'), $this->equalTo($service))
+            ->will($this->returnValue($mockResponse));
+        $service->setEventManager($em);
+        $service->retrieve('junk', 'foo');
+    }
+
     // Internal API
 
     /**
      * Get a mock backend.
      *
-     * @return \VuFindSearch\Backend\BackendInterface
+     * @return BackendInterface
      */
     protected function getBackend()
     {
@@ -103,4 +347,33 @@ class SearchServiceTest extends TestCase
         $service->setEventManager($em);
         return $service;
     }
+
+    /**
+     * Generate a fake record collection.
+     *
+     * @param string $id ID of record to include in collection.
+     *
+     * @return AbstractRecordCollection
+     */
+    protected function getRecordCollection()
+    {
+        return $this->getMock('VuFindSearch\Response\AbstractRecordCollection');
+    }
+}
+
+/**
+ * Stub class to test multiple interfaces.
+ */
+abstract class TestClassForRetrieveBatchInterface
+    implements BackendInterface, RetrieveBatchInterface
+{
+}
+
+/**
+ * Stub class to test similar.
+ */
+abstract class TestBackendClassForSimilar
+    implements BackendInterface
+{
+    abstract function similar();
 }

@@ -1498,6 +1498,12 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $pickupLocation = $this->getDefaultPickUpLocation($patron, $details);
         }
         $comment = $details['comment'];
+        if (strlen($comment) <= 50) {
+            $comment1 = $comment;
+        } else {
+            $comment1 = substr($comment, 0, 50);
+            $comment2 = substr($comment, 50, 50);
+        }
         try {
             $requiredBy = $this->dateConverter
                 ->convertFromDisplayDate('Ymd', $details['requiredBy']);
@@ -1514,7 +1520,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         );
         $body->addChild('pickup-location', $pickupLocation);
         $body->addChild('last-interest-date', $requiredBy);
-        $body->addChild('note-l', $comment);
+        $body->addChild('note-1', $comment1);
+        if (isset($comment2)) {
+            $body->addChild('note-2', $comment2);
+        }
         $body = 'post_xml=' . $body->asXML();
         try {
             $result = $this->doRestDLFRequest(
