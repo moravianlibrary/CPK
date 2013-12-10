@@ -85,7 +85,18 @@ class ShibbolethWithWAYF extends Shibboleth
         }
         foreach ($this->attribsToCheck as $attribute) {
             if (isset($config->$attribute)) {
-                $value = $request->getServer()->get($config->$attribute);
+                $key = $config->$attribute;
+                $pattern = null;
+                if (strpos($key, ',') !== false) {
+                    list ($key, $pattern) = explode(',', $key, 2);
+                    $pattern = trim($pattern);
+                }
+                $value = $request->getServer()->get($key);
+                if ($pattern != null) {
+                    $matches = array();
+                    preg_match($pattern, $value, $matches);
+                    $value = $matches[1];
+                }
                 if ($attribute == 'cat_username') {
                     $user->$attribute = $prefix . self::SEPARATOR . $value;
                 } else {
