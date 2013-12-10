@@ -433,6 +433,11 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
 
     public function placeHold($details)
     {
+        $patron = $details['patron'];
+        if (!$this->validatePatronAgainstBibId($patron, $details['id'])) {
+            throw new ILSException('User is not authorized!');
+        }
+        $details['patron'] = $patron;
         $id = $details['id'];
         $source = $this->getSource($id);
         $driver = $this->getDriver($source);
@@ -440,6 +445,84 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
             $details['id'] = $this->getLocalId($id);
             return $driver->placeHold($details);
         }
+    }
+
+    public function cancelHolds($details)
+    {
+        $statuses = array();
+        foreach($details['details'] as $itemId) {
+            $patron = $details['patron'];
+            if ($this->validatePatronAgainstBibId($patron, $itemId)) {
+                $source = $this->getSource($itemId);
+                $driver = $this->getDriver($source);
+                $localItemId = $this->getLocalId($itemId);
+                $localDetails = array(
+                    'details' => array($localItemId),
+                    'patron'  => $patron,
+                );
+                $results = $driver->cancelHolds($localDetails);
+                foreach ($results as $key => $value) {
+                    $statuses[$source . '.' . $key] = $value;
+                }
+            }
+        }
+        return $statuses;
+    }
+
+    public function getMyTransactions($user)
+    {
+        $key = $this->getSource($user['id'], $this->delimiters['login']);
+        $user['id'] = $this->getLocalID($user['id'], $this->delimiters['login']);
+        $driver = $this->getDriver($key);
+        $results = array();
+        if (is_callable(array($driver, "getMyTransactions"))) {
+            $results = $driver->getMyTransactions($user);
+            foreach ($results as &$result) {
+                $id = $result['id'];
+                $result['id'] = $key . '.' . $id;
+            }
+        }
+        return $results;
+    }
+
+    public function getMyHolds($user)
+    {
+        $key = $this->getSource($user['id'], $this->delimiters['login']);
+        $user['id'] = $this->getLocalID($user['id'], $this->delimiters['login']);
+        $driver = $this->getDriver($key);
+        $results = array();
+        if (is_callable(array($driver, "getMyHolds"))) {
+            $results = $driver->getMyHolds($user);
+            foreach ($results as &$result) {
+                $result['id']      = $key . '.' . $result['id'];
+                $result['item_id'] = $key . '.' . $result['item_id'];
+            }
+        }
+        return $results;
+    }
+
+    public function getMyFines($user)
+    {
+        $key = $this->getSource($user['id'], $this->delimiters['login']);
+        $user['id'] = $this->getLocalID($user['id'], $this->delimiters['login']);
+        $driver = $this->getDriver($key);
+        $results = array();
+        if (is_callable(array($driver, "getMyFines"))) {
+            $results = $driver->getMyFines($user);
+        }
+        return $results;
+    }
+
+    public function getMyProfile($user)
+    {
+        $key = $this->getSource($user['id'], $this->delimiters['login']);
+        $user['id'] = $this->getLocalID($user['id'], $this->delimiters['login']);
+        $driver = $this->getDriver($key);
+        $results = array();
+        if (is_callable(array($driver, "getMyProfile"))) {
+            $results = $driver->getMyProfile($user);
+        }
+        return $results;
     }
 
     /**
@@ -471,6 +554,9 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
      */
     protected function getStatusOrHolding($id, $method, $patron = false)
     {
+        if (!$this->validatePatronAgainstBibId($patron, $id)) {
+            $patron = false;
+        }
         $method = "get".ucfirst($method);
         $source = $this->getSource($id);
         $driver = $this->getDriver($source);
@@ -482,7 +568,16 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
         }
         //$source not found in $drivers
         return Array();
+    }
 
+    protected function validatePatronAgainstBibId(&$patron, $bibId) {
+        $bibSource = $this->getSource($bibId);
+        $patronSource = $this->getSource($patron['id'], $this->delimiters['login']);
+        $valid = ($bibSource == $patronSource);
+        if ($valid) {
+            $patron['id'] = $this->getLocalID($patron['id'], $this->delimiters['login']);
+        }
+        return $valid;
     }
 
     /**
@@ -526,8 +621,8 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
             $key = $this->getSource($username, $this->delimiters['login']);
             $user = $this->getLocalID($username, $this->delimiters['login']);
             $login = $this->getDriver($key)->patronLogin($user, $password);
-            $login['cat_username']
-                = $key.$this->delimiters['login'].$login['cat_username'];
+            $login['id']
+                = $key . $this->delimiters['login'] . $login['id'];
             return $login;
         }
         foreach (array_keys($this->drivers) as $key) {
@@ -707,6 +802,9 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
     }
 
     protected function getPickUpLocationsOrDefault($patron, $default, $holdInfo=null) {
+        if (!$this->validatePatronAgainstBibId($patron, $holdInfo['id'])) {
+            throw new ILSException('User is not authorized!');
+        }
         if ($holdInfo != null) {
             $bibId = $holdInfo['id'];
             $itemId = $holdInfo['item_id'];
