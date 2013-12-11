@@ -447,6 +447,28 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
         }
     }
 
+    public function renewMyItems($details)
+    {
+        $statuses = array();
+        foreach($details['details'] as $itemId) {
+            $patron = $details['patron'];
+            if ($this->validatePatronAgainstBibId($patron, $itemId)) {
+                $source = $this->getSource($itemId);
+                $driver = $this->getDriver($source);
+                $localItemId = $this->getLocalId($itemId);
+                $localDetails = array(
+                    'details' => array($localItemId),
+                    'patron'  => $patron,
+                );
+                $results = $driver->renewMyItems($localDetails);
+                foreach ($results as $key => $value) {
+                    $statuses[$source . '.' . $key] = $value;
+                }
+            }
+        }
+        return $statuses;
+    }
+
     public function cancelHolds($details)
     {
         $statuses = array();
@@ -479,7 +501,8 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
             $results = $driver->getMyTransactions($user);
             foreach ($results as &$result) {
                 $id = $result['id'];
-                $result['id'] = $key . '.' . $id;
+                $result['id']      = $key . '.' . $id;
+                $result['item_id'] = $key . '.' . $result['item_id'];
             }
         }
         return $results;
