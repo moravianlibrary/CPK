@@ -955,9 +955,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $author = (string) $z13->{'z13-author'};
             $isbn = (string) $z13->{'z13-isbn-issn'};
             $barcode = (string) $z30->{'z30-barcode'};
+            $id = ($history) ? null : $this->barcodeToID($barcode);
             $transList[] = array(
                 //'type' => $type,
-                'id' => ($history)?null:$this->barcodeToID($barcode),
+                'id' => $id,
                 'item_id' => $group,
                 'location' => $location,
                 'title' => $title,
@@ -1571,7 +1572,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                     );
                     $id = $result->xpath('//doc_number/text()');
                     if (count($this->bib)==1) {
-                        return $id[0];
+                        return (string) $id[0];
                     } else {
                         return $base . "-" . $id[0];
                     }
