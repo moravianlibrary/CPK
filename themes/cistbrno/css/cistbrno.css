@@ -179,9 +179,11 @@ margin-top: 5px;
 color: #966023;
 }
 
+/*
 .row-fluid .span3 {
 margin-bottom: 50px;
 }
+*/
 
 ul, menu, dir {
 display: block;
@@ -249,8 +251,18 @@ list-style-type: none;
   opacity: 1;
 }
 
+select.resultsOnPageLimiter {
+  width: initial;
+}
 
+label.resultsOnPageLimiter {
+  display: inline;
+}
 
+select.resultsSortOptions {
+  width: initial;
+}
 
-
-
+label.resultsSortOptions {
+  display: inline;
+}
