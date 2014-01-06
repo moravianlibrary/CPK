@@ -28,7 +28,7 @@
       </div>
     <? elseif (!$user->cat_username): ?>
       <div class="alert alert-info">
-        <?=$this->translate("hold_profile_html", array('%%url%%' => $this->currentPath() . '?catalogLogin=true'))?>
+        <?=$this->transEsc("hold_profile_html", array('%%url%%' => $this->currentPath() . '?catalogLogin=true'))?>
       </div>
     <? endif; ?>
   <? endif; ?>
@@ -135,9 +135,9 @@
 <? $history = $this->driver->getRealTimeHistory(); ?>
 <? if (is_array($history) && !empty($history)): ?>
 <h3><?=$this->transEsc("Most Recent Received Issues")?></h3>
-<ul>
+<table class="table table-striped">
   <? foreach ($history as $row): ?>
-    <li><?=$this->escapeHtml($row['issue'])?></li>
+    <tr><td><?=$this->escapeHtml($row['issue'])?></td></tr>
   <? endforeach; ?>
-</ul>
+</table>
 <? endif; ?>
