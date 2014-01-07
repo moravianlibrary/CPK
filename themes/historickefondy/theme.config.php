@@ -1,5 +1,5 @@
 <?php
 return array(
-    'extends' => 'blueprint',
+    'extends' => 'bootstrap',
     'favicon' => 'favicon.ico',
 );
