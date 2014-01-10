@@ -663,6 +663,11 @@ $config = array(
                         return new \VuFind\Recommend\MapSelection(
                             $sm->getServiceLocator()->get('VuFind\Config')
                         );
+                    },
+                    'newitems' => function($sm) {
+                        return new \VuFind\Recommend\NewItems(
+                            $sm->getServiceLocator()->get('VuFind\Config')
+                        );
                     }
                 ),
                 'invokables' => array(
