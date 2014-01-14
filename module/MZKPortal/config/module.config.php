@@ -103,6 +103,7 @@ $config = array(
     'controllers' => array(
         'invokables' => array(
             'my-research' => 'MZKPortal\Controller\MyResearchController',
+            'search' => 'MZKCommon\Controller\SearchController',
         ),
     ),
     'service_manager' => array(
