@@ -1,6 +1,6 @@
 <?php
 return array(
-    'extends' => 'obalkyknih-bootstrap',
+    'extends' => 'common-bootstrap',
     'css' => array(
         'cistbrno.css'
     ),
