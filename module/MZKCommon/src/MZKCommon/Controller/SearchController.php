@@ -62,4 +62,15 @@ class SearchController extends SearchControllerBase
         );
     }
 
+    public function mostSearchedAction()
+    {
+        $to = time();
+        $from = $to - (24 * 60 * 60);
+        $userStats = $this->getTable('UserStatsFields');
+        $queries = $userStats->getMostSearchedQueries($from, $to)->toArray();
+        return $this->createViewModel(
+            array('queries' => $queries)
+        );
+    }
+
 }

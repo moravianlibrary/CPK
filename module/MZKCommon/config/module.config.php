@@ -10,7 +10,7 @@ $config = array(
 );
 
 $staticRoutes = array(
-    'Search/Conspectus'
+    'Search/Conspectus', 'Search/MostSearched'
 );
 
 foreach ($staticRoutes as $route) {
