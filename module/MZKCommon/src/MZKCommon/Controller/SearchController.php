@@ -64,12 +64,22 @@ class SearchController extends SearchControllerBase
 
     public function mostSearchedAction()
     {
-        $to = time();
-        $from = $to - (24 * 60 * 60);
-        $userStats = $this->getTable('UserStatsFields');
-        $queries = $userStats->getMostSearchedQueries($from, $to)->toArray();
+        $cache = $this->getServiceLocator()->get('VuFind\CacheManager')
+            ->getCache('object');
+        $cacheName = 'mostSearched';
+        $result = $cache->getItem($cacheName);
+        $now = time();
+        if (!$result || ($now - $result['time']) > 60 * 60) {
+            $from = $now - (24 * 60 * 60);
+            $userStats = $this->getTable('UserStatsFields');
+            $queries = $userStats->getMostSearchedQueries($from, $now)->toArray();
+            $result = array();
+            $result['queries'] = $queries;
+            $result['time'] = $now;
+            $cache->setItem($cacheName, $result);
+        }
         return $this->createViewModel(
-            array('queries' => $queries)
+            array('queries' => $result['queries'])
         );
     }
 
