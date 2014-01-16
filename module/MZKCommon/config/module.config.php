@@ -1,31 +1,31 @@
 <?php
 namespace MZKCommon\Module\Configuration;
 
-/*
 $config = array(
-    'vufind' => array(
-        'plugin_managers' => array (
-            'recorddriver' => array (
-                'factories' => array(
-                    'solrmarc' => function ($sm) {
-                        $driver = new \MZKCommon\RecordDriver\SolrMarc(
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
-                            null,
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
-                        );
-                        $driver->attachILS(
-                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
-                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
-                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
-                        );
-                        return $driver;
-                    },
-                ) // factories
-            ), // recorddriver
-        ), // plugin_managers
-    ) // vufind
+    'controllers' => array(
+        'invokables' => array(
+            'search' => 'MZKCommon\Controller\SearchController',
+        ),
+    ),
 );
-*/
-$config = array();
+
+$staticRoutes = array(
+    'Search/Conspectus'
+);
+
+foreach ($staticRoutes as $route) {
+    list($controller, $action) = explode('/', $route);
+    $routeName = str_replace('/', '-', strtolower($route));
+    $config['router']['routes'][$routeName] = array(
+        'type' => 'Zend\Mvc\Router\Http\Literal',
+        'options' => array(
+            'route'    => '/' . $route,
+            'defaults' => array(
+                'controller' => $controller,
+                'action'     => $action,
+            )
+        )
+    );
+}
 
 return $config;
