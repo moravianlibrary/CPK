@@ -2,6 +2,26 @@
 namespace MZKCommon\Module\Configuration;
 
 $config = array(
+    'vufind' => array(
+        'plugin_managers' => array(
+            'ils_driver' => array(
+                'factories' => array(
+                    'aleph' => function ($sm) {
+                        return new \MZKCommon\ILS\Driver\Aleph(
+                            $sm->getServiceLocator()->get('VuFind\DateConverter'),
+                            $sm->getServiceLocator()->get('VuFind\CacheManager'),
+                            $sm->getServiceLocator()->get('VuFind\DbTablePluginManager')->get('recordstatus')
+                        );
+                    },
+                ),
+            ),
+            'db_table' => array(
+                'invokables' => array(
+                    'recordstatus' => 'MZKCommon\Db\Table\RecordStatus',
+                ),
+            ),
+        ),
+    ),
     'controllers' => array(
         'invokables' => array(
             'search' => 'MZKCommon\Controller\SearchController',
