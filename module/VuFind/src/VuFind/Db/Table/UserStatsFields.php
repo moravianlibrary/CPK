@@ -122,40 +122,53 @@ class UserStatsFields extends Gateway
      *
      * @return associative array
      */
-    public function getMostSearchedQueries($from = null, $to=null) {
-        $callback = function($select) use ($from, $to) {
-            $select->columns(
-                array(
-                    'query' => 'value',
-                    'count' => new Expression("COUNT(*)"),
-                )
-            );
-            $select->join(
-                array('stat_results' => 'user_stats_fields'),
-                'user_stats_fields.id = stat_results.id',
-                array('results' => 'value')
-            );
-            if ($from && $to) {
-                $format = "Y-m-d H:i:s";
-                $from = date($format, $from);
-                $to = date($format, $to);
-                $select->join(
-                    array('user_stats' => 'user_stats'),
-                    'user_stats.id = user_stats_fields.id',
-                    array('datestamp' => 'datestamp')
-                );
-                $select->where->greaterThan('datestamp', $from);
-                $select->where->lessThan('datestamp', $to);
-            }
-            $select->where->equalTo('user_stats_fields.field', 'phrase');
-            $select->where->notEqualTo('user_stats_fields.value', '');
-            $select->where->equalTo('stat_results.field', 'resultCount');
-            $select->where->notEqualTo('stat_results.value', '0');
-            $select->group('query');
-            $select->order('count desc');
-        };
-        
-        return $this->select($callback);
+    public function getMostSearchedQueries($from = null, $to=null, $limit = 20)
+    {
+        $subSelect = $this->sql->select();
+        $subSelect->columns(
+            array(
+                'phrase' => 'value',
+            )
+        );
+        $subSelect->join(
+            array('noresults' => 'user_stats_fields'),
+            'user_stats_fields.id = noresults.id',
+            array()
+        );
+        $subSelect->join(
+            array('user_stats' => 'user_stats'),
+            'user_stats.id = user_stats_fields.id',
+            array('session' => 'session')
+        );
+        if ($from && $to) {
+            $format = "Y-m-d H:i:s";
+            $from = date($format, $from);
+            $to = date($format, $to);
+            $subSelect->where->greaterThan('user_stats.datestamp', $from);
+            $subSelect->where->lessThan('user_stats.datestamp', $to);
+        }
+        $subSelect->where->equalTo('user_stats_fields.field', 'phrase');
+        $subSelect->where->equalTo('noresults.field', 'noresults');
+        $subSelect->where->notEqualTo('user_stats_fields.value', '');
+        $subSelect->group(array('phrase', 'session'));
+        $select = new \Zend\Db\Sql\Select();
+        $select->columns(
+            array(
+                'query' => 'phrase',
+                'count' => new Expression("COUNT(*)"),
+            )
+        );
+        $select->from(
+            array(
+                'phrase' => $subSelect
+            )
+        );
+        $select->group(array('phrase'));
+        $select->order('count desc');
+        $select->limit($limit);
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
+        return $result;
     }
 
 }

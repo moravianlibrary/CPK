@@ -41,6 +41,10 @@ use VuFind\Controller\SearchController as SearchControllerBase;
 class SearchController extends SearchControllerBase
 {
 
+    const MOST_SEARCHED_CACHE_REFRESH_TIME = 0; //3600; // 60 * 60
+    const MOST_SEARCHED_TIME_RANGE = 86400; // 24 * 60 * 60
+    const MOST_SEARCHED_CACHE_NAME = 'mostSearched';
+
     protected $conspectusField     = 'category_txtF';
     protected $conspectusFieldName = 'Conspectus';
 
@@ -66,17 +70,19 @@ class SearchController extends SearchControllerBase
     {
         $cache = $this->getServiceLocator()->get('VuFind\CacheManager')
             ->getCache('object');
-        $cacheName = 'mostSearched';
-        $result = $cache->getItem($cacheName);
+        $result = $cache->getItem(self::MOST_SEARCHED_CACHE_NAME);
         $now = time();
-        if (!$result || ($now - $result['time']) > 60 * 60) {
-            $from = $now - (24 * 60 * 60);
+        if (!$result || ($now - $result['time']) > self::MOST_SEARCHED_CACHE_REFRESH_TIME) {
+            $from = $now - self::MOST_SEARCHED_TIME_RANGE;
             $userStats = $this->getTable('UserStatsFields');
-            $queries = $userStats->getMostSearchedQueries($from, $now)->toArray();
+            $queries = array();
+            foreach ($userStats->getMostSearchedQueries($from, $now) as $row) {
+                $queries[] = $row;
+            }
             $result = array();
             $result['queries'] = $queries;
             $result['time'] = $now;
-            $cache->setItem($cacheName, $result);
+            $cache->setItem(self::MOST_SEARCHED_CACHE_NAME, $result);
         }
         return $this->createViewModel(
             array('queries' => $result['queries'])
