@@ -149,6 +149,7 @@ class UserStatsFields extends Gateway
         }
         $subSelect->where->equalTo('user_stats_fields.field', 'phrase');
         $subSelect->where->equalTo('noresults.field', 'noresults');
+        $subSelect->where->EqualTo('noresults.value', 'false');
         $subSelect->where->notEqualTo('user_stats_fields.value', '');
         $subSelect->group(array('phrase', 'session'));
         $select = new \Zend\Db\Sql\Select();

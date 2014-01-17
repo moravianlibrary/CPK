@@ -41,9 +41,7 @@ use VuFind\Controller\SearchController as SearchControllerBase;
 class SearchController extends SearchControllerBase
 {
 
-    const MOST_SEARCHED_CACHE_REFRESH_TIME = 0; //3600; // 60 * 60
-    const MOST_SEARCHED_TIME_RANGE = 86400; // 24 * 60 * 60
-    const MOST_SEARCHED_CACHE_NAME = 'mostSearched';
+    const MOST_SEARCHED_CACHE_NAME         = 'mostSearched';
 
     protected $conspectusField     = 'category_txtF';
     protected $conspectusFieldName = 'Conspectus';
@@ -68,15 +66,31 @@ class SearchController extends SearchControllerBase
 
     public function mostSearchedAction()
     {
+        $config = $this->getServiceLocator()->get('VuFind\Config')->get('searches');
+        $numberOfQueries = 20;
+        $cacheAliveTime = 60 * 60;
+        $overLastTimePeriod = 24 * 60 * 60;
+        if (isset($config->MostSearched)) {
+            $conf = $config->MostSearched;
+            if (isset($conf->numberOfQueries)) {
+                $numberOfQueries = $conf->numberOfQueries;
+            }
+            if (isset($conf->cacheAliveTime)) {
+                $cacheAliveTime = $conf->cacheAliveTime;
+            }
+            if (isset($conf->overLastTimePeriod)) {
+                $overLastTimePeriod = $conf->overLastTimePeriod;
+            }
+        }
         $cache = $this->getServiceLocator()->get('VuFind\CacheManager')
             ->getCache('object');
         $result = $cache->getItem(self::MOST_SEARCHED_CACHE_NAME);
         $now = time();
-        if (!$result || ($now - $result['time']) > self::MOST_SEARCHED_CACHE_REFRESH_TIME) {
-            $from = $now - self::MOST_SEARCHED_TIME_RANGE;
+        if (!$result || ($now - $result['time']) > $cacheAliveTime) {
+            $from = $now - $overLastTimePeriod;
             $userStats = $this->getTable('UserStatsFields');
             $queries = array();
-            foreach ($userStats->getMostSearchedQueries($from, $now) as $row) {
+            foreach ($userStats->getMostSearchedQueries($from, $now, $numberOfQueries) as $row) {
                 $queries[] = $row;
             }
             $result = array();
