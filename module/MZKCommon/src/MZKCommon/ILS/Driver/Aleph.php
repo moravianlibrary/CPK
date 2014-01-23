@@ -59,26 +59,30 @@ class Aleph extends AlephBase
         foreach ($statuses as &$status) {
             $foundIds[] = $status['record_id'];
             $holding = array();
+            $holding['id'] = $status['record_id'];
             $holding['record_id'] = $status['record_id'];
+            $holding['absent_total'] = $status['absent_total'];
             $holding['absent_avail'] = $status['absent_total'] - $status['absent_on_loan']; 
+            $holding['present_total'] = $status['present_total'];
             $holding['present_avail'] = $status['present_total'] - $status['present_on_loan'];
             $holding['availability'] = ($holding['absent_avail'] > 0
                 || $holding['present_avail'] > 0);
-            $holdings = array($holding);
+            $holdings[] = array($holding);
         }
         $missingIds = array_diff($idList, $foundIds);
         foreach ($missingIds as $missingId) {
             $holding = array(
-                "id" => $missingId,
-                "absent_total"  => 0,
-                "absent_avail"  => 0,
-                "present_total" => 0,
-                "present_avail" => 0,
-                "availability"  => false,
+                'id' => $missingId,
+                'record_id' => $missingId,
+                'absent_total'  => 0,
+                'absent_avail'  => 0,
+                'present_total' => 0,
+                'present_avail' => 0,
+                'availability'  => false,
             );
             $holdings[] = array($holding);
         }
-        //var_export($holdings);
-        return parent::getStatuses($idList);
+        return $holdings;
     }
+
 }

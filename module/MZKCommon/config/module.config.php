@@ -25,6 +25,7 @@ $config = array(
     'controllers' => array(
         'invokables' => array(
             'search' => 'MZKCommon\Controller\SearchController',
+            'ajax' => 'MZKCommon\Controller\AjaxController',
         ),
     ),
 );

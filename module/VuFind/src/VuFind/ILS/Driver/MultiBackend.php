@@ -424,16 +424,23 @@ class MultiBackend extends AbstractBase implements ServiceLocatorAwareInterface
      */
     public function getStatuses($ids)
     {
-        $items = array();
         $idsByLibrary = array();
         foreach ($ids as $id) {
             $source = $this->getSource($id);
             $localItemId = $this->getLocalId($id);
             $idsByLibrary[$source][] = $localItemId;
         }
+        $items = array();
         foreach ($idsByLibrary as $source => $localIds) {
             $driver = $this->getDriver($source);
-            array_push($items, $driver->getStatuses($localIds));
+            $statuses = $driver->getStatuses($localIds);
+            foreach ($statuses as &$statusesInner) {
+                foreach ($statusesInner as &$status) {
+                    $status['id'] = $source . '.' . $status['id'];
+                    $status['record_id'] = $source . '.' . $status['record_id'];
+                }
+                $items[] = $statusesInner;
+            }
         }
         return $items;
     }

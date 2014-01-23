@@ -1,0 +1,13 @@
+<!--<?=var_export($this->status)?>-->
+<span class="label <?=($this->status['absent_avail'] > 0)? 'label-success' : 'label-important'?>">
+  <?=$this->transEsc("absent")?> :
+  <?=$this->escapeHtml($this->status['absent_avail'])?>
+  <?=$this->transEsc("of")?>
+  <?=$this->escapeHtml($this->status['absent_total'])?>
+</span>
+<span class="label <?=($this->status['present_avail'] > 0)? 'label-success' : 'label-important'?>">
+  <?=$this->transEsc("present")?> :
+  <?=$this->escapeHtml($this->status['present_avail'])?>
+  <?=$this->transEsc("of")?>
+  <?=$this->escapeHtml($this->status['present_total'])?>
+</span>
