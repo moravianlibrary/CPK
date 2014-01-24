@@ -44,6 +44,8 @@ class Aleph extends AlephBase
     
     protected $recordStatus;
     
+    protected $availabilitySource = 'mzk';
+    
     public function __construct(\VuFind\Date\Converter $dateConverter,
         \VuFind\Cache\Manager $cacheManager = null, \MZKCommon\Db\Table\RecordStatus $recordStatus
     ) {
@@ -51,9 +53,17 @@ class Aleph extends AlephBase
         $this->recordStatus = $recordStatus;
     }
     
+    public function init()
+    {
+        parent::init();
+        if (isset($this->config['Availability']['source'])) {
+            $this->availabilitySource = $this->config['Availability']['source'];
+        }
+    }
+    
     public function getStatuses($idList)
     {
-        $statuses = $this->recordStatus->getByIds('mzk', $idList);
+        $statuses = $this->recordStatus->getByIds($this->availabilitySource, $idList);
         $foundIds = array();
         $holdings = array();
         foreach ($statuses as &$status) {

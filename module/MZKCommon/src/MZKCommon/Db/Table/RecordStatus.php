@@ -58,11 +58,11 @@ class RecordStatus extends Gateway
      */
     public function getByIds($source, $ids)
     {
-        $select = $this->sql->select();
-        $select = new \Zend\Db\Sql\Select();
-        $select->where->equalTo('source', $source);
-        $select->where->in('record_id', $ids);
-        return $this->select($select)->toArray();
+        $callback = function ($select) use ($source, $ids) {
+            $select->where->equalTo('source', $source);
+            $select->where->in('record_id', $ids);
+        };
+        return $this->select($callback)->toArray();
     }
     
 }

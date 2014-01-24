@@ -1,4 +1,3 @@
-<!--<?=var_export($this->status)?>-->
 <span class="label <?=($this->status['absent_avail'] > 0)? 'label-success' : 'label-important'?>">
   <?=$this->transEsc("absent")?> :
   <?=$this->escapeHtml($this->status['absent_avail'])?>
