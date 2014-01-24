@@ -15,6 +15,23 @@ $config = array(
                     },
                 ),
             ),
+            'recorddriver' => array (
+                'factories' => array(
+                    'solrdefault' => function ($sm) {
+                        $driver = new \MZKCommon\RecordDriver\SolrMarc(
+                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+                            null,
+                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+                        );
+                        $driver->attachILS(
+                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+                        );
+                        return $driver;
+                    },
+                ) /* factories */
+            ), /* recorddriver */
             'db_table' => array(
                 'invokables' => array(
                     'recordstatus' => 'MZKCommon\Db\Table\RecordStatus',

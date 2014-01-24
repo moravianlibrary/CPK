@@ -2,7 +2,7 @@
 
 function checkItemStatuses() {
   var id = $.map($('.ajaxItem'), function(i) {
-    return $(i).find('.hiddenId')[0].value;
+    return $(i).find('.availabilityId').text();
   });
   if (!id.length) {
     return;

@@ -44,7 +44,7 @@ class Aleph extends AlephBase
     
     protected $recordStatus;
     
-    protected $availabilitySource = 'mzk';
+    protected $availabilitySource = null;
     
     public function __construct(\VuFind\Date\Converter $dateConverter,
         \VuFind\Cache\Manager $cacheManager = null, \MZKCommon\Db\Table\RecordStatus $recordStatus
