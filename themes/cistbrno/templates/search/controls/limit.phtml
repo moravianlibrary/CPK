@@ -1,6 +1,7 @@
 <div class="limitSelect">
   <? $limitList = $this->params->getLimitList(); if (count($limitList) > 1): ?>
-    <form class="form-inline" action="<?=$this->currentPath() . $this->results->getUrlQuery()->setLimit(null)?>" method="post" name="limit">
+    <form class="form-inline" action="<?=$this->currentPath() . $this->results->getUrlQuery()->setLimit(null)?>" method="get" name="limit">
+      <?=$this->results->getUrlQuery()->asHiddenFields(array('limit' => '/.*/'));?>
       <label for="limit" class="resultsOnPageLimiter"><?=$this->transEsc('Results per page')?></label>
       <select id="limit" name="limit" class="jumpMenu resultsOnPageLimiter" onChange="document.limit.submit()">
         <? foreach ($limitList as $limitVal => $limitData): ?>
