@@ -121,9 +121,6 @@ $(document).ready(function() {
     },
     matcher:function(item) {
         return true;
-    },
-    updater:function(items) {
-        return null;
     }
   });
 
