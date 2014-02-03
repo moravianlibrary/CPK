@@ -92,6 +92,26 @@ $(document).ready(function() {
       } while(t.length > 0);
     });
 
+  // http://bibwild.wordpress.com/2013/04/04/overriding-bootstrap-typeahead-to-not-initially-select/
+  $.fn.typeahead.Constructor.prototype.render = function(items) {
+    var that = this;
+    items = $(items).map(function (i, item) {
+      i = $(that.options.item).attr('data-value', item);
+      i.find('a').html(that.highlighter(item));
+      return i[0];
+    });
+    this.$menu.html(items);
+    return this;
+  };
+
+  $.fn.typeahead.Constructor.prototype.select = function() {
+    var val = this.$menu.find('.active').attr('data-value');
+    if (val) {
+      this.$element.val(this.updater(val)).change();
+    }
+    return this.hide();
+  };
+
   // Search autocomplete
   var autoCompleteRequest, autoCompleteTimer;
   $('.autocomplete').typeahead({
@@ -109,9 +129,7 @@ $(document).ready(function() {
           dataType:'json',
           success: function(json) {
             if (json.status == 'OK' && json.data.length > 0) {
-              items = json.data;
-              items.unshift(query);
-              process(items);
+              process(json.data);
             } else {
               process([]);
             }
