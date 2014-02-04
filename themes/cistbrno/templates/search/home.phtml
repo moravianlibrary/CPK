@@ -29,7 +29,7 @@
       <?=$this->render("search/searchbox-mainpage.phtml")?>
     </div>
     <div class="row clearfix">
-      <div class="span8">
+      <div class="span8 searchOptions">
         <p><strong><?=$this->transEsc('Search Options')?></strong></p>
         <ul>
           <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
@@ -38,7 +38,7 @@
           <li><a href="<?=$this->url('search-mostsearched')?>"><?=$this->transEsc('Most searched queries')?></a></li>
         </ul>
       </div>
-      <div class="span4">
+      <div class="span4 findMore">
         <p><strong><?=$this->transEsc('Find More')?></strong></p>
         <ul>
           <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
