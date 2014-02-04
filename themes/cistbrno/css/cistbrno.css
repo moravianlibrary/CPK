@@ -259,3 +259,7 @@ select.resultsSortOptions {
 label.resultsSortOptions {
   display: inline;
 }
+
+img.langFlag {
+  margin-left: 5px;
+}

@@ -10,16 +10,19 @@
 
     <ul class="nav navbar-nav pull-right">
       <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
-        <li class="header-languages">
-          <form class="form-inline" method="post" name="langForm" action="" id="langForm">
-              <select onChange="document.langForm.submit()" id="langForm_mylang" name="mylang" class="jumpMenu">
-                <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
-                  <option value="<?=$langCode?>"<?=$this->layout()->userLang == $langCode ? ' selected="selected"' : ''?>><?=$this->displayLanguageOption($langName)?></option>
-                <? endforeach; ?>
-              </select>
-              <noscript><input type="submit" class="btn" value="<?=$this->transEsc("Set")?>" /></noscript>
-          </form>
-        </li>
+        <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
+          <?
+            $langImg = 'lang/' . $langCode . '.png';
+            $queryParams = array('lng' => $langCode);
+            parse_str($_SERVER['QUERY_STRING'], $params);
+            $queryParams = array_merge($params, $queryParams);
+          ?>
+          <li>
+            <a class="modal-link" href="<?=$this->url(null, array(), array('query' => $queryParams));?>">
+              <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>">
+            </a>
+          </li>
+        <? endforeach; ?>
       <? endif; ?>
       
       <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
@@ -36,7 +39,7 @@
           <span id="loginOptions"<? if($account->isLoggedIn()): ?> class="hide"<? endif ?>>
             <i class="icon-signin"></i> 
             <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
-              <a href="<?=$this->escapeHtml($sessionInitiator)?>"><?=$this->transEsc("Institutional Login")?></a>
+              <a href="<?=$this->escapeHtml($sessionInitiator)?>"><?=$this->transEsc("Login")?></a>
             <? else: ?>
               <a href="<?=$this->url('myresearch-home')?>" class="modal-link" title="<?=$this->transEsc("Login")?>"><?=$this->transEsc("Login")?></a>
             <? endif; ?>
@@ -44,9 +47,9 @@
         </li>
       <? endif; ?>
       
-      <div class="header-finisher"/>
-      
     </ul>
+
+    <div class="header-finisher"></div>
 
   </div>
 </nav>
