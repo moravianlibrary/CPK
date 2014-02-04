@@ -2,8 +2,8 @@
 function obalky_display_thumbnail(element, bibinfo) {
   href = bibinfo["cover_thumbnail_url"];
   if (href != undefined) {
-    cover_text = 'FIXME';
-    $(element).html("<a href='" + bibinfo["backlink_url"] + "' class='title'><img class='img-polaroid' src='" + bibinfo["cover_medium_url"] + "' alt='" + cover_text + "' height='80' width='63'></img></a>");
+    cover_text = 'cover';
+    $(element).html("<a href='" + bibinfo["backlink_url"] + "' class='title'><img src='" + bibinfo["cover_medium_url"] + "' alt='" + cover_text + "' height='80' width='63'></img></a>");
   }
 }
 
