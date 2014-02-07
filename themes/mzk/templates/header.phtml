@@ -1,0 +1,78 @@
+<? $account = $this->auth()->getManager(); ?>
+<div class="navbar header">
+
+  <div>
+  <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
+    <ul class="nav navbar-nav pull-right">
+      <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
+        <?
+          $langImg = 'lang/' . $langCode . '.png';
+          $queryParams = array('lng' => $langCode);
+          parse_str($_SERVER['QUERY_STRING'], $params);
+          $queryParams = array_merge($params, $queryParams);
+        ?>
+        <li>
+          <a class="modal-link" href="<?=$this->url(null, array(), array('query' => $queryParams));?>">
+            <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>">
+          </a>
+        </li>
+      <? endforeach; ?>
+    </ul>
+  <? endif; ?>
+  </div>
+</div>
+<br>
+
+  <div class="navbar header">
+
+    <ul class="nav navbar-nav pull-left">
+      <li class="header-logo">
+        <a href="<?=$this->url('home')?>"><img src="<?=$this->imageLink('logo-mzk.png') ?>"></img></a>
+      </li>
+      <li>
+        <? if ($this->layout()->searchbox !== false): ?>
+          <?=$this->layout()->searchbox?>
+        <? endif;?>
+      </li>
+    </ul>
+
+    <ul class="nav navbar-nav pull-right">
+      
+      
+      <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
+        <li _class="header-login">
+          <!--
+          <? $cart = $this->cart(); if ($cart->isActive()): ?>
+            <span id="cartSummary">
+              <i class="icon-shopping-cart"></i> <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>"><strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
+              <span class="muted">&nbsp;/&nbsp;</span>
+            </span>
+          <? endif; ?>
+          -->
+          <span class="registrationOptions <? if($account->isLoggedIn()): ?> hide<? endif ?>">
+            <a href="https://www.mzk.cz/registration_mzk" title="<?=$this->transEsc("Register")?>"><?=$this->transEsc("Register")?></a>
+          </span>
+          <span class="myAccountOptions <? if(!$account->isLoggedIn()): ?> hide<? endif ?>">
+            <a href="<?=$this->url('myresearch-home')?>" class="modal-link" title="<?=$this->transEsc("MyResearch")?>"><?=$this->transEsc("MyResearch")?></a>
+          </span>
+          <span class="logoutOptions<? if(!$account->isLoggedIn()): ?> hide<? endif ?>">
+            <a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?></a>
+          </span>
+          <span id="loginOptions"<? if($account->isLoggedIn()): ?> class="hide"<? endif ?>>
+            <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
+              <a href="<?=$this->escapeHtml($sessionInitiator)?>"><?=$this->transEsc("Login")?></a>
+            <? else: ?>
+              <a href="<?=$this->url('myresearch-home')?>" class="modal-link" title="<?=$this->transEsc("Login")?>"><?=$this->transEsc("Login")?></a>
+            <? endif; ?>
+          </span>
+        </li>
+      <? endif; ?>
+      
+    </ul>
+
+    <div class="header-finisher"></div>
+
+  </div>
+<!--   
+</nav>
+ -->

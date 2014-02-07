@@ -1,6 +1,6 @@
 <?php
 return array(
-    'extends' => 'obalkyknih-blueprint',
+    'extends' => 'common-bootstrap',
     'css' => array(
         'mzk.css'
     ),
