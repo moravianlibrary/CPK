@@ -1,0 +1,11 @@
+<table class="table table-bordered">
+  <tr>
+    <th><?=$this->transEsc('by')?></th>
+    <th><?=$this->transEsc('title')?></th>
+    <th><?=$this->transEsc('published')?></th>
+    <th><?=$this->transEsc('availability')?></th>
+  </tr>
+  <? $i = 0; foreach ($this->results->getResults() as $current): ?>
+    <?=$this->record($current)->getSearchResult('table')?>
+  <? endforeach; ?>
+</table>
