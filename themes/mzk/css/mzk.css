@@ -1,3 +1,182 @@
 body {
-  background: #F5F5F5;
+  background-color: #F5F5F5;
+  font-family: Arial, sans-serif !important;
+  font-size: 13px;
+  color: #392529;
+  color: #525252;
+}
+
+label, input, button, select, textarea {
+  font-size: 13px;
+}
+
+/* header */
+
+div.header {
+  background-color: #fff;
+}
+
+/* language bar */
+
+.navbar .nav>li> a.language  {
+  float: none;
+  padding: 5px;
+  color: #16969D;
+  text-decoration: none; /* should be underline, but the flag should not be underlined */
+  text-shadow: none;
+}
+
+/* login box */
+
+a.myresearch, a.register {
+  background: #fff;
+  border: 1px solid #D1EFF1;
+  color: #16969D;
+  cursor: pointer;
+  float: left;
+  font-family: 'Arial';
+  font-size: 11px;
+  font-weight: bold;
+  height: 33px;
+  line-height: 30px;
+  vertical-align: middle;
+  right: -35px;
+  padding: 0 0 0 12px;
+  position: relative;
+  text-transform: uppercase;
+  top: 9px;
+  width: 117px;
+  text-decoration: none;
+}
+
+a.login, a.logout {
+  background: url('/themes/mzk/images/btn-submit-shaped.png') no-repeat left top;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  float: left;
+  font-family: 'Arial';
+  font-size: 11px;
+  font-weight: bold;
+  height: 35px;
+  line-height: 35px;
+  vertical-align: middle;
+  padding: 0 0 0 30px;
+  position: relative;
+  right: 0px;
+  text-transform: uppercase;
+  top: -1px;
+  width: 80px;
+  text-decoration: none;
+  margin-top: 10px;
+}
+
+/* cart */
+#cartSummary {
+  position: relative;
+  right: -35px;
+}
+
+/* breadcrumb */ 
+
+.navbar .nav>li> a.language:hover {
+  text-decoration: none;
+}
+
+/* search box */
+input.search-query {
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  background: #d1eff1;
+  margin-top: 15px;
+}
+
+select.search-query {
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  background: #d1eff1;
+  width: inherit;
+  margin-left: 10px;
+  margin-top: 15px;
+}
+
+button.search-query {
+  font-family: 'Arial';
+  font-size: 11px;
+  font-weight: bold;
+  background: transparent url("/themes/mzk/images/btn-submit.png") repeat-x left top;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  text-transform: uppercase;
+  height: 30px;
+  width: 100px;
+  margin-left: 10px;
+  margin-top: 15px;
+}
+
+div.search-query-options {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* breadcrumb */
+
+.breadcrumb {
+  background: #3cb9c3;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#3cb9c3), to(#3cb9c3));
+}
+
+.breadcrumb-nav>li {
+  color: #fff;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.breadcrumb-nav>li>a {
+  color: #fff;
+}
+
+/* styling of links */
+
+a {
+  color: #16969D;
+  text-decoration: underline;
+}
+
+a:hover, .hoverLink {
+  color: #16969D;
+  text-decoration: none;
+}
+
+/* search results */
+.form-line {
+  background-color: #fff;
+}
+
+li.nav-header {
+  margin: 30px 10px 10px 10px;
+  background: #504b55;
+  padding: 6px 8px;
+  color: #fff;
+  padding: 6px 8px;
+}
+
+/* facets */
+div.sidebar {
+  background-color: #fff;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.nav>li>a:hover, .nav>li>a:focus {
+  background-color: inherit;
+}
+
+div.span9 {
+  background-color: #fff;
+  padding: 10px;
 }

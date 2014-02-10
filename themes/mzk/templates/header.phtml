@@ -12,8 +12,9 @@
           $queryParams = array_merge($params, $queryParams);
         ?>
         <li>
-          <a class="modal-link" href="<?=$this->url(null, array(), array('query' => $queryParams));?>">
-            <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>">
+          <a class="language" href="<?=$this->url(null, array(), array('query' => $queryParams));?>">
+            <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>" />
+            <?=$this->transEsc($langName);?>
           </a>
         </li>
       <? endforeach; ?>
@@ -21,7 +22,7 @@
   <? endif; ?>
   </div>
 </div>
-<br>
+<br />
 
   <div class="navbar header">
 
@@ -40,31 +41,28 @@
       
       
       <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
-        <li _class="header-login">
-          <!--
+        <li>
+          <div class="loginbox">
+            <? if($account->isLoggedIn()): ?>
+              <a href="<?=$this->url('myresearch-home')?>" class="myresearch" title="<?=$this->transEsc("MyResearch")?>"><?=$this->transEsc("MyResearch")?></a>
+              <a href="<?=$this->url('myresearch-logout')?>" class="logout" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?></a>
+            <? else:?>
+              <a href="https://www.mzk.cz/registration_mzk" title="<?=$this->transEsc("Register")?>" class="register"><?=$this->transEsc("Register")?></a>
+              <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
+                <a href="<?=$this->escapeHtml($sessionInitiator)?>" class="login"><?=$this->transEsc("Login")?></a>
+              <? else: ?>
+                <a href="<?=$this->url('myresearch-home')?>" class="login" title="<?=$this->transEsc("Login")?>"><?=$this->transEsc("Login")?></a>
+              <? endif; ?>
+            <? endif; ?>
+          </div>
           <? $cart = $this->cart(); if ($cart->isActive()): ?>
             <span id="cartSummary">
-              <i class="icon-shopping-cart"></i> <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>"><strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
-              <span class="muted">&nbsp;/&nbsp;</span>
+              <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>">
+                <strong><?=count($cart->getItems())?></strong>
+                <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?>
+              </a>
             </span>
           <? endif; ?>
-          -->
-          <span class="registrationOptions <? if($account->isLoggedIn()): ?> hide<? endif ?>">
-            <a href="https://www.mzk.cz/registration_mzk" title="<?=$this->transEsc("Register")?>"><?=$this->transEsc("Register")?></a>
-          </span>
-          <span class="myAccountOptions <? if(!$account->isLoggedIn()): ?> hide<? endif ?>">
-            <a href="<?=$this->url('myresearch-home')?>" class="modal-link" title="<?=$this->transEsc("MyResearch")?>"><?=$this->transEsc("MyResearch")?></a>
-          </span>
-          <span class="logoutOptions<? if(!$account->isLoggedIn()): ?> hide<? endif ?>">
-            <a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?></a>
-          </span>
-          <span id="loginOptions"<? if($account->isLoggedIn()): ?> class="hide"<? endif ?>>
-            <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
-              <a href="<?=$this->escapeHtml($sessionInitiator)?>"><?=$this->transEsc("Login")?></a>
-            <? else: ?>
-              <a href="<?=$this->url('myresearch-home')?>" class="modal-link" title="<?=$this->transEsc("Login")?>"><?=$this->transEsc("Login")?></a>
-            <? endif; ?>
-          </span>
         </li>
       <? endif; ?>
       
