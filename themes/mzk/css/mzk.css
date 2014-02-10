@@ -180,3 +180,17 @@ div.span9 {
   background-color: #fff;
   padding: 10px;
 }
+
+/* results */
+.result {
+  padding: 5px 0px 5px 0px;
+}
+
+.result.alt {
+  background-color: #F5F5F5;
+}
+
+/* obalky knih */
+div.coverThumbnail>a>img {
+  height: 80px;
+}
