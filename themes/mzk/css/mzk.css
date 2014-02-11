@@ -272,3 +272,28 @@ div.coverThumbnail>a>img {
 .tab-container {
   border: 0px;
 }
+
+/* record page */
+
+/* toolbar on record page */
+div.toolbar {
+  border-bottom: 1px solid #eee;
+}
+
+div.toolbar>ul {
+  margin: 5px 5px 5px 5px;
+}
+
+div.record-outer {
+  padding: 0px;
+}
+
+div.record {
+  padding: 10px;
+}
+
+div.nav-tabs-outer {
+  background-color: #fafafa;
+  padding-top: 15px;
+  padding-left: 20px;
+}
