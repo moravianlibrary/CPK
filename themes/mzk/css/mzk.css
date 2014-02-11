@@ -16,6 +16,10 @@ div.header {
   background-color: #fff;
 }
 
+li.header-logo {
+  margin-right: 15px;
+}
+
 /* language bar */
 
 .navbar .nav>li> a.language  {
@@ -140,11 +144,21 @@ div.search-query-options {
   color: #fff;
 }
 
+/* search view */
+
+img.search-view-type {
+  padding-left: 10px;
+}
+
 /* styling of links */
 
 a {
   color: #16969D;
   text-decoration: underline;
+}
+
+a.no-underline {
+  text-decoration: none;
 }
 
 a:hover, .hoverLink {
