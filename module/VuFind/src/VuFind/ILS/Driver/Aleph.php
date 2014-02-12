@@ -825,7 +825,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             if ($item_status['request'] == 'Y' && $availability == false) {
                 $addLink = true;
             }
-            if ($patron) {
+            if ($patron || isset($this->defaultPatronId)) {
                 $hold_request = $item->xpath('info[@type="HoldRequest"]/@allowed');
                 $addLink = ($hold_request[0] == 'Y');
             }
