@@ -20,19 +20,7 @@
     <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
   </div>
 <? endif; ?>
-<? if (($this->ils()->getHoldsMode() == 'driver' && !empty($holdings)) || $this->ils()->getTitleHoldsMode() == 'driver'): ?>
-  <? if ($account->loginEnabled() && $offlineMode != 'ils-offline'): ?>
-    <? if (!$user): ?>
-      <div class="info">
-        <a href="<?=$this->currentPath()?>?login=true&catalogLogin=true"><?=$this->transEsc("Login")?></a> <?=$this->transEsc("hold_login")?>
-      </div>
-    <? elseif (!$user->cat_username): ?>
-      <div class="info">
-        <?=$this->translate("hold_profile_html", array('%%url%%' => $this->currentPath() . '?catalogLogin=true'))?>
-      </div>
-    <? endif; ?>
-  <? endif; ?>
-<? endif; ?>
+ 
 <? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
     <a class="holdPlace" href="<?=$this->recordLink()->getHoldUrl($holdingTitleHold)?>"><?=$this->transEsc('title_hold_place')?></a>
 <? endif; ?>
@@ -45,19 +33,24 @@
   <? endif; ?>
   <? if ($openUrl): ?><?=$this->openUrl($openUrl);?><? endif; ?>
 <? endif; ?>
-<table cellpadding="2" cellspacing="0" border="0" class="citation">
+
+<? if ($holdings != null) : ?>
+<table class="table table-view">
+<tbody>
   <tr>
-    <th><?=$this->transEsc("item_status")?>&nbsp;</th>
+    <th><?=$this->transEsc("item status")?>&nbsp;</th>
     <th><?=$this->transEsc("due date")?>&nbsp;</th>
     <th><?=$this->transEsc("sublibrary")?>&nbsp;</th>
     <th><?=$this->transEsc("collection")?>&nbsp;</th>
     <th><?=$this->transEsc("location / second signature")?>&nbsp;</th>
     <th><?=$this->transEsc("description")?>&nbsp;</th>
     <th><?=$this->transEsc("note")?>&nbsp;</th>
-  <tr>
+  </tr>
+<? $row = 0; ?>
 <? foreach ($holdings as $row): ?>
   <? $check = (isset($row['check']) && $row['check']); ?>
-  <tr>
+  <? $row++; ?>
+  <tr class="<?=(($row % 2) == 0)?'oddrow':'evenrow'?>">
     <td>
       <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->escapeHtml($row['status'])?></span>
       <? if ($row['reserve'] == "Y"): ?>
@@ -82,28 +75,30 @@
       <? endif; ?>
     </td>
     <td>
-      <?=$row['duedate']?>
+      <?=$this->escapeHtml($row['duedate'])?>
     </td>
     <td>
-      <?=$row['sub_lib_desc']?>
+      <?=$this->escapeHtml($row['sub_lib_desc'])?>
     </td>
     <td>
-      <?=$row['collection_desc']?>
+      <?=$this->escapeHtml($row['collection_desc'])?>
     </td>
     <td>
-      <?=$row['callnumber_second']?>
+      <?=$this->escapeHtml($row['callnumber_second'])?>
     </td>
     <td>
-      <?=$row['description']?>
+      <?=$this->escapeHtml($row['description'])?>
     </td>
     <td>
       <? if ($row['notes'] != null):?>
-        <?=$row['notes'][0]?>
+        <?=$this->escapeHtml($row['notes'][0])?>
       <? endif;?>
     </td>
   </tr>
 <? endforeach; ?>
+</tbody>
 </table>
+<? endif; ?>
 
 <? $history = $this->driver->getRealTimeHistory(); ?>
 <? if (is_array($history) && !empty($history)): ?>
