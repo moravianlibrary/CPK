@@ -39,6 +39,11 @@ $config = array(
             ),
         ),
     ),
+    'service_manager' => array(
+        'invokables' => array(
+            'VuFind\Search'         => 'MZKCommon\VuFindSearch\Service',
+         ),
+    ),
     'controllers' => array(
         'invokables' => array(
             'search' => 'MZKCommon\Controller\SearchController',
