@@ -10,6 +10,42 @@ label, input, button, select, textarea {
   font-size: 13px;
 }
 
+/* front page */
+div.frontpage {
+  background-color: #F5F5F5;
+}
+
+div.searchHomeForm {
+  background-color: white;
+  border: 1px solid #E0E0E0;
+}
+
+div.frontpage-logo {
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
+div.searchHomeForm {
+  margin-top: 3%;
+}
+
+div.searchbox-frontpage {
+  background-color: #3cb9c3;
+  margin: 5% 5% 5% 5%;
+}
+
+div.searchbox-frontpage>form>input.search-query {
+  background: #fff;
+}
+
+div.searchbox-frontpage>form>select {
+  background: #fff;
+}
+
+div.searchbox-frontpage>form>div>a {
+  color: #fff;;
+}
+
 /* header */
 
 div.header {

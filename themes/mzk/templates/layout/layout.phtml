@@ -50,7 +50,7 @@
     <?=$this->headScript()?>
   </head>
   <body>
-    <div class="header">
+    <div class="<?=($this->layout()->frontpage == true)?'frontpage':'header'?>">
       <div class="container">
         <div id="header" class="clearfix noprint">
           <?// Set up the search box -- there are three possible cases:

@@ -26,16 +26,18 @@
 
   <div class="navbar header">
 
-    <ul class="nav navbar-nav pull-left">
-      <li class="header-logo">
-        <a href="<?=$this->url('home')?>"><img src="<?=$this->imageLink('logo-mzk.png') ?>"></img></a>
-      </li>
-      <li>
-        <? if ($this->layout()->searchbox !== false): ?>
-          <?=$this->layout()->searchbox?>
-        <? endif;?>
-      </li>
-    </ul>
+    <? if ($this->layout()->frontpage == false): ?>
+      <ul class="nav navbar-nav pull-left">
+        <li class="header-logo">
+          <a href="<?=$this->url('home')?>"><img src="<?=$this->imageLink('logo-mzk.png') ?>"></img></a>
+        </li>
+        <li>
+          <? if ($this->layout()->searchbox !== false): ?>
+            <?=$this->layout()->searchbox?>
+          <? endif;?>
+        </li>
+      </ul>
+    <? endif; ?>
 
     <ul class="nav navbar-nav pull-right">
       
@@ -55,13 +57,15 @@
               <? endif; ?>
             <? endif; ?>
           </div>
-          <? $cart = $this->cart(); if ($cart->isActive()): ?>
-            <span id="cartSummary">
-              <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>">
-                <strong><?=count($cart->getItems())?></strong>
-                <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?>
-              </a>
-            </span>
+          <? if ($this->layout()->frontpage == false): ?>
+            <? $cart = $this->cart(); if ($cart->isActive()): ?>
+              <span id="cartSummary">
+                <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>">
+                  <strong><?=count($cart->getItems())?></strong>
+                  <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?>
+                </a>
+              </span>
+            <? endif; ?>
           <? endif; ?>
         </li>
       <? endif; ?>
