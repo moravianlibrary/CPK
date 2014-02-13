@@ -12,7 +12,7 @@
           $queryParams = array_merge($params, $queryParams);
         ?>
         <li>
-          <a class="language" href="<?=$this->url(null, array(), array('query' => $queryParams));?>">
+          <a class="language" href="<?=$this->url(null, array(), array('query' => $queryParams), true);?>">
             <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>" />
             <?=$this->transEsc($langName);?>
           </a>
