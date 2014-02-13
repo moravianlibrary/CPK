@@ -6,6 +6,19 @@ $config = array(
         'plugin_managers' => array (
             'recorddriver' => array (
                 'factories' => array(
+                    'solrdefault' => function ($sm) {
+                        $driver = new \MZKPortal\RecordDriver\SolrMarcMuni(
+                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+                            null,
+                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+                        );
+                        $driver->attachILS(
+                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+                        );
+                        return $driver;
+                    },
                     'solrmuni' => function ($sm) {
                         $driver = new \MZKPortal\RecordDriver\SolrMarcMuni(
                             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),

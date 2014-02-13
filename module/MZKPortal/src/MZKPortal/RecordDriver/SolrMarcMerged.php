@@ -21,4 +21,8 @@ class SolrMarcMerged extends SolrDefault
         return $result;
     }
 
+    public function getAvailabilityID() {
+        return null;
+    }
+
 }
