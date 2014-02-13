@@ -18,7 +18,7 @@
             $queryParams = array_merge($params, $queryParams);
           ?>
           <li>
-            <a class="modal-link" href="<?=$this->url(null, array(), array('query' => $queryParams));?>">
+            <a class="modal-link" href="<?=$this->url(null, array(), array('query' => $queryParams), true);?>">
               <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>">
             </a>
           </li>
