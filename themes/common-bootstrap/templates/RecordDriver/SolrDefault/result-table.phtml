@@ -32,7 +32,10 @@
       <?=$this->escapeHtml($summDate[0])?>
     <? endif; ?>
   </td>
-  <td>
-    <!-- FIXME -->
+  <td class='<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>'>
+    <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
+    <span class="status ajax-availability small hide">
+      <span class="label"><?=$this->transEsc('Loading')?>...</span>
+    </span>
   </td>
 </tr>

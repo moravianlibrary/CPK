@@ -27,7 +27,7 @@ function checkItemStatuses() {
             item.find('.callnumber').hide();
             item.find('.location').hide();
             item.find('.hideIfDetailed').hide();
-            item.find('.status').empty().append(result.full_status);
+            item.find('.fullstatus').empty().append(result.full_status);
           } else if (typeof(result.missing_data) != 'undefined'
             && result.missing_data
           ) {

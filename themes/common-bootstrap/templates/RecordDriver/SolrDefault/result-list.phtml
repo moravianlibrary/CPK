@@ -119,7 +119,7 @@
       <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
       
       <? if ($this->driver->supportsAjaxStatus()): ?>
-        <span class="status ajax-availability small hide">
+        <span class="fullstatus ajax-availability small hide">
           <span class="label"><?=$this->transEsc('Loading')?>...</span>
         </span>
       <? endif; ?>

@@ -73,6 +73,7 @@ class AjaxController extends AjaxControllerBase
         
         // Load messages for response:
         $messages = array(
+            'available' => $renderer->render('ajax/status-available.phtml'),
             'unavailable' => $renderer->render('ajax/status-unavailable.phtml'),
         );
         
@@ -87,6 +88,7 @@ class AjaxController extends AjaxControllerBase
             $current['record_number'] = array_search($current['id'], $ids);
             $current['full_status'] = $renderer->render('ajax/status-full.phtml',
                 array('status' => $current));
+            $current['availability_message'] = ($current['availability']) ? $messages['available'] : $messages['unavailable'];
             $statuses[] = $current;
             // The current ID is not missing -- remove it from the missing list.
             unset($missingIds[$current['id']]);
