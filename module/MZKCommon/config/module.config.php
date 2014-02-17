@@ -32,6 +32,12 @@ $config = array(
                     },
                 ) /* factories */
             ), /* recorddriver */
+            'recordtab' => array(
+                'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
+                'invokables' => array(
+                    'holdingsils' => 'MZKCommon\RecordTab\HoldingsILS',
+                ),
+            ), /* recordtab */
             'db_table' => array(
                 'invokables' => array(
                     'recordstatus' => 'MZKCommon\Db\Table\RecordStatus',
@@ -40,11 +46,26 @@ $config = array(
         ),
     ),
     'service_manager' => array(
+        'factories' => array(
+            'VuFind\ILSHoldLogic' => function ($sm) {
+                return new \MZKCommon\ILS\Logic\FlatHolds(
+                    $sm->get('VuFind\AuthManager'), $sm->get('VuFind\ILSConnection'),
+                    $sm->get('VuFind\HMAC'), $sm->get('VuFind\Config')->get('config')
+                );
+            },
+        ),
         'invokables' => array(
             'VuFind\Search'         => 'MZKCommon\VuFindSearch\Service',
          ),
     ),
     'controllers' => array(
+        'factories' => array(
+            'record' => function ($sm) {
+                return new \VuFind\Controller\RecordController(
+                    $sm->getServiceLocator()->get('VuFind\Config')->get('config')
+                );
+            },
+        ),
         'invokables' => array(
             'search' => 'MZKCommon\Controller\SearchController',
             'ajax' => 'MZKCommon\Controller\AjaxController',

@@ -25,6 +25,39 @@ class FlatHolds extends Holds
     }
 
     /**
+     * Public method for getting item holdings from the catalog and selecting which
+     * holding method to call
+     *
+     * @param string $id A Bib ID
+     *
+     * @return array A sorted results set
+     */
+    
+    public function getHoldings($id, $filters=array())
+    {
+        $holdings = array();
+    
+        // Get Holdings Data
+        if ($this->catalog) {
+            // Retrieve stored patron credentials; it is the responsibility of the
+            // controller and view to inform the user that these credentials are
+            // needed for hold data.
+            $patron = $this->account->storedCatalogLogin();
+            $result = $this->catalog->getHolding($id, $patron, $filters);
+            $mode = $this->catalog->getHoldsMode();
+    
+            if ($mode == "disabled") {
+                $holdings = $this->standardHoldings($result);
+            } else if ($mode == "driver") {
+                $holdings = $this->driverHoldings($result);
+            } else {
+                $holdings = $this->generateHoldings($result, $mode);
+            }
+        }
+        return $this->formatHoldings($holdings);
+    }
+    
+    /**
      * Protected method for driver defined holdings
      *
      * @param array $result A result set returned from a driver

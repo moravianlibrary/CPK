@@ -30,6 +30,23 @@ class SolrMarc extends ParentSolrMarc
         }
     }
 
+    public function getRealTimeHoldings($filters = array())
+    {
+        return $this->hasILS()
+        ? $this->holdLogic->getHoldings($this->getUniqueID(), $filters)
+        : array();
+    }
+
+    public function getHoldingFilters()
+    {
+        return array();
+    }
+
+    public function getAvailableHoldingFilters()
+    {
+        return array();
+    }
+
     //FIXME: TODO
     protected function getCNB()
     {

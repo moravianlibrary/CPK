@@ -1,11 +1,9 @@
 <?
     // Set up convenience variables:
     $account = $this->auth()->getManager();
-    $filters = $this->tab->getFilters();
-    $selectedFilters = $this->tab->getSelectedFilters();
-    $availableFilters = $this->tab->getAvailableFilters();
+    $filters = $this->getFilters();
     $user = $account->isLoggedIn();
-    $holdings = $this->tab->getRealTimeHoldings();
+    $holdings = $this->driver->getRealTimeHoldings();
     $openUrl = $this->driver->openURLActive('holdings') ? $this->driver->getOpenURL() : false;
     $offlineMode = $this->ils()->getOfflineMode();
     // Account for replace_other_urls setting
@@ -23,7 +21,19 @@
     <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
   </div>
 <? endif; ?>
- 
+<? if (($this->ils()->getHoldsMode() == 'driver' && !empty($holdings)) || $this->ils()->getTitleHoldsMode() == 'driver'): ?>
+  <? if ($account->loginEnabled() && $offlineMode != 'ils-offline'): ?>
+    <? if (!$user): ?>
+      <div class="info">
+        <a href="<?=$this->currentPath()?>?login=true&catalogLogin=true"><?=$this->transEsc("Login")?></a> <?=$this->transEsc("hold_login")?>
+      </div>
+    <? elseif (!$user->cat_username): ?>
+      <div class="info">
+        <?=$this->translate("hold_profile_html", array('%%url%%' => $this->currentPath() . '?catalogLogin=true'))?>
+      </div>
+    <? endif; ?>
+  <? endif; ?>
+<? endif; ?>
 <? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
     <a class="holdPlace" href="<?=$this->recordLink()->getHoldUrl($holdingTitleHold)?>"><?=$this->transEsc('title_hold_place')?></a>
 <? endif; ?>
@@ -68,8 +78,11 @@
   <? endforeach;?>
 </div>
 
-<? if ($holdings != null) : ?>
-<table class="table table-view">
+<? $holdLink = $this->driver->getHoldLink();?>
+<? if ($holdLink != null) : ?>
+  <a href="<?=$holdLink?>"><?=$this->transEsc("Holdings in catalogue")?></a>
+<? else : ?>
+<table class="table table-striped">
 <tbody>
   <tr>
     <th><?=$this->transEsc("item status")?>&nbsp;</th>
@@ -86,7 +99,7 @@
   <? $row++; ?>
   <tr class="<?=(($row % 2) == 0)?'oddrow':'evenrow'?>">
     <td>
-      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($row['status'])?></span>
+      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->escapeHtml($row['status'])?></span>
       <? if ($row['reserve'] == "Y"): ?>
       <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
       <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
@@ -109,13 +122,13 @@
       <? endif; ?>
     </td>
     <td>
-      <?=$this->transEsc($row['duedate'])?>
+      <?=$this->escapeHtml($row['duedate'])?>
     </td>
     <td>
       <?=$this->escapeHtml($row['sub_lib_desc'])?>
     </td>
     <td>
-      <?=$this->transEsc($row['collection_desc'])?>
+      <?=$this->escapeHtml($row['collection_desc'])?>
     </td>
     <td>
       <?=$this->escapeHtml($row['callnumber_second'])?>
