@@ -772,12 +772,18 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * keys: id, availability (boolean), status, location, reserve, callnumber,
      * duedate, number, barcode.
      */
-    public function getHolding($id, $patron = false)
+    public function getHolding($id, $patron = false, $filters = array())
     {
         $holding = array();
         list($bib, $sys_no) = $this->parseId($id);
         $resource = $bib . $sys_no;
-        $params = array('view' => 'full');
+        $params = array();
+        if (!empty($filters)) {
+            foreach ($filters as $id => $value) {
+                $params[$id] = $value;
+            }
+        }
+        $params['view'] = 'full';
         if ($patron) {
             $params['patron'] = $patron['id'];
         } else if (isset($this->defaultPatronId)) {
@@ -888,6 +894,31 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             );
         }
         return $holding;
+    }
+    
+    public function getHoldingFilters($bibId) {
+        list($bib, $sys_no) = $this->parseId($bibId);
+        $resource = $bib . $sys_no;
+        $years = array();
+        $volumes = array();
+        try {
+            $xml = $this->doRestDLFRequest(array('record', $resource, 'filters'));
+        } catch (Exception $ex) {
+            return array();
+        }
+        if (isset($xml->{'record-filters'})) {
+            if (isset($xml->{'record-filters'}->{'years'})) {
+                foreach ($xml->{'record-filters'}->{'years'}->{'year'} as $year) {
+                    $years[] = $year;
+                }
+            }
+            if (isset($xml->{'record-filters'}->{'volumes'})) {
+                foreach ($xml->{'record-filters'}->{'volumes'}->{'volume'} as $volume) {
+                    $volumes[] = $volume;
+                }
+            }
+        }
+        return array('year' => $years, 'volume' => $volumes, 'hide_loans' => array(true, false));
     }
 
     /**
