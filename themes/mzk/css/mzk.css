@@ -181,13 +181,11 @@ div.search-query-options {
 }
 
 /* search view */
-
 img.search-view-type {
   padding-left: 10px;
 }
 
 /* styling of links */
-
 a {
   color: #16969D;
   text-decoration: underline;
@@ -215,6 +213,11 @@ li.nav-header {
   padding: 6px 8px;
 }
 
+label.recordNumber {
+  width: 20px;
+  font-weight: bold;
+}
+
 /* facets */
 div.sidebar {
   background-color: #fff;
@@ -226,18 +229,34 @@ div.sidebar {
   background-color: inherit;
 }
 
+/* results */
+
 div.span9 {
   background-color: #fff;
   padding: 10px;
+  border: 1px solid #E0E0E0;
 }
 
-/* results */
+div.span9.results {
+  padding: 0px;
+}
+
+div.results-empty, div.results-listing-options, div.results-bulk-actions, div.results-pagination {
+  padding: 0px 10px 0px 10px;
+}
+
+div.results-bulk-actions {
+  border-bottom: #eee solid 1px;
+  padding: 0px 10px 0px 10px;
+}
+
 .result {
-  padding: 5px 0px 5px 0px;
+  padding: 5px 10px 5px 10px;
 }
 
 .result.alt {
-  background-color: #F5F5F5;
+  padding: 5px 10px 5px 10px;
+  background: #F5F5F5;
 }
 
 /* obalky knih */
@@ -332,4 +351,17 @@ div.nav-tabs-outer {
   background-color: #fafafa;
   padding-top: 15px;
   padding-left: 20px;
+}
+
+/* holdings tab */
+select {
+  width: inherit;
+}
+
+div.holdings-filters {
+  display: block;
+}
+
+div.holdings-filters>form {
+  display: block;
 }
