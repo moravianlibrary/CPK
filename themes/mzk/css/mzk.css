@@ -130,6 +130,8 @@ input.search-query {
   -moz-border-radius: 0px;
   border-radius: 0px;
   background: #d1eff1;
+  font-size: 13px;
+  font-weight: bold;
   margin-top: 15px;
 }
 
@@ -138,14 +140,16 @@ select.search-query {
   -moz-border-radius: 0px;
   border-radius: 0px;
   background: #d1eff1;
-  width: inherit;
+  font-size: 13px;
+  font-weight: bold;
   margin-left: 10px;
   margin-top: 15px;
+  width: inherit;
 }
 
 button.search-query {
   font-family: 'Arial';
-  font-size: 11px;
+  font-size: 13px;
   font-weight: bold;
   background: transparent url("/themes/mzk/images/btn-submit.png") repeat-x left top;
   border: none;
@@ -161,6 +165,10 @@ button.search-query {
 div.search-query-options {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+
+ul .typeahead {
+  margin-top: 15px;
 }
 
 /* breadcrumb */
@@ -234,11 +242,11 @@ div.sidebar {
 div.span9 {
   background-color: #fff;
   padding: 10px;
-  border: 1px solid #E0E0E0;
 }
 
 div.span9.results {
   padding: 0px;
+  border: 1px solid #E0E0E0;
 }
 
 div.results-empty, div.results-listing-options, div.results-bulk-actions, div.results-pagination {
@@ -329,6 +337,15 @@ div.coverThumbnail>a>img {
 }
 
 /* record page */
+div.record h3 {
+  font-size: 18px;
+  line-height: 25px;
+}
+
+div.format {
+  font-weight: bold;
+  padding-top: 6px;
+}
 
 /* toolbar on record page */
 div.toolbar {
