@@ -144,7 +144,9 @@ $(document).ready(function() {
 
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
-    $(this).closest('form').find('.checkbox-select-item').attr('checked', this.checked);
+    elm = $(this).closest('form').find('.checkbox-select-item');
+    $(elm).attr('checked', this.checked);
+    $(elm).change();
   });
   
   // handle QR code links
@@ -170,4 +172,27 @@ $(document).ready(function() {
   
   // Advanced facets
   setupOrFacets();
+  // Cart functionality
+  initCartItems();
 });
+
+function updateCart(item) {
+  value = $(item).attr('value');
+  values = value.split('|');
+  source = values[0];
+  id = values[1];
+  if ($(item).prop("checked")) {
+    addItemToCart(id, source);
+  } else {
+    removeItemFromCart(id, source);
+  }
+}
+
+function initCartItems() {
+  items = getFullCartItems();
+  $('.checkbox-select-all').closest('form').find('.checkbox-select-item').each(function(index) {
+    if (items.indexOf($(this).attr('value')) >= 0) {
+      $(this).attr('checked', true);
+    }
+  });
+}
