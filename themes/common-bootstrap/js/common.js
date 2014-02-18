@@ -145,8 +145,19 @@ $(document).ready(function() {
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
     elm = $(this).closest('form').find('.checkbox-select-item');
-    $(elm).attr('checked', this.checked);
-    $(elm).change();
+    newVal = this.checked;
+    ($elm).each(function(){
+        oldVal = $(elm).attr('checked');
+    });
+    /*
+    oldVal = $(elm).attr('checked');
+    newVal = this.checked;
+    console.log(this.checked);
+    if (newVal != oldVal) {
+      $(elm).attr('checked', newVal);
+      $(elm).change();
+    }
+    */
   });
   
   // handle QR code links
