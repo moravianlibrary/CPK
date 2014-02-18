@@ -55,7 +55,7 @@
             </select>
           <?endif;?>
           <?if ($type == 'checkbox'):?>
-            <input type="checkbox" name="<?=$this->escapeHtml($name)?>" value="true"
+            <input type="checkbox" name="<?=$this->escapeHtml($name)?>" id="<?=$this->escapeHtml($name)?>" value="true"
               onchange="document.forms['<?=$filterName?>'].submit()"
               <?=($selectedVal == 'true')?'checked="true"':''?>
               >
