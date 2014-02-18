@@ -47,7 +47,7 @@
         <form class="form-inline" name="<?=$this->escapeHtml($name)?>_filter">
           <?if ($type == 'select'):?>
             <label for="<?=$this->escapeHtml($name)?>"><?=$this->transEsc($filterName)?> : </label>
-            <select name="<?=$this->escapeHtml($name)?>" onchange="document.forms['<?=$filterName?>'].submit()">
+            <select name="<?=$this->escapeHtml($name)?>" id="<?=$this->escapeHtml($name)?>" onchange="document.forms['<?=$filterName?>'].submit()">
               <option value=""><?=$this->transEsc('all')?></option>
               <? foreach($values as $value):?>
                 <option value="<?=$this->escapeHtml($value)?>" <?=($selectedVal == $value)?'selected="selected"':''?>><?=$this->escapeHtml($value)?></option>
