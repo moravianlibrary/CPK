@@ -146,18 +146,14 @@ $(document).ready(function() {
   $('.checkbox-select-all').change(function() {
     elm = $(this).closest('form').find('.checkbox-select-item');
     newVal = this.checked;
-    ($elm).each(function(){
-        oldVal = $(elm).attr('checked');
+    console.log("newVal: " + newVal);
+    $(elm).each(function() {
+      oldVal = ($(this).attr('checked') == 'checked')? true : false;
+      if (newVal != oldVal) {
+        $(this).attr('checked', newVal);
+        $(this).change();
+      }
     });
-    /*
-    oldVal = $(elm).attr('checked');
-    newVal = this.checked;
-    console.log(this.checked);
-    if (newVal != oldVal) {
-      $(elm).attr('checked', newVal);
-      $(elm).change();
-    }
-    */
   });
   
   // handle QR code links
@@ -184,7 +180,7 @@ $(document).ready(function() {
   // Advanced facets
   setupOrFacets();
   // Cart functionality
-  initCartItems();
+  refreshCartItems();
 });
 
 function updateCart(item) {
@@ -199,7 +195,7 @@ function updateCart(item) {
   }
 }
 
-function initCartItems() {
+function refreshCartItems() {
   items = getFullCartItems();
   $('.checkbox-select-all').closest('form').find('.checkbox-select-item').each(function(index) {
     if (items.indexOf($(this).attr('value')) >= 0) {
