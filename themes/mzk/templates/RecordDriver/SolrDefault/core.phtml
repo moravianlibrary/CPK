@@ -82,13 +82,6 @@
       </tr>
       <? endif; ?>
 
-      <? $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
-        <tr>
-          <th><?=$this->transEsc('Format')?>: </th>
-          <td><?=$this->record($this->driver)->getFormatList()?></td>
-        </tr>
-      <? endif; ?>
-
       <? $langs = $this->driver->getLanguages(); if (!empty($langs)): ?>
         <tr>
           <th><?=$this->transEsc('Language')?>: </th>
@@ -210,10 +203,16 @@
     <?/* End Main Details */?>
   </div>
   
-  <div class="span3">
+  <div class="span3 cover">
     <div class="text-center">
       <div id="cover">
+        <img src="<?=$this->imageLink('format/Book.png')?>" />
       </div>
+      <? $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
+        <div class="format">
+          <?=$this->record($this->driver)->getFormatList()?>
+        </div>
+      <? endif; ?>
     
       <? /* Display qrcode if appropriate: */ ?>
       <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
