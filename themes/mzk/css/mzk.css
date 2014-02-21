@@ -382,3 +382,11 @@ div.holdings-filters {
 div.holdings-filters>form {
   display: block;
 }
+
+span.available {
+  color: #009900;
+}
+
+span.checkedout {
+  color: #cc0000;
+}
