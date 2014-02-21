@@ -1,10 +1,10 @@
-/*global closeLightbox, extractClassParams, getLightbox, path */
+/*global addLightboxFormHandler, addLightboxOnClose, ajaxSubmit, closeLightbox, extractClassParams, getLightbox, lightboxConfirm, path, vufindString */
 
 /**
  * Functions and event handlers specific to record pages.
  */
 
-function checkRequestIsValid(element, requestURL) {
+function checkRequestIsValid(element, requestURL, requestType, blockedClass) {
   var recordId = requestURL.match(/\/Record\/([^\/]+)\//)[1];
   var vars = {}, hash;
   var hashes = requestURL.slice(requestURL.indexOf('?') + 1).split('&');
@@ -18,7 +18,7 @@ function checkRequestIsValid(element, requestURL) {
   }
   vars['id'] = recordId;
 
-  var url = path + '/AJAX/JSON?' + $.param({method:'checkRequestIsValid', id: recordId, data: vars});
+  var url = path + '/AJAX/JSON?' + $.param({method:'checkRequestIsValid', id: recordId, requestType: requestType, data: vars});
   $.ajax({
     dataType: 'json',
     cache: false,
@@ -26,12 +26,12 @@ function checkRequestIsValid(element, requestURL) {
     success: function(response) {
       if (response.status == 'OK') {
         if (response.data.status) {
-          $(element).removeClass('disabled').html(response.data.msg);
+          $(element).removeClass('disabled').html('<i class="icon-flag"></i>&nbsp;'+response.data.msg);
         } else {
           $(element).remove();
         }
       } else if (response.status == 'NEED_AUTH') {
-        $(element).replaceWith('<span class="holdBlocked">' + response.data.msg + '</span>');
+        $(element).replaceWith('<span class="' + blockedClass + '">' + response.data.msg + '</span>');
       }
     }
   });
@@ -40,7 +40,16 @@ function checkRequestIsValid(element, requestURL) {
 function setUpCheckRequest() {
   $('.checkRequest').each(function(i) {
     if($(this).hasClass('checkRequest')) {
-      var isValid = checkRequestIsValid(this, this.href);
+      var isValid = checkRequestIsValid(this, this.href, 'Hold', 'holdBlocked');
+    }
+  });
+}
+
+function setUpCheckStorageRetrievalRequest() {
+  $('.checkStorageRetrievalRequest').each(function(i) {
+    if($(this).hasClass('checkStorageRetrievalRequest')) {
+      var isValid = checkRequestIsValid(this, this.href, 'StorageRetrievalRequest',
+          'StorageRetrievalRequestBlocked');
     }
   });
 }
@@ -103,14 +112,15 @@ function registerAjaxCommentRecord() {
           $(form).find('textarea[name="comment"]').val('');
         } else if (response.status == 'NEED_AUTH') {
           data['loggingin'] = true;
-          return getLightbox(
-            'Record', 'AddComment', data, data,
-            function(){
-              closeLightbox();
-              $.ajax({type:'POST',url:url,data:data});
-              refreshCommentList(id, recordSource);
-            }
-          );
+          addLightboxOnClose(function() {
+            $.ajax({
+              type: 'POST',
+              url:  url,
+              data: data,
+              dataType: 'json'
+            });
+          });
+          return getLightbox('Record', 'AddComment', data, data);
         } else {
           $('#modal').find('.modal-body').html(response.data+'!');
           $('#modal').find('.modal-header h3').html('Error!');
@@ -124,6 +134,7 @@ function registerAjaxCommentRecord() {
   // Delete links
   $('.delete').click(function(){deleteRecordComment(this, $('.hiddenId').val(), $('.hiddenSource').val(), this.id.substr(13));return false;});
 }
+
 $(document).ready(function(){
   var id = document.getElementById('record_id').value;
   
@@ -147,9 +158,19 @@ $(document).ready(function(){
     var params = extractClassParams(this);
     return getLightbox(params['controller'], 'Save', {id:id});
   });
+  // Form handlers
+  addLightboxFormHandler('emailRecord', function(evt) {
+    ajaxSubmit($(evt.target), function(){lightboxConfirm(vufindString['bulk_email_success']);});
+    return false;
+  });
+  addLightboxFormHandler('smsRecord', function(evt) {
+    ajaxSubmit($(evt.target), function(){lightboxConfirm(vufindString['sms_success']);});
+    return false;
+  });
   
   // register the record comment form to be submitted via AJAX
   registerAjaxCommentRecord();
   
   setUpCheckRequest();
+  setUpCheckStorageRetrievalRequest();
 });

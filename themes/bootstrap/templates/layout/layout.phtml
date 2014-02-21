@@ -25,7 +25,15 @@
         // Deal with cart stuff:
         if (!isset($this->renderingError)) {
             $cart = $this->cart();
-            $this->jsTranslations()->addStrings(array('loading' => 'Loading'));
+            $this->jsTranslations()->addStrings(
+                array(
+                    'bulk_email_success' => 'bulk_email_success',
+                    'bulk_save_success' => 'bulk_save_success',
+                    'close' => 'close',
+                    'loading' => 'Loading',
+                    'sms_success' => 'sms_success'
+                )
+            );
             if ($cart->isActive()) {
                 $this->headScript()->appendFile("cookies.js");
                 $this->headScript()->appendFile("cart.js");

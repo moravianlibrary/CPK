@@ -565,7 +565,7 @@ class MyResearchController extends AbstractBase
     {
         // Normally list ID is found in the route match, but in lightbox context it
         // may sometimes be a GET parameter.  We must cover both cases.
-        $listID = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
+        $listID = $this->params()->fromRoute('id');
         if (empty($listID)) {
             $url = $this->url()->fromRoute('myresearch-favorites');
         } else {
@@ -846,6 +846,69 @@ class MyResearchController extends AbstractBase
                 $catalog, $current, $cancelStatus
             );
             if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink"
+                && isset($current['cancel_details'])
+            ) {
+                // Enable cancel form if necessary:
+                $view->cancelForm = true;
+            }
+
+            // Build record driver:
+            $recordList[] = $this->getDriverForILSRecord($current);
+        }
+
+        // Get List of PickUp Libraries based on patron's home library
+        try {
+            $view->pickup = $catalog->getPickUpLocations($patron);
+        } catch (\Exception $e) {
+            // Do nothing; if we're unable to load information about pickup
+            // locations, they are not supported and we should ignore them.
+        }
+        $view->recordList = $recordList;
+        return $view;
+    }
+
+    /**
+     * Send list of storage retrieval requests to view
+     *
+     * @return mixed
+     */
+    public function storageRetrievalRequestsAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        // Process cancel requests if necessary:
+        $cancelSRR = $catalog->checkFunction('cancelStorageRetrievalRequests');
+        $view = $this->createViewModel();
+        $view->cancelResults = $cancelSRR
+            ? $this->storageRetrievalRequests()->cancelStorageRetrievalRequests(
+                $catalog, $patron
+            )
+            : array();
+        // If we need to confirm
+        if (!is_array($view->cancelResults)) {
+            return $view->cancelResults;
+        }
+
+        // By default, assume we will not need to display a cancel form:
+        $view->cancelForm = false;
+
+        // Get request details:
+        $result = $catalog->getMyStorageRetrievalRequests($patron);
+        $recordList = array();
+        $this->storageRetrievalRequests()->resetValidation();
+        foreach ($result as $current) {
+            // Add cancel details if appropriate:
+            $current = $this->storageRetrievalRequests()->addCancelDetails(
+                $catalog, $current, $cancelSRR, $patron
+            );
+            if ($cancelSRR
+                && $cancelSRR['function'] != "getCancelStorageRetrievalRequestLink"
                 && isset($current['cancel_details'])
             ) {
                 // Enable cancel form if necessary:

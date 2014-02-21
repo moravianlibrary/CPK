@@ -1076,12 +1076,16 @@ class AjaxController extends AbstractBase
         $this->writeSession();  // avoid session write timing bug
         $id = $this->params()->fromQuery('id');
         $data = $this->params()->fromQuery('data');
+        $requestType = $this->params()->fromQuery('requestType');
         if (!empty($id) && !empty($data)) {
             // check if user is logged in
             $user = $this->getUser();
             if (!$user) {
                 return $this->output(
-                    $this->translate('You must be logged in first'),
+                    array(
+                        'status' => false, 
+                        'msg' => $this->translate('You must be logged in first')
+                    ),
                     self::STATUS_NEED_AUTH
                 );
             }
@@ -1090,11 +1094,30 @@ class AjaxController extends AbstractBase
                 $catalog = $this->getILS();
                 $patron = $this->getAuthManager()->storedCatalogLogin();
                 if ($patron) {
-                    $results = $catalog->checkRequestIsValid($id, $data, $patron);
-
-                    $msg = $results
-                        ? $this->translate('request_place_text')
-                        : $this->translate('hold_error_blocked');
+                    switch ($requestType) {
+                    case 'StorageRetrievalRequest':
+                        $results = $catalog->checkStorageRetrievalRequestIsValid(
+                            $id, $data, $patron
+                        );
+    
+                        $msg = $results
+                            ? $this->translate(
+                                'storage_retrieval_request_place_text'
+                            )
+                            : $this->translate(
+                                'storage_retrieval_request_error_blocked'
+                            );
+                        break;
+                    default:
+                        $results = $catalog->checkRequestIsValid(
+                            $id, $data, $patron
+                        );
+    
+                        $msg = $results
+                            ? $this->translate('request_place_text')
+                            : $this->translate('hold_error_blocked');
+                        break;
+                    }
                     return $this->output(
                         array('status' => $results, 'msg' => $msg), self::STATUS_OK
                     );
@@ -1254,7 +1277,9 @@ class AjaxController extends AbstractBase
         return $this->output(
             array(
                 'result' => $this->translate('Done'),
-                'result_additional' => $html
+                'result_additional' => $html,
+                'needs_redirect' => $export->needsRedirect($format),
+                'result_url' => $url
             ), self::STATUS_OK
         );
     }
