@@ -96,7 +96,7 @@
           <? /* Begin Available Items (Holds) */ ?>
           <div>
           <? if (isset($row['link']) && $row['link']): ?>
-            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>">
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc($check ? "Check Hold" : "Order from stock")?></span>
             </a>
           <? endif; ?>
@@ -104,7 +104,7 @@
         <? else: ?>
           <div>
           <? if (isset($row['link']) && $row['link']): ?>
-            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>">
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
             </a>
           <? endif; ?>
