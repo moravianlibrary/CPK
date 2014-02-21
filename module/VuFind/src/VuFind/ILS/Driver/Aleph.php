@@ -822,7 +822,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 );
             }
             $requested = false;
-            $duedate = '';
+            $duedate = null;
             $addLink = false;
             $status = (string) $item->{'status'};
             if (in_array($status, $this->available_statuses)) {
@@ -845,25 +845,18 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 "/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches
             )) {
                 $duedate = $this->parseDate($matches[1]);
-            } else {
-                $duedate = null;
             }
-            // process duedate
-            if ($availability) {
-                if ($this->duedates) {
-                    foreach ($this->duedates as $key => $value) {
-                        if (preg_match($value, $item_status['desc'])) {
-                            $duedate = $key;
-                            break;
-                        }
+            // process duedate_status
+            $duedate_status = $item_status['desc'];
+            if ($availability && $this->duedates) {
+                foreach ($this->duedates as $key => $value) {
+                    if (preg_match($value, $item_status['desc'])) {
+                        $duedate_status = $key;
+                        break;
                     }
-                } else {
-                    $duedate = $item_status['desc'];
                 }
-            } else {
-                if ($status == "On Hold" || $status == "Requested") {
-                    $duedate = "requested";
-                }
+            } else if (!$availability && ($status == "On Hold" || $status == "Requested")) {
+                $duedate_status = "requested";
             }
             $item_id = $item->attributes()->href;
             $item_id = substr($item_id, strrpos($item_id, '/') + 1);
@@ -885,6 +878,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'addLink'           => $addLink,
                 'holdtype'          => 'hold',
                 /* below are optional attributes*/
+                'duedate_status'    => $status,
                 'collection'        => (string) $collection,
                 'collection_desc'   => (string) $collection_desc['desc'],
                 'callnumber_second' => (string) $z30->{'z30-call-no-2'},

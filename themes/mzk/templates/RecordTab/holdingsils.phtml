@@ -96,23 +96,31 @@
           <? /* Begin Available Items (Holds) */ ?>
           <div>
           <? if (isset($row['link']) && $row['link']): ?>
-            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>"><span><?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?></span></a>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>">
+              <span><?=$this->transEsc($check ? "Check Hold" : "Order from stock")?></span>
+            </a>
           <? endif; ?>
           </div>
         <? else: ?>
           <div>
           <? if (isset($row['link']) && $row['link']): ?>
-            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>"><span><?=$this->transEsc($check ? "Check Recall" : "Recall This")?></span></a>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getHoldUrl($row['link'])?>">
+              <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
+            </a>
           <? endif; ?>
           </div>
         <? endif; ?>
       <? endif; ?>
     </td>
     <td>
-      <?=$this->transEsc($row['duedate'])?>
+      <?if ($row['duedate']) : ?>
+        <?=$this->transEsc($row['duedate'])?>
+      <? else:?>
+        <?=$this->transEsc($row['duedate_status'])?>
+      <?endif;?>
     </td>
     <td>
-      <?=$this->escapeHtml($row['sub_lib_desc'])?>
+      <?=$this->transEsc($row['sub_lib_desc'])?>
     </td>
     <td>
       <?=$this->transEsc($row['collection_desc'])?>

@@ -2,6 +2,10 @@
 namespace MZKCatalog\RecordDriver;
 use MZKCommon\RecordDriver\SolrMarc As ParentSolrDefault;
 
+/*
+ * Costumized record driver for MZK
+ *
+ */
 class SolrMarc extends ParentSolrDefault
 {
 
@@ -23,6 +27,41 @@ class SolrMarc extends ParentSolrDefault
             'volume' => array('type' => 'select', 'keep' => array('hide_loans')),
             'hide_loans' => array('type' => 'checkbox', 'keep' => array('year', 'volume')),
         );
+    }
+    
+    public function getRealTimeHoldings($filters = array())
+    {
+        $holdings = $this->hasILS()
+        ? $this->holdLogic->getHoldings($this->getUniqueID(), $filters)
+        : array();
+        foreach ($holdings as &$holding) {
+            $holding['duedate_status'] = $this->translateHoldingStatus($holding['status'],
+                $holding['duedate_status']);
+        }
+        return $holdings;
+    }
+    
+    protected function translateHoldingStatus($status, $duedate_status) {
+        $status = mb_substr($status, 0, 6, 'UTF-8');
+        if ($duedate_status == 'On Shelf') {
+            if ($status == 'Jen do' || $status == 'Studov') {
+                return "present only";
+            } else if ($status == 'Příruč') {
+                return "reference";
+            } else if ($status == 'Ve zpr') {
+                return "";
+            } else if ($status == 'Aktuál') {
+                return "Newspapers and Journals - at the desk";
+            }
+        }
+        if ($status == '0 po r') {
+            return 'lost';
+        } else if ($status == 'Nenale' || $duedate_status == 'Hledá ') {
+            return 'lost - wanted';
+        } else if ($status == 'Vyříze') {
+            return 'lost by reader';
+        }
+        return $duedate_status;
     }
 
 }
