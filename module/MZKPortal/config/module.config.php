@@ -6,79 +6,12 @@ $config = array(
         'plugin_managers' => array (
             'recorddriver' => array (
                 'factories' => array(
-                    'solrdefault' => function ($sm) {
-                        $driver = new \MZKPortal\RecordDriver\SolrMarcBase(
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
-                            null,
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
-                        );
-                        $driver->attachILS(
-                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
-                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
-                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
-                        );
-                        return $driver;
-                    },
-                    'solrmuni' => function ($sm) {
-                        $driver = new \MZKPortal\RecordDriver\SolrMarcMuni(
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
-                            null,
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
-                        );
-                        $driver->attachILS(
-                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
-                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
-                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
-                        );
-                        return $driver;
-                    },
-                    'solrmzk' => function ($sm) {
-                        $driver = new \MZKPortal\RecordDriver\SolrMarcMzk(
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
-                            null,
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
-                        );
-                        $driver->attachILS(
-                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
-                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
-                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
-                        );
-                        return $driver;
-                    },
-                    'solrkjm' => function ($sm) {
-                        $driver = new \MZKPortal\RecordDriver\SolrMarcKjm(
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
-                            null,
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
-                        );
-                        $driver->attachILS(
-                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
-                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
-                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
-                        );
-                        return $driver;
-                    },
-                    'solrvut' => function ($sm) {
-                        $driver = new \MZKPortal\RecordDriver\SolrMarcVut(
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
-                            null,
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
-                        );
-                        $driver->attachILS(
-                            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
-                            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
-                            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
-                        );
-                        return $driver;
-                    },
-                    'solrmerged' => function ($sm) {
-                        $driver = new \MZKPortal\RecordDriver\SolrMarcMerged(
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
-                            null,
-                            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
-                        );
-                        return $driver;
-                    },
+                    'solrdefault' => 'MZKPortal\RecordDriver\Factory::getSolrDefault',
+                    'solrmuni'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMuni',
+                    'solrmzk'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcMzk',
+                    'solrkjm'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcKjm',
+                    'solrvut'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcVut',
+                    'solrmerged'  => 'MZKPortal\RecordDriver\Factory::getSolrMarcMerged',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
@@ -89,11 +22,7 @@ $config = array(
             ), /* recordtab */
             'auth' => array(
                 'factories' => array(
-                    'shibbolethWithWAYF' => function ($sm) {
-                        return new \MZKPortal\Auth\ShibbolethWithWAYF(
-                            $sm->getServiceLocator()->get('VuFind\Config')
-                        );
-                    },
+                    'shibbolethWithWAYF' => 'MZKPortal\Auth\Factory::getShibbolethWithWAYF',
                 ),
             ),
         ), /* plugin_managers */
@@ -120,17 +49,7 @@ $config = array(
     ),
     'service_manager' => array(
         'factories' => array(
-            'VuFind\AuthManager' => function ($sm) {
-                return new \MZKPortal\Auth\Manager(
-                    $sm->get('VuFind\Config')->get('config')
-                );
-            },
-            'VuFind\ILSHoldLogic' => function ($sm) {
-                return new \MZKCommon\ILS\Logic\FlatHolds(
-                    $sm->get('VuFind\AuthManager'), $sm->get('VuFind\ILSConnection'),
-                    $sm->get('VuFind\HMAC'), $sm->get('VuFind\Config')->get('config')
-                );
-            },
+            'VuFind\AuthManager' => 'MZKPortal\Auth\Factory::getAuthManager',
         ),
     ),
 );
