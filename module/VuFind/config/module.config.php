@@ -219,11 +219,7 @@ $config = array(
                     'solrauth' => array('VuFind\Autocomplete\Factory', 'getSolrAuth'),
                     'solrcn' => array('VuFind\Autocomplete\Factory', 'getSolrCN'),
                     'solrreserves' => array('VuFind\Autocomplete\Factory', 'getSolrReserves'),
-                    'solredgefaceted' => function ($sm) {
-                        return new \VuFind\Autocomplete\SolrEdgeFaceted(
-                            $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
-                        );
-                    },
+                    'solredgefaceted' => array('VuFind\Autocomplete\Factory', 'getSolrEdgeFaceted'),
                 ),
                 'invokables' => array(
                     'none' => 'VuFind\Autocomplete\None',
@@ -319,27 +315,15 @@ $config = array(
                     'europeanaresults' => array('VuFind\Recommend\Factory', 'getEuropeanaResults'),
                     'expandfacets' => array('VuFind\Recommend\Factory', 'getExpandFacets'),
                     'favoritefacets' => array('VuFind\Recommend\Factory', 'getFavoriteFacets'),
-                    'mapselection' => function($sm) {
-                        return new \VuFind\Recommend\MapSelection(
-                            $sm->getServiceLocator()->get('VuFind\Config')
-                        );
-                    },
-                    'newitems' => function($sm) {
-                        return new \VuFind\Recommend\NewItems(
-                            $sm->getServiceLocator()->get('VuFind\Config')
-                        );
-                    },
+                    'mapselection' => array('VuFind\Recommend\Factory', 'getMapSelection'),
+                    'newitems' => array('VuFind\Recommend\Factory', 'getNewItems'),
                     'sidefacets' => array('VuFind\Recommend\Factory', 'getSideFacets'),
                     'summonbestbets' => array('VuFind\Recommend\Factory', 'getSummonBestBets'),
                     'summondatabases' => array('VuFind\Recommend\Factory', 'getSummonDatabases'),
                     'summonresults' => array('VuFind\Recommend\Factory', 'getSummonResults'),
                     'summontopics' => array('VuFind\Recommend\Factory', 'getSummonTopics'),
                     'switchquery' => array('VuFind\Recommend\Factory', 'getSwitchQuery'),
-                    'recommendlinks' => function($sm) {
-                        return new \VuFind\Recommend\RecommendLinks(
-                            $sm->getServiceLocator()->get('VuFind\Config')
-                        );
-                    },
+                    'recommendlinks' => array('VuFind\Recommend\Factory', 'getRecommendlinks'),
                     'topfacets' => array('VuFind\Recommend\Factory', 'getTopFacets'),
                     'webresults' => array('VuFind\Recommend\Factory', 'getWebResults'),
                     'worldcatidentities' => array('VuFind\Recommend\Factory', 'getWorldCatIdentities'),

@@ -94,4 +94,18 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
         );
     }
+
+    /**
+     * Construct the SolrEdgeFaceted autocomplete plugin.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return SolrEdgeFaceted
+     */
+    public static function getSolrEdgeFaceted(ServiceManager $sm)
+    {
+        return new \VuFind\Autocomplete\SolrEdgeFaceted(
+            $sm->getServiceLocator()->get('VuFind\SearchResultsPluginManager')
+        );
+    }
 }

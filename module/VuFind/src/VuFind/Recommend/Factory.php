@@ -156,6 +156,34 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\Config')
         );
     }
+    
+    /**
+     * Factory for MapSelection module.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return MapSelection
+     */
+    public function getMapSelection(ServiceManager $sm)
+    {
+        return new MapSelection(
+            $sm->getServiceLocator()->get('VuFind\Config')
+        );
+    }
+    
+    /**
+     * Factory for NewItems module.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return NewItems
+     */
+    public function getNewItems(ServiceManager $sm)
+    {
+        return new NewItems(
+            $sm->getServiceLocator()->get('VuFind\Config')
+        );
+    }
 
     /**
      * Factory for SideFacets module.
@@ -242,6 +270,20 @@ class Factory
     }
 
     /**
+     * Factory for RecommendLinks module.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return RecommendLinks
+     */
+    public function getRecommendlinks(ServiceManager $sm)
+    {
+        return new \VuFind\Recommend\RecommendLinks(
+            $sm->getServiceLocator()->get('VuFind\Config')
+        );
+    }
+
+    /**
      * Factory for TopFacets module.
      *
      * @param ServiceManager $sm Service manager.
@@ -296,4 +338,5 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\WorldCatUtils')
         );
     }
+
 }
