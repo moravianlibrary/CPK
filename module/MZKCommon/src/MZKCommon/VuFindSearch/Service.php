@@ -47,12 +47,30 @@ use Zend\EventManager\EventManager;
  */
 class Service extends \VuFindSearch\Service
 {
+    
+    private $defaultSort = null;
+    
+    /**
+     * Constructor
+     *
+     * @param \Zend\Config\Config $mainConfig     VuFind main configuration (omit for
+     * built-in defaults)
+     * 
+     */
+    public function __construct($searchSettings = null) {
+        parent::__construct();
+        print "OK<BR>";
+        if (isset($searchSettings->General->default_empty_sort)) {
+            $this->defaultSort = $searchSettings->General->default_empty_sort;
+        }
+    }
 
     public function search($backend, $query, $offset = 0,
         $limit = 20, $params = null
     ) {
-        if ($query->getString() == '' && $params->get('sort')[0] == 'score desc') {
-            $params->set('sort', 'acq_int desc');
+        if ($this->defaultSort != null && trim($query->getString()) == '' 
+            && $params->get('sort')[0] == 'score desc') {
+            $params->set('sort', $this->defaultSort);
         }
         return parent::search($backend, $query, $offset, $limit, $params);
     }

@@ -29,11 +29,9 @@ $config = array(
     ),
     'service_manager' => array(
         'factories' => array(
-            'VuFind\ILSHoldLogic' => 'MZKCommon\\ILS\Logic\Factory::getFlatHolds',
+            'VuFind\ILSHoldLogic' => 'MZKCommon\ILS\Logic\Factory::getFlatHolds',
+            'VuFind\Search'       => 'MZKCommon\VuFindSearch\Factory::getSearchService',
         ),
-        'invokables' => array(
-            'VuFind\Search'       => 'MZKCommon\VuFindSearch\Service',
-         ),
     ),
     'controllers' => array(
         'invokables' => array(

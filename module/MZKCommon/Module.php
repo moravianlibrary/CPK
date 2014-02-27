@@ -27,7 +27,8 @@
  */
 namespace MZKCommon;
 use Zend\ModuleManager\ModuleManager,
-    Zend\Mvc\MvcEvent;
+    Zend\Mvc\MvcEvent,
+    Zend\ModuleManager\ModuleEvent;
 
 /**
  * Template for ZF2 module for storing local overrides.
@@ -73,8 +74,10 @@ class Module
      *
      * @return void
      */
-    public function init(ModuleManager $m)
+    public function init(ModuleManager $moduleManager)
     {
+        $events = $moduleManager->getEventManager();
+        $events->attach(ModuleEvent::EVENT_MERGE_CONFIG, array($this, 'onMergeConfig'));
     }
 
     /**
@@ -86,5 +89,19 @@ class Module
      */
     public function onBootstrap(MvcEvent $e)
     {
+    }
+    
+    public function onMergeConfig(ModuleEvent $e)
+    {
+        $configListener = $e->getConfigListener();
+        $config         = $configListener->getMergedConfig(false);
+    
+        // Modify the configuration; here, we'll remove a specific key:
+        if (isset($config['service_manager']['invokables']['VuFind\Search'])) {
+            unset($config['service_manager']['invokables']['VuFind\Search']);
+        }
+    
+        // Pass the changed configuration back to the listener:
+        $configListener->setMergedConfig($config);
     }
 }
