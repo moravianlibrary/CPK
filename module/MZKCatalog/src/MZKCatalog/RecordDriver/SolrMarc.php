@@ -48,11 +48,12 @@ class SolrMarc extends ParentSolrDefault
         if (!$isEod) {
             return null;
         }
-        $link = "http://books2ebooks.eu/odm/orderformular.do?formular_id=133&sys_id=";
-        if (strpos($this->getUniqueID(), "MZK03-") === 0) {
-            $link = "http://books2ebooks.eu/odm/orderformular.do?formular_id=131&sys_id=";
-        }
-        $link .=  $this->fields['sysno'];
+        list($base, $sysno) = explode('-', $this->getUniqueID());
+        $eodLinks = array(
+            'MZK01' => 'http://books2ebooks.eu/odm/orderformular.do?formular_id=133&sys_id=',
+            'MZK03' => 'http://books2ebooks.eu/odm/orderformular.do?formular_id=131&sys_id=',
+        );
+        $link = $eodLinks[$base] . $sysno;
         return $link;
     }
     
