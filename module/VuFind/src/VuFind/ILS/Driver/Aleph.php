@@ -43,7 +43,48 @@ use DateTime;
 use VuFind\Exception\Date as DateException;
 
 /**
- * Aleph Translator Class
+ * Aleph Translator class
+ * 
+ * 
+ */
+interface AlephTranslator
+{
+
+    public function tab15Translate($item);
+
+    public function tab40Translate($item);
+
+}
+
+/**
+ * 
+ * 
+ *
+ */
+class AlephFixedTranslator implements AlephTranslator
+{
+    
+    public function tab15Translate($item) {
+        $z30 = $item->z30;
+        return array(
+            'opac'         => 'Y',
+            'request'      => 'C',
+            'desc'         => (string) $z30->{'z30-item-status'},
+            'sub_lib_desc' => (string) $z30->{'z30-sub-library'}
+        );
+    }
+    
+    public function tab40Translate($item) {
+        $z30 = $item->z30;
+        $collection = (string) $z30->{'z30-collection'};
+        $collection_desc = array('desc' => $collection);
+        return $collection_desc;
+    }
+    
+}
+
+/**
+ * Aleph Translator Class that uses configuration from Aleph tab*.lng files. 
  *
  * @category VuFind
  * @package  ILS_Drivers
@@ -51,7 +92,7 @@ use VuFind\Exception\Date as DateException;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class AlephTranslator
+class AlephFileTranslator implements AlephTranslator
 {
     /**
      * Constructor
@@ -74,6 +115,67 @@ class AlephTranslator
             get_class($this) . "::tabSubLibraryCallback"
         );
     }
+    
+    /**
+     * Get a tab15 item status
+     *
+     * @param string $slc  Sub-library
+     * @param string $isc  Item status code
+     * @param string $ipsc Item process status code
+     *
+     * @return string
+     */
+    public function tab15Translate($item)
+    {
+        $item_status_code    = (string) $item->{'z30-item-status-code'};
+        $item_process_status = (string) $item->{'z30-item-process-status-code'};
+        $sub_library_code    = (string) $item->{'z30-sub-library-code'};
+        $tab15 = $this->tabSubLibraryTranslate($sub_library_code);
+        if ($tab15 == null) {
+            throw new ILSException("tab15 is not defined for sub_library_code=" + $sub_library_code);
+        }
+        $findme = $tab15["tab15"] . "|" . $item_status_code . "|" . $item_process_status;
+        $result = $this->table15[$findme];
+        if ($result == null) {
+            $findme = $tab15["tab15"] . "||" . $item_process_status;
+            $result = $this->table15[$findme];
+        }
+        $result["sub_lib_desc"] = $tab15["desc"];
+        return $result;
+    }
+    
+    /**
+     * Get a tab40 collection description
+     *
+     * @param string $collection Collection
+     * @param string $sublib     Sub-library
+     *
+     * @return string
+     */
+    public function tab40Translate($item)
+    {
+        $collection_code  = (string) $item->{'z30-collection-code'};
+        $sub_library_code = (string) $item->{'z30-sub-library-code'};
+        $findme = $collection_code . "|" . $sub_library_code;
+        $result = $this->table40[$findme];
+        if ($result != null) {
+            $findme = $collection_code . "|";
+            return $this->table40[$findme];
+        }
+        return $result;
+    }
+    
+    /**
+     * Support method for tab15Translate -- translate a sub-library name
+     *
+     * @param string $sl Text to translate
+     *
+     * @return string
+     */
+    protected function tabSubLibraryTranslate($sl)
+    {
+        return $this->table_sub_library[$sl];
+    }
 
     /**
      * Parse a table
@@ -93,7 +195,7 @@ class AlephTranslator
             $line = chop($line);
             if (preg_match("/!!/", $line)) {
                 $line = chop($line);
-                $rgxp = AlephTranslator::regexp($line);
+                $rgxp = AlephFileTranslator::regexp($line);
             } if (preg_match("/!.*/", $line) || $rgxp == "" || $line == "") {
             } else {
                 $line = str_pad($line, 80);
@@ -106,62 +208,6 @@ class AlephTranslator
             }
         }
         fclose($file_handle);
-        return $result;
-    }
-
-    /**
-     * Get a tab40 collection description
-     *
-     * @param string $collection Collection
-     * @param string $sublib     Sub-library
-     *
-     * @return string
-     */
-    public function tab40Translate($collection, $sublib)
-    {
-        $findme = $collection . "|" . $sublib;
-        $desc = $this->table40[$findme];
-        if ($desc == null) {
-            $findme = $collection . "|";
-            $desc = $this->table40[$findme];
-        }
-        return $desc;
-    }
-
-    /**
-     * Support method for tab15Translate -- translate a sub-library name
-     *
-     * @param string $sl Text to translate
-     *
-     * @return string
-     */
-    public function tabSubLibraryTranslate($sl)
-    {
-        return $this->table_sub_library[$sl];
-    }
-
-    /**
-     * Get a tab15 item status
-     *
-     * @param string $slc  Sub-library
-     * @param string $isc  Item status code
-     * @param string $ipsc Item process status code
-     *
-     * @return string
-     */
-    public function tab15Translate($slc, $isc, $ipsc)
-    {
-        $tab15 = $this->tabSubLibraryTranslate($slc);
-        if ($tab15 == null) {
-            print "tab15 is null!<br>";
-        }
-        $findme = $tab15["tab15"] . "|" . $isc . "|" . $ipsc;
-        $result = $this->table15[$findme];
-        if ($result == null) {
-            $findme = $tab15["tab15"] . "||" . $ipsc;
-            $result = $this->table15[$findme];
-        }
-        $result["sub_lib_desc"] = $tab15["desc"];
         return $result;
     }
 
@@ -248,6 +294,187 @@ class AlephTranslator
 }
 
 /**
+ * 
+ * Aleph Restful API does not include bibliographic base in its response, so you
+ * have to resolve it when you have two or more bibliographic bases.
+ *
+ */
+interface IdResolver {
+    
+    /**
+     * Resolve ids (add Solr id to items)
+     * 
+     * @param array $items   items to resolve
+     */
+    public function resolveIds(&$items);
+    
+}
+
+/**
+ * 
+ * FixedIdResolver - used when you have only one bibliographic base, so ID
+ * in solr is not prefixed with bibliographic base so you can keep the returned id
+ * as is.
+ *
+ */
+class FixedIdResolver implements IdResolver {
+    
+    public function resolveIds(&$items) {
+        return $items;
+    }
+    
+}
+
+/**
+ * SolrIdResolver - resolve bibliographic base against solr.
+ *
+ */
+class SolrIdResolver implements IdResolver {
+    
+    protected $solrQueryField = 'availability_id_str';
+    
+    protected $itemIdentifier = 'adm_id';
+    
+    /**
+     * Search service (used for lookups by barcode number)
+     *
+     * @var \VuFindSearch\Service
+     */
+    protected $searchService = null;
+    
+    public function __construct(\VuFindSearch\Service $searchService,
+        $solrQueryField = 'availability_id_str', $itemIdentifier = 'adm_id')
+    {
+        $this->searchService = $searchService;
+        $this->solrQueryField = $solrQueryField;
+        $this->itemIdentifier = $itemIdentifier;
+    }
+    
+    public function resolveIds(&$recordsToResolve)
+    {
+        $idsToResolve = array();
+        foreach ($recordsToResolve as $record) {
+            $identifier = $record[$this->itemIdentifier];
+            if (isset($identifier) && !empty($identifier)) {
+                $idsToResolve[] = $record[$this->itemIdentifier];
+            }
+        }
+        $resolved = $this->convertToIDUsingSolr($idsToResolve);        
+        foreach ($recordsToResolve as &$record) {
+            if (isset($record[$this->itemIdentifier])) {
+                $id = $record[$this->itemIdentifier];
+                if (isset($resolved[$id])) {
+                    $record['id'] = $resolved[$id];
+                }
+            }
+        }
+    }
+    
+    protected function convertToIDUsingSolr(&$ids)
+    {
+        if (empty($ids)) {
+            return array();
+        }
+        $results = array();
+        $group = new \VuFindSearch\Query\QueryGroup('OR');
+        foreach ($ids as $id) {
+            $query = new \VuFindSearch\Query\Query($this->solrQueryField. ':' . $id);
+            $group->addQuery($query);
+        }
+        $docs = $this->searchService->search('Solr', $group, 0, sizeof($ids));
+        foreach ($docs->getRecords() as $record) {
+            $fields = $record->getRawData();
+            if (isset($fields[$this->solrQueryField])) {
+                if (is_array($fields[$this->solrQueryField])) {
+                    foreach ($fields[$this->solrQueryField] as $value) {
+                        if (in_array($value, $ids)) {
+                            $results[$value] = $record->getUniqueID();
+                        }
+                    }
+                } else {
+                    $value = $fields[$this->solrQueryField];
+                    if (in_array($value, $ids)) {
+                        $results[$value] = $record->getUniqueID();
+                    }
+                }
+            }
+        }
+        return $results;
+    }
+        
+}
+
+/**
+ * Resolve identifiers against XServer using find function.
+ * 
+ */
+class XServerIdResolver implements IdResolver {
+    
+    /**
+     * 
+     * @var AlephWebServices
+     */
+    protected $alephWebService;
+    
+    /**
+     * 
+     * @var array
+     */
+    protected $bib;
+    
+    /**
+     *
+     * @param AlephWebServices $service
+     * @param array $config
+     */
+    public function __construct(AlephWebServices $service, $config)
+    {
+        $this->alephWebService = $service;
+        $this->bib = explode(',', $config['bib']);
+    }
+    
+    public function resolveIds(&$recordsToResolve)
+    {
+        foreach ($recordsToResolve as &$record) {
+            $id = $this->barcodeToID($record['barcode']);
+            if ($id != null) {
+                $record['id'] = $id;
+            }
+        }
+    }
+    
+    protected function barcodeToID($bar)
+    {
+        if (!$this->alephWebService->isXServerEnabled()) {
+            return null;
+        }
+        foreach ($this->bib as $base) {
+            try {
+                $xml = $this->alephWebService->doXRequest(
+                    "find", array("base" => $base, "request" => "BAR=$bar"), false
+                );
+                $docs = (int) $xml->{"no_records"};
+                if ($docs == 1) {
+                    $set = (string) $xml->{"set_number"};
+                    $result = $this->alephWebService->doXRequest(
+                        "present", array("set_number" => $set, "set_entry" => "1"),
+                        false
+                    );
+                    $id = $result->xpath('//doc_number/text()');
+                    if (count($this->bib)==1) {
+                        return (string) $id[0];
+                    } else {
+                        return $base . "-" . $id[0];
+                    }
+                }
+            } catch (\Exception $ex) { // not found
+            }
+        }
+        return null;
+    }
+}
+
+/**
  * ILS Exception
  *
  * @category VuFind
@@ -289,88 +516,82 @@ class AlephRestfulException extends ILSException
 }
 
 /**
- * Aleph ILS driver
+ * Auxiliary class for calling Aleph web services (both XServer and REST DLF API).
  *
- * @category VuFind
- * @package  ILS_Drivers
- * @author   Christoph Krempe <vufind-tech@lists.sourceforge.net>
- * @author   Alan Rykhus <vufind-tech@lists.sourceforge.net>
- * @author   Jason L. Cooper <vufind-tech@lists.sourceforge.net>
- * @author   Kun Lin <vufind-tech@lists.sourceforge.net>
- * @author   Vaclav Rosecky <vufind-tech@lists.sourceforge.net>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
-    \VuFindHttp\HttpServiceAwareInterface
-{
+class AlephWebServices {
+    
     /**
-     * Duedate configuration
+     * Aleph server host name
      *
-     * @var array
+     * @var string
      */
-    protected $duedates = false;
-
+    protected $host;
+    
     /**
-     * Translator object
-     *
-     * @var AlephTranslator
+     * Username for Xserver calls
+     * 
+     * @var string
      */
-    protected $translator = false;
-
+    protected $wwwuser;
+    
     /**
-     * Cache manager
+     * Username for Xserver calls
      *
-     * @var \VuFind\Cache\Manager
+     * @var string
      */
-    protected $cacheManager;
-
+    protected $wwwpasswd;
+    
     /**
-     * Logger object for debug info (or false for no debugging).
-     *
-     * @var LoggerInterface|bool
+     * Port number on which REST DLF API is running
+     * 
      */
-    protected $logger = false;
-
+    protected $dlfport;
+    
+    /**
+     * Is XServer API enabled?
+     * 
+     */
+    protected $xserver_enabled;
+    
     /**
      * HTTP service
      *
      * @var \VuFindHttp\HttpServiceInterface
      */
     protected $httpService = null;
-
+    
     /**
-     * Date converter object
+     * Logger object for debug info (or false for no debugging).
      *
-     * @var \VuFind\Date\Converter
+     * @var LoggerInterface|bool
      */
-    protected $dateConverter = null;
-
+    protected $logger = false;
+    
     /**
-     * Constructor
-     *
-     * @param \VuFind\Date\Converter $dateConverter Date converter
-     * @param \VuFind\Cache\Manager  $cacheManager  Cache manager (optional)
+     * 
+     * @param array $config
      */
-    public function __construct(\VuFind\Date\Converter $dateConverter,
-        \VuFind\Cache\Manager $cacheManager = null
-    ) {
-        $this->dateConverter = $dateConverter;
-        $this->cacheManager = $cacheManager;
-    }
-
-    /**
-     * Set the logger
-     *
-     * @param LoggerInterface $logger Logger to use.
-     *
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
+    public function __construct()
     {
-        $this->logger = $logger;
     }
-
+    
+    public function init($config)
+    {
+        $this->host = $config['host'];
+        $this->xserver_enabled = false;
+        if (isset($config['wwwuser']) && isset($config['wwwpasswd'])) {
+            $this->wwwuser = $config['wwwuser'];
+            $this->wwwpasswd = $config['wwwpasswd'];
+            $this->xserver_enabled = true;
+        }
+        $this->debug_enabled = false;
+        if (isset($config['debug']) && $config['debug']) { 
+            $this->debug_enabled = true;
+        }
+        $this->dlfport = $config['dlfport'];
+    }
+    
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -382,85 +603,24 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     {
         $this->httpService = $service;
     }
-
+    
     /**
-     * Initialize the driver.
+     * Set the logger
      *
-     * Validate configuration and perform all resource-intensive tasks needed to
-     * make the driver active.
+     * @param LoggerInterface $logger Logger to use.
      *
-     * @throws ILSException
      * @return void
      */
-    public function init()
+    public function setLogger(LoggerInterface $logger)
     {
-        // Validate config
-        $required = array(
-            'host', 'bib', 'useradm', 'admlib', 'dlfport', 'available_statuses'
-        );
-        foreach ($required as $current) {
-            if (!isset($this->config['Catalog'][$current])) {
-                throw new ILSException("Missing Catalog/{$current} config setting.");
-            }
-        }
-        if (!isset($this->config['sublibadm'])) {
-            throw new ILSException('Missing sublibadm config setting.');
-        }
-
-        // Process config
-        $this->host = $this->config['Catalog']['host'];
-        $this->bib = explode(',', $this->config['Catalog']['bib']);
-        $this->useradm = $this->config['Catalog']['useradm'];
-        $this->admlib = $this->config['Catalog']['admlib'];
-        if (isset($this->config['Catalog']['wwwuser'])
-            && isset($this->config['Catalog']['wwwpasswd'])
-        ) {
-            $this->wwwuser = $this->config['Catalog']['wwwuser'];
-            $this->wwwpasswd = $this->config['Catalog']['wwwpasswd'];
-            $this->xserver_enabled = true;
-        } else {
-            $this->xserver_enabled = false;
-        }
-        $this->dlfport = $this->config['Catalog']['dlfport'];
-        $this->sublibadm = $this->config['sublibadm'];
-        if (isset($this->config['duedates'])) {
-            $this->duedates = $this->config['duedates'];
-        }
-        $this->available_statuses
-            = explode(',', $this->config['Catalog']['available_statuses']);
-        $this->quick_availability
-            = isset($this->config['Catalog']['quick_availability'])
-            ? $this->config['Catalog']['quick_availability'] : false;
-        $this->debug_enabled = isset($this->config['Catalog']['debug'])
-            ? $this->config['Catalog']['debug'] : false;
-        if (isset($this->config['util']['tab40'])
-            && isset($this->config['util']['tab15'])
-            && isset($this->config['util']['tab_sub_library'])
-        ) {
-            if (isset($this->config['Cache']['type'])
-                && null !== $this->cacheManager
-            ) {
-                $cache = $this->cacheManager
-                    ->getCache($this->config['Cache']['type']);
-                $this->translator = $cache->getItem('alephTranslator');
-            }
-            if ($this->translator == false) {
-                $this->translator = new AlephTranslator($this->config);
-                if (isset($cache)) {
-                    $cache->setItem('alephTranslator', $this->translator);
-                }
-            }
-        }
-        if (isset($this->config['Catalog']['preferred_pick_up_locations'])) {
-            $this->preferredPickUpLocations = explode(
-                ',', $this->config['Catalog']['preferred_pick_up_locations']
-            );
-        }
-        if (isset($this->config['Catalog']['default_patron_id'])) {
-            $this->defaultPatronId = $this->config['Catalog']['default_patron_id'];
-        }
+        $this->logger = $logger;
     }
-
+    
+    public function isXServerEnabled()
+    {
+        return $this->xserver_enabled;        
+    }
+    
     /**
      * Perform an XServer request.
      *
@@ -470,7 +630,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return SimpleXMLElement
      */
-    protected function doXRequest($op, $params, $auth=false)
+    public function doXRequest($op, $params, $auth=false)
     {
         if (!$this->xserver_enabled) {
             throw new \Exception(
@@ -498,18 +658,18 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         return $result;
     }
-
+    
     /**
      * Perform a RESTful DLF request.
      *
      * @param array  $path_elements URL path elements
      * @param array  $params        GET parameters (null for none)
      * @param string $method        HTTP method
-     * @param string $body          HTTP body
+     * @param string $body          HTTP body (for PUT or POST HTTP method)
      *
      * @return SimpleXMLElement
      */
-    protected function doRestDLFRequest($path_elements, $params = null,
+    public function doRestDLFRequest($path_elements, $params = null,
         $method='GET', $body = null
     ) {
         $path = '';
@@ -534,7 +694,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         return $result;
     }
-
+    
     /**
      * Add values to an HTTP query string.
      *
@@ -543,18 +703,19 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return string
      */
-    protected function appendQueryString($url, $params)
+    public function appendQueryString($url, $params)
     {
+        if ($params == null) {
+            return $url; // nothing to append
+        }
         $sep = (strpos($url, "?") === false)?'?':'&';
-        if ($params != null) {
-            foreach ($params as $key => $value) {
-                $url.= $sep . $key . "=" . urlencode($value);
-                $sep = "&";
-            }
+        foreach ($params as $key => $value) {
+            $url.= $sep . $key . "=" . urlencode($value);
+            $sep = "&";
         }
         return $url;
     }
-
+    
     /**
      * Perform an HTTP request.
      *
@@ -564,12 +725,12 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return SimpleXMLElement
      */
-    protected function doHTTPRequest($url, $method='GET', $body = null)
+    public function doHTTPRequest($url, $method='GET', $body = null)
     {
         if ($this->debug_enabled) {
             $this->debug("URL: '$url'");
         }
-
+    
         $result = null;
         try {
             $client = $this->httpService->createClient($url);
@@ -600,7 +761,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         return $result;
     }
-
+    
     /**
      * Show a debug message.
      *
@@ -614,6 +775,195 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $this->logger->debug($msg);
         }
     }
+    
+}
+
+/**
+ * Aleph ILS driver
+ *
+ * @category VuFind
+ * @package  ILS_Drivers
+ * @author   Christoph Krempe <vufind-tech@lists.sourceforge.net>
+ * @author   Alan Rykhus <vufind-tech@lists.sourceforge.net>
+ * @author   Jason L. Cooper <vufind-tech@lists.sourceforge.net>
+ * @author   Kun Lin <vufind-tech@lists.sourceforge.net>
+ * @author   Vaclav Rosecky <vufind-tech@lists.sourceforge.net>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
+ */
+class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
+    \VuFindHttp\HttpServiceAwareInterface
+{
+    /**
+     * Duedate configuration
+     *
+     * @var array
+     */
+    protected $duedates = false;
+
+    /**
+     * Cache manager
+     *
+     * @var \VuFind\Cache\Manager
+     */
+    protected $cacheManager;
+
+    /**
+     * Logger object for debug info (or false for no debugging).
+     *
+     * @var LoggerInterface|bool
+     */
+    protected $logger = false;
+
+    /**
+     * HTTP service
+     *
+     * @var \VuFindHttp\HttpServiceInterface
+     */
+    protected $httpService = null;
+
+    /**
+     * Date converter object
+     *
+     * @var \VuFind\Date\Converter
+     */
+    protected $dateConverter = null;
+    
+    /**
+     * Search service (used for lookups by barcode number)
+     * 
+     */
+    protected $searchService = null;
+    
+    /**
+     * Resolver for translation of bibliographic ids, used in a case
+     * of more bibliographic bases
+     * 
+     * @var \VuFind\ILS\Driver\IdResolver
+     */
+    protected $idResolver = null;
+    
+    /**
+     * Aleph web services
+     * 
+     * @var \VuFind\ILS\Driver\AlephWebServices
+     */
+    protected $alephWebService = null;
+    
+    /**
+     * Translation of statuses (used for hiding items and translation of statuses)
+     * 
+     * @var \VuFind\ILS\Driver\AlephTranslator
+     */
+    protected $translator = false;
+
+    /**
+     * Constructor
+     *
+     * @param \VuFind\Date\Converter $dateConverter Date converter
+     * @param \VuFind\Cache\Manager  $cacheManager  Cache manager (optional)
+     */
+    public function __construct(\VuFind\Date\Converter $dateConverter,
+        \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null
+    ) {
+        $this->dateConverter = $dateConverter;
+        $this->cacheManager = $cacheManager;
+        $this->searchService = $searchService;
+        $this->alephWebService = new AlephWebServices();
+    }
+
+    /**
+     * Set the logger
+     *
+     * @param LoggerInterface $logger Logger to use.
+     *
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        $this->alephWebService->setLogger($logger);
+    }
+
+    /**
+     * Set the HTTP service to be used for HTTP requests.
+     *
+     * @param HttpServiceInterface $service HTTP service
+     *
+     * @return void
+     */
+    public function setHttpService(HttpServiceInterface $service)
+    {
+        $this->alephWebService->setHttpService($service);
+    }
+
+    /**
+     * Initialize the driver.
+     *
+     * Validate configuration and perform all resource-intensive tasks needed to
+     * make the driver active.
+     *
+     * @throws ILSException
+     * @return void
+     */
+    public function init()
+    {
+        // Validate config
+        $required = array(
+            'host', 'bib', 'useradm', 'admlib', 'dlfport', 'available_statuses'
+        );
+        foreach ($required as $current) {
+            if (!isset($this->config['Catalog'][$current])) {
+                throw new ILSException("Missing Catalog/{$current} config setting.");
+            }
+        }
+        if (!isset($this->config['sublibadm'])) {
+            throw new ILSException('Missing sublibadm config setting.');
+        }
+        $this->alephWebService->init($this->config['Catalog']);
+        $this->bib = explode(',', $this->config['Catalog']['bib']);
+        $this->useradm = $this->config['Catalog']['useradm'];
+        $this->admlib = $this->config['Catalog']['admlib'];
+        $this->sublibadm = $this->config['sublibadm'];
+        if (isset($this->config['duedates'])) {
+            $this->duedates = $this->config['duedates'];
+        }
+        $this->available_statuses
+            = explode(',', $this->config['Catalog']['available_statuses']);
+        $this->quick_availability
+            = isset($this->config['Catalog']['quick_availability'])
+            ? $this->config['Catalog']['quick_availability'] : false;
+        if (isset($this->config['util']['tab40'])
+            && isset($this->config['util']['tab15'])
+            && isset($this->config['util']['tab_sub_library'])
+        ) {
+            if (isset($this->config['Cache']['type'])
+                && null !== $this->cacheManager
+            ) {
+                $cache = $this->cacheManager
+                    ->getCache($this->config['Cache']['type']);
+                $this->translator = $cache->getItem('alephTranslator');
+            }
+            if ($this->translator == false) {
+                $this->translator = new AlephFileTranslator($this->config);
+                if (isset($cache)) {
+                    $cache->setItem('alephTranslator', $this->translator);
+                }
+            }
+        } else {
+            $this->translator = new AlephFixedTranslator();
+        }
+        if (isset($this->config['Catalog']['preferred_pick_up_locations'])) {
+            $this->preferredPickUpLocations = explode(
+                ',', $this->config['Catalog']['preferred_pick_up_locations']
+            );
+        }
+        if (isset($this->config['Catalog']['default_patron_id'])) {
+            $this->defaultPatronId = $this->config['Catalog']['default_patron_id'];
+        }
+        $this->idResolver = new SolrIdResolver($this->searchService);
+        //$this->idResolver = new XServerIdResolver($this->alephWebService, $this->config['Catalog']);
+    }
 
     /**
      * Convert an ID string into an array of library and ID within the library.
@@ -624,7 +974,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     protected function parseId($id)
     {
-        if (count($this->bib)==1) {
+        if (count($this->bib) == 1) {
             return array($this->bib[0], $id);
         } else {
             return explode('-', $id);
@@ -687,7 +1037,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $doc_nums .= $sep . $id;
             $sep = ",";
         }
-        $xml = $this->doXRequest(
+        $xml = $this->alephWebService->doXRequest(
             "publish_avail", array('library' => $bib, 'doc_num' => $doc_nums), false
         );
         $holding = array();
@@ -731,7 +1081,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function getStatuses($idList)
     {
-        if (!$this->xserver_enabled) {
+        if (!$this->alephWebService->isXServerEnabled()) {
             if (!$this->quick_availability) {
                 return array();
             }
@@ -793,38 +1143,19 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         } else if (isset($this->defaultPatronId)) {
             $params['patron'] = $this->defaultPatronId;
         }
-        $xml = $this->doRestDLFRequest(array('record', $resource, 'items'), $params);
+        $xml = $this->alephWebService->doRestDLFRequest(array('record', $resource, 'items'), $params);
         foreach ($xml->{'items'}->{'item'} as $item) {
-            $item_status         = (string) $item->{'z30-item-status-code'}; // $isc
-            // $ipsc:
-            $item_process_status = (string) $item->{'z30-item-process-status-code'};
-            $sub_library_code    = (string) $item->{'z30-sub-library-code'}; // $slc
-            $z30 = $item->z30;
-            if ($this->translator) {
-                $item_status = $this->translator->tab15Translate(
-                    $sub_library_code, $item_status, $item_process_status
-                );
-            } else {
-                $item_status = array(
-                    'opac'         => 'Y',
-                    'request'      => 'C',
-                    'desc'         => (string) $z30->{'z30-item-status'},
-                    'sub_lib_desc' => (string) $z30->{'z30-sub-library'}
-                );
-            }
+            $item_status = $this->translator->tab15Translate($item);
             if ($item_status['opac'] != 'Y') {
                 continue;
             }
             $availability = false;
             $reserve = ($item_status['request'] == 'C')?'N':'Y';
+            $z30 = $item->z30;
             $collection = (string) $z30->{'z30-collection'};
             $collection_desc = array('desc' => $collection);
-            if ($this->translator) {
-                $collection_code = (string) $item->{'z30-collection-code'};
-                $collection_desc = $this->translator->tab40Translate(
-                    $collection_code, $sub_library_code
-                );
-            }
+            $collection_desc = $this->translator->tab40Translate($item);
+            $sub_library_code = (string) $item->{'z30-sub-library-code'};
             $requested = false;
             $duedate = null;
             $addLink = false;
@@ -900,7 +1231,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $years = array();
         $volumes = array();
         try {
-            $xml = $this->doRestDLFRequest(array('record', $resource, 'filters'));
+            $xml = $this->alephWebService->doRestDLFRequest(array('record', $resource, 'filters'));
         } catch (Exception $ex) {
             return array();
         }
@@ -955,7 +1286,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if ($history) {
             $params["type"] = "history";
         }
-        $xml = $this->doRestDLFRequest(
+        $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $userId, 'circulationActions', 'loans'), $params
         );
         foreach ($xml->xpath('//loan') as $item) {
@@ -964,10 +1295,13 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $z30 = $item->z30;
             $group = $item->xpath('@href');
             $group = substr(strrchr($group[0], "/"), 1);
-            //$renew = $item->xpath('@renew');
-            //$docno = (string) $z36->{'z36-doc-number'};
-            //$itemseq = (string) $z36->{'z36-item-sequence'};
-            //$seq = (string) $z36->{'z36-sequence'};
+            if (strpos($group, '?') !== false) {
+                $group = substr($group, 0, strpos($group, '?'));
+            }
+            $renew = $item->xpath('@renew');
+            $docno = (string) $z36->{'z36-doc-number'};
+            $itemseq = (string) $z36->{'z36-item-sequence'};
+            $seq = (string) $z36->{'z36-sequence'};
             $location = (string) $z36->{'z36_pickup_location'};
             $reqnum = (string) $z36->{'z36-doc-number'}
                 . (string) $z36->{'z36-item-sequence'}
@@ -979,30 +1313,32 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             } else {
                 $due = (string) $z36->{'z36-due-date'};
             }
-            //$loaned = (string) $z36->{'z36-loan-date'};
+            $loaned = (string) $z36->{'z36-loan-date'};
             $title = (string) $z13->{'z13-title'};
             $author = (string) $z13->{'z13-author'};
             $isbn = (string) $z13->{'z13-isbn-issn'};
             $barcode = (string) $z30->{'z30-barcode'};
-            $id = ($history) ? null : $this->barcodeToID($barcode);
+            $adm_id = (string) $z30->{'z30-doc-number'};
+            $id = (string) $z13->{'z13-doc-number'};
             $transList[] = array(
-                //'type' => $type,
-                'id' => $id,
-                'item_id' => $group,
-                'location' => $location,
-                'title' => $title,
-                'author' => $author,
-                'isbn' => array($isbn),
-                'reqnum' => $reqnum,
-                'barcode' => $barcode,
-                'duedate' => $this->parseDate($due),
-                'returned' => $this->parseDate($returned),
-                //'holddate' => $holddate,
-                //'delete' => $delete,
+                'id'        => $id,
+                'adm_id'    => $adm_id,
+                'item_id'   => $group,
+                'location'  => $location,
+                'title'     => $title,
+                'author'    => $author,
+                'isbn'      => array($isbn),
+                'reqnum'    => $reqnum,
+                'barcode'   => $barcode,
+                'duedate'   => $this->parseDate($due),
+                'returned'  => $this->parseDate($returned),
+                //'holddate'  => $holddate,
+                //'delete'    => $delete,
                 'renewable' => true,
-                //'create' => $this->parseDate($create)
+                //'create'    => $this->parseDate($create)
             );
         }
+        $this->idResolver->resolveIds($transList);
         return $transList;
     }
 
@@ -1041,7 +1377,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $result = array();
         foreach ($details['details'] as $id) {
             try {
-                $this->doRestDLFRequest(
+                $this->alephWebService->doRestDLFRequest(
                     array(
                         'patron', $patron['id'], 'circulationActions', 'loans', $id
                     ),
@@ -1072,7 +1408,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     {
         $userId = $user['id'];
         $holdList = array();
-        $xml = $this->doRestDLFRequest(
+        $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $userId, 'circulationActions', 'requests', 'holds'),
             array('view' => 'full')
         );
@@ -1108,25 +1444,29 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                     $holddate = $this->parseDate($holddate);
                 }
                 $delete = ($delete[0] == "Y");
+                $id = (string) $z13->{'z13-doc-number'};
+                $adm_id = (string) $z30->{'z30-doc-number'};
                 $holdList[] = array(
-                    'type' => $type,
-                    'item_id' => $item_id,
+                    'id'       => $id,
+                    'adm_id'   => $adm_id,
+                    'type'     => $type,
+                    'item_id'  => $item_id,
                     'location' => $location,
-                    'title' => $title,
-                    'author' => $author,
-                    'isbn' => array($isbn),
-                    'reqnum' => $reqnum,
-                    'barcode' => $barcode,
-                    'id' => $this->barcodeToID($barcode),
-                    'expire' => $this->parseDate($expire),
+                    'title'    => $title,
+                    'author'   => $author,
+                    'isbn'     => array($isbn),
+                    'reqnum'   => $reqnum,
+                    'barcode'  => $barcode,
+                    'expire'   => $this->parseDate($expire),
                     'holddate' => $holddate,
-                    'delete' => $delete,
-                    'create' => $this->parseDate($create),
-                    'status' => $status,
+                    'delete'   => $delete,
+                    'create'   => $this->parseDate($create),
+                    'status'   => $status,
                     'position' => $seq,
                 );
             }
         }
+        $this->idResolver->resolveIds($holdList);
         return $holdList;
     }
 
@@ -1164,7 +1504,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $count = 0;
         $statuses = array();
         foreach ($details['details'] as $id) {
-            $result = $this->doRestDLFRequest(
+            $result = $this->alephWebService->doRestDLFRequest(
                 array(
                     'patron', $patronId, 'circulationActions', 'requests', 'holds',
                     $id
@@ -1206,7 +1546,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $finesList = array();
         $finesListSort = array();
 
-        $xml = $this->doRestDLFRequest(
+        $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'circulationActions', 'cash'),
             array("view" => "full")
         );
@@ -1283,7 +1623,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function getMyProfile($user)
     {
-        if ($this->xserver_enabled) {
+        if ($this->alephWebService->isXServerEnabled()) {
             return $this->getMyProfileX($user);
         } else {
             return $this->getMyProfileDLF($user);
@@ -1304,7 +1644,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (!isset($user['college'])) {
             $user['college'] = $this->useradm;
         }
-        $xml = $this->doXRequest(
+        $xml = $this->alephWebService->doXRequest(
             "bor-info",
             array(
                 'loans' => 'N', 'cash' => 'N', 'hold' => 'N',
@@ -1360,7 +1700,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function getMyProfileDLF($user)
     {
-        $xml = $this->doRestDLFRequest(
+        $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'patronInformation', 'address')
         );
         $address = $xml->xpath('//address-information');
@@ -1391,7 +1731,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $recordList['dateFrom'] = $dateFrom;
         $recordList['dateTo'] = $dateTo;
         $recordList['id'] = $user['id'];
-        $xml = $this->doRestDLFRequest(
+        $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'patronStatus', 'registration')
         );
         $status = $xml->xpath("//institution/z305-bor-status");
@@ -1421,7 +1761,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             return $this->getMyProfile($temp);
         }
         try {
-            $xml = $this->doXRequest(
+            $xml = $this->alephWebService->doXRequest(
                 'bor-auth',
                 array(
                     'library' => $this->useradm, 'bor_id' => $user,
@@ -1474,7 +1814,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     {
         list($bib, $sys_no) = $this->parseId($id);
         $resource = $bib . $sys_no;
-        $xml = $this->doRestDLFRequest(
+        $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $patronId, 'record', $resource, 'items', $group)
         );
         $locations = array();
@@ -1556,7 +1896,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $body = 'post_xml=' . $body->asXML();
         try {
-            $result = $this->doRestDLFRequest(
+            $result = $this->alephWebService->doRestDLFRequest(
                 array(
                     'patron', $patronId, 'record', $recordId, 'items', $itemId,
                     'hold'
@@ -1573,43 +1913,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             );
         }
         return array('success' => true);
-    }
-
-    /**
-     * Convert a barcode to an item ID.
-     *
-     * @param string $bar Barcode
-     *
-     * @return string
-     */
-    public function barcodeToID($bar)
-    {
-        if (!$this->xserver_enabled) {
-            return null;
-        }
-        foreach ($this->bib as $base) {
-            try {
-                $xml = $this->doXRequest(
-                    "find", array("base" => $base, "request" => "BAR=$bar"), false
-                );
-                $docs = (int) $xml->{"no_records"};
-                if ($docs == 1) {
-                    $set = (string) $xml->{"set_number"};
-                    $result = $this->doXRequest(
-                        "present", array("set_number" => $set, "set_entry" => "1"),
-                        false
-                    );
-                    $id = $result->xpath('//doc_number/text()');
-                    if (count($this->bib)==1) {
-                        return (string) $id[0];
-                    } else {
-                        return $base . "-" . $id[0];
-                    }
-                }
-            } catch (\Exception $ex) {
-            }
-        }
-        throw new ILSException('barcode not found');
     }
 
     /**

@@ -50,7 +50,8 @@ class Factory
     {
         return new Aleph(
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
-            $sm->getServiceLocator()->get('VuFind\CacheManager')
+            $sm->getServiceLocator()->get('VuFind\CacheManager'),
+            $sm->getServiceLocator()->get('VuFind\Search')
         );
     }
 

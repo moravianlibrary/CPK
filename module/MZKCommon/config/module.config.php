@@ -35,14 +35,16 @@ $config = array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'search' => 'MZKCommon\Controller\SearchController',
-            'ajax' => 'MZKCommon\Controller\AjaxController',
+            'search'     => 'MZKCommon\Controller\SearchController',
+            'ajax'       => 'MZKCommon\Controller\AjaxController',
+            'myresearch' => 'MZKCommon\Controller\MyResearchController',
         ),
     ),
 );
 
 $staticRoutes = array(
-    'Search/Conspectus', 'Search/MostSearched'
+    'Search/Conspectus', 'Search/MostSearched',
+    'MyResearch/CheckedOutHistory'
 );
 
 foreach ($staticRoutes as $route) {

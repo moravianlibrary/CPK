@@ -51,6 +51,7 @@ class Factory
         return new \MZKCommon\ILS\Driver\Aleph(
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
             $sm->getServiceLocator()->get('VuFind\CacheManager'),
+            $sm->getServiceLocator()->get('VuFind\Search'),
             $sm->getServiceLocator()->get('VuFind\DbTablePluginManager')->get('recordstatus')
         );
     }

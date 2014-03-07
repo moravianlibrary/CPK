@@ -47,9 +47,10 @@ class Aleph extends AlephBase
     protected $availabilitySource = null;
     
     public function __construct(\VuFind\Date\Converter $dateConverter,
-        \VuFind\Cache\Manager $cacheManager = null, \MZKCommon\Db\Table\RecordStatus $recordStatus
+        \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null,
+        \MZKCommon\Db\Table\RecordStatus $recordStatus = null
     ) {
-        parent::__construct($dateConverter, $cacheManager);
+        parent::__construct($dateConverter, $cacheManager, $searchService);
         $this->recordStatus = $recordStatus;
     }
     
