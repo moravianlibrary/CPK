@@ -57,6 +57,16 @@ class SolrMarc extends ParentSolrDefault
         return $link;
     }
     
+    public function getRestrictions()
+    {
+        list($base, $sysno) = explode('-', $this->getUniqueID());
+        $result = $this->getFieldArray('540', array('a'));
+        if (in_array("NewspaperOrJournal", $this->getFormats())) {
+            $result[] = 'periodicals_restriction_text';
+        }
+        return $result;
+    }
+    
     protected function translateHoldingStatus($status, $duedate_status) {
         $status = mb_substr($status, 0, 6, 'UTF-8');
         if ($duedate_status == 'On Shelf') {

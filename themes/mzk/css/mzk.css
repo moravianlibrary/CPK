@@ -399,3 +399,9 @@ span.available {
 span.checkedout {
   color: #cc0000;
 }
+
+p.holdings-restriction {
+  font-weight: bold;
+  color: #990000;
+}
+
