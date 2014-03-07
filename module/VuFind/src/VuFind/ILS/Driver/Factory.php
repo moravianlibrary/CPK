@@ -21,7 +21,7 @@
  *
  * @category VuFind2
  * @package  ILS_Drivers
- * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
@@ -33,7 +33,7 @@ use Zend\ServiceManager\ServiceManager;
  *
  * @category VuFind2
  * @package  ILS_Drivers
- * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
@@ -46,7 +46,7 @@ class Factory
      *
      * @return Aleph
      */
-    public function getAleph(ServiceManager $sm)
+    public static function getAleph(ServiceManager $sm)
     {
         return new Aleph(
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
@@ -62,7 +62,7 @@ class Factory
      *
      * @return Demo
      */
-    public function getDemo(ServiceManager $sm)
+    public static function getDemo(ServiceManager $sm)
     {
         return new Demo(
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
@@ -77,7 +77,7 @@ class Factory
      *
      * @return Horizon
      */
-    public function getHorizon(ServiceManager $sm)
+    public static function getHorizon(ServiceManager $sm)
     {
         return new Horizon($sm->getServiceLocator()->get('VuFind\DateConverter'));
     }
@@ -89,7 +89,7 @@ class Factory
      *
      * @return HorizonXMLAPI
      */
-    public function getHorizonXMLAPI(ServiceManager $sm)
+    public static function getHorizonXMLAPI(ServiceManager $sm)
     {
         return new HorizonXMLAPI(
             $sm->getServiceLocator()->get('VuFind\DateConverter')
@@ -103,7 +103,7 @@ class Factory
      *
      * @return MultiBackend
      */
-    public function getMultiBackend(ServiceManager $sm)
+    public static function getMultiBackend(ServiceManager $sm)
     {
         return new MultiBackend($sm->getServiceLocator()->get('VuFind\Config'));
     }
@@ -115,7 +115,7 @@ class Factory
      *
      * @return NoILS
      */
-    public function getNoILS(ServiceManager $sm)
+    public static function getNoILS(ServiceManager $sm)
     {
         return new NoILS($sm->getServiceLocator()->get('VuFind\RecordLoader'));
     }
@@ -127,7 +127,7 @@ class Factory
      *
      * @return Unicorn
      */
-    public function getUnicorn(ServiceManager $sm)
+    public static function getUnicorn(ServiceManager $sm)
     {
         return new Unicorn($sm->getServiceLocator()->get('VuFind\DateConverter'));
     }
@@ -139,7 +139,7 @@ class Factory
      *
      * @return Voyager
      */
-    public function getVoyager(ServiceManager $sm)
+    public static function getVoyager(ServiceManager $sm)
     {
         return new Voyager($sm->getServiceLocator()->get('VuFind\DateConverter'));
     }
@@ -151,7 +151,7 @@ class Factory
      *
      * @return VoyagerRestful
      */
-    public function getVoyagerRestful(ServiceManager $sm)
+    public static function getVoyagerRestful(ServiceManager $sm)
     {
         $ils = $sm->getServiceLocator()->get('VuFind\ILSHoldSettings');
         return new VoyagerRestful(
