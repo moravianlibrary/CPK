@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pat-register>
+  <reply-text>ok</reply-text>
+  <reply-code>0000</reply-code>
+  <registration>
+    <translate-change-active-library>MZK50</translate-change-active-library>
+    <institution code="MZK50">
+      <inst-name>MZK50</inst-name>
+      <z305-bor-status-code>04</z305-bor-status-code>
+      <z305-bor-status>04 - S</z305-bor-status>
+      <z305-bor-type/>
+      <z305-expiry-date>20140808</z305-expiry-date>
+    </institution>
+  </registration>
+</pat-register>

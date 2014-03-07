@@ -677,8 +677,8 @@ class AlephWebServices {
             $path .= $path_element . "/";
         }
         $url = "http://$this->host:$this->dlfport/rest-dlf/" . $path;
-        $url = $this->appendQueryString($url, $params);
-        $result = $this->doHTTPRequest($url, $method, $body);
+        //$url = $this->appendQueryString($url, $params);
+        $result = $this->doHTTPRequest($url, $params, $method, $body);
         $replyCode = (string) $result->{'reply-code'};
         if ($replyCode != "0000") {
             $replyText = (string) $result->{'reply-text'};
@@ -720,25 +720,38 @@ class AlephWebServices {
      * Perform an HTTP request.
      *
      * @param string $url    URL of request
+     * @param array  $param  query parameters to add to URL
      * @param string $method HTTP method
      * @param string $body   HTTP body (null for none)
      *
      * @return SimpleXMLElement
      */
-    public function doHTTPRequest($url, $method='GET', $body = null)
+    public function doHTTPRequest($url, $params=null, $method='GET', $body = null)
     {
         if ($this->debug_enabled) {
-            $this->debug("URL: '$url'");
+            $fullUrl = $this->appendQueryString($url, $params);
+            $this->debug("URL: '$fullUrl'");
         }
-    
+        
+        if ($params == null) {
+            $params = array();
+        }
+
         $result = null;
         try {
-            $client = $this->httpService->createClient($url);
-            $client->setMethod($method);
-            if ($body != null) {
-                $client->setRawBody($body);
+            if ($method == 'GET') {
+                $result = $this->httpService->get($url, $params);
+            } else if ($method == 'POST') {
+                $url = $this->appendQueryString($url, $params);
+                $result = $this->httpService->post($url, $body);
+            } else {
+                $client = $this->httpService->createClient($url);
+                $client->setMethod($method);
+                if ($body != null) {
+                    $client->setRawBody($body);
+                }
+                $result = $client->send();
             }
-            $result = $client->send();
         } catch (\Exception $e) {
             throw new ILSException($e->getMessage());
         }
@@ -961,8 +974,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (isset($this->config['Catalog']['default_patron_id'])) {
             $this->defaultPatronId = $this->config['Catalog']['default_patron_id'];
         }
-        $this->idResolver = new SolrIdResolver($this->searchService);
-        //$this->idResolver = new XServerIdResolver($this->alephWebService, $this->config['Catalog']);
+        if ($this->searchService != null) {
+            $this->idResolver = new SolrIdResolver($this->searchService);
+        } else {
+            $this->idResolver = new FixedIdResolver();
+        }
     }
 
     /**
@@ -1373,7 +1389,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     public function renewMyItems($details)
     {
         $patron = $details['patron'];
-        $error = false;
         $result = array();
         foreach ($details['details'] as $id) {
             try {
@@ -1575,7 +1590,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $cashdate = date('d-m-Y', strtotime((string) $z31->{'z31-date'}));
             $balance = 0;
 
-            $finesListSort["$cashref"]  = array(
+            $finesListSort[$cashref]  = array(
                     "title"   => $title,
                     "barcode" => $barcode,
                     "amount" => $amount,
@@ -1703,18 +1718,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'patronInformation', 'address')
         );
-        $address = $xml->xpath('//address-information');
-        $address = $address[0];
-        $address1 = (string)$address->{'z304-address-1'};
-        $address2 = (string)$address->{'z304-address-2'};
-        $address3 = (string)$address->{'z304-address-3'};
-        $address4 = (string)$address->{'z304-address-4'};
-        $address5 = (string)$address->{'z304-address-5'};
-        $zip = (string)$address->{'z304-zip'};
-        $phone = (string)$address->{'z304-telephone-1'};
-        $email = (string)$address->{'z404-email-address'};
-        $dateFrom = (string)$address->{'z304-date-from'};
-        $dateTo = (string)$address->{'z304-date-to'};
+        $address = $xml->{'address-information'};
+        $address1 = (string) $address->{'z304-address-1'};
+        $address2 = (string) $address->{'z304-address-2'};
+        $address3 = (string) $address->{'z304-address-3'};
+        $address4 = (string) $address->{'z304-address-4'};
+        $zip = (string) $address->{'z304-zip'};
+        $phone = (string) $address->{'z304-telephone-1'};
+        $email = (string) $address->{'z304-email-address'};
+        $dateFrom = (string) $address->{'z304-date-from'};
+        $dateTo = (string) $address->{'z304-date-to'};
         if (strpos($address2, ",") === false) {
             $recordList['lastname'] = $address2;
             $recordList['firstname'] = "";
@@ -1722,22 +1735,23 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             list($recordList['lastname'], $recordList['firstname'])
                 = explode(",", $address2);
         }
-        $recordList['address1'] = $address2;
-        $recordList['address2'] = $address3;
+        $recordList['address1'] = $address3;
+        $recordList['address2'] = $address4;
         $recordList['barcode'] = $address1;
         $recordList['zip'] = $zip;
         $recordList['phone'] = $phone;
         $recordList['email'] = $email;
-        $recordList['dateFrom'] = $dateFrom;
-        $recordList['dateTo'] = $dateTo;
+        $recordList['addressValidFrom'] = $this->parseDate($dateFrom);
+        $recordList['addressValidTo'] = $this->parseDate($dateTo);
         $recordList['id'] = $user['id'];
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'patronStatus', 'registration')
         );
-        $status = $xml->xpath("//institution/z305-bor-status");
-        $expiry = $xml->xpath("//institution/z305-expiry-date");
-        $recordList['expire'] = $this->parseDate($expiry[0]);
-        $recordList['group'] = $status[0];
+        $institution = $xml->{'registration'}->{'institution'}; 
+        $status = (string) $institution->{'z305-bor-status'};
+        $expiry = (string) $institution->{'z305-expiry-date'};
+        $recordList['expire'] = $this->parseDate($expiry);
+        $recordList['group'] = $status;
         return $recordList;
     }
 
@@ -1831,8 +1845,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $requests = 0;
         $str = $xml->xpath('//item/queue/text()');
-        if ($str != null) {
-            list($requests, $other) = explode(' ', trim($str[0]));
+        $matches = array();
+        $pattern = "/(\d) request\(s\) of (\d) items/";
+        if ($str != null && preg_match($pattern, $str[0], $matches)) {
+            $requests = $matches[1];
         }
         $date = $xml->xpath('//last-interest-date/text()');
         $date = $date[0];
@@ -2018,7 +2034,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $pickupLocations = $details['pickup-locations'];
             if (isset($this->preferredPickUpLocations)) {
                 foreach (
-                    $details['pickup-locations'] as $locationID => $locationDisplay
+                    array_values($details['pickup-locations']) as $locationID
                 ) {
                     if (in_array($locationID, $this->preferredPickUpLocations)) {
                         return $locationID;
