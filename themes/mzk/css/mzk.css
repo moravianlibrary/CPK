@@ -347,6 +347,15 @@ div.format {
   padding-top: 6px;
 }
 
+/* eod on record page */
+table.eod_link td {
+  padding-right: 10px;
+}
+
+span.eod_text {
+  color: #EC9136;
+}
+
 /* toolbar on record page */
 div.toolbar {
   border-bottom: 1px solid #eee;

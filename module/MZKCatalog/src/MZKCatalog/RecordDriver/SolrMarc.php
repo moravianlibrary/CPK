@@ -41,6 +41,21 @@ class SolrMarc extends ParentSolrDefault
         return $holdings;
     }
     
+    public function getEODLink()
+    {
+        $eod = $this->getFirstFieldValue('EOD', array('a'));
+        $isEod = ($eod == 'Y')?true:false;
+        if (!$isEod) {
+            return null;
+        }
+        $link = "http://books2ebooks.eu/odm/orderformular.do?formular_id=133&sys_id=";
+        if (strpos($this->getUniqueID(), "MZK03-") === 0) {
+            $link = "http://books2ebooks.eu/odm/orderformular.do?formular_id=131&sys_id=";
+        }
+        $link .=  $this->fields['sysno'];
+        return $link;
+    }
+    
     protected function translateHoldingStatus($status, $duedate_status) {
         $status = mb_substr($status, 0, 6, 'UTF-8');
         if ($duedate_status == 'On Shelf') {
