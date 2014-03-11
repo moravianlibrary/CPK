@@ -80,8 +80,8 @@ class FlatHolds extends Holds
                         // instead of the hold form:
                         $copy['link'] = (strcmp($copy['addLink'], 'block') == 0)
                         ? $this->getBlockedDetails($copy)
-                        : $this->getHoldDetails(
-                            $copy, $checkHolds['HMACKeys']
+                        : $this->getRequestDetails(
+                            $copy, $checkHolds['HMACKeys'], 'Hold'
                         );
                         // If we are unsure whether hold options are available,
                         // set a flag so we can check later via AJAX:
