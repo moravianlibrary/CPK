@@ -17,7 +17,8 @@ $config = array(
             'recordtab' => array(
                 'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
                 'invokables' => array(
-                    'holdingsils' => 'MZKCommon\RecordTab\HoldingsILS',
+                    'holdingsils'     => 'MZKCommon\RecordTab\HoldingsILS',
+                    'tagsandcomments' => 'MZKCommon\RecordTab\TagsAndComments',
                 ), /* invokables */
             ), /* recordtab */
             'db_table' => array(
@@ -34,6 +35,9 @@ $config = array(
         ),
     ),
     'controllers' => array(
+        'factories' => array(
+            'record' => 'MZKCommon\Controller\Factory::getRecordController',
+        ),
         'invokables' => array(
             'search'     => 'MZKCommon\Controller\SearchController',
             'ajax'       => 'MZKCommon\Controller\AjaxController',
