@@ -31,7 +31,6 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'VuFind\ILSHoldLogic' => 'MZKCommon\ILS\Logic\Factory::getFlatHolds',
-            'VuFind\Search'       => 'MZKCommon\VuFindSearch\Factory::getSearchService',
         ),
     ),
     'controllers' => array(
