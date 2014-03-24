@@ -72,13 +72,22 @@ class Service
     protected $backends;
 
     /**
+     * Sort order to use instead of relevancy in a case of an empty query
+     *
+     */
+    protected $defaultSort;
+
+    /**
      * Constructor.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($searchSettings = null)
     {
         $this->backends = array();
+        if ($searchSettings != null && isset($searchSettings->General->default_empty_sort)) {
+            $this->defaultSort = $searchSettings->General->default_empty_sort;
+        }
     }
 
     /**
@@ -95,6 +104,10 @@ class Service
     public function search($backend, Query\AbstractQuery $query, $offset = 0,
         $limit = 20, ParamBag $params = null
     ) {
+        if ($this->defaultSort != null && trim($query->getString()) == ''
+            && $params != null && $params->get('sort')[0] == 'score desc') {
+            $params->set('sort', $this->defaultSort);
+        }
         $params  = $params ?: new ParamBag();
         $context = __FUNCTION__;
         $args = compact('backend', 'query', 'offset', 'limit', 'params', 'context');

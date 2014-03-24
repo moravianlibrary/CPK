@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Search service.
+ * Holdings (ILS) tab
  *
  * PHP version 5
  *
@@ -21,40 +20,28 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Search
+ * @package  RecordTabs
  * @author   Vaclav Rosecky <xrosecky@gmail.com>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org
+ * @link     http://vufind.org/wiki/vufind2:record_tabs Wiki
  */
-
-namespace MZKCommon\VuFindSearch;
-
-use VuFindSearch\Backend\BackendInterface;
-use VuFindSearch\Feature\RetrieveBatchInterface;
-use VuFindSearch\Backend\Exception\BackendException;
-
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManager;
+namespace MZKCommon\RecordTab;
 
 /**
- * Search service.
+ * Holdings (ILS) tab
  *
  * @category VuFind2
- * @package  Search
+ * @package  RecordTabs
  * @author   Vaclav Rosecky <xrosecky@gmail.com>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org
+ * @link     http://vufind.org/wiki/vufind2:record_tabs Wiki
  */
-class Service extends \VuFindSearch\Service
+class TagsAndComments extends \VuFind\RecordTab\AbstractBase
 {
 
-    public function search($backend, $query, $offset = 0,
-        $limit = 20, $params = null
-    ) {
-        if ($query->getString() == '' && $params->get('sort')[0] == 'score desc') {
-            $params->set('sort', 'acq_int desc');
-        }
-        return parent::search($backend, $query, $offset, $limit, $params);
+    public function getDescription()
+    {
+        return "Tags and comments";
     }
-
+    
 }

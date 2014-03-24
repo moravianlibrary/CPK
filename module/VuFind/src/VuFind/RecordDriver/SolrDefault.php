@@ -27,7 +27,7 @@
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
 namespace VuFind\RecordDriver;
-use VuFind\Code\ISBN;
+use VuFind\Code\ISBN, VuFind\View\Helper\Root\RecordLink;
 
 /**
  * Default model for Solr records -- used when a more specific model based on
@@ -1103,10 +1103,13 @@ class SolrDefault extends AbstractBase
      */
     public function getThumbnail($size = 'small')
     {
-        if ($isbn = $this->getCleanISBN()) {
-            return array('isn' => $isbn, 'size' => $size);
-        }
-        return false;
+        return array(
+            'author'     => mb_substr($this->getPrimaryAuthor(), 0, 300, 'utf-8'),
+            'callnumber' => $this->getCallNumber(),
+            'isn'        => $this->getCleanIsbn(),
+            'size'       => $size,
+            'title'      => mb_substr($this->getTitle(), 0, 300, 'utf-8')
+        );
     }
 
     /**
@@ -1397,12 +1400,16 @@ class SolrDefault extends AbstractBase
      * Return an XML representation of the record using the specified format.
      * Return false if the format is unsupported.
      *
-     * @param string $format Name of format to use (corresponds with OAI-PMH
+     * @param string     $format     Name of format to use (corresponds with OAI-PMH
      * metadataPrefix parameter).
+     * @param string     $baseUrl    Base URL of host containing VuFind (optional;
+     * may be used to inject record URLs into XML when appropriate).
+     * @param RecordLink $recordLink Record link helper (optional; may be used to
+     * inject record URLs into XML when appropriate).
      *
      * @return mixed         XML, or false if format unsupported.
      */
-    public function getXML($format)
+    public function getXML($format, $baseUrl = null, $recordLink = null)
     {
         // For OAI-PMH Dublin Core, produce the necessary XML:
         if ($format == 'oai_dc') {
@@ -1441,6 +1448,10 @@ class SolrDefault extends AbstractBase
                     'subject', htmlspecialchars(implode(' -- ', $subj)), $dc
                 );
             }
+            if (null !== $baseUrl && null !== $recordLink) {
+                $url = $baseUrl . $recordLink->getUrl($this);
+                $xml->addChild('identifier', $url, $dc);
+            }
 
             return $xml->asXml();
         }
@@ -1475,7 +1486,7 @@ class SolrDefault extends AbstractBase
      *
      * @return array Strings representing citation formats.
      */
-    public function getCitationFormats()
+    protected function getSupportedCitationFormats()
     {
         return array('APA', 'MLA');
     }
@@ -1608,6 +1619,7 @@ class SolrDefault extends AbstractBase
         }
         return array_keys($types);
     }
+
     /**
      * Get schema.org type mapping, expected to be a space-delimited string of
      * sub-types of http://schema.org/CreativeWork, defaulting to CreativeWork
@@ -1618,5 +1630,17 @@ class SolrDefault extends AbstractBase
     public function getSchemaOrgFormats()
     {
         return implode(' ', $this->getSchemaOrgFormatsArray());
+    }
+
+    /**
+     * Get information on records deduplicated with this one
+     * 
+     * @return array Array keyed by source id containing record id
+     */
+    public function getDedupData()
+    {
+        return isset($this->fields['dedup_data'])
+            ? $this->fields['dedup_data']
+            : array(); 
     }
 }

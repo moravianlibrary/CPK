@@ -347,6 +347,15 @@ div.format {
   padding-top: 6px;
 }
 
+/* eod on record page */
+table.eod_link td {
+  padding-right: 10px;
+}
+
+span.eod_text {
+  color: #EC9136;
+}
+
 /* toolbar on record page */
 div.toolbar {
   border-bottom: 1px solid #eee;
@@ -382,3 +391,17 @@ div.holdings-filters {
 div.holdings-filters>form {
   display: block;
 }
+
+span.available {
+  color: #009900;
+}
+
+span.checkedout {
+  color: #cc0000;
+}
+
+p.holdings-restriction {
+  font-weight: bold;
+  color: #990000;
+}
+

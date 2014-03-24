@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item-serv>
+	<reply-text>ok</reply-text>
+	<reply-code>0000</reply-code>
+	<item>
+		<z30-sub-library-code>SK3</z30-sub-library-code>
+		<z30-item-process-status-code />
+		<z30-item-status-code>31</z30-item-status-code>
+		<z30-collection-code>SKL</z30-collection-code>
+		<queue />
+		<z30>
+			<translate-change-active-library>LIB50</translate-change-active-library>
+			<z30-doc-number>000748028</z30-doc-number>
+			<z30-item-sequence> 1.0</z30-item-sequence>
+			<z30-barcode>3119684907</z30-barcode>
+			<z30-sub-library>MZK</z30-sub-library>
+			<z30-material>Kniha</z30-material>
+			<z30-item-status>Month</z30-item-status>
+			<z30-open-date>20041020</z30-open-date>
+			<z30-update-date>20130605</z30-update-date>
+			<z30-cataloger>CATALOGER</z30-cataloger>
+			<z30-date-last-return>20130101</z30-date-last-return>
+			<z30-hour-last-return>1200</z30-hour-last-return>
+			<z30-ip-last-return>PUJCPULT3</z30-ip-last-return>
+			<z30-no-loans>000</z30-no-loans>
+			<z30-alpha>L</z30-alpha>
+			<z30-collection>Stock / within 1 hour</z30-collection>
+			<z30-call-no-type />
+			<z30-call-no>PK-0087.421,52</z30-call-no>
+			<z30-call-no-key>pk-0000087.0000421,0000052</z30-call-no-key>
+			<z30-call-no-2-type />
+			<z30-call-no-2 />
+			<z30-call-no-2-key />
+			<z30-description />
+			<z30-note-opac />
+			<z30-note-circulation />
+			<z30-note-internal />
+			<z30-order-number />
+			<z30-inventory-number>3119684907</z30-inventory-number>
+			<z30-inventory-number-date>20130605</z30-inventory-number-date>
+			<z30-last-shelf-report-date>00000000</z30-last-shelf-report-date>
+			<z30-price />
+			<z30-shelf-report-number />
+			<z30-on-shelf-date>00000000</z30-on-shelf-date>
+			<z30-on-shelf-seq>000000</z30-on-shelf-seq>
+			<z30-doc-number-2>000000000</z30-doc-number-2>
+			<z30-schedule-sequence-2>00000</z30-schedule-sequence-2>
+			<z30-copy-sequence-2>00000</z30-copy-sequence-2>
+			<z30-vendor-code />
+			<z30-invoice-number />
+			<z30-line-number>00000</z30-line-number>
+			<z30-pages />
+			<z30-issue-date>00000000</z30-issue-date>
+			<z30-expected-arrival-date>00000000</z30-expected-arrival-date>
+			<z30-arrival-date>00000000</z30-arrival-date>
+			<z30-item-statistic />
+			<z30-item-process-status />
+			<z30-copy-id />
+			<z30-hol-doc-number>000000000</z30-hol-doc-number>
+			<z30-temp-location>No</z30-temp-location>
+			<z30-enumeration-a />
+			<z30-enumeration-b />
+			<z30-enumeration-c />
+			<z30-enumeration-d />
+			<z30-enumeration-e />
+			<z30-enumeration-f />
+			<z30-enumeration-g />
+			<z30-enumeration-h />
+			<z30-chronological-i />
+			<z30-chronological-j />
+			<z30-chronological-k />
+			<z30-chronological-l />
+			<z30-chronological-m />
+			<z30-supp-index-o />
+			<z30-85x-type />
+			<z30-depository-id />
+			<z30-linking-number>000000000</z30-linking-number>
+			<z30-gap-indicator />
+			<z30-maintenance-count>000</z30-maintenance-count>
+			<z30-process-status-date>00000000</z30-process-status-date>
+		</z30>
+		<z13>
+			<translate-change-active-library>LIB50
+			</translate-change-active-library>
+			<z13-doc-number>000748028</z13-doc-number>
+			<z13-year>1990</z13-year>
+			<z13-open-date>20041105</z13-open-date>
+			<z13-update-date>20120803</z13-update-date>
+			<z13-call-no-key />
+			<z13-call-no-code>910</z13-call-no-code>
+			<z13-call-no>BOA001 PK-0087.421,52</z13-call-no>
+			<z13-author-code>1001</z13-author-code>
+			<z13-author>Author</z13-author>
+			<z13-title-code>24510</z13-title-code>
+			<z13-title>Title</z13-title>
+			<z13-imprint-code>260</z13-imprint-code>
+			<z13-imprint>Svoboda,</z13-imprint>
+			<z13-isbn-issn-code />
+			<z13-isbn-issn />
+		</z13>
+		<status>On Shelf</status>
+		<info type="HoldRequest"
+			href="http://aleph.mylibrary.edu:1892/rest-dlf/patron/TEST/record/LIB01000748028/items/LIB50000748028000010/hold"
+			allowed="Y">
+			<hold allowed="Y">
+				<pickup-locations usage="Mandatory">
+					<pickup-location code="MZK">Loan Department - Ground floor</pickup-location>
+				</pickup-locations>
+				<note type="info">Item is in the closed stacks.</note>
+				<note type="info">Item status: Month (31) Call number: PK-0087.421,52,</note>
+				<note type="info">Item Description:</note>
+				<last-interest-date usage="Optional">20131129</last-interest-date>
+				<start-interest-date usage="Optional" />
+				<sub-author usage="Optional" max_len="50" />
+				<sub-title usage="Optional" max_len="100" />
+				<pages usage="Optional" max_len="30" />
+				<note-1 usage="Optional" max_len="50" />
+				<note-2 usage="Optional" max_len="50" />
+				<rush usage="Optional" />
+			</hold>
+		</info>
+		<info type="ShortLoan"
+			href="http://aleph.mylibrary.edu:1892/rest-dlf/patron/TEST/record/LIB01000748028/items/LIB50000748028000010/shortLoan"
+			allowed="N">
+			<note type="error">The item has no short loan schedule</note>
+		</info>
+		<info type="PhotocopyRequest" allowed="N">
+			<note type="error">Patron does not have permission to place a photocopy request.</note>
+			<adm-library>LIB50</adm-library>
+			<adm-doc-number>000748028</adm-doc-number>
+			<item-sequence>000010</item-sequence>
+		</info>
+		<info type="BookingRequest" allowed="N">
+			<note type="error">Item cannot be booked (tab15).</note>
+			<adm-library>LIB50</adm-library>
+			<adm-doc-number>000748028</adm-doc-number>
+			<item-sequence>000010</item-sequence>
+			<exact-item>N</exact-item>
+		</info>
+	</item>
+</item-serv>
