@@ -104,8 +104,9 @@ class Service
     public function search($backend, Query\AbstractQuery $query, $offset = 0,
         $limit = 20, ParamBag $params = null
     ) {
-        if ($this->defaultSort != null && trim($query->getString()) == ''
-            && $params != null && $params->get('sort')[0] == 'score desc') {
+        if ($this->defaultSort != null && $query instanceof \VuFindSearch\Query\Query
+            && trim($query->getString()) == '' && $params != null
+            && $params->get('sort')[0] == 'score desc') {
             $params->set('sort', $this->defaultSort);
         }
         $params  = $params ?: new ParamBag();
