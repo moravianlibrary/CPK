@@ -84,4 +84,21 @@ class Factory
         return $driver;
     }
 
+    /**
+     * Factory for default record driver.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return SolrMkp
+     */
+    public function getSolrMarcMerged(ServiceManager $sm)
+    {
+        $driver = new \VNF\RecordDriver\SolrMarcMerged(
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+            null,
+            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+        );
+        return $driver;
+    }
+
 }

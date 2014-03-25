@@ -7,6 +7,7 @@ $config = array(
             'recorddriver' => array (
                 'factories' => array(
                     'solrmkp'     => 'VNF\RecordDriver\Factory::getSolrMkp',
+                    'solrmerged'  => 'VNF\RecordDriver\Factory::getSolrMarcMerged',
                     'solrdefault' => 'VNF\RecordDriver\Factory::getSolrMarc',
                 ) /* factories */
             ) /* recorddriver */
