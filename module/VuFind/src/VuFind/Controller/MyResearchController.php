@@ -807,7 +807,7 @@ class MyResearchController extends AbstractBase
         if (!is_array($patron = $this->catalogLogin())) {
             return $patron;
         }
-        
+
         // Connect to the ILS:
         $catalog = $this->getILS();
 
@@ -852,21 +852,6 @@ class MyResearchController extends AbstractBase
             // locations, they are not supported and we should ignore them.
         }
         $view->recordList = $recordList;
-        
-        $availViews = array('list', 'table');
-        $queryView = $this->getRequest()->getQuery()->get('view', $availViews[0]);
-
-        $views = array();
-        foreach ($availViews as $availView) {
-            $uri = clone $this->getRequest()->getUri();
-            $uri->setQuery(array('view' => $availView));
-            $views[$availView] = array(
-                'uri' => $uri,
-                'selected' => $availView == $queryView
-            );
-        }
-        $view->view = array('selected' => $queryView, 'views' => $views);
-        
         return $view;
     }
 
@@ -973,7 +958,7 @@ class MyResearchController extends AbstractBase
             $current = $this->ILLRequests()->addCancelDetails(
                 $catalog, $current, $cancelStatus, $patron
             );
-            if ($cancelStatus 
+            if ($cancelStatus
                 && $cancelStatus['function'] != "getCancelILLRequestLink"
                 && isset($current['cancel_details'])
             ) {
