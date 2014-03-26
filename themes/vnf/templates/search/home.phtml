@@ -16,11 +16,13 @@
   $advSearch = $options->getAdvancedSearchAction();
   
   $this->layout()->breadcrumbs = false;
+
+  $projectPage = "http://projekt.narodnifonoteka.cz/";
 ?>
 <div class="row clearfix">
   <div class="span6">
     <?$userLang = $this->layout()->userLang?>
-    <img src="<?=$this->imageLink("fonoteka-deska-$userLang.png") ?>"></img>
+    <a href="<?=$projectPage?>"><img src="<?=$this->imageLink("fonoteka-deska-$userLang.png") ?>"></img></a>
   </div>
   <div class="span6 centering">
     <div class="searchbox">
@@ -53,7 +55,7 @@
      Karel Čapek
      </p>
      <p>
-       <a href="http://projekt.narodnifonoteka.cz/"><?=$this->transEsc('About the project')?></a>
+       <a href="<?=$projectPage?>"><?=$this->transEsc('About the project')?></a>
      </p>
      </div>
   </div>
