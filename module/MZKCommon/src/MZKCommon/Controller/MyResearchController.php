@@ -82,4 +82,30 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    /**
+     * Send list of checked out books to view
+     *
+     * @return mixed
+     */
+    public function checkedoutAction()
+    {
+        $view = parent::checkedoutAction();
+
+        $availViews = array('list', 'table');
+        $queryView = $this->getRequest()->getQuery()->get('view', $availViews[0]);
+
+        $views = array();
+        foreach ($availViews as $availView) {
+            $uri = clone $this->getRequest()->getUri();
+            $uri->setQuery(array('view' => $availView));
+            $views[$availView] = array(
+                'uri' => $uri,
+                'selected' => $availView == $queryView
+            );
+        }
+        $view->view = array('selected' => $queryView, 'views' => $views);
+
+        return $view;
+    }
+
 }
