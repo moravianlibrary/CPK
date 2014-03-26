@@ -1,4 +1,4 @@
-<table class="table table-bordered">
+<table class="table-view">
   <tr>
     <th></th>
     <th><?=$this->transEsc('Author') ?></th>
@@ -90,7 +90,7 @@
           <?=$pickupTranslate ? $this->transEsc($pickupDisplay) : $this->escapeHtml($pickupDisplay)?>
         <? endif; ?>
       </td>
-  
+
       <td>
         <?=$this->escapeHtml($ilsDetails['create']) ?>
       </td>
@@ -105,7 +105,7 @@
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
-  
+
     </tr>
   <? endforeach; ?>
 
