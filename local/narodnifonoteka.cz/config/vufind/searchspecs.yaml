@@ -294,7 +294,7 @@ Series:
 
 AllFields:
   DismaxFields:
-    - title_short^750
+    - title_short^1500
     - title_full_unstemmed^600
     - title_full^400
     - title^500
