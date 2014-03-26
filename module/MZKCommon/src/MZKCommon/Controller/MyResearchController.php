@@ -63,55 +63,7 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function holdsAction()
     {
-        // Stop now if the user does not have valid catalog credentials available:
-        if (!is_array($patron = $this->catalogLogin())) {
-            return $patron;
-        }
-
-        // Connect to the ILS:
-        $catalog = $this->getILS();
-
-        // Process cancel requests if necessary:
-        $cancelStatus = $catalog->checkFunction('cancelHolds');
-        $view = $this->createViewModel();
-        $view->cancelResults = $cancelStatus
-        ? $this->holds()->cancelHolds($catalog, $patron) : array();
-        // If we need to confirm
-        if (!is_array($view->cancelResults)) {
-            return $view->cancelResults;
-        }
-
-        // By default, assume we will not need to display a cancel form:
-        $view->cancelForm = false;
-
-        // Get held item details:
-        $result = $catalog->getMyHolds($patron);
-        $recordList = array();
-        $this->holds()->resetValidation();
-        foreach ($result as $current) {
-            // Add cancel details if appropriate:
-            $current = $this->holds()->addCancelDetails(
-                    $catalog, $current, $cancelStatus
-            );
-            if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink"
-                    && isset($current['cancel_details'])
-            ) {
-                // Enable cancel form if necessary:
-                $view->cancelForm = true;
-            }
-
-            // Build record driver:
-            $recordList[] = $this->getDriverForILSRecord($current);
-        }
-
-        // Get List of PickUp Libraries based on patron's home library
-        try {
-            $view->pickup = $catalog->getPickUpLocations($patron);
-        } catch (\Exception $e) {
-            // Do nothing; if we're unable to load information about pickup
-            // locations, they are not supported and we should ignore them.
-        }
-        $view->recordList = $recordList;
+        $view = parent::holdsAction();
 
         $availViews = array('list', 'table');
         $queryView = $this->getRequest()->getQuery()->get('view', $availViews[0]);
