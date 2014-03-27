@@ -64,21 +64,7 @@ class MyResearchController extends MyResearchControllerBase
     public function holdsAction()
     {
         $view = parent::holdsAction();
-
-        $availViews = array('list', 'table');
-        $queryView = $this->getRequest()->getQuery()->get('view', $availViews[0]);
-
-        $views = array();
-        foreach ($availViews as $availView) {
-            $uri = clone $this->getRequest()->getUri();
-            $uri->setQuery(array('view' => $availView));
-            $views[$availView] = array(
-                'uri' => $uri,
-                'selected' => $availView == $queryView
-            );
-        }
-        $view->view = array('selected' => $queryView, 'views' => $views);
-
+        $view = $this->addViews($view);
         return $view;
     }
 
@@ -90,7 +76,19 @@ class MyResearchController extends MyResearchControllerBase
     public function checkedoutAction()
     {
         $view = parent::checkedoutAction();
+        $view = $this->addViews($view);
+        return $view;
+    }
 
+    /**
+     * Adds list and table views to view
+     *
+     * @param $view
+     *
+     * @return mixed
+     */
+    protected function addViews($view)
+    {
         $availViews = array('list', 'table');
         $queryView = $this->getRequest()->getQuery()->get('view', $availViews[0]);
 
