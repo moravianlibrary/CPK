@@ -64,7 +64,31 @@ class MyResearchController extends MyResearchControllerBase
     public function holdsAction()
     {
         $view = parent::holdsAction();
+        $view = $this->addViews($view);
+        return $view;
+    }
 
+    /**
+     * Send list of checked out books to view
+     *
+     * @return mixed
+     */
+    public function checkedoutAction()
+    {
+        $view = parent::checkedoutAction();
+        $view = $this->addViews($view);
+        return $view;
+    }
+
+    /**
+     * Adds list and table views to view
+     *
+     * @param $view
+     *
+     * @return mixed
+     */
+    protected function addViews($view)
+    {
         $availViews = array('list', 'table');
         $queryView = $this->getRequest()->getQuery()->get('view', $availViews[0]);
 
