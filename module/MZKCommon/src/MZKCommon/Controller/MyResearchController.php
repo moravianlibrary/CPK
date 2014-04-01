@@ -32,7 +32,8 @@ use VuFind\Controller\MyResearchController as MyResearchControllerBase,
 VuFind\Exception\Auth as AuthException,
 VuFind\Exception\ListPermission as ListPermissionException,
 VuFind\Exception\RecordMissing as RecordMissingException,
-Zend\Stdlib\Parameters;
+Zend\Stdlib\Parameters,
+Zend\Session\Container as SessionContainer;
 
 /**
  * Controller for the user account area.
@@ -89,8 +90,28 @@ class MyResearchController extends MyResearchControllerBase
      */
     protected function addViews($view)
     {
+        $defaultView = 'list';
         $availViews = array('list', 'table');
-        $queryView = $this->getRequest()->getQuery()->get('view', $availViews[0]);
+        $selectedView;
+        $lastView = $this->getLastView();
+
+        // Check for a view parameter in the url.
+        $viewGet = $this->getRequest()->getQuery()->get('view');
+        if (!empty($viewGet)) {
+            // make sure the url parameter is a valid view
+            if (in_array($viewGet, array_keys($availViews))) {
+                $selectedView = $viewGet;
+                $this->rememberLastView($viewGet);
+            } else {
+                $selectedView = $defaultView;
+            }
+        } else if (!empty($lastView)) {
+            // if there is nothing in the URL, check the Session
+            $selectedView = $lastView;
+        } else {
+            // otherwise load the default
+            $selectedView = $defaultView;
+        }
 
         $views = array();
         foreach ($availViews as $availView) {
@@ -98,12 +119,52 @@ class MyResearchController extends MyResearchControllerBase
             $uri->setQuery(array('view' => $availView));
             $views[$availView] = array(
                 'uri' => $uri,
-                'selected' => $availView == $queryView
+                'selected' => $availView == $selectedView
             );
         }
-        $view->view = array('selected' => $queryView, 'views' => $views);
+        $view->view = array('selected' => $selectedView, 'views' => $views);
 
         return $view;
+    }
+
+    /**
+     * Remember the last view option used.
+     *
+     * @param string $last Option to remember.
+     *
+     * @return void
+     */
+    public function rememberLastView($last)
+    {
+        $session = $this->getSession();
+        if (!$session->getManager()->getStorage()->isImmutable()) {
+            $session->lastView = $last;
+        }
+    }
+
+    /**
+     * Retrieve the last view option used.
+     *
+     * @return string
+     */
+    public function getLastView()
+    {
+        $session = $this->getSession();
+        return isset($session->lastView) ? $session->lastView : null;
+    }
+
+    /**
+     * Get a session namespace specific to the current class.
+     *
+     * @return SessionContainer
+     */
+    public function getSession()
+    {
+        static $session = false;
+        if (!$session) {
+            $session = new SessionContainer(get_class($this));
+        }
+        return $session;
     }
 
 }
