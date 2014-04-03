@@ -140,8 +140,8 @@ Author:
     - author_fuller^50
     - author2
     - author_additional
-#  DismaxParams:
-#    - [bq, "relevancy:default^2"]
+  DismaxParams:
+    - [bq, "relevancy_str:default^2"]
   QueryFields:
     - author:
       - [onephrase, 350]
@@ -159,14 +159,14 @@ Author:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 ISN:
   DismaxFields:
     - isbn
     - issn
-#  DismaxParams:
-#    - [bq, "relevancy:default^2"]
+  DismaxParams:
+    - [bq, "relevancy_str:default^2"]
   QueryFields:
     - issn:
       - [and, 100]
@@ -174,7 +174,7 @@ ISN:
     - isbn:
       - [and, 100]
       - [or, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 Subject:
   DismaxFields:
@@ -183,8 +183,8 @@ Subject:
     - geographic^50
     - genre^50
     - era
-#  DismaxParams:
-#    - [bq, "relevancy:default^2"]
+  DismaxParams:
+    - [bq, "relevancy_str:default^2"]
   QueryFields:
     - topic_unstemmed:
       - [onephrase, 350]
@@ -205,7 +205,7 @@ Subject:
     - era:
       - [and, 100]
       - [or, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 # This field definition is a compromise that supports both journal-level and
 # article-level data.  The disadvantage is that hits in article titles will
@@ -262,8 +262,8 @@ Title:
     - title_old
 #    - series^100
 #    - series2
-#  DismaxParams:
-#    - [bq, "relevancy:default^2"]
+  DismaxParams:
+    - [bq, "relevancy_str:default^2"]
   QueryFields:
     - title_short:
       - [onephrase, 500]
@@ -320,14 +320,15 @@ AllFields:
     - topic^500
     - geographic^300
     - genre^300
-    - publishDateFacet^50
+    - publishDate_txt_mv^50
     - allfields_unstemmed^10
     - fulltext_unstemmed^10
     - allfields
     - fulltext
-    - geo_score^50
-#  DismaxParams:
-#    - [bq, "relevancy:default^50000"]
+    - isbn
+    - issn
+  DismaxParams:
+    - [bq, "relevancy_str:default^50000"]
   QueryFields:
     0:
       0:
@@ -380,7 +381,33 @@ AllFields:
       - [or, ~]
     fulltext:
       - [or, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+    isbn:
+      - [onephrase, ~]
+    issn:
+      - [onephrase, ~]
+#  ExactSettings:
+#    DismaxFields:
+#      - title_full_unstemmed^600
+#      - topic_unstemmed^550
+#      - allfields_unstemmed^10
+#      - fulltext_unstemmed^10
+#      - isbn
+#      - issn
+#    QueryFields:
+#      title_full_unstemmed:
+#        - [onephrase, 600]
+#        - [and, 500]
+#      topic_unstemmed:
+#        - [onephrase, 550]
+#        - [and, 500]
+#      allfields_unstemmed:
+#        - [or, 10]
+#      fulltext_unstemmed:
+#        - [or, 10]
+#      isbn:
+#        - [onephrase, ~]
+#      issn:
+#        - [onephrase, ~]
 
 # These are advanced searches that never use Dismax:
 id:
@@ -398,19 +425,19 @@ TopicBrowse:
   QueryFields:
     topic_browse:
       - [onephrase, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 AuthorBrowse:
   QueryFields:
     author_browse:
       - [onephrase, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 TitleBrowse:
   QueryFields:
     title_full:
       - [onephrase, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 DeweyBrowse:
   QueryFields:
@@ -461,7 +488,7 @@ publisher:
     publisher:
       - [and, 100]
       - [or, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 year:
   DismaxFields:
@@ -470,13 +497,13 @@ year:
     publishDate:
       - [and, 100]
       - [or, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
   
 language:
   QueryFields:
     language:
       - [and, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 toc:
   DismaxFields:
@@ -485,7 +512,7 @@ toc:
     contents:
       - [and, 100]
       - [or, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 topic:
   QueryFields:
@@ -493,7 +520,7 @@ topic:
       - [and, 50]
     topic_facet:
       - [and, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 geographic:
   QueryFields:
@@ -501,7 +528,7 @@ geographic:
       - [and, 50]
     geographic_facet:
       - [and ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 genre:
   QueryFields:
@@ -509,13 +536,13 @@ genre:
       - [and, 50]
     genre_facet:
       - [and, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 era:
   QueryFields:
     era:
       - [and, ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str_ns:visible"
 
 oclc_num:
   CustomMunge:
