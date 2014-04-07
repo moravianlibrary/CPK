@@ -102,7 +102,7 @@ class SolrMarc extends SolrDefault
 
         $this->marcRecord = $marc->next();
         if (!$this->marcRecord) {
-            throw new \File_MARC_Exception('Cannot Process MARC Record');
+            throw new \File_MARC_Exception('Cannot Process MARC Record with unique id:' . $this->getUniqueID());
         }
     }
 

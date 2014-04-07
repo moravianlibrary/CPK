@@ -974,10 +974,19 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (isset($this->config['Catalog']['default_patron_id'])) {
             $this->defaultPatronId = $this->config['Catalog']['default_patron_id'];
         }
-        if ($this->searchService != null) {
-            $this->idResolver = new SolrIdResolver($this->searchService);
-        } else {
+        $idResolverType = 'fixed'; 
+        if (isset($this->config['IdResolver']['type'])) {
+            $idResolverType = $this->config['IdResolver']['type'];
+        }
+        if ($idResolverType == 'fixed') {
             $this->idResolver = new FixedIdResolver();
+        } else if ($idResolverType == 'solr') {
+            $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
+        } else if ($idResolverType == 'xserver') {
+            $this->idResolver = new XServerIdResolver($this->alephWebService, $this->config);
+        } else {
+            throw new ILSException('Unsupported Catalog[IdResolver][type]:' .
+                 $idResolverType .', valid values are fixed, solr and xserver.');
         }
     }
 
