@@ -77,7 +77,7 @@ class SolrSup extends SolrMarc
             $id = ltrim($id, '0');
             $link = $this->getImagePath($id, $size);
         }
-         
+
         return empty($link) ? parent::getThumbnail($size) : $link;
     }
 
@@ -116,26 +116,23 @@ class SolrSup extends SolrMarc
      */
     public function getImagePath($id, $size = 'medium')
     {
-        if (!$id || !is_string($id)) {
+        if (!isset($this->fields['label_path_str'])) {
             return '';
         }
-
+        
         $confPath = $this->recordConfig->SupraphonLabels->dir;
         if (!isset($confPath)) {
             return '';
         }
-
-        $pathLen = strlen($confPath);
-        if ($confPath[$pathLen -1] == '/') {
-            $confPath = substr($confPath, 0, -1);
+        
+        $path = rtrim($this->fields['label_path_str'], '/');
+        $path = $confPath . $path;
+        
+        if ($size == 'medium') {
+            return $path;
         }
-
-        $part = '';
-        for ($i = 2; $i <= strlen($id); $i+=2) {
-            $part .= '/' . $id[$i-2] . $id[$i-1];
-        }
-        $part .= '/' . $id . '-' . $size . '.jpg';
-        return $confPath . $part;
+        $path = substr($path, 0, -10);
+        return $path . $size . '.jpg';
     }
 
     /**

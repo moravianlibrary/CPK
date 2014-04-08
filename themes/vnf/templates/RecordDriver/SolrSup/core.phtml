@@ -6,12 +6,10 @@
     <div class="text-center" id="center">
       <? /* Display thumbnail if appropriate: */ ?>
       <? $mediumThumb = $this->record($this->driver)->getThumbnail('medium'); $largeThumb = $this->record($this->driver)->getThumbnail('large'); ?>
-       <? if ($mediumThumb): ?>
-       <script type="text/javascript">
-       $(document).ready(function() {
-           addSupraphonCover('#center', '<?=$mediumThumb ?>', '<?=$this->transEsc('Cover Image')?>', '<?=$largeThumb ?>', '<?=$this->url('cover-unavailable')?>', '<?=$this->transEsc('No Cover Image')?>');
-       });
-      </script>
+        <? if ($mediumThumb): ?>
+          <? if ($largeThumb): ?><a href="<?=$this->escapeHtml($largeThumb)?>"><? endif; ?>
+             <img alt="<?=$this->transEsc('Cover Image')?>" class="recordcover" src="<?=$this->escapeHtml($mediumThumb);?>"/>
+          <? if ($largeThumb): ?></a><? endif; ?>
       <? else: ?>
         <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
       <? endif; ?>
