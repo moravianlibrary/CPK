@@ -178,6 +178,9 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
                 $dictionaries = array('default', 'basicSpell');
             }
             $spellingListener = new InjectSpellingListener($backend, $dictionaries);
+            if ($this->logger) {
+                $spellingListener->setLogger($this->logger);
+            }
             $spellingListener->attach($events);
         }
 

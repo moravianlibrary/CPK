@@ -71,6 +71,13 @@ class InjectSpellingListener
     protected $dictionaries;
 
     /**
+     * Logger.
+     *
+     * @var Zend\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor.
      *
      * @param BackendInterface $backend      Backend
@@ -183,8 +190,27 @@ class InjectSpellingListener
             $params->set('spellcheck', 'true');
             $params->set('spellcheck.dictionary', current($this->dictionaries));
             $queryObj = new Query($query, 'AllFields');
-            $collection = $this->backend->search($queryObj, 0, 0, $params);
-            $spellcheck->mergeWith($collection->getSpellcheck());
+            try {
+                $collection = $this->backend->search($queryObj, 0, 0, $params);
+                $spellcheck->mergeWith($collection->getSpellcheck());
+            } catch (\Exception $ex) {
+                if ($this->logger) {
+                    $this->logger->err("Exception thrown when aggregating spellcheck, ignoring.",
+                        array ('exception' => $ex));
+                }
+            }
         }
+    }
+
+    /**
+     * Set the Logger.
+     *
+     * @param VuFind\Log\Logger $logger Logger
+     *
+     * @return void
+     */
+    public function setLogger(\VuFind\Log\Logger $logger)
+    {
+        $this->logger = $logger;
     }
 }
