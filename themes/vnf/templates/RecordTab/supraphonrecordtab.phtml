@@ -1,0 +1,20 @@
+<table class="table table-striped">
+	<tr>
+		<th align="center"><?=$this->transEsc('Author')?></th>
+		<th align="center"><?=$this->transEsc('Title')?></th>
+		<th align="center"><?=$this->transEsc('Playing Time')?></th>
+		<th align="center"><?=$this->transEsc('Link')?></th>
+	</tr>
+	<? foreach ($this->driver->getContent() as $current): ?>
+	<tr>
+		<td><?=$this->escapeHtml($current['r'])?>
+		</td>
+		<td><?=$this->escapeHtml($current['t'])?>
+		</td>
+		<td><?=$this->tab->convertFootage($current['g'])?>
+		</td>
+		<td><a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' =>$current['id']))?>">link</a>
+		</td>
+	</tr>
+	<?endforeach;?>
+</table>
