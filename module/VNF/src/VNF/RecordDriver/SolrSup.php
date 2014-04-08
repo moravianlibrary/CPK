@@ -141,14 +141,24 @@ class SolrSup extends SolrMarc
      * [name] => name, [role] => role1, role2 ...
      * @return array
      */
-    public function getDeduplicatedAuthors() {
+    public function getDeduplicatedAuthors()
+    {
         $deduplicatedAuthors['main'] = $this->getAuthorsArray('100');
         $deduplicatedAuthors['secondary'] = $this->getAuthorsArray('700');
         return $deduplicatedAuthors;
 
     }
     
-    public function getMainAuthorEntry() {
+    public function getPrimaryAuthor() 
+    {
+        $author = $this->getMainAuthorEntry();
+        if (!$author || !is_array($author)) 
+            return parent::getPrimaryAuthor();
+        return $author['name']; 
+    }
+    
+    public function getMainAuthorEntry()
+    {
         $author = $this->getAuthorsArray('100');
         return !empty($author) ? $author[0] : array();
     }
