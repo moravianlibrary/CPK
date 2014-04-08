@@ -28,12 +28,15 @@
   </ul>
 <? endif; ?>
   <? if ($this->searchType == 'advanced'): ?>
-    <a class="btn btn-link small" href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtml($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a>
-    <span class="help-inline">|</span>
-    <a class="btn btn-link small" href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a>    
-    <span class="help-inline">|</span>
-    <a class="btn btn-link small" href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
-    <div class="help-block"><?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"</div>
+    <span class="span6">
+      <a href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtml($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a> |
+      <a href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
+      <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
+    </span>
+    <div class="clearfix"></div>
+    <span class="span6 offset1">
+      <?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"
+    </span>
   <? else: ?>
     <form class="form-inline navbar-form block" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
       <input class="<?=($this->layout()->frontpage == true)?'span7 offset1':'span3'?> search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
