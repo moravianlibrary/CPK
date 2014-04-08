@@ -553,3 +553,37 @@ oclc_num:
   QueryFields:
     oclc_num:
       - [oclc_num, ~]
+
+UDC:
+  CustomMunge:
+    escape:
+      - [preg_replace, "/:/", "\\:"]
+      - [preg_replace, "/\\[/", "\\["]
+      - [preg_replace, "/\\]/", "\\]"]
+      - [preg_replace, "/\\(/", "\\("]
+      - [preg_replace, "/\\)/", "\\)"]
+      - [preg_replace, '/"/', "\\\""]
+      - [preg_replace, '/$/m', "\""]
+      - [preg_replace, '/^/m', "\""]
+  QueryFields:
+    udc_str_mv:
+      - [escape, ~]
+
+# We use two similar munges here -- one for exact matches, which will get
+# a very high boost factor, and one for left-anchored wildcard searches,
+# which will return a larger number of hits at a lower boost.
+Location:
+  CustomMunge:
+    location_fuzzy:
+      - [uppercase]
+      - [preg_replace, '/[\s]+/m', "|"]
+      - [preg_replace, '/\(/m', "\("]
+      - [preg_replace, '/\)/m', "\)"]
+      - [preg_replace, '/:/m', "\:"]
+      - [preg_replace, '/\*/m', ""]
+      - [preg_replace, '/\*/m', ""]
+      - [append, "* "]
+  QueryFields:
+    callnumber_second_str_mv:
+      - [onephrase, 1000]
+      - [location_fuzzy, ~]
