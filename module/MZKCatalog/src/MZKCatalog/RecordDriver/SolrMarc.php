@@ -67,7 +67,8 @@ class SolrMarc extends ParentSolrDefault
         return $result;
     }
     
-    protected function translateHoldingStatus($status, $duedate_status) {
+    protected function translateHoldingStatus($status, $duedate_status)
+    {
         $status = mb_substr($status, 0, 6, 'UTF-8');
         if ($duedate_status == 'On Shelf') {
             if ($status == 'Jen do' || $status == 'Studov') {
@@ -88,6 +89,12 @@ class SolrMarc extends ParentSolrDefault
             return 'lost by reader';
         }
         return $duedate_status;
+    }
+
+    public function getPublicationDates()
+    {
+        return isset($this->fields['publishDate_display']) ?
+        $this->fields['publishDate_display'] : array();
     }
 
 }
