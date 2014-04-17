@@ -143,19 +143,19 @@ Author:
   DismaxParams:
     - [bq, "relevancy_str:default^2"]
   QueryFields:
-    - author:
+    author:
       - [onephrase, 350]
       - [and, 200]
       - [or, 100]
-    - author_fuller:
+    author_fuller:
       - [onephrase, 200]
       - [and, 100]
       - [or, 50]
-    - author2:
+    author2:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
-    - author_additional:
+    author_additional:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
@@ -168,10 +168,10 @@ ISN:
   DismaxParams:
     - [bq, "relevancy_str:default^2"]
   QueryFields:
-    - issn:
+    issn:
       - [and, 100]
       - [or, ~]
-    - isbn:
+    isbn:
       - [and, 100]
       - [or, ~]
   FilterQuery: "mzk_visible_str:visible"
@@ -186,23 +186,23 @@ Subject:
   DismaxParams:
     - [bq, "relevancy_str:default^2"]
   QueryFields:
-    - topic_unstemmed:
+    topic_unstemmed:
       - [onephrase, 350]
       - [and, 150]
       - [or, ~]
-    - topic:
+    topic:
       - [onephrase, 300]
       - [and, 100]
       - [or, ~]
-    - geographic:
+    geographic:
       - [onephrase, 300]
       - [and, 100]
       - [or, ~]
-    - genre:
+    genre:
       - [onephrase, 300]
       - [and, 100]
       - [or, ~]
-    - era:
+    era:
       - [and, 100]
       - [or, ~]
   FilterQuery: "mzk_visible_str:visible"
@@ -260,34 +260,26 @@ Title:
     - title_alt^200
     - title_new^100
     - title_old
-#    - series^100
-#    - series2
   DismaxParams:
     - [bq, "relevancy_str:default^2"]
   QueryFields:
-    - title_short:
+    title_short:
       - [onephrase, 500]
-    - title_full_unstemmed:
+    title_full_unstemmed:
       - [onephrase, 450]
       - [and, 400]
-    - title_full:
+    title_full:
       - [onephrase, 400]
-    - title:
+    title:
       - [onephrase, 300]
       - [and, 250]
-    - title_alt:
+    title_alt:
       - [and, 200]
-    - title_new:
+    title_new:
       - [and, 100]
-    - title_old:
+    title_old:
       - [and, ~]  
-#    - series:
-#      - [onephrase, 100]
-#      - [and, 50]
-#    - series2:
-#      - [onephrase, 50]
-#      - [and , ~]
-#  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 Series:
   DismaxFields:

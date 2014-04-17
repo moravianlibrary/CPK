@@ -13,7 +13,7 @@ Location:
       - [preg_replace, '/\*/m', ""]
       - [append, "* "]
   QueryFields:
-    - callnumber_second:
+    callnumber_second:
       - [onephrase, 1000]
       - [location_fuzzy, ~]
 
@@ -31,7 +31,7 @@ Callnumber:
       #- [append, "*\""]
       - [append, "* "]
   QueryFields:
-    - callnumber:
+    callnumber:
       - [onephrase, 1000]
       - [location_fuzzy, ~]
 
@@ -47,5 +47,5 @@ UDC:
       - [preg_replace, '/$/m', "\""]
       - [preg_replace, '/^/m', "\""]
   QueryFields:
-    - udc_str_mv:
+    udc_str_mv:
       - [escape, ~]
