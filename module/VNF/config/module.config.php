@@ -16,6 +16,7 @@ $config = array(
                      'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
                          'invokables' => array(
                              'supraphonrecordtab' => 'VNF\RecordTab\SupraphonRecordTab',
+                             'libraries' => 'VNF\RecordTab\Libraries'
                          ),
                  ), /* recordtab */
              ), /* plugin_managers */
@@ -27,7 +28,16 @@ $config = array(
                      'UserComments' => 'UserComments',
                      'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
                  ),
-                 'defaultTab' => null,
+                 'defaultTab' => 'Description',
+            ),
+            'VNF\RecordDriver\SolrMarcMerged' => array(
+                'tabs' => array (
+                        'libraries' => 'Libraries',
+                        'Description' => 'Description',
+                        'UserComments' => 'UserComments',
+                        'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                ),
+                'defaultTab' => 'libraries',
             ),
         ),
     ),
