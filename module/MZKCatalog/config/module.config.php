@@ -6,7 +6,8 @@ $config = array(
         'plugin_managers' => array (
             'recorddriver' => array (
                 'factories' => array(
-                    'solrmzk' => 'MZKCatalog\RecordDriver\Factory::getSolrMarc',
+                    'solrmzk'   => 'MZKCatalog\RecordDriver\Factory::getSolrMarc',
+                    'solrmzk04' => 'MZKCatalog\RecordDriver\Factory::getSolrMarc',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
