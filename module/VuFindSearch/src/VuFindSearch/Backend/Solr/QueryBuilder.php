@@ -140,17 +140,21 @@ class QueryBuilder implements QueryBuilderInterface
             if (!$handler->hasExtendedDismax()
                 && $this->getLuceneHelper()->containsAdvancedLuceneSyntax($string)
             ) {
-                $string = $this->createAdvancedInnerSearchString($string, $handler);
+                $newString = $this->createAdvancedInnerSearchString($string, $handler);
                 if ($handler->hasDismax()) {
-                    $oldString = $string;
-                    $string = $handler->createBoostQueryString($string);
+                    $oldString = $newString;
+                    $newString = $handler->createBoostQueryString($newString);
 
                     // If a boost was added, we don't want to highlight based on
                     // the boost query, so we should use the non-boosted version:
                     if ($this->createHighlightingQuery && $oldString != $string) {
                         $params->set('hl.q', $oldString);
                     }
+                    if ($string == '*:*') {
+                        $params->set('hl.q', '*:*');
+                    }
                 }
+                $string = $newString;
             } else {
                 if ($handler->hasDismax()) {
                     $params->set('qf', implode(' ', $handler->getDismaxFields()));
