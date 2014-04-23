@@ -213,6 +213,22 @@
       </table>
     <? endif; ?>
     
+    <? $digRequest = $this->driver->isAvailableForDigitalization(); ?>
+    <? if ($digRequest): ?>
+      <table class="digi_req_link">
+        <tr>
+          <td>
+            <a href="<?=$backLink?>/DigiRequest">
+              <img src="<?=$this->imageLink('digitalization_request_button_cz.png')?>"></img>
+            </a>
+          </td>
+          <td>
+            <span class="digi_req_text"><?=$this->transEsc('Request digitalization');?></span>
+          </td>
+        </tr>
+      </table>
+    <? endif; ?>
+    
     <?/* End Main Details */?>
   </div>
   

@@ -57,6 +57,12 @@ class SolrMarc extends ParentSolrDefault
         return $link;
     }
     
+    public function isAvailableForDigitalization()
+    {
+        $available = ($this->getEODLink() == null);
+        return $available;
+    }
+    
     public function getRestrictions()
     {
         list($base, $sysno) = explode('-', $this->getUniqueID());

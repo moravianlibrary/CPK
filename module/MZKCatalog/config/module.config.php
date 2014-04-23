@@ -36,6 +36,11 @@ $config = array(
             ),
         ) /* recorddriver_tabs */
     ), /* vufind */
+    'controllers' => array(
+        'factories' => array(
+            'record' => 'MZKCatalog\Controller\Factory::getRecordController',
+        ),
+    ),
 );
 
 return $config;
