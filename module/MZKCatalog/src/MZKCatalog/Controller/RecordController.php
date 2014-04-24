@@ -40,13 +40,37 @@ use MZKCommon\Controller\RecordController as RecordControllerBase;
  */
 class RecordController extends RecordControllerBase
 {
+
+    /**
+     * Constructor
+     *
+     * @param \Zend\Config\Config $config VuFind configuration
+     */
+    public function __construct(\Zend\Config\Config $config)
+    {
+        // Call standard record controller initialization:
+        parent::__construct($config);
     
+        if (!isset($config->{'DigiRequest'}->to)) {
+            
+        }
+        
+        if (!isset($config->{'DigiRequest'}->from)) {
+            
+        }
+        
+        // Load default tab setting:
+        $this->digiRequestFrom = $config->Site->email;
+        $this->digiRequestTo = split(',', $config->{'DigiRequest'}->to);
+        $this->digiRequestSubject = $config->{'DigiRequest'}->subject;
+        
+    }
+
     public function digiRequestAction()
     {
         // Process form submission:
         if ($this->params()->fromPost('submit')) {
-            //TODO: send email
-            return $this->redirectToRecord();
+            $this->processDigiRequest();
         }
         
         // Retrieve the record driver:
@@ -59,5 +83,34 @@ class RecordController extends RecordControllerBase
         $view->setTemplate('record/digirequest');
         return $view;
     }
-    
+
+    /**
+     * ProcessSave -- store the results of the Save action.
+     *
+     * @return mixed
+     */
+    protected function processDigiRequest()
+    {
+        $post = $this->getRequest()->getPost()->toArray();
+        $email = $post['email'];
+        $reason = $post['reason'];
+        $driver = $this->loadRecord();
+        $params = array(
+            'email'  => $email,
+            'reason' => $reason,
+            'driver' => $driver
+        );
+        $text = $this->getViewRenderer()->render('Email/digitalization-request.phtml', $params);
+        $mailer = $this->getServiceLocator()->get('VuFind\Mailer');
+        foreach ($this->digiRequestTo as $recipient) {
+            $mailer->send(
+                $this->digiRequestFrom,
+                $recipient,
+                $this->digiRequestSubject,
+                $text
+            );
+        }
+        return $this->redirectToRecord();
+    }
+
 }
