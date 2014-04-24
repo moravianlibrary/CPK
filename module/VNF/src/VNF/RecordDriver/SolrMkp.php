@@ -27,7 +27,7 @@
  */
 namespace VNF\RecordDriver;
 use VuFind\Exception\ILS as ILSException, VuFind\XSLT\Processor as XSLTProcessor;
-use VuFind\RecordDriver\SolrMarc as SolrMarc;
+use VNF\RecordDriver\SolrMarc as SolrMarc;
 
 /**
  * Model for MARC records in Solr.
