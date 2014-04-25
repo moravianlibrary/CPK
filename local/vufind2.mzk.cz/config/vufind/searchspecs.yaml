@@ -377,6 +377,7 @@ AllFields:
       - [onephrase, ~]
     issn:
       - [onephrase, ~]
+  FilterQuery: "mzk_visible_str:visible"
 #  ExactSettings:
 #    DismaxFields:
 #      - title_full_unstemmed^600
