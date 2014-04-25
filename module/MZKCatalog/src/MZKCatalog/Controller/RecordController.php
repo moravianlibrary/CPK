@@ -68,19 +68,28 @@ class RecordController extends RecordControllerBase
 
     public function digiRequestAction()
     {
+        // Force login:
+        if (!($user = $this->getUser())) {
+            return $this->forceLogin(null);
+        }
+
         // Process form submission:
         if ($this->params()->fromPost('submit')) {
             $this->processDigiRequest();
         }
         
+        // use user email as default value
+        $email = $user->email;
         // Retrieve the record driver:
         $driver = $this->loadRecord();
         
         $view = $this->createViewModel(
             array(
+                'email'  => $email,
+                'driver' => $driver
             )
         );
-        $view->setTemplate('record/digirequest');
+        $view->setTemplate('record/digitalization-request');
         return $view;
     }
 

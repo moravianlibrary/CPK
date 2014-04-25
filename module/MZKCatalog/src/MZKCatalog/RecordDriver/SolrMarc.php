@@ -56,11 +56,26 @@ class SolrMarc extends ParentSolrDefault
         $link = $eodLinks[$base] . $sysno;
         return $link;
     }
+
+    public function isDigitized()
+    {
+        foreach ($this->getFieldArray('856', array('y', 'z'), false) as $onlineAccessText) {
+            $onlineAccessText = strtolower($onlineAccessText);
+            if (strpos($onlineAccessText, 'digitaliz') !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
     
     public function isAvailableForDigitalization()
     {
-        $available = ($this->getEODLink() == null);
-        return $available;
+        return $this->getEODLink() == null
+            && substr($this->getUniqueID(), 0, 5) == 'MZK01'
+            && substr($this->marcRecord->getField('008'), 23, 2) == 'xr'
+            && in_array('Book', $this->getFormats())
+            && !$this->isDigitized()
+        ;
     }
     
     public function getRestrictions()
