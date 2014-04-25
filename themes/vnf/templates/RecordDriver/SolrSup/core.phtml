@@ -116,10 +116,10 @@
         </tr>
       <? endif; ?>
 
-      <? $langs = $this->driver->getLanguages(); if (!empty($langs)): ?>
+      <? $inst = $this->driver->getInstitutions(); if (!empty($inst)): ?>
         <tr>
-          <th><?=$this->transEsc('Language')?>: </th>
-          <td><? foreach ($langs as $lang): ?><?= $this->escapeHtml($lang)?><br/><? endforeach; ?></td>
+          <th><?=$this->transEsc('Institution')?>: </th>
+          <td><? foreach ($inst as $ins): ?><?=$this->transEsc($ins)?><br/><? endforeach; ?></td>
         </tr>
       <? endif; ?>
 
