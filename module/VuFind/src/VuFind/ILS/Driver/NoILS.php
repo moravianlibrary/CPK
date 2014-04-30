@@ -356,6 +356,11 @@ class NoILS extends AbstractBase implements TranslatorAwareInterface
         return null;
     }
 
+    public function getHoldingFilters($bibId)
+    {
+        return array();
+    }
+
     /**
      * Set a translator
      *
