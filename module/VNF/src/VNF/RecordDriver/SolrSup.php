@@ -3,7 +3,6 @@
  * Model for Supraphon records in Solr.
  */
 namespace VNF\RecordDriver;
-use MZKCommon\RecordDriver\SolrMarc;
 
 /**
  * Model for MARC records in Solr.
