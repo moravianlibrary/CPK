@@ -27,11 +27,17 @@ $config = array(
                  ), /* recordtab */
              ), /* plugin_managers */
         'recorddriver_tabs' => array(
+             'VNF\RecordDriver\SolrMarc' => array(
+                    'tabs' => array (
+                            'Description' => 'Description',
+                            'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                    ),
+                    'defaultTab' => 'Description',
+             ),
              'VNF\RecordDriver\SolrSup' => array(
                  'tabs' => array (
                      'Description' => 'Description',
                      'SupraphonRecordTab' => 'SupraphonRecordTab',
-                     'UserComments' => 'UserComments',
                      'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
                  ),
                  'defaultTab' => 'Description',
@@ -40,7 +46,6 @@ $config = array(
                 'tabs' => array (
                         'libraries' => 'Libraries',
                         'Description' => 'Description',
-                        'UserComments' => 'UserComments',
                         'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
                 ),
                 'defaultTab' => 'libraries',

@@ -50,6 +50,7 @@
           <?=!empty($summAuthor) ? '<br />' : ''?>
           <?=$this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0])?>
         <? endif; ?>
+        
         <? $summInCollection = $this->driver->getContainingCollections(); if (!empty($summInCollection)): ?>
           <? foreach ($summInCollection as $collId => $collText): ?>
             <div>
@@ -170,9 +171,6 @@
         </div><br/>
       </span>
     <? endif; ?>
-    
-    <? /* Add to favorites */ ?>
-    <i class="icon-heart"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
 
     <? /* Saved lists */ ?>
     <div class="savedLists alert alert-info hide">
