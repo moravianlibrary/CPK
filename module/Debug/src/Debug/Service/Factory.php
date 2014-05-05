@@ -50,7 +50,37 @@ class Factory
     {
         $translator = Translator::factory(array());
 
+        // Set up the ExtendedIni plugin:
+        $config = $sm->get('VuFind\Config')->get('config');
+        $pathStack = array(
+            APPLICATION_PATH  . '/languages',
+            LOCAL_OVERRIDE_DIR . '/languages'
+        );
+        $translator->getPluginManager()->setService(
+                'extendedini',
+                new \VuFind\I18n\Translator\Loader\ExtendedIni(
+                        $pathStack, $config->Site->language
+                )
+        );
+
+        // Set up language caching for better performance:
+        try {
+            $translator->setCache(
+                    $sm->get('VuFind\CacheManager')->getCache('language')
+            );
+        } catch (\Exception $e) {
+            // Don't let a cache failure kill the whole application, but make
+            // note of it:
+            $logger = $sm->get('VuFind\Logger');
+            $logger->debug(
+                    'Problem loading cache: ' . get_class($e) . ' exception: '
+                    . $e->getMessage()
+            );
+        }
+
         return $translator;
     }
+
+
 
 }
