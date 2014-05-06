@@ -1,4 +1,4 @@
-/*global checkSaveStatuses, console, deparam, path, refreshCommentList, vufindString */
+/*global checkSaveStatuses, console, deparam, path, Recaptcha, refreshCommentList, vufindString */
 
 var Lightbox = {
   /**
@@ -8,6 +8,7 @@ var Lightbox = {
    */
   lastURL: false,
   lastPOST: false,
+  openingURL: false,
   shown: false,      // Is the lightbox deployed?
   XHR: false,        // Used for current in-progress XHR lightbox request
   openStack: [],     // Array of functions to be called after changeContent or the lightbox event 'shown'
@@ -113,6 +114,7 @@ var Lightbox = {
    */
   closeActions: function() {
     Lightbox.shown = false;
+    Lightbox.openingURL = false;
     // Clean out stack
     while(Lightbox.closeStack.length > 0) {
       var f = Lightbox.closeStack.pop();
@@ -124,18 +126,18 @@ var Lightbox = {
     $('#modal').removeData('modal');
     $('#modal').find('.modal-header h3').html('');
     $('#modal').find('.modal-body').html(vufindString.loading + "...");
-    
+
     /**
      * Below here, we're doing content updates (sample events that affect content)
-     */ 
+     */
     var recordId = $('#record_id').val();
     var recordSource = $('.hiddenSource').val();
-     
+
     // Update the "Saved In" lists (add favorite, login)
     if(typeof checkSaveStatuses === 'function') {
       checkSaveStatuses();
     }
-    
+
     // Update the comment list (add comment, login)
     if(typeof refreshCommentList === 'function') {
       refreshCommentList(recordId, recordSource);
@@ -177,12 +179,15 @@ var Lightbox = {
    */
   displayError: function(message) {
     var alert = $('#modal .modal-body .alert');
-    if(alert.length > 0) {
+    if (alert.length > 0) {
       $(alert).html(message);
     } else if($('#modal .modal-body').html() == vufindString.loading+"...") {
       $('#modal .modal-body').html('<div class="alert alert-error">'+message+'</div><button class="btn" onClick="Lightbox.close()">'+vufindString['close']+'</button>');
     } else {
       $('#modal .modal-body').prepend('<div class="alert alert-error">'+message+'</div>');
+    }
+    if (Recaptcha) {
+      Recaptcha.reload();
     }
     $('.icon-spinner').remove();
   },
@@ -230,6 +235,9 @@ var Lightbox = {
       }
     });
     // Store current "page" context for empty targets
+    if(this.openingURL === false) {
+      this.openingURL = url;
+    }
     this.lastURL = url;
     this.lastPOST = post;
     //this.openActions();
@@ -299,6 +307,42 @@ var Lightbox = {
     return data;
   },
   /**
+   * This function adds submission events to forms loaded inside the lightbox
+   *
+   * First, it will check for custom handlers, for those who want to handle everything.
+   *
+   * Then, it will check for custom form callbacks. These will be added to an anonymous
+   * function that will call Lightbox.submit with the form and the callback.
+   *
+   * Finally, if nothing custom is setup, it will add the default function which
+   * calls Lightbox.submit with a callback to close if there are no errors to display.
+   *
+   * This is a default open action, so it runs every time changeContent
+   * is called and the 'shown' lightbox event is triggered
+   */
+  registerForms: function() {
+    var form = $("#modal").find('form');
+    var name = $(form).attr('name');
+    // Assign form handler based on name
+    if(typeof name !== "undefined" && typeof Lightbox.formHandlers[name] !== "undefined") {
+      $(form).unbind('submit').submit(Lightbox.formHandlers[name]);
+    // Default action, with custom callback
+    } else if(typeof Lightbox.formCallbacks[name] !== "undefined") {
+      $(form).unbind('submit').submit(function(evt){
+        Lightbox.submit($(evt.target), Lightbox.formCallbacks[name]);
+        return false;
+      });
+    // Default
+    } else {
+      $(form).unbind('submit').submit(function(evt){
+        Lightbox.submit($(evt.target), function(html){
+          Lightbox.checkForError(html, Lightbox.close);
+        });
+        return false;
+      });
+    }
+  },
+  /**
    * The default, automatic form submission
    *
    * This function gleans all the information in a form from the function above
@@ -306,7 +350,7 @@ var Lightbox = {
    * and the method="" attribute to send it the proper way
    *
    * In the wild, forms without an action="" are submitted to the current URL.
-   * In the case where we have a form with no action in the lightbox, 
+   * In the case where we have a form with no action in the lightbox,
    * we emulate that behaviour by submitting the last URL loaded through
    * .getByUrl, stored in lastURL in the Lightbox object.
    */
@@ -344,6 +388,8 @@ var Lightbox = {
  * We do it here so that non-JS users still have a good time.
  */
 $(document).ready(function() {
+  // Add handlers to the forms
+  Lightbox.addOpenAction(Lightbox.registerForms);
   /**
    * Hook into the Bootstrap close event
    *

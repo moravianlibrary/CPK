@@ -22,6 +22,7 @@ return array(
             'keepalive' => 'VuFind\View\Helper\Root\Factory::getKeepAlive',
             'proxyurl' => 'VuFind\View\Helper\Root\Factory::getProxyUrl',
             'openurl' => 'VuFind\View\Helper\Root\Factory::getOpenUrl',
+            'recaptcha' => 'VuFind\View\Helper\Root\Factory::getRecaptcha',
             'record' => 'VuFind\View\Helper\Root\Factory::getRecord',
             'recordlink' => 'VuFind\View\Helper\Root\Factory::getRecordLink',
             'related' => 'VuFind\View\Helper\Root\Factory::getRelated',
@@ -32,6 +33,8 @@ return array(
             'searchtabs' => 'VuFind\View\Helper\Root\Factory::getSearchTabs',
             'syndeticsplus' => 'VuFind\View\Helper\Root\Factory::getSyndeticsPlus',
             'systememail' => 'VuFind\View\Helper\Root\Factory::getSystemEmail',
+            'userlist' => 'VuFind\View\Helper\Root\Factory::getUserList',
+            'usertags' => 'VuFind\View\Helper\Root\Factory::getUserTags',
             'videoclips' => 'VuFind\View\Helper\Root\Factory::getVideoClips',
             'worldcat' => 'VuFind\View\Helper\Root\Factory::getWorldCat',
         ),
@@ -52,7 +55,6 @@ return array(
             'transesc' => 'VuFind\View\Helper\Root\TransEsc',
             'translate' => 'VuFind\View\Helper\Root\Translate',
             'truncate' => 'VuFind\View\Helper\Root\Truncate',
-            'userlist' => 'VuFind\View\Helper\Root\UserList',
         )
     ),
 );

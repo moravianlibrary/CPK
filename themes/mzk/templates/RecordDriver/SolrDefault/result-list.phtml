@@ -4,7 +4,7 @@
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
 ?>
-<div class="row-fluid result<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
+<div class="row-fluid <?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />

@@ -1,4 +1,4 @@
-/*global Cookies, path, vufindString, Lightbox */
+/*global Cookies, deparam, path, vufindString, Lightbox, updatePageForLogin */
 
 var _CART_COOKIE = 'vufind_cart';
 var _CART_COOKIE_SOURCES = 'vufind_cart_src';
@@ -64,7 +64,7 @@ function uniqueArray(op) {
 function removeItemFromCart(id,source) {
   var cartItems = getCartItems();
   var cartSources = getCartSources();
-  // Find 
+  // Find
   var cartIndex = cartItems.indexOf(String.fromCharCode(65+cartSources.indexOf(source))+id);
   if(cartIndex > -1) {
     var sourceIndex = cartItems[cartIndex].charCodeAt(0)-65;
@@ -147,7 +147,9 @@ function registerUpdateCart($form) {
 }
 
 // Ajax cart submission for the lightbox
+var lastCartSubmit = false;
 function cartSubmit($form) {
+  lastCartSubmit = $form;
   var submit = $form.find('input[type="submit"][clicked=true]').attr('name');
   if (submit == 'print') {
     //redirect page
@@ -187,11 +189,26 @@ $(document).ready(function() {
     var $form = $('form[name="bulkActionForm"]');
     registerUpdateCart($form);
   }
-  
+
   // Setup lightbox behavior
   // Cart lightbox
   $('#cartItems').click(function() {
     return Lightbox.get('Cart','Cart');
+  });
+  // Overwrite new account form to return to cart
+  Lightbox.addFormCallback('accountForm', function() {
+    updatePageForLogin();
+    var params = deparam(Lightbox.openingURL);
+    updatePageForLogin();
+    if (lastCartSubmit !== false) {
+      cartSubmit(lastCartSubmit);
+      lastCartSubmit = false;
+    } else if (params['subaction'] != 'Login') {
+      Lightbox.getByUrl(Lightbox.openingURL);
+      Lightbox.openingURL = false;
+    } else {
+      Lightbox.close();
+    }
   });
   Lightbox.addFormHandler('cartForm', function(evt) {
     cartSubmit($(evt.target));
