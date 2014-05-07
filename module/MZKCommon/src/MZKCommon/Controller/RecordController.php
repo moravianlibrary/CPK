@@ -69,5 +69,71 @@ class RecordController extends RecordControllerBase
         $view->setTemplate('record/addtag');
         return $view;
     }
-    
+
+    public function shortLoanAction()
+    {
+        $driver = $this->loadRecord();
+
+        // If we're not supposed to be here, give up now!
+        $catalog = $this->getILS();
+        $checkHolds = $catalog->checkFunction("Holds", $driver->getUniqueID());
+        if (!$checkHolds) {
+            return $this->forwardTo('Record', 'Home');
+        }
+
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        // Do we have valid information?
+        // Sets $this->logonURL and $this->gatheredDetails
+        $gatheredDetails = $this->holds()->validateRequest($checkHolds['HMACKeys']);
+        if (!$gatheredDetails) {
+            return $this->redirectToRecord();
+        }
+
+        // Block invalid requests:
+        if (!$catalog->checkRequestIsValid(
+            $driver->getUniqueID(), $gatheredDetails, $patron
+        )) {
+            return $this->blockedholdAction();
+        }
+
+        $shortLoanInfo = $catalog->getHoldingInfoForItem($patron['id'],
+            $driver->getUniqueID(), $this->params()->fromQuery('item_id'));
+
+        $slotsByDate = array();
+        foreach ($shortLoanInfo['slots'] as $id => $slot) {
+            $start_date = $slot['start_date'];
+            $start_time = $slot['start_time'];
+            $slotsByDate[$start_date][$start_time] = $slot;
+            $slotsByDate[$start_date][$start_time]['id'] = $id;
+            $slotsByDate[$start_date][$start_time]['available'] = true;
+        }
+
+        static $positions = array(
+            '0830' => 0,
+            '1000' => 1,
+            '1200' => 2,
+            '1400' => 3,
+            '1600' => 4,
+            '1800' => 5,
+            '2000' => 6,
+        );
+
+        $results = array();
+        foreach ($slotsByDate as $date => $slotsInDate) {
+            $result = array_fill(0, 7, array('available' => false));
+            foreach ($slotsInDate as $start_time => $slot) {
+                $result[$positions[$start_time]] = $slot;
+            }
+            $results[$date] = $result;
+        }
+
+        $view = $this->createViewModel(array('slots' => $results));
+        $view->setTemplate('record/shortloan');
+        return $view;
+    }
+
 }

@@ -65,4 +65,23 @@ foreach ($staticRoutes as $route) {
     );
 }
 
+$nonTabRecordActions = array('ShortLoan');
+
+foreach ($nonTabRecordActions as $action) {
+    $config['router']['routes']['record' . '-' . strtolower($action)] = array(
+        'type'    => 'Zend\Mvc\Router\Http\Segment',
+        'options' => array(
+            'route'    => '/' . 'Record' . '/[:id]/' . $action,
+            'constraints' => array(
+                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+            ),
+            'defaults' => array(
+                'controller' => 'Record',
+                'action'     => $action,
+            )
+        )
+    );
+}
+
 return $config;

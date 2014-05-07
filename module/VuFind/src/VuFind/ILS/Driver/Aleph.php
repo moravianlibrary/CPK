@@ -1191,8 +1191,15 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             if ($item_status['request'] == 'Y' && $availability == false) {
                 $addLink = true;
             }
+            $holdType = 'hold';
             if (!empty($patron) || isset($this->defaultPatronId)) {
                 $hold_request = $item->xpath('info[@type="HoldRequest"]/@allowed');
+                if ($hold_request[0] == 'N') {
+                    $hold_request = $item->xpath('info[@type="ShortLoan"]/@allowed');
+                    if ($hold_request[0] == 'Y') {
+                        $holdType = 'shortloan';
+                    }
+                }
                 $addLink = ($hold_request[0] == 'Y');
             }
             $matches = array();
@@ -1236,7 +1243,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'notes'             => ($note == null) ? null : array($note),
                 'is_holdable'       => true,
                 'addLink'           => $addLink,
-                'holdtype'          => 'hold',
+                'holdtype'          => $holdType,
                 /* below are optional attributes*/
                 'duedate_status'    => $status,
                 'collection'        => (string) $collection,
@@ -1840,6 +1847,20 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $patronId, 'record', $resource, 'items', $group)
         );
+        $holdRequestAllowed = $xml->xpath("//item/info[@type='HoldRequest']/@allowed");
+        $holdRequestAllowed = $holdRequestAllowed[0] == 'Y';
+        if ($holdRequestAllowed) {
+            return $this->extractHoldingInfoForItem($xml);
+        }
+        $shortLoanAllowed = $xml->xpath("//item/info[@type='ShortLoan']/@allowed");
+        $shortLoanAllowed = $shortLoanAllowed[0] == 'Y';
+        if ($shortLoanAllowed) {
+            return $this->extractShortLoanInfoForItem($xml);
+        }
+    }
+
+    protected function extractHoldingInfoForItem($xml)
+    {
         $locations = array();
         $part = $xml->xpath('//pickup-locations');
         if ($part) {
@@ -1867,6 +1888,41 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             'pickup-locations' => $locations, 'last-interest-date' => $date,
             'order' => $requests + 1
         );
+    }
+
+    protected function extractShortLoanInfoForItem($xml)
+    {
+        $shortLoanInfo = $xml->xpath("//item/info[@type='ShortLoan']");
+        $slots = array();
+        foreach ($shortLoanInfo[0]->{'short-loan'}->{'slot'} as $slot) {
+            $numOfItems = (int) $slot->{'num-of-items'};
+            $numOfOccupied = (int) $slot->{'num-of-occupied'};
+            $available = $numOfItems - $numOfOccupied;
+            if ($available <= 0) {
+                continue;
+            }
+            $start_date = $slot->{'start'}->{'date'};
+            $start_time = $slot->{'start'}->{'hour'};
+            $end_date = $slot->{'end'}->{'date'};
+            $end_time = $slot->{'end'}->{'hour'};
+            $time = substr($start_date, 6, 2) . "." . substr($start_date, 4, 2) . "."
+                . substr($start_date, 0, 4) . " " . substr($start_time, 0, 2) . ":"
+                . substr($start_time, 2, 2) . " - " . substr($end_time, 0, 2) . ":"
+                . substr($start_time, 2, 2);
+            $id = $slot->attributes()->id;
+            $id = (string) $id[0];
+            $slots[$id] = array(
+                'start_date' => (string) $start_date[0],
+                'start_time' => (string) $start_time[0],
+                'end_date'   => (string) $end_date[0],
+                'end_time'   => (string) $end_time[0],
+            );
+        }
+        $result = array(
+            'type'  => 'short',
+            'slots' => $slots,
+        );
+        return $result;
     }
 
     /**
@@ -1967,6 +2023,29 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'sysMessage' => "$message ($note)"
             );
         }
+        return array('success' => true);
+    }
+
+    public function placeShortLoanRequest($details)
+    {
+        list($bib, $sys_no) = $this->parseId($details['id']);
+        $recordId = $bib . $sys_no;
+        $slot = $details['slot'];
+        $itemId = $details['item_id'];
+        $patron = $details['patron'];
+        $patronId = $patron['id'];
+        $body = new SimpleXMLElement(
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<short-loan-parameters></short-loan-parameters>'
+        );
+        $body->addChild('request-slot', $slot);
+        $data = 'post_xml=' . $body->asXML();
+        try {
+            $result = $this->doRestDLFRequest(array('patron', $patronId, 'record', $recordId,
+                'items', $itemId, 'shortLoan'), null, HTTP_REQUEST_METHOD_PUT, $data);
+            } catch (Exception $ex) {
+                return array('success' => false, 'sysMessage' => $ex->getMessage());
+            }
         return array('success' => true);
     }
 
