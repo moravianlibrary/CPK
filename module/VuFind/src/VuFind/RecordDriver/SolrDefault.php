@@ -912,6 +912,17 @@ class SolrDefault extends AbstractBase
     }
 
     /**
+     * Get human readable publication dates for display purposes (may not be suitable
+     * for computer processing -- use getPublicationDates() for that).
+     *
+     * @return array
+     */
+    public function getHumanReadablePublicationDates()
+    {
+        return $this->getPublicationDates();
+    }
+
+    /**
      * Get an array of publication detail lines combining information from
      * getPublicationDates(), getPublishers() and getPlacesOfPublication().
      *
@@ -921,7 +932,7 @@ class SolrDefault extends AbstractBase
     {
         $places = $this->getPlacesOfPublication();
         $names = $this->getPublishers();
-        $dates = $this->getPublicationDates();
+        $dates = $this->getHumanReadablePublicationDates();
 
         $i = 0;
         $retval = array();
@@ -1114,13 +1125,22 @@ class SolrDefault extends AbstractBase
      */
     public function getThumbnail($size = 'small')
     {
-        return array(
+        if (isset($this->fields['thumbnail']) && $this->fields['thumbnail']) {
+            return $this->fields['thumbnail'];
+        }
+        $arr = array(
             'author'     => mb_substr($this->getPrimaryAuthor(), 0, 300, 'utf-8'),
             'callnumber' => $this->getCallNumber(),
-            'isn'        => $this->getCleanIsbn(),
             'size'       => $size,
             'title'      => mb_substr($this->getTitle(), 0, 300, 'utf-8')
         );
+        if ($isbn = $this->getCleanISBN()) {
+            $arr['isbn'] = $isbn;
+        }
+        if ($issn = $this->getCleanISSN()) {
+            $arr['issn'] = $issn;
+        }
+        return $arr;
     }
 
     /**
@@ -1350,6 +1370,29 @@ class SolrDefault extends AbstractBase
         ) {
             foreach ($this->fields['hierarchy_parent_id'] as $key => $val) {
                 $retVal[$val] = $this->fields['hierarchy_sequence'][$key];
+            }
+        }
+        return $retVal;
+    }
+
+     /**
+     * Get the titles of this item within parent collections.  Returns an array
+     * of parent ID => sequence number.
+     *
+     * @return Array
+     */
+    public function getTitlesInHierarchy()
+    {
+        $retVal = array();
+        if (isset($this->fields['title_in_hierarchy'])
+            && is_array($this->fields['title_in_hierarchy'])
+        ) {
+            $titles = $this->fields['title_in_hierarchy'];
+            $parentIDs = $this->fields['hierarchy_parent_id'];
+            if (count($titles) === count($parentIDs)) {
+                foreach ($parentIDs as $key => $val) {
+                    $retVal[$val] = $titles[$key];
+                }
             }
         }
         return $retVal;
@@ -1645,13 +1688,13 @@ class SolrDefault extends AbstractBase
 
     /**
      * Get information on records deduplicated with this one
-     * 
+     *
      * @return array Array keyed by source id containing record id
      */
     public function getDedupData()
     {
         return isset($this->fields['dedup_data'])
             ? $this->fields['dedup_data']
-            : array(); 
+            : array();
     }
 }

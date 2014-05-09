@@ -298,6 +298,21 @@ class Factory
     }
 
     /**
+     * Construct the Recaptcha helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return Recaptcha
+     */
+    public static function getRecaptcha(ServiceManager $sm)
+    {
+        return new Recaptcha(
+            $sm->getServiceLocator()->get('VuFind\Recaptcha'),
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
+        );
+    }
+
+    /**
      * Construct the Record helper.
      *
      * @param ServiceManager $sm Service manager.
@@ -441,6 +456,44 @@ class Factory
         return new SystemEmail(
             isset($config->Site->email) ? $config->Site->email : ''
         );
+    }
+
+    /**
+     * Construct the UserList helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return UserList
+     */
+    public static function getUserList(ServiceManager $sm)
+    {
+        $cfg = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        $setting = isset($cfg->Social->lists)
+            ? trim(strtolower($cfg->Social->lists)) : 'enabled';
+        if (!$setting) {
+            $setting = 'disabled';
+        }
+        $whitelist = array('enabled', 'disabled', 'public_only', 'private_only');
+        if (!in_array($setting, $whitelist)) {
+            $setting = 'enabled';
+        }
+        return new UserList($setting);
+    }
+
+    /**
+     * Construct the UserTags helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return UserTags
+     */
+    public static function getUserTags(ServiceManager $sm)
+    {
+        $cfg = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        $mode = !isset($cfg->Social->tags)
+            || ($cfg->Social->tags && $cfg->Social->tags !== 'disabled')
+            ? 'enabled' : 'disabled';
+        return new UserTags($mode);
     }
 
     /**

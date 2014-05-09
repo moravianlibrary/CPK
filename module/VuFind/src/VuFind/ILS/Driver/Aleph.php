@@ -1147,7 +1147,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * keys: id, availability (boolean), status, location, reserve, callnumber,
      * duedate, number, barcode.
      */
-    public function getHolding($id, $patron = false, $filters = array())
+    public function getHolding($id, array $patron = null, $filters = array())
     {
         $holding = array();
         list($bib, $sys_no) = $this->parseId($id);
@@ -1163,7 +1163,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             }
         }
         $params['view'] = 'full';
-        if ($patron) {
+        if (!empty($patron['id'])) {
             $params['patron'] = $patron['id'];
         } else if (isset($this->defaultPatronId)) {
             $params['patron'] = $this->defaultPatronId;
@@ -1191,7 +1191,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             if ($item_status['request'] == 'Y' && $availability == false) {
                 $addLink = true;
             }
-            if ($patron || isset($this->defaultPatronId)) {
+            if (!empty($patron) || isset($this->defaultPatronId)) {
                 $hold_request = $item->xpath('info[@type="HoldRequest"]/@allowed');
                 $addLink = ($hold_request[0] == 'Y');
             }
