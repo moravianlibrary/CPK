@@ -150,9 +150,10 @@ class Params extends \VuFind\Search\Base\Params
         if (!empty($this->facetConfig)) {
             $facetSet['limit'] = $this->facetLimit;
             foreach (array_keys($this->facetConfig) as $facetField) {
-                if (in_array($facetField, $this->hierarchicalFacets) && $this->facetPrefix == NULL) {
-                    $facetSet[self::PER_FIELD_PARAM . $facetField . '.facet.prefix'] = '0';
-                }
+                //temporary disabled due fo hierarchical facets problems
+                //if (in_array($facetField, $this->hierarchicalFacets) && $this->facetPrefix == NULL) {
+                //    $facetSet[self::PER_FIELD_PARAM . $facetField . '.facet.prefix'] = '0';
+                //}
                 if ($this->getFacetOperator($facetField) == 'OR') {
                     $facetField = '{!ex=' . $facetField . '_filter}' . $facetField;
                 }
