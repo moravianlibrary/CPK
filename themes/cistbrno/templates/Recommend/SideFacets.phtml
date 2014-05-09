@@ -92,12 +92,12 @@
                 <? $headTitle = '1/' . $thisFacet; ?>
                 <? foreach($sortedFacets[1][$thisFacet] as $subFacet => $subCount):?>
                   <li class="facetAND">
-                    <a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet('~' . $title, '1/' . $thisFacet . '/' . $subFacet)?>">
-                      <?=$this->transEsc($headTitle . '/' . $subFacet)?>
-                    </a>
                     <span class="pull-right jstree-text-small">
                       <?=number_format($subCount)?>
                     </span>
+                    <a class="main" href="<?=$this->currentPath().$results->getUrlQuery()->addFacet('~' . $title, '1/' . $thisFacet . '/' . $subFacet)?>">
+                      <?=$this->transEsc($headTitle . '/' . $subFacet)?>
+                    </a>
                   </li>
                 <? endforeach;?>
               </ul>
