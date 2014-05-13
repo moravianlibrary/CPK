@@ -209,3 +209,10 @@ list-style-type: none;
 select.resultsOnPageLimiter {
   width: initial;
 }
+
+.homepage-logos {
+display: block;
+margin-left: auto;
+margin-right: auto;
+margin-top: 30px;
+}
