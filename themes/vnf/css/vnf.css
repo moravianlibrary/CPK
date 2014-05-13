@@ -210,9 +210,10 @@ select.resultsOnPageLimiter {
   width: initial;
 }
 
-.homepage-logos {
-display: block;
-margin-left: auto;
-margin-right: auto;
-margin-top: 30px;
+.institutions {
+margin-top: 40px;
+ text-align: center;
+}
+.institutions img {
+  margin-left: 20px;
 }
