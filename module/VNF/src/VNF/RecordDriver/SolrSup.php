@@ -31,6 +31,14 @@ class SolrSup extends SolrMarc
     {
         return isset($this->fields['sup_downlinks']) ? $this->fields['sup_downlinks'] : array();
     }
+    
+    /**
+     * @return string parent record id
+     */
+    public function getParent()
+    {
+        return isset($this->fields['sup_uplink']) ? $this->fields['sup_uplink'] : '';            
+    }
 
     /**
      * replaces new line entity 'EOL_ENT' in summary
