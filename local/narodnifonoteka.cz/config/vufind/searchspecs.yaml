@@ -277,6 +277,8 @@ Title:
     series2:
       - [onephrase, 50]
       - [and , ~]
+  DismaxParams:
+      - [bf, "if(exists(merged_boolean),10000,0)" ]
 
 Series:
   DismaxFields:
