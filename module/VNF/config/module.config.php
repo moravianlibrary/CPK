@@ -21,6 +21,7 @@ $config = array(
                  'recordtab' => array(
                      'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
                          'invokables' => array(
+                             'supraphondescriptiontab' => 'VNF\RecordTab\SupraphonDescriptionTab',
                              'supraphonrecordtab' => 'VNF\RecordTab\SupraphonRecordTab',
                              'libraries' => 'VNF\RecordTab\Libraries'
                          ),
@@ -36,7 +37,7 @@ $config = array(
              ),
              'VNF\RecordDriver\SolrSup' => array(
                  'tabs' => array (
-                     'Description' => 'Description',
+                     'SupraphonDescriptionTab' => 'SupraphonDescriptionTab',
                      'SupraphonRecordTab' => 'SupraphonRecordTab',
                      'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
                  ),
