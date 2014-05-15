@@ -1,0 +1,26 @@
+<?
+    // Set up page title:
+    $this->headTitle($this->translate('Bookings'));
+
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> <span class="divider">&gt;</span></li>'
+        . '<li class="active">' . $this->transEsc('Bookings') . '</li>';
+?>
+
+<div class="<?=$this->layoutClass('mainbody')?>">
+  <h2><?=$this->transEsc('Bookings')?></h2>
+  <?=$this->flashmessages()?>
+  
+  <? if (!empty($this->bookings)): ?>
+    <table>
+      
+      <? $i = 0; foreach ($this->bookings as $booking): ?>
+      <tr>
+        <td><?=$this->transEsc($booking['start'])?></td>
+        <td><?=$this->transEsc($booking['end'])?></td>
+      </tr>
+      <? endforeach;?>
+    </table>
+  <?endif;?>
+    
+</div>
