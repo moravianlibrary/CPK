@@ -100,6 +100,23 @@ class RecordController extends RecordControllerBase
             return $this->blockedholdAction();
         }
 
+        // Process form submissions if necessary:
+        if (!is_null($this->params()->fromPost('placeHold'))) {
+            $slots = $this->params()->fromPost('slot');
+            foreach ($slots as $slot) {
+                $details = array();
+                $details['patron'] = $patron;
+                $details['id'] = $driver->getUniqueID();
+                $details['item_id'] = $this->params()->fromQuery('item_id');
+                $details['slot'] = $slot;
+                $result = $catalog->placeShortLoanRequest($details);
+                if (!$result['success']) {
+                    $this->flashMessenger()->setNamespace('error')
+                    ->addMessage($result['sysMessage']);
+                }
+            }
+        }
+
         $shortLoanInfo = $catalog->getHoldingInfoForItem($patron['id'],
             $driver->getUniqueID(), $this->params()->fromQuery('item_id'));
 
@@ -126,8 +143,14 @@ class RecordController extends RecordControllerBase
         foreach ($slotsByDate as $date => $slotsInDate) {
             $result = array_fill(0, 7, array('available' => false));
             foreach ($slotsInDate as $start_time => $slot) {
+                $start_time = $slot['start_time'];
+                $slot['start_time'] = substr($start_time, 0, 2) . ':' . substr($start_time, 2, 2);
+                $end_time = $slot['end_time'];
+                $slot['end_time'] = substr($end_time, 0, 2) . ':' . substr($end_time, 2, 2);
                 $result[$positions[$start_time]] = $slot;
             }
+            $date = date_parse_from_format('Ymd', $date);
+            $date =  $date['day'] . '. ' . $date['month'] . '.';
             $results[$date] = $result;
         }
 

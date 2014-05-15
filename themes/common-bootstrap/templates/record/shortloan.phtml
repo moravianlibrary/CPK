@@ -6,7 +6,7 @@
         . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '<span class="divider">&gt;</span> </li>'
         . '<li class="active">' . $this->transEsc('request_place_text') . '</li>';
 ?>
-<h2><?=$this->transEsc('request_place_text')?></h2>
+<h2><?=$this->transEsc('short_loan_request_text')?> - <?=$this->driver->getTitle()?></h2>
 <? if ($this->helpText): ?>
 <p class="helptext"><?=$this->helpText?></p>
 <? endif; ?>
@@ -15,27 +15,30 @@
 <div class="hold-form">
   <form action="" class="form-horizontal" method="post" name="placeHold">
 
-  <table class="table">
-    <?foreach ($this->slots as $date => $slotsInDay):?>
-    <tr>
-      <td>
-        <?=$date?>
-      </td>
-      <?foreach ($slotsInDay as $slot):?>
-        <?if ($slot['available']):?>
-          <td style='background-color:lightgreen;'>
-            <input type="checkbox"></input>
-            <?=$slot['start_time'] . ' - ' . $slot['end_time']?>
-          </td>
-        <?else:?>
-          <td style='background-color:#FF9EC0;'>
-          </td>
-        <?endif;?>
+    <table class="table">
+      <?foreach ($this->slots as $date => $slotsInDay):?>
+      <tr>
+        <td>
+          <?=$date?>
+        </td>
+        <?foreach ($slotsInDay as $slot):?>
+          <?if ($slot['available']):?>
+            <td style='background-color:lightgreen;'>
+              <input type="checkbox" name="slot[]" value="<?=$this->escapeHtml($slot['id'])?>"></input>
+              <?=$slot['start_time'] . ' - ' . $slot['end_time']?>
+            </td>
+          <?else:?>
+            <td style='background-color:#FF9EC0;'>
+            </td>
+          <?endif;?>
+        <?endforeach;?>
+      </tr>
       <?endforeach;?>
-    </tr>
-    <?endforeach;?>
-  </table>
-  <input type="submit"></input>
+    </table>
+
+    <div class="control-group">
+      <input class="btn btn-primary" type="submit" name="placeHold" value="<?=$this->transEsc('request_submit_text')?>"/>
+    </div>
 
   </form>
 </div>

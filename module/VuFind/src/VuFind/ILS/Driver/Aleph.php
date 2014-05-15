@@ -2034,15 +2034,15 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $itemId = $details['item_id'];
         $patron = $details['patron'];
         $patronId = $patron['id'];
-        $body = new SimpleXMLElement(
+        $body = new \SimpleXMLElement(
             '<?xml version="1.0" encoding="UTF-8"?>'
             . '<short-loan-parameters></short-loan-parameters>'
         );
         $body->addChild('request-slot', $slot);
         $data = 'post_xml=' . $body->asXML();
         try {
-            $result = $this->doRestDLFRequest(array('patron', $patronId, 'record', $recordId,
-                'items', $itemId, 'shortLoan'), null, HTTP_REQUEST_METHOD_PUT, $data);
+            $result = $this->alephWebService->doRestDLFRequest(array('patron', $patronId, 'record', $recordId,
+                'items', $itemId, 'shortLoan'), null, "PUT", $data);
             } catch (Exception $ex) {
                 return array('success' => false, 'sysMessage' => $ex->getMessage());
             }
