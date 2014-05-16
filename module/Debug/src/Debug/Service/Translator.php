@@ -27,6 +27,41 @@ class Translator extends \Zend\I18n\Translator\Translator
 {
 
     /**
+     * Translate a message.
+     *
+     * @param  string $message
+     * @param  string $textDomain
+     * @param  string $locale
+     * @return string
+     */
+    public function translate($message, $textDomain = 'default', $locale = null)
+    {
+        $locale      = ($locale ?: $this->getLocale());
+
+        if ($locale == "dg")
+        {
+            $translation = $this->getTranslatedMessage($message, $locale, $textDomain);
+        }
+        else
+        {
+            $translation = parent::getTranslatedMessage($message, $locale, $textDomain);
+        }
+
+        if ($translation !== null && $translation !== '') {
+            return $translation;
+        }
+
+        if (null !== ($fallbackLocale = $this->getFallbackLocale())
+        && $locale !== $fallbackLocale
+        ) {
+            return $this->translate($message, $textDomain, $fallbackLocale);
+        }
+
+        return $message;
+    }
+
+
+    /**
      * Get a translated message.
      *
      * @triggers getTranslatedMessage.missing-translation
