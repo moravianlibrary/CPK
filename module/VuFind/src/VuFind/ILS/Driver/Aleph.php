@@ -342,12 +342,15 @@ class SolrIdResolver implements IdResolver {
      */
     protected $searchService = null;
     
-    public function __construct(\VuFindSearch\Service $searchService,
-        $solrQueryField = 'availability_id_str', $itemIdentifier = 'adm_id')
+    public function __construct(\VuFindSearch\Service $searchService, $config)
     {
         $this->searchService = $searchService;
-        $this->solrQueryField = $solrQueryField;
-        $this->itemIdentifier = $itemIdentifier;
+        if (isset($config['IdResolver']['solrQueryField'])) {
+            $this->solrQueryField = $config['IdResolver']['solrQueryField'];
+        }
+        if (isset($config['IdResolver']['itemIdentifier'])) {
+            $this->itemIdentifier = $config['IdResolver']['itemIdentifier'];
+        }
     }
     
     public function resolveIds(&$recordsToResolve)
@@ -1499,6 +1502,44 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $this->idResolver->resolveIds($holdList);
         return $holdList;
+    }
+
+    public function getMyBookings($patron)
+    {
+        $xml = $this->alephWebService->doRestDLFRequest(array('patron', $patron['id'], 'circulationActions',
+            'requests', 'bookings'), array("view" => "full"));
+        $results = array();
+        foreach ($xml->xpath('//booking-request') as $item) {
+            $delete = $item->xpath('@delete');
+            $href = $item->xpath('@href');
+            $item_id = substr($href[0], strrpos($href[0], '/') + 1);
+            $z13 = $item->z13;
+            $z37 = $item->z37;
+            $z30 = $item->z30;
+            $barcode = (string) $z30->{'z30-barcode'};
+            $startDate = $z37->{'z37-booking-start-date'};
+            $startTime = $z37->{'z37-booking-start-hour'};
+            $endDate = $z37->{'z37-booking-end-date'};
+            $endTime = $z37->{'z37-booking-end-hour'};
+            $start = substr($startDate[0], 6, 2) . '. ' . substr($startDate[0], 4, 2) . '. ' . substr($startDate[0], 0, 4)
+            . ' ' . substr($startTime[0], 0, 2) . ':' .  substr($startTime[0], 2, 2);
+            $end = substr($endDate[0], 6, 2) . '. ' . substr($endDate[0], 4, 2) . '. ' . substr($endDate[0], 0, 4)
+            . ' ' . substr($endTime[0], 0, 2) . ':' .  substr($endTime[0], 2, 2);
+            $delete = ($delete[0] == "Y");
+            $id = (string) $z13->{'z13-doc-number'};
+            $adm_id = (string) $z30->{'z30-doc-number'};
+            $results[] = array(
+                'id'      => $id, //$this->barcodeToID($barcode),
+                'adm_id'  => $adm_id,
+                'start'   => $start,
+                'end'     => $end,
+                'delete'  => $delete,
+                'item_id' => $item_id,
+                'barcode' => $barcode,
+            );
+        }
+        $this->idResolver->resolveIds($results);
+        return $results;
     }
 
     /**

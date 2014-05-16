@@ -81,6 +81,22 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function bookingsAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        $bookings = $catalog->getMyBookings($patron);
+        $view = $this->createViewModel(array('bookings' => $bookings));
+        $view->setTemplate('myresearch/bookings');
+        return $view;
+    }
+
     /**
      * Adds list and table views to view
      *
