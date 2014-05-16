@@ -252,3 +252,8 @@ div .coverFormat {
   margin-top: 5px;
   font-weight:bolder;
 }
+
+.result {
+  border-top:0px;
+  padding:1em 0;
+ }
