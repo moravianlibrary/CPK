@@ -62,9 +62,9 @@
           <? endforeach; ?>
         <? endif; ?>
       <? endif; ?>
-      <? $inst = $this->driver->getId(); ?>
+      <? $id = $this->driver->getId(); ?>
       <?='<br />' . $this->transEsc('Institution') . ': ' ?>
-      <a href="<?=$id?>" ><?=substr($inst, 4, strpos($inst, '.') - 4)?></a>
+      <a href="<?=$this->recordLink()->getUrl($this->driver)?>" ><?=substr($id, 4, strpos($id, '.') - 4)?></a>
     </div>
 
     <div>

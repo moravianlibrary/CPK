@@ -67,7 +67,7 @@
       <? if (!empty($institutionsArray))?>
         <?='<br />' . $this->transEsc('Institution') . ': ' ?>
         <? foreach ($institutionsArray as $inst => $id): ?>
-          <a href="<?=$id?>" ><?=substr($inst, 4)?></a>
+          <a href="<?=$this->recordLink()->getUrl() . $id?>" ><?=substr($inst, 4)?></a>
           <?=' ' ?>
         <? endforeach; ?>
       
