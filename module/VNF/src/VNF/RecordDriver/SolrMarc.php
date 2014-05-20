@@ -29,4 +29,9 @@ class SolrMarc extends ParentSolrDefault
         }
         return '';
     }
+    
+    public function getId() {
+        return $this->fields['id'];
+    }
+   
 }

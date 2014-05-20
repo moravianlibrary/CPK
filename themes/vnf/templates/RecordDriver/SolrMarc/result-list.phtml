@@ -62,11 +62,9 @@
           <? endforeach; ?>
         <? endif; ?>
       <? endif; ?>
-      <? $inst = $this->driver->getInstitutions(); if (!empty($inst)): ?>
-        <? $translatedInsArray = array(); ?>
-        <? foreach ($inst as $ins): ?><? $translatedInsArray[] = $this->transEsc($ins); ?><? endforeach; ?>
-        <?='<br />' . $this->transEsc('Institution') . ': ' . implode(', ', $translatedInsArray)?>
-      <? endif; ?>
+      <? $inst = $this->driver->getId(); ?>
+      <?='<br />' . $this->transEsc('Institution') . ': ' ?>
+      <a href="<?=$id?>" ><?=substr($inst, 4, strpos($inst, '.') - 4)?></a>
     </div>
 
     <div>

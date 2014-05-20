@@ -1,3 +1,4 @@
-<? foreach ($this->tab->getLibraries() as $libname => $id): ?>
-  <p><a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $id))?>"><?=$this->transEsc(strtoupper($libname))?></a></p>
+<? foreach ($this->driver->getLibraries() as $libname => $id): ?>
+  <p><a href="<?=$id;?>"><?=$this->transEsc(strtoupper($libname))?></a></p>
 <? endforeach; ?>
+
