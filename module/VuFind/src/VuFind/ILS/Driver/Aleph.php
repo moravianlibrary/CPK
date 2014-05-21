@@ -1504,7 +1504,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         return $holdList;
     }
 
-    public function getMyBookings($patron)
+    public function getMyShortLoanRequests($patron)
     {
         $xml = $this->alephWebService->doRestDLFRequest(array('patron', $patron['id'], 'circulationActions',
             'requests', 'bookings'), array("view" => "full"));
@@ -1521,6 +1521,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $startTime = $z37->{'z37-booking-start-hour'};
             $endDate = $z37->{'z37-booking-end-date'};
             $endTime = $z37->{'z37-booking-end-hour'};
+            $callnumber = $z30->{'z30-call-no'};
             $start = substr($startDate[0], 6, 2) . '. ' . substr($startDate[0], 4, 2) . '. ' . substr($startDate[0], 0, 4)
             . ' ' . substr($startTime[0], 0, 2) . ':' .  substr($startTime[0], 2, 2);
             $end = substr($endDate[0], 6, 2) . '. ' . substr($endDate[0], 4, 2) . '. ' . substr($endDate[0], 0, 4)
@@ -1529,17 +1530,27 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $id = (string) $z13->{'z13-doc-number'};
             $adm_id = (string) $z30->{'z30-doc-number'};
             $results[] = array(
-                'id'      => $id, //$this->barcodeToID($barcode),
-                'adm_id'  => $adm_id,
-                'start'   => $start,
-                'end'     => $end,
-                'delete'  => $delete,
-                'item_id' => $item_id,
-                'barcode' => $barcode,
+                'id'         => $id, //$this->barcodeToID($barcode),
+                'adm_id'     => $adm_id,
+                'start'      => $start,
+                'end'        => $end,
+                'delete'     => $delete,
+                'item_id'    => $item_id,
+                'barcode'    => $barcode,
+                'callnumber' => $callnumber
             );
         }
         $this->idResolver->resolveIds($results);
         return $results;
+    }
+
+    public function getCancelShortLoanRequestDetails($details)
+    {
+        if ($details['delete']) {
+            return $details['item_id'];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -1556,6 +1567,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         } else {
             return null;
         }
+    }
+
+    public function getCancelBookingDetails($bookingsDetails)
+    {
+        return $this->getCancelHoldDetails($bookingsDetails);
     }
 
     /**
@@ -1597,6 +1613,26 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $statuses[$id]
                     = array('success' => true, 'status' => 'cancel_hold_ok');
             }
+        }
+        $statuses['count'] = $count;
+        return $statuses;
+    }
+
+    public function cancelShortLoanRequest($details)
+    {
+        $patron = $details['patron'];
+        $patronId = $patron['id'];
+        $count = 0;
+        $statuses = array();
+        foreach ($details['details'] as $id) {
+            try {
+                $result = $this->alephWebService->doRestDLFRequest(array('patron', $patronId, 'circulationActions',
+                    'requests', 'bookings', $id), null, "DELETE");
+            } catch (Exception $ex) {
+                $statuses[$id] = array('success' => false, 'status' => 'cancel_hold_failed', 'sysMessage' => (string) $ex->getMessage());
+            }
+            $count++;
+            $statuses[$id] = array('success' => true, 'status' => 'cancel_hold_ok');
         }
         $statuses['count'] = $count;
         return $statuses;

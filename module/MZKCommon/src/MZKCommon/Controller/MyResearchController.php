@@ -91,8 +91,30 @@ class MyResearchController extends MyResearchControllerBase
         // Connect to the ILS:
         $catalog = $this->getILS();
 
-        $bookings = $catalog->getMyBookings($patron);
-        $view = $this->createViewModel(array('bookings' => $bookings));
+        // Process cancel requests if necessary:
+        $cancelStatus = true;
+        $view = $this->createViewModel();
+        $view->cancelResults = $cancelStatus
+        ? $this->shortLoanRequests()->cancelShortLoanRequests($catalog, $patron) : array();
+        // If we need to confirm
+        if (!is_array($view->cancelResults)) {
+            return $view->cancelResults;
+        }
+
+        $ilsBookings = $catalog->getMyShortLoanRequests($patron);
+
+        $bookings = array();
+        foreach ($ilsBookings as $current) {
+            $current = $this->shortLoanRequests()->addCancelDetails($catalog, $current); 
+            $bookings[] = $this->getDriverForILSRecord($current);
+        }
+
+        $view = $this->createViewModel(
+            array(
+                'bookings' => $bookings,
+                'cancelForm' => true
+            )
+        );
         $view->setTemplate('myresearch/bookings');
         return $view;
     }

@@ -103,16 +103,30 @@ class RecordController extends RecordControllerBase
         // Process form submissions if necessary:
         if (!is_null($this->params()->fromPost('placeHold'))) {
             $slots = $this->params()->fromPost('slot');
-            foreach ($slots as $slot) {
-                $details = array();
-                $details['patron'] = $patron;
-                $details['id'] = $driver->getUniqueID();
-                $details['item_id'] = $this->params()->fromQuery('item_id');
-                $details['slot'] = $slot;
-                $result = $catalog->placeShortLoanRequest($details);
-                if (!$result['success']) {
-                    $this->flashMessenger()->setNamespace('error')
-                    ->addMessage($result['sysMessage']);
+            if (!slots) {
+                $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_no_slot_selected_error');
+            } else {
+                $numOfFailures = 0;
+                foreach ($slots as $slot) {
+                    $details = array();
+                    $details['patron'] = $patron;
+                    $details['id'] = $driver->getUniqueID();
+                    $details['item_id'] = $this->params()->fromQuery('item_id');
+                    $details['slot'] = $slot;
+                    try {
+                        $result = $catalog->placeShortLoanRequest($details);
+                    } catch (\Exception $ex) {
+                        $numOfFailures++;
+                    }
+                    if (!$result['success']) {
+                        $numOfFailures++;
+                    }
+                }
+                if ($numOfFailures > 0) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_error_text');
+                } else {
+                    $this->flashMessenger()->setNamespace('info')->addMessage('short_loan_ok_text');
+                    return $this->redirectToRecord();
                 }
             }
         }

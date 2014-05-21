@@ -43,6 +43,11 @@ $config = array(
             'myresearch' => 'MZKCommon\Controller\MyResearchController',
         ),
     ),
+    'controller_plugins' => array(
+        'factories' => array(
+            'shortLoanRequests'   => 'MZKCommon\Controller\Plugin\Factory::getShortLoanRequests',
+        ),
+    ),
 );
 
 $staticRoutes = array(
