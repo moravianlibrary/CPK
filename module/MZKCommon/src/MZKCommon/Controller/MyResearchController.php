@@ -81,7 +81,7 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
-    public function bookingsAction()
+    public function shortLoansAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
         if (!is_array($patron = $this->catalogLogin())) {
@@ -119,7 +119,7 @@ class MyResearchController extends MyResearchControllerBase
                 'cancelForm' => true
             )
         );
-        $view->setTemplate('myresearch/bookings');
+        $view->setTemplate('myresearch/shortloans');
         return $view;
     }
 

@@ -52,7 +52,7 @@ $config = array(
 
 $staticRoutes = array(
     'Search/Conspectus', 'Search/MostSearched',
-    'MyResearch/CheckedOutHistory', 'MyResearch/Bookings'
+    'MyResearch/CheckedOutHistory', 'MyResearch/ShortLoans'
 );
 
 foreach ($staticRoutes as $route) {
