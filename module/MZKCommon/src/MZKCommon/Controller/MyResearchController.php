@@ -81,6 +81,48 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function shortLoansAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        // Process cancel requests if necessary:
+        $cancelStatus = true;
+        $view = $this->createViewModel();
+        try {
+            $view->cancelResults = $cancelStatus
+                ? $this->shortLoanRequests()->cancelShortLoanRequests($catalog, $patron) : array();
+        } catch (\Exception $ex) {
+            $this->flashMessenger()->setNamespace('error')->addMessage('cancel_short_loan_request_error_text');
+        }
+        // If we need to confirm
+        if (!is_array($view->cancelResults)) {
+            return $view->cancelResults;
+        }
+
+        $ilsBookings = $catalog->getMyShortLoanRequests($patron);
+
+        $bookings = array();
+        foreach ($ilsBookings as $current) {
+            $current = $this->shortLoanRequests()->addCancelDetails($catalog, $current); 
+            $bookings[] = $this->getDriverForILSRecord($current);
+        }
+
+        $view = $this->createViewModel(
+            array(
+                'bookings' => $bookings,
+                'cancelForm' => true
+            )
+        );
+        $view->setTemplate('myresearch/shortloans');
+        return $view;
+    }
+
     /**
      * Adds list and table views to view
      *
