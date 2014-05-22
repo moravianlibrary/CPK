@@ -974,8 +974,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 ',', $this->config['Catalog']['preferred_pick_up_locations']
             );
         }
-        if (isset($this->config['Catalog']['default_patron_id'])) {
-            $this->defaultPatronId = $this->config['Catalog']['default_patron_id'];
+        if (isset($this->config['Catalog']['default_patron'])) {
+            $this->defaultPatronId = $this->config['Catalog']['default_patron'];
         }
         $idResolverType = 'fixed'; 
         if (isset($this->config['IdResolver']['type'])) {
@@ -1529,7 +1529,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $delete = ($delete[0] == "Y");
             $id = (string) $z13->{'z13-doc-number'};
             $adm_id = (string) $z30->{'z30-doc-number'};
-            $results[] = array(
+            $sortKey = (string) $startDate[0] . $item_id;
+            $results[$sortKey] = array(
                 'id'         => $id, //$this->barcodeToID($barcode),
                 'adm_id'     => $adm_id,
                 'start'      => $start,
@@ -1540,6 +1541,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'callnumber' => $callnumber
             );
         }
+        ksort($results);
+        $results = array_values($results);
         $this->idResolver->resolveIds($results);
         return $results;
     }

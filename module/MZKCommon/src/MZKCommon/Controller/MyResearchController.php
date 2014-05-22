@@ -94,8 +94,12 @@ class MyResearchController extends MyResearchControllerBase
         // Process cancel requests if necessary:
         $cancelStatus = true;
         $view = $this->createViewModel();
-        $view->cancelResults = $cancelStatus
-        ? $this->shortLoanRequests()->cancelShortLoanRequests($catalog, $patron) : array();
+        try {
+            $view->cancelResults = $cancelStatus
+                ? $this->shortLoanRequests()->cancelShortLoanRequests($catalog, $patron) : array();
+        } catch (\Exception $ex) {
+            $this->flashMessenger()->setNamespace('error')->addMessage('cancel_short_loan_request_error_text');
+        }
         // If we need to confirm
         if (!is_array($view->cancelResults)) {
             return $view->cancelResults;

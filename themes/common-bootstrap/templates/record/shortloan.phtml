@@ -11,15 +11,32 @@
 <p class="helptext"><?=$this->helpText?></p>
 <? endif; ?>
 
+<?
+$loadJs = <<<JS
+  count = 0;
+  limit = 14;
+  $('#shortLoan input[type=checkbox]').on('change', function() {
+    count += ($(this).prop('checked')) ? 1 : -1;
+    if (count > 14) {
+      $(this).prop('checked', false);
+      count--;
+      window.alert(message);
+    }
+  });
+JS;
+?>
+
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(function() { message = "'. $this->transEsc('short_loan_request_limit_exceeded') . '"; ' . $loadJs . ' } );', 'SET')?>
+
 <?=$this->flashmessages()?>
 <div class="hold-form">
-  <form action="" class="form-horizontal" method="post" name="placeHold">
+  <form action="" class="form-horizontal" method="post" name="placeHold" id="shortLoan">
 
     <table class="table shortloan _table-view">
       <?foreach ($this->slots as $date => $slotsInDay):?>
       <tr>
         <td>
-          <?=$date?>
+          <?=$this->escapeHtml($date)?>
         </td>
         <?foreach ($slotsInDay as $slot):?>
           <?if ($slot['available']):?>

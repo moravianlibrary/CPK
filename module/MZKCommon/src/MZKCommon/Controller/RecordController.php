@@ -103,10 +103,11 @@ class RecordController extends RecordControllerBase
         // Process form submissions if necessary:
         if (!is_null($this->params()->fromPost('placeHold'))) {
             $slots = $this->params()->fromPost('slot');
-            if (!slots) {
+            if (!$slots) {
                 $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_no_slot_selected_error');
             } else {
                 $numOfFailures = 0;
+                sort($slots);
                 foreach ($slots as $slot) {
                     $details = array();
                     $details['patron'] = $patron;
@@ -115,15 +116,17 @@ class RecordController extends RecordControllerBase
                     $details['slot'] = $slot;
                     try {
                         $result = $catalog->placeShortLoanRequest($details);
+                        if (!$result['success']) {
+                            $numOfFailures++;
+                        }
                     } catch (\Exception $ex) {
                         $numOfFailures++;
                     }
-                    if (!$result['success']) {
-                        $numOfFailures++;
-                    }
                 }
-                if ($numOfFailures > 0) {
+                if ($numOfFailures == count($slots)) { // All requests failed
                     $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_error_text');
+                } else if ($numOfFailures > 0) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_partial_error_text');
                 } else {
                     $this->flashMessenger()->setNamespace('info')->addMessage('short_loan_ok_text');
                     return $this->redirectToRecord();
