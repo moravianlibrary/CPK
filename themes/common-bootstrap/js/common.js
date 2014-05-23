@@ -159,6 +159,13 @@ $(document).ready(function() {
     });
   });
   
+  //disable AJAX on click on cart
+  $(document).ready(function() {
+      $(window).load(function() {
+      	$('#cartItems').off("click");
+      });
+  });
+  
   // handle QR code links
   $('a.qrcodeLink').click(function() {
     if ($(this).hasClass("active")) {
