@@ -1,0 +1,61 @@
+<?
+    // Set page title.
+    $this->headTitle($this->translate('request_place_text') . ': ' . $this->driver->getBreadcrumb());
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '<span class="divider">&gt;</span> </li>')
+        . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '<span class="divider">&gt;</span> </li>'
+        . '<li class="active">' . $this->transEsc('request_place_text') . '</li>';
+?>
+<h2><?=$this->transEsc('short_loan_request_text')?> - <?=$this->driver->getTitle()?></h2>
+<? if ($this->helpText): ?>
+<p class="helptext"><?=$this->helpText?></p>
+<? endif; ?>
+
+<?
+$loadJs = <<<JS
+  count = 0;
+  limit = 14;
+  $('#shortLoan input[type=checkbox]').on('change', function() {
+    count += ($(this).prop('checked')) ? 1 : -1;
+    if (count > 14) {
+      $(this).prop('checked', false);
+      count--;
+      window.alert(message);
+    }
+  });
+JS;
+?>
+
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(function() { message = "'. $this->transEsc('short_loan_request_limit_exceeded') . '"; ' . $loadJs . ' } );', 'SET')?>
+
+<?=$this->flashmessages()?>
+<div class="hold-form">
+  <form action="" class="form-horizontal" method="post" name="placeHold" id="shortLoan">
+
+    <table class="table shortloan _table-view">
+      <?foreach ($this->slots as $date => $slotsInDay):?>
+      <tr>
+        <td>
+          <?=$this->escapeHtml($date)?>
+        </td>
+        <?foreach ($slotsInDay as $slot):?>
+          <?if ($slot['available']):?>
+            <td class='available-slot'>
+                <input type="checkbox" name="slot[]" value="<?=$this->escapeHtml($slot['id'])?>" id="slot<?=$this->escapeHtml($slot['id'])?>"/>
+                <label for="slot<?=$this->escapeHtml($slot['id'])?>"><?=$slot['start_time'] . ' - ' . $slot['end_time']?></label>
+            </td>
+          <?else:?>
+            <td class='filled-slot'>
+            </td>
+          <?endif;?>
+        <?endforeach;?>
+      </tr>
+      <?endforeach;?>
+    </table>
+
+    <div class="control-group">
+      <input class="btn btn-primary" type="submit" name="placeHold" value="<?=$this->transEsc('request_submit_text')?>"/>
+    </div>
+
+  </form>
+</div>

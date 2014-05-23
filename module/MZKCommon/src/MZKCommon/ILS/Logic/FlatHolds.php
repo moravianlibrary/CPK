@@ -78,10 +78,11 @@ class FlatHolds extends Holds
                     if (isset($copy['addLink']) && $copy['addLink']) {
                         // If the hold is blocked, link to an error page
                         // instead of the hold form:
+                        $action = ($copy['holdtype'] != 'shortloan')?'Hold':'ShortLoan';
                         $copy['link'] = (strcmp($copy['addLink'], 'block') == 0)
                         ? $this->getBlockedDetails($copy)
                         : $this->getRequestDetails(
-                            $copy, $checkHolds['HMACKeys'], 'Hold'
+                            $copy, $checkHolds['HMACKeys'], $action
                         );
                         // If we are unsure whether hold options are available,
                         // set a flag so we can check later via AJAX:

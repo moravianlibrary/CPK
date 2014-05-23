@@ -43,11 +43,16 @@ $config = array(
             'myresearch' => 'MZKCommon\Controller\MyResearchController',
         ),
     ),
+    'controller_plugins' => array(
+        'factories' => array(
+            'shortLoanRequests'   => 'MZKCommon\Controller\Plugin\Factory::getShortLoanRequests',
+        ),
+    ),
 );
 
 $staticRoutes = array(
     'Search/Conspectus', 'Search/MostSearched',
-    'MyResearch/CheckedOutHistory'
+    'MyResearch/CheckedOutHistory', 'MyResearch/ShortLoans'
 );
 
 foreach ($staticRoutes as $route) {
@@ -59,6 +64,25 @@ foreach ($staticRoutes as $route) {
             'route'    => '/' . $route,
             'defaults' => array(
                 'controller' => $controller,
+                'action'     => $action,
+            )
+        )
+    );
+}
+
+$nonTabRecordActions = array('ShortLoan');
+
+foreach ($nonTabRecordActions as $action) {
+    $config['router']['routes']['record' . '-' . strtolower($action)] = array(
+        'type'    => 'Zend\Mvc\Router\Http\Segment',
+        'options' => array(
+            'route'    => '/' . 'Record' . '/[:id]/' . $action,
+            'constraints' => array(
+                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+            ),
+            'defaults' => array(
+                'controller' => 'Record',
                 'action'     => $action,
             )
         )

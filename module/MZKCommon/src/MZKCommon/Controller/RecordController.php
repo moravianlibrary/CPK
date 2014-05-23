@@ -69,5 +69,111 @@ class RecordController extends RecordControllerBase
         $view->setTemplate('record/addtag');
         return $view;
     }
-    
+
+    public function shortLoanAction()
+    {
+        $driver = $this->loadRecord();
+
+        // If we're not supposed to be here, give up now!
+        $catalog = $this->getILS();
+        $checkHolds = $catalog->checkFunction("Holds", $driver->getUniqueID());
+        if (!$checkHolds) {
+            return $this->forwardTo('Record', 'Home');
+        }
+
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        // Do we have valid information?
+        // Sets $this->logonURL and $this->gatheredDetails
+        $gatheredDetails = $this->holds()->validateRequest($checkHolds['HMACKeys']);
+        if (!$gatheredDetails) {
+            return $this->redirectToRecord();
+        }
+
+        // Block invalid requests:
+        if (!$catalog->checkRequestIsValid(
+            $driver->getUniqueID(), $gatheredDetails, $patron
+        )) {
+            return $this->blockedholdAction();
+        }
+
+        // Process form submissions if necessary:
+        if (!is_null($this->params()->fromPost('placeHold'))) {
+            $slots = $this->params()->fromPost('slot');
+            if (!$slots) {
+                $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_no_slot_selected_error');
+            } else {
+                $numOfFailures = 0;
+                sort($slots);
+                foreach ($slots as $slot) {
+                    $details = array();
+                    $details['patron'] = $patron;
+                    $details['id'] = $driver->getUniqueID();
+                    $details['item_id'] = $this->params()->fromQuery('item_id');
+                    $details['slot'] = $slot;
+                    try {
+                        $result = $catalog->placeShortLoanRequest($details);
+                        if (!$result['success']) {
+                            $numOfFailures++;
+                        }
+                    } catch (\Exception $ex) {
+                        $numOfFailures++;
+                    }
+                }
+                if ($numOfFailures == count($slots)) { // All requests failed
+                    $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_error_text');
+                } else if ($numOfFailures > 0) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_partial_error_text');
+                } else {
+                    $this->flashMessenger()->setNamespace('info')->addMessage('short_loan_ok_text');
+                    return $this->redirectToRecord();
+                }
+            }
+        }
+
+        $shortLoanInfo = $catalog->getHoldingInfoForItem($patron['id'],
+            $driver->getUniqueID(), $this->params()->fromQuery('item_id'));
+
+        $slotsByDate = array();
+        foreach ($shortLoanInfo['slots'] as $id => $slot) {
+            $start_date = $slot['start_date'];
+            $start_time = $slot['start_time'];
+            $slotsByDate[$start_date][$start_time] = $slot;
+            $slotsByDate[$start_date][$start_time]['id'] = $id;
+            $slotsByDate[$start_date][$start_time]['available'] = true;
+        }
+
+        static $positions = array(
+            '0830' => 0,
+            '1000' => 1,
+            '1200' => 2,
+            '1400' => 3,
+            '1600' => 4,
+            '1800' => 5,
+            '2000' => 6,
+        );
+
+        $results = array();
+        foreach ($slotsByDate as $date => $slotsInDate) {
+            $result = array_fill(0, 7, array('available' => false));
+            foreach ($slotsInDate as $start_time => $slot) {
+                $start_time = $slot['start_time'];
+                $slot['start_time'] = substr($start_time, 0, 2) . ':' . substr($start_time, 2, 2);
+                $end_time = $slot['end_time'];
+                $slot['end_time'] = substr($end_time, 0, 2) . ':' . substr($end_time, 2, 2);
+                $result[$positions[$start_time]] = $slot;
+            }
+            $date = date_parse_from_format('Ymd', $date);
+            $date =  $date['day'] . '. ' . $date['month'] . '.';
+            $results[$date] = $result;
+        }
+
+        $view = $this->createViewModel(array('slots' => $results));
+        $view->setTemplate('record/shortloan');
+        return $view;
+    }
+
 }
