@@ -7,7 +7,8 @@
       <? /* Display thumbnail if appropriate: */ ?>
       <? $mediumThumb = $this->record($this->driver)->getThumbnail('medium'); $largeThumb = $this->record($this->driver)->getThumbnail('large'); ?>
         <? if ($mediumThumb): ?>
-          <? if ($largeThumb): ?><a href="<?=$this->escapeHtml($largeThumb)?>"><? endif; ?>
+          <? if ($largeThumb): ?><a href="<?=$this->escapeHtml($largeThumb)?>" onclick="javascript:void window.open(this.href,'1357072968280','toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');return false;"
+        ><? endif; ?>
              <img alt="<?=$this->transEsc('Cover Image')?>" class="recordcover" src="<?=$this->escapeHtml($mediumThumb);?>"/>
           <? if ($largeThumb): ?></a><? endif; ?>
       <? else: ?>
