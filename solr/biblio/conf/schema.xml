@@ -96,6 +96,7 @@
     <fieldType name="date" class="solr.TrieDateField" sortMissingLast="true" omitNorms="true" precisionStep="6"/>
     <fieldType name="geo" class="solr.SpatialRecursivePrefixTreeFieldType"
       distErrPct="0.025" maxDistErr="0.000009" units="degrees" />
+    <fieldType name="random" class="solr.RandomSortField" indexed="true" />
   </types>
  <fields>
    <!-- Required by Solr 4.x -->
@@ -219,6 +220,7 @@
    <dynamicField name="*_txtP" type="textProper" indexed="true" stored="true"/>
    <dynamicField name="*_txtP_mv" type="textProper" indexed="true" stored="true" multiValued="true"/>
    <dynamicField name="*_geo"  type="geo" indexed="true" stored="true" multiValued="true" />
+   <dynamicField name="*_random" type="random" />
  </fields>
  <uniqueKey>id</uniqueKey>
  <defaultSearchField>allfields</defaultSearchField>
