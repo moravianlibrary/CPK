@@ -141,7 +141,10 @@ $(document).ready(function() {
         return true;
     }
   });
-
+  
+  // Check checkbox-select-all on cart page
+  $( "form[name='cartForm']" ).find('.checkbox-select-all').attr('checked', 'checked');
+  
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
     elm = $(this).closest('form').find('.checkbox-select-item');
@@ -154,6 +157,13 @@ $(document).ready(function() {
         $(this).change();
       }
     });
+  });
+  
+  //disable AJAX on click on cart
+  $(document).ready(function() {
+      $(window).load(function() {
+      	$('#cartItems').off("click");
+      });
   });
   
   // handle QR code links
