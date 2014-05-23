@@ -46,7 +46,7 @@ class Factory
      *
      * @return Aleph
      */
-    public function getAleph(ServiceManager $sm)
+    public static function getAleph(ServiceManager $sm)
     {
         return new \MZKCommon\ILS\Driver\Aleph(
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
