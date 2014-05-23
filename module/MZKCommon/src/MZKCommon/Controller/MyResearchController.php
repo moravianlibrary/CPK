@@ -151,6 +151,21 @@ class MyResearchController extends MyResearchControllerBase
                     ),
                 );
             }
+            if ($this->params()->fromPost('placeIll')) {
+                $allFields = array();
+                foreach ($fields as $group => &$subfields) {
+                    foreach ($subfields as $name => &$attributes) {
+                        $attributes['missing'] = false;
+                        $attributes['value'] = '';
+                        $value = $this->params()->fromPost($name);
+                        if ($value && trim($value) != '') {
+                            $attributes['value'] = $value;
+                        } else if ($attributes['required']) {
+                            $attributes['missing'] = true;
+                        }
+                    }
+                }
+            }
             $view = $this->createViewModel(array('fields' => $fields));
             $view->setTemplate('myresearch/illrequest-new');
             return $view;

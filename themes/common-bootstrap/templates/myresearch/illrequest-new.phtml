@@ -19,13 +19,20 @@
       <h2><?=$this->transEsc($groupName)?></h2>
       <?foreach($elements as $field => $attributes):?>
         <div class="control-group">
-          <label class="control-label" for="list_desc"><?=$this->transEsc($attributes['label'])?></label>
+          <label class="control-label" for="list_desc">
+            <?=$this->transEsc($attributes['label'])?>
+            <?=($attributes['required'])?'*':''?>
+          </label>
           <div class="controls">
-            <input type="text"/>
+            <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
           </div>
         </div>
       <?endforeach;?>
     <?endforeach;?>
+
+    <div class="control-group">
+      <input class="btn btn-primary" type="submit" name="placeIll" value="<?=$this->transEsc('request_submit_text')?>"/>
+    </div>
 
   </form>
 </div>
