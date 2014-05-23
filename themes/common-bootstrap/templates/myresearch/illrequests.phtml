@@ -10,6 +10,19 @@
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Interlibrary Loan Requests') ?></h2>
 
+    <ul>
+    <li>
+      <a href="?new=monography">
+        <?=$this->transEsc('new_ill_request_for_monography')?>
+      </a>
+    </li>
+    <li>
+      <a href="?new=serial">
+        <?=$this->transEsc('new_ill_request_for_serial')?>
+      </a>
+    </li>
+  </ul>
+
   <?=$this->flashmessages()?>
 
   <? if (!empty($this->recordList)): ?>

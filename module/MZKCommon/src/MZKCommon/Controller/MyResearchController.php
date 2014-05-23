@@ -123,6 +123,42 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function illRequestsAction()
+    {
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        if ($type = $this->params()->fromQuery('new')) {
+            $fields = array();
+            if ($type == 'monography') {
+                $fields = array(
+                    'Group 1' => array(
+                        'author' => array('label' => 'Author', 'required' => true),
+                        'additional_authors' => array('label' => 'Additional Authors', 'required' => false),
+                        'title' => array('label' => 'Title', 'required' => true),
+                        'edition' => array('label' => 'Edition', 'required' => false),
+                        'place-of-publication' => array('label' => 'Place of publication', 'required' => false),
+                        'isbn' => array('label' => 'ISBN', 'required' => false),
+                        'series' => array('label' => 'Series', 'required' => false),
+                        'source' => array('label' => 'Source', 'required' => false),
+                    ),
+                    'Group 2' => array(
+                        'sub-author' => array('label' => 'Sub author', 'required' => false),
+                        'sub-title' => array('label' => 'Sub title', 'required' => false),
+                        'pages' => array('label' => 'Pages', 'required' => false),
+                        'note' => array('label' => 'Note', 'required' => false),
+                    ),
+                );
+            }
+            $view = $this->createViewModel(array('fields' => $fields));
+            $view->setTemplate('myresearch/illrequest-new');
+            return $view;
+        } else {
+            parent::illRequestsAction();
+        }
+    }
+
     /**
      * Adds list and table views to view
      *
