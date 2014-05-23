@@ -991,6 +991,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             throw new ILSException('Unsupported Catalog[IdResolver][type]:' .
                  $idResolverType .', valid values are fixed, solr and xserver.');
         }
+        
+        if (isset($this->config['ILL']['hidden_statuses'])) {
+            $this->IllHiddenStatuses = explode(',', $this->config['ILL']['hidden_statuses']);
+        }
     }
 
     /**
@@ -2172,6 +2176,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
                 "defaultRequiredDate" => "0:1:0"
             );
+        } if ($func == "ILLRequests") {
+            return array(
+                "HMACKeys" => "id:item_id",
+            );
         } else {
             return array();
         }
@@ -2253,6 +2261,38 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'Missing Catalog/preferredPickUpLocations config setting.'
             );
         }
+    }
+    
+    public function getMyILLRequests($user) {
+        $userId = $user['id'];
+        $loans = array();
+        $params = array("view" => "full");
+        $count = 0;
+        $xml = $this->alephWebService->doRestDLFRequest(array('patron', $userId, 'circulationActions', 'requests', 'ill'), $params);
+        foreach ($xml->xpath('//ill-request') as $item) {
+            $loan = array();
+            $z13 = $item->z13;
+            $status = (string) $item->z410->{'z410-status'};
+            if (!in_array($status, $this->IllHiddenStatuses)) {
+                $loan['docno'] = (string) $z13->{'z13-doc-number'};
+                $loan['author'] = (string) $z13->{'z13-author'};
+                $loan['title'] = (string) $z13->{'z13-title'};
+                $loan['imprint'] = (string) $z13->{'z13-imprint'};
+                $loan['article_title'] = (string) $item->{'title-of-article'};
+                $loan['article_author'] = (string) $item->{'author-of-article'};
+                $loan['price'] = (string) $item->{'z13u-additional-bib-info-1'};
+                $loan['pickup_location'] = (string) $item->z410->{'z410-pickup-location'};
+                $loan['media'] = (string) $item->z410->{'z410-media'};
+                $loan['required_by'] = $this->parseDate((string) $item->z410->{'z410-last-interest-date'});
+                $loans[] = $loan;
+            }
+        }
+        return $loans;
+    }
+    
+    public function placeILLRequest($details)
+    {
+        
     }
 
     /**
