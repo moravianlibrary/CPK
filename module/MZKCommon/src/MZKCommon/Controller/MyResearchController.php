@@ -172,6 +172,44 @@ class MyResearchController extends MyResearchControllerBase
                         'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox'),
                     ),
                 );
+            } else if ($type == 'serial') {
+                $fields = array(
+                    'ill_request_for_serial' => array(
+                        'title' => array('label' => 'ill_article_title', 'type' => 'text', 'required' => true),
+                        'issn' => array('label' => 'ill_additional_authors', 'type' => 'text', 'required' => false),
+                        'year' => array('label' => 'ill_year', 'type' => 'text', 'required' => true),
+                        'volume' => array('label' => 'ill_volume', 'type' => 'text', 'required' => false),
+                        'issue' => array('label' => 'ill_issue', 'type' => 'text', 'required' => false),
+                        'source' => array('label' => 'ill_source', 'type' => 'text', 'required' => false),
+                    ),
+                    'ill_article_information' => array(
+                        'sub-author' => array('label' => 'ill_article_author', 'type' => 'text', 'required' => false),
+                        'sub-title' => array('label' => 'ill_article_title', 'type' => 'text', 'required' => false),
+                        'pages' => array('label' => 'ill_pages', 'type' => 'text', 'required' => false),
+                        'note' => array('label' => 'Note', 'type' => 'text', 'required' => false),
+                    ),
+                    'ill_administration_information' => array(
+                        'last-interest-date' => array('label' => 'ill_last_interest_date', 'type' => 'date', 'required' => true),
+                        'media' => array('label' => 'ill_request_type', 'type' => 'select',  'required' => false,
+                            'options' => array(
+                                'L-PRINTED' => 'ill_loan',
+                                'C-PRINTED' => 'ill_photocopy',
+                            ),
+                        ),
+                    ),
+                    'ill_author_rights_restriction' => array(
+                        'paragraph' => array('type' => 'paragraph', 'text' => 'ill_author_rights_restriction_text'),
+                    ),
+                    'ill_payment_options' => array(
+                        'payment' => array('label' => 'ill_type', 'type' => 'select',  'required' => false,
+                            'options' => array(
+                                '100-200'   => 'ill_serial_request_from_abroad',
+                                'kopie ČR'  => 'ill_serial_request_from_Czech_Republic',
+                            ),
+                        ),
+                        'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox'),
+                    ),
+                );
             }
             $missingValues = false;
             if ($this->params()->fromPost('placeIll')) {
@@ -191,7 +229,7 @@ class MyResearchController extends MyResearchControllerBase
                 }
             }
             if ($missingValues) {
-                $this->flashMessenger()->setNamespace('error')->addMessage('ILL required fields missing');
+                $this->flashMessenger()->setNamespace('error')->addMessage('ill_required_fields_missing_error');
             }
             $view = $this->createViewModel(array('fields' => $fields));
             $view->setTemplate('myresearch/illrequest-new');
