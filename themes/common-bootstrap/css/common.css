@@ -21,3 +21,7 @@ td.available-slot > label {
 td.filled-slot {
   background-color:#FF9EC0;
 }
+
+label.control-label-confirmation {
+  display: inline;
+}

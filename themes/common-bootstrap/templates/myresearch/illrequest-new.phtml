@@ -18,15 +18,42 @@
     <?foreach($this->fields as $groupName => $elements):?>
       <h2><?=$this->transEsc($groupName)?></h2>
       <?foreach($elements as $field => $attributes):?>
-        <div class="control-group">
-          <label class="control-label" for="list_desc">
-            <?=$this->transEsc($attributes['label'])?>
-            <?=($attributes['required'])?'*':''?>
-          </label>
-          <div class="controls">
-            <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+        <?if ($attributes['type'] == 'paragraph'):?>
+          <p><?=$this->transEsc($attributes['text'])?></p>
+        <?elseif ($attributes['type'] == 'checkbox'):?>
+          <div class="control-group">
+            <input type="checkbox" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>"/>
+            <label class="control-label-confirmation" for="<?=$this->escapeHtml($field)?>">
+              <?=$this->transEsc($attributes['label'])?>
+              <?if ($attributes['required']):?>
+                <span <?=($attributes['missing'])?'class="alert-error"':''?>>*</span>
+              <?endif;?>
+            </label>
           </div>
-        </div>
+        <?else:?>
+          <div class="control-group">
+            <label class="control-label" for="<?=$this->escapeHtml($field)?>">
+              <?=$this->transEsc($attributes['label'])?>
+              <?if ($attributes['required']):?>
+                <span <?=($attributes['missing'])?'class="alert-error"':''?>>*</span>
+              <?endif;?>
+            </label>
+            <div class="controls">
+              <?if ($attributes['type'] == 'text'):?>
+                <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+              <?elseif ($attributes['type'] == 'date'):?>
+                <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+                (<?=$this->dateTime()->getDisplayDateFormat()?>)
+              <?elseif ($attributes['type'] == 'select'):?>
+                <select name="<?=$this->escapeHtml($field)?>">
+                  <?foreach ($attributes['options'] as $key => $label):?>
+                    <option <?=($key == $attributes['value'])?'selected="true"':''?>value="<?=$this->escapeHtml($key)?>"><?=$this->transEsc($label)?></option>
+                  <?endforeach;?>
+                </select>
+              <?endif;?>
+            </div>
+          </div>
+        <?endif;?>
       <?endforeach;?>
     <?endforeach;?>
 
