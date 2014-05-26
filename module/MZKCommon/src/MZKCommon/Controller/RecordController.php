@@ -128,7 +128,7 @@ class RecordController extends RecordControllerBase
                 } else if ($numOfFailures > 0) {
                     $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_partial_error_text');
                 } else {
-                    $this->flashMessenger()->setNamespace('info')->addMessage('short_loan_ok_text');
+                    $this->flashMessenger()->setNamespace('success')->addMessage('short_loan_ok_text');
                     return $this->redirectToRecord();
                 }
             }
