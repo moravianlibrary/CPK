@@ -8,6 +8,7 @@ $config = array(
                 'factories' => array(
                     'solrmzk'   => 'MZKCatalog\RecordDriver\Factory::getSolrMarc',
                     'solrmzk04' => 'MZKCatalog\RecordDriver\Factory::getSolrMarc',
+                    'solrebsco' => 'MZKCatalog\RecordDriver\Factory::getEbscoSolrMarc',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
