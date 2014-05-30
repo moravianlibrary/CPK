@@ -6,7 +6,12 @@
         . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '<span class="divider">&gt;</span> </li>'
         . '<li class="active">' . $this->transEsc('request_place_text') . '</li>';
 ?>
-<h2><?=$this->transEsc('short_loan_request_text')?> - <?=$this->driver->getTitle()?></h2>
+<h2><?=$this->transEsc('short_loan_request_text')?> - <?=$this->callnumber?> </h2>
+
+<p class="text-warning">
+  <?=$this->transEsc('short_loan_request_restriction_text')?>
+</p>
+
 <? if ($this->helpText): ?>
 <p class="helptext"><?=$this->helpText?></p>
 <? endif; ?>
@@ -29,6 +34,13 @@ JS;
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(function() { message = "'. $this->transEsc('short_loan_request_limit_exceeded') . '"; ' . $loadJs . ' } );', 'SET')?>
 
 <?=$this->flashmessages()?>
+
+<?if ($this->showLinks):?>
+  <p class="text-warning">
+    <a href="<?=$this->url('myresearch-shortloans')?>"><?=$this->transEsc('short_loan_request_account')?></a>
+  </p>
+<?endif;?>
+
 <div class="hold-form">
   <form action="" class="form-horizontal" method="post" name="placeHold" id="shortLoan">
 
@@ -54,7 +66,7 @@ JS;
     </table>
 
     <div class="control-group">
-      <input class="btn btn-primary" type="submit" name="placeHold" value="<?=$this->transEsc('request_submit_text')?>"/>
+      <input class="btn btn-primary" type="submit" name="placeHold" value="<?=$this->transEsc('short_loan_reguest_submit_text')?>"/>
     </div>
 
   </form>

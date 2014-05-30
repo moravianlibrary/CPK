@@ -1973,6 +1973,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected function extractShortLoanInfoForItem($xml)
     {
         $shortLoanInfo = $xml->xpath("//item/info[@type='ShortLoan']");
+        $callNo = (string) $xml->{'item'}->{'z30'}->{'z30-call-no'};
         $slots = array();
         foreach ($shortLoanInfo[0]->{'short-loan'}->{'slot'} as $slot) {
             $numOfItems = (int) $slot->{'num-of-items'};
@@ -1999,8 +2000,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             );
         }
         $result = array(
-            'type'  => 'short',
-            'slots' => $slots,
+            'type'       => 'short',
+            'callnumber' => $callNo,
+            'slots'      => $slots,
         );
         return $result;
     }
