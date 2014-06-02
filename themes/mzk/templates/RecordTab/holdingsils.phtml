@@ -100,7 +100,13 @@
       <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
         <span class="unknown"><?=$this->transEsc("status_unknown_message")?></span>
       <? else: ?>
-        <? if ($row['availability']): ?>
+        <? if ($row['holdtype'] == 'shortloan'):?>
+          <? if (isset($row['link']) && $row['link']): ?>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
+              <span><?=$this->transEsc("Reserve")?></span>
+            </a>
+          <? endif; ?>
+        <? elseif ($row['availability']): ?>
           <? /* Begin Available Items (Holds) */ ?>
           <div>
           <? if (isset($row['link']) && $row['link']): ?>
