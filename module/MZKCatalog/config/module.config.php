@@ -41,6 +41,9 @@ $config = array(
         'factories' => array(
             'record' => 'MZKCatalog\Controller\Factory::getRecordController',
         ),
+        'invokables' => array(
+            'myresearch' => 'MZKCatalog\Controller\MyResearchController',
+        ),
     ),
 );
 
