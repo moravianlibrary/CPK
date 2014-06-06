@@ -77,6 +77,17 @@ class MyResearchController extends MyResearchControllerBase
     public function checkedoutAction()
     {
         $view = parent::checkedoutAction();
+        $showOverdueMessage = false;
+        foreach ($view->transactions as $resource) {
+            $ilsDetails = $resource->getExtraDetail('ils_details');
+            if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue") {
+                $showOverdueMessage = true;
+                break;
+            }
+        }
+        if ($showOverdueMessage) {
+            $this->flashMessenger()->setNamespace('error')->addMessage('overdue_error_message');
+        }
         $view = $this->addViews($view);
         return $view;
     }
