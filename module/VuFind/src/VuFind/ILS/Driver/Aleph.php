@@ -1334,6 +1334,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $group = substr($group, 0, strpos($group, '?'));
             }
             $renew = $item->xpath('@renew');
+            $renewable = ($renew[0] == 'Y');
             $docno = (string) $z36->{'z36-doc-number'};
             $itemseq = (string) $z36->{'z36-item-sequence'};
             $seq = (string) $z36->{'z36-sequence'};
@@ -1369,7 +1370,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'returned'  => $this->parseDate($returned),
                 //'holddate'  => $holddate,
                 //'delete'    => $delete,
-                'renewable' => true,
+                'renewable' => $renewable,
                 //'create'    => $this->parseDate($create)
             );
         }
