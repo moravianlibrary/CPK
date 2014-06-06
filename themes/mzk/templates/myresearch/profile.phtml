@@ -16,9 +16,20 @@
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Your Profile')?></h2>
   <?=$this->flashmessages();?>
+
   <p class="text-info">
     <?=$this->transEsc('profile_bookshelf_number')?>: <?=$this->profile['bookshelf']?>
   </p>
+
+  <?if(!empty($this->profile['blocks'])):?>
+    <h5><?=$this->transEsc('Blocks')?></h5>
+    <?foreach ($this->profile['blocks'] as $block):?>
+      <div class="alert alert-error"><?=$this->transEsc('Block ' . $block)?></div>
+    <?endforeach;?>
+  <?endif;?>
+
+  <h5><?=$this->transEsc('Registration information')?></h5>
+
   <table class="table table-striped">
 
     <?
