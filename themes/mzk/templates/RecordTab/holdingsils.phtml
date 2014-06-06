@@ -51,7 +51,7 @@
       <? $filterName = $this->escapeHtml($name . '_filter');?>
       <? $selectedVal = $selectedFilters[$name];?>
       <? $type = $availableFilters[$name]['type'];?>
-      <div class="span3">
+      <div class="span4">
         <form class="form-inline" name="<?=$this->escapeHtml($name)?>_filter">
           <?if ($type == 'select'):?>
             <label for="<?=$this->escapeHtml($name)?>"><?=$this->transEsc($filterName)?> : </label>
