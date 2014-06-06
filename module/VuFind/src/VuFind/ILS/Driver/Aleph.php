@@ -1356,7 +1356,12 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $barcode = (string) $z30->{'z30-barcode'};
             $adm_id = (string) $z30->{'z30-doc-number'};
             $id = (string) $z13->{'z13-doc-number'};
-            $transList[] = array(
+            /* Check if item is loaned after due date */
+            $currentDate = strtotime(date('d.m.Y'));
+            $dueDate = strtotime($this->parseDate($due));
+            $returnInDays = ($dueDate - $currentDate) / (60*60*24);
+            $fine = (string) $item->{'fine'};
+            $item = array(
                 'id'        => $id,
                 'adm_id'    => $adm_id,
                 'item_id'   => $group,
@@ -1371,8 +1376,13 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 //'holddate'  => $holddate,
                 //'delete'    => $delete,
                 'renewable' => $renewable,
+                'fine'      => $fine,
                 //'create'    => $this->parseDate($create)
             );
+            if ($returnInDays < 0 && !$history) {
+                $item['dueStatus'] = 'overdue';
+            }
+            $transList[] = $item;
         }
         $this->idResolver->resolveIds($transList);
         return $transList;
