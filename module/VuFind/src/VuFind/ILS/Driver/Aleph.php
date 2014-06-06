@@ -1673,7 +1673,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $id = (string) $z13->{'z13-doc-number'};
             $barcode = (string) $z30->{'z30-barcode'};
             $checkout = (string) $z31->{'z31-date'};
-            $id = $this->barcodeToID($barcode);
+            $adm_id = (string) $z30->{'z30-doc-number'};
+            $id = (string) $z13->{'z13-doc-number'};
             if ($transactiontype=="Debit") {
                 $mult=-100;
             } elseif ($transactiontype=="Credit") {
@@ -1687,14 +1688,15 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $balance = 0;
 
             $finesListSort[$cashref]  = array(
-                    "title"   => $title,
-                    "barcode" => $barcode,
-                    "amount" => $amount,
+                    "title"    => $title,
+                    "barcode"  => $barcode,
+                    "amount"   => $amount,
                     "transactiondate" => $transactiondate,
                     "transactiontype" => $transactiontype,
                     "checkout" => $this->parseDate($checkout),
                     "balance"  => $balance,
-                    "id"  => $id
+                    "id"       => $id,
+                    "adm_id"   => $adm_id
             );
         }
         ksort($finesListSort);
@@ -1706,19 +1708,22 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $transactiondate = $finesListSort[$key]["transactiondate"];
             $transactiontype = $finesListSort[$key]["transactiontype"];
             $balance += $finesListSort[$key]["amount"];
+            $adm_id = $finesListSort[$key]["adm_id"];
             $id = $finesListSort[$key]["id"];
             $finesList[] = array(
-                "title"   => $title,
-                "barcode"  => $barcode,
-                "amount"   => $amount,
+                "title"     => $title,
+                "barcode"   => $barcode,
+                "amount"    => $amount,
                 "transactiondate" => $transactiondate,
                 "transactiontype" => $transactiontype,
-                "balance"  => $balance,
-                "checkout" => $checkout,
-                "id"  => $id,
+                "balance"   => $balance,
+                "checkout"  => $checkout,
+                "id"        => $id,
+                "adm_id"    => $adm_id,
                 "printLink" => "test",
             );
         }
+        $this->idResolver->resolveIds($transList);
         return $finesList;
     }
 
