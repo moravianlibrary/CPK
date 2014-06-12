@@ -159,12 +159,16 @@ class MyResearchController extends MyResearchControllerBase
             if ($missingValues) {
                 $this->flashMessenger()->setNamespace('error')->addMessage('ill_required_fields_missing_error');
             } else if ($fromPost) {
-                $details['new'] = $type;
-                $result = $this->getILS()->placeILLRequest($patron, $details);
-                if ($result['success']) {
-                    $this->flashMessenger()->setNamespace('info')->addMessage('ill_request_successful');
+                if ($details['hmac'] != $this->getHMAC()) {
+                    $this->flashMessenger()->setNamespace('info')->addMessage('ill_request_failed_due_to_hmac');
                 } else {
-                    $this->flashMessenger()->setNamespace('info')->addMessage('ill_request_failed');
+                    $details['new'] = $type;
+                    $result = $this->getILS()->placeILLRequest($patron, $details);
+                    if ($result['success']) {
+                        $this->flashMessenger()->setNamespace('info')->addMessage('ill_request_successful');
+                    } else {
+                        $this->flashMessenger()->setNamespace('info')->addMessage('ill_request_failed');
+                    }
                 }
             }
             $view = $this->createViewModel(array('fields' => $fields));
@@ -215,6 +219,7 @@ class MyResearchController extends MyResearchControllerBase
                     ),
                 ),
                 'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox', 'required' => true),
+                'hmac' => array('type' => 'hidden', value => $this->getHMAC()),
             ),
         );
     }
@@ -256,8 +261,16 @@ class MyResearchController extends MyResearchControllerBase
                     ),
                 ),
                 'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox'),
+                'hmac' => array('type' => 'hidden', 'value' => $this->getHMAC()),
             ),
         );
+    }
+
+    protected function getHMAC()
+    {
+        $config = $this->getConfig();
+        $hmacKey = $config->Security->HMACkey;
+        return hash_hmac('md5', session_id(), $hmacKey);
     }
 
     /**
