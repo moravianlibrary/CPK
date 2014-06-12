@@ -217,6 +217,18 @@
     </tr>
   <? endif; ?>
 
+  <? $callnumbers = $this->driver->getCallNumber(); if (!empty($callnumbers)): ?>
+    <? $contentDisplayed = true; ?>
+    <tr valign="top">
+      <th><?=$this->transEsc('Callnumber')?>: </th>
+      <td>
+        <? foreach ($callnumbers as $callnumber): ?>
+          <?=$this->transEsc($callnumber)?>
+        <? endforeach; ?>
+      </td>
+    </tr>
+  <? endif; ?>
+
   <? $nativeLinks = ($this->driver instanceof \MZKCatalog\RecordDriver\SolrMarc) ? $this->driver->getNativeLinks() : array(); if (!empty($nativeLinks)): ?>
     <? $contentDisplayed = true; ?>
     <tr valign="top">

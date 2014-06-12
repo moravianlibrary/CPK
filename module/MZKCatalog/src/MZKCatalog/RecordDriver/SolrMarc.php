@@ -131,4 +131,9 @@ class SolrMarc extends ParentSolrDefault
         );
     }
 
+    public function getCallNumber()
+    {
+        return isset($this->fields['callnumber_second_str_mv']) ? $this->fields['callnumber_second_str_mv'] : '';
+    }
+
 }
