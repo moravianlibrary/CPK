@@ -1010,7 +1010,7 @@ class MyResearchController extends AbstractBase
             // Build record driver:
             $recordList[] = $this->getDriverForILSRecord($current);
         }
-
+z
         $view->recordList = $recordList;
         return $view;
     }

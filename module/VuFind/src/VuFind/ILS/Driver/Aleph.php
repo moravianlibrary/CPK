@@ -661,7 +661,34 @@ class AlephWebServices {
         }
         return $result;
     }
-    
+
+    public function doXRequestUsingPost($op, $params, $auth=true)
+    {
+        $url = "http://$this->host/X?";
+        $body = '';
+        $sep = '';
+        $params['op'] = $op;
+        if ($auth) {
+            $params['user_name'] = $this->wwwuser;
+            $params['user_password'] = $this->wwwpasswd;
+        }
+        foreach ($params as $key => $value) {
+            $body .= $sep . $key . '=' . urlencode($value);
+            $sep = '&';
+        }
+        $result = $this->doHTTPRequest($url, null, 'POST', $body);
+        if ($result->error) {
+            if ($op == 'update-doc' && preg_match('/Document: [0-9]+ was updated successfully\\./', trim($result->error)) === 1) {
+                return $result;
+            }
+            if ($this->debug_enabled) {
+                $this->debug("XServer error, URL is $url, error message: $result->error.");
+            }
+            throw new Exception("XServer error: $result->error.");
+        }
+        return $result;
+    }
+
     /**
      * Perform a RESTful DLF request.
      *
@@ -2290,9 +2317,70 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         return $loans;
     }
     
-    public function placeILLRequest($details)
+    public function placeILLRequest($user, $attrs)
     {
-        
+        $payment = $attrs['payment'];
+        unset($attrs['payment']);
+        $new = $attrs['new'];
+        unset($attrs['new']);
+        $additional_authors = $attrs['additional_authors'];
+        unset($attrs['additional_authors']);
+        $attrs['ill-unit'] = 'MVS';
+        $attrs['pickup-location'] = 'MVS';
+        $attrs['allowed-media'] = $attrs['media'];
+        $attrs['send-directly'] = 'N';
+        $attrs['delivery-method'] = 'S';
+        if ($new == 'serial') {
+            $new = 'SE';
+        } else if ($new == 'monography') {
+            $new = 'MN';
+        }
+        $patronId = $user['id'];
+        $illDom = new \DOMDocument('1.0', 'UTF-8');
+        $illRoot = $illDom->createElement('ill-parameters');
+        $illRootNode = $illDom->appendChild($illRoot);
+        foreach ($attrs as $key => $value) {
+            $element = $illDom->createElement($key);
+            $element->appendChild($illDom->createTextNode($value));
+            $illRootNode->appendChild($element);
+        }
+        $xml = $illDom->saveXML();
+        try {
+            $path = array('patron', $patronId, 'record', $new, 'ill');
+            $result = $this->alephWebService->doRestDLFRequest($path, null,
+                'PUT', 'post_xml=' . $xml);
+        } catch (Exception $ex) {
+            return array('success' => false, 'sysMessage' => $ex->getMessage());
+        }
+        $baseAndDocNumber = $result->{'create-ill'}->{'request-number'};
+        $base = substr($baseAndDocNumber, 0, 5);
+        $docNum = substr($baseAndDocNumber, 5);
+        $findDocParams = array('base' => $base, 'doc_num' => $docNum);
+        $document = $this->alephWebService->doXRequest('find-doc', $findDocParams, true);
+        // create varfield for ILL request type
+        $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
+        $varfield->addAttribute('id', 'PNZ');
+        $varfield->addAttribute('i1', ' ');
+        $varfield->addAttribute('i2', ' ');
+        $subfield = $varfield->addChild('subfield', $payment);
+        $subfield->addAttribute('label', 'a');
+        if (!empty($additional_authors)) {
+            $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
+            $varfield->addAttribute('id', '700');
+            $varfield->addAttribute('i1', '1');
+            $varfield->addAttribute('i2', ' ');
+            $subfield = $varfield->addChild('subfield', $additional_authors);
+            $subfield->addAttribute('label', 'a');
+        }
+        $updateDocParams = array('library' => $base, 'doc_num' => $docNum);
+        $updateDocParams['xml_full_req'] = $document->asXml();
+        $updateDocParams['doc_action'] = 'UPDATE';
+        try {
+            $update = $this->alephWebService->doXRequestUsingPost('update-doc', $updateDocParams, true);
+        } catch (Exception $ex) {
+            return array('success' => false, 'sysMessage' => $ex->getMessage());
+        }
+        return array('success' => true, 'id' => $docNum);
     }
 
     /**

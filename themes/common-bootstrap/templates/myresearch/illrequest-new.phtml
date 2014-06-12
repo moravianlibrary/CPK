@@ -22,7 +22,7 @@
           <p><?=$this->transEsc($attributes['text'])?></p>
         <?elseif ($attributes['type'] == 'checkbox'):?>
           <div class="control-group">
-            <input type="checkbox" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>"/>
+            <input type="checkbox" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" <?=($attributes['value'])?'checked="true"':''?>/>
             <label class="control-label-confirmation" for="<?=$this->escapeHtml($field)?>">
               <?=$this->transEsc($attributes['label'])?>
               <?if ($attributes['required']):?>
