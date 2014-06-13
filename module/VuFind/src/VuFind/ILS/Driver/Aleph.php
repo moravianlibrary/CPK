@@ -661,7 +661,34 @@ class AlephWebServices {
         }
         return $result;
     }
-    
+
+    public function doXRequestUsingPost($op, $params, $auth=true)
+    {
+        $url = "http://$this->host/X?";
+        $body = '';
+        $sep = '';
+        $params['op'] = $op;
+        if ($auth) {
+            $params['user_name'] = $this->wwwuser;
+            $params['user_password'] = $this->wwwpasswd;
+        }
+        foreach ($params as $key => $value) {
+            $body .= $sep . $key . '=' . urlencode($value);
+            $sep = '&';
+        }
+        $result = $this->doHTTPRequest($url, null, 'POST', $body);
+        if ($result->error) {
+            if ($op == 'update-doc' && preg_match('/Document: [0-9]+ was updated successfully\\./', trim($result->error)) === 1) {
+                return $result;
+            }
+            if ($this->debug_enabled) {
+                $this->debug("XServer error, URL is $url, error message: $result->error.");
+            }
+            throw new Exception("XServer error: $result->error.");
+        }
+        return $result;
+    }
+
     /**
      * Perform a RESTful DLF request.
      *
@@ -990,6 +1017,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         } else {
             throw new ILSException('Unsupported Catalog[IdResolver][type]:' .
                  $idResolverType .', valid values are fixed, solr and xserver.');
+        }
+        
+        if (isset($this->config['ILL']['hidden_statuses'])) {
+            $this->IllHiddenStatuses = explode(',', $this->config['ILL']['hidden_statuses']);
+        }
+        if (isset($this->config['ILL']['default_ill_unit'])) {
+            $this->defaultIllUnit = $this->config['ILL']['default_ill_unit'];
+        }
+        if (isset($this->config['ILL']['default_pickup_location'])) {
+            $this->defaultIllPickupPlocation = $this->config['ILL']['default_pickup_location'];
         }
     }
 
@@ -2205,6 +2242,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
                 "defaultRequiredDate" => "0:1:0"
             );
+        } if ($func == "ILLRequests") {
+            return array(
+                "HMACKeys" => "id:item_id",
+            );
         } else {
             return array();
         }
@@ -2286,6 +2327,112 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'Missing Catalog/preferredPickUpLocations config setting.'
             );
         }
+    }
+    
+    public function getMyILLRequests($user) {
+        $userId = $user['id'];
+        $loans = array();
+        $params = array("view" => "full");
+        $count = 0;
+        $xml = $this->alephWebService->doRestDLFRequest(array('patron', $userId, 'circulationActions', 'requests', 'ill'), $params);
+        foreach ($xml->xpath('//ill-request') as $item) {
+            $loan = array();
+            $z13 = $item->z13;
+            $status = (string) $item->z410->{'z410-status'};
+            if (!in_array($status, $this->IllHiddenStatuses)) {
+                $loan['docno'] = (string) $z13->{'z13-doc-number'};
+                $loan['author'] = (string) $z13->{'z13-author'};
+                $loan['title'] = (string) $z13->{'z13-title'};
+                $loan['imprint'] = (string) $z13->{'z13-imprint'};
+                $loan['article_title'] = (string) $item->{'title-of-article'};
+                $loan['article_author'] = (string) $item->{'author-of-article'};
+                $loan['price'] = (string) $item->{'z13u-additional-bib-info-1'};
+                $loan['pickup_location'] = (string) $item->z410->{'z410-pickup-location'};
+                $loan['media'] = (string) $item->z410->{'z410-media'};
+                $loan['create'] = $this->parseDate((string) $item->z410->{'z410-open-date'});
+                $loan['expire'] = $this->parseDate((string) $item->z410->{'z410-last-interest-date'});
+                $loans[] = $loan;
+            }
+        }
+        return $loans;
+    }
+    
+    public function placeILLRequest($user, $attrs)
+    {
+        $payment = $attrs['payment'];
+        unset($attrs['payment']);
+        $new = $attrs['new'];
+        unset($attrs['new']);
+        $additional_authors = $attrs['additional_authors'];
+        unset($attrs['additional_authors']);
+        if (!isset($attrs['ill-unit'])) {
+            $attrs['ill-unit'] = $this->defaultIllUnit;
+        }
+        if (!isset($attrs['pickup-location'])) {
+            $attrs['pickup-location'] = $this->defaultIllPickupPlocation;
+        }
+        try {
+            $attrs['last-interest-date'] = $this->dateConverter->convertFromDisplayDate('Ymd', $attrs['last-interest-date']);
+        } catch (DateException $de) {
+            return array(
+                'success'    => false,
+                'sysMessage' => 'hold_date_invalid'
+            );
+        }
+        $attrs['allowed-media'] = $attrs['media'];
+        $attrs['send-directly'] = 'N';
+        $attrs['delivery-method'] = 'S';
+        if ($new == 'serial') {
+            $new = 'SE';
+        } else if ($new == 'monography') {
+            $new = 'MN';
+        }
+        $patronId = $user['id'];
+        $illDom = new \DOMDocument('1.0', 'UTF-8');
+        $illRoot = $illDom->createElement('ill-parameters');
+        $illRootNode = $illDom->appendChild($illRoot);
+        foreach ($attrs as $key => $value) {
+            $element = $illDom->createElement($key);
+            $element->appendChild($illDom->createTextNode($value));
+            $illRootNode->appendChild($element);
+        }
+        $xml = $illDom->saveXML();
+        try {
+            $path = array('patron', $patronId, 'record', $new, 'ill');
+            $result = $this->alephWebService->doRestDLFRequest($path, null,
+                'PUT', 'post_xml=' . $xml);
+        } catch (\Exception $ex) {
+            return array('success' => false, 'sysMessage' => $ex->getMessage());
+        }
+        $baseAndDocNumber = $result->{'create-ill'}->{'request-number'};
+        $base = substr($baseAndDocNumber, 0, 5);
+        $docNum = substr($baseAndDocNumber, 5);
+        $findDocParams = array('base' => $base, 'doc_num' => $docNum);
+        $document = $this->alephWebService->doXRequest('find-doc', $findDocParams, true);
+        // create varfield for ILL request type
+        $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
+        $varfield->addAttribute('id', 'PNZ');
+        $varfield->addAttribute('i1', ' ');
+        $varfield->addAttribute('i2', ' ');
+        $subfield = $varfield->addChild('subfield', $payment);
+        $subfield->addAttribute('label', 'a');
+        if (!empty($additional_authors)) {
+            $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
+            $varfield->addAttribute('id', '700');
+            $varfield->addAttribute('i1', '1');
+            $varfield->addAttribute('i2', ' ');
+            $subfield = $varfield->addChild('subfield', $additional_authors);
+            $subfield->addAttribute('label', 'a');
+        }
+        $updateDocParams = array('library' => $base, 'doc_num' => $docNum);
+        $updateDocParams['xml_full_req'] = $document->asXml();
+        $updateDocParams['doc_action'] = 'UPDATE';
+        try {
+            $update = $this->alephWebService->doXRequestUsingPost('update-doc', $updateDocParams, true);
+        } catch (\Exception $ex) {
+            return array('success' => false, 'sysMessage' => $ex->getMessage());
+        }
+        return array('success' => true, 'id' => $docNum);
     }
 
     /**
