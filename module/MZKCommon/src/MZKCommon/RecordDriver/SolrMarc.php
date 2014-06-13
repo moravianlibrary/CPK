@@ -10,6 +10,7 @@ class SolrMarc extends ParentSolrMarc
         $bibinfo = array(
             "authors" => array($this->getPrimaryAuthor()),
             "title" => $this->getTitle(),
+            "ean" => $this->getEAN()
         );
         $isbn = $this->getCleanISBN();
         if (!empty($isbn)) {
@@ -45,6 +46,11 @@ class SolrMarc extends ParentSolrMarc
     public function getAvailableHoldingFilters()
     {
         return array();
+    }
+
+    public function getEAN()
+    {
+        return (!empty($this->fields['ean_str_mv']) ? $this->fields['ean_str_mv'][0] : null);
     }
 
     //FIXME: TODO

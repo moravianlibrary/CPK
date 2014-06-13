@@ -100,6 +100,8 @@ class RecordController extends RecordControllerBase
             return $this->blockedholdAction();
         }
 
+        $showLinks = false;
+
         // Process form submissions if necessary:
         if (!is_null($this->params()->fromPost('placeHold'))) {
             $slots = $this->params()->fromPost('slot');
@@ -125,10 +127,12 @@ class RecordController extends RecordControllerBase
                 }
                 if ($numOfFailures == count($slots)) { // All requests failed
                     $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_error_text');
+                    $showLinks = true;
                 } else if ($numOfFailures > 0) {
                     $this->flashMessenger()->setNamespace('error')->addMessage('short_loan_request_partial_error_text');
+                    $showLinks = true;
                 } else {
-                    $this->flashMessenger()->setNamespace('info')->addMessage('short_loan_ok_text');
+                    $this->flashMessenger()->setNamespace('success')->addMessage('short_loan_ok_text');
                     return $this->redirectToRecord();
                 }
             }
@@ -171,7 +175,13 @@ class RecordController extends RecordControllerBase
             $results[$date] = $result;
         }
 
-        $view = $this->createViewModel(array('slots' => $results));
+        $view = $this->createViewModel(
+            array(
+                'showLinks'  => $showLinks,
+                'slots'      => $results,
+                'callnumber' => $shortLoanInfo['callnumber']
+            )
+        );
         $view->setTemplate('record/shortloan');
         return $view;
     }

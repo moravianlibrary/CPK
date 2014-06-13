@@ -1334,6 +1334,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $group = substr($group, 0, strpos($group, '?'));
             }
             $renew = $item->xpath('@renew');
+            $renewable = ($renew[0] == 'Y');
             $docno = (string) $z36->{'z36-doc-number'};
             $itemseq = (string) $z36->{'z36-item-sequence'};
             $seq = (string) $z36->{'z36-sequence'};
@@ -1355,7 +1356,12 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $barcode = (string) $z30->{'z30-barcode'};
             $adm_id = (string) $z30->{'z30-doc-number'};
             $id = (string) $z13->{'z13-doc-number'};
-            $transList[] = array(
+            /* Check if item is loaned after due date */
+            $currentDate = strtotime(date('d.m.Y'));
+            $dueDate = strtotime($this->parseDate($due));
+            $returnInDays = ($dueDate - $currentDate) / (60*60*24);
+            $fine = (string) $item->{'fine'};
+            $item = array(
                 'id'        => $id,
                 'adm_id'    => $adm_id,
                 'item_id'   => $group,
@@ -1369,9 +1375,14 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'returned'  => $this->parseDate($returned),
                 //'holddate'  => $holddate,
                 //'delete'    => $delete,
-                'renewable' => true,
+                'renewable' => $renewable,
+                'fine'      => $fine,
                 //'create'    => $this->parseDate($create)
             );
+            if ($returnInDays < 0 && !$history) {
+                $item['dueStatus'] = 'overdue';
+            }
+            $transList[] = $item;
         }
         $this->idResolver->resolveIds($transList);
         return $transList;
@@ -1673,7 +1684,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $id = (string) $z13->{'z13-doc-number'};
             $barcode = (string) $z30->{'z30-barcode'};
             $checkout = (string) $z31->{'z31-date'};
-            $id = $this->barcodeToID($barcode);
+            $adm_id = (string) $z30->{'z30-doc-number'};
+            $id = (string) $z13->{'z13-doc-number'};
             if ($transactiontype=="Debit") {
                 $mult=-100;
             } elseif ($transactiontype=="Credit") {
@@ -1687,14 +1699,15 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $balance = 0;
 
             $finesListSort[$cashref]  = array(
-                    "title"   => $title,
-                    "barcode" => $barcode,
-                    "amount" => $amount,
+                    "title"    => $title,
+                    "barcode"  => $barcode,
+                    "amount"   => $amount,
                     "transactiondate" => $transactiondate,
                     "transactiontype" => $transactiontype,
                     "checkout" => $this->parseDate($checkout),
                     "balance"  => $balance,
-                    "id"  => $id
+                    "id"       => $id,
+                    "adm_id"   => $adm_id
             );
         }
         ksort($finesListSort);
@@ -1706,19 +1719,22 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $transactiondate = $finesListSort[$key]["transactiondate"];
             $transactiontype = $finesListSort[$key]["transactiontype"];
             $balance += $finesListSort[$key]["amount"];
+            $adm_id = $finesListSort[$key]["adm_id"];
             $id = $finesListSort[$key]["id"];
             $finesList[] = array(
-                "title"   => $title,
-                "barcode"  => $barcode,
-                "amount"   => $amount,
+                "title"     => $title,
+                "barcode"   => $barcode,
+                "amount"    => $amount,
                 "transactiondate" => $transactiondate,
                 "transactiontype" => $transactiontype,
-                "balance"  => $balance,
-                "checkout" => $checkout,
-                "id"  => $id,
+                "balance"   => $balance,
+                "checkout"  => $checkout,
+                "id"        => $id,
+                "adm_id"    => $adm_id,
                 "printLink" => "test",
             );
         }
+        $this->idResolver->resolveIds($transList);
         return $finesList;
     }
 
@@ -1798,6 +1814,21 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $recordList['credit_sum'] = $credit_sum;
         $recordList['credit_sign'] = $credit_sign;
         $recordList['id'] = $id;
+        // deliquencies
+        $blocks = array();
+        foreach (array('z303-delinq-1', 'z303-delinq-2', 'z303-delinq-3') as $elementName) {
+            $block = (string) $xml->z303->{$elementName};
+            if (!empty($block) && $block != '00') {
+                $blocks[] = $block;
+            }
+        }
+        foreach (array('z305-delinq-1', 'z305-delinq-2', 'z305-delinq-3') as $elementName) {
+            $block = (string) $xml->z305->{$elementName};
+            if (!empty($block) && $block != '00') {
+                $blocks[] = $block;
+            }
+        }
+        $recordList['blocks'] = $blocks;
         return $recordList;
     }
 
@@ -1973,6 +2004,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected function extractShortLoanInfoForItem($xml)
     {
         $shortLoanInfo = $xml->xpath("//item/info[@type='ShortLoan']");
+        $callNo = (string) $xml->{'item'}->{'z30'}->{'z30-call-no'};
         $slots = array();
         foreach ($shortLoanInfo[0]->{'short-loan'}->{'slot'} as $slot) {
             $numOfItems = (int) $slot->{'num-of-items'};
@@ -1999,8 +2031,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             );
         }
         $result = array(
-            'type'  => 'short',
-            'slots' => $slots,
+            'type'       => 'short',
+            'callnumber' => $callNo,
+            'slots'      => $slots,
         );
         return $result;
     }

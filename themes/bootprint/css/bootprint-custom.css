@@ -120,6 +120,11 @@ select, .btn:not(.btn-link){vertical-align:top}
 .filters li a:hover {color:#FFF}
 .filters li a i {display:inline-block;margin:2px 0 0 3px;vertical-align:top}
 
+.search-controls [class^=icon-] {background-position:0 0;background-repeat:no-repeat;height:14px;margin-top:1px;width:14px}
+.search-controls .icon-list {background:url('../images/view_list.png')}
+.search-controls .icon-grid {background:url('../images/view_grid.png')}
+.search-controls .pull-right > [class^=icon-] {border:1px solid #FFA500}
+
 /* --- MAIN --- */
 .centered-pills {border-bottom:1px solid #DDD;font-size:12px;margin-right:14px}
 .nav-pills {margin:3px 0 0 0}
@@ -149,6 +154,7 @@ select, .btn:not(.btn-link){vertical-align:top}
 /* --- SEARCH --- */
 .bulkActionButtons {border-bottom:1px solid #DDD;margin-top:6px;padding-bottom:6px}
 [name="bulkActionForm"] .btn-link { margin:1px 0;padding:2px }
+.limitSelect form {margin:0}
 .result {border:0;padding:3px 0}
 .result:nth-child(odd) {background:#EEE}
 .grid .result {background:none}
@@ -160,6 +166,9 @@ select, .btn:not(.btn-link){vertical-align:top}
 .result .savedLists {margin:2px 0;padding:6px}
 .result .savedLists ul {margin-bottom:0}
 .search-controls {padding:4px 0 4px 4px}
+.search-controls form {margin-bottom:0}
+.search-controls .help-inline {margin:0;vertical-align:baseline}
+.search-controls .pull-right div {margin:5px 0;line-height:15px}
 .span9>.noprint>.help-block {margin-bottom:0}
 .result .img-polaroid {margin-left:2px;max-width:96px}
 .top-row [class*="span"] {min-height:1px;padding:0 3px}
@@ -199,3 +208,28 @@ select, .btn:not(.btn-link){vertical-align:top}
 #custom_recaptcha_widget #recaptcha_image { border:1px solid #000;padding:6px;margin:1em 0; }
 #custom_recaptcha_widget #recaptcha_response_field { margin:0 .5em }
 #custom_recaptcha_widget > div > a { display:inline-block;float:left;margin:5px 10px 5px 0; }
+
+/* --- Random Items (results view) --- */
+
+ul.random {
+    list-style: none;
+    padding: 0;
+    margin: 0px;
+    text-align:justified;
+}
+
+ul.random li {
+    padding-bottom:10px;
+}
+
+ul.random li img {
+    margin: 0 auto 1em auto;
+}
+
+ul.random.image, ul.random.mixed {
+    text-align: center;
+}
+
+ul.random.image li img {
+    margin: 0 auto;
+}

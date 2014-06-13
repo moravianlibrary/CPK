@@ -9,6 +9,8 @@ use MZKCommon\RecordDriver\SolrMarc As ParentSolrDefault;
 class SolrMarc extends ParentSolrDefault
 {
 
+    const ALEPH_BASE_URL = "http://aleph.mzk.cz/";
+
     public function getTitle()
     {
         return isset($this->fields['title_display']) ?
@@ -116,6 +118,22 @@ class SolrMarc extends ParentSolrDefault
     {
         return isset($this->fields['publishDate_display']) ?
         $this->fields['publishDate_display'] : array();
+    }
+
+    public function getNativeLinks()
+    {
+        list($base, $sysno) = split('-', $this->getUniqueID());
+        $fullView = self::ALEPH_BASE_URL . "F?func=direct&doc_number=$sysno&local_base=$base&format=999";
+        $holdings = self::ALEPH_BASE_URL . "http://aleph.mzk.cz/F?func=item-global&doc_library=$base&doc_number=$sysno";
+        return array(
+            'native_link_full_view' => $fullView,
+            'native_link_holdings'  => $holdings
+        );
+    }
+
+    public function getCallNumber()
+    {
+        return isset($this->fields['callnumber_second_str_mv']) ? $this->fields['callnumber_second_str_mv'] : '';
     }
 
 }

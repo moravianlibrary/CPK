@@ -48,7 +48,7 @@ class Factory
      *
      * @return Service
      */
-    public function getSearchService(ServiceManager $sm) {
+    public static function getSearchService(ServiceManager $sm) {
         $service = new \VuFindSearch\Service(
             $sm->get('VuFind\Config')->get('searches'));
         return $service;

@@ -280,6 +280,7 @@ $config = array(
             'hierarchy_treerenderer' => array(
                 'invokables' => array(
                     'jstree' => 'VuFind\Hierarchy\TreeRenderer\JSTree',
+                    'fancytree' => 'VuFind\Hierarchy\TreeRenderer\FancyTree',
                 )
             ),
             'ils_driver' => array(
@@ -325,6 +326,7 @@ $config = array(
                     'mapselection' => 'VuFind\Recommend\Factory::getMapSelection',
                     'newitems' => 'VuFind\Recommend\Factory::getNewItems',
                     'sidefacets' => 'VuFind\Recommend\Factory::getSideFacets',
+                    'randomrecommend' => 'VuFind\Recommend\Factory::getRandomRecommend',
                     'summonbestbets' => 'VuFind\Recommend\Factory::getSummonBestBets',
                     'summondatabases' => 'VuFind\Recommend\Factory::getSummonDatabases',
                     'summonresults' => 'VuFind\Recommend\Factory::getSummonResults',

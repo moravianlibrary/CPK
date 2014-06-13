@@ -8,6 +8,7 @@ $config = array(
                 'factories' => array(
                     'solrmzk'   => 'MZKCatalog\RecordDriver\Factory::getSolrMarc',
                     'solrmzk04' => 'MZKCatalog\RecordDriver\Factory::getSolrMarc',
+                    'solrebsco' => 'MZKCatalog\RecordDriver\Factory::getEbscoSolrMarc',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
@@ -39,6 +40,9 @@ $config = array(
     'controllers' => array(
         'factories' => array(
             'record' => 'MZKCatalog\Controller\Factory::getRecordController',
+        ),
+        'invokables' => array(
+            'myresearch' => 'MZKCatalog\Controller\MyResearchController',
         ),
     ),
 );
