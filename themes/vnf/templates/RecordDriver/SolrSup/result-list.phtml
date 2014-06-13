@@ -1,23 +1,14 @@
-<?
-  $this->headScript()->appendFile('obalkyknih/functions.js');
-  $this->headScript()->appendFile('obalkyknih/custom.js');
-  $recordId = $this->driver->getUniqueID();
-  $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
-?>
 <div class="row-fluid result<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
-  <div class="span2 text-center">
-    <div id="cover_<?=$recordId?>" class="coverThumbnail">
-      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
-        <script type="text/javascript">
-          $(document).ready(function() {
-            obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
-          });
-        </script>
-      <? endif;?>
-       <img src="<?=$this->imageLink('noimage.gif')?>" />
-    </div>
+  <div class="span2 left">
+    <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
+      <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
+        <img src="<?=$this->escapeHtml($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+      <? else: ?>
+        <img src="<?=$this->imageLink('format/Book.png')?>" />
+      <? endif; ?>
+    </a>
   </div>
   <div class="span7 middle">
     <div>
@@ -202,3 +193,4 @@
 </div>
 
 <?=$openUrl?'<span class="Z3988" title="'.$this->escapeHtml($openUrl).'"></span>':''?>
+

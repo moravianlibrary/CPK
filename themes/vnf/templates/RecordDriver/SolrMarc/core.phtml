@@ -1,15 +1,20 @@
+<?php
+  $this->headScript()->appendFile('obalkyknih/functions.js');
+  $this->headScript()->appendFile('obalkyknih/custom.js');
+  $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
+?>
+<? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        obalky.process("obalky_display_cover", "cover", "<?=$backLink?>", <?=$bibinfo?>);
+      });
+    </script>
+<? endif; ?>
 <div class="row-fluid" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
   <div class="span3">
     <div class="text-center">
       <? /* Display thumbnail if appropriate: */ ?>
-      <? $mediumThumb = $this->record($this->driver)->getThumbnail('medium'); $largeThumb = $this->record($this->driver)->getThumbnail('large'); ?>
-      <? if ($mediumThumb): ?>
-        <? if ($largeThumb): ?><a href="<?=$this->escapeHtml($largeThumb)?>"><? endif; ?>
-          <img alt="<?=$this->transEsc('Cover Image')?>" class="recordcover" src="<?=$this->escapeHtml($mediumThumb);?>"/>
-        <? if ($largeThumb): ?></a><? endif; ?>
-      <? else: ?>
-        <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
-      <? endif; ?>
+      <div id="cover"></div>
     
       <? /* Display qrcode if appropriate: */ ?>
       <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
