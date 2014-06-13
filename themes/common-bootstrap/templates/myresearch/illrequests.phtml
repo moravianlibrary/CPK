@@ -89,7 +89,9 @@
           <? $listAuthor = $resource->getPrimaryAuthor(); if (!empty($listAuthor)): ?>
             <?=$this->transEsc('by')?>:
             <a href="<?=$this->record($resource)->getLink('author', $listAuthor)?>"><?=$this->escapeHtml($listAuthor)?></a><br/>
-          <? endif; ?>
+          <? elseif (isset($ilsDetails['author']) && !empty($ilsDetails['author'])): ?>
+            <?=$this->transEsc('by')?>: <?=$this->escapeHtml($ilsDetails['author'])?><br/>
+          <? endif;?>
 
           <? $formats = $resource->getFormats(); if (count($formats) > 0): ?>
             <?=str_replace('class="', 'class="label label-info ', $this->record($resource)->getFormatList())?>

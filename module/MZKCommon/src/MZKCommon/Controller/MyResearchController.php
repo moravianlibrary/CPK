@@ -149,6 +149,15 @@ class MyResearchController extends MyResearchControllerBase
                         if ($value && trim($value) != '') {
                             $attributes['value'] = $value;
                             $details[$name] = $value;
+                            if ($attributes['type'] == 'date') {
+                                $converter = $this->getServiceLocator()->get('VuFind\DateConverter');
+                                try {
+                                    $converter->convertFromDisplayDate('Ymd', $value);
+                                } catch (\VuFind\Exception\Date $de) {
+                                    $attributes['missing'] = true;
+                                    $this->flashMessenger()->setNamespace('error')->addMessage('invalid_date_format');
+                                }
+                            }
                         } else if ($attributes['required']) {
                             $attributes['missing'] = true;
                             $missingValues = true;
@@ -166,6 +175,7 @@ class MyResearchController extends MyResearchControllerBase
                     $result = $this->getILS()->placeILLRequest($patron, $details);
                     if ($result['success']) {
                         $this->flashMessenger()->setNamespace('info')->addMessage('ill_request_successful');
+                        return $this->redirect()->toRoute('myresearch-illrequests');
                     } else {
                         $this->flashMessenger()->setNamespace('info')->addMessage('ill_request_failed');
                     }

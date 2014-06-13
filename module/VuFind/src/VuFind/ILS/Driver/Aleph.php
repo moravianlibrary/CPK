@@ -1022,6 +1022,12 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (isset($this->config['ILL']['hidden_statuses'])) {
             $this->IllHiddenStatuses = explode(',', $this->config['ILL']['hidden_statuses']);
         }
+        if (isset($this->config['ILL']['default_ill_unit'])) {
+            $this->defaultIllUnit = $this->config['ILL']['default_ill_unit'];
+        }
+        if (isset($this->config['ILL']['default_pickup_location'])) {
+            $this->defaultIllPickupPlocation = $this->config['ILL']['default_pickup_location'];
+        }
     }
 
     /**
@@ -2310,7 +2316,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $loan['price'] = (string) $item->{'z13u-additional-bib-info-1'};
                 $loan['pickup_location'] = (string) $item->z410->{'z410-pickup-location'};
                 $loan['media'] = (string) $item->z410->{'z410-media'};
-                $loan['required_by'] = $this->parseDate((string) $item->z410->{'z410-last-interest-date'});
+                $loan['create'] = $this->parseDate((string) $item->z410->{'z410-open-date'});
+                $loan['expire'] = $this->parseDate((string) $item->z410->{'z410-last-interest-date'});
                 $loans[] = $loan;
             }
         }
@@ -2325,8 +2332,20 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         unset($attrs['new']);
         $additional_authors = $attrs['additional_authors'];
         unset($attrs['additional_authors']);
-        $attrs['ill-unit'] = 'MVS';
-        $attrs['pickup-location'] = 'MVS';
+        if (!isset($attrs['ill-unit'])) {
+            $attrs['ill-unit'] = $this->defaultIllUnit;
+        }
+        if (!isset($attrs['pickup-location'])) {
+            $attrs['pickup-location'] = $this->defaultIllPickupPlocation;
+        }
+        try {
+            $attrs['last-interest-date'] = $this->dateConverter->convertFromDisplayDate('Ymd', $attrs['last-interest-date']);
+        } catch (DateException $de) {
+            return array(
+                'success'    => false,
+                'sysMessage' => 'hold_date_invalid'
+            );
+        }
         $attrs['allowed-media'] = $attrs['media'];
         $attrs['send-directly'] = 'N';
         $attrs['delivery-method'] = 'S';
@@ -2349,7 +2368,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $path = array('patron', $patronId, 'record', $new, 'ill');
             $result = $this->alephWebService->doRestDLFRequest($path, null,
                 'PUT', 'post_xml=' . $xml);
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return array('success' => false, 'sysMessage' => $ex->getMessage());
         }
         $baseAndDocNumber = $result->{'create-ill'}->{'request-number'};
@@ -2377,7 +2396,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $updateDocParams['doc_action'] = 'UPDATE';
         try {
             $update = $this->alephWebService->doXRequestUsingPost('update-doc', $updateDocParams, true);
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return array('success' => false, 'sysMessage' => $ex->getMessage());
         }
         return array('success' => true, 'id' => $docNum);
