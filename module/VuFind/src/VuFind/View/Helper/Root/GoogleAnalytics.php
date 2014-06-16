@@ -46,13 +46,23 @@ class GoogleAnalytics extends \Zend\View\Helper\AbstractHelper
     protected $key;
 
     /**
+     * Domain
+     *
+     * @var string|bool
+     */
+    protected $domain;
+
+    /**
      * Constructor
      *
-     * @param string|bool $key API key (false if disabled)
+     * @param array $config configuration
      */
-    public function __construct($key)
+    public function __construct($config)
     {
-        $this->key = $key;
+        $this->key = isset($config->apiKey)? $config->apiKey : false; 
+        if ($this->key && isset($config->domain)) {
+            $this->domain = $config->domain;
+        }
     }
 
     /**
@@ -65,9 +75,16 @@ class GoogleAnalytics extends \Zend\View\Helper\AbstractHelper
         if (!$this->key) {
             return '';
         }
-        $code = 'var key = "' . $this->key . '";' . "\n"
+
+        $config = array('_setAccount' => $this->key);
+        if ($this->domain) {
+            $config['_setDomainName'] = $this->domain; 
+        }
+        $code = "var config = " . json_encode($config)  . ";\n"
             . "var _gaq = _gaq || [];\n"
-            . "_gaq.push(['_setAccount', key]);\n"
+            . "for (var key in config) {\n"
+            . "_gaq.push([key, config[key]]);\n"
+            . "}\n"
             . "_gaq.push(['_trackPageview']);\n"
             . "(function() {\n"
             . "var ga = document.createElement('script'); "

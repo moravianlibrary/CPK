@@ -195,9 +195,9 @@ class Factory
     public static function getGoogleAnalytics(ServiceManager $sm)
     {
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
-        $key = isset($config->GoogleAnalytics->apiKey)
-            ? $config->GoogleAnalytics->apiKey : false;
-        return new GoogleAnalytics($key);
+        $conf = isset($config->GoogleAnalytics)
+            ? $config->GoogleAnalytics : array();
+        return new GoogleAnalytics($conf);
     }
 
     /**
