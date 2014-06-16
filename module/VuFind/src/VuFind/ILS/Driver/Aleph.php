@@ -1395,7 +1395,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $id = (string) $z13->{'z13-doc-number'};
             /* Check if item is loaned after due date */
             $currentDate = strtotime(date('d.m.Y'));
-            $dueDate = strtotime($this->parseDate($due));
+            $dueDate = strtotime(
+                $this->dateConverter->convertFromDisplayDate(
+                "d.m.Y", $this->parseDate($due)));
             $returnInDays = ($dueDate - $currentDate) / (60*60*24);
             $fine = (string) $item->{'fine'};
             $item = array(
