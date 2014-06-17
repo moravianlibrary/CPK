@@ -28,10 +28,6 @@
   } else {
     $this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc('Search') . ': ' . $this->escapeHtml($lookfor) . '</li>';
   }
-
-  // Load Javascript dependencies into header:
-  $this->headScript()->appendFile("check_item_statuses.js");
-  $this->headScript()->appendFile("check_save_statuses.js");
 ?>
 
 <div class="<?=$this->layoutClass('mainbody')?> results">
