@@ -937,6 +937,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function setHttpService(HttpServiceInterface $service)
     {
+        $this->httpService = $service;
         $this->alephWebService->setHttpService($service);
     }
 

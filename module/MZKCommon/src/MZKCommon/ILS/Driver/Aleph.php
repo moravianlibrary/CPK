@@ -41,11 +41,13 @@ use VuFind\ILS\Driver\Aleph as AlephBase;
 
 class Aleph extends AlephBase
 {
-    
-    protected $recordStatus;
-    
+
+    protected $recordStatus = null;
+
     protected $availabilitySource = null;
-    
+
+    protected $favoritesUrl = null;
+
     public function __construct(\VuFind\Date\Converter $dateConverter,
         \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null,
         \MZKCommon\Db\Table\RecordStatus $recordStatus = null
@@ -59,6 +61,9 @@ class Aleph extends AlephBase
         parent::init();
         if (isset($this->config['Availability']['source'])) {
             $this->availabilitySource = $this->config['Availability']['source'];
+        }
+        if (isset($this->config['Catalog']['fav_cgi_url'])) {
+            $this->favoritesUrl = $this->config['Catalog']['fav_cgi_url'];
         }
     }
     
@@ -94,6 +99,37 @@ class Aleph extends AlephBase
             $holdings[] = array($holding);
         }
         return $holdings;
+    }
+
+    /**
+     *
+     * Get Favorite Items from ILS
+     *
+     * @param mixed  $patron  Patron data
+     * @return mixed          An array with favorite items (each item contains id, folder and note)
+     * @access public
+     */
+    public function getMyFavorites($patron)
+    {
+        if ($this->favoritesUrl == null) {
+            return array(); // graceful degradation
+        }
+        $params = array('id' => $patron['id']);
+        $response = $this->httpService->get($this->favoritesUrl, $params);
+        if (!$response->isSuccess()) {
+            throw new ILSException('HTTP error');
+        }
+        $answer = $response->getBody();
+        $xml = simplexml_load_string($answer);
+        $result = array();
+        foreach ($xml->{'favourite'} as $fav) {
+            $result[] = array(
+                'id'     => (string) $fav->{'id'},
+                'folder' => (string) $fav->{'folder'},
+                'note'   => (string) $fav->{'note'}
+            );
+        }
+        return $result;
     }
 
 }

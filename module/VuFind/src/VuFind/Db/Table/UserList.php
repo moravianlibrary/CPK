@@ -87,6 +87,15 @@ class UserList extends Gateway
         return $result;
     }
 
+    public function getByUserAndTitle($user, $title)
+    {
+        $result = $this->select(array('user_id' => $user->id, 'title' => $title))->current();
+        if (empty($result)) {
+            return null;
+        }
+        return $result;
+    }
+
     /**
      * Get lists containing a specific user_resource
      *

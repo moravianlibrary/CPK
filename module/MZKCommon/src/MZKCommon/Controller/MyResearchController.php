@@ -134,6 +134,38 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function favoritesImportAction()
+    {
+        // Force login:
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->forceLogin();
+        }
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+        $catalog = $this->getILS();
+        $favorites = $catalog->getMyFavorites($patron);
+        foreach ($favorites as $favorite) {
+            $folder = $favorite['folder'];
+            $id = $favorite['id'];
+            $note = $favorite['note'];
+            $userListTable = $this->getTable('UserList');
+            $list = $userListTable->getByUserAndTitle($user, $folder);
+            if ($list == null) {
+                $list = $userListTable->getNew($user);
+                $list->title = $folder;
+                $list->save($user);
+            }
+            $resourceTable = $this->getTable('Resource');
+            $resource = $resourceTable->findResource($id);
+            $userResourceTable = $this->getTable('UserResource');
+            $userResourceTable->createOrUpdateLink($resource->id, $user->id, $list->id, $note);
+        }
+        $this->flashMessenger()->setNamespace('info')->addMessage('fav_import_successful');
+        return $this->redirect()->toRoute('myresearch-favorites');
+    }
+
     public function illRequestsAction()
     {
         if (!is_array($patron = $this->catalogLogin())) {
