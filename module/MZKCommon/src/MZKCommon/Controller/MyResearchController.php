@@ -319,6 +319,96 @@ class MyResearchController extends MyResearchControllerBase
         );
     }
 
+    public function profileAction()
+    {
+        $view = parent::profileAction();
+        if ($view) {
+            $catalog = $this->getILS();
+            $view->profileChange = $catalog->checkCapability('changeUserRequest');
+        }
+        return $view;
+    }
+
+    public function profileChangeAction()
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->forceLogin();
+        }
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        $op = $this->params()->fromQuery('op');
+        $catalog = $this->getILS();
+        $fromPost = $this->params()->fromPost('change');
+        $hmac = $this->params()->fromPost('hmac');
+        if ($fromPost) {
+            if ($hmac != $this->getHMAC()) {
+                $this->flashMessenger()->setNamespace('info')->addMessage('request_failed_due_to_hmac');
+            } elseif ($op == 'nickname') {
+                $nickname = trim($this->params()->fromPost('nickname'));
+                if (!empty($nickname)) {
+                    try {
+                        $catalog->changeUserNickname($patron, trim($nickname));
+                        $this->flashMessenger()->setNamespace('info')->addMessage('nickname_change_successful');
+                        return $this->redirect()->toRoute('myresearch-profile');
+                    } catch (\VuFind\Exception\ILS $ex) {
+                        $this->flashMessenger()->setNamespace('error')->addMessage('nickname_change_error');
+                    }
+                } else {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('nickname_empty_error');
+                }
+            } elseif ($op == 'email') {
+                $email = trim($this->params()->fromPost('email'));
+                if (!empty($email)) {
+                    try {
+                        $catalog->changeUserEmailAddress($patron, trim($email));
+                        $this->flashMessenger()->setNamespace('info')->addMessage('email_change_successful');
+                        return $this->redirect()->toRoute('myresearch-profile');
+                    } catch (\VuFind\Exception\ILS $ex) {
+                        $this->flashMessenger()->setNamespace('error')->addMessage('email_change_error');
+                    }
+                } else {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('email_empty_error');
+                }
+            } else if ($op == 'password') {
+                $oldPassword = $this->params()->fromPost('old_password');
+                $newPassword = $this->params()->fromPost('new_password');
+                $newPasswordCheck = $this->params()->fromPost('new_password_repeat');
+                if (empty($oldPassword) || empty($newPassword) || empty($newPasswordCheck)) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('password_empty_error');
+                } elseif ($newPassword != $newPasswordCheck) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('password_check_error');
+                } else {
+                    try {
+                        $catalog->changeUserPassword($patron, $oldPassword, $newPassword);
+                        $this->flashMessenger()->setNamespace('info')->addMessage('password_change_successful');
+                        return $this->redirect()->toRoute('myresearch-profile');
+                    } catch (\VuFind\Exception\ILS $ex) {
+                        $this->flashMessenger()->setNamespace('error')->addMessage('password_change_error');
+                    }
+                }
+            }
+        }
+        $view = $this->createViewModel(
+            array(
+                'label'         => 'change_' . $op,
+                'hmac'          => $this->getHMAC(),
+                'profileChange' => true,
+                'op'            => $op,
+            )
+        );
+        if ($op == 'nickname') {
+            $view->nickname = $catalog->getUserNickname($patron);
+        }
+        if ($op == 'email') {
+            $view->email = $patron['email'];
+        }
+        $view->setTemplate('myresearch/profilechange');
+        return $view;
+    }
+
     protected function getHMAC()
     {
         $config = $this->getConfig();
