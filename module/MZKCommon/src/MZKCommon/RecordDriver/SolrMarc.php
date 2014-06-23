@@ -82,7 +82,6 @@ class SolrMarc extends ParentSolrMarc
         }
 
         $finalID = $this->getExternalID();
-        print_r($finalID);
         if (!isset($finalID)) array(array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $id));
 
         $confEnd  = $ins . '_end';
