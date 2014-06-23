@@ -195,4 +195,20 @@ class SolrSup extends SolrMarc
         return $result;
     }
 
+    public function getExternalLinks()
+    {
+        $urls = $this->getURLs();
+        if (!is_array($urls) || !isset($urls[0]) || !isset($urls[0]['url'])) {
+            return;
+        }
+
+        $url = $urls[0]['url'];
+        $confEnd = 'sup_end';
+        $linkEnd = $this->recordConfig->ExternalLinks->$confEnd;
+
+        return array(
+                  array( 'institution' => 'sup', 'url' => $url . $linkEnd, 'display' => $url)
+               );
+    }
+
 }

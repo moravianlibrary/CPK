@@ -10,4 +10,8 @@ class SolrMarcMuni extends SolrMarcBase
         return self::MUNI_ALEPH_BASE . $this->getLocalId();
     }
 
+    protected function getExternalID() {
+        return $this->getLocalId();
+    }
 }
+

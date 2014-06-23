@@ -91,8 +91,13 @@
       
       <div>
         <strong><?=$this->transEsc('Available in libraries')?>:</strong>
-        <? foreach ($this->driver->getInstitutionsWithIds() as $institution => $id): ?>
-          <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $id))?>"><?=$this->escapeHtml($institution)?></a>
+
+        <? foreach ($this->driver->getExternalLinks() as $current): ?>
+          <? if (isset($current['url'])): ?>
+            <a href="<?=$current['url']?>" class="fulltext" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <? else: ?>
+            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>"><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <? endif; ?>
         <? endforeach;?>
         <? if ($this->driver->supportsAjaxStatus()): ?>
           <span class="status ajax-availability small hide">

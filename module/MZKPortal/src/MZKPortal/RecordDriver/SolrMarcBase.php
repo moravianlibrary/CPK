@@ -11,11 +11,6 @@ class SolrMarcBase extends SolrMarc
         return array($source => $id);
     }
 
-    public function getLocalId() {
-        list($source, $localId) = explode('.', $this->getUniqueID());
-        return $localId;
-    }
-
     public function getHoldLink() {
         return null;
     }
