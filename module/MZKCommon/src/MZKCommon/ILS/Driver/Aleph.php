@@ -48,6 +48,12 @@ class Aleph extends AlephBase
 
     protected $favoritesUrl = null;
 
+    protected $userCgiUrl = null;
+
+    protected $wwwuser = null;
+
+    protected $wwwpasswd = null;
+
     public function __construct(\VuFind\Date\Converter $dateConverter,
         \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null,
         \MZKCommon\Db\Table\RecordStatus $recordStatus = null
@@ -64,6 +70,13 @@ class Aleph extends AlephBase
         }
         if (isset($this->config['Catalog']['fav_cgi_url'])) {
             $this->favoritesUrl = $this->config['Catalog']['fav_cgi_url'];
+        }
+        if (isset($this->config['Catalog']['user_cgi_url'])) {
+            $this->userCgiUrl = $this->config['Catalog']['user_cgi_url'];
+        }
+        if (isset($this->config['Catalog']['wwwuser']) && isset($this->config['Catalog']['wwwpasswd'])) {
+            $this->wwwuser = $this->config['Catalog']['wwwuser'];
+            $this->wwwpasswd = $this->config['Catalog']['wwwpasswd'];
         }
     }
     
@@ -130,6 +143,68 @@ class Aleph extends AlephBase
             );
         }
         return $result;
+    }
+
+    public function getUserNickname($patron)
+    {
+        $params = array(
+            'op'           => 'get_nickname',
+        );
+        $xml = $this->changeUserRequest($patron, $params, true);
+        if ($xml->error) {
+            throw new ILSException($xml->error);
+        } else {
+            return $xml->nick;
+        }
+    }
+
+    public function changeUserNickname($patron, $newAlias)
+    {
+        $params = array(
+            'op'           => 'change_nickname',
+            'new_nickname' => $newAlias,
+        );
+        return $this->changeUserRequest($patron, $params);
+    }
+
+    public function changeUserPassword($patron, $oldPassword, $newPassword)
+    {
+        $params = array(
+            'op'      => 'change_password',
+            'old_pwd' => $oldPassword,
+            'new_pwd' => $newPassword,
+        );
+        return $this->changeUserRequest($patron, $params);
+    }
+
+    public function changeUserEmailAddress($patron, $newEmailAddress)
+    {
+        $params = array(
+            'op'      => 'change_email',
+            'email' => $newEmailAddress,
+        );
+        return $this->changeUserRequest($patron, $params);
+    }
+
+    public function changeUserRequest($patron, $params, $returnResult = false)
+    {
+        if ($this->userCgiUrl == null) {
+            throw new \Exception('Not supported, missing [Catalog][user_cgi_url] section in config');
+        }
+        $params['id']            = $patron['id'];
+        $params['user_name']     = $this->wwwuser;
+        $params['user_password'] = $this->wwwpasswd;
+        $response = $this->httpService->get($this->userCgiUrl, $params);
+        $answer = $response->getBody();
+        $xml = simplexml_load_string($answer);
+        if ($returnResult) {
+            return $xml;
+        }
+        if ($xml->error) {
+            throw new ILSException($xml->error);
+        } else {
+            return true;
+        }
     }
 
 }

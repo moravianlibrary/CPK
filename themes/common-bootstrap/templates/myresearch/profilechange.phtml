@@ -1,0 +1,74 @@
+<?
+    // Set up page title:
+    $this->headTitle($this->translate($this->label));
+
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-profile') . '">' . $this->transEsc('Profile') . '</a> <span class="divider">&gt;</span></li>'
+        . '<li class="active">' . $this->transEsc($this->label) . '</li>';
+?>
+
+<div class="<?=$this->layoutClass('mainbody')?>">
+  <h2><?=$this->transEsc($this->label)?></h2>
+
+  <?=$this->flashmessages()?>
+
+  <form class="form-horizontal edit-list-form" method="post" name="test" action="">
+
+    <?if ($this->op == 'email'):?>
+      <div class="control-group">
+        <label class="control-label" for="email">
+          <?=$this->transEsc('email')?>
+        </label>
+        <div class="controls">
+          <input type="text" name="email" id="email" value="<?=isset($this->email)?$this->email:''?>"/>
+        </div>
+      </div>
+    <?elseif ($this->op == 'nickname'):?>
+      <div class="control-group">
+        <label class="control-label" for="nickname">
+          <?=$this->transEsc('nickname')?>
+        </label>
+        <div class="controls">
+          <input type="text" name="nickname" id="nickname" value="<?=isset($this->nickname)?$this->nickname:''?>"/>
+        </div>
+      </div>
+    <?elseif ($this->op == 'password'):?>
+      <div class="control-group">
+        <label class="control-label" for="old_password">
+          <?=$this->transEsc('old_password')?>
+        </label>
+        <div class="controls">
+          <input type="password" name="old_password" id="old_password" value=""/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="new_password">
+          <?=$this->transEsc('new_password')?>
+        </label>
+        <div class="controls">
+          <input type="password" name="new_password" id="new_password" value=""/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="new_password_repeat">
+          <?=$this->transEsc('new_password_repeat')?>
+        </label>
+        <div class="controls">
+          <input type="password" name="new_password_repeat" id="new_password_repeat" value=""/>
+        </div>
+      </div>
+    <?endif;?>
+
+    <input type="hidden" name="hmac" value="<?=$this->hmac?>" />
+
+    <div class="control-group">
+      <input class="btn btn-primary" type="submit" name="change" value="<?=$this->transEsc('profile_change_submit')?>"/>
+    </div>
+
+  </form>
+
+</div>
+
+<div class="<?=$this->layoutClass('sidebar')?>">
+  <?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'profile'))?>
+</div>
