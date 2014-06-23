@@ -22,8 +22,14 @@ class SolrMarcBase extends SolrMarc
     
 
     /**
-     * @return array[ array[ [0] = institution, [1] = external link]] due to compatibility with merged records
-     */
+    * uses setting from config.ini => External links
+    * @return array  [] => [
+    *          [institution] = institution, 
+    *          [url] = external link to catalogue,
+    *          [display] => link to be possibly displayed]
+    *          [id] => local identifier of record
+    *
+    */
     public function getExternalLinks() {
 
         list($ins, $id) = explode('.' , $this->getUniqueID());
@@ -33,12 +39,13 @@ class SolrMarcBase extends SolrMarc
         }
 
         $finalID = $this->getExternalID();
-        if (!isset($finalID)) return array($ins, '');
+        if (!isset($finalID)) array(array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $id));
 
         $confEnd  = $ins . '_end';
         $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
         if (!isset($linkEnd)) $linkEnd = '';
-        return array(array($ins, $linkBase . $finalID . $linkEnd));
+        $externalLink =  $linkBase . $finalID . $linkEnd;
+        return array(array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id));
     }
 
     protected function getExternalID() {

@@ -27,7 +27,11 @@ class SolrMarcMerged extends SolrDefault
 
     /**
     * uses setting from config.ini => External links
-    * @return array  [] => [[0] = institution, [1] = [external link to catalogue]]
+    * @return array  [] => [
+    *          [institution] = institution, 
+    *          [url] = external link to catalogue,
+    *          [display] => link to be possibly displayed]
+    *          [id] => local identifier of record
     *
     */
     public function getExternalLinks() {
@@ -47,12 +51,14 @@ class SolrMarcMerged extends SolrDefault
             }
             $linkBase = $this->recordConfig->ExternalLinks->$ins;
             if (empty($linkBase)) {
-                $resultArray[] = array($ins, '');
+                $resultArray[] = array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $id);
+                continue;
             }
             $confEnd  = $ins . '_end';
             $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
             if (!isset($linkEnd)) $linkEnd = '';
-            $resultArray[] = array($ins, $linkBase . $finalID . $linkEnd);
+            $externalLink = $linkBase . $finalID . $linkEnd;
+            $resultArray[] = array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id);
         }
         return $resultArray;
     }
