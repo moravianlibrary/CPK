@@ -442,37 +442,23 @@ LccBrowse:
     callnumber-a:
       - [onephrase, ~]
 
-CallNumber:
+Callnumber:
   # We use two similar munges here -- one for exact matches, which will get
   # a very high boost factor, and one for left-anchored wildcard searches,
   # which will return a larger number of hits at a lower boost.
   CustomMunge:
-    callnumber_exact:
+    location_fuzzy:
       - [uppercase]
-      # Strip whitespace and quotes:
-      - [preg_replace, '/[ "]/', ""]
-      # Escape colons (unescape first to avoid double-escapes):
-      - [preg_replace, "/(\\\:)/", ':']
-      - [preg_replace, '/:/', '\:']
-      # Strip pre-existing trailing asterisks:
-      - [preg_replace, "/\*+$/", ""]
-    callnumber_fuzzy:
-      - [uppercase]
-      # Strip whitespace and quotes:
-      - [preg_replace, '/[ "]/', ""]
-      # Escape colons (unescape first to avoid double-escapes):
-      - [preg_replace, "/(\\\:)/", ':']
-      - [preg_replace, '/:/', '\:']
-      # Strip pre-existing trailing asterisks, then add a new one:
-      - [preg_replace, "/\*+$/", ""]
-      - [append, "*"]
+      - [preg_replace, '/[\s]+/m', ""]
+      - [preg_replace, '/\*/m', ""]
+      #- [preg_replace, '/[\"]/m', ""]
+      #- [preg_replace, "/^(.*)\$/", '\"\$1']
+      #- [append, "*\""]
+      - [append, "* "]
   QueryFields:
     callnumber:
-      - [callnumber_exact, 1000]
-      - [callnumber_fuzzy, ~]
-    dewey-full:
-      - [callnumber_exact, 1000]
-      - [callnumber_fuzzy, ~]
+      - [onephrase, 1000]
+      - [location_fuzzy, ~]
 
 publisher:
   DismaxFields:
@@ -555,7 +541,7 @@ UDC:
       - [preg_replace, "/\\]/", "\\]"]
       - [preg_replace, "/\\(/", "\\("]
       - [preg_replace, "/\\)/", "\\)"]
-      - [preg_replace, '/"/', "\\\""]
+      - [preg_replace, '/\\"/', "\\\""]
       - [preg_replace, '/$/m', "\""]
       - [preg_replace, '/^/m', "\""]
   QueryFields:
@@ -580,3 +566,8 @@ Location:
     callnumber_second_str_mv:
       - [onephrase, 1000]
       - [location_fuzzy, ~]
+
+sysno:
+  QueryFields:
+    sysno_str:
+      - [and, ~]
