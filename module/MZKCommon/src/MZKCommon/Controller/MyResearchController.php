@@ -365,6 +365,8 @@ class MyResearchController extends MyResearchControllerBase
                     try {
                         $catalog->changeUserEmailAddress($patron, trim($email));
                         $this->flashMessenger()->setNamespace('info')->addMessage('email_change_successful');
+                        $user->email = trim($email);
+                        $user->save();
                         return $this->redirect()->toRoute('myresearch-profile');
                     } catch (\VuFind\Exception\ILS $ex) {
                         $this->flashMessenger()->setNamespace('error')->addMessage('email_change_error');
@@ -403,7 +405,7 @@ class MyResearchController extends MyResearchControllerBase
             $view->nickname = $catalog->getUserNickname($patron);
         }
         if ($op == 'email') {
-            $view->email = $patron['email'];
+            $view->email = $user->email;//$patron['email'];
         }
         $view->setTemplate('myresearch/profilechange');
         return $view;
