@@ -82,13 +82,23 @@ class SolrMarc extends ParentSolrMarc
         }
 
         $finalID = $this->getExternalID();
-        if (!isset($finalID)) array(array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $id));
+        if (!isset($finalID) || !isset($linkBase)) { 
+            return array(
+                       array('institution' => $ins, 
+                             'url' => '', 
+                             'display' => '',
+                             'id' => $this->getUniqueID()));
+        }
 
         $confEnd  = $ins . '_end';
         $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
-        if (!isset($linkEnd)) $linkEnd = '';
+        if (!isset($linkEnd) ) $linkEnd = '';
         $externalLink =  $linkBase . $finalID . $linkEnd;
-        return array(array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id));
+        return array(
+                   array('institution' => $ins, 
+                         'url' => $externalLink,
+                         'display' => $externalLink,
+                         'id' => $id));
     }
 
     protected function getExternalID() {

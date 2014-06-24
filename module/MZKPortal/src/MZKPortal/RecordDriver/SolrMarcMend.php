@@ -8,7 +8,7 @@ class SolrMarcMend extends SolrMarcBase
         
     }
 
-    public function getExternalID() {
+    protected function getExternalID() {
         return substr($this->getLocalId(), 5);
     }
 }

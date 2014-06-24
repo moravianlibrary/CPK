@@ -92,11 +92,11 @@
       <div>
         <strong><?=$this->transEsc('Available in libraries')?>:</strong>
 
-        <? foreach ($this->driver->getExternalLinks() as $current): ?>
-          <? if (isset($current['url'])): ?>
-            <a href="<?=$current['url']?>" class="fulltext" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+        <? foreach ($this->driver->getExternalLinks() as $current): ?> <br/>
+         <? if (isset($current['url']) && !empty($current['url'])): ?>
+            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
           <? else: ?>
-            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>"><?=$this->transEsc(strtoupper($current['institution']))?></a>
+            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local-search-link"><?=$this->transEsc(strtoupper($current['institution']))?></a>
           <? endif; ?>
         <? endforeach;?>
         <? if ($this->driver->supportsAjaxStatus()): ?>

@@ -36,8 +36,8 @@ class SolrMarcMerged extends SolrDefault
     */
     public function getExternalLinks() {
         $resultArray = array();
-        foreach ($this->getMergedIds() as $id) {
-            list($ins, $id) = explode('.', $id);
+        foreach ($this->getMergedIds() as $currentId) {
+            list($ins, $id) = explode('.', $currentId);
             switch ($ins) {
                 case 'mzk':
                     $finalID = $id;
@@ -51,7 +51,7 @@ class SolrMarcMerged extends SolrDefault
             }
             $linkBase = $this->recordConfig->ExternalLinks->$ins;
             if (empty($linkBase)) {
-                $resultArray[] = array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $id);
+                $resultArray[] = array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $currentId);
                 continue;
             }
             $confEnd  = $ins . '_end';
