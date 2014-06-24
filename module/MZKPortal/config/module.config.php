@@ -40,6 +40,30 @@ $config = array(
                     'Map' => 'Map',
                     'Details' => 'StaffViewArray',
                 ),
+            ),
+
+            'MZKPortal\RecordDriver\SolrMarcMzk' => array(
+                'tabs' => array (
+                    'Description' => 'Description',
+                    'UserComments' => 'UserComments',
+                    'Details' => 'StaffViewArray',
+                ),
+            ),
+
+            'MZKPortal\RecordDriver\SolrMarcMuni' => array(
+                'tabs' => array (
+                    'Description' => 'Description',
+                    'UserComments' => 'UserComments',
+                    'Details' => 'StaffViewArray',
+                ),
+            ),
+
+            'MZKPortal\RecordDriver\SolrMarcMend' => array(
+                'tabs' => array (
+                    'Description' => 'Description',
+                    'UserComments' => 'UserComments',
+                    'Details' => 'StaffViewArray',
+                ),
             )
         ) /* recorddriver_tabs */
     ), /* vufind */
