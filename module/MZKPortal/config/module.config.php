@@ -11,6 +11,7 @@ $config = array(
                     'solrmzk'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcMzk',
                     'solrkjm'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcKjm',
                     'solrvut'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcVut',
+                    'solrmend'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMend',
                     'solrmerged'  => 'MZKPortal\RecordDriver\Factory::getSolrMarcMerged',
                 ) /* factories */
             ), /* recorddriver */
