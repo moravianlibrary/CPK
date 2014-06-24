@@ -72,13 +72,15 @@
         <? endif; ?>
       <? endif; ?>
     
-      <? $institutionsArray = $this->driver->getInstitutionsWithIds() ?>
-      <? if (!empty($institutionsArray))?>
-        <?='<br />' . $this->transEsc('Institution') . ': ' ?>
-        <? foreach ($institutionsArray as $inst => $id): ?>
-          <a href="<?=$this->recordLink()->getUrl() . $id?>" ><?=substr($inst, 4)?></a>
-          <?=' ' ?>
-        <? endforeach; ?>
+      <?='<br />' . $this->transEsc('Institution') . ': ' ?>
+      <? foreach ($this->driver->getExternalLinks() as $current): ?> <br/>
+          <? if (isset($current['url']) && !empty($current['url'])): ?>
+            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <? else: ?>
+           <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local-search-link"><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <? endif; ?>
+      <? endforeach;?>
+        
       
     </div>
 

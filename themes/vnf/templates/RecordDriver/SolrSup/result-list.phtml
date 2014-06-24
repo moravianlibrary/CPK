@@ -63,12 +63,13 @@
       <? endif; ?>
       <?='<br />' . $this->transEsc('Institution') . ': ' ?>
       <? $externalLink = $this->driver->getExternalLinks(); ?>
+      <br/>
       <? if(empty($externalLink)): ?>
         <? $id = $this->driver->getId(); ?>
-        <a href="<?=$this->recordLink()->getUrl($this->driver)?>" ><?=$this->transEsc(strtoupper(substr($id, 4, strpos($id, '.') - 4)))?></a>  
+        <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="local-search-link"><?=$this->transEsc(strtoupper(substr($id, 4, strpos($id, '.') - 4)))?></a>  
       <? else: ?>
         <? $externalLink = $externalLink[0]; ?>
-        <a href="<?=$externalLink['url']?>" class="fulltext" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($externalLink['institution']));?></a>
+        <a href="<?=$externalLink['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($externalLink['institution']));?></a>
       <? endif; ?>
     </div>
 
@@ -129,12 +130,6 @@
       </div>
 
       <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
-      
-      <? if (!$openUrlActive && empty($urls) && $this->driver->supportsAjaxStatus()): ?>
-        <span class="status ajax-availability small hide">
-          <span class="label"><?=$this->transEsc('Loading')?>...</span>
-        </span>
-      <? endif; ?>
       <?=$this->record($this->driver)->getPreviews()?>
     </div>
   </div>
@@ -175,6 +170,4 @@
     <? endif; ?>
   </div>
 </div>
-
-<?=$openUrl?'<span class="Z3988" title="'.$this->escapeHtml($openUrl).'"></span>':''?>
 

@@ -41,5 +41,42 @@ class SolrMarcMerged extends SolrDefault
         return $result;
     }
 
+    /**
+    * uses setting from config.ini => External links
+    * @return array  [] => [
+    *          [institution] = institution, 
+    *          [url] = external link to catalogue,
+    *          [display] => link to be possibly displayed]
+    *          [id] => local identifier of record
+    *
+    */
+    public function getExternalLinks() {
+        $resultArray = array();
+        foreach ($this->getMergedIds() as $currentId) {
+            list($ins, $id) = explode('.', $currentId);
+            if (substr($ins, 0, 4) === "vnf_") $ins = substr($ins, 4);
+
+            switch ($ins) {
+                case 'kkfb': 
+                    $finalID = substr($id, 5);
+                    break;
+                default:
+                    $finalID = $id;
+            }
+            
+            $linkBase = $this->recordConfig->ExternalLinks->$ins;
+            if (empty($linkBase)) {
+                $resultArray[] = array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $currentId);
+                continue;
+            }
+            $confEnd  = $ins . '_end';
+            $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
+            if (!isset($linkEnd)) $linkEnd = '';
+            $externalLink = $linkBase . $finalID . $linkEnd;
+            $resultArray[] = array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id);
+        }
+        return $resultArray;
+    }
+
 }
 

@@ -122,6 +122,28 @@ class Factory
     	);
     	return $driver;
     }
+
+ /**
+     * Factory for Kkfb record driver.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return SolrKkfb
+     */
+    public function getSolrKkfb(ServiceManager $sm)
+    {
+        $driver = new \VNF\RecordDriver\SolrKkfb(
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+            null,
+            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+        );
+        $driver->attachILS(
+            $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+            $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+            $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+        );
+        return $driver;
+    }
     
 
 

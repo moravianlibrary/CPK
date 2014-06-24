@@ -76,13 +76,20 @@ class SolrMarc extends ParentSolrMarc
     public function getExternalLinks() {
 
         list($ins, $id) = explode('.' , $this->getUniqueID());
-        $linkBase = $this->recordConfig->ExternalLinks->$ins;
-        if (empty($linkBase)) {
-            $resultArray[] = array($ins, '');
+        //FIXME temporary
+        if (substr($ins, 0, 4) === "vnf_") $ins = substr($ins, 4);
+	$linkBase = $this->recordConfig->ExternalLinks->$ins;
+
+        if (empty($linkBase)) { 
+            return array(
+                       array('institution' => $ins, 
+                             'url' => '', 
+                             'display' => '',
+                             'id' => $this->getUniqueID()));
         }
 
         $finalID = $this->getExternalID();
-        if (!isset($finalID) || !isset($linkBase)) { 
+        if (!isset($finalID)) { 
             return array(
                        array('institution' => $ins, 
                              'url' => '', 
