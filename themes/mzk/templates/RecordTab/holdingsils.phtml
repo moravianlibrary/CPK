@@ -94,7 +94,7 @@
   <? $row++; ?>
   <tr class="<?=(($row % 2) == 0)?'oddrow':'evenrow'?>">
     <td>
-      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($row['status'])?></span>
+      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc('Status '. $row['status'])?></span>
       <? if ($row['reserve'] == "Y"): ?>
       <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
       <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
@@ -134,10 +134,10 @@
       <?endif;?>
     </td>
     <td>
-      <?=$this->transEsc($row['sub_lib_desc'])?>
+      <?=$this->transEsc('Sublibrary '. $row['sub_lib_desc'])?>
     </td>
     <td>
-      <?=$this->transEsc($row['collection_desc'])?>
+      <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
     </td>
     <td>
       <?=$this->escapeHtml($row['callnumber_second'])?>
