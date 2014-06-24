@@ -45,9 +45,8 @@ class SolrMarc extends ParentSolrDefault
     
     public function getEODLink()
     {
-        $eod = $this->getFirstFieldValue('EOD', array('a'));
-        $isEod = ($eod == 'Y')?true:false;
-        if (!$isEod) {
+        $eod = isset($this->fields['statuses']) && in_array('available_for_eod', $this->fields['statuses']);
+        if (!$eod) {
             return null;
         }
         list($base, $sysno) = explode('-', $this->getUniqueID());

@@ -203,11 +203,9 @@
         <tr>
           <td>
             <a href="<?=$eodLink?>">
-              <img src="<?=$this->imageLink('eod/eod_button_cz.png')?>"></img>
+              <img src="<?=$this->imageLink('eod/eod_button_cz.png')?>"
+                alt="<?=$this->transEsc('EOD text');?>"/>
             </a>
-          </td>
-          <td>
-            <span class="eod_text"><?=$this->transEsc('EOD text');?></span>
           </td>
         </tr>
       </table>
@@ -219,11 +217,9 @@
         <tr>
           <td>
             <a href="<?=$backLink?>/DigiRequest">
-              <img src="<?=$this->imageLink('digitalization_request_button_cz.png')?>"></img>
+              <img src="<?=$this->imageLink('digitalization_request_button_cz.png')?>"
+                alt="<?=$this->transEsc('request_for_digitalization_button_text');?>" />
             </a>
-          </td>
-          <td>
-            <span class="digi_req_text">&nbsp;<?=$this->transEsc('request_for_digitalization_button_text');?></span>
           </td>
         </tr>
       </table>
