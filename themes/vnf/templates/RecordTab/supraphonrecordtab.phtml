@@ -7,7 +7,7 @@
 	</tr>
 	<? foreach ($this->driver->getContent() as $current): ?>
 	<tr>
-		<td><?=$this->escapeHtml($current['r'])?>
+		<td><?=$this->escapeHtml(isset($current['r']) ? $current['r'] : '')?>
 		</td>
 		<td><?=$this->escapeHtml($current['t'])?>
 		</td>
