@@ -120,8 +120,9 @@
           <? if ($this->driver->replaceURLsWithOpenURL()) $urls = array(); // clear URL list if replace setting is active ?>
         <? endif; ?>
         <? if (!is_array($urls)) $urls = array();
-          if(!$this->driver->isCollection()):
-            foreach ($urls as $current): ?>
+          if(!$this->driver->isCollection()): ?>
+            <br/>
+            <? foreach ($urls as $current): ?>
               <a href="<?=$this->escapeHtml($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="icon-external-link"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
           <? endforeach; ?>
         <? endif; ?>
