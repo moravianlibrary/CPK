@@ -157,7 +157,6 @@ Author:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
 
 ISN:
   DismaxFields:
@@ -315,6 +314,7 @@ AllFields:
     - fulltext_unstemmed^10
     - allfields
     - fulltext
+    - ean_str_mv
   QueryFields:
     0:
       0:
@@ -366,6 +366,8 @@ AllFields:
     allfields:
       - [or, ~]
     fulltext:
+      - [or, ~]
+    ean_str_mv:
       - [or, ~]
 
 # These are advanced searches that never use Dismax:
