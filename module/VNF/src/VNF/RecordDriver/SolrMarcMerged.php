@@ -60,6 +60,13 @@ class SolrMarcMerged extends SolrDefault
                 case 'kkfb': 
                     $finalID = substr($id, 5);
                     break;
+                case 'ktn':
+                    $i = 0;
+                    for (;$i < strlen($id); $i++) {
+                        if (!ctype_alpha($id[$i])) break;
+                    }
+                    $finalID = substr($id, $i);
+                    break;
                 default:
                     $finalID = $id;
             }
