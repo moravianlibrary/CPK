@@ -56,6 +56,10 @@ class SolrMarcMerged extends SolrDefault
             list($ins, $id) = explode('.', $currentId);
             if (substr($ins, 0, 4) === "vnf_") $ins = substr($ins, 4);
 
+            $confEnd  = $ins . '_end';
+            $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
+            if (!isset($linkEnd)) $linkEnd = '';
+
             switch ($ins) {
                 case 'kkfb': 
                     $finalID = substr($id, 5);
@@ -67,18 +71,28 @@ class SolrMarcMerged extends SolrDefault
                     }
                     $finalID = substr($id, $i);
                     break;
+                case 'sup';
+                    $urls = isset($this->fields['externalLinks_str_mv']) ? $this->fields['externalLinks_str_mv'] : array();
+                    foreach ($urls as $url) {
+                        list($extIns, $extUrl) = explode(';', $url);
+                        if ($extIns == 'vnf_sup' || $extIns == 'sup') {
+                            $externalLink = 'http://' . $extUrl . $linkEnd;
+                            $resultArray[] = array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id);
+                            continue 3;
+                        }
+                    }
+                    $finalID = $id;
+                    break;
                 default:
                     $finalID = $id;
             }
-            
+
             $linkBase = $this->recordConfig->ExternalLinks->$ins;
             if (empty($linkBase)) {
                 $resultArray[] = array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $currentId);
                 continue;
             }
-            $confEnd  = $ins . '_end';
-            $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
-            if (!isset($linkEnd)) $linkEnd = '';
+           
             $externalLink = $linkBase . $finalID . $linkEnd;
             $resultArray[] = array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id);
         }
