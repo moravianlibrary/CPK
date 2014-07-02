@@ -1774,7 +1774,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 "printLink" => "test",
             );
         }
-        $this->idResolver->resolveIds($transList);
+        $this->idResolver->resolveIds($finesList);
         return $finesList;
     }
 
