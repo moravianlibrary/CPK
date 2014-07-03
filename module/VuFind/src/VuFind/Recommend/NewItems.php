@@ -128,7 +128,7 @@ class NewItems implements RecommendInterface
         $e2 = $curr_date;
         $ranges = array_merge(range($e2, $s2), range($e1, $s1));
         foreach ($ranges as $date) {
-            $range = $this->createRange($date . '01', $e2 . '31');
+            $range = $this->createRange($date, $e2);
             $label = $this->createLabel($date);
             $this->dateRanges[$label] = array(
                 'filter' => $this->createFilter($range),
