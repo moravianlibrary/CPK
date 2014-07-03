@@ -211,3 +211,11 @@ list-style-type: none;
 select.resultsOnPageLimiter {
   width: initial;
 }
+
+.local-search-link {
+margin-left: 25px;
+}
+
+.external-search-link {
+margin-left: 10px;
+}
