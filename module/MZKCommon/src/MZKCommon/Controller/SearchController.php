@@ -103,4 +103,12 @@ class SearchController extends SearchControllerBase
         );
     }
 
+    public function newAcquisitionsAction() {
+        $curr_date = date('Ym', strtotime('now'));
+        $filter = "acq_int:[$curr_date TO $curr_date]";
+        $params = array('filter[]' => $filter);
+        $url = $this->url()->fromRoute('search-results', array(), array('query' => $params));
+        $this->redirect()->toUrl($url);
+    }
+
 }

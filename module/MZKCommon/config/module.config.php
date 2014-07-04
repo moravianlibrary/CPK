@@ -51,7 +51,7 @@ $config = array(
 );
 
 $staticRoutes = array(
-    'Search/Conspectus', 'Search/MostSearched',
+    'Search/Conspectus', 'Search/MostSearched', 'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory', 'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport', 'MyResearch/ProfileChange',
 );
