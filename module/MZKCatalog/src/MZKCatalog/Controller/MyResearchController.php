@@ -56,4 +56,20 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function finesAction() {
+        $view = parent::finesAction();
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+        if ($view) {
+            $catalog = $this->getILS();
+            $accruedOverdue = $catalog->getAccruedOverdue($patron);
+            if ($accruedOverdue > 0) {
+                $message = $this->translate('accrued_overdue_summary_text');
+                $this->flashMessenger()->setNamespace('error')->addMessage($message . ' ' . $accruedOverdue);
+            }
+        }
+        return $view;
+    }
+
 }

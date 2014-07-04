@@ -1692,6 +1692,22 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         return $statuses;
     }
 
+    public function getAccruedOverdue($user)
+    {
+        $sum = 0;
+        $xml = $this->alephWebService->doRestDLFRequest(
+            array('patron', $user['id'], 'circulationActions'), null
+        );
+        foreach ($xml->circulationActions->institution as $institution) {
+            $cashNote = (string) $institution->note;
+            $matches = array();
+            if (preg_match("/Please note that there is an additional accrued overdue items fine of: (\d+\.?\d*)\./", $cashNote, $matches) === 1) {
+                $sum = $matches[1];
+            }
+        }
+        return $sum;
+    }
+
     /**
      * Get Patron Fines
      *
