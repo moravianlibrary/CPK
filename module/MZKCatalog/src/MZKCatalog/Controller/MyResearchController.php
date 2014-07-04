@@ -50,9 +50,16 @@ class MyResearchController extends MyResearchControllerBase
     public function profileAction()
     {
         $view = parent::profileAction();
-        $profile = $view->profile;
-        $profile['bookshelf'] = substr($profile['barcode'], -2, 2);
-        $view->profile = $profile;
+        if ($view) {
+            $profile = $view->profile;
+            $profile['bookshelf'] = substr($profile['barcode'], -2, 2);
+            $view->profile = $profile;
+            $expire = date_create_from_format('d. m. Y', $view->profile['expire']);
+            $dateDiff = date_diff($expire, date_create());
+            if ($dateDiff->days < 30) {
+                $this->flashMessenger()->setNamespace('error')->addMessage('library_card_expiration_warning');
+            }
+        }
         return $view;
     }
 
