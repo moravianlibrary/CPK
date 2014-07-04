@@ -47,18 +47,6 @@
     </tr>
   <? endif; ?>
 
-  <? $physical = $this->driver->getPhysicalDescriptions(); if (!empty($physical)): ?>
-    <? $contentDisplayed = true; ?>
-    <tr valign="top">
-      <th><?=$this->transEsc('Physical Description')?>: </th>
-      <td>
-        <? foreach ($physical as $field): ?>
-          <?=$this->escapeHtml($field)?><br/>
-        <? endforeach; ?>
-      </td>
-    </tr>
-  <? endif; ?>
-
   <? $freq = $this->driver->getPublicationFrequency(); if (!empty($freq)): ?>
     <? $contentDisplayed = true; ?>
     <tr valign="top">
