@@ -1868,7 +1868,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $blocks[] = $block;
             }
         }
-        $recordList['blocks'] = $blocks;
+        $recordList['blocks'] = array_unique($blocks);
         return $recordList;
     }
 
