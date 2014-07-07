@@ -102,11 +102,11 @@
 
       <? foreach ($this->driver->getExternalLinks() as $current): ?>
         <? if (isset($current['url']) && !empty($current['url'])): ?>
-          <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <a href="<?=$current['url']?>" class="fulltext" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
         <? else: ?>
-          <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local-search-link"><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local"><?=$this->transEsc(strtoupper($current['institution']))?></a>
         <? endif; ?>
-        <br/>
+        <br/><br/>
       <? endforeach;?>
       
       <div class="callnumAndLocation ajax-availability hide">
@@ -175,9 +175,6 @@
     <? endif; ?>
 
     <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-      <? /* Add to favorites */ ?>
-      <i class="icon-heart"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
-
       <? /* Saved lists */ ?>
       <div class="savedLists alert alert-info hide">
         <strong><?=$this->transEsc("Saved in")?>:</strong>
