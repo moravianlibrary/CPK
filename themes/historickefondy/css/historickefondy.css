@@ -220,6 +220,18 @@ margin-left: 25px;
 margin-left: 10px;
 }
 
-#recaptcha_privacy, #recaptcha_only_if_privacy {
+#recaptcha_privacy.recaptcha_only_if_privacy {
 float: inherit;
+}
+
+.limitSelect {
+display: inline-block;
+}
+
+.sortSelect {
+display: inline-block;
+}
+
+.jumpMenu{
+width: auto;
 }
