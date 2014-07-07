@@ -1,6 +1,7 @@
 <?=$this->doctype('HTML5')?>
 <html lang="<?=$this->layout()->userLang?>">
   <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
     <?$this->headThemeResources()?>
     <?=$this->headMeta()?>
     <?=$this->headTitle()?>
@@ -24,7 +25,15 @@
         // Deal with cart stuff:
         if (!isset($this->renderingError)) {
             $cart = $this->cart();
-            $this->jsTranslations()->addStrings(array('loading' => 'Loading'));
+            $this->jsTranslations()->addStrings(
+                array(
+                    'bulk_email_success' => 'bulk_email_success',
+                    'bulk_save_success' => 'bulk_save_success',
+                    'close' => 'close',
+                    'loading' => 'Loading',
+                    'sms_success' => 'sms_success'
+                )
+            );
             if ($cart->isActive()) {
                 $this->headScript()->appendFile("cookies.js");
                 $this->headScript()->appendFile("cart.js");
@@ -44,6 +53,16 @@
                 );
             }
             $this->headScript()->appendScript($this->jsTranslations()->getScript());
+        }
+        
+        // Session keep-alive
+        if ($this->KeepAlive()) {
+            $this->headScript()->appendScript('var keepAliveInterval = '
+                . $this->KeepAlive());
+            $this->headScript()->appendFile("keep_alive.js");
+        }
+        if ($this->recaptcha()->active()) {
+            $this->headScript()->appendFile("recaptcha_ajax.js");
         }
     ?>
     <?=$this->headScript()?>
@@ -68,10 +87,29 @@
         <?=$this->layout()->searchbox?>
         <? endif; ?>
       </div>
-      <? if((!isset($this->layout()->showBreadcrumbs) || $this->layout()->showBreadcrumbs == true) && $this->layout()->breadcrumbs !== false): ?>
-        <ul class="breadcrumb noprint">
-          <li class="active"><a href="<?=$this->url('home') ?>">Home</a> <span class="divider">&gt;</span></li>
+      
+      <? if((!isset($this->layout()->showBreadcrumbs) || $this->layout()->showBreadcrumbs == true)
+        && !empty($this->layout()->breadcrumbs)
+        && $this->layout()->breadcrumbs !== false
+      ): ?>
+        <ul class="breadcrumb">
+        <? if(is_array($this->layout()->breadcrumbs)): ?>
+          <? if(count($this->layout()->breadcrumbs) > 1): ?>
+            <?=$this->render('breadcrumbs/multi.phtml', array(
+                'parents' => $this->layout()->breadcrumbs,
+                'title'   => $this->layout()->title,
+                'end'     => $this->layout()->breadcrumbEnd,
+                'from'    => $this->layout()->from
+              )) ?>
+          <? else: ?>
+            <?=$this->render('breadcrumbs/default.phtml', array(
+                'parents' => $this->layout()->breadcrumbs,
+                'title'   => $this->layout()->title
+              )) ?>
+          <? endif; ?>
+        <? else: ?>
           <?=$this->layout()->breadcrumbs ?>
+        <? endif; ?>
         </ul>
       <? endif; ?>
       <div class="main row-fluid">
@@ -83,7 +121,7 @@
       </div>
     </div>
     <!-- MODAL IN CASE WE NEED ONE -->
-    <div id="modal" class="modal hide fade">
+    <div id="modal" class="modal hide fade" tabindex="-1">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3></h3>
