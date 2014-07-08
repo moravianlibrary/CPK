@@ -191,6 +191,11 @@ $(document).ready(function() {
   setupOrFacets();
   // Cart functionality
   refreshCartItems();
+  
+  $('.jt').tooltip({
+	  placement: 'right',
+	  html: true
+  });
 });
 
 function updateCart(item) {
