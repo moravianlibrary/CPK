@@ -225,3 +225,8 @@ margin-left: 25px;
 .external-search-link {
 margin-left: 10px;
 }
+
+#flagLink.flagLink {
+padding: 0px 5px 0px 0px;
+margin-bottom: 10px;
+}
