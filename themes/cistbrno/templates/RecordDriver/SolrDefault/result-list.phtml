@@ -61,7 +61,7 @@
           <?=!empty($summDate) ? ' (' . $this->escapeHtml($summDate[0]) . ')' : ''?>
         <? elseif (!empty($summDate)): ?>
           <!-- <?=!empty($summAuthor) ? '<br />' : ''?> -->
-          <?=$this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0])?>
+          <?=!empty($summDate[0]) ? $this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0]) : ''?>
         <? endif; ?>
         <? $summInCollection = $this->driver->getContainingCollections(); if (!empty($summInCollection)): ?>
           <? foreach ($summInCollection as $collId => $collText): ?>
