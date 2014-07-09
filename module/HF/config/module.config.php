@@ -25,7 +25,16 @@ $config = array(
                       ), /* factories */
                  ), /* recorddriver */
              ), /* plugin_managers */
-        
+       'recorddriver_tabs' => array(
+             'HF\RecordDriver\SolrMarc' => array(
+                    'tabs' => array (
+                            'Description' => 'Description',
+                            'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                    ),
+                    'defaultTab' => 'Description',
+             ),
+        ),
+ 
     ),
 );
 
