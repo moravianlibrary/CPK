@@ -180,7 +180,11 @@ class Resource extends Gateway
 
                 // Apply sorting, if necessary:
                 if (!empty($sort)) {
-                    Resource::applySort($s, $sort);
+                    $alias = 'resource';
+                    if ($sort == 'saved' || $sort == 'saved DESC') {
+                        $alias = 'ur';
+                    }
+                    Resource::applySort($s, $sort, $alias);
                 }
             }
         );
@@ -217,7 +221,7 @@ class Resource extends Gateway
     {
         // Apply sorting, if necessary:
         $legalSorts = array(
-            'title', 'title desc', 'author', 'author desc', 'year', 'year desc'
+            'title', 'title desc', 'author', 'author desc', 'year', 'year desc', 'saved desc'
         );
         if (!empty($sort) && in_array(strtolower($sort), $legalSorts)) {
             // Strip off 'desc' to obtain the raw field name -- we'll need it
