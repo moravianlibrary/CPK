@@ -1,6 +1,6 @@
 <?php
 return array(
-    'extends' => 'bootstrap',
+    'extends' => 'common-bootstrap',
     'css' => array(
         'historickefondy.css'
     ),
