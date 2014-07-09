@@ -52,7 +52,7 @@
           <? elseif ($this->params->getSearchType() == 'basic'): ?>
             <?=$this->transEsc('for search')?>: <strong>'<?=$this->escapeHtml($lookfor)?>'</strong>.
           <? endif; ?>
-          <i class="icon-envelope"></i><a href="<?=$this->url('search-email')?>" class="mailSearch" id="mailSearch<?=$this->escapeHtml($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><?=$this->transEsc('Email this Search')?></a>
+          <i class="icon-envelope"></i><a href="<?=$this->url('search-email')?>" class="mailSearch" id="mailSearch<?=$this->escapeHtml($this->results->getSearchId())?>" onClick="processEmailSearch(this); return false;"title="<?=$this->transEsc('Email this Search')?>"><?=$this->transEsc('Email this Search')?></a>
           <?=$this->search()->renderSpellingSuggestions('<strong>' . $this->transEsc('spell_suggest') . '</strong>:', $this->results, $this); ?>
         <? else: ?>
           <p class="lead"><?=$this->transEsc('nohit_heading')?></p>
@@ -84,6 +84,11 @@
       <? endforeach; ?>
     </div>
   <? else: ?>
+    <span class="sort_limit_container">
+      <?=$this->render('search/controls/limit.phtml')?>
+      <span class="help-inline">|</span>
+      <?=$this->render('search/controls/sort.phtml')?>
+    </span>    
     <form class="form-inline" method="post" name="bulkActionForm" action="<?=$this->url('cart-home')?>">
       <div class="results-bulk-actions">
         <? if ($this->cart()->isActive()): ?>

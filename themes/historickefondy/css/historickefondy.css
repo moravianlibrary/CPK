@@ -235,3 +235,11 @@ display: inline-block;
 .jumpMenu{
 width: auto;
 }
+
+.sort_limit_container {
+float: right;
+}
+
+.resultsOnPageLimiter {
+margin-left: 3px;
+}
