@@ -1,7 +1,7 @@
 <div class="row-fluid result-inner<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
-  <div class="span2 left">
+  <div class="span2 text-center">
     <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
         <img src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
@@ -9,6 +9,8 @@
         <img src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
       <? endif; ?>
     </a>
+    <br/>
+   <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
   </div>
   <div class="span7 middle">
     <div>
@@ -147,8 +149,6 @@
           <? endforeach; ?>
         <? endif; ?>
       <? endif; ?>
-
-      <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
       
       <? if (!$openUrlActive && empty($urls) && $this->driver->supportsAjaxStatus()): ?>
         <span class="status ajax-availability small hide">
