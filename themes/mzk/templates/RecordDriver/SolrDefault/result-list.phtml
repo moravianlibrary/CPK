@@ -3,6 +3,7 @@
   $this->headScript()->appendFile('obalkyknih/custom.js');
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
+  $formats = $this->driver->getFormats();
 ?>
 <div class="row-fluid <?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
@@ -18,9 +19,9 @@
           });
         </script>
       <? endif;?>
-      <img src="<?=$this->imageLink('format/Book.png')?>" />
+      <img src="<?=$this->imageLink('format/' . $formats[0] . '.png')?>" />
     </div>
-    <div class="coverFormat">Book</div>
+    <div class="coverFormat"><?=$this->transEsc($formats[0])?></div>
   </div>
 
   <div class="span7 middle">
