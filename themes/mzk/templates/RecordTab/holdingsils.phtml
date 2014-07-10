@@ -94,7 +94,13 @@
   <? $row++; ?>
   <tr class="<?=(($row % 2) == 0)?'oddrow':'evenrow'?>">
     <td>
-      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc('Status '. $row['status'])?></span>
+      <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>
+      <div>
+      <? else: ?>
+      <div class="jt" title="<?=$this->transEsc('Description Status '. $row['status'])?>">
+      <? endif; ?>
+      	<span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc('Status '. $row['status'])?></span>
+      </div>
       <? if ($row['reserve'] == "Y"): ?>
       <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
       <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
@@ -134,10 +140,22 @@
       <?endif;?>
     </td>
     <td>
-      <?=$this->transEsc('Sublibrary '. $row['sub_lib_desc'])?>
+      <? if ($this->transEsc('Description Sublibrary '. $row['sub_lib_desc']) == 'Description Sublibrary '. $row['sub_lib_desc']):?>
+      <div>
+      <? else: ?>
+      <div class="jt" title="<?=$this->transEsc('Description Sublibrary '. $row['sub_lib_desc'])?>">
+      <? endif; ?>
+        <?=$this->transEsc('Sublibrary '. $row['sub_lib_desc'])?>
+      </div>
     </td>
     <td>
-      <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
+      <? if ($this->transEsc('Description Collection '. $row['collection_desc']) == 'Description Collection '. $row['collection_desc']):?>
+      <div>
+      <? else: ?>
+      <div class="jt" title="<?=$this->transEsc('Description Collection '. $row['collection_desc'])?>">
+      <? endif; ?>  
+        <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
+      </div>
     </td>
     <td>
       <?=$this->escapeHtml($row['callnumber_second'])?>
