@@ -45,6 +45,10 @@
   <? if ($openUrl): ?><?=$this->openUrl($openUrl);?><? endif; ?>
 <? endif; ?>
 
+<? foreach($this->driver->getItemLinks() as $link):?>
+  <a href='<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $link['id']))?>'><?=$this->escapeHtml($link['label'])?></a><br/>
+<? endforeach;?>
+
 <div class="holdings-filters">
   <? foreach($filters as $name => $values):?>
     <? if (!empty($values)):?>

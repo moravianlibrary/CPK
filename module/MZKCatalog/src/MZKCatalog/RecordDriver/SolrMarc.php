@@ -139,4 +139,26 @@ class SolrMarc extends ParentSolrDefault
         }
     }
 
+    public function getItemLinks()
+    {
+        $itemLinks = $this->marcRecord->getFields('994');
+        if (!is_array($itemLinks)) {
+            return array();
+        }
+        $links = array();
+        foreach ($itemLinks as $itemLink) {
+            $base   = $itemLink->getSubfield('l')->getData();
+            $sysno  = $itemLink->getSubfield('b')->getData();
+            $label1 = $itemLink->getSubfield('m')->getData();
+            $label2 = $itemLink->getSubfield('n')->getData();
+            $type   = $itemLink->getSubfield('a')->getData();
+            $links[] = array(
+                'id'    => $base . '-' . $sysno,
+                'type'  => $type,
+                'label' => $label1 . ' ' . $label2,
+            );
+        }
+        return $links;
+    }
+
 }
