@@ -1,5 +1,5 @@
 <?php
-namespace MZKCatalog\View\Helper\MZKCatalog;
+namespace MZKCommon\View\Helper\MZKCommon;
 
 use ObalkyKnih\View\Helper\ObalkyKnih\Record as ParentRecord;
 
