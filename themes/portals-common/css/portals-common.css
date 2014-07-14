@@ -1,0 +1,36 @@
+.local-search-link {
+margin-left: 25px;
+}
+
+.external-search-link {
+margin-left: 10px;
+}
+
+#recaptcha_privacy.recaptcha_only_if_privacy {
+float: inherit;
+}
+
+.limitSelect {
+display: inline-block;
+}
+
+.sortSelect {
+display: inline-block;
+}
+
+.jumpMenu{
+width: auto;
+}
+
+.sort_limit_container {
+float: right;
+}
+
+.resultsOnPageLimiter {
+margin-left: 3px;
+}
+
+#flagLink.flagLink {
+padding: 0px 5px 0px 0px;
+margin-bottom: 10px;
+}

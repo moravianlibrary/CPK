@@ -7,7 +7,7 @@
     '<li class="active">' . $this->transEsc('Email this Search') . '</li>';
 ?>
 <?=$this->flashmessages()?>
-<form class="form-horizontal" action="" method="post"  name="emailSearch">
+<form class="form-horizontal"  method="post"  name="emailSearch">
   <input type="hidden" name="url" value="<?=$this->escapeHtmlAttr($this->url)?>" />
   <div class="control-group">
     <label class="control-label" for="email_to"><?=$this->transEsc('To')?>:</label>
@@ -23,6 +23,20 @@
       </div>
     </div>
   <? endif; ?>
+  <? if ($this->export && is_array($this->export)): ?>
+  <div class="control-group">
+    <label class="control-label" for="export_format"><?=$this->transEsc('Send As')?>:</label>
+    <div class="controls">
+      <select name="export_format" class="jumpMenu">  
+        <? foreach ($this->export as $format => $value): ?>
+          <? if ($value): ?>
+            <option value="<?=$this->escapeHtml(str_replace(' ', '', $format))?>"><?=$this->transEsc($format)?></option>
+          <? endif; ?>
+        <? endforeach; ?>
+      </select>
+    </div>
+  </div>
+  <? endif; ?>
   <div class="control-group">
     <label class="control-label" for="email_message"><?=$this->transEsc('Message')?>:</label>
     <div class="controls">
@@ -35,4 +49,7 @@
       <input class="btn btn-primary" type="submit" name="submit" value="<?=$this->transEsc('Send Email')?>"/>
     </div>
   </div>
+   <? if ($this->ids): ?>
+    <input type="hidden" name="exportIDs" value="<?=implode(';', $this->ids);?>">
+  <? endif; ?>
 </form>

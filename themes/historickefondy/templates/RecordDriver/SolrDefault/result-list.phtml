@@ -1,5 +1,5 @@
 <div class="row-fluid result-inner<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
-  <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
+  <div class="recordId hide"><?=$this->escapeHtml($this->driver->getId())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
   <div class="span2 text-center">
     <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
