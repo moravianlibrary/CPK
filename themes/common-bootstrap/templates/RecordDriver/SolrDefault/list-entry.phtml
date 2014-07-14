@@ -14,11 +14,15 @@
     $list_id = null;
     $user_id = $this->user ? $this->user->id : null;
   }
+  $availabilityId = null;
+  if (!($this->driver instanceof \VuFind\RecordDriver\Missing)) {
+     $availabilityId = $this->driver->getAvailabilityID();
+  }
 ?>
 <div class="row-fluid result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
   <?=$this->record($this->driver)->getCheckbox() ?>
   <input type="hidden" value="<?=$id ?>" class="hiddenId"/>
-  <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
+  <div class="availabilityId hide"><?=$this->escapeHtml($availabilityId)?></div>
 
   <div class="span2 text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
