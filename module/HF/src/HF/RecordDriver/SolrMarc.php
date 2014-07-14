@@ -1,6 +1,6 @@
 <?php
 namespace HF\RecordDriver;
-use MZKCommon\RecordDriver\SolrMarc As ParentSolrDefault;
+use PortalsCommon\RecordDriver\SolrMarc As ParentSolrDefault;
 
 /*
  * Default record driver for HF

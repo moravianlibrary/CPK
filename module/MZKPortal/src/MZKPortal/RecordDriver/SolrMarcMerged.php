@@ -1,29 +1,9 @@
 <?php
 namespace MZKPortal\RecordDriver;
-use VuFind\RecordDriver\SolrDefault;
+use PortalsCommon\RecordDriver\SolrMarcMerged as ParentSolr;
 
-class SolrMarcMerged extends SolrDefault
+class SolrMarcMerged extends ParentSolr
 {
-
-    public function getMergedIds() {
-        return isset($this->fields['local_ids_str_mv']) ?
-            $this->fields['local_ids_str_mv'] : array();
-    }
-
-    public function getInstitutionsWithIds() {
-        $ids = $this->getMergedIds();
-        $result = array();
-        foreach ($ids as $id) {
-            list($source, $localId) = explode('.', $id);
-            $result[$source] = $id;
-        }
-        ksort($result);
-        return $result;
-    }
-
-    public function getAvailabilityID() {
-        return null;
-    }
 
     /**
     * uses setting from config.ini => External links
