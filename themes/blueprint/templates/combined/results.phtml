@@ -23,6 +23,9 @@
         )
     );
 
+    // Create shortcut to combined results (since $this->results may get overwritten in processing below):
+    $combinedResults = $this->results;
+
     // Set up breadcrumbs:
     if (isset($this->overrideTitle)) {
         $this->layout()->breadcrumbs = '<em>' . $this->escapeHtml($this->overrideTitle) . '</em>';
@@ -36,8 +39,16 @@
     $this->headScript()->appendFile("check_save_statuses.js");
 ?>
 <div>
+  <? $recs = $combinedResults->getRecommendations('top'); if (!empty($recs)): ?>
+    <div>
+      <? foreach ($recs as $current): ?>
+        <?=$this->recommend($current)?>
+      <? endforeach; ?>
+    </div>
+  <? endif; ?>
   <?=$this->flashmessages()?>
   <? foreach ($this->combinedResults as $searchClassId => $currentSearch): ?>
+    <? if ((!isset($currentSearch['ajax']) || !$currentSearch['ajax']) && isset($currentSearch['hide_if_empty']) && $currentSearch['hide_if_empty'] && $currentSearch['view']->results->getResultTotal() == 0) { continue; } ?>
     <div class="combinedResult" id="combined_<?=$this->escapeHtml($searchClassId)?>">
       <? if (isset($currentSearch['ajax']) && $currentSearch['ajax']): ?>
         <?=$this->render('combined/results-ajax.phtml', array('searchClassId' => $searchClassId, 'currentSearch' => $currentSearch))?>
@@ -51,3 +62,10 @@
 
 <div class="clear"></div>
 
+<? $recs = $combinedResults->getRecommendations('bottom'); if (!empty($recs)): ?>
+  <div>
+    <? foreach ($recs as $current): ?>
+      <?=$this->recommend($current)?>
+    <? endforeach; ?>
+  </div>
+<? endif; ?>

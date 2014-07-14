@@ -235,6 +235,33 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
     }
 
     /**
+     * Get all hidden filter settings.
+     *
+     * @return array
+     */
+    protected function getHiddenFilters()
+    {
+        $search = $this->config->get($this->searchConfig);
+        $hf = array();
+
+        // Hidden filters
+        if (isset($search->HiddenFilters)) {
+            foreach ($search->HiddenFilters as $field => $value) {
+                $hf[] = sprintf('%s:"%s"', $field, $value);
+            }
+        }
+
+        // Raw hidden filters
+        if (isset($search->RawHiddenFilters)) {
+            foreach ($search->RawHiddenFilters as $filter) {
+                $hf[] = $filter;
+            }
+        }
+
+        return $hf;
+    }
+
+    /**
      * Create the SOLR connector.
      *
      * @return Connector
@@ -242,7 +269,6 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
     protected function createConnector()
     {
         $config = $this->config->get('config');
-        $search = $this->config->get($this->searchConfig);
 
         $handlers = array(
             'select' => array(
@@ -255,24 +281,8 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             ),
         );
 
-        // Hidden filters
-        if (isset($search->HiddenFilters)) {
-            foreach ($search->HiddenFilters as $field => $value) {
-                array_push(
-                    $handlers['select']['appends']['fq'],
-                    sprintf('%s:"%s"', $field, $value)
-                );
-            }
-        }
-
-        // Raw hidden filters
-        if (isset($search->RawHiddenFilters)) {
-            foreach ($search->RawHiddenFilters as $filter) {
-                array_push(
-                    $handlers['select']['appends']['fq'],
-                    $filter
-                );
-            }
+        foreach ($this->getHiddenFilters() as $filter) {
+            array_push($handlers['select']['appends']['fq'], $filter);
         }
 
         $connector = new Connector(

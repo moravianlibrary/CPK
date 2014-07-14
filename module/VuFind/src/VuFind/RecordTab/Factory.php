@@ -79,8 +79,39 @@ class Factory
     public static function getExcerpt(ServiceManager $sm)
     {
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
-        $enabled = isset($config->Content->excerpts);
-        return new Excerpt($enabled);
+        // Only instantiate the loader if the feature is enabled:
+        if (isset($config->Content->excerpts)) {
+            $loader = $sm->getServiceLocator()->get('VuFind\ContentPluginManager')
+                ->get('excerpts');
+        } else {
+            $loader = null;
+        }
+        return new Excerpt($loader, static::getHideSetting($config, 'excerpts'));
+    }
+
+    /**
+     * Support method for construction of AbstractContent objects -- should we
+     * hide this tab if it is empty?
+     *
+     * @param \Zend\Config\Config $config VuFind configuration
+     * @param string              $tab    Name of tab to check config for
+     *
+     * @return bool
+     */
+    protected static function getHideSetting(\Zend\Config\Config $config, $tab)
+    {
+        $setting = isset($config->Content->hide_if_empty)
+            ? $config->Content->hide_if_empty : false;
+        if ($setting === true || $setting === false
+            || $setting === 1 || $setting === 0
+        ) {
+            return (bool)$setting;
+        }
+        if ($setting === 'true' || $setting === '1') {
+            return true;
+        }
+        $hide = array_map('trim', array_map('strtolower', explode(',', $setting)));
+        return in_array(strtolower($tab), $hide);
     }
 
     /**
@@ -144,8 +175,14 @@ class Factory
     public static function getReviews(ServiceManager $sm)
     {
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
-        $enabled = isset($config->Content->reviews);
-        return new Reviews($enabled);
+        // Only instantiate the loader if the feature is enabled:
+        if (isset($config->Content->reviews)) {
+            $loader = $sm->getServiceLocator()->get('VuFind\ContentPluginManager')
+                ->get('reviews');
+        } else {
+            $loader = null;
+        }
+        return new Reviews($loader, static::getHideSetting($config, 'reviews'));
     }
 
     /**

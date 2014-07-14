@@ -51,6 +51,13 @@ class GoogleAnalytics extends \Zend\View\Helper\AbstractHelper
      * @var string|bool
      */
     protected $domain;
+    
+    /**
+     * Are we using Universal Analytics?
+     *
+     * @var bool
+     */
+    protected $universal;
 
     /**
      * Constructor
@@ -62,6 +69,9 @@ class GoogleAnalytics extends \Zend\View\Helper\AbstractHelper
         $this->key = isset($config->apiKey)? $config->apiKey : false; 
         if ($this->key && isset($config->domain)) {
             $this->domain = $config->domain;
+        }
+        if ($this->key && isset($config->universal)) {
+            $this->universal = $config->universal;
         }
     }
 
@@ -75,25 +85,39 @@ class GoogleAnalytics extends \Zend\View\Helper\AbstractHelper
         if (!$this->key) {
             return '';
         }
-
-        $config = array('_setAccount' => $this->key);
-        if ($this->domain) {
-            $config['_setDomainName'] = $this->domain; 
+        if (!$this->universal) {
+            $code = 'var key = "' . $this->key . '";' . "\n"
+                . "var _gaq = _gaq || [];\n"
+                . "_gaq.push(['_setAccount', key]);\n"
+                . "_gaq.push(['_trackPageview']);\n"
+                . "(function() {\n"
+                . "var ga = document.createElement('script'); "
+                . "ga.type = 'text/javascript'; ga.async = true;\n"
+                . "ga.src = ('https:' == document.location.protocol ? "
+                . "'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n"
+                . "var s = document.getElementsByTagName('script')[0]; "
+                . "s.parentNode.insertBefore(ga, s);\n"
+                . "})();";
+        } else {
+            $config = array('_setAccount' => $this->key);
+            if ($this->domain) {
+                $config['_setDomainName'] = $this->domain; 
+            }
+            $code = "var config = " . json_encode($config)  . ";\n"
+                . "var _gaq = _gaq || [];\n"
+                . "for (var key in config) {\n"
+                . "_gaq.push([key, config[key]]);\n"
+                . "}\n"
+                . "_gaq.push(['_trackPageview']);\n"
+                . "(function() {\n"
+                . "var ga = document.createElement('script'); "
+                . "ga.type = 'text/javascript'; ga.async = true;\n"
+                . "ga.src = ('https:' == document.location.protocol ? "
+                . "'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n"
+                . "var s = document.getElementsByTagName('script')[0]; "
+                . "s.parentNode.insertBefore(ga, s);\n"
+                . "})();";
         }
-        $code = "var config = " . json_encode($config)  . ";\n"
-            . "var _gaq = _gaq || [];\n"
-            . "for (var key in config) {\n"
-            . "_gaq.push([key, config[key]]);\n"
-            . "}\n"
-            . "_gaq.push(['_trackPageview']);\n"
-            . "(function() {\n"
-            . "var ga = document.createElement('script'); "
-            . "ga.type = 'text/javascript'; ga.async = true;\n"
-            . "ga.src = ('https:' == document.location.protocol ? "
-            . "'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n"
-            . "var s = document.getElementsByTagName('script')[0]; "
-            . "s.parentNode.insertBefore(ga, s);\n"
-            . "})();";
         $inlineScript = $this->getView()->plugin('inlinescript');
         return $inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $code, 'SET');
     }
