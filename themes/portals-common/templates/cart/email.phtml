@@ -65,7 +65,7 @@
       <textarea id="email_message" name="message" rows="3" cols="40"><?=isset($this->message) ? $this->message : ''?></textarea>
     </div>
   </div>
-  <?=$this->recaptcha()->html() ?>
+  <?=$this->recaptcha()->html($this->useRecaptcha) ?>
   <div class="control-group">
     <div class="controls">
       <input class="btn" type="submit" name="submit" value="<?=$this->transEsc('Send')?>"/>

@@ -25,6 +25,7 @@ class SearchController extends SearchControllerBase
             $exportArray = array_merge($exportArray, $exportConf->toArray());
         }
         $view->export = $exportArray;
+        $view->useRecaptcha = $this->useRecaptcha();
         return $view;
     }
 
@@ -63,7 +64,7 @@ class SearchController extends SearchControllerBase
         }
 
         // Process form submission:
-        if ($this->formWasSubmitted('submit')) {
+        if ($this->formWasSubmitted('submit', $this->useRecaptcha())) {
             // Attempt to send the email and show an appropriate flash message:
             try {
                 $format = $this->params()->fromPost('export_format');
@@ -109,6 +110,11 @@ class SearchController extends SearchControllerBase
     protected function getExport()
     {
         return $this->getServiceLocator()->get('VuFind\Export');
+    }
+
+    protected function useRecaptcha() {
+        $authM = $this->getServiceLocator()->get('VuFind\AuthManager');
+        return $authM ? !$authM->isLoggedIn() : true;
     }
 
 }

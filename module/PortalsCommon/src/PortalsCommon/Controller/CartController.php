@@ -46,7 +46,7 @@ class CartController extends ParentController
         $view->records = $this->getRecordLoader()->loadBatch($ids);
 
         // Process form submission:
-        if ($this->formWasSubmitted('submit')) {
+        if ($this->formWasSubmitted('submit', $this->useRecaptcha())) {
             // Build the URL to share:
             $params = array();
             foreach ($ids as $current) {
@@ -86,6 +86,7 @@ class CartController extends ParentController
             $exportArray = array_merge($exportArray, $exportConf->toArray());
         }
         $view->export = $exportArray;
+        $view->useRecaptcha = $this->useRecaptcha();
         return $view;
     }
 
@@ -109,6 +110,10 @@ class CartController extends ParentController
         }
         return implode (PHP_EOL . PHP_EOL, $parts);
     }
-
+    
+    protected function useRecaptcha() {
+        $authM = $this->getServiceLocator()->get('VuFind\AuthManager');
+        return $authM ? !$authM->isLoggedIn() : true;
+    }
 
 }

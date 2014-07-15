@@ -44,6 +44,9 @@
                 );
             }
             $this->headScript()->appendScript($this->jsTranslations()->getScript());
+            if ($this->recaptcha()->active()) {
+                $this->headScript()->appendFile("recaptcha_ajax.js");
+            }
         }
     ?>
     <?=$this->headScript()?>

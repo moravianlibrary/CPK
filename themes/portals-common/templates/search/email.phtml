@@ -43,7 +43,7 @@
       <textarea class="input-xlarge" id="email_message" name="message" rows="3"><?=isset($this->message) ? $this->message : ''?></textarea>
     </div>
   </div>
-  <?=$this->recaptcha()->html() ?>
+  <?=$this->recaptcha()->html($this->useRecaptcha) ?>
   <div class="control-group">
     <div class="controls">
       <input class="btn btn-primary" type="submit" name="submit" value="<?=$this->transEsc('Send Email')?>"/>
