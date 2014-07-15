@@ -1,0 +1,71 @@
+<?
+    // Set up page title:
+    $this->headTitle($this->translate('Interlibrary Loan Requests'));
+
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> <span class="divider">&gt;</span></li>'
+        . '<li class="active">' . $this->transEsc('Interlibrary Loan Requests') . '</li>';
+
+?>
+
+<div class="<?=$this->layoutClass('mainbody')?>">
+  <h2><?=$this->transEsc('Interlibrary Loan Requests') ?></h2>
+
+  <?=$this->flashmessages()?>
+
+  <form class="form-horizontal edit-list-form" method="post" name="test" action="">
+
+    <?foreach($this->fields as $groupName => $elements):?>
+      <h2><?=$this->transEsc($groupName)?></h2>
+      <?foreach($elements as $field => $attributes):?>
+        <?if ($attributes['type'] == 'paragraph'):?>
+          <p><?=$this->transEsc($attributes['text'])?></p>
+        <?elseif ($attributes['type'] == 'hidden'):?>
+          <input type="hidden" name="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+        <?elseif ($attributes['type'] == 'checkbox'):?>
+          <div class="control-group">
+            <input type="checkbox" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" <?=($attributes['value'])?'checked="true"':''?>/>
+            <label class="control-label-confirmation" for="<?=$this->escapeHtml($field)?>">
+              <?=$this->transEsc($attributes['label'])?>
+              <?if ($attributes['required']):?>
+                <span <?=($attributes['missing'])?'class="alert-error"':''?>>*</span>
+              <?endif;?>
+            </label>
+          </div>
+        <?else:?>
+          <div class="control-group">
+            <label class="control-label" for="<?=$this->escapeHtml($field)?>">
+              <?=$this->transEsc($attributes['label'])?>
+              <?if ($attributes['required']):?>
+                <span <?=($attributes['missing'])?'class="alert-error"':''?>>*</span>
+              <?endif;?>
+            </label>
+            <div class="controls">
+              <?if ($attributes['type'] == 'text'):?>
+                <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+              <?elseif ($attributes['type'] == 'date'):?>
+                <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+                (<?=$this->dateTime()->getDisplayDateFormat()?>)
+              <?elseif ($attributes['type'] == 'select'):?>
+                <select name="<?=$this->escapeHtml($field)?>">
+                  <?foreach ($attributes['options'] as $key => $label):?>
+                    <option <?=($key == $attributes['value'])?'selected="true"':''?>value="<?=$this->escapeHtml($key)?>"><?=$this->transEsc($label)?></option>
+                  <?endforeach;?>
+                </select>
+              <?endif;?>
+            </div>
+          </div>
+        <?endif;?>
+      <?endforeach;?>
+    <?endforeach;?>
+
+    <div class="control-group">
+      <input class="btn btn-primary" type="submit" name="placeIll" value="<?=$this->transEsc('request_submit_text')?>"/>
+    </div>
+
+  </form>
+</div>
+
+<div class="<?=$this->layoutClass('sidebar')?>">
+  <?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'ILLRequests'))?>
+</div>
