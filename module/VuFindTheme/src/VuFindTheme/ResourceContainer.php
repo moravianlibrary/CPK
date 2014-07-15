@@ -44,13 +44,13 @@ class ResourceContainer
      * @var array
      */
     protected $less = array();
-    
+
     /**
-     * Sass CSS files
+     * scss CSS files
      *
      * @var array
      */
-    protected $sass = array();
+    protected $scss = array();
 
     /**
      * CSS files
@@ -99,25 +99,29 @@ class ResourceContainer
         if (!is_array($less) && !is_a($less, 'Traversable')) {
             $less = array($less);
         }
-        foreach ($less as $current) {
-            $this->less[] = $current;
+        unset($less['active']);
+        foreach ($less as $index=>$current) {
+            $this->less[$index] = $current;
+            $this->removeCSS($current);
         }
     }
 
     /**
-     * Add a Sass CSS file.
+     * Add a scss CSS file.
      *
-     * @param array|string $sass Sass CSS file (or array of Sass CSS files) to add
+     * @param array|string $scss scss CSS file (or array of scss CSS files) to add
      *
      * @return void
      */
-    public function addSassCss($sass)
+    public function addScssCss($scss)
     {
-        if (!is_array($sass) && !is_a($sass, 'Traversable')) {
-            $sass = array($sass);
+        if (!is_array($scss) && !is_a($scss, 'Traversable')) {
+            $scss = array($scss);
         }
-        foreach ($sass as $current) {
-            $this->sass[] = $current;
+        unset($scss['active']);
+        foreach ($scss as $index=>$current) {
+            $this->scss[$index] = $current;
+            $this->removeCSS($current);
         }
     }
 
@@ -135,7 +139,9 @@ class ResourceContainer
             $css = array($css);
         }
         foreach ($css as $current) {
-            $this->css[] = $current;
+            if (!$this->dynamicallyParsed($current)) {
+                $this->css[] = $current;
+            }
         }
     }
 
@@ -167,13 +173,13 @@ class ResourceContainer
         return array_unique($this->less);
     }
     /**
-     * Get Sass CSS files.
+     * Get SCSS CSS files.
      *
      * @return array
      */
-    public function getSassCss()
+    public function getScssCss()
     {
-        return array_unique($this->sass);
+        return array_unique($this->scss);
     }
 
     /**
@@ -260,5 +266,33 @@ class ResourceContainer
     public function getGenerator()
     {
         return $this->generator;
+    }
+
+    /**
+     * Check if a CSS file is being dynamically compiled in LESS
+     *
+     * @return boolean
+     */
+    private function dynamicallyParsed($file)
+    {
+        if (empty($this->less) && empty($this->scss)) {
+            return false;
+        }
+        list($fileName, ) = explode('.', $file);
+        $lessFile = $fileName . '.less';
+        $scssFile = $fileName . '.scss';
+        return in_array($lessFile, $this->less, true) || in_array($scssFile, $this->scss, true);
+    }
+
+    /**
+     * Check if a CSS file is being dynamically compiled in SCSS
+     *
+     * @return boolean
+     */
+    private function removeCSS($file)
+    {
+        list($name, ) = explode('.', $file);
+        $name .= '.css';
+        unset($this->css[array_search($name, $this->css)]);
     }
 }
