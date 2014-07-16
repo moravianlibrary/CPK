@@ -34,7 +34,7 @@
       <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
     </span>
     <div class="clearfix"></div>
-    <span class="span6 offset1">
+    <span class="col-md-6 col-md-offset-1">
       <?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"
     </span>
   <? else: ?>
@@ -53,7 +53,7 @@
       
       <div class="search-query-options">
         <? if ($advSearch): ?>
-          <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' offset1':''?>"><?=$this->transEsc("Advanced")?></a>
+          <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' col-md-offset-1':''?>"><?=$this->transEsc("Advanced")?></a>
         <? endif; ?>
       
 
