@@ -24,7 +24,7 @@
   <?if(!empty($this->profile['blocks'])):?>
     <h5><?=$this->transEsc('Blocks')?></h5>
     <?foreach ($this->profile['blocks'] as $block):?>
-      <div class="alert alert-error"><?=$this->transEsc('Block ' . $block)?></div>
+      <div class="alert alert-danger"><?=$this->transEsc('Block ' . $block)?></div>
     <?endforeach;?>
   <?endif;?>
 
@@ -54,7 +54,7 @@
               <option value="<?=$this->escapeHtml($lib['locationID'])?>"<?=($selected == $lib['locationID'])?' selected="selected"':''?>><?=$this->escapeHtml($lib['locationDisplay'])?></option>
             <? endforeach; ?>
           </select>
-          <input class="btn" type="submit" value="<?=$this->transEsc('Save')?>" />
+          <input class="btn btn-default" type="submit" value="<?=$this->transEsc('Save')?>" />
         </form>
       </td>
     <? endif; ?>

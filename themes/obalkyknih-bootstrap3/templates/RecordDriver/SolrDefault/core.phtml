@@ -10,8 +10,8 @@
       });
     </script>
 <? endif; ?>
-<div class="row-fluid">
-  <div class="span3">
+<div class="row">
+  <div class="col-md-3">
     <div class="text-center">
       <div id="cover">
       </div>
@@ -31,7 +31,7 @@
     <?=$this->record($this->driver)->getPreviews()?>
   </div>
 
-  <div class="span9">
+  <div class="col-md-9">
     <h3><?=$this->escapeHtml($this->driver->getShortTitle() . ' ' . $this->driver->getSubtitle() . ' ' . $this->driver->getTitleSection())?></h3>
 
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $summary[0] : false; ?>

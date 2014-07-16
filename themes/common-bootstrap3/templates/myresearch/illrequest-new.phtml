@@ -28,7 +28,7 @@
             <label class="control-label-confirmation" for="<?=$this->escapeHtml($field)?>">
               <?=$this->transEsc($attributes['label'])?>
               <?if ($attributes['required']):?>
-                <span <?=($attributes['missing'])?'class="alert-error"':''?>>*</span>
+                <span <?=($attributes['missing'])?'class="alert-danger"':''?>>*</span>
               <?endif;?>
             </label>
           </div>
@@ -37,7 +37,7 @@
             <label class="control-label" for="<?=$this->escapeHtml($field)?>">
               <?=$this->transEsc($attributes['label'])?>
               <?if ($attributes['required']):?>
-                <span <?=($attributes['missing'])?'class="alert-error"':''?>>*</span>
+                <span <?=($attributes['missing'])?'class="alert-danger"':''?>>*</span>
               <?endif;?>
             </label>
             <div class="controls">

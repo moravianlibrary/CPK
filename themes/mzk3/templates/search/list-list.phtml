@@ -1,7 +1,7 @@
 <? if (!isset($this->indexStart)) $this->indexStart = 0; ?>
 <? $i = $this->indexStart; foreach ($this->results->getResults() as $current):
   $recordNumber = $this->results->getStartRecord()+$i-$this->indexStart; ?>
-  <div id="result<?=$i++ ?>" class="row-fluid clearfix result <?if ($i % 2 == 0) echo 'alt'?>">
+  <div id="result<?=$i++ ?>" class="row clearfix result <?if ($i % 2 == 0) echo 'alt'?>">
     <label class="checkbox pull-left small recordNumber">
       <?=$recordNumber?>.
       <? if ($this->cart()->isActive()): ?>

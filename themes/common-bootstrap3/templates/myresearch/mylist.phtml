@@ -29,7 +29,7 @@
       <? if ($list->editAllowed($account->isLoggedIn())): ?>
         <a href="<?=$this->url('editList', array('id' => $list->id)) ?>" class="btn btn-link" title="<?=$this->transEsc("edit_list")?>"><i class="icon-edit"></i> <?=$this->transEsc("edit_list")?></a>
         <div class="btn-group">
-          <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('myresearch-deletelist') ?>?listID=<?=urlencode($list->id)?>">
+          <a class="btn btn-default btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('myresearch-deletelist') ?>?listID=<?=urlencode($list->id)?>">
             <i class="icon-trash"></i> <?=$this->transEsc("delete_list")?>
           </a>
           <ul class="dropdown-menu">

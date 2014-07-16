@@ -19,12 +19,12 @@
      $availabilityId = $this->driver->getAvailabilityID();
   }
 ?>
-<div class="row-fluid result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
+<div class="row result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
   <?=$this->record($this->driver)->getCheckbox() ?>
   <input type="hidden" value="<?=$id ?>" class="hiddenId"/>
   <div class="availabilityId hide"><?=$this->escapeHtml($availabilityId)?></div>
 
-  <div class="span2 text-center">
+  <div class="col-md-2 text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
         <script type="text/javascript">
@@ -38,7 +38,7 @@
     <div class="coverFormat">Book</div>
   </div>
 
-  <div class="span7">
+  <div class="col-md-7">
     <div class="resultItemLine1">
       <a href="<?=$this->recordLink()->getUrl($this->driver)?>">
       <?
@@ -167,7 +167,7 @@
     </div>
   </div>
 
-  <div class="span2">
+  <div class="col-md-2">
     <i class="icon-edit"></i> <a href="<?=$this->url('myresearch-edit')?>?id=<?=urlencode($id)?>&amp;source=<?=urlencode($source)?><? if (!is_null($list_id)):?>&amp;list_id=<?=urlencode($list_id)?><? endif; ?>" class="edit tool"><?=$this->transEsc('Edit')?></a><br/>
     <? /* Use a different delete URL if we're removing from a specific list or the overall favorites: */
       $deleteUrl = is_null($list_id)

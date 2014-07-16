@@ -1,8 +1,8 @@
 <h1><?=$this->transEsc('An error has occurred')?></h1>
 <h2><?=$this->transEsc($this->message)?></h2>
 <? if (isset($this->reason) && $this->reason): ?><b><?=$this->transEsc('Message')?>:</b> <?=$this->transEsc($this->reason)?><? endif; ?>
-<div class="row-fluid">
-  <div class="span5 offset3">
+<div class="row">
+  <div class="col-md-5 col-md-offset-3">
     <img src="<?=$this->imageLink('404.png') ?>"></img>
   </div>
 </div>

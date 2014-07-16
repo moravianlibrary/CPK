@@ -28,7 +28,7 @@
   </ul>
 <? endif; ?>
   <? if ($this->searchType == 'advanced'): ?>
-    <span class="span6">
+    <span class="col-md-6">
       <a href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtml($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a> |
       <a href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
       <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
@@ -39,7 +39,7 @@
     </span>
   <? else: ?>
     <form class="form-inline navbar-form block" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
-      <input class="<?=($this->layout()->frontpage == true)?'span7 offset1':'span3'?> search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
+      <input class="<?=($this->layout()->frontpage == true)?'col-md-7 col-md-offset-1':'col-md-3'?> search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
       <? if ($handlerCount > 1): ?>
         <select id="searchForm_type" name="type" data-native-menu="false" class="search-query">
           <? foreach ($handlers as $handler): ?>

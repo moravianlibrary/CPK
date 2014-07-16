@@ -68,13 +68,13 @@
 
     <? if ($recordTotal > 0): ?>
       <div class="clearfix noprint test">
-        <div class="span4">
+        <div class="col-md-4">
           <?=$this->render('search/controls/limit.phtml')?>
         </div>
-        <div class="span5">
+        <div class="col-md-5">
           <?=$this->render('search/controls/sort.phtml')?>
         </div>
-        <div class="span3">
+        <div class="col-md-3">
           <?=$this->render('search/controls/view.phtml')?>
         </div>
       </div>
@@ -93,7 +93,7 @@
         <? endif; ?>
       </p>
       <? if (isset($this->parseError)): ?>
-        <p class="alert-error"><?=$this->transEsc('nohit_parse_error')?></p>
+        <p class="alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
       <? endif; ?>
       <?=$this->search()->renderSpellingSuggestions($this->transEsc('nohit_spelling') . ':', $this->results, $this); ?>
       <? foreach ($this->results->getRecommendations('top') as $current): ?>

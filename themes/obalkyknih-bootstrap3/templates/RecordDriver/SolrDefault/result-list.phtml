@@ -4,10 +4,10 @@
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
 ?>
-<div class="row-fluid result<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
+<div class="row result<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
-  <div class="span2 text-center" id="cover_<?=$recordId?>">
+  <div class="col-md-2 text-center" id="cover_<?=$recordId?>">
     <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
         <script type="text/javascript">
@@ -18,7 +18,7 @@
       <? endif;?>
     </a>
   </div>
-  <div class="span7">
+  <div class="col-md-7">
     <div>
       <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <?
@@ -134,7 +134,7 @@
     </div>
   </div>
 
-  <div class="span2 noprint">
+  <div class="col-md-2 noprint">
     <? /* Display qrcode if appropriate: */ ?>
     <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
       <?

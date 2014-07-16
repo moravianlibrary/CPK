@@ -3,7 +3,7 @@
   <hr/>
   <? $iteration++; ?>
   <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
-  <div id="record<?=$this->escapeHtml($resource->getUniqueId()) ?>" class="row-fluid">
+  <div id="record<?=$this->escapeHtml($resource->getUniqueId()) ?>" class="row">
     <? if ($this->cancelForm && isset($ilsDetails['cancel_details'])): ?>
       <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $resource->getUniqueId()); ?>
       <input type="hidden" name="cancelAllIDS[]" value="<?=$this->escapeHtml($ilsDetails['cancel_details']) ?>" />
@@ -11,14 +11,14 @@
         <input type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
       </div>
     <? endif; ?>
-    <div class="span2 text-center">
+    <div class="col-md-2 text-center">
       <? if ($summThumb = $this->record($resource)->getThumbnail()): ?>
         <img src="<?=$this->escapeHtml($summThumb)?>" class="summcover" alt="<?=$this->transEsc('Cover Image')?>"/>
       <? else: ?>
         <img src="<?=$this->url('cover-unavailable')?>" class="summcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
       <? endif; ?>
     </div>
-    <div class="span9">
+    <div class="col-md-9">
       <?
         // If this is a non-missing Solr record, we should display a link:
         if (is_a($resource, 'VuFind\\RecordDriver\\SolrDefault') && !is_a($resource, 'VuFind\\RecordDriver\\Missing')) {

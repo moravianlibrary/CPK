@@ -15,7 +15,7 @@
     <div class="pull-right row">
       <? $first = true; ?>
       <? foreach ($this->view['views'] as $name => $view): ?>
-        <span class="span5 <?= !$first ? 'offset2' : '' ?>">
+        <span class="col-md-5 <?= !$first ? 'col-md-offset-2' : '' ?>">
         <? if(!$view['selected']): ?>
           <a href="<?=$view['uri'] ?>" title="<?=$this->transEsc('Switch view to')?> <?=$this->transEsc(ucfirst($name))?>" >
         <? endif; ?>
@@ -36,7 +36,7 @@
         <input type="hidden" id="submitType" name="cancelSelected" value="1"/>
         <input type="hidden" id="cancelConfirm" name="confirm" value="0"/>
         <div class="btn-group">
-          <input id="cancelSelected" name="cancelSelected" type="submit" value="<?=$this->transEsc("hold_cancel_selected") ?>" class="btn dropdown-toggle" data-toggle="dropdown"/>
+          <input id="cancelSelected" name="cancelSelected" type="submit" value="<?=$this->transEsc("hold_cancel_selected") ?>" class="btn btn-default dropdown-toggle" data-toggle="dropdown"/>
           <ul class="dropdown-menu">
             <li class="disabled"><a><?=$this->transEsc("confirm_hold_cancel_selected_text") ?></a></li>
             <li><a href="#" onClick="$('#cancelConfirm').val(1);$('#submitType').attr('name','cancelSelected');$(this).parents('form').submit()"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
@@ -44,7 +44,7 @@
           </ul>
         </div>
         <div class="btn-group">
-          <input id="cancelAll" name="cancelAll" type="submit" value="<?=$this->transEsc("hold_cancel_all") ?>" class="btn dropdown-toggle" data-toggle="dropdown"/>
+          <input id="cancelAll" name="cancelAll" type="submit" value="<?=$this->transEsc("hold_cancel_all") ?>" class="btn btn-default dropdown-toggle" data-toggle="dropdown"/>
           <ul class="dropdown-menu">
             <li class="disabled"><a><?=$this->transEsc("confirm_hold_cancel_all_text") ?></a></li>
             <li><a href="#" onClick="$('#cancelConfirm').val(1);$('#submitType').attr('name','cancelAll');$(this).parents('form').submit()"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
