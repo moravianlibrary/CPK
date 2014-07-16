@@ -27,10 +27,10 @@
   <? if (isset($list)): ?>
     <div class="pull-right">
       <? if ($list->editAllowed($account->isLoggedIn())): ?>
-        <a href="<?=$this->url('editList', array('id' => $list->id)) ?>" class="btn btn-link" title="<?=$this->transEsc("edit_list")?>"><i class="icon-edit"></i> <?=$this->transEsc("edit_list")?></a>
+        <a href="<?=$this->url('editList', array('id' => $list->id)) ?>" class="btn btn-link" title="<?=$this->transEsc("edit_list")?>"><i class="fa fa-x fa-edit"></i> <?=$this->transEsc("edit_list")?></a>
         <div class="btn-group">
           <a class="btn btn-default btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('myresearch-deletelist') ?>?listID=<?=urlencode($list->id)?>">
-            <i class="icon-trash"></i> <?=$this->transEsc("delete_list")?>
+            <i class="fa fa-x fa-trash"></i> <?=$this->transEsc("delete_list")?>
           </a>
           <ul class="dropdown-menu">
             <li><a href="<?=$this->url('myresearch-deletelist') ?>?listID=<?=urlencode($list->id)?>&amp;confirm=1"><?=$this->transEsc('Delete') ?></a></li>

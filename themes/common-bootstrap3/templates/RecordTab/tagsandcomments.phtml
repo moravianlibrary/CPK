@@ -15,7 +15,7 @@
   <? else: ?>
     <?=$this->transEsc('No Tags')?>, <?=$this->transEsc('Be the first to tag this record')?>!
   <? endif; ?>
-  <i class="icon-plus-sign"></i> <a id="tagRecord" href="<?=$this->recordLink()->getActionUrl($this->driver, 'AddTag')?>" title="<?=$this->transEsc('Add Tag')?>"><?=$this->transEsc('Add Tag')?></a>
+  <i class="fa fa-x fa-plus-sign"></i> <a id="tagRecord" href="<?=$this->recordLink()->getActionUrl($this->driver, 'AddTag')?>" title="<?=$this->transEsc('Add Tag')?>"><?=$this->transEsc('Add Tag')?></a>
 </div>
 
 <div id="commentList">

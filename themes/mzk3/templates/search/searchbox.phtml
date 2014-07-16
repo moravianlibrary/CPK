@@ -49,7 +49,7 @@
       <? elseif ($handlerCount == 1): ?>
         <input type="hidden" name="type" value="<?=$this->escapeHtml($handlers[0]['value'])?>" />
       <? endif; ?>
-      <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="icon-search"></i> <?=$this->transEsc("Find")?></button>
+      <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="fa fa-x fa-search"></i> <?=$this->transEsc("Find")?></button>
       
       <div class="search-query-options">
         <? if ($advSearch): ?>
