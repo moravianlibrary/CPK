@@ -30,7 +30,7 @@ class SolrMarc extends ParentSolrDefault
             'hide_loans' => array('type' => 'checkbox', 'keep' => array('year', 'volume')),
         );
     }
-    
+
     public function getRealTimeHoldings($filters = array())
     {
         $holdings = $this->hasILS()
@@ -42,7 +42,7 @@ class SolrMarc extends ParentSolrDefault
         }
         return $holdings;
     }
-    
+
     public function getEODLink()
     {
         $eod = isset($this->fields['statuses']) && in_array('available_for_eod', $this->fields['statuses']);
@@ -68,7 +68,7 @@ class SolrMarc extends ParentSolrDefault
         }
         return false;
     }
-    
+
     public function isAvailableForDigitalization()
     {
         return $this->getEODLink() == null
@@ -78,7 +78,7 @@ class SolrMarc extends ParentSolrDefault
             && !$this->isDigitized()
         ;
     }
-    
+
     public function getRestrictions()
     {
         list($base, $sysno) = explode('-', $this->getUniqueID());
@@ -88,7 +88,7 @@ class SolrMarc extends ParentSolrDefault
         }
         return $result;
     }
-    
+
     protected function translateHoldingStatus($status, $duedate_status)
     {
         $status = mb_substr($status, 0, 6, 'UTF-8');
@@ -149,13 +149,13 @@ class SolrMarc extends ParentSolrDefault
         foreach ($itemLinks as $itemLink) {
             $base   = $itemLink->getSubfield('l')->getData();
             $sysno  = $itemLink->getSubfield('b')->getData();
-            $label1 = $itemLink->getSubfield('m')->getData();
-            $label2 = $itemLink->getSubfield('n')->getData();
+            $mLabel = $itemLink->getSubfield('m')->getData();
+            $nLabel = $itemLink->getSubfield('n')->getData();
             $type   = $itemLink->getSubfield('a')->getData();
             $links[] = array(
                 'id'    => $base . '-' . $sysno,
                 'type'  => $type,
-                'label' => $label1 . ' ' . $label2,
+                'label' => ($type == 'DN')? $nLabel : $mLabel,
             );
         }
         return $links;

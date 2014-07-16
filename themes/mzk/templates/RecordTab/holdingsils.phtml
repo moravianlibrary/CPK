@@ -23,7 +23,7 @@
     <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
   </div>
 <? endif; ?>
- 
+
 <? $restrictions = $this->driver->getRestrictions(); if (!empty($restrictions)):?>
   <? foreach ($restrictions as $restriction):?>
     <p class="holdings-restriction">
@@ -31,7 +31,7 @@
     </p>
   <? endforeach;?>
 <? endif;?>
- 
+
 <? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
     <a class="holdPlace" href="<?=$this->recordLink()->getHoldUrl($holdingTitleHold)?>"><?=$this->transEsc('title_hold_place')?></a>
 <? endif; ?>
@@ -44,10 +44,6 @@
   <? endif; ?>
   <? if ($openUrl): ?><?=$this->openUrl($openUrl);?><? endif; ?>
 <? endif; ?>
-
-<? foreach($this->driver->getItemLinks() as $link):?>
-  <a href='<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $link['id']))?>'><?=$this->escapeHtml($link['label'])?></a><br/>
-<? endforeach;?>
 
 <div class="holdings-filters">
   <? foreach($filters as $name => $values):?>
@@ -157,7 +153,7 @@
       <div>
       <? else: ?>
       <div class="jt" title="<?=$this->transEsc('Description Collection '. $row['collection_desc'])?>">
-      <? endif; ?>  
+      <? endif; ?>
         <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
       </div>
     </td>
@@ -186,4 +182,12 @@
     <li><?=$this->escapeHtml($row['issue'])?></li>
   <? endforeach; ?>
 </ul>
+<? endif; ?>
+
+<? $itemLinks = $this->driver->getItemLinks(); ?>
+<? if (is_array($itemLinks) && !empty($itemLinks)): ?>
+  <h3><?=$this->transEsc("Related items")?></h3>
+  <? foreach($this->driver->getItemLinks() as $link):?>
+    <a href='<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $link['id']))?>'><?=$this->escapeHtml($link['label'])?></a><br/>
+  <? endforeach;?>
 <? endif; ?>
