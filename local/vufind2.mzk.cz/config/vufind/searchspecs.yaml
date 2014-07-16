@@ -571,3 +571,8 @@ sysno:
   QueryFields:
     sysno_str:
       - [and, ~]
+
+barcode_str_mv:
+  QueryFields:
+    barcode_str_mv:
+      - [and, ~]
