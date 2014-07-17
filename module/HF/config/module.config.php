@@ -28,10 +28,9 @@ $config = array(
        'recorddriver_tabs' => array(
              'HF\RecordDriver\SolrMarc' => array(
                     'tabs' => array (
-                            'Description' => 'Description',
-                            'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
-                    ),
-                    'defaultTab' => 'Description',
+                         'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                         'TOC' => 'TOC',   
+                 ),
              ),
         ),
  

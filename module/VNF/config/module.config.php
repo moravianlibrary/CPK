@@ -31,26 +31,25 @@ $config = array(
         'recorddriver_tabs' => array(
              'VNF\RecordDriver\SolrMarc' => array(
                     'tabs' => array (
-                            'Description' => 'Description',
                             'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                            'TOC' => 'TOC',
                     ),
-                    'defaultTab' => 'Description',
+                    'defaultTab' => 'TOC',
              ),
              'VNF\RecordDriver\SolrSup' => array(
                  'tabs' => array (
-                     'SupraphonDescriptionTab' => 'SupraphonDescriptionTab',
                      'SupraphonRecordTab' => 'SupraphonRecordTab',
                      'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
                  ),
-                 'defaultTab' => 'Description',
+                 'defaultTab' => 'SupraphonRecordTab',
             ),
             'VNF\RecordDriver\SolrMarcMerged' => array(
                 'tabs' => array (
                         'libraries' => 'Libraries',
-                        'Description' => 'Description',
                         'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                        'TOC' => 'TOC',
                 ),
-                'defaultTab' => 'libraries',
+                'defaultTab' => 'TOC',
             ),
         ),
     ),
