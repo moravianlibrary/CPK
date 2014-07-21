@@ -31,7 +31,6 @@ $config = array(
             'MZKPortal\RecordDriver\SolrMarcMerged' => array(
                 'tabs' => array (
                     'Libraries' => 'Libraries',
-                    'Description' => 'Description',
                     'TOC' => 'TOC',
                     'UserComments' => 'UserComments',
                     'Reviews' => 'Reviews',
@@ -44,7 +43,6 @@ $config = array(
 
             'MZKPortal\RecordDriver\SolrMarcMzk' => array(
                 'tabs' => array (
-                    'Description' => 'Description',
                     'UserComments' => 'UserComments',
                     'Details' => 'StaffViewArray',
                 ),
@@ -52,7 +50,6 @@ $config = array(
 
             'MZKPortal\RecordDriver\SolrMarcMuni' => array(
                 'tabs' => array (
-                    'Description' => 'Description',
                     'UserComments' => 'UserComments',
                     'Details' => 'StaffViewArray',
                 ),
@@ -60,7 +57,6 @@ $config = array(
 
             'MZKPortal\RecordDriver\SolrMarcMend' => array(
                 'tabs' => array (
-                    'Description' => 'Description',
                     'UserComments' => 'UserComments',
                     'Details' => 'StaffViewArray',
                 ),
