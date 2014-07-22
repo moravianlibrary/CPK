@@ -10,6 +10,7 @@ function htmlEncode(value){
 }
 function extractClassParams(str) {
   str = $(str).attr('class');
+  if (typeof str === "undefined") return [];
   var params = {};
   var classes = str.split(/\s+/);
   for(var i = 0; i < classes.length; i++) {
@@ -144,8 +145,7 @@ function registerLightboxEvents() {
   });
   $('#modal .collapse').on('hidden', function(e){ e.stopPropagation(); });
 }
-function updatePageForLogin()
-{
+function updatePageForLogin() {
   // Hide "log in" options and show "log out" options:
   $('#loginOptions').hide();
   $('.logoutOptions').show();
@@ -189,6 +189,17 @@ function updatePageForLogin()
     });
   }
 }
+function newAccountHandler(html) {
+  updatePageForLogin();
+  var params = deparam(Lightbox.openingURL);
+  if (params['subaction'] != 'UserLogin') {
+    Lightbox.getByUrl(Lightbox.openingURL);
+    Lightbox.openingURL = false;
+  } else {
+    Lightbox.close();
+  }
+}
+
 /**
  * This is a full handler for the login form
  */
@@ -229,7 +240,8 @@ function ajaxLogin(form) {
             if (response.status == 'OK') {
               updatePageForLogin();
               // and we update the modal
-              if(Lightbox.lastPOST && Lightbox.lastPOST['loggingin']) {
+              var params = deparam(Lightbox.lastURL);
+              if (params['subaction'] == 'UserLogin') {
                 Lightbox.close();
               } else {
                 Lightbox.getByUrl(
@@ -386,15 +398,7 @@ $(document).ready(function() {
     ajaxLogin(evt.target);
     return false;
   });
-  Lightbox.addFormCallback('accountForm', function() {
-    var params = deparam(Lightbox.openingURL);
-    if (params['subaction'] != 'Login') {
-      Lightbox.getByUrl(Lightbox.openingURL);
-      Lightbox.openingURL = false;
-    } else {
-      Lightbox.close();
-    }
-  });
+  Lightbox.addFormCallback('accountForm', newAccountHandler);
 
   // Help links
   $('.help-link').click(function() {
@@ -409,7 +413,7 @@ $(document).ready(function() {
   });
   // Login link
   $('#loginOptions a.modal-link').click(function() {
-    return Lightbox.get('MyResearch','UserLogin',{},{'loggingin':true});
+    return Lightbox.get('MyResearch','UserLogin');
   });
   // Email search link
   $('.mailSearch').click(function() {
@@ -420,7 +424,7 @@ $(document).ready(function() {
     var parts = this.href.split('/');
     return Lightbox.get(parts[parts.length-3],'Save',{id:$(this).attr('id')});
   });
-  Lightbox.addFormCallback('emailSearch', function(x) {
+  Lightbox.addFormCallback('emailSearch', function(html) {
     Lightbox.confirm(vufindString['bulk_email_success']);
   });
 });
