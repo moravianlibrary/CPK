@@ -26,19 +26,19 @@
     <input type="hidden" name="submit" value="1" />
     <input type="hidden" name="id" value="<?=$this->escapeHtml($this->driver->getUniqueId()) ?>" />
     <input type="hidden" name="source" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" />
-    <div class="control-group">
+    <div class="form-group">
       <label class="control-label" for="add_mytags"><?=$this->transEsc('request_for_digitalization_email') ?></label>
       <div class="controls">
         <input class="input-xlarge" id="email" type="text" name="email" value="<?=$this->escapeHtml(isset($this->email) ? $this->email : '')?>"/>
       </div>
     </div>
-    <div class="control-group">
+    <div class="form-group">
       <label class="control-label" for="add_mytags"><?=$this->transEsc('request_for_digitalization_reason') ?></label>
       <div class="controls">
         <input class="input-xlarge" id="reason" type="text" name="reason" value="<?=$this->escapeHtml(isset($this->reason) ? $this->reason : '')?>"/>
       </div>
     </div>
-    <div class="control-group">
+    <div class="form-group">
       <div class="controls">
         <input class="btn btn-primary" type="submit" value="<?=$this->transEsc('request_for_digitalization_submit') ?>"/>
       </div>
