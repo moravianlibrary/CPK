@@ -137,7 +137,7 @@
     <td>
       <?if ($row['duedate']) : ?>
         <?=$this->transEsc($row['duedate'])?>
-      <? else:?>
+      <? elseif ($row['duedate_status'] != $row['status']):?>
         <?=$this->transEsc($row['duedate_status'])?>
       <?endif;?>
     </td>
