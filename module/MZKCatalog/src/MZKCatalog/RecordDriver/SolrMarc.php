@@ -149,13 +149,12 @@ class SolrMarc extends ParentSolrDefault
         foreach ($itemLinks as $itemLink) {
             $base   = $itemLink->getSubfield('l')->getData();
             $sysno  = $itemLink->getSubfield('b')->getData();
-            $mLabel = $itemLink->getSubfield('m')->getData();
-            $nLabel = $itemLink->getSubfield('n')->getData();
+            $label = $itemLink->getSubfield('n')->getData();
             $type   = $itemLink->getSubfield('a')->getData();
             $links[] = array(
                 'id'    => $base . '-' . $sysno,
                 'type'  => $type,
-                'label' => ($type == 'DN')? $nLabel : $mLabel,
+                'label' => $label,
             );
         }
         return $links;
