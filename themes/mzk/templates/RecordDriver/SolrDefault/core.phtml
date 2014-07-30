@@ -176,7 +176,7 @@
           <th><?=$this->transEsc('Related Items')?></th>
           <td>
             <? foreach ($recordLinks as $recordLink): ?>
-              <?=$this->transEsc($recordLink['title'])?>: 
+              <?=$this->transEsc($recordLink['title'])?>:
               <a href="<?=$this->recordLink()->related($recordLink['link'])?>"><?=$this->escapeHtml($recordLink['value'])?></a><br />
             <? endforeach; ?>
           </td>
@@ -194,7 +194,17 @@
             </td>
         </tr>
       <? endif; ?>
-      
+
+      <? $issueYears = $this->driver->getIssueYears(); ?>
+      <? if ($issueYears): ?>
+        <tr valign="top">
+          <th><?=$this->transEsc('Issue years')?>: </th>
+            <td>
+              <?=$this->escapeHtml($issueYears)?><br/>
+            </td>
+        </tr>
+      <? endif; ?>
+
     </table>
     
     <? $eodLink = $this->driver->getEODLink();?>

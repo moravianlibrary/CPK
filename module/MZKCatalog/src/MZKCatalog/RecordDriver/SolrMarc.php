@@ -160,4 +160,9 @@ class SolrMarc extends ParentSolrDefault
         return $links;
     }
 
+    public function getIssueYears()
+    {
+        return $this->getFirstFieldValue('910', array('r'));
+    }
+
 }
