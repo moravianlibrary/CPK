@@ -7,11 +7,11 @@ $config = array(
             'recorddriver' => array (
                 'factories' => array(
                     'solrdefault' => 'MZKPortal\RecordDriver\Factory::getSolrDefault',
-                    'solrmuni'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMuni',
-                    'solrmzk'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcMzk',
+                    'solrportal_muni'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMuni',
+                    'solrportal_mzk'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcMzk',
                     'solrportal_kjm'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcKjm',
                     'solrvut'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcVut',
-                    'solrmend'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMend',
+                    'solrportal_mend'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMend',
                     'solrmerged'  => 'MZKPortal\RecordDriver\Factory::getSolrMarcMerged',
                 ) /* factories */
             ), /* recorddriver */
@@ -43,22 +43,33 @@ $config = array(
 
             'MZKPortal\RecordDriver\SolrMarcMzk' => array(
                 'tabs' => array (
+                    'holdings'     => 'MZKPortal\RecordTab\Holdings996',
                     'UserComments' => 'UserComments',
-                    'Details' => 'StaffViewArray',
+                    'Details' => 'StaffViewMARC',
                 ),
             ),
 
             'MZKPortal\RecordDriver\SolrMarcMuni' => array(
                 'tabs' => array (
+                    'holdings'     => 'MZKPortal\RecordTab\Holdings996',
                     'UserComments' => 'UserComments',
-                    'Details' => 'StaffViewArray',
+                    'Details' => 'StaffViewMARC',
                 ),
             ),
 
             'MZKPortal\RecordDriver\SolrMarcMend' => array(
                 'tabs' => array (
+                    'holdings'     => 'MZKPortal\RecordTab\Holdings996',
                     'UserComments' => 'UserComments',
-                    'Details' => 'StaffViewArray',
+                    'Details' => 'StaffViewMARC',
+                ),
+            ),
+                
+            'MZKPortal\RecordDriver\SolrMarcKjm' => array(
+                'tabs' => array (
+                    'holdings'     => 'MZKPortal\RecordTab\Holdings996',
+                    'UserComments' => 'UserComments',
+                    'Details' => 'StaffViewMARC',
                 ),
             )
         ) /* recorddriver_tabs */
