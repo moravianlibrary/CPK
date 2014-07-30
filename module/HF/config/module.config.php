@@ -7,11 +7,10 @@ $config = array(
              'recorddriver' => array (
                  'factories' => array(
                      'solrhist_mzk'	=> 'HF\RecordDriver\Factory::getSolrMarc', 
-                     'solrhist_mzk_raj'	=> 'HF\RecordDriver\Factory::getSolrMarc',
-                     'solrhist_mzk_raj'	=> 'HF\RecordDriver\Factory::getSolrMarc',
-                     'solrhist_mzk_dac'	=> 'HF\RecordDriver\Factory::getSolrMarc',
-                     'solrhist_mzk_tre'	=> 'HF\RecordDriver\Factory::getSolrMarc',
-                     'solrhist_mzk_zno'	=> 'HF\RecordDriver\Factory::getSolrMarc',                     
+                     'solrhist_mzk_rajhrad'	=> 'HF\RecordDriver\Factory::getSolrMarc',
+                     'solrhist_mzk_dacice'	=> 'HF\RecordDriver\Factory::getSolrMarc',
+                     'solrhist_mzk_trebova'	=> 'HF\RecordDriver\Factory::getSolrMarc',
+                     'solrhist_mzk_znojmo'	=> 'HF\RecordDriver\Factory::getSolrMarc',
                      'solrhist_vkol'	=> 'HF\RecordDriver\Factory::getSolrMarc',
                      'solrhist_cbvk'	=> 'HF\RecordDriver\Factory::getSolrMarc',
                      'solrhist_kkfb'	=> 'HF\RecordDriver\Factory::getSolrMarc',
@@ -22,16 +21,16 @@ $config = array(
                      'solrhist_nm'	=> 'HF\RecordDriver\Factory::getSolrMarcNM',
                      'solrhist_muni'	=> 'HF\RecordDriver\Factory::getSolrMarc',
                      'solrhist_knav'	=> 'HF\RecordDriver\Factory::getSolrMarc',
+                     'solrdefault'	=> 'HF\RecordDriver\Factory::getSolrMarc',
                       ), /* factories */
                  ), /* recorddriver */
              ), /* plugin_managers */
        'recorddriver_tabs' => array(
              'HF\RecordDriver\SolrMarc' => array(
                     'tabs' => array (
-                            'Description' => 'Description',
-                            'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
-                    ),
-                    'defaultTab' => 'Description',
+                         'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                         'TOC' => 'TOC',   
+                 ),
              ),
         ),
  

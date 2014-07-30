@@ -81,7 +81,7 @@
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
                 <div class="slider-container"><input type="text" class="hidden" id="<?=$this->escapeHtmlAttr($title)?><?=$this->escapeHtml($rangeFacets[$title]['type'])?>Slider"/></div>
               <? endif; ?>
-              <input class="btn" type="submit" value="<?=$this->transEsc('Set')?>"/>
+              <input class="btn btn-default" type="submit" value="<?=$this->transEsc('Set')?>"/>
             </form>
           </li>
           <? if ($rangeFacets[$title]['type'] == 'date'): ?>
@@ -142,7 +142,7 @@ JS;
               <a href="<?=$addURL ?>" class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i>5): ?> <?=$moreClass ?><?endif ?>">
             <? endif; ?>
             <span class="badge">
-              <?=number_format($thisFacet['count'])?>
+              <?=$this->localizedNumber($thisFacet['count'])?>
               <? if ($allowExclude): ?>
                 <a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="fa fa-times"></i></a>
               <? endif; ?>

@@ -54,6 +54,21 @@ class SearchController extends AbstractSearch
         $view->facetList = $this->processAdvancedFacets(
             $this->getAdvancedFacets()->getFacetList(), $view->saved
         );
+
+        $prefferedFacets = array();
+        $config = $this->getServiceLocator()->get('VuFind\Config')->get('facets');
+        foreach ($config->PreferredFacets as $field => $values) {
+            $vals = array();
+            $i = 0;
+            foreach ($values as $val) {
+                $i++;
+                $vals[$val] = $i;
+            }
+            $prefferedFacets[$field] = $vals;
+        }
+
+        $view->preferredFacets = $prefferedFacets;
+
         $specialFacets = $this->parseSpecialFacetsSetting(
             $view->options->getSpecialAdvancedFacets()
         );

@@ -21,13 +21,6 @@ function getAllByClass(classname, node) {
     return a;
 }
 
-function processSearchExportForm() {
-  var x = 3;
-  var ids = getAllByClass('availabilityId');
-
-  
-}
-
 function processEmailSearch(url) {
   var arrayID = getAllByClass('recordId'); 
   var ids = new Array(arrayID.length);

@@ -109,7 +109,9 @@ function registerLightboxEvents() {
   });
   // New account link handler
   $('.createAccountLink').click(function() {
-    return Lightbox.get('MyResearch', 'Account');
+    var parts = this.href.split('?');
+    var get = deparam(parts[1]);
+    return Lightbox.get('MyResearch', 'Account', get);
   });
   // Select all checkboxes
   $(modal).find('.checkbox-select-all').change(function() {
@@ -178,6 +180,16 @@ function updatePageForLogin() {
     ajaxLoadTab(tab);
   }
 }
+function newAccountHandler(html) {
+  updatePageForLogin();
+  var params = deparam(Lightbox.openingURL);
+  if (params['subaction'] != 'UserLogin') {
+    Lightbox.getByUrl(Lightbox.openingURL);
+    Lightbox.openingURL = false;
+  } else {
+    Lightbox.close();
+  }
+}
 
 // This is a full handler for the login form
 function ajaxLogin(form) {
@@ -217,7 +229,8 @@ function ajaxLogin(form) {
             if (response.status == 'OK') {
               updatePageForLogin();
               // and we update the modal
-              if(Lightbox.lastPOST && Lightbox.lastPOST['loggingin']) {
+              var params = deparam(Lightbox.lastURL);
+              if (params['subaction'] == 'UserLogin') {
                 Lightbox.close();
               } else {
                 Lightbox.getByUrl(
@@ -360,23 +373,16 @@ $(document).ready(function() {
     ajaxLogin(evt.target);
     return false;
   });
-  Lightbox.addFormCallback('accountForm', function() {
-    updatePageForLogin();
-    var params = deparam(Lightbox.openingURL);
-    if (params['subaction'] != 'Login') {
-      Lightbox.getByUrl(Lightbox.openingURL);
-      Lightbox.openingURL = false;
-    } else {
-      Lightbox.close();
-    }
-  });
-  Lightbox.addFormCallback('emailSearch', function(x) {
+  Lightbox.addFormCallback('accountForm', newAccountHandler);
+  Lightbox.addFormCallback('emailSearch', function(html) {
     Lightbox.confirm(vufindString['bulk_email_success']);
   });
-  Lightbox.addFormCallback('saveRecord', function() {
+  Lightbox.addFormCallback('saveRecord', function(html) {
+    Lightbox.close();
     checkSaveStatuses();
   });
-  Lightbox.addFormCallback('bulkRecord', function() {
+  Lightbox.addFormCallback('bulkRecord', function(html) {
+    Lightbox.close();
     checkSaveStatuses();
   });
 
@@ -393,7 +399,7 @@ $(document).ready(function() {
   });
   // Login link
   $('#loginOptions a.modal-link').click(function() {
-    return Lightbox.get('MyResearch','UserLogin',{},{'loggingin':true});
+    return Lightbox.get('MyResearch','UserLogin');
   });
   // Email search link
   $('.mailSearch').click(function() {

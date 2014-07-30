@@ -109,7 +109,8 @@ class HeadLink extends \Zend\View\Helper\HeadLink
                     'cache_dir' => $home . 'css/less/',
                     'cache_method' => false,
                     'compress' => true,
-                    'import_dirs' => $directories
+                    'import_dirs' => $directories,
+                    'output' => str_replace('.less', '.css', $file)
                 )
             );
             $this->prependStylesheet($cssDirectory . $css_file_name);
@@ -129,7 +130,7 @@ class HeadLink extends \Zend\View\Helper\HeadLink
      *
      * @return void
      */
-    public function addSassStylesheet($file)
+    public function addScssStylesheet($file)
     {
         $themeParents = array_keys($this->themeInfo->getThemeInfo());
         $currentTheme = $themeParents[0];

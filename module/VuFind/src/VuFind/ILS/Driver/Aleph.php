@@ -44,8 +44,8 @@ use VuFind\Exception\Date as DateException;
 
 /**
  * Aleph Translator class
- * 
- * 
+ *
+ *
  */
 interface AlephTranslator
 {
@@ -57,8 +57,8 @@ interface AlephTranslator
 }
 
 /**
- * 
- * 
+ *
+ *
  *
  */
 class AlephFixedTranslator implements AlephTranslator
@@ -84,7 +84,7 @@ class AlephFixedTranslator implements AlephTranslator
 }
 
 /**
- * Aleph Translator Class that uses configuration from Aleph tab*.lng files. 
+ * Aleph Translator Class that uses configuration from Aleph tab*.lng files.
  *
  * @category VuFind
  * @package  ILS_Drivers
@@ -294,7 +294,7 @@ class AlephFileTranslator implements AlephTranslator
 }
 
 /**
- * 
+ *
  * Aleph Restful API does not include bibliographic base in its response, so you
  * have to resolve it when you have two or more bibliographic bases.
  *
@@ -303,7 +303,7 @@ interface IdResolver {
     
     /**
      * Resolve ids (add Solr id to items)
-     * 
+     *
      * @param array $items   items to resolve
      */
     public function resolveIds(&$items);
@@ -311,7 +311,7 @@ interface IdResolver {
 }
 
 /**
- * 
+ *
  * FixedIdResolver - used when you have only one bibliographic base, so ID
  * in solr is not prefixed with bibliographic base so you can keep the returned id
  * as is.
@@ -362,7 +362,7 @@ class SolrIdResolver implements IdResolver {
                 $idsToResolve[] = $record[$this->itemIdentifier];
             }
         }
-        $resolved = $this->convertToIDUsingSolr($idsToResolve);        
+        $resolved = $this->convertToIDUsingSolr($idsToResolve);
         foreach ($recordsToResolve as &$record) {
             if (isset($record[$this->itemIdentifier])) {
                 $id = $record[$this->itemIdentifier];
@@ -409,18 +409,18 @@ class SolrIdResolver implements IdResolver {
 
 /**
  * Resolve identifiers against XServer using find function.
- * 
+ *
  */
 class XServerIdResolver implements IdResolver {
     
     /**
-     * 
+     *
      * @var AlephWebServices
      */
     protected $alephWebService;
     
     /**
-     * 
+     *
      * @var array
      */
     protected $bib;
@@ -533,7 +533,7 @@ class AlephWebServices {
     
     /**
      * Username for Xserver calls
-     * 
+     *
      * @var string
      */
     protected $wwwuser;
@@ -547,13 +547,13 @@ class AlephWebServices {
     
     /**
      * Port number on which REST DLF API is running
-     * 
+     *
      */
     protected $dlfport;
     
     /**
      * Is XServer API enabled?
-     * 
+     *
      */
     protected $xserver_enabled;
     
@@ -572,7 +572,7 @@ class AlephWebServices {
     protected $logger = false;
     
     /**
-     * 
+     *
      * @param array $config
      */
     public function __construct()
@@ -589,7 +589,7 @@ class AlephWebServices {
             $this->xserver_enabled = true;
         }
         $this->debug_enabled = false;
-        if (isset($config['debug']) && $config['debug']) { 
+        if (isset($config['debug']) && $config['debug']) {
             $this->debug_enabled = true;
         }
         $this->dlfport = $config['dlfport'];
@@ -621,7 +621,7 @@ class AlephWebServices {
     
     public function isXServerEnabled()
     {
-        return $this->xserver_enabled;        
+        return $this->xserver_enabled;
     }
     
     /**
@@ -874,28 +874,28 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     
     /**
      * Search service (used for lookups by barcode number)
-     * 
+     *
      */
     protected $searchService = null;
     
     /**
      * Resolver for translation of bibliographic ids, used in a case
      * of more bibliographic bases
-     * 
+     *
      * @var \VuFind\ILS\Driver\IdResolver
      */
     protected $idResolver = null;
     
     /**
      * Aleph web services
-     * 
+     *
      * @var \VuFind\ILS\Driver\AlephWebServices
      */
     protected $alephWebService = null;
     
     /**
      * Translation of statuses (used for hiding items and translation of statuses)
-     * 
+     *
      * @var \VuFind\ILS\Driver\AlephTranslator
      */
     protected $translator = false;
@@ -1005,7 +1005,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (isset($this->config['Catalog']['default_patron'])) {
             $this->defaultPatronId = $this->config['Catalog']['default_patron'];
         }
-        $idResolverType = 'fixed'; 
+        $idResolverType = 'fixed';
         if (isset($this->config['IdResolver']['type'])) {
             $idResolverType = $this->config['IdResolver']['type'];
         }
@@ -1933,7 +1933,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'patronStatus', 'registration')
         );
-        $institution = $xml->{'registration'}->{'institution'}; 
+        $institution = $xml->{'registration'}->{'institution'};
         $status = (string) $institution->{'z305-bor-status'};
         $expiry = (string) $institution->{'z305-expiry-date'};
         $recordList['expire'] = $this->parseDate($expiry);
@@ -2043,6 +2043,21 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         } else {
             throw new ILSException('No pickup locations');
         }
+        
+        $dueDate = null;
+        $status = (string) $xml->xpath('//status/text()')[0];
+        if (!in_array($status, $this->available_statuses)) {
+            $availability = false;
+            $matches = array();
+            if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*);([a-zA-Z ]*)/", $status, $matches)) {
+                $dueDate = $this->parseDate($matches[1]);
+            } else if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches)) {
+                $dueDate = $this->parseDate($matches[1]);
+            } else {
+                $dueDate = null;
+            }
+        }
+        
         $requests = 0;
         $str = $xml->xpath('//item/queue/text()');
         $matches = array();
@@ -2056,7 +2071,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             . substr($date, 0, 4);
         return array(
             'pickup-locations' => $locations, 'last-interest-date' => $date,
-            'order' => $requests + 1
+            'order' => $requests + 1, 'due-date' => $dueDate
         );
     }
 

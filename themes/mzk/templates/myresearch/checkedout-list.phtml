@@ -10,11 +10,22 @@
       <? endif; ?>
     <? endif; ?>
     <div class="span2 text-center">
-      <? if ($summThumb = $this->record($resource)->getThumbnail()): ?>
-        <img src="<?=$this->escapeHtml($summThumb)?>" class="summcover" alt="<?=$this->transEsc('Cover Image')?>"/>
-      <? else: ?>
-        <img src="<?=$this->url('cover-unavailable')?>" class="summcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
-      <? endif; ?>
+      <?
+        $recordId = $resource->getUniqueId();
+        $backLink = $this->serverUrl($this->recordLink()->getUrl($resource));
+        $formats = $resource->getFormats();
+      ?>
+      <div id="cover_<?=$recordId?>" class="coverThumbnail">
+        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSON()): ?>
+          <script type="text/javascript">
+            $(document).ready(function() {
+              obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
+            });
+          </script>
+        <? endif;?>
+        <img src="<?=$this->imageLink('format/' . $formats[0] . '.png')?>" />
+      </div>
+      <div class="coverFormat"><?=$this->transEsc($formats[0])?></div>
     </div>
     <div class="span9">
       <?
@@ -83,14 +94,14 @@
         <? $renewDetails = $this->renewResult[$ilsDetails['item_id']]; ?>
         <? if (isset($renewDetails['success']) && $renewDetails['success']): ?>
           <? $showStatus = false; ?>
-          <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['$ilsDetails'])?> <? if (isset($renewDetails['new_time'])): ?><?=$this->escapeHtml($renewDetails['new_time'])?><? endif; ?></strong>
+          <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?> <? if (isset($renewDetails['new_time'])): ?><?=$this->escapeHtml($renewDetails['new_time'])?><? endif; ?></strong>
           <div class="alert alert-success"><?=$this->transEsc('renew_success')?></div>
         <? else: ?>
           <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
           <div class="alert alert-error"><?=$this->transEsc('renew_fail')?><? if (isset($renewDetails['sysMessage'])): ?>: <?=$this->escapeHtml($renewDetails['sysMessage'])?><? endif; ?></div>
         <? endif; ?>
       <? else: ?>
-        <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['$ilsDetails'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
+        <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
         <?if (!empty($ilsDetails['fine'])):?>
           | <strong><?=$this->transEsc('Fine')?>: <?=$this->escapeHtml($ilsDetails['fine'])?></strong>
         <?endif;?>
