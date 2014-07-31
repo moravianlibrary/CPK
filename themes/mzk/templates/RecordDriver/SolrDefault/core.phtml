@@ -195,12 +195,22 @@
         </tr>
       <? endif; ?>
 
-      <? $issueYears = $this->driver->getIssueYears(); ?>
-      <? if ($issueYears): ?>
+      <? $subscribedYears = $this->driver->getSubscribedYears(); ?>
+      <? if ($subscribedYears): ?>
         <tr valign="top">
-          <th><?=$this->transEsc('Issue years')?>: </th>
+          <th><?=$this->transEsc('Subscribed years')?>: </th>
             <td>
-              <?=$this->escapeHtml($issueYears)?><br/>
+              <?=$this->escapeHtml($subscribedYears)?><br/>
+            </td>
+        </tr>
+      <? endif; ?>
+
+      <? $subscribedVolumes = $this->driver->getSubscribedVolumes(); ?>
+      <? if ($subscribedVolumes): ?>
+        <tr valign="top">
+          <th><?=$this->transEsc('Subscribed volumes')?>: </th>
+            <td>
+              <?=$this->escapeHtml($subscribedVolumes)?><br/>
             </td>
         </tr>
       <? endif; ?>
