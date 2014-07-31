@@ -9,6 +9,11 @@ $config = array(
                     'aleph' => 'MZKCommon\ILS\Driver\Factory::getAleph',
                 ), /* factories */
             ), /* ils_drivers */
+            'recommend' => array(
+                'factories' => array(
+                    'specifiablefacets' => 'MZKCommon\Recommend\Factory::getSpecifiableFacets',
+                ), /* factories */
+            ), /* recommend */
             'recorddriver' => array (
                 'factories' => array(
                     'solrdefault' => 'MZKCommon\RecordDriver\Factory::getSolrMarc',
