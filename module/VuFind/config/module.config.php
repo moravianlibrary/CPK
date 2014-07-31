@@ -431,6 +431,7 @@ $config = array(
                     'map' => 'VuFind\RecordTab\Factory::getMap',
                     'reviews' => 'VuFind\RecordTab\Factory::getReviews',
                     'usercomments' => 'VuFind\RecordTab\Factory::getUserComments',
+                    'preview' => 'VuFind\RecordTab\Factory::getPreview',
                 ),
                 'invokables' => array(
                     'description' => 'VuFind\RecordTab\Description',
@@ -581,6 +582,7 @@ $config = array(
                     'Holdings' => 'HoldingsILS', 'Description' => 'Description',
                     'TOC' => 'TOC', 'UserComments' => 'UserComments',
                     'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
+                    'Preview' => 'preview',
                     'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
                     'Details' => 'StaffViewArray',
                 ),
@@ -591,6 +593,7 @@ $config = array(
                     'Holdings' => 'HoldingsILS', 'Description' => 'Description',
                     'TOC' => 'TOC', 'UserComments' => 'UserComments',
                     'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
+                    'Preview' => 'preview',
                     'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
                     'Details' => 'StaffViewMARC',
                 ),
