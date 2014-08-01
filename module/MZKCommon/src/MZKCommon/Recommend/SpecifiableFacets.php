@@ -49,6 +49,8 @@ class SpecifiableFacets implements RecommendInterface
 
     protected $results;
 
+    protected $facetsWithSelect = array();
+
     protected $config = array();
 
     /**
@@ -78,7 +80,10 @@ class SpecifiableFacets implements RecommendInterface
         $config = $this->configLoader->get($iniName);
         $specFacets = isset($config->$mainSection) ? $config->$mainSection : array();
         foreach ($specFacets as $label => $expand) {
-            list($baseFacet, $expFacetField) = explode(':', $expand);
+            list($baseFacet, $expFacetField, $type) = explode(':', $expand);
+            if ($type == 'select') {
+                $this->facetsWithSelect[] = $expFacetField;
+            }
             $this->config[$baseFacet] = array(
                 'label' => $label,
                 'field' => $expFacetField
@@ -147,6 +152,16 @@ class SpecifiableFacets implements RecommendInterface
     public function getResults()
     {
         return $this->results;
+    }
+
+    public function getFacetsWithSelect()
+    {
+        return $this->facetsWithSelect;
+    }
+
+    public function getViewSettings()
+    {
+        return array ('cols' => 3);
     }
 
 }
