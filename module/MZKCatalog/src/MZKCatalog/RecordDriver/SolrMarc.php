@@ -123,7 +123,7 @@ class SolrMarc extends ParentSolrDefault
     {
         list($base, $sysno) = split('-', $this->getUniqueID());
         $fullView = self::ALEPH_BASE_URL . "F?func=direct&doc_number=$sysno&local_base=$base&format=999";
-        $holdings = self::ALEPH_BASE_URL . "http://aleph.mzk.cz/F?func=item-global&doc_library=$base&doc_number=$sysno";
+        $holdings = self::ALEPH_BASE_URL . "F?func=item-global&doc_library=$base&doc_number=$sysno";
         return array(
             'native_link_full_view' => $fullView,
             'native_link_holdings'  => $holdings
@@ -158,6 +158,16 @@ class SolrMarc extends ParentSolrDefault
             );
         }
         return $links;
+    }
+
+    public function getSubscribedYears()
+    {
+        return $this->getFirstFieldValue('910', array('r'));
+    }
+
+    public function getSubscribedVolumes()
+    {
+        return $this->getFirstFieldValue('910', array('s'));
     }
 
 }
