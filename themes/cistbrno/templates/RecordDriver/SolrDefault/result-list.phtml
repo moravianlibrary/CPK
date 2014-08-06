@@ -20,7 +20,7 @@
       <? endif;?>
       <img src="<?=$this->imageLink('format/Book.png')?>" />
     </div>
-    <div class="coverFormat">Book</div>
+    <div class="coverFormat"><?=implode(', ', $this->driver->getFormats())?></div>
   </div>
 
   <div class="span7 middle">
