@@ -67,7 +67,7 @@ $config = array(
                 
             'MZKPortal\RecordDriver\SolrMarcKjm' => array(
                 'tabs' => array (
-                    'holdings'     => 'MZKPortal\RecordTab\Holdings996',
+                    'holdings'     => 'MZKPortal\RecordTab\Holdings993',
                     'UserComments' => 'UserComments',
                     'Details' => 'StaffViewMARC',
                 ),
