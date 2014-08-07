@@ -1,0 +1,3148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2012 sp1 (http://www.altova.com) by Tony O'Brien (OCLC) -->
+<!-- ........................................... -->
+<!-- NISO Circulation Interchange Protocol ..... -->
+<!-- ........................................... -->
+<!--
+Purpose:
+  This file defines the XML Schema for the initiation & response messages which comprise the NISO Circulation Interchange Protocol.
+
+Dependencies:
+  None.
+
+Change history:
+    Version 2.02 official release (9th March 2012 - AJO)
+
+    Version 2.02 release candidate 1 (20th December 2011, pending committee approval - AJO)
+	1) Added LookupItemSet service, allowing for a single lookup message to return a result set containing multiple items.
+	2) Added BibInformation, HoldingsSet, ItemInformation, SummaryHoldingsInformation, TitleHoldQueueLength, HoldingsSetId, ItemNote, MaximumItemsCount and NextItemToken, in support of the LookupItemSet service.
+	3) Added optional/repeatable BibliographicId to LoanedItem.
+	4) Added optional/repeatable BibliographicId to RequestedItem.
+	5) Added optional DateDue to ItemOptionalFields.
+	6) Made Amount optional within LoanedItem.
+	7) Made ReminderLevel optional within LoanedItem.
+	8) Modified ReminderLevel datatype to be nonNegativeInteger.
+
+    Version 2.01 (8th September 2010 - AJO)
+	1) Allowed BibliographicRecordId to be repeatable in BibliographicDescription.
+	2) Allowed BibliographicId and ItemId to be both repeatable and not mutually exclusive in RequestItem. At least one of the two must be present, but both can be present and both can repeat. 
+	3) Added RequiredItemUseRestrictionType to UpdateRequestItemResponse as an optional Problem-related element.
+
+    Version 2.0 OFFICIAL RELEASE (29th October 2008 - AJO)
+	1) PreviousUserId moved from LookupUserResponse to UserOptionalFields.
+	2) UserId added to UserOptionalFields.
+	3) ItemIdType renamed to ItemIdentifierType.
+	4) RequestIdType renamed to RequestIdentifierType.
+	5) UserIdType renamed to UserIdentifierType.
+	6) UserElementsDesired wrapper element removed.
+	7) LoanCount removed. 
+	8) LoanDetails renamed LoanedItemsDesired.
+	9) RequestCount removed.
+	10) RequestDetails renamed RequestedItemsDesired.
+	11) FiscalAccountDetails renamed to UserFiscalAccountDesired.
+
+    Version 2 release candidate 2 (24th October 2008, pending committee approval - AJO)
+	1) Corrected elements within the Problem element to be a sequence rather than a choice.
+	2) Added DeleteItem and DeleteItemResponse to NCIPMessage.
+	3) Added DeleteUser and DeleteUserResponse to NCIPMessage.
+
+    Version 2 release candidate 1 (3rd October 2008, pending committee approval - AJO)
+	1) Added further instances of the Ext/ANY element for extensibility, throughout schema.
+	2) Added optional ItemOptionalFields within RequestItem.
+	3) Added optional UserElementsDesired within LookupUser, as a wrapper for the existing user 'desired' elements.
+	4) LoanedItemsDesired split into LoanCount and LoanDetails, within UserElementsDesired.
+	5) RequestedItemsDesired split into RequestCount and RequestDetails, within UserElementsDesired.
+	6) UserFiscalAccountDesired renamed to FiscalAccountDetails, within UserElementsDesired.
+	7) Declared targetNamespace and default namespace to be "http://www.niso.org/2008/ncip", all elements and attributes are now 'qualified' (i.e. belong to a namespace)
+	8) Removed DOCTYPE invocation comment.
+
+    Version 2 draft 4 (5th May 2008, unreleased draft - AJO)
+	1) Problem element restructured to contain new child elements: ProblemType, ProblemDetail, ProblemElement and ProblemValue.
+	2) Problem element replaced MessagingError and ProcessingError wherever they occur, and is repeatable.
+	3) MessagingError and child elements removed.
+	4) ProcessingError and child elements removed.
+	5) New SchemeValuePair datatype added, incorporating optional Scheme attribute, and a simple string as the 'value' payload.
+	6) Existing Scheme/Value enumeration elements switched to utilise new SchemeValuePair datatype.
+	7) Scheme and Value data elements removed.
+	8) PickupExpiryDate added to AcceptItem message.
+	9) PickupLocation element added, of type SchemeValuePair. This element appears in same places as PickupExpiryDate.
+	10) NumberOfPieces element added, of type positiveInteger. Used within ItemDescription.
+
+    Version 2 draft 3 (15th November 2007, unreleased draft - AJO)
+	1) MessagingError added as a choice within NCIPMessage.
+	2) Added new PreviousUserId element, within LookupUserResponse.
+	3) Added optional Title and MediumType elements within LoanedItem and RequestedItem.
+	4) Removed VisibleUserId, VisibleItemId, plus associated child elements.
+	5) Removed UserTransaction element, current child elements promoted within LookupUserResponse.
+	6) Removed 'Unique' prefix from all such named elements, e.g. UniqueUserId -> UserId.
+	7) Removed AuthenticateUser service.
+	8) Added optional NameInformation to RoutingInformation.
+	9) Made AgencyId optional within ItemId/RequestId/UserId.
+	10) Added optional ItemIdType/RequestIdType/UserIdType to associated parent elements.
+
+    Version 2 draft 2 (9th November 2007, unreleased draft - AJO)
+	1) InitiationHeader & ResponseHeader now optional wherever they appear. 
+	2) DeleteItem & DeleteUser services added.  
+
+    Version 2 draft 1 (27th June 2007, unreleased draft - AJO)
+	1) Added ANY element, inside wrapper element <Ext>, within outer level messages, for extensibility
+
+    Version 1.01 (3rd May 2004 - AJO)
+    	1) Added new LookupRequest service (LookupRequest & LookupRequestResponse)
+    	2) Added new RequestElementType scheme/value pair element, for use by new LookupRequest service
+    	3) Added new optional PaidFeeAmount element to CheckOutItem, RenewItem, RequestItem, AddRequestFields, DeleteRequestFields, CancelRequestItem and LookupRequestResponse
+    	4) Added optional AcknowledgedFeeAmount to CancelRequestItem
+    	5) Made ItemElementType optional within LookupItem
+    	6) Made UserElementType optional within LookupUser
+    	
+    Version 1.0 - approved version (16th August 2002 - AJO)
+    	1) Restructured AuthenticationPrompt to be:-
+		<!ELEMENT AuthenticationPrompt (PromptOutput , PromptInput)>
+		<!ELEMENT PromptOutput (AuthenticationPromptData , AuthenticationPromptType)>
+		<!ELEMENT PromptInput (AuthenticationInputType , AuthenticationDataFormatType , SensitiveDataFlag?)>
+		<!ELEMENT SensitiveDataFlag EMPTY>
+	2) Restructured ElectronicResource to be:-
+		<!ELEMENT ElectronicResource ((ElectronicDataFormatType , ActualResource) | ReferenceToResource)>
+		<!ELEMENT ElectronicDataFormatType (Scheme , Value)>
+		<!ELEMENT ActualResource (#PCDATA)>		
+		<!ELEMENT ReferenceToResource (#PCDATA)>
+	3) Restructured NameInformation to be:-
+		<!ELEMENT NameInformation (PersonalNameInformation | OrganizationNameInformation+)>
+	4) Restructured StructuredAddress to be:-
+		<!ELEMENT StructuredAddress (((LocationWithinBuilding?, HouseName?, (District | (PostOfficeBox, District?) | (Street, PostOfficeBox?, District?))) | (Line1 , Line2?)) , Locality? , Region? , Country? , PostalCode? , CareOf?)> 
+	5) Restructured VisibleUserId to be:-
+		<!ELEMENT VisibleUserId (UniqueAgencyId? , VisibleUserIdentifierType , VisibleUserIdentifier)>
+	6) Added VisibleUserId to LookupUser as an alternative to UniqueUserId/AuthenticationInput
+	7) Made VisibleUserId repeatable in CreateUser, UserCreated, AddUserFields, DeleteUserFields, and UserOptionalFields
+	8) Removed DateCheckedIn from DTD
+	9) Removed CopySupplyPermitted from DTD
+	10) Renamed RenewalPermittedFlag to RenewalNotPermitted
+	13) Added IndeterminateLoanPeriodFlag to AcceptItem as an alternative to DateForReturn/NonReturnableFlag
+
+    Version 1.0 - ballot version (14th April 2002 - AJO)
+	1) Added required attribute "version" to NCIPMessage
+	2) Modified DOCTYPE statement to make use of proposed naming conventions
+	3) Added ElementName in place of Value within MessagingErrorElement and ProcessingErrorElement
+
+    Version 0.2d (29th March 2002 - AJO)
+	1) Renamed BehavioralProfileType to ApplicationProfileType
+	2) Renamed BehavioralProfileSupportedType to ApplicationProfileSupportedType
+	3) Made DateDue optional in ItemDetails
+	4) Added IndeterminateLoanPeriodFlag & NonReturnableFlag as alternatives to DateDue in ItemDetails
+	5) Added optional DateCheckedOut to ItemDetails
+	6) Made DateReturned optional in ItemDetails
+	7) Made DateRenewed optional/repeatable in ItemDetails
+	8) Replaced contents of AccountDetails (except AccrualDate) with FiscalTransactionInformation
+	9) Removed AmountAccrued from the DTD
+	10) Made FiscalTransactionReferenceId optional in FiscalTransactionInformation
+	11) Added FiscalTransactionInformation to CreateUserFiscalTransaction
+	12) Removed elements from CreateUserFiscalTransaction which already occur in FiscalTransactionInformation
+	13) Made DateDue/IndeterminateLoanPeriodFlag/NonReturnableFlag mandatory in CheckoutItemResponse
+	14) Added ElectronicResource to ItemOptionalFields
+	15) Added SensitizationFlag to CreateItem, ItemCreated, AddItemFields and DeleteItemFields
+	16) Added new optional element UserFiscalAccountDesired to LookupUser
+	17) Added new optional element OnBehalfOfAgency to InitiationHeader for all initiation messages
+
+    Version 0.2c (15th March 2002 - AJO)
+	1) Removed UpdateUserFiscalTransaction message & response
+	2) Removed UserFiscalTransactionUpdated message & response
+	3) Renamed DateDueDesired to DesiredDateDue
+	4) Renamed DateForReturnDesired to DesiredDateForReturn
+	6) Renamed OverdueItem to NoticeItem
+	7) Made Amount optional within NoticeItem
+	8) Added optional PaymentMethodType to CreateUserFiscalTransaction
+	9) Added optional PaymentMethodType to FiscalTransactionInformation
+	10) Added optional PaymentMethodType to AccountDetails
+
+    Version 0.2b (26th February 2002 - AJO)
+	1) Replaced ShippingAddress with ShippingInformation in ItemShipped
+	2) Removed ShippingInstructions and ShippingNote from ItemShipped
+	3) Replaced ShippingAddress with (PhysicalAddress | ElectronicAddress) in ShippingInformation
+	4) Removed ShippingAddress from the DTD
+	5) Modified (DateReturned? | DateRenewed?) structure in ItemDetails to be (DateReturned | DateRenewed)? Instead
+	6) Added new optional element DateForReturnDesired to RenewItem
+	7) Added optional DateForReturn to RenewItemResponse
+	8) Added optional UniqueItemId to AcceptItemResponse
+	9) Renamed ExistingFiscalTransaction to FiscalTransactionInformation
+	10) Promoted contents to replace NewFiscalTransaction in CreateUserFiscalTransaction
+	11) Replaced all other occurrences of NewFiscalTransaction with FiscalTransactionInformation
+	12) Removed NewFiscalTransaction from the DTD
+	13) Made Amount and FiscalTransactionType mandatory in FiscalTransactionInformation
+	14) Replaced FiscalAccountUpdateDetails with FiscalTransactionInformation in UpdateRequestItemResponse
+	15) Removed FiscalAccountUpdateDetails from the DTD
+	16) Added optional/repeatable RelatedFiscalTransactionReferenceId to CreateUserFiscalTransaction, FiscalTransactionInformation and AccountDetails
+	17) Removed AuthenticationInput from SendUserNotice
+
+    Version 0.2a (18th February 2002 - AJO)
+	1) Renamed BehavioralModelType to BehavioralProfileType
+	2) Renamed BehavioralModelSupportedType to BehavioralProfileSupportedType
+	3) Modified BibliographicRecordId to include a choice between UniqueAgencyId OR BibliographicRecordIdentifierCode
+	4) Added optional RequestType and UniqueUserId to RoutingInformation
+	5) Made LocationName element into a wrapper for new repeatable element LocationNameInstance, containing LocationNameValue and LocationNameLevel
+	6) Modified Destination element to contain Location and BinNumber as an either/or choice.
+	7) Added new AcceptItem/AcceptItemResponse messages
+
+    Version 0.2 (12th December 2001 - AJO)
+	1) Added new UpdateCirculationStatus/UpdateCirculationStatusResponse messages (same basics as existing notification message) 
+	2) Added RequestStatusType to Add/DeleteRequestFields
+	3) Added optional UniqueRequestId to ItemCreated 
+	4) Replaced occurrences of ItemUsePolicies with optional/repeatable ItemUseRestrictionType
+	5) Removed ItemUsePolicies from the DTD 
+	6) Added VisibleItemId to LookupItem, as an alternative lookup key to UniqueItem/RequestId 
+	7) Added optional/repeatable AcknowledgedItemUseRestrictionType to CheckOutItem, RenewItem and RequestItem messages 
+	8) Added optional/repeatable RequiredItemUseRestrictionType to CheckOutItemResponse, RenewItemResponse and RequestItemResponse 	messages 
+	9) Added optional BehavioralModelType element to InitiationHeader
+	10) Renamed CIPRolesSupportedType to BehavioralModelSupportedType
+	11) Made Surname required and GivenName optional in PersonalUserNameStructured
+	12) Removed NCIP messages AuthorizeUserAccess and AuthorizeUserAccessResponse from the DTD
+	13) Removed elements AuthorizationRequest, AuthorizationRequestTypeScheme, AdditionalInfo, AdditionalInfoValue, 	AuthorizationResponse, AuthorizationResponseType, AccessType & AccessFee from the DTD
+	14) Moved the child elements ElectronicDataFormatType, Language and MediumType from ItemDescription to BibliographicDescription
+	15) Renamed various elements in line with Data Dictionary:-
+		a. AuthenticationDataType -> AuthenticationDataFormatType
+		b. BibliographicTitle -> Title
+		c. UnlimitedLoanFlag -> IndeterminateLoanPeriodFlag
+		d. BibliographicDescriptionLevel -> ItemDescriptionLevel
+		e. PersonalUserNameStructured -> StructuredPersonalUserName
+		f. PersonalUserCommonName -> UnstructuredPersonalUserName
+		g. FormattedAddress -> UnstructuredAddress
+		h. FormattedAddressData -> UnstructuredAddressData 
+		i. FormattedAddressType -> UnstructuredAddressType 
+		j. DesensitizationFlag -> SensitizationFlag 
+	16) Added MandatedAction and DateEventOccurred elements, used by all 'update' type messages.
+	17) Reversed order of child elements within ComponentId and RoutingInformation
+	18) Added repeatable ChronologyLevelInstance element to HoldingsChronology
+	19) Added repeatable EnumerationLevelInstance element to HoldingsEnumeration
+	20) Dropped "Holdings" prefix from elements ChronologyCaption, ChronologyLevel, ChronologyValue, EnumerationCaption, EnumerationLevel 	and EnumerationValue
+	21) Split UpdateUserFiscalAccount message into two alternatives: CreateUserFiscalTransaction and UpdateUserFiscalTransaction
+	22) Split  UserFiscalAccountUpdated message into two alternatives: UserFiscalTransactionCreated and UserFiscalTransactionUpdated
+	23) Moved FiscalActionType from FiscalAccountUpdateDetails into NewFiscalTransaction and ExistingFiscalTransaction
+	24) Replaced FiscalAccountUpdateDetails with NewFiscalTransaction in the following messages:-
+		a. CreateUserFiscalTransaction
+		b. UserFiscalTransactionCreated
+		c. CheckInItemResponse
+		d. CheckOutItemResponse
+		e. CirculationStatusChangeReported
+		f. ItemCheckedIn
+		g. ItemCheckedOut
+		h. ItemRenewed
+		i. RecallItemResponse
+		j. RenewItemResponse
+		k. RequestItemResponse
+	25) Replaced FiscalAccountUpdateDetails with ExistingFiscalTransaction in the following messages:-
+		a. UpdateUserFiscalTransaction
+		b. UserFiscalTransactionUpdated
+		c. CancelRecallItemResponse
+		d. CancelRequestItemResponse
+		e. ItemRecallCancelled
+		f. UndoCheckOutItemResponse
+	26) Added ExistingFiscalTransaction to ItemRequestCancelled message
+	27) Removed unused orphan elements Hold/Loan/Renewal/StackRetrievalPermitted
+	28) Removed AcknowledgedFeeAmount from ItemRequested notification message
+
+  Version 0.1d (19th August 2001 - AJO)
+  1)	Renamed ProcessingFailure to ProcessingError.
+  2)	Corrected ProcessingError (& child elements) syntax to match that of MessagingError.
+  3)	Renamed FailureElement/FailureType/FailureValue to ProcessingErrorElement/ProcessingErrorType/ProcessingErrorValue.
+  4)	Prefixed ErrorElement/ErrorType/ErrorValue with "Messaging", to distinguish from ProcessingError.
+  5)	Modified ItemShipped message to contain commonly used syntax for inclusion of UniqueItemId AND/OR UniqueRequestId.
+  6)	Tidied up SendUserNoticeResponse syntax.
+  7)	Renamed ClaimItemReturned -> ReportCirculationStatusChange.
+  8)	Renamed ItemClaimedReturned -> CirculationStatusChangeReported.
+  9)	Added new optional alternative elements ItemReportedLost and ItemReportedReturned to above two messages.
+  10)	Renamed DateClaimedReturned to DateReportedReturned and made a child element of ReportedReturned.
+  11)	Added new HoldingsInformation wrapper element to ItemDescription.
+  12)	Removed VolumeIssue from BibliographicDescription and from DTD.
+  13)	Removed SerialHoldings from ItemDescription and from DTD.
+  14)	Added new AuthorizeUserAccess/AuthorizeUserAccessResponse messages for RUA profile.
+  15)	Added new element for VisibleUserId, to parallel current usage of VisibleItemId element.
+  16)	Made FromSystemId & ToSystemId optional for all message headers.
+  17)	Revised AccessFee to contain only CurrencyCode and MonetaryValue.
+  18)	Removed AccessAllFlag element from AuthorizationRequest/Response and from DTD.
+  19)	Removed ValidFromDate from AuthorizationResponse.
+  20)	Renamed AuthorizationTypeResponse to AuthorizationResponseType.
+  21)	Renamed AuthorizationTypeRequest to AuthorizationRequestTypeScheme, and removed Scheme/Value child elements.
+  22)	Added new optional PickupExpiryDate element to ItemRequested, RequestItem, AddRequestFields and DeleteRequestFields.
+  23)	Renamed CirculationCategoryType to ItemUseRestrictionType.
+  24)	Added ItemReportedMissing & ItemReportedNeverBorrowed options to ReportCirculationStatusChange & CirculationStatusChangeReported messages.
+  25)	Removed redundant UniqueUserId & UniqueAgencyId elements from UserAddressInformation & AgencyAddressInformation.
+  26)	ItemUseRestrictionType now contained within new ItemUsePolicies wrapper element.
+  27)	Added new boolean elements Hold/Loan/Renewal/CopySupply/StackRetrievalPermitted to ItemUsePolicies.
+  28)	Added RequestType, RequestStatusType, PickupDate & PickupExpiryDate elements to RequestedItem.
+  29)	HoldQueuePosition & ReminderLevel made optional within RequestedItem.
+  30)	Added RequestType to RequestedItemsCount as an alternative to CirculationStatus & ItemUseRestrictionType.
+
+  Version 0.1c (20th April 2001 - AJO)
+  1)	Removed DesensitizationFlag from CheckOutItem and CheckOutItemResponse.
+  2)	Added DesensitizationFlag to ItemOptionalFields.
+  3)	AmountAccrued redefined to contain only CurrencyCode and MonetaryValue.
+  4)	In all notification responses: Replaced Problem with optional/repeatable MessagingError.
+  5)	Wherever the following two fields appear in the kind of structure indicated, made the element order consistent as follows: (UniqueItemId | (UniqueRequestId , UniqueItemId?)).
+  8)	Removed Agency/Item/UserLookupType from the DTD.
+  9)	Replaced Agency/Item/UserElementId occurrences with Agency/Item/UserElementType.
+  10)	Added optional UniqueRequestId to CreateItem.
+  11)	Removed AddressInformation from ItemReceived.
+  12)	Split AddressRoleType into AgencyAddressRoleType and UserAddressRoleType.
+  13)	Split AddressInformation into AgencyAddressInformation and UserAddressInformation.
+  14)	Modified all parent elements, which previously contained AddressInformation, to now use either AgencyAddressInformation or UserAddressInformation depending on which of the two objects was being referenced in each instance.
+
+  Version 0.1b (15th February 2001 - AJO)
+  1)	Removed SuccessFlag from DTD.
+  2)	Removed FailureFlag from DTD.
+  3)	Removed MessageResult from DTD.
+  4)	Renamed 'Failure' element to 'Problem' and enhanced to differentiate between messaging errors and processing failures, adding new child elements ProcessingFailure, FailureType, FailureElement & FailureValue in the process.
+  5)	Renamed 'Error' element to MessagingError.
+  6)	Revised ErrorElement definition to prevent infinite recursion problem.
+  7)	Made ToAgencyId mandatory in InitiationHeader.
+  8)	Added CirculationStatus to ItemOptionalFields.
+  9)	Replaced majority of references to SecurityMarker (plus other item related fields) with ItemOptionalFields wrapper, the only exceptions being the CreateItem/ItemCreated messages.
+  10)	Replaced majority of references to DateOfBirth (plus other user related fields) with UserOptionalFields wrapper, the only exceptions being the CreateUser/UserCreated messages.
+  11)	Corrected NameInformation to be optional but not repeatable in Add/DeleteUserFields.
+  12)	Added ValidFromDate & ValidToDate to Location element.
+  13)	Replaced all occurrences of StartDate & EndDate with ValidFromDate & ValidToDate.
+  14)	Removed StartDate & EndDate from DTD.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.niso.org/2008/ncip" targetNamespace="http://www.niso.org/2008/ncip" elementFormDefault="qualified" attributeFormDefault="qualified">
+	<xs:element name="NCIPMessage">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="AcceptItem"/>
+					<xs:element ref="AcceptItemResponse"/>
+					<xs:element ref="AgencyCreated"/>
+					<xs:element ref="AgencyCreatedResponse"/>
+					<xs:element ref="AgencyUpdated"/>
+					<xs:element ref="AgencyUpdatedResponse"/>
+					<xs:element ref="CancelRecallItem"/>
+					<xs:element ref="CancelRecallItemResponse"/>
+					<xs:element ref="CancelRequestItem"/>
+					<xs:element ref="CancelRequestItemResponse"/>
+					<xs:element ref="CheckInItem"/>
+					<xs:element ref="CheckInItemResponse"/>
+					<xs:element ref="CheckOutItem"/>
+					<xs:element ref="CheckOutItemResponse"/>
+					<xs:element ref="CirculationStatusChangeReported"/>
+					<xs:element ref="CirculationStatusChangeReportedResponse"/>
+					<xs:element ref="CirculationStatusUpdated"/>
+					<xs:element ref="CirculationStatusUpdatedResponse"/>
+					<xs:element ref="CreateAgency"/>
+					<xs:element ref="CreateAgencyResponse"/>
+					<xs:element ref="CreateItem"/>
+					<xs:element ref="CreateItemResponse"/>
+					<xs:element ref="CreateUser"/>
+					<xs:element ref="CreateUserResponse"/>
+					<xs:element ref="CreateUserFiscalTransaction"/>
+					<xs:element ref="CreateUserFiscalTransactionResponse"/>
+					<xs:element ref="DeleteItem"/>
+					<xs:element ref="DeleteItemResponse"/>
+					<xs:element ref="DeleteUser"/>
+					<xs:element ref="DeleteUserResponse"/>
+					<xs:element ref="ItemCheckedIn"/>
+					<xs:element ref="ItemCheckedInResponse"/>
+					<xs:element ref="ItemCheckedOut"/>
+					<xs:element ref="ItemCheckedOutResponse"/>
+					<xs:element ref="ItemCreated"/>
+					<xs:element ref="ItemCreatedResponse"/>
+					<xs:element ref="ItemRecallCancelled"/>
+					<xs:element ref="ItemRecallCancelledResponse"/>
+					<xs:element ref="ItemRecalled"/>
+					<xs:element ref="ItemRecalledResponse"/>
+					<xs:element ref="ItemReceived"/>
+					<xs:element ref="ItemReceivedResponse"/>
+					<xs:element ref="ItemRenewed"/>
+					<xs:element ref="ItemRenewedResponse"/>
+					<xs:element ref="ItemRequestCancelled"/>
+					<xs:element ref="ItemRequestCancelledResponse"/>
+					<xs:element ref="ItemRequestUpdated"/>
+					<xs:element ref="ItemRequestUpdatedResponse"/>
+					<xs:element ref="ItemRequested"/>
+					<xs:element ref="ItemRequestedResponse"/>
+					<xs:element ref="ItemShipped"/>
+					<xs:element ref="ItemShippedResponse"/>
+					<xs:element ref="ItemUpdated"/>
+					<xs:element ref="ItemUpdatedResponse"/>
+					<xs:element ref="LookupAgency"/>
+					<xs:element ref="LookupAgencyResponse"/>
+					<xs:element ref="LookupItem"/>
+					<xs:element ref="LookupItemResponse"/>
+					<xs:element ref="LookupItemSet"/>
+					<xs:element ref="LookupItemSetResponse"/>
+					<xs:element ref="LookupRequest"/>
+					<xs:element ref="LookupRequestResponse"/>
+					<xs:element ref="LookupUser"/>
+					<xs:element ref="LookupUserResponse"/>
+					<xs:element ref="RecallItem"/>
+					<xs:element ref="RecallItemResponse"/>
+					<xs:element ref="RenewItem"/>
+					<xs:element ref="RenewItemResponse"/>
+					<xs:element ref="ReportCirculationStatusChange"/>
+					<xs:element ref="ReportCirculationStatusChangeResponse"/>
+					<xs:element ref="RequestItem"/>
+					<xs:element ref="RequestItemResponse"/>
+					<xs:element ref="SendUserNotice"/>
+					<xs:element ref="SendUserNoticeResponse"/>
+					<xs:element ref="UndoCheckOutItem"/>
+					<xs:element ref="UndoCheckOutItemResponse"/>
+					<xs:element ref="UpdateAgency"/>
+					<xs:element ref="UpdateAgencyResponse"/>
+					<xs:element ref="UpdateCirculationStatus"/>
+					<xs:element ref="UpdateCirculationStatusResponse"/>
+					<xs:element ref="UpdateItem"/>
+					<xs:element ref="UpdateItemResponse"/>
+					<xs:element ref="UpdateRequestItem"/>
+					<xs:element ref="UpdateRequestItemResponse"/>
+					<xs:element ref="UpdateUser"/>
+					<xs:element ref="UpdateUserResponse"/>
+					<xs:element ref="UserCreated"/>
+					<xs:element ref="UserCreatedResponse"/>
+					<xs:element ref="UserFiscalTransactionCreated"/>
+					<xs:element ref="UserFiscalTransactionCreatedResponse"/>
+					<xs:element ref="UserNoticeSent"/>
+					<xs:element ref="UserNoticeSentResponse"/>
+					<xs:element ref="UserUpdated"/>
+					<xs:element ref="UserUpdatedResponse"/>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="Ext"/>
+				</xs:choice>
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AcceptItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="RequestId"/>
+				<xs:element ref="RequestedActionType"/>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="ItemId" minOccurs="0"/>
+				<xs:choice minOccurs="0">
+					<xs:element ref="DateForReturn"/>
+					<xs:element ref="IndeterminateLoanPeriodFlag"/>
+					<xs:element ref="NonReturnableFlag"/>
+				</xs:choice>
+				<xs:element ref="RenewalNotPermitted" minOccurs="0"/>
+				<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="PickupLocation" minOccurs="0"/>
+				<xs:element ref="PickupExpiryDate" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AcceptItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="RequestId"/>
+						<xs:element ref="ItemId" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AgencyCreated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="OrganizationNameInformation" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AuthenticationPrompt" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ApplicationProfileSupportedType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ConsortiumAgreement" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyUserPrivilegeType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AgencyCreatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AgencyUpdated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="DeleteAgencyFields" minOccurs="0"/>
+				<xs:element ref="AddAgencyFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AgencyUpdatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CancelRecallItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CancelRecallItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CancelRequestItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:choice>
+					<xs:element ref="ItemId"/>
+					<xs:sequence>
+						<xs:element ref="RequestId"/>
+						<xs:element ref="ItemId" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="RequestType"/>
+				<xs:element ref="RequestScopeType" minOccurs="0"/>
+				<xs:element ref="AcknowledgedFeeAmount" minOccurs="0"/>
+				<xs:element ref="PaidFeeAmount" minOccurs="0"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CancelRequestItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element ref="ItemId"/>
+							<xs:sequence>
+								<xs:element ref="RequestId"/>
+								<xs:element ref="ItemId" minOccurs="0"/>
+							</xs:sequence>
+						</xs:choice>
+						<xs:element ref="UserId"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CheckInItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CheckInItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId" minOccurs="0"/>
+						<xs:element ref="RoutingInformation" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CheckOutItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:element ref="AcknowledgedFeeAmount" minOccurs="0"/>
+				<xs:element ref="PaidFeeAmount" minOccurs="0"/>
+				<xs:element ref="AcknowledgedItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="ResourceDesired" minOccurs="0"/>
+				<xs:element ref="DesiredDateDue" minOccurs="0"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CheckOutItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="Problem" maxOccurs="unbounded"/>
+						<xs:element ref="RequiredFeeAmount" minOccurs="0"/>
+						<xs:element ref="RequiredItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId"/>
+						<xs:choice>
+							<xs:element ref="DateDue"/>
+							<xs:element ref="IndeterminateLoanPeriodFlag"/>
+							<xs:element ref="NonReturnableFlag"/>
+						</xs:choice>
+						<xs:element ref="RenewalCount" minOccurs="0"/>
+						<xs:element ref="ElectronicResource" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CirculationStatusChangeReported">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="UserId"/>
+				<xs:choice>
+					<xs:element ref="ItemReportedReturned"/>
+					<xs:element ref="ItemReportedNeverBorrowed"/>
+					<xs:element ref="ItemReportedLost"/>
+					<xs:element ref="ItemReportedMissing"/>
+				</xs:choice>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CirculationStatusChangeReportedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CirculationStatusUpdated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="CirculationStatus"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CirculationStatusUpdatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateAgency">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="AgencyId" minOccurs="0"/>
+				<xs:element ref="OrganizationNameInformation" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AuthenticationPrompt" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ApplicationProfileSupportedType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ConsortiumAgreement" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyUserPrivilegeType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateAgencyResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="AgencyId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId" minOccurs="0"/>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:element ref="BibliographicDescription"/>
+				<xs:element ref="ItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="CirculationStatus" minOccurs="0"/>
+				<xs:element ref="ItemDescription" minOccurs="0"/>
+				<xs:element ref="Location" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="PhysicalCondition" minOccurs="0"/>
+				<xs:element ref="SecurityMarker" minOccurs="0"/>
+				<xs:element ref="SensitizationFlag" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="ItemId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateUser">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice minOccurs="0">
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="NameInformation"/>
+				<xs:element ref="UserAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="DateOfBirth" minOccurs="0"/>
+				<xs:element ref="UserLanguage" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserPrivilege" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="BlockOrTrap" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateUserResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="UserId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateUserFiscalTransaction">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="FiscalTransactionInformation"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateUserFiscalTransactionResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="UserId"/>
+						<xs:element ref="FiscalTransactionReferenceId"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DeleteItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DeleteItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="ItemId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DeleteUser">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DeleteUserResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="UserId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="InitiationHeader">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="FromSystemId" minOccurs="0"/>
+				<xs:element ref="FromSystemAuthentication" minOccurs="0"/>
+				<xs:element ref="FromAgencyId"/>
+				<xs:element ref="FromAgencyAuthentication" minOccurs="0"/>
+				<xs:element ref="OnBehalfOfAgency" minOccurs="0"/>
+				<xs:element ref="ToSystemId" minOccurs="0"/>
+				<xs:element ref="ToAgencyId"/>
+				<xs:element ref="ApplicationProfileType" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemCheckedIn">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="RoutingInformation" minOccurs="0"/>
+				<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemCheckedInResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemCheckedOut">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="DateDue"/>
+					<xs:element ref="IndeterminateLoanPeriodFlag"/>
+					<xs:element ref="NonReturnableFlag"/>
+				</xs:choice>
+				<xs:element ref="ElectronicResourceProvidedFlag" minOccurs="0"/>
+				<xs:element ref="RenewalCount" minOccurs="0"/>
+				<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemCheckedOutResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemCreated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:element ref="BibliographicDescription"/>
+				<xs:element ref="ItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="CirculationStatus" minOccurs="0"/>
+				<xs:element ref="ItemDescription" minOccurs="0"/>
+				<xs:element ref="Location" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="PhysicalCondition" minOccurs="0"/>
+				<xs:element ref="SecurityMarker" minOccurs="0"/>
+				<xs:element ref="SensitizationFlag" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemCreatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRecallCancelled">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRecallCancelledResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRecalled">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="DateDue"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRecalledResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemReceived">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:element ref="DateReceived"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemReceivedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRenewed">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="DateDue"/>
+				<xs:element ref="RenewalCount" minOccurs="0"/>
+				<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRenewedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRequestCancelled">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:choice>
+					<xs:element ref="ItemId"/>
+					<xs:sequence>
+						<xs:element ref="RequestId"/>
+						<xs:element ref="ItemId" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="RequestType"/>
+				<xs:element ref="RequestScopeType" minOccurs="0"/>
+				<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRequestCancelledResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRequestUpdated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="UserId"/>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="RequestType"/>
+					</xs:sequence>
+					<xs:element ref="RequestId"/>
+				</xs:choice>
+				<xs:element ref="DeleteRequestFields" minOccurs="0"/>
+				<xs:element ref="AddRequestFields" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRequestUpdatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRequested">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:choice>
+					<xs:element ref="ItemId"/>
+					<xs:sequence>
+						<xs:element ref="BibliographicId"/>
+						<xs:element ref="RequestId"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="RequestType"/>
+				<xs:element ref="RequestScopeType"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="EarliestDateNeeded" minOccurs="0"/>
+				<xs:element ref="NeedBeforeDate" minOccurs="0"/>
+				<xs:element ref="PickupLocation" minOccurs="0"/>
+				<xs:element ref="PickupExpiryDate" minOccurs="0"/>
+				<xs:element ref="DateOfUserRequest" minOccurs="0"/>
+				<xs:element ref="DateAvailable" minOccurs="0"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemRequestedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemShipped">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="ItemId"/>
+					<xs:sequence>
+						<xs:element ref="RequestId"/>
+						<xs:element ref="ItemId" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="DateShipped"/>
+				<xs:element ref="ShippingInformation"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="UserOptionalFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemShippedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemUpdated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="DeleteItemFields" minOccurs="0"/>
+				<xs:element ref="AddItemFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemUpdatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupAgency">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="AgencyElementType" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupAgencyResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="AgencyId"/>
+						<xs:element ref="OrganizationNameInformation" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="AgencyAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="AuthenticationPrompt" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="ApplicationProfileSupportedType" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="ConsortiumAgreement" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="AgencyUserPrivilegeType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="ItemId"/>
+					<xs:element ref="RequestId"/>
+				</xs:choice>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="CurrentBorrowerDesired" minOccurs="0"/>
+				<xs:element ref="CurrentRequestersDesired" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element ref="ItemId"/>
+							<xs:sequence>
+								<xs:element ref="RequestId"/>
+								<xs:element ref="ItemId" minOccurs="0"/>
+							</xs:sequence>
+						</xs:choice>
+						<xs:element ref="HoldPickupDate" minOccurs="0"/>
+						<xs:element ref="DateRecalled" minOccurs="0"/>
+						<xs:element ref="ItemTransaction" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupItemSet">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="BibliographicId" maxOccurs="unbounded"/>
+					<xs:element ref="HoldingsSetId" maxOccurs="unbounded"/>
+					<xs:element ref="ItemId" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="CurrentBorrowerDesired" minOccurs="0"/>
+				<xs:element ref="CurrentRequestersDesired" minOccurs="0"/>
+				<xs:element ref="MaximumItemsCount" minOccurs="0"/>
+				<xs:element ref="NextItemToken" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupItemSetResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<!-- A Problem element here means "the entire service failed." -->
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="BibInformation" maxOccurs="unbounded"/>
+						<xs:element ref="NextItemToken" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element ref="UserId"/>
+							<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+						</xs:choice>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="RequestType"/>
+					</xs:sequence>
+					<xs:element ref="RequestId"/>
+				</xs:choice>
+				<xs:element ref="RequestElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupRequestResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element ref="ItemId"/>
+							<xs:sequence>
+								<xs:element ref="RequestId"/>
+								<xs:element ref="ItemId" minOccurs="0"/>
+							</xs:sequence>
+						</xs:choice>
+						<xs:element ref="UserId" minOccurs="0"/>
+						<xs:element ref="RequestType" minOccurs="0"/>
+						<xs:element ref="RequestScopeType" minOccurs="0"/>
+						<xs:element ref="RequestStatusType" minOccurs="0"/>
+						<xs:element ref="HoldQueuePosition" minOccurs="0"/>
+						<xs:element ref="ShippingInformation" minOccurs="0"/>
+						<xs:element ref="EarliestDateNeeded" minOccurs="0"/>
+						<xs:element ref="NeedBeforeDate" minOccurs="0"/>
+						<xs:element ref="PickupDate" minOccurs="0"/>
+						<xs:element ref="PickupLocation" minOccurs="0"/>
+						<xs:element ref="PickupExpiryDate" minOccurs="0"/>
+						<xs:element ref="DateOfUserRequest" minOccurs="0"/>
+						<xs:element ref="DateAvailable" minOccurs="0"/>
+						<xs:element ref="AcknowledgedFeeAmount" minOccurs="0"/>
+						<xs:element ref="PaidFeeAmount" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupUser">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="LoanedItemsDesired" minOccurs="0"/>
+				<xs:element ref="RequestedItemsDesired" minOccurs="0"/>
+				<xs:element ref="UserFiscalAccountDesired" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LookupUserResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="UserId"/>
+						<xs:element ref="UserFiscalAccount" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="LoanedItemsCount" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="LoanedItem" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="RequestedItemsCount" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="RequestedItem" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RecallItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="DesiredDateDue" minOccurs="0"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RecallItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId" minOccurs="0"/>
+						<xs:element ref="DateDue" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RenewItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="DesiredDateDue" minOccurs="0"/>
+				<xs:element ref="DesiredDateForReturn" minOccurs="0"/>
+				<xs:element ref="AcknowledgedFeeAmount" minOccurs="0"/>
+				<xs:element ref="PaidFeeAmount" minOccurs="0"/>
+				<xs:element ref="AcknowledgedItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RenewItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="Problem" maxOccurs="unbounded"/>
+						<xs:element ref="RequiredFeeAmount" minOccurs="0"/>
+						<xs:element ref="RequiredItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:element ref="Pending"/>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId" minOccurs="0"/>
+						<xs:element ref="DateDue" minOccurs="0"/>
+						<xs:element ref="DateForReturn" minOccurs="0"/>
+						<xs:element ref="RenewalCount" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ReportCirculationStatusChange">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:choice>
+					<xs:element ref="ItemReportedReturned"/>
+					<xs:element ref="ItemReportedNeverBorrowed"/>
+					<xs:element ref="ItemReportedLost"/>
+					<xs:element ref="ItemReportedMissing"/>
+				</xs:choice>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ReportCirculationStatusChangeResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequestItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:choice>
+					<xs:element ref="ItemId" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="BibliographicId" maxOccurs="unbounded"/>
+						<xs:element ref="ItemId" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:element ref="RequestType"/>
+				<xs:element ref="RequestScopeType"/>
+				<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="EarliestDateNeeded" minOccurs="0"/>
+				<xs:element ref="NeedBeforeDate" minOccurs="0"/>
+				<xs:element ref="PickupLocation" minOccurs="0"/>
+				<xs:element ref="PickupExpiryDate" minOccurs="0"/>
+				<xs:element ref="AcknowledgedFeeAmount" minOccurs="0"/>
+				<xs:element ref="PaidFeeAmount" minOccurs="0"/>
+				<xs:element ref="AcknowledgedItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequestItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="Problem" maxOccurs="unbounded"/>
+						<xs:element ref="RequiredFeeAmount" minOccurs="0"/>
+						<xs:element ref="RequiredItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element ref="ItemId"/>
+							<xs:sequence>
+								<xs:element ref="RequestId"/>
+								<xs:element ref="ItemId" minOccurs="0"/>
+							</xs:sequence>
+						</xs:choice>
+						<xs:element ref="UserId"/>
+						<xs:element ref="RequestType"/>
+						<xs:element ref="RequestScopeType"/>
+						<xs:element ref="ShippingInformation" minOccurs="0"/>
+						<xs:element ref="DateAvailable" minOccurs="0"/>
+						<xs:element ref="HoldPickupDate" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ResponseHeader">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="FromSystemId" minOccurs="0"/>
+				<xs:element ref="FromSystemAuthentication" minOccurs="0"/>
+				<xs:element ref="FromAgencyId"/>
+				<xs:element ref="FromAgencyAuthentication" minOccurs="0"/>
+				<xs:element ref="ToSystemId" minOccurs="0"/>
+				<xs:element ref="ToAgencyId"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SendUserNotice">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:element ref="DateToSend" minOccurs="0"/>
+				<xs:element ref="UserNoticeDetails"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SendUserNoticeResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="UserId"/>
+						<xs:choice minOccurs="0">
+							<xs:element ref="DateSent"/>
+							<xs:element ref="DateWillSend"/>
+						</xs:choice>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UndoCheckOutItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:choice minOccurs="0">
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UndoCheckOutItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateAgency">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="DeleteAgencyFields" minOccurs="0"/>
+				<xs:element ref="AddAgencyFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateAgencyResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="AgencyId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateCirculationStatus">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="CirculationStatus"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateCirculationStatusResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="ItemId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="DeleteItemFields" minOccurs="0"/>
+				<xs:element ref="AddItemFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="ItemId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateRequestItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:choice>
+							<xs:element ref="UserId"/>
+							<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+						</xs:choice>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="RequestType"/>
+					</xs:sequence>
+					<xs:element ref="RequestId"/>
+				</xs:choice>
+				<xs:element ref="DeleteRequestFields" minOccurs="0"/>
+				<xs:element ref="AddRequestFields" minOccurs="0"/>
+				<xs:element ref="ItemElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserElementType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateRequestItemResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="Problem" maxOccurs="unbounded"/>
+						<xs:element ref="RequiredFeeAmount" minOccurs="0"/>
+						<xs:element ref="RequiredItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="ItemId"/>
+						<xs:element ref="UserId"/>
+						<xs:element ref="RequestType"/>
+						<xs:element ref="RequestScopeType"/>
+						<xs:element ref="DateAvailable" minOccurs="0"/>
+						<xs:element ref="HoldPickupDate" minOccurs="0"/>
+						<xs:element ref="FiscalTransactionInformation" minOccurs="0"/>
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="UserOptionalFields" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateUser">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="MandatedAction" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="UserId"/>
+					<xs:element ref="AuthenticationInput" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="DeleteUserFields" minOccurs="0"/>
+				<xs:element ref="AddUserFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UpdateUserResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+					<xs:element ref="UserId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserCreated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:element ref="NameInformation"/>
+				<xs:element ref="UserAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="DateOfBirth" minOccurs="0"/>
+				<xs:element ref="UserLanguage" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserPrivilege" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="BlockOrTrap" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserCreatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserFiscalTransactionCreated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:element ref="FiscalTransactionInformation"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserFiscalTransactionCreatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserNoticeSent">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:element ref="DateSent"/>
+				<xs:element ref="UserNoticeDetails"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserNoticeSentResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserUpdated">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="InitiationHeader" minOccurs="0"/>
+				<xs:element ref="UserId"/>
+				<xs:element ref="DeleteUserFields" minOccurs="0"/>
+				<xs:element ref="AddUserFields" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserUpdatedResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ResponseHeader" minOccurs="0"/>
+				<xs:element ref="Problem" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AccountBalance">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CurrencyCode"/>
+				<xs:element ref="MonetaryValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AccountDetails">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AccrualDate"/>
+				<xs:element ref="FiscalTransactionInformation"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AccrualDate" type="xs:dateTime"/>
+	<xs:element name="AcknowledgedFeeAmount">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CurrencyCode"/>
+				<xs:element ref="MonetaryValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AcknowledgedItemUseRestrictionType" type="SchemeValuePair"/>
+	<xs:element name="ActualResource" type="xs:string"/>
+	<xs:element name="AddAgencyFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="OrganizationNameInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AuthenticationPrompt" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ApplicationProfileSupportedType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ConsortiumAgreement" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyUserPrivilegeType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AddItemFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="BibliographicDescription" minOccurs="0"/>
+				<xs:element ref="ItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ItemDescription" minOccurs="0"/>
+				<xs:element ref="Location" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="PhysicalCondition" minOccurs="0"/>
+				<xs:element ref="SecurityMarker" minOccurs="0"/>
+				<xs:element ref="SensitizationFlag" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AddRequestFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="ItemId" minOccurs="0"/>
+				<xs:element ref="RequestType" minOccurs="0"/>
+				<xs:element ref="RequestScopeType" minOccurs="0"/>
+				<xs:element ref="RequestStatusType" minOccurs="0"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="EarliestDateNeeded" minOccurs="0"/>
+				<xs:element ref="NeedBeforeDate" minOccurs="0"/>
+				<xs:element ref="PickupLocation" minOccurs="0"/>
+				<xs:element ref="PickupExpiryDate" minOccurs="0"/>
+				<xs:element ref="DateOfUserRequest" minOccurs="0"/>
+				<xs:element ref="DateAvailable" minOccurs="0"/>
+				<xs:element ref="AcknowledgedFeeAmount" minOccurs="0"/>
+				<xs:element ref="PaidFeeAmount" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AddUserFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AuthenticationInput" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="NameInformation" minOccurs="0"/>
+				<xs:element ref="UserAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="DateOfBirth" minOccurs="0"/>
+				<xs:element ref="UserLanguage" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserPrivilege" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="BlockOrTrap" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AgencyAddressInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyAddressRoleType"/>
+				<xs:element ref="ValidFromDate" minOccurs="0"/>
+				<xs:element ref="ValidToDate" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="PhysicalAddress"/>
+					<xs:element ref="ElectronicAddress"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AgencyAddressRoleType" type="SchemeValuePair"/>
+	<xs:element name="AgencyElementType" type="SchemeValuePair"/>
+	<xs:element name="AgencyId" type="SchemeValuePair"/>
+	<xs:element name="AgencyUserPrivilegeType" type="SchemeValuePair"/>
+	<xs:element name="Amount">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CurrencyCode"/>
+				<xs:element ref="MonetaryValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ApplicationProfileType" type="SchemeValuePair"/>
+	<xs:element name="ApplicationProfileSupportedType" type="SchemeValuePair"/>
+	<xs:element name="AuthenticationDataFormatType" type="SchemeValuePair"/>
+	<xs:element name="AuthenticationInput">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AuthenticationInputData"/>
+				<xs:element ref="AuthenticationDataFormatType"/>
+				<xs:element ref="AuthenticationInputType"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AuthenticationInputData" type="xs:string"/>
+	<xs:element name="AuthenticationInputType" type="SchemeValuePair"/>
+	<xs:element name="AuthenticationPrompt">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="PromptOutput"/>
+				<xs:element ref="PromptInput"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AuthenticationPromptData" type="xs:string"/>
+	<xs:element name="AuthenticationPromptType" type="SchemeValuePair"/>
+	<xs:element name="Author" type="xs:string"/>
+	<xs:element name="AuthorOfComponent" type="xs:string"/>
+	<xs:element name="BibInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<!-- Required to be present if the initiation message had this BibliographicId.  -->
+				<xs:element ref="BibliographicId" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="BibliographicDescription" minOccurs="0"/>
+						<!-- This is the length of all holds that are *at* the title level, *not* a total of all item-level holds.  -->
+						<xs:element ref="TitleHoldQueueLength" minOccurs="0"/>
+						<!-- These are the requesters for holds *at* the title level, *not* item-level.  -->
+						<xs:element ref="CurrentRequester" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="HoldingsSet" maxOccurs="unbounded"/>
+					</xs:sequence>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BibliographicDescription">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Author" minOccurs="0"/>
+				<xs:element ref="AuthorOfComponent" minOccurs="0"/>
+				<xs:element ref="BibliographicItemId" minOccurs="0"/>
+				<xs:element ref="BibliographicRecordId" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ComponentId" minOccurs="0"/>
+				<xs:element ref="Edition" minOccurs="0"/>
+				<xs:element ref="Pagination" minOccurs="0"/>
+				<xs:element ref="PlaceOfPublication" minOccurs="0"/>
+				<xs:element ref="PublicationDate" minOccurs="0"/>
+				<xs:element ref="PublicationDateOfComponent" minOccurs="0"/>
+				<xs:element ref="Publisher" minOccurs="0"/>
+				<xs:element ref="SeriesTitleNumber" minOccurs="0"/>
+				<xs:element ref="Title" minOccurs="0"/>
+				<xs:element ref="TitleOfComponent" minOccurs="0"/>
+				<xs:element ref="BibliographicLevel" minOccurs="0"/>
+				<xs:element ref="SponsoringBody" minOccurs="0"/>
+				<xs:element ref="ElectronicDataFormatType" minOccurs="0"/>
+				<xs:element ref="Language" minOccurs="0"/>
+				<xs:element ref="MediumType" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BibliographicId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="BibliographicItemId"/>
+					<xs:element ref="BibliographicRecordId"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BibliographicItemId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="BibliographicItemIdentifier"/>
+				<xs:element ref="BibliographicItemIdentifierCode" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BibliographicItemIdentifier" type="xs:string"/>
+	<xs:element name="BibliographicItemIdentifierCode" type="SchemeValuePair"/>
+	<xs:element name="BibliographicLevel" type="SchemeValuePair"/>
+	<xs:element name="BibliographicRecordId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="BibliographicRecordIdentifier"/>
+				<xs:choice>
+					<xs:element ref="AgencyId"/>
+					<xs:element ref="BibliographicRecordIdentifierCode"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BibliographicRecordIdentifier" type="xs:string"/>
+	<xs:element name="BibliographicRecordIdentifierCode" type="SchemeValuePair"/>
+	<xs:element name="BinNumber" type="xs:string"/>
+	<xs:element name="BlockOrTrap">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="BlockOrTrapType"/>
+				<xs:element ref="ValidFromDate" minOccurs="0"/>
+				<xs:element ref="ValidToDate" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="BlockOrTrapType" type="SchemeValuePair"/>
+	<xs:element name="CallNumber" type="xs:string"/>
+	<xs:element name="CareOf" type="xs:string"/>
+	<xs:element name="ChronologyLevelInstance">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="ChronologyCaption"/>
+					<xs:sequence>
+						<xs:element ref="ChronologyLevel"/>
+						<xs:element ref="ChronologyCaption" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="ChronologyValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ChronologyCaption" type="xs:string"/>
+	<xs:element name="ChronologyLevel" type="xs:positiveInteger"/>
+	<xs:element name="ChronologyValue" type="xs:string"/>
+	<xs:element name="CirculationStatus" type="SchemeValuePair"/>
+	<xs:element name="ComponentId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ComponentIdentifierType"/>
+				<xs:element ref="ComponentIdentifier"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ComponentIdentifier" type="xs:string"/>
+	<xs:element name="ComponentIdentifierType" type="SchemeValuePair"/>
+	<xs:element name="ConsortiumAgreement" type="SchemeValuePair"/>
+	<xs:element name="CopyNumber" type="xs:string"/>
+	<xs:element name="Country" type="xs:string"/>
+	<xs:element name="CurrencyCode" type="SchemeValuePair"/>
+	<xs:element name="CurrentBorrower">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UserId"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CurrentBorrowerDesired">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="CurrentRequester">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UserId"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CurrentRequestersDesired">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="DateAvailable" type="xs:dateTime"/>
+	<xs:element name="DateCheckedOut" type="xs:dateTime"/>
+	<xs:element name="DateReportedReturned" type="xs:dateTime"/>
+	<xs:element name="DateDue" type="xs:dateTime"/>
+	<xs:element name="DateEventOccurred" type="xs:dateTime"/>
+	<xs:element name="DateForReturn" type="xs:dateTime"/>
+	<xs:element name="DateOfBirth" type="xs:dateTime"/>
+	<xs:element name="DateOfExpectedReply" type="xs:dateTime"/>
+	<xs:element name="DateOfUserPrivilegeStatus" type="xs:dateTime"/>
+	<xs:element name="DateOfUserRequest" type="xs:dateTime"/>
+	<xs:element name="DatePlaced" type="xs:dateTime"/>
+	<xs:element name="DateRecalled" type="xs:dateTime"/>
+	<xs:element name="DateReceived" type="xs:dateTime"/>
+	<xs:element name="DateRenewed" type="xs:dateTime"/>
+	<xs:element name="DateReturned" type="xs:dateTime"/>
+	<xs:element name="DateSent" type="xs:dateTime"/>
+	<xs:element name="DateShipped" type="xs:dateTime"/>
+	<xs:element name="DateToSend" type="xs:dateTime"/>
+	<xs:element name="DateWillSend" type="xs:dateTime"/>
+	<xs:element name="DeleteAgencyFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="OrganizationNameInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AuthenticationPrompt" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ApplicationProfileSupportedType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ConsortiumAgreement" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="AgencyUserPrivilegeType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DeleteItemFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="BibliographicDescription" minOccurs="0"/>
+				<xs:element ref="ItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ItemDescription" minOccurs="0"/>
+				<xs:element ref="Location" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="PhysicalCondition" minOccurs="0"/>
+				<xs:element ref="SecurityMarker" minOccurs="0"/>
+				<xs:element ref="SensitizationFlag" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DeleteRequestFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="ItemId" minOccurs="0"/>
+				<xs:element ref="RequestType" minOccurs="0"/>
+				<xs:element ref="RequestScopeType" minOccurs="0"/>
+				<xs:element ref="RequestStatusType" minOccurs="0"/>
+				<xs:element ref="ShippingInformation" minOccurs="0"/>
+				<xs:element ref="EarliestDateNeeded" minOccurs="0"/>
+				<xs:element ref="NeedBeforeDate" minOccurs="0"/>
+				<xs:element ref="PickupLocation" minOccurs="0"/>
+				<xs:element ref="PickupExpiryDate" minOccurs="0"/>
+				<xs:element ref="DateOfUserRequest" minOccurs="0"/>
+				<xs:element ref="DateAvailable" minOccurs="0"/>
+				<xs:element ref="AcknowledgedFeeAmount" minOccurs="0"/>
+				<xs:element ref="PaidFeeAmount" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DeleteUserFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AuthenticationInput" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="NameInformation" minOccurs="0"/>
+				<xs:element ref="UserAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="DateOfBirth" minOccurs="0"/>
+				<xs:element ref="UserLanguage" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserPrivilege" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="BlockOrTrap" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DesiredDateDue" type="xs:dateTime"/>
+	<xs:element name="DesiredDateForReturn" type="xs:dateTime"/>
+	<xs:element name="Destination">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="Location"/>
+					<xs:sequence>
+						<xs:element ref="BinNumber"/>
+						<xs:element ref="Location" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="District" type="xs:string"/>
+	<xs:element name="EarliestDateNeeded" type="xs:dateTime"/>
+	<xs:element name="Edition" type="xs:string"/>
+	<xs:element name="ElectronicAddress">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ElectronicAddressType"/>
+				<xs:element ref="ElectronicAddressData"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ElectronicAddressData" type="xs:string"/>
+	<xs:element name="ElectronicAddressType" type="SchemeValuePair"/>
+	<xs:element name="ElectronicDataFormatType" type="SchemeValuePair"/>
+	<xs:element name="ElectronicResource">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="ElectronicDataFormatType"/>
+						<xs:element ref="ActualResource"/>
+					</xs:sequence>
+					<xs:element ref="ReferenceToResource"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ElectronicResourceProvidedFlag">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="EnumerationLevelInstance">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="EnumerationCaption"/>
+					<xs:sequence>
+						<xs:element ref="EnumerationLevel"/>
+						<xs:element ref="EnumerationCaption" minOccurs="0"/>
+						<xs:element ref="Ext" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="EnumerationValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="EnumerationCaption" type="xs:string"/>
+	<xs:element name="EnumerationLevel" type="xs:positiveInteger"/>
+	<xs:element name="EnumerationValue" type="xs:string"/>
+	<xs:element name="Ext">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:any minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FiscalActionType" type="SchemeValuePair"/>
+	<xs:element name="FiscalTransactionDescription" type="xs:string"/>
+	<xs:element name="FiscalTransactionIdentifierValue" type="xs:string"/>
+	<xs:element name="FiscalTransactionInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="FiscalActionType"/>
+				<xs:element ref="FiscalTransactionReferenceId" minOccurs="0"/>
+				<xs:element ref="RelatedFiscalTransactionReferenceId" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="FiscalTransactionType"/>
+				<xs:element ref="ValidFromDate" minOccurs="0"/>
+				<xs:element ref="ValidToDate" minOccurs="0"/>
+				<xs:element ref="Amount"/>
+				<xs:element ref="PaymentMethodType" minOccurs="0"/>
+				<xs:element ref="FiscalTransactionDescription" minOccurs="0"/>
+				<xs:element ref="RequestId" minOccurs="0"/>
+				<xs:element ref="ItemDetails" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FiscalTransactionReferenceId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="FiscalTransactionIdentifierValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FiscalTransactionType" type="SchemeValuePair"/>
+	<xs:element name="FromAgencyAuthentication" type="xs:string"/>
+	<xs:element name="FromAgencyId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="FromSystemAuthentication" type="xs:string"/>
+	<xs:element name="FromSystemId" type="SchemeValuePair"/>
+	<xs:element name="GivenName" type="xs:string"/>
+	<xs:element name="HoldingsChronology">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ChronologyLevelInstance" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="HoldingsEnumeration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="EnumerationLevelInstance" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="HoldingsInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="StructuredHoldingsData" maxOccurs="unbounded"/>
+					<xs:element ref="UnstructuredHoldingsData"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="HoldingsSet">
+		<xs:complexType>
+			<xs:sequence>
+				<!-- Required to be present if the initiation message had this HoldingsSetId.  -->
+				<xs:element ref="HoldingsSetId" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="BibliographicDescription" minOccurs="0"/>
+						<!-- If all of the items in this HoldingsSet share the same Location data, place that
+                             information here; otherwise include it in the ItemInformation. -->
+						<xs:element ref="Location" minOccurs="0"/>
+						<!-- This is the call number for the entire holding. -->
+						<xs:element ref="CallNumber" minOccurs="0"/>
+						<!-- This is a summary holdings statement covering the entire holding. -->
+						<xs:element ref="SummaryHoldingsInformation" minOccurs="0"/>
+						<xs:element ref="ElectronicResource" minOccurs="0"/>
+						<xs:element ref="ItemInformation" maxOccurs="unbounded"/>
+						<!-- TODO: Circulation Status Summary? -->
+						<xs:element ref="Ext" minOccurs="0"/>
+					</xs:sequence>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="HoldingsSetId" type="xs:string"/>
+	<xs:element name="HoldPickupDate" type="xs:dateTime"/>
+	<xs:element name="HoldQueueLength" type="xs:nonNegativeInteger"/>
+	<xs:element name="HoldQueuePosition" type="xs:positiveInteger"/>
+	<xs:element name="HouseName" type="xs:string"/>
+	<xs:element name="IndeterminateLoanPeriodFlag">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="Initials" type="xs:string"/>
+	<xs:element name="ItemDescription">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CallNumber" minOccurs="0"/>
+				<xs:element ref="CopyNumber" minOccurs="0"/>
+				<xs:element ref="ItemDescriptionLevel" minOccurs="0"/>
+				<xs:element ref="HoldingsInformation" minOccurs="0"/>
+				<xs:element ref="NumberOfPieces" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemDescriptionLevel" type="SchemeValuePair"/>
+	<xs:element name="ItemDetails">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="BibliographicDescription"/>
+				<xs:element ref="DateCheckedOut" minOccurs="0"/>
+				<xs:element ref="DateRenewed" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:choice minOccurs="0">
+					<xs:element ref="DateDue"/>
+					<xs:element ref="IndeterminateLoanPeriodFlag"/>
+					<xs:element ref="NonReturnableFlag"/>
+				</xs:choice>
+				<xs:element ref="DateReturned" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemElementType" type="SchemeValuePair"/>
+	<xs:element name="ItemId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId" minOccurs="0"/>
+				<xs:element ref="ItemIdentifierType" minOccurs="0"/>
+				<xs:element ref="ItemIdentifierValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemIdentifierType" type="SchemeValuePair"/>
+	<xs:element name="ItemIdentifierValue" type="xs:string"/>
+	<xs:element name="ItemInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<!-- Required to be present if the initiation message had this ItemId.  -->
+				<xs:element ref="ItemId" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="RequestId" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="CurrentBorrower" minOccurs="0"/>
+						<xs:element ref="CurrentRequester" minOccurs="0" maxOccurs="unbounded"/>
+						<xs:element ref="DateDue" minOccurs="0"/>
+						<xs:element ref="DateRecalled" minOccurs="0"/>
+						<xs:element ref="HoldPickupDate" minOccurs="0"/>
+						<xs:element ref="ItemTransaction" minOccurs="0"/>
+						<!-- If the Location information for this item differs from others in its containing HoldingsSet, place it in this ItemOptionalFields -->
+						<xs:element ref="ItemOptionalFields" minOccurs="0"/>
+						<xs:element ref="ItemNote" minOccurs="0"/>
+						<xs:element ref="Ext" minOccurs="0"/>
+					</xs:sequence>
+					<xs:element ref="Problem" maxOccurs="unbounded"/>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemNote" type="xs:string"/>
+	<xs:element name="ItemOptionalFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="BibliographicDescription" minOccurs="0"/>
+				<xs:element ref="ItemUseRestrictionType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="CirculationStatus" minOccurs="0"/>
+				<xs:element ref="HoldQueueLength" minOccurs="0"/>
+				<xs:element ref="ItemDescription" minOccurs="0"/>
+				<xs:element ref="Location" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="PhysicalCondition" minOccurs="0"/>
+				<xs:element ref="ElectronicResource" minOccurs="0"/>
+				<xs:element ref="SecurityMarker" minOccurs="0"/>
+				<xs:element ref="SensitizationFlag" minOccurs="0"/>
+				<xs:element ref="DateDue" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemReportedLost">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="ItemReportedMissing">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="ItemReportedNeverBorrowed">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="ItemReportedReturned">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="DateReportedReturned"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemTransaction">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CurrentBorrower" minOccurs="0"/>
+				<xs:element ref="CurrentRequester" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemUseRestrictionType" type="SchemeValuePair"/>
+	<xs:element name="Language" type="SchemeValuePair"/>
+	<xs:element name="Line1" type="xs:string"/>
+	<xs:element name="Line2" type="xs:string"/>
+	<xs:element name="LoanedItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="BibliographicId" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="ReminderLevel" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="DateDue"/>
+					<xs:element ref="IndeterminateLoanPeriodFlag"/>
+				</xs:choice>
+				<xs:element ref="Amount" minOccurs="0"/>
+				<xs:element ref="Title" minOccurs="0"/>
+				<xs:element ref="MediumType" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LoanedItemCountValue" type="xs:nonNegativeInteger"/>
+	<xs:element name="LoanedItemsCount">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="CirculationStatus"/>
+					<xs:element ref="ItemUseRestrictionType"/>
+				</xs:choice>
+				<xs:element ref="LoanedItemCountValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LoanedItemsDesired">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="Locality" type="xs:string"/>
+	<xs:element name="Location">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="LocationType"/>
+				<xs:element ref="LocationName"/>
+				<xs:element ref="ValidFromDate" minOccurs="0"/>
+				<xs:element ref="ValidToDate" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LocationName">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="LocationNameInstance" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LocationNameInstance">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="LocationNameLevel"/>
+				<xs:element ref="LocationNameValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LocationNameLevel" type="xs:positiveInteger"/>
+	<xs:element name="LocationNameValue" type="xs:string"/>
+	<xs:element name="LocationType" type="SchemeValuePair"/>
+	<xs:element name="LocationWithinBuilding" type="xs:string"/>
+	<xs:element name="MandatedAction">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="DateEventOccurred"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="MaximumItemsCount" type="xs:positiveInteger"/>
+	<xs:element name="MediumType" type="SchemeValuePair"/>
+	<xs:element name="MonetaryValue" type="xs:integer"/>
+	<xs:element name="NameInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="PersonalNameInformation"/>
+					<xs:element ref="OrganizationNameInformation" maxOccurs="unbounded"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="NeedBeforeDate" type="xs:dateTime"/>
+	<xs:element name="NextItemToken" type="xs:string"/>
+	<xs:element name="NonReturnableFlag">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="NoticeContent" type="xs:string"/>
+	<xs:element name="NoticeItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemDetails"/>
+				<xs:element ref="Amount" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="NoticeType" type="SchemeValuePair"/>
+	<xs:element name="NumberOfPieces" type="xs:positiveInteger"/>
+	<xs:element name="OnBehalfOfAgency">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrganizationName" type="xs:string"/>
+	<xs:element name="OrganizationNameInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="OrganizationNameType"/>
+				<xs:element ref="OrganizationName"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="OrganizationNameType" type="SchemeValuePair"/>
+	<xs:element name="Pagination" type="xs:string"/>
+	<xs:element name="PaidFeeAmount">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CurrencyCode"/>
+				<xs:element ref="MonetaryValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PaymentMethodType" type="SchemeValuePair"/>
+	<xs:element name="Pending">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="DateOfExpectedReply" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PersonalNameInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="UnstructuredPersonalUserName"/>
+					<xs:sequence>
+						<xs:element ref="StructuredPersonalUserName"/>
+						<xs:element ref="UnstructuredPersonalUserName" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PhysicalAddress">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="StructuredAddress"/>
+					<xs:element ref="UnstructuredAddress"/>
+				</xs:choice>
+				<xs:element ref="PhysicalAddressType"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PhysicalAddressType" type="SchemeValuePair"/>
+	<xs:element name="PhysicalCondition">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="PhysicalConditionType"/>
+				<xs:element ref="PhysicalConditionDetails" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PhysicalConditionDetails" type="xs:string"/>
+	<xs:element name="PhysicalConditionType" type="SchemeValuePair"/>
+	<xs:element name="PickupDate" type="xs:dateTime"/>
+	<xs:element name="PickupExpiryDate" type="xs:dateTime"/>
+	<xs:element name="PickupLocation" type="SchemeValuePair"/>
+	<xs:element name="PlaceOfPublication" type="xs:string"/>
+	<xs:element name="PostOfficeBox" type="xs:string"/>
+	<xs:element name="PostalCode" type="xs:string"/>
+	<xs:element name="Prefix" type="xs:string"/>
+	<xs:element name="PreviousUserId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="UserIdentifierValue"/>
+				<xs:element ref="ValidFromDate" minOccurs="0"/>
+				<xs:element ref="ValidToDate" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Problem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ProblemType"/>
+				<xs:element ref="ProblemDetail" minOccurs="0"/>
+				<xs:element ref="ProblemElement" minOccurs="0"/>
+				<xs:element ref="ProblemValue" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ProblemDetail" type="xs:string"/>
+	<xs:element name="ProblemElement" type="xs:string"/>
+	<xs:element name="ProblemType" type="SchemeValuePair"/>
+	<xs:element name="ProblemValue" type="xs:string"/>
+	<xs:element name="PromptInput">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AuthenticationInputType"/>
+				<xs:element ref="AuthenticationDataFormatType"/>
+				<xs:element ref="SensitiveDataFlag" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PromptOutput">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AuthenticationPromptData"/>
+				<xs:element ref="AuthenticationPromptType"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PublicationDate" type="xs:string"/>
+	<xs:element name="PublicationDateOfComponent" type="xs:string"/>
+	<xs:element name="Publisher" type="xs:string"/>
+	<xs:element name="ReferenceToResource" type="xs:string"/>
+	<xs:element name="Region" type="xs:string"/>
+	<xs:element name="RelatedFiscalTransactionReferenceId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="FiscalTransactionIdentifierValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ReminderLevel" type="xs:nonNegativeInteger"/>
+	<xs:element name="RenewalCount" type="xs:nonNegativeInteger"/>
+	<xs:element name="RenewalNotPermitted">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="RequestedActionType" type="SchemeValuePair"/>
+	<xs:element name="RequestedItemsDesired">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="RequestElementType" type="SchemeValuePair"/>
+	<xs:element name="RequestId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId" minOccurs="0"/>
+				<xs:element ref="RequestIdentifierType" minOccurs="0"/>
+				<xs:element ref="RequestIdentifierValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequestIdentifierType" type="SchemeValuePair"/>
+	<xs:element name="RequestIdentifierValue" type="xs:string"/>
+	<xs:element name="RequestScopeType" type="SchemeValuePair"/>
+	<xs:element name="RequestStatusType" type="SchemeValuePair"/>
+	<xs:element name="RequestType" type="SchemeValuePair"/>
+	<xs:element name="RequestedItem">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="ItemId"/>
+					<xs:sequence>
+						<xs:element ref="RequestId"/>
+						<xs:element ref="ItemId" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="BibliographicId" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="RequestType"/>
+				<xs:element ref="RequestStatusType"/>
+				<xs:element ref="DatePlaced"/>
+				<xs:element ref="PickupDate" minOccurs="0"/>
+				<xs:element ref="PickupLocation" minOccurs="0"/>
+				<xs:element ref="PickupExpiryDate" minOccurs="0"/>
+				<xs:element ref="ReminderLevel" minOccurs="0"/>
+				<xs:element ref="HoldQueuePosition" minOccurs="0"/>
+				<xs:element ref="Title" minOccurs="0"/>
+				<xs:element ref="MediumType" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequestedItemCountValue" type="xs:nonNegativeInteger"/>
+	<xs:element name="RequestedItemsCount">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="RequestType"/>
+					<xs:element ref="CirculationStatus"/>
+					<xs:element ref="ItemUseRestrictionType"/>
+				</xs:choice>
+				<xs:element ref="RequestedItemCountValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequiredFeeAmount">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CurrencyCode"/>
+				<xs:element ref="MonetaryValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequiredItemUseRestrictionType" type="SchemeValuePair"/>
+	<xs:element name="ResourceDesired">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="RoutingInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="RoutingInstructions"/>
+				<xs:element ref="Destination"/>
+				<xs:element ref="RequestType" minOccurs="0"/>
+				<xs:element ref="UserId" minOccurs="0"/>
+				<xs:element ref="NameInformation" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RoutingInstructions" type="xs:string"/>
+	<xs:element name="SecurityMarker" type="SchemeValuePair"/>
+	<xs:element name="SensitiveDataFlag">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="SensitizationFlag">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="SeriesTitleNumber" type="xs:string"/>
+	<xs:element name="ShippingInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ShippingInstructions" minOccurs="0"/>
+				<xs:element ref="ShippingNote" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="PhysicalAddress"/>
+					<xs:element ref="ElectronicAddress"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ShippingInstructions" type="xs:string"/>
+	<xs:element name="ShippingNote" type="xs:string"/>
+	<xs:element name="SponsoringBody" type="xs:string"/>
+	<xs:element name="Street" type="xs:string"/>
+	<xs:element name="StructuredAddress">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="LocationWithinBuilding" minOccurs="0"/>
+						<xs:element ref="HouseName" minOccurs="0"/>
+						<xs:choice>
+							<xs:element ref="District"/>
+							<xs:sequence>
+								<xs:element ref="PostOfficeBox"/>
+								<xs:element ref="District" minOccurs="0"/>
+							</xs:sequence>
+							<xs:sequence>
+								<xs:element ref="Street"/>
+								<xs:element ref="PostOfficeBox" minOccurs="0"/>
+								<xs:element ref="District" minOccurs="0"/>
+							</xs:sequence>
+						</xs:choice>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="Line1"/>
+						<xs:element ref="Line2" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Locality" minOccurs="0"/>
+				<xs:element ref="Region" minOccurs="0"/>
+				<xs:element ref="Country" minOccurs="0"/>
+				<xs:element ref="PostalCode" minOccurs="0"/>
+				<xs:element ref="CareOf" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StructuredHoldingsData">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="HoldingsChronology"/>
+					<xs:sequence>
+						<xs:element ref="HoldingsEnumeration"/>
+						<xs:element ref="HoldingsChronology" minOccurs="0"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StructuredPersonalUserName">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Prefix" minOccurs="0"/>
+				<xs:element ref="GivenName" minOccurs="0"/>
+				<xs:element ref="Initials" minOccurs="0"/>
+				<xs:element ref="Surname"/>
+				<xs:element ref="Suffix" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Suffix" type="xs:string"/>
+	<xs:element name="SummaryHoldingsInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:choice>
+					<xs:element ref="StructuredHoldingsData" maxOccurs="unbounded"/>
+					<xs:element ref="UnstructuredHoldingsData"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Surname" type="xs:string"/>
+	<xs:element name="Title" type="xs:string"/>
+	<xs:element name="TitleHoldQueueLength" type="xs:nonNegativeInteger"/>
+	<xs:element name="TitleOfComponent" type="xs:string"/>
+	<xs:element name="ToAgencyId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ToSystemId" type="SchemeValuePair"/>
+	<xs:element name="UnstructuredAddress">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UnstructuredAddressType"/>
+				<xs:element ref="UnstructuredAddressData"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UnstructuredAddressData" type="xs:string"/>
+	<xs:element name="UnstructuredAddressType" type="SchemeValuePair"/>
+	<xs:element name="UnstructuredHoldingsData" type="xs:string"/>
+	<xs:element name="UnstructuredPersonalUserName" type="xs:string"/>
+	<xs:element name="UserAddressInformation">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UserAddressRoleType"/>
+				<xs:element ref="ValidFromDate" minOccurs="0"/>
+				<xs:element ref="ValidToDate" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="PhysicalAddress"/>
+					<xs:element ref="ElectronicAddress"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserAddressRoleType" type="SchemeValuePair"/>
+	<xs:element name="UserElementEnum">
+		<xs:simpleType>
+			<xs:restriction base="xs:token">
+				<xs:enumeration value="loaned items"/>
+				<xs:enumeration value="previous user id"/>
+				<xs:enumeration value="requested items"/>
+				<xs:enumeration value="user fiscal account"/>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="UserElementType" type="SchemeValuePair"/>
+	<xs:element name="UserFiscalAccount">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AccountBalance"/>
+				<xs:element ref="AccountDetails" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserFiscalAccountDesired">
+		<xs:complexType/>
+	</xs:element>
+	<xs:element name="UserId">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId" minOccurs="0"/>
+				<xs:element ref="UserIdentifierType" minOccurs="0"/>
+				<xs:element ref="UserIdentifierValue"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserIdentifierType" type="SchemeValuePair"/>
+	<xs:element name="UserIdentifierValue" type="xs:string"/>
+	<xs:element name="UserLanguage" type="SchemeValuePair"/>
+	<xs:element name="UserNoticeDetails">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="NoticeType"/>
+				<xs:element ref="NoticeContent" minOccurs="0"/>
+				<xs:choice>
+					<xs:element ref="NoticeItem" maxOccurs="unbounded"/>
+					<xs:element ref="UserFiscalAccount"/>
+					<xs:element ref="UserPrivilege"/>
+				</xs:choice>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserOptionalFields">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="NameInformation" minOccurs="0"/>
+				<xs:element ref="UserAddressInformation" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="DateOfBirth" minOccurs="0"/>
+				<xs:element ref="UserLanguage" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserPrivilege" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="BlockOrTrap" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="UserId" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="PreviousUserId" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserPrivilege">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="AgencyId"/>
+				<xs:element ref="AgencyUserPrivilegeType"/>
+				<xs:element ref="ValidFromDate" minOccurs="0"/>
+				<xs:element ref="ValidToDate" minOccurs="0"/>
+				<xs:element ref="UserPrivilegeFee" minOccurs="0"/>
+				<xs:element ref="UserPrivilegeStatus" minOccurs="0"/>
+				<xs:element ref="UserPrivilegeDescription" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserPrivilegeDescription" type="xs:string"/>
+	<xs:element name="UserPrivilegeFee">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Amount"/>
+				<xs:element ref="PaymentMethodType" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserPrivilegeStatus">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="UserPrivilegeStatusType"/>
+				<xs:element ref="DateOfUserPrivilegeStatus" minOccurs="0"/>
+				<xs:element ref="Ext" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="UserPrivilegeStatusType" type="SchemeValuePair"/>
+	<xs:element name="ValidFromDate" type="xs:dateTime"/>
+	<xs:element name="ValidToDate" type="xs:dateTime"/>
+	<xs:complexType name="SchemeValuePair">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="Scheme" type="xs:anyURI"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+</xs:schema>

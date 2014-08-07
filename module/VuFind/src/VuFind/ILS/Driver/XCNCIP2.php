@@ -27,6 +27,7 @@
  */
 namespace VuFind\ILS\Driver;
 use VuFind\Exception\ILS as ILSException;
+use DOMDocument;
 
 /**
  * XC NCIP Toolkit (v2) ILS Driver
@@ -85,15 +86,41 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     {
         // Make the NCIP request:
         try {
-            $client = $this->httpService
-                ->createClient($this->config['Catalog']['url']);
-            $client->setRawBody($xml);
-            $client->setEncType('application/xml; "charset=utf-8"');
-            $result = $client->setMethod('POST')->send();
+//             $client = $this->httpService
+//                 ->createClient($this->config['Catalog']['url']);
+
+            //$client = $this->httpService->createClient('',
+            //		$method = \Zend\Http\Request::METHOD_GET, $timeout = null);
+            $method = 'GET';
+            $url = 'http://myuniversity.edu:8080/ncipv2/NCIPResponder';
+            $params = array();
+            try {
+            	if ($method == 'GET') {
+            		$result = $this->httpService->get($url, $params);
+            	} else if ($method == 'POST') {
+            		$url = $this->appendQueryString($url, $params);
+            		$result = $this->httpService->post($url, $body);
+            	} else {
+            		$client = $this->httpService->createClient($url);
+            		$client->setMethod($method);
+            		if ($body != null) {
+            			$client->setRawBody($body);
+            		}
+            		$result = $client->send();
+            	}
+            } catch (\Exception $e) {
+            	throw new ILSException($e->getMessage());
+            }
+
+
+//             $client->setRawBody($xml);
+//             $client->setEncType('application/xml; "charset=utf-8"');
+//             $result = $client->setMethod('POST')->send();
         } catch (\Exception $e) {
             throw new ILSException($e->getMessage());
         }
 
+        //print_r($result);
         if (!$result->isSuccess()) {
             throw new ILSException('HTTP error');
         }
@@ -101,12 +128,139 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         // Process the NCIP response:
         $response = $result->getBody();
         $result = @simplexml_load_string($response);
+//         print $result->asXML();
         if (is_a($result, 'SimpleXMLElement')) {
             $result->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
             return $result;
         } else {
             throw new ILSException("Problem parsing XML");
         }
+    }
+
+    /**
+     * Lookup Item
+     *
+     * @param string $itemID
+     *
+     * @throws ILSException
+     * @return
+     */
+    public function lookupItem($itemID)
+    {
+        $request = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+                'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
+                '<ns1:LookupItem>' .
+                    '<ns1:ItemId>' .
+                        '<ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue>' .
+                    '</ns1:ItemId>' .
+                    '<ns1:ItemElementType>Bibliographic Description</ns1:ItemElementType>' .
+                '</ns1:LookupItem>' .
+                '</ns1:NCIPMessage>';
+
+        $response = $this->sendRequest($request);
+        if (!$this->isValidXMLAgainstXSD($response)) {
+            throw new ILSException('Not valid XML!');
+        }
+
+        $title = $response->xpath(
+                'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
+                'ns1:Title'
+        );
+        $author = $response->xpath(
+                'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
+                'ns1:Author'
+        );
+
+        return array(
+            'title' => (string)$title[0],
+            'author' => (string)$author[0]
+        );
+    }
+
+    /**
+     * Lookup Request
+     *
+     * @param string $userID
+     * @param string $itemID
+     *
+     * @throws ILSException
+     * @return
+     */
+    public function lookupRequest($userID, $itemID)
+    {
+        $request = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                   '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+                   'ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">' .
+                   '<ns1:LookupRequest>' .
+                   '<ns1:UserId>' .
+                       '<ns1:AgencyId>BOA001</ns1:AgencyId>' .
+                       '<ns1:UserIdentifierValue>' . htmlspecialchars($userID) . '</ns1:UserIdentifierValue>' .
+                   '</ns1:UserId>' .
+                   '<ns1:ItemId>' .
+                       '<ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue>' .
+                   '</ns1:ItemId>' .
+                   '<ns1:RequestType>string</ns1:RequestType>' .
+                   '</ns1:LookupRequest>' .
+                   '</ns1:NCIPMessage>';
+
+        $response = $this->sendRequest($request);
+        if (!$this->isValidXMLAgainstXSD($response)) {
+            throw new ILSException('Not valid XML!');
+        }
+
+        $item = $response->xpath(
+                'ns1:LookupRequestResponse/ns1:ItemId/ns1:ItemIdentifierValue'
+        );
+
+        $user = $response->xpath(
+                'ns1:LookupRequestResponse/ns1:UserId/ns1:UserIdentifierValue'
+        );
+
+        return array(
+                'item' => (string)$item[0],
+                'user' => (string)$user[0],
+        );
+    }
+
+    /**
+     * Request Item
+     *
+     * @param string $userID
+     * @param string $itemID
+     *
+     * @throws ILSException
+     * @return
+     */
+    public function requestItem($userID, $itemID)
+    {
+        $request = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+                'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
+                '<ns1:RequestItem>' .
+                '<ns1:UserId>' .
+                '<ns1:UserIdentifierValue>' . htmlspecialchars($userID) . '</ns1:UserIdentifierValue>' .
+                '</ns1:UserId>' .
+                '<ns1:ItemId>' .
+                '<ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue>' .
+                '</ns1:ItemId>' .
+                '<ns1:RequestType>Loan</ns1:RequestType>' .
+                '<ns1:RequestScopeType>Bibliographic Item</ns1:RequestScopeType>' .
+                '</ns1:RequestItem>' .
+                '</ns1:NCIPMessage>';
+
+        $response = $this->sendRequest($request);
+        if (!$this->isValidXMLAgainstXSD($response)) {
+            throw new ILSException('Not valid XML!');
+        }
+
+        $item = $response->xpath(
+                'ns1:RequestItemResponse/ns1:ItemId/ns1:ItemIdentifierValue'
+        );
+
+        return array(
+                'item' => (string)$item[0],
+        );
     }
 
     /**
@@ -141,11 +295,12 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         foreach ($locationNodes as $curLoc) {
             $type = $curLoc->xpath('ns1:LocationType');
             if ((string)$type[0] == 'Permanent') {
-                $tmp = $curLoc->xpath(
-                    'ns1:LocationName/ns1:LocationNameInstance/ns1:LocationNameValue'
-                );
-                $location = (string)$tmp[0];
+                $tmp = $curLoc->xpath('ns1:LocationName/ns1:LocationNameInstance/ns1:LocationNameValue');
             }
+            else {
+                $tmp[0] = 'temporary unknown';
+            }
+                $location = (string)$tmp[0];
         }
 
         // Get both holdings and item level call numbers; we'll pick the most
@@ -216,9 +371,8 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
 
         // Start the XML:
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
-            '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
-            'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/' .
-            'ncip_v2_0.xsd"><ns1:Ext><ns1:LookupItemSet>';
+               '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
+               '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
 
         // Add the ID list:
         foreach ($idList as $id) {
@@ -227,16 +381,13 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
                         '<ns1:BibliographicItemIdentifier>' .
                             htmlspecialchars($id) .
                         '</ns1:BibliographicItemIdentifier>' .
-                        '<ns1:AgencyId>LOCAL</ns1:AgencyId>' .
                     '</ns1:BibliographicItemId>' .
                 '</ns1:BibliographicId>';
         }
 
         // Add the desired data list:
         foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ' .
-                'ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/' .
-                'itemelementtype/itemelementtype.scm">' .
+            $xml .= '<ns1:ItemElementType>' .
                 htmlspecialchars($current) . '</ns1:ItemElementType>';
         }
 
@@ -247,7 +398,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         }
 
         // Close the XML and send it to the caller:
-        $xml .= '</ns1:LookupItemSet></ns1:Ext></ns1:NCIPMessage>';
+        $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
         return $xml;
     }
 
@@ -314,15 +465,31 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      */
     public function getHolding($id, array $patron = null)
     {
-        $request = $this->getStatusRequest(array($id));
-        $response = $this->sendRequest($request);
-        $avail = $response->xpath(
-            'ns1:Ext/ns1:LookupItemSetResponse/ns1:BibInformation'
-        );
+        do {
+            if (isset($nextItemToken[0]))
+                $request = $this->getStatusRequest(array($id), $nextItemToken[0]);
+            else {
+                $request = $this->getStatusRequest(array($id));
+                $all_bibinfo = [];
+            }
+            $response = $this->sendRequest($request);
+            if (!$this->isValidXMLAgainstXSD($response)) {
+                throw new ILSException('Not valid XML!');
+            }
+
+            $new_bibinfo = $response->xpath(
+                    'ns1:LookupItemSetResponse/ns1:BibInformation'
+            );
+            $all_bibinfo = array_merge($all_bibinfo, $new_bibinfo);
+
+            $nextItemToken = $response->xpath(
+                    'ns1:LookupItemSetResponse/ns1:NextItemToken'
+            );
+        } while ($this->isValidToken($nextItemToken));
 
         // Build the array of holdings:
         $holdings = array();
-        foreach ($avail as $current) {
+        foreach ($all_bibinfo as $current) {
             $holdings[] = $this->getHoldingsForChunk($current);
         }
         return $holdings;
@@ -390,6 +557,30 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     }
 
     /**
+     * Build the request XML to log in a user:
+     *
+     * @param string $id for login
+     * @param string $extras   Extra elements to include in the request
+     *
+     * @return string          NCIP request XML
+     */
+    protected function getLookupUserByIDRequest($id, $extras = array())
+    {
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+                'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
+                '<ns1:LookupUser>' .
+                    '<ns1:UserId>' .
+                        '<ns1:UserIdentifierValue>' .
+                            htmlspecialchars($id) .
+                        '</ns1:UserIdentifierValue>' .
+                    '</ns1:UserId>' .
+                    implode('', $extras) .
+                '</ns1:LookupUser>' .
+                '</ns1:NCIPMessage>';
+    }
+
+    /**
      * Patron Login
      *
      * This is responsible for authenticating a patron against the catalog.
@@ -405,6 +596,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     {
         $request = $this->getLookupUserRequest($username, $password);
         $response = $this->sendRequest($request);
+        //print $response->asXML();
         $id = $response->xpath(
             'ns1:LookupUserResponse/ns1:UserId/ns1:UserIdentifierValue'
         );
@@ -429,6 +621,46 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         }
 
         return null;
+    }
+
+    /**
+     * Get Agency Information
+     *
+     * @return array        Array of the agency's information on success.
+     */
+    public function getAgencyInformation($agencyID)
+    {
+        $request = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+                'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
+                '<ns1:LookupAgency>' .
+                    '<ns1:AgencyId>' . htmlspecialchars($agencyID) . '</ns1:AgencyId>' .
+                    '<ns1:AgencyElementType>string</ns1:AgencyElementType>' .
+                '</ns1:LookupAgency>' .
+                '</ns1:NCIPMessage>';
+
+        $response = $this->sendRequest($request);
+        if (!$this->isValidXMLAgainstXSD($response)) {
+            throw new ILSException('Not valid XML!');
+        }
+
+        $organizationname = $response->xpath(
+                'ns1:LookupAgencyResponse/ns1:OrganizationNameInformation/ns1:OrganizationName'
+        );
+        $street = $response->xpath(
+                'ns1:LookupAgencyResponse/ns1:AgencyAddressInformation/ns1:PhysicalAddress/' .
+                'ns1:StructuredAddress/ns1:Street'
+        );
+        $country = $response->xpath(
+                'ns1:LookupAgencyResponse/ns1:AgencyAddressInformation/ns1:PhysicalAddress/' .
+                'ns1:StructuredAddress/ns1:Country'
+        );
+
+        return array(
+                'organizationname' => (string)$organizationname[0],
+                'street' => (string)$street[0],
+                'country' => (string)$country[0]
+                );
     }
 
     /**
@@ -574,45 +806,57 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $extras = array(
             '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
                 'schemes/userelementtype/userelementtype.scm">' .
-                'User Address Information' .
+                'Name Information' .
             '</ns1:UserElementType>',
             '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
                 'schemes/userelementtype/userelementtype.scm">' .
-                'Name Information' .
+                'User Address Information' .
             '</ns1:UserElementType>'
         );
-        $request = $this->getLookupUserRequest(
-            $patron['cat_username'], $patron['cat_password'], $extras
+//         $request = $this->getLookupUserRequest(
+//             $patron['cat_username'], $patron['cat_password'], $extras
+//         );
+
+        $request = $this->getLookupUserByIDRequest(
+            $patron['id'], $extras
         );
+
+//         print_r($request);
         $response = $this->sendRequest($request);
+        if (!$this->isValidXMLAgainstXSD($response)) {
+            throw new ILSException('Not valid XML!');
+        }
 
-        $first = $response->xpath(
+        //print $response->asXML();
+
+        $firstname = $response->xpath(
             'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
-            'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/' .
-            'ns1:GivenName'
-        );
-        $last = $response->xpath(
-            'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
-            'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/' .
-            'ns1:Surname'
+            'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:GivenName'
         );
 
-        // TODO: distinguish between permanent and other types of addresses; look
-        // at the UnstructuredAddressType field and handle multiple options.
-        $address = $response->xpath(
-            'ns1:LookupUserResponse/ns1:UserOptionalFields/' .
-            'ns1:UserAddressInformation/ns1:PhysicalAddress/' .
-            'ns1:UnstructuredAddress/ns1:UnstructuredAddressData'
+        $lastname = $response->xpath(
+            'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
+            'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:Surname'
         );
-        $address = explode("\n", trim((string)$address[0]));
+
+//         // TODO: distinguish between permanent and other types of addresses; look
+//         // at the UnstructuredAddressType field and handle multiple options.
+//         $address = $response->xpath(
+//             'ns1:LookupUserResponse/ns1:UserOptionalFields/' .
+//             'ns1:UserAddressInformation/ns1:PhysicalAddress/' .
+//             'ns1:UnstructuredAddress/ns1:UnstructuredAddressData'
+//         );
+
+
+//         $address = explode("\n", trim((string)$address[0]));
         return array(
-            'firstname' => (string)$first[0],
-            'lastname' => (string)$last[0],
-            'address1' => isset($address[0]) ? $address[0] : '',
-            'address2' => (isset($address[1]) ? $address[1] : '') .
-                (isset($address[2]) ? ', ' . $address[2] : ''),
-            'zip' => isset($address[3]) ? $address[3] : '',
-            'phone' => '',  // TODO: phone number support
+            'firstname' => (string)$firstname[0],
+            'lastname' => (string)$lastname[0],
+//             'address1' => isset($address[0]) ? $address[0] : '',
+//             'address2' => (isset($address[1]) ? $address[1] : '') .
+//                 (isset($address[2]) ? ', ' . $address[2] : ''),
+//             'zip' => isset($address[3]) ? $address[3] : '',
+//             'phone' => '',  // TODO: phone number support
             'group' => ''
         );
     }
@@ -727,5 +971,46 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     {
         // TODO
         return array();
+    }
+
+    /**
+     * Validate XML against XSD schema.
+     *
+     * @param string $XML or SimpleXMLElement $XML
+     * @param $path_to_XSD
+     *
+     * @throws ILSException
+     * @return boolean Returns true if XML is valid.
+     */
+    public function isValidXMLAgainstXSD($XML, $path_to_XSD =
+            './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
+    {
+        $doc = new DOMDocument();
+        libxml_use_internal_errors(true);  // Begin - Disable xml error messages.
+        if (is_string($XML))
+            $doc->loadXML($XML);
+        else if (get_class($XML) == 'SimpleXMLElement')
+            $doc->loadXML($XML->asXML());
+        else
+            throw new ILSException('Expected SimpleXMLElement or string containing XML.');
+        libxml_clear_errors();  // End - Disable xml error messages.
+        return $doc->schemaValidate($path_to_XSD);
+    }
+
+    /**
+     * Validate next item token.
+     * Check if $nextItemToken was set and contains data.
+     *
+     * @param array, at index [0] SimpleXMLElement Object
+     *
+     * @return boolean Returns true if token is valid.
+     */
+    protected function isValidToken($nextItemToken)
+    {
+        if (isset($nextItemToken[0])) {
+            if ($nextItemToken[0] != '')
+                return true;
+        }
+        return false;
     }
 }
