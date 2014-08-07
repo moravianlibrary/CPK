@@ -8,3 +8,5 @@ TAGS
 vendor/.git
 .project
 .buildpath
+/nbproject
+messages.log
