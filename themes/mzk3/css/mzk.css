@@ -1,5 +1,5 @@
 body {
-  background-color: #F5F5F5;
+  /*background-color: #F5F5F5;*/
   font-family: Arial, sans-serif !important;
   font-size: 13px;
   color: #392529;
@@ -48,7 +48,7 @@ div.searchbox-frontpage>form>div>a {
 
 /* header */
 
-div.header {
+body>div.header {
   background-color: #fff;
 }
 
@@ -87,6 +87,7 @@ a.myresearch, a.register {
   top: 9px;
   width: 117px;
   text-decoration: none;
+  box-sizing: content-box;
 }
 
 a.login, a.logout {
@@ -110,6 +111,7 @@ a.login, a.logout {
   width: 80px;
   text-decoration: none;
   margin-top: 10px;
+  box-sizing: content-box;
 }
 
 /* cart */
@@ -199,6 +201,27 @@ a {
   text-decoration: underline;
 }
 
+.pagination > li > a {
+	color: #16969D;
+}
+
+.btn-primary {
+	background-color: #16969D;
+}
+
+.btn-primary:hover {
+	color: #16969D;	
+}
+
+input.search-query {
+	margin-top: 0px;
+}
+
+.pagination > .active > span {
+	background-color: #16969D;
+	border-color: #16969D;
+}
+
 a.no-underline {
   text-decoration: none;
 }
@@ -228,7 +251,7 @@ label.recordNumber {
 
 /* facets */
 div.sidebar {
-  background-color: #fff;
+/*  background-color: #fff;*/
   padding-left: 10px;
   padding-right: 10px;
 }
@@ -406,3 +429,6 @@ p.holdings-restriction {
   color: #990000;
 }
 
+.navbar {
+	margin-bottom: 0px;
+}

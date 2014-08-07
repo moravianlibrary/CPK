@@ -28,18 +28,18 @@
   </ul>
 <? endif; ?>
   <? if ($this->searchType == 'advanced'): ?>
-    <span class="col-md-6">
+    <span class="span6">
       <a href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtml($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a> |
       <a href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
       <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
     </span>
     <div class="clearfix"></div>
-    <span class="col-md-6 col-md-offset-1">
+    <span class="span6 offset1">
       <?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"
     </span>
   <? else: ?>
     <form class="form-inline navbar-form block" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
-      <input class="<?=($this->layout()->frontpage == true)?'col-md-7 col-md-offset-1':'col-md-3'?> form-control<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
+      <input class="<?=($this->layout()->frontpage == true)?'span7 offset1':'span3'?> form-control<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
       <? if ($handlerCount > 1): ?>
         <select id="searchForm_type" name="type" data-native-menu="false" class="form-control">
           <? foreach ($handlers as $handler): ?>
@@ -49,11 +49,11 @@
       <? elseif ($handlerCount == 1): ?>
         <input type="hidden" name="type" value="<?=$this->escapeHtml($handlers[0]['value'])?>" />
       <? endif; ?>
-      <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="fa fa-x fa-search"></i> <?=$this->transEsc("Find")?></button>
+      <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="icon-search"></i> <?=$this->transEsc("Find")?></button>
       
       <div class="search-query-options">
         <? if ($advSearch): ?>
-          <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' col-md-offset-1':''?>"><?=$this->transEsc("Advanced")?></a>
+          <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' offset1':''?>"><?=$this->transEsc("Advanced")?></a>
         <? endif; ?>
       
 

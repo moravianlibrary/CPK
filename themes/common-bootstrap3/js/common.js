@@ -1,4 +1,4 @@
-/*global path, vufindString */
+/*global checkSaveStatuses, console, extractSource, hexEncode, Lightbox, path, rc4Encrypt, refreshCommentList, vufindString */
 
 /* --- GLOBAL FUNCTIONS --- */
 function htmlEncode(value){
@@ -10,6 +10,7 @@ function htmlEncode(value){
 }
 function extractClassParams(str) {
   str = $(str).attr('class');
+  if (typeof str === "undefined") return [];
   var params = {};
   var classes = str.split(/\s+/);
   for(var i = 0; i < classes.length; i++) {
@@ -20,6 +21,31 @@ function extractClassParams(str) {
   }
   return params;
 }
+function jqEscape(myid) {
+  return String(myid).replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, "\\$&");
+}
+function html_entity_decode(string, quote_style)
+{
+  var hash_map = {},
+    symbol = '',
+    tmp_str = '',
+    entity = '';
+  tmp_str = string.toString();
+
+  delete(hash_map['&']);
+  hash_map['&'] = '&amp;';
+  hash_map['>'] = '&gt;';
+  hash_map['<'] = '&lt;';
+
+  for (symbol in hash_map) {
+    entity = hash_map[symbol];
+    tmp_str = tmp_str.split(entity).join(symbol);
+  }
+  tmp_str = tmp_str.split('&#039;').join("'");
+
+  return tmp_str;
+}
+
 // Turn GET string into array
 function deparam(url) {
   var request = {};
@@ -27,11 +53,15 @@ function deparam(url) {
   for (var i = 0; i < pairs.length; i++) {
     var pair = pairs[i].split('=');
     var name = decodeURIComponent(pair[0]);
-    if(pair[0].substring(pair[0].length-2) == '[]') {
+    if(name.length == 0) {
+      continue;
+    }
+    if(name.substring(name.length-2) == '[]') {
+      name = name.substring(0,name.length-2);
       if(!request[name]) {
         request[name] = [];
       }
-      request[name][request[name].length] = pair[1];
+      request[name].push(decodeURIComponent(pair[1]));
     } else {
       request[name] = decodeURIComponent(pair[1]);
     }
@@ -39,6 +69,7 @@ function deparam(url) {
   return request;
 }
 
+// Sidebar
 function moreFacets(id) {
   $('.'+id).removeClass('hidden');
   $('#more-'+id).addClass('hidden');
@@ -60,7 +91,11 @@ function setupOrFacets() {
   $('.facetOR').find('.icon-check-empty').replaceWith('<input type="checkbox" onChange="updateOrFacets($(this).parent().attr(\'href\'), this)"/> ');
 }
 
+
 $(document).ready(function() {
+  // support "jump menu" dropdown boxes
+  $('select.jumpMenu').change(function(){ $(this).parent('form').submit(); });
+
   // Highlight previous links, grey out following
   $('.backlink')
     .mouseover(function() {
@@ -92,59 +127,46 @@ $(document).ready(function() {
       } while(t.length > 0);
     });
 
-  // http://bibwild.wordpress.com/2013/04/04/overriding-bootstrap-typeahead-to-not-initially-select/
-  $.fn.typeahead.Constructor.prototype.render = function(items) {
-    var that = this;
-    items = $(items).map(function (i, item) {
-      i = $(that.options.item).attr('data-value', item);
-      i.find('a').html(that.highlighter(item));
-      return i[0];
-    });
-    this.$menu.html(items);
-    return this;
-  };
-
-  $.fn.typeahead.Constructor.prototype.select = function() {
-    var val = this.$menu.find('.active').attr('data-value');
-    if (val) {
-      this.$element.val(this.updater(val)).change();
-    }
-    return this.hide();
-  };
-
   // Search autocomplete
-  var autoCompleteRequest, autoCompleteTimer;
-  $('.autocomplete').typeahead({
-    minLength:3,
-    source:function(query, process) {
-      clearTimeout(autoCompleteTimer);
-      if(autoCompleteRequest) {
-        autoCompleteRequest.abort();
-      }
-      var searcher = extractClassParams('.autocomplete');
-      autoCompleteTimer = setTimeout(function() {
-        autoCompleteRequest = $.ajax({
-          url: path + '/AJAX/JSON',
-          data: {method:'getACSuggestions',type:$('#searchForm_type').val(),searcher:searcher['searcher'],q:query},
-          dataType:'json',
-          success: function(json) {
-            if (json.status == 'OK' && json.data.length > 0) {
-              process(json.data);
-            } else {
-              process([]);
-            }
+  var searcher = extractClassParams('.autocomplete');
+  var autocompleteEngine = new Bloodhound({
+    name: 'search-suggestions',
+    remote: {
+      url: path + '/AJAX/JSON?q=%QUERY',
+      ajax: {
+        data: {
+          method:'getACSuggestions',
+          type:$('#searchForm_type').val(),
+          searcher:searcher['searcher']
+        },
+        dataType:'json'
+      },
+      filter: function(json) {
+        if (json.status == 'OK' && json.data.length > 0) {
+          var datums = [];
+          for (var i=0;i<json.data.length;i++) {
+            datums.push({val:json.data[i]});
           }
-        });
-      }, 600); // Delay request submission
+          return datums;
+        } else {
+          return [];
+        }
+      }
     },
-    matcher:function(item) {
-        return true;
-    }
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('val'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace
   });
-  
-  // Check checkbox-select-all on cart page
-  $( "form[name='cartForm']" ).find('.checkbox-select-all').attr('checked', 'checked');
-  
+  autocompleteEngine.initialize();
+  $('.autocomplete').typeahead(
+    {
+      highlight: true,
+      minLength: 3,
+    }, {
+      displayKey:'val',
+      source: autocompleteEngine.ttAdapter()
+    }
+  );
+
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
     elm = $(this).closest('form').find('.checkbox-select-item');
@@ -164,8 +186,13 @@ $(document).ready(function() {
       $(window).load(function() {
       	$('#cartItems').off("click");
       });
+    } else {
+      $(this).closest('form').find('.checkbox-select-item').each(function() {
+        this.checked = false;
+      });
+    }
   });
-  
+
   // handle QR code links
   $('a.qrcodeLink').click(function() {
     if ($(this).hasClass("active")) {
@@ -173,7 +200,7 @@ $(document).ready(function() {
     } else {
       $(this).html(vufindString.qrcode_hide).addClass("active");
     }
-    $(this).next('.qrcode').toggle();
+    $(this).next('.qrcode').toggleClass('hidden');
     return false;
   });
 
@@ -181,17 +208,18 @@ $(document).ready(function() {
   var url = window.location.href;
   if(url.indexOf('?' + 'print' + '=') != -1  || url.indexOf('&' + 'print' + '=') != -1) {
     $("link[media='print']").attr("media", "all");
-    window.print();
+    $(document).ajaxStop(function() {
+      window.print();
+    });
+    // Make an ajax call to ensure that ajaxStop is triggered
+    $.getJSON(path + '/AJAX/JSON', {method: 'keepAlive'});
   }
-    
-  // Collapsing facets
-  $('.sidebar .collapsed .nav-header').click(function(){$(this).parent().toggleClass('open');});
-  
+
   // Advanced facets
   setupOrFacets();
   // Cart functionality
   refreshCartItems();
-  
+
   $('.jt').tooltip({
 	  placement: 'right',
 	  html: true
