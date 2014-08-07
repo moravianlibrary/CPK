@@ -68,23 +68,23 @@ foreach ($this->driver->getHoldings() as $holding) {
 
 if ($hasSheduleOfPeriodics) {
     array_multisort(
-        $sheduleOfPeriodicsValues, SORT_ASC,
-        $libraryValues, SORT_ASC,
-        $branchValues, SORT_ASC,
-        $branch2Values, SORT_ASC,
-        $signatureValues, SORT_ASC,
-        $signature2Values, SORT_ASC,
-        $barcodeValues, SORT_ASC,
+        $sheduleOfPeriodicsValues, SORT_ASC, SORT_NUMERIC,
+        $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
+        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
+        $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
+        $signatureValues, SORT_ASC, SORT_NUMERIC,
+        $signature2Values, SORT_ASC, SORT_NUMERIC,
+        $barcodeValues, SORT_ASC, SORT_NUMERIC,
         $holdings
     );
 } else {
     array_multisort(
-        $libraryValues, SORT_ASC,
-        $branchValues, SORT_ASC,
-        $branch2Values, SORT_ASC,
-        $signatureValues, SORT_ASC,
-        $signature2Values, SORT_ASC,
-        $barcodeValues, SORT_ASC,
+        $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
+        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
+        $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
+        $signatureValues, SORT_ASC, SORT_NUMERIC,
+        $signature2Values, SORT_ASC, SORT_NUMERIC,
+        $barcodeValues, SORT_ASC, SORT_NUMERIC,
         $holdings
     );
 }
