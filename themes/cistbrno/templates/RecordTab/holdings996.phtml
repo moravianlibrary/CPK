@@ -1,43 +1,53 @@
+<?php
+function getSheduleOfPeriodics($holding) {
+    if (isset($holding['d'])) {
+        return $holding['d'];
+    }
+    $result = '';
+    if (isset($holding['y'])) {
+        $result .= $holding['y'];
+    }
+    if (isset($holding['v']) && $holding['v'] != $holding['y']) {
+        $result .= $holding['v'];
+    }
+    if (isset($holding['i'])) {
+        $result .= $holding['i'];
+    }
+    return $result;
+}
+
+function getStatusDescription($status) {
+    if ($status == "A") {
+        return "Holding Status Absent";
+    }
+    if ($status == "P") {
+        return "Holding Status Present";
+    }
+}
+?>
+
 <? $holdings = $this->driver->getHoldings(); ?>
 
 <table class="table table-striped" summary="<?=$this->transEsc('Holdings details from')?> <?=$this->transEsc($holding['location'])?>">
   <tr>
-    <td>a</td>
-    <td>b</td>
-    <td>c</td>
-    <td>d</td>
-    <td>e</td>
-    <td>f</td>
-    <td>g</td>
-    <td>h</td>
-    <td>i</td>
-    <td>l</td>
-    <td>n</td>
-    <td>p</td>
-    <td>r</td>
-    <td>s</td>
-    <td>v</td>
-    <td>y</td>
+      <td><?=$this->transEsc('Branch')?></td>
+      <td><?=$this->transEsc('Second Level Branch')?></td>
+      <td><?=$this->transEsc('Barcode')?></td>
+      <td><?=$this->transEsc('Schedule of Periodics')?></td>
+      <td><?=$this->transEsc('Signature 1')?></td>
+      <td><?=$this->transEsc('Signature 2')?></td>
+      <td><?=$this->transEsc('Status')?></td>
   </tr>
 
 <? foreach ($holdings as $holding): ?>
   <tr>
-    <td><? if (isset($holding['a'])):?><?=$holding['a']?><? endif; ?></td>
-    <td><? if (isset($holding['b'])):?><?=$holding['b']?><? endif; ?></td>
-    <td><? if (isset($holding['c'])):?><?=$holding['c']?><? endif; ?></td>
-    <td><? if (isset($holding['d'])):?><?=$holding['d']?><? endif; ?></td>
-    <td><? if (isset($holding['e'])):?><?=$holding['e']?><? endif; ?></td>
-    <td><? if (isset($holding['f'])):?><?=$holding['f']?><? endif; ?></td>
-    <td><? if (isset($holding['g'])):?><?=$holding['g']?><? endif; ?></td>
-    <td><? if (isset($holding['h'])):?><?=$holding['h']?><? endif; ?></td>
-    <td><? if (isset($holding['i'])):?><?=$holding['i']?><? endif; ?></td>
     <td><? if (isset($holding['l'])):?><?=$holding['l']?><? endif; ?></td>
-    <td><? if (isset($holding['n'])):?><?=$holding['n']?><? endif; ?></td>
-    <td><? if (isset($holding['p'])):?><?=$holding['p']?><? endif; ?></td>
     <td><? if (isset($holding['r'])):?><?=$holding['r']?><? endif; ?></td>
-    <td><? if (isset($holding['s'])):?><?=$holding['s']?><? endif; ?></td>
-    <td><? if (isset($holding['v'])):?><?=$holding['v']?><? endif; ?></td>  
-    <td><? if (isset($holding['y'])):?><?=$holding['y']?><? endif; ?></td>
+    <td><? if (isset($holding['b'])):?><?=$holding['b']?><? endif; ?></td>
+    <td><?=getSheduleOfPeriodics($holding)?></td>
+    <td><? if (isset($holding['c'])):?><?=$holding['c']?><? endif; ?></td>
+    <td><? if (isset($holding['h'])):?><?=$holding['h']?><? endif; ?></td>
+    <td><? if (isset($holding['s'])):?><?=$this->transEsc(getStatusDescription($holding['s']))?><? endif; ?></td>
   </tr>
 <? endforeach;?>
 </table>
