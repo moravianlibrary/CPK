@@ -8,10 +8,10 @@ function getSheduleOfPeriodics($holding) {
         $result .= $holding['y'];
     }
     if (isset($holding['v']) && $holding['v'] != $holding['y']) {
-        $result .= $holding['v'];
+        $result .= " " . $holding['v'];
     }
     if (isset($holding['i'])) {
-        $result .= $holding['i'];
+        $result .= " " . $holding['i'];
     }
     return $result;
 }
