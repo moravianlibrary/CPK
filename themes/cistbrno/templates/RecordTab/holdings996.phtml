@@ -26,9 +26,73 @@ function getStatusDescription($status) {
 }
 ?>
 
-<? $holdings = $this->driver->getHoldings(); ?>
+<?php
+$holdings = array();
+
+$libraryValues = array();
+$branchValues = array();
+$branch2Values = array();
+$sheduleOfPeriodicsValues = array();
+$signatureValues = array();
+$signature2Values = array();
+$barcodeValues = array();
+
+$hasSheduleOfPeriodics = true;
+
+foreach ($this->driver->getHoldings() as $holding) {
+    if ($holding['q'] == '0') {
+        continue;
+    }
+    $holding_entry = array();
+    $holding_entry['library'] = isset($holding['e']) ? $this->transEsc($holding['e']) : '';
+    $holding_entry['branch'] = isset($holding['l']) ? $holding['l'] : '';
+    $holding_entry['branch2'] = isset($holding['r']) ? $holding['r'] : '';
+    $holding_entry['sheduleOfPeriodics'] = getSheduleOfPeriodics($holding);
+    $holding_entry['signature1'] = isset($holding['c']) ? $holding['c'] : '';
+    $holding_entry['signature2'] = isset($holding['h']) ? $holding['h'] : '';
+    $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
+    $holding_entry['status'] = isset($holding['s']) ? $this->transEsc(getStatusDescription($holding['s'])) : '';
+    
+    $libraryValues[] = $holding_entry['library'];
+    $branchValues[] = $holding_entry['branch'];
+    $branch2Values[] = $holding_entry['branch2'];
+    $sheduleOfPeriodicsValues[] = $holding_entry['sheduleOfPeriodics'];
+    $signatureValues[] = $holding_entry['signature1'];
+    $signature2Values[] = $holding_entry['signature2'];
+    $barcodeValues[] = $holding_entry['barcode'];
+    
+    $hasSheduleOfPeriodics &= !empty($holding_entry['sheduleOfPeriodics']);
+    
+    $holdings[] = $holding_entry;
+}
+
+if ($hasSheduleOfPeriodics) {
+    array_multisort(
+        $sheduleOfPeriodicsValues, SORT_ASC,
+        $libraryValues, SORT_ASC,
+        $branchValues, SORT_ASC,
+        $branch2Values, SORT_ASC,
+        $signatureValues, SORT_ASC,
+        $signature2Values, SORT_ASC,
+        $barcodeValues, SORT_ASC,
+        $holdings
+    );
+} else {
+    array_multisort(
+        $libraryValues, SORT_ASC,
+        $branchValues, SORT_ASC,
+        $branch2Values, SORT_ASC,
+        $signatureValues, SORT_ASC,
+        $signature2Values, SORT_ASC,
+        $barcodeValues, SORT_ASC,
+        $holdings
+    );
+}
+
+?>
 <table class="table table-striped" summary="<?=$this->transEsc('Holdings details from')?> <?=$this->transEsc($holding['location'])?>">
   <tr>
+      <td><?=$this->transEsc('Library')?></td>
       <td><?=$this->transEsc('Branch')?></td>
       <td><?=$this->transEsc('Second Level Branch')?></td>
       <td><?=$this->transEsc('Schedule of Periodics')?></td>
@@ -41,13 +105,14 @@ function getStatusDescription($status) {
 <? foreach ($holdings as $holding): ?>
   <? if ($holding['q'] != "0"): ?>
     <tr>
-      <td><? if (isset($holding['l'])):?><?=$holding['l']?><? endif; ?></td>
-      <td><? if (isset($holding['r'])):?><?=$holding['r']?><? endif; ?></td>
-      <td><?=getSheduleOfPeriodics($holding)?></td>
-      <td><? if (isset($holding['c'])):?><?=$holding['c']?><? endif; ?></td>
-      <td><? if (isset($holding['h'])):?><?=$holding['h']?><? endif; ?></td>
-      <td><? if (isset($holding['b'])):?><?=$holding['b']?><? endif; ?></td>
-      <td><? if (isset($holding['s'])):?><?=$this->transEsc(getStatusDescription($holding['s']))?><? endif; ?></td>
+      <td><?=$holding['library']?></td>
+      <td><?=$holding['branch']?></td>
+      <td><?=$holding['branch2']?></td>
+      <td><?=$holding['sheduleOfPeriodics']?></td>
+      <td><?=$holding['signature1']?></td>
+      <td><?=$holding['signature2']?></td>
+      <td><?=$holding['barcode']?></td>
+      <td><?=$holding['status']?></td>
     </tr>
   <? endif; ?>
 <? endforeach;?>
