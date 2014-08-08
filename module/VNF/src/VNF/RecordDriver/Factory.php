@@ -166,5 +166,27 @@ class Factory
         );
         return $driver;
     }
+    
+    /**
+     * Factory for KJM record driver.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return SolrKjm
+     */
+    public function getSolrKjm(ServiceManager $sm)
+    {
+        $driver = new \VNF\RecordDriver\SolrKjm(
+                $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+                null,
+                $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+        );
+        $driver->attachILS(
+                $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+                $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+                $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+        );
+        return $driver;
+    }
 
 }
