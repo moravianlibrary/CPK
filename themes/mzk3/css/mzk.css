@@ -160,8 +160,7 @@ button.search-query {
   text-transform: uppercase;
   height: 30px;
   width: 100px;
-  margin-left: 10px;
-  margin-top: 15px;
+  margin-top: 2px;
 }
 
 div.search-query-options {
@@ -431,4 +430,22 @@ p.holdings-restriction {
 
 .navbar {
 	margin-bottom: 0px;
+}
+.twitter-typeahead {
+  display: inline-block !important;
+  width: 100%;
+  padding: 0;
+}
+.tt-dropdown-menu {
+  right: 0 !important;
+}
+.autocomplete {
+  width: 100% !important;
+  max-width: none;
+}
+.searchbox-frontpage .row {
+  padding-top: 10px;
+}
+#searchForm_type {
+  width: 100%;
 }
