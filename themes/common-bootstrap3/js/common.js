@@ -186,11 +186,9 @@ $(document).ready(function() {
       $(window).load(function() {
       	$('#cartItems').off("click");
       });
-    } else {
       $(this).closest('form').find('.checkbox-select-item').each(function() {
         this.checked = false;
       });
-    }
   });
 
   // handle QR code links
