@@ -62,6 +62,40 @@ class SolrMarcMerged extends ParentSolr
         }
         return $resultArray;
     }
+    
+    public function getThumbnail($size = 'small')
+    {
+        $actualSize = $size == 'small' || $size == 'medium' ? '' : $size;
+        if ($size == 'medium') $size = 'small';
+        $formats = $this->fields['format'];
+        if (is_array($formats)) {
+            $base = '';
+            if (in_array('vnf_CD', $formats)) {
+                $base .= 'format/nf-icon-cd';
+            }
+            if (in_array('vnf_vinyl', $formats)) {
+                $base .= 'format/nf-icon-gramo';
+            }
+            if (in_array('vnf_SoundCassette', $formats)) {
+                $base .= 'format/nf-icon-magnetic';
+            }
+            if (in_array('vnf_magneticTape', $formats)) {
+                $base .= 'format/nf-icon-tape';
+            }
+    
+            if (empty($base)) {
+                return 'noimage.gif';
+            }
+    
+            if (empty($actualSize)) {
+                return $base . '.png';
+            } else {
+                return $base . '-large.png';
+            }
+        }
+    
+        return 'noimage.gif';
+    }
 
 }
 

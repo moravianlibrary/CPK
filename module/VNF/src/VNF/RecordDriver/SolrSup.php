@@ -85,7 +85,7 @@ class SolrSup extends SolrMarc
             $link = $this->getImagePath($id, $size);
         }
 
-        return empty($link) ? parent::getThumbnail($size) : $link;
+        return empty($link) ? 'noimage.gif' : $link;
     }
 
     /**

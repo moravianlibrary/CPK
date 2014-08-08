@@ -14,8 +14,9 @@
   <div class="span3">
     <div class="text-center">
       <? /* Display thumbnail if appropriate: */ ?>
-      <div id="cover"></div>
-    
+      <div id="cover">
+        <img src="<?=$this->imageLink($this->driver->getThumbnail('large'))?>" />
+      </div>
       <? /* Display qrcode if appropriate: */ ?>
       <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
       <? if($QRCode): ?>
