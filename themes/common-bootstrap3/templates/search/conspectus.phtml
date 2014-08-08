@@ -2,6 +2,13 @@
 // Set page title.
 $this->headTitle($this->translate('Conspectus'));
 
+// Set up breadcrumbs:
+if (isset($this->overrideTitle)) {
+$this->layout()->breadcrumbs .= '<li class="active">' . $this->escapeHtml($this->overrideTitle) . '</li>';
+} else {
+$this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc('Conspectus') . ': ' . $this->escapeHtml($lookfor) . '</li>';
+}
+
 $results = $this->results;
 $field = $this->field;
 $facets = $this->facets[$field]['list'];
