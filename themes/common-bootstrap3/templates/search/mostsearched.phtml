@@ -1,0 +1,15 @@
+<?
+// Set page title.
+$this->headTitle($this->translate('Most Searched'));
+
+$queries = $this->queries;
+?>
+<p>
+  <? foreach ($queries as $query): ?>
+    <li>
+      <a href="<?=$this->url('search-results')?>?lookfor=<?=urlencode($query['query'])?>&amp;type=AllFields">
+        <?=$this->escapeHtml($query['query'] . ' ('. $query['count']  . ')')?>
+      </a>
+    </li>
+  <? endforeach; ?>
+</p>

@@ -1,0 +1,14 @@
+<?
+// Set page title.
+$this->headTitle($this->translate('Conspectus'));
+
+$results = $this->results;
+$field = $this->field;
+$facets = $this->facets[$field]['list'];
+$sortedList = $this->sortFacetList($results, $field, $facets, 'search-results');
+?>
+<p>
+  <? foreach ($sortedList as $url => $value): ?>
+    <li><a href="<?=$url?>"><?=$this->escapeHtml($value)?></a></li>
+  <? endforeach; ?>
+</p>

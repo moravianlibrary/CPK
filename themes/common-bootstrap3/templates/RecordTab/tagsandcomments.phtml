@@ -1,0 +1,37 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('Comments') . ': ' . $this->driver->getBreadcrumb());
+?>
+
+<? $tagList = $this->driver->getTags(); ?>
+<div id="tagList">
+  <?=$this->transEsc('Tags')?>:
+  <? if (count($tagList) > 0): ?>
+    <? $i = 0; foreach ($tagList as $tag): ?>
+      <?=($i++ == 0)?'':', '?>
+      <a href="<?=$this->url('tag-home')?>?lookfor=<?=urlencode($tag->tag)?>"><?=$this->escapeHtml($tag->tag)?></a>
+      (<?=$this->escapeHtml($tag->cnt)?>)
+    <? endforeach; ?>
+  <? else: ?>
+    <?=$this->transEsc('No Tags')?>, <?=$this->transEsc('Be the first to tag this record')?>!
+  <? endif; ?>
+  <i class="fa fa-x fa-plus-sign"></i> <a id="tagRecord" href="<?=$this->recordLink()->getActionUrl($this->driver, 'AddTag')?>" title="<?=$this->transEsc('Add Tag')?>"><?=$this->transEsc('Add Tag')?></a>
+</div>
+
+<div id="commentList">
+  <?=$this->render('record/comments-list.phtml')?>
+</div>
+<form class="comment row" name="commentRecord" id="commentRecord" action="<?=$this->recordLink()->getActionUrl($this->driver, 'AddComment')?>" method="post">
+  <div class="col-md-3 text-right">
+    <strong><?=$this->transEsc("Your Comment")?>:</strong>
+  </div>
+  <div class="popover right col-md-9">
+    <div class="arrow"></div>
+    <div class="popover-content">
+      <textarea id="comment" name="comment" class="col-md-12" rows="3" required></textarea>
+      <input class="btn" data-loading-text="Submitting..." type="submit" value="<?=$this->transEsc("Add your comment")?>"/>
+    </div>
+  </div>
+  <input type="hidden" name="id" value="<?=$this->escapeHtml($this->driver->getUniqueId())?>"/>
+  <input type="hidden" name="source" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>"/>
+</form>
