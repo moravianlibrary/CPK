@@ -1,0 +1,46 @@
+<?
+  $facets = $this->recommend->getFacets();
+  $results = $this->recommend->getResults();
+  $facetsWithSelect = $this->recommend->getFacetsWithSelect();
+  $topFacetSettings = $this->recommend->getViewSettings();
+?>
+<? if (isset($facets)): ?>
+  <? foreach($facets as $field => $cluster):?>
+    <? if (in_array($field, $facetsWithSelect)):?>
+      <form name='<?=$this->escapeHtmlAttr($field)?>_filter' id='<?=$this->escapeHtmlAttr($field)?>_filter' class='form-inline'>
+        <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$field}:.*/"))?>
+        <label for="<?=$this->escapeHtml($dateField)?>">
+          <?=$this->transEsc('limit_by_facet_' . $cluster['label'])?>:&nbsp;
+        </label>
+        <select name="filter[]" name="<?=$this->escapeHtml($field)?>" onChange="document.forms['<?=$this->escapeHtmlAttr($field)?>_filter'].submit()">
+          <? foreach($cluster['list'] as $thisFacet):?>
+            <option value="<?=$this->escapeHtmlAttr($field)?>:<?=$this->escapeHtmlAttr($thisFacet['value'])?>" <?if ($thisFacet['isApplied']):?> selected <? endif; ?>>
+              <?=$this->escapeHtml($thisFacet['displayText'])?>
+            </option>
+          <? endforeach;?>
+        </select>
+      </form>
+    <? else:?>
+      <a href='#' onclick="(function(obj){ $('#spec_facet_<?=$this->escapeHtmlAttr($field)?>').show(); $(obj).hide(); return false;})(this)"><?=$this->transEsc('activate_facet_' . $cluster['label'])?></a>
+      <div id="spec_facet_<?=$this->escapeHtmlAttr($field)?>" style="display: none;">
+        <strong><?=$this->transEsc('limit_by_facet_' . $cluster['label'])?></strong>
+        <div class="row-fluid top-row">
+          <? $iter=1; ?>
+          <? foreach($cluster['list'] as $thisFacet): ?>
+            <span class="col-md-<?=floor(12/$topFacetSettings['cols'])?>">
+              <? if (!$thisFacet['isApplied']): ?>
+                <a href="<?=$this->currentPath().$this->recommend->getResults()->getUrlQuery()->addFacet($field, $thisFacet['value'], $thisFacet['operator'])?>">
+                  <?=$this->escapeHtml($thisFacet['displayText'])?>
+                </a>
+                (<?=$this->localizedNumber($thisFacet['count']) ?>)
+              <? endif; ?>
+            </span>
+            <? /* Close rows */ ?>
+            <? if ($iter%$topFacetSettings['cols'] == 0 && $iter > 0): ?></div><div class="row-fluid top-row"><? endif; ?>
+            <? $iter++; ?>
+          <?endforeach;?>
+        </div>
+      </div>
+    <?endif;?>
+  <?endforeach;?>
+<? endif; ?>
