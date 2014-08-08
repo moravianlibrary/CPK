@@ -14,6 +14,7 @@ $config = array(
                      'solrvnf_ktn' => 'VNF\RecordDriver\Factory::getSolrKtn',
                      'solrvnf_kkfb' => 'VNF\RecordDriver\Factory::getSolrKkfb',
                      'solrvnf_svkk' => 'VNF\RecordDriver\Factory::getSolrMarc',
+                     'solrvnf_kjm' => 'VNF\RecordDriver\Factory::getSolrKjm',
                      'solrmerged'  => 'VNF\RecordDriver\Factory::getSolrMarcMerged',
                      'solrdefault' => 'VNF\RecordDriver\Factory::getSolrMarc',
                      'solrvnf_sup' => 'VNF\RecordDriver\Factory::getSolrSup',
