@@ -251,7 +251,6 @@ label.recordNumber {
 
 /* facets */
 div.sidebar {
-/*  background-color: #fff;*/
   padding-left: 10px;
   padding-right: 10px;
 }
@@ -459,4 +458,11 @@ input.checkbox-select-item {
 }
 #renewals .row {
   margin-left: 0px;
+}
+
+/* myresearch */
+.myresearch-menu, .myresearch-favorites-list {
+  background-color: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 5px;
 }
