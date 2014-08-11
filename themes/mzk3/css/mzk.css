@@ -246,6 +246,7 @@ li.nav-header {
 label.recordNumber {
   width: 20px;
   font-weight: bold;
+  margin-left: 15px;
 }
 
 /* facets */
