@@ -1,5 +1,5 @@
 body {
-  /*background-color: #F5F5F5;*/
+  background-color: #F5F5F5;
   font-family: Arial, sans-serif !important;
   font-size: 13px;
   color: #392529;
@@ -262,18 +262,20 @@ div.sidebar {
 
 /* results */
 
-div.span9 {
+div.col-sm-9 {
   background-color: #fff;
-  padding: 10px;
 }
 
-div.span9.results {
-  padding: 0px;
+.results {
   border: 1px solid #E0E0E0;
 }
 
 div.results-empty, div.results-listing-options, div.results-bulk-actions, div.results-pagination {
   padding: 0px 10px 0px 10px;
+}
+
+div.results-pagination {
+  text-align: center;
 }
 
 div.results-bulk-actions {
@@ -284,6 +286,7 @@ div.results-bulk-actions {
 .result {
   border-top: 0px;
   padding: 5px 10px 5px 10px;
+  background: white;
 }
 
 .result.alt {

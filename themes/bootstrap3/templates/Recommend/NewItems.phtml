@@ -7,6 +7,7 @@
 <? if ($selectedDateRange != null): ?>
 <div>
   <form name='newItemsFilter' id='newItemsFilter' class='form-inline'>
+    <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$dateField}:.*/"))?>
     <label for="<?=$this->escapeHtml($dateField)?>">
       <?=$this->translate('New acquisitions since')?>:&nbsp;
     </label>
