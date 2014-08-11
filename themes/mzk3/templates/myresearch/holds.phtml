@@ -15,7 +15,7 @@
     <div class="pull-right row">
       <? $first = true; ?>
       <? foreach ($this->view['views'] as $name => $view): ?>
-        <span class="col-md-5 <?= !$first ? 'col-md-offset-2' : '' ?>">
+        <span class="col-md-6">
         <? if(!$view['selected']): ?>
           <a href="<?=$view['uri'] ?>" title="<?=$this->transEsc('Switch view to')?> <?=$this->transEsc(ucfirst($name))?>" >
         <? endif; ?>
