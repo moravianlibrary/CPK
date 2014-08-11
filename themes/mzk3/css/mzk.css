@@ -454,3 +454,9 @@ p.holdings-restriction {
 #searchForm_type {
   width: 100%;
 }
+input.checkbox-select-item {
+  margin-left: 5px;
+}
+#renewals .row {
+  margin-left: 0px;
+}
