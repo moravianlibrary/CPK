@@ -14,8 +14,11 @@ $field = $this->field;
 $facets = $this->facets[$field]['list'];
 $sortedList = $this->sortFacetList($results, $field, $facets, 'search-results');
 ?>
-<p>
-  <? foreach ($sortedList as $url => $value): ?>
-    <li><a href="<?=$url?>"><?=$this->escapeHtml($value)?></a></li>
-  <? endforeach; ?>
-</p>
+<div class="<?=$this->layoutClass('mainbody')?> results">
+  <h2><?=$this->transEsc('Conspectus')?></h2>
+  <p>
+    <? foreach ($sortedList as $url => $value): ?>
+      <li><a href="<?=$url?>"><?=$this->escapeHtml($value)?></a></li>
+    <? endforeach; ?>
+  </p>
+</div>
