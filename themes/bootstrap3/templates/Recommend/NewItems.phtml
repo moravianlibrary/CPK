@@ -11,7 +11,7 @@
     <label for="<?=$this->escapeHtml($dateField)?>">
       <?=$this->translate('New acquisitions since')?>:&nbsp;
     </label>
-    <select name="filter[]" name="<?=$this->escapeHtml($dateField)?>" onChange="document.forms['newItemsFilter'].submit()">
+    <select name="filter[]" name="<?=$this->escapeHtml($dateField)?>" onChange="document.forms['newItemsFilter'].submit()" class="form-control">
       <? foreach($dateRanges as $key => $val):?>
         <option value="<?=$this->escapeHtml($val['filter'])?>" <?if ($val['selected']):?> selected <? endif; ?>><?=$this->escapeHtml($key);?> </option>
       <? endforeach;?>
