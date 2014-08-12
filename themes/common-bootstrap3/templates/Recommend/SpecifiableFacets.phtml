@@ -12,7 +12,7 @@
         <label for="<?=$this->escapeHtml($dateField)?>">
           <?=$this->transEsc('limit_by_facet_' . $cluster['label'])?>:&nbsp;
         </label>
-        <select name="filter[]" name="<?=$this->escapeHtml($field)?>" onChange="document.forms['<?=$this->escapeHtmlAttr($field)?>_filter'].submit()">
+        <select name="filter[]" name="<?=$this->escapeHtml($field)?>" onChange="document.forms['<?=$this->escapeHtmlAttr($field)?>_filter'].submit()" class="form-control">
           <? foreach($cluster['list'] as $thisFacet):?>
             <option value="<?=$this->escapeHtmlAttr($field)?>:<?=$this->escapeHtmlAttr($thisFacet['value'])?>" <?if ($thisFacet['isApplied']):?> selected <? endif; ?>>
               <?=$this->escapeHtml($thisFacet['displayText'])?>
