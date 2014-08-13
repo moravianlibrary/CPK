@@ -82,6 +82,6 @@
     <?=$this->related()->render($current)?>
   <? endforeach; ?>
 </div>
-<div class="<?=$this->layoutClass('sidebar')?>">
+<div class="<?=$this->layoutClass('sidebar')?> pull-right">
   <?=$this->record($this->driver)->getToolbar()?>
 </div>
