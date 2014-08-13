@@ -170,12 +170,12 @@ $(document).ready(function() {
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
     elm = $(this).closest('form').find('.checkbox-select-item');
-    newVal = this.checked;
+    newVal = $(this).prop('checked');
     console.log("newVal: " + newVal);
     $(elm).each(function() {
-      oldVal = ($(this).attr('checked') == 'checked')? true : false;
+      oldVal = $(this).prop('checked');
       if (newVal != oldVal) {
-        $(this).attr('checked', newVal);
+        $(this).prop('checked', newVal);
         $(this).change();
       }
     });

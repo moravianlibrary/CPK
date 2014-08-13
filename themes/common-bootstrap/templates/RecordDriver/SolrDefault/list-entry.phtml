@@ -20,7 +20,7 @@
   }
 ?>
 <div class="row-fluid result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
-  <?=$this->record($this->driver)->getCheckbox() ?>
+  <?=$this->record($this->driver)->getCheckboxWithoutAutoAddingToCart() ?>
   <input type="hidden" value="<?=$id ?>" class="hiddenId"/>
   <div class="availabilityId hide"><?=$this->escapeHtml($availabilityId)?></div>
 
