@@ -536,9 +536,8 @@ input.checkbox-select-item {
 	font-weight: inherit;
 	color: inherit;
 	border-radius: 0px;
-	border: solid 1px;
-	background-color: #FFF;
-}
+	background-color: transparent;
+l}
 
 .label {
 	border-radius: 0px;
@@ -557,4 +556,7 @@ input.checkbox-select-item {
 	background-color: #16969D;
 	border-color: #16969D;
 }
+
+a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.active:focus  {
+	border-color: #DDD;
 }
