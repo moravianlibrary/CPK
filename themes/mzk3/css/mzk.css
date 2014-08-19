@@ -267,6 +267,7 @@ div.sidebar {
 
 div.col-sm-9 {
   background-color: #fff;
+  border: 1px solid #E0E0E0;
 }
 
 .results {
@@ -469,4 +470,93 @@ input.checkbox-select-item {
   background-color: white;
   border: 1px solid #E0E0E0;
   border-radius: 5px;
+}
+
+.navbar-nav > li > a {
+	padding-top: 5px;
+}
+
+.form-control {
+	border-radius: 0px;
+}
+
+.btn {
+	border-radius: 0px;
+}
+
+.list-group-item:first-child {
+	border-radius: 0px;
+}
+
+.list-group-item:last-child {
+	border-radius: 0px;
+}
+
+.sidebar .collapse .list-group-item[id^="more"] {
+	border-radius: 0px;
+}
+
+.pagination > li:first-child > span {
+	border-radius: 0px;
+}
+
+.pagination > li:first-child > a {
+	border-radius: 0px;
+}
+
+.pagination > li:last-child > span {
+	border-radius: 0px;
+}
+
+.pagination > li:last-child > a {
+	border-radius: 0px;
+}
+
+.myresearch-menu {
+	border-radius: 0px;
+}
+
+.alert {
+	border-radius: 0px;
+}
+
+.myresearch-favorites-list {
+	border-radius: 0px;
+}
+
+.breadcrumb {
+	border-radius: 0px;
+}
+
+.sidebar .title.collapsed {
+	border-radius: 0px;
+}
+
+.badge {
+	font-weight: inherit;
+	color: inherit;
+	border-radius: 0px;
+	background-color: transparent;
+l}
+
+.label {
+	border-radius: 0px;
+}
+
+.tooltip-inner {
+	border-radius: 0px;
+}
+
+.list-group-item.title {
+    background-color: #504B55;
+    color: #FFF;
+}
+
+.slider .slider-track .slider-handle {
+	background-color: #16969D;
+	border-color: #16969D;
+}
+
+a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.active:focus  {
+	border-color: #DDD;
 }

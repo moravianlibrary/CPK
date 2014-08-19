@@ -21,8 +21,8 @@
   $openSearchHref = "javascript:window.external.AddSearchProvider('" . $openSearchUrl . "');";
 ?>
 <hr/>
-<div class="col-md-8 row small">
-  <div class="col-md-3 col-md-offset-1"><p><strong><?=$this->transEsc('Search Options')?></strong></p>
+<div class="col-md-12 row small">
+  <div class="col-sm-4 col-md-offset-0"><p><strong><?=$this->transEsc('Search Options')?></strong></p>
     <ul>
       <? if ($mobileViewLink = $this->mobileUrl()): // display 'return to mobile' link when applicable ?>
         <li><a href="<?=$this->escapeHtmlAttr($mobileViewLink)?>"><?=$this->transEsc("mobile_link")?></a></li>
@@ -33,7 +33,7 @@
       <li><a href="<?=$openSearchHref?>"><?=$this->transEsc('Add as search engine')?></a></li>
     </ul>
   </div>
-  <div class="col-md-3"><p><strong><?=$this->transEsc('Find More')?></strong></p>
+  <div class="col-sm-4"><p><strong><?=$this->transEsc('Find More')?></strong></p>
     <ul>
       <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
       <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
@@ -41,7 +41,7 @@
       <li><a href="http://www.mzk.cz/en/services/borrowing/international-interlibrary-loan-service"><?=$this->transEsc('Interlibrary loan')?></a></li>
     </ul>
   </div>
-  <div class="col-md-3"><p><strong><?=$this->transEsc('Need Help?')?></strong></p>
+  <div class="col-sm-4"><p><strong><?=$this->transEsc('Need Help?')?></strong></p>
     <ul>
       <li><a href="<?=$this->url('help-home')?>?topic=search" class="help-link" title="<?=$this->transEsc('Search Tips')?>"><?=$this->transEsc('Search Tips')?></a></li>
       <li><a href="http://www.ptejteseknihovny.cz/zadani-dotazu?q=BOA001"><?=$this->transEsc('Ask a Librarian')?></a></li>
