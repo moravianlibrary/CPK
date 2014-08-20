@@ -1,0 +1,78 @@
+<?php
+$holdings = array();
+
+$branchValues = array();
+$sheduleOfPeriodicsValues = array();
+$signatureValues = array();
+$signature2Values = array();
+$barcodeValues = array();
+
+$hasSheduleOfPeriodics = true;
+foreach ($this->driver->getHoldings($this->tab->getSelectedFilters(), '993') as $holding) {
+    
+    $holding_entry = array();
+    $holding_entry['library'] = isset($holding['@']) ? $holding['@'] : '';
+    $holding_entry['branch'] = isset($holding['~']) ? $holding['~'] : '';
+    $holding_entry['sheduleOfPeriodics'] = $this->driver->getSheduleOfPeriodics($holding);
+    $holding_entry['signature1'] = isset($holding['k']) ? $holding['k'] : '';
+    $holding_entry['signature2'] = isset($holding['g']) ? $holding['g'] : '';
+    $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
+    
+    $branchValues[] = $holding_entry['branch'];
+    $sheduleOfPeriodicsValues[] = $holding_entry['sheduleOfPeriodics'];
+    $signatureValues[] = $holding_entry['signature1'];
+    $signature2Values[] = $holding_entry['signature2'];
+    $barcodeValues[] = $holding_entry['barcode'];
+    
+    $hasSheduleOfPeriodics &= !empty($holding_entry['sheduleOfPeriodics']);
+    
+    $holdings[] = $holding_entry;
+}
+if ($hasSheduleOfPeriodics) {
+    array_multisort(
+        $sheduleOfPeriodicsValues, SORT_ASC, SORT_NUMERIC,
+        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
+        $signatureValues, SORT_ASC, SORT_NUMERIC,
+        $signature2Values, SORT_ASC, SORT_NUMERIC,
+        $barcodeValues, SORT_ASC, SORT_NUMERIC,
+        $holdings
+    );
+} else {
+    array_multisort(
+        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
+        $signatureValues, SORT_ASC, SORT_NUMERIC,
+        $signature2Values, SORT_ASC, SORT_NUMERIC,
+        $barcodeValues, SORT_ASC, SORT_NUMERIC,
+        $holdings
+    );
+}
+
+$externalLinks = $this->driver->getExternalLinks('holdings')
+?>
+<? foreach ($holdings as $holding): ?>
+  <? if (array_key_exists('q', $holding) && $holding['q'] == "0"): ?>
+    <? continue;?>
+  <? endif;?>
+  <?
+    $externalLink = null;
+    foreach($this->driver->getExternalLinks('holdings') as $link) {
+      if (strcasecmp($holding['library'],$link['institution']) == 0) {
+        $externalLink = $link;  
+      }
+    }
+  ?>
+  <tr>
+    <? if (is_array($externalLink) && isset($externalLink['url'])):?>
+      <td><a href="<?=$externalLink['url']?>"><?=$this->transEsc(strtoupper($externalLink['institution']))?></a></td>
+    <? else:?>
+      <td><?=$holding['library']?></td>
+    <? endif;?>
+    <td><?=$holding['branch']?></td>
+    <td><!-- branch2 --></td>
+    <td><?=$holding['sheduleOfPeriodics']?></td>
+    <td><?=$holding['signature1']?></td>
+    <td><?=$holding['signature2']?></td>
+    <td><?=$holding['barcode']?></td>
+    <td><!-- status --></td>
+  </tr>
+<? endforeach;?>
