@@ -29,8 +29,17 @@
         <li class="header-login">
           <? $cart = $this->cart(); if ($cart->isActive()): ?>
             <span id="cartSummary">
-              <i class="icon-shopping-cart"></i> <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>"><strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
+              <? $cart = $this->cart(); if ($cart->isActive()): ?>
+              <span id="cartSummary">
+                <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>">
+                  <?=$this->transEsc('Number of items in book bag')?>:
+                  <strong><?=count($cart->getItems())?></strong>
+                  <?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?>
+                </a>
+              </span>
               <span class="muted">&nbsp;/&nbsp;</span>
+            <? endif; ?>
+              
             </span>
           <? endif; ?>
           <span class="logoutOptions<? if(!$account->isLoggedIn()): ?> hide<? endif ?>">
