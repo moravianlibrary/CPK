@@ -30,6 +30,7 @@ $config = array(
         'recorddriver_tabs' => array(
             'MZKPortal\RecordDriver\SolrMarcMerged' => array(
                 'tabs' => array (
+                    'holdings' =>  'MZKPortal\RecordTab\HoldingsMerged',
                     'Libraries' => 'Libraries',
                     'TOC' => 'TOC',
                     'UserComments' => 'UserComments',
@@ -59,7 +60,7 @@ $config = array(
 
             'MZKPortal\RecordDriver\SolrMarcMend' => array(
                 'tabs' => array (
-                    'holdings'     => 'MZKPortal\RecordTab\Holdings996',
+                    'holdings'     => 'MZKPortal\RecordTab\Holdings980',
                     'UserComments' => 'UserComments',
                     'Details' => 'StaffViewMARC',
                 ),

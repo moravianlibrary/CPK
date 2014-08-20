@@ -4,6 +4,7 @@
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
 ?>
+
 <div class="row-fluid result<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
@@ -20,7 +21,9 @@
       <? endif;?>
       <img src="<?=$this->imageLink('format/Book.png')?>" />
     </div>
-    <div class="coverFormat"><?=implode(', ', $this->driver->getFormats())?></div>
+    <? $formats = array_map(array($this, 'transEsc'), $this->driver->getFormats())?>
+    <? sort($formats)?>
+    <div class="coverFormat"><?=implode(', ', $formats)?></div>
   </div>
 
   <div class="span7 middle">
@@ -88,24 +91,41 @@
          <? endif; ?>
         <br/>
       <? endif; ?>
-      
-      <div>
-        <strong><?=$this->transEsc('Available in libraries')?>:</strong>
 
-        <? foreach ($this->driver->getExternalLinks() as $current): ?> <br/>
+      
+<div>
+        <strong><?=$this->transEsc('Available in libraries')?>:</strong>
+        <? $holdingsCount = $this->driver->getAgregatedHoldings();?>
+        <? $recordLink = $this->recordLink()->getUrl($this->driver);?>
+        <? foreach ($this->driver->getExternalLinks() as $current): ?>
          <? if (isset($current['url']) && !empty($current['url'])): ?>
-            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+           <?$ins = strtoupper($current['institution'])?>
+           <div>
+           <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new">
+             <i class="icon-external-link"></i><?=$this->transEsc($ins)?>
+           </a>
+           <? if (isset($holdingsCount[$ins])):?>
+           
+           <a href="<?=$recordLink . '/holdings?institution=' . strtoupper($ins) . '#tabnav'?>">
+            <span class="holdings-wrapper small">
+              <span class="holdings-label">
+                <?=$this->transEsc('holdings')?> : 
+              </span>
+              <span class="holdings-count"> 
+                  <?=$holdingsCount[$ins]?>
+              </span>
+            </span>
+            </a>
+          <? endif;?>
+          </div>
           <? else: ?>
-            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local-search-link"><?=$this->transEsc(strtoupper($current['institution']))?></a>
+            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local-search-link">
+              <?=$this->transEsc(strtoupper($current['institution']))?>
+            </a>
           <? endif; ?>
         <? endforeach;?>
-        <? if ($this->driver->supportsAjaxStatus()): ?>
-          <span class="status ajax-availability small hide">
-            <span class="label"><?=$this->transEsc('Loading')?>...</span>
-          </span>
-        <? endif; ?>
       </div>
-
+      
       <? /* We need to find out if we're supposed to display an OpenURL link ($openUrlActive),
             but even if we don't plan to display the link, we still want to get the $openUrl
             value for use in generating a COinS (Z3988) tag -- see bottom of file.

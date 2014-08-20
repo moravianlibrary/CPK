@@ -259,3 +259,17 @@ div .coverFormat {
 .external-search-link {
   margin-left: 10px;
 }
+
+.holdings-wrapper {
+  float: right;
+}
+
+.holdings-count {
+  width: 2em;
+  float: right;
+}
+
+.holdings-label {
+  float: left;
+}
+

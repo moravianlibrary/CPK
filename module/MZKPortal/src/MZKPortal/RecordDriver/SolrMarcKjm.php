@@ -12,34 +12,60 @@ class SolrMarcKjm extends SolrMarcBase
     }
     
     /**
-     * @return array of holdings from field 993
+     * get holdings from field 993
      */
-    public function getHoldings() {
+    public function getHoldings($selectedFilters = array(), $field = '993') 
+    {
         $result = array();
-    
-        if (!$this->marcRecord) {
-            return $result;
+        foreach (parent::getHoldings($selectedFilters, $field) as $holding) {
+            //fix format of location
+            $holding['~'] = preg_replace('/^\d+\s+/', '', $holding['~']);
+            $result[] = $holding;
         }
+        return $result;
+    }
     
-        foreach ($this->marcRecord->getFields('993') as $currentField) {
-            $currentHolding = array();
-            foreach ($currentField->getSubfields(null) as $currentSubfield) {
-                $currentHolding[$currentSubfield->getCode()] = $currentSubfield->getData();
-            }
-            
-            //fix ~ subfield recognition
-            if (array_key_exists('l', $currentHolding) && preg_match('/.*\$~.*/', $currentHolding['l'])) {
-                list($l,$tilde) = explode('$~', $currentHolding['l']);
-                $currentHolding['l'] = $l;
-                $currentHolding['~'] = ltrim(preg_replace('/^\d+/', ' ', $tilde));
-            }
-            
-            if (count($currentHolding) > 0) {
-                $result[] = $currentHolding;
+    /**
+     * @param array $holding
+     * @return mixed int or null
+     */
+    protected function getHoldingYear(&$holding) {
+        //field 993
+        if (isset($holding['r']) && preg_match('/\d\d\d\d/', $holding['r'], $matches)) {
+            if (is_array($matches) && count($matches) == 1) {
+                return (int) $matches[0];
             }
         }
-        
-        
+        return null;
+    }
+    
+    function getSheduleOfPeriodics($holding) {
+        $result = '';
+        if (isset($holding['r'])) {
+            $result .= $holding['r'];
+        }
+        if (isset($holding['e'])) {
+            $result .= " " . $holding['e'];
+        }
+        if (isset($holding['w'])) {
+            $result .= " " . $holding['w'];
+        }
+        return $result;
+    }
+    
+    /**
+     * @return array(string => int)
+     */
+    public function getAgregatedHoldings() {
+        $result = array();
+        foreach ($this->getHoldings() as $holding) {
+            $inst = $holding['@'];
+            if (!isset($result[$inst])) {
+                $result[$inst] = 0;
+            }
+            $result[$inst]++;
+        }
+    
         return $result;
     }
 }

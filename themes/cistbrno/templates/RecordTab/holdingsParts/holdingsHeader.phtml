@@ -1,0 +1,51 @@
+<?// if (!(($holdings == null || empty($holdings)) && empty($selectedFilters))):?>
+<?
+    $filters = $this->tab->getFilters();
+    $availableFilters = $this->tab->getAvailableFilters();
+    $selectedFilters = $this->tab->getSelectedFilters();
+?>
+
+<div class="holdings-filters">
+  <? foreach($filters as $name => $values):?>
+    <? if (!empty($values)):?>
+      <? $filterName = $this->escapeHtml($name . '_filter');?>
+      <? $selectedVal = $selectedFilters[$name];?>
+      <? $type = $availableFilters[$name]['type'];?>
+      <div class="span5" style="width: auto;">
+        <form class="form-inline" name="<?=$this->escapeHtml($name)?>_filter">
+          <? if ($type == 'select'):?>
+            <label class="help-inline" for="<?=$this->escapeHtml($name)?>"><?=$this->transEsc($filterName)?> : </label>
+            <select class="jumpMenu" name="<?=$this->escapeHtml($name)?>" id="<?=$this->escapeHtml($name)?>" onchange="document.forms['<?=$filterName?>'].submit()">
+              <option value=""><?=$this->transEsc('all')?></option>
+              <? foreach($values as $value):?>
+                <option value="<?=$this->escapeHtml($value)?>" <?=($selectedVal == $value)?'selected="selected"':''?>><?=$this->transEsc($value)?></option>
+              <? endforeach;?>
+            </select>
+          <?endif;?>
+          <?if ($type == 'checkbox'):?>
+            <input type="checkbox" name="<?=$this->escapeHtml($name)?>" id="<?=$this->escapeHtml($name)?>" value="true"
+              onchange="document.forms['<?=$filterName?>'].submit()"
+              <?=($selectedVal == 'true')?'checked="true"':''?>
+            >
+            <label for="<?=$this->escapeHtml($name)?>"><?=$this->transEsc($filterName)?></label>
+          <?endif;?>
+          <?=$this->tab->asHiddenFields($name);?>
+        </form>
+      </div>
+    <? endif; ?>
+  <? endforeach;?>
+</div>
+
+
+<!-- table header for holdings-->
+<table class="table table-striped">
+  <tr>
+      <td><?=$this->transEsc('Library')?></td>
+      <td><?=$this->transEsc('Branch')?></td>
+      <td><?=$this->transEsc('Second Level Branch')?></td>
+      <td><?=$this->transEsc('Schedule of Periodics')?></td>
+      <td><?=$this->transEsc('Signature 1')?></td>
+      <td><?=$this->transEsc('Signature 2')?></td>
+      <td><?=$this->transEsc('Barcode')?></td>
+      <td><?=$this->transEsc('Status')?></td>
+  </tr>

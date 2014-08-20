@@ -1,21 +1,4 @@
 <?php
-function getSheduleOfPeriodics($holding) {
-    if (isset($holding['d'])) {
-        return $holding['d'];
-    }
-    $result = '';
-    if (isset($holding['y'])) {
-        $result .= $holding['y'];
-    }
-    if (isset($holding['v']) && $holding['v'] != $holding['y']) {
-        $result .= " " . $holding['v'];
-    }
-    if (isset($holding['i'])) {
-        $result .= " " . $holding['i'];
-    }
-    return $result;
-}
-
 function getStatusDescription($status) {
     if ($status == "A") {
         return "Holding Status Absent";
@@ -38,16 +21,12 @@ $signature2Values = array();
 $barcodeValues = array();
 
 $hasSheduleOfPeriodics = true;
-
-foreach ($this->driver->getHoldings() as $holding) {
-    if ($holding['q'] == '0') {
-        continue;
-    }
+foreach ($this->driver->getHoldings($this->tab->getSelectedFilters(), '996') as $holding) {
     $holding_entry = array();
-    $holding_entry['library'] = isset($holding['e']) ? $this->transEsc($holding['e']) : '';
+    $holding_entry['library'] = isset($holding['@']) ? $holding['@'] : '';
     $holding_entry['branch'] = isset($holding['l']) ? $holding['l'] : '';
     $holding_entry['branch2'] = isset($holding['r']) ? $holding['r'] : '';
-    $holding_entry['sheduleOfPeriodics'] = getSheduleOfPeriodics($holding);
+    $holding_entry['sheduleOfPeriodics'] = $this->driver->getSheduleOfPeriodics($holding);
     $holding_entry['signature1'] = isset($holding['c']) ? $holding['c'] : '';
     $holding_entry['signature2'] = isset($holding['h']) ? $holding['h'] : '';
     $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
@@ -88,34 +67,34 @@ if ($hasSheduleOfPeriodics) {
         $holdings
     );
 }
-
 ?>
-<table class="table table-striped" summary="<?=$this->transEsc('Holdings details from')?> <?=$this->transEsc($holding['location'])?>">
-  <tr>
-      <td><?=$this->transEsc('Library')?></td>
-      <td><?=$this->transEsc('Branch')?></td>
-      <td><?=$this->transEsc('Second Level Branch')?></td>
-      <td><?=$this->transEsc('Schedule of Periodics')?></td>
-      <td><?=$this->transEsc('Signature 1')?></td>
-      <td><?=$this->transEsc('Signature 2')?></td>
-      <td><?=$this->transEsc('Barcode')?></td>
-      <td><?=$this->transEsc('Status')?></td>
-  </tr>
+
+
 
 <? foreach ($holdings as $holding): ?>
-  <? if ($holding['q'] != "0"): ?>
-    <tr>
+  <? if (array_key_exists('q', $holding) && $holding['q'] == "0"): ?>
+    <? continue;?>
+  <? endif;?>
+  <?
+    $externalLink = null;
+    foreach($this->driver->getExternalLinks('holdings') as $link) {
+      if (strcasecmp($holding['library'],$link['institution']) == 0) {
+        $externalLink = $link;  
+      }
+    }
+  ?>
+  <tr>
+    <? if (is_array($externalLink) && isset($externalLink['url'])):?>
+      <td><a href="<?=$externalLink['url']?>"><?=$this->transEsc(strtoupper($externalLink['institution']))?></a></td>
+    <? else:?>
       <td><?=$holding['library']?></td>
-      <td><?=$holding['branch']?></td>
-      <td><?=$holding['branch2']?></td>
-      <td><?=$holding['sheduleOfPeriodics']?></td>
-      <td><?=$holding['signature1']?></td>
-      <td><?=$holding['signature2']?></td>
-      <td><?=$holding['barcode']?></td>
-      <td><?=$holding['status']?></td>
-    </tr>
-  <? endif; ?>
+    <? endif;?>
+    <td><?=$holding['branch']?></td>
+    <td><?=$holding['branch2']?></td>
+    <td><?=$holding['sheduleOfPeriodics']?></td>
+    <td><?=$holding['signature1']?></td>
+    <td><?=$holding['signature2']?></td>
+    <td><?=$holding['barcode']?></td>
+    <td><?=$holding['status']?></td>
+  </tr>
 <? endforeach;?>
-</table>
-
-
