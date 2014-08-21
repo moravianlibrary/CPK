@@ -1,15 +1,4 @@
 <?php
-function getStatusDescription($status) {
-    if ($status == "A") {
-        return "Holding Status Absent";
-    }
-    if ($status == "P") {
-        return "Holding Status Present";
-    }
-}
-?>
-
-<?php
 $holdings = array();
 
 $libraryValues = array();
@@ -21,80 +10,14 @@ $signature2Values = array();
 $barcodeValues = array();
 
 $hasSheduleOfPeriodics = true;
-foreach ($this->driver->getHoldings($this->tab->getSelectedFilters(), '996') as $holding) {
-    $holding_entry = array();
-    $holding_entry['library'] = isset($holding['@']) ? $holding['@'] : '';
-    $holding_entry['branch'] = isset($holding['l']) ? $holding['l'] : '';
-    $holding_entry['branch2'] = isset($holding['r']) ? $holding['r'] : '';
-    $holding_entry['sheduleOfPeriodics'] = $this->driver->getSheduleOfPeriodics($holding);
-    $holding_entry['signature1'] = isset($holding['c']) ? $holding['c'] : '';
-    $holding_entry['signature2'] = isset($holding['h']) ? $holding['h'] : '';
-    $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
-    $holding_entry['status'] = isset($holding['s']) ? $this->transEsc(getStatusDescription($holding['s'])) : '';
-    
-    $libraryValues[] = $holding_entry['library'];
-    $branchValues[] = $holding_entry['branch'];
-    $branch2Values[] = $holding_entry['branch2'];
-    $sheduleOfPeriodicsValues[] = $holding_entry['sheduleOfPeriodics'];
-    $signatureValues[] = $holding_entry['signature1'];
-    $signature2Values[] = $holding_entry['signature2'];
-    $barcodeValues[] = $holding_entry['barcode'];
-    
-    $hasSheduleOfPeriodics &= !empty($holding_entry['sheduleOfPeriodics']);
-    
-    $holdings[] = $holding_entry;
-}
+$holdings = $this->driver->getHoldings($this->tab->getSelectedFilters(), '996');
+$holdings = array_map(array($this->driver, 'unifyHolding'), $holdings);
+sortHoldings($holdings);
 
-if ($hasSheduleOfPeriodics) {
-    array_multisort(
-        $sheduleOfPeriodicsValues, SORT_ASC, SORT_NUMERIC,
-        $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
-        $signatureValues, SORT_ASC, SORT_NUMERIC,
-        $signature2Values, SORT_ASC, SORT_NUMERIC,
-        $barcodeValues, SORT_ASC, SORT_NUMERIC,
-        $holdings
-    );
-} else {
-    array_multisort(
-        $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
-        $signatureValues, SORT_ASC, SORT_NUMERIC,
-        $signature2Values, SORT_ASC, SORT_NUMERIC,
-        $barcodeValues, SORT_ASC, SORT_NUMERIC,
-        $holdings
-    );
-}
+$callbacks = array();
+$callbacks['transEsc'] = array(&$this, 'transEsc');
+$callbacks['getExternalLinks'] = array(&$this->driver, 'getExternalLinks');
 ?>
-
-
-
 <? foreach ($holdings as $holding): ?>
-  <? if (array_key_exists('q', $holding) && $holding['q'] == "0"): ?>
-    <? continue;?>
-  <? endif;?>
-  <?
-    $externalLink = null;
-    foreach($this->driver->getExternalLinks('holdings') as $link) {
-      if (strcasecmp($holding['library'],$link['institution']) == 0) {
-        $externalLink = $link;  
-      }
-    }
-  ?>
-  <tr>
-    <? if (is_array($externalLink) && isset($externalLink['url'])):?>
-      <td><a href="<?=$externalLink['url']?>"><?=$this->transEsc(strtoupper($externalLink['institution']))?></a></td>
-    <? else:?>
-      <td><?=$holding['library']?></td>
-    <? endif;?>
-    <td><?=$holding['branch']?></td>
-    <td><?=$holding['branch2']?></td>
-    <td><?=$holding['sheduleOfPeriodics']?></td>
-    <td><?=$holding['signature1']?></td>
-    <td><?=$holding['signature2']?></td>
-    <td><?=$holding['barcode']?></td>
-    <td><?=$holding['status']?></td>
-  </tr>
+  <?=renderHolding($callbacks, $holding)?>
 <? endforeach;?>

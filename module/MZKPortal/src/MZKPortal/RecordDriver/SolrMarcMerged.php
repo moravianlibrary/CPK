@@ -1,6 +1,7 @@
 <?php
 namespace MZKPortal\RecordDriver;
 use PortalsCommon\RecordDriver\SolrMarcMerged as ParentSolr;
+use MZKPortal;
 
 class SolrMarcMerged extends ParentSolr
 {
@@ -24,6 +25,9 @@ class SolrMarcMerged extends ParentSolr
                     break;
                 case 'muni':
                     $finalID = $id;
+                    break;
+                case 'kjm':
+                    $finalID = substr($id, 6);   
                     break;
                 case 'mend':
                     $finalID = substr($id, 5);
@@ -51,6 +55,9 @@ class SolrMarcMerged extends ParentSolr
     public function getHoldings($selectedFilters = array(), $field = '996') {
         $result = array();
         $fieldName = 'holdings' . $field .'_str_mv';
+        if (!isset($this->fields[$fieldName])) {
+            return $result;
+        }
         foreach ($this->fields[$fieldName] as $currentField) {
             $currentHolding = array();
             foreach (explode('$', $currentField) as $currentSubfield) {
@@ -72,9 +79,8 @@ class SolrMarcMerged extends ParentSolr
                 }
             }
             
-            if ($fieldName == 'holdings993_str_mv') {
+            if ($fieldName == 'holdings993_str_mv' && isset($currentHolding['~'])) {
                 $currentHolding['~'] = preg_replace('/^\d+\s+/', '', $currentHolding['~']);
-               
             }
             
             if (count($currentHolding) > 0 && $this->matchFilters($currentHolding, $selectedFilters)) {
@@ -85,11 +91,11 @@ class SolrMarcMerged extends ParentSolr
         return $result;
     }
     
-    public function getAllHoldings() {
+    public function getAllHoldings($filters = array()) {
         $result = array();
-        $result = array_merge($result, $this->getHoldings(array(), '996'));
-        $result = array_merge($result, $this->getHoldings(array(), '993'));
-        $result = array_merge($result, $this->getHoldings(array(), '980'));
+        $result = array_merge($result, $this->getHoldings($filters, '996'));
+        $result = array_merge($result, $this->getHoldings($filters, '993'));
+        $result = array_merge($result, $this->getHoldings($filters, '980'));
         return $result;
     }
     
@@ -119,7 +125,7 @@ class SolrMarcMerged extends ParentSolr
         }
         $result['year'] = array_unique($result['year'], SORT_NUMERIC);
         $result['institution'] = array_unique($result['institution']);
-        sort($result['year'], SORT_NUMERIC);
+        usort($result['year'], function ($a, $b) { return $a > $b ? -1 : ($a == $b ? 0 : 1); });
         sort($result['institution']);
         return $result;
     }
@@ -129,17 +135,14 @@ class SolrMarcMerged extends ParentSolr
      * @param unknown $selectedFilters
      */
     protected function matchFilters(&$holding, &$filters) {
-        $result = true;
         if (array_key_exists('year', $filters)) {
             $year = $this->getHoldingYear($holding);
-            if ($year != null) {
-                return $year === (int)$filters['year'];
-            }
+            return $year === (int)$filters['year'];
         }
         if (array_key_exists('institution', $filters)) {
-            $result = $result && $filters['institution'] == $holding['@'];
+            return $filters['institution'] == $holding['@'];
         }
-        return $result;
+        return true;
     }
     
     /**
@@ -147,58 +150,19 @@ class SolrMarcMerged extends ParentSolr
      * @return mixed int or null
      */
     protected function getHoldingYear($holding) {
-        if ($holding['@'] == 'MZK' || $holding['@'] == 'MUNI') {
-            if (isset($holding['d']) && preg_match('/\d\d\d\d/', $holding['d'], $matches)) {
-                if (is_array($matches) && count($matches) == 1) {
-                    return (int) $matches[0];
-                }
-            }
-        } elseif ($holding['@'] == 'MEND') {
-            if (isset($holding['r']) && preg_match('/\d\d\d\d/', $holding['r'], $matches)) {
-                if (is_array($matches) && count($matches) == 1) {
-                    return (int) $matches[0];
-                }
-            }
-        } else if ($holding['@'] == 'KJM') {
-            if (isset($holding['r']) && preg_match('/\d\d\d\d/', $holding['r'], $matches)) {
-                if (is_array($matches) && count($matches) == 1) {
-                    return (int) $matches[0];
-                }
-            }
+        if (!is_array($holding) || !isset($holding['@'])) {
+            return $holding;
+        }
+        switch ($holding['@']) {
+            case 'MZK':
+            case 'MUNI':
+                return MZKPortal\RecordDriver\SolrMarcBase::getHoldingYear($holding);
+            case 'KJM':
+                return MZKPortal\RecordDriver\SolrMarcKjm::getHoldingYear($holding);
+            case 'MEND':
+                return MZKPortal\RecordDriver\SolrMarcMend::getHoldingYear($holding);
         }
         return null;
-    }
-    
-    function getSheduleOfPeriodics($holding) {
-        if ($holding['@'] == 'KJM') {
-            $result = '';
-            if (isset($holding['r'])) {
-                $result .= $holding['r'];
-            }
-            if (isset($holding['e'])) {
-                $result .= " " . $holding['e'];
-            }
-            if (isset($holding['w'])) {
-                $result .= " " . $holding['w'];
-            }
-            return $result;
-        } elseif ($holding['@'] == 'MZK' || $holding['@'] == 'MUNI') {
-            if (isset($holding['d'])) {
-                return $holding['d'];
-            }
-            $result = '';
-            if (isset($holding['y'])) {
-                $result .= $holding['y'];
-            }
-            if (isset($holding['v']) && $holding['v'] != $holding['y']) {
-                $result .= " " . $holding['v'];
-            }
-            if (isset($holding['i'])) {
-                $result .= " " . $holding['i'];
-            }
-            return $result;
-        }
-        
     }
     
     /**
@@ -215,6 +179,26 @@ class SolrMarcMerged extends ParentSolr
         }        
 
         return $result;
+    }
+    
+    /**
+     * converts holding to displayeble array
+     * @param array holding
+     * @return array
+     */
+    public function unifyHolding($holding) {
+        if (!is_array($holding) || !isset($holding['@'])) {
+            return $holding;
+        }
+        switch ($holding['@']) {
+            case 'MZK':
+            case 'MUNI':
+                return MZKPortal\RecordDriver\SolrMarcBase::unifyHolding($holding);
+            case 'KJM':
+                return MZKPortal\RecordDriver\SolrMarcKjm::unifyHolding($holding);
+            case 'MEND':
+                return MZKPortal\RecordDriver\SolrMarcMend::unifyHolding($holding);
+        }
     }
 
 }

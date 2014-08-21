@@ -31,7 +31,7 @@ class SolrMarcBase extends SolrMarc
                 $currentHolding[substr($currentSubfield, 0, 1)] = substr($currentSubfield, 1);
             }
 
-            if (array_key_exists('q', $currentField) && $currentField['q'] == "0") {
+            if (array_key_exists('q', $currentHolding) && $currentHolding['q'] == "0") {
                 continue;
             }
             
@@ -53,13 +53,13 @@ class SolrMarcBase extends SolrMarc
         $result = array();
         $result['year'] = array();
         foreach ($this->getHoldings() as $holding) {
-            $year = $this->getHoldingYear($holding);
+            $year = self::getHoldingYear($holding);
             if ($year) {
                 $result['year'][] = $year;
             }
         }
         $result['year'] = array_unique($result['year'], SORT_NUMERIC);
-        sort($result['year'], SORT_NUMERIC);
+        usort($result['year'], function ($a, $b) { return $a > $b ? -1 : ($a == $b ? 0 : 1); });
         return $result;
     }
     
@@ -69,7 +69,7 @@ class SolrMarcBase extends SolrMarc
      */
     protected function matchFilters(&$holding, &$filters) {
         if (array_key_exists('year', $filters)) {
-            $year = $this->getHoldingYear($holding);
+            $year = self::getHoldingYear($holding);
             if ($year != null) {
                 return $year === (int)$filters['year'];
             }
@@ -81,7 +81,7 @@ class SolrMarcBase extends SolrMarc
      * @param array $holding
      * @return mixed int or null
      */
-    protected function getHoldingYear(&$holding) {
+    public static function getHoldingYear(&$holding) {
         //field 996
         if (isset($holding['d']) && preg_match('/^\d\d\d\d.*/', $holding['d'])) {
             return (int)substr($holding['y'], 0 ,4);
@@ -89,7 +89,7 @@ class SolrMarcBase extends SolrMarc
         return null;
     }
     
-    function getSheduleOfPeriodics($holding) {
+    public static function getSheduleOfPeriodics($holding) {
         if (isset($holding['d'])) {
             return $holding['d'];
         }
@@ -120,5 +120,31 @@ class SolrMarcBase extends SolrMarc
         }        
 
         return $result;
+    }
+    
+    /**
+     * converts holding to displayeble array
+     * @param array holding
+     * @return array
+     */
+    public static function unifyHolding($holding) {
+        $holding_entry = array();
+        $holding_entry['library'] = isset($holding['@']) ? $holding['@'] : '';
+        $holding_entry['branch'] = isset($holding['l']) ? $holding['l'] : '';
+        $holding_entry['branch2'] = isset($holding['r']) ? $holding['r'] : '';
+        $holding_entry['sheduleOfPeriodics'] = \MZKPortal\RecordDriver\SolrMarcBase::getSheduleOfPeriodics($holding);
+        $holding_entry['signature1'] = isset($holding['c']) ? $holding['c'] : '';
+        $holding_entry['signature2'] = isset($holding['h']) ? $holding['h'] : '';
+        $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
+        $holding_entry['status'] = '';
+        if (isset($holding['s'])) {
+            if ($holding['s'] == 'A') {
+                $holding_entry['status'] = 'Holding Status Absent';
+            } elseif ($holding['s'] == 'P') {
+                $holding_entry['status'] = 'Holding Status Absent';
+            }
+        }
+        
+        return $holding_entry;
     }
 }

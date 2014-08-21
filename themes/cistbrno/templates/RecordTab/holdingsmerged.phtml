@@ -1,6 +1,15 @@
-<!-- renders holdings from different fields by parts -->
 <?=$this->render('RecordTab/holdingsParts/holdingsHeader.phtml')?>
-<?=$this->render('RecordTab/holdingsParts/holdings996Body.phtml')?>
-<?=$this->render('RecordTab/holdingsParts/holdings993Body.phtml')?>
-<?=$this->render('RecordTab/holdingsParts/holdings980Body.phtml')?>
+<?
+$holdings = $this->driver->getAllHoldings($this->tab->getSelectedFilters());
+$holdings = array_map(array($this->driver, 'unifyHolding'), $holdings);
+$callbacks = array();
+$callbacks['transEsc'] = array(&$this, 'transEsc');
+$callbacks['getExternalLinks'] = array(&$this->driver, 'getExternalLinks');
+
+sortHoldings($holdings);
+?>
+ <? foreach ($holdings as $holding):?>
+  <?=renderHolding($callbacks, $holding)?>
+<? endforeach;?>
+
 <?=$this->render('RecordTab/holdingsParts/holdingsFooter.phtml')?>
