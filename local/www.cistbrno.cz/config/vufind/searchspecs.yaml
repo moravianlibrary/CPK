@@ -157,7 +157,8 @@ Author:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
-  FilterQuery: "*:* -merged_child_boolean:true"
+  DismaxParams:
+    - [bf, "if(exists(merged_boolean),10000,0)" ]
 
 ISN:
   DismaxFields:
@@ -170,7 +171,8 @@ ISN:
     isbn:
       - [and, 100]
       - [or, ~]
-  FilterQuery: "*:* -merged_child_boolean:true"
+  DismaxParams:
+    - [bf, "if(exists(merged_boolean),10000,0)" ]
 
 Subject:
   DismaxFields:
@@ -199,7 +201,8 @@ Subject:
     era:
       - [and, 100]
       - [or, ~]
-  FilterQuery: "*:* -merged_child_boolean:true"
+  DismaxParams:
+    - [bf, "if(exists(merged_boolean),10000,0)" ]
 
 # This field definition is a compromise that supports both journal-level and
 # article-level data.  The disadvantage is that hits in article titles will
@@ -244,7 +247,8 @@ JournalTitle:
     series2:
       - [onephrase, 50]
       - [and , ~]
-  FilterQuery: "*:* -merged_child_boolean:true"
+  DismaxParams:
+    - [bf, "if(exists(merged_boolean),10000,0)" ]
 
 Title:
   DismaxFields:
@@ -280,7 +284,8 @@ Title:
     series2:
       - [onephrase, 50]
       - [and , ~]
-  FilterQuery: "*:* -merged_child_boolean:true"
+  DismaxParams:
+    - [bf, "if(exists(merged_boolean),10000,0)" ]
 
 Series:
   DismaxFields:
@@ -295,7 +300,8 @@ Series:
       - [onephrase, 50]
       - [and, 50]
       - [or, ~]
-  FilterQuery: "*:* -merged_child_boolean:true"
+  DismaxParams:
+    - [bf, "if(exists(merged_boolean),10000,0)" ]
 
 AllFields:
   DismaxFields:
@@ -370,7 +376,8 @@ AllFields:
       - [or, ~]
     fulltext:
       - [or, ~]
-  FilterQuery: "*:* -merged_child_boolean:true"
+  DismaxParams:
+    - [bf, "if(exists(merged_boolean),100000,0)" ]
 
 # These are advanced searches that never use Dismax:
 id:
