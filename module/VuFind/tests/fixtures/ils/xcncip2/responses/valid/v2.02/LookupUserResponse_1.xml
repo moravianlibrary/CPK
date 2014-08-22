@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">
-    <ns1:LookupUserResponse>
-        <ns1:UserId>
-            <ns1:UserIdentifierValue>38110</ns1:UserIdentifierValue>
-        </ns1:UserId>
-    </ns1:LookupUserResponse>
-</ns1:NCIPMessage>
