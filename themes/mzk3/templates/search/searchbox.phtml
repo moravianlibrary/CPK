@@ -40,11 +40,11 @@
   <? else: ?>
     <form class="form-inline navbar-form block container" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
       <div class="row">
-        <span class="<?=($this->layout()->frontpage == true)?'col-xs-8':'col-xs-7'?>">
+        <span class="<?=($this->layout()->frontpage == true)?'col-md-8 col-xs-12':'col-xs-7'?>">
           <input class="form-control<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
         </span>
         <? if ($handlerCount > 1): ?>
-          <span class="<?=($this->layout()->frontpage == true)?'col-xs-2':'col-xs-3'?>">
+          <span class="<?=($this->layout()->frontpage == true)?'col-md-2 col-xs-6':'col-xs-3'?>">
             <select id="searchForm_type" name="type" data-native-menu="false" class="form-control">
               <? foreach ($handlers as $handler): ?>
                 <option value="<?=$this->escapeHtml($handler['value'])?>"<?=$handler['selected'] ? ' selected="selected"' : ''?>><?=$handler['indent'] ? '-- ' : ''?><?=$this->transEsc($handler['label'])?></option>
@@ -54,7 +54,7 @@
         <? elseif ($handlerCount == 1): ?>
           <input type="hidden" name="type" value="<?=$this->escapeHtml($handlers[0]['value'])?>" />
         <? endif; ?>
-        <span class="col-xs-2">
+        <span class="col-md-2 col-xs-6">
           <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="icon-search"></i> <?=$this->transEsc("Find")?></button>
         </span>
       </div>
