@@ -19,4 +19,8 @@ class Libraries extends AbstractBase
         return $result;
     }
     
+    public function isVisible() {
+        return false;
+    }
+    
 }
