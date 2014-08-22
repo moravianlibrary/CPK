@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">
+    <ns1:LookupItemSetResponse>
+        <ns1:BibInformation>
+            <ns1:BibliographicId>
+                <ns1:BibliographicItemId>
+                    <ns1:BibliographicItemIdentifier>20002</ns1:BibliographicItemIdentifier>
+                </ns1:BibliographicItemId>
+            </ns1:BibliographicId>
+            <ns1:BibliographicDescription>
+                <ns1:Author>Charles Baudelaire</ns1:Author>
+                <ns1:BibliographicItemId>
+                    <ns1:BibliographicItemIdentifier>20002</ns1:BibliographicItemIdentifier>
+                </ns1:BibliographicItemId>
+                <ns1:Edition>third</ns1:Edition>
+                <ns1:PlaceOfPublication>Ostrava</ns1:PlaceOfPublication>
+                <ns1:PublicationDate>01.01.2005</ns1:PublicationDate>
+                <ns1:Publisher>vydavatel</ns1:Publisher>
+                <ns1:Title>Umele raje</ns1:Title>
+                <ns1:Language>Czech</ns1:Language>
+                <ns1:MediumType>book</ns1:MediumType>
+            </ns1:BibliographicDescription>
+            <ns1:HoldingsSet>
+                <ns1:Location>
+                    <ns1:LocationType>Permanent</ns1:LocationType>
+                    <ns1:LocationName>
+                        <ns1:LocationNameInstance>
+                            <ns1:LocationNameLevel>2</ns1:LocationNameLevel>
+                            <ns1:LocationNameValue>mzk</ns1:LocationNameValue>
+                        </ns1:LocationNameInstance>
+                    </ns1:LocationName>
+                </ns1:Location>
+                <ns1:CallNumber>722 541 555</ns1:CallNumber>
+                <ns1:ElectronicResource>
+                    <ns1:ReferenceToResource>www.odkaz.cz/raje2.pdf</ns1:ReferenceToResource>
+                </ns1:ElectronicResource>
+                <ns1:ItemInformation>
+                    <ns1:ItemId>
+                        <ns1:ItemIdentifierValue>i20002</ns1:ItemIdentifierValue>
+                    </ns1:ItemId>
+                    <ns1:ItemOptionalFields>
+                        <ns1:CirculationStatus>On demand</ns1:CirculationStatus>
+                        <ns1:HoldQueueLength>1</ns1:HoldQueueLength>
+                        <ns1:ItemDescription>
+                            <ns1:CallNumber>722 111 229</ns1:CallNumber>
+                        </ns1:ItemDescription>
+                    </ns1:ItemOptionalFields>
+                </ns1:ItemInformation>
+            </ns1:HoldingsSet>
+        </ns1:BibInformation>
+        <ns1:NextItemToken></ns1:NextItemToken>
+    </ns1:LookupItemSetResponse>
+</ns1:NCIPMessage>

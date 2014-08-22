@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">
+    <ns1:LookupUserResponse>
+        <ns1:UserId>
+            <ns1:UserIdentifierValue>700</ns1:UserIdentifierValue>
+        </ns1:UserId>
+        <ns1:LoanedItemsCount>
+            <ns1:CirculationStatus>string</ns1:CirculationStatus>
+            <ns1:LoanedItemCountValue>2</ns1:LoanedItemCountValue>
+        </ns1:LoanedItemsCount>
+        <ns1:LoanedItem>
+            <ns1:ItemId>
+                <ns1:ItemIdentifierValue>i20000</ns1:ItemIdentifierValue>
+            </ns1:ItemId>
+            <ns1:DateDue>2014-10-01T12:30:00</ns1:DateDue>
+            <ns1:Title>Pozicana kniha</ns1:Title>
+            <ns1:MediumType>book</ns1:MediumType>
+        </ns1:LoanedItem>
+        <ns1:LoanedItem>
+            <ns1:ItemId>
+                <ns1:ItemIdentifierValue>i20001</ns1:ItemIdentifierValue>
+            </ns1:ItemId>
+            <ns1:DateDue>2014-05-01T12:30:00</ns1:DateDue>
+            <ns1:Title>Dalsia pozicana</ns1:Title>
+            <ns1:MediumType>book</ns1:MediumType>
+        </ns1:LoanedItem>
+    </ns1:LookupUserResponse>
+</ns1:NCIPMessage>

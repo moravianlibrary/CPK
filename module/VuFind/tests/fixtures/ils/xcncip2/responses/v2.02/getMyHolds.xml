@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">
+    <ns1:LookupUserResponse>
+        <ns1:UserId>
+            <ns1:UserIdentifierValue>700</ns1:UserIdentifierValue>
+        </ns1:UserId>
+        <ns1:RequestedItemsCount>
+            <ns1:RequestType>absent</ns1:RequestType>
+            <ns1:RequestedItemCountValue>2</ns1:RequestedItemCountValue>
+        </ns1:RequestedItemsCount>
+        <ns1:RequestedItem>
+            <ns1:RequestId>
+                <ns1:RequestIdentifierValue>req0001</ns1:RequestIdentifierValue>
+            </ns1:RequestId>
+            <ns1:ItemId>
+                <ns1:ItemIdentifierValue>i99001</ns1:ItemIdentifierValue>
+            </ns1:ItemId>
+            <ns1:BibliographicId>
+                <ns1:BibliographicItemId>
+                    <ns1:BibliographicItemIdentifier>99001</ns1:BibliographicItemIdentifier>
+                </ns1:BibliographicItemId>
+            </ns1:BibliographicId>
+            <ns1:RequestType>absent</ns1:RequestType>
+            <ns1:RequestStatusType>string</ns1:RequestStatusType>
+            <ns1:DatePlaced>2014-08-20T12:30:00</ns1:DatePlaced>
+            <ns1:PickupDate>2014-08-21T12:30:00</ns1:PickupDate>
+            <ns1:PickupLocation>prepazka 30</ns1:PickupLocation>
+            <ns1:PickupExpiryDate>2014-08-25T12:30:00</ns1:PickupExpiryDate>
+            <ns1:HoldQueuePosition>2</ns1:HoldQueuePosition>
+            <ns1:Title>Rezervovana kniha</ns1:Title>
+            <ns1:MediumType>book</ns1:MediumType>
+        </ns1:RequestedItem>
+        <ns1:RequestedItem>
+            <ns1:RequestId>
+                <ns1:RequestIdentifierValue>req0002</ns1:RequestIdentifierValue>
+            </ns1:RequestId>
+            <ns1:ItemId>
+                <ns1:ItemIdentifierValue>i99002</ns1:ItemIdentifierValue>
+            </ns1:ItemId>
+            <ns1:BibliographicId>
+                <ns1:BibliographicItemId>
+                    <ns1:BibliographicItemIdentifier>99002</ns1:BibliographicItemIdentifier>
+                </ns1:BibliographicItemId>
+            </ns1:BibliographicId>
+            <ns1:RequestType>present</ns1:RequestType>
+            <ns1:RequestStatusType>string</ns1:RequestStatusType>
+            <ns1:DatePlaced>2014-09-15T12:30:00</ns1:DatePlaced>
+            <ns1:PickupDate>2014-09-17T12:30:00</ns1:PickupDate>
+            <ns1:PickupLocation>prepazka 35</ns1:PickupLocation>
+            <ns1:PickupExpiryDate>2014-09-24T12:30:00</ns1:PickupExpiryDate>
+            <ns1:HoldQueuePosition>1</ns1:HoldQueuePosition>
+            <ns1:Title>Dalsia rezervovana</ns1:Title>
+            <ns1:MediumType>newspaper</ns1:MediumType>
+        </ns1:RequestedItem>
+    </ns1:LookupUserResponse>
+</ns1:NCIPMessage>

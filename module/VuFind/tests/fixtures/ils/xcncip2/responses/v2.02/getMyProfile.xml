@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">
+    <ns1:LookupUserResponse>
+        <ns1:UserId>
+            <ns1:UserIdentifierValue>700</ns1:UserIdentifierValue>
+        </ns1:UserId>
+        <ns1:UserOptionalFields>
+            <ns1:NameInformation>
+                <ns1:PersonalNameInformation>
+                    <ns1:StructuredPersonalUserName>
+                        <ns1:Prefix>Ing.</ns1:Prefix>
+                        <ns1:GivenName>John</ns1:GivenName>
+                        <ns1:Surname>Smith</ns1:Surname>
+                        <ns1:Suffix>Ph.D.</ns1:Suffix>
+                    </ns1:StructuredPersonalUserName>
+                </ns1:PersonalNameInformation>
+            </ns1:NameInformation>
+            <ns1:UserAddressInformation>
+                <ns1:UserAddressRoleType>electronic address</ns1:UserAddressRoleType>
+                <ns1:ElectronicAddress>
+                    <ns1:ElectronicAddressType>email</ns1:ElectronicAddressType>
+                    <ns1:ElectronicAddressData>john@test.cz</ns1:ElectronicAddressData>
+                </ns1:ElectronicAddress>
+            </ns1:UserAddressInformation>
+            <ns1:UserAddressInformation>
+                <ns1:UserAddressRoleType>contact address</ns1:UserAddressRoleType>
+                <ns1:PhysicalAddress>
+                    <ns1:StructuredAddress>
+                        <ns1:LocationWithinBuilding>c</ns1:LocationWithinBuilding>
+                        <ns1:HouseName>92</ns1:HouseName>
+                        <ns1:Street>Ceska</ns1:Street>
+                        <ns1:PostOfficeBox>123</ns1:PostOfficeBox>
+                        <ns1:District>Brno-mesto</ns1:District>
+                        <ns1:Locality>Brno</ns1:Locality>
+                        <ns1:Region>Jihomoravsky kraj</ns1:Region>
+                        <ns1:Country>Czech republic</ns1:Country>
+                        <ns1:PostalCode>582786</ns1:PostalCode>
+                    </ns1:StructuredAddress>
+                    <ns1:PhysicalAddressType>home</ns1:PhysicalAddressType>
+                </ns1:PhysicalAddress>
+            </ns1:UserAddressInformation>
+            <ns1:UserAddressInformation>
+                <ns1:UserAddressRoleType>phone number</ns1:UserAddressRoleType>
+                <ns1:ElectronicAddress>
+                    <ns1:ElectronicAddressType>phone number</ns1:ElectronicAddressType>
+                    <ns1:ElectronicAddressData>788 123 456</ns1:ElectronicAddressData>
+                </ns1:ElectronicAddress>
+            </ns1:UserAddressInformation>
+            <ns1:UserPrivilege>
+                <ns1:AgencyId>BOA001</ns1:AgencyId>
+                <ns1:AgencyUserPrivilegeType>type</ns1:AgencyUserPrivilegeType>
+                <ns1:ValidFromDate>2010-10-29T03:49:00</ns1:ValidFromDate>
+                <ns1:ValidToDate>2012-10-29T03:49:00</ns1:ValidToDate>
+                <ns1:UserPrivilegeStatus>
+                    <ns1:UserPrivilegeStatusType>ctenar</ns1:UserPrivilegeStatusType>
+                    <ns1:DateOfUserPrivilegeStatus>2011-10-29T03:49:00</ns1:DateOfUserPrivilegeStatus>
+                </ns1:UserPrivilegeStatus>
+            </ns1:UserPrivilege>
+        </ns1:UserOptionalFields>
+    </ns1:LookupUserResponse>
+</ns1:NCIPMessage>
