@@ -14,7 +14,7 @@
 <ul class="list-group">
   <li class="list-group-item">
     <i class="fa fa-x fa-asterisk"></i>
-    <a id="cite-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>">
+    <a class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>">
       <?=$this->transEsc('Cite this')?>
     </a>
   </li>
@@ -22,7 +22,7 @@
   <? endif; ?>
   <li class="list-group-item">
     <i class="fa fa-x fa-envelope"></i>
-    <a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>">
+    <a class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>">
       <?=$this->transEsc('Email this')?>
     </a>
   </li>
@@ -42,7 +42,7 @@
   
   <li class="list-group-item">
     <i class="fa fa-x fa-plus-sign"></i>
-    <a id="save-record" class="modal-link <?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>">
+    <a class="modal-link <?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>">
       <?=$this->transEsc('Add to favorites')?>
     </a>
   </li>
