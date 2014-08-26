@@ -16,6 +16,8 @@
   $advSearch = $options->getAdvancedSearchAction();
   
   $this->layout()->breadcrumbs = false;
+  
+  $projectPage = "http://projekt.cistbrno.cz/";
 ?>
 <div class="row clearfix title-page">
   <div class="span4">
@@ -43,6 +45,7 @@
         <ul>
           <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
           <!-- <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li> -->
+          <li><a href="<?=$projectPage?>"><?=$this->transEsc('About the project')?></a></li>
         </ul>
       </div>
     </div>
