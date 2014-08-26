@@ -176,7 +176,7 @@
           <th><?=$this->transEsc('Related Items')?></th>
           <td>
             <? foreach ($recordLinks as $recordLink): ?>
-              <?=$this->transEsc($recordLink['title'])?>: 
+              <?=$this->transEsc($recordLink['title'])?>:
               <a href="<?=$this->recordLink()->related($recordLink['link'])?>"><?=$this->escapeHtml($recordLink['value'])?></a><br />
             <? endforeach; ?>
           </td>
@@ -195,6 +195,26 @@
         </tr>
       <? endif; ?>
       
+      <? $subscribedYears = $this->driver->getSubscribedYears(); ?>
+      <? if ($subscribedYears): ?>
+        <tr valign="top">
+          <th><?=$this->transEsc('Subscribed years')?>: </th>
+            <td>
+              <?=$this->escapeHtml($subscribedYears)?><br/>
+            </td>
+        </tr>
+      <? endif; ?>
+
+      <? $subscribedVolumes = $this->driver->getSubscribedVolumes(); ?>
+      <? if ($subscribedVolumes): ?>
+        <tr valign="top">
+          <th><?=$this->transEsc('Subscribed volumes')?>: </th>
+            <td>
+              <?=$this->escapeHtml($subscribedVolumes)?><br/>
+            </td>
+        </tr>
+      <? endif; ?>
+
     </table>
     
     <? $eodLink = $this->driver->getEODLink();?>
