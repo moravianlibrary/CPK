@@ -14,7 +14,7 @@
         <li>
           <a class="language" href="<?=$this->url(null, array(), array('query' => $queryParams), true);?>">
             <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>" />
-            <?=$this->transEsc($langName);?>
+            <?=$this->displayLanguageOption($langName)?>
           </a>
         </li>
       <? endforeach; ?>
@@ -75,6 +75,6 @@
     <div class="header-finisher"></div>
 
   </div>
-<!--   
+<!--
 </nav>
  -->
