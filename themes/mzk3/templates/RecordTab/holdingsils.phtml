@@ -139,7 +139,7 @@
     <td>
       <?if ($row['duedate']) : ?>
         <?=$this->transEsc($row['duedate'])?>
-      <? else:?>
+      <? elseif ($row['duedate_status'] != $row['status']):?>
         <?=$this->transEsc($row['duedate_status'])?>
       <?endif;?>
     </td>
@@ -157,7 +157,7 @@
       <div>
       <? else: ?>
       <div class="jt" title="<?=$this->transEsc('Description Collection '. $row['collection_desc'])?>">
-      <? endif; ?>  
+      <? endif; ?>
         <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
       </div>
     </td>
