@@ -418,19 +418,19 @@ TopicBrowse:
   QueryFields:
     topic_browse:
       - [onephrase, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 AuthorBrowse:
   QueryFields:
     author_browse:
       - [onephrase, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 TitleBrowse:
   QueryFields:
     title_full:
       - [onephrase, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 DeweyBrowse:
   QueryFields:
@@ -467,7 +467,7 @@ publisher:
     publisher:
       - [and, 100]
       - [or, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 year:
   DismaxFields:
@@ -476,13 +476,13 @@ year:
     publishDate:
       - [and, 100]
       - [or, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
   
 language:
   QueryFields:
     language:
       - [and, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 toc:
   DismaxFields:
@@ -491,7 +491,7 @@ toc:
     contents:
       - [and, 100]
       - [or, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 topic:
   QueryFields:
@@ -499,7 +499,7 @@ topic:
       - [and, 50]
     topic_facet:
       - [and, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 geographic:
   QueryFields:
@@ -507,7 +507,7 @@ geographic:
       - [and, 50]
     geographic_facet:
       - [and ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 genre:
   QueryFields:
@@ -515,13 +515,13 @@ genre:
       - [and, 50]
     genre_facet:
       - [and, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 era:
   QueryFields:
     era:
       - [and, ~]
-  FilterQuery: "mzk_visible_str_ns:visible"
+  FilterQuery: "mzk_visible_str:visible"
 
 oclc_num:
   CustomMunge:
