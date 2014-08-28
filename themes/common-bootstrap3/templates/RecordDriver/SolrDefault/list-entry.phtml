@@ -4,6 +4,7 @@
   $this->headScript()->appendFile('obalkyknih/custom.js');
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
+  $formats = $this->driver->getFormats();
   // Set up some convenience variables:
   $id = $this->driver->getUniqueId();
   $source = $this->driver->getResourceSource();
@@ -35,7 +36,7 @@
       <? endif;?>
       <img src="<?=$this->imageLink('format/Book.png')?>" />
     </div>
-    <div class="coverFormat">Book</div>
+    <div class="coverFormat"><?=$this->transEsc($formats[0])?></div>
   </div>
 
   <div class="col-md-7">
