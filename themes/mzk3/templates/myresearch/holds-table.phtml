@@ -87,7 +87,7 @@
           <? endif; ?>
         <? endif; ?>
         <? if (!empty($pickupDisplay)): ?>
-          <?=$pickupTranslate ? $this->transEsc($pickupDisplay) : $this->escapeHtml($pickupDisplay)?>
+          <?=$this->transEsc('Sublibrary ' . $pickupDisplay);?>
         <? endif; ?>
       </td>
 

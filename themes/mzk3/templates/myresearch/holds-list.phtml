@@ -97,7 +97,7 @@
       <? endif; ?>
       <? if (!empty($pickupDisplay)): ?>
         <strong><?=$this->transEsc('pick_up_location') ?>:</strong>
-        <?=$pickupTranslate ? $this->transEsc($pickupDisplay) : $this->escapeHtml($pickupDisplay)?>
+        <?=$this->transEsc('Sublibrary ' . $pickupDisplay);?>
         <br />
       <? endif; ?>
 
