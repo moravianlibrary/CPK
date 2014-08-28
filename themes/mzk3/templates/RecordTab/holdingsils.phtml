@@ -137,7 +137,9 @@
       <? else: ?>
       <div class="jt" title="<?=$this->transEsc('Description Sublibrary '. $row['sub_lib_desc'])?>">
       <? endif; ?>
-        <?=$this->transEsc('Sublibrary '. $row['sub_lib_desc'])?>
+        <? if(!empty($row['sub_lib_desc'])):?>
+          <?=$this->transEsc('Sublibrary '. $row['sub_lib_desc'])?>
+        <? endif; ?>
       </div>
     </td>
     <td>
@@ -146,7 +148,9 @@
       <? else: ?>
       <div class="jt" title="<?=$this->transEsc('Description Collection '. $row['collection_desc'])?>">
       <? endif; ?>
-        <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
+        <? if(!empty($row['collection_desc'])):?>
+          <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
+        <? endif; ?>
       </div>
     </td>
     <td>
