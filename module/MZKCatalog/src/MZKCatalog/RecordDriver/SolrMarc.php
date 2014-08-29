@@ -9,6 +9,8 @@ use MZKCommon\RecordDriver\SolrMarc As ParentSolrDefault;
 class SolrMarc extends ParentSolrDefault
 {
 
+    protected $numberOfHoldings;
+    
     const ALEPH_BASE_URL = "http://aleph.mzk.cz/";
 
     public function getTitle()
@@ -31,6 +33,13 @@ class SolrMarc extends ParentSolrDefault
         );
     }
 
+    public function getNumberOfHoldings() {
+        if (!isset($this->numberOfHoldings)) {
+            $this->numberOfHoldings = count($this->marcRecord->getFields('996'));
+        }
+        return $this->numberOfHoldings;
+    }
+    
     public function getRealTimeHoldings($filters = array())
     {
         $holdings = $this->hasILS()

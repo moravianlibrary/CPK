@@ -1311,12 +1311,12 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (isset($xml->{'record-filters'})) {
             if (isset($xml->{'record-filters'}->{'years'})) {
                 foreach ($xml->{'record-filters'}->{'years'}->{'year'} as $year) {
-                    $years[] = $year;
+                    $years[] = (string) $year;
                 }
             }
             if (isset($xml->{'record-filters'}->{'volumes'})) {
                 foreach ($xml->{'record-filters'}->{'volumes'}->{'volume'} as $volume) {
-                    $volumes[] = $volume;
+                    $volumes[] = (string) $volume;
                 }
             }
         }

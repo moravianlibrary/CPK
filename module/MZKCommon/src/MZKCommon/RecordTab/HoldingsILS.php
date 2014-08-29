@@ -38,6 +38,10 @@ namespace MZKCommon\RecordTab;
  */
 class HoldingsILS extends \VuFind\RecordTab\HoldingsILS
 {
+    
+    protected $availableFilters;
+    
+    protected $filters;
 
     /**
      * Constructor
@@ -52,7 +56,10 @@ class HoldingsILS extends \VuFind\RecordTab\HoldingsILS
     
     public function getFilters()
     {
-        return $this->driver->getHoldingFilters();
+        if (!isset($this->filters)) {
+            $this->filters = $this->driver->getHoldingFilters();
+        }
+        return $this->filters;
     }
     
     public function getSelectedFilters()
@@ -64,16 +71,29 @@ class HoldingsILS extends \VuFind\RecordTab\HoldingsILS
                 $filters[$name] = $filterValue;
             }
         }
+        if (empty($filters) && $this->driver->getNumberOfHoldings() > 30) {
+            $fields = $this->getAvailableFilters();
+            $available = $this->getFilters();
+            foreach ($fields as $name => $config) {
+                if (isset($available[$name])) {
+                    $filters[$name] = $available[$name][0];
+                    break;
+                }
+            }
+        }
         return $filters;
     }
     
     public function getAvailableFilters()
     {
-        return $this->driver->getAvailableHoldingFilters();
+        if (!isset($this->availableFilters)) {
+            $this->availableFilters = $this->driver->getAvailableHoldingFilters();
+        }
+        return $this->availableFilters;
     }
     
     public function getRealTimeHoldings()
-    {   
+    {
         return $this->driver->getRealTimeHoldings($this->getSelectedFilters());
     }
     
