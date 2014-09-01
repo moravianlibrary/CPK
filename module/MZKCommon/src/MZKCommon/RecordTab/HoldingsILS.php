@@ -100,7 +100,7 @@ class HoldingsILS extends \VuFind\RecordTab\HoldingsILS
     public function asHiddenFields($field)
     {
         $allFilters = $this->getAvailableFilters();
-        $filtersToKeep = $allFilters[$field]['keep'];
+        $filtersToKeep = isset($allFilters[$field]['keep']) ? $allFilters[$field]['keep'] : array();
         $selectedFilters = $this->getSelectedFilters();
         $result = '';
         foreach ($filtersToKeep as $filterToKeep) {
