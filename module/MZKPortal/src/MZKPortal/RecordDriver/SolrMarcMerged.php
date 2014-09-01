@@ -171,14 +171,30 @@ class SolrMarcMerged extends ParentSolr
     public function getAgregatedHoldings() {
         $result = array();
         foreach ($this->getAllHoldings() as $holding) {
-            $inst = $holding['@'];
-            if (!isset($result[$inst])) {
-                $result[$inst] = 0;
+            $idPart = $holding['*'];
+            $id = $this->getFullId($idPart);
+            if (!empty($id)) {
+                if (!isset($result[$id])) {
+                    $result[$id] = 0;
+                }
+                $result[$id]++;
             }
-            $result[$inst]++;
         }        
 
         return $result;
+    }
+    
+    /**
+     * finds corresponding id for sysno
+     * @param string $sysno
+     */
+    protected function getFullId($sysno) {
+        foreach ($this->fields['local_ids_str_mv'] as $localId) {
+            if (preg_match('/'. $sysno .'/', $localId)) {
+                return $localId;
+            }
+        }
+        return '';
     }
     
     /**
@@ -201,4 +217,11 @@ class SolrMarcMerged extends ParentSolr
         }
     }
 
+    
+    public function getNumberOfHoldings() {
+        if (!isset($this->numberOfHoldings)) {
+            $this->numberOfHoldings = count($this->getAllHoldings(array()));
+        }
+        return $this->numberOfHoldings;
+    }
 }

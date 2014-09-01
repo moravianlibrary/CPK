@@ -99,12 +99,13 @@
         <? $recordLink = $this->recordLink()->getUrl($this->driver);?>
         <? foreach ($this->driver->getExternalLinks() as $current): ?>
          <? if (isset($current['url']) && !empty($current['url'])): ?>
-           <?$ins = strtoupper($current['institution'])?>
+           <? $ins = $current['institution']?>
+           <? $currentHoldingId = $ins . '.' . $current['id']?>
            <div>
            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new">
-             <i class="icon-external-link"></i><?=$this->transEsc($ins)?>
+             <i class="icon-external-link"></i><?=$this->transEsc(strtoupper($ins))?>
            </a>
-           <? if (isset($holdingsCount[$ins])):?>
+           <? if (isset($holdingsCount[$currentHoldingId])):?>
            
            <a href="<?=$recordLink . '/holdings?institution=' . strtoupper($ins) . '#tabnav'?>">
             <span class="holdings-wrapper small">
@@ -112,7 +113,7 @@
                 <?=$this->transEsc('holdings')?> : 
               </span>
               <span class="holdings-count"> 
-                  <?=$holdingsCount[$ins]?>
+                  <?=$holdingsCount[$currentHoldingId]?>
               </span>
             </span>
             </a>

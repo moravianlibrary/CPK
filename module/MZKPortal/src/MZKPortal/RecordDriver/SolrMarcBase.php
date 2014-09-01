@@ -5,6 +5,8 @@ use PortalsCommon\RecordDriver\SolrMarc;
 class SolrMarcBase extends SolrMarc
 {
 
+    protected $numberOfHoldings;
+    
     public function getInstitutionsWithIds() {
         $id = $this->getUniqueID();
         list($source, $localId) = explode('.', $this->getUniqueID());
@@ -112,11 +114,13 @@ class SolrMarcBase extends SolrMarc
     public function getAgregatedHoldings() {
         $result = array();
         foreach ($this->getHoldings() as $holding) {
-            $inst = $holding['@'];
-            if (!isset($result[$inst])) {
-                $result[$inst] = 0;
+            $id = $this->getAvailabilityID();
+            if (!empty($id)) {
+                if (!isset($result[$id])) {
+                    $result[$id] = 0;
+                }
+                $result[$id]++;
             }
-            $result[$inst]++;
         }        
 
         return $result;
@@ -146,5 +150,12 @@ class SolrMarcBase extends SolrMarc
         }
         
         return $holding_entry;
+    }
+    
+    public function getNumberOfHoldings() {
+        if (!isset($this->numberOfHoldings)) {
+            $this->numberOfHoldings = count($this->getHoldings());
+        }
+        return $this->numberOfHoldings;
     }
 }

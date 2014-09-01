@@ -83,22 +83,6 @@ class SolrMarcKjm extends SolrMarcBase
     }
     
     /**
-     * @return array(string => int)
-     */
-    public function getAgregatedHoldings() {
-        $result = array();
-        foreach ($this->getHoldings() as $holding) {
-            $inst = $holding['@'];
-            if (!isset($result[$inst])) {
-                $result[$inst] = 0;
-            }
-            $result[$inst]++;
-        }
-    
-        return $result;
-    }
-    
-    /**
      * converts holding to displayeble array
      * @param array holding
      * @return array
