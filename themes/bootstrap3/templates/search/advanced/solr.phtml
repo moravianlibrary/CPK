@@ -14,16 +14,34 @@
               // along with the foreach below to display facet options in the
               // correct order.
               $sorted = array();
-              foreach ($list['list'] as $i => $value) {
-                if (!empty($value['displayText'])) {
-                  $sorted[$i] = $value['displayText'];
-                }
+            foreach ($list['list'] as $i => $value) {
+              $sorted[$i] = $value['displayText'];
+            }
+            asort($sorted, SORT_LOCALE_STRING);
+            $top = isset($this->preferredFacets[$field])? $this->preferredFacets[$field] : array();
+            $priors = array();
+            foreach ($list['list'] as $i => $value) {
+              $key = $value['value'];
+              if (isset($top[$key])) {
+                $priors[$top[$key]] = $value;
               }
-              natcasesort($sorted);
+            }
+            ksort($priors);
             ?>
+            <? foreach ($priors as $i => $value): ?>
+              <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                <?=$this->escapeHtml($value['displayText'])?>
+              </option>
+            <? endforeach; ?>
+            <? if (!empty($top) && count($priors) != count($sorted)):?>
+              <option disabled="disabled">=================</option>
+            <? endif;?>
             <? foreach ($sorted as $i => $display): ?>
-              <? $value = $list['list'][$i]; ?>
-              <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>><?=$this->escapeHtml($display)?></option>
+              <? $value = $list['list'][$i]; if (!isset($top[$value['value']])):?>
+                <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                  <?=$this->escapeHtml($display)?>
+                </option>
+              <? endif;?>
             <? endforeach; ?>
           </select>
         </div>
