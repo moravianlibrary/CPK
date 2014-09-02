@@ -81,6 +81,9 @@ class SolrMarcMend extends SolrMarcBase
     }
     
     public static function getSheduleOfPeriodics($holding) {
+        if (isset($holding['%'])) {
+            return $holding['%'];
+        }
         if (isset($holding['c']) && preg_match('/\/\d\d\d\d/', $holding['c'], $matches)) {
             return (int)substr($matches[0], 1, 4);
         }

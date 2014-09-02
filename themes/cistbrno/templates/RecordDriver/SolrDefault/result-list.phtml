@@ -105,6 +105,9 @@
            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new">
              <i class="icon-external-link"></i><?=$this->transEsc(strtoupper($ins))?>
            </a>
+           <? if (isset($current['description'])):?>
+             <?=$current['description']?>
+           <? endif;?>
            <? if (isset($holdingsCount[$currentHoldingId])):?>
            
            <a href="<?=$recordLink . '/holdings?institution=' . strtoupper($ins) . '#tabnav'?>">
