@@ -33,16 +33,17 @@ class SolrMarcMerged extends ParentSolr
                     $finalID = substr($id, 5);
                     break;
             }
+            $descripion = $this->getHoldingDescription($id);
             $linkBase = $this->recordConfig->ExternalLinks->$ins;
             if (empty($linkBase)) {
-                $resultArray[] = array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $currentId);
+                $resultArray[] = array('institution' => $ins, 'url' => '', 'display' => '', 'id' => $currentId, 'description' => $descripion);
                 continue;
             }
             $confEnd  = $ins . '_end';
             $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
             if (!isset($linkEnd)) $linkEnd = '';
             $externalLink = $linkBase . $finalID . $linkEnd;
-            $resultArray[] = array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id);
+            $resultArray[] = array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id, 'description' => $descripion);
         }
         return $resultArray;
     }
@@ -53,6 +54,7 @@ class SolrMarcMerged extends ParentSolr
      * @return 
      */
     public function getHoldings($selectedFilters = array(), $field = '996') {
+        
         $result = array();
         $fieldName = 'holdings' . $field .'_str_mv';
         if (!isset($this->fields[$fieldName])) {
@@ -93,6 +95,9 @@ class SolrMarcMerged extends ParentSolr
     
     public function getAllHoldings($filters = array()) {
         $result = array();
+//         if (!empty($filters && $filters['institution'] == 'KJM')) {
+//             throw new \Exception(print_r($filters, true));
+//         }
         $result = array_merge($result, $this->getHoldings($filters, '996'));
         $result = array_merge($result, $this->getHoldings($filters, '993'));
         $result = array_merge($result, $this->getHoldings($filters, '980'));
@@ -142,6 +147,9 @@ class SolrMarcMerged extends ParentSolr
         if (array_key_exists('institution', $filters)) {
             return $filters['institution'] == $holding['@'];
         }
+        if (array_key_exists('id', $filters)) {
+            return $filters['id'] == $holding['*'];
+        }
         return true;
     }
     
@@ -184,6 +192,16 @@ class SolrMarcMerged extends ParentSolr
         return $result;
     }
     
+    public function getHoldingDescription($id) {
+        $holdings = $this->getAllHoldings(array('id' => $id));
+        if (is_array($holdings) && count($holdings) > 0) {
+            if (isset($holdings[0]['%'])) {
+                return $holdings[0]['%'];
+            }
+        }
+        return '';
+    }
+    
     /**
      * finds corresponding id for sysno
      * @param string $sysno
@@ -196,6 +214,7 @@ class SolrMarcMerged extends ParentSolr
         }
         return '';
     }
+    
     
     /**
      * converts holding to displayeble array
@@ -223,5 +242,19 @@ class SolrMarcMerged extends ParentSolr
             $this->numberOfHoldings = count($this->getAllHoldings(array()));
         }
         return $this->numberOfHoldings;
+    }
+    
+    public function getHighlightedTitle()
+    {
+        // Don't check for highlighted values if highlighting is disabled:
+        if (!$this->highlight) {
+            return '';
+        }
+        return (isset($this->highlightDetails['title_portaly_txtP'][0]))
+            ? $this->highlightDetails['title_portaly_txtP'][0] : '';
+    }
+    
+    public function getTitle() {
+        return empty($this->fields['title_portaly_txtP']) ? parent::getTitle() : $this->fields['title_portaly_txtP'];
     }
 }

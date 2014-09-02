@@ -32,8 +32,7 @@
   </div>
 
   <div class="span9">
-    <h3><?=$this->escapeHtml($this->driver->getShortTitle() . ' ' . $this->driver->getSubtitle() . ' ' . $this->driver->getTitleSection())?></h3>
-
+    <h3><?=$this->escapeHtml($this->driver->getTitle())?></h3>
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $summary[0] : false; ?>
     <? if ($summary): ?>
       <p><?=$this->truncate($summary, 300)?></p>

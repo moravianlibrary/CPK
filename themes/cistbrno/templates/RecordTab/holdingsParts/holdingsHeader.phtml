@@ -29,9 +29,8 @@
 <? } ?>
 
 <? 
-  function sortHoldings(&$holdings) {
+  function sortHoldings(&$holdings) { 
     foreach ($holdings as $holding) {
-        
       $libraryValues[] = $holding['library'];
       $branchValues[] = $holding['branch'];
       $branch2Values[] = $holding['branch2'];
@@ -40,28 +39,29 @@
       $signature2Values[] = $holding['signature2'];
       $barcodeValues[] = $holding['barcode'];
     }  
-
-    if (!empty($sheduleOfPeriodicsValues)) {
-      array_multisort(
-        $sheduleOfPeriodicsValues, SORT_DESC, SORT_NUMERIC,
-        $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
-        $signatureValues, SORT_ASC, SORT_NUMERIC,
-        $signature2Values, SORT_ASC, SORT_NUMERIC,
-        $barcodeValues, SORT_ASC, SORT_NUMERIC,
-        $holdings
-      );
-    } else {
-      array_multisort(
-        $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branchValues, SORT_ASC, SORT_LOCALE_STRING,
-        $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
-        $signatureValues, SORT_ASC, SORT_NUMERIC,
-        $signature2Values, SORT_ASC, SORT_NUMERIC,
-        $barcodeValues, SORT_ASC, SORT_NUMERIC,
-        $holdings
-      );
+    if ($holdings) {
+      if (!empty($sheduleOfPeriodicsValues)) {
+        array_multisort(
+          $sheduleOfPeriodicsValues, SORT_DESC, SORT_NUMERIC,
+          $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
+          $branchValues, SORT_ASC, SORT_LOCALE_STRING,
+          $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
+          $signatureValues, SORT_ASC, SORT_NUMERIC,
+          $signature2Values, SORT_ASC, SORT_NUMERIC,
+          $barcodeValues, SORT_ASC, SORT_NUMERIC,
+          $holdings
+        );
+      } else {
+        array_multisort(
+          $libraryValues, SORT_ASC, SORT_LOCALE_STRING,
+          $branchValues, SORT_ASC, SORT_LOCALE_STRING,
+          $branch2Values, SORT_ASC, SORT_LOCALE_STRING,
+          $signatureValues, SORT_ASC, SORT_NUMERIC,
+          $signature2Values, SORT_ASC, SORT_NUMERIC,
+          $barcodeValues, SORT_ASC, SORT_NUMERIC,
+          $holdings
+        );
+      }
     } 
   }
 
