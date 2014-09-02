@@ -112,7 +112,16 @@ class MapSelection implements RecommendInterface
      */
     public function init($params, $request)
     {
-        
+        $filters = $params->getFilters();
+        foreach ($filters as $key => $value) {
+            if ($key == $this->geoField) {
+                $match = array();
+                if (preg_match('/Intersects\(([0-9 \\-\\.]+)\)/', $value[0], $match)) {
+                    $coords = $match[1];
+                    $params->addBoostFunction("geo_overlap('$coords', bbox_geo_str)");
+                }
+            }
+        }
     }
     
     /**

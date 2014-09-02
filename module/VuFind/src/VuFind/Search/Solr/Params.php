@@ -85,6 +85,13 @@ class Params extends \VuFind\Search\Base\Params
     protected $pivotFacets = null;
 
     /**
+     * Array of functions for boosting the query
+     *
+     * @var array
+     */
+    protected $boostFunctions = array();
+
+    /**
      * Constructor
      *
      * @param \VuFind\Search\Base\Options  $options      Options to use
@@ -263,10 +270,19 @@ class Params extends \VuFind\Search\Base\Params
     
     /**
      * Get Hierarchical Facets
-     * 
+     *
      */
     public function getHierarchicalFacets() {
         return $this->hierarchicalFacets;
+    }
+    
+    /**
+     *
+     *
+     * @param unknown $function
+     */
+    public function addBoostFunction($function) {
+        $this->boostFunctions[] = $function;
     }
 
     /**
@@ -522,9 +538,14 @@ class Params extends \VuFind\Search\Base\Params
         }
 
         // Pivot facets for visual results
-
         if ($pf = $this->getPivotFacets()) {
             $backendParams->add('facet.pivot', $pf);
+        }
+
+        if (!empty($this->boostFunctions)) {
+            foreach ($this->boostFunctions as $func) {
+                $backendParams->add('boost', $func);
+            }
         }
 
         return $backendParams;
