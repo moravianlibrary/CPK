@@ -2,7 +2,7 @@
 
 namespace MZKPortal\RecordTab;
 
-class HoldingsMerged extends \MZKCommon\RecordTab\HoldingsILS
+class HoldingsMerged extends \MZKPortal\RecordTab\HoldingsBase
 {
 
     /**
@@ -15,5 +15,4 @@ class HoldingsMerged extends \MZKCommon\RecordTab\HoldingsILS
     {
         parent::__construct($catalog);
     }
-    
 }

@@ -2,7 +2,7 @@
 
 namespace MZKPortal\RecordTab;
 
-class Holdings980 extends \MZKCommon\RecordTab\HoldingsILS
+class Holdings980 extends \MZKPortal\RecordTab\HoldingsBase
 {
 
     /**
