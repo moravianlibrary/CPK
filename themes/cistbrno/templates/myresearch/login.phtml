@@ -41,12 +41,5 @@
         </div>
       </div>
     </form>
-  <? else: ?>
-    <? foreach($sessionInitiators as $name => $url):?>
-      <p class="institution-login-logo">
-        <? $logo = '/themes/cistbrno/images/cb-logo-' . $name . '.png';?>
-        <a href="<?=$url?>"><img src="<?=$logo?>"></img></a>
-      </p>
-    <? endforeach;?>
   <? endif; ?>
 <? endif; ?>
