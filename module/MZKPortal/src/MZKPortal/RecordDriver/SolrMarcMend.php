@@ -106,6 +106,7 @@ class SolrMarcMend extends SolrMarcBase
         $holding_entry['signature2'] = isset($holding['h']) ? $holding['h'] : '';
         $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
         $holding_entry['status'] = isset($holding['k']) ? $holding['k'] : '';
+        $holding_entry['id'] = isset($holding['*']) ? $holding['*'] : '';
     
         return $holding_entry;
     }

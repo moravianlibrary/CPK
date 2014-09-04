@@ -95,9 +95,6 @@ class SolrMarcMerged extends ParentSolr
     
     public function getAllHoldings($filters = array()) {
         $result = array();
-//         if (!empty($filters && $filters['institution'] == 'KJM')) {
-//             throw new \Exception(print_r($filters, true));
-//         }
         $result = array_merge($result, $this->getHoldings($filters, '996'));
         $result = array_merge($result, $this->getHoldings($filters, '993'));
         $result = array_merge($result, $this->getHoldings($filters, '980'));

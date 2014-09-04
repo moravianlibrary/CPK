@@ -197,12 +197,13 @@ class SolrMarcBase extends SolrMarc
         $holding_entry['signature1'] = isset($holding['c']) ? $holding['c'] : '';
         $holding_entry['signature2'] = isset($holding['h']) ? $holding['h'] : '';
         $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
+        $holding_entry['id'] = isset($holding['*']) ? $holding['*'] : '';
         $holding_entry['status'] = '';
         if (isset($holding['s'])) {
             if ($holding['s'] == 'A') {
                 $holding_entry['status'] = 'Holding Status Absent';
             } elseif ($holding['s'] == 'P') {
-                $holding_entry['status'] = 'Holding Status Absent';
+                $holding_entry['status'] = 'Holding Status Present';
             }
         }
         

@@ -7,7 +7,7 @@
   function renderHolding($callbacks, &$holding) { 
       $externalLink = null;
       foreach($callbacks['getExternalLinks']('holdings') as $link) {
-        if (strcasecmp($holding['library'],$link['institution']) == 0) {
+        if (strcasecmp($holding['id'], $link['id']) == 0) {
           $externalLink = $link;  
         }
       }

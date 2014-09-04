@@ -96,6 +96,7 @@ class SolrMarcKjm extends SolrMarcBase
         $holding_entry['signature1'] = isset($holding['k']) ? $holding['k'] : '';
         $holding_entry['signature2'] = isset($holding['g']) ? $holding['g'] : '';
         $holding_entry['barcode'] = isset($holding['b']) ? $holding['b'] : '';
+        $holding_entry['id'] = isset($holding['*']) ? $holding['*'] : '';
         $holding_entry['status'] = '';
     
         return $holding_entry;
