@@ -37,15 +37,40 @@ $config = array(
             ),
         ) /* recorddriver_tabs */
     ), /* vufind */
+    'service_manager' => array(
+        'factories' => array(
+            'MZKCatalog\AlephBrowse\Connector' => 'MZKCatalog\AlephBrowse\Factory::getAlephBrowseConnector',
+        ),
+    ),
     'controllers' => array(
         'factories' => array(
             'record' => 'MZKCatalog\Controller\Factory::getRecordController',
+            'alephbrowse' => 'MZKCatalog\Controller\Factory::getAlephBrowseController',
         ),
         'invokables' => array(
             'myresearch' => 'MZKCatalog\Controller\MyResearchController',
         ),
     ),
 );
+
+$staticRoutes = array(
+    'AlephBrowse/Home',
+);
+
+foreach ($staticRoutes as $route) {
+    list($controller, $action) = explode('/', $route);
+    $routeName = str_replace('/', '-', strtolower($route));
+    $config['router']['routes'][$routeName] = array(
+        'type' => 'Zend\Mvc\Router\Http\Literal',
+        'options' => array(
+            'route'    => '/' . $route,
+            'defaults' => array(
+                'controller' => $controller,
+                'action'     => $action,
+            )
+        )
+    );
+}
 
 $nonTabRecordActions = array('DigiRequest');
 

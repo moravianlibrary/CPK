@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-namespace MZKCatalog\Controller;
+namespace MZKCatalog\AlephBrowse;
 use Zend\ServiceManager\ServiceManager;
 
 /**
@@ -39,24 +39,11 @@ use Zend\ServiceManager\ServiceManager;
  */
 class Factory
 {
-    /**
-     * Construct the RecordController.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return RecordController
-     */
-    public static function getRecordController(ServiceManager $sm)
-    {
-        return new RecordController(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
-    }
     
-    public static function getAlephBrowseController(ServiceManager $sm)
+    public static function getAlephBrowseConnector(ServiceManager $sm)
     {
-        return new \MZKCatalog\Controller\AlephBrowseController(
-            $sm->getServiceLocator()->get('MZKCatalog\AlephBrowse\Connector')
+        return new \MZKCatalog\AlephBrowse\Connector(
+                $sm->get('VuFind\Config')
         );
     }
 
