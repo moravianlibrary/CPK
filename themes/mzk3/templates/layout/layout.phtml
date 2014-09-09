@@ -27,7 +27,7 @@
             $cart = $this->cart();
             $this->jsTranslations()->addStrings(array('loading' => 'Loading'));
             if ($cart->isActive()) {
-                $this->headScript()->appendFile("cookies.js");
+                $this->headScript()->appendFile("vendor/cookies.js");
                 $this->headScript()->appendFile("cart.js");
                 $this->jsTranslations()->addStrings(
                     array(
@@ -66,7 +66,7 @@
           <?=$this->render('header.phtml')?>
         </div>
       </div>
-    </div>  
+    </div>
     <? if((!isset($this->layout()->showBreadcrumbs) || $this->layout()->showBreadcrumbs == true)
       && !empty($this->layout()->breadcrumbs)
       && $this->layout()->breadcrumbs !== false
