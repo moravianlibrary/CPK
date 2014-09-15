@@ -5,12 +5,12 @@
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
   $formats = $this->driver->getFormats();
 ?>
-<div class="row <?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
+<div class="<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
 
-  <div class="col-xs-2 text-center">
+  <div class="col-sm-2 col-xs-3 left">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
         <script type="text/javascript">
@@ -24,7 +24,7 @@
     <div class="coverFormat"><?=$this->transEsc($formats[0])?></div>
   </div>
 
-  <div class="col-xs-7 middle">
+  <div class="col-sm-7 col-xs-6 middle">
     <div>
       <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <?
@@ -124,7 +124,7 @@
     </div>
   </div>
 
-  <div class="span2 noprint">
+  <div class="span2 right noprint">
     <? /* Display qrcode if appropriate: */ ?>
     <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
       <?
