@@ -69,8 +69,8 @@
 </div>
 <br/>
 <? if ($holdings != null) : ?>
-<table class="table table-view">
-<tbody>
+<table class="table table-view" id="no-more-tables">
+<thead>
   <tr>
     <th><?=$this->transEsc("item status")?>&nbsp;</th>
     <th><?=$this->transEsc("due date")?>&nbsp;</th>
@@ -80,12 +80,14 @@
     <th><?=$this->transEsc("description")?>&nbsp;</th>
     <th><?=$this->transEsc("note")?>&nbsp;</th>
   </tr>
+</thead>
+<tbody>
 <? $row = 0; ?>
 <? foreach ($holdings as $row): ?>
   <? $check = (isset($row['check']) && $row['check']); ?>
   <? $row++; ?>
   <tr class="<?=(($row % 2) == 0)?'oddrow':'evenrow'?>">
-    <td>
+    <td data-title="<?=$this->transEsc("item status")?>">
       <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>
       <div>
       <? else: ?>
@@ -124,14 +126,14 @@
         <? endif; ?>
       <? endif; ?>
     </td>
-    <td>
+    <td data-title="<?=$this->transEsc("due date")?>">
       <?if ($row['duedate']) : ?>
         <?=$this->transEsc($row['duedate'])?>
       <? elseif ($row['duedate_status'] != $row['status']):?>
         <?=$this->transEsc($row['duedate_status'])?>
       <?endif;?>
     </td>
-    <td>
+    <td data-title="<?=$this->transEsc("sublibrary")?>">
       <? if ($this->transEsc('Description Sublibrary '. $row['sub_lib_desc']) == 'Description Sublibrary '. $row['sub_lib_desc']):?>
       <div>
       <? else: ?>
@@ -142,7 +144,7 @@
         <? endif; ?>
       </div>
     </td>
-    <td>
+    <td data-title="<?=$this->transEsc("collection")?>">
       <? if ($this->transEsc('Description Collection '. $row['collection_desc']) == 'Description Collection '. $row['collection_desc']):?>
       <div>
       <? else: ?>
@@ -153,13 +155,13 @@
         <? endif; ?>
       </div>
     </td>
-    <td>
+    <td data-title="<?=$this->transEsc("location / second signature")?>">
       <?=$this->escapeHtml($row['callnumber_second'])?>
     </td>
-    <td>
+    <td data-title="<?=$this->transEsc("description")?>">
       <?=$this->escapeHtml($row['description'])?>
     </td>
-    <td>
+    <td data-title="<?=$this->transEsc("note")?>">
       <? if ($row['notes'] != null):?>
         <?=$this->escapeHtml($row['notes'][0])?>
       <? endif;?>

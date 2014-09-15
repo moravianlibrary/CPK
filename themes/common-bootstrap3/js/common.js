@@ -219,7 +219,7 @@ $(document).ready(function() {
   refreshCartItems();
 
   $('.jt').tooltip({
-	  placement: 'right',
+	  placement: 'bottom',
 	  html: true
   });
 });
