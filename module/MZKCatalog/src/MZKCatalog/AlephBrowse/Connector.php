@@ -62,7 +62,8 @@ class Connector implements \VuFindHttp\HttpServiceAwareInterface
     {
         $source = strtolower($source);
         $index = $this->config[$source]['id'];
-        $params = array('index' => $index, 'query' => $from, 'base' => 'MZK01');
+        $bases = $this->config['Global']['bases'];
+        $params = array('index' => $index, 'query' => $from, 'base' => $bases);
         $answer = $this->httpService->get($this->cgiUrl, $params);
         $xml = simplexml_load_string($answer->getBody());
         $indexes = array();
