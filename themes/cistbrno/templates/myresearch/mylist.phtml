@@ -67,7 +67,6 @@
     <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results))?>
   <? else: ?>
     <p><?=$this->transEsc('You do not have any saved resources')?></p>
-    <p><a href="<?=$this->url('myresearch-favoritesimport') ?>"><?=$this->transEsc("favorites_import_text")?></a></p>
   <? endif; ?>
 </div>
 
