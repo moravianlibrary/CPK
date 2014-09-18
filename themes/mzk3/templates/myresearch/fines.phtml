@@ -10,7 +10,13 @@
   <h2><?=$this->transEsc('Your Fines')?></h2>
   
   <?=$this->flashmessages()?>
-  
+
+  <? if (isset($this->paymentUrl)):?>
+    <p>
+      <a href="<?=$this->paymentUrl?>"><?=$this->transEsc('fines_online_payment_url')?></a>
+    </p>
+  <? endif; ?>
+
   <? if (empty($this->fines)): ?>
     <?=$this->transEsc('You do not have any fines')?>
   <? else: ?>

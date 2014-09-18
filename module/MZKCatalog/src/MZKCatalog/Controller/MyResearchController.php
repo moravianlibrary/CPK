@@ -63,7 +63,8 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
-    public function finesAction() {
+    public function finesAction()
+    {
         $view = parent::finesAction();
         if (!is_array($patron = $this->catalogLogin())) {
             return $patron;
@@ -74,6 +75,15 @@ class MyResearchController extends MyResearchControllerBase
             if ($accruedOverdue > 0) {
                 $message = $this->translate('accrued_overdue_summary_text');
                 $this->flashMessenger()->setNamespace('error')->addMessage($message . ' ' . $accruedOverdue);
+            }
+            if (!empty($view->fines)) {
+                $total = 0;
+                foreach ($view->fines as $fine) {
+                    $total += ($fine['balance']);
+                }
+                if ($total < 0) {
+                    $view->paymentUrl = $catalog->getPaymentURL($patron, -1 * $total);
+                }
             }
         }
         return $view;

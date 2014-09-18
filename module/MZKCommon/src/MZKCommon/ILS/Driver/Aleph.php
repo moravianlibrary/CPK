@@ -54,6 +54,9 @@ class Aleph extends AlephBase
 
     protected $wwwpasswd = null;
 
+    // FIXME: move to configuration file
+    const PAYMENT_URL = 'https://aleph.mzk.cz/cgi-bin/c-gpe1-vufind.pl';
+
     public function __construct(\VuFind\Date\Converter $dateConverter,
         \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null,
         \MZKCommon\Db\Table\RecordStatus $recordStatus = null
@@ -91,7 +94,7 @@ class Aleph extends AlephBase
             $holding['id'] = $status['record_id'];
             $holding['record_id'] = $status['record_id'];
             $holding['absent_total'] = $status['absent_total'];
-            $holding['absent_avail'] = $status['absent_total'] - $status['absent_on_loan']; 
+            $holding['absent_avail'] = $status['absent_total'] - $status['absent_on_loan'];
             $holding['present_total'] = $status['present_total'];
             $holding['present_avail'] = $status['present_total'] - $status['present_on_loan'];
             $holding['availability'] = ($holding['absent_avail'] > 0
@@ -205,6 +208,19 @@ class Aleph extends AlephBase
         } else {
             return true;
         }
+    }
+
+    public function getPaymentURL($patron, $fine)
+    {
+        $params = array (
+            'id'     => $patron['id'],
+            'adm'    => $this->useradm,
+            'amount' => $fine,
+            'time'   => time(),
+        );
+        $query = http_build_query($params);
+        $url = self::PAYMENT_URL . '?' . $query;
+        return $url;
     }
 
 }
