@@ -63,6 +63,10 @@ class Connector implements \VuFindHttp\HttpServiceAwareInterface
         $source = strtolower($source);
         $index = $this->config[$source]['id'];
         $bases = $this->config['Global']['bases'];
+        $removeRegex = $this->config[$source]['search_remove'];
+        if (isset($removeRegex)) {
+            $from = preg_replace($removeRegex, '', $from);
+        }
         $params = array('index' => $index, 'query' => $from, 'base' => $bases);
         $answer = $this->httpService->get($this->cgiUrl, $params);
         $xml = simplexml_load_string($answer->getBody());
@@ -115,6 +119,7 @@ class Connector implements \VuFindHttp\HttpServiceAwareInterface
     protected function getDisplayText($source, $text)
     {
         $display = $this->config[$source]['display'];
+        $regexRepls = $this->config[$source]['display_regex'];
         $heading = "";
         foreach (str_split($display) as $field) {
             $matches = array();
@@ -122,6 +127,10 @@ class Connector implements \VuFindHttp\HttpServiceAwareInterface
             if (preg_match($regex, $text, $matches)) {
                 $heading .= $matches[1] . " ";
             }
+        }
+        $removeRegex = $this->config[$source]['display_remove'];
+        if (isset($removeRegex)) {
+            $heading = preg_replace($removeRegex, '', $heading);
         }
         return $heading;
     }
