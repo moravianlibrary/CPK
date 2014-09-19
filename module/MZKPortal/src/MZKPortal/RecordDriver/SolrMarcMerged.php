@@ -6,6 +6,14 @@ use MZKPortal;
 class SolrMarcMerged extends ParentSolr
 {
 
+    protected $externalLinks = array();
+    
+    public function __construct($mainConfig = null, $recordConfig = null,
+            $searchSettings = null) {
+        
+        parent::__construct($mainConfig, $recordConfig, $searchSettings);
+    }
+    
     /**
     * uses setting from config.ini => External links
     * @return array  [] => [
@@ -15,7 +23,10 @@ class SolrMarcMerged extends ParentSolr
     *          [id] => local identifier of record
     *
     */
-    public function getExternalLinks() {
+    public function getExternalLinks($identifier = null) {
+        if (!empty($this->externalLinks)) {
+            return $this->externalLinks;
+        }
         $resultArray = array();
         foreach ($this->getMergedIds() as $currentId) {
             list($ins, $id) = explode('.', $currentId);
@@ -45,7 +56,8 @@ class SolrMarcMerged extends ParentSolr
             $externalLink = $linkBase . $finalID . $linkEnd;
             $resultArray[] = array('institution' => $ins, 'url' => $externalLink, 'display' => $externalLink, 'id' => $id, 'description' => $descripion);
         }
-        return $resultArray;
+        $this->externalLinks = $resultArray;
+        return $this->externalLinks;
     }
     
     /**
