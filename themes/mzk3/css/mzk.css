@@ -265,7 +265,7 @@ div.sidebar {
 
 /* results */
 
-div.col-sm-9 {
+.main>div.col-sm-9 {
   background-color: #fff;
   border: 1px solid #E0E0E0;
 }
