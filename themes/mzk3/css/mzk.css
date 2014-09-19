@@ -620,3 +620,17 @@ a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.acti
 	*/
 	#no-more-tables td:before { content: attr(data-title); }
 }
+
+/* Aleph browse */
+form#alephBrowseForm {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.pager li > a {
+	border-radius: 0px;
+}
+
+.table#alephBrowse > tbody > tr > td {
+	padding: 3px;
+}
