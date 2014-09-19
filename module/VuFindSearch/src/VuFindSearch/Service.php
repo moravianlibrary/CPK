@@ -33,6 +33,7 @@ use VuFindSearch\Backend\BackendInterface;
 use VuFindSearch\Feature\RetrieveBatchInterface;
 use VuFindSearch\Feature\RandomInterface;
 use VuFindSearch\Backend\Exception\BackendException;
+use VuFindSearch\Response\RecordCollectionInterface;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
@@ -100,7 +101,7 @@ class Service
      * @param integer             $limit   Search limit
      * @param ParamBag            $params  Search backend parameters
      *
-     * @return ResponseInterface
+     * @return RecordCollectionInterface
      */
     public function search($backend, Query\AbstractQuery $query, $offset = 0,
         $limit = 20, ParamBag $params = null
@@ -134,7 +135,7 @@ class Service
      * @param string   $id      Record identifier
      * @param ParamBag $params  Search backend parameters
      *
-     * @return ResponseInterface
+     * @return RecordCollectionInterface
      */
     public function retrieve($backend, $id, ParamBag $params = null)
     {
@@ -162,7 +163,7 @@ class Service
      * @param array    $ids     Record identifier
      * @param ParamBag $params  Search backend parameters
      *
-     * @return ResponseInterface
+     * @return RecordCollectionInterface
      */
     public function retrieveBatch($backend, $ids, ParamBag $params = null)
     {
@@ -213,7 +214,7 @@ class Service
      * @param integer             $limit   Search limit
      * @param ParamBag            $params  Search backend parameters
      *
-     * @return ResponseInterface
+     * @return RecordCollectionInterface
      */
     public function random($backend, $query, $limit = 20, $params = null)
     {
