@@ -54,7 +54,6 @@
       <? $iteration++; ?>
       <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
       <? $id = !is_a($resource, 'VuFind\\RecordDriver\\Missing') ? $resource->getUniqueId() : $ilsDetails['docno']; ?>
-      <? $summThumb = !is_a($resource, 'VuFind\\RecordDriver\\Missing') ? $this->record($resource)->getThumbnail() : null; ?>
       <div id="record<?=$this->escapeHtml($id) ?>" class="row">
         <? if ($this->cancelForm && isset($ilsDetails['cancel_details'])): ?>
           <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $resource->getUniqueId()); ?>
@@ -64,34 +63,23 @@
           </div>
         <? endif; ?>
         <div class="col-md-2 text-center">
-          <? if ($summThumb): ?>
-            <img src="<?=$this->escapeHtml($summThumb)?>" class="summcover" alt="<?=$this->transEsc('Cover Image')?>"/>
-          <? else: ?>
-            <img src="<?=$this->url('cover-unavailable')?>" class="summcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
-          <? endif; ?>
         </div>
         <div class="col-md-9">
-          <?
-            // If this is a non-missing Solr record, we should display a link:
-            if (is_a($resource, 'VuFind\\RecordDriver\\SolrDefault') && !is_a($resource, 'VuFind\\RecordDriver\\Missing')) {
-              $title = $resource->getTitle();
-              $title = empty($title) ? $this->transEsc('Title not available') : $this->escapeHtml($title);
-              echo '<a href="' . $this->recordLink()->getUrl($resource)
-                . '" class="title">' . $title . '</a>';
-            } else if (isset($ilsDetails['title']) && !empty($ilsDetails['title'])){
-              // If the record is not available in Solr, perhaps the ILS driver sent us a title we can show...
-              echo $this->escapeHtml($ilsDetails['title']);
-            } else {
-              // Last resort -- indicate that no title could be found.
-              echo $this->transEsc('Title not available');
-            }
-          ?><br/>
-          <? $listAuthor = $resource->getPrimaryAuthor(); if (!empty($listAuthor)): ?>
-            <?=$this->transEsc('by')?>:
-            <a href="<?=$this->record($resource)->getLink('author', $listAuthor)?>"><?=$this->escapeHtml($listAuthor)?></a><br/>
-          <? elseif (isset($ilsDetails['author']) && !empty($ilsDetails['author'])): ?>
-            <?=$this->transEsc('by')?>: <?=$this->escapeHtml($ilsDetails['author'])?><br/>
-          <? endif;?>
+
+          <? if (isset($ilsDetails['docno']) && !empty($ilsDetails['docno'])): ?>
+            <strong><?=$this->transEsc('ill_request_no')?>:</strong> <?=$this->escapeHtml($ilsDetails['docno'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['title']) && !empty($ilsDetails['title'])): ?>
+            <strong><?=$this->transEsc('Title')?>:</strong> <?=$this->escapeHtml($ilsDetails['title'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['author']) && !empty($ilsDetails['author'])): ?>
+            <strong><?=$this->transEsc('ill_author')?>:</strong> <?=$this->escapeHtml($ilsDetails['author'])?>
+            <br />
+          <? endif; ?>
 
           <? $formats = $resource->getFormats(); if (count($formats) > 0): ?>
             <?=str_replace('class="', 'class="label label-info ', $this->record($resource)->getFormatList())?>
@@ -104,6 +92,36 @@
 
           <? if (isset($ilsDetails['publication_year']) && !empty($ilsDetails['publication_year'])): ?>
             <strong><?=$this->transEsc('Year of Publication')?>:</strong> <?=$this->escapeHtml($ilsDetails['publication_year'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['imprint']) && !empty($ilsDetails['imprint'])): ?>
+            <strong><?=$this->transEsc('ill_imprint')?>:</strong> <?=$this->escapeHtml($ilsDetails['imprint'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['article_title']) && !empty($ilsDetails['article_title'])): ?>
+            <strong><?=$this->transEsc('ill_article_title')?>:</strong> <?=$this->escapeHtml($ilsDetails['article_title'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['article_author']) && !empty($ilsDetails['article_author'])): ?>
+            <strong><?=$this->transEsc('ill_article_author')?>:</strong> <?=$this->escapeHtml($ilsDetails['article_author'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['pickup_location']) && !empty($ilsDetails['pickup_location'])): ?>
+            <strong><?=$this->transEsc('ill_pickup_location')?>:</strong> <?=$this->escapeHtml($ilsDetails['pickup_location'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['media']) && !empty($ilsDetails['media'])): ?>
+            <strong><?=$this->transEsc('ill_request_type')?>:</strong> <?=$this->transEsc('ill_type ' . $ilsDetails['media'])?>
+            <br />
+          <? endif; ?>
+
+          <? if (isset($ilsDetails['price']) && !empty($ilsDetails['price'])): ?>
+            <strong><?=$this->transEsc('ill_price')?>:</strong> <?=$this->transEsc($ilsDetails['price'])?>
             <br />
           <? endif; ?>
 
