@@ -11,25 +11,7 @@
     </script>
 <? endif; ?>
 <div class="row-fluid">
-  <div class="span3">
-    <div class="text-center">
-      <div id="cover">
-      </div>
-    
-      <? /* Display qrcode if appropriate: */ ?>
-      <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
-      <? if($QRCode): ?>
-        <img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtml($QRCode);?>"/>
-      <? endif; ?>
-    </div>
-
-    <? /* Display the lists that this record is saved to */ ?>
-    <div class="savedLists hide alert alert-info" id="savedLists">
-      <strong><?=$this->transEsc("Saved in")?>:</strong>
-    </div>
-
-    <?=$this->record($this->driver)->getPreviews()?>
-  </div>
+  
 
   <div class="span9">
     <h3><?=$this->escapeHtml($this->driver->getTitle())?></h3>
@@ -227,5 +209,25 @@
       <?=$this->render('RecordTab/description-particular.phtml')?>
     </table>
     <?/* End Main Details */?>
+  </div>
+  
+  <div class="span3">
+    <div class="text-center">
+      <div id="cover">
+      </div>
+    
+      <? /* Display qrcode if appropriate: */ ?>
+      <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
+      <? if($QRCode): ?>
+        <img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtml($QRCode);?>"/>
+      <? endif; ?>
+    </div>
+
+    <? /* Display the lists that this record is saved to */ ?>
+    <div class="savedLists hide alert alert-info" id="savedLists">
+      <strong><?=$this->transEsc("Saved in")?>:</strong>
+    </div>
+
+    <?=$this->record($this->driver)->getPreviews()?>
   </div>
 </div>
