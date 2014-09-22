@@ -53,8 +53,8 @@ class ShibbolethWithWAYF extends Shibboleth
     protected $shibbolethConfig = null;
 
     protected $attribsToCheck = array(
-        'cat_username', 'email', 'lastname', 'firstname',
-        'college', 'major', 'home_library'
+        'username', 'cat_username', 'email', 'lastname',
+        'firstname', 'college', 'major', 'home_library'
     );
 
     public function __construct(\VuFind\Config\PluginManager $configLoader)
