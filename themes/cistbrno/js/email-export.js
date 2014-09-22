@@ -25,7 +25,7 @@ function processEmailSearch(url) {
   var arrayID = getAllByClass('hiddenId'); 
   var ids = new Array(arrayID.length);
   for (i = 0; i < arrayID.length; i++) {
-    ids[i] = 'exportID[]=' + arrayID[i].innerHTML;
+    ids[i] = 'exportID[]=' + arrayID[i].defaultValue;
   }
   var idString = url.href + '?' + ids.join('&');
   window.location.replace(idString);
