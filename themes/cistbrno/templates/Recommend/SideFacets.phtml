@@ -196,7 +196,7 @@ JS;
           </li>
         <? else: ?>
           <li class="facet<?=$thisFacet['operator'] ?><? if ($i>5): ?> <?=$moreClass ?><?endif ?>">
-            <span class="pull-right small">
+            <span class="facet-count-padding pull-right small">
               <? if ($allowExclude): ?>
                 <?=number_format($thisFacet['count'])?><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="icon-remove"></i></a>
               <? else: ?>
