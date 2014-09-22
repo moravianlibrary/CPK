@@ -29,4 +29,24 @@ class EbscoSolrMarc extends ParentSolrDefault
         return array();
     }
 
+    public function getSubscribedYears()
+    {
+        return null;
+    }
+
+    public function getSubscribedVolumes()
+    {
+        return null;
+    }
+
+    public function getNumberOfHoldings()
+    {
+        return null;
+    }
+
+    public function getItemLinks()
+    {
+        return array();
+    }
+
 }
