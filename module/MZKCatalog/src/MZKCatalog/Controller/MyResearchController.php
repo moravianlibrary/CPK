@@ -59,6 +59,9 @@ class MyResearchController extends MyResearchControllerBase
             if ($dateDiff->days < 30 && $dateDiff->invert != 0) {
                 $this->flashMessenger()->setNamespace('error')->addMessage('library_card_expiration_warning');
             }
+            if ($dateDiff->invert == 0 && $dateDiff->days > 0) {
+                $this->flashMessenger()->setNamespace('error')->addMessage('library_card_expirated_warning');
+            }
         }
         return $view;
     }
