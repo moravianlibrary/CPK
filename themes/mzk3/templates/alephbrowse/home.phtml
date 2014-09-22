@@ -19,7 +19,7 @@
 <div class="<?=$this->layoutClass('mainbody')?>">
   <div>
     <form class="form-inline" method="get" action="<?=$this->url('alephbrowse-home')?>" name="alephBrowseForm" id="alephBrowseForm">
-      <label for="alephBrowseForm_source"><?=$this->transEsc('Browse alephbetically') ?></label>
+      <label for="alephBrowseForm_source"><?=$this->transEsc('Browse alphabetically') ?></label>
       <select id="alephBrowseForm_source" class="form-control" name="source">
         <? foreach ($this->alephBrowseTypes as $key => $item): ?>
           <option value="<?=$this->escapeHtmlAttr($key) ?>"<? if ($this->source == $key): ?> selected="selected"<? endif; ?>><?=$this->transEsc($item) ?></option>
