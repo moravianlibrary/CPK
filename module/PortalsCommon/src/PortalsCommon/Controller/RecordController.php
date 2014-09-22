@@ -35,9 +35,12 @@ class RecordController extends RecordControllerBase
         // If a URL was explicitly passed in, use that; otherwise, try to
         // find the HTTP referrer.
         $view = $this->createEmailViewModel();
+        $config = $this->getConfig();
+        if (!$view->url) {
+            $view->url = $config->Site->url . 'Record/' . $view->id;
+        }
 
         // Force login if necessary:
-        $config = $this->getConfig();
         if ((!isset($config->Mail->require_login) || $config->Mail->require_login)
             && !$this->getUser()
         ) {
