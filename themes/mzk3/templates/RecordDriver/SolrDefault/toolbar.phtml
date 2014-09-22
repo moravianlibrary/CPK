@@ -13,14 +13,6 @@
 ?>
 <ul class="list-group">
   <li class="list-group-item">
-    <i class="fa fa-x fa-asterisk"></i>
-    <a class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>">
-      <?=$this->transEsc('Cite this')?>
-    </a>
-  </li>
-  <? if (count($this->driver->getCitationFormats()) > 0): ?>
-  <? endif; ?>
-  <li class="list-group-item">
     <i class="fa fa-x fa-envelope"></i>
     <a class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>">
       <?=$this->transEsc('Email this')?>
