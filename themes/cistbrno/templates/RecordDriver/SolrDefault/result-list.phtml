@@ -98,30 +98,33 @@
         <? $holdingsCount = $this->driver->getAgregatedHoldings();?>
         <? $recordLink = $this->recordLink()->getUrl($this->driver);?>
         <? foreach ($this->driver->getExternalLinks() as $current): ?>
-         <? if (isset($current['url']) && !empty($current['url'])): ?>
-           <? $ins = $current['institution']?>
-           <? $currentHoldingId = $ins . '.' . $current['id']?>
-           <div>
-           <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new">
-             <i class="icon-external-link"></i><?=$this->transEsc(strtoupper($ins))?>
-           </a>
-           <? if (isset($current['description'])):?>
-             <?=$current['description']?>
-           <? endif;?>
-           <? if (isset($holdingsCount[$currentHoldingId])):?>
-           
-           <a href="<?=$recordLink . '/holdings?institution=' . strtoupper($ins) . '#tabnav'?>">
-            <span class="holdings-wrapper small">
-              <span class="holdings-label">
-                <?=$this->transEsc('holdings')?> : 
+          <? if (isset($current['url']) && !empty($current['url'])): ?>
+            <? $ins = $current['institution']?>
+            <? $currentHoldingId = $ins . '.' . $current['id']?>
+            <div>
+              <span>
+                <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new">
+                  <i class="icon-external-link"></i><?=$this->transEsc(strtoupper($ins))?>
+                </a>
+                <? if (isset($current['description'])):?>
+                  <?=$current['description']?>
+                  <? endif;?>
               </span>
-              <span class="holdings-count"> 
-                  <?=$holdingsCount[$currentHoldingId]?>
-              </span>
-            </span>
-            </a>
-          <? endif;?>
-          </div>
+              <? if (isset($holdingsCount[$currentHoldingId])):?>
+                <span>
+                  <a href="<?=$recordLink . '/holdings?institution=' . strtoupper($ins) . '#tabnav'?>">
+                    <span class="holdings-wrapper small">
+                      <span class="holdings-label">
+                        <?=$this->transEsc('holdings')?> : 
+                      </span>
+                      <span class="holdings-count"> 
+                        <?=$holdingsCount[$currentHoldingId]?>
+                      </span>
+                    </span>
+                  </a>
+                </span>
+              <? endif;?>
+            </div>
           <? else: ?>
             <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local-search-link">
               <?=$this->transEsc(strtoupper($current['institution']))?>
