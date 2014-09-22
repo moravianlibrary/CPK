@@ -204,7 +204,10 @@ a {
 }
 
 .btn-primary {
-	background-color: #16969D;
+	text-transform: uppercase;
+	font-weight: bold;
+	background: transparent url('/themes/mzk/images/btn-submit.png') repeat-x left top;
+	font-size: 13px;
 }
 
 .btn-primary:hover {
