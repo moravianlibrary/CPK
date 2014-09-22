@@ -301,6 +301,21 @@ div.results-bulk-actions {
   background: #F5F5F5;
 }
 
+div.holdingsLink {
+  margin-top: 10px;
+}
+
+div.holdingsLink>a {
+  background: transparent url("/themes/mzk/images/btn-submit.png") repeat-x left top;
+  text-transform: uppercase;
+  font-family: 'Arial';
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  padding:.5em .5em .5em .5em;
+  text-decoration: none;
+}
+
 /* obalky knih */
 div.coverThumbnail>a>img {
   height: 80px;
