@@ -76,33 +76,52 @@ class ShibbolethWithWAYF extends Shibboleth
             }
         }
         if ($config == null) {
-            throw new AuthException('authentication_error_admin');
+            if (isset($this->shibbolethConfig['default'])) {
+                $config = $this->shibbolethConfig['default'];
+            } else {
+                throw new AuthException('authentication_error_admin');
+            }
         }
-        $username = $request->getServer()->get($config->username);
-        $user = $this->getUserTable()->getByUsername($username);
-        if (empty($username)) {
-            throw new AuthException('authentication_error_admin');
-        }
+        $attributes = array();
         foreach ($this->attribsToCheck as $attribute) {
             if (isset($config->$attribute)) {
                 $key = $config->$attribute;
                 $pattern = null;
-                if (strpos($key, ',') !== false) {
+                $value = null;
+                if (strpos($key, '|') !== false) {
+                    $keys = explode('|', $key);
+                    foreach ($keys as $key) {
+                        $key = trim($key);
+                        $value = $request->getServer()->get($key);
+                        if ($value != null) {
+                            break;
+                        }
+                    }
+                } else if (strpos($key, ',') !== false) {
                     list ($key, $pattern) = explode(',', $key, 2);
                     $pattern = trim($pattern);
                 }
-                $value = $request->getServer()->get($key);
+                if ($value == null) {
+                    $value = $request->getServer()->get($key);
+                }
                 if ($pattern != null) {
                     $matches = array();
                     preg_match($pattern, $value, $matches);
                     $value = $matches[1];
                 }
                 if ($attribute == 'cat_username') {
-                    $user->$attribute = $prefix . self::SEPARATOR . $value;
+                    $attributes[$attribute] = $prefix . self::SEPARATOR . $value;
                 } else {
-                    $user->$attribute = $value;
+                    $attributes[$attribute] = $value;
                 }
             }
+        }
+        if (empty($attributes['username'])) {
+            throw new AuthException('authentication_error_admin');
+        }
+        $user = $this->getUserTable()->getByUsername($attributes['username']);
+        foreach ($attributes as $key => $value) {
+            $user->$key = $value;
         }
         // Save and return the user object:
         $user->save();
