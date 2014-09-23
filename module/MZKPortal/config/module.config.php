@@ -26,6 +26,11 @@ $config = array(
                     'shibbolethWithWAYF' => 'MZKPortal\Auth\Factory::getShibbolethWithWAYF',
                 ),
             ),
+            'search_params' => array(
+                'factories' => array(
+                    'solr' => 'MZKPortal\Search\Params\Factory::getSolrParams',
+                 )
+            ),
         ), /* plugin_managers */
         'recorddriver_tabs' => array(
             'MZKPortal\RecordDriver\SolrMarcMerged' => array(
