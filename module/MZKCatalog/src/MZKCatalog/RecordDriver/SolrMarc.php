@@ -13,6 +13,18 @@ class SolrMarc extends ParentSolrDefault
     
     const ALEPH_BASE_URL = "http://aleph.mzk.cz/";
 
+    public function getAllSubjectHeadings()
+    {
+        $result = array();
+        $subjectFields = array('topic', 'geographic', 'genre');
+        foreach ($subjectFields as $field) {
+            if (isset($this->fields[$field])) {
+                $result = array_merge($result, $this->fields[$field]);
+            }
+        }
+        return $result;
+    }
+
     public function getTitle()
     {
         return isset($this->fields['title_display']) ?
