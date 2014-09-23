@@ -2,6 +2,7 @@
   $this->headScript()->appendFile('obalkyknih/functions.js');
   $this->headScript()->appendFile('obalkyknih/custom.js');
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
+  $formats = $this->driver->getFormats();
 ?>
 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
     <script type="text/javascript">
@@ -251,9 +252,9 @@
   <div class="col-md-3 cover">
     <div class="text-center">
       <div id="cover">
-        <img src="<?=$this->imageLink('format/Book.png')?>" />
+        <img src="<?=$this->imageLink('format/' . $formats[0] . '.png')?>" />
       </div>
-      <? $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
+      <?if (!empty($formats)): ?>
         <div class="format">
           <?=$this->record($this->driver)->getFormatList()?>
         </div>
