@@ -100,6 +100,7 @@ class NewItems implements RecommendInterface
         foreach ($filters as $key => $value) {
             if ($key == $this->dateField) {
                 $this->selectedDateRange = $value[0];
+                $params->addFacet($this->dateField, 'New acquisitions since');
             }
         }
     }
