@@ -579,5 +579,5 @@ barcode_str_mv:
 
 PlaceOfPublication:
   QueryFields:
-    placeOfPublication_txt:
+    placeOfPublication_txt_mv:
       - [and, ~]
