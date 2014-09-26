@@ -36,13 +36,8 @@ $config = array(
             'MZKPortal\RecordDriver\SolrMarcMerged' => array(
                 'tabs' => array (
                     'holdings' =>  'MZKPortal\RecordTab\HoldingsMerged',
-                    'Libraries' => 'Libraries',
                     'TOC' => 'TOC',
                     'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews',
-                    'Excerpt' => 'Excerpt',
-                    'HierarchyTree' => 'HierarchyTree',
-                    'Map' => 'Map',
                     'Details' => 'StaffViewArray',
                 ),
             ),
