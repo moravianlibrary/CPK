@@ -1,0 +1,24 @@
+<?
+  $show = false;
+  $selectedDateRange = $this->recommend->getSelectedDateRange();
+  $dateRanges = $this->recommend->getDateRanges();
+  $dateField = $this->recommend->getDateField();
+?>
+<? if ($selectedDateRange != null): ?>
+<div>
+  <form name='newItemsFilter' id='newItemsFilter' class='form-inline'>
+    <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$dateField}:.*/"))?>
+    <label for="<?=$this->escapeHtml($dateField)?>">
+      <?=$this->translate('New acquisitions since')?>:&nbsp;
+    </label>
+    <select name="filter[]" name="<?=$this->escapeHtml($dateField)?>" onChange="document.forms['newItemsFilter'].submit()" class="form-control">
+      <? foreach($dateRanges as $key => $val):?>
+        <option value="<?=$this->escapeHtml($val['filter'])?>" <?if ($val['selected']):?> selected <? endif; ?>><?=$this->escapeHtml($key);?> </option>
+      <? endforeach;?>
+    </select>
+    <noscript>
+      <input type="submit" value="{translate text='Set'}" id="{$title|escape}goButton">
+    </noscript>
+  </form>
+</div>
+<? endif; ?>

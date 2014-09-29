@@ -1,0 +1,286 @@
+<?
+    // Set page title.
+    $this->headTitle($this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
+    // Set up convenience variables:
+    $account = $this->auth()->getManager();
+    $user = $account->isLoggedIn();
+    $holdings = $this->driver->getRealTimeHoldings();
+    $offlineMode = $this->ils()->getOfflineMode();
+    // Account for replace_other_urls setting
+
+    // Set page title.
+    $this->headTitle($this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
+?>
+<? if ($offlineMode == "ils-offline"): ?>
+  <div class="alert alert-warning">
+    <h2><?=$this->transEsc('ils_offline_title')?></h2>
+    <p><strong><?=$this->transEsc('ils_offline_status')?></strong></p>
+    <p><?=$this->transEsc('ils_offline_holdings_message')?></p>
+    <? $supportEmail = $this->escapeHtmlAttr($this->systemEmail()); ?>
+    <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
+  </div>
+<? endif; ?>
+<? if (($this->ils()->getHoldsMode() == 'driver' && !empty($holdings)) || $this->ils()->getTitleHoldsMode() == 'driver'): ?>
+  <? if ($account->loginEnabled() && $offlineMode != 'ils-offline'): ?>
+    <? if (!$user): ?>
+      <div class="alert alert-info">
+        <a href="<?=$this->currentPath()?>?login=true&amp;catalogLogin=true"><?=$this->transEsc("Login")?></a> <?=$this->transEsc("hold_login")?>
+      </div>
+    <? elseif (!$user->cat_username): ?>
+      <div class="alert alert-info">
+        <?=$this->translate("hold_profile_html", array('%%url%%' => $this->currentPath() . '?catalogLogin=true'))?>
+      </div>
+    <? endif; ?>
+  <? endif; ?>
+<? endif; ?>
+<? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
+    <a class="placehold modal-link" title="<?=$this->transEsc('request_place_text')?>" href="<?=$this->recordLink()->getRequestUrl($holdingTitleHold)?>"><i class="fa fa-flag"></i>&nbsp;<?=$this->transEsc('title_hold_place')?></a>
+<? endif; ?>
+
+
+<? if ($holdings != null) : ?>
+<table class="table table-view" id="no-more-tables">
+<thead>
+  <tr>
+    <th><?=$this->transEsc("item status")?>&nbsp;</th>
+    <th><?=$this->transEsc("due date")?>&nbsp;</th>
+    <th><?=$this->transEsc("sublibrary")?>&nbsp;</th>
+    <th><?=$this->transEsc("collection")?>&nbsp;</th>
+    <th><?=$this->transEsc("location / second signature")?>&nbsp;</th>
+    <th><?=$this->transEsc("description")?>&nbsp;</th>
+    <th><?=$this->transEsc("note")?>&nbsp;</th>
+  </tr>
+</thead>
+<tbody>
+<? $rowNo = 0; ?>
+<? foreach ($holdings as $row): //var_dump($row)?>
+  <? $check = (isset($row['check']) && $row['check']); ?>
+  <? $rowNo++; $onShelf=$row['status']=="On Shelf";?>
+  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>">
+    <td data-title="<?=$this->transEsc("item status")?>">
+      <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>
+      <div>
+      <? else: ?>
+      <div class="jt" title="<?=$this->transEsc('Description Status '. $row['status'])?>">
+      <? endif; ?>
+        <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($onShelf?'Holdable':'NotHoldable')?></span>
+      </div>
+      <? if ($row['reserve'] == "Y"): ?>
+      <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
+      <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
+        <span class="unknown"><?=$this->transEsc("status_unknown_message")?></span>
+      <? else: ?>
+        <? if ($row['holdtype'] == 'shortloan'):?>
+          <? if (isset($row['link']) && $row['link']): ?>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
+              <span><?=$this->transEsc("Reserve")?></span>
+            </a>
+          <? endif; ?>
+        <? elseif ($row['availability']): ?>
+          <? /* Begin Available Items (Holds) */ ?>
+          <div>
+          <? if (isset($row['link']) && $row['link']): ?>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
+              <span><?=$this->transEsc($check ? "Check Hold" : "Order from stock")?></span>
+            </a>
+          <? endif; ?>
+          </div>
+        <? else: ?>
+          <div>
+          <? if (isset($row['link']) && $row['link']): ?>
+            <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
+              <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
+            </a>
+          <? endif; ?>
+          </div>
+        <? endif; ?>
+      <? endif; ?>
+    </td>
+    <td data-title="<?=$this->transEsc("due date")?>">
+      <?if ($row['duedate']) : ?>
+        <?=$this->transEsc($row['duedate'])?>
+      <? elseif ($row['duedate_status'] != $row['status']):?>
+        <?=$this->transEsc($row['duedate_status'])?>
+      <?endif;?>
+    </td>
+    <td data-title="<?=$this->transEsc("sublibrary")?>">
+      <? if ($this->transEsc('Description Sublibrary '. $row['sub_lib_desc']) == 'Description Sublibrary '. $row['sub_lib_desc']):?>
+      <div>
+      <? else: ?>
+      <div class="jt" title="<?=$this->transEsc('Description Sublibrary '. $row['sub_lib_desc'])?>">
+      <? endif; ?>
+        <? if(!empty($row['sub_lib_desc'])):?>
+          <?=$this->transEsc('Sublibrary '. $row['sub_lib_desc'])?>
+        <? endif; ?>
+      </div>
+    </td>
+    <td data-title="<?=$this->transEsc("collection")?>">
+      <? if ($this->transEsc('Description Collection '. $row['collection_desc']) == 'Description Collection '. $row['collection_desc']):?>
+      <div>
+      <? else: ?>
+      <div class="jt" title="<?=$this->transEsc('Description Collection '. $row['collection_desc'])?>">
+      <? endif; ?>
+        <? if(!empty($row['collection_desc'])):?>
+          <?=$this->transEsc('Collection ' . $row['collection_desc'])?>
+        <? endif; ?>
+      </div>
+    </td>
+    <td data-title="<?=$this->transEsc("location / second signature")?>">
+      <?=$this->escapeHtml($row['location'])?>
+    </td>
+    <td data-title="<?=$this->transEsc("description")?>">
+      <?=$this->escapeHtml($row['description'])?>
+    </td>
+    <td data-title="<?=$this->transEsc("note")?>">
+      <? if ($row['notes'] != null):?>
+        <?=$this->escapeHtml($row['notes'][0])?>
+      <? endif;?>
+    </td>
+  </tr>
+<? endforeach; ?>
+</tbody>
+</table>
+<? endif; ?>
+
+<? $history = $this->driver->getRealTimeHistory(); ?>
+<? if (is_array($history) && !empty($history)): ?>
+<h3><?=$this->transEsc("Most Recent Received Issues")?></h3>
+<ul>
+  <? foreach ($history as $row): ?>
+    <li><?=$this->escapeHtml($row['issue'])?></li>
+  <? endforeach; ?>
+</ul>
+<? endif; ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
