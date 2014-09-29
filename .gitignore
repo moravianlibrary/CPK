@@ -11,3 +11,4 @@ vendor/.git
 /nbproject
 messages.log
 cache
+log

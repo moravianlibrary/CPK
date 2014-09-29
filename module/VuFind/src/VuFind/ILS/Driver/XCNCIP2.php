@@ -378,14 +378,14 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         );
         if (!empty($id)) {
             $patron = array(
-                'id' => (string)$id[0],
-                'firstname' => (string)$firstname[0],
-                'lastname'  => (string)$lastname[0],
-                'cat_username' => $username,
-                'cat_password' => $password,
-                'email' => (string)$email[0],
-                'major' => null,
-                'college' => null,
+					'id' => ( string ) $id [0],
+					'firstname' => ( string ) $firstname [0],
+					'lastname' => ( string ) $lastname [0],
+					'cat_username' => $username,
+					'cat_password' => $password,
+					'email' => empty ( $email ) ? '' : ( string ) $email [0],
+					'major' => null,
+	                'college' => null,
             );
             return $patron;
         }
