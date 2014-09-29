@@ -201,6 +201,16 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
 			
 			$dueDate = implode ( ". ", $dueDate );
     }
+    
+    // Can we supply any online service? (Hold request from Stock, Reserve or Renew loan?)
+    // Set link as true if yes.
+   
+    $link = false;
+    if ($available && false)
+    {}
+    
+    //TODO: We need to parse <z30-item-status>Month</z30-item-status> to clarify what are we able to do with the item
+    //$stat = ( string ) $status [0];
 
       // Build return array:
     return array (
