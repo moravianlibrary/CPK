@@ -12,3 +12,4 @@ vendor/.git
 messages.log
 cache
 log
+.settings

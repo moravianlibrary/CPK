@@ -53,7 +53,7 @@
 </thead>
 <tbody>
 <? $rowNo = 0; ?>
-<? foreach ($holdings as $row): //var_dump($row)?>
+<? foreach ($holdings as $row): if(count($row) == 1) $row = $row[0];?>
   <? $check = (isset($row['check']) && $row['check']); ?>
   <? $rowNo++; $onShelf=$row['status']=="On Shelf";?>
   <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>">
