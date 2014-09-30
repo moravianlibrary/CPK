@@ -185,9 +185,14 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $itemCallNo = $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber');
         //$itemCallNo = (string)$itemCallNo[0];
 
-        $barcode = $current->xpath('ns1:ItemOptionalFields/' .
-                'ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
-                $number = $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces');
+        $itemIdentifierCode = (string)$current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifierCode')[0];
+        
+        if ($itemIdentifierCode == 'Legal Deposit Number') {
+        	
+			$barcode = (string) $current->xpath ( 'ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier' )[0];
+		}
+		
+        $number = $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces');
 
         $holdQueue = $current->xpath('ns1:ItemOptionalFields/ns1:HoldQueueLength');
 
@@ -208,8 +213,9 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     // Can we supply any online service? (Hold request from Stock, Reserve or Renew loan?)
     // Set link as true if yes.
    
+    // Book from stock may be placed only if
     $link = false;
-    if ($available && false)
+    if ($available && false) 
     {}
     
     //TODO: We need to parse <z30-item-status>Month</z30-item-status> to clarify what are we able to do with the item
@@ -228,7 +234,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         'returnDate' => false,
         'number' => empty ( $number ) ? "" : ( string ) $number [0],
         'requests_placed' => empty ( $holdQueue ) ? "" : ( string ) $holdQueue [0],
-        'barcode' => empty ( $barcode ) ? "" : ( string ) $barcode [0],
+        'barcode' => empty ( $barcode ) ? "" : $barcode ,
         'notes' => "",
         'summary' => "",
         'supplements' => "",
