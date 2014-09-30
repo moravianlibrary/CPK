@@ -53,7 +53,7 @@
 </thead>
 <tbody>
 <? $rowNo = 0; ?>
-<? foreach ($holdings as $row): if(count($row) == 1) $row = $row[0];?>
+<? if(count($holdings) == 1) {$holdings = $holdings[array_keys($holdings)[0]];} foreach ($holdings as $row): //FIXME: Create proprietary links?>
   <? $check = (isset($row['check']) && $row['check']); ?>
   <? $rowNo++; $onShelf=$row['status']=="On Shelf";?>
   <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>">

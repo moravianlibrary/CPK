@@ -147,7 +147,13 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
                 'ns1:BibliographicId/ns1:BibliographicRecordId/' .
                 'ns1:BibliographicRecordIdentifier'
         );
-        $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+        $itemIdentifierCode = (string)$current->xpath('ns1:ItemId/ns1:ItemIdentifierType')[0];
+        
+        if($itemIdentifierCode == 'Accession Number') {
+
+        	$item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+        }
+        
 
         // Pick out the permanent location (TODO: better smarts for dealing with
         // temporary locations and multi-level location names):
@@ -185,9 +191,9 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $itemCallNo = $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber');
         //$itemCallNo = (string)$itemCallNo[0];
 
-        $itemIdentifierCode = (string)$current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifierCode')[0];
+        $bibliographicItemIdentifierCode = (string)$current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifierCode')[0];
         
-        if ($itemIdentifierCode == 'Legal Deposit Number') {
+        if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
         	
 			$barcode = (string) $current->xpath ( 'ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier' )[0];
 		}
@@ -195,6 +201,8 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $number = $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces');
 
         $holdQueue = $current->xpath('ns1:ItemOptionalFields/ns1:HoldQueueLength');
+        
+        $itemRestriction = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemUseRestrictionType')[0];
 
         $available = (string)$status[0] === 'On Shelf';
 
@@ -213,10 +221,26 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     // Can we supply any online service? (Hold request from Stock, Reserve or Renew loan?)
     // Set link as true if yes.
    
-    // Book from stock may be placed only if
+    $onStock = strpos($location, 'Stock') > -1;
+    
+    $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
+    
+    $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period');
+    
+    // FIXME: Add link logic
     $link = false;
-    if ($available && false) 
-    {}
+    if ($onStock && $restrictedToLibrary) {
+    	// This means the reader needs to place a request to prepare the item -> pick up the item from stock & bring it to circulation desc
+    	// E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
+    	$link = true;
+    } else if ($onStock && $monthLoanPeriod) {
+    	// Pickup from stock & prepare for month loan
+    	$link = true;
+    } else if (! $available && ! $onStock) {
+    	// Reserve item
+    	$link = true;
+    }
+    // End of FIXME
     
     //TODO: We need to parse <z30-item-status>Month</z30-item-status> to clarify what are we able to do with the item
     //$stat = ( string ) $status [0];
