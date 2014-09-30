@@ -170,11 +170,14 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
             'ns1:LocationNameInstance');
         foreach ($locationNameInstance as $recent)
         {
-            if ($recent->xpath('ns1:LocationNameLevel')[0] == 2)
-            {
-                $location =  $recent->xpath('ns1:LocationNameValue');
-            }
-        }
+			$locationLevel = $recent->xpath ( 'ns1:LocationNameLevel' )[0];
+			
+			if ($locationLevel == 1) {
+				$agency = $recent->xpath ( 'ns1:LocationNameValue' );
+			} else if ($locationLevel == 2) {
+				$location = $recent->xpath ( 'ns1:LocationNameValue' );
+			}
+		}
 
         // Get both holdings and item level call numbers; we'll pick the most
         // specific available value below.
