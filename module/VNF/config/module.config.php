@@ -47,7 +47,7 @@ $config = array(
             'VNF\RecordDriver\SolrMarcMerged' => array(
                 'tabs' => array (
                         'libraries' => 'Libraries',
-                        'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                        'Details' => 'StaffViewArray',
                         'TOC' => 'TOC',
                 ),
                 'defaultTab' => 'TOC',
