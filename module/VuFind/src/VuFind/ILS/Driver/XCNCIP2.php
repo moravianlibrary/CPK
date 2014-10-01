@@ -151,7 +151,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         
         if($itemIdentifierCode == 'Accession Number') {
 
-        	$item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+        	$item_id = (string)$current->xpath('ns1:ItemId/ns1:ItemIdentifierValue')[0];
         }
         
 
@@ -170,7 +170,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $location = (string)$tmp[0];
         }*/
         // TODO tmp solution of getting location
-        $additRequest = $this->requests->getLocation((string)$item_id[0]);
+        $additRequest = $this->requests->getLocation($item_id);
         $additResponse = $this->sendRequest($additRequest);
         $locationNameInstance = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:Location/ns1:LocationName/' .
             'ns1:LocationNameInstance');
@@ -179,9 +179,9 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
 			$locationLevel = $recent->xpath ( 'ns1:LocationNameLevel' )[0];
 			
 			if ($locationLevel == 1) {
-				$agency = $recent->xpath ( 'ns1:LocationNameValue' );
+				$agency =(string) $recent->xpath ( 'ns1:LocationNameValue' )[0];
 			} else if ($locationLevel == 2) {
-				$location = $recent->xpath ( 'ns1:LocationNameValue' );
+				$location =(string) $recent->xpath ( 'ns1:LocationNameValue' ) [0];
 			}
 		}
 
@@ -210,18 +210,15 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
 		
 		if (! empty ( $dueDate ) && $dueDate != 'On Hold') {
 			
-			// Localize Aleph date to dd. MM. yyyy
+			// Localize Aleph date to dd. MM. yyyy from Aleph unstructued response
 			$dueDate = explode ( "/", $dueDate );
 			
 			$dueDate [1] = date ( 'n', strtotime ( $dueDate [1] ) );
 			
 			$dueDate = implode ( ". ", $dueDate );
     }
-    
-    // Can we supply any online service? (Hold request from Stock, Reserve or Renew loan?)
-    // Set link as true if yes.
    
-    $onStock = strpos($location, 'Stock') > -1;
+    $onStock = substr($location, 0, 5) == 'Stock';
     
     $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
     
@@ -232,20 +229,16 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     if ($onStock && $restrictedToLibrary) {
     	// This means the reader needs to place a request to prepare the item -> pick up the item from stock & bring it to circulation desc
     	// E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
-    	$link = true;
+    	$link = $this->createLinkFromAlephItemId($item_id);
     } else if ($onStock && $monthLoanPeriod) {
     	// Pickup from stock & prepare for month loan
-    	$link = true;
+    	$link = $this->createLinkFromAlephItemId($item_id);
     } else if (! $available && ! $onStock) {
     	// Reserve item
-    	$link = true;
+    	$link = $this->createLinkFromAlephItemId($item_id);
     }
     // End of FIXME
-    
-    //TODO: We need to parse <z30-item-status>Month</z30-item-status> to clarify what are we able to do with the item
-    //$stat = ( string ) $status [0];
 
-      // Build return array:
     return array (
         'id' => empty ( $id ) ? "" : ( string ) $id [0],
         'availability' => empty ( $available ) ? false : $available ? true : false,
@@ -253,7 +246,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         'location' => empty ( $itemCallNo ) ? "" : ( string ) $itemCallNo [0],
         'reserve' => "",
         'callnumber' => "",
-        'collection_desc' => empty ( $location ) ? "" : ( string ) $location [0],
+        'collection_desc' => empty ( $location ) ? "" : $location ,
         'duedate' => empty ( $dueDate ) ? "" : (string)$dueDate,
         'returnDate' => false,
         'number' => empty ( $number ) ? "" : ( string ) $number [0],
@@ -266,7 +259,8 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         'is_holdable' => "",
         'holdtype' => "",
         'addLink' => "",
-        'item_id' => empty ( $item_id ) ? "" : ( string ) $item_id [0],
+    	'link' => $link,
+        'item_id' => empty ( $item_id ) ? "" : $item_id,
         'holdOverride' => "",
         'addStorageRetrievalRequestLink' => "",
         'addILLRequestLink' => ""
@@ -274,6 +268,16 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
   }
 
 
+  private function createLinkFromAlephItemId($item_id) {
+  	$itemIdParts = explode("-", $item_id);
+  	
+  	$link = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
+  	$link .= '/ExtendedHold?barcode='; 
+  	$link .= $itemIdParts[1];
+  	// MZK01000974548-MZK50000974548000010
+  	//'MZK01-000974548/ExtendedHold?barcode=MZK50000974548000020'
+  	return $link;
+  }
     /**
      * Get Status
      *
