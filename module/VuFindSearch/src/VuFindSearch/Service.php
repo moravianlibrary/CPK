@@ -109,7 +109,8 @@ class Service
         $params  = $params ?: new ParamBag();
         if ($this->defaultSort != null && $query instanceof \VuFindSearch\Query\Query
             && trim($query->getString()) == '' && $params != null
-            && $params->get('sort')[0] == 'score desc') {
+            && $params->get('sort')[0] == 'score desc'
+            && empty($params->get('boost'))) {
             $params->set('sort', $this->defaultSort);
         }
         $context = __FUNCTION__;
