@@ -133,151 +133,163 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      * Given a chunk of the availability response, extract the values needed
      * by VuFind.
      *
-     * @param array $current Current XCItemAvailability chunk.
-     *        array $bibinfo Information about record.
-     *
+     * @param array $current
+     *            Current XCItemAvailability chunk.
+     *            array $bibinfo Information about record.
+     *            
      * @return array
      */
-    protected function getHoldingsForChunk($current, $bibinfo)
+    protected function getHoldingsForChunk ($current, $bibinfo)
     {
         // Extract details from the XML:
-        $status = $current->xpath('ns1:ItemOptionalFields/ns1:CirculationStatus');
-
+        $status = $current->xpath(
+                'ns1:ItemOptionalFields/ns1:CirculationStatus');
+        
         $id = $bibinfo->xpath(
                 'ns1:BibliographicId/ns1:BibliographicRecordId/' .
-                'ns1:BibliographicRecordIdentifier'
-        );
-        $itemIdentifierCode = (string)$current->xpath('ns1:ItemId/ns1:ItemIdentifierType')[0];
+                         'ns1:BibliographicRecordIdentifier');
+        $itemIdentifierCode = (string) $current->xpath(
+                'ns1:ItemId/ns1:ItemIdentifierType')[0];
         
-        if($itemIdentifierCode == 'Accession Number') {
-
-        	$item_id = (string)$current->xpath('ns1:ItemId/ns1:ItemIdentifierValue')[0];
+        if ($itemIdentifierCode == 'Accession Number') {
+            
+            $item_id = (string) $current->xpath(
+                    'ns1:ItemId/ns1:ItemIdentifierValue')[0];
         }
         
-
         // Pick out the permanent location (TODO: better smarts for dealing with
         // temporary locations and multi-level location names):
-        /*$locationNodes = $current->xpath('ns1:HoldingsSet/ns1:Location');
-        $location = '';
-        foreach ($locationNodes as $curLoc) {
-        $type = $curLoc->xpath('ns1:LocationType');
-        if ((string)$type[0] == 'Permanent') {
-        $tmp = $curLoc->xpath('ns1:LocationName/ns1:LocationNameInstance/ns1:LocationNameValue');
-        }
-        else {
-        $tmp[0] = 'temporary unknown';
-        }
-        $location = (string)$tmp[0];
-        }*/
+        /*
+         * $locationNodes = $current->xpath('ns1:HoldingsSet/ns1:Location');
+         * $location = ''; foreach ($locationNodes as $curLoc) { $type =
+         * $curLoc->xpath('ns1:LocationType'); if ((string)$type[0] ==
+         * 'Permanent') { $tmp =
+         * $curLoc->xpath('ns1:LocationName/ns1:LocationNameInstance/ns1:LocationNameValue');
+         * } else { $tmp[0] = 'temporary unknown'; } $location =
+         * (string)$tmp[0]; }
+         */
         // TODO tmp solution of getting location
         $additRequest = $this->requests->getLocation($item_id);
         $additResponse = $this->sendRequest($additRequest);
-        $locationNameInstance = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:Location/ns1:LocationName/' .
-            'ns1:LocationNameInstance');
-        foreach ($locationNameInstance as $recent)
-        {
-			$locationLevel = $recent->xpath ( 'ns1:LocationNameLevel' )[0];
-			
-			if ($locationLevel == 1) {
-				$agency =(string) $recent->xpath ( 'ns1:LocationNameValue' )[0];
-			} else if ($locationLevel == 2) {
-				$location =(string) $recent->xpath ( 'ns1:LocationNameValue' ) [0];
-			}
-		}
-
+        $locationNameInstance = $additResponse->xpath(
+                'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:Location/ns1:LocationName/' .
+                         'ns1:LocationNameInstance');
+        foreach ($locationNameInstance as $recent) {
+            $locationLevel = $recent->xpath('ns1:LocationNameLevel')[0];
+            
+            if ($locationLevel == 1) {
+                $agency = (string) $recent->xpath('ns1:LocationNameValue')[0];
+            } else 
+                if ($locationLevel == 2) {
+                    $location = (string) $recent->xpath('ns1:LocationNameValue')[0];
+                }
+        }
+        
         // Get both holdings and item level call numbers; we'll pick the most
         // specific available value below.
-        //$holdCallNo = $current->xpath('ns1:HoldingsSet/ns1:CallNumber');
-        $itemCallNo = $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber');
-        //$itemCallNo = (string)$itemCallNo[0];
-
-        $bibliographicItemIdentifierCode = (string)$current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifierCode')[0];
+        // $holdCallNo = $current->xpath('ns1:HoldingsSet/ns1:CallNumber');
+        $itemCallNo = $current->xpath(
+                'ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber');
+        // $itemCallNo = (string)$itemCallNo[0];
+        
+        $bibliographicItemIdentifierCode = (string) $current->xpath(
+                'ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifierCode')[0];
         
         if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
-        	
-			$barcode = (string) $current->xpath ( 'ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier' )[0];
-		}
-		
-        $number = $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces');
-
-        $holdQueue = $current->xpath('ns1:ItemOptionalFields/ns1:HoldQueueLength');
+            
+            $barcode = (string) $current->xpath(
+                    'ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier')[0];
+        }
         
-        $itemRestriction = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemUseRestrictionType')[0];
-
-        $available = (string)$status[0] === 'On Shelf';
-
-        $dueDate = $available ? null : explode("; ",(string)$status[0] )[0];
-		
-		if (! empty ( $dueDate ) && $dueDate != 'On Hold') {
-			
-			// Localize Aleph date to dd. MM. yyyy from Aleph unstructued response
-			$dueDate = explode ( "/", $dueDate );
-			
-			$dueDate [1] = date ( 'n', strtotime ( $dueDate [1] ) );
-			
-			$dueDate = implode ( ". ", $dueDate );
+        $number = $current->xpath(
+                'ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces');
+        
+        $holdQueue = $current->xpath(
+                'ns1:ItemOptionalFields/ns1:HoldQueueLength');
+        
+        $itemRestriction = (string) $current->xpath(
+                'ns1:ItemOptionalFields/ns1:ItemUseRestrictionType')[0];
+        
+        $available = (string) $status[0] === 'On Shelf';
+        
+        $dueDate = $available ? null : explode("; ", (string) $status[0])[0];
+        
+        if (! empty($dueDate) && $dueDate != 'On Hold') {
+            
+            // Localize Aleph date to dd. MM. yyyy from Aleph unstructued
+            // response
+            $dueDate = explode("/", $dueDate);
+            
+            $dueDate[1] = date('n', strtotime($dueDate[1]));
+            
+            $dueDate = implode(". ", $dueDate);
+        }
+        
+        $onStock = substr($location, 0, 5) == 'Stock';
+        
+        $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
+        
+        $monthLoanPeriod = ($itemRestriction ==
+                 'Limited Circulation, Normal Loan Period');
+        
+        // FIXME: Add link logic
+        $link = false;
+        if ($onStock && $restrictedToLibrary) {
+            // This means the reader needs to place a request to prepare the
+            // item -> pick up the item from stock & bring it to circulation
+            // desc
+            // E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
+            $link = $this->createLinkFromAlephItemId($item_id);
+        } else 
+            if ($onStock && $monthLoanPeriod) {
+                // Pickup from stock & prepare for month loan
+                $link = $this->createLinkFromAlephItemId($item_id);
+            } else 
+                if (! $available && ! $onStock) {
+                    // Reserve item
+                    $link = $this->createLinkFromAlephItemId($item_id);
+                }
+        // End of FIXME
+        
+        return array(
+                'id' => empty($id) ? "" : (string) $id[0],
+                'availability' => empty($available) ? false : $available ? true : false,
+                'status' => empty($status) ? "" : (string) $status[0],
+                'location' => empty($itemCallNo) ? "" : (string) $itemCallNo[0],
+                'reserve' => "",
+                'callnumber' => "",
+                'collection_desc' => empty($location) ? "" : $location,
+                'duedate' => empty($dueDate) ? "" : (string) $dueDate,
+                'returnDate' => false,
+                'number' => empty($number) ? "" : (string) $number[0],
+                'requests_placed' => empty($holdQueue) ? "" : (string) $holdQueue[0],
+                'barcode' => empty($barcode) ? "" : $barcode,
+                'notes' => "",
+                'summary' => "",
+                'supplements' => "",
+                'indexes' => "",
+                'is_holdable' => "",
+                'holdtype' => "",
+                'addLink' => "",
+                'link' => $link,
+                'item_id' => empty($item_id) ? "" : $item_id,
+                'holdOverride' => "",
+                'addStorageRetrievalRequestLink' => "",
+                'addILLRequestLink' => ""
+        );
     }
-   
-    $onStock = substr($location, 0, 5) == 'Stock';
-    
-    $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
-    
-    $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period');
-    
-    // FIXME: Add link logic
-    $link = false;
-    if ($onStock && $restrictedToLibrary) {
-    	// This means the reader needs to place a request to prepare the item -> pick up the item from stock & bring it to circulation desc
-    	// E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
-    	$link = $this->createLinkFromAlephItemId($item_id);
-    } else if ($onStock && $monthLoanPeriod) {
-    	// Pickup from stock & prepare for month loan
-    	$link = $this->createLinkFromAlephItemId($item_id);
-    } else if (! $available && ! $onStock) {
-    	// Reserve item
-    	$link = $this->createLinkFromAlephItemId($item_id);
+
+    private function createLinkFromAlephItemId ($item_id)
+    {
+        // Input: MZK01000974548-MZK50000974548000010
+        // Output: MZK01-000974548/ExtendedHold?barcode=MZK50000974548000020
+        $itemIdParts = explode("-", $item_id);
+        
+        $link = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
+        $link .= '/ExtendedHold?barcode=';
+        $link .= $itemIdParts[1];
+        return $link;
     }
-    // End of FIXME
-
-    return array (
-        'id' => empty ( $id ) ? "" : ( string ) $id [0],
-        'availability' => empty ( $available ) ? false : $available ? true : false,
-        'status' => empty ( $status ) ? "" : ( string ) $status [0],
-        'location' => empty ( $itemCallNo ) ? "" : ( string ) $itemCallNo [0],
-        'reserve' => "",
-        'callnumber' => "",
-        'collection_desc' => empty ( $location ) ? "" : $location ,
-        'duedate' => empty ( $dueDate ) ? "" : (string)$dueDate,
-        'returnDate' => false,
-        'number' => empty ( $number ) ? "" : ( string ) $number [0],
-        'requests_placed' => empty ( $holdQueue ) ? "" : ( string ) $holdQueue [0],
-        'barcode' => empty ( $barcode ) ? "" : $barcode ,
-        'notes' => "",
-        'summary' => "",
-        'supplements' => "",
-        'indexes' => "",
-        'is_holdable' => "",
-        'holdtype' => "",
-        'addLink' => "",
-    	'link' => $link,
-        'item_id' => empty ( $item_id ) ? "" : $item_id,
-        'holdOverride' => "",
-        'addStorageRetrievalRequestLink' => "",
-        'addILLRequestLink' => ""
-    );
-  }
-
-
-  private function createLinkFromAlephItemId($item_id) {
-  	$itemIdParts = explode("-", $item_id);
-  	
-  	$link = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
-  	$link .= '/ExtendedHold?barcode='; 
-  	$link .= $itemIdParts[1];
-  	// MZK01000974548-MZK50000974548000010
-  	//'MZK01-000974548/ExtendedHold?barcode=MZK50000974548000020'
-  	return $link;
-  }
     /**
      * Get Status
      *
