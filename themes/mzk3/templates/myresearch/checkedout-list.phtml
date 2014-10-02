@@ -106,7 +106,7 @@
           <? if (isset($ilsDetails['dueTime'])): ?>
             <?=$this->escapeHtml($ilsDetails['dueTime'])?>
           <? endif; ?>
-          <? if (isset($ilsDetails['returned'])): ?>
+          <? if ($this->history && isset($ilsDetails['returned'])): ?>
             | <?=$this->transEsc('Returned')?>: <?=$this->escapeHtml($ilsDetails['returned'])?>
           <? endif; ?>
         </strong>
