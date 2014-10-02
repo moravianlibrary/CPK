@@ -2,6 +2,7 @@
 <ul class="nav nav-list myresearch-menu">
   <? if ('ils-none' !== $this->ils()->getOfflineMode()): ?>
     <li<?=$this->active == 'checkedout' ? ' class="active"' : ''?>><a href="<?=$this->url('myresearch-checkedout')?>"><?=$this->transEsc('Checked Out Items')?> <i class="pull-right"></i></a></li>
+    <li<?=$this->active == 'checkedouthistory' ? ' class="active"' : ''?>><a href="<?=$this->url('myresearch-checkedouthistory')?>"><?=$this->transEsc('Checked Out History')?> <i class="pull-right"></i></a></li>
     <li<?=$this->active == 'holds' ? ' class="active"' : ''?>><a href="<?=$this->url('myresearch-holds')?>"><?=$this->transEsc('Holds and Recalls')?> <i class="pull-right"></i></a></li>
     <li<?=$this->active == 'bookings' ? ' class="active"' : ''?>><a href="<?=$this->url('myresearch-shortloans')?>"><?=$this->transEsc('Bookings')?> <i class="pull-right"></i></a></li>
     <? if ($this->ils()->checkFunction('StorageRetrievalRequests')): ?>
