@@ -49,4 +49,9 @@ class EbscoSolrMarc extends ParentSolrDefault
         return array();
     }
 
+    public function getAllSubjectHeadings()
+    {
+        return array();
+    }
+
 }
