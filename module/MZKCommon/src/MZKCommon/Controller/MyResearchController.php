@@ -327,11 +327,16 @@ class MyResearchController extends MyResearchControllerBase
             return $patron;
         }
 
+        $currentLimit = $this->params()->fromQuery('limit');
+        if (!isset($currentLimit)) {
+            $currentLimit = 50;
+        }
+
         // Connect to the ILS:
         $catalog = $this->getILS();
 
         // Get history:
-        $result = $catalog->getMyHistory($patron);
+        $result = $catalog->getMyHistory($patron, $currentLimit);
 
         $transactions = array();
         foreach ($result as $current) {
@@ -345,6 +350,8 @@ class MyResearchController extends MyResearchControllerBase
                 )
         );
         $view->history = true;
+        $view->currentLimit = $currentLimit;
+        $view->limitList = array(50, 100, 200);
         $this->addViews($view);
         return $view;
     }

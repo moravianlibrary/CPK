@@ -1332,9 +1332,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException
      * @return array      Array of the patron's transactions on success.
      */
-    public function getMyHistory($user)
+    public function getMyHistory($user, $limit = 0)
     {
-        return $this->getMyTransactions($user, true);
+        return $this->getMyTransactions($user, true, $limit);
     }
 
     /**
@@ -1351,13 +1351,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException
      * @return array        Array of the patron's transactions on success.
      */
-    public function getMyTransactions($user, $history=false)
+    public function getMyTransactions($user, $history=false, $limit = 0)
     {
         $userId = $user['id'];
         $transList = array();
         $params = array("view" => "full");
         if ($history) {
             $params["type"] = "history";
+            if ($limit > 0) {
+                $params["no_loans"] = $limit;
+            }
         }
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $userId, 'circulationActions', 'loans'), $params
