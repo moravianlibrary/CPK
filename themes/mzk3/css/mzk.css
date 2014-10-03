@@ -652,3 +652,12 @@ form#alephBrowseForm {
 .table#alephBrowse > tbody > tr > td {
 	padding: 3px;
 }
+
+.label {
+    border-radius: 0px;
+    margin-right: 2px;
+}
+
+.fa-bell, .fa-envelope, .fa-plus-sign{
+    margin-left: 10px;
+}
