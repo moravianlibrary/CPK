@@ -151,11 +151,17 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $itemIdentifierCode = (string) $current->xpath(
                 'ns1:ItemId/ns1:ItemIdentifierType')[0];
         
-        if ($itemIdentifierCode == 'Accession Number') {
-            
+        $parsingLoans = $current->xpath('ns1:LoanedItem') == null;
+        
+        if ($parsingLoans) {
             $item_id = (string) $current->xpath(
-                    'ns1:ItemId/ns1:ItemIdentifierValue')[0];
-        }
+                    'ns1:BibliographicItemId/ns1:BibliographicItemIdentifier')[0];
+        } else {
+            if ($itemIdentifierCode == 'Accession Number') {
+                
+                $item_id = (string) $current->xpath(
+                        'ns1:ItemId/ns1:ItemIdentifierValue')[0];
+        }}
         
         // Pick out the permanent location (TODO: better smarts for dealing with
         // temporary locations and multi-level location names):
@@ -469,9 +475,10 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $list = $response->xpath('ns1:LookupUserResponse/ns1:LoanedItem');
 
         foreach ($list as $current) {
-            $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
-            $bibliographicId = $current->xpath('ns1:Ext/ns1:BibliographicDescription/' .
+            $request = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+            $item_id = $current->xpath('ns1:Ext/ns1:BibliographicDescription/' .
                     'ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
+            $bibliographicId = substr(explode("-", (string) $item_id[0])[0], 5);
             $dateDue = $current->xpath('ns1:DateDue');
             $title = $current->xpath('ns1:Ext/ns1:BibliographicDescription/ns1:Title');
             $amount = $current->xpath('ns1:Amount');
@@ -493,9 +500,9 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
 
             $retVal[] = array(
                 'duedate' => empty($dateDue) ? '' : $dateDue,
-                'id'  => empty($bibliographicId) ? '' : (string)$bibliographicId[0],
+                'id'  => empty($bibliographicId) ? '' : $bibliographicId,
                 'barcode' => '', // TODO
-                'request' => '',
+                'request' => empty($request) ? '' : (string)$request[0],
                 'volume' => '',
                 'publication_year' => '', // TODO
                 'renewable' => '', // TODO

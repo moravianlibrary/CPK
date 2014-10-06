@@ -16,13 +16,6 @@
         $formats = $resource->getFormats();
       ?>
       <div id="cover_<?=$recordId?>" class="coverThumbnail">
-        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSON() && false): ?>
-          <script type="text/javascript">
-            $(document).ready(function() {
-              obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
-            });
-          </script>
-        <? endif;?>
         <img src="<?=$this->imageLink('format/' . $formats[0] . '.png')?>" />
       </div>
       <div class="coverFormat"><?=$this->transEsc($formats[0])?></div>
