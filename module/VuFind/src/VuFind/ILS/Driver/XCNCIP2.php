@@ -495,8 +495,6 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
                 'duedate' => empty($dateDue) ? '' : $dateDue,
                 'id'  => empty($bibliographicId) ? '' : (string)$bibliographicId[0],
                 'barcode' => '', // TODO
-                'renew' => '',
-                'renewLimit'     => '',
                 'request' => '',
                 'volume' => '',
                 'publication_year' => '', // TODO
@@ -509,7 +507,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
                 'issn' => '',
                 'oclc' => '',
                 'upc' => '',
-                'borrowingLocation' => '',
+                'borrowingLocation' => ''
             );
         }
         return $retVal;
