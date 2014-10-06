@@ -10,7 +10,7 @@
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
 
-  <div class="col-sm-2 col-xs-3 left">
+  <div class="col-sm-2 col-xs-3 left text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
         <script type="text/javascript">
