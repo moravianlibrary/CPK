@@ -107,6 +107,13 @@ class SolrMarc extends ParentSolrDefault
         if (in_array("NewspaperOrJournal", $this->getFormats())) {
             $result[] = 'periodicals_restriction_text';
         }
+        $bases = array("facet_base_MZK03_znojmo", "facet_base_MZK03_rajhrad", "facet_base_MZK03_trebova",
+            "facet_base_MZK03_dacice", "facet_base_MZK03_minorite");
+        foreach ($bases as $base) {
+            if (in_array($base, $this->fields['base_txtF_mv'])) {
+                $result[] = 'restriction_' . $base . '_text';
+            }
+        }
         return $result;
     }
 
