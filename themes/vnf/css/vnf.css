@@ -225,6 +225,10 @@ margin-left: 25px;
 margin-left: 10px;
 }
 
+.external-search-nolink {
+margin-left: 25px;
+}
+
 #flagLink.flagLink {
 padding: 0px 5px 0px 0px;
 margin-bottom: 10px;
@@ -252,4 +256,12 @@ margin-left: 3px;
 
 .coverThumbnail {
 margin-top: 20px;
+}
+
+.cistbrno-toolbar-items {
+ padding-top: 5px;
+}
+
+.image-icon {
+  padding-bottom: 3px;
 }

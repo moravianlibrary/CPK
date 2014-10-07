@@ -157,6 +157,9 @@ Author:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
+  DismaxParams:
+      - [bf, "if(exists(merged_boolean),90000,0)" ]
+      - [bf, "if(exists(query({!v='label_path_str_mv:*'})),50000,0)"]
 
 ISN:
   DismaxFields:
@@ -277,7 +280,8 @@ Title:
       - [onephrase, 50]
       - [and , ~]
   DismaxParams:
-      - [bf, "if(exists(merged_boolean),10000,0)" ]
+      - [bf, "if(exists(merged_boolean),100000,0)" ]
+      - [bf, "if(exists(query({!v='label_path_str_mv:*'})),500000,0)"]
 
 Series:
   DismaxFields:
@@ -369,6 +373,10 @@ AllFields:
       - [or, ~]
     ean_str_mv:
       - [or, ~]
+  DismaxParams:
+      - [bf, "if(exists(merged_boolean),10000,0)" ]
+      - [bf, "if(exists(query({!v='institutionAlbumsOnly:SUP'})),10000,0)"]
+      - [bf, "if(exists(query({!v='label_path_str_mv:*'})),50000,0)"]
 
 # These are advanced searches that never use Dismax:
 id:
@@ -503,3 +511,34 @@ oclc_num:
   QueryFields:
     oclc_num:
       - [oclc_num, ~]
+
+Identifiers:
+  QueryFields:
+    ean_txtP_mv:
+      - [onephrase, ~]
+    ean_view_txtP_mv:
+      - [onephrase, ~]
+    isrc_txtP_mv:
+      - [onephrase, ~]
+    isrc_view_txtP_mv:
+      - [onephrase, ~]
+    upc_txtP_mv:
+      - [onephrase, ~]
+    upc_view_txtP_mv:
+      - [onephrase, ~]
+    issue_txtP_mv:
+      - [onephrase, ~]
+    issue_view_txtP_mv:
+      - [onephrase, ~]
+    matrix_txtP_mv:
+      - [onephrase, ~]
+    matrix_view_txtP_mv:
+      - [onephrase, ~]
+    plate_txtP_mv:
+      - [onephrase, ~]
+    plate_view_txtP_mv:
+      - [onephrase, ~]
+    publisher_txtP_mv:
+      - [onephrase, ~]
+    publisher_view_txtP_mv:
+      - [onephrase, ~]

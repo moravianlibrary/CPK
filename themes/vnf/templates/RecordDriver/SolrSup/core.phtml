@@ -1,29 +1,4 @@
 <div class="row-fluid" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
-  <div class="span3">
-    <div class="text-center" id="center">
-      <? /* Display thumbnail if appropriate: */ ?>
-      <? $mediumThumb = $this->record($this->driver)->getThumbnail('medium'); $largeThumb = $this->record($this->driver)->getThumbnail('large'); ?>
-        <? if ($mediumThumb): ?>
-          <? if ($largeThumb): ?><a href="<?=$this->escapeHtml($largeThumb)?>" onclick="javascript:void window.open(this.href,'1357072968280','toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');return false;"
-        ><? endif; ?>
-             <img alt="<?=$this->transEsc('Cover Image')?>" class="recordcover" src="<?=$this->escapeHtml($mediumThumb);?>"/>
-          <? if ($largeThumb): ?></a><? endif; ?>
-      <? else: ?>
-        <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
-      <? endif; ?>
-      
-      
-      <? /* Display qrcode if appropriate: */ ?>
-      <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
-      <? if($QRCode): ?>
-        <span class="hidden-phone">
-          <br/><img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtml($QRCode);?>"/>
-        </span>
-      <? endif; ?>
-    </div>
-
-    <?=$this->record($this->driver)->getPreviews()?>
-  </div>
 
   <div class="span9 switch-margins">
     <h3 property="name"><?=$this->escapeHtml($this->driver->getShortTitle() . ' ' . $this->driver->getSubtitle() . ' ' . $this->driver->getTitleSection())?></h3>
@@ -44,6 +19,10 @@
 
     <?/* Display Main Details */?>
     <table class="table table-striped" summary="<?=$this->transEsc('Bibliographic Details')?>">
+    <colgroup>
+       <col span="1" style="width: 30%;">
+       <col span="1" style="width: 70%;">
+    </colgroup>
       <? $journalTitle = $this->driver->getContainerTitle(); if (!empty($journalTitle)): ?>
       <tr>
         <th><?=$this->transEsc('Journal Title')?>:</th>
@@ -197,14 +176,14 @@
       <?
         $openUrl = $this->driver->openURLActive('record') ? $this->driver->getOpenURL() : false;
         // Account for replace_other_urls setting
-        $urls = $this->driver->getExternalLinks();
+        $urls = $this->driver->getURLs();
       ?>
       <? if (!empty($urls) || $openUrl): ?>
       <tr>
         <th><?=$this->transEsc('Online Access')?>: </th>
         <td>
           <? foreach ($urls as $current): ?>
-            <a href="<?=$this->escapeHtml($this->proxyUrl($current['url']))?>"><?=$this->escapeHtml($current['display'])?></a><br/>
+            <a href="<?=$this->escapeHtml($this->proxyUrl($current['url']))?>"><?=$this->transEsc($current['desc'])?></a><br/>
           <? endforeach; ?>
           <? if ($openUrl): ?>
             <?=$this->openUrl($openUrl)?><br/>
@@ -225,8 +204,63 @@
           </td>
         </tr>
       <? endif; ?>
+
+
+       <? $otherFields = $this->driver->getOtherFields(); ?>
+       <? foreach ($otherFields as $keyType => $values): ?>
+        <tr>
+          <th><?=$this->transEsc($keyType)?></th>
+          <td>
+            <?=implode('<br/>', $values)?>
+          </td>
+        </tr>
+      <? endforeach; ?>
+
+      <? $uKeys = $this->driver->getUniqueKeys(); ?>
+      <? foreach ($uKeys as $keyType => $values): ?>
+        <tr>
+          <th><?=$this->transEsc($keyType)?></th>
+          <td>
+            <?=implode('<br/>', $values)?>
+          </td>
+        </tr>
+      <? endforeach; ?>
+
+      <? // link to parent record ?>
+      <? $upLink = $this->driver->getParent(); ?>
+      <? if (!empty($upLink)):?>
+        <tr>
+          <th><?=$this->transEsc('Parent record')?></th>
+          <td>
+            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $upLink))?>"><?=$this->transEsc('Link')?></a>
+          </td>
+        </tr>
+      <? endif;?>
       <?=$this->render('RecordTab/description-particular.phtml')?>
     </table>
     <?/* End Main Details */?>
+  </div>
+
+  <div class="span3">
+    <div class="text-center" id="center">
+      <? /* Display thumbnail if appropriate: */ ?>
+      <? $mediumThumb = $this->record($this->driver)->getThumbnail('large'); $largeThumb = $this->record($this->driver)->getThumbnail('large'); ?>
+        <? if ($mediumThumb): ?>
+             <img alt="<?=$this->transEsc('Cover Image')?>" class="recordcover" src="<?=$this->imageLink($mediumThumb);?>"/>
+      <? else: ?>
+        <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
+      <? endif; ?>
+      
+      
+      <? /* Display qrcode if appropriate: */ ?>
+      <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
+      <? if($QRCode): ?>
+        <span class="hidden-phone">
+          <br/><img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtml($QRCode);?>"/>
+        </span>
+      <? endif; ?>
+    </div>
+
+    <?=$this->record($this->driver)->getPreviews()?>
   </div>
 </div>

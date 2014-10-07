@@ -1,6 +1,7 @@
 <?
   // Set up standard record scripts:
   $this->headScript()->appendFile("record.js");
+  $this->headScript()->appendFile("check_save_statuses.js");
 
   // Add RDF header link if applicable:
   if ($this->export()->recordSupportsFormat($this->driver, 'RDF')) {
@@ -32,10 +33,8 @@
     <? endif; ?>
   </ul>
 <? endif; ?>
-    
-<?=$this->record($this->driver)->getToolbar()?>
 
-<div class="<?=$this->layoutClass('mainbody')?>">
+<div class="record-outer <?=$this->layoutClass('mainbody')?>">
   <div class="record recordId source<?=$this->escapeHtml($this->driver->getResourceSource())?>" id="record">
     <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueId())?>" class="hiddenId" id="record_id" />
     <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource()) ?>" class="hiddenSource" />
@@ -43,34 +42,38 @@
     <?=$this->record($this->driver)->getCoreMetadata()?>
   </div>
 
-  <? if (count($this->tabs) > 0): ?>
-    <a name="tabnav"></a>
-    <ul class="recordTabs nav nav-tabs">
-      <? foreach ($this->tabs as $tab => $obj): ?>
-      <? // add current tab to breadcrumbs if applicable:
-        $desc = $obj->getDescription();
-        $isCurrent = (strtolower($this->activeTab) == strtolower($tab));
-        if ($isCurrent) {
-          $this->layout()->breadcrumbs .= '<li class="active"><span class="divider">&gt;</span>' . $this->transEsc($desc) . '</li>';
-          $activeTabObj = $obj;
-        }
-      ?>
-      <li<?=$isCurrent ? ' class="active"' : ''?>>
-        <a id="<?=$tab ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?>#tabnav"><?=$this->transEsc($desc)?></a>
-      </li>
-      <? endforeach; ?>
-    </ul>
-  <? endif; ?>
+  <div class="nav-tabs-outer">
+    <? if (count($this->tabs) > 0): ?>
+      <a name="tabnav"></a>
+      <ul class="recordTabs nav nav-tabs">
+        <? foreach ($this->tabs as $tab => $obj): ?>
+        <? // add current tab to breadcrumbs if applicable:
+          $desc = $obj->getDescription();
+          $isCurrent = (strtolower($this->activeTab) == strtolower($tab));
+          if ($isCurrent) {
+            $this->layout()->breadcrumbs .= '<li class="active"><span class="divider">&gt;</span>' . $this->transEsc($desc) . '</li>';
+            $activeTabObj = $obj;
+          }
+        ?>
+        <li<?=$isCurrent ? ' class="active"' : ''?>>
+          <a id="<?=$tab ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?>#tabnav"><?=$this->transEsc($desc)?></a>
+        </li>
+        <? endforeach; ?>
+      </ul>
+    <? endif; ?>
+  </div>
 
   <div class="tab-container">
     <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
   </div>
 
   <span class="Z3988" title="<?=$this->escapeHtml($this->driver->getOpenURL())?>"></span>
+  
 </div>
-
+<div class="<?=$this->layoutClass('sidebar')?> pull-right">
+  <?=$this->record($this->driver)->getToolbar()?>
+</div>
 <div class="<?=$this->layoutClass('sidebar')?>">
   <? foreach ($this->related()->getList($this->driver) as $current): ?>
     <?=$this->related()->render($current)?>
   <? endforeach; ?>
-</div>

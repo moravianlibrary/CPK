@@ -11,24 +11,6 @@
     </script>
 <? endif; ?>
 <div class="row-fluid" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
-  <div class="span3">
-    <div class="text-center">
-      <? /* Display thumbnail if appropriate: */ ?>
-       <div id="cover">
-        <img src="<?=$this->imageLink($this->driver->getThumbnail('large'))?>" />
-       </div>
-    
-      <? /* Display qrcode if appropriate: */ ?>
-      <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
-      <? if($QRCode): ?>
-        <span class="hidden-phone">
-          <br/><img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtml($QRCode);?>"/>
-        </span>
-      <? endif; ?>
-    </div>
-
-    <?=$this->record($this->driver)->getPreviews()?>
-  </div>
 
   <div class="span9 switch-margins">
     <h3 property="name"><?=$this->escapeHtml($this->driver->getShortTitle() . ' ' . $this->driver->getSubtitle() . ' ' . $this->driver->getTitleSection())?></h3>
@@ -49,6 +31,10 @@
 
     <?/* Display Main Details */?>
     <table class="table table-striped" summary="<?=$this->transEsc('Bibliographic Details')?>">
+    <colgroup>
+       <col span="1" style="width: 30%;">
+       <col span="1" style="width: 70%;">
+    </colgroup>
       <? $journalTitle = $this->driver->getContainerTitle(); if (!empty($journalTitle)): ?>
       <tr>
         <th><?=$this->transEsc('Journal Title')?>:</th>
@@ -93,7 +79,11 @@
       <? if (isset($authors['corporate']) && !empty($authors['corporate'])): ?>
       <tr>
         <th><?=$this->transEsc('Corporate Author')?>: </th>
-        <td property="creator"><a href="<?=$this->record($this->driver)->getLink('author', $authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
+      <td property="creator">
+       <? foreach ($authors['corporate'] as $current): ?>
+        <a href="<?=$this->record($this->driver)->getLink('author', $current)?>"><?=$this->escapeHtml($current)?></a><br/>
+       <? endforeach; ?>      
+      </td>
       </tr>
       <? endif; ?>
 
@@ -225,8 +215,47 @@
           </td>
         </tr>
       <? endif; ?>
+
+       <? $otherFields = $this->driver->getOtherFields(); ?>    
+       <? foreach ($otherFields as $keyType => $values): ?>
+        <tr>
+          <th><?=$this->transEsc($keyType)?></th>
+          <td>
+            <?=implode('<br/>', $values)?>
+          </td>
+        </tr>
+      <? endforeach; ?>
+
+      <? $uKeys = $this->driver->getUniqueKeys(); ?>
+      <? foreach ($uKeys as $keyType => $values): ?>
+        <tr>
+          <th><?=$this->transEsc($keyType)?></th>
+          <td>
+            <?=implode('<br/>', $values)?>
+          </td>
+        </tr>
+      <? endforeach; ?>
       <?=$this->render('RecordTab/description-particular.phtml')?>
     </table>
     <?/* End Main Details */?>
+  </div>
+
+  <div class="span3">
+    <div class="text-center">
+      <? /* Display thumbnail if appropriate: */ ?>
+       <div id="cover">
+        <img src="<?=$this->imageLink($this->driver->getThumbnail('large'))?>" />
+       </div>
+    
+      <? /* Display qrcode if appropriate: */ ?>
+      <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
+      <? if($QRCode): ?>
+        <span class="hidden-phone">
+          <br/><img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtml($QRCode);?>"/>
+        </span>
+      <? endif; ?>
+    </div>
+
+    <?=$this->record($this->driver)->getPreviews()?>
   </div>
 </div>

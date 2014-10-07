@@ -32,22 +32,22 @@ $config = array(
         'recorddriver_tabs' => array(
              'VNF\RecordDriver\SolrMarc' => array(
                     'tabs' => array (
-                            'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+//                            'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
                             'TOC' => 'TOC',
+//                   'Details' => 'StaffViewArray',
                     ),
                     'defaultTab' => 'TOC',
              ),
              'VNF\RecordDriver\SolrSup' => array(
                  'tabs' => array (
                      'SupraphonRecordTab' => 'SupraphonRecordTab',
-                     'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+//                     'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
                  ),
                  'defaultTab' => 'SupraphonRecordTab',
             ),
             'VNF\RecordDriver\SolrMarcMerged' => array(
                 'tabs' => array (
-                        'libraries' => 'Libraries',
-                        'Details' => 'StaffViewArray',
+//                        'Details' => 'StaffViewArray',
                         'TOC' => 'TOC',
                 ),
                 'defaultTab' => 'TOC',

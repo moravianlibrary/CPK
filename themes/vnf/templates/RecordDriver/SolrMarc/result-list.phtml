@@ -79,7 +79,7 @@
       <?='<br />' . $this->transEsc('Institution') . ': ' ?>
       <? foreach ($this->driver->getExternalLinks() as $current): ?> <br/>
          <? if (isset($current['url']) && !empty($current['url'])): ?>
-            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+<a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>           
           <? else: ?>
             <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local-search-link"><?=$this->transEsc(strtoupper($current['institution']))?></a>
           <? endif; ?>
@@ -158,7 +158,12 @@
         <? if (!is_array($urls)) $urls = array();
           if(!$this->driver->isCollection()):
             foreach ($urls as $current): ?>
-              <a href="<?=$this->escapeHtml($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="icon-external-link"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
+              <? $showURL = substr($current['url'], 0, 1) == 'h' ? $current['url'] : 'http://' . $current['url']; ?>
+              <a href="<?=$this->escapeHtml($this->proxyUrl($showURL))?>" class="fulltext" target="new">
+                <img class="image-icon" src="<?=$this->imageLink('dot.png')?>" />
+                <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?>
+              </a>
+              <br/>
           <? endforeach; ?>
         <? endif; ?>
       <? endif; ?>
