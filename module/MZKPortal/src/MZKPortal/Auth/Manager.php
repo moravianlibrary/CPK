@@ -26,11 +26,14 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace MZKPortal\Auth;
-use VuFind\Exception\Auth as AuthException,
-    VuFind\Exception\ILS as ILSException,
-    VuFind\Auth\Manager as BaseManager,
+use VuFind\Auth\Manager as BaseManager,
+    VuFind\Db\Table\User as UserTable,
+    VuFind\Auth\PluginManager as PluginManager, 
+    Zend\Config\Config as Config,
+    Zend\Session\SessionManager as SessionManager,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
     Zend\ServiceManager\ServiceLocatorInterface;
+
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -49,9 +52,10 @@ class Manager extends BaseManager
      *
      * @param \Zend\Config\Config $config VuFind configuration
      */
-    public function __construct(\Zend\Config\Config $config)
+    public function __construct(Config $config, UserTable $userTable,
+        SessionManager $sessionManager, PluginManager $pm)
     {
-        parent::__construct($config);
+        parent::__construct($config, $userTable, $sessionManager, $pm);
     }
 
     /**

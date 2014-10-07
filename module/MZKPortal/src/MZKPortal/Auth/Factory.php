@@ -49,9 +49,30 @@ class Factory
      */
     public function getAuthManager(ServiceManager $sm)
     {
-        return new \MZKPortal\Auth\Manager(
-            $sm->get('VuFind\Config')->get('config')
-        );
+        $config = $sm->get('VuFind\Config')->get('config');
+        try {
+            // Check if the catalog wants to hide the login link, and override
+            // the configuration if necessary.
+            $catalog = $sm->get('VuFind\ILSConnection');
+            if ($catalog->loginIsHidden()) {
+                $config = new \Zend\Config\Config($config->toArray(), true);
+                $config->Authentication->hideLogin = true;
+                $config->setReadOnly();
+            }
+        } catch (\Exception $e) {
+            // Ignore exceptions; if the catalog is broken, throwing an exception
+            // here may interfere with UI rendering. If we ignore it now, it will
+            // still get handled appropriately later in processing.
+            error_log($e->getMessage());
+        }
+        
+        // Load remaining dependencies:
+        $userTable = $sm->get('VuFind\DbTablePluginManager')->get('user');
+        $sessionManager = $sm->get('VuFind\SessionManager');
+        $pm = $sm->get('VuFind\AuthPluginManager');
+        
+        // Build the object:
+        return new Manager($config, $userTable, $sessionManager, $pm, $catalog);
     }
     
     /**
