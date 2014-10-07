@@ -49,7 +49,7 @@ class Factory
     public function getFlatHolds(ServiceManager $sm)
     {
         return new \MZKCommon\ILS\Logic\FlatHolds(
-            $sm->get('VuFind\AuthManager'), $sm->get('VuFind\ILSConnection'),
+            $sm->get('VuFind\ILSAuthenticator'), $sm->get('VuFind\ILSConnection'),
             $sm->get('VuFind\HMAC'), $sm->get('VuFind\Config')->get('config')
         );
     }

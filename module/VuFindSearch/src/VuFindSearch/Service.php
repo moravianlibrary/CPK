@@ -221,7 +221,6 @@ class Service
     public function random($backend, $query, $limit = 20, $params = null)
     {
         $params  = $params ?: new ParamBag();
-        $backendString = $backend;
         $context = __FUNCTION__;
         $args = compact('backend', 'query', 'limit', 'params', 'context');
         $backend = $this->resolve($backend, $args);
@@ -265,7 +264,6 @@ class Service
                 // Default case: retrieve n random records:
                 $response = false;
                 $retrievedIndexes = array();
-                $retrievedRecordIds = array();
                 for ($i = 0; $i < $limit; $i++) {
                     $nextIndex = rand(0, $total_records - 1);
                     while (in_array($nextIndex, $retrievedIndexes)) {
