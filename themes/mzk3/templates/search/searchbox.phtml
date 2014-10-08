@@ -32,6 +32,22 @@
       <a href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtml($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a> |
       <a href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
       <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
+      <script>
+      var parser = document.createElement('a');
+      parser.href = document.referrer;
+      if (parser.pathname == '/Search/Advanced') {
+        history.replaceState({ }, document.title, location.href + "#back");
+        history.pushState(null, document.title, location.href);
+        window.addEventListener("popstate", function() {
+          if (location.hash === "#back") {
+            history.replaceState(null, document.title, location.pathname);
+            setTimeout(function(){
+              location.replace("<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtml($this->searchId)?>");
+            }, 0);
+          }
+        }, false);
+      }
+      </script>
     </span>
     <div class="clearfix"></div>
     <span class="span6 offset1">
@@ -98,7 +114,7 @@
           <div class="hidden">
             <? if (isset($this->filterList) && is_array($this->filterList)): ?>
               <? $i = 0; foreach ($this->filterList as $field => $data): ?>
-                <? foreach ($data as $value): ?>                  
+                <? foreach ($data as $value): ?>
                   <label class="checkbox">
                     <input class="applied-filter" id="applied_filter_<?=++$i?>" type="checkbox"<?=$defaultFilterState?> name="filter[]" value="<?=$this->escapeHtml($field)?>:&quot;<?=$this->escapeHtml($value)?>&quot;" />
                     <?=$this->escapeHtml($field)?>:&quot;<?=$this->escapeHtml($value)?>&quot;
