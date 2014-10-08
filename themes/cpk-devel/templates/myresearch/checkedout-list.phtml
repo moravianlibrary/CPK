@@ -2,13 +2,13 @@
   <hr/>
   <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
   <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row">
-    <? if ($this->renewForm): ?>
-      <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['renew_details'])): ?>
-        <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['renew_details']); ?>
-        <input class="pull-left" type="checkbox" name="renewSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['renew_details'])?>" id="checkbox_<?=$safeId?>" />
-        <input class="pull-left" type="hidden" name="renewAllIDS[]" value="<?=$this->escapeHtml($ilsDetails['renew_details'])?>" />
+    
+      <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['request'])): ?>
+        <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['request']); ?>
+        <input class="pull-left" type="checkbox" name="renewSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['request'])?>" id="checkbox_<?=$safeId?>" />
+        <input class="pull-left" type="hidden" name="renewAllIDS[]" value="<?=$this->escapeHtml($ilsDetails['request'])?>" />
       <? endif; ?>
-    <? endif; ?>
+    
     <div class="col-md-2 text-center">
       <?
         $recordId = $resource->getUniqueId();

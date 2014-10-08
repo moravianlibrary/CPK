@@ -31,17 +31,17 @@
   <? endif; ?>
 
   <? if (!empty($this->transactions)): ?>
-    <? if ($this->renewForm): ?>
+    
     <form name="renewals" action="" method="post" id="renewals">
       <div class="toolbar">
         <input type="submit" class="btn btn-default" name="renewSelected" value="<?=$this->transEsc("renew_selected")?>" />
         <input type="submit" class="btn btn-default" name="renewAll" value="<?=$this->transEsc('renew_all')?>" />
       </div>
-    <? endif; ?>
+    
 
     <?= $this->render("myresearch/checkedout-" . $this->view['selected'] . ".phtml"); ?>
 
-    <? if ($this->renewForm): ?></form><? endif; ?>
+    </form>
   <? else: ?>
     <?=$this->transEsc('You do not have any items checked out')?>.
   <? endif; ?>
