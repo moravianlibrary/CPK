@@ -50,6 +50,7 @@
     <?=$this->headScript()?>
   </head>
   <body>
+    <?=$this->googleanalytics()?>
     <div class="<?=($this->layout()->frontpage == true)?'frontpage':'header'?>">
       <div class="container">
         <div id="header" class="clearfix noprint">
@@ -112,6 +113,5 @@
       </div>
       <div class="modal-body"><?=$this->transEsc('Loading') ?>...</div>
     </div>
-    <?=$this->googleanalytics()?>
   </body>
 </html>
