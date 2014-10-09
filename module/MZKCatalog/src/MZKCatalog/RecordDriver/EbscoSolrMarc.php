@@ -9,6 +9,22 @@ use MZKCommon\RecordDriver\SolrMarc As ParentSolrDefault;
 class EbscoSolrMarc extends ParentSolrDefault
 {
 
+    public function getTitle()
+    {
+        return isset($this->fields['title_display']) ?
+        $this->fields['title_display'] : '';
+    }
+
+    // FIXME: fix on the RecordManager side?
+    public function getShortTitle()
+    {
+        $shortTitle = parent::getShortTitle();
+        if (empty($shortTitle)) {
+            $shortTitle = $this->getTitle();
+        }
+        return $shortTitle;
+    }
+
     public function getEODLink()
     {
         return null;
