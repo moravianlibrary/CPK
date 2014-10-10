@@ -7,6 +7,7 @@
     <th><?=$this->transEsc('pick_up_location') ?></th>
     <th><?=$this->transEsc('Created') ?></th>
     <th><?=$this->transEsc('Expires') ?></th>
+    <th><?=$this->transEsc('On hold until') ?></th>
   </tr>
 
   <? $iteration = 0; ?>
@@ -96,6 +97,11 @@
       </td>
       <td>
         <?=$this->escapeHtml($ilsDetails['expire']) ?>
+      </td>
+      <td>
+        <? if($ilsDetails['on_hold_until']):?>
+          <?=$this->escapeHtml($ilsDetails['on_hold_until']) ?>
+        <? endif; ?>
       </td>
 
       <? if (isset($this->cancelResults['items'])): ?>
