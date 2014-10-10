@@ -7,7 +7,11 @@
         <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['renew_details']); ?>
         <input class="pull-left" type="checkbox" name="renewSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['renew_details'])?>" id="checkbox_<?=$safeId?>" />
         <input class="pull-left" type="hidden" name="renewAllIDS[]" value="<?=$this->escapeHtml($ilsDetails['renew_details'])?>" />
+      <? else: ?>
+        <span class="pull-left checkbox-placeholder"></span>
       <? endif; ?>
+    <? else: ?>
+      <span class="pull-left checkbox-placeholder"></span>
     <? endif; ?>
     <div class="col-md-2 text-center">
       <?
