@@ -8,7 +8,7 @@
 <div>
   <form name='newItemsFilter' id='newItemsFilter' class='form-inline'>
     <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$dateField}:.*/"))?>
-    <label for="<?=$this->escapeHtml($dateField)?>">
+    <label for="<?=$this->escapeHtml($dateField)?>" class="col-sm-3">
       <?=$this->translate('New acquisitions since')?>:&nbsp;
     </label>
     <select name="filter[]" name="<?=$this->escapeHtml($dateField)?>" onChange="document.forms['newItemsFilter'].submit()" class="form-control">

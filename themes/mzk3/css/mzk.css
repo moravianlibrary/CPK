@@ -268,11 +268,6 @@ div.sidebar {
 
 /* results */
 
-.main>div.col-sm-9 {
-  background-color: #fff;
-  border: 1px solid #E0E0E0;
-}
-
 .results {
   border: 1px solid #E0E0E0;
 }
@@ -660,4 +655,11 @@ form#alephBrowseForm {
 
 .left-margin {
     margin-left: 10px;
+}
+
+.mainbody {
+    padding-top: 10px;
+    padding-bottom: 15px;
+    background-color: #fff;
+    border: 1px solid #E0E0E0;
 }

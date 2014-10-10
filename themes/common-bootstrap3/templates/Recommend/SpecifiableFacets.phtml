@@ -9,7 +9,7 @@
     <? if (in_array($field, $facetsWithSelect)):?>
       <form name='<?=$this->escapeHtmlAttr($field)?>_filter' id='<?=$this->escapeHtmlAttr($field)?>_filter' class='form-inline'>
         <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$field}:.*/"))?>
-        <label for="<?=$this->escapeHtml($dateField)?>">
+        <label for="<?=$this->escapeHtml($dateField)?>" class="col-sm-3">
           <?=$this->transEsc('limit_by_facet_' . $cluster['label'])?>:&nbsp;
         </label>
         <select name="filter[]" name="<?=$this->escapeHtml($field)?>" onChange="document.forms['<?=$this->escapeHtmlAttr($field)?>_filter'].submit()" class="form-control">
