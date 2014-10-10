@@ -663,3 +663,9 @@ form#alephBrowseForm {
     background-color: #fff;
     border: 1px solid #E0E0E0;
 }
+
+.checkbox-placeholder {
+    width: 15px;
+    height: 15px;
+    margin-top: 4px;
+}

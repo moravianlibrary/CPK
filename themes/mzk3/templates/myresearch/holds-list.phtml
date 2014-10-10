@@ -10,6 +10,8 @@
       <div class="pull-left">
         <input type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
       </div>
+    <? else: ?>
+      <span class="pull-left checkbox-placeholder"></span>  
     <? endif; ?>
     <div class="col-md-2 text-center">
       <?
