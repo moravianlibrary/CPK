@@ -274,8 +274,8 @@ class RecordController extends RecordControllerBase
         $mailer = $this->getServiceLocator()->get('VuFind\Mailer');
         foreach ($this->digiRequestTo as $recipient) {
             $mailer->send(
-                $this->digiRequestFrom,
                 $recipient,
+                $this->digiRequestFrom,
                 $this->digiRequestSubject,
                 $text
             );
