@@ -232,7 +232,10 @@
         <tr>
           <th><?=$this->transEsc('Parent record')?></th>
           <td>
-            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $upLink))?>"><?=$this->transEsc('Link')?></a>
+            <!-- Well, it works... -->
+            <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => 'local_ids_str_mv:("' . $upLink . '") || (id:"' . $upLink . '"'))?>">
+              <?=$this->transEsc('Link')?>
+            </a>
           </td>
         </tr>
       <? endif;?>

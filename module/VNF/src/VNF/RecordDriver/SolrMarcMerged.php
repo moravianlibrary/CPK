@@ -168,14 +168,70 @@ class SolrMarcMerged extends ParentSolr
 
     public function getSecondaryAuthors()
     {
-        return isset($this->fields['authors_other_str_mv']) ?
-            $this->fields['authors_other_str_mv'] : array();
+        if (isset($this->fields['authors_other_str_mv'])) {
+            return is_array($this->fields['authors_other_str_mv']) ? $this->fields['authors_other_str_mv'] : array($this->fields['authors_other_str_mv']);
+        }
+        return array();
     }
     
     public function getCorporateAuthor()
     {
         return isset($this->fields['authors_corporate_str_mv']) ?
             $this->fields['authors_corporate_str_mv'] : array();
+    }
+    
+    public function getTOC()
+    {
+        if (!isset($this->fields['contents']) ) {
+            return array();
+        }
+        
+        $content = $this->fields['contents'][0];
+        
+        if (preg_match('/^vnf_sup.*/', $content)) {
+            //handle supraphon content
+            $result = array();
+            //remove prefix
+            $content = substr($content, 8);
+            $currentHolding = array();
+            $currentResult = '';
+            foreach (explode('--!--', $content) as $currentLine) {
+                foreach (explode('$', $currentLine) as $currentSubfield) {
+                    $currentResult [substr($currentSubfield, 0, 1)] = substr($currentSubfield, 1);
+                }
+                $result[] = $currentResult;
+            }
+            return $result;
+        }
+   
+        return is_array($content) ? $content : explode('--', $content);
+    }
+    
+    /**
+     * Create urls with description
+     * @see \VuFind\RecordDriver\SolrDefault::getURLs()
+     */
+    public function getURLs()
+    {
+        $supUtmParams = '';
+        $linkEnd = $this->recordConfig->ExternalLinks->sup_end;
+        if ($linkEnd) {
+            $utmParams = $linkEnd;
+        }
+        
+        $result = array();
+        if (isset($this->fields['url'])) {
+            foreach ($this->fields['url'] as $url) {
+                $current = array();
+                list($current['url'], $current['desc']) = explode('!desc!', $url);
+                if (preg_match('/www\.supraphonline\.cz/', $current['url'])) {
+                    $current['url'] = 'http://' . $current['url'] . $linkEnd;
+                }
+                $current['desc'] = !empty($current['desc']) ? $current['desc'] : 'Get full text';
+                $result[] = $current;
+            }   
+        }
+        return $result;
     }
 }
 

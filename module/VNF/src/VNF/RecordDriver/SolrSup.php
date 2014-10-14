@@ -65,9 +65,11 @@ class SolrSup extends SolrMarc
         $urls = parent::getURLs();
         if (is_array($urls)) {
             for ($i = 0; $i < count ($urls); $i++) {
-                if (isset($urls[$i]['url'])) {
+                if (isset($urls[$i]['url']) && !empty($urls['url'])) {
                     $urls[$i]['url'] = 'http://' . $urls[$i]['url'] . $linkEnd;
                     $urls[$i]['desc'] = 'Get full text';
+                } else {
+                    unset ($urls[$i]);
                 }
             }
         }
@@ -77,28 +79,23 @@ class SolrSup extends SolrMarc
     /**
      * @return content of album as array
      */
-    public function getContent()
+    public function getToc()
     {
         $result = array();
-        $children = $this->getChildren();
-        $fields = $this->marcRecord->getFields('505');
-        if (count($children) != count($fields)) {
-            throw new \ErrorException('SupRecord: lines/links mismatch');
+        if (!isset($this->fields['contents']) ) {
+            return array();
         }
-
-        for ($i = 0; $i < count($fields); $i++) {
-            $current = $fields[$i];
-            $currentArray = array();
-            foreach (array('8', 'g', 'r', 't') as $code) {
-                $sub = $current->getSubfield($code);
-                if ($sub) {
-                    $currentArray[$code] = $sub->getData();
-                }
+        
+        $content = $this->fields['contents'][0];
+        //remove prefix
+        $content = substr($content, 8);
+        $currentHolding = array();
+        $currentResult = '';
+        foreach (explode('--!--', $content) as $currentLine) {
+            foreach (explode('$', $currentLine) as $currentSubfield) {
+                $currentResult [substr($currentSubfield, 0, 1)] = substr($currentSubfield, 1);
             }
-            $currentArray['id'] = $children[$i];
-            if (!empty($currentArray)) {
-                $result[] = $currentArray;
-            }
+            $result[] = $currentResult;
         }
         return $result;
     }
