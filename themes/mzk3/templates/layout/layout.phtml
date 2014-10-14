@@ -72,29 +72,29 @@
       && !empty($this->layout()->breadcrumbs)
       && $this->layout()->breadcrumbs !== false
     ): ?>
-    
-      <ul class="breadcrumb">
-        <div class="container breadcrumb-nav">
+    <div class="breadcrumb-background">
+      <ul class="breadcrumb hidden-print container">
           <? if(is_array($this->layout()->breadcrumbs)): ?>
-          <? if(count($this->layout()->breadcrumbs) > 1): ?>
-            <?=$this->render('breadcrumbs/multi.phtml', array(
-                'parents' => $this->layout()->breadcrumbs,
-                'title'   => $this->layout()->title,
-                'end'     => $this->layout()->breadcrumbEnd,
-                'from'    => $this->layout()->from
-              )) ?>
+            <? if(count($this->layout()->breadcrumbs) > 1): ?>
+              <?=$this->render('breadcrumbs/multi.phtml', array(
+                  'parents' => $this->layout()->breadcrumbs,
+                  'title'   => $this->layout()->title,
+                  'end'     => $this->layout()->breadcrumbEnd,
+                  'from'    => $this->layout()->from
+                )) ?>
+            <? else: ?>
+              <?=$this->render('breadcrumbs/default.phtml', array(
+                  'parents' => $this->layout()->breadcrumbs,
+                  'title'   => $this->layout()->title
+                )) ?>
+            <? endif; ?>
           <? else: ?>
-            <?=$this->render('breadcrumbs/default.phtml', array(
-                'parents' => $this->layout()->breadcrumbs,
-                'title'   => $this->layout()->title
-              )) ?>
-          <? endif; ?>
-          <? else: ?>
-            <li><a href="<?=$this->url('search-home')?>"><?=$this->transEsc('Online catalog')?></a> <span class="divider">&gt;</span></li>
+            <li><a href="<?=$this->url('search-home')?>"><?=$this->transEsc('Online catalog')?></a></li>
             <?=$this->layout()->breadcrumbs ?>
           <? endif; ?>
-        </div>
+
       </ul>
+    </div>
     <? endif; ?>
     <div class="container">
       <div class="main row">
