@@ -1,5 +1,5 @@
 <? if (!empty($this->facetList) || !empty($this->checkboxFacets)): ?>
-  <fieldset class="col-sm-12">
+  <fieldset>
     <legend><?=$this->transEsc('Limit To')?></legend>
     <? if (!empty($this->checkboxFacets)): ?>
       <?=$this->render('search/advanced/checkbox-filters.phtml')?>
@@ -12,7 +12,7 @@
             $selectId = limit_. $this->escapeHtmlAttr(str_replace(' ', '', $field));
             $onClick = "$('#" . $selectId . "').val('');";
           ?>
-          <select class="col-sm-12" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
+          <select class="col-sm-12 form-control" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
             <?
               // Sort the current facet list alphabetically; we'll use this data
               // along with the foreach below to display facet options in the
