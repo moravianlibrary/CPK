@@ -132,11 +132,13 @@ $(document).ready(function() {
   var autocompleteEngine = new Bloodhound({
     name: 'search-suggestions',
     remote: {
-      url: path + '/AJAX/JSON?q=%QUERY',
+      url: path + '/AJAX/JSON?q=%QUERY&type=%TYPE',
+      replace: function(url, query) {
+        return url.replace("%QUERY", query).replace("%TYPE", $('#searchForm_type').val());
+      },
       ajax: {
         data: {
           method:'getACSuggestions',
-          type:$('#searchForm_type').val(),
           searcher:searcher['searcher']
         },
         dataType:'json'
