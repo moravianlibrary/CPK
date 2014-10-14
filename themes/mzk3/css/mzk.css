@@ -216,8 +216,14 @@ a {
 	font-size: 13px;
 }
 
-.btn-primary:hover {
-	color: #16969D;	
+.btn-primary:hover,.btn-primary:focus,.btn-primary:active,.btn-primary.active,.open .dropdown-toggle.btn-primary{
+	color: #fff;
+	background: transparent url('/themes/mzk/images/btn-submit.png') repeat-x left top;
+	border-color: #fff;
+}
+
+.btn-primary:active,.btn-primary.active,.open .dropdown-toggle.btn-primary{
+	background: transparent url('/themes/mzk/images/btn-submit.png') repeat-x left top;
 }
 
 input.search-query {
