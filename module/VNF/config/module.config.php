@@ -24,7 +24,7 @@ $config = array(
                      'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
                          'invokables' => array(
                              'supraphondescriptiontab' => 'VNF\RecordTab\SupraphonDescriptionTab',
-                             'supraphonrecordtab' => 'VNF\RecordTab\SupraphonRecordTab',
+                             //'supraphonrecordtab' => 'VNF\RecordTab\SupraphonRecordTab',
                              'libraries' => 'VNF\RecordTab\Libraries'
                          ),
                  ), /* recordtab */
@@ -32,23 +32,19 @@ $config = array(
         'recorddriver_tabs' => array(
              'VNF\RecordDriver\SolrMarc' => array(
                     'tabs' => array (
-//                            'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
-                            'TOC' => 'TOC',
-//                   'Details' => 'StaffViewArray',
+                        'TOC' => 'VNF\RecordTab\TOC',
                     ),
                     'defaultTab' => 'TOC',
              ),
              'VNF\RecordDriver\SolrSup' => array(
                  'tabs' => array (
-                     'SupraphonRecordTab' => 'SupraphonRecordTab',
-//                     'staffviewmarc' => 'VuFind\RecordTab\StaffViewMARC',
+                    'TOC' => 'VNF\RecordTab\TOC',
                  ),
                  'defaultTab' => 'SupraphonRecordTab',
             ),
             'VNF\RecordDriver\SolrMarcMerged' => array(
                 'tabs' => array (
-//                        'Details' => 'StaffViewArray',
-                        'TOC' => 'TOC',
+                   'TOC' => 'VNF\RecordTab\TOC',
                 ),
                 'defaultTab' => 'TOC',
             ),
