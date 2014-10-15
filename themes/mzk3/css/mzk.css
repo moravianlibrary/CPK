@@ -220,6 +220,7 @@ a {
 	color: #fff;
 	background: transparent url('/themes/mzk/images/btn-submit.png') repeat-x left top;
 	border-color: #fff;
+        background-position: left -35px;
 }
 
 .btn-primary:active,.btn-primary.active,.open .dropdown-toggle.btn-primary{
