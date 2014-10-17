@@ -79,6 +79,12 @@
         <? if ($advSearch): ?>
           <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' offset1':''?>"><?=$this->transEsc("Advanced")?></a>
         <? endif; ?>
+        <? if ($this->layout()->frontpage == true):?>
+          &nbsp;&nbsp;
+          <a href='<?=$this->url('search-results') . "?filter[]=bbox_geo%3A\"Intersects(11.5%2048.3%2019.1%2051.1)\"" ?>'>
+            <?=$this->transEsc('Geographical search')?>
+          </a>
+        <? endif; ?>
       
 
         <?

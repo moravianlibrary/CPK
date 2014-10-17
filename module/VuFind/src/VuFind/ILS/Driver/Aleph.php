@@ -1526,6 +1526,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $isbn = (string) $z13->{'z13-isbn-issn'};
                 $barcode = (string) $z30->{'z30-barcode'};
                 $status = (string) $z37->{'z37-status'};
+                $onHoldUntil = (string) $z37->{'z37-end-hold-date'};
+                $onHoldUntil = ($onHoldUntil == "00000000") ? null : $this->parseDate($onHoldUntil);
                 if ($holddate == "00000000") {
                     $holddate = null;
                 } else {
@@ -1551,6 +1553,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                     'create'   => $this->parseDate($create),
                     'status'   => $status,
                     'position' => $seq,
+                    'on_hold_until' => $onHoldUntil,
                 );
             }
         }

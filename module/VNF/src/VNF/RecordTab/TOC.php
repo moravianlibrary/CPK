@@ -5,19 +5,14 @@ namespace VNF\RecordTab;
  *  TOC implementation for Supraphon records
  *
  */
-class SupraphonRecordTab extends \VuFind\RecordTab\TOC {
+class TOC extends \VuFind\RecordTab\TOC {
 
 	public function getDescription() {
 		return 'Table of Contents';
 	}
 	
 	public function isActive() {
-		return $this->driver->isAlbum();
-	}
-	
-
-	public function getContent() {
- 	 	return $this->driver->getContent();
+        return true;
 	}
 	
 	/**

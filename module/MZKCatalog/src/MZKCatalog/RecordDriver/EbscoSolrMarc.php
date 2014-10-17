@@ -9,6 +9,24 @@ use MZKCommon\RecordDriver\SolrMarc As ParentSolrDefault;
 class EbscoSolrMarc extends ParentSolrDefault
 {
 
+    const EZPROXY_URL = 'https://proxy.mzk.cz/login?auth=shibboleth&url=';
+
+    public function getTitle()
+    {
+        return isset($this->fields['title_display']) ?
+        $this->fields['title_display'] : '';
+    }
+
+    // FIXME: fix on the RecordManager side?
+    public function getShortTitle()
+    {
+        $shortTitle = parent::getShortTitle();
+        if (empty($shortTitle)) {
+            $shortTitle = $this->getTitle();
+        }
+        return $shortTitle;
+    }
+
     public function getEODLink()
     {
         return null;
@@ -52,6 +70,15 @@ class EbscoSolrMarc extends ParentSolrDefault
     public function getAllSubjectHeadings()
     {
         return array();
+    }
+
+    public function getURLs()
+    {
+        $links = parent::getURLs();
+        foreach ($links as &$link) {
+            $link['url'] =  self::EZPROXY_URL . $link['url'];
+        }
+        return $links;
     }
 
 }

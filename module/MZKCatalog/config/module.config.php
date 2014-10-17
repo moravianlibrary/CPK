@@ -40,6 +40,7 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'MZKCatalog\AlephBrowse\Connector' => 'MZKCatalog\AlephBrowse\Factory::getAlephBrowseConnector',
+            'VuFind\Translator' => 'MZKCatalog\Service\Factory::getTranslator',
         ),
     ),
     'controllers' => array(
