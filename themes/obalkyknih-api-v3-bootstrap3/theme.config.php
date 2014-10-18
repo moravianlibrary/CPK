@@ -1,13 +1,17 @@
 <?php
 return array(
-    'extends' => 'obalkyknih-api-v3-bootstrap3',
+    'extends' => 'bootstrap3',
     'css' => array(
-        'common.css'
+        'obalkyknih.css'
     ),
+    'js' => array(
+        'obalkyknih.js'
+    ),
+    'favicon' => 'vufind-favicon.ico',
     'helpers' => array(
         'factories' => array(
             'record' => function ($sm) {
-                return new \MZKCommon\View\Helper\MZKCommon\Record(
+                return new \ObalkyKnihV3\View\Helper\ObalkyKnih\Record(
                     $sm->getServiceLocator()->get('VuFind\Config')->get('config')
                 );
             },

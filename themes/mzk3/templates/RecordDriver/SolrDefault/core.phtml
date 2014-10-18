@@ -4,11 +4,9 @@
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
   $formats = $this->driver->getFormats();
 ?>
-<? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
+<? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
     <script type="text/javascript">
-      $(document).ready(function() {
-        obalky.process("obalky_display_cover", "cover", "<?=$backLink?>", <?=$bibinfo?>);
-      });
+      obalky_display_cover("#cover", <?=$bibinfo?>, "");
     </script>
 <? endif; ?>
 <div class="row">

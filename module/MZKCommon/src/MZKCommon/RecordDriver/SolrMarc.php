@@ -4,7 +4,7 @@ use VuFind\RecordDriver\SolrMarc as ParentSolrMarc;
 
 class SolrMarc extends ParentSolrMarc
 {
-    
+
     public function getBibinfoForObalkyKnih()
     {
         $bibinfo = array(
@@ -22,7 +22,28 @@ class SolrMarc extends ParentSolrMarc
         }
         return $bibinfo;
     }
-    
+
+    public function getBibinfoForObalkyKnihV3()
+    {
+        $bibinfo = array();
+        $isbn = $this->getCleanISBN();
+        if (!empty($isbn)) {
+            $bibinfo['isbn'] = $isbn;
+        }
+        $ean = $this->getEAN();
+        if (!empty($ean)) {
+            $bibinfo['ean'] = $ean;
+        }
+        $cnb = $this->getCNB();
+        if (isset($cnb)) {
+            $bibinfo['nbn'] = $cnb;
+        } else {
+            $prefix = 'BOA001';
+            $bibinfo['nbn'] = $prefix . '-' . str_replace('-', '', $this->getUniqueID());
+        }
+        return $bibinfo;
+    }
+
     public function getAvailabilityID() {
         if (isset($this->fields['availability_id_str'])) {
             return $this->fields['availability_id_str'];
@@ -53,10 +74,9 @@ class SolrMarc extends ParentSolrMarc
         return (!empty($this->fields['ean_str_mv']) ? $this->fields['ean_str_mv'][0] : null);
     }
 
-    //FIXME: TODO
     protected function getCNB()
     {
-        
+        return isset($this->fields['nbn']) ? $this->fields['nbn'] : null;
     }
 
     public function getLocalId() {
@@ -67,7 +87,7 @@ class SolrMarc extends ParentSolrMarc
    /**
     * uses setting from config.ini => External links
     * @return array  [] => [
-    *          [institution] = institution, 
+    *          [institution] = institution,
     *          [url] = external link to catalogue,
     *          [display] => link to be possibly displayed]
     *          [id] => local identifier of record
@@ -80,19 +100,19 @@ class SolrMarc extends ParentSolrMarc
         if (substr($ins, 0, 4) === "vnf_") $ins = substr($ins, 4);
 	$linkBase = $this->recordConfig->ExternalLinks->$ins;
 
-        if (empty($linkBase)) { 
+        if (empty($linkBase)) {
             return array(
-                       array('institution' => $ins, 
-                             'url' => '', 
+                       array('institution' => $ins,
+                             'url' => '',
                              'display' => '',
                              'id' => $this->getUniqueID()));
         }
 
         $finalID = $this->getExternalID();
-        if (!isset($finalID)) { 
+        if (!isset($finalID)) {
             return array(
-                       array('institution' => $ins, 
-                             'url' => '', 
+                       array('institution' => $ins,
+                             'url' => '',
                              'display' => '',
                              'id' => $this->getUniqueID()));
         }
@@ -102,7 +122,7 @@ class SolrMarc extends ParentSolrMarc
         if (!isset($linkEnd) ) $linkEnd = '';
         $externalLink =  $linkBase . $finalID . $linkEnd;
         return array(
-                   array('institution' => $ins, 
+                   array('institution' => $ins,
                          'url' => $externalLink,
                          'display' => $externalLink,
                          'id' => $id));
