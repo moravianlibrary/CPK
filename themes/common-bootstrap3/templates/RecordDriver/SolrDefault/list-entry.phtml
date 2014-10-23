@@ -1,7 +1,4 @@
 <?
-  // integration with obalkyknih.cz
-  $this->headScript()->appendFile('obalkyknih/functions.js');
-  $this->headScript()->appendFile('obalkyknih/custom.js');
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
   $formats = $this->driver->getFormats();
@@ -27,10 +24,10 @@
 
   <div class="col-md-2 text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
-      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
+      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
         <script type="text/javascript">
           $(document).ready(function() {
-            obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
+              obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($resource)->getObalkyKnihAdvert('record'))?>);
           });
         </script>
       <? endif;?>

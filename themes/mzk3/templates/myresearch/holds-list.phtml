@@ -11,7 +11,7 @@
         <input type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
       </div>
     <? else: ?>
-      <span class="pull-left checkbox-placeholder"></span>  
+      <span class="pull-left checkbox-placeholder"></span>
     <? endif; ?>
     <div class="col-md-2 text-center">
       <?
@@ -20,10 +20,10 @@
         $formats = $resource->getFormats();
       ?>
       <div id="cover_<?=$recordId?>" class="coverThumbnail">
-        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSON()): ?>
+        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
           <script type="text/javascript">
             $(document).ready(function() {
-              obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
+              obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($resource)->getObalkyKnihAdvert('holds'))?>);
             });
           </script>
         <? endif;?>

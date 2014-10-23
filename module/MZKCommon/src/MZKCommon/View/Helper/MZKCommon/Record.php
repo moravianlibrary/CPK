@@ -67,7 +67,23 @@ class Record extends ParentRecord
 
     public function getObalkyKnihJSONV3()
     {
-        return $this->getObalkyKnihJSON();
+        $bibinfo = $this->driver->tryMethod('getBibinfoForObalkyKnihV3');
+        if (empty($bibinfo)) {
+            $isbn = $this->driver->getCleanISBN();
+            if (!empty($isbn)) {
+                $bibinfo['isbn'] = $isbn;
+            }
+            $year = $this->driver->getPublicationDates();
+            if (!empty($year)) {
+                $bibinfo['year'] = $year[0];
+            }
+        }
+        return json_encode($bibinfo, JSON_HEX_QUOT | JSON_HEX_TAG);
+    }
+
+    public function getObalkyKnihAdvert($description) {
+        $sigla = 'BOA001';
+        return 'advert' . $sigla . ' ' . $description;
     }
 
 }
