@@ -20,6 +20,12 @@
     <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
   </div>
 <? endif; ?>
+
+<?if (($message = $this->mzkHelper()->getRestrictionMessage()) != null):?>
+  <p class="holdings-restriction">
+    <?=$this->transEsc($message);?>
+  </p>
+<?endif;?>
  
 <? $restrictions = $this->driver->getRestrictions(); if (!empty($restrictions)):?>
   <? foreach ($restrictions as $restriction):?>

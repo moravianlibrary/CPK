@@ -54,4 +54,11 @@ class Factory
             ? false : $config->Site->sidebarOnLeft;
         return new LayoutClass($left);
     }
+
+    public static function getMzkHelper(ServiceManager $sm)
+    {
+        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        return new MzkHelper($config);
+    }
+
 }

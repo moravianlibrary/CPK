@@ -8,6 +8,7 @@ return array(
     'helpers' => array(
         'factories' => array(
             'layoutclass' => 'MZKCatalog\View\Helper\MzkTheme\Factory::getLayoutClass',
+            'mzkhelper'   => 'MZKCatalog\View\Helper\MzkTheme\Factory::getMzkHelper',
         )
     )
 );
