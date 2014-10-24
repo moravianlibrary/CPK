@@ -2,6 +2,10 @@
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
   $formats = $this->driver->getFormats();
+  $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
+  if (empty($lookfor)) {
+      $lookfor = $this->record($this->driver)->getObalkyKnihAdvert('results');
+  }
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
@@ -10,23 +14,9 @@
 
   <div class="col-sm-2 col-xs-3 left text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
-       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
-         <?
-         // FIXME: move to controller?
-         $query = $this->results->getParams()->getQuery();
-         if ($query instanceof \VuFindSearch\Query\Query) {
-           $query = $query->getString();
-         } else if ($query instanceof \VuFindSearch\Query\QueryGroup) {
-           $query = $query->getAllTerms();
-         } else {
-           $query = "";
-         }
-         if (empty($query)) {
-           $query = $this->record($this->driver)->getObalkyKnihAdvert('results');
-         }
-         ?>
+      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
         <script type="text/javascript">
-          obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($query)?>);
+          obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
         </script>
       <? endif;?>
       <img src="<?=$this->imageLink('format/' . $formats[0] . '.png')?>" />
