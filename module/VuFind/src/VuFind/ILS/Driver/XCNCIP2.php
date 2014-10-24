@@ -40,7 +40,7 @@ use Zend\XmlRpc\Value\String;
  *          License
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class XCNCIP2 extends AbstractBase implements 
+class XCNCIP2 extends AbstractBase implements
         \VuFindHttp\HttpServiceAwareInterface
 {
 
@@ -58,7 +58,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param HttpServiceInterface $service
      *            HTTP service
-     *            
+     *
      * @return void
      */
     public function setHttpService (\VuFindHttp\HttpServiceInterface $service)
@@ -88,7 +88,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param string $xml
      *            XML request document
-     *            
+     *
      * @return object SimpleXMLElement parsed from response
      */
     protected function sendRequest ($xml, $testing = false)
@@ -99,7 +99,7 @@ class XCNCIP2 extends AbstractBase implements
             throw new ILSException('Not valid XML request!');
         }
         // delete this part - end
-        
+
         // Make the NCIP request:
         try {
             $client = $this->httpService->createClient(
@@ -111,26 +111,25 @@ class XCNCIP2 extends AbstractBase implements
         } catch (\Exception $e) {
             throw new ILSException($e->getMessage());
         }
-        
+
         if (! $result->isSuccess()) {
             throw new ILSException('HTTP error');
         }
-        
+
         // Process the NCIP response:
         $body = $result->getBody();
-        ;
         $response = @simplexml_load_string($body);
-        
+
         if (! is_a($response, 'SimpleXMLElement')) {
             throw new ILSException("Problem parsing XML");
         }
-        $response->registerXPathNamespace('ns1', 
+        $response->registerXPathNamespace('ns1',
                 'http://www.niso.org/2008/ncip');
-        
+
         if (! $this->isValidXMLAgainstXSD($response)) {
             throw new ILSException('Not valid XML response!');
         }
-        
+
         if (! $this->isCorrect($response) && ! $testing) {
             // TODO chcek problem type
             throw new ILSException('Problem has occured!');
@@ -145,7 +144,7 @@ class XCNCIP2 extends AbstractBase implements
      * @param array $current
      *            Current XCItemAvailability chunk.
      *            array $bibinfo Information about record.
-     *            
+     *
      * @return array
      */
     protected function getHoldingsForChunk ($current, $bibinfo)
@@ -153,21 +152,21 @@ class XCNCIP2 extends AbstractBase implements
         // Extract details from the XML:
         $status = $current->xpath(
                 'ns1:ItemOptionalFields/ns1:CirculationStatus');
-        
+
         $id = $bibinfo->xpath(
                 'ns1:BibliographicId/ns1:BibliographicRecordId/' .
                          'ns1:BibliographicRecordIdentifier');
         $itemIdentifierCode = (string) $current->xpath(
                 'ns1:ItemId/ns1:ItemIdentifierType')[0];
-        
+
         $parsingLoans = $current->xpath('ns1:LoanedItem') != null;
-        
+
         if ($itemIdentifierCode == 'Accession Number') {
-            
+
             $item_id = (string) $current->xpath(
                     'ns1:ItemId/ns1:ItemIdentifierValue')[0];
         }
-        
+
         // Pick out the permanent location (TODO: better smarts for dealing with
         // temporary locations and multi-level location names):
         /*
@@ -187,62 +186,62 @@ class XCNCIP2 extends AbstractBase implements
                          'ns1:LocationNameInstance');
         foreach ($locationNameInstance as $recent) {
             $locationLevel = $recent->xpath('ns1:LocationNameLevel')[0];
-            
+
             if ($locationLevel == 1) {
                 $agency = (string) $recent->xpath('ns1:LocationNameValue')[0];
-            } else 
+            } else
                 if ($locationLevel == 2) {
                     $location = (string) $recent->xpath('ns1:LocationNameValue')[0];
                 }
         }
-        
+
         // Get both holdings and item level call numbers; we'll pick the most
         // specific available value below.
         // $holdCallNo = $current->xpath('ns1:HoldingsSet/ns1:CallNumber');
         $itemCallNo = $current->xpath(
                 'ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber');
         // $itemCallNo = (string)$itemCallNo[0];
-        
+
         $bibliographicItemIdentifierCode = (string) $current->xpath(
                 'ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifierCode')[0];
-        
+
         if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
-            
+
             $barcode = (string) $current->xpath(
                     'ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier')[0];
         }
-        
+
         $number = $current->xpath(
                 'ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces');
-        
+
         $holdQueue = $current->xpath(
                 'ns1:ItemOptionalFields/ns1:HoldQueueLength');
-        
+
         $itemRestriction = (string) $current->xpath(
                 'ns1:ItemOptionalFields/ns1:ItemUseRestrictionType')[0];
-        
+
         $available = (string) $status[0] === 'On Shelf';
-        
+
         $dueDate = $available ? null : explode("; ", (string) $status[0])[0];
-        
+
         if (! empty($dueDate) && $dueDate != 'On Hold') {
-            
+
             // Localize Aleph date to dd. MM. yyyy from Aleph unstructued
             // response
             $dueDate = explode("/", $dueDate);
-            
+
             $dueDate[1] = date('n', strtotime($dueDate[1]));
-            
+
             $dueDate = implode(". ", $dueDate);
         }
-        
+
         $onStock = substr($location, 0, 5) == 'Stock';
-        
+
         $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
-        
+
         $monthLoanPeriod = ($itemRestriction ==
                  'Limited Circulation, Normal Loan Period');
-        
+
         // FIXME: Add link logic
         $link = false;
         if ($onStock && $restrictedToLibrary) {
@@ -251,17 +250,17 @@ class XCNCIP2 extends AbstractBase implements
             // desc
             // E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
             $link = $this->createLinkFromAlephItemId($item_id);
-        } else 
+        } else
             if ($onStock && $monthLoanPeriod) {
                 // Pickup from stock & prepare for month loan
                 $link = $this->createLinkFromAlephItemId($item_id);
-            } else 
+            } else
                 if (! $available && ! $onStock) {
                     // Reserve item
                     $link = $this->createLinkFromAlephItemId($item_id);
                 }
         // End of FIXME
-        
+
         return array(
                 'id' => empty($id) ? "" : (string) $id[0],
                 'availability' => empty($available) ? false : $available ? true : false,
@@ -295,7 +294,7 @@ class XCNCIP2 extends AbstractBase implements
         // Input: MZK01000974548-MZK50000974548000010
         // Output: MZK01-000974548/ExtendedHold?barcode=MZK50000974548000020
         $itemIdParts = explode("-", $item_id);
-        
+
         $link = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
         $link .= '/ExtendedHold?barcode=';
         $link .= $itemIdParts[1];
@@ -310,7 +309,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param string $id
      *            The record id to retrieve the holdings for
-     *            
+     *
      * @throws ILSException
      * @return mixed On success, an associative array with the following keys:
      *         id, availability (boolean), status, location, reserve,
@@ -322,7 +321,7 @@ class XCNCIP2 extends AbstractBase implements
         // For now, we'll just use getHolding, since getStatus should return a
         // subset of the same fields, and the extra values will be ignored.
         $holding = $this->getHolding($id);
-        
+
         foreach ($holding as $recent) {
             $tmp[] = array_slice($recent, 0, 6);
         }
@@ -336,7 +335,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param
      *            array Array of bibliographic record IDs.
-     *            
+     *
      * @throws ILSException
      * @return array Array of return values from getStatus.
      */
@@ -359,7 +358,7 @@ class XCNCIP2 extends AbstractBase implements
      *            The record id to retrieve the holdings.
      * @param array $patron
      *            Patron data.
-     *            
+     *
      * @throws \VuFind\Exception\Date
      * @throws ILSException
      * @return array On success, an associative array with the following
@@ -382,20 +381,20 @@ class XCNCIP2 extends AbstractBase implements
                 $all_iteminfo = [];
             }
             $testing = ($id == "1") ? true : false;
-            
+
             $response = $this->sendRequest($request, $testing);
-            
+
             $new_iteminfo = $response->xpath(
                     'ns1:LookupItemSetResponse/ns1:BibInformation/ns1:HoldingsSet/ns1:ItemInformation');
             $all_iteminfo = array_merge($all_iteminfo, $new_iteminfo);
-            
+
             $nextItemToken = $response->xpath(
                     'ns1:LookupItemSetResponse/ns1:NextItemToken');
         } while ($this->isValidToken($nextItemToken));
         $bibinfo = $response->xpath(
                 'ns1:LookupItemSetResponse/ns1:BibInformation');
         $bibinfo = $bibinfo[0];
-        
+
         // Build the array of holdings:
         $holdings = array();
         foreach ($all_iteminfo as $current) {
@@ -412,7 +411,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param string $id
      *            The record id to retrieve the info for
-     *            
+     *
      * @throws ILSException
      * @return array An array with the acquisitions data on success.
      *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -432,7 +431,7 @@ class XCNCIP2 extends AbstractBase implements
      *            The patron username
      * @param string $password
      *            The patron's password
-     *            
+     *
      * @throws ILSException
      * @return mixed Associative array of patron info on successful login,
      *         null on unsuccessful login.
@@ -446,7 +445,7 @@ class XCNCIP2 extends AbstractBase implements
         $firstname = $response->xpath(
                 'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
                          'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:GivenName');
-        
+
         $lastname = $response->xpath(
                 'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
                          'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:Surname');
@@ -455,9 +454,9 @@ class XCNCIP2 extends AbstractBase implements
                          'ns1:ElectronicAddress/ns1:ElectronicAddressData');
         if (! empty($id)) {
             $patron = array(
-                    'id' => (string) $id[0],
-                    'firstname' => (string) $firstname[0],
-                    'lastname' => (string) $lastname[0],
+                    'id' => empty($id) ? '' : (string)$id[0],
+                    'firstname' => empty($firstname) ? '' : (string)$firstname[0],
+                    'lastname'  => empty($lastname) ? '' : (string)$lastname[0],
                     'cat_username' => $username,
                     'cat_password' => $password,
                     'email' => empty($email) ? '' : (string) $email[0],
@@ -476,7 +475,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @throws ILSException
      * @return array Array of arrays, one for each item checked out by the
      *         specified account.
@@ -487,7 +486,7 @@ class XCNCIP2 extends AbstractBase implements
         $response = $this->sendRequest($request);
         $retVal = array();
         $list = $response->xpath('ns1:LookupUserResponse/ns1:LoanedItem');
-        
+
         foreach ($list as $current) {
             $request = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
             $item_id = $current->xpath(
@@ -501,7 +500,7 @@ class XCNCIP2 extends AbstractBase implements
             $reminderLevel = $current->xpath('ns1:ReminderLevel');
             $mediumType = $current->xpath('ns1:MediumType');
             $ext = $current->xpath('ns1:Ext');
-            
+
             // $additRequest =
             // $this->requests->getItemInfo((string)$item_id[0]);
             $additRequest = $this->requests->getItemInfo((string) $item_id[0]);
@@ -512,15 +511,19 @@ class XCNCIP2 extends AbstractBase implements
             $barcode = $additResponse->xpath(
                     'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
                              'ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
-            
+
             $parsedDate = strtotime((string) $dateDue[0]);
-            
+
             $dateDue = date('j. n. Y', $parsedDate);
-            
+
+            $bib_id = empty($item_id) ? null : explode('-', (string)$item_id[0])[0];
+            $bib_id = substr_replace($bib_id, '-', 5, 0); // number 5 is position
             $retVal[] = array(
                     'duedate' => empty($dateDue) ? '' : $dateDue,
-                    'id' => empty($bibliographicId) ? '' : $bibliographicId,
+                    'id'  => empty($bib_id) ? '' : $bib_id,
                     'barcode' => '', // TODO
+//                     'renew' => '',
+//                     'renewLimit'     => '',
                     'request' => empty($request) ? '' : (string) $request[0],
                     'volume' => '',
                     'publication_year' => '', // TODO
@@ -546,16 +549,16 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @return array Array of arrays containing fines information.
      */
     public function getMyFines ($patron)
     {
         $request = $this->requests->getMyFines($patron);
         $response = $this->sendRequest($request);
-        
+
         $list = $response->xpath('ns1:LookupUserResponse/ns1:UserFiscalAccount');
-        
+
         $fines = array();
         foreach ($list as $current) {
             $amount = $current->xpath('ns1:AccountBalance/ns1:MonetaryValue');
@@ -580,6 +583,16 @@ class XCNCIP2 extends AbstractBase implements
                     'id' => ''
             );
         }
+        // TODO vymaz
+        /*$fines[] = array(
+            'amount' => '10',
+            'checkout' => '03. 08. 2014',
+            'fine' => 'takto to bude vyzerat',
+            'balance' => '-260',
+            'createdate' => '01. 08. 2014',
+            'duedate' => '09. 09. 2014',
+            'id' => 'MZK01-001276830',
+        );*/
         return $fines;
     }
 
@@ -588,21 +601,20 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @return array Array of arrays, one for each hold.
      */
     public function getMyHolds ($patron)
     {
         $request = $this->requests->getMyHolds($patron);
         $response = $this->sendRequest($request);
-        
+
         $retVal = array();
         $list = $response->xpath('ns1:LookupUserResponse/ns1:RequestedItem');
-        
+
         foreach ($list as $current) {
             $type = $current->xpath('ns1:RequestType');
-            $id = $current->xpath(
-                    'ns1:BibliographicId/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
+            $id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
             $location = $current->xpath('ns1:PickupLocation');
             $reqnum = $current->xpath(
                     'ns1:RequestId/ns1:RequestIdentifierValue');
@@ -611,23 +623,30 @@ class XCNCIP2 extends AbstractBase implements
             $position = $current->xpath('ns1:HoldQueuePosition');
             $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
             $title = $current->xpath('ns1:Title');
+            $bib_id = empty($id) ? null : explode('-', (string)$id[0])[0];
+            $bib_id = substr_replace($bib_id, '-', 5, 0); // number 5 is position
+
+            $parsedDate = empty($create) ? '' : strtotime($create[0]);
+            $create = date('j. n. Y', $parsedDate);
+            $parsedDate = empty($expire) ? '' : strtotime($expire[0]);
+            $expire = date('j. n. Y', $parsedDate);
             $retVal[] = array(
                     'type' => empty($type) ? '' : (string) $type[0],
-                    'id' => empty($id) ? '' : (string) $id[0],
+                    'id'  => empty($bib_id) ? '' : $bib_id,
                     'location' => empty($location) ? '' : (string) $location[0],
                     'reqnum' => empty($reqnum) ? '' : (string) $reqnum[0],
-                    'expire' => empty($expire) ? '' : (string) $expire[0],
-                    'create' => empty($create) ? '' : (string) $create[0],
+                    'expire' => empty($expire) ? '' : $expire,
+                    'create' => empty($create) ? '' : $create,
                     'position' => empty($position) ? '' : (string) $position[0],
                     'available' => '',
-                    'item_id' => empty($$item_id) ? '' : (string) $item_id[0],
+                    'item_id' => empty($item_id) ? '' : (string) $item_id[0],
                     'volume' => '',
                     'publication_year' => '',
                     'title' => empty($title) ? '' : (string) $title[0],
                     'isbn' => '',
                     'issn' => '',
                     'oclc' => '',
-                    'upc' => ''
+                    'upc' => '',
             );
         }
         return $retVal;
@@ -640,7 +659,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @throws ILSException
      * @return array Array of the patron's profile data on success.
      */
@@ -648,7 +667,7 @@ class XCNCIP2 extends AbstractBase implements
     {
         $request = $this->requests->getMyProfile($patron);
         $response = $this->sendRequest($request);
-        
+
         $name = $response->xpath(
                 'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
                          'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:GivenName');
@@ -716,7 +735,7 @@ class XCNCIP2 extends AbstractBase implements
      *            important thing is that this parameter supports an ID returned
      *            by getFunds,
      *            whatever that may mean.
-     *            
+     *
      * @throws ILSException
      * @return array Associative array with 'count' and 'results' keys
      *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -795,7 +814,7 @@ class XCNCIP2 extends AbstractBase implements
      *            ID from getInstructors (empty string to match all)
      * @param string $dept
      *            ID from getDepartments (empty string to match all)
-     *            
+     *
      * @throws ILSException
      * @return array An array of associative arrays representing reserve items.
      *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -825,18 +844,18 @@ class XCNCIP2 extends AbstractBase implements
      *            or SimpleXMLElement $XML
      * @param
      *            $path_to_XSD
-     *            
+     *
      * @throws ILSException
      * @return boolean Returns true, if XML is valid.
      */
-    protected function isValidXMLAgainstXSD ($XML, 
+    protected function isValidXMLAgainstXSD ($XML,
             $path_to_XSD = './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
     {
         $doc = new DOMDocument();
         libxml_use_internal_errors(true); // Begin - Disable xml error messages.
         if (is_string($XML))
             $doc->loadXML($XML);
-        else 
+        else
             if (get_class($XML) == 'SimpleXMLElement')
                 $doc->loadXML($XML->asXML());
             else
@@ -852,7 +871,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param $response SimpleXMLElement
      *            Object
-     *            
+     *
      * @return boolean Returns true, if response is without problem.
      */
     protected function isCorrect ($response)
@@ -870,7 +889,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @param
      *            array, at index [0] SimpleXMLElement Object
-     *            
+     *
      * @return boolean Returns true, if token is valid.
      */
     protected function isValidToken ($nextItemToken)
@@ -900,7 +919,7 @@ class NCIPRequests
      *
      * @param array $cancelDetails
      *            Patron's information and details about cancel request.
-     *            
+     *
      * @return string XML request
      */
     public function cancelHolds ($itemID, $patronID)
@@ -926,7 +945,7 @@ class NCIPRequests
      *            IDs to look up.
      * @param string $resumption
      *            Resumption token (null for first page of set).
-     *            
+     *
      * @return string XML request
      */
     public function getHolding ($idList, $maxItemsCount = null, $resumption = null)
@@ -977,7 +996,7 @@ class NCIPRequests
     /**
      * Temporary method for dealing with item's location.
      *
-     * @param string $itemID            
+     * @param string $itemID
      */
     public function getItemInfo ($itemID)
     {
@@ -993,14 +1012,14 @@ class NCIPRequests
                 'Security Marker',
                 'Sensitization Flag'
         );
-        
+
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
                  '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
                  'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
                  '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' .
                  htmlspecialchars($itemID) .
                  '</ns1:ItemIdentifierValue></ns1:ItemId>';
-        
+
         foreach ($desiredParts as $current) {
             $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
                      htmlspecialchars($current) . '</ns1:ItemElementType>';
@@ -1012,7 +1031,7 @@ class NCIPRequests
     /**
      * Temporary method for dealing with item's location.
      *
-     * @param string $itemID            
+     * @param string $itemID
      */
     public function getLocation ($itemID)
     {
@@ -1032,7 +1051,7 @@ class NCIPRequests
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @return string NCIP request XML
      */
     public function getMyFines ($patron)
@@ -1049,7 +1068,7 @@ class NCIPRequests
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @return string NCIP request XML
      */
     public function getMyHolds ($patron)
@@ -1065,7 +1084,7 @@ class NCIPRequests
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @return string NCIP request XML
      */
     public function getMyProfile ($patron, $extras = null)
@@ -1084,7 +1103,7 @@ class NCIPRequests
                              'User Privilege' . '</ns1:UserElementType>'
             );
         }
-        
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
                  '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
                  'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
@@ -1100,7 +1119,7 @@ class NCIPRequests
      *
      * @param array $patron
      *            The patron array
-     *            
+     *
      * @return string NCIP request XML
      */
     public function getMyTransactions ($patron)
@@ -1120,7 +1139,7 @@ class NCIPRequests
      *            Password for login
      * @param string $extras
      *            Extra elements to include in the request
-     *            
+     *
      * @return string NCIP request XML
      */
     public function patronLogin ($username, $password)
@@ -1133,7 +1152,7 @@ class NCIPRequests
                          'schemes/userelementtype/userelementtype.scm">' .
                          'User Address Information' . '</ns1:UserElementType>'
         );
-        
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
                  '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
                  'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' .
@@ -1157,8 +1176,8 @@ class NCIPRequests
     /**
      * Build the NCIP request XML to renew patron's items.
      *
-     * @param array $patron            
-     * @param string $item            
+     * @param array $patron
+     * @param string $item
      *
      * @return string NCIP request XML
      */
