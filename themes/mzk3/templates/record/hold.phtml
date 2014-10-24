@@ -34,20 +34,19 @@
     <? endif; ?>
 
     <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
-      <? if ($queued):?>
-        <div class="form-group">
-          <label class="col-sm-3 control-label">
-            <input type="checkbox" id="enable_to"/>
+      <div class="form-group">
+        <label class="col-sm-3 control-label">
+          <? if ($this->dueDate):?>
+            <?=$this->transEsc("reservation_required_by")?>:
+          <? else: ?>
             <?=$this->transEsc("hold_required_by")?>:
-          </label>
-          <div class="col-sm-9">
-            <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
-            (<?=$this->dateTime()->getDisplayDateFormat()?>)
-          </div>
+          <? endif;?>
+        </label>
+        <div class="col-sm-9">
+          <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
+          (<?=$this->dateTime()->getDisplayDateFormat()?>)
         </div>
-      <? else:?>
-        <input id="requiredByDateHidden" type="hidden" name="gatheredDetails[requiredBy]" value="<?=$this->escapeHtmlAttr($this->defaultRequiredDate)?>"/>
-      <? endif; ?>
+      </div>
     <? endif; ?>
 
     <? $showRequestGroups = in_array("requestGroup", $this->extraHoldFields)
@@ -150,15 +149,6 @@
                 setUpHoldRequestForm("{$this->escapeHtml($this->driver->getUniqueId())}");
             });
         }
-
-        $('#requiredByDate').attr("disabled", true);
-        $('#enable_to').change(function() {
-          var disabled = !$(this).is(':checked');
-          $('#requiredByDate').attr("disabled", disabled);
-          if (disabled) {
-            $('#requiredByDate').val("{$this->escapeHtml($this->defaultRequiredDate)}");
-          }
-        });
 JS;
 
     echo $this->inlineScript()->appendScript($js);
