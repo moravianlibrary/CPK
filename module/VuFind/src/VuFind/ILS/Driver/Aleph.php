@@ -785,8 +785,7 @@ class AlephWebServices {
                 $url = $this->appendQueryString($url, $params);
                 $result = $this->httpService->post($url, $body, $this->timeout);
             } else {
-                $client = $this->httpService->createClient($url, array(), $this->timeout);
-                $client->setMethod($method);
+                $client = $this->httpService->createClient($url, $method, $this->timeout);
                 if ($body != null) {
                     $client->setRawBody($body);
                 }
