@@ -10,11 +10,8 @@ return array(
     'favicon' => 'vufind-favicon.ico',
     'helpers' => array(
         'factories' => array(
-            'record' => function ($sm) {
-                return new \ObalkyKnihV3\View\Helper\ObalkyKnih\Record(
-                    $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-                );
-            },
+            'record'     => 'ObalkyKnihV3\View\Helper\ObalkyKnih\Factory::getRecord',
+            'obalkyknih' => 'ObalkyKnihV3\View\Helper\ObalkyKnih\Factory::getObalkyKnih',
         ),
-    )
+    ),
 );

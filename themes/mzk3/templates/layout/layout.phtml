@@ -46,7 +46,9 @@
             }
             $this->headScript()->appendScript($this->jsTranslations()->getScript());
         }
+        $this->headScript()->prependScript("var obalky = obalky || {}; obalky.cacheUrl = " . json_encode($this->obalkyKnih()->getCacheUrl()));
     ?>
+
     <?=$this->headScript()?>
   </head>
   <body>

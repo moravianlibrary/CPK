@@ -1,5 +1,5 @@
 var obalky = obalky || {};
-obalky.cacheUrl  = "https://cache.obalkyknih.cz";
+obalky.cacheUrl  = obalky.cacheUrl || "https://cache.obalkyknih.cz";
 obalky.coverUrl  = obalky.cacheUrl + "/api/cover";
 obalky.tocUrl    = obalky.cacheUrl + "/api/toc/thumbnail";
 obalky.pdfUrl    = obalky.cacheUrl + "/api/toc/pdf";
