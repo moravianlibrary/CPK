@@ -82,7 +82,10 @@ class Record extends ParentRecord
     }
 
     public function getObalkyKnihAdvert($description) {
-        $sigla = 'BOA001';
+        $sigla = '';
+        if (isset($this->config->ObalkyKnih->sigla)) {
+            $sigla = $this->config->ObalkyKnih->sigla;
+        }
         return 'advert' . $sigla . ' ' . $description;
     }
 
