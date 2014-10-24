@@ -783,8 +783,9 @@ class AlephWebServices {
                 $result = $this->httpService->get($url, $params, $this->timeout);
             } else if ($method == 'POST') {
                 $url = $this->appendQueryString($url, $params);
-                $result = $this->httpService->post($url, $body, $this->timeout);
+                $result = $this->httpService->post($url, $body, 'application/octet-stream', $this->timeout);
             } else {
+                $url = $this->appendQueryString($url, $params);
                 $client = $this->httpService->createClient($url, $method, $this->timeout);
                 if ($body != null) {
                     $client->setRawBody($body);
