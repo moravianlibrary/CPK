@@ -126,15 +126,116 @@ class XCNCIP2 extends AbstractBase implements
         $response->registerXPathNamespace('ns1',
                 'http://www.niso.org/2008/ncip');
 
+        //file_put_contents('/tmp/aaaaaaaaa', print_r($response->AsXML(), true));
         if (! $this->isValidXMLAgainstXSD($response)) {
             throw new ILSException('Not valid XML response!');
         }
 
         if (! $this->isCorrect($response) && ! $testing) {
             // TODO chcek problem type
+            var_dump($response->AsXML());
             throw new ILSException('Problem has occured!');
         }
         return $response;
+    }
+
+    /**
+     * Cancel Holds
+     *
+     * Cancels a list of holds for a specific patron.
+     *
+     * @param array $cancelDetails - array with two keys: patron (array from patronLogin method) and
+     *                  details (an array of strings returned by the driver's getCancelHoldDetails method)
+     *
+     * @throws ILSException
+     * @return array    Status of canceled holds.
+     */
+    public function cancelHolds($cancelDetails)
+    {
+        $items = array();
+        foreach ($cancelDetails['details'] as $recent)
+        {
+            $request = $this->requests->cancelHolds($recent, $cancelDetails['patron']['id']);
+            $response = $this->sendRequest($request);
+
+            $item_id = $response->xpath('ns1:CancelRequestItemResponse/ns1:ItemId/ns1:ItemIdentifierValue');
+            $items[(string)$item_id[0]] = array(
+                'success' => true,
+                'status' => '',
+                'sysMessage' => '',
+            );
+        }
+        $retVal = array(
+            'count' => count($items),
+            'items' => $items,
+        );
+        return $retVal;
+    }
+
+    /**
+     * Renew My Items
+     *
+     * his method renews a list of items for a specific patron.
+     *
+     * @param array $renewDetails Two keys patron and details.
+     *
+     * @throws ILSException
+     * @return array        An associative array with two keys: blocks and details.
+     */
+    public function renewMyItems($renewDetails)
+    {
+        $result = array();
+        foreach ($renewDetails['details'] as $item)
+        {
+            $request = $this->requests->renewMyItems($renewDetails['patron'], $item);
+            $response = $this->sendRequest($request);
+            $date = $response->xpath('ns1:RenewItemResponse/ns1:DateForReturn');
+            $result[$item] = array(
+                'success' => true,
+                'new_date' => (string)$date[0],
+                'new_time' => (string)$date[0], // used the same like previous
+                'item_id' => $item,
+                'sysMessage' => '',
+            );
+        }
+        return array(
+            'blocks' => false,
+            'details' => $result,
+        );
+    }
+
+    /**
+     * Get Renew Details
+     *
+     * This method returns a string to use as the input form value for renewing each hold item.
+     *
+     * @param array $checkOutDetails - One of the individual item arrays returned by the getMyTransactions method.
+     *
+     * @throws ILSException
+     * @return string   Used as the input form value for renewing each item;
+     *                  you can pass any data that is needed by your ILS to identify the transaction to renew –
+     *                  the output of this method will be used as part of the input to the renewMyItems method.
+     */
+    public function getRenewDetails($checkOutDetails)
+    {
+        return $checkOutDetails['id'];
+    }
+
+    /**
+     * Get Cancel Hold Details
+     *
+     * This method returns a string to use as the input form value for cancelling each hold item.
+     *
+     * @param array $holdDetails - One of the individual item arrays returned by the getMyHolds method.
+     *
+     * @throws ILSException
+     * @return string   Used as the input value for cancelling each hold item;
+     *                  any data needed to identify the hold –
+     *                  the output will be used as part of the input to the cancelHolds method.
+     */
+    public function getCancelHoldDetails($holdDetails)
+    {
+        return $holdDetails['id'];
     }
 
     /**
@@ -235,7 +336,8 @@ class XCNCIP2 extends AbstractBase implements
             $dueDate = implode(". ", $dueDate);
         }
 
-        $onStock = substr($location, 0, 5) == 'Stock';
+        if (! empty($location)) $onStock = substr($location, 0, 5) == 'Stock';
+        else $onStock = false;
 
         $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
 
@@ -266,7 +368,7 @@ class XCNCIP2 extends AbstractBase implements
                 'availability' => empty($available) ? false : $available ? true : false,
                 'status' => empty($status) ? "" : (string) $status[0],
                 'location' => empty($itemCallNo) ? "" : (string) $itemCallNo[0],
-                'reserve' => "",
+                'reserve' => "", // Y means "On Reserve - Ask at Circulation Desk"
                 'callnumber' => "",
                 'collection_desc' => empty($location) ? "" : $location,
                 'duedate' => empty($dueDate) ? "" : (string) $dueDate,
@@ -293,12 +395,87 @@ class XCNCIP2 extends AbstractBase implements
     {
         // Input: MZK01000974548-MZK50000974548000010
         // Output: MZK01-000974548/ExtendedHold?barcode=MZK50000974548000020
+        // Hold?id=MZK01-001422752&item_id=MZK50001457754000010&hashKey=451f0e3f0112decdadc4a9e507a60cfb#tabnav
         $itemIdParts = explode("-", $item_id);
 
-        $link = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
-        $link .= '/ExtendedHold?barcode=';
+        $id = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
+        $link .= $id . '/Hold?id=' . $id . '&item_id=';
         $link .= $itemIdParts[1];
+        $link .= '#tabnav';
         return $link;
+    }
+
+    public function getHoldLink ($item_id)
+    {
+        // TODO testing purposes
+        $itemIdParts = explode("-", $item_id);
+
+        $id = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
+        $link .= $id . '/Hold?id=' . $id . '&item_id=';
+        $link .= $itemIdParts[1];
+        $link .= '#tabnav';
+        return 'odlisenie/Hold?id=MZK01-001422752&item_id=MZK50001457754000010#tabnav';
+        return $link;
+    }
+
+    public function placeHold($holdDetails)
+    {
+        var_dump($holdDetails);
+        $request = $this->requests->placeHold($holdDetails);
+        var_dump($request);
+        $response = $this->sendRequest($request);
+        var_dump($response);
+        return array(
+            'success' => true,
+            'sysMessage' => '',
+        );
+    }
+
+    public function getConfig($func)
+    {
+        if ($func == "Holds") {
+            if (isset($this->config['Holds'])) {
+                return $this->config['Holds'];
+            }
+            return array(
+                "HMACKeys" => "id:item_id",
+                "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
+                "defaultRequiredDate" => "0:1:0"
+            );
+        } if ($func == "ILLRequests") {
+            return array(
+                "HMACKeys" => "id:item_id",
+            );
+        } else {
+            return array();
+        }
+    }
+
+    public function getPickUpLocations ($patron = null, $holdInformation = null)
+    {
+        // TODO testing purposes
+        return array(
+            '1' => array(
+                'locationID' => 'mzk_test',
+                'locationDisplay' => 'Moravska zemska knihovna test',
+            ),
+            '2' => array(
+                'locationID' => 'mzk2_test',
+                'locationDisplay' => 'Moravska zemska knihovna 2 test',
+            ),
+        );
+    }
+
+    public function getDefaultPickUpLocation ($patron = null, $holdInformation = null)
+    {
+        // TODO testing purposes
+        return '1';
+    }
+
+    public function getMyHistory ($patron, $currentLimit = 0)
+    {
+        // TODO fix
+        return $this->getMyTransactions($patron);
     }
 
     /**
@@ -879,7 +1056,7 @@ class XCNCIP2 extends AbstractBase implements
         $problem = $response->xpath('//ns1:Problem');
         if ($problem == null)
             return true;
-            // print_r($problem[0]->AsXML());
+            //print_r($problem[0]->AsXML());
         return false;
     }
 
@@ -900,6 +1077,7 @@ class XCNCIP2 extends AbstractBase implements
         }
         return false;
     }
+
 }
 
 /**
@@ -913,6 +1091,15 @@ class XCNCIP2 extends AbstractBase implements
  */
 class NCIPRequests
 {
+    protected $cpk_conversion = true;
+
+    protected function cpkConvert($id)
+    {
+        if ($this->cpk_conversion) {
+            $id = substr_replace($id, 'MZK01', 0, 7);
+        }
+        return $id;
+    }
 
     /**
      * Build NCIP request XML for cancel holds.
@@ -966,7 +1153,8 @@ class NCIPRequests
                  '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
         // Add the ID list:
         foreach ($idList as $id) {
-            $id = str_replace("-", "", $id);
+            //$id = str_replace("-", "", $id);
+            $id = $this->cpkConvert($id);
             $xml .= '<ns1:BibliographicId>' . '<ns1:BibliographicRecordId>' .
                      '<ns1:BibliographicRecordIdentifier>' .
                      htmlspecialchars($id) .
@@ -1171,6 +1359,31 @@ class NCIPRequests
                  '</ns1:AuthenticationInputType>' . '</ns1:AuthenticationInput>' .
                  implode('', $extras) . '</ns1:LookupUser>' .
                  '</ns1:NCIPMessage>';
+    }
+
+    public function placeHold ($holdDetails)
+    {
+        $id = $holdDetails['id'];
+        $id = substr_replace($id, '', 5, 1);
+        $id .= '-';
+        $id .= $holdDetails['item_id'];
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+                '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
+                '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RequestItem>' .
+                '<ns1:UserId>' . '<ns1:UserIdentifierValue>' .
+                htmlspecialchars($holdDetails['patron']['id']) . '</ns1:UserIdentifierValue>' .
+                '</ns1:UserId>' .
+                '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' .
+                htmlspecialchars($id) . '</ns1:ItemIdentifierValue>' .
+                '</ns1:ItemId>' .
+                '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' .
+                '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' .
+                '<ns1:EarliestDateNeeded>2014-09-09T00:00:00</ns1:EarliestDateNeeded>' .
+                '<ns1:NeedBeforeDate>2014-09-17T00:00:00</ns1:NeedBeforeDate>' .
+                '<ns1:PickupLocation>MZK </ns1:PickupLocation>' .
+                '<ns1:PickupExpiryDate>2014-09-30T00:00:00</ns1:PickupExpiryDate>' .
+                '</ns1:RequestItem></ns1:NCIPMessage>';
+        return $xml;
     }
 
     /**
