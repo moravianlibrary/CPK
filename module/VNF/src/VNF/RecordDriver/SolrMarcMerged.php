@@ -233,5 +233,27 @@ class SolrMarcMerged extends ParentSolr
         }
         return $result;
     }
+    
+    public function getSummary()
+    {
+        $summary = array();
+        if (isset($this->fields['summary_txt'])) {
+             $summary = array($this->fields['summary_txt']);
+        }
+        
+        if (empty($summary)) {
+            return array();
+        }
+
+        if (is_array($summary) && isset($summary[0])) {
+            return explode('EOL_ENT', $summary[0]);
+        }
+        return $summary;
+    }
+    
+    
+    public function getPublicationDetails() {
+        return parent::getPublicationDetails();
+    }
 }
 

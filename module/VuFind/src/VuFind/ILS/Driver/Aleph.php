@@ -565,6 +565,13 @@ class AlephWebServices {
     protected $httpService = null;
     
     /**
+     * Timeout in seconds
+     *
+     * @var int
+     */
+    protected $timeout = 30;
+
+    /**
      * Logger object for debug info (or false for no debugging).
      *
      * @var LoggerInterface|bool
@@ -591,6 +598,9 @@ class AlephWebServices {
         $this->debug_enabled = false;
         if (isset($config['debug']) && $config['debug']) {
             $this->debug_enabled = true;
+        }
+        if (isset($config['timeout'])) {
+            $this->timeout = $config['timeout'];
         }
         $this->dlfport = $config['dlfport'];
     }
@@ -770,13 +780,13 @@ class AlephWebServices {
         $result = null;
         try {
             if ($method == 'GET') {
-                $result = $this->httpService->get($url, $params);
+                $result = $this->httpService->get($url, $params, $this->timeout);
             } else if ($method == 'POST') {
                 $url = $this->appendQueryString($url, $params);
-                $result = $this->httpService->post($url, $body);
+                $result = $this->httpService->post($url, $body, 'application/octet-stream', $this->timeout);
             } else {
-                $client = $this->httpService->createClient($url);
-                $client->setMethod($method);
+                $url = $this->appendQueryString($url, $params);
+                $client = $this->httpService->createClient($url, $method, $this->timeout);
                 if ($body != null) {
                     $client->setRawBody($body);
                 }

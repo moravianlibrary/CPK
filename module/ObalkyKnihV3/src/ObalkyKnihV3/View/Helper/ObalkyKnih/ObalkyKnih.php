@@ -25,33 +25,21 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-namespace MZKCatalog\View\Helper\mzk3;
+namespace ObalkyKnihV3\View\Helper\ObalkyKnih;
 use Zend\ServiceManager\ServiceManager;
+use Zend\View\Helper\AbstractHelper;
 
-/**
- * Factory for Bootstrap view helpers.
- *
- * @category VuFind2
- * @package  View_Helpers
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
- * @codeCoverageIgnore
- */
-class Factory
-{
-    /**
-     * Construct the LayoutClass helper.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return LayoutClass
-     */
-    public static function getLayoutClass(ServiceManager $sm)
+class ObalkyKnih extends AbstractHelper {
+
+    protected $cacheUrl;
+
+    public function __construct($cacheUrl = 'https://cache.obalkyknih.cz')
     {
-        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
-        $left = !isset($config->Site->sidebarOnLeft)
-            ? false : $config->Site->sidebarOnLeft;
-        return new LayoutClass($left);
+        $this->cacheUrl = $cacheUrl;
     }
+
+    public function getCacheUrl() {
+        return $this->cacheUrl;
+    }
+
 }

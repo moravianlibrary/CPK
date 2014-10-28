@@ -114,6 +114,11 @@ a.login, a.logout {
   box-sizing: content-box;
 }
 
+a.login:hover, a.logout:hover {
+  background-position: left -35px;
+  color: #fff;
+}
+
 /* cart */
 #cartSummary {
   position: relative;

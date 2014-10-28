@@ -20,10 +20,10 @@
         $formats = $resource->getFormats();
       ?>
       <div id="cover_<?=$recordId?>" class="coverThumbnail">
-        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSON()): ?>
+        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
           <script type="text/javascript">
             $(document).ready(function() {
-              obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
+                obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($resource)->getObalkyKnihAdvert('checkedout'))?>);
             });
           </script>
         <? endif;?>
@@ -119,7 +119,7 @@
         <?endif;?>
         <? if ($showStatus): ?>
           <? if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue"): ?>
-            <div class="alert alert-error"><?=$this->transEsc("renew_item_overdue")?></div>
+            <div class="alert alert-danger"><?=$this->transEsc("renew_item_overdue")?></div>
           <? elseif (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "due"): ?>
             <div class="alert alert-info"><?=$this->transEsc("renew_item_due")?></div>
           <? endif; ?>
