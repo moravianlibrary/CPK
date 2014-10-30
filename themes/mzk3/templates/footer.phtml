@@ -21,8 +21,8 @@
   $openSearchHref = "javascript:window.external.AddSearchProvider('" . $openSearchUrl . "');";
 ?>
 <hr/>
-<div class="col-md-12 row small">
-  <div class="col-sm-4 col-md-offset-0"><p><strong><?=$this->transEsc('Search Options')?></strong></p>
+<div class="row">
+  <div class="col-sm-4"><p><strong><?=$this->transEsc('Search Options')?></strong></p>
     <ul>
       <? if ($mobileViewLink = $this->mobileUrl()): // display 'return to mobile' link when applicable ?>
         <li><a href="<?=$this->escapeHtmlAttr($mobileViewLink)?>"><?=$this->transEsc("mobile_link")?></a></li>
