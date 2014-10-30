@@ -216,6 +216,13 @@ $(document).ready(function() {
 	  placement: 'bottom',
 	  html: true
   });
+  
+  $('input#requiredByDate, input#last-interest-date').datepicker({
+    format: "dd.mm.yyyy",
+    weekStart: 1,
+    language: "cs"
+  });
+  
 });
 
 function updateCart(item) {
