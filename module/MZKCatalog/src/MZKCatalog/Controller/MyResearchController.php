@@ -82,7 +82,7 @@ class MyResearchController extends MyResearchControllerBase
             if (!empty($view->fines)) {
                 $total = 0;
                 foreach ($view->fines as $fine) {
-                    $total += ($fine['balance']);
+                    $total += ($fine['amount']);
                 }
                 if ($total < 0) {
                     $view->paymentUrl = $catalog->getPaymentURL($patron, -1 * $total);
