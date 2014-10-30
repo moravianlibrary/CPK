@@ -7,6 +7,12 @@
     $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '</li> ')
         . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> '
         . '<li class="active">' . $this->transEsc('request_place_text') . '</li>';
+        
+    // Load Javascript and css dependencies into header:
+    $this->headScript()->appendFile("bootstrap-datepicker.js");
+    $this->headScript()->appendFile("bootstrap-datepicker.cs.js");
+    $this->headScript()->appendFile("datepicker.js");
+    $this->headLink()->appendStylesheet("datepicker3.css");
 ?>
 <p class="lead"><?=$this->transEsc($title)?></p>
 <? if ($this->helpText): ?>
