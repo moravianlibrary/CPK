@@ -5,6 +5,12 @@
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> </li>'
         . '<li class="active">' . $this->transEsc('Interlibrary Loan Requests') . '</li>';
+        
+    // Load Javascript and css dependencies into header:
+    $this->headScript()->appendFile("bootstrap-datepicker.js");
+    $this->headScript()->appendFile("bootstrap-datepicker.cs.js");
+    $this->headScript()->appendFile("datepicker.js");
+    $this->headLink()->appendStylesheet("datepicker3.css");
 
 ?>
 
