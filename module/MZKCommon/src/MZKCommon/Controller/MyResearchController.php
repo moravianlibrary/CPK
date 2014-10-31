@@ -88,6 +88,7 @@ class MyResearchController extends MyResearchControllerBase
         if ($showOverdueMessage) {
             $this->flashMessenger()->setNamespace('error')->addMessage('overdue_error_message');
         }
+        $view->history = false;
         $view = $this->addViews($view);
         return $view;
     }
@@ -120,7 +121,7 @@ class MyResearchController extends MyResearchControllerBase
 
         $bookings = array();
         foreach ($ilsBookings as $current) {
-            $current = $this->shortLoanRequests()->addCancelDetails($catalog, $current); 
+            $current = $this->shortLoanRequests()->addCancelDetails($catalog, $current);
             $bookings[] = $this->getDriverForILSRecord($current);
         }
 
@@ -317,6 +318,42 @@ class MyResearchController extends MyResearchControllerBase
                 'hmac' => array('type' => 'hidden', 'value' => $this->getHMAC()),
             ),
         );
+    }
+
+    public function checkedOutHistoryAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        $currentLimit = $this->params()->fromQuery('limit');
+        if (!isset($currentLimit)) {
+            $currentLimit = 50;
+        }
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        // Get history:
+        $result = $catalog->getMyHistory($patron, $currentLimit);
+
+        $transactions = array();
+        foreach ($result as $current) {
+            // Build record driver:
+            $transactions[] = $this->getDriverForILSRecord($current);
+        }
+
+        $view = $this->createViewModel(
+                array(
+                    'transactions' => $transactions
+                )
+        );
+        $view->history = true;
+        $view->currentLimit = $currentLimit;
+        $view->limitList = array(50, 100, 200);
+        $this->addViews($view);
+        return $view;
     }
 
     public function profileAction()

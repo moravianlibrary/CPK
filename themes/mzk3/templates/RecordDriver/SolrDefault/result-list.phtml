@@ -1,22 +1,22 @@
 <?
-  $this->headScript()->appendFile('obalkyknih/functions.js');
-  $this->headScript()->appendFile('obalkyknih/custom.js');
   $recordId = $this->driver->getUniqueID();
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
   $formats = $this->driver->getFormats();
+  $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
+  if (empty($lookfor)) {
+      $lookfor = $this->record($this->driver)->getObalkyKnihAdvert('results');
+  }
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
 
-  <div class="col-sm-2 col-xs-3 left">
+  <div class="col-sm-2 col-xs-3 left text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
-      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
+      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
         <script type="text/javascript">
-          $(document).ready(function() {
-            obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
-          });
+          obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
         </script>
       <? endif;?>
       <img src="<?=$this->imageLink('format/' . $formats[0] . '.png')?>" />

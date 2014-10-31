@@ -66,7 +66,7 @@ class GoogleAnalytics extends \Zend\View\Helper\AbstractHelper
      */
     public function __construct($config)
     {
-        $this->key = isset($config->apiKey)? $config->apiKey : false; 
+        $this->key = isset($config->apiKey)? $config->apiKey : false;
         if ($this->key && isset($config->domain)) {
             $this->domain = $config->domain;
         }
@@ -99,26 +99,23 @@ class GoogleAnalytics extends \Zend\View\Helper\AbstractHelper
                 . "s.parentNode.insertBefore(ga, s);\n"
                 . "})();";
         } else {
-            $config = array('_setAccount' => $this->key);
+            $config = "'auto'";
             if ($this->domain) {
-                $config['_setDomainName'] = $this->domain; 
+                $config = array();
+                $config['cookieDomain'] = $this->domain;
+                $config['legacyCookieDomain'] = $this->domain;
+                $config = json_encode($config);
             }
-            $code = "var config = " . json_encode($config)  . ";\n"
-                . "var _gaq = _gaq || [];\n"
-                . "for (var key in config) {\n"
-                . "_gaq.push([key, config[key]]);\n"
-                . "}\n"
-                . "_gaq.push(['_trackPageview']);\n"
-                . "(function() {\n"
-                . "var ga = document.createElement('script'); "
-                . "ga.type = 'text/javascript'; ga.async = true;\n"
-                . "ga.src = ('https:' == document.location.protocol ? "
-                . "'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n"
-                . "var s = document.getElementsByTagName('script')[0]; "
-                . "s.parentNode.insertBefore(ga, s);\n"
-                . "})();";
+            $code = <<<EOF
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', '{$this->key}', {$config});
+ga('send', 'pageview');
+EOF;
+            $inlineScript = $this->getView()->plugin('inlinescript');
+            return $inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $code, 'SET');
         }
-        $inlineScript = $this->getView()->plugin('inlinescript');
-        return $inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $code, 'SET');
     }
 }

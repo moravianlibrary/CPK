@@ -3,7 +3,7 @@
     $this->headTitle($this->translate('Interlibrary Loan Requests'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> <span class="divider">&gt;</span></li>'
+    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> </li>'
         . '<li class="active">' . $this->transEsc('Interlibrary Loan Requests') . '</li>';
 
 ?>
@@ -42,12 +42,12 @@
             </label>
             <div class="controls">
               <?if ($attributes['type'] == 'text'):?>
-                <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+                <input type="text" class="form-control" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
               <?elseif ($attributes['type'] == 'date'):?>
-                <input type="text" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
+                <input type="text" class="form-control" name="<?=$this->escapeHtml($field)?>" id="<?=$this->escapeHtml($field)?>" value="<?=$this->escapeHtml($attributes['value'])?>"/>
                 (<?=$this->dateTime()->getDisplayDateFormat()?>)
               <?elseif ($attributes['type'] == 'select'):?>
-                <select name="<?=$this->escapeHtml($field)?>">
+                <select class="form-control" name="<?=$this->escapeHtml($field)?>">
                   <?foreach ($attributes['options'] as $key => $label):?>
                     <option <?=($key == $attributes['value'])?'selected="true"':''?>value="<?=$this->escapeHtml($key)?>"><?=$this->transEsc($label)?></option>
                   <?endforeach;?>

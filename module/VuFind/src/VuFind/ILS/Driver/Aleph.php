@@ -565,6 +565,13 @@ class AlephWebServices {
     protected $httpService = null;
     
     /**
+     * Timeout in seconds
+     *
+     * @var int
+     */
+    protected $timeout = 30;
+
+    /**
      * Logger object for debug info (or false for no debugging).
      *
      * @var LoggerInterface|bool
@@ -591,6 +598,9 @@ class AlephWebServices {
         $this->debug_enabled = false;
         if (isset($config['debug']) && $config['debug']) {
             $this->debug_enabled = true;
+        }
+        if (isset($config['timeout'])) {
+            $this->timeout = $config['timeout'];
         }
         $this->dlfport = $config['dlfport'];
     }
@@ -770,13 +780,13 @@ class AlephWebServices {
         $result = null;
         try {
             if ($method == 'GET') {
-                $result = $this->httpService->get($url, $params);
+                $result = $this->httpService->get($url, $params, $this->timeout);
             } else if ($method == 'POST') {
                 $url = $this->appendQueryString($url, $params);
-                $result = $this->httpService->post($url, $body);
+                $result = $this->httpService->post($url, $body, 'application/octet-stream', $this->timeout);
             } else {
-                $client = $this->httpService->createClient($url);
-                $client->setMethod($method);
+                $url = $this->appendQueryString($url, $params);
+                $client = $this->httpService->createClient($url, $method, $this->timeout);
                 if ($body != null) {
                     $client->setRawBody($body);
                 }
@@ -1195,11 +1205,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $resource = $bib . $sys_no;
         $params = array();
         if (!empty($filters)) {
-            foreach ($filters as $id => $value) {
-                if ($id == 'hide_loans' && $value='true') {
+            foreach ($filters as $key => $value) {
+                if ($key == 'hide_loans' && $value='true') {
                     $params['loaned'] = 'NO';
                 } else {
-                    $params[$id] = $value;
+                    $params[$key] = $value;
                 }
             }
         }
@@ -1332,9 +1342,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException
      * @return array      Array of the patron's transactions on success.
      */
-    public function getMyHistory($user)
+    public function getMyHistory($user, $limit = 0)
     {
-        return $this->getMyTransactions($user, true);
+        return $this->getMyTransactions($user, true, $limit);
     }
 
     /**
@@ -1351,13 +1361,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException
      * @return array        Array of the patron's transactions on success.
      */
-    public function getMyTransactions($user, $history=false)
+    public function getMyTransactions($user, $history=false, $limit = 0)
     {
         $userId = $user['id'];
         $transList = array();
         $params = array("view" => "full");
         if ($history) {
             $params["type"] = "history";
+            if ($limit > 0) {
+                $params["no_loans"] = $limit;
+            }
         }
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $userId, 'circulationActions', 'loans'), $params
@@ -1523,6 +1536,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $isbn = (string) $z13->{'z13-isbn-issn'};
                 $barcode = (string) $z30->{'z30-barcode'};
                 $status = (string) $z37->{'z37-status'};
+                $onHoldUntil = (string) $z37->{'z37-end-hold-date'};
+                $onHoldUntil = ($onHoldUntil == "00000000") ? null : $this->parseDate($onHoldUntil);
                 if ($holddate == "00000000") {
                     $holddate = null;
                 } else {
@@ -1548,6 +1563,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                     'create'   => $this->parseDate($create),
                     'status'   => $status,
                     'position' => $seq,
+                    'on_hold_until' => $onHoldUntil,
                 );
             }
         }

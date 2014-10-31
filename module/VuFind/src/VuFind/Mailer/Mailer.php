@@ -56,13 +56,22 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
     protected $translator = null;
 
     /**
+     *
+     * @var string
+     */
+    protected $from = null;
+
+    /**
      * Constructor
      *
      * @param \Zend\Mail\Transport\TransportInterface $transport Mail transport
      */
-    public function __construct(\Zend\Mail\Transport\TransportInterface $transport)
+    public function __construct(\Zend\Mail\Transport\TransportInterface $transport, \Zend\Config\Config $config)
     {
         $this->setTransport($transport);
+        if (isset($config->Mail->from)) {
+            $this->from = $config->Mail->from;
+        }
     }
 
     /**
@@ -157,10 +166,15 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
         try {
             // Send message
             $message = $this->getNewMessage()
-                ->addFrom($from)
                 ->addTo($to)
                 ->setBody($body)
                 ->setSubject($subject);
+            if ($this->from == null) {
+                $message->addFrom($from);
+            } else {
+                $message->setReplyTo($from);
+                $message->addFrom($this->from);
+            }
             $this->getTransport()->send($message);
         } catch (\Exception $e) {
             throw new MailException($e->getMessage());

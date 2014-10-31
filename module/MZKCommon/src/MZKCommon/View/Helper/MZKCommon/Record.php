@@ -1,7 +1,7 @@
 <?php
 namespace MZKCommon\View\Helper\MZKCommon;
 
-use ObalkyKnih\View\Helper\ObalkyKnih\Record as ParentRecord;
+use VuFind\View\Helper\Root\Record as ParentRecord;
 
 class Record extends ParentRecord
 {
@@ -45,5 +45,48 @@ class Record extends ParentRecord
     	);
     }
 
+    public function getObalkyKnihJSON()
+    {
+        $bibinfo = $this->driver->tryMethod('getBibinfoForObalkyKnih');
+        if (empty($bibinfo)) {
+            $bibinfo = array(
+                "authors" => array($this->driver->getPrimaryAuthor()),
+                "title" => $this->driver->getTitle(),
+            );
+            $isbn = $this->driver->getCleanISBN();
+            if (!empty($isbn)) {
+                $bibinfo['isbn'] = $isbn;
+            }
+            $year = $this->driver->getPublicationDates();
+            if (!empty($year)) {
+                $bibinfo['year'] = $year[0];
+            }
+        }
+        return json_encode($bibinfo, JSON_HEX_QUOT | JSON_HEX_TAG);
+    }
+
+    public function getObalkyKnihJSONV3()
+    {
+        $bibinfo = $this->driver->tryMethod('getBibinfoForObalkyKnihV3');
+        if (empty($bibinfo)) {
+            $isbn = $this->driver->getCleanISBN();
+            if (!empty($isbn)) {
+                $bibinfo['isbn'] = $isbn;
+            }
+            $year = $this->driver->getPublicationDates();
+            if (!empty($year)) {
+                $bibinfo['year'] = $year[0];
+            }
+        }
+        return json_encode($bibinfo, JSON_HEX_QUOT | JSON_HEX_TAG);
+    }
+
+    public function getObalkyKnihAdvert($description) {
+        $sigla = '';
+        if (isset($this->config->ObalkyKnih->sigla)) {
+            $sigla = $this->config->ObalkyKnih->sigla;
+        }
+        return 'advert' . $sigla . ' ' . $description;
+    }
 
 }

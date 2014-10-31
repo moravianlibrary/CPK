@@ -1,5 +1,5 @@
 <? if ($this->status['absent_total'] > 0):?>
-  <span class="label <?=($this->status['absent_avail'] > 0)? 'label-success' : 'label-important'?>">
+  <span class="label <?=($this->status['absent_avail'] > 0)? 'label-success' : 'label-danger'?>">
     <?=$this->transEsc("absent")?> :
     <?=$this->escapeHtml($this->status['absent_avail'])?>
     <?=$this->transEsc("of")?>
@@ -7,7 +7,7 @@
   </span>
 <? endif;?>
 <? if ($this->status['present_total'] > 0):?>
-  <span class="label <?=($this->status['present_avail'] > 0)? 'label-success' : 'label-important'?>">
+  <span class="label <?=($this->status['present_avail'] > 0)? 'label-success' : 'label-danger'?>">
     <?=$this->transEsc("present")?> :
     <?=$this->escapeHtml($this->status['present_avail'])?>
     <?=$this->transEsc("of")?>

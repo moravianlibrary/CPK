@@ -107,9 +107,11 @@ class Service
         $limit = 20, ParamBag $params = null
     ) {
         $params  = $params ?: new ParamBag();
+        $boost = $params->get('boost');
         if ($this->defaultSort != null && $query instanceof \VuFindSearch\Query\Query
             && trim($query->getString()) == '' && $params != null
-            && $params->get('sort')[0] == 'score desc') {
+            && $params->get('sort')[0] == 'score desc'
+            && empty($boost)) {
             $params->set('sort', $this->defaultSort);
         }
         $context = __FUNCTION__;
@@ -219,7 +221,6 @@ class Service
     public function random($backend, $query, $limit = 20, $params = null)
     {
         $params  = $params ?: new ParamBag();
-        $backendString = $backend;
         $context = __FUNCTION__;
         $args = compact('backend', 'query', 'limit', 'params', 'context');
         $backend = $this->resolve($backend, $args);
@@ -263,7 +264,6 @@ class Service
                 // Default case: retrieve n random records:
                 $response = false;
                 $retrievedIndexes = array();
-                $retrievedRecordIds = array();
                 for ($i = 0; $i < $limit; $i++) {
                     $nextIndex = rand(0, $total_records - 1);
                     while (in_array($nextIndex, $retrievedIndexes)) {

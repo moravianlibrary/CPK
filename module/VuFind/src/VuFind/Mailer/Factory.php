@@ -68,6 +68,6 @@ class Factory implements \Zend\ServiceManager\FactoryInterface
         $transport->setOptions(new SmtpOptions($settings));
 
         // Create service:
-        return new \VuFind\Mailer\Mailer($transport);
+        return new \VuFind\Mailer\Mailer($transport, $config);
     }
 }

@@ -3,8 +3,8 @@
     $this->headTitle($this->translate('Add Tag'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', ' <span class="divider">&gt;</span></li>')
-      . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . ' <span class="divider">&gt;</span></li>'
+    $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', ' </li>')
+      . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . ' </li>'
       . '<li class="active">' . $this->transEsc('Add Tag') . '</li>';
 ?>
 <div class="record">

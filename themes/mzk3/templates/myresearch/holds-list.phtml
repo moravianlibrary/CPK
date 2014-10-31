@@ -10,6 +10,8 @@
       <div class="pull-left">
         <input type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
       </div>
+    <? else: ?>
+      <span class="pull-left checkbox-placeholder"></span>
     <? endif; ?>
     <div class="col-md-2 text-center">
       <?
@@ -18,10 +20,10 @@
         $formats = $resource->getFormats();
       ?>
       <div id="cover_<?=$recordId?>" class="coverThumbnail">
-        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSON()): ?>
+        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
           <script type="text/javascript">
             $(document).ready(function() {
-              obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
+              obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($resource)->getObalkyKnihAdvert('holds'))?>);
             });
           </script>
         <? endif;?>
@@ -102,7 +104,12 @@
       <? endif; ?>
 
       <strong><?=$this->transEsc('Created') ?>:</strong> <?=$this->escapeHtml($ilsDetails['create']) ?> |
-      <strong><?=$this->transEsc('Expires') ?>:</strong> <?=$this->escapeHtml($ilsDetails['expire']) ?>
+      <? if($ilsDetails['on_hold_until']):?>
+        <strong><?=$this->transEsc('On hold until') ?>:</strong> <?=$this->escapeHtml($ilsDetails['on_hold_until']) ?> |
+      <? else: ?>
+        <strong><?=$this->transEsc('Expires') ?>:</strong> <?=$this->escapeHtml($ilsDetails['expire']) ?> |
+      <? endif; ?>
+        <strong><?=$this->transEsc('Status') ?>:</strong> <?=$this->transEsc('hold_status_' . $ilsDetails['status']) ?>
       <br />
 
       <? if (isset($this->cancelResults['items'])): ?>

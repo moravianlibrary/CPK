@@ -4,8 +4,8 @@
 
   // Set up breadcrumbs:
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '<span class="divider">&gt;</span> </li>')
-      . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '<span class="divider">&gt;</span> </li>'
+  $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '</li>')
+      . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '</li>'
       . '<li class="active">' . $this->transEsc('request_for_digitalization') . '</li>';
 ?>
 <p class="lead"><?=$this->transEsc("request_for_digitalization") ?> <?=$this->escapeHtml($this->driver->getBreadcrumb())?> </p>

@@ -14,7 +14,6 @@ background-image: url('/themes/vnf/images/fonoteka-body-bg.png');
 
 body {
 margin: 0;
-font-family: "Open sans";
 font-size: 14px;
 line-height: 20px;
 color: #92887E;
@@ -215,7 +214,7 @@ margin-top: 40px;
  text-align: center;
 }
 .institutions img {
-  margin-left: 20px;
+  margin-left: 10px;
 }
 
 .local-search-link {
@@ -224,6 +223,10 @@ margin-left: 25px;
 
 .external-search-link {
 margin-left: 10px;
+}
+
+.external-search-nolink {
+margin-left: 25px;
 }
 
 #flagLink.flagLink {
@@ -253,4 +256,12 @@ margin-left: 3px;
 
 .coverThumbnail {
 margin-top: 20px;
+}
+
+.cistbrno-toolbar-items {
+ padding-top: 5px;
+}
+
+.image-icon {
+  padding-bottom: 3px;
 }

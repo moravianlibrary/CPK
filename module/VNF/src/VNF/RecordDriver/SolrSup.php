@@ -57,89 +57,70 @@ class SolrSup extends SolrMarc
      */
     public function getURLs()
     {
+        $utmParams = '';
+        $linkEnd = $this->recordConfig->ExternalLinks->sup_end;
+        if ($linkEnd) {
+            $utmParams = $linkEnd;
+        }
         $urls = parent::getURLs();
         if (is_array($urls)) {
             for ($i = 0; $i < count ($urls); $i++) {
-                if (isset($urls[$i]['url'])) {
-                    $urls[$i]['url'] = 'http://' . $urls[$i]['url'];
+                if (isset($urls[$i]['url']) && !empty($urls['url'])) {
+                    $urls[$i]['url'] = 'http://' . $urls[$i]['url'] . $linkEnd;
+                    $urls[$i]['desc'] = 'Get full text';
+                } else {
+                    unset ($urls[$i]);
                 }
             }
         }
         return $urls;
     }
-
-    public function getThumbnail($size = 'medium')
-    {
-        if (!$this->isAlbum()) return '';
-        if ($size == 'small') $size = 'medium';
-        $id = $this->fields['id'];
-        $dot = strpos($id, '.');
-        if ($dot == false) {
-            return parent::getThumbnail($size);
-        }
-
-        $id = substr($id, $dot + 1);
-        $link = '';
-        if (preg_match('/\d+/', $id)) {
-            $id = ltrim($id, '0');
-            $link = $this->getImagePath($id, $size);
-        }
-
-        return empty($link) ? 'noimage.gif' : $link;
-    }
-
+    
     /**
      * @return content of album as array
      */
-    public function getContent()
+    public function getToc()
     {
         $result = array();
-        $children = $this->getChildren();
-        $fields = $this->marcRecord->getFields('505');
-        if (count($children) != count($fields)) {
-            throw new \ErrorException('SupRecord: lines/links mismatch');
+        if (!isset($this->fields['contents']) ) {
+            return array();
         }
-
-        for ($i = 0; $i < count($fields); $i++) {
-            $current = $fields[$i];
-            $currentArray = array();
-            foreach (array('8', 'g', 'r', 't') as $code) {
-                $sub = $current->getSubfield($code);
-                if ($sub) {
-                    $currentArray[$code] = $sub->getData();
-                }
+        
+        $content = $this->fields['contents'][0];
+        //remove prefix
+        $content = substr($content, 8);
+        $currentHolding = array();
+        $currentResult = '';
+        foreach (explode('--!--', $content) as $currentLine) {
+            foreach (explode('$', $currentLine) as $currentSubfield) {
+                $currentResult [substr($currentSubfield, 0, 1)] = substr($currentSubfield, 1);
             }
-            $currentArray['id'] = $children[$i];
-            if (!empty($currentArray)) {
-                $result[] = $currentArray;
-            }
+            $result[] = $currentResult;
         }
         return $result;
     }
 
-    /**
-     * @param string $id image id
-     * @return string path to image
-     */
-    public function getImagePath($id, $size = 'medium')
-    {
-        if (!isset($this->fields['label_path_str'])) {
-            return '';
+    public function getUniqueKeys() {
+        $result = array();
+        foreach (array('ean_view_txtP_mv',
+            'isrc_view_txtP_mv',
+            'upc_view_txtP_mv',
+            'issue_view_txtP_mv',
+            'matrix_view_txtP_mv',
+            'plate_view_txtP_mv',
+            'publisher_view_txtP_mv') as $current) {
+
+            if (array_key_exists($current, $this->fields)) {
+                $keyType = substr($current, 0, strlen($current) - strlen('_txtP_mv'));
+                foreach ($this->fields[$current] as $key) {
+                    if (!isset($result[$keyType])) {
+                        $result[$keyType] = array();
+                    }
+                    $result[$keyType][] = $key;
+                }
+            }
         }
-        
-        $confPath = $this->recordConfig->SupraphonLabels->dir;
-        if (!isset($confPath)) {
-            return '';
-        }
-        
-        $path = rtrim($this->fields['label_path_str'], '/');
-        $path = $confPath . $path;
-        
-        if ($size == 'medium') {
-            return $path;
-        }
-        $path = substr($path, 0, -10);
-        return $path . $size . '.jpg';
+        return $result;
     }
 
     /**
@@ -197,18 +178,12 @@ class SolrSup extends SolrMarc
 
     public function getExternalLinks()
     {
-        $urls = $this->getURLs();
-        if (!is_array($urls) || !isset($urls[0]) || !isset($urls[0]['url'])) {
-            return;
-        }
+       return array(array( 'institution' => 'sup', 'url' => '', 'display' => '', 'id' => $this->getId()));
+    }
 
-        $url = $urls[0]['url'];
-        $confEnd = 'sup_end';
-        $linkEnd = $this->recordConfig->ExternalLinks->$confEnd;
-
-        return array(
-                  array( 'institution' => 'sup', 'url' => $url . $linkEnd, 'display' => $url)
-               );
+    public function getProductionCredits()
+    {
+        return array();
     }
 
 }

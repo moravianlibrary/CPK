@@ -1,17 +1,22 @@
-<div class="row-fluid result-inner<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
-  <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
+<?
+  $this->headScript()->appendFile('obalkyknih/functions.js');
+  $this->headScript()->appendFile('obalkyknih/custom.js');
+  $recordId = $this->driver->getUniqueID();
+  $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
+?>
+<div class="row result<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
+  <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueID())?>" class="hiddenId" />
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
-  <div class="span2 text-center">
+  <div class="col-md-2 text-center" id="cover_<?=$recordId?>">
     <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
-      <? $summThumb = $this->driver->getThumbnail('small'); ?>
-      <? if (empty($summThumb) || preg_match('/.*noimage.*/', $summThumb)): ?>
-        <img src="<?=$this->imageLink('noimage.gif')?>" />
-      <? else: ?>
-        <img src="<?=$this->escapeHtml($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
-      <? endif; ?>
+      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
+        <script type="text/javascript">
+        obalky_display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, "");
+        </script>
+      <? endif;?>
     </a>
   </div>
-  <div class="span7 middle">
+  <div class="col-md-7">
     <div>
       <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <?
@@ -27,6 +32,7 @@
       ?>
       </a>
     </div>
+
     <div>
       <? if($this->driver->isCollection()): ?>
         <?=implode('<br>', $this->driver->getSummary()); ?>
@@ -48,9 +54,8 @@
           <?=!empty($summDate) ? ' (' . $this->escapeHtml($summDate[0]) . ')' : ''?>
         <? elseif (!empty($summDate)): ?>
           <?=!empty($summAuthor) ? '<br />' : ''?>
-          <?=!empty($summDate[0]) ? $this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0]) : ''?>
+          <?=$this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0])?>
         <? endif; ?>
-        
         <? $summInCollection = $this->driver->getContainingCollections(); if (!empty($summInCollection)): ?>
           <? foreach ($summInCollection as $collId => $collText): ?>
             <div>
@@ -61,16 +66,6 @@
             </div>
           <? endforeach; ?>
         <? endif; ?>
-      <? endif; ?>
-      <?='<br />' . $this->transEsc('Institution') . ': ' ?>
-      <? $externalLink = $this->driver->getExternalLinks(); ?>
-      <br/>
-      <? if(empty($externalLink)): ?>
-        <? $id = $this->driver->getId(); ?>
-        <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="local-search-link"><?=$this->transEsc(strtoupper(substr($id, 4, strpos($id, '.') - 4)))?></a>  
-      <? else: ?>
-        <? $externalLink = $externalLink[0]; ?>
-        <a href="<?=$externalLink['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($externalLink['institution']));?></a>
       <? endif; ?>
     </div>
 
@@ -85,31 +80,6 @@
           <? endif; ?>
          <? endif; ?>
         <br/>
-      <? endif; ?>
-      
-      <?
-      /* Display information on duplicate records if available */
-      $dedupData = $this->driver->getDedupData();
-      if ($dedupData): ?> 
-      <div class="dedupInformation">
-      <?
-        $i = 0;
-        foreach ($dedupData as $source => $current) {
-          if (++$i == 1) {
-            ?><span class="currentSource"><a href="<?=$this->recordLink()->getUrl($this->driver)?>"><?=$this->transEsc("source_$source", array(), $source)?></a></span><?
-          } else {
-            if ($i == 2) {
-              ?> <span class="otherSources">(<?=$this->transEsc('Other Sources')?>: <?
-            } else {
-              ?>, <?
-            }
-            ?><a href="<?=$this->recordLink()->getUrl($current['id'])?>"><?=$this->transEsc("source_$source", array(), $source)?></a><?
-          }
-        }
-        if ($i > 1) {
-          ?>)</span><?
-        }?>
-      </div>
       <? endif; ?>
       
       <div class="callnumAndLocation ajax-availability hide">
@@ -130,30 +100,56 @@
         <? endif; ?>
       </div>
 
+      <? /* We need to find out if we're supposed to display an OpenURL link ($openUrlActive),
+            but even if we don't plan to display the link, we still want to get the $openUrl
+            value for use in generating a COinS (Z3988) tag -- see bottom of file.
+          */
+        $openUrl = $this->driver->getOpenURL();
+        $openUrlActive = $this->driver->openURLActive('results');
+        $urls = $this->record($this->driver)->getLinkDetails();
+        if ($openUrlActive || !empty($urls)): ?>
+        <? if ($openUrlActive): ?>
+          <br/>
+          <?=$this->openUrl($openUrl)?>
+          <? if ($this->driver->replaceURLsWithOpenURL()) $urls = array(); // clear URL list if replace setting is active ?>
+        <? endif; ?>
+        <? if (!is_array($urls)) $urls = array();
+          if(!$this->driver->isCollection()):
+            foreach ($urls as $current): ?>
+              <a href="<?=$this->escapeHtml($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-x fa-external-link"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
+          <? endforeach; ?>
+        <? endif; ?>
+      <? endif; ?>
+
       <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
+      
+      <? if (!$openUrlActive && empty($urls) && $this->driver->supportsAjaxStatus()): ?>
+        <span class="status ajax-availability small ">
+          <span class="label"><?=$this->transEsc('Loading')?>...</span>
+        </span>
+      <? endif; ?>
       <?=$this->record($this->driver)->getPreviews()?>
     </div>
   </div>
 
-  <div class="span2 right noprint">
+  <div class="col-md-2 noprint">
     <? /* Display qrcode if appropriate: */ ?>
     <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
       <?
         // Add JS Variables for QrCode
         $this->jsTranslations()->addStrings(array('qrcode_hide' => 'qrcode_hide', 'qrcode_show' => 'qrcode_show'));
       ?>
-      <span class="hidden-phone">
-        <i class="icon-qrcode"></i> <a href="<?=$this->escapeHtml($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
-        <div class="qrcode hide">
-          <img alt="<?=$this->transEsc('QR Code')?>" class="img-polaroid" src="<?=$this->escapeHtml($QRCode);?>"/>
-        </div><br/>
-      </span>
+      <i class="fa fa-x fa-qrcode"></i> <a href="<?=$this->escapeHtml($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
+      <div class="qrcode hide">
+        <img alt="<?=$this->transEsc('QR Code')?>" class="img-polaroid" src="<?=$this->escapeHtml($QRCode);?>"/>
+      </div>
     <? endif; ?>
     
-   
+    <? /* Add to favorites */ ?>
+    <i class="fa fa-x fa-heart"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
 
     <? /* Saved lists */ ?>
-    <div class="savedLists alert alert-info hide">
+    <div class="savedLists info hide">
       <strong><?=$this->transEsc("Saved in")?>:</strong>
     </div>
 
@@ -162,7 +158,7 @@
       <? foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
         <div class="hierarchyTreeLink">
           <input type="hidden" value="<?=$this->escapeHtml($hierarchyID)?>" class="hiddenHierarchyId" />
-          <i class="icon-sitemap"></i>
+          <i class="fa fa-x fa-sitemap"></i>
           <a class="hierarchyTreeLinkText modal-link" href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>">
             <?=$this->transEsc('hierarchy_view_context')?><? if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><? endif; ?>
           </a>
@@ -172,3 +168,4 @@
   </div>
 </div>
 
+<?=$openUrl?'<span class="Z3988" title="'.$this->escapeHtml($openUrl).'"></span>':''?>

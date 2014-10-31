@@ -41,8 +41,6 @@ use MZKCommon\Controller\RecordController as RecordControllerBase;
 class RecordController extends RecordControllerBase
 {
 
-    const DEFAULT_REQUIRED_DATE = 2114380800; // 1. 1. 2037
-
     /**
      * Constructor
      *
@@ -76,41 +74,35 @@ class RecordController extends RecordControllerBase
     public function holdAction()
     {
         $driver = $this->loadRecord();
-    
+
         // If we're not supposed to be here, give up now!
         $catalog = $this->getILS();
         $checkHolds = $catalog->checkFunction("Holds", $driver->getUniqueID());
         if (!$checkHolds) {
             return $this->forwardTo('Record', 'Home');
         }
-    
+
         // Stop now if the user does not have valid catalog credentials available:
         if (!is_array($patron = $this->catalogLogin())) {
             return $patron;
         }
-        
+
         // Do we have valid information?
         // Sets $this->logonURL and $this->gatheredDetails
         $gatheredDetails = $this->holds()->validateRequest($checkHolds['HMACKeys']);
         if (!$gatheredDetails) {
             return $this->redirectToRecord();
         }
-        
-        if (!isset($gatheredDetails['requiredBy'])) {
-            $gatheredDetails['requiredBy'] = $this->getServiceLocator()->get('VuFind\DateConverter')
-            ->convertToDisplayDate("U", self::DEFAULT_REQUIRED_DATE);
-        }
-    
+
         // Block invalid requests:
         if (!$catalog->checkRequestIsValid(
                 $driver->getUniqueID(), $gatheredDetails, $patron
         )) {
             return $this->blockedholdAction();
         }
-    
+
         // Send various values to the view so we can build the form:
-        //$pickup = $catalog->getPickUpLocations($patron, $gatheredDetails);
-        
+
         $details = $catalog->getHoldingInfoForItem($patron['id'], $gatheredDetails['id'],
                 $gatheredDetails['item_id']);
         $pickup = array();
@@ -119,16 +111,16 @@ class RecordController extends RecordControllerBase
                 "locationID" => $key, "locationDisplay" => $value
             );
         }
-        
+
         $dueDate = $details['due-date'];
         $queued = $dueDate != null;
-        
+
         $requestGroups = $catalog->checkCapability('getRequestGroups')
         ? $catalog->getRequestGroups($driver->getUniqueID(), $patron)
         : array();
         $extraHoldFields = isset($checkHolds['extraHoldFields'])
         ? explode(":", $checkHolds['extraHoldFields']) : array();
-    
+
         // Process form submissions if necessary:
         if (!is_null($this->params()->fromPost('placeHold'))) {
             // If the form contained a pickup location or request group, make sure
@@ -177,18 +169,18 @@ class RecordController extends RecordControllerBase
                 }
             }
         }
-    
+
         // Find and format the default required date:
-        $defaultRequired = self::DEFAULT_REQUIRED_DATE;
         if (!$queued) {
             $defaultRequired = $this->holds()->getDefaultRequiredDate(
                     $checkHolds, $catalog, $patron, $gatheredDetails
                 );
+            $defaultRequired = $this->getServiceLocator()->get('VuFind\DateConverter')
+            ->convertToDisplayDate("U", $defaultRequired);
+        } else {
+            $defaultRequired = null;
         }
 
-
-        $defaultRequired = $this->getServiceLocator()->get('VuFind\DateConverter')
-        ->convertToDisplayDate("U", $defaultRequired);
         try {
             $defaultPickup
             = $catalog->getDefaultPickUpLocation($patron, $gatheredDetails);
@@ -202,12 +194,12 @@ class RecordController extends RecordControllerBase
         } catch (\Exception $e) {
             $defaultRequestGroup = false;
         }
-    
+
         $requestGroupNeeded = in_array('requestGroup', $extraHoldFields)
         && !empty($requestGroups)
         && (empty($gatheredDetails['level'])
                 || $gatheredDetails['level'] != 'copy');
-    
+
         return $this->createViewModel(
                 array(
                     'gatheredDetails' => $gatheredDetails,
@@ -274,8 +266,8 @@ class RecordController extends RecordControllerBase
         $mailer = $this->getServiceLocator()->get('VuFind\Mailer');
         foreach ($this->digiRequestTo as $recipient) {
             $mailer->send(
-                $this->digiRequestFrom,
                 $recipient,
+                $this->digiRequestFrom,
                 $this->digiRequestSubject,
                 $text
             );

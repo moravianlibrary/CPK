@@ -109,13 +109,13 @@
         <? if ($this->cart()->isActive()): ?>
           <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
         <? endif; ?>
-        <i class="fa fa-x fa-bell"></i> <a href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>"><?=$this->transEsc('Get RSS Feed')?></a>
-        <i class="fa fa-x fa-envelope"></i><a href="<?=$this->url('search-email')?>" class="mailSearch" id="mailSearch<?=$this->escapeHtml($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><?=$this->transEsc('Email this Search')?></a>
+        <i class="fa fa-x fa-bell left-margin"></i> <a href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>"><?=$this->transEsc('Get RSS Feed')?></a>
+        <i class="fa fa-x fa-envelope left-margin"></i><a href="<?=$this->url('search-email')?>" class="mailSearch" id="mailSearch<?=$this->escapeHtml($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><?=$this->transEsc('Email this Search')?></a>
         <? if (is_numeric($this->results->getSearchId())): ?>
           <? if ($this->results->isSavedSearch()): ?>
-            <i class="fa fa-x fa-minus-sign"></i> <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search_remove')?></a>
+            <i class="fa fa-x fa-minus-sign left-margin"></i> <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search_remove')?></a>
           <? else: ?>
-            <i class="fa fa-x fa-plus-sign"></i> <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search')?></a>
+            <i class="fa fa-x fa-plus-sign left-margin"></i> <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search')?></a>
           <? endif; ?>
         <? endif; ?>
       </div>

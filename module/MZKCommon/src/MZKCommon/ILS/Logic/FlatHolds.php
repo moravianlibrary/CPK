@@ -13,10 +13,10 @@ class FlatHolds extends Holds
      * @param \VuFind\Crypt\HMAC   $hmac    HMAC generator
      * @param \Zend\Config\Config  $config  VuFind configuration
      */
-    public function __construct(\VuFind\Auth\Manager $account, ILSConnection $ils,
+    public function __construct(\VuFind\Auth\ILSAuthenticator $ilsAuth, ILSConnection $ils,
         \VuFind\Crypt\HMAC $hmac, \Zend\Config\Config $config
     ) {
-        parent::__construct($account, $ils, $hmac, $config);
+        parent::__construct($ilsAuth, $ils, $hmac, $config);
     }
 
     protected function formatHoldings($holdings)
@@ -42,7 +42,7 @@ class FlatHolds extends Holds
             // Retrieve stored patron credentials; it is the responsibility of the
             // controller and view to inform the user that these credentials are
             // needed for hold data.
-            $patron = $this->account->storedCatalogLogin();
+            $patron = $this->ilsAuth->storedCatalogLogin();
             $result = $this->catalog->getHolding($id, $patron ? $patron : null, $filters);
             $mode = $this->catalog->getHoldsMode();
     
