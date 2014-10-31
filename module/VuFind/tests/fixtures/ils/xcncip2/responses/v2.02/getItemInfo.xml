@@ -1,0 +1,38 @@
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">
+   <ns1:LookupItemResponse>
+      <ns1:ItemId>
+         <ns1:ItemIdentifierValue>MZK01000847602-MZK50000847602000090</ns1:ItemIdentifierValue>
+      </ns1:ItemId>
+      <ns1:HoldPickupDate>2014-10-10T00:00:00Z</ns1:HoldPickupDate>
+      <ns1:ItemTransaction/>
+      <ns1:ItemOptionalFields>
+         <ns1:BibliographicDescription>
+            <ns1:BibliographicItemId>
+               <ns1:BibliographicItemIdentifier>BC-1364559</ns1:BibliographicItemIdentifier>
+               <ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>
+            </ns1:BibliographicItemId>
+            <ns1:Publisher>Joh. Alt,</ns1:Publisher>
+            <ns1:Title>Jahrbücher der Deutschen Malakozoologischen Gesellschaft ...</ns1:Title>
+            <ns1:MediumType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/mediumtype/mediumtype.scm">Magazine</ns1:MediumType>
+         </ns1:BibliographicDescription>
+         <ns1:HoldQueueLength>0</ns1:HoldQueueLength>
+         <ns1:ItemDescription>
+            <ns1:CallNumber>2-0258.757</ns1:CallNumber>
+            <ns1:ItemDescriptionLevel ns1:Scheme="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">1884 11</ns1:ItemDescriptionLevel>
+         </ns1:ItemDescription>
+         <ns1:Location>
+            <ns1:LocationType ns1:Scheme="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">Permanent</ns1:LocationType>
+            <ns1:LocationName>
+               <ns1:LocationNameInstance>
+                  <ns1:LocationNameLevel>1</ns1:LocationNameLevel>
+                  <ns1:LocationNameValue>MZK?</ns1:LocationNameValue>
+               </ns1:LocationNameInstance>
+               <ns1:LocationNameInstance>
+                  <ns1:LocationNameLevel>2</ns1:LocationNameLevel>
+                  <ns1:LocationNameValue>Stock / within 24 hours</ns1:LocationNameValue>
+               </ns1:LocationNameInstance>
+            </ns1:LocationName>
+         </ns1:Location>
+      </ns1:ItemOptionalFields>
+   </ns1:LookupItemResponse>
+</ns1:NCIPMessage>

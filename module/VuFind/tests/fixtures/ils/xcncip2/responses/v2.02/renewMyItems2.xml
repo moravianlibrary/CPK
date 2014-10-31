@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">
+    <ns1:RenewItemResponse>
+        <ns1:ItemId>
+            <ns1:ItemIdentifierValue>25002</ns1:ItemIdentifierValue>
+        </ns1:ItemId>
+        <ns1:DateForReturn>2015-06-06T10:20:00</ns1:DateForReturn>
+    </ns1:RenewItemResponse>
+</ns1:NCIPMessage>
