@@ -134,7 +134,6 @@ class XCNCIP2 extends AbstractBase implements
 
         if (! $this->isCorrect($response) && ! $testing) {
             // TODO chcek problem type
-            var_dump($xml);
             var_dump($response->AsXML());
             throw new ILSException('Problem has occured!');
         }
@@ -172,8 +171,6 @@ class XCNCIP2 extends AbstractBase implements
             $request = $this->requests->cancelHolds($item_id, $cancelDetails['patron']['id']);
             $response = $this->sendRequest($request);
 
-            //$item_id = $response->xpath('ns1:CancelRequestItemResponse/ns1:ItemId/ns1:ItemIdentifierValue');
-            //$items[(string)$item_id[0]] = array(
             $items[$item_id] = array(
                 'success' => true,
                 'status' => '',
@@ -217,6 +214,29 @@ class XCNCIP2 extends AbstractBase implements
             'blocks' => false,
             'details' => $result,
         );
+    }
+
+    public function getAccruedOverdue($user)
+    {
+        // TODO testing purposes
+        return 12340;
+        $sum = 0;
+        $xml = $this->alephWebService->doRestDLFRequest(
+                array('patron', $user['id'], 'circulationActions'), null
+        );
+        foreach ($xml->circulationActions->institution as $institution) {
+            $cashNote = (string) $institution->note;
+            $matches = array();
+            if (preg_match("/Please note that there is an additional accrued overdue items fine of: (\d+\.?\d*)\./", $cashNote, $matches) === 1) {
+                $sum = $matches[1];
+            }
+        }
+        return $sum;
+    }
+
+    public function getPaymentURL()
+    {
+        return 'www.mzk.cz';
     }
 
     /**
@@ -700,8 +720,6 @@ class XCNCIP2 extends AbstractBase implements
             $mediumType = $current->xpath('ns1:MediumType');
             $ext = $current->xpath('ns1:Ext');
 
-            // $additRequest =
-            // $this->requests->getItemInfo((string)$item_id[0]);
             $additRequest = $this->requests->getItemInfo((string) $item_id[0]);
             $additResponse = $this->sendRequest($additRequest);
             $isbn = $additResponse->xpath(
@@ -756,30 +774,34 @@ class XCNCIP2 extends AbstractBase implements
         $request = $this->requests->getMyFines($patron);
         $response = $this->sendRequest($request);
 
-        $list = $response->xpath('ns1:LookupUserResponse/ns1:UserFiscalAccount');
+        $list = $response->xpath('ns1:LookupUserResponse/ns1:UserFiscalAccount/ns1:AccountDetails');
 
         $fines = array();
         foreach ($list as $current) {
-            $amount = $current->xpath('ns1:AccountBalance/ns1:MonetaryValue');
-            $desc = $current->xpath(
-                    'ns1:AccountDetails/ns1:FiscalTransactionInformation/ns1:FiscalTransactionType');
-            $balance = $current->xpath(
-                    'ns1:AccountDetails/ns1:FiscalTransactionInformation/ns1:Amount/ns1:MonetaryValue');
-            $date = $current->xpath('ns1:AccountDetails/ns1:AccrualDate');
+            $amount = $current->xpath('ns1:FiscalTransactionInformation/ns1:Amount/ns1:MonetaryValue');
+            $type = $current->xpath('ns1:FiscalTransactionInformation/ns1:FiscalTransactionType');
+            $date = $current->xpath('ns1:AccrualDate');
+            $desc = $current->xpath('ns1:FiscalTransactionInformation/ns1:FiscalTransactionDescription');
             /*
              * This is an item ID, not a bib ID, so it's not actually useful:
              * $tmp = $current->xpath(
              * 'ns1:FiscalTransactionInformation/ns1:ItemDetails/' .
              * 'ns1:ItemId/ns1:ItemIdentifierValue' ); $id = (string)$tmp[0];
              */
+
+            $parsedDate = strtotime((string) $date[0]);
+            $date = date('j. n. Y', $parsedDate);
+            $amount_int = (int) $amount[0] * (-1);
+            $sum += $amount_int;
+
             $fines[] = array(
-                    'amount' => (string) $amount[0],
-                    'checkout' => '',
+                    'amount' => (string) $amount_int,
+                    'checkout' => $date,
                     'fine' => (string) $desc[0],
-                    'balance' => (string) $balance[0],
-                    'createdate' => (string) $date[0],
+                    'balance' => (string) $sum,
+                    'createdate' => '',
                     'duedate' => '',
-                    'id' => ''
+                    'id' => (string) $type[0],
             );
         }
         // TODO vymaz
@@ -792,6 +814,7 @@ class XCNCIP2 extends AbstractBase implements
             'duedate' => '09. 09. 2014',
             'id' => 'MZK01-001276830',
         );*/
+        var_dump($fines);
         return $fines;
     }
 
@@ -836,7 +859,7 @@ class XCNCIP2 extends AbstractBase implements
                     'expire' => empty($expire) ? '' : $expire,
                     'create' => empty($create) ? '' : $create,
                     'position' => empty($position) ? '' : (string) $position[0],
-                    'available' => '',
+                    'available' => false, // true means item is ready for check out
                     'item_id' => empty($item_id) ? '' : (string) $item_id[0],
                     'volume' => '',
                     'publication_year' => '',
