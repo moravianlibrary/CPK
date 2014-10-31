@@ -30,7 +30,7 @@
       </li>      
     <? endif; ?>
     
-    <li class="cistbrno-toolbar-items"><a id="save-record" class="modal-link cistbrno-toolbar-items<?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>"><i class="icon-plus-sign"></i> <?=$this->transEsc('Add to favorites')?></a></li>
+    <li class="cistbrno-toolbar-items"><a id="save-record" class="modal-link cistbrno-toolbar-items <?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>"><i class="icon-plus-sign"></i> <?=$this->transEsc('Add to favorites')?></a></li>
     <? if (!empty($addThis)): ?>
       <li class="cistbrno-toolbar-items"><a class="addThis addthis_button" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="icon-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
     <? endif; ?>
