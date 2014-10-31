@@ -91,7 +91,7 @@ class XCNCIP2 extends AbstractBase implements
      *
      * @return object SimpleXMLElement parsed from response
      */
-    protected function sendRequest ($xml, $testing = false)
+    protected function sendRequest ($xml)
     {
         $xml = str_replace('BOA001.', 'MZK01', $xml); // Conversion BOA to MZK
 
@@ -132,10 +132,11 @@ class XCNCIP2 extends AbstractBase implements
             throw new ILSException('Not valid XML response!');
         }
 
-        if (! $this->isCorrect($response) && ! $testing) {
+        if (! $this->isCorrect($response)) {
             // TODO chcek problem type
-            var_dump($response->AsXML());
-            throw new ILSException('Problem has occured!');
+            return null;
+            //var_dump($response->AsXML());
+            //throw new ILSException('Problem has occured!');
         }
         $response = str_replace('MZK01', 'BOA001.', $response->AsXML());
         $response = simplexml_load_string($response);
@@ -457,11 +458,11 @@ class XCNCIP2 extends AbstractBase implements
 
     public function placeHold($holdDetails)
     {
-        var_dump($holdDetails);
+        //var_dump($holdDetails);
         $request = $this->requests->placeHold($holdDetails);
-        var_dump($request);
+        //var_dump($request);
         $response = $this->sendRequest($request);
-        var_dump($response);
+        //var_dump($response);
         return array(
             'success' => true,
             'sysMessage' => '',
@@ -594,9 +595,9 @@ class XCNCIP2 extends AbstractBase implements
                 ), $maxItemsCount);
                 $all_iteminfo = [];
             }
-            $testing = ($id == "1") ? true : false;
 
-            $response = $this->sendRequest($request, $testing);
+            $response = $this->sendRequest($request);
+            if ($response == null) return null;
 
             $new_iteminfo = $response->xpath(
                     'ns1:LookupItemSetResponse/ns1:BibInformation/ns1:HoldingsSet/ns1:ItemInformation');
@@ -814,7 +815,6 @@ class XCNCIP2 extends AbstractBase implements
             'duedate' => '09. 09. 2014',
             'id' => 'MZK01-001276830',
         );*/
-        var_dump($fines);
         return $fines;
     }
 
