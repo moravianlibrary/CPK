@@ -487,6 +487,7 @@ language:
 toc:
   DismaxFields:
     - contents^100
+    - toc_txt_mv^100
   QueryFields:
     contents:
       - [and, 100]
