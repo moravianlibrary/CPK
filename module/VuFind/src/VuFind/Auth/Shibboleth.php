@@ -113,6 +113,9 @@ class Shibboleth extends AbstractBase
                 }
             }
         }
+        if ($user->email == null) {
+            $user->email = '';
+        }
 
         // Save credentials if applicable:
         if (!empty($catPassword) && !empty($user->cat_username)) {
