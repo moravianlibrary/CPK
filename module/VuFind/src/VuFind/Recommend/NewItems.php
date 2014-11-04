@@ -121,7 +121,7 @@ class NewItems implements RecommendInterface
         if ($this->selectedDateRange == null) {
             return;
         }
-        $this->searchParams = $results->getUrlQuery()->removeFacet($this->geoField, $this->selectedDateRange, false);
+        $this->searchParams = $results->getUrlQuery()->removeFacet($this->selectedDateRange, false);
         $curr_date = date('Ym', strtotime('now'));
         $s1 = date('Ym', strtotime('last year'));
         $e1 = date('Ym', strtotime('last year december'));
