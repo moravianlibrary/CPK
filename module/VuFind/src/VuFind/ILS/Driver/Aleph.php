@@ -1414,22 +1414,29 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 "d.m.Y", $this->parseDate($due)));
             $returnInDays = ($dueDate - $currentDate) / (60*60*24);
             $fine = (string) $item->{'fine'};
+            $sublibrary = null;
+            if ($history) {
+                $sublibrary = (string) $item->z36h->{'z36h-sub-library'};
+            } else {
+                $sublibrary = (string) $z36->{'z36-sub-library'};
+            }
             $item = array(
-                'id'        => $id,
-                'adm_id'    => $adm_id,
-                'item_id'   => $group,
-                'location'  => $location,
-                'title'     => $title,
-                'author'    => $author,
-                'isbn'      => array($isbn),
-                'reqnum'    => $reqnum,
-                'barcode'   => $barcode,
-                'duedate'   => $this->parseDate($due),
-                'returned'  => $this->parseDate($returned),
+                'id'         => $id,
+                'adm_id'     => $adm_id,
+                'item_id'    => $group,
+                'location'   => $location,
+                'title'      => $title,
+                'author'     => $author,
+                'isbn'       => array($isbn),
+                'reqnum'     => $reqnum,
+                'barcode'    => $barcode,
+                'duedate'    => $this->parseDate($due),
+                'returned'   => $this->parseDate($returned),
                 //'holddate'  => $holddate,
                 //'delete'    => $delete,
-                'renewable' => $renewable,
-                'fine'      => $fine,
+                'renewable'  => $renewable,
+                'fine'       => $fine,
+                'sublibrary' => $sublibrary,
                 //'create'    => $this->parseDate($create)
             );
             if ($returnInDays < 0 && !$history) {

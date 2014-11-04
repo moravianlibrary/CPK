@@ -1,6 +1,10 @@
 <? $i = 0; foreach ($this->transactions as $resource): ?>
   <hr/>
-  <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
+  <?
+    $ilsDetails = $resource->getExtraDetail('ils_details');
+    $formats = $resource->getFormats();
+    $format = ($ilsDetails['sublibrary'] == 'MVS') ? 'MVS' : $formats[0];
+   ?>
   <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row">
     <? if ($this->renewForm): ?>
       <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['renew_details'])): ?>
@@ -17,7 +21,6 @@
       <?
         $recordId = $resource->getUniqueId();
         $backLink = $this->serverUrl($this->recordLink()->getUrl($resource));
-        $formats = $resource->getFormats();
       ?>
       <div id="cover_<?=$recordId?>" class="coverThumbnail">
         <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
@@ -27,9 +30,13 @@
             });
           </script>
         <? endif;?>
-        <img src="<?=$this->imageLink('format/' . $formats[0] . '.png')?>" />
+        <? if ($ilsDetails['sublibrary'] == 'MVS'): ?>
+          <img src="<?=$this->imageLink('format/MVS.png')?>" />
+        <? else: ?>
+          <img src="<?=$this->imageLink('format/' . $format . '.png')?>" />
+        <? endif; ?>
       </div>
-      <div class="coverFormat"><?=$this->transEsc($formats[0])?></div>
+      <div class="coverFormat"><?=$this->transEsc($format)?></div>
     </div>
     <div class="col-md-9">
       <?
