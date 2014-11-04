@@ -47,6 +47,25 @@ Zend\Session\Container as SessionContainer;
 class MyResearchController extends MyResearchControllerBase
 {
 
+    /**
+     * Login Action
+     *
+     * @return mixed
+     */
+    public function loginAction()
+    {
+        $view = parent::loginAction();
+        $enableRedirect = false;
+        foreach ($this->flashMessenger()->getCurrentErrorMessages() as $message) {
+            if ($message == 'You must be logged in first') {
+                $enableRedirect = true;
+                break;
+            }
+        }
+        $view->enableRedirect = $enableRedirect;
+        return $view;
+    }
+
     public function profileAction()
     {
         $view = parent::profileAction();
