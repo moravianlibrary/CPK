@@ -1,4 +1,16 @@
-<h4><?=$this->transEsc('Your Account')?></h4>
+<?
+  $account = $this->auth()->getManager();
+  $user = $account->isLoggedIn();
+  
+  $name = '';
+  if ($user && isset($user->firstname)) {
+      $name = $user->firstname;
+  }
+  if ($user && isset($user->lastname)) {
+      $name = $name . " " . $user->lastname;
+  }
+?>
+<h4><?=$this->escapeHtml($name) ?></h4>
 <ul class="nav nav-list myresearch-menu">
   <? if ('ils-none' !== $this->ils()->getOfflineMode()): ?>
     <li<?=$this->active == 'checkedout' ? ' class="active"' : ''?>><a href="<?=$this->url('myresearch-checkedout')?>"><?=$this->transEsc('Checked Out Items')?> <i class="pull-right"></i></a></li>
