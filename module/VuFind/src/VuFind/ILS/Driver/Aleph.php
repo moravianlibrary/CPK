@@ -1444,17 +1444,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             }
             $transList[] = $item;
         }
-        if ($history) {
-            usort($transList, "Aleph::compareByReturnedDate");
-        }
         $this->idResolver->resolveIds($transList);
+        if ($history) {
+            $self = $this;
+            usort($transList, function($first, $second) use ($self) {
+                $a = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $first['returned']);
+                $b = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $second['returned']);
+                return ($b - $a);
+            });
+        }
         return $transList;
-    }
-
-    public static function compareByReturnedDate($a, $b) {
-        $a  = date("U", strtotime($a['returned']));
-        $b = date("U", strtotime($b['returned']));
-        return ($b - $a);
     }
 
     /**
