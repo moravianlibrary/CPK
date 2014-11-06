@@ -9,7 +9,7 @@
         <div class="col-sm-<?=floor(12/count($this->facetList)) ?>">
           <label for="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
           <?
-            $selectId = limit_. $this->escapeHtmlAttr(str_replace(' ', '', $field));
+            $selectId = 'limit_' . $this->escapeHtmlAttr(str_replace(' ', '', $field));
             $onClick = "$('#" . $selectId . "').val('');";
           ?>
           <select class="col-sm-12 form-control" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
