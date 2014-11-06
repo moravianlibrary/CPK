@@ -155,7 +155,11 @@ class Aleph extends AlephBase
         );
         $xml = $this->changeUserRequest($patron, $params, true);
         if ($xml->error) {
-            throw new ILSException($xml->error);
+            if ($xml->error == 'no nick') {
+                return null;
+            } else {
+                throw new ILSException($xml->error);
+            }
         } else {
             return $xml->nick;
         }
