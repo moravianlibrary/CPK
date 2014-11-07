@@ -49,6 +49,5 @@
       <? foreach ($lists as $list): ?>
           <li<?=$this->active == 'list' . $list['id'] ? ' class="active"' : ''?>> <a href="<?=$this->url('userList', array('id' => $list['id']))?>"><?=$this->escapeHtml($list['title'])?> <span class="pull-right"><?=$list->cnt?></span></a></li>
       <? endforeach; ?>
-      <li><a href="<?=$this->url('editList', array('id'=>'NEW'))?>" title="<?=$this->transEsc('Create a List') ?>"><?=$this->transEsc('Create a List') ?> <span class="pull-right"></span></a></li>
     </ul>
   <? endif ?>
