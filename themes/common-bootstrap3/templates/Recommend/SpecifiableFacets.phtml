@@ -9,10 +9,11 @@
     <? if (in_array($field, $facetsWithSelect)):?>
       <form name='<?=$this->escapeHtmlAttr($field)?>_filter' id='<?=$this->escapeHtmlAttr($field)?>_filter' class='form-inline'>
         <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$field}:.*/"))?>
-        <label for="<?=$this->escapeHtml($dateField)?>" class="col-sm-3">
+        <label for="<?=$this->escapeHtml($field)?>" class="col-sm-3">
           <?=$this->transEsc('limit_by_facet_' . $cluster['label'])?>:&nbsp;
         </label>
         <select name="filter[]" name="<?=$this->escapeHtml($field)?>" onChange="document.forms['<?=$this->escapeHtmlAttr($field)?>_filter'].submit()" class="form-control">
+          <option><?=$this->transEsc('All');?></option>
           <? foreach($cluster['list'] as $thisFacet):?>
             <option value="<?=$this->escapeHtmlAttr($field)?>:<?=$this->escapeHtmlAttr($thisFacet['value'])?>" <?if ($thisFacet['isApplied']):?> selected <? endif; ?>>
               <?=$this->escapeHtml($thisFacet['displayText'])?>
