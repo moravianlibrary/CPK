@@ -9,7 +9,7 @@
     $offlineMode = $this->ils()->getOfflineMode();
 
     // Set page title.
-    $this->headTitle($this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
+    $this->headTitle($this->driver->getBreadcrumb());
 ?>
 <? if ($offlineMode == "ils-offline"): ?>
   <div class="sysInfo">
