@@ -1,4 +1,5 @@
 <? $i = 0; foreach ($this->transactions as $resource): ?>
+  <? $i++;  ?>
   <hr/>
   <?
     $ilsDetails = $resource->getExtraDetail('ils_details');
@@ -6,6 +7,7 @@
     $format = ($ilsDetails['sublibrary'] == 'MVS') ? 'MVS' : $formats[0];
    ?>
   <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row">
+    <strong class="pull-left order"><?=$this->escapeHtml($i)?>.</strong>
     <? if ($this->renewForm): ?>
       <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['renew_details'])): ?>
         <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['renew_details']); ?>
@@ -109,7 +111,7 @@
           <div class="alert alert-success"><?=$this->transEsc('renew_success')?></div>
         <? else: ?>
           <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
-          <div class="alert alert-error"><?=$this->transEsc('renew_fail')?><? if (isset($renewDetails['sysMessage'])): ?>: <?=$this->escapeHtml($renewDetails['sysMessage'])?><? endif; ?></div>
+          <div class="alert alert-danger"><?=$this->transEsc('renew_fail')?><? if (isset($renewDetails['sysMessage'])): ?>: <?=$this->escapeHtml($renewDetails['sysMessage'])?><? endif; ?></div>
         <? endif; ?>
       <? else: ?>
         <strong>

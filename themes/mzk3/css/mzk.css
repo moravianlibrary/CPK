@@ -687,3 +687,9 @@ form#alephBrowseForm {
     height: 15px;
     margin-top: 4px;
 }
+
+strong.order{
+    margin-top: 2px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
