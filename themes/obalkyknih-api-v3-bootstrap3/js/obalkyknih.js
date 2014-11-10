@@ -29,17 +29,22 @@ obalky.imageIsLoaded = obalky.imageIsLoaded || function (image) {
   return (image.height > 1 && image.width > 1);
 }
 
-obalky.display_thumbnail = obalky.display_thumbnail || function (element, bibinfo, query) {
+obalky.display_thumbnail = obalky.display_thumbnail || function (element, bibinfo, query, type) {
+  type = type || "icon";
   var multi = encodeURIComponent(JSON.stringify(bibinfo));
   $(document).ready(function() {
     var img = new Image();
     img.onload = function() {
       if (obalky.imageIsLoaded(img)) {
         var href = obalky.coverTargetUrl(bibinfo);
-        $(element).html("<a href='" + href + "' class='title'><img src='" + img.src + "' alt='" + obalky.coverText + "' height='80' width='63'></img></a>");
+        var dim = "height='80' width='63'";
+        if (type == "thumbnail") {
+            dim = "height='36' width='27'";
+        }
+        $(element).html("<a href='" + href + "' class='title'><img src='" + img.src + "' alt='" + obalky.coverText + "' " + dim + "></img></a>");
       }
     }
-    img.src = obalky.coverUrl + "?multi=" + multi + "&type=icon&keywords=" + encodeURIComponent(query);
+    img.src = obalky.coverUrl + "?multi=" + multi + "&type=" + type  + "&keywords=" + encodeURIComponent(query);
   });
 }
 
