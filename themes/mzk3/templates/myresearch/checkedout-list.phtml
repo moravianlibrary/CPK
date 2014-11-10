@@ -108,7 +108,7 @@
         <? if (isset($renewDetails['success']) && $renewDetails['success']): ?>
           <? $showStatus = false; ?>
           <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?> <? if (isset($renewDetails['new_time'])): ?><?=$this->escapeHtml($renewDetails['new_time'])?><? endif; ?></strong>
-          <div class="alert alert-success"><?=$this->transEsc('renew_success')?></div>
+          <div class="alert alert-success"><?=$this->transEsc('renew_success')?>. <?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?></div>
         <? else: ?>
           <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
           <div class="alert alert-danger"><?=$this->transEsc('renew_fail')?><? if (isset($renewDetails['sysMessage'])): ?>: <?=$this->escapeHtml($renewDetails['sysMessage'])?><? endif; ?></div>
