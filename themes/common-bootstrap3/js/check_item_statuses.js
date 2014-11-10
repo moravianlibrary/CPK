@@ -18,7 +18,7 @@ function checkItemStatuses() {
         $.each(response.data, function(i, result) {
           var item = $($('.ajaxItem')[result.record_number]);
 
-          item.find('.status').empty().append(result.availability_message);
+          item.find('.status').removeClass("hide").empty().append(result.availability_message);
           if (typeof(result.full_status) != 'undefined'
             && result.full_status.length > 0
           ) {
