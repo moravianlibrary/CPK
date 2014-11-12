@@ -1039,6 +1039,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (isset($this->config['ILL']['default_pickup_location'])) {
             $this->defaultIllPickupPlocation = $this->config['ILL']['default_pickup_location'];
         }
+        if (isset($this->config['holdings']['default_required_date'])) {
+            $this->defaultRequiredDate = $this->config['holdings']['default_required_date'];
+        } else {
+            $this->defaultRequiredDate = "0:1:0";
+        }
     }
 
     /**
@@ -2318,7 +2323,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             return array(
                 "HMACKeys" => "id:item_id",
                 "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
-                "defaultRequiredDate" => "0:1:0"
+                "defaultRequiredDate" => $this->defaultRequiredDate
             );
         } if ($func == "ILLRequests") {
             return array(
