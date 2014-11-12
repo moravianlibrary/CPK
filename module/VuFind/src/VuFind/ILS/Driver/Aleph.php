@@ -1583,6 +1583,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             }
         }
         $this->idResolver->resolveIds($holdList);
+        $ready = array();
+        $waiting = array();
+        foreach ($holdList as $hold) {
+            if ($hold['status'] == 'S') {
+                $ready[] = $hold;
+            } else {
+                $waiting[] = $hold;
+            }
+        }
+        $holdList = array_merge($ready, $waiting);
         return $holdList;
     }
 
