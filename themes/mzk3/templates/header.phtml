@@ -4,15 +4,20 @@
   <div>
   <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
     <ul class="nav navbar-nav pull-right">
+      <?
+        $baseUrl = strtok($_SERVER["REQUEST_URI"], '?');
+        $params = array();
+        parse_str($_SERVER['QUERY_STRING'], $params);
+      ?>
       <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
         <?
           $langImg = 'lang/' . $langCode . '.png';
-          $queryParams = array('lng' => $langCode);
-          parse_str($_SERVER['QUERY_STRING'], $params);
-          $queryParams = array_merge($params, $queryParams);
+          $params['lng'] = $langCode;
+          $query = http_build_query($params);
+          $langUrl = $baseUrl . "?" . $query;
         ?>
         <li>
-          <a class="language" href="<?=$this->url(null, array(), array('query' => $queryParams), true);?>">
+          <a class="language" href="<?=$langUrl?>">
             <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>" />
             <?=$this->displayLanguageOption($langName)?>
           </a>
