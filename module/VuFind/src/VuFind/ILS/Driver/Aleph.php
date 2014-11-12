@@ -1225,6 +1225,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $params['patron'] = $this->defaultPatronId;
         }
         $xml = $this->alephWebService->doRestDLFRequest(array('record', $resource, 'items'), $params);
+        if (!isset($xml->{'items'})) {
+            return $holding;
+        }
         foreach ($xml->{'items'}->{'item'} as $item) {
             $item_status = $this->translator->tab15Translate($item);
             if ($item_status['opac'] != 'Y') {
