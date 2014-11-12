@@ -5,9 +5,7 @@
   if ($user && isset($user->email)) {
       $userEmail = $user->email;
   }
-  $query = array();
-  parse_str($_SERVER['QUERY_STRING'], $query);
-  $currentUrl = $this->url(null, array(), array('query' => $query, 'force_canonical' => true));
+  $currentUrl = $this->serverUrl(true);
   $feedbackParams = array (
     'formkey'   => 'dHN5S2pMa0pEYnJyQUtzbWU3Wm9YcWc6MQ',
     'entry_3'   => $currentUrl,
