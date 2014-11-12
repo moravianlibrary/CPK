@@ -1,4 +1,8 @@
 <?
+  $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
+  if (empty($lookfor)) {
+    $lookfor = $this->record($this->driver)->getObalkyKnihAdvert('results');
+  }
   $recordId = $this->driver->getUniqueID();
 ?>
 <tr>
