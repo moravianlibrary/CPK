@@ -39,20 +39,24 @@
       </div>
     <? endif; ?>
 
-    <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
-      <div class="form-group">
-        <label class="col-sm-3 control-label">
-          <? if ($this->dueDate):?>
-            <?=$this->transEsc("reservation_required_by")?>:
-          <? else: ?>
-            <?=$this->transEsc("hold_required_by")?>:
-          <? endif;?>
-        </label>
-        <div class="col-sm-9">
-          <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
-          (<?=$this->dateTime()->getDisplayDateFormat()?>)
+    <? if ($this->dueDate):?>
+      <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
+        <div class="form-group">
+          <label class="col-sm-3 control-label">
+            <? if ($this->dueDate):?>
+              <?=$this->transEsc("reservation_required_by")?>:
+            <? else: ?>
+              <?=$this->transEsc("hold_required_by")?>:
+            <? endif;?>
+          </label>
+          <div class="col-sm-9">
+            <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
+            (<?=$this->dateTime()->getDisplayDateFormat()?>)
+          </div>
         </div>
-      </div>
+      <? endif; ?>
+    <? else: ?>
+      <input id="requiredByDate" type="hidden" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
     <? endif; ?>
 
     <? $showRequestGroups = in_array("requestGroup", $this->extraHoldFields)
