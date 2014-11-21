@@ -15,10 +15,12 @@
   </thead>
   <tbody>
     <? $i = 0; foreach ($this->transactions as $resource): ?>
+      <? $i++;  ?>
       <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
       <tr id="record<?=$this->escapeHtml($resource->getUniqueId()) ?>">
         <?if (!$this->history):?>
           <td>
+          <strong class="order"><?=$this->escapeHtml($i)?>.</strong>
           <? if ($this->renewForm): ?>
             <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['renew_details'])): ?>
               <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['renew_details']); ?>
