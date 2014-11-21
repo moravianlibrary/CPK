@@ -3,11 +3,9 @@
   $this->headScript()->appendFile('obalkyknih/custom.js');
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
 ?>
-<? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
+<? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
     <script type="text/javascript">
-      $(document).ready(function() {
-        obalky.process("obalky_display_cover", "cover", "<?=$backLink?>", <?=$bibinfo?>);
-      });
+      obalky.display_cover("#cover", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert("record"))?>);
     </script>
 <? endif; ?>
 <div class="row-fluid" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">

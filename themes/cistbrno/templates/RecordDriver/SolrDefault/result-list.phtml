@@ -12,11 +12,9 @@
 
   <div class="span2 text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
-      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
+      <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
         <script type="text/javascript">
-          $(document).ready(function() {
-            obalky.process("obalky_display_thumbnail", "cover_<?=$recordId?>", "<?=$backLink?>", <?=$bibinfo?>);
-          });
+          obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, "");
         </script>
       <? endif;?>
       <img src="<?=$this->imageLink('format/Book.png')?>" />

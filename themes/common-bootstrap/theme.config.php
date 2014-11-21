@@ -1,6 +1,6 @@
 <?php
 return array(
-    'extends' => 'obalkyknih-bootstrap',
+    'extends' => 'obalkyknih-api-v3-bootstrap',
     'css' => array(
         'common.css'
     ),
