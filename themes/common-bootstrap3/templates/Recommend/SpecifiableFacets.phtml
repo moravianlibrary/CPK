@@ -22,10 +22,14 @@
         </select>
       </form>
     <? else:?>
-      <a href='#' onclick="(function(obj){ $('#spec_facet_<?=$this->escapeHtmlAttr($field)?>').show(); $(obj).hide(); return false;})(this)"><?=$this->transEsc('activate_facet_' . $cluster['label'])?></a>
+    <div class="well">
+      <strong>
+        <a href='#' onclick="(function(obj){ $('#spec_facet_<?=$this->escapeHtmlAttr($field)?>').show(); $(obj).hide(); return false;})(this)"><?=$this->transEsc('activate_facet_' . $cluster['label'])?></a>
+      </strong>
+    
       <div id="spec_facet_<?=$this->escapeHtmlAttr($field)?>" style="display: none;">
         <strong><?=$this->transEsc('limit_by_facet_' . $cluster['label'])?></strong>
-        <div class="row-fluid top-row">
+        <div class="row top-row">
           <? $iter=1; ?>
           <? foreach($cluster['list'] as $thisFacet): ?>
             <span class="col-md-<?=floor(12/$topFacetSettings['cols'])?>">
@@ -37,11 +41,12 @@
               <? endif; ?>
             </span>
             <? /* Close rows */ ?>
-            <? if ($iter%$topFacetSettings['cols'] == 0 && $iter > 0): ?></div><div class="row-fluid top-row"><? endif; ?>
+            <? if ($iter%$topFacetSettings['cols'] == 0 && $iter > 0): ?></div><div class="row top-row"><? endif; ?>
             <? $iter++; ?>
           <?endforeach;?>
         </div>
       </div>
+    </div>
     <?endif;?>
   <?endforeach;?>
 <? endif; ?>
