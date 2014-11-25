@@ -116,12 +116,14 @@
         <? endif; ?>
       <? else: ?>
         <strong>
-          <?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?>
+          <?if (!$history):?>
+            <?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?>
+          <?endif;?>
           <? if (isset($ilsDetails['dueTime'])): ?>
             <?=$this->escapeHtml($ilsDetails['dueTime'])?>
           <? endif; ?>
           <? if ($this->history && isset($ilsDetails['returned'])): ?>
-            | <?=$this->transEsc('Returned')?>: <?=$this->escapeHtml($ilsDetails['returned'])?>
+            <?=$this->transEsc('Returned')?>: <?=$this->escapeHtml($ilsDetails['returned'])?>
           <? endif; ?>
         </strong>
         <?if (!$this->history && !empty($ilsDetails['fine'])):?>
