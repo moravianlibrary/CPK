@@ -582,6 +582,10 @@ input.checkbox-select-item {
     border-radius: 0px;
 }
 
+.sidebar .list-group:not(.filters) .title.collapsed {
+    border-radius: 0px;
+}
+
 .list-group-item.title {
     background-color: #504B55;
     color: #FFF;
