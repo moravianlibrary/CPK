@@ -578,6 +578,10 @@ input.checkbox-select-item {
 	border-radius: 0px;
 }
 
+.well {
+    border-radius: 0px;
+}
+
 .list-group-item.title {
     background-color: #504B55;
     color: #FFF;
