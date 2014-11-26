@@ -243,6 +243,7 @@ class MyResearchController extends MyResearchControllerBase
                 'edition' => array('label' => 'Edition', 'type' => 'text', 'required' => false),
                 'place-of-publication' => array('label' => 'ill_place_of_publication', 'type' => 'text', 'required' => false),
                 'isbn' => array('label' => 'ISBN', 'type' => 'text', 'required' => false),
+                'year-of-publication' => array('label' => 'ill_year', 'type' => 'text', 'required' => true),
                 'series' => array('label' => 'Series', 'type' => 'text', 'required' => false),
                 'source' => array('label' => 'ill_source', 'type' => 'text', 'required' => false),
             ),
