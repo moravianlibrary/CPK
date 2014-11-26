@@ -62,6 +62,21 @@ if (is_array($subjects)) {
     }
 }
 
+$callNumbers = $this->driver->getCallNumber();
+if (is_array($callNumbers)) {
+    echo $this->transEsc('Callnumber') . ":\n";
+    foreach ($callNumbers as $callNumber) {
+        echo '  ' . $callNumber . "\n";
+    }
+}
+
+$physicalDescr = $this->driver->getPhysicalDescriptions();
+if (is_array($physicalDescr)) {
+    foreach ($physicalDescr as $descr) {
+        echo $this->transEsc('Physical Description') . ": $descr\n";
+    }
+}
+
 // Record separator:
 echo "\n";
 ?>
