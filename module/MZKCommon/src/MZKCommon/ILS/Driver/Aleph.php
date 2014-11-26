@@ -117,6 +117,24 @@ class Aleph extends AlephBase
         return $holdings;
     }
 
+    public function getMyTransactions($user, $history=false, $limit = 0)
+    {
+        $transactions = parent::getMyTransactions($user, $history, $limit);
+        if ($history) {
+            return $transactions;
+        }
+        $patronId = $user['id'];
+        foreach ($transactions as &$transaction) {
+            if (!$transaction['renewable']) {
+                $bibId = $transaction['id'];
+                $group = $transaction['group'];
+                $holdingInfo = $this->getHoldingInfoForItem($patronId, $bibId, $group);
+                $transaction['reserved'] = ($holdingInfo['order'] > 1);
+            }
+        }
+        return $transactions;
+    }
+
     /**
      *
      * Get Favorite Items from ILS

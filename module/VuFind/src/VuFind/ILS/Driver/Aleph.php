@@ -1428,6 +1428,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             } else {
                 $sublibrary = (string) $z36->{'z36-sub-library'};
             }
+            $group = $this->admlib . $z36->{'z36-doc-number'} . $z36->{'z36-item-sequence'};
             $item = array(
                 'id'         => $id,
                 'adm_id'     => $adm_id,
@@ -1445,6 +1446,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'renewable'  => $renewable,
                 'fine'       => $fine,
                 'sublibrary' => $sublibrary,
+                'group'      => $group,
                 //'create'    => $this->parseDate($create)
             );
             if ($returnInDays < 0 && !$history) {
