@@ -54,6 +54,14 @@ if (is_array($issns)) {
     }
 }
 
+$subjects = $this->driver->tryMethod('getAllSubjectHeadings');
+if (is_array($subjects)) {
+    echo $this->transEsc('Subjects') . ":\n";
+    foreach ($subjects as $subject) {
+        echo '  ' . $subject . "\n";
+    }
+}
+
 // Record separator:
 echo "\n";
 ?>
