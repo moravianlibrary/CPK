@@ -1428,26 +1428,23 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             } else {
                 $sublibrary = (string) $z36->{'z36-sub-library'};
             }
-            $group = $this->admlib . $z36->{'z36-doc-number'} . $z36->{'z36-item-sequence'};
+            $z36ItemId = $this->admlib . $z36->{'z36-doc-number'} . $z36->{'z36-item-sequence'};
             $item = array(
-                'id'         => $id,
-                'adm_id'     => $adm_id,
-                'item_id'    => $group,
-                'location'   => $location,
-                'title'      => $title,
-                'author'     => $author,
-                'isbn'       => array($isbn),
-                'reqnum'     => $reqnum,
-                'barcode'    => $barcode,
-                'duedate'    => $this->parseDate($due),
-                'returned'   => $this->parseDate($returned),
-                //'holddate'  => $holddate,
-                //'delete'    => $delete,
-                'renewable'  => $renewable,
-                'fine'       => $fine,
-                'sublibrary' => $sublibrary,
-                'group'      => $group,
-                //'create'    => $this->parseDate($create)
+                'id'          => $id,
+                'adm_id'      => $adm_id,
+                'item_id'     => $group,
+                'location'    => $location,
+                'title'       => $title,
+                'author'      => $author,
+                'isbn'        => array($isbn),
+                'reqnum'      => $reqnum,
+                'barcode'     => $barcode,
+                'duedate'     => $this->parseDate($due),
+                'returned'    => $this->parseDate($returned),
+                'renewable'   => $renewable,
+                'fine'        => $fine,
+                'sublibrary'  => $sublibrary,
+                'z36_item_id' => $z36ItemId,
             );
             if ($returnInDays < 0 && !$history) {
                 $item['dueStatus'] = 'overdue';

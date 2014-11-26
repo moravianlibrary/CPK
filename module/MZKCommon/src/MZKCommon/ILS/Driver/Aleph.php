@@ -126,9 +126,9 @@ class Aleph extends AlephBase
         $patronId = $user['id'];
         foreach ($transactions as &$transaction) {
             if (!$transaction['renewable']) {
-                $bibId = $transaction['id'];
-                $group = $transaction['group'];
-                $holdingInfo = $this->getHoldingInfoForItem($patronId, $bibId, $group);
+                $bibId  = $transaction['id'];
+                $itemId = $transaction['z36_item_id'];
+                $holdingInfo = $this->getHoldingInfoForItem($patronId, $bibId, $itemId);
                 $transaction['reserved'] = ($holdingInfo['order'] > 1);
             }
         }
