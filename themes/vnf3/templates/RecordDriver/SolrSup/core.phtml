@@ -1,6 +1,6 @@
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
 
-  <div class="span9 switch-margins">
+  <div class="col-md-9 switch-margins">
     <h3 property="name"><?=$this->escapeHtml($this->driver->getShortTitle() . ' ' . $this->driver->getSubtitle() . ' ' . $this->driver->getTitleSection())?></h3>
 
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $summary[0] : false; ?>
@@ -244,7 +244,7 @@
     <?/* End Main Details */?>
   </div>
 
-  <div class="span3">
+  <div class="col-md-3">
     <div class="text-center" id="center">
       <? /* Display thumbnail if appropriate: */ ?>
       <? $mediumThumb = $this->record($this->driver)->getThumbnail('large'); $largeThumb = $this->record($this->driver)->getThumbnail('large'); ?>

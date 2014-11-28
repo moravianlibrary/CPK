@@ -4,7 +4,7 @@
     <? foreach ($this->facetList as $field => $list): ?>
       <div class="span<?=floor(12/count($this->facetList)) ?>">
         <label class="displayBlock" for="limit_<?=$this->escapeHtml(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
-        <select class="span12" id="limit_<?=$this->escapeHtml(str_replace(' ', '', $field))?>" name="filter[]" multiple="multiple" size="10">
+        <select class="col-md-12" id="limit_<?=$this->escapeHtml(str_replace(' ', '', $field))?>" name="filter[]" multiple="multiple" size="10">
           <?
             // Sort the current facet list alphabetically; we'll use this data
             // along with the foreach below to display facet options in the

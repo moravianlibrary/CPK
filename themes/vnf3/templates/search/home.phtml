@@ -20,23 +20,23 @@
   $projectPage = "http://projekt.narodnifonoteka.cz/homeeng";
 ?>
 <div class="row clearfix">
-  <div class="span6">
+  <div class="col-md-6">
     <?$userLang = $this->layout()->userLang?>
     <a href="<?=$projectPage?>"><img src="<?=$this->imageLink("fonoteka-deska-$userLang.png") ?>"></img></a>
   </div>
-  <div class="span6 centering">
+  <div class="col-md-6 centering">
     <div class="searchbox">
       <?=$this->render("search/searchbox-mainpage.phtml")?>
     </div>
     <div class="row clearfix">
-      <div class="span4">
+      <div class="col-md-4">
         <p><strong><?=$this->transEsc('Search Options')?></strong></p>
         <ul>
           <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
           <li><a href="<?=$this->url('search-advanced')?>"><?=$this->transEsc('Advanced Search')?></a></li>
         </ul>
       </div>
-      <div class="span4">
+      <div class="col-md-4">
         <p><strong><?=$this->transEsc('Find More')?></strong></p>
         <ul>
           <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
@@ -60,7 +60,7 @@
        <?=$this->transEsc('vnf-homepage-annex')?>
      </div>
   </div>
-  <div class="span12 institutions">
+  <div class="col-md-12 institutions">
     <img src="<?=$this->imageLink("institutions/mzk.png") ?>"/>
     <img src="<?=$this->imageLink("institutions/sup.png") ?>"/>
     <img src="<?=$this->imageLink("institutions/mkp.png") ?>"/>
