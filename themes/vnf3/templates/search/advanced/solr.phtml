@@ -1,6 +1,6 @@
 <? if (!empty($this->facetList)): ?>
   <p class="lead"><?=$this->transEsc('Limit To')?></p>
-  <div class="row-fluid">
+  <div class="row">
     <? foreach ($this->facetList as $field => $list): ?>
       <div class="span<?=floor(12/count($this->facetList)) ?>">
         <label class="displayBlock" for="limit_<?=$this->escapeHtml(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
@@ -24,6 +24,6 @@
     <? endforeach; ?>
   </div>
 <? endif; ?>
-<div class="row-fluid">
+<div class="row">
 <?=$this->render('search/advanced/limit.phtml')?>
 <?=$this->render('search/advanced/ranges.phtml')?>
