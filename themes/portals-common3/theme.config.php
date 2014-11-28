@@ -1,6 +1,6 @@
 <?php
 return array(
-    'extends' => 'common-bootstrap',
+    'extends' => 'common-bootstrap3',
     'css' => array(
         'portals-common.css'
     ),
