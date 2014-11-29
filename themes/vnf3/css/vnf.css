@@ -33,6 +33,7 @@ text-shadow: 0px -1px 0px #34312d;
 
 .navbar .nav>li>a:hover {
   color: #cabfb5;
+  background-color: transparent;
 }
 
 
