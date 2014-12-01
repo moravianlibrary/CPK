@@ -136,7 +136,7 @@
             <div class="alert alert-info"><?=$this->transEsc("renew_item_due")?></div>
           <? endif; ?>
         <? endif; ?>
-        <? if($ilsDetails['reserved']): ?>
+        <? if(isset($ilsDetails['reserved']) && $ilsDetails['reserved']): ?>
           <div class="alert alert-danger"><?=$this->transEsc("renew_item_is_reservered")?></div>
         <? endif; ?>
       <? endif; ?>
