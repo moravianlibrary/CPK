@@ -128,8 +128,12 @@ class Aleph extends AlephBase
             if (!$transaction['renewable']) {
                 $bibId  = $transaction['id'];
                 $itemId = $transaction['z36_item_id'];
-                $holdingInfo = $this->getHoldingInfoForItem($patronId, $bibId, $itemId);
-                $transaction['reserved'] = ($holdingInfo['order'] > 1);
+                try {
+                    $holdingInfo = $this->getHoldingInfoForItem($patronId, $bibId, $itemId);
+                    $transaction['reserved'] = ($holdingInfo['order'] > 1);
+                } catch (ILSException $ex) {
+                    // nothing to do
+                }
             }
         }
         return $transactions;
