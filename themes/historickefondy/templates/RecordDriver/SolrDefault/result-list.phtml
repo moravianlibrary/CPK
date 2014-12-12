@@ -4,13 +4,17 @@
   <div class="span2 text-center">
     <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
-        <img src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+        <img src="<?=$this->imageLink($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
       <? else: ?>
         <img src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
       <? endif; ?>
     </a>
     <br/>
-   <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
+    <? $formats = array_map(array($this, 'transEsc'), $this->driver->getFormats())?>
+    <? sort($formats, SORT_STRING)?>
+    <? foreach ($formats as $format): ?>
+      <div class="coverFormat"><?=$format?></div>
+    <? endforeach; ?>  
   </div>
   <div class="span7 middle">
     <div>

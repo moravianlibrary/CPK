@@ -15,6 +15,9 @@
   $basicSearch = $options->getSearchAction();
   $advSearch = $options->getAdvancedSearchAction();
   
+  $userLang = $this->layout()->userLang;
+  $projectPage = "http://projekt.historickefondy.cz/";
+  
   $this->layout()->breadcrumbs = false;
 ?>
 <div class="row clearfix">
@@ -40,6 +43,9 @@
           <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
           <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
         </ul>
+      </div>
+      <div class="span4">
+        <a href="<?=$projectPage?>"><?=$this->transEsc('About the project')?></a>
       </div>
     </div>
   </div>

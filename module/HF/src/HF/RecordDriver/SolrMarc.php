@@ -33,5 +33,17 @@ class SolrMarc extends ParentSolrDefault
     public function getId() {
         return $this->fields['id'];
     }
-   
+    
+    public function getThumbnail()
+    {
+        
+        if (isset($this->fields['format'])) {
+            if (in_array('hf_books', $this->fields['format'])) return 'format/Book.png';
+        }
+        if (isset($this->fields['format'])) {
+            if (in_array('hf_maps', $this->fields['format'])) return 'format/Map.png';
+        }
+
+        return 'format/Book.png';
+    }
 }
