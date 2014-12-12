@@ -43,6 +43,18 @@ class SolrMarc extends ParentSolrDefault
         if (isset($this->fields['format'])) {
             if (in_array('hf_maps', $this->fields['format'])) return 'format/Map.png';
         }
+        if (isset($this->fields['format'])) {
+            if (in_array('hf_visual_documents', $this->fields['format'])) return 'format/Photo.png';
+        }
+        if (isset($this->fields['format'])) {
+            if (in_array('hf_periodicals', $this->fields['format'])) return 'format/Newspaper.png';
+        }
+        if (isset($this->fields['format'])) {
+            if (in_array('hf_musical_score', $this->fields['format'])) return 'format/Musical Score.png';
+        }
+        if (isset($this->fields['format'])) {
+            if (in_array('hf_microforms', $this->fields['format'])) return 'format/Microfilm.png';
+        }
 
         return 'format/Book.png';
     }
