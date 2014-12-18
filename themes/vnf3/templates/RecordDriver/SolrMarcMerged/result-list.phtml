@@ -78,7 +78,7 @@
       <?='<br />' . $this->transEsc('Institution') . ': ' ?>
       <? foreach ($this->driver->getExternalLinks() as $current): ?> <br/>
           <? if (isset($current['url']) && !empty($current['url'])): ?>
-            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+            <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="fa fa-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
           <? elseif (strcasecmp($current['institution'],'sup') == 0): ?>
             <span class="external-search-nolink"><?=$this->transEsc(strtoupper($current['institution']))?></span>
           <? else: ?>
@@ -186,7 +186,7 @@
         $this->jsTranslations()->addStrings(array('qrcode_hide' => 'qrcode_hide', 'qrcode_show' => 'qrcode_show'));
       ?>
       <span class="hidden-phone">
-        <i class="icon-qrcode"></i> <a href="<?=$this->escapeHtml($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
+        <i class="fa fa-qrcode"></i> <a href="<?=$this->escapeHtml($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
         <div class="qrcode hide">
           <img alt="<?=$this->transEsc('QR Code')?>" class="img-polaroid" src="<?=$this->escapeHtml($QRCode);?>"/>
         </div><br/>
@@ -203,7 +203,7 @@
       <? foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
         <div class="hierarchyTreeLink">
           <input type="hidden" value="<?=$this->escapeHtml($hierarchyID)?>" class="hiddenHierarchyId" />
-          <i class="icon-sitemap"></i>
+          <i class="fa fa-sitemap"></i>
           <a class="hierarchyTreeLinkText modal-link" href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>">
             <?=$this->transEsc('hierarchy_view_context')?><? if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><? endif; ?>
           </a>
