@@ -215,7 +215,7 @@ class RecordController extends RecordControllerBase
                     'requestGroupNeeded' => $requestGroupNeeded,
                     'queued' => $queued,
                     'order' => $order,
-                    'reservation' => ($order > 1),
+                    'reservation' => ($order > 1 || $dueDate),
                     'helpText' => isset($checkHolds['helpText'])
                     ? $checkHolds['helpText'] : null
                 )
