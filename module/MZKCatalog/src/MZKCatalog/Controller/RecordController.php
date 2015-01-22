@@ -112,6 +112,7 @@ class RecordController extends RecordControllerBase
             );
         }
 
+        $order = $details['order'];
         $dueDate = $details['due-date'];
         $queued = $dueDate != null;
 
@@ -213,6 +214,8 @@ class RecordController extends RecordControllerBase
                     'defaultRequestGroup' => $defaultRequestGroup,
                     'requestGroupNeeded' => $requestGroupNeeded,
                     'queued' => $queued,
+                    'order' => $order,
+                    'reservation' => ($order > 1),
                     'helpText' => isset($checkHolds['helpText'])
                     ? $checkHolds['helpText'] : null
                 )

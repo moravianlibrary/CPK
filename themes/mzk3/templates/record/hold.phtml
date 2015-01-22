@@ -1,6 +1,7 @@
 <?
     // Set page title.
-    $title = ($this->dueDate) ? 'reservation_place_text' : 'request_place_text';
+    $reservation = $this->reservation;
+    $title = ($reservation) ? 'reservation_place_text' : 'request_place_text';
     $this->headTitle($this->translate($title) . ': ' . $this->driver->getBreadcrumb());
 
     // Set up breadcrumbs:
@@ -21,10 +22,13 @@
 
 <?=$this->flashmessages()?>
 
-<? if ($this->dueDate):?>
+<? if ($reservation):?>
   <div class="alert alert-block">
-    <?=$this->transEsc('hold_request_item_on_loan_until_text')?>: <?=$this->escapeHtml($this->dueDate)?> <br>
-    <?=$this->transEsc('hold_request_item_on_loan_text')?>
+    <? if ($this->dueDate): ?>
+      <?=$this->transEsc('hold_request_item_on_loan_until_text')?>: <?=$this->escapeHtml($this->dueDate)?> <br>
+    <? endif; ?>
+    <?=$this->transEsc('hold_request_item_on_loan_text')?> <br>
+    <?=$this->transEsc('hold_request_item_on_loan_order')?>: <?=$this->escapeHtml($this->order)?> <br>
   </div>
 <? endif;?>
 
@@ -39,7 +43,7 @@
       </div>
     <? endif; ?>
 
-    <? if ($this->dueDate):?>
+    <? if ($reservation):?>
       <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
         <div class="form-group">
           <label class="col-sm-3 control-label">
