@@ -70,8 +70,8 @@
     <?=$this->headScript()?>
   </head>
   <body>
-    <div class="container">
-      <div id="header" class="clearfix hidden-print">
+    <div id="header" class="clearfix hidden-print">
+      <div class="container">
         <?=$this->render('header.phtml')?>
         <? // Set up the search box -- there are three possible cases:
           // 1. No search box was set; we should default to the normal box
@@ -85,10 +85,14 @@
         ?>
         <? if ($this->layout()->searchbox !== false): ?>
       </div>
-      <div class="searchbox hidden-print">
+    </div>
+    <div class="searchbox hidden-print">
+      <div class="container">
         <?=$this->layout()->searchbox?>
         <? endif; ?>
       </div>
+    </div>
+    <div class="container">
       <? if((!isset($this->layout()->showBreadcrumbs) || $this->layout()->showBreadcrumbs == true) && $this->layout()->breadcrumbs !== false): ?>
         <ul class="breadcrumb hidden-print">
           <? if(is_array($this->layout()->breadcrumbs)): ?>
@@ -110,16 +114,18 @@
           <? endif; ?>
           </ul>
         <? endif; ?>
-      <div class="main row">
+    </div>
+    <div class="main row">
+      <div class="container">
         <?=$this->layout()->content ?>
       </div>
-      <footer role="contentinfo" class="hidden-print">
-        <div class="container">
-          <?=$this->render('footer.phtml')?>
-          <?=$this->layout()->poweredBy ?>
-        </div>
-      </footer>
     </div>
+    <footer role="contentinfo" class="hidden-print">
+      <div class="container">
+        <?=$this->render('footer.phtml')?>
+        <?=$this->layout()->poweredBy ?>
+      </div>
+    </footer>
     <!-- MODAL IN CASE WE NEED ONE -->
     <div id="modal" class="modal fade hidden-print" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
       <div class="modal-dialog">
