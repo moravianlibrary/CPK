@@ -2,6 +2,9 @@
 <html lang="<?=$this->layout()->userLang?>">
   <head>
     <?$this->headThemeResources()?>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
     <?=$this->headMeta()?>
     <?=$this->headTitle()?>
     <?
@@ -18,36 +21,51 @@
     <?=$this->headLink()?>
     <?=$this->headStyle()?>
     <?
-        // Set global path for Javascript code:
-        $this->headScript()->prependScript("path = '" . rtrim($this->url('home'), '/') . "';");
+      // Set global path for Javascript code:
+      $this->headScript()->prependScript("path = '" . rtrim($this->url('home'), '/') . "';");
 
-        // Deal with cart stuff:
-        if (!isset($this->renderingError)) {
-            $cart = $this->cart();
-            $this->jsTranslations()->addStrings(array('loading' => 'Loading'));
-            if ($cart->isActive()) {
-                $this->headScript()->appendFile("cookies.js");
-                $this->headScript()->appendFile("cart.js");
-                $this->jsTranslations()->addStrings(
-                    array(
-                        'bulk_noitems_advice' => 'bulk_noitems_advice',
-                        'confirmEmpty' => 'bookbag_confirm_empty',
-                        'viewBookBag' => 'View Book Bag',
-                        'addBookBag' => 'Add to Book Bag',
-                        'removeBookBag' => 'Remove from Book Bag',
-                        'itemsAddBag' => 'items_added_to_bookbag',
-                        'itemsInBag' => 'items_already_in_bookbag',
-                        'bookbagMax' => $cart->getMaxSize(),
-                        'bookbagFull' => 'bookbag_full_msg',
-                        'bookbagStatusFull' => 'bookbag_full',
-                    )
-                );
-            }
-            $this->headScript()->appendScript($this->jsTranslations()->getScript());
+      // Deal with cart stuff:
+      if (!isset($this->renderingError)) {
+        $cart = $this->cart();
+        $this->jsTranslations()->addStrings(
+          array(
+            'bulk_email_success' => 'bulk_email_success',
+            'bulk_save_success' => 'bulk_save_success',
+            'close' => 'close',
+            'loading' => 'Loading',
+            'sms_success' => 'sms_success'
+          )
+        );
+        if ($cart->isActive()) {
+          $this->headScript()->appendFile("cookies.js");
+          $this->headScript()->appendFile("cart.js");
+          $this->jsTranslations()->addStrings(
+            array(
+              'bulk_noitems_advice' => 'bulk_noitems_advice',
+              'confirmEmpty' => 'bookbag_confirm_empty',
+              'viewBookBag' => 'View Book Bag',
+              'addBookBag' => 'Add to Book Bag',
+              'removeBookBag' => 'Remove from Book Bag',
+              'itemsAddBag' => 'items_added_to_bookbag',
+              'itemsInBag' => 'items_already_in_bookbag',
+              'bookbagMax' => $cart->getMaxSize(),
+              'bookbagFull' => 'bookbag_full_msg',
+              'bookbagStatusFull' => 'bookbag_full',
+            )
+          );
+        }
+        $this->headScript()->appendScript($this->jsTranslations()->getScript());
             if ($this->recaptcha()->active()) {
                 $this->headScript()->appendFile("recaptcha_ajax.js");
-            }        
-}
+      }
+
+      // Session keep-alive
+      if ($this->KeepAlive()) {
+          $this->headScript()->appendScript('var keepAliveInterval = '
+            . $this->KeepAlive());
+          $this->headScript()->appendFile("keep_alive.js");
+      }
+    }
     ?>
     <?=$this->headScript()?>
   </head>
@@ -73,26 +91,48 @@
       </div>
       <? if((!isset($this->layout()->showBreadcrumbs) || $this->layout()->showBreadcrumbs == true) && $this->layout()->breadcrumbs !== false): ?>
         <ul class="breadcrumb hidden-print">
-          <li class="active"><a href="<?=$this->url('home') ?>">Home</a> <span class="divider">&gt;</span></li>
-          <?=$this->layout()->breadcrumbs ?>
-        </ul>
-      <? endif; ?>
+          <? if(is_array($this->layout()->breadcrumbs)): ?>
+            <? if(count($this->layout()->breadcrumbs) > 1): ?>
+              <?=$this->render('breadcrumbs/multi.phtml', array(
+                  'parents' => $this->layout()->breadcrumbs,
+                  'title'   => $this->layout()->title,
+                  'end'     => $this->layout()->breadcrumbEnd,
+                  'from'    => $this->layout()->from
+                )) ?>
+            <? else: ?>
+              <?=$this->render('breadcrumbs/default.phtml', array(
+                  'parents' => $this->layout()->breadcrumbs,
+                  'title'   => $this->layout()->title
+                )) ?>
+            <? endif; ?>
+          <? else: ?>
+            <?=$this->layout()->breadcrumbs ?>
+          <? endif; ?>
+          </ul>
+        <? endif; ?>
       <div class="main row">
-        <?=$this->layout()->content?>
+        <?=$this->layout()->content ?>
       </div>
-      <div class="footer hidden-print">
-        <?=$this->render('footer.phtml')?>
-        <?=$this->layout()->poweredBy?>
-      </div>
+      <footer role="contentinfo" class="hidden-print">
+        <div class="container">
+          <?=$this->render('footer.phtml')?>
+          <?=$this->layout()->poweredBy ?>
+        </div>
+      </footer>
     </div>
     <!-- MODAL IN CASE WE NEED ONE -->
-    <div id="modal" class="modal hide fade">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3></h3>
+    <div id="modal" class="modal fade hidden-print" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 id="modalTitle" class="modal-title"></h4>
+          </div>
+          <div class="modal-body"><?=$this->transEsc('Loading') ?>...</div>
+        </div>
       </div>
-      <div class="modal-body"><?=$this->transEsc('Loading') ?>...</div>
     </div>
     <?=$this->googleanalytics()?>
+    <?=$this->piwik()?>
   </body>
 </html>
