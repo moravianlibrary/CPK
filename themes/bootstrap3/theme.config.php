@@ -9,6 +9,7 @@ return array(
         'vendor/font-awesome.min.css',
         'vendor/bootstrap-slider.css',
         'print.css:print',
+        'ol.css'
     ),
     'js' => array(
         'vendor/jquery.min.js',

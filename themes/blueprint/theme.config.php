@@ -9,6 +9,7 @@ return array(
         'styles.css:screen, projection',
         'print.css:print',
         'ie.css:screen, projection:lt IE 8',
+        'ol.css',
     ),
     'js' => array(
         'jquery.min.js',

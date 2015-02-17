@@ -9,7 +9,8 @@ return array(
         'slider.css',
         'screen.css',
         'bootstrap-custom.css',
-        'print.css:print'
+        'print.css:print',
+        'ol.css'
     ),
     'js' => array(
         'core/jquery.min.js',
