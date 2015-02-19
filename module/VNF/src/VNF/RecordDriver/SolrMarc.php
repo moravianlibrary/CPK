@@ -79,6 +79,8 @@ class SolrMarc extends ParentSolrDefault
                 $base .= 'format/nf-icon-tune';
             } elseif (in_array('vnf_data', $formats)) {
                 $base .= 'format/nf-icon-file';
+            } elseif (in_array('vnf_phonograph_cylinder', $formats)) {
+                $base .= 'format/nf-icon-wax';
             }
 
             if (empty($base)) {
