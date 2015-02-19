@@ -283,7 +283,7 @@ class MyResearchController extends MyResearchControllerBase
     {
         return array(
             'ill_request_for_serial' => array(
-                'title' => array('label' => 'ill_article_title', 'type' => 'text', 'required' => true),
+                'title' => array('label' => 'ill_journal_title', 'type' => 'text', 'required' => true),
                 'issn' => array('label' => 'ill_additional_authors', 'type' => 'text', 'required' => false),
                 'year' => array('label' => 'ill_year', 'type' => 'text', 'required' => true),
                 'volume' => array('label' => 'ill_volume', 'type' => 'text', 'required' => false),
@@ -292,7 +292,7 @@ class MyResearchController extends MyResearchControllerBase
             ),
             'ill_article_information' => array(
                 'sub-author' => array('label' => 'ill_article_author', 'type' => 'text', 'required' => false),
-                'sub-title' => array('label' => 'ill_journal_title', 'type' => 'text', 'required' => false),
+                'sub-title' => array('label' => 'ill_article_title', 'type' => 'text', 'required' => false),
                 'pages' => array('label' => 'ill_pages', 'type' => 'text', 'required' => false),
                 'note' => array('label' => 'Note', 'type' => 'text', 'required' => false),
             ),
