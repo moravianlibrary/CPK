@@ -133,7 +133,7 @@
             <? endif; ?>
             <? foreach ($this->pickup as $lib): ?>
               <option value="<?=$this->escapeHtmlAttr($lib['locationID'])?>"<?=($selected == $lib['locationID']) ? ' selected="selected"' : ''?>>
-                <?=$this->escapeHtml($lib['locationDisplay'])?>
+                <?=$this->transEsc($lib['locationDisplay'])?>
               </option>
             <? endforeach; ?>
             </select>
