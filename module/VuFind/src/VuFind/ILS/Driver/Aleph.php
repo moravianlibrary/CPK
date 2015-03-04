@@ -2450,6 +2450,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         unset($attrs['new']);
         $additional_authors = $attrs['additional_authors'];
         unset($attrs['additional_authors']);
+        $source = $attrs['source'];
+        unset($attrs['source']);
         if (!isset($attrs['ill-unit'])) {
             $attrs['ill-unit'] = $this->defaultIllUnit;
         }
@@ -2507,6 +2509,14 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $varfield->addAttribute('i1', '1');
             $varfield->addAttribute('i2', ' ');
             $subfield = $varfield->addChild('subfield', $additional_authors);
+            $subfield->addAttribute('label', 'a');
+        }
+        if (!empty($source)) {
+            $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
+            $varfield->addAttribute('id', '590');
+            $varfield->addAttribute('i1', ' ');
+            $varfield->addAttribute('i2', ' ');
+            $subfield = $varfield->addChild('subfield', htmlspecialchars($source));
             $subfield->addAttribute('label', 'a');
         }
         $updateDocParams = array('library' => $base, 'doc_num' => $docNum);
