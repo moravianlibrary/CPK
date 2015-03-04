@@ -104,6 +104,9 @@
 
       <? $showStatus = true; ?>
 
+      <? if (!$history && isset($ilsDetails['loandate'])): ?>
+        <strong><?=$this->transEsc('Checked Out')?>: <?=$this->escapeHtml($ilsDetails['loandate'])?> |</strong>
+      <? endif; ?>
       <? if (isset($this->renewResult[$ilsDetails['item_id']])): ?>
         <? $renewDetails = $this->renewResult[$ilsDetails['item_id']]; ?>
         <? if (isset($renewDetails['success']) && $renewDetails['success']): ?>
