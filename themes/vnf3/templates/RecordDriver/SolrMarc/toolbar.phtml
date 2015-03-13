@@ -12,15 +12,15 @@
   $cartId = $this->driver->getResourceSource() . '|' . $id;
 ?>
 <div class="toolbar hidden-print">
-  <ul class="nav">
-    <li class="cistbrno-toolbar-items"><a id="cite-record " class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>"><i class="fa fa-asterisk"></i> <?=$this->transEsc('Cite this')?></a></li>
+  <ul class="list-group">
+    <li class="list-group-item"><a id="cite-record " class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>"><i class="fa fa-asterisk"></i> <?=$this->transEsc('Cite this')?></a></li>
     <? if (count($this->driver->getCitationFormats()) > 0): ?>
     <? endif; ?>
-    <li class="cistbrno-toolbar-items"><a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>"><i class="fa fa-envelope"></i> <?=$this->transEsc('Email this')?></a></li>
+    <li class="list-group-item"><a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>"><i class="fa fa-envelope"></i> <?=$this->transEsc('Email this')?></a></li>
     
     <? $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>  
     <? if(count($exportFormats) > 0): ?>  
-      <li class="dropdown cistbrno-toolbar-items">
+      <li class="dropdown list-group-item">
         <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>"><i class="fa fa-list-alt"></i> <?=$this->transEsc('Export Record') ?></a>
         <ul class="dropdown-menu" role="menu">
           <? foreach ($exportFormats as $exportFormat): ?>
@@ -31,10 +31,10 @@
     <? endif; ?>
     
     <? if (!empty($addThis)): ?>
-      <li class="cistbrno-toolbar-items"><a class="addThis addthis_button" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
+      <li class="list-group-item"><a class="addThis addthis_button" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
     <? endif; ?>
     <? if ($cart->isActive()): ?>
-      <li id="bookbag-menu" class="cistbrno-toolbar-items">
+      <li id="bookbag-menu" class="list-group-item">
         <input id="cartId" type="hidden" name="ids[]" value="<?=$this->escapeHtml($cartId)?>" />
         <a id="cart-add" class="<? if(!$cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="fa fa-plus-circle"></i> <?=$this->transEsc('Add to Book Bag') ?></a>
         <a id="cart-remove" class="<? if($cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="fa fa-minus-circle"></i> <?=$this->transEsc('Remove from Book Bag') ?></a>
