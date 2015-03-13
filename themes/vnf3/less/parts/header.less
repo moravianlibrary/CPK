@@ -7,7 +7,7 @@
   text-shadow: 0px -1px 0px #34312d;
 }
 
-.navbar-brand:hover {
+.navbar-brand:hover, .navbar-brand:focus {
   color: #cabfb5;
   background-color: transparent;
 }
@@ -40,4 +40,12 @@
 
 .header-logo {
   margin-top: 10px;
+}
+
+.nav > li > a {
+  color: #C9BFB5;
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
 }
