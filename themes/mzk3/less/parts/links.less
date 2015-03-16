@@ -1,14 +1,11 @@
 /* styling of links */
 a {
-    text-decoration: underline;
-}
-
-a.no-underline {
+  text-decoration: underline;
+  &:hover,
+  &:focus,
+  &.no-underline {
     text-decoration: none;
-}
-
-a:hover, .hoverLink {
-    text-decoration: none;
+  }
 }
 
 .btn-primary {
