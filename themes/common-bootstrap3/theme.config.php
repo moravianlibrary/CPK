@@ -1,9 +1,6 @@
 <?php
 return array(
     'extends' => 'obalkyknih-api-v3-bootstrap3',
-    'css' => array(
-        'common.css'
-    ),
     'helpers' => array(
         'factories' => array(
             'record' => function ($sm) {
