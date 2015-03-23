@@ -1,9 +1,6 @@
 <?php
 return array(
     'extends' => 'bootstrap3',
-    'css' => array(
-        'obalkyknih.css'
-    ),
     'js' => array(
         'obalkyknih.js'
     ),
