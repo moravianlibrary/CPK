@@ -56,4 +56,9 @@ class MyResearchController extends MyResearchControllerBase
         return parent::loginAction();
     }
 
+    public function logoutAction()
+    {
+        $logoutTarget = $this->getConfig()->Site->url;
+        return $this->redirect()->toUrl($this->getAuthManager()->logout($logoutTarget));
+    }
 }
