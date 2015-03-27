@@ -255,6 +255,7 @@ Title:
     - title_short^500
     - title_full_unstemmed^450
     - title_full^400
+    - title_portaly_txtP^350
     - title^300
     - title_alt^200
     - title_new^100
@@ -269,6 +270,9 @@ Title:
       - [and, 400]
     title_full:
       - [onephrase, 400]
+    title_portaly_txtP:
+      - [onephrase, 350]
+      - [and, 350]
     title:
       - [onephrase, 300]
       - [and, 250]
@@ -277,6 +281,8 @@ Title:
     title_new:
       - [and, 100]
     title_old:
+      - [and, ~]
+    title_portaly_str:
       - [and, ~]
     series:
       - [onephrase, 100]
@@ -310,6 +316,7 @@ AllFields:
     - title_full^400
     - title^500
     - title_alt^200
+    - title_portaly_txtP^150
     - title_new^100
     - series^50
     - series2^30
@@ -343,6 +350,8 @@ AllFields:
         - [and, 200]
       title_new:
         - [and, 100]
+      title_portaly_txtP:
+        - [onephrase, 150]
     series:
       - [and, 50]
     series2:
@@ -378,6 +387,9 @@ AllFields:
       - [or, ~]
   DismaxParams:
     - [bf, "if(exists(merged_boolean),100000,0)" ]
+    - [bf, "if(exists(query({!v='publishDate:2013'})),50000,0)"]
+    - [bf, "if(exists(query({!v='institution:0/MZK'})),50000,0)"]
+    - [bf, "if(exists(query({!v='topic:monografie'})),50000,0)"]
 
 # These are advanced searches that never use Dismax:
 id:
