@@ -1,6 +1,7 @@
 <?
     // Set page title.
     $reservation = $this->reservation;
+    $processing = $this->processing;
     $title = ($reservation) ? 'reservation_place_text' : 'request_place_text';
     $this->headTitle($this->translate($title) . ': ' . $this->driver->getBreadcrumb());
 
@@ -43,7 +44,7 @@
       </div>
     <? endif; ?>
 
-    <? if ($reservation):?>
+    <? if ($reservation || $processing):?>
       <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
         <div class="form-group">
           <label class="col-sm-3 control-label">

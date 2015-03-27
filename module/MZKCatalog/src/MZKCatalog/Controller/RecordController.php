@@ -115,6 +115,7 @@ class RecordController extends RecordControllerBase
         $order = $details['order'];
         $dueDate = $details['due-date'];
         $queued = $dueDate != null;
+        $status = $details['status'];
 
         $requestGroups = $catalog->checkCapability('getRequestGroups')
         ? $catalog->getRequestGroups($driver->getUniqueID(), $patron)
@@ -216,6 +217,7 @@ class RecordController extends RecordControllerBase
                     'queued' => $queued,
                     'order' => $order,
                     'reservation' => ($order > 1 || $dueDate),
+                    'processing' => $status == 'ZP',
                     'helpText' => isset($checkHolds['helpText'])
                     ? $checkHolds['helpText'] : null
                 )

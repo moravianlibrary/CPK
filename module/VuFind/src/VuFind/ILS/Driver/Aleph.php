@@ -2106,7 +2106,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $dueDate = null;
             }
         }
-        
+
+        $status = (string) $xml->xpath('//z30-item-process-status-code/text()')[0];
+
         $requests = 0;
         $str = $xml->xpath('//item/queue/text()');
         $matches = array();
@@ -2119,8 +2121,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $date = "" . substr($date, 6, 2) . "." . substr($date, 4, 2) . "."
             . substr($date, 0, 4);
         return array(
-            'pickup-locations' => $locations, 'last-interest-date' => $date,
-            'order' => $requests + 1, 'due-date' => $dueDate
+            'pickup-locations' => $locations,
+            'last-interest-date' => $date,
+            'order' => $requests + 1,
+            'due-date' => $dueDate,
+            'status' => $status
         );
     }
 
