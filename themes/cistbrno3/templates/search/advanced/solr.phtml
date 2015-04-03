@@ -9,9 +9,9 @@
 <? if (!empty($this->facetList)): ?>
   <div class="row">
     <? foreach ($this->facetList as $field => $list): ?>
-      <div class="span<?=floor(12/count($this->facetList)) ?>">
+      <div class="col-md-<?=floor(12/count($this->facetList)) ?>">
         <label class="displayBlock" for="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
-        <select class="span12" id="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>" name="filter[]" multiple="multiple" size="10">
+        <select class="col-md-12" id="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>" name="filter[]" multiple="multiple" size="10">
           <?
             // Sort the current facet list alphabetically; we'll use this data
             // along with the foreach below to display facet options in the
@@ -53,7 +53,7 @@
 <? endif; ?>
 <div class="row">
 <? if (isset($this->illustratedLimit)): ?>
-  <fieldset class="span4">
+  <fieldset class="col-md-4">
     <legend><?=$this->transEsc("Illustrated")?>:</legend>
     <? foreach ($this->illustratedLimit as $current): ?>
       <input id="illustrated_<?=$this->escapeHtmlAttr($current['value'])?>" type="radio" name="illustration" value="<?=$this->escapeHtmlAttr($current['value'])?>"<?=$current['selected']?' checked="checked"':''?>/>

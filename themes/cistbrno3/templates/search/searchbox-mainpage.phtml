@@ -37,7 +37,7 @@
     <div class="help-block"><?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"</div>
   <? else: ?>
     <form class="form-inline navbar-form block" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
-      <input class="span5 search-query<? if($options->autocompleteEnabled()):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
+      <input class="col-md-5 search-query<? if($options->autocompleteEnabled()):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtml($this->lookfor)?>"/>
       <button type="submit" name="submit" class="btn" value="<?=$this->transEsc("Find")?>"><i class="icon-search"></i> <?=$this->transEsc("Find")?></button>
       <? if ($advSearch): ?>
         <a href="<?=$this->url($advSearch)?>" class="btn btn-link"><?=$this->transEsc("Advanced")?></a>

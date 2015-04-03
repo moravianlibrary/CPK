@@ -21,23 +21,23 @@
   $this->layout()->breadcrumbs = false;
 ?>
 <div class="row clearfix">
-  <div class="span6">
+  <div class="col-md-6">
     <?$userLang = $this->layout()->userLang?>
     <img src="<?=$this->imageLink("hf-background-mainimage-sites.png") ?>"></img>
   </div>
-  <div class="span6 centering">
+  <div class="col-md-6 centering">
     <div class="searchbox">
       <?=$this->render("search/searchbox-mainpage.phtml")?>
     </div>
     <div class="row clearfix">
-      <div class="span4">
+      <div class="col-md-4">
         <p><strong><?=$this->transEsc('Search Options')?></strong></p>
         <ul>
           <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
           <li><a href="<?=$this->url('search-advanced')?>"><?=$this->transEsc('Advanced Search')?></a></li>
         </ul>
       </div>
-      <div class="span4">
+      <div class="col-md-4">
         <p><strong><?=$this->transEsc('Find More')?></strong></p>
         <ul>
           <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>

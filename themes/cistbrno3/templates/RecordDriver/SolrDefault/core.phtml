@@ -11,7 +11,7 @@
 <div class="row">
   
 
-  <div class="span9">
+  <div class="col-md-9">
     <h3><?=$this->escapeHtml($this->driver->getTitle())?></h3>
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $summary[0] : false; ?>
     <? if ($summary): ?>
@@ -209,7 +209,7 @@
     <?/* End Main Details */?>
   </div>
   
-  <div class="span3">
+  <div class="col-md-3">
     <div class="text-center">
       <div id="cover">
       </div>

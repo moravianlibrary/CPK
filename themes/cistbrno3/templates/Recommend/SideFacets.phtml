@@ -132,16 +132,16 @@
             <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$title}:.*/"))?>
             <input type="hidden" name="daterange[]" value="<?=$this->escapeHtml($title)?>"/>
             <div class="row">
-              <label class="span6" for="<?=$this->escapeHtml($title)?>from">
+              <label class="col-md-6" for="<?=$this->escapeHtml($title)?>from">
                 <?=$this->transEsc('date_from')?>:<br/>
-                <input type="text" maxlength="4" class="span12" name="<?=$this->escapeHtml($title)?>from" id="<?=$this->escapeHtml($title)?>from" value="<?=isset($dateFacets[$title][0])?$dateFacets[$title][0]:''?>" />
+                <input type="text" maxlength="4" class="col-md-12" name="<?=$this->escapeHtml($title)?>from" id="<?=$this->escapeHtml($title)?>from" value="<?=isset($dateFacets[$title][0])?$dateFacets[$title][0]:''?>" />
               </label>
-              <label class="span6" for="<?=$this->escapeHtml($title)?>to">
+              <label class="col-md-6" for="<?=$this->escapeHtml($title)?>to">
                 <?=$this->transEsc('date_to')?>:<br/>
-                <input type="text" maxlength="4" class="span12" name="<?=$this->escapeHtml($title)?>to" id="<?=$this->escapeHtml($title)?>to" value="<?=isset($dateFacets[$title][1])?$dateFacets[$title][1]:''?>" />
+                <input type="text" maxlength="4" class="col-md-12" name="<?=$this->escapeHtml($title)?>to" id="<?=$this->escapeHtml($title)?>to" value="<?=isset($dateFacets[$title][1])?$dateFacets[$title][1]:''?>" />
               </label>
             </div>
-            <div class="row"><input type="text" class="span10 hidden" id="<?=$this->escapeHtml($title)?>dateSlider"/></div>
+            <div class="row"><input type="text" class="col-md-10 hidden" id="<?=$this->escapeHtml($title)?>dateSlider"/></div>
             <input class="btn" type="submit" value="<?=$this->transEsc('Set')?>"/>
           </form>
         </li>

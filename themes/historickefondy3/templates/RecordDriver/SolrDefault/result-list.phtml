@@ -1,7 +1,7 @@
 <div class="row result-inner<?=$this->driver->supportsAjaxStatus()?' ajaxItem':''?>">
   <div class="recordId hide"><?=$this->escapeHtml($this->driver->getId())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
-  <div class="span2 text-center">
+  <div class="col-md-2 text-center">
     <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
         <img src="<?=$this->imageLink($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
@@ -16,7 +16,7 @@
       <div class="coverFormat"><?=$format?></div>
     <? endforeach; ?>  
   </div>
-  <div class="span7 middle">
+  <div class="col-md-7 middle">
     <div>
       <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <?
@@ -163,7 +163,7 @@
     </div>
   </div>
 
-  <div class="span2 right noprint">
+  <div class="col-md-2 right noprint">
     <? /* Display qrcode if appropriate: */ ?>
     <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
       <?

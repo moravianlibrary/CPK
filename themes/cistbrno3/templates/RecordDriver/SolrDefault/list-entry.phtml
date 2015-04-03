@@ -13,7 +13,7 @@
   <div class="availabilityId hide"><?=$this->escapeHtml($this->driver->getAvailabilityID())?></div>
   <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource())?>" class="hiddenSource" />
 
-  <div class="span2 text-center">
+  <div class="col-md-2 text-center">
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSON()): ?>
         <script type="text/javascript">
@@ -29,7 +29,7 @@
     <div class="coverFormat"><?=implode(', ', $formats)?></div>
   </div>
 
-  <div class="span7 middle">
+  <div class="col-md-7 middle">
     <div>
       <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
       <?
@@ -122,7 +122,7 @@
     </div>
   </div>
 
-  <div class="span2">
+  <div class="col-md-2">
     <i class="icon-edit"></i> <a href="<?=$this->url('myresearch-edit')?>?id=<?=urlencode($id)?>&amp;source=<?=urlencode($source)?><? if (!is_null($list_id)):?>&amp;list_id=<?=urlencode($list_id)?><? endif; ?>" class="edit tool"><?=$this->transEsc('Edit')?></a><br/>
     <? /* Use a different delete URL if we're removing from a specific list or the overall favorites: */
       $deleteUrl = is_null($list_id)
