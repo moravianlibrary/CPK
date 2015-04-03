@@ -26,7 +26,7 @@
 <?=$this->flashmessages()?>
 
 <? if ($hideLogin): ?>
-  <div class="alert alert-error"><?=$this->transEsc('login_disabled')?></div>
+  <div class="alert alert-danger"><?=$this->transEsc('login_disabled')?></div>
 <? else: ?>
   <? $sessionInitiators = $account->getSessionInitiators($this->serverUrl($this->url('myresearch-home'))); ?>
   <? if (!$sessionInitiators): // display default login form if no login URL provided ?>
