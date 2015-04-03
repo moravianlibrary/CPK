@@ -39,7 +39,7 @@
       <? endforeach; ?>
     <? endif; ?>
     <?=$this->flashmessages()?>
-    <div class="clearfix noprint">
+    <div class="clearfix hidden-print">
       <div class="pull-left help-block">
         <? if ($recordTotal > 0): ?>
           <?=$this->transEsc("Showing")?>

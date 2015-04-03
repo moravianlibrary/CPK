@@ -23,7 +23,7 @@
 <?=$this->flashmessages()?>
 
 <div class="<?=$this->layoutClass('mainbody')?>">
-  <div class="clearfix noprint">
+  <div class="clearfix hidden-print">
   <? if (isset($list)): ?>
     <div class="pull-right">
       <? if ($list->editAllowed($account->isLoggedIn())): ?>

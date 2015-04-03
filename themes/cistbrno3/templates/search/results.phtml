@@ -47,7 +47,7 @@
     <? endforeach; ?>
   <? endif; ?>
   <?=$this->flashmessages()?>
-  <div class="clearfix noprint search-controls">
+  <div class="clearfix hidden-print search-controls">
     <div class="pull-left help-block">
       <? if ($recordTotal > 0): ?>
         <?=$this->transEsc("Showing")?>
@@ -101,7 +101,7 @@
       <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results))?>
     </form>
 
-    <div class="searchtools small text-center noprint">
+    <div class="searchtools small text-center hidden-print">
       <strong><?=$this->transEsc('Search Tools')?>:</strong>
       <i class="icon-bell"></i> <a href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>"><?=$this->transEsc('Get RSS Feed')?></a>
       &mdash;

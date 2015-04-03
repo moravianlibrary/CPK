@@ -15,7 +15,7 @@
 ?>
 
 <? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
-  <ul class="pager noprint">
+  <ul class="pager hidden-print">
     <? if ($this->scrollData['previousRecord']): ?>
       <li>
         <a href="<?=$this->recordLink()->getUrl($this->scrollData['previousRecord'])?>" title="<?=$this->transEsc('Previous Search Result')?>">&laquo; <?=$this->transEsc('Prev')?></a>

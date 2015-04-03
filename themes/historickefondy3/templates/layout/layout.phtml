@@ -69,7 +69,7 @@
   </head>
   <body>
     <div class="container">
-      <div id="header" class="clearfix noprint">
+      <div id="header" class="clearfix hidden-print">
         <?=$this->render('header.phtml')?>
         <? // Set up the search box -- there are three possible cases:
           // 1. No search box was set; we should default to the normal box
@@ -83,7 +83,7 @@
         ?>
         <? if ($this->layout()->searchbox !== false): ?>
       </div>
-      <div class="searchbox noprint">
+      <div class="searchbox hidden-print">
         <?=$this->layout()->searchbox?>
         <? endif; ?>
       </div>
@@ -115,7 +115,7 @@
       <div class="main row">
         <?=$this->layout()->content?>
       </div>
-      <div class="footer noprint">
+      <div class="footer hidden-print">
         <?=$this->render('footer.phtml')?>
         <?=$this->layout()->poweredBy?>
       </div>

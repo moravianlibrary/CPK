@@ -11,7 +11,7 @@
   $cart = $this->cart();
   $cartId = $this->driver->getResourceSource() . '|' . $id;
 ?>
-<div class="toolbar noprint">
+<div class="toolbar hidden-print">
   <ul class="nav">
     <li class="cistbrno-toolbar-items"><a id="cite-record " class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>"><i class="icon-asterisk"></i> <?=$this->transEsc('Cite this')?></a></li>
     <? if (count($this->driver->getCitationFormats()) > 0): ?>
