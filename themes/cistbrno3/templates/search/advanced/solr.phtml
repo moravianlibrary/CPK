@@ -7,7 +7,7 @@
 <? endif; ?>
 
 <? if (!empty($this->facetList)): ?>
-  <div class="row-fluid">
+  <div class="row">
     <? foreach ($this->facetList as $field => $list): ?>
       <div class="span<?=floor(12/count($this->facetList)) ?>">
         <label class="displayBlock" for="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
@@ -51,7 +51,7 @@
     <? endforeach; ?>
   </div>
 <? endif; ?>
-<div class="row-fluid">
+<div class="row">
 <? if (isset($this->illustratedLimit)): ?>
   <fieldset class="span4">
     <legend><?=$this->transEsc("Illustrated")?>:</legend>
