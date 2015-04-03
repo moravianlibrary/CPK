@@ -70,13 +70,13 @@ class Loader
      *
      * @param string $isbn ISBN
      *
-     * @return \VuFind\Code\ISBN|bool
+     * @return \VuFindCode\ISBN|bool
      */
     protected function getIsbnObject($isbn)
     {
         // We can't proceed without an ISBN:
         return (empty($isbn))
-            ? false : new \VuFind\Code\ISBN($isbn);
+            ? false : new \VuFindCode\ISBN($isbn);
     }
 
     /**
@@ -88,7 +88,7 @@ class Loader
      */
     public function loadByIsbn($isbn)
     {
-        $results = array();
+        $results = [];
         if (!($isbnObj = $this->getIsbnObject($isbn))) {
             return $results;
         }
@@ -102,6 +102,7 @@ class Loader
                 try {
                     $plugin = $this->loader->get($provider);
                     $results[$provider] = $plugin->loadByIsbn($key, $isbnObj);
+
                     // If the current provider had no valid data, store nothing:
                     if (empty($results[$provider])) {
                         unset($results[$provider]);

@@ -72,7 +72,7 @@ function displayLightboxFeedback($form, message, type) {
 function displayFormError($form, error) {
     $form.parent().find('.error').remove();
     $form.prepend('<div class="error">' + error + '</div>');
-    if (Recaptcha) {
+    if (typeof Recaptcha != "undefined") {
       Recaptcha.reload();
     }
 }
@@ -168,6 +168,7 @@ function registerAjaxCart() {
 
     var $form = $('#modalDialog form[name="cartForm"]');
     if($form) {
+        $($form).submit(function(){return false;});
         $("input[name='ids[]']", $form).attr('checked', false);
         $($form).validate({
             rules: {
@@ -466,7 +467,7 @@ function registerAjaxEmailSearch() {
 function registerAjaxBulkEmail() {
     $('#modalDialog form[name="bulkEmail"]').unbind('submit').submit(function(){
         if (!$(this).valid()) { return false; }
-        var url = path + '/AJAX/JSON?' + $.param({method:'emailSearch', 'subject':'bulk_email_title'});
+        var url = path + '/AJAX/JSON?' + $.param({method:'emailSearch', 'cart':'1'});
         var ids = [];
         $(':input[name="ids[]"]', this).each(function() {
             ids.push(encodeURIComponent('id[]') + '=' + encodeURIComponent(this.value));

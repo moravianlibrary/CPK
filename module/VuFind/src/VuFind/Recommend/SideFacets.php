@@ -27,6 +27,7 @@
  */
 namespace VuFind\Recommend;
 use VuFind\Solr\Utils as SolrUtils;
+use VuFind\Search\Solr\HierarchicalFacetHelper;
 
 /**
  * SideFacets Recommendations Module
@@ -42,39 +43,46 @@ use VuFind\Solr\Utils as SolrUtils;
 class SideFacets extends AbstractFacets
 {
     /**
-     * Date facet configuration
+     * Year-only date facet configuration
      *
      * @var array
      */
-    protected $dateFacets = array();
+    protected $dateFacets = [];
+
+    /**
+     * Day/month/year date facet configuration
+     *
+     * @var array
+     */
+    protected $fullDateFacets = [];
 
     /**
      * Generic range facet configuration
      *
      * @var array
      */
-    protected $genericRangeFacets = array();
+    protected $genericRangeFacets = [];
 
     /**
      * Numeric range facet configuration
      *
      * @var array
      */
-    protected $numericRangeFacets = array();
+    protected $numericRangeFacets = [];
 
     /**
      * Main facet configuration
      *
      * @var array
      */
-    protected $mainFacets = array();
+    protected $mainFacets = [];
 
     /**
      * Checkbox facet configuration
      *
      * @var array
      */
-    protected $checkboxFacets = array();
+    protected $checkboxFacets = [];
 
     /**
      * Collapsed facet setting
@@ -84,8 +92,42 @@ class SideFacets extends AbstractFacets
     protected $collapsedFacets = false;
 
     /**
-     * setConfig
+     * Hierarchical facet setting
      *
+     * @var array
+     */
+    protected $hierarchicalFacets = [];
+
+    /**
+     * Hierarchical facet sort options
+     *
+     * @var array
+     */
+    protected $hierarchicalFacetSortOptions = [];
+
+    /**
+     * Hierarchical facet helper
+     *
+     * @var HierarchicalFacetHelper
+     */
+    protected $hierarchicalFacetHelper;
+
+    /**
+     * Constructor
+     *
+     * @param \VuFind\Config\PluginManager $configLoader Configuration loader
+     * @param HierarchicalFacetHelper      $facetHelper  Helper for handling
+     * hierarchical facets
+     */
+    public function __construct(
+        \VuFind\Config\PluginManager $configLoader,
+        HierarchicalFacetHelper $facetHelper = null
+    ) {
+        parent::__construct($configLoader);
+        $this->hierarchicalFacetHelper = $facetHelper;
+    }
+
+    /**
      * Store the configuration of the recommendation module.
      *
      * @param string $settings Settings from searches.ini.
@@ -105,7 +147,7 @@ class SideFacets extends AbstractFacets
 
         // All standard facets to display:
         $this->mainFacets = isset($config->$mainSection) ?
-            $config->$mainSection->toArray() : array();
+            $config->$mainSection->toArray() : [];
 
         // Load boolean configurations:
         $this->loadBooleanConfigs($config, array_keys($this->mainFacets));
@@ -114,6 +156,9 @@ class SideFacets extends AbstractFacets
         // standard facet lists.
         if (isset($config->SpecialFacets->dateRange)) {
             $this->dateFacets = $config->SpecialFacets->dateRange->toArray();
+        }
+        if (isset($config->SpecialFacets->fullDateRange)) {
+            $this->fullDateFacets = $config->SpecialFacets->fullDateRange->toArray();
         }
         if (isset($config->SpecialFacets->genericRange)) {
             $this->genericRangeFacets
@@ -131,7 +176,7 @@ class SideFacets extends AbstractFacets
         }
         $this->checkboxFacets
             = ($checkboxSection && isset($config->$checkboxSection))
-            ? $config->$checkboxSection->toArray() : array();
+            ? $config->$checkboxSection->toArray() : [];
         if (isset($flipCheckboxes) && $flipCheckboxes) {
             $this->checkboxFacets = array_flip($this->checkboxFacets);
         }
@@ -140,11 +185,21 @@ class SideFacets extends AbstractFacets
         if (isset($config->Results_Settings->collapsedFacets)) {
             $this->collapsedFacets = $config->Results_Settings->collapsedFacets;
         }
+
+        // Hierarchical facets:
+        if (isset($config->SpecialFacets->hierarchical)) {
+            $this->hierarchicalFacets
+                = $config->SpecialFacets->hierarchical->toArray();
+        }
+
+        // Hierarchical facet sort options:
+        if (isset($config->SpecialFacets->hierarchicalFacetSortOptions)) {
+            $this->hierarchicalFacetSortOptions
+                = $config->SpecialFacets->hierarchicalFacetSortOptions->toArray();
+        }
     }
 
     /**
-     * init
-     *
      * Called at the end of the Search Params objects' initFromRequest() method.
      * This method is responsible for setting search parameters needed by the
      * recommendation module and for reading any existing search parameters that may
@@ -168,21 +223,38 @@ class SideFacets extends AbstractFacets
     }
 
     /**
-     * getFacetSet
-     *
      * Get facet information from the search results.
      *
      * @return array
+     * @throws \Exception
      */
     public function getFacetSet()
     {
-        return $this->results->getFacetList($this->mainFacets);
+        $facetSet = $this->results->getFacetList($this->mainFacets);
+
+        foreach ($this->hierarchicalFacets as $hierarchicalFacet) {
+            if (isset($facetSet[$hierarchicalFacet])) {
+                if (!$this->hierarchicalFacetHelper) {
+                    throw new \Exception(
+                        get_class($this) . ': hierarchical facet helper unavailable'
+                    );
+                }
+
+                $facetArray = $this->hierarchicalFacetHelper->buildFacetArray(
+                    $hierarchicalFacet, $facetSet[$hierarchicalFacet]['list']
+                );
+                $facetSet[$hierarchicalFacet]['list']
+                    = $this->hierarchicalFacetHelper
+                        ->flattenFacetHierarchy($facetArray);
+            }
+        }
+
+        return $facetSet;
     }
 
     /**
-     * getDateFacets
-     *
-     * Return date facet information in a format processed for use in the view.
+     * Return year-based date facet information in a format processed for use in the
+     * view.
      *
      * @return array Array of from/to value arrays keyed by field.
      */
@@ -192,8 +264,17 @@ class SideFacets extends AbstractFacets
     }
 
     /**
-     * getGenericRangeFacets
+     * Return year/month/day-based date facet information in a format processed for
+     * use in the view.
      *
+     * @return array Array of from/to value arrays keyed by field.
+     */
+    public function getFullDateFacets()
+    {
+        return $this->getRangeFacets('fullDateFacets');
+    }
+
+    /**
      * Return generic range facet information in a format processed for use in the
      * view.
      *
@@ -205,8 +286,6 @@ class SideFacets extends AbstractFacets
     }
 
     /**
-     * getNumericRangeFacets
-     *
      * Return numeric range facet information in a format processed for use in the
      * view.
      *
@@ -224,15 +303,16 @@ class SideFacets extends AbstractFacets
      */
     public function getAllRangeFacets()
     {
-        $raw = array(
+        $raw = [
             'date' => $this->getDateFacets(),
+            'fulldate' => $this->getFullDateFacets(),
             'generic' => $this->getGenericRangeFacets(),
             'numeric' => $this->getNumericRangeFacets()
-        );
-        $processed = array();
+        ];
+        $processed = [];
         foreach ($raw as $type => $values) {
             foreach ($values as $field => $range) {
-                $processed[$field] = array('type' => $type, 'values' => $range);
+                $processed[$field] = ['type' => $type, 'values' => $range];
             }
         }
         return $processed;
@@ -246,7 +326,7 @@ class SideFacets extends AbstractFacets
     public function getCollapsedFacets()
     {
         if (empty($this->collapsedFacets)) {
-            return array();
+            return [];
         } elseif ($this->collapsedFacets == '*') {
             return array_keys($this->getFacetSet());
         }
@@ -260,7 +340,7 @@ class SideFacets extends AbstractFacets
      *
      * @return array
      */
-    public function getVisibleFilters($extraFilters = array())
+    public function getVisibleFilters($extraFilters = [])
     {
         // Merge extras into main list:
         $filterList = array_merge(
@@ -268,9 +348,9 @@ class SideFacets extends AbstractFacets
         );
 
         // Filter out suppressed values:
-        $final = array();
+        $final = [];
         foreach ($filterList as $field => $filters) {
-            $current = array();
+            $current = [];
             foreach ($filters as $filter) {
                 if (!isset($filter['suppressDisplay'])
                     || !$filter['suppressDisplay']
@@ -287,8 +367,6 @@ class SideFacets extends AbstractFacets
     }
 
     /**
-     * getRangeFacets
-     *
      * Return range facet information in a format processed for use in the view.
      *
      * @param string $property Name of property containing active range facets
@@ -298,7 +376,7 @@ class SideFacets extends AbstractFacets
     protected function getRangeFacets($property)
     {
         $filters = $this->results->getParams()->getFilters();
-        $result = array();
+        $result = [];
         if (isset($this->$property) && is_array($this->$property)) {
             foreach ($this->$property as $current) {
                 $from = $to = '';
@@ -311,9 +389,29 @@ class SideFacets extends AbstractFacets
                         }
                     }
                 }
-                $result[$current] = array($from, $to);
+                $result[$current] = [$from, $to];
             }
         }
         return $result;
+    }
+
+    /**
+     * Return the list of facets configured to be hierarchical
+     *
+     * @return array
+     */
+    public function getHierarchicalFacets()
+    {
+        return $this->hierarchicalFacets;
+    }
+
+    /**
+     * Return the list of configured hierarchical facet sort options
+     *
+     * @return array
+     */
+    public function getHierarchicalFacetSortOptions()
+    {
+        return $this->hierarchicalFacetSortOptions;
     }
 }

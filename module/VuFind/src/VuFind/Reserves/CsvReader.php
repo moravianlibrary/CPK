@@ -1,6 +1,6 @@
 <?php
 /**
- * CLI Controller Module
+ * Support class to build reserves data from CSV file(s).
  *
  * PHP version 5
  *
@@ -27,7 +27,7 @@
  */
 namespace VuFind\Reserves;
 
- /**
+/**
  * Support class to build reserves data from CSV file(s).
  *
  * @category VuFind2
@@ -64,28 +64,28 @@ class CsvReader
      *
      * @var array
      */
-    protected $instructors = array();
+    protected $instructors = [];
 
     /**
      * Course data loaded from files
      *
      * @var array
      */
-    protected $courses = array();
+    protected $courses = [];
 
     /**
      * Department data loaded from files
      *
      * @var array
      */
-    protected $departments = array();
+    protected $departments = [];
 
     /**
      * Reserves data loaded from files
      *
      * @var array
      */
-    protected $reserves = array();
+    protected $reserves = [];
 
     /**
      * Flag indicating whether or not we have processed data yet.
@@ -93,6 +93,13 @@ class CsvReader
      * @var bool
      */
     protected $loaded = false;
+
+    /**
+     * Error messages collected during loading.
+     *
+     * @var string
+     */
+    protected $errors = '';
 
     /**
      * Constructor
@@ -107,7 +114,7 @@ class CsvReader
      */
     public function __construct($files, $delimiter = ',', $template = null)
     {
-        $this->files = is_array($files) ? $files : array($files);
+        $this->files = is_array($files) ? $files : [$files];
         $this->delimiter = $delimiter;
 
         // Provide default template if none passed in:
@@ -150,12 +157,11 @@ class CsvReader
             throw new \Exception("Could not open $fn!");
         }
         $lineNo = $goodLines = 0;
-        $errors = '';
         while ($line = fgetcsv($fh, 0, $this->delimiter)) {
             $lineNo++;
 
             if (count($line) < count($this->template)) {
-                $errors .= "Skipping incomplete row: $fn, line $lineNo\n";
+                $this->errors .= "Skipping incomplete row: $fn, line $lineNo\n";
                 continue;
             }
 
@@ -176,22 +182,23 @@ class CsvReader
 
             $bibId = trim($line[$this->template['BIB_ID']]);
             if ($bibId == '') {
-                $errors .= "Skipping empty/missing Bib ID: $fn, line $lineNo\n";
+                $this->errors
+                    .= "Skipping empty/missing Bib ID: $fn, line $lineNo\n";
                 continue;
             }
 
             $goodLines++;
-            $this->reserves[] = array(
+            $this->reserves[] = [
                 'BIB_ID' => $bibId,
                 'INSTRUCTOR_ID' => $instructor,
                 'COURSE_ID' => $course,
                 'DEPARTMENT_ID' => $department,
-            );
+            ];
         }
         fclose($fh);
         if ($goodLines == 0) {
             throw new \Exception(
-                "Could not find valid data. Details:\n" . trim($errors)
+                "Could not find valid data. Details:\n" . trim($this->errors)
             );
         }
     }
@@ -260,5 +267,15 @@ class CsvReader
     {
         $this->load();
         return $this->reserves;
+    }
+
+    /**
+     * Get collected error messages
+     *
+     * @return string
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }
