@@ -37,7 +37,7 @@
           }
         ?>
         <li class="active">
-          <a href="<?=$removeLink?>" class="text-error"><i class="icon-remove"></i> <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>: <?=$this->escapeHtml($filter['displayText'])?></a>
+          <a href="<?=$removeLink?>" class="text-error"><i class="fa fa-remove"></i> <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>: <?=$this->escapeHtml($filter['displayText'])?></a>
         </li>
       <? endforeach; ?>
     <? endforeach; ?>
@@ -188,9 +188,9 @@ JS;
         <? if ($thisFacet['isApplied']): ?>
           <li class="<? if ($i>5): ?><?=$moreClass ?><?endif ?><? if ($thisFacet['operator'] == 'OR'): ?> facetOR applied" href="<?=$this->currentPath().$results->getUrlQuery()->removeFacet($title, $thisFacet['value'], true, $thisFacet['operator']) ?><? endif ?>">
             <? if($thisFacet['operator'] == 'OR'): ?>
-              <i class="icon-check"></i>
+              <i class="fa fa-check"></i>
             <? else: ?>
-              <i class="icon-ok pull-right"></i>
+              <i class="fa fa-ok pull-right"></i>
             <? endif; ?>
             <span class="main"><?=$this->escapeHtml($thisFacet['displayText'])?></span>
           </li>
@@ -198,14 +198,14 @@ JS;
           <li class="facet<?=$thisFacet['operator'] ?><? if ($i>5): ?> <?=$moreClass ?><?endif ?>">
             <span class="facet-count-padding pull-right small">
               <? if ($allowExclude): ?>
-                <?=number_format($thisFacet['count'])?><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="icon-remove"></i></a>
+                <?=number_format($thisFacet['count'])?><a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="fa fa-remove"></i></a>
               <? else: ?>
                 <?=number_format($thisFacet['count'])?>
               <? endif; ?>
             </span>
             <a class="main" href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], $thisFacet['operator'])?>">
               <? if($thisFacet['operator'] == 'OR'): ?>
-                <i class="icon-check-empty"></i>
+                <i class="fa fa-check-empty"></i>
               <? endif; ?>
               <?=$this->escapeHtml($thisFacet['displayText'])?>
             </a>

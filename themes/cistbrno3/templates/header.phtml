@@ -45,10 +45,10 @@
           <span class="logoutOptions<? if(!$account->isLoggedIn()): ?> hide<? endif ?>">
             <a href="<?=$this->url('myresearch-home')?>" class="modal-link" title="<?=$this->transEsc("My Profile")?>"><?=$this->transEsc("My Profile")?></a>
             <span class="muted">&nbsp;/&nbsp;</span> 
-            <i class="icon-signout"></i><a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?></a>
+            <i class="fa fa-signout"></i><a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?></a>
           </span>
           <span id="loginOptions"<? if($account->isLoggedIn()): ?> class="hide"<? endif ?>>
-            <i class="icon-signin"></i> 
+            <i class="fa fa-signin"></i>
             <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
               <a href="<?=$this->escapeHtml($sessionInitiator)?>"><?=$this->transEsc("Login")?></a>
             <? else: ?>
