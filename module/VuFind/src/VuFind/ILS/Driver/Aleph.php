@@ -38,6 +38,8 @@
 namespace VuFind\ILS\Driver;
 use VuFind\Exception\ILS as ILSException;
 use Zend\Log\LoggerInterface;
+use VuFindHttp\HttpServiceInterface;
+use DateTime;
 use VuFind\Exception\Date as DateException;
 
 /**
@@ -845,8 +847,6 @@ class AlephWebServices {
 class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     \VuFindHttp\HttpServiceAwareInterface
 {
-    use \VuFind\Log\LoggerAwareTrait;
-    use \VuFindHttp\HttpServiceAwareTrait;
 
     /**
      * Duedate configuration
@@ -917,6 +917,19 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $this->cacheManager = $cacheManager;
         $this->searchService = $searchService;
         $this->alephWebService = new AlephWebServices();
+    }
+
+    /**
+     * Set the HTTP service to be used for HTTP requests.
+     *
+     * @param HttpServiceInterface $service HTTP service
+     *
+     * @return void
+     */
+    public function setHttpService(HttpServiceInterface $service)
+    {
+        $this->httpService = $service;
+        $this->alephWebService->setHttpService($service);
     }
 
     /**
