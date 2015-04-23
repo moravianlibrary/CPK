@@ -1,0 +1,11 @@
+<?
+    // Set page title.
+    $this->headTitle($this->translate('Dedup records') . ': ' . $this->driver->getBreadcrumb());
+    $records = $this->tab->getRecordsInGroup();
+?>
+<? foreach ($records as $record): ?>
+  <a class="hover-overlay" href="<?=$this->recordLink()->getUrl($record['id'])?>">
+    <?=$this->transEsc($record['source'])?>
+  </a>
+  <br />
+<? endforeach;?>
