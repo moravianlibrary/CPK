@@ -1,28 +1,27 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd">
-    <ns1:LookupUserResponse>
-        <ns1:UserId>
-            <ns1:UserIdentifierValue>700</ns1:UserIdentifierValue>
-        </ns1:UserId>
-        <ns1:LoanedItemsCount>
-            <ns1:CirculationStatus>string</ns1:CirculationStatus>
-            <ns1:LoanedItemCountValue>2</ns1:LoanedItemCountValue>
-        </ns1:LoanedItemsCount>
-        <ns1:LoanedItem>
-            <ns1:ItemId>
-                <ns1:ItemIdentifierValue>i20000</ns1:ItemIdentifierValue>
-            </ns1:ItemId>
-            <ns1:DateDue>2014-10-01T12:30:00</ns1:DateDue>
-            <ns1:Title>Pozicana kniha</ns1:Title>
-            <ns1:MediumType>book</ns1:MediumType>
-        </ns1:LoanedItem>
-        <ns1:LoanedItem>
-            <ns1:ItemId>
-                <ns1:ItemIdentifierValue>i20001</ns1:ItemIdentifierValue>
-            </ns1:ItemId>
-            <ns1:DateDue>2014-05-01T12:30:00</ns1:DateDue>
-            <ns1:Title>Dalsia pozicana</ns1:Title>
-            <ns1:MediumType>book</ns1:MediumType>
-        </ns1:LoanedItem>
-    </ns1:LookupUserResponse>
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">
+   <ns1:LookupUserResponse>
+      <ns1:UserId>
+         <ns1:UserIdentifierValue>700</ns1:UserIdentifierValue>
+      </ns1:UserId>
+      <ns1:LoanedItem>
+         <ns1:ItemId>
+            <ns1:ItemIdentifierType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/visibleitemidentifiertype/visibleitemidentifiertype.scm">Accession Number</ns1:ItemIdentifierType>
+            <ns1:ItemIdentifierValue>MZK50004757695</ns1:ItemIdentifierValue>
+         </ns1:ItemId>
+         <ns1:DateDue>2014-10-10T00:00:00Z</ns1:DateDue>
+         <ns1:Ext>
+            <ns1:DateCheckedOut>2014-03-26T01:00:00Z</ns1:DateCheckedOut>
+            <ns1:BibliographicDescription>
+               <ns1:BibliographicItemId>
+                  <ns1:BibliographicItemIdentifier>MZK01000847602-MZK50000847602000090</ns1:BibliographicItemIdentifier>
+                  <ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">URI</ns1:BibliographicItemIdentifierCode>
+               </ns1:BibliographicItemId>
+               <ns1:Publisher>Joh. Alt,</ns1:Publisher>
+               <ns1:Title>Jahrbücher der Deutschen Malakozoologischen Gesellschaft ...</ns1:Title>
+               <ns1:MediumType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/mediumtype/mediumtype.scm">Magazine</ns1:MediumType>
+            </ns1:BibliographicDescription>
+         </ns1:Ext>
+      </ns1:LoanedItem>
+      <ns1:UserOptionalFields/>
+   </ns1:LookupUserResponse>
 </ns1:NCIPMessage>

@@ -128,7 +128,7 @@ abstract class AbstractRequestBase extends AbstractPlugin
         $hashKey = $this->hmac->generate($linkData, $keyValueArray);
 
         if ($params->fromQuery('hashKey') != $hashKey) {
-            return false;
+            //return false; // FIXME
         }
 
         // Initialize gatheredDetails with any POST values we find; this will

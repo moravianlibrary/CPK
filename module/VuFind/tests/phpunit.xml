@@ -1,23 +1,23 @@
-<phpunit bootstrap="./bootstrap.php" backupGlobals="false">
-  <testsuites>
-    <testsuite name="AllUnitTests">
-      <directory>../../*/tests/unit-tests/src</directory>
-    </testsuite>
-    <testsuite name="AllIntegrationTests">
-      <directory>../../*/tests/integration-tests/src</directory>
-    </testsuite>
-  </testsuites>
+<phpunit bootstrap="./bootstrap.php" backupGlobals="false" colors="true">
+    <testsuites>
+        <testsuite name="AllUnitTests">
+            <file>unit-tests/src/VuFindTest/ILS/Driver/XCNCIP2Test.php</file>
+            <!-- <file>unit-tests/src/VuFindTest/ILS/Driver/XCNCIP2Test.php</file> -->
+            <!-- <file>unit-tests/src/VuFindTest/ILS/Driver/XCNCIP2OnlineTest.php</file> -->
+        </testsuite>
+    </testsuites>
 
-  <filter>
-    <whitelist addUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">../src/VuFind</directory>
-      <directory suffix=".php">../../VuDL/src</directory>
-      <directory suffix=".php">../../VuFindAdmin/src</directory>
-      <directory suffix=".php">../../VuFindConsole/src</directory>
-      <directory suffix=".php">../../VuFindDevTools/src</directory>
-      <directory suffix=".php">../../VuFindHttp/src</directory>
-      <directory suffix=".php">../../VuFindSearch/src</directory>
-      <directory suffix=".php">../../VuFindTheme/src</directory>
-    </whitelist>
-  </filter>
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <!-- <directory suffix=".php">../src/VuFind/ILS/Driver</directory> -->
+            <file>../src/VuFind/ILS/Driver/XCNCIP2.php</file>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <!--<log type="coverage-html" 
+            target="report" /> -->
+        <!-- <log type="tap"
+            target="php://stdout" /> -->
+    </logging>
 </phpunit>
