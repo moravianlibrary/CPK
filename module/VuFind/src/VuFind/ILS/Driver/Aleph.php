@@ -433,7 +433,7 @@ class XServerIdResolver implements IdResolver {
     public function __construct(AlephWebServices $service, $config)
     {
         $this->alephWebService = $service;
-        $this->bib = explode(',', $config['bib']);
+        $this->bib = explode(',', $config['Catalog']['bib']);
     }
     
     public function resolveIds(&$recordsToResolve)
