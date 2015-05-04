@@ -46,7 +46,7 @@ class ShibbolethWithWAYF extends Shibboleth
 
     const SHIB_IDENTITY_PROVIDER_ENV = 'Shib-Identity-Provider';
 
-    const SEPARATOR = "\t";
+    const SEPARATOR = ".";
 
     protected $configLoader;
 

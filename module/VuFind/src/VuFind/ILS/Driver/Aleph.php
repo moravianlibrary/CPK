@@ -1902,6 +1902,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $recordList['firstname'] = $firstname;
         $recordList['lastname'] = $lastname;
+        $recordList['cat_username'] = $user['id'];
         if (isset($user['email'])) {
             $recordList['email'] = $user['email'];
         }
