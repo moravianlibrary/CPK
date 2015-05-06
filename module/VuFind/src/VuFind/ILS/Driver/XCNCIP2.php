@@ -653,6 +653,12 @@ class XCNCIP2 extends AbstractBase implements
      */
     public function patronLogin ($username, $password)
     {
+    	// If password is null, than is user already logged in ..
+    	if ($password == null){
+    		$temp = array("id" => $username);
+    		return $this->getMyProfile($temp);
+    	}
+    	
         $request = $this->requests->patronLogin($username, $password);
         $response = $this->sendRequest($request);
         $id = $response->xpath(
