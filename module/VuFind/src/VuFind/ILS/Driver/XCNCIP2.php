@@ -927,6 +927,8 @@ class XCNCIP2 extends AbstractBase implements
         $group = $response->xpath(
                 'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserPrivilege/ns1:UserPrivilegeDescription');
         $patron = array(
+        		'cat_username' => $patron['id'],
+        		'id' => $patron['id'],
                 'firstname' => empty($name) ? '' : (string) $name[0],
                 'lastname' => empty($surname) ? '' : (string) $surname[0],
                 'address1' => empty($address1) ? '' : (string) $address1[0],
@@ -935,7 +937,7 @@ class XCNCIP2 extends AbstractBase implements
                 'country' => empty($country) ? '' : (string) $country[0],
                 'zip' => empty($zip) ? '' : (string) $zip[0],
                 'phone' => empty($phone) ? '' : (string) $phone[0],
-                'group' => empty($group) ? '' : (string) $group[0]
+                'group' => empty($group) ? '' : (string) $group[0],
         );
         return $patron;
     }
