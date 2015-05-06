@@ -34,8 +34,8 @@
     <? if ($cart->isActive()): ?>
       <li id="bookbag-menu" class="cistbrno-toolbar-items">
         <input id="cartId" type="hidden" name="ids[]" value="<?=$this->escapeHtml($cartId)?>" />
-        <a id="cart-add" class="<? if(!$cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="icon-plus-sign"></i> <?=$this->transEsc('Add to Book Bag') ?></a>
-        <a id="cart-remove" class="<? if($cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="icon-minus-sign"></i> <?=$this->transEsc('Remove from Book Bag') ?></a>
+        <a id="cart-add" class="<? if(!$cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="icon-plus-circle"></i> <?=$this->transEsc('Add to Book Bag') ?></a>
+        <a id="cart-remove" class="<? if($cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="icon-minus-circle"></i> <?=$this->transEsc('Remove from Book Bag') ?></a>
         <noscript>
           <form method="post" name="addForm" action="<?=$this->url('cart-home')?>">
             <input type="hidden" name="ids[]" value="<?=$this->escapeHtml($cartId)?>" />
