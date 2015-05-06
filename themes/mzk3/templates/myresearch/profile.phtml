@@ -17,6 +17,12 @@
   <h2><?=$this->transEsc('Your Profile')?></h2>
   <?=$this->flashmessages();?>
 
+  <? if (isset($this->prolongRegistrationUrl)):?>
+    <p>
+      <a href="<?=$this->prolongRegistrationUrl?>"><?=$this->transEsc('prolong_registration_url')?></a>
+    </p>
+  <? endif; ?>
+
   <p class="text-info">
     <?=$this->transEsc('profile_bookshelf_number')?>: <?=$this->profile['bookshelf']?>
   </p>

@@ -69,7 +69,11 @@ class MyResearchController extends MyResearchControllerBase
     public function profileAction()
     {
         $view = parent::profileAction();
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
         if ($view) {
+            $catalog = $this->getILS();
             $profile = $view->profile;
             $profile['bookshelf'] = substr($profile['barcode'], -2, 2);
             $view->profile = $profile;
@@ -77,6 +81,7 @@ class MyResearchController extends MyResearchControllerBase
             $dateDiff = date_diff($expire, date_create());
             if ($dateDiff->days < 30 && $dateDiff->invert != 0) {
                 $this->flashMessenger()->setNamespace('error')->addMessage('library_card_expiration_warning');
+                $view->prolongRegistrationUrl = $catalog->getProlongRegistrationUrl($patron);
             }
             if ($dateDiff->invert == 0 && $dateDiff->days > 0) {
                 $this->flashMessenger()->setNamespace('error')->addMessage('library_card_expirated_warning');
