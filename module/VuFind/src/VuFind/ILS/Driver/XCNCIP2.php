@@ -705,51 +705,58 @@ class XCNCIP2 extends AbstractBase implements
     {
         $request = $this->requests->getMyTransactions($patron);
         $response = $this->sendRequest($request);
-        return $this->handleTransactions($response);
+        return $this->handleTransactions($response, $patron);
     }
 
-    private function handleTransactions ($response)
+    private function handleTransactions ($response, $patron)
     {
         $retVal = array();
         $list = $response->xpath('ns1:LookupUserResponse/ns1:LoanedItem');
 
         foreach ($list as $current) {
-            $request = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+            $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+            $dateDue = $current->xpath('ns1:DateDue');
+            $parsedDate = strtotime((string) $dateDue[0]);
+            /*
             $item_id = $current->xpath(
                     'ns1:Ext/ns1:BibliographicDescription/' .
                              'ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
             $bibliographicId = substr(explode("-", (string) $item_id[0])[0], 5);
-            $dateDue = $current->xpath('ns1:DateDue');
-            $title = $current->xpath(
-                    'ns1:Ext/ns1:BibliographicDescription/ns1:Title');
             $amount = $current->xpath('ns1:Amount');
             $reminderLevel = $current->xpath('ns1:ReminderLevel');
-            $mediumType = $current->xpath('ns1:MediumType');
             $ext = $current->xpath('ns1:Ext');
-
+*/ 
+            // TODO: is Renewable?
             $additRequest = $this->requests->getItemInfo((string) $item_id[0]);
             $additResponse = $this->sendRequest($additRequest);
             $isbn = $additResponse->xpath(
                     'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
                              'ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
-            $barcode = $additResponse->xpath(
-                    'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
-                             'ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
-
-            $parsedDate = strtotime((string) $dateDue[0]);
+            $bib_id = $additResponse->xpath(
+            		'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
+            				 'ns1:ComponentId/ns1:ComponentIdentifier');
+            $author =$additResponse->xpath(
+            		'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
+            				 'ns1:Author');
+            $title = $additResponse->xpath(
+            		'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
+            				 'ns1:Title');
+            $mediumType = $additResponse->xpath(
+            		'ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' .
+            				 'ns1:MediumType');
 
             $dateDue = date('j. n. Y', $parsedDate);
-
-            $bib_id = empty($item_id) ? null : explode('-', (string)$item_id[0])[0];
-            //$bib_id = substr_replace($bib_id, '-', 5, 0); // number 5 is position
+             
             $retVal[] = array(
+            		'cat_username' => $patron['cat_username'],
                     'duedate' => empty($dateDue) ? '' : $dateDue,
-                    'id'  => empty($bib_id) ? '' : $bib_id,
+                    'id'  => empty($item_id) ? '' : (String) $item_id[0],
                     'barcode' => '', // TODO
 //                     'renew' => '',
 //                     'renewLimit'     => '',
                     'request' => empty($request) ? '' : (string) $request[0],
                     'volume' => '',
+            		'author' => empty($author) ? '' : (string) $author[0],
                     'publication_year' => '', // TODO
                     'renewable' => empty($request) ? false : true,
                     'message' => '',
@@ -1375,8 +1382,6 @@ class NCIPRequests
     {
         $extras = array(
                 '<ns1:LoanedItemsDesired/>',
-                '<ns1:RequestedItemsDesired/>',
-                '<ns1:UserFiscalAccountDesired/>',
         );
         return $this->getMyProfile($patron, $extras);
     }
