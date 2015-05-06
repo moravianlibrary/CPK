@@ -72,7 +72,7 @@
     $selectedFilters = $this->tab->getSelectedFilters();
 ?>
 
-<div class="holdings-filters">
+<div class="holdings-filters row">
   <? foreach($filters as $name => $values):?>
     <? if (!empty($values)):?>
       <? $filterName = $this->escapeHtml($name . '_filter');?>
@@ -82,7 +82,7 @@
         <form class="form-inline" name="<?=$this->escapeHtml($name)?>_filter">
           <? if ($type == 'select'):?>
             <label class="help-inline" for="<?=$this->escapeHtml($name)?>"><?=$this->transEsc($filterName)?> : </label>
-            <select class="jumpMenu" name="<?=$this->escapeHtml($name)?>" id="<?=$this->escapeHtml($name)?>" onchange="document.forms['<?=$filterName?>'].submit()">
+            <select class="jumpMenu form-control" name="<?=$this->escapeHtml($name)?>" id="<?=$this->escapeHtml($name)?>" onchange="document.forms['<?=$filterName?>'].submit()">
               <option value=""><?=$this->transEsc('all')?></option>
               <? foreach($values as $value):?>
                 <option value="<?=$this->escapeHtml($value)?>" <?=($selectedVal == $value)?'selected="selected"':''?>><?=$this->transEsc($value)?></option>
