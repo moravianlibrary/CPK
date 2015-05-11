@@ -109,6 +109,19 @@ class XCNCIP2 extends AbstractBase implements
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
+            
+            if ($this->config['Catalog']['hasUntrustedSSL']) {
+            	// Do not verify SSL certificate
+                $client->setOptions(array(
+    			    'adapter'   => 'Zend\Http\Client\Adapter\Curl',
+    			    'curloptions' => array(
+    				    	CURLOPT_FOLLOWLOCATION => true,
+    						CURLOPT_SSL_VERIFYHOST => false,
+    						CURLOPT_SSL_VERIFYPEER => false,
+    					),
+				));
+            }
+            
             $result = $client->send();
         } catch (\Exception $e) {
             throw new ILSException($e->getMessage());
