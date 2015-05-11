@@ -1,0 +1,16 @@
+[mzk]
+entityId      = https://shibboleth.mzk.cz/simplesaml/metadata.xml
+username      = eduPersonPrincipalName
+cat_username  = alephId
+email         = mail
+firstname     = givenName
+lastname      = sn
+cat_password  = alephId
+
+[xcncip2]
+entityId      = https://cpk-front.mzk.cz/simplesaml/saml2/idp/metadata.php
+username      = eduPersonPrincipalName
+cat_username  = userId
+email         = mail
+firstname     = givenName
+lastname      = sn
