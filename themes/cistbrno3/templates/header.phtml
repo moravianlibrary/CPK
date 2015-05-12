@@ -48,7 +48,7 @@
             <i class="fa fa-signout"></i><a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><?=$this->transEsc("Log Out")?></a>
           </span>
           <span id="loginOptions"<? if($account->isLoggedIn()): ?> class="hide"<? endif ?>>
-            <i class="fa fa-signin"></i>
+            <i class="fa fa-sign-in"></i>
             <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
               <a href="<?=$this->escapeHtml($sessionInitiator)?>"><?=$this->transEsc("Login")?></a>
             <? else: ?>
