@@ -119,6 +119,9 @@ class ShibbolethWithWAYF extends Shibboleth
         if (empty($attributes['username'])) {
             throw new AuthException('authentication_error_admin');
         }
+        
+        if ($attributes['email'] == null) $attributes['email'] = '';
+        
         $user = $this->getUserTable()->getByUsername($attributes['username']);
         foreach ($attributes as $key => $value) {
             $user->$key = $value;
