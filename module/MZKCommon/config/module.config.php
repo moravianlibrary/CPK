@@ -46,6 +46,7 @@ $config = array(
             'search'     => 'MZKCommon\Controller\SearchController',
             'ajax'       => 'MZKCommon\Controller\AjaxController',
             'myresearch' => 'MZKCommon\Controller\MyResearchController',
+            'librarycards' => 'MZKCommon\Controller\LibraryCardsController',
         ),
     ),
     'controller_plugins' => array(

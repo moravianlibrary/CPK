@@ -47,7 +47,7 @@ use VuFind\Auth\Manager as BaseManager,
  */
 class Manager extends BaseManager
 {
-    
+
     /**
      * Constructor
      *
@@ -75,6 +75,46 @@ class Manager extends BaseManager
         } else {
             return false;
         }
+    }
+    /**
+     * Try to log in the user using current query parameters; return User object
+     * on success, throws exception on failure.
+     *
+     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
+     * account credentials.
+     *
+     * @throws AuthException
+     * @return UserRow Object representing logged-in user.
+     */
+    public function login($request)
+    {
+        $user = parent::login($request);
+
+        // Create library card if does not exist
+        $cards = $user->getLibraryCards();
+        $cardExists = false;
+
+        $cat_username = $user['cat_username'];
+        $username = $user['username'];
+
+        foreach ($cards as $card) {
+            $cardExists = $card['cat_username'] == $cat_username;
+            if ($cardExists) {
+                break;
+            }
+        }
+        if (! $cardExists) {
+            try {
+                $user->saveLibraryCard(null, "Default card for $username", $cat_username, null);
+            } catch (\VuFind\Exception\LibraryCard $e) {
+                $this->flashMessenger()
+                    ->setNamespace('error')
+                    ->addMessage($e->getMessage());
+                return false;
+            }
+        }
+
+        return $user;
     }
 
 }
