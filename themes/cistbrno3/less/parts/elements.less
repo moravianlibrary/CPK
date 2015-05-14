@@ -22,6 +22,11 @@ hr {
   border-bottom: 1px solid #c9c9c9;
 }
 
+ul, menu, dir {
+  display: block;
+  list-style-type: none;
+}
+
 .well {
   min-height: 20px;
   padding: 19px;
@@ -32,6 +37,9 @@ hr {
 .row {
   margin-left: 0px;
   margin-top: 20px;
+  .clearfix {
+    margin-left: 20px;
+  }
 }
 
 .navbar .nav.pull-right {
@@ -40,21 +48,10 @@ hr {
   padding-top: 50px;
 }
 
-
 .container {
   background-color: white;
   padding-right: 20px;
   padding-left: 20px;
-}
-
-.row-fluid .title-page {
-  width: 100%;
-  border-bottom: 1px solid #c9c9c9;
-  border-top: 1px solid #c9c9c9;
-}
-
-.row .clearfix {
-  margin-left: 20px;
 }
 
 .row-fluid .searchOptions {

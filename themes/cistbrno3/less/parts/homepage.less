@@ -1,29 +1,29 @@
-p.homepage-citation {
-  font-style: italic;
-  margin-top: 50px;
+//top and bottom borders
+.title-page {
+  width: 100%;
+  border-bottom: 1px solid #c9c9c9;
+  border-top: 1px solid #c9c9c9;
 }
 
-p.homepage-citation-author {
-  font-style: italic;
-  text-align: right;
+//big picture on left
+.title-page > div > img {
+  margin-left: -15px;
 }
 
+//institutions on bottom of homepage
 .institutions {
   display: table;
   width: 100%;
   text-align: center;
   padding-top: 20px;
   margin-bottom: 20px;
-}
-
-.institutions img {
-  margin-left: 40px;
-}
-
-.institutions a {
-  opacity: 0.3;
-}
-
-.institutions a:hover {
-  opacity: 1;
+  img {
+    margin-left: 40px;
+  }
+  a {
+    opacity: 0.3;
+    &:hover{
+      opacity: 1;
+    }
+  }
 }
