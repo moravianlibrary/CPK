@@ -16,60 +16,30 @@
   text-decoration: none;
   text-transform: uppercase;
   text-shadow: 0px -1px 0px #34312d;
-}
-
-.navbar .nav > li > a:hover {
-  color: #cabfb5;
-}
-
-#header .header-finisher {
-  background-color: red;
-  background-repeat: no-repeat;
-  background-position: bottom right;
-  width: 20px;
-  height: inherit;
-  float: right;
-}
-
-#header {
-  background-color: transparent;
-  background-repeat: repeat-x;
-  background-position: bottom left;
-
-}
-
-.header-title {
-  font-size: 18px;
-  margin-top: 10px;
-}
-
-.header-logo {
-  margin-top: 0px;
-  margin-left: -20px;
-}
-
-.header-login {
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 5px;
+  &:hover,
+  &:focus {
+    color: #cabfb5;
+  }
 }
 
 img.langFlag {
   margin-left: 5px;
 }
 
-.breadcrumb {
-  padding: 8px 15px;
-  margin: 0 0 20px;
-  list-style: none;
+//no border around header, so the cistbrno logo is in the up left corner
+.navbar {
+  border: 0px;
 }
 
-.breadcrumb > li {
-  display: inline-block;
-  text-shadow: 0 0px 0 #fff;
+//margin of cistbrno logo
+.header-logo {
+  margin-top: 0px;
+  margin-left: -20px;
 }
 
-//.breadcrumb>li>.divider {
-//  padding: 0 5px;
-//  color: #966D6D;
-//}
+//margin of login
+.header-login {
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 5px;
+}
