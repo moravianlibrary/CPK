@@ -1,3 +1,35 @@
+//styling of links
+a {
+  text-decoration: none;
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}
+
+//formatting of copyright
+.copyright {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+//fontsize reset - is it necessary?
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+//color of text in facets
+@list-group-link-color: @link-color;
+
+//styling of numbers in facets
+.badge {
+  background-color: transparent;
+  color: @text-color;
+  font-weight: normal;
+}
+
 .local-search-link {
 margin-left: 25px;
 }
