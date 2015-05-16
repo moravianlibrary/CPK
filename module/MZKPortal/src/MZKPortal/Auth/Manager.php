@@ -76,12 +76,14 @@ class Manager extends BaseManager
             return false;
         }
     }
+
     /**
      * Try to log in the user using current query parameters; return User object
      * on success, throws exception on failure.
      *
-     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
-     * account credentials.
+     * @param \Zend\Http\PhpEnvironment\Request $request
+     *            Request object containing
+     *            account credentials.
      *
      * @throws AuthException
      * @return UserRow Object representing logged-in user.
@@ -90,12 +92,14 @@ class Manager extends BaseManager
     {
         $user = parent::login($request);
 
-        // Create library card if does not exist
+        // Create library card from cat_username if doesn't exist yet
         $cards = $user->getLibraryCards();
         $cardExists = false;
 
         $cat_username = $user['cat_username'];
-        $username = $user['username'];
+
+        // Get username without the source (we presume driver is MultiBackend - checking it would not be efficient)
+        $username = split('\.', $user['username'])[1];
 
         foreach ($cards as $card) {
             $cardExists = $card['cat_username'] == $cat_username;
@@ -113,6 +117,9 @@ class Manager extends BaseManager
                 return false;
             }
         }
+
+        // TODO: Prompt for all institutions user is in & parse cat_username used by those - then create cards from them
+        // TODO: If there was more than 1 card, ask user which one will be his default
 
         return $user;
     }

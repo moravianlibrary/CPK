@@ -20,7 +20,6 @@
         <? if ($this->multipleTargets): ?>
         <th><?=$this->transEsc('login_target')?></th>
         <? endif; ?>
-        <th><?=$this->transEsc('Username')?></th>
         <th>&nbsp;</th>
       </tr>
       <? foreach ($this->libraryCards as $record): ?>
@@ -33,7 +32,6 @@
             <? endif; ?>
             <td><?=$target ? $this->transEsc("source_$target", null, $target) : '&nbsp;' ?></td>
           <? endif; ?>
-          <td><?=$this->escapeHtml($username)?></td>
           <td>
             <div class="btn-group">
               <a class="btn btn-link" href="<?=$this->url('editLibraryCard') . $this->escapeHtmlAttr($record['id']) ?>" title="<?=$this->transEsc('Edit Library Card')?>"><i class="fa fa-edit"></i> <?=$this->transEsc('Edit Library Card Name')?></a>
@@ -47,10 +45,6 @@
       <? endforeach; ?>
       </table>
     <? endif; ?>
-
-    <div class="btn-group">
-      <a href="<?=$this->url('editLibraryCard') ?>NEW" class="btn btn-link" title="<?=$this->transEsc('Add a Library Card')?>"><i class="fa fa-edit"></i> <?=$this->transEsc('Add a Library Card')?></a>
-    </div>
   </div>
 
   <div class="<?=$this->layoutClass('sidebar')?>">
