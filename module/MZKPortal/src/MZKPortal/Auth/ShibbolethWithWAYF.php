@@ -30,6 +30,7 @@ namespace MZKPortal\Auth;
 
 use VuFind\Auth\Shibboleth as Shibboleth,
     VuFind\Exception\Auth as AuthException;
+use Zend\XmlRpc\Value\String;
 
 /**
  * Shibboleth authentication module.
@@ -54,7 +55,8 @@ class ShibbolethWithWAYF extends Shibboleth
 
     protected $attribsToCheck = array(
         'username', 'cat_username', 'email', 'lastname',
-        'firstname', 'college', 'major', 'home_library'
+        'firstname', 'college', 'major', 'home_library',
+        'pass_hash', 'verify_hash'
     );
 
     public function __construct(\VuFind\Config\PluginManager $configLoader)
@@ -79,7 +81,7 @@ class ShibbolethWithWAYF extends Shibboleth
             if (isset($this->shibbolethConfig['default'])) {
                 $config = $this->shibbolethConfig['default'];
             } else {
-                throw new AuthException('authentication_error_admin');
+                throw new AuthException('config_for_entityid_not_found');
             }
         }
         $attributes = array();
@@ -109,19 +111,28 @@ class ShibbolethWithWAYF extends Shibboleth
                     preg_match($pattern, $value, $matches);
                     $value = $matches[1];
                 }
-                if ($attribute == 'cat_username') {
-                    $attributes[$attribute] = $prefix . self::SEPARATOR . $value;
-                } else {
-                    $attributes[$attribute] = $value;
-                }
+
+                $attributes[$attribute] = $value;
             }
         }
-        if (empty($attributes['username'])) {
-            throw new AuthException('authentication_error_admin');
+
+        if (empty($attributes['username']) || empty($attributes['cat_username'])) {
+            throw new AuthException('username_not_returned');
         }
-        
+
+        if (!empty($attributes['home_library']))
+            $prefix = $attributes['home_library'];
+
+        // cat_username needs to have defined driver in MultiBackend.ini, which is the $prefix here
+        $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
+
+        // username on the other hand needs to be always unique
+        // we cannot risk having two people same usernames accross institutes
+        $attributes['username'] = $prefix . self::SEPARATOR . $attributes['username'];
+
+
         if ($attributes['email'] == null) $attributes['email'] = '';
-        
+
         $user = $this->getUserTable()->getByUsername($attributes['username']);
         foreach ($attributes as $key => $value) {
             $user->$key = $value;

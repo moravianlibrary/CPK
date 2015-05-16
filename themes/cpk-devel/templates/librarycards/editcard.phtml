@@ -7,6 +7,8 @@
   $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'
     . '<li><a href="' . $this->url('librarycards-home') . '">' . $this->transEsc('Library Cards') . '</a></li>'
     . '<li>' . $this->transEsc($pageTitle) . '</li>';
+
+  $cardName = $this->cardName;
 ?>
 
 <?=$this->flashmessages()?>
@@ -31,7 +33,11 @@
     <div class="form-group">
     <label class="col-sm-3 control-label" for="card_name"><?=$this->transEsc('Library Card Name'); ?>:</label>
     <div class="col-sm-9">
-      <input id="card_name" class="form-control" type="text" name="card_name" value="<?=$this->escapeHtmlAttr($this->cardName)?>"/>
+      <input id="card_name" class="form-control" type="text" placeholder="<?=$this->transEsc("My new Library Card in $this->target"); ?>" name="card_name"
+       <? if(! empty($cardName)) : ?>
+            value="<?=$this->escapeHtmlAttr($cardName)?>"
+       <? endif;?>
+       />
     </div>
   </div>
 

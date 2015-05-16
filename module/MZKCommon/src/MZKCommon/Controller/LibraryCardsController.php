@@ -80,15 +80,13 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function editCardAction()
     {
-        // TODO: Split editCardAction into createNewCardAction & editCardAction
-
-        // User must be logged in to edit library cards:r
+        // User must be logged in to edit library cards
         $user = $this->getUser();
         if ($user == false) {
             return $this->forceLogin();
         }
 
-        // Process form submission:
+        // Process form submission
         if ($this->formWasSubmitted('submit')) {
             if ($redirect = $this->processEditLibraryCard($user)) {
                 return $redirect;
@@ -97,35 +95,57 @@ class LibraryCardsController extends LibraryCardsControllerBase
 
         $id = $this->params()->fromRoute('id', $this->params()
             ->fromQuery('id'));
-        $card = $user->getLibraryCard(strpos($id, 'NEW') !== FALSE ? null : $id);
+        $card = $user->getLibraryCard($id == 'NEW' ? null: $id);
 
         if ($id == 'NEW') {
-            if ($target = $this->params()->fromQuery('target')) {
-                // TODO: Process ShibbolethWithWAYF's authentication
+            $isAuthorized = false;
 
-                foreach ($_SERVER as $attribute => $value) {
-                    if ($attribute == "REDIRECT_aleph-id") {
-                        $username = $value;
-                        break;
-                    }
+            // Check if the user is already redirected from Shibboleth IdP
+            foreach ($_SERVER as $attribute => $value) {
+                if ($attribute == "REDIRECT_Shib-Identity-Provider") {
+                    $isAuthorized = true;
+                    break;
                 }
-            } else {
-                // TODO: Authenticate with ShibbolethWithWAYF
+            }
+
+            if (! $isAuthorized) {
+                // Redirect to Shibboleth IdP
                 $authManager = $this->getAuthManager();
 
-                $target = 'mzk';
-                $url = '/LibraryCards/editCard/NEW?target=' . $target;
+                // Redirect back here
+                $sessionInitiators = $authManager->getSessionInitiators('/LibraryCards/editCard/NEW');
 
-                $sessionInitiators = $authManager->getSessionInitiators($url);
+                // TODO: Let user decide which authentication he wants
+                $userWants = 'Shib-NCIP-DS';
+                $redirectionLink = $sessionInitiators[$userWants];
 
-                // FIXME: Make a choice anywhere .. Do not forget to NOT include initiator used to login into this session
-                $redirection = $sessionInitiators[$target];
+                // Check it exists
+                if(empty($redirectionLink))
+                    $redirectionLink = $sessionInitiators[array_keys($sessionInitiators)[0]]; // Choose first if not
 
                 // Redirect to shibboleth
-                header('Location: ' . $redirection, true, 303);
+                header('Location: ' . $redirectionLink, true, 303);
                 die();
+            } else {
+                // Fetch target & username
+                foreach ($_SERVER as $attribute => $value) {
+                    if ($attribute == "REDIRECT_userId") {
+                        $username = $value;
+                    } else if ($attribute == "REDIRECT_homeLib") {
+                        $target = $value;
+                    }
+                    if ($username != null && $target != null)
+                        break;
+                }
+
+                if ($username == null || $target == null)
+                    throw new LibraryCard("Shibboleth did not return userId or homeLib");
+
+                // TODO: Check here if recieved userId already exists with provided homeLib (we can't know what user choosed at the Discovery Service)
+                // Throw another error if yes
             }
         } else {
+            // Being here means user wants to edit the card name
                 $target = null;
                 $username = $card->cat_username;
                 $targets = null;
