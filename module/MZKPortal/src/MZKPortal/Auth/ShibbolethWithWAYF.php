@@ -132,6 +132,8 @@ class ShibbolethWithWAYF extends Shibboleth
 
 
         if ($attributes['email'] == null) $attributes['email'] = '';
+        if ($attributes['firstname'] == null) $attributes['firstname'] = '';
+        if ($attributes['lastname'] == null) $attributes['lastname'] = '';
 
         $user = $this->getUserTable()->getByUsername($attributes['username']);
         foreach ($attributes as $key => $value) {
