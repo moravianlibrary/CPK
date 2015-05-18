@@ -91,8 +91,8 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
         $this->clickHeatSiteNumber = isset($config->Piwik->click_heat_site_number) ? $config->Piwik->click_heat_site_number : "1";
 
         $this->url = isset($config->Piwik->url) ? $config->Piwik->url : false;
-        ;
-        if ($url && substr($url, - 1) != '/') {
+
+        if ($this->url && substr($this->url, - 1) != '/') {
             $this->url .= '/';
         }
     }
@@ -177,7 +177,7 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
      *
      * @return string Tracking Code
      */
-    protected function trackUser($user)
+    protected function trackUser()
     {
         $authManager = $this->getView()
             ->plugin('auth')
@@ -347,10 +347,7 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
                 'src' => $this->url . 'plugins/ClickHeat/libs/js/clickheat.js'
             ));
 
-            $inlineScript->appendScript("clickHeatSite = $this->clickHeatSiteNumber;" .
-                    "clickHeatGroup = encodeURIComponent(window.location.pathname+window.location.search);" .
-                    "clickHeatServer = '$this->url/plugins/ClickHeat/libs/click.php';" .
-                    "initClickHeat();");
+            $inlineScript->appendScript("clickHeatSite = $this->clickHeatSiteNumber;" . "clickHeatGroup = encodeURIComponent(window.location.pathname+window.location.search);" . "clickHeatServer = '$this->url/plugins/ClickHeat/libs/click.php';" . "initClickHeat();");
         }
 
         return $inlineScript;

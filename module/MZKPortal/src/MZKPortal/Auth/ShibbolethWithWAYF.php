@@ -130,7 +130,6 @@ class ShibbolethWithWAYF extends Shibboleth
         // we cannot risk having two people same usernames accross institutes
         $attributes['username'] = $prefix . self::SEPARATOR . $attributes['username'];
 
-
         if ($attributes['email'] == null) $attributes['email'] = '';
         if ($attributes['firstname'] == null) $attributes['firstname'] = '';
         if ($attributes['lastname'] == null) $attributes['lastname'] = '';
@@ -139,8 +138,12 @@ class ShibbolethWithWAYF extends Shibboleth
         foreach ($attributes as $key => $value) {
             $user->$key = $value;
         }
-        // Save and return the user object:
-        $user->save();
+
+        $userCards = $this->getConfig()->UserCards;
+        // Save and return the user object if not handling this later
+        if(empty($userCards) || ! $userCards['ignore_default_user_creation'])
+            $user->save();
+
         return $user;
     }
 
