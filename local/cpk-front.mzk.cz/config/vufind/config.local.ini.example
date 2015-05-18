@@ -28,3 +28,13 @@ database        = mysql://vufind:PASSWORD@localhost/vufind
 
 [ExternalLinks]
 BOA001_end	= "/Holdings#tabnav"
+
+[Piwik]
+url = "https://url-to-running-piwik/"
+site_id = 1
+
+; Enables facets this way
+custom_variables = true
+
+; Enables tracking User's active Library Card & UserId
+track_user = true
