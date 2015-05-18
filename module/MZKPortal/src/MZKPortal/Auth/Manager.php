@@ -109,7 +109,7 @@ class Manager extends BaseManager
         }
         if (! $cardExists) {
             try {
-                $user->saveLibraryCard(null, "Default card for $username", $cat_username, null);
+                $user->saveLibraryCard(null, "Default card for $username", $cat_username, null, $user['home_library']);
             } catch (\VuFind\Exception\LibraryCard $e) {
                 $this->flashMessenger()
                     ->setNamespace('error')
@@ -119,7 +119,7 @@ class Manager extends BaseManager
         }
 
         // TODO: Prompt for all institutions user is in & parse cat_username used by those - then create cards from them
-        // TODO: If there was more than 1 card, ask user which one will be his default
+        // TODO: If there was more than 1 card, ask user which one will be his default unless he has chosen it already
 
         return $user;
     }
