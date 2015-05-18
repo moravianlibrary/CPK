@@ -38,3 +38,7 @@ custom_variables = true
 
 ; Enables tracking User's active Library Card & UserId
 track_user = true
+
+; Enables ClickHeat plugin
+click_heat_plugin = true
+click_heat_site_number = 1

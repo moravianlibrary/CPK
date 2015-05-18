@@ -66,6 +66,8 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
 
     protected $trackUser;
 
+    protected $enableClickHeatPlugin;
+
     /**
      * Constructor
      *
@@ -85,9 +87,11 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
 
         $this->trackUser = isset($config->Piwik->track_user) ? $config->Piwik->track_user : false;
 
-        $url = isset($config->Piwik->url) ? $config->Piwik->url : false;
+        $this->enableClickHeatPlugin = isset($config->Piwik->click_heat_plugin) ? $config->Piwik->click_heat_plugin : false;
+        $this->clickHeatSiteNumber = isset($config->Piwik->click_heat_site_number) ? $config->Piwik->click_heat_site_number : "1";
 
-        $this->url = $url;
+        $this->url = isset($config->Piwik->url) ? $config->Piwik->url : false;
+        ;
         if ($url && substr($url, - 1) != '/') {
             $this->url .= '/';
         }
@@ -118,7 +122,11 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
             }
 
         $inlineScript = $this->getView()->plugin('inlinescript');
-        return $inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $code, 'SET');
+        $inlineScript = $inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $code, 'SET');
+
+        $inlineScript = $this->appendAdditionalPlugins($inlineScript);
+
+        return $inlineScript;
     }
 
     /**
@@ -322,6 +330,30 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
             'RecordData' => "$id|$author|$title",
             'RecordInstitution' => $institutions
         ];
+    }
+
+    /**
+     * Enables plugins previously enabled using methods called "enablePluginNameHere".
+     *
+     * All plugins should be enabled only if it is desired so in config.ini under [Piwik] section ...
+     *
+     * @return string Javascript definitions of all enabled plugins
+     */
+    protected function appendAdditionalPlugins($inlineScript)
+    {
+        if ($this->enableClickHeatPlugin) {
+            // ClickHeat Piwik plugin ..
+            $inlineScript->appendScript(null, null, array(
+                'src' => $this->url . 'plugins/ClickHeat/libs/js/clickheat.js'
+            ));
+
+            $inlineScript->appendScript("clickHeatSite = $this->clickHeatSiteNumber;" .
+                    "clickHeatGroup = encodeURIComponent(window.location.pathname+window.location.search);" .
+                    "clickHeatServer = '$this->url/plugins/ClickHeat/libs/click.php';" .
+                    "initClickHeat();");
+        }
+
+        return $inlineScript;
     }
 
     /**
