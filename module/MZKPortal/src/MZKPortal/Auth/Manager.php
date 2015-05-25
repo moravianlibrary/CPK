@@ -27,7 +27,7 @@
  */
 namespace MZKPortal\Auth;
 
-use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface;
+use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\Exception\Auth as AuthException;
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -134,6 +134,9 @@ class Manager extends BaseManager
      */
     protected function handleLibraryCards($user)
     {
+        // Recieved an answer from eduID (it's the $user variable)
+        // Parse from it the eppn, $sigla & $userId
+
         $tableManager = $this->authenticator->getDbTableManager();
         $userCardTable = $tableManager->get("UserCard");
 
@@ -203,7 +206,7 @@ class Manager extends BaseManager
             }
         }
 
-        // TODO: If there was more than 1 card, ask user which one will be his default unless he has chosen it already
+        // TODO: If there was more than 1 new card, ask user which one will be his default unless he has chosen it already
 
         return $user;
     }

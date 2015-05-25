@@ -80,9 +80,12 @@ class ShibbolethWithWAYF extends Shibboleth
         if ($config == null) {
             if (isset($this->shibbolethConfig['default'])) {
                 $config = $this->shibbolethConfig['default'];
-            } else {
-                throw new AuthException('config_for_entityid_not_found');
+
+            } else if (strstr($_SERVER['HTTP_COOKIE'], 'loggedOut=1')) {
+
+                    throw new AuthException('authentication_error_loggedout');
             }
+            throw new AuthException('config_for_entityid_not_found');
         }
         $attributes = array();
         foreach ($this->attribsToCheck as $attribute) {
