@@ -39,6 +39,7 @@ use Zend\ServiceManager\ServiceManager;
  */
 class Factory
 {
+    static $perunEnabled;
 
     /**
      * Factory for AuthManager.
@@ -65,17 +66,17 @@ class Factory
             // still get handled appropriately later in processing.
             error_log($e->getMessage());
         }
-        
+
         // Load remaining dependencies:
         $userTable = $sm->get('VuFind\DbTablePluginManager')->get('user');
         $sessionManager = $sm->get('VuFind\SessionManager');
         $pm = $sm->get('VuFind\AuthPluginManager');
         $cookieManager = $sm->get('VuFind\CookieManager');
-        
+
         // Build the object:
         return new Manager($config, $userTable, $sessionManager, $pm, $cookieManager);
     }
-    
+
     /**
      * Factory for ShibbolethWithWAYF.
      *
@@ -85,9 +86,17 @@ class Factory
      */
     public function getShibbolethWithWAYF(ServiceManager $sm)
     {
-        return new \MZKPortal\Auth\ShibbolethWithWAYF(
-            $sm->getServiceLocator()->get('VuFind\Config')
-        );
+        if ($sm->getServiceLocator()->get('VuFind\Config')->get('config')->Perun->enabled) {
+            return new \MZKPortal\Auth\ShibbolethWithWAYF(
+                $sm->getServiceLocator()->get('VuFind\Config'),
+                $sm->getServiceLocator()->get('identity-resolver')
+            );
+        } else {
+            return new \MZKPortal\Auth\ShibbolethWithWAYF(
+                $sm->getServiceLocator()->get('VuFind\Config')
+            );
+        }
+
     }
 
 }

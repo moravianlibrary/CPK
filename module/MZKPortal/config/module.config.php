@@ -65,7 +65,7 @@ $config = array(
                     'Details' => 'StaffViewMARC',
                 ),
             ),
-                
+
             'MZKPortal\RecordDriver\SolrMarcKjm' => array(
                 'tabs' => array (
                     'holdings'     => 'MZKPortal\RecordTab\Holdings993',
@@ -84,6 +84,9 @@ $config = array(
         'factories' => array(
             'VuFind\AuthManager' => 'MZKPortal\Auth\Factory::getAuthManager',
         ),
+        'invokables' => [
+            'identity-resolver' => 'MZKPortal\Perun\IdentityResolver',
+        ],
     ),
 );
 
