@@ -162,14 +162,7 @@ class ShibbolethWithWAYF extends Shibboleth
                 // If are institutes empty, that means user is not member of any connected library
                 // In that case set cat_username's MultiBackend source dummy driver which
                 $attributes['cat_username'] = 'dummyAccount';
-                $attributes['home_library'] = 'dummyDriver';
-                // FIXME create dummyDriver
-
-                throw new AuthException("No dummyDriver implemented yet");
-                /*
-                 * TODO if user has dummyDriver, than enable only these features on My Account:
-                 * 'Favorites', 'Your Saved Searches', 'Log Out', 'Your Favorites', 'Create a List'
-                 */
+                $attributes['home_library'] = 'Dummy';
             } else {
                 // Note that user's cat_username & home_library will be set by first Library Card created
                 $attributes['cat_username'] = '';
