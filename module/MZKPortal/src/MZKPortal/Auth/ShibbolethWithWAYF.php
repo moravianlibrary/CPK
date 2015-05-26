@@ -30,6 +30,7 @@ namespace MZKPortal\Auth;
 
 use VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\Auth as AuthException, Zend\XmlRpc\Value\String, MZKPortal\Perun\IdentityResolver;
 use VuFind\Exception\VuFind\Exception;
+use VuFind\Db\Row\User;
 
 /**
  * Shibboleth authentication module.
@@ -48,6 +49,7 @@ class ShibbolethWithWAYF extends Shibboleth
     const SHIB_IDENTITY_PROVIDER_ENV = 'Shib-Identity-Provider';
 
     const SEPARATOR = ".";
+
     const SEPARATOR_REGEXED = "\\.";
 
     protected $configLoader;
@@ -131,6 +133,7 @@ class ShibbolethWithWAYF extends Shibboleth
         }
 
         if (empty($attributes['username'])) {
+            // FIXME: Send here "You have logged out" message
             throw new AuthException('username_not_returned');
         }
 
@@ -150,18 +153,24 @@ class ShibbolethWithWAYF extends Shibboleth
             if ($isConnected) {
                 // Set SIGLA & userId for Perun
                 $sigla = $attributes['home_library'];
+
+                if (empty($attributes['cat_username'])) {
+                    throw new AuthException('cat_username_not_returned');
+                }
+
                 $userId = $attributes['cat_username'];
             }
 
             // Send data to Perun & get perunId with institutes
             list ($perunId, $institutes) = $this->identityResolver->getUserIdentityFromPerun($attributes['username'], $sigla, $userId);
 
+            // This was eppn, now it is perunId
             $attributes['username'] = $perunId;
 
             if (empty($institutes)) {
                 // If are institutes empty, that means user is not member of any connected library
                 // In that case set cat_username's MultiBackend source dummy driver which
-                $attributes['cat_username'] = 'dummyAccount';
+                $attributes['cat_username'] = '';
                 $attributes['home_library'] = 'Dummy';
             } else {
                 // Note that user's cat_username & home_library will be set by first Library Card created
@@ -246,6 +255,18 @@ class ShibbolethWithWAYF extends Shibboleth
             $this->identityResolver->init($this->getConfig());
     }
 
+    /**
+     * Deletes all user's Library Cards & than creates new from list of institutes provided by Perun.
+     *
+     * ActiveCard doesn't have to be provided. If it is, on the other hand, it creates this card as the first
+     * which makes it reliable it will be the one active after user gets into his account.
+     *
+     * If the provided ActiveCard is not found in institutes, than that card will not be created at all.
+     *
+     * @param User $user
+     * @param array $institutes - associative array of user's CPK connected institutes returned by IdentityResolver
+     * @param string $activeCard - it is basically cat_username user had active before new login
+     */
     protected function handleLibraryCards($user, $institutes, $activeCard)
     {
         $tableManager = $this->getDbTableManager();
@@ -276,7 +297,15 @@ class ShibbolethWithWAYF extends Shibboleth
         }
     }
 
-    protected function isActiveCardInInstitutes($activeCard, $institutes) {
+    /**
+     * Returns true/false - simply if the activeCard provided matches one of user's identity returned by Perun.
+     *
+     * @param string $activeCard
+     * @param array $institutes
+     * @return boolean
+     */
+    protected function isActiveCardInInstitutes($activeCard, $institutes)
+    {
         if (empty($activeCard))
             return false;
 
@@ -289,13 +318,14 @@ class ShibbolethWithWAYF extends Shibboleth
         return false;
     }
 
-    protected function createLibraryCard($user, $cat_username, $home_library) {
+    protected function createLibraryCard($user, $cat_username, $home_library)
+    {
         try {
             $user->saveLibraryCard(null, '', $cat_username, null, $home_library);
         } catch (\VuFind\Exception\LibraryCard $e) {
             $this->flashMessenger()
-            ->setNamespace('error')
-            ->addMessage($e->getMessage());
+                ->setNamespace('error')
+                ->addMessage($e->getMessage());
             return false;
         }
     }
