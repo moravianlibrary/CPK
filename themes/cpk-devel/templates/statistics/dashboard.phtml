@@ -1,0 +1,36 @@
+<?php
+    // Set up page title:
+    $this->headTitle($this->translate('Statistics'));
+
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Statistics') . '</li>';
+?>
+<ul class="nav nav-tabs nav-justified">
+	<?php 
+		echo "<li class='active'><a href='".$this->url('statistics-dashboard')."'>".$this->transEsc('Dashboard')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-visits')."'>".$this->transEsc('Visits')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-searches')."'>".$this->transEsc('Searches')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-payments')."'>".$this->transEsc('Payment')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-circulations')."'>".$this->transEsc('Circulations')."</a></li>";
+	?>
+</ul>
+
+<p><?= $this->statistics; ?></p>
+
+<div id="visits-comparision"></div>
+
+<script src="js/raphael.min.js"></script>
+<script src="vendor/jquery.min.js"></script>
+<script src="js/morris-0.4.1.min.js"></script>
+<script>
+	jQuery(document).ready(function(){
+		Morris.Donut({
+			element: 'visits-comparision',
+			data: [
+		    	{label: "Vracející se čtenáři", value: <? $this->returningVisitorsCount ?>},
+		    	{label: "Noví čtenáři", value: <? $this->newVisitorsCount ?>},
+		  	]
+		});
+	});
+</script>
+

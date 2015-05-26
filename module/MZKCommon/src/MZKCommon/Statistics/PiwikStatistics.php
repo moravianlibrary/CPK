@@ -42,9 +42,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function __construct($config)
 	{
 		$this->siteId = isset($config->PiwikStatistics->site_id) ? $config->PiwikStatistics->site_id : 1;
-		$this->catalogBrowserUrl = isset($config->PiwikStatistics->catalog_browser_url) ? $config->PiwikStatistics->catalog_browser_url : "https://vufind.localhost/Browse/";
-		$this->searchResultsUrl = isset($config->PiwikStatistics->search_results_url) ? $config->PiwikStatistics->search_results_url : "https://vufind.localhost/Search/Results";
-		$this->recordUrl = isset($config->PiwikStatistics->record_url) ? $config->PiwikStatistics->record_url : "https://vufind.localhost/Record/";
+		$this->catalogBrowserUrl = isset($config->PiwikStatistics->catalog_browser_url) ? $config->PiwikStatistics->catalog_browser_url : "https%3A%2F%2Fvufind.localhost%2FBrowse%2F";
+		$this->searchResultsUrl = isset($config->PiwikStatistics->search_results_url) ? $config->PiwikStatistics->search_results_url : "https%3A%2F%2Fvufind.localhost%2FSearch%2FResults";
+		$this->recordUrl = isset($config->PiwikStatistics->record_url) ? $config->PiwikStatistics->record_url : "https%3A%2F%2Fvufind.localhost%2FRecord%2F";
 	}
 	
 	/**
@@ -61,14 +61,25 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	
 	/**
 	 * Returns data from Piwik\API\Request
+	 * Param $params['format'] must be "json" to convert data into array successfully.
+	 * @param	string	$ApiMethod	Api method name
+	 * @param	array	$params		Array of params
+	 * @return	array
+	 */
+	private function getResultDataAsArrayFromRequest($ApiMethod, array $params){
+		$dataTable = Request::processRequest($ApiMethod, $params);
+		$array = json_decode($dataTable, true);
+		return $array;
+	}
+	
+	/**
+	 * Returns data from Piwik\API\Request
 	 * @param	string	$ApiMethod	Api method name
 	 * @param	array	$params		Array of params
 	 * @return	array
 	 */
 	private function getResultDataFromRequest($ApiMethod, array $params){
-		$dataTable = Request::processRequest($ApiMethod, $params);
-		$array = json_decode($dataTable, true);
-		return $array;
+		return Request::processRequest($ApiMethod, $params);
 	}
 	
 	/**
@@ -77,12 +88,13 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getVisitsCount($period, $date, $type = "all")
 	{
 		$ApiMehtod = "VisitsSummary.getVisits";
+		$format		= 'json';
 		
 		$params = array(
 			'idSite' 	=> $this->siteId,
 			'date' 		=> $date,
 			'period' 	=> $period,
-			'format' 	=> 'json',
+			'format' 	=> $format,
 		);
 		
 		if($type == "anonyme")
@@ -101,16 +113,17 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 */
 	public function getVisitsCountForLibrary($period, $date, $userLibCard)
 	{
-		$ApiMehtod = "VisitsSummary.getVisits";
+		$ApiMehtod = 'VisitsSummary.getVisits';
+		$format		= 'json';
 		
 		$params = array(
 				'idSite' 	=> $this->siteId,
 				'date' 		=> $date,
 				'period' 	=> $period,
-				'format' 	=> 'json',
+				'format' 	=> $format,
 		);
 		
-		if($userLibCard !== null)
+		if($userLibCard)
 			array_push($params, array('segment'	=> 'customVariablePageUserLibCard=='.$userLibCard));
 		
 		$count = $this->getRowsCountFromRequest($ApiMethod, $params);
@@ -123,7 +136,26 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 */
 	public function getSearchCount($period, $date, $type = "all")
 	{
+		$ApiMehtod	= 'VisitsSummary.getVisits';
+		$format		= 'json';
 		
+		$params = array(
+				'idSite' 	=> $this->siteId,
+				'date' 		=> $date,
+				'period' 	=> $period,
+				'format' 	=> $format,
+				'segment'	=> 'pageUrl=@'.$this->searchResultsUrl,
+		);
+		
+		if($type == "anonyme")
+			$params['segment'] .= ';customVariablePageUserLibCard==null';
+		
+		if($type == "authenticated")
+			$params['segment'] .= ';customVariablePageUserLibCard!=null';
+		
+		$count = $this->getRowsCountFromRequest($ApiMethod, $params);
+		
+		return $count;
 	}
 	
 	/**
@@ -131,7 +163,23 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 */
 	public function getSearchCountForLibrary($period, $date, $userLibCard)
 	{
+		$ApiMehtod	= 'VisitsSummary.getVisits';
+		$format		= 'json';
 		
+		$params = array(
+				'idSite' 	=> $this->siteId,
+				'date' 		=> $date,
+				'period' 	=> $period,
+				'format' 	=> $format,
+				'segment'	=> 'pageUrl=@'.$this->searchResultsUrl,
+		);
+		
+		if($userLibCard !== null)
+			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+		
+		$count = $this->getRowsCountFromRequest($ApiMethod, $params);
+		
+		return $count;
 	}
 	
 	/**
@@ -163,7 +211,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 */
 	public function getViewedRecords($period, $date, $userLibCard = null, $rawData = 0)
 	{
-		
+		// get custom variable  where
 	}
 	
 	/**
@@ -171,7 +219,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 */
 	public function getNewVisitorsCount($period, $date, $type = "all")
 	{
-		
+		return 10;
 	}
 	
 	/**
@@ -195,7 +243,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 */
 	public function getReturningVisitorsCount($period, $date, $type = "all")
 	{
-		
+		return 15;
 	}
 	
 	/**
