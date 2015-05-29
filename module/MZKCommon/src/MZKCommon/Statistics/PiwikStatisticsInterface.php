@@ -63,7 +63,7 @@ interface PiwikStatisticsInterface{
 	 * @param	int|boolean	$rawData
 	 * @return	array|csv
 	 */
-	public function getSearchKeywords($period, $date, $userLibCard = null, $rawData = 0);
+	public function getSearchKeywords($period, $date, $userLibCard = null, $rawData = null);
 	
 	/**
 	 * Returns number of viewed records
@@ -97,7 +97,7 @@ interface PiwikStatisticsInterface{
 	 * @param	int|boolean	$rawData
 	 * @return	array|csv
 	 */
-	public function getViewedRecords($period, $date, $userLibCard = null, $rawData = 0);
+	public function getViewedRecords($period, $date, $userLibCard = null, $rawData = null);
 	
 	/**
 	 * Returns number of new visitors
@@ -131,7 +131,7 @@ interface PiwikStatisticsInterface{
 	 * @param	int|boolean	$rawData
 	 * @return	array|csv
 	 */
-	public function getNewVisitors($period, $date, $userLibCard = null, $rawData = 0);
+	public function getNewVisitors($period, $date, $userLibCard = null, $rawData = null);
 	
 	/**
 	 * Returns number of returning visitors
@@ -165,7 +165,7 @@ interface PiwikStatisticsInterface{
 	 * @param	int|boolean	$rawData
 	 * @return	array|csv
 	*/
-	public function getReturningVisitors($period, $date, $userLibCard = null, $rawData = 0);
+	public function getReturningVisitors($period, $date, $userLibCard = null, $rawData = null);
 	
 	/**
 	 * Returns number of not found search keywords
@@ -196,7 +196,7 @@ interface PiwikStatisticsInterface{
 	 * @param	int|boolean	$rawData
 	 * @return	array|csv
 	*/
-	public function getNotFoundSearchKeywords($period, $date, $userLibCard = null, $rawData = 0);
+	public function getNotFoundSearchKeywords($period, $date, $userLibCard = null, $rawData = null);
 	
 	/**
 	 * Returns number of catalog accesses
@@ -221,45 +221,25 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of item prolongs
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$type	all|anonyme|authenticated
-	 * @return	int
-	 */
-	public function getItemProlongsCount($period, $date, $type = "all");
-	
-	
-	/**
-	 * Returns number of item prolongs with users logged in to the specific library
+	 * When userLibCard is provided, returns number of item prolongs with users logged in to the specific library
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
 	 * @param	string	$userLibCard
 	 * @return	int
-	*/
-	public function getItemProlongsCountForLibrary($period, $date, $userLibCard);
+	 */
+	public function getItemProlongsCount($period, $date, $userLibCard = null);
 	
 	/**
 	 * Returns number of item reservations
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$type	all|anonyme|authenticated
-	 * @return	int
-	 */
-	public function getItemReservationsCount($period, $date, $type = "all");
-	
-	
-	/**
-	 * Returns number of item reservations with users logged in to the specific library
+	 * When userLibCard is provided, returns number of item reservations with users logged in to the specific library
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
 	 * @param	string	$userLibCard
 	 * @return	int
-	*/
-	public function getItemReservationsCountForLibrary($period, $date, $userLibCard);
+	 */
+	public function getItemReservationsCount($period, $date, $userLibCard);
 	
 	/**
 	 * Returns number of orders
@@ -284,45 +264,25 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of user registrations
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$type	all|anonyme|authenticated
-	 * @return	int
-	 */
-	public function getUserRegistrationsCount($period, $date, $type = "all");
-	
-	
-	/**
-	 * Returns number of user registrations with users logged in to the specific library
+	 * When userLibCard is provided, returns number of user registrations with users logged in to the specific library
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
 	 * @param	string	$userLibCard
 	 * @return	int
-	*/
-	public function getUserRegistrationsCountForLibrary($period, $date, $userLibCard);
+	 */
+	public function getUserRegistrationsCount($period, $date, $userLibCard = null);
 	
 	/**
 	 * Returns number of user prolonagtions
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$type	all|anonyme|authenticated
-	 * @return	int
-	 */
-	public function getUserProlongationsCount($period, $date, $type = "all");
-	
-	
-	/**
-	 * Returns number of user prolonagtions with users logged in to the specific library
+	 * When userLibCard is provided, returns number of user prolonagtions with users logged in to the specific library
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
 	 * @param	string	$userLibCard
 	 * @return	int
-	*/
-	public function getUserProlongationsCountForLibrary($period, $date, $userLibCard);
+	 */
+	public function getUserProlongationsCount($period, $date, $userLibCard = null);
 	
 	/**
 	 * Returns number of transactions

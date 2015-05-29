@@ -7,4 +7,18 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Behat\\Mink\\' => array($vendorDir . '/behat/mink/src'),
+	'Piwik\\' => array($vendorDir . '/../../../../../var/www/html/piwik/core/'),
+	'Piwik\\Network\\' => array($vendorDir . '/../../../../../var/www/html/piwik/network/src/'),
+	'Piwik\\Ini\\' => array($vendorDir . '/../../../../../var/www/html/piwik/ini/src/'),
+	'Piwik\\Plugins\\' => array($vendorDir . '/../../../../../var/www/html/piwik/plugins/'),
+	'Piwik\\Cache\\' => array($vendorDir . '/../../../../../var/www/html/piwik/cache/src/'),
+	'Interop\\' => array($vendorDir . '/../../../../../var/www/html/piwik/vendor/container-interop/container-interop/src/Interop/'),
+	'Doctrine\\' => array($vendorDir . '/../../../../../var/www/html/piwik/vendor/doctrine/cache/lib/Doctrine/'),
+	'DI\\' => array($vendorDir . '/../../../../../var/www/html/piwik/vendor/mnapoli/php-di/src/DI/'),
+	'MyCLabs\\Enum\\' => array($vendorDir . '/../../../../../var/www/html/piwik/vendor/myclabs/php-enum/src/'),
+	'Piwik\\API\\ApiRenderer\\' => array($vendorDir . '/../../../../../var/www/html/piwik/core/DataTable/Renderer/'),
+	'Monolog\\' => array($vendorDir . '/../../../../../var/www/html/piwik/vendor/monolog/monolog/src/Monolog/'),
+	'Psr\\Log\\' => array($vendorDir . '/../../../../../var/www/html/piwik/vendor/psr/log/Psr/Log/'),
+	'Piwik\\Piwik\\API\\ApiRenderer\\' => array($vendorDir . '/../../../../../var/www/html/piwik/core/DataTable/Renderer/'),
+		
 );

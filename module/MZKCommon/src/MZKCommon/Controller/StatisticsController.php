@@ -14,12 +14,13 @@ class StatisticsController extends AbstractBase
 	public function dashboardAction()
 	{
 		
-		$PiwikStatistics =  $this->getServiceLocator()->get('MZKCommon\StatisticsPiwikStatistics');
-		
+		$PiwikStatistics = $this->getServiceLocator()
+								->get('MZKCommon\StatisticsPiwikStatistics');
+
 		$view = $this->createViewModel(	
 			array(
-				'returningVisitorsCount'  => $PiwikStatistics->getNewVisitorsCount(null, null, null),
-				'newVisitorsCount'  => $PiwikStatistics->getReturningVisitorsCount(null, null, null),
+				'returningVisitorsCount' => $PiwikStatistics->getNewVisitorsCount('range', '2015-01-01,2015-12-31'),
+				'newVisitorsCount'		 => $PiwikStatistics->getReturningVisitorsCount('range', '2015-01-01,2015-12-31'),
 			)
 		);
 		$view->setTemplate('statistics/dashboard');

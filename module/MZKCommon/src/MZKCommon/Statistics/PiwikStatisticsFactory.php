@@ -11,7 +11,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  * Factory for PiwikStatistics
  * @author   Martin Kravec	<kravec@mzk.cz>
  */
-class PiwikStatisticsFactory //implements FactoryInterface
+class PiwikStatisticsFactory
 {
 	
 	/**
@@ -27,16 +27,5 @@ class PiwikStatisticsFactory //implements FactoryInterface
 
 		return new PiwikStatistics($config);
 	}
-	
-	/**
-     * Create service
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
-     */
-    /*public function createService(ServiceLocatorInterface $serviceLocator)
-    {
-    	return new \stdClass();
-    }*/
 	
 }
