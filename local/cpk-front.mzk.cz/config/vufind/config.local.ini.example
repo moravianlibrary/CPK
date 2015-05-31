@@ -42,3 +42,24 @@ track_user = true
 ; Enables ClickHeat plugin
 click_heat_plugin = true
 click_heat_site_number = 1
+
+[UserCards]
+get_institutes_url           = https://cpk-front.mzk.cz/simplesaml/getinstitutes/
+
+get_institutes_user_param    = user
+get_institutes_lib_param     = lib
+
+ignore_default_user_creation = true
+
+[PiwikStatistics]
+piwik_token_auth		= "token_goes_here"
+default_statistics_url	= "http://cpk-front.mzk.cz/Statistics"
+piwik_url 				= "http://cpk-front.mzk.cz:9080"
+site_id					= 1
+catalog_browser_url		= "https://vufind.localhost/Browse/"
+search_results_url		= "https://vufind.localhost/Search/Results"
+record_url				= "https://vufind.localhost/Record/"
+item_reservation_url	= ""
+item_prolongation_url	= ""
+user_registration_url	= ""
+user_prolongation_url	= ""

@@ -19,8 +19,8 @@ class StatisticsController extends AbstractBase
 
 		$view = $this->createViewModel(	
 			array(
-				'returningVisitorsCount' => $PiwikStatistics->getNewVisitorsCount('range', '2015-01-01,2015-12-31'),
-				'newVisitorsCount'		 => $PiwikStatistics->getReturningVisitorsCount('range', '2015-01-01,2015-12-31'),
+				'newVisitorsCount' 			=> $PiwikStatistics->getNewVisitorsCount('range', '2015-01-01,2015-12-31'),
+				'returningVisitorsCount' 	=> $PiwikStatistics->getReturningVisitorsCount('range', '2015-01-01,2015-12-31'),
 			)
 		);
 		$view->setTemplate('statistics/dashboard');

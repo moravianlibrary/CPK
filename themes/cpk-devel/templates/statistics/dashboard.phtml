@@ -8,30 +8,302 @@
 <ul class="nav nav-tabs nav-justified">
 	<?php 
 		echo "<li class='active'><a href='".$this->url('statistics-dashboard')."'>".$this->transEsc('Dashboard')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-visits')."'>".$this->transEsc('Visits')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-searches')."'>".$this->transEsc('Searches')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-payments')."'>".$this->transEsc('Payment')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-circulations')."'>".$this->transEsc('Circulations')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-visits')."'>".$this->transEsc('Visits and visitors')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-searches')."'>".$this->transEsc('Searches and catalog')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-payments')."'>".$this->transEsc('Payments and orders')."</a></li>";
+		echo "<li><a href='".$this->url('statistics-circulations')."'>".$this->transEsc('Reservations and prolongs')."</a></li>";
 	?>
 </ul>
-<!-- 
-<p>Vracející se čtenáři: <?php //$this->returningVisitorsCount; ?></p>
-<p>Noví čtenáři: <?php //$this->newVisitorsCount; ?></p>
--->
-<div id="visits-comparision"></div>
+
+
+<style type='text/css'>
+#periodString #date {
+    border-radius: 0px;
+    background-clip: padding-box;
+    padding: 8px 10px;
+    color: #666;
+    text-transform: uppercase;
+    font-family: Verdana,sans-serif;
+    font-size: 10px;
+    line-height: 12px;
+}
+#periodString #date {
+    cursor: pointer;
+}	
+</style>
+
+<div id="periodString" class="piwikTopControl periodSelector">
+    <div id="date">Rozsah: <strong>2015-05-30</strong></div>
+    <div class="calendar-icon"></div>
+    <div id="periodMore">
+        <div class="period-date">
+            <div id="datepicker"></div>
+        </div>
+        <div class="period-range" style="display:none;">
+            <div id="calendarRangeFrom">
+                <h6>Od<input tabindex="1" type="text" id="inputCalendarFrom" name="inputCalendarFrom"/></h6>
+
+                <div id="calendarFrom"></div>
+            </div>
+            <div id="calendarRangeTo">
+                <h6>Do<input tabindex="2" type="text" id="inputCalendarTo" name="inputCalendarTo"/></h6>
+
+                <div id="calendarTo"></div>
+            </div>
+        </div>
+        <div class="period-type">
+            <h6>Období</h6>
+			<span id="otherPeriods">
+                            <input type="radio" name="period" id="period_id_day" value="index.php?module=CoreHome&amp;action=index&amp;idSite=1&amp;period=day&amp;date=yesterday" checked="checked" />
+                <label for="period_id_day">Den</label>
+                <br/>
+                            <input type="radio" name="period" id="period_id_week" value="index.php?module=CoreHome&amp;action=index&amp;idSite=1&amp;period=week&amp;date=yesterday" />
+                <label for="period_id_week">Týden</label>
+                <br/>
+                            <input type="radio" name="period" id="period_id_month" value="index.php?module=CoreHome&amp;action=index&amp;idSite=1&amp;period=month&amp;date=yesterday" />
+                <label for="period_id_month">Měsíc</label>
+                <br/>
+                            <input type="radio" name="period" id="period_id_year" value="index.php?module=CoreHome&amp;action=index&amp;idSite=1&amp;period=year&amp;date=yesterday" />
+                <label for="period_id_year">Rok</label>
+                <br/>
+                            <input type="radio" name="period" id="period_id_range" value="index.php?module=CoreHome&amp;action=index&amp;idSite=1&amp;period=range&amp;date=yesterday" />
+                <label for="period_id_range">rozsah</label>
+                <br/>
+            			</span>
+            <input tabindex="3" type="submit" value="Použít vybraný rozsah" id="calendarRangeApply"/>
+                        <div id="ajaxLoadingCalendar" style="display:none;">
+    <div class="loadingPiwik">
+        <img src="plugins/Morpheus/images/loading-blue.gif" alt="Načítám data..." />Načítám data...
+    </div>
+    <div class="loadingSegment">
+        Zpracování segmentovaných dat návštěvníků může pár minut trvat...
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<?php 
+
+echo "<pre>";
+
+echo "</pre>";
+
+
+
+?>
+
+
+
+<div clas="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+		    <div class="panel-heading">
+		        <h3 class="panel-title">
+		            <i class="fa fa-bar-chart-o fa-fw"></i>
+		             Navstevy
+		        </h3>
+		    </div>
+		    <div class="panel-body">
+		    	<div id="visits-in-time"></div>
+		    </div>
+		</div>
+	</div>
+</div>
+
+				<div class="row">
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                	<i class="fa fa-long-arrow-right fa-fw"></i>
+                                	Čtenáři
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <div id="visits-comparision"></div>
+                                <div class="text-right">
+                                    <a href="<?php echo $this->url('statistics-visits') ?>"><?php echo $this->transEsc('View Details'); ?> 
+                                    <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-clock-o fa-fw"></i> <?php echo $this->transEsc('Top 10 keywords'); ?> </h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+    								<table class="table table-hover table-striped">
+       	 								<thead>
+            								<tr>
+            									<th>
+            										Hledan0 slovo
+            									</th>
+            									<th>
+            										Pocet hledani
+            									</th>
+            								</tr>
+            							</thead>
+            							<tbody>
+            								<tr>
+            									<td>
+            										Slovo
+            									</td>
+            									<td>
+            										15
+            									</td>
+            								</tr>
+            								<tr>
+            									<td>
+            										Slovo
+            									</td>
+            									<td>
+            										15
+            									</td>
+            								</tr>
+            								<tr>
+            									<td>
+            										Slovo
+            									</td>
+            									<td>
+            										15
+            									</td>
+            								</tr>
+            								<tr>
+            									<td>
+            										Slovo
+            									</td>
+            									<td>
+            										15
+            									</td>
+            								</tr>
+            							</tbody>
+            						</table>
+            					</div>
+                                <div class="text-right">
+                                    <a href="#"><?php echo $this->transEsc('View Details'); ?> <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-money fa-fw"></i> Transactions Panel</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Order #</th>
+                                                <th>Order Date</th>
+                                                <th>Order Time</th>
+                                                <th>Amount (USD)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>3326</td>
+                                                <td>10/21/2013</td>
+                                                <td>3:29 PM</td>
+                                                <td>$321.33</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3325</td>
+                                                <td>10/21/2013</td>
+                                                <td>3:20 PM</td>
+                                                <td>$234.34</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3324</td>
+                                                <td>10/21/2013</td>
+                                                <td>3:03 PM</td>
+                                                <td>$724.17</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3323</td>
+                                                <td>10/21/2013</td>
+                                                <td>3:00 PM</td>
+                                                <td>$23.71</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3322</td>
+                                                <td>10/21/2013</td>
+                                                <td>2:49 PM</td>
+                                                <td>$8345.23</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3321</td>
+                                                <td>10/21/2013</td>
+                                                <td>2:23 PM</td>
+                                                <td>$245.12</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3320</td>
+                                                <td>10/21/2013</td>
+                                                <td>2:15 PM</td>
+                                                <td>$5663.54</td>
+                                            </tr>
+                                            <tr>
+                                                <td>3319</td>
+                                                <td>10/21/2013</td>
+                                                <td>2:13 PM</td>
+                                                <td>$943.45</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="text-right">
+                                    <a href="#">View All Transactions <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
 
 <script src="js/raphael.min.js"></script>
 <script src="vendor/jquery.min.js"></script>
 <script src="js/morris-0.4.1.min.js"></script>
-<script>/*
+<script>
 	jQuery(document).ready(function(){
-		Morris.Donut({
-			element: 'visits-comparision',
-			data: [
-		    	{label: "Vracející se čtenáři", value: <?php //$this->returningVisitorsCount ?>},
-		    	{label: "Noví čtenáři", value: <?php //$this->newVisitorsCount ?>},
-		  	]
-		});
-	});*/
+		
+	    Morris.Donut({
+	        element: 'visits-comparision',
+	        data: [
+	        	{label: "Vracející se čtenáři", value: <?= $this->returningVisitorsCount ?>},
+			    {label: "Noví čtenáři", value: <?= $this->newVisitorsCount ?>},
+			],
+	        resize: true
+	    });
+
+	    Morris.Area({
+	        element: 'visits-in-time',
+	        data: [
+	          {period: '2010 Q1', novi: 2666, vracejici: null},
+	          {period: '2010 Q2', novi: 2778, vracejici: 2294},
+	          {period: '2010 Q3', novi: 4912, vracejici: 1969},
+	          {period: '2010 Q4', novi: 3767, vracejici: 3597},
+	          {period: '2011 Q1', novi: 6810, vracejici: 1914},
+	          {period: '2011 Q2', novi: 5670, vracejici: 4293},
+	          {period: '2011 Q3', novi: 4820, vracejici: 3795},
+	          {period: '2011 Q4', novi: 15073, vracejici: 5967},
+	          {period: '2012 Q1', novi: 10687, vracejici: 4460},
+	          {period: '2012 Q2', novi: 8432, vracejici: 5713}
+	        ],
+	        xkey: 'period',
+	        ykeys: ['novi', 'vracejici'],
+	        labels: ['novi', 'vracejici'],
+	        pointSize: 2,
+	        hideHover: 'auto'
+	      });
+
+	});
 </script>
 

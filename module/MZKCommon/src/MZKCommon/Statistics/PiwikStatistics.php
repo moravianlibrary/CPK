@@ -61,59 +61,121 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	protected $userProlongUrl;
 	
 	/**
+	 * Url of statistics in VuFind
+	 * @var	string
+	 */
+	protected $defaultStatisticsUrl;
+	
+	/**
+	 * Url of piwik
+	 * @var	string
+	 */
+	protected $piwikUrl;
+	
+	/**
+	 * Piwik auth token
+	 * @var	string
+	 */
+	protected $piwikTokenAuth;
+	
+	/**
 	 * @inheritDoc
 	 * @todo set missing default urls
 	 * @todo set variables in config [PiwikStatistics]
 	 */
 	public function __construct($config)
 	{
-		$this->siteId 			   = isset($config->PiwikStatistics->site_id) 				? $config->PiwikStatistics->site_id 			  : 1;
-		$this->catalogBrowserUrl   = isset($config->PiwikStatistics->catalog_browser_url) 	? $config->PiwikStatistics->catalog_browser_url   : "https%3A%2F%2Fvufind.localhost%2FBrowse%2F";
-		$this->searchResultsUrl    = isset($config->PiwikStatistics->search_results_url) 	? $config->PiwikStatistics->search_results_url 	  : "https%3A%2F%2Fvufind.localhost%2FSearch%2FResults";
-		$this->recordUrl 		   = isset($config->PiwikStatistics->record_url) 			? $config->PiwikStatistics->record_url 			  : "https%3A%2F%2Fvufind.localhost%2FRecord%2F";
-		$this->itemReservationUrl  = isset($config->PiwikStatistics->item_reservation_url) 	? $config->PiwikStatistics->item_reservation_url  : "";
-		$this->itemProlongUrl 	   = isset($config->PiwikStatistics->item_prolongation_url) ? $config->PiwikStatistics->item_prolongation_url : "";
-		$this->userRegistrationUrl = isset($config->PiwikStatistics->user_registration_url) ? $config->PiwikStatistics->user_registration_url : "";
-		$this->userProlongUrl 	   = isset($config->PiwikStatistics->user_prolongation_url) ? $config->PiwikStatistics->user_prolongation_url : "";
+		$this->siteId 			    = isset($config->PiwikStatistics->site_id) 				  ? $config->PiwikStatistics->site_id 			  	  : 1;
+		$this->catalogBrowserUrl    = isset($config->PiwikStatistics->catalog_browser_url) 	  ? $config->PiwikStatistics->catalog_browser_url     : "https://vufind.localhost/Browse/";
+		$this->searchResultsUrl     = isset($config->PiwikStatistics->search_results_url) 	  ? $config->PiwikStatistics->search_results_url 	  : "https://vufind.localhost/Search/Results";
+		$this->recordUrl 		    = isset($config->PiwikStatistics->record_url) 			  ? $config->PiwikStatistics->record_url 			  : "https://vufind.localhost/Record/";
+		$this->itemReservationUrl   = isset($config->PiwikStatistics->item_reservation_url)   ? $config->PiwikStatistics->item_reservation_url    : "";
+		$this->itemProlongUrl 	    = isset($config->PiwikStatistics->item_prolongation_url)  ? $config->PiwikStatistics->item_prolongation_url   : "";
+		$this->userRegistrationUrl  = isset($config->PiwikStatistics->user_registration_url)  ? $config->PiwikStatistics->user_registration_url   : "";
+		$this->userProlongUrl 	    = isset($config->PiwikStatistics->user_prolongation_url)  ? $config->PiwikStatistics->user_prolongation_url   : "";
+		$this->defaultStatisticsUrl = isset($config->PiwikStatistics->default_statistics_url) ? $config->PiwikStatistics->default_statistics_url  : "http://cpk-front.mzk.cz/Statistics";
+		$this->piwikUrl 			= isset($config->PiwikStatistics->piwik_url) 			  ? $config->PiwikStatistics->piwik_url  			  : "http://cpk-front.mzk.cz:9080";
+		$this->piwikTokenAuth		= isset($config->PiwikStatistics->piwik_token_auth) 	  ? $config->PiwikStatistics->piwik_token_auth  	  : "no_token_in_config [PiwikStatistics] -> piwik_token_auth";		
 	}
 	
 	/**
-	 * Returns row count of Piwik\API\Request data response
-	 * @param	string	$ApiMethod	Api method name
-	 * @param	array	$params		Array of params
+	 * Returns page content from Piwik API Request
+	 * 
+	 * CURLOPT_HEADER - Include header in result? (0 = yes, 1 = no)
+	 * CURLOPT_RETURNTRANSFER - (true = return, false = print) data
+	 * 
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	array	$params	GET params
+	 * @throws	\Exception when cURL us not installed
+	 * @return	mixed
+	 */
+	private function getRequestDataResponse($period, $date, array $params)
+	{
+		$params['token_auth'] 	= $this->piwikTokenAuth;
+		$params['module'] 		= 'API';
+		$params['idSite'] 		= $this->siteId;
+		$params['date'] 		= $date;
+		$params['period'] 		= $period;
+		
+		$query	= http_build_query($params);
+		$url	= $this->piwikUrl.'?'.$query;
+		
+		if (!function_exists('curl_init'))
+			throw new \Exception('cURL is not installed!');
+		
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_REFERER, $this->defaultStatisticsUrl);
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0");
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	
+		$output = curl_exec($ch);
+	
+		curl_close($ch);
+	
+		return $output;
+	}
+	
+	/**
+	 * Returns count of data from Piwik\API\Request data response
+	 * 
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	array	$params
 	 * @return	int
 	 */
-	private function getRowsCountFromRequest($ApiMethod, array $params)
+	private function getRowsCountFromRequest($period, $date, array $params)
 	{
-		$dataTable = Request::processRequest($ApiMethod, $params);
-		$count = $dataTable->getRowsCount();
-		return $count;
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		return count($dataArray);
 	}
 	
 	/**
-	 * Returns data from Piwik\API\Request
-	 * Param $params['format'] must be "json" to convert data into array
-	 * successfully.
-	 * @param	string	$ApiMethod	Api method name
-	 * @param	array	$params		Array of params
+	 * Returns data from Piwik\API\Request as array
+	 * 
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	array	$params
+	 * @throws	\Exception when cURL us not installed
 	 * @return	array
 	 */
-	private function getResultDataAsArrayFromRequest($ApiMethod, array $params)
+	private function getResultDataAsArrayFromRequest($period, $date, array $params)
 	{
-		$dataTable = Request::processRequest($ApiMethod, $params);
-		$array = json_decode($dataTable, true);
-		return $array;
-	}
-	
-	/**
-	 * Returns data from Piwik\API\Request
-	 * @param	string	$ApiMethod	Api method name
-	 * @param	array	$params		Array of params
-	 * @return	array
-	 */
-	private function getResultDataFromRequest($ApiMethod, array $params)
-	{
-		return Request::processRequest($ApiMethod, $params);
+		if($params['format'] !== 'json')
+			throw new \Exception("Format of requested data must be JSON to convert into php array correctly.");
+		
+		$jsonData = $this->getRequestDataResponse($period, $date, $params);
+		$dataArray = json_decode($jsonData, true);
+		
+		return $dataArray;
 	}
 	
 	/**
@@ -178,7 +240,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->searchResultsUrl,
+				'segment'	=> 'pageUrl=@'.urlencode($this->searchResultsUrl),
 		);
 		
 		if($type == "anonyme")
@@ -205,7 +267,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->searchResultsUrl
+				'segment'	=> 'pageUrl=@'.urlencode($this->searchResultsUrl)
 							 .';customVariablePageUserLibCard=='.$userLibCard,
 		);
 		
@@ -235,7 +297,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->recordUrl,
+				'segment'	=> 'pageUrl=@'.urlencode($this->recordUrl),
 		);
 		
 		if($type == "anonyme")
@@ -262,7 +324,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->recordUrl
+				'segment'	=> 'pageUrl=@'.urlencode($this->recordUrl)
 							 .';customVariablePageUserLibCard=='.$userLibCard,
 		);
 		
@@ -283,15 +345,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 * @inheritDoc
 	 */
 	public function getNewVisitorsCount($period, $date, $type = "all")
-	{
-		$ApiMethod	= 'VisitsSummary.getVisits';
-		$format		= 'json';
-		
+	{		
 		$params = array(
-				'idSite' 	=> $this->siteId,
-				'date' 		=> $date,
-				'period' 	=> $period,
-				'format' 	=> $format,
+				'method'	=> 'VisitsSummary.getVisits',
+				'format' 	=> 'json',
 				'segment'	=> 'visitorType==new',
 		);
 		
@@ -301,9 +358,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		if($type == "authenticated")
 			$params['segment'] .= ';customVariablePageUserLibCard!=null';
 		
-		$count = $this->getRowsCountFromRequest($ApiMethod, $params);
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
-		return $count;
+		return $dataArray['value'];
 	}
 	
 	/**
@@ -362,14 +419,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 */
 	public function getReturningVisitorsCount($period, $date, $type = "all")
 	{
-		$ApiMethod	= 'VisitsSummary.getVisits';
-		$format		= 'json';
-		
 		$params = array(
-				'idSite' 	=> $this->siteId,
-				'date' 		=> $date,
-				'period' 	=> $period,
-				'format' 	=> $format,
+				'method'	=> 'VisitsSummary.getVisits',
+				'format' 	=> 'json',
 				'segment'	=> 'visitorType==returning',
 		);
 		
@@ -379,9 +431,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		if($type == "authenticated")
 			$params['segment'] .= ';customVariablePageUserLibCard!=null';
 		
-		$count = $this->getRowsCountFromRequest($ApiMethod, $params);
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
-		return $count;
+		return $dataArray['value'];
 	}
 	
 	/**
@@ -472,7 +524,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->catalogBrowserUrl,
+				'segment'	=> 'pageUrl=@'.urlencode($this->catalogBrowserUrl),
 		);
 		
 		if($type == "anonyme")
@@ -499,7 +551,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->catalogBrowserUrl
+				'segment'	=> 'pageUrl=@'.urlencode($this->catalogBrowserUrl)
 							 .';customVariablePageUserLibCard=='.$userLibCard,
 		);
 		
@@ -521,7 +573,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->itemProlongUrl,
+				'segment'	=> 'pageUrl=@'.urlencode($this->itemProlongUrl),
 		);
 		
 		if($userLibCard)
@@ -545,7 +597,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->itemReservationUrl,
+				'segment'	=> 'pageUrl=@'.urlencode($this->itemReservationUrl),
 		);
 		
 		if($userLibCard)
@@ -585,7 +637,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->userRegistrationUrl,
+				'segment'	=> 'pageUrl=@'.urlencode($this->userRegistrationUrl),
 		);
 		
 		if($userLibCard)
@@ -609,7 +661,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'date' 		=> $date,
 				'period' 	=> $period,
 				'format' 	=> $format,
-				'segment'	=> 'pageUrl=@'.$this->userProlongUrl,
+				'segment'	=> 'pageUrl=@'.urlencode($this->userProlongUrl),
 		);
 		
 		if($userLibCard)
