@@ -146,5 +146,4 @@ return array(
     'phpCAS' => $vendorDir . '/jasig/phpcas/source/CAS.php',
     'sip2' => $vendorDir . '/johnwohlers/sip2/sip2.class.php',
     'uagent_info' => $vendorDir . '/mobileesp/mdetect/mdetect.php',
-	//'Piwik\Piwik\API\ApiRenderer\Json' => $vendorDir . '/../../../../../var/www/html/piwik/core/DataTable/Renderer/Json.php',
 );

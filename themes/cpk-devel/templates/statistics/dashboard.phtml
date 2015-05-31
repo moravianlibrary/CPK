@@ -5,32 +5,10 @@
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Statistics') . '</li>';
 ?>
-<ul class="nav nav-tabs nav-justified">
-	<?php 
-		echo "<li class='active'><a href='".$this->url('statistics-dashboard')."'>".$this->transEsc('Dashboard')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-visits')."'>".$this->transEsc('Visits and visitors')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-searches')."'>".$this->transEsc('Searches and catalog')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-payments')."'>".$this->transEsc('Payments and orders')."</a></li>";
-		echo "<li><a href='".$this->url('statistics-circulations')."'>".$this->transEsc('Reservations and prolongs')."</a></li>";
-	?>
-</ul>
+
+	<?=	$this->render('statistics/menu.phtml');	?>
 
 
-<style type='text/css'>
-#periodString #date {
-    border-radius: 0px;
-    background-clip: padding-box;
-    padding: 8px 10px;
-    color: #666;
-    text-transform: uppercase;
-    font-family: Verdana,sans-serif;
-    font-size: 10px;
-    line-height: 12px;
-}
-#periodString #date {
-    cursor: pointer;
-}	
-</style>
 
 <div id="periodString" class="piwikTopControl periodSelector">
     <div id="date">Rozsah: <strong>2015-05-30</strong></div>

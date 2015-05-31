@@ -23,6 +23,4 @@ return array(
     'PHPQRCode' => array($vendorDir . '/aferrandini/phpqrcode/lib'),
     'Less' => array($vendorDir . '/oyejorge/less.php/lib'),
     'Behat\\Mink\\Driver' => array($vendorDir . '/behat/mink-zombie-driver/src'),
-	//'Piwik\\API\\' => array($vendorDir . '/../../../../../var/www/html/piwik/core/API'),
-	'Doctrine\\Common\\Cache\\' => array($vendorDir . '/../../../../../var/www/html/piwik/vendor/doctrine/cache/lib/Doctrine/Common/Cache/'),
 );

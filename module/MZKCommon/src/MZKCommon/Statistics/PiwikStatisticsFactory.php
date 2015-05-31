@@ -1,5 +1,4 @@
 <?php
-
 namespace MZKCommon\Statistics;
 
 use Zend\ServiceManager\ServiceManager;
@@ -9,17 +8,17 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Factory for PiwikStatistics
+ * 
  * @author   Martin Kravec	<kravec@mzk.cz>
  */
 class PiwikStatisticsFactory
 {
-	
 	/**
 	 * Construct the Statistics
 	 *
 	 * @param ServiceManager $sm Service manager.
 	 *
-	 * @return PiwikStatistics
+	 * @return MZKCommon\Statistics\PiwikStatistics
 	 */
 	public static function getPiwikStatistics(ServiceManager $sm)
 	{
@@ -27,5 +26,4 @@ class PiwikStatisticsFactory
 
 		return new PiwikStatistics($config);
 	}
-	
 }

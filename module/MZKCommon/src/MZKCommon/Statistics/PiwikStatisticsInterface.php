@@ -1,13 +1,14 @@
 <?php
-
 namespace MZKCommon\Statistics;
 
 /**
  * PiwikStatisticsInterface
- * @author Martin Kravec <kravec@mzk.cz>
+ * For communication with Piwik's API
+ * 
+ * @author	Martin Kravec	<kravec@mzk.cz>
  */
-interface PiwikStatisticsInterface{
-	
+interface PiwikStatisticsInterface
+{
 	/**
 	 * Sets initial params
 	 * @param	int $idSite
@@ -16,6 +17,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of visits
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -26,6 +28,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Return number of visits with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -36,6 +39,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of searches
+	 * 
 	 * @param	string	$type	all|anonyme|authenticated
 	 * @return	int
 	 */
@@ -43,6 +47,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Return number of searches with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -56,6 +61,7 @@ interface PiwikStatisticsInterface{
 	 * If userLibCard is provided, returns searched keywords in VuFind 
 	 * by users logged in to specific library.
 	 * When rawData is set to 1, returns csv
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -67,6 +73,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of viewed records
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -77,6 +84,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of viewed records with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -90,6 +98,7 @@ interface PiwikStatisticsInterface{
 	 * If userLibCard is provided, returns viewed records in VuFind 
 	 * by users logged in to specific library.
 	 * When rawData is set to 1, returns csv
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -101,6 +110,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of new visitors
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -112,6 +122,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of new visitors with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -124,6 +135,7 @@ interface PiwikStatisticsInterface{
 	 * Returns all new visitors
 	 * If userLibCard is provided, returns new visitors logged in to specific library.
 	 * When rawData is set to 1, returns csv
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -135,6 +147,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of returning visitors
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -146,6 +159,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of returning visitors with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -158,6 +172,7 @@ interface PiwikStatisticsInterface{
 	 * Returns all returning visitors
 	 * If userLibCard is provided, returns returning visitors logged in to specific library.
 	 * When rawData is set to 1, returns csv
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -169,6 +184,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of not found search keywords
+	 * 
 	 * @param	string	$type	all|anonyme|authenticated
 	 * @return	int
 	 */
@@ -176,6 +192,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Return number of not found search keywords with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -189,6 +206,7 @@ interface PiwikStatisticsInterface{
 	 * If userLibCard is provided, returns not found search keywords in VuFind
 	 * by users logged in to specific library.
 	 * When rawData is set to 1, returns csv
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -200,6 +218,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of catalog accesses
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -211,6 +230,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of catalog accesses with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -222,6 +242,7 @@ interface PiwikStatisticsInterface{
 	/**
 	 * Returns number of item prolongs
 	 * When userLibCard is provided, returns number of item prolongs with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -233,6 +254,7 @@ interface PiwikStatisticsInterface{
 	/**
 	 * Returns number of item reservations
 	 * When userLibCard is provided, returns number of item reservations with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -243,6 +265,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of orders
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -254,6 +277,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of orders with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -265,6 +289,7 @@ interface PiwikStatisticsInterface{
 	/**
 	 * Returns number of user registrations
 	 * When userLibCard is provided, returns number of user registrations with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -276,6 +301,7 @@ interface PiwikStatisticsInterface{
 	/**
 	 * Returns number of user prolonagtions
 	 * When userLibCard is provided, returns number of user prolonagtions with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -286,6 +312,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of transactions
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -297,6 +324,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns number of transactions with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -307,6 +335,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns sum of transactions
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
@@ -318,6 +347,7 @@ interface PiwikStatisticsInterface{
 	
 	/**
 	 * Returns sum of transactions with users logged in to the specific library
+	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
