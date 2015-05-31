@@ -3,12 +3,11 @@
     $this->headTitle($this->translate('Statistics'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Statistics') . '</li>';
+    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->transEsc('Your Account').'</a></li>' 
+    							  .'<li class="active">' . $this->transEsc('Statistics') . '</li>';
+    
+    echo $this->render('statistics/menu.phtml');
 ?>
-
-	<?=	$this->render('statistics/menu.phtml');	?>
-
-
 
 <div id="periodString" class="piwikTopControl periodSelector">
     <div id="date">Rozsah: <strong>2015-05-30</strong></div>

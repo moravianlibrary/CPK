@@ -339,7 +339,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNewVisitorsCountForLibrary($period, $date, $userLibCard)
 	{
 		$params = array(
-			'method' => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getVisits',
 			'format'  => 'json',
 			'segment' => 'visitorType==new;customVariablePageUserLibCard=='.$userLibCard,
 		);
