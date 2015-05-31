@@ -27,7 +27,13 @@ database        = mysql://vufind:PASSWORD@localhost/vufind
 ;file            = /home/jirislav/workspace/VuFind/VuFind/messages.log:alert,error,notice,debug
 
 [ExternalLinks]
+BOA001		= "https://vufind.mzk.cz/Record/"
 BOA001_end	= "/Holdings#tabnav"
+OLA001		= "http://aleph.vkol.cz/F?func=direct&doc_number="
+ZLG001		= "http://katalog.kfbz.cz/documents/"
+HKA001		= "http://aleph2.svkhk.cz/F?func=direct&doc_number="
+ABA013		= "http://aleph.techlib.cz/F?func=direct&doc_number="
+ABA008		= "http://www.medvik.cz/medvik/title_detail.do?id="
 
 [Piwik]
 url = "https://url-to-running-piwik/"
@@ -50,6 +56,7 @@ get_institutes_user_param    = user
 get_institutes_lib_param     = lib
 
 ignore_default_user_creation = true
+<<<<<<< HEAD
 
 [PiwikStatistics]
 piwik_token_auth		= "token_goes_here"
@@ -63,3 +70,5 @@ item_reservation_url	= ""
 item_prolongation_url	= ""
 user_registration_url	= ""
 user_prolongation_url	= ""
+=======
+>>>>>>> e105dd59355180206024d9b2bb5fbacffc213634
