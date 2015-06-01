@@ -41,12 +41,25 @@ class StatisticsController extends AbstractBase
 			$visitsInTime[$key] = array('returningVisits' => $value, 'newVisits' => $newVisitsInTime[$key]);
 		}
 		//
+		
+		// Total visits
+		$totalVisitsArray = $PiwikStatistics->getVisitsCount('range', $date, 'all');
+		$totalVisits = $totalVisitsArray['value'];
+		
+		// New visitors count
+		$newVisitorsCountArray = $PiwikStatistics->getNewVisitorsCount('month', $date);
+		$newVisitorsCount = array_sum($newVisitorsCountArray);
+		
+		// Returning visitors count
+		$returningVisitorsCountArray = $PiwikStatistics->getReturningVisitorsCount('month', $date);
+		$returningVisitorsCount = array_sum($returningVisitorsCountArray);
 
 		$view = $this->createViewModel(	
 			array(
-				'newVisitorsCount' 			=> $PiwikStatistics->getNewVisitorsCount('range', $date),
-				'returningVisitorsCount' 	=> $PiwikStatistics->getReturningVisitorsCount('range', $date),
+				'newVisitorsCount' 			=> $newVisitorsCount,
+				'returningVisitorsCount' 	=> $returningVisitorsCount,
 				'visitsInTime'				=> $visitsInTime,
+				'totalVisits'				=> $totalVisits,
 			)
 		);
 		

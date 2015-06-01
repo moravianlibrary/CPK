@@ -181,7 +181,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getVisitsCount($period, $date, $type = "all", array $additionalParams)
+	public function getVisitsCount($period, $date, $type = "all", array $additionalParams = null)
 	{
 		$params = array(
 			'method' => 'VisitsSummary.getVisits',
@@ -195,12 +195,14 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			$params['segment'] = 'customVariablePageUserLibCard!=null';
 		
 		// array merge without overwriting
-		foreach ($additionalParams as $key => $value) {
-			if (! array_key_exists($key, $params)) {
-				$params[$key] = $value;
-			} else {
-				if($key == 'segment')
-					$param[$key] .= ';'.$value;
+		if($additionalParams) {
+			foreach ($additionalParams as $key => $value) {
+				if (! array_key_exists($key, $params)) {
+					$params[$key] = $value;
+				} else {
+					if($key == 'segment')
+						$param[$key] .= ';'.$value;
+				}
 			}
 		}
 		
@@ -327,7 +329,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNewVisitorsCount($period, $date, $type = "all")
 	{		
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
 			'segment' => 'visitorType==new',
 		);
@@ -340,7 +342,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
-		return $dataArray['value'];
+		return $dataArray;
 	}
 	
 	/**
@@ -390,7 +392,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getReturningVisitorsCount($period, $date, $type = "all")
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
 			'segment' => 'visitorType==returning',
 		);
@@ -403,7 +405,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
-		return $dataArray['value'];
+		return $dataArray;
 	}
 	
 	/**

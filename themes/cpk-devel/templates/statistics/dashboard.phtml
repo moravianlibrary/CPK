@@ -13,7 +13,7 @@
 <?php 
 /*
  echo "<pre>";
- print_r($this->visitsInTime);
+ print_r($this->result);
  echo "</pre>";
  */
 ?>
@@ -149,7 +149,7 @@
 							            <tbody>
 							                <tr>
 							                    <td>
-							                        <button class="btn btn-danger m-r-sm" type="button">150</button>
+							                        <button class="btn btn-danger m-r-sm" type="button"><?= $this->totalVisits ?></button>
 													<?= $this->transEsc('Total visits') ?>
 							 					</td>
 							 				</tr>
@@ -223,7 +223,7 @@
 	        ],
 	        xkey: 'period',
 	        ykeys: [ 'novi', 'vracejici' ],
-	        labels: [ '<?php echo $this->transEsc('New readers'); ?>', '<?php echo $this->transEsc('Returning readers'); ?>' ],
+	        labels: [ '<?php echo $this->transEsc('New visits'); ?>', '<?php echo $this->transEsc('Returning visits'); ?>' ],
 	        pointSize: 2,
 	        hideHover: 'auto'
 	      });

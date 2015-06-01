@@ -25,7 +25,7 @@ interface PiwikStatisticsInterface
 	 * @param	array	$additionalParams	Additional parameters
 	 * @return	int
 	 */
-	public function getVisitsCount($period, $date, $type = "all", array $additionalParams);
+	public function getVisitsCount($period, $date, $type = "all", array $additionalParams = null);
 	
 	/**
 	 * Return number of visits with users logged in to the specific library
