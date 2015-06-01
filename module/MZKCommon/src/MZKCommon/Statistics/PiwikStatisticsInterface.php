@@ -18,13 +18,14 @@ interface PiwikStatisticsInterface
 	/**
 	 * Returns number of visits
 	 * 
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$type	all|anonyme|authenticated
+	 * @param	string	$period				day|week|month|year|range
+	 * @param	string	$date				YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 										YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$type				all|anonyme|authenticated
+	 * @param	array	$additionalParams	Additional parameters
 	 * @return	int
 	 */
-	public function getVisitsCount($period, $date, $type = "all");
+	public function getVisitsCount($period, $date, $type = "all", array $additionalParams);
 	
 	/**
 	 * Return number of visits with users logged in to the specific library

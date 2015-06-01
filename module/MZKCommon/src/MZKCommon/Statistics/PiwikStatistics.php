@@ -181,7 +181,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getVisitsCount($period, $date, $type = "all")
+	public function getVisitsCount($period, $date, $type = "all", array $additionalParams)
 	{
 		$params = array(
 			'method' => 'VisitsSummary.getVisits',
@@ -194,9 +194,19 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		if ($type == "authenticated")
 			$params['segment'] = 'customVariablePageUserLibCard!=null';
 		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
+		// array merge without overwriting
+		foreach ($additionalParams as $key => $value) {
+			if (! array_key_exists($key, $params)) {
+				$params[$key] = $value;
+			} else {
+				if($key == 'segment')
+					$param[$key] .= ';'.$value;
+			}
+		}
 		
-		return $count;
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		return $dataArray;
 	}
 	
 	/**

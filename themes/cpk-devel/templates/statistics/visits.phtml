@@ -1,1 +1,18 @@
-Visits
+<?php
+    // Set up page title:
+    $this->headTitle($this->translate('Statistics'));
+
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->transEsc('Your Account').'</a></li>' 
+    							  .'<li class="active">' . $this->transEsc('Statistics') . '</li>';
+    
+    echo $this->render('statistics/menu.phtml');
+    
+    echo $this->render('statistics/calendar.phtml');
+?>
+<script>
+	jQuery( document ).ready( function( $ ) {
+		// Sets menu item as active
+		$(".statistics-visits").addClass("active");
+	});
+</script>

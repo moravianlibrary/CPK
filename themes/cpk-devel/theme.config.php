@@ -20,6 +20,7 @@ return array(
         'lightbox.js',
     	'morris-0.4.1.min.js',
     	'raphael.min.js',
+    	'jquery-ui.min.js',
     ),
     'less' => array(
         'active' => false,

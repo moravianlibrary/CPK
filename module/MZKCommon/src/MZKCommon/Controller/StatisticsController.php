@@ -13,13 +13,40 @@ class StatisticsController extends AbstractBase
 {
 	public function dashboardAction()
 	{
+		
+		$dateFrom 	= '2015-01-01';
+		$dateTo 	= '2015-12-31';
+		$date 		= $dateFrom.','.$dateTo;
+		
 		$PiwikStatistics = $this->getServiceLocator()
 								->get('MZKCommon\StatisticsPiwikStatistics');
+		
+		// visits in time
+		$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
+				'month',
+				$date,
+				'all',
+				array('segment' => 'visitorType==returning')
+		);
+		
+		$newVisitsInTime = $PiwikStatistics->getVisitsCount(
+				'month',
+				$date,
+				'all',
+				array('segment' => 'visitorType==new')
+		);
+		
+		$visitsInTime = array();
+		foreach ($returningVisitsInTime as $key => $value) {
+			$visitsInTime[$key] = array('returningVisits' => $value, 'newVisits' => $newVisitsInTime[$key]);
+		}
+		//
 
 		$view = $this->createViewModel(	
 			array(
-				'newVisitorsCount' 			=> $PiwikStatistics->getNewVisitorsCount('range', '2015-01-01,2015-12-31'),
-				'returningVisitorsCount' 	=> $PiwikStatistics->getReturningVisitorsCount('range', '2015-01-01,2015-12-31'),
+				'newVisitorsCount' 			=> $PiwikStatistics->getNewVisitorsCount('range', $date),
+				'returningVisitorsCount' 	=> $PiwikStatistics->getReturningVisitorsCount('range', $date),
+				'visitsInTime'				=> $visitsInTime,
 			)
 		);
 		

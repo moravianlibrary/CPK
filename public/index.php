@@ -6,7 +6,7 @@ use Zend\Mvc\Service\ServiceManagerConfig;
 /**
  * Display all errors.
  */
-error_reporting(E_ALL ^ E_DEPRECATED);
+error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT ^ E_WARNING);
 ini_set("display_errors", 1);
 
 // If the XHProf profiler is enabled, set it up now:
