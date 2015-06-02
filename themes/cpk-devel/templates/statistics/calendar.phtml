@@ -1,0 +1,31 @@
+<div class='calendar form-inline' >
+	<span class='calendar'>
+		<?= $this->transEsc('Date range') ?>
+		<span class="input-group">
+			<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
+			<input class="form-control" type="text" id="datepicker">
+		</span>
+		<script>
+			jQuery( document ).ready( function( $ ) {
+				
+				// Initializes calendar
+				$( "#datepicker" ).datepicker( {
+			    	changeMonth: true,
+			    	changeYear: true,
+			    	dateFormat: "yy-mm-dd"
+				});
+				
+			});
+		</script>
+	</span>
+	
+	<?= $this->transEsc('Periodicity') ?>
+	<span class='periodPicker'>
+		<select id='pariod' class="form-control">
+			<option value='day'><?= $this->transEsc('Daily') ?></option>
+			<option value='week'><?= $this->transEsc('Weekly') ?></option>
+			<option value='month' selected><?= $this->transEsc('Monthly') ?></option>
+			<option value='year'><?= $this->transEsc('Yearly') ?></option>
+		</select>
+	</span>
+</div>

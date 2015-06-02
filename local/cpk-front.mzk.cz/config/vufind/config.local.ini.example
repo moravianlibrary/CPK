@@ -6,14 +6,14 @@ url             = https://vufind.localhost/
 email           = vufind@mzk.cz
 
 [Catalog]
-library_cards = true;
+library_cards = true
 
 [Index]
 engine          = Solr
 url		= http://cpk-back.mzk.cz:8080/solr
-default_core    = biblio
+default_core   = biblio
 ;url		= http://cpk-front.mzk.cz:8080/solr
-;default_core   = index
+;default_core    = index
 
 [Shibboleth]
 login           = https://vufind.localhost/Shibboleth.sso/Login
@@ -21,7 +21,7 @@ logout          = https://vufind.localhost/Shibboleth.sso/Logout
 username        = eduPersonPrincipalName
 
 [Database]
-database        = mysql://vufind:password@localhost/vufind
+database        = mysql://vufind:PASSWORD@localhost/vufind
 
 ;[Logging]
 ;file            = /home/jirislav/workspace/VuFind/VuFind/messages.log:alert,error,notice,debug
@@ -36,7 +36,7 @@ ABA013		= "http://aleph.techlib.cz/F?func=direct&doc_number="
 ABA008		= "http://www.medvik.cz/medvik/title_detail.do?id="
 
 [Piwik]
-url     = "https://vufind.localhost/piwik/"
+url = "https://url-to-running-piwik/"
 site_id = 1
 
 ; Enables facets this way
@@ -46,7 +46,7 @@ custom_variables = true
 track_user = true
 
 ; Enables ClickHeat plugin
-click_heat_plugin      = true
+click_heat_plugin = true
 click_heat_site_number = 1
 
 [Perun]
@@ -63,3 +63,17 @@ vo		= MZK
 eppn_param	= eppn
 userId_param    = user
 sigla_param     = lib
+ignore_default_user_creation = true
+
+[PiwikStatistics]
+piwik_token_auth		= "token_goes_here"
+default_statistics_url	= "http://cpk-front.mzk.cz/Statistics"
+piwik_url 				= "http://cpk-front.mzk.cz:9080"
+site_id					= 1
+catalog_browser_url		= "https://vufind.localhost/Browse/"
+search_results_url		= "https://vufind.localhost/Search/Results"
+record_url				= "https://vufind.localhost/Record/"
+item_reservation_url	= ""
+item_prolongation_url	= ""
+user_registration_url	= ""
+user_prolongation_url	= ""

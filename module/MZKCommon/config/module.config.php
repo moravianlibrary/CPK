@@ -39,6 +39,8 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'VuFind\ILSHoldLogic' => 'MZKCommon\ILS\Logic\Factory::getFlatHolds',
+        	'MZKCommon\StatisticsPiwikStatistics' => 'MZKCommon\Statistics\PiwikStatisticsFactory::getPiwikStatistics',
+        		
         ),
     ),
     'controllers' => array(
@@ -50,6 +52,7 @@ $config = array(
             'ajax'       => 'MZKCommon\Controller\AjaxController',
             'myresearch' => 'MZKCommon\Controller\MyResearchController',
             'librarycards' => 'MZKCommon\Controller\LibraryCardsController',
+        	'statistics' => 'MZKCommon\Controller\StatisticsController',
         ),
     ),
     'controller_plugins' => array(
@@ -62,7 +65,8 @@ $config = array(
 $staticRoutes = array(
     'Search/Conspectus', 'Search/MostSearched', 'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory', 'MyResearch/ShortLoans',
-    'MyResearch/FavoritesImport', 'MyResearch/ProfileChange',
+    'MyResearch/FavoritesImport', 'MyResearch/ProfileChange', 
+	'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations', 'Statistics/Payments', 'Statistics/Searches',
 );
 
 foreach ($staticRoutes as $route) {

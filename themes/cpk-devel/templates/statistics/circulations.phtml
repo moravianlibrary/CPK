@@ -1,0 +1,23 @@
+<?php
+    // Set up page title:
+    $this->headTitle($this->translate('Statistics'));
+
+    // Set up breadcrumbs:
+    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->transEsc('Your Account').'</a></li>' 
+    							  .'<li><a href="'.$this->url('statistics-dashboard').'">' . $this->transEsc('Statistics') . '</a></li>'
+    							  .'<li class="active">' . $this->transEsc('Circulations') . '</li>';
+    
+    echo $this->render('statistics/menu.phtml');
+    
+    echo $this->render('statistics/calendar.phtml');
+?>
+<script src="js/raphael.min.js"></script>
+<script src="vendor/jquery.min.js"></script>
+<script src="js/morris-0.4.1.min.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script>
+	jQuery( document ).ready( function( $ ) {
+		// Sets menu item as active
+		$(".statistics-circulations").addClass("active");
+	});
+</script>
