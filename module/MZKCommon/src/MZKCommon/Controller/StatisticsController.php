@@ -13,7 +13,76 @@ class StatisticsController extends AbstractBase
 {
 	public function dashboardAction()
 	{
+		$view = $this->createViewModel(
+				array(
+						'statistics'  => 'dashboard',
+				)
+		);
 		
+		$view->setTemplate('statistics/dashboard');
+		
+		return $view;
+	}
+	
+	public function searchesAction()
+	{
+		$dateFrom 	= '2015-01-01';
+		$dateTo 	= '2015-12-31';
+		$date 		= $dateFrom.','.$dateTo;
+		
+		$PiwikStatistics = $this->getServiceLocator()
+		->get('MZKCommon\StatisticsPiwikStatistics');
+		
+		$searches = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
+		$failedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
+		
+		$nbSearches = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
+		$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+		
+		$view = $this->createViewModel(
+			array(
+				'searches'  		=> $searches,
+				'failedSearches'  	=> $failedSearches,
+				'nbSearches'  		=> $nbSearches,
+				'nbFailedSearches'  => $nbFailedSearches,
+				'nbViewedItems'		=> $PiwikStatistics->getViewedRecordsCount('range', $date),
+				'nbItemViews'		=> 999,
+			)
+		);
+		
+		$view->setTemplate('statistics/searches');
+		
+		return $view;
+	}
+	
+	public function circulationsAction()
+	{
+		$view = $this->createViewModel(
+			array(
+				'statistics'  => 'circulations',
+			)
+		);
+		
+		$view->setTemplate('statistics/circulations');
+		
+		return $view;
+	}
+	
+	public function paymentsAction()
+	{
+		$view = $this->createViewModel(
+			array(
+				'statistics'  => 'payments',
+			)
+		);
+		
+		$view->setTemplate('statistics/payments');
+		
+		return $view;
+	}
+	
+	public function visitsAction()
+	{
 		$dateFrom 	= '2015-01-01';
 		$dateTo 	= '2015-12-31';
 		$date 		= $dateFrom.','.$dateTo;
@@ -53,65 +122,26 @@ class StatisticsController extends AbstractBase
 		// Returning visitors count
 		$returningVisitorsCountArray = $PiwikStatistics->getReturningVisitorsCount('month', $date);
 		$returningVisitorsCount = array_sum($returningVisitorsCountArray);
-
+		
+		// Visits info [Dashboard]
+		$visitsInfoArray  = $PiwikStatistics->getVisitsInfo('range', $date, 'all');
+		$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
+		$nbActions 		  = $visitsInfoArray['nb_actions'];
+		$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
+		$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
+		$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers();
+		
 		$view = $this->createViewModel(	
 			array(
 				'newVisitorsCount' 			=> $newVisitorsCount,
 				'returningVisitorsCount' 	=> $returningVisitorsCount,
 				'visitsInTime'				=> $visitsInTime,
 				'totalVisits'				=> $totalVisits,
-			)
-		);
-		
-		$view->setTemplate('statistics/dashboard');
-		
-		return $view;
-	}
-	
-	public function searchesAction()
-	{
-		$view = $this->createViewModel(
-			array(
-				'statistics'  => 'searches',
-			)
-		);
-		
-		$view->setTemplate('statistics/searches');
-		
-		return $view;
-	}
-	
-	public function circulationsAction()
-	{
-		$view = $this->createViewModel(
-			array(
-				'statistics'  => 'circulations',
-			)
-		);
-		
-		$view->setTemplate('statistics/circulations');
-		
-		return $view;
-	}
-	
-	public function paymentsAction()
-	{
-		$view = $this->createViewModel(
-			array(
-				'statistics'  => 'payments',
-			)
-		);
-		
-		$view->setTemplate('statistics/payments');
-		
-		return $view;
-	}
-	
-	public function visitsAction()
-	{
-		$view = $this->createViewModel(
-			array(
-				'statistics'  => 'visits',
+				'nbActionPerVisit'			=> $nbActionPerVisit,
+				'nbActions'					=> $nbActions,
+				'avgTimeOnSite'				=> $avgTimeOnSite,
+				'totalTimeOnSite'			=> $totalTimeOnSite,
+				'nbOnlineUsers'				=> $nbOnlineUsers,
 			)
 		);
 		

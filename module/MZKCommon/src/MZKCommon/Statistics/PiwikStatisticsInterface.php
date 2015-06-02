@@ -9,11 +9,6 @@ namespace MZKCommon\Statistics;
  */
 interface PiwikStatisticsInterface
 {
-	/**
-	 * Sets initial params
-	 * @param	int $idSite
-	 */
-	public function __construct($config);
 	
 	/**
 	 * Returns number of visits
@@ -39,15 +34,41 @@ interface PiwikStatisticsInterface
 	public function getVisitsCountForLibrary($period, $date, $userLibCard);
 	
 	/**
-	 * Returns number of searches
-	 * 
-	 * @param	string	$type	all|anonyme|authenticated
+	 * Returns array of info
+	 *
+	 * @param	string	$period				day|week|month|year|range
+	 * @param	string	$date				YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 										YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$type				all|anonyme|authenticated
+	 * @param	array	$additionalParams	Additional parameters
 	 * @return	int
 	 */
-	public function getSearchCount($period, $date, $type = "all");
+	public function getVisitsInfo($period, $date, $type = "all", array $additionalParams = null);
 	
 	/**
-	 * Return number of searches with users logged in to the specific library
+	 * Returns array of info with users logged in to the specific library
+	 *
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$userLibCard
+	 * @return	int
+	 */
+	public function getVisitsInfoForLibrary($period, $date, $userLibCard, array $additionalParams = null);
+	
+	/**
+	 * Returns number of users, who were online in last x minutes.
+	 * 
+	 * @param	int		$lastMinutes
+	 * @param	string	$userLibCard
+	 * @param	array	$additionalParams
+	 * 
+	 * @return	int
+	 */
+	public function getOnlineUsers($lastMinutes = 10, $userLibCard = null, array $additionalParams = null);
+	
+	/**
+	 * Returns number of search keywords with found results
 	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
@@ -55,22 +76,66 @@ interface PiwikStatisticsInterface
 	 * @param	string	$userLibCard
 	 * @return	int
 	 */
-	public function getSearchCountForLibrary($period, $date, $userLibCard);
+	public function getFoundSearchKeywordsCount($period, $date, $userLibCard = null);
 	
 	/**
-	 * Returns all searched keywords in VuFind.
-	 * If userLibCard is provided, returns searched keywords in VuFind 
-	 * by users logged in to specific library.
-	 * When rawData is set to 1, returns csv
+	 * Returns number of search keywords with no results
 	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	int		$userLibCard
-	 * @param	int|boolean	$rawData
-	 * @return	array|csv
+	 * @param	string	$userLibCard
+	 * @return	int
 	 */
-	public function getSearchKeywords($period, $date, $userLibCard = null, $rawData = null);
+	public function getNoResultSearchKeywordsCount($period, $date, $userLibCard = null);
+	
+	/**
+	 * Returns array of search keywords with found results
+	 * 
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	int		$filterLimit	Max rows in result. -1 = all
+	 * @param	string	$userLibCard
+	 * @param	int|boolean	$rawData	If true, returns CSV
+	 * @return	int
+	 */
+	public function getFoundSearchKeywords($period, $date, $filterLimit="-1", $userLibCard = null, $rawData = null);
+	
+	/**
+	 * Returns array of search keywords with no results
+	 * 
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	int		$filterLimit	Max rows in result. -1 = all
+	 * @param	string	$userLibCard
+	 * @param	int|boolean	$rawData	If true, returns CSV
+	 * @return	int
+	 */
+	public function getNoResultSearchKeywords($period, $date, $filterLimit="-1" ,$userLibCard = null, $rawData = null);
+	
+	/**
+	 * Returns number of catalog accesses
+	 *
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$type	all|anonyme|authenticated
+	 * @return	int
+	*/
+	public function getCatalogAccessCount($period, $date, $type = "all");
+	
+	/**
+	 * Returns number of catalog accesses with users logged in to the specific library
+	 *
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$userLibCard
+	 * @return	int
+	*/
+	public function getCatalogAccessCountForLibrary($period, $date, $userLibCard);
 	
 	/**
 	 * Returns number of viewed records
@@ -182,63 +247,6 @@ interface PiwikStatisticsInterface
 	 * @return	array|csv
 	*/
 	public function getReturningVisitors($period, $date, $userLibCard = null, $rawData = null);
-	
-	/**
-	 * Returns number of not found search keywords
-	 * 
-	 * @param	string	$type	all|anonyme|authenticated
-	 * @return	int
-	 */
-	public function getNotFoundSearchKeywordsCount($period, $date, $type = "all");
-	
-	/**
-	 * Return number of not found search keywords with users logged in to the specific library
-	 * 
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$userLibCard
-	 * @return	int
-	*/
-	public function getNotFoundSearchKeywordsCountForLibrary($period, $date, $userLibCard);
-	
-	/**
-	 * Returns all not found search keywords in VuFind.
-	 * If userLibCard is provided, returns not found search keywords in VuFind
-	 * by users logged in to specific library.
-	 * When rawData is set to 1, returns csv
-	 * 
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	int		$userLibCard
-	 * @param	int|boolean	$rawData
-	 * @return	array|csv
-	*/
-	public function getNotFoundSearchKeywords($period, $date, $userLibCard = null, $rawData = null);
-	
-	/**
-	 * Returns number of catalog accesses
-	 * 
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$type	all|anonyme|authenticated
-	 * @return	int
-	 */
-	public function getCatalogAccessCount($period, $date, $type = "all");
-	
-	
-	/**
-	 * Returns number of catalog accesses with users logged in to the specific library
-	 * 
-	 * @param	string	$period	day|week|month|year|range
-	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
-	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
-	 * @param	string	$userLibCard
-	 * @return	int
-	 */
-	public function getCatalogAccessCountForLibrary($period, $date, $userLibCard);
 	
 	/**
 	 * Returns number of item prolongs

@@ -79,7 +79,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	protected $piwikTokenAuth;
 	
 	/**
-	 * @inheritDoc
+	 * Sets initial params
+	 * 
+	 * @param	int $idSite
+	 *
 	 * @todo set missing default urls
 	 * @todo set variables in config [PiwikStatistics]
 	 */
@@ -167,7 +170,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 * @throws	\Exception when cURL is not installed
 	 * @return	array
 	 */
-	private function getResultDataAsArrayFromRequest($period, $date, array $params)
+	private function getResultDataAsArrayFromRequest($period = null, $date = null, array $params)
 	{
 		if ($params['format'] !== 'json')
 			throw new \Exception("Format of requested data must be JSON to convert into php array correctly.");
@@ -232,48 +235,240 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getSearchCount($period, $date, $type = "all")
+	public function getVisitsInfo($period, $date, $type = "all", array $additionalParams = null)
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
-			'format'  => 'json',
-			'segment' => 'pageUrl=@'.urlencode($this->searchResultsUrl),
+				'method' => 'VisitsSummary.get',
+				'format' => 'json',
+		);
+	
+		if ($type == "anonyme")
+			$params['segment'] = 'customVariablePageUserLibCard==null';
+	
+		if ($type == "authenticated")
+			$params['segment'] = 'customVariablePageUserLibCard!=null';
+	
+		// array merge without overwriting
+		if($additionalParams) {
+			foreach ($additionalParams as $key => $value) {
+				if (! array_key_exists($key, $params)) {
+					$params[$key] = $value;
+				} else {
+					if($key == 'segment')
+						$param[$key] .= ';'.$value;
+				}
+			}
+		}
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+	
+		return $dataArray;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getVisitsInfoForLibrary($period, $date, $userLibCard, array $additionalParams = null)
+	{
+		$params = array(
+				'method' => 'VisitsSummary.get',
+				'format' => 'json',
+		);
+	
+		$params['segment'] = 'customVariablePageUserLibCard=='.$userLibCard;
+	
+		// array merge without overwriting
+		if($additionalParams) {
+			foreach ($additionalParams as $key => $value) {
+				if (! array_key_exists($key, $params)) {
+					$params[$key] = $value;
+				} else {
+					if($key == 'segment')
+						$param[$key] .= ';'.$value;
+				}
+			}
+		}
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+	
+		return $dataArray;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getOnlineUsers($lastMinutes = 10, $userLibCard = null, array $additionalParams = null)
+	{
+		$params = array(
+				'method' 	  => 'Live.getCounters',
+				'format' 	  => 'json',
+				'lastMinutes' => (int) $lastMinutes,
 		);
 		
+		if($userLibCard)
+			$params['segment'] = 'customVariablePageUserLibCard=='.$userLibCard;
+		
+		// array merge without overwriting
+		if($additionalParams) {
+			foreach ($additionalParams as $key => $value) {
+				if (! array_key_exists($key, $params)) {
+					$params[$key] = $value;
+				} else {
+					if($key == 'segment')
+						$param[$key] .= ';'.$value;
+				}
+			}
+		}
+		
+		$dataArray = $this->getResultDataAsArrayFromRequest(null, null, $params);
+		
+		return $dataArray[0]['visits'];
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getFoundSearchKeywordsCount($period, $date, $userLibCard = null)
+	{
+		 $params = array(
+			'method'  => 'Actions.getSiteSearchKeywords',
+			'format'  => 'json',
+		 	'filter_limit' => "-1",
+			'showColumns' => 'nb_visits,label',
+		);
+		
+		if ($userLibCard)
+			$params['segment'] = ';customVariablePageUserLibCard=='.$userLibCard;
+		
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		$count = count($dataArray);
+
+		return $count;
+	}
+	
+	public function getNoResultSearchKeywordsCount($period, $date, $userLibCard = null)
+	{
+		$params = array(
+				'method'  => 'Actions.getSiteSearchNoResultKeywords',
+				'format'  => 'json',
+				'filter_limit' => "-1",
+				'showColumns' => 'nb_visits,label',
+		);
+	
+		if ($userLibCard)
+			$params['segment'] = ';customVariablePageUserLibCard=='.$userLibCard;
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+	
+		$count = count($dataArray);
+	
+		return $count;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getFoundSearchKeywords($period, $date, $filterLimit="-1", $userLibCard = null, $rawData = null)
+	{
+		 $params = array(
+			'method'  => 'Actions.getSiteSearchKeywords',
+			'format'  => 'json',
+		 	'filter_limit' => $filterLimit,
+		 	'filter_sort_column' => 'nb_visits',
+		 	'filter_sort_order' => 'desc',
+			'showColumns' => 'nb_visits,label',
+		);
+		
+		if ($rawData)
+			$params['format'] = 'csv';
+		
+		if ($userLibCard)
+			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+		
+		if ($rawData)
+			return $this->getResultDataFromRequest($period, $date, $params);
+		
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		$searches = array();
+		foreach ($dataArray as $key => $value) {
+			array_push($searches, array('keyword' => $value['label'], 'count' => $value['nb_visits']));
+		}
+
+		return $searches;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getNoResultSearchKeywords($period, $date, $filterLimit="-1" ,$userLibCard = null, $rawData = null)
+	{
+		$params = array(
+				'method'  => 'Actions.getSiteSearchNoResultKeywords',
+				'format'  => 'json',
+				'filter_limit' => $filterLimit,
+				'filter_sort_column' => 'nb_visits',
+				'filter_sort_order' => 'desc',
+				'showColumns' => 'nb_visits,label',
+		);
+	
+		if ($rawData)
+			$params['format'] = 'csv';
+	
+		if ($userLibCard)
+			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+	
+		if ($rawData)
+			return $this->getResultDataFromRequest($period, $date, $params);
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+	
+		$searches = array();
+		foreach ($dataArray as $key => $value) {
+			array_push($searches, array('keyword' => $value['label'], 'count' => $value['nb_visits']));
+		}
+	
+		return $searches;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getCatalogAccessCount($period, $date, $type = "all")
+	{
+		$params = array(
+				'method'  => 'VisitsSummary.getVisits',
+				'format'  => 'json',
+				'segment' => 'pageUrl=@'.urlencode($this->catalogBrowserUrl),
+		);
+	
 		if ($type == "anonyme")
 			$params['segment'] .= ';customVariablePageUserLibCard==null';
-		
+	
 		if ($type == "authenticated")
 			$params['segment'] .= ';customVariablePageUserLibCard!=null';
-		
+	
 		$count = $this->getRowsCountFromRequest($period, $date, $params);
-		
+	
 		return $count;
 	}
 	
 	/**
 	 * @inheritDoc
 	 */
-	public function getSearchCountForLibrary($period, $date, $userLibCard)
+	public function getCatalogAccessCountForLibrary($period, $date, $userLibCard)
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
-			'format'  => 'json',
-			'segment' => 'pageUrl=@'.urlencode($this->searchResultsUrl)
-					   .';customVariablePageUserLibCard=='.$userLibCard,
+				'method'  => 'VisitsSummary.getVisits',
+				'format'  => 'json',
+				'segment' => 'pageUrl=@'.urlencode($this->catalogBrowserUrl)
+				.';customVariablePageUserLibCard=='.$userLibCard,
 		);
-		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
-		
-		return $count;
-	}
 	
-	/**
-	 * @inheritDoc
-	 */
-	public function getSearchKeywords($period, $date, $userLibCard = null, $rawData = null)
-	{
-		// @todo implement
+		$count = $this->getRowsCountFromRequest($period, $date, $params);
+	
+		return $count;
 	}
 	
 	/**
@@ -447,69 +642,6 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
 		return $dataArray;
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getNotFoundSearchKeywordsCount($period, $date, $type = "all")
-	{
-		// @todo implement
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getNotFoundSearchKeywordsCountForLibrary($period, $date, $userLibCard)
-	{
-		// @todo implement
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getNotFoundSearchKeywords($period, $date, $userLibCard = null, $rawData = null)
-	{
-		// @todo implement
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getCatalogAccessCount($period, $date, $type = "all")
-	{
-		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
-			'format'  => 'json',
-			'segment' => 'pageUrl=@'.urlencode($this->catalogBrowserUrl),
-		);
-		
-		if ($type == "anonyme")
-			$params['segment'] .= ';customVariablePageUserLibCard==null';
-		
-		if ($type == "authenticated")
-			$params['segment'] .= ';customVariablePageUserLibCard!=null';
-		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
-		
-		return $count;
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getCatalogAccessCountForLibrary($period, $date, $userLibCard)
-	{
-		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
-			'format'  => 'json',
-			'segment' => 'pageUrl=@'.urlencode($this->catalogBrowserUrl)
-					   .';customVariablePageUserLibCard=='.$userLibCard,
-		);
-		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
-		
-		return $count;
 	}
 	
 	/**
