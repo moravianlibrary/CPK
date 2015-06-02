@@ -81,12 +81,12 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * Sets initial params
 	 * 
-	 * @param	int $idSite
+	 * @param	VuFind\Config $config
 	 *
 	 * @todo set missing default urls
 	 * @todo set variables in config [PiwikStatistics]
 	 */
-	public function __construct($config)
+	public function __construct(\Zend\Config\Config $config)
 	{
 		$this->siteId 			    = isset($config->PiwikStatistics->site_id) 				  ? $config->PiwikStatistics->site_id 			  	  : 1;
 		$this->catalogBrowserUrl    = isset($config->PiwikStatistics->catalog_browser_url) 	  ? $config->PiwikStatistics->catalog_browser_url     : "https://vufind.localhost/Browse/";
