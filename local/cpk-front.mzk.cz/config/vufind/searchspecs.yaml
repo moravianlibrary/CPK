@@ -555,3 +555,59 @@ sysno:
   QueryFields:
     sysno_str:
       - [and, ~]
+
+ISBNISSNISMN:
+  QueryFields:
+    issnIsbnIsmn_search_str_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+sourceTitle:
+  QueryFields:
+    sourceTitle_search_txt_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+callNumber:
+  QueryFields:
+    callNumber_search_txt_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+publisher:
+  QueryFields:
+    publisher_search_str_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+id001:
+  QueryFields:
+    id001_search_str:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+cnb:
+  QueryFields:
+    cnb_search_str:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+placeOfPublication:
+  QueryFields:
+    placeOfPublication_txt_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+counrtyOfPublication:
+  QueryFields:
+    country_txt:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
