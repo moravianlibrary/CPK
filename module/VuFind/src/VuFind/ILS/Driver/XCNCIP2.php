@@ -319,10 +319,12 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $locationNameInstance = $current->xpath('ns1:ItemOptionalFields/ns1:Location/ns1:LocationName/ns1:LocationNameInstance');
 
         foreach ($locationNameInstance as $recent) {
+            // FIXME: Create config to map location abbreviations of each institute into human readable values
+
             $locationLevel = (string) $recent->xpath('ns1:LocationNameLevel')[0];
 
             if ($locationLevel == 4) {
-                $agency = (string) $recent->xpath('ns1:LocationNameValue')[0];
+                $department = (string) $recent->xpath('ns1:LocationNameValue')[0];
             } else
                 if ($locationLevel == 3) {
                     $sublibrary = (string) $recent->xpath('ns1:LocationNameValue')[0];
@@ -350,22 +352,9 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
 
         $itemRestriction = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemUseRestrictionType')[0];
 
-        $available = (string) $status[0] === 'On Shelf';
+        $available = $status === 'Available On Shelf';
 
-        /*
-         * $dueDate = $available ? null : explode("; ", (string) $status[0])[0];
-         *
-         * if (! empty($dueDate) && $dueDate != 'On Hold') {
-         *
-         * // Localize Aleph date to dd. MM. yyyy from Aleph unstructued
-         * // response
-         * $dueDate = explode("/", $dueDate);
-         *
-         * $dueDate[1] = date('n', strtotime($dueDate[1]));
-         *
-         * $dueDate = implode(". ", $dueDate);
-         * }
-         */
+        // TODO Exists any clean way to get the due date without additional request?
 
         if (! empty($locationInBuilding))
             $onStock = substr($locationInBuilding, 0, 5) == 'Stock';
@@ -403,9 +392,10 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
             'status' => empty($status) ? "" : $status,
             'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
             'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
+            'department' => empty($department) ? '' : $department,
             'reserve' => "",
             'callnumber' => "",
-            'collection_desc' => empty($agency) ? "" : $agency,
+            'collection_desc' => "",
             'duedate' => empty($dueDate) ? "" : $dueDate,
             'returnDate' => false,
             'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
