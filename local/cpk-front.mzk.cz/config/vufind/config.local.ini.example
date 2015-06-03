@@ -59,6 +59,7 @@ ignore_default_user_creation = true
 <<<<<<< HEAD
 
 [PiwikStatistics]
+trust_ssl_host          = true
 piwik_token_auth		= "token_goes_here"
 default_statistics_url	= "http://cpk-front.mzk.cz/Statistics"
 piwik_url 				= "http://cpk-front.mzk.cz:9080"
