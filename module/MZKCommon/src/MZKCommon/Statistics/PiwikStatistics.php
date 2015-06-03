@@ -79,6 +79,12 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	protected $piwikTokenAuth;
 	
 	/**
+	 * TrustSSLHost
+	 * @var	boolean
+	 */
+	protected $trustSSLHost;
+	
+	/**
 	 * Sets initial params
 	 * 
 	 * @param	VuFind\Config $config
@@ -98,7 +104,8 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$this->userProlongUrl 	    = isset($config->PiwikStatistics->user_prolongation_url)  ? $config->PiwikStatistics->user_prolongation_url   : "";
 		$this->defaultStatisticsUrl = isset($config->PiwikStatistics->default_statistics_url) ? $config->PiwikStatistics->default_statistics_url  : "http://cpk-front.mzk.cz/Statistics";
 		$this->piwikUrl 			= isset($config->PiwikStatistics->piwik_url) 			  ? $config->PiwikStatistics->piwik_url  			  : "http://cpk-front.mzk.cz:9080";
-		$this->piwikTokenAuth		= isset($config->PiwikStatistics->piwik_token_auth) 	  ? $config->PiwikStatistics->piwik_token_auth  	  : "no_token_in_config [PiwikStatistics] -> piwik_token_auth";		
+		$this->piwikTokenAuth		= isset($config->PiwikStatistics->piwik_token_auth) 	  ? $config->PiwikStatistics->piwik_token_auth  	  : "no_token_in_config [PiwikStatistics] -> piwik_token_auth";
+		$this->trustSSLHost			= isset($config->PiwikStatistics->trust_ssl_host)		  ? $config->PiwikStatistics->trust_ssl_host		  : true;
 	}
 	
 	/**
@@ -136,11 +143,25 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+		
+		if ($this->trustSSLHost) {
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		}
 	
 		$output = curl_exec($ch);
 	
 		curl_close($ch);
+		
+		// Error response handling
+		$dataArray = json_decode($output, true);
+		if($dataArray === NULL)
+			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
 	
+		if($dataArray['error'])
+			throw new \Exception($dataArray['error']);
+		//	
+			
 		return $output;
 	}
 	
