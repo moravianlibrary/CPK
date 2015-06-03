@@ -140,17 +140,17 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			throw new \Exception('cURL is not installed!');
 		
 		$curlAdapterConfig = array(
-				'adapter'   => '\Zend\Http\Client\Adapter\Curl',
-				'curloptions' => array(
-						CURLOPT_FOLLOWLOCATION 	=> true,
-						CURLOPT_REFERER			=> $this->defaultStatisticsUrl,
-						CURLOPT_USERAGENT		=> "Mozilla/5.0",
-						CURLOPT_HEADER			=> 0,
-						CURLOPT_RETURNTRANSFER	=> true,
-						CURLOPT_TIMEOUT			=> 10,	
-						CURLOPT_SSL_VERIFYHOST	=> ($this->trustSSLHost) ? 0 : 2,
-						CURLOPT_SSL_VERIFYPEER	=> ($this->trustSSLHost) ? 0 : 1,
-				),
+			'adapter'     => '\Zend\Http\Client\Adapter\Curl',
+			'curloptions' => array(
+				CURLOPT_FOLLOWLOCATION 	=> true,
+				CURLOPT_REFERER			=> $this->defaultStatisticsUrl,
+				CURLOPT_USERAGENT		=> "Mozilla/5.0",
+				CURLOPT_HEADER			=> 0,
+				CURLOPT_RETURNTRANSFER	=> true,
+				CURLOPT_TIMEOUT			=> 10,	
+				CURLOPT_SSL_VERIFYHOST	=> ($this->trustSSLHost) ? 0 : 2,
+				CURLOPT_SSL_VERIFYPEER	=> ($this->trustSSLHost) ? 0 : 1,
+			),
 		);
 		
 		$client = new \Zend\Http\Client($url, $curlAdapterConfig);
