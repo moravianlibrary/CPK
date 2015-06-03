@@ -130,7 +130,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$params['period'] 	  = $period;
 		
 		$query = http_build_query($params);
-		$url   = $this->piwikUrl.'?'.$query;
+		$url   = $this->piwikUrl.'/?'.$query;
 		
 		if (! function_exists('curl_init'))
 			throw new \Exception('cURL is not installed!');
@@ -154,11 +154,12 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		curl_close($ch);
 		
 		// Error response handling
-		$dataArray = json_decode($output, true);
-		if($dataArray === NULL)
+		$dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
+		
+		if ($dataArray === NULL)
 			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
 	
-		if($dataArray['error'])
+		if ($dataArray['error'])
 			throw new \Exception($dataArray['error']);
 		//	
 			
@@ -197,7 +198,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			throw new \Exception("Format of requested data must be JSON to convert into php array correctly.");
 		
 		$jsonData  = $this->getRequestDataResponse($period, $date, $params);
-		$dataArray = json_decode($jsonData, true);
+		$dataArray = \Zend\Json\Json::decode($jsonData, \Zend\Json\Json::TYPE_ARRAY);
 		
 		return $dataArray;
 	}
