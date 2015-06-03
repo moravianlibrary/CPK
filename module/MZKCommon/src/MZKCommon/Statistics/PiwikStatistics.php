@@ -119,6 +119,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
 	 * @param	array	$params	GET params
 	 * @throws	\Exception when cURL us not installed
+	 * @throws	\Exception when Json cannot be decoded 
+	 * 			or the encoded data is deeper than the recursion limit.
+	 * @throws	\Exception when response body contains error element
+	 * @throws	\Exception when reponse status code is not 200
 	 * @return	mixed
 	 */
 	private function getRequestDataResponse($period, $date, array $params)
@@ -130,36 +134,43 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$params['period'] 	  = $period;
 		
 		$query = http_build_query($params);
-		$url   = $this->piwikUrl.'/?'.$query;
+		$url   = $this->piwikUrl.'?'.$query;
 		
 		if (! function_exists('curl_init'))
 			throw new \Exception('cURL is not installed!');
 		
-		$ch = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_REFERER, $this->defaultStatisticsUrl);
-		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0");
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+		$curlAdapterConfig = array(
+				'adapter'   => '\Zend\Http\Client\Adapter\Curl',
+				'curloptions' => array(
+						CURLOPT_FOLLOWLOCATION 	=> true,
+						CURLOPT_REFERER			=> $this->defaultStatisticsUrl,
+						CURLOPT_USERAGENT		=> "Mozilla/5.0",
+						CURLOPT_HEADER			=> 0,
+						CURLOPT_RETURNTRANSFER	=> true,
+						CURLOPT_TIMEOUT			=> 10,	
+						CURLOPT_SSL_VERIFYHOST	=> ($this->trustSSLHost) ? 0 : 2,
+						CURLOPT_SSL_VERIFYPEER	=> ($this->trustSSLHost) ? 0 : 1,
+				),
+		);
 		
-		if ($this->trustSSLHost) {
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		}
-	
-		$output = curl_exec($ch);
-	
-		curl_close($ch);
+		$client = new \Zend\Http\Client($url, $curlAdapterConfig);
+		$response = $client->send();
 		
-		// Error response handling
+		// Response head error handling
+		$responseStatusCode = $response->getStatusCode();
+		if($responseStatusCode !== 200)
+			throw new \Exception("Response status code: ".$responseStatusCode);
+		//
+		
+		$output	= $response->getBody();
+		
+		// Response body error handling
 		$dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
 		
 		if ($dataArray === NULL)
 			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
 	
-		if ($dataArray['error'])
+		if (isset($dataArray['error']))
 			throw new \Exception($dataArray['error']);
 		//	
 			
