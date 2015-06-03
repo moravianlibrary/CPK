@@ -49,14 +49,21 @@ track_user = true
 click_heat_plugin = true
 click_heat_site_number = 1
 
-[UserCards]
-get_institutes_url           = https://cpk-front.mzk.cz/simplesaml/getinstitutes/
+[Perun]
+; This config is about Perun from CESNET organization (https://github.com/CESNET/perun)
+enabled 	= true
 
-get_institutes_user_param    = user
-get_institutes_lib_param     = lib
+; Url of Perun
+url		= https://perun-url/
 
+; Virtual Organization name in Perun
+vo		= MZK
+
+; Params to send to Perun
+eppn_param	= eppn
+userId_param    = user
+sigla_param     = lib
 ignore_default_user_creation = true
-<<<<<<< HEAD
 
 [PiwikStatistics]
 trust_ssl_host          = true
@@ -71,5 +78,3 @@ item_reservation_url	= ""
 item_prolongation_url	= ""
 user_registration_url	= ""
 user_prolongation_url	= ""
-=======
->>>>>>> e105dd59355180206024d9b2bb5fbacffc213634

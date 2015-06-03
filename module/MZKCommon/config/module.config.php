@@ -8,6 +8,9 @@ $config = array(
                 'factories' => array(
                     'aleph' => 'MZKCommon\ILS\Driver\Factory::getAleph',
                 ), /* factories */
+                'invokables' => array(
+                    'dummy' => 'MZKCommon\ILS\Driver\Dummy',
+                ), /* invokables */
             ), /* ils_drivers */
             'recommend' => array(
                 'factories' => array(
