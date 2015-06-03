@@ -87,7 +87,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * Sets initial params
 	 * 
-	 * @param	VuFind\Config $config
+	 * @param	\Zend\Config\Config $config
 	 *
 	 * @todo set missing default urls
 	 * @todo set variables in config [PiwikStatistics]
@@ -301,6 +301,39 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * @inheritDoc
 	 */
+	public function getActionsInfo($period, $date, $type = "all", array $additionalParams = null)
+	{
+		$params = array(
+				'method' => 'Actions.get',
+				'format' => 'json',
+		);
+	
+		if ($type == "anonyme")
+			$params['segment'] = 'customVariablePageUserLibCard==null';
+	
+		if ($type == "authenticated")
+			$params['segment'] = 'customVariablePageUserLibCard!=null';
+	
+		// array merge without overwriting
+		if($additionalParams) {
+			foreach ($additionalParams as $key => $value) {
+				if (! array_key_exists($key, $params)) {
+					$params[$key] = $value;
+				} else {
+					if($key == 'segment')
+						$param[$key] .= ';'.$value;
+				}
+			}
+		}
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+	
+		return $dataArray;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
 	public function getVisitsInfoForLibrary($period, $date, $userLibCard, array $additionalParams = null)
 	{
 		$params = array(
@@ -380,13 +413,16 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		return $count;
 	}
 	
+	/**
+	 * @inheritDoc
+	 */
 	public function getNoResultSearchKeywordsCount($period, $date, $userLibCard = null)
 	{
 		$params = array(
-				'method'  => 'Actions.getSiteSearchNoResultKeywords',
-				'format'  => 'json',
-				'filter_limit' => "-1",
-				'showColumns' => 'nb_visits,label',
+			'method' 		=> 'Actions.getSiteSearchNoResultKeywords',
+			'format'  		=> 'json',
+			'filter_limit' 	=> "-1",
+			'showColumns' 	=> 'nb_visits,label',
 		);
 	
 		if ($userLibCard)
@@ -438,12 +474,12 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNoResultSearchKeywords($period, $date, $filterLimit="-1" ,$userLibCard = null, $rawData = null)
 	{
 		$params = array(
-				'method'  => 'Actions.getSiteSearchNoResultKeywords',
-				'format'  => 'json',
-				'filter_limit' => $filterLimit,
-				'filter_sort_column' => 'nb_visits',
-				'filter_sort_order' => 'desc',
-				'showColumns' => 'nb_visits,label',
+			'method'  => 'Actions.getSiteSearchNoResultKeywords',
+			'format'  => 'json',
+			'filter_limit' => $filterLimit,
+			'filter_sort_column' => 'nb_visits',
+			'filter_sort_order' => 'desc',
+			'showColumns' => 'nb_visits,label',
 		);
 	
 		if ($rawData)
@@ -471,9 +507,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getCatalogAccessCount($period, $date, $type = "all")
 	{
 		$params = array(
-				'method'  => 'VisitsSummary.getVisits',
-				'format'  => 'json',
-				'segment' => 'pageUrl=@'.urlencode($this->catalogBrowserUrl),
+			'method'  => 'VisitsSummary.getVisits',
+			'format'  => 'json',
+			'segment' => 'pageUrl=@'.urlencode($this->catalogBrowserUrl),
 		);
 	
 		if ($type == "anonyme")
@@ -482,8 +518,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		if ($type == "authenticated")
 			$params['segment'] .= ';customVariablePageUserLibCard!=null';
 	
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
-	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		$count = $dataArray['value'];
+		
 		return $count;
 	}
 	
@@ -499,29 +536,57 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				.';customVariablePageUserLibCard=='.$userLibCard,
 		);
 	
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
-	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		$count = $dataArray['value'];
+		
 		return $count;
 	}
 	
 	/**
 	 * @inheritDoc
 	 */
-	public function getViewedRecordsCount($period, $date, $type = "all")
+	public function getNbRecordVisits($period, $date, $type = "all")
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'Actions.get',
 			'format'  => 'json',
+			'showColumns' => 'nb_pageviews',
 			'segment' => 'pageUrl=@'.urlencode($this->recordUrl),
+		);
+	
+		if ($type == "anonyme")
+			$params['segment'] .= 'customVariablePageUserLibCard==null';
+	
+		if ($type == "authenticated")
+			$params['segment'] .= 'customVariablePageUserLibCard!=null';
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		$count = $dataArray['value'];
+		
+		return $count;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getNbRecordVisitsForLibrary($period, $date, $userLibCard)
+	{
+		$params = array(
+				'method'  => 'Actions.get',
+				'format'  => 'json',
+				'showColumns' => 'nb_pageviews',
+				'segment' => 'pageUrl=@'.urlencode($this->recordUrl)
+							.';customVariablePageUserLibCard=='.$userLibCard,
 		);
 		
 		if ($type == "anonyme")
-			$params['segment'] .= ';customVariablePageUserLibCard==null';
+			$params['segment'] .= 'customVariablePageUserLibCard==null';
 		
 		if ($type == "authenticated")
-			$params['segment'] .= ';customVariablePageUserLibCard!=null';
+			$params['segment'] .= 'customVariablePageUserLibCard!=null';
 		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		$count = $dataArray['value'];
 		
 		return $count;
 	}
@@ -529,16 +594,35 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getViewedRecordsCountForLibrary($period, $date, $userLibCard)
+	public function getNbViewedRecords($period, $date, $type = "all", array $additionalParams = null)
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'Actions.get',
 			'format'  => 'json',
-			'segment' => 'pageUrl=@'.urlencode($this->recordUrl)
-					   .';customVariablePageUserLibCard=='.$userLibCard,
+			'showColumns' => 'nb_uniq_pageviews',
+			'segment' => 'pageUrl=@'.urlencode($this->recordUrl),
 		);
-		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
+	
+		if ($type == "anonyme")
+			$params['segment'] .= 'customVariablePageUserLibCard==null';
+	
+		if ($type == "authenticated")
+			$params['segment'] .= 'customVariablePageUserLibCard!=null';
+	
+		// array merge without overwriting
+		if($additionalParams) {
+			foreach ($additionalParams as $key => $value) {
+				if (! array_key_exists($key, $params)) {
+					$params[$key] = $value;
+				} else {
+					if($key == 'segment')
+						$param[$key] .= ';'.$value;
+				}
+			}
+		}
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		$count = $dataArray['value'];
 		
 		return $count;
 	}

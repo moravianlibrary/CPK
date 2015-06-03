@@ -14,9 +14,9 @@ class StatisticsController extends AbstractBase
 	public function dashboardAction()
 	{
 		$view = $this->createViewModel(
-				array(
-						'statistics'  => 'dashboard',
-				)
+			array(
+				'statistics'  => 'dashboard',
+			)
 		);
 		
 		$view->setTemplate('statistics/dashboard');
@@ -33,20 +33,38 @@ class StatisticsController extends AbstractBase
 		$PiwikStatistics = $this->getServiceLocator()
 		->get('MZKCommon\StatisticsPiwikStatistics');
 		
-		$searches = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
-		$failedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
+		$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
+		$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
 		
-		$nbSearches = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
-		$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+		$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
+		$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+		
+		//
+		$allSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date);
+		$allFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date);
+		
+		$nbSuccessedSearches = 0;
+		$nbFailedSearches	 = 0;
+		
+		foreach ($allSearches as $key => $value) {
+			$nbSuccessedSearches += $value['count'];
+		}
+		
+		foreach ($allFailedSearches as $key => $value) {
+			$nbFailedSearches += $value['count'];
+		}
 		
 		$view = $this->createViewModel(
 			array(
-				'searches'  		=> $searches,
-				'failedSearches'  	=> $failedSearches,
-				'nbSearches'  		=> $nbSearches,
-				'nbFailedSearches'  => $nbFailedSearches,
-				'nbViewedItems'		=> $PiwikStatistics->getViewedRecordsCount('range', $date),
-				'nbItemViews'		=> 999,
+				'topSearches'  		 => $topSearches,
+				'topFailedSearches'  => $topFailedSearches,
+				'nbFoundKeywords'  	 => $nbFoundKeywords,
+				'nbNoResultKeywords' => $nbNoResultKeywords,
+				'nbSuccessedSearches'=> $nbSuccessedSearches,
+				'nbFailedSearches'   => $nbFailedSearches,
+				'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecords('range', $date),
+				'nbItemViews'		 => $PiwikStatistics->getNbRecordVisits('range', $date),
+				'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCount('range', $date),
 			)
 		);
 		

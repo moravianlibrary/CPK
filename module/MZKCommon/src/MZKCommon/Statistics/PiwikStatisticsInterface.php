@@ -34,7 +34,7 @@ interface PiwikStatisticsInterface
 	public function getVisitsCountForLibrary($period, $date, $userLibCard);
 	
 	/**
-	 * Returns array of info
+	 * Returns array of visits info
 	 *
 	 * @param	string	$period				day|week|month|year|range
 	 * @param	string	$date				YYYY-MM-DD|today|yesterday|lastX|previousX|
@@ -44,6 +44,18 @@ interface PiwikStatisticsInterface
 	 * @return	int
 	 */
 	public function getVisitsInfo($period, $date, $type = "all", array $additionalParams = null);
+	
+	/**
+	 * Returns array of actions info
+	 *
+	 * @param	string	$period				day|week|month|year|range
+	 * @param	string	$date				YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 										YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$type				all|anonyme|authenticated
+	 * @param	array	$additionalParams	Additional parameters
+	 * @return	int
+	 */
+	public function getActionsInfo($period, $date, $type = "all", array $additionalParams = null);
 	
 	/**
 	 * Returns array of info with users logged in to the specific library
@@ -138,7 +150,7 @@ interface PiwikStatisticsInterface
 	public function getCatalogAccessCountForLibrary($period, $date, $userLibCard);
 	
 	/**
-	 * Returns number of viewed records
+	 * Returns number of records visits
 	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
@@ -146,10 +158,10 @@ interface PiwikStatisticsInterface
 	 * @param	string	$type	all|anonyme|authenticated
 	 * @return	int
 	 */
-	public function getViewedRecordsCount($period, $date, $type = "all");
+	public function getNbRecordVisits($period, $date, $type = "all");
 	
 	/**
-	 * Returns number of viewed records with users logged in to the specific library
+	 * Returns number of records visits with users logged in to the specific library
 	 * 
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
@@ -157,14 +169,29 @@ interface PiwikStatisticsInterface
 	 * @param	string	$userLibCard
 	 * @return	int
 	 */
-	public function getViewedRecordsCountForLibrary($period, $date, $userLibCard);
+	public function getNbRecordVisitsForLibrary($period, $date, $userLibCard);
 	
 	/**
-	 * Returns all viewed records in VuFind.
-	 * If userLibCard is provided, returns viewed records in VuFind 
+	 * Returns number of visited records in VuFind.
+	 * If userLibCard is provided, returns number of visited records in VuFind 
 	 * by users logged in to specific library.
 	 * When rawData is set to 1, returns csv
 	 * 
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$type	all|anonyme|authenticated
+	 * @param	array	$additionalParams
+	 * @return	array|csv
+	 */
+	public function getNbViewedRecords($period, $date, $type = "all", array $additionalParams = null);
+	
+	/**
+	 * Returns array of visited records in VuFind.
+	 * If userLibCard is provided, returns array of visited records in VuFind
+	 * by users logged in to specific library.
+	 * When rawData is set to 1, returns csv
+	 *
 	 * @param	string	$period	day|week|month|year|range
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday

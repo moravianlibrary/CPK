@@ -24,7 +24,7 @@
 		<div class="widget lazur-bg p-lg text-center">
 			<div class="m-b-md">
 				<i class="fa fa-check fa-4x"></i>
-				<h1 class="m-xs">47</h1>
+				<h1 class="m-xs"><?= $this->nbSuccessedSearches ?></h1>
 				<h3 class="font-bold no-margins">
 					<?= $this->transEsc('Found') ?>
                 </h3>
@@ -38,7 +38,7 @@
 		<div class="widget red-bg p-lg text-center">
 			<div class="m-b-md">
 				<i class="fa fa-close fa-4x"></i>
-				<h1 class="m-xs">47</h1>
+				<h1 class="m-xs"><?= $this->nbFailedSearches ?></h1>
 				<h3 class="font-bold no-margins">
 					<?= $this->transEsc('Not found') ?>
                 </h3>
@@ -52,12 +52,12 @@
 		<div class="widget yellow-bg p-lg text-center">
 			<div class="m-b-md">
 				<i class="fa fa-sitemap fa-4x"></i>
-				<h1 class="m-xs">47</h1>
+				<h1 class="m-xs"><?= $this->catalogAccessCount ?></h1>
 				<h3 class="font-bold no-margins">
 					<?= $this->transEsc('Catalog') ?>
                 </h3>
         		<small>
-            		<?= $this->transEsc('Number of catalog browsing') ?>
+            		<?= $this->transEsc('Number of catalog browsings') ?>
         		</small>
     		</div>
 		</div>
@@ -72,7 +72,7 @@
 				<h3 class="panel-title">
 					<i class="fa fa-search fa-fw"></i> 
 					<?= $this->transEsc('Top keywords'); ?> 
-					<span style='float: right;' class="badge"><?= $this->nbSearches ?></span>
+					<span style='float: right;' class="badge"><?= $this->nbFoundKeywords ?></span>
 				</h3>
 			</div>
 			<div class="panel-body">
@@ -88,7 +88,7 @@
             				<?php
             					$searchesHtml = "";
 
-            					foreach ($this->searches as $key => $value) {
+            					foreach ($this->topSearches as $key => $value) {
             						$searchesHtml .= "\t\t\t\t\t\t\t<tr>\n";
             						$searchesHtml .= "\t\t\t\t\t\t\t\t<td>\n";
             						$searchesHtml .= "\t\t\t\t\t\t\t\t\t".$value['keyword']."\n";
@@ -116,7 +116,7 @@
 				<h3 class="panel-title">
 					<i class="fa fa-search fa-fw"></i> 
 					<?= $this->transEsc('Top not found keywords'); ?> 
-					<span style='float: right;' class="badge"><?= $this->nbFailedSearches ?></span>
+					<span style='float: right;' class="badge"><?= $this->nbNoResultKeywords ?></span>
 				</h3>
 			</div>
 			<div class="panel-body">
@@ -132,7 +132,7 @@
             				<?php
             					$failedSearchesHtml = "";
             					
-            					foreach ($this->failedSearches as $key => $value) {
+            					foreach ($this->topFailedSearches as $key => $value) {
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t<tr>\n";
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t<td>\n";
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t\t".$value['keyword']."\n";
