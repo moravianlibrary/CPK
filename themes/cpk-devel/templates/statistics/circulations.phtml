@@ -11,6 +11,39 @@
     
     echo $this->render('statistics/calendar.phtml');
 ?>
+
+
+
+<div class="row">
+	<div class="col-lg-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<i class="fa fa-user fa-fw"></i>
+ 					<?= $this->transEsc('Readers') ?>
+				</h3>
+			</div>
+			<div class="panel-body">
+				<div id="readers-comparision"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<i class="fa fa-user fa-fw"></i>
+ 					<?= $this->transEsc('Circulations') ?>
+				</h3>
+			</div>
+			<div class="panel-body">
+				<div id="circulations-comparision"></div>
+			</div>
+		</div>
+	</div>
+</div>	
+<!-- /.row -->
+
 <script src="js/raphael.min.js"></script>
 <script src="vendor/jquery.min.js"></script>
 <script src="js/morris-0.4.1.min.js"></script>
@@ -19,5 +52,37 @@
 	jQuery( document ).ready( function( $ ) {
 		// Sets menu item as active
 		$( ".statistics-circulations" ).addClass( "active" );
+
+		// Initializes donut chart for readers comparision
+	    Morris.Donut( {
+	        element: 'readers-comparision',
+	        data: [
+	        	{ label: "<?= $this->transEsc('Registrations'); ?>", 
+		          value: 20
+		        },
+			    { label: "<?= $this->transEsc('Prolongations'); ?>", 
+				  value: 30 
+				},
+			],
+	        resize: true
+	    });
+
+	 // Initializes donut chart for circulations comparision
+	    Morris.Donut( {
+	        element: 'circulations-comparision',
+	        data: [
+	        	{ label: "<?= $this->transEsc('Reserved'); ?>", 
+		          value: 20 
+		        },
+			    { label: "<?= $this->transEsc('Prolonged'); ?>", 
+				  value: 30
+				},
+				{ label: "<?= $this->transEsc('Ordered'); ?>", 
+				  value: 10
+				},
+			],
+	        resize: true
+	    });
+		
 	});
 </script>

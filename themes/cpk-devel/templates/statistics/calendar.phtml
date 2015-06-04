@@ -1,31 +1,74 @@
 <div class='calendar form-inline' >
-	<span class='calendar'>
-		<?= $this->transEsc('Date range') ?>
+	
+	<?= $this->transEsc('Period') ?>
+	<span class='period-picker'>
+		<select id='period' class="form-control">
+			<option value='day'><?= $this->transEsc('Choose Day') ?></option>
+			<option value='range'><?= $this->transEsc('Select Range') ?></option>
+			<option value='today'><?= $this->transEsc('Today') ?></option>
+			<option value='month' selected><?= $this->transEsc('This Month') ?></option>
+			<option value='year'><?= $this->transEsc('This Year') ?></option>
+		</select>
+	</span>
+
+
+	<span id='day-calendar'>
+		<span class='date-picker-caption'><?= $this->transEsc('Select day') ?></span>
 		<span class="input-group">
 			<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-			<input class="form-control" type="text" id="datepicker">
+			<input class="form-control" type="text" id="day-datepicker">
 		</span>
-		<script>
+	</span>
+	
+	<span id='range-calendar'>
+		<span class='date-picker-caption'><?= $this->transEsc('From') ?></span>
+		<span class="input-group">
+			<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
+			<input class="form-control" type="text" id="range-datepicker-from">
+		</span>
+		
+		<span class='date-picker-caption'><?= $this->transEsc('To') ?></span>
+		<span class="input-group">
+			<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
+			<input class="form-control" type="text" id="range-datepicker-to">
+		</span>
+	</span>
+	
+	<span class='selected-date-range'></span>
+</div>
+
+
+<script>
 			jQuery( document ).ready( function( $ ) {
 				
-				// Initializes calendar
-				$( "#datepicker" ).datepicker( {
+				// Initializes calendars
+				$( '#day-datepicker, #range-datepicker-from, #range-datepicker-to' ).datepicker( {
 			    	changeMonth: true,
 			    	changeYear: true,
 			    	dateFormat: "yy-mm-dd"
 				});
-				
+
+				$( '#period' ).on('change', function( event ){
+
+					event.preventDefault();
+
+					var period = $(this).val();
+
+					console.log('Period changed to: '+period);
+					
+					if ( period == 'day' ) {
+						$( '#day-calendar' ).show();
+						$( '#range-calendar' ).hide();
+					} else if ( period == 'range' ){
+						$( '#day-calendar' ).hide();
+						$( '#range-calendar' ).show();
+					} else {
+						$( '#day-calendar' ).hide();
+						$( '#range-calendar' ).hide();
+					}
+					
+					
+				});
+
 			});
 		</script>
-	</span>
-	
-	<?= $this->transEsc('Periodicity') ?>
-	<span class='periodPicker'>
-		<select id='pariod' class="form-control">
-			<option value='day'><?= $this->transEsc('Daily') ?></option>
-			<option value='week'><?= $this->transEsc('Weekly') ?></option>
-			<option value='month' selected><?= $this->transEsc('Monthly') ?></option>
-			<option value='year'><?= $this->transEsc('Yearly') ?></option>
-		</select>
-	</span>
-</div>
