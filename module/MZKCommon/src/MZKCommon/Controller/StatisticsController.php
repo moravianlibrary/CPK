@@ -169,5 +169,4 @@ class StatisticsController extends AbstractBase
 		
 		return $view;
 	}
-	
 }

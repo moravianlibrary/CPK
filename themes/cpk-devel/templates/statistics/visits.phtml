@@ -111,6 +111,9 @@
 <script>
 	jQuery( document ).ready( function( $ ) {
 
+		// Sets menu item as active
+		$( ".statistics-visits" ).addClass( "active" );
+
 		// Initializes donut chart for visitors comparision
 	    Morris.Donut( {
 	        element: 'visits-comparision',
@@ -143,9 +146,6 @@
 	        pointSize: 2,
 	        hideHover: 'auto'
 	      });
-
-	 	// Sets menu item as active
-		$( ".statistics-visits" ).addClass( "active" );
 		
 	});
 </script>

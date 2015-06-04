@@ -12,13 +12,6 @@
     echo $this->render('statistics/calendar.phtml');
 ?>
 
-<?php 
-/*
- echo "<pre>";
- print_r($this->searches);
- echo "</pre>";
- */
-?>
 <div class="row">
 	<div class="col-lg-4">
 		<div class="widget lazur-bg p-lg text-center">
@@ -81,7 +74,7 @@
 						<thead>
 							<tr>
 								<th><?= $this->transEsc('Search term') ?></th>
-            					<th><?= $this->transEsc('Search count') ?></th>
+            					<th class='text-center'><?= $this->transEsc('Search count') ?></th>
             				</tr>
             			</thead>
             			<tbody>
@@ -93,7 +86,7 @@
             						$searchesHtml .= "\t\t\t\t\t\t\t\t<td>\n";
             						$searchesHtml .= "\t\t\t\t\t\t\t\t\t".$value['keyword']."\n";
             						$searchesHtml .= "\t\t\t\t\t\t\t\t</td>\n";
-            						$searchesHtml .= "\t\t\t\t\t\t\t\t<td>\n";
+            						$searchesHtml .= "\t\t\t\t\t\t\t\t<td class='text-center'>\n";
             						$searchesHtml .= "\t\t\t\t\t\t\t\t\t".$value['count']."\n";
             						$searchesHtml .= "\t\t\t\t\t\t\t\t</td>\n";
             						$searchesHtml .= "\t\t\t\t\t\t\t<tr>\n";
@@ -125,7 +118,7 @@
 						<thead>
 							<tr>
 								<th><?= $this->transEsc('Search term') ?></th>
-            					<th><?= $this->transEsc('Search count') ?></th>
+            					<th class='text-center'><?= $this->transEsc('Search count') ?></th>
             				</tr>
             			</thead>
             			<tbody>
@@ -137,7 +130,7 @@
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t<td>\n";
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t\t".$value['keyword']."\n";
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t</td>\n";
-            						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t<td>\n";
+            						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t<td class='text-center'>\n";
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t\t".$value['count']."\n";
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t\t</td>\n";
             						$failedSearchesHtml .= "\t\t\t\t\t\t\t<tr>\n";
@@ -187,6 +180,7 @@
 <script src="js/jquery-ui.min.js"></script>
 <script>
 	jQuery( document ).ready( function( $ ) {
+		
 		// Sets menu item as active
 		$( ".statistics-searches" ).addClass( "active" );
 
@@ -201,5 +195,6 @@
 			console.log( "download-no-result-keywords initialized" );
 			window.open( '<?= $this->noResultKeywordsUrl ?>' );
 		});
+		
 	});
 </script>
