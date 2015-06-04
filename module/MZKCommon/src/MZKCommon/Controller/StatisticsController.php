@@ -65,6 +65,8 @@ class StatisticsController extends AbstractBase
 				'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecords('range', $date),
 				'nbItemViews'		 => $PiwikStatistics->getNbRecordVisits('range', $date),
 				'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCount('range', $date),
+				'foundKeywordsUrl'   => $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", null, 1),
+				'noResultKeywordsUrl'=> $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", null, 1),
 			)
 		);
 		
@@ -167,4 +169,5 @@ class StatisticsController extends AbstractBase
 		
 		return $view;
 	}
+	
 }

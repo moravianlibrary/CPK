@@ -105,7 +105,7 @@
             		</table>
             	</div>
 				<div class="text-right">
-					<a href="#"><?= $this->transEsc('Download full list in CSV'); ?> <i class="fa fa-cloud-download"></i></a>
+					<a id='download-found-keywords'><?= $this->transEsc('Download full list in CSV'); ?> <i class="fa fa-cloud-download"></i></a>
 				</div>
 			</div>
 		</div>
@@ -149,7 +149,7 @@
             		</table>
             	</div>
 				<div class="text-right">
-					<a href="#"><?= $this->transEsc('Download full list in CSV'); ?> <i class="fa fa-cloud-download"></i></a>
+					<a id='download-no-result-keywords'><?= $this->transEsc('Download full list in CSV'); ?> <i class="fa fa-cloud-download"></i></a>
 				</div>
 			</div>
 		</div>
@@ -188,6 +188,41 @@
 <script>
 	jQuery( document ).ready( function( $ ) {
 		// Sets menu item as active
-		$(".statistics-searches").addClass("active");
+		$( ".statistics-searches" ).addClass( "active" );
+
+		// download found keywords
+		$( "#download-found-keywords" ).click( function() {
+
+			$.ajax({
+				url: "<?= $this->foundKeywordsUrl ?>",
+				type: "POST",
+			}).always( function() {
+				console.log("download-found-keywords initialized");
+			}).done( function( data ) {
+				console.log( "done" );
+				console.log( data );
+			}).fail( function( jqXHR, textStatus ) {
+				console.log( "Request failed: " + textStatus );
+			});
+
+		});
+
+		// download no result keywords
+		$( "#download-no-result-keywords" ).click( function() {
+
+			$.ajax({
+				url: "<?= $this->noResultKeywordsUrl ?>",
+				type: "POST",
+			}).always( function() {
+				console.log("download-no-result-keywords initialized");
+			}).done( function( data ) {
+				console.log( "done" );
+				console.log( data );
+			}).fail( function( jqXHR, textStatus ) {
+				console.log( "Request failed: " + textStatus );
+			});
+
+		});
+		
 	});
 </script>
