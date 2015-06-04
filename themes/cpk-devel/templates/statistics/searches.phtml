@@ -192,36 +192,14 @@
 
 		// download found keywords
 		$( "#download-found-keywords" ).click( function() {
-
-			$.ajax({
-				url: "<?= $this->foundKeywordsUrl ?>",
-				type: "POST",
-			}).always( function() {
-				console.log("download-found-keywords initialized");
-			}).done( function( data ) {
-				console.log( "done" );
-				console.log( data );
-			}).fail( function( jqXHR, textStatus ) {
-				console.log( "Request failed: " + textStatus );
-			});
-
+			console.log( "download-found-keywords initialized" );
+			window.open( '<?= $this->foundKeywordsUrl ?>' );
 		});
 
 		// download no result keywords
 		$( "#download-no-result-keywords" ).click( function() {
-
-			$.ajax({
-				url: "<?= $this->noResultKeywordsUrl ?>",
-				type: "POST",
-			}).always( function() {
-				console.log("download-no-result-keywords initialized");
-			}).done( function( data ) {
-				console.log( "done" );
-				console.log( data );
-			}).fail( function( jqXHR, textStatus ) {
-				console.log( "Request failed: " + textStatus );
-			});
-
+			console.log( "download-no-result-keywords initialized" );
+			window.open( '<?= $this->noResultKeywordsUrl ?>' );
 		});
 		
 	});
