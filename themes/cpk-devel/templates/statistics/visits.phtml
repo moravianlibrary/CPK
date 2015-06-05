@@ -53,45 +53,60 @@
 			</div>
 			<div class="panel-body">
   				<div class="table-responsive">
-					<table class="table">
+					<table class="table table-hover table-striped">
 						<tbody>
 							<tr>
 								<td>
-									<button class="btn array-danger m-r-sm" type="button"><?= $this->totalVisits ?></button>
 									<?= $this->transEsc('Total visits') ?>
 								</td>
+								<td>
+									<?= $this->totalVisits ?>
+								</td>
 							</tr>
 							<tr>
 								<td>
-									<button class="btn array-default m-r-sm" type="button"><?= $this->totalTimeOnSite ?></button>
 									<?= $this->transEsc('Total time') ?>
 								</td>
+								<td>
+									<?= $this->totalTimeOnSite ?>
+								</td>
 							</tr>
 							<tr>
 								<td>
-									<button class="btn array-info m-r-sm" type="button"><?= $this->avgTimeOnSite ?></button>
 									<?= $this->transEsc('Average visit time') ?>
 								</td>
+								<td>
+									<?= $this->avgTimeOnSite ?>
+								</td>
 							</tr>
 							<tr>
 								<td>
-									<button class="btn array-primary m-r-sm" type="button"><?= $this->nbActions ?></button>
 									<?= $this->transEsc('Actions') ?>
 								</td>
+								<td>
+									<?= $this->nbActions ?>
+								</td>
 							</tr>
 							<tr>
 								<td>
-									<button class="btn array-warning m-r-sm" type="button"><?= $this->nbActionPerVisit ?></button>
 									<?= $this->transEsc('Actions per visit') ?>
 								</td>
-							</tr>
-							<tr>
 								<td>
-									<button class="btn array-success m-r-sm" type="button"><?= $this->nbOnlineUsers ?></button>
-									<?= $this->transEsc('Online borrowers') ?>
+									<?= $this->nbActionPerVisit ?>
 								</td>
 							</tr>
 							<tr>
+								<td>
+									<?= $this->transEsc('Online borrowers') ?>
+								</td>
+								<td>
+									<?= $this->nbOnlineUsers ?>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<!-- Two Table data cells for line printing -->
+								</td>
 								<td>
 								</td>
 							</tr>
