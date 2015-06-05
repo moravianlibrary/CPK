@@ -13,82 +13,92 @@
 ?>
 
 <div class="row">
-	<div class="col-lg-3 col-md-6">
-		<div class="panel panel-primary">
-			<div class="panel-heading">
-				<div class="row">
-					<div class="col-xs-3">
-						<i class="fa fa-user-plus fa-5x"></i>
- 					</div>
-					<div class="col-xs-9 text-right">
- 						<div class="huge">20 543</div>
-						<div><?= $this->transEsc('Registrations'); ?></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-md-6">
-		<div class="panel panel-green">
-			<div class="panel-heading">
-				<div class="row">
-					<div class="col-xs-3">
-						<i class="fa fa-clock-o fa-5x"></i>
- 					</div>
-					<div class="col-xs-9 text-right">
- 						<div class="huge">32 580</div>
-						<div><?= $this->transEsc('Prolongations'); ?></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-md-6">
-		<div class="panel panel-yellow">
-			<div class="panel-heading">
-				<div class="row">
-					<div class="col-xs-3">
-						<i class="fa fa-bookmark fa-5x"></i>
- 					</div>
-					<div class="col-xs-9 text-right">
- 						<div class="huge">12 520</div>
-						<div><?= $this->transEsc('Reservatons'); ?></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-3 col-md-6">
-		<div class="panel panel-red">
-			<div class="panel-heading">
-				<div class="row">
-					<div class="col-xs-3">
-						<i class="fa fa-warning fa-5x"></i>
- 					</div>
-					<div class="col-xs-9 text-right">
- 						<div class="huge">13 589</div>
-						<div><?= $this->transEsc('Fines'); ?></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- /.row -->
+	<div class="<?=$this->layoutClass('mainbody')?>">
 
-<div class="row">
-	<div class="col-lg-12">
-		<div class="panel panel-default">
-		    <div class="panel-heading">
-		        <h3 class="panel-title">
-		            <i class="fa fa-clock-o fa-fw"></i>
-		             <?= $this->transEsc('Payments in time') ?>
-		        </h3>
-		    </div>
-		    <div class="panel-body">
-		    	<div id="payments-in-time"></div>
-		    </div>
+		<div class="row">
+			<div class="col-lg-3 col-md-6">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<div class="row">
+							<div class="col-xs-3">
+								<i class="fa fa-user-plus fa-4x"></i>
+		 					</div>
+							<div class="col-xs-9 text-right">
+		 						<div class="huge">20 543</div>
+								<div><?= $this->transEsc('Registrations'); ?></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6">
+				<div class="panel panel-green">
+					<div class="panel-heading">
+						<div class="row">
+							<div class="col-xs-3">
+								<i class="fa fa-clock-o fa-4x"></i>
+		 					</div>
+							<div class="col-xs-9 text-right">
+		 						<div class="huge">32 580</div>
+								<div><?= $this->transEsc('Prolongations'); ?></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6">
+				<div class="panel panel-yellow">
+					<div class="panel-heading">
+						<div class="row">
+							<div class="col-xs-3">
+								<i class="fa fa-bookmark fa-4x"></i>
+		 					</div>
+							<div class="col-xs-9 text-right">
+		 						<div class="huge">12 520</div>
+								<div><?= $this->transEsc('Reservatons'); ?></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6">
+				<div class="panel panel-red">
+					<div class="panel-heading">
+						<div class="row">
+							<div class="col-xs-3">
+								<i class="fa fa-warning fa-4x"></i>
+		 					</div>
+							<div class="col-xs-9 text-right">
+		 						<div class="huge">13 589</div>
+								<div><?= $this->transEsc('Fines'); ?></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+		<!-- /.row -->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+				    <div class="panel-heading">
+				        <h3 class="panel-title">
+				            <i class="fa fa-clock-o fa-fw"></i>
+				             <?= $this->transEsc('Payments in time') ?>
+				        </h3>
+				    </div>
+				    <div class="panel-body">
+				    	<div id="payments-in-time"></div>
+				    </div>
+				</div>
+			</div>
+		</div>
+		<!-- /.row -->
+
+	</div>
+	<div class="<?=$this->layoutClass('sidebar')?>">
+    	<?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'statistics'))?>
 	</div>
 </div>
 <!-- /.row -->

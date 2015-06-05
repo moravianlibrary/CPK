@@ -17,7 +17,17 @@
  echo "</pre>";
  */
 ?>
-
+<div class="row">
+	<div class="<?=$this->layoutClass('mainbody')?>">
+	
+		Ahoj
+		
+	</div>
+	<div class="<?=$this->layoutClass('sidebar')?>">
+		<?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'statistics'))?>
+	</div>
+</div>
+ 
 <script src="js/raphael.min.js"></script>
 <script src="vendor/jquery.min.js"></script>
 <script src="js/morris-0.4.1.min.js"></script>
@@ -28,4 +38,6 @@
 		$( ".statistics-dashboard" ).addClass( "active" );
 	});
 </script>
+
+
 
