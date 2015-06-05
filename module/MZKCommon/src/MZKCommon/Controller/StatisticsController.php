@@ -11,6 +11,11 @@ use Zend\View\Model\ViewModel;
  */
 class StatisticsController extends AbstractBase
 {
+	public function defaultAction()
+	{
+		return $this->dashboardAction();
+	}
+	
 	public function dashboardAction()
 	{
 		$view = $this->createViewModel(

@@ -66,7 +66,7 @@ $staticRoutes = array(
     'Search/Conspectus', 'Search/MostSearched', 'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory', 'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport', 'MyResearch/ProfileChange', 
-	'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations', 'Statistics/Payments', 'Statistics/Searches',
+	'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations', 'Statistics/Payments', 'Statistics/Searches', 'Statistics',
 );
 
 foreach ($staticRoutes as $route) {
@@ -78,7 +78,7 @@ foreach ($staticRoutes as $route) {
             'route'    => '/' . $route,
             'defaults' => array(
                 'controller' => $controller,
-                'action'     => $action,
+            	'action'     => (isset($action)) ? $action : 'default',
             )
         )
     );
