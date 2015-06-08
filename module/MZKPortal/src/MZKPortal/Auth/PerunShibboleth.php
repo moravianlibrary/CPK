@@ -27,7 +27,7 @@
  */
 namespace MZKPortal\Auth;
 
-use VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\Auth as AuthException, Zend\XmlRpc\Value\String, MZKPortal\Perun\IdentityResolver;
+use VuFind\Exception\Auth as AuthException, MZKPortal\Perun\IdentityResolver;
 use VuFind\Exception\VuFind\Exception;
 use VuFind\Db\Row\User;
 
@@ -47,31 +47,14 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
     const SEPARATOR_REGEXED = "\\.";
 
-    protected $configLoader;
-
     protected $identityResolver;
-
-    protected $shibbolethConfig = null;
 
     protected $loginDrivers = null;
 
-    protected $attribsToCheck = array(
-        'username',
-        'cat_username',
-        'email',
-        'lastname',
-        'firstname',
-        'college',
-        'major',
-        'home_library',
-        'pass_hash',
-        'verify_hash'
-    );
-
     public function __construct(\VuFind\Config\PluginManager $configLoader, IdentityResolver $identityResolver = null)
     {
-        $this->configLoader = $configLoader;
-        $this->identityResolver = $identityResolver == null ? false : $identityResolver;
+        parent::__construct($configLoader);
+        $this->identityResolver = ($identityResolver == null) ? false : $identityResolver;
     }
 
     public function authenticate($request)
@@ -206,40 +189,9 @@ class PerunShibboleth extends ShibbolethWithWAYF
         return $user;
     }
 
-    /**
-     * Get the URL to establish a session (needed when the internal VuFind login
-     * form is inadequate).
-     * Returns false when no session initiator is needed.
-     *
-     * @param string $target
-     *            Full URL where external authentication method should
-     *            send user to after login (some drivers may override this).
-     *
-     * @return array
-     */
-    public function getSessionInitiators($target)
-    {
-        $this->init();
-        $config = $this->getConfig();
-        if (isset($config->Shibboleth->target)) {
-            $shibTarget = $config->Shibboleth->target;
-        } else {
-            $shibTarget = $target;
-        }
-        $initiators = array();
-        foreach ($this->shibbolethConfig as $name => $configuration) {
-            $entityId = $configuration['entityId'];
-            $loginUrl = $config->Shibboleth->login . '?target=' . urlencode($shibTarget) . '&entityID=' . urlencode($entityId);
-            $initiators[$name] = $loginUrl;
-        }
-        return $initiators;
-    }
-
     protected function init()
     {
-        if ($this->shibbolethConfig == null) {
-            $this->shibbolethConfig = $this->configLoader->get('shibboleth');
-        }
+        parent::init();
 
         if ($this->loginDrivers == null) {
             $multiBackend = $this->configLoader->get('MultiBackend');
@@ -266,6 +218,8 @@ class PerunShibboleth extends ShibbolethWithWAYF
      */
     protected function handleLibraryCards($user, $institutes, $activeCard)
     {
+        // FIXME: Do not recreate LibCards, just update those present & remove not supplied
+
         $tableManager = $this->getDbTableManager();
         $userCardTable = $tableManager->get("UserCard");
 
