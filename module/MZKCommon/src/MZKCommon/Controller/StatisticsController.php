@@ -18,6 +18,28 @@ class StatisticsController extends AbstractBase
 	
 	public function dashboardAction()
 	{
+		// Log In Start
+		if (! is_array($patron = $this->catalogLogin())) {
+			return $patron;
+		}
+		
+		$user 		= $this->getUser();
+		$isLibrary  = false;
+		$isAdmin 	= false;
+		
+		$config = $this->getServiceLocator()->get('config');
+		$adminLibCard = isset($config->PiwikStatistics->major_adm) ? $config->PiwikStatistics->major_adm : 'CPK';
+		
+		if (empty($user['major']))
+			return $this->redirect()->toRoute('myresearch-home');
+		
+		if ($user['major'] === $adminLibCard) {
+			$isAdmin = true;
+		} else {
+			$isLibrary = true;
+		}
+		// Log in End
+		
 		$view = $this->createViewModel(
 			array(
 				'statistics'  => 'dashboard',
@@ -31,49 +53,97 @@ class StatisticsController extends AbstractBase
 	
 	public function searchesAction()
 	{
-		$dateFrom 	= '2015-01-01';
-		$dateTo 	= '2015-12-31';
-		$date 		= $dateFrom.','.$dateTo;
-		
-		$PiwikStatistics = $this->getServiceLocator()
-		->get('MZKCommon\StatisticsPiwikStatistics');
-		
-		$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
-		$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
-		
-		$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
-		$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
-		
-		//
-		$allSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date);
-		$allFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date);
-		
-		$nbSuccessedSearches = 0;
-		$nbFailedSearches	 = 0;
-		
-		foreach ($allSearches as $key => $value) {
-			$nbSuccessedSearches += $value['count'];
+		// Log In Start
+		if (! is_array($patron = $this->catalogLogin())) {
+			return $patron;
 		}
 		
-		foreach ($allFailedSearches as $key => $value) {
-			$nbFailedSearches += $value['count'];
-		}
+		$user 		= $this->getUser();
+		$isLibrary  = false;
+		$isAdmin 	= false;
 		
-		$view = $this->createViewModel(
-			array(
-				'topSearches'  		 => $topSearches,
-				'topFailedSearches'  => $topFailedSearches,
-				'nbFoundKeywords'  	 => $nbFoundKeywords,
-				'nbNoResultKeywords' => $nbNoResultKeywords,
-				'nbSuccessedSearches'=> $nbSuccessedSearches,
-				'nbFailedSearches'   => $nbFailedSearches,
-				'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecords('range', $date),
-				'nbItemViews'		 => $PiwikStatistics->getNbRecordVisits('range', $date),
-				'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCount('range', $date),
-				'foundKeywordsUrl'   => $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", null, 1),
-				'noResultKeywordsUrl'=> $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", null, 1),
-			)
-		);
+		$config = $this->getServiceLocator()->get('config');
+		$adminLibCard = isset($config->PiwikStatistics->major_adm) ? $config->PiwikStatistics->major_adm : 'CPK';
+		
+		if (empty($user['major']))
+			return $this->redirect()->toRoute('myresearch-home');
+		
+		if ($user['major'] === $adminLibCard) {
+			$isAdmin = true;
+		} else {
+			$isLibrary = true;
+		}
+		// Log in End
+		
+		if ($isLibrary) {
+		
+			$dateFrom 	= '2015-01-01';
+			$dateTo 	= '2015-12-31';
+			$date 		= $dateFrom.','.$dateTo;
+			
+			$PiwikStatistics = $this->getServiceLocator()
+			->get('MZKCommon\StatisticsPiwikStatistics');
+			
+			$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
+			$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
+			
+			$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
+			$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+			
+			//
+			$nbSuccessedSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date);
+			$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date);
+			
+			$view = $this->createViewModel(
+				array(
+					'topSearches'  		 => $topSearches,
+					'topFailedSearches'  => $topFailedSearches,
+					'nbFoundKeywords'  	 => $nbFoundKeywords,
+					'nbNoResultKeywords' => $nbNoResultKeywords,
+					'nbSuccessedSearches'=> $nbSuccessedSearches,
+					'nbFailedSearches'   => $nbFailedSearches,
+					'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecords('range', $date),
+					'nbItemViews'		 => $PiwikStatistics->getNbRecordVisits('range', $date),
+					'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCount('range', $date),
+					'foundKeywordsUrl'   => $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", null, 1),
+					'noResultKeywordsUrl'=> $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", null, 1),
+				)
+			);
+			
+		} else { // is Admin
+			$dateFrom 	= '2015-01-01';
+			$dateTo 	= '2015-12-31';
+			$date 		= $dateFrom.','.$dateTo;
+			
+			$PiwikStatistics = $this->getServiceLocator()
+			->get('MZKCommon\StatisticsPiwikStatistics');
+			
+			$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
+			$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
+			
+			$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
+			$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+			
+			//
+			$nbSuccessedSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date);
+			$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date);
+			
+			$view = $this->createViewModel(
+				array(
+					'topSearches'  		 => $topSearches,
+					'topFailedSearches'  => $topFailedSearches,
+					'nbFoundKeywords'  	 => $nbFoundKeywords,
+					'nbNoResultKeywords' => $nbNoResultKeywords,
+					'nbSuccessedSearches'=> $nbSuccessedSearches,
+					'nbFailedSearches'   => $nbFailedSearches,
+					'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecords('range', $date),
+					'nbItemViews'		 => $PiwikStatistics->getNbRecordVisits('range', $date),
+					'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCount('range', $date),
+					'foundKeywordsUrl'   => $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", null, 1),
+					'noResultKeywordsUrl'=> $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", null, 1),
+				)
+			);
+		}
 		
 		$view->setTemplate('statistics/searches');
 		
@@ -82,11 +152,43 @@ class StatisticsController extends AbstractBase
 	
 	public function circulationsAction()
 	{
-		$view = $this->createViewModel(
-			array(
-				'statistics'  => 'circulations',
-			)
-		);
+		// Log In Start
+		if (! is_array($patron = $this->catalogLogin())) {
+			return $patron;
+		}
+		
+		$user 		= $this->getUser();
+		$isLibrary  = false;
+		$isAdmin 	= false;
+		
+		$config = $this->getServiceLocator()->get('config');
+		$adminLibCard = isset($config->PiwikStatistics->major_adm) ? $config->PiwikStatistics->major_adm : 'CPK';
+		
+		if (empty($user['major']))
+			return $this->redirect()->toRoute('myresearch-home');
+		
+		if ($user['major'] === $adminLibCard) {
+			$isAdmin = true;
+		} else {
+			$isLibrary = true;
+		}
+		// Log in End
+		
+		if ($isLibrary) {
+		
+			$view = $this->createViewModel(
+				array(
+					'statistics'  => 'circulations',
+				)
+			);
+			
+		} else { // isAdmin
+			$view = $this->createViewModel(
+					array(
+							'statistics'  => 'circulations',
+					)
+			);
+		}
 		
 		$view->setTemplate('statistics/circulations');
 		
@@ -95,11 +197,43 @@ class StatisticsController extends AbstractBase
 	
 	public function paymentsAction()
 	{
-		$view = $this->createViewModel(
-			array(
-				'statistics'  => 'payments',
-			)
-		);
+		// Log In Start
+		if (! is_array($patron = $this->catalogLogin())) {
+			return $patron;
+		}
+		
+		$user 		= $this->getUser();
+		$isLibrary  = false;
+		$isAdmin 	= false;
+		
+		$config = $this->getServiceLocator()->get('config');
+		$adminLibCard = isset($config->PiwikStatistics->major_adm) ? $config->PiwikStatistics->major_adm : 'CPK';
+		
+		if (empty($user['major']))
+			return $this->redirect()->toRoute('myresearch-home');
+		
+		if ($user['major'] === $adminLibCard) {
+			$isAdmin = true;
+		} else {
+			$isLibrary = true;
+		}
+		// Log in End
+		
+		if ($isLibrary) {
+		
+			$view = $this->createViewModel(
+				array(
+					'statistics'  => 'payments',
+				)
+			);
+			
+		} else { // isAdmin
+			$view = $this->createViewModel(
+					array(
+							'statistics'  => 'payments',
+					)
+			);
+		}
 		
 		$view->setTemplate('statistics/payments');
 		
@@ -108,70 +242,154 @@ class StatisticsController extends AbstractBase
 	
 	public function visitsAction()
 	{
-		$dateFrom 	= '2015-01-01';
-		$dateTo 	= '2015-12-31';
-		$date 		= $dateFrom.','.$dateTo;
-		
-		$PiwikStatistics = $this->getServiceLocator()
-								->get('MZKCommon\StatisticsPiwikStatistics');
-		
-		// visits in time
-		$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
-				'month',
-				$date,
-				'all',
-				array('segment' => 'visitorType==returning')
-		);
-		
-		$newVisitsInTime = $PiwikStatistics->getVisitsCount(
-				'month',
-				$date,
-				'all',
-				array('segment' => 'visitorType==new')
-		);
-		
-		$visitsInTime = array();
-		foreach ($returningVisitsInTime as $key => $value) {
-			$visitsInTime[$key] = array('returningVisits' => $value, 'newVisits' => $newVisitsInTime[$key]);
+		// Log In Start
+		if (! is_array($patron = $this->catalogLogin())) {
+			return $patron;
 		}
-		//
 		
-		// Total visits
-		$totalVisitsArray = $PiwikStatistics->getVisitsCount('range', $date, 'all');
-		$totalVisits = $totalVisitsArray['value'];
+		$user 		= $this->getUser();
+		$isLibrary  = false;
+		$isAdmin 	= false;
 		
-		// New visitors count
-		$newVisitorsCountArray = $PiwikStatistics->getNewVisitorsCount('month', $date);
-		$newVisitorsCount = array_sum($newVisitorsCountArray);
+		$config = $this->getServiceLocator()->get('config');
+		$adminLibCard = isset($config->PiwikStatistics->major_adm) ? $config->PiwikStatistics->major_adm : 'CPK';
 		
-		// Returning visitors count
-		$returningVisitorsCountArray = $PiwikStatistics->getReturningVisitorsCount('month', $date);
-		$returningVisitorsCount = array_sum($returningVisitorsCountArray);
+		if (empty($user['major']))
+			return $this->redirect()->toRoute('myresearch-home');
 		
-		// Visits info [Dashboard]
-		$visitsInfoArray  = $PiwikStatistics->getVisitsInfo('range', $date, 'all');
-		$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
-		$nbActions 		  = $visitsInfoArray['nb_actions'];
-		$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
-		$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
-		$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers();
+		if ($user['major'] === $adminLibCard) {
+			$isAdmin = true;
+		} else {
+			$isLibrary = true;
+		}
+		// Log in End
 		
-		$view = $this->createViewModel(	
-			array(
-				'newVisitorsCount' 			=> $newVisitorsCount,
-				'returningVisitorsCount' 	=> $returningVisitorsCount,
-				'visitsInTime'				=> $visitsInTime,
-				'totalVisits'				=> $totalVisits,
-				'nbActionPerVisit'			=> $nbActionPerVisit,
-				'nbActions'					=> $nbActions,
-				'avgTimeOnSite'				=> $avgTimeOnSite,
-				'totalTimeOnSite'			=> $totalTimeOnSite,
-				'nbOnlineUsers'				=> $nbOnlineUsers,
-			)
-		);
+		if ($isLibrary) {
+		
+			$dateFrom 	= '2015-01-01';
+			$dateTo 	= '2015-12-31';
+			$date 		= $dateFrom.','.$dateTo;
+			
+			$PiwikStatistics = $this->getServiceLocator()
+									->get('MZKCommon\StatisticsPiwikStatistics');
+			
+			// visits in time
+			$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
+					'month',
+					$date,
+					'all',
+					array('segment' => 'visitorType==returning')
+			);
+			
+			$newVisitsInTime = $PiwikStatistics->getVisitsCount(
+					'month',
+					$date,
+					'all',
+					array('segment' => 'visitorType==new')
+			);
+			
+			$visitsInTime = array();
+			foreach ($returningVisitsInTime as $key => $value) {
+				$visitsInTime[$key] = array('returningVisits' => $value, 'newVisits' => $newVisitsInTime[$key]);
+			}
+			//
+			
+			// Total visits
+			$totalVisitsArray = $PiwikStatistics->getVisitsCount('range', $date, 'all');
+			$totalVisits = $totalVisitsArray['value'];
+			
+			// New visitors count
+			$newVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date);
+			
+			// Returning visitors count
+			$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date);
+			
+			// Visits info [Dashboard]
+			$visitsInfoArray  = $PiwikStatistics->getVisitsInfo('range', $date, 'all');
+			$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
+			$nbActions 		  = $visitsInfoArray['nb_actions'];
+			$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
+			$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
+			$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers();
+			
+			$view = $this->createViewModel(	
+				array(
+					'newVisitorsCount' 			=> $newVisitorsCount,
+					'returningVisitorsCount' 	=> $returningVisitorsCount,
+					'visitsInTime'				=> $visitsInTime,
+					'totalVisits'				=> $totalVisits,
+					'nbActionPerVisit'			=> $nbActionPerVisit,
+					'nbActions'					=> $nbActions,
+					'avgTimeOnSite'				=> $avgTimeOnSite,
+					'totalTimeOnSite'			=> $totalTimeOnSite,
+					'nbOnlineUsers'				=> $nbOnlineUsers,
+				)
+			);
+			
+		} else { // isAdmin
+			$dateFrom 	= '2015-01-01';
+			$dateTo 	= '2015-12-31';
+			$date 		= $dateFrom.','.$dateTo;
+				
+			$PiwikStatistics = $this->getServiceLocator()
+			->get('MZKCommon\StatisticsPiwikStatistics');
+				
+			// visits in time
+			$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
+					'month',
+					$date,
+					'all',
+					array('segment' => 'visitorType==returning')
+			);
+				
+			$newVisitsInTime = $PiwikStatistics->getVisitsCount(
+					'month',
+					$date,
+					'all',
+					array('segment' => 'visitorType==new')
+			);
+				
+			$visitsInTime = array();
+			foreach ($returningVisitsInTime as $key => $value) {
+				$visitsInTime[$key] = array('returningVisits' => $value, 'newVisits' => $newVisitsInTime[$key]);
+			}
+			//
+				
+			// Total visits
+			$totalVisitsArray = $PiwikStatistics->getVisitsCount('range', $date, 'all');
+			$totalVisits = $totalVisitsArray['value'];
+				
+			// New visitors count
+			$newVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date);
+				
+			// Returning visitors count
+			$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date);
+				
+			// Visits info [Dashboard]
+			$visitsInfoArray  = $PiwikStatistics->getVisitsInfo('range', $date, 'all');
+			$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
+			$nbActions 		  = $visitsInfoArray['nb_actions'];
+			$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
+			$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
+			$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers();
+				
+			$view = $this->createViewModel(
+					array(
+							'newVisitorsCount' 			=> $newVisitorsCount,
+							'returningVisitorsCount' 	=> $returningVisitorsCount,
+							'visitsInTime'				=> $visitsInTime,
+							'totalVisits'				=> $totalVisits,
+							'nbActionPerVisit'			=> $nbActionPerVisit,
+							'nbActions'					=> $nbActions,
+							'avgTimeOnSite'				=> $avgTimeOnSite,
+							'totalTimeOnSite'			=> $totalTimeOnSite,
+							'nbOnlineUsers'				=> $nbOnlineUsers,
+					)
+			);
+		}
 		
 		$view->setTemplate('statistics/visits');
 		
 		return $view;
-	}
+	}	
 }

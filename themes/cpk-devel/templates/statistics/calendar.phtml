@@ -34,7 +34,12 @@
 		</span>
 	</span>
 	
-	<span class='selected-date-range'></span>
+	<span class='update-stats'>
+		<button class='btn btn-primary' id='update-stats'><?= $this->transEsc('Update stats') ?></button>
+	</span>
+	
+	<span class='selected-date-range pull-right'></span>
+	
 </div>
 
 
@@ -45,10 +50,32 @@
 				$( '#day-datepicker, #range-datepicker-from, #range-datepicker-to' ).datepicker( {
 			    	changeMonth: true,
 			    	changeYear: true,
-			    	dateFormat: "yy-mm-dd"
+			    	dateFormat: "yy-mm-dd",
+			    	setDate: new Date()
 				});
 
-				$( '#period' ).on('change', function( event ){
+				// Set default dates
+				$( '#day-datepicker' ).datepicker('setDate', new Date());
+				$( '#range-datepicker-from' ).datepicker('setDate', '2015-01-01');
+				$( '#range-datepicker-to' ).datepicker('setDate', '2015-12-31');
+
+				var dateFrom = $( '#range-datepicker-from' ).val();
+				var dateTo = $( '#range-datepicker-to' ).val();
+				$( '.selected-date-range' ).html( dateFrom + '-' + dateTo);
+				//
+				
+				$( '#day-datepicker' ).on(' change ', function() {
+					var day = $(this).val();
+					$( '.selected-date-range' ).html(day);
+				})
+				
+				$( '#range-datepicker-from, #range-datepicker-to' ).on( 'change ', function() {
+					var dateFrom = $( '#range-datepicker-from' ).val();
+					var dateTo = $( '#range-datepicker-to' ).val();
+					$( '.selected-date-range' ).html( dateFrom + '-' + dateTo);
+				})
+
+				$( '#period' ).on( 'change', function( event ){
 
 					event.preventDefault();
 

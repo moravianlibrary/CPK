@@ -420,14 +420,14 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		 $params = array(
 			'method'  => 'Actions.getSiteSearchKeywords',
 			'format'  => 'json',
-		 	'filter_limit' => "-1",
-			'showColumns' => 'nb_visits,label',
+		 	'filter_limit' 	=> "-1",
+			'showColumns' => 'label',
 		);
 		
 		if ($userLibCard)
 			$params['segment'] = ';customVariablePageUserLibCard=='.$userLibCard;
 		
-		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params, 1);
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
 		$count = count($dataArray);
 
@@ -443,7 +443,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			'method' 		=> 'Actions.getSiteSearchNoResultKeywords',
 			'format'  		=> 'json',
 			'filter_limit' 	=> "-1",
-			'showColumns' 	=> 'nb_visits,label',
+			'showColumns' => 'label',
 		);
 	
 		if ($userLibCard)
@@ -465,8 +465,6 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			'method'  => 'Actions.getSiteSearchKeywords',
 			'format'  => 'json',
 		 	'filter_limit' => $filterLimit,
-		 	'filter_sort_column' => 'nb_visits',
-		 	'filter_sort_order' => 'desc',
 			'showColumns' => 'nb_visits,label',
 		);
 		
@@ -479,10 +477,31 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		if ($rawData)
 			return $this->buildQuery($period, $date, $params);
 		
+		if ($filterLimit == "-1") {
+			
+			$params['showColumns'] = 'nb_visits';
+			$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+			
+			$sum = 0;
+			foreach ($dataArray as $value) {
+				$sum += $value['nb_visits'];
+			}
+			
+			return $sum;
+			
+		} else { 
+			
+			// because of performance
+			$params['filter_sort_column'] = 'nb_visits';
+			$params['filter_sort_order'] = 'desc';
+			
+		}
+		
+		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
 		$searches = array();
-		foreach ($dataArray as $key => $value) {
+		foreach ($dataArray as $value) {
 			array_push($searches, array('keyword' => $value['label'], 'count' => $value['nb_visits']));
 		}
 
@@ -498,8 +517,6 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			'method'  => 'Actions.getSiteSearchNoResultKeywords',
 			'format'  => 'json',
 			'filter_limit' => $filterLimit,
-			'filter_sort_column' => 'nb_visits',
-			'filter_sort_order' => 'desc',
 			'showColumns' => 'nb_visits,label',			
 		);
 	
@@ -511,6 +528,26 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	
 		if ($rawData)
 			return $this->buildQuery($period, $date, $params);
+		
+		if ($filterLimit == "-1") {
+				
+			$params['showColumns'] = 'nb_visits';
+			$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+				
+			$sum = 0;
+			foreach ($dataArray as $value) {
+				$sum += $value['nb_visits'];
+			}
+				
+			return $sum;
+				
+		} else {
+				
+			// because of performance
+			$params['filter_sort_column'] = 'nb_visits';
+			$params['filter_sort_order'] = 'desc';
+				
+		}
 	
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 	
@@ -662,7 +699,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNewVisitorsCount($period, $date, $type = "all")
 	{		
 		$params = array(
-			'method'  => 'VisitsSummary.getUniqueVisitors',
+			'method'  => 'VisitsSummary.getVisits',
 			'format'  => 'json',
 			'segment' => 'visitorType==new',
 		);
@@ -675,7 +712,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
-		return $dataArray;
+		$count = $dataArray['value'];
+		
+		return $count;
 	}
 	
 	/**
@@ -689,7 +728,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			'segment' => 'visitorType==new;customVariablePageUserLibCard=='.$userLibCard,
 		);
 		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		$count = $dataArray['value'];
 		
 		return $count;
 	}
@@ -725,7 +766,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getReturningVisitorsCount($period, $date, $type = "all")
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getUniqueVisitors',
+			'method'  => 'VisitsSummary.getVisits',
 			'format'  => 'json',
 			'segment' => 'visitorType==returning',
 		);
@@ -738,7 +779,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
-		return $dataArray;
+		$count = $dataArray['value'];
+		
+		return $count;
 	}
 	
 	/**
@@ -752,7 +795,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			'segment' => 'visitorType==returning;customVariablePageUserLibCard=='.$userLibCard,
 		);
 		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		$count = $dataArray['value'];
 		
 		return $count;
 	}
