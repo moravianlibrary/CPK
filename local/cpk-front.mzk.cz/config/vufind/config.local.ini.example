@@ -15,6 +15,10 @@ default_core   = biblio
 ;url		= http://cpk-front.mzk.cz:8080/solr
 ;default_core    = index
 
+[Authentication]
+method		= PerunShibboleth
+;method		= ShibbolethWithWAYF
+
 [Shibboleth]
 login           = https://vufind.localhost/Shibboleth.sso/Login
 logout          = https://vufind.localhost/Shibboleth.sso/Logout

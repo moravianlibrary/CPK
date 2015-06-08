@@ -80,19 +80,32 @@ class Factory
     /**
      * Factory for ShibbolethWithWAYF.
      *
-     * @param ServiceManager $sm Service manager.
+     * @param ServiceManager $sm
+     *            Service manager.
      *
      * @return ShibbolethWithWAYF
      */
     public function getShibbolethWithWAYF(ServiceManager $sm)
     {
+        return new \MZKPortal\Auth\ShibbolethWithWAYF($sm->getServiceLocator()->get('VuFind\Config'));
+    }
+
+    /**
+     * Factory for PerunShibboleth.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return PerunShibboleth
+     */
+    public function getPerunShibboleth(ServiceManager $sm)
+    {
         if ($sm->getServiceLocator()->get('VuFind\Config')->get('config')->Perun->enabled) {
-            return new \MZKPortal\Auth\ShibbolethWithWAYF(
+            return new \MZKPortal\Auth\PerunShibboleth(
                 $sm->getServiceLocator()->get('VuFind\Config'),
                 $sm->getServiceLocator()->get('identity-resolver')
             );
         } else {
-            return new \MZKPortal\Auth\ShibbolethWithWAYF(
+            return new \MZKPortal\Auth\PerunShibboleth(
                 $sm->getServiceLocator()->get('VuFind\Config')
             );
         }

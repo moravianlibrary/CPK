@@ -28,20 +28,18 @@
  */
 namespace MZKPortal\Auth;
 
-use VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\Auth as AuthException, Zend\XmlRpc\Value\String, MZKPortal\Perun\IdentityResolver;
-use VuFind\Exception\VuFind\Exception;
-use VuFind\Db\Row\User;
+use VuFind\Auth\Shibboleth as Shibboleth,
+    VuFind\Exception\Auth as AuthException;
 
 /**
  * Shibboleth authentication module.
  *
  * @category VuFind2
- * @package Authentication
- * @author Jiří Kozlovský <mail@jkozlovsky.cz>
- * @author Franck Borel <franck.borel@gbv.de>
- * @author Demian Katz <demian.katz@villanova.edu>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link http://www.vufind.org Main Page
+ * @package  Authentication
+ * @author   Franck Borel <franck.borel@gbv.de>
+ * @author   Demian Katz <demian.katz@villanova.edu>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://www.vufind.org  Main Page
  */
 class ShibbolethWithWAYF extends Shibboleth
 {
@@ -50,33 +48,18 @@ class ShibbolethWithWAYF extends Shibboleth
 
     const SEPARATOR = ".";
 
-    const SEPARATOR_REGEXED = "\\.";
-
     protected $configLoader;
-
-    protected $identityResolver;
 
     protected $shibbolethConfig = null;
 
-    protected $loginDrivers = null;
-
     protected $attribsToCheck = array(
-        'username',
-        'cat_username',
-        'email',
-        'lastname',
-        'firstname',
-        'college',
-        'major',
-        'home_library',
-        'pass_hash',
-        'verify_hash'
+        'username', 'cat_username', 'email', 'lastname',
+        'firstname', 'college', 'major', 'home_library'
     );
 
-    public function __construct(\VuFind\Config\PluginManager $configLoader, IdentityResolver $identityResolver = null)
+    public function __construct(\VuFind\Config\PluginManager $configLoader)
     {
         $this->configLoader = $configLoader;
-        $this->identityResolver = $identityResolver == null ? false : $identityResolver;
     }
 
     public function authenticate($request)
@@ -95,9 +78,9 @@ class ShibbolethWithWAYF extends Shibboleth
         if ($config == null) {
             if (isset($this->shibbolethConfig['default'])) {
                 $config = $this->shibbolethConfig['default'];
-                $prefix = 'default';
-            } else
-                throw new AuthException('config_for_entityid_not_found');
+            } else {
+                throw new AuthException('authentication_error_admin');
+            }
         }
         $attributes = array();
         foreach ($this->attribsToCheck as $attribute) {
@@ -114,11 +97,10 @@ class ShibbolethWithWAYF extends Shibboleth
                             break;
                         }
                     }
-                } else
-                    if (strpos($key, ',') !== false) {
-                        list ($key, $pattern) = explode(',', $key, 2);
-                        $pattern = trim($pattern);
-                    }
+                } else if (strpos($key, ',') !== false) {
+                    list ($key, $pattern) = explode(',', $key, 2);
+                    $pattern = trim($pattern);
+                }
                 if ($value == null) {
                     $value = $request->getServer()->get($key);
                 }
@@ -127,103 +109,35 @@ class ShibbolethWithWAYF extends Shibboleth
                     preg_match($pattern, $value, $matches);
                     $value = $matches[1];
                 }
-
-                $attributes[$attribute] = $value;
-            }
-        }
-
-        if (empty($attributes['username'])) {
-            // FIXME: Send here "You have logged out" message
-            throw new AuthException('username_not_returned');
-        }
-
-        // Set home_library to eduPersonPrincipalName's institute name - this approach should always succeed
-        if (empty($attributes['home_library'])) {
-            $attributes['home_library'] = end(split('@', $attributes['username']));
-
-            // Get rid of all dots (because of multibackend's dot usage later)
-            $attributes['home_library'] = str_replace('.', '', $attributes['home_library']);
-        }
-
-        // If we have Perun configuration enabled, than use Perun services
-        if ($this->identityResolver) {
-
-            // Detect if the institute, user logged in with, is a connected library & not e.g. Facebook or another library
-            $isConnected = array_search($attributes['home_library'], $this->loginDrivers) !== FALSE;
-            if ($isConnected) {
-                // Set SIGLA & userId for Perun
-                $sigla = $attributes['home_library'];
-
-                if (empty($attributes['cat_username'])) {
-                    throw new AuthException('cat_username_not_returned');
+                if ($attribute == 'cat_username') {
+                    $attributes[$attribute] = $prefix . self::SEPARATOR . $value;
+                } else {
+                    $attributes[$attribute] = $value;
                 }
-
-                $userId = $attributes['cat_username'];
-            }
-
-            // Send data to Perun & get perunId with institutes
-            list ($perunId, $institutes) = $this->identityResolver->getUserIdentityFromPerun($attributes['username'], $sigla, $userId);
-
-            // This was eppn, now it is perunId
-            $attributes['username'] = $perunId;
-
-            if (empty($institutes)) {
-                // If are institutes empty, that means user is not member of any connected library
-                // In that case set cat_username's MultiBackend source dummy driver which
-                $attributes['cat_username'] = '';
-                $attributes['home_library'] = 'Dummy';
-            } else {
-                // Note that user's cat_username & home_library will be set by first Library Card created
-                $attributes['cat_username'] = '';
-                $attributes['home_library'] = '';
-                $handleLibraryCards = true;
             }
         }
-
-        $prefix = $attributes['home_library'];
-
-        // cat_username needs to have defined driver in MultiBackend.ini, which is the $prefix here
-        $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
-
-        if ($attributes['email'] == null)
-            $attributes['email'] = '';
-        if ($attributes['firstname'] == null)
-            $attributes['firstname'] = '';
-        if ($attributes['lastname'] == null)
-            $attributes['lastname'] = '';
-
+        if (empty($attributes['username'])) {
+            throw new AuthException('authentication_error_admin');
+        }
         $user = $this->getUserTable()->getByUsername($attributes['username']);
-
-        $activeCard = $user['cat_username'];
-
         foreach ($attributes as $key => $value) {
             $user->$key = $value;
         }
-
-        // Save/Update user in database
+        // Save and return the user object:
         $user->save();
-
-        // We need user->id to create library cards - that provides $user->save() method
-        if ($handleLibraryCards) {
-            $this->handleLibraryCards($user, $institutes, $activeCard);
-        }
-
         return $user;
     }
 
     /**
      * Get the URL to establish a session (needed when the internal VuFind login
-     * form is inadequate).
-     * Returns false when no session initiator is needed.
+     * form is inadequate).  Returns false when no session initiator is needed.
      *
-     * @param string $target
-     *            Full URL where external authentication method should
-     *            send user to after login (some drivers may override this).
+     * @param string $target Full URL where external authentication method should
+     * send user to after login (some drivers may override this).
      *
      * @return array
      */
-    public function getSessionInitiators($target)
-    {
+    public function getSessionInitiators($target) {
         $this->init();
         $config = $this->getConfig();
         if (isset($config->Shibboleth->target)) {
@@ -240,93 +154,10 @@ class ShibbolethWithWAYF extends Shibboleth
         return $initiators;
     }
 
-    protected function init()
-    {
+    protected function init() {
         if ($this->shibbolethConfig == null) {
             $this->shibbolethConfig = $this->configLoader->get('shibboleth');
         }
-
-        if ($this->loginDrivers == null) {
-            $multiBackend = $this->configLoader->get('MultiBackend');
-            $this->loginDrivers = $multiBackend != null ? $multiBackend->Login->drivers->toArray() : [];
-        }
-
-        if ($this->identityResolver)
-            $this->identityResolver->init($this->getConfig());
     }
 
-    /**
-     * Deletes all user's Library Cards & than creates new from list of institutes provided by Perun.
-     *
-     * ActiveCard doesn't have to be provided. If it is, on the other hand, it creates this card as the first
-     * which makes it reliable it will be the one active after user gets into his account.
-     *
-     * If the provided ActiveCard is not found in institutes, than that card will not be created at all.
-     *
-     * @param User $user
-     * @param array $institutes - associative array of user's CPK connected institutes returned by IdentityResolver
-     * @param string $activeCard - it is basically cat_username user had active before new login
-     */
-    protected function handleLibraryCards($user, $institutes, $activeCard)
-    {
-        $tableManager = $this->getDbTableManager();
-        $userCardTable = $tableManager->get("UserCard");
-
-        // Now delete all user cards & create new from IdP fresh list of Institutes
-        $resultSet = $userCardTable->select([
-            'user_id' => $user['id']
-        ]);
-        foreach ($resultSet as $result) {
-            $result->delete();
-        }
-
-        // Save activeCard first as it is always being activated by "being first user's card created"
-        if ($this->isActiveCardInInstitutes($activeCard, $institutes)) {
-            $home_library = split(self::SEPARATOR_REGEXED, $activeCard)[0];
-            $this->createLibraryCard($user, $activeCard, $home_library);
-        }
-
-        foreach ($institutes as $institute) {
-            $cat_username = $institute[IdentityResolver::LIBRARY_KEY] . self::SEPARATOR . $institute[IdentityResolver::USER_KEY];
-
-            // Do not save already saved activeCard
-            if ($cat_username !== $activeCard) {
-                $home_library = $institute[IdentityResolver::LIBRARY_KEY];
-                $this->createLibraryCard($user, $cat_username, $home_library);
-            }
-        }
-    }
-
-    /**
-     * Returns true/false - simply if the activeCard provided matches one of user's identity returned by Perun.
-     *
-     * @param string $activeCard
-     * @param array $institutes
-     * @return boolean
-     */
-    protected function isActiveCardInInstitutes($activeCard, $institutes)
-    {
-        if (empty($activeCard))
-            return false;
-
-        foreach ($institutes as $institute) {
-            $cat_username = $institute[IdentityResolver::LIBRARY_KEY] . self::SEPARATOR . $institute[IdentityResolver::USER_KEY];
-            if ($cat_username === $activeCard)
-                return true;
-        }
-
-        return false;
-    }
-
-    protected function createLibraryCard($user, $cat_username, $home_library)
-    {
-        try {
-            $user->saveLibraryCard(null, '', $cat_username, null, $home_library);
-        } catch (\VuFind\Exception\LibraryCard $e) {
-            $this->flashMessenger()
-                ->setNamespace('error')
-                ->addMessage($e->getMessage());
-            return false;
-        }
-    }
 }
