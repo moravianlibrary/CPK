@@ -50,7 +50,7 @@ custom_variables = true
 track_user = true
 
 ; Enables ClickHeat plugin
-click_heat_plugin = true
+click_heat_plugin = false
 click_heat_site_number = 1
 
 [Perun]
@@ -82,3 +82,4 @@ item_reservation_url	= ""
 item_prolongation_url	= ""
 user_registration_url	= ""
 user_prolongation_url	= ""
+major_adm               = "CPK"
