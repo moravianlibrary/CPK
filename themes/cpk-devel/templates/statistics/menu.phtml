@@ -1,7 +1,20 @@
+<?php
+
+	$params = $this->urlGetParams;
+	$options = [
+		'query' => array(
+			'period' => $params['period'],
+			'dateFrom' => $params['dateFrom'],
+			'dateTo' => $params['dateTo'],
+		),
+	];
+	
+?>
+
 <ul class='nav nav-tabs nav-justified statistics-menu'>
-	<li class='statistics-dashboard'><a href='<?= $this->url('statistics-dashboard') ?>'><?= $this->transEsc('Dashboard') ?></a></li>
-	<li class='statistics-visits'><a href='<?= $this->url('statistics-visits') ?>'><?= $this->transEsc('Visits and visitors') ?></a></li>
-	<li class='statistics-searches'><a href='<?= $this->url('statistics-searches') ?>'><?= $this->transEsc('Searches and catalog') ?></a></li>
-	<li class='statistics-payments'><a href='<?= $this->url('statistics-payments') ?>'><?= $this->transEsc('Payments and orders') ?></a></li>
-	<li class='statistics-circulations'><a href='<?= $this->url('statistics-circulations') ?>'><?= $this->transEsc('Readers and circulations') ?></a></li>
+	<li class='statistics-dashboard'><a href='<?= $this->url('statistics-dashboard', array(), $options) ?>'><?= $this->transEsc('Dashboard') ?></a></li>
+	<li class='statistics-visits'><a href='<?= $this->url('statistics-visits', array(), $options) ?>'><?= $this->transEsc('Visits and visitors') ?></a></li>
+	<li class='statistics-searches'><a href='<?= $this->url('statistics-searches', array(), $options) ?>'><?= $this->transEsc('Searches and catalog') ?></a></li>
+	<li class='statistics-payments'><a href='<?= $this->url('statistics-payments', array(), $options) ?>'><?= $this->transEsc('Payments and orders') ?></a></li>
+	<li class='statistics-circulations'><a href='<?= $this->url('statistics-circulations', array(), $options) ?>'><?= $this->transEsc('Readers and circulations') ?></a></li>
 </ul>

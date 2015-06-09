@@ -40,9 +40,27 @@ class StatisticsController extends AbstractBase
 		}
 		// Log in End
 		
+		// Get params inspection Start (preventing user Injection)
+		$urlGetParams = $this->params()->fromQuery();
+		
+		if (isset($urlGetParams['period'])) {
+			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
+		}
+		
+		if (isset($urlGetParams['dateFrom'])) 
+			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
+				throw new \Exception('Invalid get parameter dateFrom');
+			
+		if (isset($urlGetParams['dateTo']))
+			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
+				throw new \Exception('Invalid get parameter dateTo');
+		// Get params inspections End
+		
+		
 		$view = $this->createViewModel(
 			array(
 				'statistics'  => 'dashboard',
+				'urlGetParams' => $urlGetParams,
 			)
 		);
 		
@@ -75,6 +93,22 @@ class StatisticsController extends AbstractBase
 		}
 		// Log in End
 		
+		// Get params inspection Start (preventing user Injection)
+		$urlGetParams = $this->params()->fromQuery();
+		
+		if (isset($urlGetParams['period'])) {
+			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
+		}
+		
+		if (isset($urlGetParams['dateFrom']))
+			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
+				throw new \Exception('Invalid get parameter dateFrom');
+				
+			if (isset($urlGetParams['dateTo']))
+				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
+					throw new \Exception('Invalid get parameter dateTo');
+				// Get params inspections End
+		
 		if ($isLibrary) {
 		
 			$dateFrom 	= '2015-01-01';
@@ -96,6 +130,7 @@ class StatisticsController extends AbstractBase
 			
 			$view = $this->createViewModel(
 				array(
+					'urlGetParams' => $urlGetParams,
 					'topSearches'  		 => $topSearches,
 					'topFailedSearches'  => $topFailedSearches,
 					'nbFoundKeywords'  	 => $nbFoundKeywords,
@@ -130,6 +165,7 @@ class StatisticsController extends AbstractBase
 			
 			$view = $this->createViewModel(
 				array(
+					'urlGetParams' => $urlGetParams,
 					'topSearches'  		 => $topSearches,
 					'topFailedSearches'  => $topFailedSearches,
 					'nbFoundKeywords'  	 => $nbFoundKeywords,
@@ -174,10 +210,27 @@ class StatisticsController extends AbstractBase
 		}
 		// Log in End
 		
+		// Get params inspection Start (preventing user Injection)
+		$urlGetParams = $this->params()->fromQuery();
+		
+		if (isset($urlGetParams['period'])) {
+			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
+		}
+		
+		if (isset($urlGetParams['dateFrom']))
+			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
+				throw new \Exception('Invalid get parameter dateFrom');
+				
+			if (isset($urlGetParams['dateTo']))
+				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
+					throw new \Exception('Invalid get parameter dateTo');
+				// Get params inspections End
+		
 		if ($isLibrary) {
 		
 			$view = $this->createViewModel(
 				array(
+					'urlGetParams' => $urlGetParams,
 					'statistics'  => 'circulations',
 				)
 			);
@@ -185,6 +238,7 @@ class StatisticsController extends AbstractBase
 		} else { // isAdmin
 			$view = $this->createViewModel(
 					array(
+							'urlGetParams' => $urlGetParams,
 							'statistics'  => 'circulations',
 					)
 			);
@@ -219,10 +273,27 @@ class StatisticsController extends AbstractBase
 		}
 		// Log in End
 		
+		// Get params inspection Start (preventing user Injection)
+		$urlGetParams = $this->params()->fromQuery();
+		
+		if (isset($urlGetParams['period'])) {
+			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
+		}
+		
+		if (isset($urlGetParams['dateFrom']))
+			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
+				throw new \Exception('Invalid get parameter dateFrom');
+				
+			if (isset($urlGetParams['dateTo']))
+				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
+					throw new \Exception('Invalid get parameter dateTo');
+				// Get params inspections End
+		
 		if ($isLibrary) {
 		
 			$view = $this->createViewModel(
 				array(
+					'urlGetParams' => $urlGetParams,
 					'statistics'  => 'payments',
 				)
 			);
@@ -230,6 +301,7 @@ class StatisticsController extends AbstractBase
 		} else { // isAdmin
 			$view = $this->createViewModel(
 					array(
+							'urlGetParams' => $urlGetParams,
 							'statistics'  => 'payments',
 					)
 			);
@@ -263,6 +335,22 @@ class StatisticsController extends AbstractBase
 			$isLibrary = true;
 		}
 		// Log in End
+		
+		// Get params inspection Start (preventing user Injection)
+		$urlGetParams = $this->params()->fromQuery();
+		
+		if (isset($urlGetParams['period'])) {
+			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
+		}
+		
+		if (isset($urlGetParams['dateFrom']))
+			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
+				throw new \Exception('Invalid get parameter dateFrom');
+				
+			if (isset($urlGetParams['dateTo']))
+				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
+					throw new \Exception('Invalid get parameter dateTo');
+				// Get params inspections End
 		
 		if ($isLibrary) {
 		
@@ -314,6 +402,7 @@ class StatisticsController extends AbstractBase
 			
 			$view = $this->createViewModel(	
 				array(
+					'urlGetParams' => $urlGetParams,
 					'newVisitorsCount' 			=> $newVisitorsCount,
 					'returningVisitorsCount' 	=> $returningVisitorsCount,
 					'visitsInTime'				=> $visitsInTime,
@@ -375,6 +464,7 @@ class StatisticsController extends AbstractBase
 				
 			$view = $this->createViewModel(
 					array(
+							'urlGetParams' => $urlGetParams,
 							'newVisitorsCount' 			=> $newVisitorsCount,
 							'returningVisitorsCount' 	=> $returningVisitorsCount,
 							'visitsInTime'				=> $visitsInTime,

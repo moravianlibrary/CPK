@@ -5,9 +5,9 @@
 		<select id='period' class="form-control">
 			<option value='day'><?= $this->transEsc('Choose Day') ?></option>
 			<option value='range'><?= $this->transEsc('Select Range') ?></option>
-			<option value='today'><?= $this->transEsc('Today') ?></option>
-			<option value='month' selected><?= $this->transEsc('This Month') ?></option>
-			<option value='year'><?= $this->transEsc('This Year') ?></option>
+			<option value='week'><?= $this->transEsc('This week') ?></option>
+			<option value='month' selected><?= $this->transEsc('This month') ?></option>
+			<option value='year'><?= $this->transEsc('This year') ?></option>
 		</select>
 	</span>
 
@@ -38,64 +38,116 @@
 		<button class='btn btn-primary' id='update-stats'><?= $this->transEsc('Update stats') ?></button>
 	</span>
 	
-	<span class='selected-date-range pull-right'></span>
+	<span class='selected-date-range pull-right'><?php 
+		if ($this->urlGetParams['dateFrom'] AND $this->urlGetParams['dateTo']) 
+			echo $this->urlGetParams['dateFrom'].' - '.$this->urlGetParams['dateTo']; 
+	?>
+	</span>
 	
 </div>
 
 
 <script>
-			jQuery( document ).ready( function( $ ) {
+	jQuery( document ).ready( function( $ ) {
+
+		period = $( '#period' ).val();
+		todayDate = new Date();
 				
-				// Initializes calendars
-				$( '#day-datepicker, #range-datepicker-from, #range-datepicker-to' ).datepicker( {
-			    	changeMonth: true,
-			    	changeYear: true,
-			    	dateFormat: "yy-mm-dd",
-			    	setDate: new Date()
-				});
+		// Initializes calendars
+		$( '#day-datepicker, #range-datepicker-from, #range-datepicker-to' ).datepicker( {
+			changeMonth: true,
+			changeYear: true,
+			dateFormat: "yy-mm-dd",
+			setDate: new Date()
+		});
 
-				// Set default dates
-				$( '#day-datepicker' ).datepicker('setDate', new Date());
-				$( '#range-datepicker-from' ).datepicker('setDate', '2015-01-01');
-				$( '#range-datepicker-to' ).datepicker('setDate', '2015-12-31');
+		// Sets default dates
+		var defaultDateFrom = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
+		var defaultDateTo  = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
+		
+		$( '#day-datepicker' ).datepicker('setDate', todayDate);
+		$( '#range-datepicker-from' ).datepicker('setDate', defaultDateFrom);
+		$( '#range-datepicker-to' ).datepicker('setDate', defaultDateTo);
 
+		if ( $( '.selected-date-range' ).text().trim().length == 0)
+			$( '.selected-date-range' ).html( 
+				defaultDateFrom.getFullYear() + '-' + defaultDateFrom.getMonth() + '-' + defaultDateFrom.getDate() 
+				+ ' - ' + 
+				defaultDateTo.getFullYear() + '-' + defaultDateTo.getMonth() + '-' + defaultDateTo.getDate() 
+			);
+
+		// On period change, sets default dates
+		$( '#period' ).on( 'change', function() {
+			
+			period = $( this ).val();
+			console.log( 'Period changed to: ' + period );
+			
+			if( period == 'week' ) {
+				
+				var start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
+				var end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( period == 'month' ) {
+				
+				var start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
+				var end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( period == 'year' ) {
+
+				var year = todayDate.getFullYear(); 
+				
+				var start = year + '-01-01';
+				var end   = year + '-12-31';
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( period == 'day' ) {
+				
+				$( '#day-calendar' ).show();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( period == 'range' ){
+				
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).show();
+				
+			} else {
+				
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			}
+			
+			$( '#range-datepicker-from' ).datepicker('setDate', start);
+			$( '#range-datepicker-to' ).datepicker('setDate', end);
+		});
+
+		// On click (time change), updates data with reloading
+		$( '#update-stats' ).on( 'click', function( event ) {
+			
+			event.preventDefault();
+
+			if ( period == 'day' ) {
+				
+				var day = $( '#day-datepicker' ).val();
+				$(location).attr( 'href', '?period=' + period + '&dateFrom=' + day + '&dateTo=' + day );
+				
+			} else {
+				
 				var dateFrom = $( '#range-datepicker-from' ).val();
 				var dateTo = $( '#range-datepicker-to' ).val();
-				$( '.selected-date-range' ).html( dateFrom + '-' + dateTo);
-				//
+				$(location).attr( 'href', '?period=' + period + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo );
 				
-				$( '#day-datepicker' ).on(' change ', function() {
-					var day = $(this).val();
-					$( '.selected-date-range' ).html(day);
-				})
-				
-				$( '#range-datepicker-from, #range-datepicker-to' ).on( 'change ', function() {
-					var dateFrom = $( '#range-datepicker-from' ).val();
-					var dateTo = $( '#range-datepicker-to' ).val();
-					$( '.selected-date-range' ).html( dateFrom + '-' + dateTo);
-				})
+			}
+			
+		});
 
-				$( '#period' ).on( 'change', function( event ){
-
-					event.preventDefault();
-
-					var period = $(this).val();
-
-					console.log('Period changed to: '+period);
-					
-					if ( period == 'day' ) {
-						$( '#day-calendar' ).show();
-						$( '#range-calendar' ).hide();
-					} else if ( period == 'range' ){
-						$( '#day-calendar' ).hide();
-						$( '#range-calendar' ).show();
-					} else {
-						$( '#day-calendar' ).hide();
-						$( '#range-calendar' ).hide();
-					}
-					
-					
-				});
-
-			});
-		</script>
+});
+</script>
