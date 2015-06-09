@@ -24,6 +24,7 @@ $config = array(
             'auth' => array(
                 'factories' => array(
                     'shibbolethWithWAYF' => 'MZKPortal\Auth\Factory::getShibbolethWithWAYF',
+                    'perunShibboleth' => 'MZKPortal\Auth\Factory::getPerunShibboleth',
                 ),
             ),
             'search_params' => array(
