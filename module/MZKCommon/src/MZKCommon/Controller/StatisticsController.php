@@ -42,20 +42,8 @@ class StatisticsController extends AbstractBase
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
-		
-		if (isset($urlGetParams['period'])) {
-			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
-		}
-		
-		if (isset($urlGetParams['dateFrom'])) 
-			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
-				throw new \Exception('Invalid get parameter dateFrom');
-			
-		if (isset($urlGetParams['dateTo']))
-			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
-				throw new \Exception('Invalid get parameter dateTo');
+		$this->checkGetParams($urlGetParams);
 		// Get params inspections End
-		
 		
 		$view = $this->createViewModel(
 			array(
@@ -95,24 +83,13 @@ class StatisticsController extends AbstractBase
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
-		
-		if (isset($urlGetParams['period'])) {
-			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
-		}
-		
-		if (isset($urlGetParams['dateFrom']))
-			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
-				throw new \Exception('Invalid get parameter dateFrom');
-				
-			if (isset($urlGetParams['dateTo']))
-				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
-					throw new \Exception('Invalid get parameter dateTo');
-				// Get params inspections End
+		$this->checkGetParams($urlGetParams);
+		// Get params inspections End
 		
 		if ($isLibrary) {
 		
-			$dateFrom 	= '2015-01-01';
-			$dateTo 	= '2015-12-31';
+			$dateFrom = $urlGetParams['dateFrom'];
+			$dateTo = $urlGetParams['dateTo'];
 			$date 		= $dateFrom.','.$dateTo;
 			
 			$PiwikStatistics = $this->getServiceLocator()
@@ -146,8 +123,8 @@ class StatisticsController extends AbstractBase
 			);
 			
 		} else { // is Admin
-			$dateFrom 	= '2015-01-01';
-			$dateTo 	= '2015-12-31';
+			$dateFrom = $urlGetParams['dateFrom'];
+			$dateTo = $urlGetParams['dateTo'];
 			$date 		= $dateFrom.','.$dateTo;
 			
 			$PiwikStatistics = $this->getServiceLocator()
@@ -212,19 +189,8 @@ class StatisticsController extends AbstractBase
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
-		
-		if (isset($urlGetParams['period'])) {
-			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
-		}
-		
-		if (isset($urlGetParams['dateFrom']))
-			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
-				throw new \Exception('Invalid get parameter dateFrom');
-				
-			if (isset($urlGetParams['dateTo']))
-				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
-					throw new \Exception('Invalid get parameter dateTo');
-				// Get params inspections End
+		$this->checkGetParams($urlGetParams);
+		// Get params inspections End
 		
 		if ($isLibrary) {
 		
@@ -275,19 +241,8 @@ class StatisticsController extends AbstractBase
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
-		
-		if (isset($urlGetParams['period'])) {
-			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
-		}
-		
-		if (isset($urlGetParams['dateFrom']))
-			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
-				throw new \Exception('Invalid get parameter dateFrom');
-				
-			if (isset($urlGetParams['dateTo']))
-				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
-					throw new \Exception('Invalid get parameter dateTo');
-				// Get params inspections End
+		$this->checkGetParams($urlGetParams);
+		// Get params inspections End
 		
 		if ($isLibrary) {
 		
@@ -338,39 +293,51 @@ class StatisticsController extends AbstractBase
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
-		
-		if (isset($urlGetParams['period'])) {
-			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
-		}
-		
-		if (isset($urlGetParams['dateFrom']))
-			if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateFrom']))
-				throw new \Exception('Invalid get parameter dateFrom');
-				
-			if (isset($urlGetParams['dateTo']))
-				if (! preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $urlGetParams['dateTo']))
-					throw new \Exception('Invalid get parameter dateTo');
-				// Get params inspections End
+		$this->checkGetParams($urlGetParams);
+		// Get params inspections End
 		
 		if ($isLibrary) {
 		
-			$dateFrom 	= '2015-01-01';
-			$dateTo 	= '2015-12-31';
+			$dateFrom = $urlGetParams['dateFrom'];
+			$dateTo = $urlGetParams['dateTo'];
 			$date 		= $dateFrom.','.$dateTo;
 			
 			$PiwikStatistics = $this->getServiceLocator()
 									->get('MZKCommon\StatisticsPiwikStatistics');
 			
+			// Periodicity
+			$ts1 = strtotime($dateFrom);
+			$ts2 = strtotime($dateTo);
+			
+			$year1 = date('Y', $ts1);
+			$year2 = date('Y', $ts2);
+			
+			$month1 = date('m', $ts1);
+			$month2 = date('m', $ts2);
+			
+			$monthsBetweenDates = (($year2 - $year1) * 12) + ($month2 - $month1);
+			
+			if ($monthsBetweenDates == 0) {
+				$periodicity = 'day';
+			} else if ($monthsBetweenDates <= 2) {
+				$periodicity = 'week';
+			} else if ($monthsBetweenDates <= 12) {
+				$periodicity = 'month';
+			} else {  // 13+ months
+				$periodicity = 'year';
+			}
+			//
+			
 			// visits in time
 			$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
-					'month',
+					$periodicity,
 					$date,
 					'all',
 					array('segment' => 'visitorType==returning')
 			);
 			
 			$newVisitsInTime = $PiwikStatistics->getVisitsCount(
-					'month',
+					$periodicity,
 					$date,
 					'all',
 					array('segment' => 'visitorType==new')
@@ -402,7 +369,7 @@ class StatisticsController extends AbstractBase
 			
 			$view = $this->createViewModel(	
 				array(
-					'urlGetParams' => $urlGetParams,
+					'urlGetParams'				=> $urlGetParams,
 					'newVisitorsCount' 			=> $newVisitorsCount,
 					'returningVisitorsCount' 	=> $returningVisitorsCount,
 					'visitsInTime'				=> $visitsInTime,
@@ -416,23 +383,46 @@ class StatisticsController extends AbstractBase
 			);
 			
 		} else { // isAdmin
-			$dateFrom 	= '2015-01-01';
-			$dateTo 	= '2015-12-31';
+			$dateFrom = $urlGetParams['dateFrom'];
+			$dateTo = $urlGetParams['dateTo'];
 			$date 		= $dateFrom.','.$dateTo;
 				
 			$PiwikStatistics = $this->getServiceLocator()
 			->get('MZKCommon\StatisticsPiwikStatistics');
 				
+			// Periodicity
+			$ts1 = strtotime($dateFrom);
+			$ts2 = strtotime($dateTo);
+				
+			$year1 = date('Y', $ts1);
+			$year2 = date('Y', $ts2);
+				
+			$month1 = date('m', $ts1);
+			$month2 = date('m', $ts2);
+				
+			$monthsBetweenDates = (($year2 - $year1) * 12) + ($month2 - $month1);
+				
+			if ($monthsBetweenDates == 0) {
+				$periodicity = 'day';
+			} else if ($monthsBetweenDates <= 2) {
+				$periodicity = 'week';
+			} else if ($monthsBetweenDates <= 12) {
+				$periodicity = 'month';
+			} else {  // 13+ months
+				$periodicity = 'year';
+			}
+			//
+			
 			// visits in time
 			$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
-					'month',
+					$periodicity,
 					$date,
 					'all',
 					array('segment' => 'visitorType==returning')
 			);
 				
 			$newVisitsInTime = $PiwikStatistics->getVisitsCount(
-					'month',
+					$periodicity,
 					$date,
 					'all',
 					array('segment' => 'visitorType==new')
@@ -464,7 +454,7 @@ class StatisticsController extends AbstractBase
 				
 			$view = $this->createViewModel(
 					array(
-							'urlGetParams' => $urlGetParams,
+							'urlGetParams' 				=> $urlGetParams,
 							'newVisitorsCount' 			=> $newVisitorsCount,
 							'returningVisitorsCount' 	=> $returningVisitorsCount,
 							'visitsInTime'				=> $visitsInTime,
@@ -482,4 +472,28 @@ class StatisticsController extends AbstractBase
 		
 		return $view;
 	}	
+	
+	/**
+	 * Chcecks params for SQL Injection
+	 * 
+	 * @param	array	$urlGetParams
+	 * @throws	\Exception	if one of the parametrs is invalid
+	 * @return	voic
+	 */
+	private function checkGetParams(array &$urlGetParams)
+	{
+		if (isset($urlGetParams['period']))
+			$urlGetParams['period'] = htmlspecialchars($urlGetParams['period']);
+		
+		$datePattern = "/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/";
+		
+		if (isset($urlGetParams['dateFrom']))
+			if (! preg_match($datePattern, $urlGetParams['dateFrom']))
+				throw new \Exception('Invalid get parameter dateFrom');
+		
+		if (isset($urlGetParams['dateTo']))
+			if (! preg_match($datePattern, $urlGetParams['dateTo']))
+				throw new \Exception('Invalid get parameter dateTo');
+	}
+	
 }
