@@ -1,16 +1,18 @@
+<?php 
+$period = $this->urlGetParams['period'];
+?>
 <div class='calendar form-inline' >
 	
 	<?= $this->transEsc('Period') ?>
 	<span class='period-picker'>
 		<select id='period' class="form-control">
-			<option value='day'><?= $this->transEsc('Choose Day') ?></option>
-			<option value='range'><?= $this->transEsc('Select Range') ?></option>
-			<option value='week'><?= $this->transEsc('This week') ?></option>
-			<option value='month' selected><?= $this->transEsc('This month') ?></option>
-			<option value='year'><?= $this->transEsc('This year') ?></option>
+			<option value='day' <?php if ($period === 'day') echo 'selected'; ?>><?= $this->transEsc('Choose Day') ?></option>
+			<option value='range' <?php if ($period ==='range') echo 'selected'; ?>><?= $this->transEsc('Select Range') ?></option>
+			<option value='week' <?php if ($period === 'week') echo 'selected'; ?>><?= $this->transEsc('This week') ?></option>
+			<option value='month' <?php if (($period === 'month') OR (! $period)) echo 'selected'; ?>><?= $this->transEsc('This month') ?></option>
+			<option value='year' <?php if ($period === 'year') echo 'selected'; ?>><?= $this->transEsc('This year') ?></option>
 		</select>
 	</span>
-
 
 	<span id='day-calendar'>
 		<span class='date-picker-caption'><?= $this->transEsc('Select day') ?></span>
@@ -38,7 +40,8 @@
 		<button class='btn btn-primary' id='update-stats'><?= $this->transEsc('Update stats') ?></button>
 	</span>
 	
-	<span class='selected-date-range pull-right'><?php 
+	<span class='selected-date-range pull-right'>
+	<?php 
 		if ($this->urlGetParams['dateFrom'] AND $this->urlGetParams['dateTo']) 
 			echo $this->urlGetParams['dateFrom'].' - '.$this->urlGetParams['dateTo']; 
 	?>
@@ -50,15 +53,75 @@
 <script>
 	jQuery( document ).ready( function( $ ) {
 
-		period = $( '#period' ).val();
-		todayDate = new Date();
+		/**
+		 * Gets period from Url query or by select change 
+		 * and shows or hides calendars depending on period.
+		 *
+		 * @param	{string}	p_period
+		 *
+		 * @return	void
+		 */
+		var showOrHideCalendars = function(p_period){
+
+			if( p_period == 'week' ) {
+				
+				var start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
+				var end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( p_period == 'month' ) {
+				
+				var start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
+				var end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( p_period == 'year' ) {
+
+				var year = todayDate.getFullYear(); 
+				
+				var start = year + '-01-01';
+				var end   = year + '-12-31';
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( p_period == 'day' ) {
+				
+				$( '#day-calendar' ).show();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( p_period == 'range' ){
+
+				var start = defaultDateFrom;
+				var end   = defaultDateTo;
+				
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).show();
+				
+			} else {
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			}
+			
+			$( '#range-datepicker-from' ).datepicker('setDate', start);
+			$( '#range-datepicker-to' ).datepicker('setDate', end);
+			
+		}
+
+		var period = $( '#period' ).val();
+		var todayDate = new Date();
 				
 		// Initializes calendars
 		$( '#day-datepicker, #range-datepicker-from, #range-datepicker-to' ).datepicker( {
 			changeMonth: true,
 			changeYear: true,
-			dateFormat: "yy-mm-dd",
-			setDate: new Date()
+			dateFormat: "yy-mm-dd"
 		});
 
 		// Sets default dates
@@ -69,64 +132,24 @@
 		$( '#range-datepicker-from' ).datepicker('setDate', defaultDateFrom);
 		$( '#range-datepicker-to' ).datepicker('setDate', defaultDateTo);
 
+		// Document write chosen or default dates
 		if ( $( '.selected-date-range' ).text().trim().length == 0)
 			$( '.selected-date-range' ).html( 
-				defaultDateFrom.getFullYear() + '-' + defaultDateFrom.getMonth() + '-' + defaultDateFrom.getDate() 
+				defaultDateFrom.getFullYear() + '-' + (defaultDateFrom.getMonth()+1) + '-' + defaultDateFrom.getDate() 
 				+ ' - ' + 
-				defaultDateTo.getFullYear() + '-' + defaultDateTo.getMonth() + '-' + defaultDateTo.getDate() 
+				defaultDateTo.getFullYear() + '-' + (defaultDateTo.getMonth()+1) + '-' + defaultDateTo.getDate() 
 			);
 
+		// show chosen calendar
+		showOrHideCalendars('<?= $period ?>');
+		
 		// On period change, sets default dates
 		$( '#period' ).on( 'change', function() {
 			
 			period = $( this ).val();
 			console.log( 'Period changed to: ' + period );
 			
-			if( period == 'week' ) {
-				
-				var start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
-				var end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-				
-			} else if ( period == 'month' ) {
-				
-				var start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
-				var end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-				
-			} else if ( period == 'year' ) {
-
-				var year = todayDate.getFullYear(); 
-				
-				var start = year + '-01-01';
-				var end   = year + '-12-31';
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-				
-			} else if ( period == 'day' ) {
-				
-				$( '#day-calendar' ).show();
-				$( '#range-calendar' ).hide();
-				
-			} else if ( period == 'range' ){
-				
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).show();
-				
-			} else {
-				
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-				
-			}
-			
-			$( '#range-datepicker-from' ).datepicker('setDate', start);
-			$( '#range-datepicker-to' ).datepicker('setDate', end);
+			showOrHideCalendars(period);
 		});
 
 		// On click (time change), updates data with reloading
