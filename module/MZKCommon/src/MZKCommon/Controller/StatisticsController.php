@@ -19,7 +19,6 @@ class StatisticsController extends AbstractBase
 	public function dashboardAction()
 	{
 		// Log In Start 
-		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -39,7 +38,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		*/ // Log in End
+		// Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -61,7 +60,6 @@ class StatisticsController extends AbstractBase
 	public function searchesAction()
 	{
 		// Log In Start 
-		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -81,7 +79,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		*/ // Log in End
+		// Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -168,7 +166,6 @@ class StatisticsController extends AbstractBase
 	public function circulationsAction()
 	{
 		// Log In Start 
-		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -188,7 +185,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		*/ // Log in End
+		// Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -221,7 +218,6 @@ class StatisticsController extends AbstractBase
 	public function paymentsAction()
 	{
 		// Log In Start 
-		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -241,7 +237,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		*/ // Log in End
+		// Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -274,7 +270,6 @@ class StatisticsController extends AbstractBase
 	public function visitsAction()
 	{
 		// Log In Start 
-		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -294,7 +289,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		*/ // Log in End
+		// Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
