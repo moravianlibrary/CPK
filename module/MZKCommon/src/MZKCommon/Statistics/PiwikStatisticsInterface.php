@@ -29,9 +29,10 @@ interface PiwikStatisticsInterface
 	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
 	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
 	 * @param	string	$userLibCard
+	 * @param	array	$additionalParams	Additional parameters
 	 * @return	int
 	 */
-	public function getVisitsCountForLibrary($period, $date, $userLibCard);
+	public function getVisitsCountForLibrary($period, $date, $userLibCard, array $additionalParams = null);
 	
 	/**
 	 * Returns array of visits info
@@ -173,8 +174,6 @@ interface PiwikStatisticsInterface
 	
 	/**
 	 * Returns number of visited records in VuFind.
-	 * If userLibCard is provided, returns number of visited records in VuFind 
-	 * by users logged in to specific library.
 	 * When rawData is set to 1, returns csv
 	 * 
 	 * @param	string	$period	day|week|month|year|range
@@ -185,6 +184,20 @@ interface PiwikStatisticsInterface
 	 * @return	array|csv
 	 */
 	public function getNbViewedRecords($period, $date, $type = "all", array $additionalParams = null);
+	
+	/**
+	 * Returns number of visited records in VuFind.
+	 * If userLibCard is provided, returns number of visited records in VuFind
+	 * by users logged in to specific library.
+	 * When rawData is set to 1, returns csv
+	 *
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$userLibCard
+	 * @return	array|csv
+	 */
+	public function getNbViewedRecordsForLibrary($period, $date, $userLibCard);
 	
 	/**
 	 * Returns array of visited records in VuFind.

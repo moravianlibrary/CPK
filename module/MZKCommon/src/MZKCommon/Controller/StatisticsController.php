@@ -18,7 +18,8 @@ class StatisticsController extends AbstractBase
 	
 	public function dashboardAction()
 	{
-		// Log In Start
+		// Log In Start 
+		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -38,7 +39,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		// Log in End
+		*/ // Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -59,7 +60,8 @@ class StatisticsController extends AbstractBase
 	
 	public function searchesAction()
 	{
-		// Log In Start
+		// Log In Start 
+		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -79,7 +81,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		// Log in End
+		*/ // Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -95,15 +97,15 @@ class StatisticsController extends AbstractBase
 			$PiwikStatistics = $this->getServiceLocator()
 			->get('MZKCommon\StatisticsPiwikStatistics');
 			
-			$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
-			$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
+			$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10, $adminLibCard);
+			$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10, $adminLibCard);
 			
-			$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
-			$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+			$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date, $adminLibCard);
+			$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date, $adminLibCard);
 			
 			//
-			$nbSuccessedSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date);
-			$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date);
+			$nbSuccessedSearches = $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", $adminLibCard);
+			$nbFailedSearches    = $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", $adminLibCard);
 			
 			$view = $this->createViewModel(
 				array(
@@ -114,11 +116,11 @@ class StatisticsController extends AbstractBase
 					'nbNoResultKeywords' => $nbNoResultKeywords,
 					'nbSuccessedSearches'=> $nbSuccessedSearches,
 					'nbFailedSearches'   => $nbFailedSearches,
-					'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecords('range', $date),
-					'nbItemViews'		 => $PiwikStatistics->getNbRecordVisits('range', $date),
-					'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCount('range', $date),
-					'foundKeywordsUrl'   => $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", null, 1),
-					'noResultKeywordsUrl'=> $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", null, 1),
+					'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecordsForLibrary('range', $date, $adminLibCard),
+					'nbItemViews'		 => $PiwikStatistics->getNbRecordVisitsForLibrary('range', $date, $adminLibCard),
+					'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCountForLibrary('range', $date, $adminLibCard),
+					'foundKeywordsUrl'   => $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", $adminLibCard, 1),
+					'noResultKeywordsUrl'=> $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", $adminLibCard, 1),
 				)
 			);
 			
@@ -165,7 +167,8 @@ class StatisticsController extends AbstractBase
 	
 	public function circulationsAction()
 	{
-		// Log In Start
+		// Log In Start 
+		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -185,7 +188,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		// Log in End
+		*/ // Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -217,7 +220,8 @@ class StatisticsController extends AbstractBase
 	
 	public function paymentsAction()
 	{
-		// Log In Start
+		// Log In Start 
+		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -237,7 +241,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		// Log in End
+		*/ // Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -269,7 +273,8 @@ class StatisticsController extends AbstractBase
 	
 	public function visitsAction()
 	{
-		// Log In Start
+		// Log In Start 
+		/*
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
@@ -289,7 +294,7 @@ class StatisticsController extends AbstractBase
 		} else {
 			$isLibrary = true;
 		}
-		// Log in End
+		*/ // Log in End
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -332,14 +337,14 @@ class StatisticsController extends AbstractBase
 			$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
 					$periodicity,
 					$date,
-					'all',
+					$adminLibCard,
 					array('segment' => 'visitorType==returning')
 			);
 			
 			$newVisitsInTime = $PiwikStatistics->getVisitsCount(
 					$periodicity,
 					$date,
-					'all',
+					$adminLibCard,
 					array('segment' => 'visitorType==new')
 			);
 			
@@ -350,22 +355,22 @@ class StatisticsController extends AbstractBase
 			//
 			
 			// Total visits
-			$totalVisitsArray = $PiwikStatistics->getVisitsCount('range', $date, 'all');
+			$totalVisitsArray = $PiwikStatistics->getVisitsCountForLibrary('range', $date, $adminLibCard);
 			$totalVisits = $totalVisitsArray['value'];
 			
 			// New visitors count
-			$newVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date);
+			$newVisitorsCount = $PiwikStatistics->getNewVisitorsCountForLibrary('range', $date, $adminLibCard);
 			
 			// Returning visitors count
-			$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date);
+			$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCountForLibrary('range', $date, $adminLibCard);
 			
 			// Visits info [Dashboard]
-			$visitsInfoArray  = $PiwikStatistics->getVisitsInfo('range', $date, 'all');
+			$visitsInfoArray  = $PiwikStatistics->getVisitsInfoForLibrary('range', $date, $adminLibCard);
 			$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
 			$nbActions 		  = $visitsInfoArray['nb_actions'];
 			$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
 			$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
-			$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers();
+			$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers(10, $adminLibCard);
 			
 			$view = $this->createViewModel(	
 				array(

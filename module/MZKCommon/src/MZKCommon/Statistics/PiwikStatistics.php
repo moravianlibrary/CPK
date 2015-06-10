@@ -271,7 +271,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getVisitsCountForLibrary($period, $date, $userLibCard)
+	public function getVisitsCountForLibrary($period, $date, $userLibCard, array $additionalParams = null)
 	{
 		$params = array(
 			'method' => 'VisitsSummary.getVisits',
@@ -280,6 +280,18 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		
 		if ($userLibCard)
 			$params['segment'] = 'customVariablePageUserLibCard=='.$userLibCard;
+		
+		// array merge without overwriting
+		if($additionalParams) {
+			foreach ($additionalParams as $key => $value) {
+				if (! array_key_exists($key, $params)) {
+					$params[$key] = $value;
+				} else {
+					if($key == 'segment')
+						$param[$key] .= ';'.$value;
+				}
+			}
+		}
 		
 		$count = $this->getRowsCountFromRequest($period, $date, $params);
 		
@@ -682,6 +694,25 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		$count = $dataArray['value'];
 		
+		return $count;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getNbViewedRecordsForLibrary($period, $date, $userLibCard)
+	{
+		$params = array(
+				'method'  => 'Actions.get',
+				'format'  => 'json',
+				'showColumns' => 'nb_uniq_pageviews',
+				'segment' => 'pageUrl=@'.urlencode($this->recordUrl).
+							';customVariablePageUserLibCard=='.$userLibCard,
+		);
+
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		$count = $dataArray['value'];
+	
 		return $count;
 	}
 	
