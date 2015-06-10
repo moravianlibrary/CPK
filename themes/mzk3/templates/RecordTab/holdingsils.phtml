@@ -26,7 +26,7 @@
     <?=$this->transEsc($message);?>
   </p>
 <?endif;?>
- 
+
 <? $restrictions = $this->driver->getRestrictions(); if (!empty($restrictions)):?>
   <? foreach ($restrictions as $restriction):?>
     <p class="holdings-restriction">
@@ -34,7 +34,7 @@
     </p>
   <? endforeach;?>
 <? endif;?>
- 
+
 <? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
     <a class="holdPlace" href="<?=$this->recordLink()->getHoldUrl($holdingTitleHold)?>"><?=$this->transEsc('title_hold_place')?></a>
 <? endif; ?>
@@ -85,6 +85,7 @@
     <th><?=$this->transEsc("location / second signature")?>&nbsp;</th>
     <th><?=$this->transEsc("description")?>&nbsp;</th>
     <th><?=$this->transEsc("note")?>&nbsp;</th>
+    <th><?=$this->transEsc("callnumber in stock")?>&nbsp;</th>
   </tr>
 </thead>
 <tbody>
@@ -164,7 +165,7 @@
       </div>
     </td>
     <td data-title="<?=$this->transEsc("location / second signature")?>">
-      <?=$this->escapeHtml($row['callnumber_second'])?>
+      <b><?=$this->escapeHtml($row['callnumber_second'])?></b>
     </td>
     <td data-title="<?=$this->transEsc("description")?>">
       <?=$this->escapeHtml($row['description'])?>
@@ -172,6 +173,11 @@
     <td data-title="<?=$this->transEsc("note")?>">
       <? if ($row['notes'] != null):?>
         <?=$this->escapeHtml($row['notes'][0])?>
+      <? endif;?>
+    </td>
+    <td data-title="<?=$this->transEsc("callnumber in stock")?>">
+      <? if ($row['callnumber'] != null):?>
+        <?=$this->escapeHtml($row['callnumber'])?>
       <? endif;?>
     </td>
   </tr>
