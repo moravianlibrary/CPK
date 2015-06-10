@@ -1,5 +1,7 @@
 <?php 
-$period = $this->urlGetParams['period'];
+$period   = $this->urlGetParams['period'];
+$dateFrom = $this->urlGetParams['dateFrom'];
+$dateTo   = $this->urlGetParams['dateTo'];
 ?>
 <div class='calendar form-inline' >
 	
@@ -127,8 +129,9 @@ $period = $this->urlGetParams['period'];
 		// Sets default dates
 		var defaultDateFrom = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
 		var defaultDateTo  = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
-		
+
 		$( '#day-datepicker' ).datepicker('setDate', todayDate);
+		
 		$( '#range-datepicker-from' ).datepicker('setDate', defaultDateFrom);
 		$( '#range-datepicker-to' ).datepicker('setDate', defaultDateTo);
 
@@ -142,6 +145,17 @@ $period = $this->urlGetParams['period'];
 
 		// show chosen calendar
 		showOrHideCalendars('<?= $period ?>');
+
+		<?php
+			if ($period === 'day') {
+				echo "$( '#day-datepicker' ).datepicker('setDate', '$dateFrom');";
+			}
+			
+			if ($period === 'range') {
+				echo "$( '#range-datepicker-from' ).datepicker('setDate', '$dateFrom');";
+				echo "$( '#range-datepicker-to' ).datepicker('setDate', '$dateTo');";
+			}
+		?>
 		
 		// On period change, sets default dates
 		$( '#period' ).on( 'change', function() {
