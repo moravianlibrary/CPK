@@ -3,8 +3,8 @@
 /**
  * Display all errors when APPLICATION_ENV is development.
  */
-if ($_SERVER['APPLICATION_ENV'] == 'development') {
-	error_reporting(E_ALL);
+if (defined($_SERVER['APPLICATION_ENV']) AND ($_SERVER['APPLICATION_ENV'] === 'development')) {
+	error_reporting(E_ALL ^ E_STRICT ^ E_DEPRECATED);
 	ini_set("display_errors", 1);
 }
 
