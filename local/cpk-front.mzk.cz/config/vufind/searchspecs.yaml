@@ -556,6 +556,28 @@ sysno:
     sysno_str:
       - [and, ~]
 
+
+titleSeries:
+  QueryFields:
+    titleSeries_search_txt_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+authorCorporation:
+  QueryFields:
+    authorCorporation_search_txt_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+subjectKeywords:
+  QueryFields:
+    subjectKeywords_search_txt_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
 ISBNISSNISMN:
   QueryFields:
     issnIsbnIsmn_search_str_mv:
@@ -608,6 +630,20 @@ placeOfPublication:
 counrtyOfPublication:
   QueryFields:
     country_txt:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
+cityInstitution:
+  DismaxFields:
+    - city_search_txt_mv
+    - institution_search_txt_mv
+  QueryFields:
+    city_search_txt_mv:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+    institution_search_txt_mv:
       - [onephrase, 100] 
       - [and, 50]
       - [or, ~]
