@@ -67,7 +67,7 @@ $staticRoutes = array(
     'MyResearch/CheckedOutHistory', 'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport', 'MyResearch/ProfileChange', 
 	'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
-	'Statistics/Payments', 'Statistics/Searches', 'Statistics',
+	'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/',
 );
 
 foreach ($staticRoutes as $route) {
