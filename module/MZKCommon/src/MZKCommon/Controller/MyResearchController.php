@@ -34,6 +34,8 @@ VuFind\Exception\ListPermission as ListPermissionException,
 VuFind\Exception\RecordMissing as RecordMissingException,
 Zend\Stdlib\Parameters,
 Zend\Session\Container as SessionContainer;
+use VuFind\ILS\Driver\MultiBackend;
+use VuFind\ILS\Driver\XCNCIP2;
 
 /**
  * Controller for the user account area.
@@ -363,8 +365,19 @@ class MyResearchController extends MyResearchControllerBase
         if ($view) {
             $catalog = $this->getILS();
             $view->profileChange = $catalog->checkCapability('changeUserRequest');
+
+            $this->checkBlocks($view->__get('profile'));
+
         }
         return $view;
+    }
+
+    protected function checkBlocks($profile) {
+        foreach($profile['blocks'] as $block) {
+            if (! empty($block)) {
+                $this->flashMessenger()->setNamespace('error')->addMessage($block);
+            }
+        }
     }
 
     public function profileChangeAction()

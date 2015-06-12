@@ -893,6 +893,14 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
             }
         }
         $group = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserPrivilege/ns1:UserPrivilegeDescription');
+
+        $blocksParsed = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:BlockOrTrap/ns1:BlockOrTrapType');
+
+        $i = -1;
+        foreach ($blocksParsed as $block) {
+            $blocks[++$i] = (string) $block;
+        }
+
         $patron = array(
             'cat_username' => $patron['id'],
             'id' => $patron['id'],
@@ -904,9 +912,37 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
             'country' => empty($country) ? '' : (string) $country[0],
             'zip' => empty($zip) ? '' : (string) $zip[0],
             'phone' => empty($phone) ? '' : (string) $phone[0],
-            'group' => empty($group) ? '' : (string) $group[0]
+            'group' => empty($group) ? '' : (string) $group[0],
+            'blocks' => empty($blocks) ? array() : $blocks
         );
         return $patron;
+    }
+
+
+    /**
+     * Get Patron BlocksOrTraps
+     *
+     * This is responsible for retrieving blocks of a specific patron.
+     *
+     * @param array $cat_username
+     *            String of userId
+     *
+     * @throws ILSException
+     * @return array Array of the patron's blocks in string.
+     */
+    public function getBlocks($cat_username)
+    {
+        $request = $this->requests->getBlocks($cat_username);
+        $response = $this->sendRequest($request);
+
+        $blocksParsed = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:BlockOrTrap/ns1:BlockOrTrapType');
+
+        $i = -1;
+        foreach ($blocksParsed as $block) {
+            $blocks[++$i] = (string) $block;
+        }
+
+        return $blocks;
     }
 
     /**
@@ -1270,7 +1306,7 @@ class NCIPRequests
     {
         if ($extras == null) {
             $extras = array(
-                '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Address Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Privilege' . '</ns1:UserElementType>'
+                '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm">Block Or Trap</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Address Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Privilege' . '</ns1:UserElementType>'
             );
         }
 
