@@ -85,6 +85,7 @@ class MyResearchController extends MyResearchControllerBase
             }
             if ($dateDiff->invert == 0 && $dateDiff->days > 0) {
                 $this->flashMessenger()->setNamespace('error')->addMessage('library_card_expirated_warning');
+                $view->prolongRegistrationUrl = $catalog->getProlongRegistrationUrl($patron);
             }
         }
         return $view;
