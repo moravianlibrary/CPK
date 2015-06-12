@@ -8,23 +8,24 @@
   }
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-11">
-  <div class="row">
-    <div class="col-sm-2 col-xs-3 left">
-        <div id="cover_<?=$recordId?>" class="coverThumbnail">
-            <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
-                <script type="text/javascript">
-                    obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
-                </script>
-            <? endif;?>
-            <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
-                <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
-            <? else: ?>
-                <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
-            <? endif; ?>
+    <div class="row">
+        <div class="col-sm-2 col-xs-3 left">
+            <? $recordId =  preg_replace("/\./", "", $recordId)?>
+            <div class="coverThumbnail cover_<?=$recordId?>">
+                <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
+                    <script type="text/javascript">
+                        obalky.display_thumbnail(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                    </script>
+                <? endif;?>
+                <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
+                    <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                <? else: ?>
+                    <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                <? endif; ?>
+            </div>
+            <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
+            <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
         </div>
-      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
-      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
-    </div>
     <div class="col-sm-7 col-xs-6 middle">
       <div>
         <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
