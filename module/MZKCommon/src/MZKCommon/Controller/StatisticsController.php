@@ -110,11 +110,11 @@ class StatisticsController extends AbstractBase
 		$this->checkGetParams($urlGetParams);
 		// Get params inspections End
 		
-		if ($isLibrary) {
+		$dateFrom = (! empty($urlGetParams['dateFrom'])) ? $urlGetParams['dateFrom'] : date('Y-m-01');
+		$dateTo   = (! empty($urlGetParams['dateTo']))   ? $urlGetParams['dateTo'] : date('Y-m-t');
+		$date 	  = $dateFrom.','.$dateTo;
 		
-			$dateFrom = $urlGetParams['dateFrom'];
-			$dateTo = $urlGetParams['dateTo'];
-			$date 		= $dateFrom.','.$dateTo;
+		if ($isLibrary) {
 			
 			$PiwikStatistics = $this->getServiceLocator()
 			->get('MZKCommon\StatisticsPiwikStatistics');
@@ -147,9 +147,6 @@ class StatisticsController extends AbstractBase
 			);
 			
 		} else { // is Admin
-			$dateFrom = $urlGetParams['dateFrom'];
-			$dateTo = $urlGetParams['dateTo'];
-			$date 		= $dateFrom.','.$dateTo;
 			
 			$PiwikStatistics = $this->getServiceLocator()
 			->get('MZKCommon\StatisticsPiwikStatistics');
@@ -216,6 +213,10 @@ class StatisticsController extends AbstractBase
 		$this->checkGetParams($urlGetParams);
 		// Get params inspections End
 		
+		$dateFrom = (! empty($urlGetParams['dateFrom'])) ? $urlGetParams['dateFrom'] : date('Y-m-01');
+		$dateTo   = (! empty($urlGetParams['dateTo']))   ? $urlGetParams['dateTo'] : date('Y-m-t');
+		$date 	  = $dateFrom.','.$dateTo;
+		
 		if ($isLibrary) {
 		
 			$view = $this->createViewModel(
@@ -262,6 +263,10 @@ class StatisticsController extends AbstractBase
 			$isLibrary = true;
 		}
 		// Log in End
+		
+		$dateFrom = (! empty($urlGetParams['dateFrom'])) ? $urlGetParams['dateFrom'] : date('Y-m-01');
+		$dateTo   = (! empty($urlGetParams['dateTo']))   ? $urlGetParams['dateTo'] : date('Y-m-t');
+		$date 	  = $dateFrom.','.$dateTo;
 		
 		// Get params inspection Start (preventing user Injection)
 		$urlGetParams = $this->params()->fromQuery();
@@ -320,11 +325,11 @@ class StatisticsController extends AbstractBase
 		$this->checkGetParams($urlGetParams);
 		// Get params inspections End
 		
-		if ($isLibrary) {
+		$dateFrom = (! empty($urlGetParams['dateFrom'])) ? $urlGetParams['dateFrom'] : date('Y-m-01');
+		$dateTo   = (! empty($urlGetParams['dateTo']))   ? $urlGetParams['dateTo'] : date('Y-m-t');
+		$date 	  = $dateFrom.','.$dateTo;
 		
-			$dateFrom = $urlGetParams['dateFrom'];
-			$dateTo = $urlGetParams['dateTo'];
-			$date 		= $dateFrom.','.$dateTo;
+		if ($isLibrary) {
 			
 			$PiwikStatistics = $this->getServiceLocator()
 									->get('MZKCommon\StatisticsPiwikStatistics');
@@ -407,9 +412,6 @@ class StatisticsController extends AbstractBase
 			);
 			
 		} else { // isAdmin
-			$dateFrom = $urlGetParams['dateFrom'];
-			$dateTo = $urlGetParams['dateTo'];
-			$date 		= $dateFrom.','.$dateTo;
 				
 			$PiwikStatistics = $this->getServiceLocator()
 			->get('MZKCommon\StatisticsPiwikStatistics');

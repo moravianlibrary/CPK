@@ -3,9 +3,9 @@
 	$params = $this->urlGetParams;
 	$options = [
 		'query' => array(
-			'period' => $params['period'],
-			'dateFrom' => $params['dateFrom'],
-			'dateTo' => $params['dateTo'],
+			'period'   => (! empty($params['period']))   ? $params['period'] : 'month',
+			'dateFrom' => (! empty($params['dateFrom'])) ? $params['dateFrom'] : date('Y-m-01'),
+			'dateTo'   => (! empty($params['dateTo']))   ? $params['dateTo'] : date('Y-m-t'),
 		),
 	];
 	

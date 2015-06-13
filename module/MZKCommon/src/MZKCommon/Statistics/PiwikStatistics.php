@@ -727,11 +727,11 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNbViewedRecordsForLibrary($period, $date, $userLibCard)
 	{
 		$params = array(
-				'method'  => 'Actions.get',
-				'format'  => 'json',
-				'showColumns' => 'nb_uniq_pageviews',
-				'segment' => 'pageUrl=@'.urlencode($this->recordUrl).
-							';customVariablePageUserLibCard=='.$userLibCard,
+			'method'  => 'Actions.get',
+			'format'  => 'json',
+			'showColumns' => 'nb_uniq_pageviews',
+			'segment' => 'pageUrl=@'.urlencode($this->recordUrl).
+						';customVariablePageUserLibCard=='.$userLibCard,
 		);
 
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);

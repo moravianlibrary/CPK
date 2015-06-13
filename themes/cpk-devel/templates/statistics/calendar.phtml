@@ -64,42 +64,45 @@ $dateTo   = $this->urlGetParams['dateTo'];
 		 * @return	void
 		 */
 		var showOrHideCalendars = function(p_period){
+			
+			var start,
+				end;
 
-			if( p_period == 'week' ) {
+			if( p_period === 'week' ) {
 				
-				var start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
-				var end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-				
-			} else if ( p_period == 'month' ) {
-				
-				var start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
-				var end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
+				start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
+				end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
 
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).hide();
 				
-			} else if ( p_period == 'year' ) {
+			} else if ( p_period === 'month' ) {
+				
+				start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
+				end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
+
+				$( '#day-calendar' ).hide();
+				$( '#range-calendar' ).hide();
+				
+			} else if ( p_period ==='year' ) {
 
 				var year = todayDate.getFullYear(); 
 				
-				var start = year + '-01-01';
-				var end   = year + '-12-31';
+				start = year + '-01-01';
+				end   = year + '-12-31';
 
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).hide();
 				
-			} else if ( p_period == 'day' ) {
+			} else if ( p_period === 'day' ) {
 				
 				$( '#day-calendar' ).show();
 				$( '#range-calendar' ).hide();
 				
-			} else if ( p_period == 'range' ){
+			} else if ( p_period === 'range' ){
 
-				var start = defaultDateFrom;
-				var end   = defaultDateTo;
+				start = defaultDateFrom;
+				end   = defaultDateTo;
 				
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).show();
@@ -129,7 +132,7 @@ $dateTo   = $this->urlGetParams['dateTo'];
 		// Sets default dates
 		var defaultDateFrom = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
 		var defaultDateTo  = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
-
+	
 		$( '#day-datepicker' ).datepicker('setDate', todayDate);
 		
 		$( '#range-datepicker-from' ).datepicker('setDate', defaultDateFrom);
@@ -144,7 +147,14 @@ $dateTo   = $this->urlGetParams['dateTo'];
 			);
 
 		// show chosen calendar
-		showOrHideCalendars('<?= $period ?>');
+		<?php
+			if (! empty($period)) {
+				echo "showOrHideCalendars('$period');";
+			} else {
+				echo "showOrHideCalendars(period);";
+			}
+		?>
+		
 
 		<?php
 			if ($period === 'day') {
