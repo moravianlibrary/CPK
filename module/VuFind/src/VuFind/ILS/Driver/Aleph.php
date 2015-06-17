@@ -63,7 +63,7 @@ interface AlephTranslator
  */
 class AlephFixedTranslator implements AlephTranslator
 {
-    
+
     public function tab15Translate($item) {
         $z30 = $item->z30;
         return array(
@@ -73,14 +73,14 @@ class AlephFixedTranslator implements AlephTranslator
             'sub_lib_desc' => (string) $z30->{'z30-sub-library'}
         );
     }
-    
+
     public function tab40Translate($item) {
         $z30 = $item->z30;
         $collection = (string) $z30->{'z30-collection'};
         $collection_desc = array('desc' => $collection);
         return $collection_desc;
     }
-    
+
 }
 
 /**
@@ -115,7 +115,7 @@ class AlephFileTranslator implements AlephTranslator
             get_class($this) . "::tabSubLibraryCallback"
         );
     }
-    
+
     /**
      * Get a tab15 item status
      *
@@ -143,7 +143,7 @@ class AlephFileTranslator implements AlephTranslator
         $result["sub_lib_desc"] = $tab15["desc"];
         return $result;
     }
-    
+
     /**
      * Get a tab40 collection description
      *
@@ -164,7 +164,7 @@ class AlephFileTranslator implements AlephTranslator
         }
         return $result;
     }
-    
+
     /**
      * Support method for tab15Translate -- translate a sub-library name
      *
@@ -300,14 +300,14 @@ class AlephFileTranslator implements AlephTranslator
  *
  */
 interface IdResolver {
-    
+
     /**
      * Resolve ids (add Solr id to items)
      *
      * @param array $items   items to resolve
      */
     public function resolveIds(&$items);
-    
+
 }
 
 /**
@@ -318,11 +318,11 @@ interface IdResolver {
  *
  */
 class FixedIdResolver implements IdResolver {
-    
+
     public function resolveIds(&$items) {
         return $items;
     }
-    
+
 }
 
 /**
@@ -330,18 +330,18 @@ class FixedIdResolver implements IdResolver {
  *
  */
 class SolrIdResolver implements IdResolver {
-    
+
     protected $solrQueryField = 'availability_id_str';
-    
+
     protected $itemIdentifier = 'adm_id';
-    
+
     /**
      * Search service (used for lookups by barcode number)
      *
      * @var \VuFindSearch\Service
      */
     protected $searchService = null;
-    
+
     public function __construct(\VuFindSearch\Service $searchService, $config)
     {
         $this->searchService = $searchService;
@@ -352,7 +352,7 @@ class SolrIdResolver implements IdResolver {
             $this->itemIdentifier = $config['IdResolver']['itemIdentifier'];
         }
     }
-    
+
     public function resolveIds(&$recordsToResolve)
     {
         $idsToResolve = array();
@@ -372,7 +372,7 @@ class SolrIdResolver implements IdResolver {
             }
         }
     }
-    
+
     protected function convertToIDUsingSolr(&$ids)
     {
         if (empty($ids)) {
@@ -404,7 +404,7 @@ class SolrIdResolver implements IdResolver {
         }
         return $results;
     }
-        
+
 }
 
 /**
@@ -412,19 +412,19 @@ class SolrIdResolver implements IdResolver {
  *
  */
 class XServerIdResolver implements IdResolver {
-    
+
     /**
      *
      * @var AlephWebServices
      */
     protected $alephWebService;
-    
+
     /**
      *
      * @var array
      */
     protected $bib;
-    
+
     /**
      *
      * @param AlephWebServices $service
@@ -435,7 +435,7 @@ class XServerIdResolver implements IdResolver {
         $this->alephWebService = $service;
         $this->bib = explode(',', $config['Catalog']['bib']);
     }
-    
+
     public function resolveIds(&$recordsToResolve)
     {
         foreach ($recordsToResolve as &$record) {
@@ -445,7 +445,7 @@ class XServerIdResolver implements IdResolver {
             }
         }
     }
-    
+
     protected function barcodeToID($bar)
     {
         if (!$this->alephWebService->isXServerEnabled()) {
@@ -523,47 +523,47 @@ class AlephRestfulException extends ILSException
  *
  */
 class AlephWebServices {
-    
+
     /**
      * Aleph server host name
      *
      * @var string
      */
     protected $host;
-    
+
     /**
      * Username for Xserver calls
      *
      * @var string
      */
     protected $wwwuser;
-    
+
     /**
      * Username for Xserver calls
      *
      * @var string
      */
     protected $wwwpasswd;
-    
+
     /**
      * Port number on which REST DLF API is running
      *
      */
     protected $dlfport;
-    
+
     /**
      * Is XServer API enabled?
      *
      */
     protected $xserver_enabled;
-    
+
     /**
      * HTTP service
      *
      * @var \VuFindHttp\HttpServiceInterface
      */
     protected $httpService = null;
-    
+
     /**
      * Timeout in seconds
      *
@@ -577,7 +577,7 @@ class AlephWebServices {
      * @var LoggerInterface|bool
      */
     protected $logger = false;
-    
+
     /**
      *
      * @param array $config
@@ -585,7 +585,7 @@ class AlephWebServices {
     public function __construct()
     {
     }
-    
+
     public function init($config)
     {
         $this->host = $config['host'];
@@ -604,7 +604,7 @@ class AlephWebServices {
         }
         $this->dlfport = $config['dlfport'];
     }
-    
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -616,7 +616,7 @@ class AlephWebServices {
     {
         $this->httpService = $service;
     }
-    
+
     /**
      * Set the logger
      *
@@ -628,12 +628,12 @@ class AlephWebServices {
     {
         $this->logger = $logger;
     }
-    
+
     public function isXServerEnabled()
     {
         return $this->xserver_enabled;
     }
-    
+
     /**
      * Perform an XServer request.
      *
@@ -717,8 +717,8 @@ class AlephWebServices {
             $path .= $path_element . "/";
         }
         $url = "http://$this->host:$this->dlfport/rest-dlf/" . $path;
-        //$url = $this->appendQueryString($url, $params);
-        $result = $this->doHTTPRequest($url, $params, $method, $body);
+        $headers = ["accept" => "application/xml"];
+        $result = $this->doHTTPRequest($url, $params, $method, $body, $headers);
         $replyCode = (string) $result->{'reply-code'};
         if ($replyCode != "0000") {
             $replyText = (string) $result->{'reply-text'};
@@ -734,7 +734,7 @@ class AlephWebServices {
         }
         return $result;
     }
-    
+
     /**
      * Add values to an HTTP query string.
      *
@@ -755,7 +755,7 @@ class AlephWebServices {
         }
         return $url;
     }
-    
+
     /**
      * Perform an HTTP request.
      *
@@ -766,13 +766,13 @@ class AlephWebServices {
      *
      * @return SimpleXMLElement
      */
-    public function doHTTPRequest($url, $params=null, $method='GET', $body = null)
+    public function doHTTPRequest($url, $params=null, $method='GET', $body = null, $headers = array())
     {
         if ($this->debug_enabled) {
             $fullUrl = $this->appendQueryString($url, $params);
             $this->debug("URL: '$fullUrl'");
         }
-        
+
         if ($params == null) {
             $params = array();
         }
@@ -780,7 +780,7 @@ class AlephWebServices {
         $result = null;
         try {
             if ($method == 'GET') {
-                $result = $this->httpService->get($url, $params, $this->timeout);
+                $result = $this->httpService->get($url, $params, $this->timeout, $headers);
             } else if ($method == 'POST') {
                 $url = $this->appendQueryString($url, $params);
                 $result = $this->httpService->post($url, $body, 'application/octet-stream', $this->timeout);
@@ -814,7 +814,7 @@ class AlephWebServices {
         }
         return $result;
     }
-    
+
     /**
      * Show a debug message.
      *
@@ -828,7 +828,7 @@ class AlephWebServices {
             $this->logger->debug($msg);
         }
     }
-    
+
 }
 
 /**
@@ -875,13 +875,13 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @var \VuFind\Date\Converter
      */
     protected $dateConverter = null;
-    
+
     /**
      * Search service (used for lookups by barcode number)
      *
      */
     protected $searchService = null;
-    
+
     /**
      * Resolver for translation of bibliographic ids, used in a case
      * of more bibliographic bases
@@ -889,14 +889,14 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @var \VuFind\ILS\Driver\IdResolver
      */
     protected $idResolver = null;
-    
+
     /**
      * Aleph web services
      *
      * @var \VuFind\ILS\Driver\AlephWebServices
      */
     protected $alephWebService = null;
-    
+
     /**
      * Translation of statuses (used for hiding items and translation of statuses)
      *
@@ -1023,7 +1023,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             throw new ILSException('Unsupported Catalog[IdResolver][type]:' .
                  $idResolverType .', valid values are fixed, solr and xserver.');
         }
-        
+
         if (isset($this->config['ILL']['hidden_statuses'])) {
             $this->IllHiddenStatuses = explode(',', $this->config['ILL']['hidden_statuses']);
         }
@@ -1309,7 +1309,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         return $holding;
     }
-    
+
     public function getHoldingFilters($bibId) {
         list($bib, $sys_no) = $this->parseId($bibId);
         $resource = $bib . $sys_no;
@@ -1974,6 +1974,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $recordList['addressValidFrom'] = $this->parseDate($dateFrom);
         $recordList['addressValidTo'] = $this->parseDate($dateTo);
         $recordList['id'] = $user['id'];
+        $recordList['cat_username'] = $user['id'];
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'patronStatus', 'registration')
         );
@@ -2087,7 +2088,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         } else {
             throw new ILSException('No pickup locations');
         }
-        
+
         $dueDate = null;
         $status = (string) $xml->xpath('//status/text()')[0];
         if (!in_array($status, $this->available_statuses)) {
@@ -2414,7 +2415,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             );
         }
     }
-    
+
     public function getMyILLRequests($user) {
         $userId = $user['id'];
         $loans = array();
@@ -2442,7 +2443,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         return $loans;
     }
-    
+
     public function placeILLRequest($user, $attrs)
     {
         $payment = $attrs['payment'];
