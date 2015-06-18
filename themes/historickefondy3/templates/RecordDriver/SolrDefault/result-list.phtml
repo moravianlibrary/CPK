@@ -108,7 +108,7 @@
 
       <? foreach ($this->driver->getExternalLinks() as $current): ?>
         <? if (isset($current['url']) && !empty($current['url'])): ?>
-          <a href="<?=$current['url']?>" class="fulltext" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <a href="<?=$current['url']?>" class="fulltext" target="new"><i class="fa fa-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
         <? else: ?>
           <a href="<?=$this->recordLink()->related(array('type' => 'bib', 'value' => $current['id']))?>" class="local"><?=$this->transEsc(strtoupper($current['institution']))?></a>
         <? endif; ?>
@@ -149,7 +149,7 @@
         <? if (!is_array($urls)) $urls = array();
           if(!$this->driver->isCollection()):
             foreach ($urls as $current): ?>
-              <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="icon-external-link"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
+              <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
           <? endforeach; ?>
         <? endif; ?>
       <? endif; ?>
@@ -171,7 +171,7 @@
         $this->jsTranslations()->addStrings(array('qrcode_hide' => 'qrcode_hide', 'qrcode_show' => 'qrcode_show'));
       ?>
       <span class="hidden-phone">
-        <i class="icon-qrcode"></i> <a href="<?=$this->escapeHtmlAttr($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
+        <i class="fa fa-qrcode"></i> <a href="<?=$this->escapeHtmlAttr($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
         <div class="qrcode hide">
           <img alt="<?=$this->transEsc('QR Code')?>" class="img-polaroid" src="<?=$this->escapeHtmlAttr($QRCode);?>"/>
         </div><br/>
@@ -190,7 +190,7 @@
       <? foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
         <div class="hierarchyTreeLink">
           <input type="hidden" value="<?=$this->escapeHtmlAttr($hierarchyID)?>" class="hiddenHierarchyId" />
-          <i class="icon-sitemap"></i>
+          <i class="fa fa-sitemap"></i>
           <a class="hierarchyTreeLinkText modal-link" href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>">
             <?=$this->transEsc('hierarchy_view_context')?><? if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><? endif; ?>
           </a>
