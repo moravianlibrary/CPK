@@ -2,6 +2,7 @@
 $period   = $this->urlGetParams['period'];
 $dateFrom = $this->urlGetParams['dateFrom'];
 $dateTo   = $this->urlGetParams['dateTo'];
+$libCard  = $this->urlGetParams['libCard'];
 ?>
 <div class='calendar form-inline' >
 	
@@ -36,6 +37,16 @@ $dateTo   = $this->urlGetParams['dateTo'];
 			<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
 			<input class="form-control" type="text" id="range-datepicker-to">
 		</span>
+	</span>
+	
+	<span class="form-group">
+		<span class='date-picker-caption'><?= $this->transEsc('Choose library') ?></span>
+		<select id='libCard'>
+		    <option value='all' <? if (($libCard === 'all') OR (! $libCard)) echo 'selected'; ?>><?= $this->translate('All') ?></option>
+		    <? foreach ($this->cards as $card) :?>
+		    <option value='<?= $card ?>' <? if ($libCard === $card) echo 'selected'; ?>><?= $card ?></option>
+			<? endforeach; ?>
+		</select>
 	</span>
 	
 	<span class='update-stats'>
@@ -181,16 +192,29 @@ $dateTo   = $this->urlGetParams['dateTo'];
 			
 			event.preventDefault();
 
+			<? if ($isAdmin) : ?>
+					var libCard = $( '#libCard' ).val();
+			<? endif; ?>
+
 			if ( period == 'day' ) {
 				
 				var day = $( '#day-datepicker' ).val();
-				$(location).attr( 'href', '?period=' + period + '&dateFrom=' + day + '&dateTo=' + day );
+				<? if ($isAdmin) : ?>
+					$(location).attr( 'href', '?period=' + period + '&dateFrom=' + day + '&dateTo=' + day + '&libCard=' + libCard );
+				<? else : ?>
+					$(location).attr( 'href', '?period=' + period + '&dateFrom=' + day + '&dateTo=' + day );
+				<? endif; ?>
 				
 			} else {
 				
 				var dateFrom = $( '#range-datepicker-from' ).val();
 				var dateTo = $( '#range-datepicker-to' ).val();
-				$(location).attr( 'href', '?period=' + period + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo );
+
+				<? if ($isAdmin) : ?>
+					$(location).attr( 'href', '?period=' + period + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo + '&libCard=' + libCard );
+				<? else : ?>
+					$(location).attr( 'href', '?period=' + period + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo );
+				<? endif; ?>
 				
 			}
 			

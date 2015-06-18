@@ -69,10 +69,15 @@ class StatisticsController extends AbstractBase
 		$this->checkGetParams($urlGetParams);
 		// Get params inspections End
 		
+		// All cards
+		$cards = array ('blah', 'MZKLIB1', 'KOHALIB1');
+		
 		$view = $this->createViewModel(
 			array(
-				'statistics'  => 'dashboard',
+				'statistics'   => 'dashboard',
 				'urlGetParams' => $urlGetParams,
+				'isAdmin'	   => $isAdmin,
+				'cards'		   => $cards,
 			)
 		);
 		
@@ -148,33 +153,70 @@ class StatisticsController extends AbstractBase
 			
 		} else { // is Admin
 			
+			$libCard = (! empty($urlGetParams['libCard'])) ? $urlGetParams['libCard'] : 'all';
+			
 			$PiwikStatistics = $this->getServiceLocator()
 			->get('MZKCommon\StatisticsPiwikStatistics');
 			
-			$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
-			$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
+			if (($libCard) && ($libCard !== 'all')) { // chosen lib
+				
+				$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10, $libCard);
+				$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10, $libCard);
+					
+				$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date, $libCard);
+				$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date, $libCard);
+					
+				//
+				$nbSuccessedSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, -1, $libCard);
+				$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, -1, $libCard);
+					
+				//
+				$nbViewedItems = $PiwikStatistics->getNbViewedRecordsForLibrary('range', $date, $libCard);
+				$nbItemViews = $PiwikStatistics->getNbRecordVisitsForLibrary('range', $date, $libCard);
+				$catalogAccessCount = $PiwikStatistics->getCatalogAccessCountForLibrary('range', $date, $libCard);
+				$foundKeywordsUrl = $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", $libCard, 1);
+				$noResultKeywordsUrl = $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", $libCard, 1);
+				
+			} else { // all libs
 			
-			$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
-			$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+				$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10);
+				$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10);
+				
+				$nbFoundKeywords	 = $PiwikStatistics->getFoundSearchKeywordsCount('range', $date);
+				$nbNoResultKeywords  = $PiwikStatistics->getNoResultSearchKeywordsCount('range', $date);
+				
+				//
+				$nbSuccessedSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date);
+				$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date);
+				
+				//
+				$nbViewedItems = $PiwikStatistics->getNbViewedRecords('range', $date);
+				$nbItemViews = $PiwikStatistics->getNbRecordVisits('range', $date);
+				$catalogAccessCount = $PiwikStatistics->getCatalogAccessCount('range', $date);
+				$foundKeywordsUrl = $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", null, 1);
+				$noResultKeywordsUrl = $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", null, 1);
+				
+			}				
 			
-			//
-			$nbSuccessedSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date);
-			$nbFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date);
+			// All cards
+			$cards = array ('blah', 'MZKLIB1', 'KOHALIB1');
 			
 			$view = $this->createViewModel(
 				array(
-					'urlGetParams' => $urlGetParams,
+					'urlGetParams' 		 => $urlGetParams,
 					'topSearches'  		 => $topSearches,
 					'topFailedSearches'  => $topFailedSearches,
 					'nbFoundKeywords'  	 => $nbFoundKeywords,
 					'nbNoResultKeywords' => $nbNoResultKeywords,
 					'nbSuccessedSearches'=> $nbSuccessedSearches,
 					'nbFailedSearches'   => $nbFailedSearches,
-					'nbViewedItems'		 => $PiwikStatistics->getNbViewedRecords('range', $date),
-					'nbItemViews'		 => $PiwikStatistics->getNbRecordVisits('range', $date),
-					'catalogAccessCount' => $PiwikStatistics->getCatalogAccessCount('range', $date),
-					'foundKeywordsUrl'   => $PiwikStatistics->getFoundSearchKeywords('range', $date, "-1", null, 1),
-					'noResultKeywordsUrl'=> $PiwikStatistics->getNoResultSearchKeywords('range', $date, "-1", null, 1),
+					'nbViewedItems'		 => $nbViewedItems,
+					'nbItemViews'		 => $nbItemViews,
+					'catalogAccessCount' => $catalogAccessCount,
+					'foundKeywordsUrl'   => $foundKeywordsUrl,
+					'noResultKeywordsUrl'=> $noResultKeywordsUrl,
+					'isAdmin'			 => $isAdmin,
+					'cards'		  		 => $cards,
 				)
 			);
 		}
@@ -217,6 +259,9 @@ class StatisticsController extends AbstractBase
 		$dateTo   = (! empty($urlGetParams['dateTo']))   ? $urlGetParams['dateTo'] : date('Y-m-t');
 		$date 	  = $dateFrom.','.$dateTo;
 		
+		// All cards
+		$cards = array ('blah', 'MZKLIB1', 'KOHALIB1');
+		
 		if ($isLibrary) {
 		
 			$view = $this->createViewModel(
@@ -231,6 +276,8 @@ class StatisticsController extends AbstractBase
 					array(
 							'urlGetParams' => $urlGetParams,
 							'statistics'  => 'circulations',
+							'isAdmin'	  => $isAdmin,
+							'cards'		  => $cards,
 					)
 			);
 		}
@@ -273,6 +320,9 @@ class StatisticsController extends AbstractBase
 		$this->checkGetParams($urlGetParams);
 		// Get params inspections End
 		
+		// All cards
+		$cards = array ('blah', 'MZKLIB1', 'KOHALIB1');
+		
 		if ($isLibrary) {
 		
 			$view = $this->createViewModel(
@@ -287,6 +337,8 @@ class StatisticsController extends AbstractBase
 					array(
 							'urlGetParams' => $urlGetParams,
 							'statistics'  => 'payments',
+							'isAdmin'	  => $isAdmin,
+							'cards'		  => $cards,
 					)
 			);
 		}
@@ -358,14 +410,14 @@ class StatisticsController extends AbstractBase
 			//
 			
 			// visits in time
-			$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
+			$returningVisitsInTime = $PiwikStatistics->getVisitsCountForLibrary(
 					$periodicity,
 					$date,
 					$adminLibCard,
 					array('segment' => 'visitorType==returning')
 			);
 			
-			$newVisitsInTime = $PiwikStatistics->getVisitsCount(
+			$newVisitsInTime = $PiwikStatistics->getVisitsCountForLibrary(
 					$periodicity,
 					$date,
 					$adminLibCard,
@@ -411,6 +463,8 @@ class StatisticsController extends AbstractBase
 				)
 			);
 			
+			$view->setTemplate('statistics/visits');
+			
 		} else { // isAdmin
 				
 			$PiwikStatistics = $this->getServiceLocator()
@@ -439,21 +493,39 @@ class StatisticsController extends AbstractBase
 			}
 			//
 			
+			$libCard = (! empty($urlGetParams['libCard'])) ? $urlGetParams['libCard'] : 'all';
+			
 			// visits in time
-			$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
-					$periodicity,
-					$date,
-					'all',
-					array('segment' => 'visitorType==returning')
-			);
+			if (($libCard) && ($libCard !== 'all')) {
+				$returningVisitsInTime = $PiwikStatistics->getVisitsCountForLibrary(
+						$periodicity,
+						$date,
+						$libCard,
+						array('segment' => 'visitorType==returning')
+				);
+					
+				$newVisitsInTime = $PiwikStatistics->getVisitsCountForLibrary(
+						$periodicity,
+						$date,
+						$libCard,
+						array('segment' => 'visitorType==new')
+				);
+			} else { // all libs
+				$returningVisitsInTime = $PiwikStatistics->getVisitsCount(
+						$periodicity,
+						$date,
+						'all',
+						array('segment' => 'visitorType==returning')
+				);
 				
-			$newVisitsInTime = $PiwikStatistics->getVisitsCount(
-					$periodicity,
-					$date,
-					'all',
-					array('segment' => 'visitorType==new')
-			);
-				
+				$newVisitsInTime = $PiwikStatistics->getVisitsCount(
+						$periodicity,
+						$date,
+						'all',
+						array('segment' => 'visitorType==new')
+				);
+			}
+			
 			$visitsInTime = array();
 			foreach ($returningVisitsInTime as $key => $value) {
 				$visitsInTime[$key] = array('returningVisits' => $value, 'newVisits' => $newVisitsInTime[$key]);
@@ -461,41 +533,84 @@ class StatisticsController extends AbstractBase
 			//
 				
 			// Total visits
-			$totalVisitsArray = $PiwikStatistics->getVisitsCount('range', $date, 'all');
+			if (($libCard) && ($libCard !== 'all')) {
+				$totalVisitsArray = $PiwikStatistics->getVisitsCountForLibrary('range', $date, $libCard);
+			} else {
+				$totalVisitsArray = $PiwikStatistics->getVisitsCount('range', $date, 'all');
+			}
 			$totalVisits = $totalVisitsArray['value'];
 				
-			// New visitors count
-			$newVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date);
+			// New and Returning visitors count
+			if (($libCard) && ($libCard !== 'all')) { // chosen library
 				
-			// Returning visitors count
-			$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date);
+				$newVisitorsCount = $PiwikStatistics->getNewVisitorsCountForLibrary('range', $date, $libCard);
 				
+				$newAnonymeVisitorsCount = null;
+				$newAuthenticatedVisitorsCount = null;
+				
+				$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCountForLibrary('range', $date, $libCard);
+				
+				$returningAnonymeVisitorsCount = null;
+				$returningAuthenticatedVisitorsCount = null;
+				
+			} else { // all libs
+
+				$newVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date);
+				$newAnonymeVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date, "anonyme");
+				$newAuthenticatedVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date, "authenticated");
+					
+				$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date);
+				$returningAnonymeVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date, "anonyme");
+				$returningAuthenticatedVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date, "authenticated");
+				
+			}
+			
 			// Visits info [Dashboard]
-			$visitsInfoArray  = $PiwikStatistics->getVisitsInfo('range', $date, 'all');
-			$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
-			$nbActions 		  = $visitsInfoArray['nb_actions'];
-			$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
-			$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
-			$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers();
+			if (($libCard) && ($libCard !== 'all')) { // chosen lib
+			
+				$visitsInfoArray  = $PiwikStatistics->getVisitsInfoForLibrary('range', $date, $libCard);
+				$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
+				$nbActions 		  = $visitsInfoArray['nb_actions'];
+				$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
+				$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
+				$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers(10, $libCard);
+				
+			} else { // all libs
+				$visitsInfoArray  = $PiwikStatistics->getVisitsInfo('range', $date);
+				$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
+				$nbActions 		  = $visitsInfoArray['nb_actions'];
+				$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
+				$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
+				$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers(10);
+			}
+			
+			// All cards
+			$cards = array ('blah', 'MZKLIB1', 'KOHALIB1');
 				
 			$view = $this->createViewModel(
-					array(
-							'urlGetParams' 				=> $urlGetParams,
-							'newVisitorsCount' 			=> $newVisitorsCount,
-							'returningVisitorsCount' 	=> $returningVisitorsCount,
-							'visitsInTime'				=> $visitsInTime,
-							'totalVisits'				=> $totalVisits,
-							'nbActionPerVisit'			=> $nbActionPerVisit,
-							'nbActions'					=> $nbActions,
-							'avgTimeOnSite'				=> $avgTimeOnSite,
-							'totalTimeOnSite'			=> $totalTimeOnSite,
-							'nbOnlineUsers'				=> $nbOnlineUsers,
+				array(
+					'urlGetParams' 						  => $urlGetParams,
+					'newVisitorsCount' 					  => $newVisitorsCount,
+					'returningVisitorsCount' 			  => $returningVisitorsCount,
+					'visitsInTime'						  => $visitsInTime,
+					'totalVisits'						  => $totalVisits,
+					'nbActionPerVisit'					  => $nbActionPerVisit,
+					'nbActions'							  => $nbActions,
+					'avgTimeOnSite'						  => $avgTimeOnSite,
+					'totalTimeOnSite'					  => $totalTimeOnSite,
+					'nbOnlineUsers'						  => $nbOnlineUsers,
+					'returningAnonymeVisitorsCount' 	  => $returningAnonymeVisitorsCount,
+					'returningAuthenticatedVisitorsCount' => $returningAuthenticatedVisitorsCount,
+					'newAnonymeVisitorsCount' 			  => $newAnonymeVisitorsCount,
+					'newAuthenticatedVisitorsCount' 	  => $newAuthenticatedVisitorsCount,
+					'isAdmin'							  => $isAdmin,
+					'cards'								  => $cards,
 					)
 			);
+			
+			$view->setTemplate('statistics/visits-admin');
 		}
-		
-		$view->setTemplate('statistics/visits');
-		
+
 		return $view;
 	}	
 	

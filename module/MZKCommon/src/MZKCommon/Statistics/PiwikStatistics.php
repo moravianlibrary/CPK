@@ -153,6 +153,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$query = http_build_query($params);
 		$url   = $this->piwikUrl.'?'.$query;
 		
+		//$url = str_replace('%3B', ';', $url);
+		//$url = str_replace('%3D%3D', '==', $url);
+		
 		return $url;
 	}
 	
@@ -215,8 +218,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		if ($dataArray === NULL)
 			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
 	
-		if (isset($dataArray['error']))
-			throw new \Exception($dataArray['error']);
+		
+		if ((isset($dataArray['result']) && ($dataArray['result'] == 'error')))
+			throw new \Exception($dataArray['message']);
 		//	
 			
 		return $output;
@@ -270,10 +274,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if ($type == "anonyme")
-			$params['segment'] = 'customVariablePageUserLibCard==null';
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1==';
 		
 		if ($type == "authenticated")
-			$params['segment'] = 'customVariablePageUserLibCard!=null';
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 		
 		// array merge without overwriting
 		if($additionalParams) {
@@ -303,7 +307,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if ($userLibCard)
-			$params['segment'] = 'customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		// array merge without overwriting
 		if($additionalParams) {
@@ -317,9 +321,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			}
 		}
 		
-		$count = $this->getRowsCountFromRequest($period, $date, $params);
+
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
-		return $count;
+		return $dataArray;
 	}
 	
 	/**
@@ -333,10 +338,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 	
 		if ($type == "anonyme")
-			$params['segment'] = 'customVariablePageUserLibCard==null';
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1==';
 	
 		if ($type == "authenticated")
-			$params['segment'] = 'customVariablePageUserLibCard!=null';
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 	
 		// array merge without overwriting
 		if($additionalParams) {
@@ -366,10 +371,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 	
 		if ($type == "anonyme")
-			$params['segment'] = 'customVariablePageUserLibCard==null';
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1==';
 	
 		if ($type == "authenticated")
-			$params['segment'] = 'customVariablePageUserLibCard!=null';
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 	
 		// array merge without overwriting
 		if($additionalParams) {
@@ -398,7 +403,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'format' => 'json',
 		);
 	
-		$params['segment'] = 'customVariablePageUserLibCard=='.$userLibCard;
+		$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 	
 		// array merge without overwriting
 		if($additionalParams) {
@@ -429,7 +434,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if($userLibCard)
-			$params['segment'] = 'customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		// array merge without overwriting
 		if($additionalParams) {
@@ -461,7 +466,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if ($userLibCard)
-			$params['segment'] = ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
@@ -483,7 +488,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 	
 		if ($userLibCard)
-			$params['segment'] = ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 	
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params, 1);
 	
@@ -508,7 +513,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			$params['format'] = 'csv';
 		
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		if ($rawData)
 			return $this->buildQuery($period, $date, $params);
@@ -560,7 +565,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			$params['format'] = 'csv';
 	
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 	
 		if ($rawData)
 			return $this->buildQuery($period, $date, $params);
@@ -607,10 +612,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 	
 		if ($type == "anonyme")
-			$params['segment'] .= ';customVariablePageUserLibCard==null';
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1==';
 	
 		if ($type == "authenticated")
-			$params['segment'] .= ';customVariablePageUserLibCard!=null';
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 	
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		$count = $dataArray['value'];
@@ -627,7 +632,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'method'  => 'VisitsSummary.getVisits',
 				'format'  => 'json',
 				'segment' => 'pageUrl=@'.urlencode($this->catalogBrowserUrl)
-				.';customVariablePageUserLibCard=='.$userLibCard,
+				.';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard,
 		);
 	
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
@@ -649,10 +654,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 	
 		if ($type == "anonyme")
-			$params['segment'] .= 'customVariablePageUserLibCard==null';
+			$params['segment'] .= 'customVariablePageName1==UserLibcard;customVariablePageValue1==';
 	
 		if ($type == "authenticated")
-			$params['segment'] .= 'customVariablePageUserLibCard!=null';
+			$params['segment'] .= 'customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 	
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		$count = $dataArray['value'];
@@ -670,14 +675,14 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				'format'  => 'json',
 				'showColumns' => 'nb_pageviews',
 				'segment' => 'pageUrl=@'.urlencode($this->recordUrl)
-							.';customVariablePageUserLibCard=='.$userLibCard,
+							.';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard,
 		);
 		
 		if ($type == "anonyme")
-			$params['segment'] .= 'customVariablePageUserLibCard==null';
+			$params['segment'] .= 'customVariablePageName1==UserLibcard;customVariablePageValue1==';
 		
 		if ($type == "authenticated")
-			$params['segment'] .= 'customVariablePageUserLibCard!=null';
+			$params['segment'] .= 'customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		$count = $dataArray['value'];
@@ -698,10 +703,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 	
 		if ($type == "anonyme")
-			$params['segment'] .= 'customVariablePageUserLibCard==null';
+			$params['segment'] .= 'customVariablePageName1==UserLibcard;customVariablePageValue1==';
 	
 		if ($type == "authenticated")
-			$params['segment'] .= 'customVariablePageUserLibCard!=null';
+			$params['segment'] .= 'customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 	
 		// array merge without overwriting
 		if($additionalParams) {
@@ -731,7 +736,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			'format'  => 'json',
 			'showColumns' => 'nb_uniq_pageviews',
 			'segment' => 'pageUrl=@'.urlencode($this->recordUrl).
-						';customVariablePageUserLibCard=='.$userLibCard,
+						';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard,
 		);
 
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
@@ -754,16 +759,17 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNewVisitorsCount($period, $date, $type = "all")
 	{		
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
 			'segment' => 'visitorType==new',
 		);
 		
 		if ($type == "anonyme")
-			$params['segment'] .= ';customVariablePageUserLibCard==null';
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=@';
+			
 		
 		if ($type == "authenticated")
-			$params['segment'] .= ';customVariablePageUserLibCard!=null';
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
@@ -778,9 +784,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNewVisitorsCountForLibrary($period, $date, $userLibCard)
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
-			'segment' => 'visitorType==new;customVariablePageUserLibCard=='.$userLibCard,
+			'segment' => 'visitorType==new;customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard,
 		);
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
@@ -796,7 +802,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getNewVisitors($period, $date, $userLibCard = null, $rawData = null)
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
 			'segment' => 'visitorType==new',
 		);
@@ -805,7 +811,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			$params['format'] = 'csv';
 		
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		if ($rawData)
 			return $this->getResultDataFromRequest($period, $date, $params);
@@ -821,16 +827,16 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getReturningVisitorsCount($period, $date, $type = "all")
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
 			'segment' => 'visitorType==returning',
 		);
 		
 		if ($type == "anonyme")
-			$params['segment'] .= ';customVariablePageUserLibCard==null';
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=@';
 		
 		if ($type == "authenticated")
-			$params['segment'] .= ';customVariablePageUserLibCard!=null';
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1!=';
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
@@ -845,9 +851,9 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getReturningVisitorsCountForLibrary($period, $date, $userLibCard)
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
-			'segment' => 'visitorType==returning;customVariablePageUserLibCard=='.$userLibCard,
+			'segment' => 'visitorType==returning;customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard,
 		);
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
@@ -863,7 +869,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getReturningVisitors($period, $date, $userLibCard = null, $rawData = null)
 	{
 		$params = array(
-			'method'  => 'VisitsSummary.getVisits',
+			'method'  => 'VisitsSummary.getUniqueVisitors',
 			'format'  => 'json',
 			'segment' => 'visitorType==returning',
 		);
@@ -872,7 +878,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			$params['format'] = 'csv';
 		
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		if ($rawData)
 			return $this->getResultDataFromRequest($period, $date, $params);
@@ -894,7 +900,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		$count = $this->getRowsCountFromRequest($period, $date, $params);
 		
@@ -913,7 +919,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		$count = $this->getRowsCountFromRequest($period, $date, $params);
 		
@@ -948,7 +954,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		$count = $this->getRowsCountFromRequest($period, $date, $params);
 		
@@ -967,7 +973,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		);
 		
 		if ($userLibCard)
-			$params['segment'] .= ';customVariablePageUserLibCard=='.$userLibCard;
+			$params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 		
 		$count = $this->getRowsCountFromRequest($period, $date, $params);
 		

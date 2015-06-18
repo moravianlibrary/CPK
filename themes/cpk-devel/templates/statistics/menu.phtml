@@ -1,5 +1,7 @@
 <?php
 
+	$libCard  = $this->urlGetParams['libCard'];
+
 	$params = $this->urlGetParams;
 	$options = [
 		'query' => array(
@@ -8,6 +10,8 @@
 			'dateTo'   => (! empty($params['dateTo']))   ? $params['dateTo'] : date('Y-m-t'),
 		),
 	];
+	if ($libCard)
+		$options['query']['libCard']  = (! empty($params['libCard']))  ? $params['libCard'] : 'all';
 	
 ?>
 
