@@ -335,6 +335,8 @@ class SolrIdResolver implements IdResolver {
 
     protected $itemIdentifier = 'adm_id';
 
+    protected $prefix = null;
+
     /**
      * Search service (used for lookups by barcode number)
      *
@@ -350,6 +352,9 @@ class SolrIdResolver implements IdResolver {
         }
         if (isset($config['IdResolver']['itemIdentifier'])) {
             $this->itemIdentifier = $config['IdResolver']['itemIdentifier'];
+        }
+        if (isset($config['IdResolver']['prefix'])) {
+            $this->prefix = $config['IdResolver']['prefix'];
         }
     }
 
@@ -384,25 +389,34 @@ class SolrIdResolver implements IdResolver {
             $query = new \VuFindSearch\Query\Query($this->solrQueryField. ':' . $id);
             $group->addQuery($query);
         }
-        $docs = $this->searchService->search('Solr', $group, 0, sizeof($ids));
+        $params = new \VuFindSearch\ParamBag(['disableDedup' => TRUE]);
+        $docs = $this->searchService->search('Solr', $group, 0, sizeof($ids), $params);
         foreach ($docs->getRecords() as $record) {
             $fields = $record->getRawData();
             if (isset($fields[$this->solrQueryField])) {
                 if (is_array($fields[$this->solrQueryField])) {
                     foreach ($fields[$this->solrQueryField] as $value) {
                         if (in_array($value, $ids)) {
-                            $results[$value] = $record->getUniqueID();
+                            $results[$value] = $this->getId($record);
                         }
                     }
                 } else {
                     $value = $fields[$this->solrQueryField];
                     if (in_array($value, $ids)) {
-                        $results[$value] = $record->getUniqueID();
+                        $results[$value] = $this->getId($record);
                     }
                 }
             }
         }
         return $results;
+    }
+
+    protected function getId($record) {
+        $id = $record->getUniqueID();
+        if (substr($id, 0, strlen($this->prefix)) === $this->prefix) {
+            $id = substr($id, strlen($this->prefix));
+        }
+        return $id;
     }
 
 }
