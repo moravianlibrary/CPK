@@ -620,6 +620,13 @@ cnb:
       - [and, 50]
       - [or, ~]
 
+yearOfPublication:
+  QueryFields:
+    publishDate:
+      - [onephrase, 100] 
+      - [and, 50]
+      - [or, ~]
+
 placeOfPublication:
   QueryFields:
     placeOfPublication_txt_mv:
@@ -635,15 +642,8 @@ counrtyOfPublication:
       - [or, ~]
 
 cityInstitution:
-  DismaxFields:
-    - city_search_txt_mv
-    - institution_search_txt_mv
   QueryFields:
-    city_search_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-    institution_search_txt_mv:
+    city_institution_cs_search_txt_mv:
       - [onephrase, 100] 
       - [and, 50]
       - [or, ~]
