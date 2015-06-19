@@ -1,7 +1,6 @@
 <div id="want-it-container">
 	<button class="btn btn-default btn-lg btn-primary pull-right class='want-it'" id='' type="button"  data-toggle="modal" data-target="#want-it-menu"><?= $this->translate('Chci to!') ?></button>
 	
-	
 	<!-- Modal -->
 	<div class="modal fade" id="want-it-menu" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 	  <div class="modal-dialog" role="document">
@@ -14,23 +13,23 @@
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 			<ul class="breadcrumb hidden-print want-it-breadcrumb">
-				<li><a id='want-it-back-to-default'><?= $this->translate('Co chci') ?></a></li> 
+				<li><a id='want-it-back-to-default' tabindex="0"><?= $this->translate('Co chci') ?></a></li> 
 				<li class="active"><a id='want-it-back-to-paper'><?= $this->translate('Papírová verze') ?></a></li> 
 			</ul>
 		</div>
 		<div class="modal-body">
 			<div class="list-group">
-				<a class="list-group-item">
-					<h4 class="list-group-item-heading">Objednat</h4>
-					<p class="list-group-item-text">K výpújčnímu pultu knihovny</p>
+				<a class="list-group-item" tabindex="0">
+					<h4 class="list-group-item-heading"><?= $this->translate('Objednat')?></h4>
+					<p class="list-group-item-text"><?= $this->translate('K výpújčnímu pultu knihovny')?></p>
 				</a>
-				<a class="list-group-item primary">
-					<h4 class="list-group-item-heading">Rezervovat</h4>
-					<p class="list-group-item-text">Ve vybrané knihovně</p>
+				<a class="list-group-item primary" tabindex="0">
+					<h4 class="list-group-item-heading"><?= $this->translate('Rezervovat')?></h4>
+					<p class="list-group-item-text"><?= $this->translate('Ve vybrané knihovně')?></p>
 				</a>
-				<a class="list-group-item primary">
-					<h4 class="list-group-item-heading">Přivézt</h4>
-					<p class="list-group-item-text">Českou poštou</p>
+				<a class="list-group-item primary" tabindex="0">
+					<h4 class="list-group-item-heading"><?= $this->translate('Přivézt')?></h4>
+					<p class="list-group-item-text"><?= $this->translate('Českou poštou')?></p>
 				</a>
 			</div>
 		</div>
@@ -40,19 +39,19 @@
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 			<ul class="breadcrumb hidden-print want-it-breadcrumb">
-				<li><a id='want-it-back-to-default'><?= $this->translate('Co chci') ?></a></li> 
+				<li><a id='want-it-back-to-default' tabindex="0"><?= $this->translate('Co chci') ?></a></li> 
 				<li class="active"><a id='want-it-back-to-electronic'><?= $this->translate('Elektronická verze') ?></a></li> 
 			</ul>
 		</div>
 		<div class="modal-body">
 			<div class="list-group">
-				<a class="list-group-item">
-					<h4 class="list-group-item-heading">Objednat</h4>
-					<p class="list-group-item-text">Neco neco</p>
+				<a class="list-group-item" tabindex="0">
+					<h4 class="list-group-item-heading"><?= $this->translate('Zdarma')?></h4>
+					<p class="list-group-item-text"><?= $this->translate('Prohlížet')?></p>
 				</a>
-				<a class="list-group-item primary">
-					<h4 class="list-group-item-heading">Rezervovat</h4>
-					<p class="list-group-item-text">Neco</p>
+				<a class="list-group-item primary" tabindex="0">
+					<h4 class="list-group-item-heading"><?= $this->translate('Koupit')?></h4>
+					<p class="list-group-item-text"><?= $this->translate('Jednotka je dostupná jenom po zaplacení')?></p>
 				</a>
 			</div>
 		</div>
@@ -73,8 +72,8 @@
 							<i class="fa fa-book fa-3x"></i>&nbsp;
 						</div>
 						<div class='col-lg-10'>
-							<h4 class="list-group-item-heading">Papírová verze</h4>
-							<p class="list-group-item-text">Objednat nebo rezervovat v knihovne</p>
+							<h4 class="list-group-item-heading"></h4>
+							<p class="list-group-item-text"><?= $this->translate('Objednat nebo rezervovat v knihovne')?></p>
 						</div>
 					</div>
 				</a>
@@ -84,8 +83,8 @@
 							<i class="fa fa-cloud-download fa-3x"></i>&nbsp;
 						</div>
 						<div class='col-lg-10'>
-							<h4 class="list-group-item-heading">Elektronická verze</h4>
-							<p class="list-group-item-text">Prohížet e-dokument</p>
+							<h4 class="list-group-item-heading"><?= $this->translate('Elektronická verze')?></h4>
+							<p class="list-group-item-text"><?= $this->translate('Prohížet e-dokument')?></p>
 						</div>
 					</div>
 				</a>
@@ -95,8 +94,8 @@
 							<i class="fa fa-shopping-cart fa-3x"></i>&nbsp;
 						</div>
 						<div class='col-lg-10'>
-							<h4 class="list-group-item-heading">Koupit</h4>
-							<p class="list-group-item-text">Najit na heurece</p>
+							<h4 class="list-group-item-heading"><?= $this->translate('Koupit')?>Koupit</h4>
+							<p class="list-group-item-text"><?= $this->translate('Najit na heurece')?></p>
 						</div>
 					</div>
 				</a>
@@ -114,6 +113,7 @@
 	.want-it-breadcrumb li.active{
 		cursor: auto;
 		text-decoration: none;
+		color: #777;
 	}
 	#want-it-menu .list-group-item {
 		cursor: pointer;
