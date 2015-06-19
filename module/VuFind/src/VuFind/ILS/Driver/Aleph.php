@@ -389,6 +389,10 @@ class SolrIdResolver implements IdResolver {
             $query = new \VuFindSearch\Query\Query($this->solrQueryField. ':' . $id);
             $group->addQuery($query);
         }
+        if (isset($this->prefix)) {
+            $idPrefixQuery = new \VuFindSearch\Query\Query('id:' . $this->prefix . '*');
+            $group = new \VuFindSearch\Query\QueryGroup('AND', [$idPrefixQuery, $group]);
+        }
         $params = new \VuFindSearch\ParamBag(['disableDedup' => TRUE]);
         $docs = $this->searchService->search('Solr', $group, 0, sizeof($ids), $params);
         foreach ($docs->getRecords() as $record) {
