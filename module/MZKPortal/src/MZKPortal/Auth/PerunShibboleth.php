@@ -246,9 +246,14 @@ class PerunShibboleth extends ShibbolethWithWAYF
         try {
             return $user->saveLibraryCard(null, '', $cat_username, null, $home_library);
         } catch (\VuFind\Exception\LibraryCard $e) { // If an exception is thrown, just show a flash message ..
-            $this->flashMessenger()
-                ->setNamespace('error')
-                ->addMessage($e->getMessage());
+            $exceptions = $_ENV['exception'];
+
+            if($exceptions == null) {
+                $_ENV['exception'] = $e->getMessage();
+            } else {
+                $_ENV['exception'] .= "\n" . $e->getMessage();
+            }
+
             return false;
         }
     }

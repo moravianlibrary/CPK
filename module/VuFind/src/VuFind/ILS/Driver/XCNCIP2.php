@@ -123,11 +123,15 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
 
             $result = $client->send();
         } catch (\Exception $e) {
-            throw new ILSException($e->getMessage());
+            $message = $e->getMessage();
+            $_ENV['exception'] = $message;
+            throw new ILSException($message);
         }
 
         if (! $result->isSuccess()) {
-            throw new ILSException('HTTP error');
+            $message = 'HTTP error';
+            $_ENV['exception'] = $message;
+            throw new ILSException($message);
         }
 
         // Process the NCIP response:
@@ -135,12 +139,16 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         $response = @simplexml_load_string($body);
 
         if (! is_a($response, 'SimpleXMLElement')) {
-            throw new ILSException("Problem parsing XML");
+            $message = "Problem parsing XML";
+            $_ENV['exception'] = $message;
+            throw new ILSException($message);
         }
         $response->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
 
         if (! $this->isValidXMLAgainstXSD($response)) {
-            throw new ILSException('Not valid XML response!');
+            $message = 'Not valid XML response!';
+            $_ENV['exception'] = $message;
+            throw new ILSException($message);
         }
 
         if (! $this->isCorrect($response)) {
