@@ -77,7 +77,7 @@ if ($user) $libraryCards = $user->getLibraryCards(); ?>
           <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$this->transEsc("Library Cards")?> <b class="caret"></b></a>
           <ul class="dropdown-menu">
           <? foreach ($libraryCards as $libraryCard): ?>
-            <li<?=$libraryCard['cat_username'] == $user['cat_username'] ? ' class="active"' : ''?>><a href="#" onClick="document.libcardsForm.cardID.value='<?=$libraryCard['id']?>';document.libcardsForm.submit()"><?=$this->transEsc($libraryCard['home_library'])?></a></li>
+            <li<?=$libraryCard['cat_username'] == $user['cat_username'] ? ' class="active"' : ''?>><a href="#" onClick="document.libcardsForm.cardID.value='<?=$libraryCard['id']?>';document.libcardsForm.submit()"><?=$this->transEsc($libraryCard['cat_username'])?></a></li>
           <? endforeach; ?>
           </ul>
         </li>

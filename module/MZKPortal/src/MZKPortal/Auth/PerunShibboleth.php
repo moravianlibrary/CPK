@@ -111,8 +111,7 @@ class PerunShibboleth extends ShibbolethWithWAYF
         }
 
         if (empty($attributes['username'])) {
-            // FIXME: Send here "You have logged out" message
-            throw new AuthException('username_not_returned');
+            throw new AuthException('authentication_error_loggedout');
         }
 
         // Set home_library to eduPersonPrincipalName's institute name - this approach should always succeed
@@ -123,6 +122,7 @@ class PerunShibboleth extends ShibbolethWithWAYF
             $attributes['home_library'] = str_replace('.', '', $attributes['home_library']);
         }
 
+        // FIXME: How about removing this conf ? .. actually this class is named PerunShibboleth which kinda enables it :-D
         // If we have Perun configuration enabled, than use Perun services
         if ($this->identityResolver) {
 
@@ -151,16 +151,12 @@ class PerunShibboleth extends ShibbolethWithWAYF
                 $attributes['cat_username'] = '';
                 $attributes['home_library'] = 'Dummy';
             } else {
-                // Note that user's cat_username & home_library will be set by first Library Card created
-                $attributes['cat_username'] = '';
-                $attributes['home_library'] = '';
                 $handleLibraryCards = true;
             }
         }
 
         $prefix = $attributes['home_library'];
 
-        // cat_username needs to have defined driver in MultiBackend.ini, which is the $prefix here
         $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
 
         if ($attributes['email'] == null)
@@ -172,8 +168,6 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
         $user = $this->getUserTable()->getByUsername($attributes['username']);
 
-        $activeCard = $user['cat_username'];
-
         foreach ($attributes as $key => $value) {
             $user->$key = $value;
         }
@@ -183,7 +177,7 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
         // We need user->id to create library cards - that provides $user->save() method
         if ($handleLibraryCards) {
-            $this->handleLibraryCards($user, $institutes, $activeCard);
+            $this->handleLibraryCards($user, $institutes);
         }
 
         return $user;
@@ -216,64 +210,42 @@ class PerunShibboleth extends ShibbolethWithWAYF
      * @param string $activeCard
      *            - it is basically cat_username user had active before new login
      */
-    protected function handleLibraryCards($user, $institutes, $activeCard)
+    protected function handleLibraryCards($user, $userLibraryIds)
     {
-        // FIXME: Do not recreate LibCards, just update those present & remove not supplied
 
         $tableManager = $this->getDbTableManager();
         $userCardTable = $tableManager->get("UserCard");
 
-        // Now delete all user cards & create new from IdP fresh list of Institutes
         $resultSet = $userCardTable->select([
             'user_id' => $user['id']
         ]);
+
+        // Delete lost identitites
         foreach ($resultSet as $result) {
-            $result->delete();
+            $cat_username = $result['cat_username'];
+
+            // Doesn't exists -> delete it
+            if (! in_array($cat_username, $userLibraryIds)) {
+                $result->delete();
+            } else
+                $existing[] = $cat_username;
         }
 
-        // Save activeCard first as it is always being activated by "being first user's card created"
-        if ($this->isActiveCardInInstitutes($activeCard, $institutes)) {
-            $home_library = split(self::SEPARATOR_REGEXED, $activeCard)[0];
-            $this->createLibraryCard($user, $activeCard, $home_library);
-        }
+        // Create new identities
+        foreach ($userLibraryIds as $userLibraryId) {
 
-        foreach ($institutes as $institute) {
-            $cat_username = $institute[IdentityResolver::LIBRARY_KEY] . self::SEPARATOR . $institute[IdentityResolver::USER_KEY];
-
-            // Do not save already saved activeCard
-            if ($cat_username !== $activeCard) {
-                $home_library = $institute[IdentityResolver::LIBRARY_KEY];
-                $this->createLibraryCard($user, $cat_username, $home_library);
+            if (! in_array($userLibraryId, $existing)) {
+                $home_library = split(self::SEPARATOR_REGEXED, $userLibraryId)[0];
+                $this->createLibraryCard($user, $userLibraryId, $home_library);
             }
         }
-    }
-
-    /**
-     * Returns true/false - simply if the activeCard provided matches one of user's identity returned by Perun.
-     *
-     * @param string $activeCard
-     * @param array $institutes
-     * @return boolean
-     */
-    protected function isActiveCardInInstitutes($activeCard, $institutes)
-    {
-        if (empty($activeCard))
-            return false;
-
-        foreach ($institutes as $institute) {
-            $cat_username = $institute[IdentityResolver::LIBRARY_KEY] . self::SEPARATOR . $institute[IdentityResolver::USER_KEY];
-            if ($cat_username === $activeCard)
-                return true;
-        }
-
-        return false;
     }
 
     protected function createLibraryCard($user, $cat_username, $home_library)
     {
         try {
-            $user->saveLibraryCard(null, '', $cat_username, null, $home_library);
-        } catch (\VuFind\Exception\LibraryCard $e) {
+            return $user->saveLibraryCard(null, '', $cat_username, null, $home_library);
+        } catch (\VuFind\Exception\LibraryCard $e) { // If an exception is thrown, just show a flash message ..
             $this->flashMessenger()
                 ->setNamespace('error')
                 ->addMessage($e->getMessage());

@@ -30,6 +30,7 @@ namespace MZKPortal\Perun;
 
 use \VuFind\Exception\Auth as AuthException;
 use MZKPortal\Auth\ShibbolethWithWAYF;
+use MZKPortal\Auth\PerunShibboleth;
 
 /**
  * Class for resolving user's connected identities from Perun (https://github.com/CESNET/perun)
@@ -81,37 +82,29 @@ class IdentityResolver
     {
         // FIXME communicate with perun
         if (empty($sigla) || empty($userId))
-            return $this->getDummyEmptyContent();
+            return $this->getDummyEmptyContent($eppn);
 
-        return $this->getDummyContent();
+        return $this->getDummyContent($eppn, $sigla, $userId);
     }
 
-    protected function getDummyContent()
+    protected function getDummyContent($eppn, $sigla, $userId)
     {
         return array(
-            'thisIsPerunIdValue',
+            $eppn,
 
             array(
-                array(
-                    self::USER_KEY => "700",
-                    self::LIBRARY_KEY => "mzkcz"
-                ),
-                array(
-                    self::USER_KEY => "700",
-                    self::LIBRARY_KEY => "MZKLIB1"
-                ),
-                array(
-                    self::USER_KEY => "3",
-                    self::LIBRARY_KEY => "KOHALIB1"
-                )
+                $sigla . PerunShibboleth::SEPARATOR . $userId,
+                "mzkcz.70" . rand(0, 2),
+                "KOHALIB1." . rand(3, 5),
+                "KOHALIB1." . rand(6, 11)
             )
         );
     }
 
-    protected function getDummyEmptyContent()
+    protected function getDummyEmptyContent($eppn)
     {
         return array(
-            'thisIsAnotherPerunIdVal'
+            $eppn
         );
     }
 }
