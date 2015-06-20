@@ -383,6 +383,12 @@ class MyResearchController extends MyResearchControllerBase
 
             $this->flashExceptions();
         }
+
+        // Forwarding for Dummy connector to Home page ..
+        if ($view->profile == null && $this->getAuthManager()->isLoggedIn()) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
         return $view;
     }
 
