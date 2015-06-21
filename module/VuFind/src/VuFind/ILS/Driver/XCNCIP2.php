@@ -841,7 +841,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
             $create = $current->xpath('ns1:DatePlaced');
             $position = $current->xpath('ns1:HoldQueuePosition');
             $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
-            $title = $current->xpath('ns1:Ext/ns1:BibliographicDescription/ns1:Title');
+            $title = $current->xpath('ns1:Title');
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
             // $bib_id = substr_replace($bib_id, '-', 5, 0); // number 5 is position
 
