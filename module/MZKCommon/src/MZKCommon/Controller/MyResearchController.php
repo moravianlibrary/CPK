@@ -374,21 +374,21 @@ class MyResearchController extends MyResearchControllerBase
 
     public function profileAction()
     {
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver()) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
         $view = parent::profileAction();
+
         if ($view) {
             $catalog = $this->getILS();
             $view->profileChange = $catalog->checkCapability('changeUserRequest');
 
             $this->checkBlocks($view->__get('profile'));
-
-            $this->flashExceptions();
         }
 
-        // Forwarding for Dummy connector to Home page ..
-        if ($view->profile == null && $this->getAuthManager()->isLoggedIn()) {
-            return $this->forwardTo('MyResearch', 'Home');
-        }
-
+        $this->flashExceptions();
         return $view;
     }
 
@@ -398,6 +398,11 @@ class MyResearchController extends MyResearchControllerBase
                 $this->flashMessenger()->addErrorMessage($block);
             }
         }
+    }
+
+    protected function isLoggedInWithDummyDriver() {
+        $user = $this->getAuthManager()->isLoggedIn();
+        return $user ? $user['home_library'] == "Dummy" : false;
     }
 
     public function profileChangeAction()
