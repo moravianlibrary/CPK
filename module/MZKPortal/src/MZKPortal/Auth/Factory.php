@@ -99,17 +99,10 @@ class Factory
      */
     public function getPerunShibboleth(ServiceManager $sm)
     {
-        if ($sm->getServiceLocator()->get('VuFind\Config')->get('config')->Perun->enabled) {
-            return new \MZKPortal\Auth\PerunShibboleth(
+        return new \MZKPortal\Auth\PerunShibboleth(
                 $sm->getServiceLocator()->get('VuFind\Config'),
                 $sm->getServiceLocator()->get('identity-resolver')
             );
-        } else {
-            return new \MZKPortal\Auth\PerunShibboleth(
-                $sm->getServiceLocator()->get('VuFind\Config')
-            );
-        }
-
     }
 
 }

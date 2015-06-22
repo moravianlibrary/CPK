@@ -57,8 +57,10 @@ class IdentityResolver
         if (! $this->initialized) {
             $this->perunConfig = $config->Perun;
 
-            if ($this->perunConfig == null)
-                throw new AuthException('Could not load Perun config');
+            if ($this->perunConfig == null) {
+                // TODO: throw an exception or not? .. now is no config needed ...
+                //throw new AuthException('Could not load Perun config');
+            }
 
             $this->initialized = true;
         }
