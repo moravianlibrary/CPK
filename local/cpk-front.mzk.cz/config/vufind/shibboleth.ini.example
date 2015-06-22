@@ -16,6 +16,14 @@ firstname	= cn
 lastname	= cn
 email		= mail
 
+[techlibcz]
+entityId	= https://shibboleth.techlib.cz/idp/shibboleth
+username	= eduPersonPrincipalName
+cat_username	= aleph-id
+firstname	= givenName
+lastname	= sn
+email		= mail
+
 [default]
 username      = eduPersonPrincipalName
 cat_username  = aleph-id
