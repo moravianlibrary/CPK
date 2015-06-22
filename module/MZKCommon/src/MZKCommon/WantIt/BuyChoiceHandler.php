@@ -55,11 +55,20 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	/**
 	 * @inheritDoc
 	 */
-	public function availableAtGoogleBooks()
+	public function getGoogleBooksItemAsArray()
 	{
 		$url = 'https://www.googleapis.com/books/v1/volumes';
 		$params = array ('q' => 'isbn:'.$this->record->getIsbn());
 		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+		return $dataArray;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function availableAtGoogleBooks()
+	{
+		$dataArray = getGoogleBooksItemAsArray();
 		
 		if (isset($dataArray['totalItems']) && ($dataArray['totalItems'] > 0)) 
 			return true;
@@ -72,10 +81,10 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	 */
 	public function getGoogleBooksItemUrl()
 	{
-		$url = 'https://www.googleapis.com/books/v1/volumes';
-		$params = array ('q' => 'isbn:'.$this->record->getIsbn());
-		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);	
+		$dataArray = getGoogleBooksItemAsArray();
+		
 		$cannonicalUrl = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'];
+		
 		return $cannonicalUrl;
 	}
 	

@@ -34,14 +34,21 @@ namespace MZKCommon\WantIt;
 interface BuyChoiceHandlerInterface
 {
 	/**
-	 * Is item available on Amazon
+	 * Returns GoogleBooks item as array
+	 *
+	 * @return	array
+	 */
+	public function getGoogleBooksItemAsArray();
+	
+	/**
+	 * Is item available on GoogleBooks
 	 * 
 	 * @return	boolean
 	 */
 	public function availableAtGoogleBooks();
 	
 	/**
-	 * Returns Amazon item Url
+	 * Returns GoogleBooks item Url
 	 * 
 	 * @return	string
 	 */
