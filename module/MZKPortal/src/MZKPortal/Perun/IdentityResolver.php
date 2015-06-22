@@ -96,7 +96,8 @@ class IdentityResolver
                 $sigla . PerunShibboleth::SEPARATOR . $userId,
                 "mzkcz.70" . rand(0, 2),
                 "KOHALIB1." . rand(3, 5),
-                "KOHALIB1." . rand(6, 11)
+                "KOHALIB1." . rand(7, 8),
+                "KOHALIB1." . rand(9, 11)
             )
         );
     }

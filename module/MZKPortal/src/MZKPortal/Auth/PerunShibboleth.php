@@ -55,6 +55,9 @@ class PerunShibboleth extends ShibbolethWithWAYF
     {
         parent::__construct($configLoader);
         $this->identityResolver = ($identityResolver == null) ? false : $identityResolver;
+
+        // One more attr to check ..
+        $this->attribsToCheck[] = 'epsa';
     }
 
     public function authenticate($request)
@@ -116,10 +119,17 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
         // Set home_library to eduPersonPrincipalName's institute name - this approach should always succeed
         if (empty($attributes['home_library'])) {
-            $attributes['home_library'] = end(split('@', $attributes['username']));
+
+            if (! empty($attributes['epsa'])) {
+                $attributes['home_library'] = end(split('@', $attributes['epsa']));
+                unset($attributes['epsa']);
+            } else {
+                $attributes['home_library'] = end(split('@', $attributes['username'])); // Assume we have eppn here ..
+            }
 
             // Get rid of all dots (because of multibackend's dot usage later)
             $attributes['home_library'] = str_replace('.', '', $attributes['home_library']);
+
         }
 
         // FIXME: How about removing this conf ? .. actually this class is named PerunShibboleth which kinda enables it :-D
