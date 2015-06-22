@@ -389,6 +389,10 @@ class SolrIdResolver implements IdResolver {
             $query = new \VuFindSearch\Query\Query($this->solrQueryField. ':' . $id);
             $group->addQuery($query);
         }
+        if (isset($this->prefix)) {
+            $idPrefixQuery = new \VuFindSearch\Query\Query('id:' . $this->prefix . '*');
+            $group = new \VuFindSearch\Query\QueryGroup('AND', [$idPrefixQuery, $group]);
+        }
         $params = new \VuFindSearch\ParamBag(['disableDedup' => TRUE]);
         $docs = $this->searchService->search('Solr', $group, 0, sizeof($ids), $params);
         foreach ($docs->getRecords() as $record) {
@@ -862,6 +866,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     \VuFindHttp\HttpServiceAwareInterface
 {
 
+    const RECORD_ID_BASE_SEPARATOR = '-';
+
     /**
      * Duedate configuration
      *
@@ -1063,10 +1069,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     protected function parseId($id)
     {
-        if (count($this->bib) == 1) {
-            return array($this->bib[0], $id);
+        if (strpos($id, self::RECORD_ID_BASE_SEPARATOR) !== FALSE) {
+            return explode(self::RECORD_ID_BASE_SEPARATOR, $id);
         } else {
-            return explode('-', $id);
+            return array($this->bib[0], $id);
         }
     }
 

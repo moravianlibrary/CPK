@@ -56,7 +56,10 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function loginAction()
     {
-        return parent::loginAction();
+        $view = parent::loginAction();
+
+        $this->flashExceptions();
+        return $view;
     }
 
     /**
@@ -68,6 +71,8 @@ class MyResearchController extends MyResearchControllerBase
     {
         $view = parent::holdsAction();
         $view = $this->addViews($view);
+
+        $this->flashExceptions();
         return $view;
     }
 
@@ -92,6 +97,8 @@ class MyResearchController extends MyResearchControllerBase
         }
         $view->history = false;
         $view = $this->addViews($view);
+
+        $this->flashExceptions();
         return $view;
     }
 
@@ -134,6 +141,8 @@ class MyResearchController extends MyResearchControllerBase
             )
         );
         $view->setTemplate('myresearch/shortloans');
+
+        $this->flashExceptions();
         return $view;
     }
 
@@ -229,6 +238,8 @@ class MyResearchController extends MyResearchControllerBase
             }
             $view = $this->createViewModel(array('fields' => $fields));
             $view->setTemplate('myresearch/illrequest-new');
+
+            $this->flashExceptions();
             return $view;
         } else {
             return parent::illRequestsAction();
@@ -356,28 +367,42 @@ class MyResearchController extends MyResearchControllerBase
         $view->currentLimit = $currentLimit;
         $view->limitList = array(50, 100, 200);
         $this->addViews($view);
+
+        $this->flashExceptions();
         return $view;
     }
 
     public function profileAction()
     {
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver()) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
         $view = parent::profileAction();
+
         if ($view) {
             $catalog = $this->getILS();
             $view->profileChange = $catalog->checkCapability('changeUserRequest');
 
             $this->checkBlocks($view->__get('profile'));
-
         }
+
+        $this->flashExceptions();
         return $view;
     }
 
     protected function checkBlocks($profile) {
         foreach($profile['blocks'] as $block) {
             if (! empty($block)) {
-                $this->flashMessenger()->setNamespace('error')->addMessage($block);
+                $this->flashMessenger()->addErrorMessage($block);
             }
         }
+    }
+
+    protected function isLoggedInWithDummyDriver() {
+        $user = $this->getAuthManager()->isLoggedIn();
+        return $user ? $user['home_library'] == "Dummy" : false;
     }
 
     public function profileChangeAction()
@@ -459,6 +484,8 @@ class MyResearchController extends MyResearchControllerBase
             $view->email = $user->email;//$patron['email'];
         }
         $view->setTemplate('myresearch/profilechange');
+
+        $this->flashExceptions();
         return $view;
     }
 
@@ -553,6 +580,25 @@ class MyResearchController extends MyResearchControllerBase
             $session = new SessionContainer(get_class($this));
         }
         return $session;
+    }
+
+    /**
+     * New exception flashing system for backend without access to it ..
+     * Just set $_ENV['exception'] inside any Backend class to flash it later ..
+     *
+     * If you wish to add more exceptions, just append newline delimiter between those messages "\n"
+     *
+     * @return void
+     */
+    protected function flashExceptions() {
+
+        if ($_ENV['exception']) {
+            $exceptions = split("\n", $_ENV['exception']);
+            foreach($exceptions as $exception) {
+                $this->flashMessenger()->addErrorMessage($exception);
+            }
+            unset($_ENV['exception']);
+        }
     }
 
 }
