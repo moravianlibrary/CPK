@@ -63,6 +63,7 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
     protected $customVars;
 
     protected $associativeCustomVarsArray = [];
+    protected $associativeCustomVarsArrayAsVisit = [];
 
     protected $trackUser;
 
@@ -195,6 +196,9 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
             }
 
             $this->associativeCustomVarsArray = $userVars;
+
+            // Add as 'visit', not 'page'
+            $this->associativeCustomVarsArrayAsVisit['UserLibcard'] = $splitUsername[0];
         }
     }
 
@@ -421,6 +425,16 @@ _paq.push(['setCustomVariable', $i, '$key', '$value', 'page']);
 
 EOT;
         }
+
+        foreach($this->associativeCustomVarsArrayAsVisit as $key => $value) {
+            ++ $i;
+            $value = $escape($value);
+            $code .= <<<EOT
+_paq.push(['setCustomVariable', $i, '$key', '$value', 'visit']);
+
+EOT;
+        }
+
         return $code;
     }
 

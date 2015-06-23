@@ -1,16 +1,47 @@
 [mzk]
 entityId      = https://shibboleth.mzk.cz/simplesaml/metadata.xml
 username      = eduPersonPrincipalName
-cat_username  = alephId
+cat_username  = aleph-id
 email         = mail
 firstname     = givenName
 lastname      = sn
 cat_password  = alephId
 
-[xcncip2]
-entityId      = https://cpk-front.mzk.cz/simplesaml/saml2/idp/metadata.php
+[svkhkcz]
+entityId	= https://aleph.svkhk.cz/idp/shibboleth
+epsa		= eduPersonScopedAffiliation
+username	= aleph-id
+cat_username	= aleph-id
+firstname	= cn
+lastname	= cn
+email		= mail
+
+[techlibcz]
+entityId	= https://shibboleth.techlib.cz/idp/shibboleth
+username	= eduPersonPrincipalName
+cat_username	= aleph-id
+firstname	= givenName
+lastname	= sn
+email		= mail
+
+[default]
 username      = eduPersonPrincipalName
-cat_username  = userId
+cat_username  = aleph-id
+
+[Shib-NCIP-DS]
+entityId      = https://shibboleth.localhost/ds-metadata.xml
+username      = eduPersonPrincipalName
+cat_username  = userLibraryId
 email         = mail
 firstname     = givenName
 lastname      = sn
+home_library  = homeLib
+
+[Shib-NCIP-DS-CPK]
+entityId      = https://cpk-front.mzk.cz/simplesaml/saml2/idp/metadata.php
+username      = eduPersonPrincipalName
+cat_username  = userLibraryId
+email         = mail
+firstname     = givenName
+lastname      = sn
+home_library  = homeLib

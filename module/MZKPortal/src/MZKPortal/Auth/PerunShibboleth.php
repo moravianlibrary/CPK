@@ -51,10 +51,26 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
     protected $loginDrivers = null;
 
-    public function __construct(\VuFind\Config\PluginManager $configLoader, IdentityResolver $identityResolver = null)
+    public function __construct(\VuFind\Config\PluginManager $configLoader, IdentityResolver $identityResolver)
     {
         parent::__construct($configLoader);
-        $this->identityResolver = ($identityResolver == null) ? false : $identityResolver;
+        $this->identityResolver = $identityResolver;
+
+        // One more attr to check ..
+        $this->attribsToCheck[] = 'epsa';
+    }
+
+    protected function init()
+    {
+        parent::init();
+
+        if ($this->loginDrivers == null) {
+            $multiBackend = $this->configLoader->get('MultiBackend');
+            $this->loginDrivers = $multiBackend != null ? $multiBackend->Login->drivers->toArray() : [];
+        }
+
+        if ($this->identityResolver)
+            $this->identityResolver->init($this->getConfig());
     }
 
     public function authenticate($request)
@@ -116,43 +132,49 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
         // Set home_library to eduPersonPrincipalName's institute name - this approach should always succeed
         if (empty($attributes['home_library'])) {
-            $attributes['home_library'] = end(split('@', $attributes['username']));
+
+            if (! empty($attributes['epsa'])) {
+                $attributes['home_library'] = end(split('@', $attributes['epsa']));
+                unset($attributes['epsa']);
+            } else {
+                $attributes['home_library'] = end(split('@', $attributes['username'])); // Assume we have eppn here ..
+            }
 
             // Get rid of all dots (because of multibackend's dot usage later)
             $attributes['home_library'] = str_replace('.', '', $attributes['home_library']);
         }
 
-        // FIXME: How about removing this conf ? .. actually this class is named PerunShibboleth which kinda enables it :-D
-        // If we have Perun configuration enabled, than use Perun services
-        if ($this->identityResolver) {
+        // Detect if the institute, user logged in with, is a connected library & not e.g. Facebook or another library
+        $isConnected = array_search($attributes['home_library'], $this->loginDrivers) !== FALSE;
+        if ($isConnected) {
+            // Set SIGLA & userId for Perun
+            $sigla = $attributes['home_library'];
 
-            // Detect if the institute, user logged in with, is a connected library & not e.g. Facebook or another library
-            $isConnected = array_search($attributes['home_library'], $this->loginDrivers) !== FALSE;
-            if ($isConnected) {
-                // Set SIGLA & userId for Perun
-                $sigla = $attributes['home_library'];
-
-                if (empty($attributes['cat_username'])) {
-                    throw new AuthException('cat_username_not_returned');
-                }
-
-                $userId = $attributes['cat_username'];
+            // FIXME: DONOT COMMIT ME !
+            if (empty($attributes['cat_username'])) {
+                $attributes['cat_username'] = split("@", $attributes['username'])[0];
             }
 
-            // Send data to Perun & get perunId with institutes
-            list ($perunId, $institutes) = $this->identityResolver->getUserIdentityFromPerun($attributes['username'], $sigla, $userId);
-
-            // This was eppn, now it is perunId
-            $attributes['username'] = $perunId;
-
-            if (empty($institutes)) {
-                // If are institutes empty, that means user is not member of any connected library
-                // In that case set cat_username's MultiBackend source dummy driver which
-                $attributes['cat_username'] = '';
-                $attributes['home_library'] = 'Dummy';
-            } else {
-                $handleLibraryCards = true;
+            if (empty($attributes['cat_username'])) {
+                throw new AuthException('IdP didn\'t return the following attribute: "' . $configuration['cat_username'] . '"');
             }
+
+            $userId = $attributes['cat_username'];
+        }
+
+        // Send data to Perun & get perunId with institutes
+        list ($perunId, $institutes) = $this->identityResolver->getUserIdentityFromPerun($attributes['username'], $sigla, $userId);
+
+        // This was eppn, now it is perunId
+        $attributes['username'] = $perunId;
+
+        if (empty($institutes)) {
+            // If are institutes empty, that means user is not member of any connected library
+            // In that case set cat_username's MultiBackend source dummy driver which
+            $attributes['cat_username'] = '';
+            $attributes['home_library'] = 'Dummy';
+        } else {
+            $handleLibraryCards = true;
         }
 
         $prefix = $attributes['home_library'];
@@ -183,19 +205,6 @@ class PerunShibboleth extends ShibbolethWithWAYF
         return $user;
     }
 
-    protected function init()
-    {
-        parent::init();
-
-        if ($this->loginDrivers == null) {
-            $multiBackend = $this->configLoader->get('MultiBackend');
-            $this->loginDrivers = $multiBackend != null ? $multiBackend->Login->drivers->toArray() : [];
-        }
-
-        if ($this->identityResolver)
-            $this->identityResolver->init($this->getConfig());
-    }
-
     /**
      * Deletes all user's Library Cards & than creates new from list of institutes provided by Perun.
      *
@@ -212,7 +221,6 @@ class PerunShibboleth extends ShibbolethWithWAYF
      */
     protected function handleLibraryCards($user, $userLibraryIds)
     {
-
         $tableManager = $this->getDbTableManager();
         $userCardTable = $tableManager->get("UserCard");
 
@@ -248,7 +256,7 @@ class PerunShibboleth extends ShibbolethWithWAYF
         } catch (\VuFind\Exception\LibraryCard $e) { // If an exception is thrown, just show a flash message ..
             $exceptions = $_ENV['exception'];
 
-            if($exceptions == null) {
+            if ($exceptions == null) {
                 $_ENV['exception'] = $e->getMessage();
             } else {
                 $_ENV['exception'] .= "\n" . $e->getMessage();

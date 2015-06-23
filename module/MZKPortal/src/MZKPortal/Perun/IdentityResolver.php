@@ -57,8 +57,10 @@ class IdentityResolver
         if (! $this->initialized) {
             $this->perunConfig = $config->Perun;
 
-            if ($this->perunConfig == null)
-                throw new AuthException('Could not load Perun config');
+            if ($this->perunConfig == null) {
+                // TODO: throw an exception or not? .. now is no config needed ...
+                //throw new AuthException('Could not load Perun config');
+            }
 
             $this->initialized = true;
         }
@@ -96,7 +98,8 @@ class IdentityResolver
                 $sigla . PerunShibboleth::SEPARATOR . $userId,
                 "mzkcz.70" . rand(0, 2),
                 "KOHALIB1." . rand(3, 5),
-                "KOHALIB1." . rand(6, 11)
+                "KOHALIB1." . rand(7, 8),
+                "KOHALIB1." . rand(9, 11)
             )
         );
     }
