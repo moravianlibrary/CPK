@@ -827,23 +827,14 @@ class AjaxController extends AbstractBase
     {
         $facets = $results->getFullFieldFacets(array_keys($fields));
         $retVal = [];
-        $currentYear = date("Y");
         foreach ($facets as $field => $values) {
             $newValues = ['data' => []];
             foreach ($values['data']['list'] as $current) {
                 // Only retain numeric values!
                 if (preg_match("/^[0-9]+$/", $current['value'])) {
-                    if ($current['value'] < $currentYear) {
-                        $newValues['data'][]
-                            = [$current['value'], $current['count']];
-                    }
+                    $newValues['data'][]
+                        = [$current['value'], $current['count']];
                 }
-            }
-            ksort($data);
-            $newValues = array('data' => array());
-            foreach ($data as $key => $value) {
-                $newValues['data'][] = array(
-                    $key, $value);
             }
             $retVal[$field] = $newValues;
         }
