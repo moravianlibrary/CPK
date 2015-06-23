@@ -109,14 +109,21 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	protected $trustSSLHost;
 	
 	/**
+	 * Drivers
+	 * @var array
+	 */
+	protected $drivers;
+	
+	/**
 	 * Sets initial params
 	 * 
 	 * @param	\Zend\Config\Config $config
+	 * @param	array $drivers
 	 *
 	 * @todo set missing default urls
 	 * @todo set variables in config [PiwikStatistics]
 	 */
-	public function __construct(\Zend\Config\Config $config)
+	public function __construct(\Zend\Config\Config $config, $drivers)
 	{
 		$this->siteId 			    = isset($config->PiwikStatistics->site_id) 				  ? $config->PiwikStatistics->site_id 			  	  : 1;
 		$this->catalogBrowserUrl    = isset($config->PiwikStatistics->catalog_browser_url) 	  ? $config->PiwikStatistics->catalog_browser_url     : "https://vufind.localhost/Browse/";
@@ -130,6 +137,12 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$this->piwikUrl 			= isset($config->PiwikStatistics->piwik_url) 			  ? $config->PiwikStatistics->piwik_url  			  : "http://cpk-front.mzk.cz:9080";
 		$this->piwikTokenAuth		= isset($config->PiwikStatistics->piwik_token_auth) 	  ? $config->PiwikStatistics->piwik_token_auth  	  : "no_token_in_config [PiwikStatistics] -> piwik_token_auth";
 		$this->trustSSLHost			= isset($config->PiwikStatistics->trust_ssl_host)		  ? $config->PiwikStatistics->trust_ssl_host		  : true;
+		$this->drivers 				= $drivers;
+	}
+	
+	public function getDrivers()
+	{
+		return $this->drivers;
 	}
 	
 	/**
@@ -1010,5 +1023,108 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	public function getTransactionSumForLibrary($period, $date, $userLibCard)
 	{
 		// @todo implement?
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getReferrers($period, $date, $filterLimit='-1', $userLibCard = null, $rawData = null)
+	{
+		$params = array(
+			'method'  => 'Referrers.getWebsites',
+			'format'  => 'json',
+		 	'filter_limit' => $filterLimit,
+			'showColumns' => 'nb_visits,label',
+		);
+		
+		if ($rawData)
+			$params['format'] = 'csv';
+		
+		if ($userLibCard)
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
+		
+		if ($rawData)
+			return $this->buildQuery($period, $date, $params);
+		
+		if ($filterLimit == "-1") {
+			
+			$params['showColumns'] = 'nb_visits';
+			$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+			
+			$sum = 0;
+			foreach ($dataArray as $value) {
+				$sum += $value['nb_visits'];
+			}
+			
+			return $sum;
+			
+		} else { 
+			
+			// because of performance
+			$params['filter_sort_column'] = 'nb_visits';
+			$params['filter_sort_order'] = 'desc';
+			
+		}
+		
+		
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		$searches = array();
+		foreach ($dataArray as $value) {
+			array_push($searches, array('referrer' => $value['label'], 'count' => $value['nb_visits']));
+		}
+
+		return $searches;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getReferredVisits($period, $date, $type = "all")
+	{
+		$params = array(
+				'method' => 'Referrers.getReferrerType',
+				'format' => 'json',
+				'showColumns' => 'nb_visits,label',
+		);
+	
+		if ($type == "anonyme")
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1==';
+	
+		if ($type == "authenticated")
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1!=';
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+	
+		$referrerTypes = array();
+		foreach ($dataArray as $value) {
+			array_push($referrerTypes, array('referrerType' => $value['label'], 'count' => $value['nb_visits']));
+		}
+		
+		return $referrerTypes;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getReferredVisitsForLibrary($period, $date, $userLibCard)
+	{
+		$params = array(
+				'method' => 'Referrers.getReferrerType',
+				'format' => 'json',
+				'showColumns' => 'nb_visits,label',
+		);
+	
+		if ($userLibCard)
+			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
+	
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+		
+		$referrerTypes = array();
+		foreach ($dataArray as $value) {
+			array_push($referrerTypes, array('referrerType' => $value['label'], 'count' => $value['nb_visits']));
+		}
+	
+		return $referrerTypes;
 	}
 }

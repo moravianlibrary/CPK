@@ -23,7 +23,9 @@ class PiwikStatisticsFactory
 	public static function getPiwikStatistics(ServiceManager $sm)
 	{
 		$config = $sm->get('VuFind\Config')->get('config');
+		$multibackend = $sm->get('VuFind\Config')->get('MultiBackend');
+		$drivers = $multibackend->Login->drivers->toArray();
 
-		return new PiwikStatistics($config);
+		return new PiwikStatistics($config, $drivers);
 	}
 }

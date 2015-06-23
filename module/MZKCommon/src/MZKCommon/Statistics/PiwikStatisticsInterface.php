@@ -429,4 +429,40 @@ interface PiwikStatisticsInterface
 	*/
 	public function getTransactionSumForLibrary($period, $date, $userLibCard);
 	
+	/**
+	 * Returns all referrers
+	 * If userLibCard is provided, returns referrers for specific library.
+	 * When rawData is set to 1, returns csv
+	 *
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	int		$filterLimit	Max rows in result. -1 = all
+	 * @param	int		$userLibCard
+	 * @param	int|boolean	$rawData
+	 * @return	array|csv
+	 */
+	public function getReferrers($period, $date, $filterLimit='-1', $userLibCard = null, $rawData = null);
+	
+	/**
+	 * Returns referred visits
+	 *
+	 * @param	string	$period				day|week|month|year|range
+	 * @param	string	$date				YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 										YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	string	$type				all|anonyme|authenticated
+	 * @return	array
+	 */
+	public function getReferredVisits($period, $date, $type = "all");
+	
+	/**
+	 * Returns referred visits for library
+	 *
+	 * @param	string	$period				day|week|month|year|range
+	 * @param	string	$date				YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 										YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param	int		$userLibCard
+	 * @return	array
+	 */
+	public function getReferredVisitsForLibrary($period, $date, $userLibCard);
 }
