@@ -83,6 +83,13 @@ class WantIt implements WantItInterface
 	{
 		
 	}
+	/**
+	 * @inheritDoc
+	 */
+	public function displayTriggerButton()
+	{
+		
+	}
 }
 	
 	

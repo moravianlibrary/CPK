@@ -33,5 +33,9 @@ namespace MZKCommon\WantIt;
  */
 interface WantItInterface
 {
+	/**
+	 * Returns HTML
+	 * @return	string
+	 */
 	public function displayTriggerButton();
 }
