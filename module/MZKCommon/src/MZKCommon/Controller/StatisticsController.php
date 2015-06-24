@@ -274,6 +274,9 @@ class StatisticsController extends AbstractBase
 			return $patron;
 		}
 		
+		$PiwikStatistics = $this->getServiceLocator()
+		->get('MZKCommon\StatisticsPiwikStatistics');
+		
 		$user 		= $this->getUser();
 		$isLibrary  = false;
 		$isAdmin 	= false;
@@ -335,6 +338,9 @@ class StatisticsController extends AbstractBase
 		if (! is_array($patron = $this->catalogLogin())) {
 			return $patron;
 		}
+		
+		$PiwikStatistics = $this->getServiceLocator()
+		->get('MZKCommon\StatisticsPiwikStatistics');
 		
 		$user 		= $this->getUser();
 		$isLibrary  = false;
@@ -489,7 +495,8 @@ class StatisticsController extends AbstractBase
 			$nbActionPerVisit = $visitsInfoArray['nb_actions_per_visit'];
 			$nbActions 		  = $visitsInfoArray['nb_actions'];
 			$avgTimeOnSite    = date('i:s', $visitsInfoArray['avg_time_on_site']);
-			$totalTimeOnSite  = date('j G:i:s', $visitsInfoArray['sum_visit_length']);
+			SetLocale(LC_ALL, "Czech");
+			$totalTimeOnSite  = date('G:i:s', $visitsInfoArray['sum_visit_length']);
 			$nbOnlineUsers	  = $PiwikStatistics->getOnlineUsers(10, $userLibCard);
 			
 			$view = $this->createViewModel(	
