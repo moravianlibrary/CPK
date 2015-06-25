@@ -1,8 +1,8 @@
 <?php
-namespace MZKCommon\Statistics;
+namespace Statistics\Piwik;
 
 use Zend\ServiceManager\ServiceManager;
-use MZKCommon\Statistics\PiwikStatistics;
+use Statistics\Piwik\PiwikStatistics;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -18,11 +18,12 @@ class PiwikStatisticsFactory
 	 *
 	 * @param ServiceManager $sm Service manager.
 	 *
-	 * @return MZKCommon\Statistics\PiwikStatistics
+	 * @return Statistics\Statistics\PiwikStatistics
 	 */
 	public static function getPiwikStatistics(ServiceManager $sm)
 	{
 		$config = $sm->get('VuFind\Config')->get('config');
+		
 		$multibackend = $sm->get('VuFind\Config')->get('MultiBackend');
 		$drivers = $multibackend->Login->drivers->toArray();
 

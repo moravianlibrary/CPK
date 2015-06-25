@@ -22,7 +22,7 @@
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-namespace MZKCommon\Statistics;
+namespace Statistics\Piwik;
 
 /**
  * PiwikStatisticsInterface

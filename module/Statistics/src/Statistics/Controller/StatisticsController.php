@@ -22,7 +22,7 @@
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-namespace MZKCommon\Controller;
+namespace Statistics\Controller;
 
 use VuFind\Controller\AbstractBase;
 use Zend\View\Model\ViewModel;
@@ -77,7 +77,7 @@ class StatisticsController extends AbstractBase
 		if ($isLibrary) {
 			
 			$PiwikStatistics = $this->getServiceLocator()
-			->get('MZKCommon\StatisticsPiwikStatistics');
+			->get('Statistics\PiwikPiwikStatistics');
 			
 			$referrers = $PiwikStatistics->getReferrers('range', $date, $filterLimit='10', $userLibCard);
 			$referrersLink = $PiwikStatistics->getReferrers('range', $date, $filterLimit='-1', $userLibCard, 1);
@@ -89,7 +89,7 @@ class StatisticsController extends AbstractBase
 			$libCard = (! empty($urlGetParams['libCard'])) ? $urlGetParams['libCard'] : 'all';
 				
 			$PiwikStatistics = $this->getServiceLocator()
-			->get('MZKCommon\StatisticsPiwikStatistics');
+			->get('Statistics\PiwikPiwikStatistics');
 			
 			if ($libCard !== 'all') {
 				
@@ -164,7 +164,7 @@ class StatisticsController extends AbstractBase
 		if ($isLibrary) {
 			
 			$PiwikStatistics = $this->getServiceLocator()
-			->get('MZKCommon\StatisticsPiwikStatistics');
+			->get('Statistics\PiwikPiwikStatistics');
 			
 			$topSearches 	   = $PiwikStatistics->getFoundSearchKeywords('range', $date, 10, $userLibCard);
 			$topFailedSearches = $PiwikStatistics->getNoResultSearchKeywords('range', $date, 10, $userLibCard);
@@ -198,7 +198,7 @@ class StatisticsController extends AbstractBase
 			$libCard = (! empty($urlGetParams['libCard'])) ? $urlGetParams['libCard'] : 'all';
 			
 			$PiwikStatistics = $this->getServiceLocator()
-			->get('MZKCommon\StatisticsPiwikStatistics');
+			->get('Statistics\PiwikPiwikStatistics');
 			
 			if (($libCard) && ($libCard !== 'all')) { // chosen lib
 				
@@ -275,7 +275,7 @@ class StatisticsController extends AbstractBase
 		}
 		
 		$PiwikStatistics = $this->getServiceLocator()
-		->get('MZKCommon\StatisticsPiwikStatistics');
+		->get('Statistics\PiwikPiwikStatistics');
 		
 		$user 		= $this->getUser();
 		$isLibrary  = false;
@@ -340,7 +340,7 @@ class StatisticsController extends AbstractBase
 		}
 		
 		$PiwikStatistics = $this->getServiceLocator()
-		->get('MZKCommon\StatisticsPiwikStatistics');
+		->get('Statistics\PiwikPiwikStatistics');
 		
 		$user 		= $this->getUser();
 		$isLibrary  = false;
@@ -434,7 +434,7 @@ class StatisticsController extends AbstractBase
 		if ($isLibrary) {
 			
 			$PiwikStatistics = $this->getServiceLocator()
-									->get('MZKCommon\StatisticsPiwikStatistics');
+									->get('Statistics\PiwikPiwikStatistics');
 			
 			// Periodicity
 			$ts1 = strtotime($dateFrom);
@@ -519,7 +519,7 @@ class StatisticsController extends AbstractBase
 		} else { // isAdmin
 				
 			$PiwikStatistics = $this->getServiceLocator()
-			->get('MZKCommon\StatisticsPiwikStatistics');
+			->get('Statistics\PiwikPiwikStatistics');
 				
 			// Periodicity
 			$ts1 = strtotime($dateFrom);
