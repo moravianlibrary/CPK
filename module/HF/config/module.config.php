@@ -2,6 +2,11 @@
 namespace HF\Module\Configuration;
 
 $config = array(
+    'controllers' => [
+        'invokables' => [
+            'ajax' => 'HF\Controller\AjaxController',
+        ],
+    ],
     'vufind' => array(
         'plugin_managers' => array (
              'recorddriver' => array (
