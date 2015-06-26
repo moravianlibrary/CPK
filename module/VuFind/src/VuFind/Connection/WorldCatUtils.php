@@ -26,7 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace VuFind\Connection;
-use File_MARCXML, VuFind\XSLT\Processor as XSLTProcessor, Zend\Log\LoggerInterface;
+use File_MARCXML, VuFind\XSLT\Processor as XSLTProcessor, Zend\Config\Config;
 
 /**
  * World Cat Utilities
@@ -41,19 +41,14 @@ use File_MARCXML, VuFind\XSLT\Processor as XSLTProcessor, Zend\Log\LoggerInterfa
  */
 class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
 {
-    /**
-     * Logger (or false for none)
-     *
-     * @var LoggerInterface|bool
-     */
-    protected $logger = false;
+    use \VuFind\Log\LoggerAwareTrait;
 
     /**
-     * WorldCat ID
+     * WorldCat configuration
      *
-     * @var string
+     * @var \Zend\Config\Config
      */
-    protected $worldCatId;
+    protected $config;
 
     /**
      * HTTP client
@@ -70,44 +65,33 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     protected $silent;
 
     /**
+     * Current server IP address
+     *
+     * @var string
+     */
+    protected $ip;
+
+    /**
      * Constructor
      *
-     * @param string            $worldCatId WorldCat ID
-     * @param \Zend\Http\Client $client     HTTP client
-     * @param bool              $silent     Should we silently ignore HTTP failures?
+     * @param Config|string     $config WorldCat configuration (either a full Config
+     * object, or a string containing the id setting).
+     * @param \Zend\Http\Client $client HTTP client
+     * @param bool              $silent Should we silently ignore HTTP failures?
+     * @param string            $ip     Current server IP address (optional, but
+     * needed for xID token hashing
      */
-    public function __construct($worldCatId, \Zend\Http\Client $client,
-        $silent = true
+    public function __construct($config, \Zend\Http\Client $client, $silent = true,
+        $ip = null
     ) {
-        $this->worldCatId = $worldCatId;
+        // Legacy compatibility -- prior to VuFind 2.4, this parameter was a string.
+        if (!($config instanceof Config)) {
+            $config = new Config(['id' => $config]);
+        }
+        $this->config = $config;
         $this->client = $client;
         $this->silent = $silent;
-    }
-
-    /**
-     * Set the logger
-     *
-     * @param LoggerInterface $logger Logger to use.
-     *
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * Log a debug message.
-     *
-     * @param string $msg Message to log.
-     *
-     * @return void
-     */
-    protected function debug($msg)
-    {
-        if ($this->logger) {
-            $this->logger->debug($msg);
-        }
+        $this->ip = $ip;
     }
 
     /**
@@ -141,7 +125,34 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
      */
     protected function getWorldCatId()
     {
-        return $this->worldCatId;
+        return isset($this->config->id) ? $this->config->id : false;
+    }
+
+    /**
+     * Build a url to use in querying OCLC's xID service.
+     *
+     * @param string $base      base url with no querystring
+     * @param string $tokenVar  config file variable holding the token
+     * @param string $secretVar config file variable holding the secret
+     * @param string $format    data format for api response
+     *
+     * @return string
+     */
+    protected function buildXIdUrl($base, $tokenVar, $secretVar, $format)
+    {
+        $token = isset($this->config->$tokenVar)
+            ? $this->config->$tokenVar : false;
+        $secret = isset($this->config->$secretVar)
+            ? $this->config->$secretVar : false;
+        $querystr = '?method=getEditions&format=' . $format;
+        if ($token && $secret) {
+            $hash = md5($base . '|' . $this->ip . '|' . $secret);
+            $querystr .= '&token=' . $token . '&hash=' . $hash;
+        } if ($wcId = $this->getWorldCatId()) {
+            $querystr .= '&ai=' . urlencode($wcId);
+        }
+        $base .= $querystr;
+        return $base;
     }
 
     /**
@@ -154,19 +165,16 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     public function getXISBN($isbn)
     {
         // Build URL
-        $url = 'http://xisbn.worldcat.org/webservices/xid/isbn/' .
-                urlencode(is_array($isbn) ? $isbn[0] : $isbn) .
-               '?method=getEditions&format=json';
-        if ($wcId = $this->getWorldCatId()) {
-            $url .= '&ai=' . urlencode($wcId);
-        }
+        $base = 'http://xisbn.worldcat.org/webservices/xid/isbn/' .
+                urlencode(is_array($isbn) ? $isbn[0] : $isbn);
+        $url = $this->buildXIdUrl($base, 'xISBN_token', 'xISBN_secret', 'json');
 
         // Print Debug code
         $this->debug("XISBN: $url");
         $response = json_decode($this->retrieve($url));
 
         // Fetch results
-        $isbns = array();
+        $isbns = [];
         if (isset($response->list)) {
             foreach ($response->list as $line) {
                 // Filter out non-ISBN characters and validate the length of
@@ -193,22 +201,19 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     public function getXOCLCNUM($oclc)
     {
         // Build URL
-        $url = 'http://xisbn.worldcat.org/webservices/xid/oclcnum/' .
-                urlencode(is_array($oclc) ? $oclc[0] : $oclc) .
-               '?method=getEditions&format=json';
-        if ($wcId = $this->getWorldCatId()) {
-            $url .= '&ai=' . urlencode($wcId);
-        }
+        $base = 'http://xisbn.worldcat.org/webservices/xid/oclcnum/' .
+                urlencode(is_array($oclc) ? $oclc[0] : $oclc);
+        $url = $this->buildXIdUrl($base, 'xISBN_token', 'xISBN_secret', 'json');
 
         // Print Debug code
         $this->debug("XOCLCNUM: $url");
         $response = json_decode($this->retrieve($url));
 
         // Fetch results
-        $results = array();
+        $results = [];
         if (isset($response->list)) {
             foreach ($response->list as $line) {
-                $values = isset($line->oclcnum) ? $line->oclcnum : array();
+                $values = isset($line->oclcnum) ? $line->oclcnum : [];
                 foreach ($values as $data) {
                     // Filter out non-numeric characters and validate the length of
                     // whatever is left behind; this will prevent us from treating
@@ -234,19 +239,15 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     public function getXISSN($issn)
     {
         // Build URL
-        $url = 'http://xissn.worldcat.org/webservices/xid/issn/' .
-                urlencode(is_array($issn) ? $issn[0] : $issn) .
-               //'?method=getEditions&format=csv';
-               '?method=getEditions&format=xml';
-        if ($wcId = $this->getWorldCatId()) {
-            $url .= '&ai=' . urlencode($wcId);
-        }
+        $base = 'http://xissn.worldcat.org/webservices/xid/issn/' .
+                urlencode(is_array($issn) ? $issn[0] : $issn);
+        $url = $this->buildXIdUrl($base, 'xISSN_token', 'xISSN_secret', 'xml');
 
         // Print Debug code
         $this->debug("XISSN: $url");
 
         // Fetch results
-        $issns = array();
+        $issns = [];
         $xml = $this->retrieve($url);
         if (!empty($xml)) {
             $data = simplexml_load_string($xml);
@@ -274,8 +275,8 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     {
         // Some common prefixes and suffixes that we do not want to treat as first
         // or last names:
-        static $badChunks = array('jr', 'sr', 'ii', 'iii', 'iv', 'v', 'vi', 'vii',
-            'viii', 'ix', 'x', 'junior', 'senior', 'esq', 'mr', 'mrs', 'miss', 'dr');
+        static $badChunks = ['jr', 'sr', 'ii', 'iii', 'iv', 'v', 'vi', 'vii',
+            'viii', 'ix', 'x', 'junior', 'senior', 'esq', 'mr', 'mrs', 'miss', 'dr'];
 
         // Clean up the input string:
         $current = str_replace('.', '', strtolower($current));
@@ -300,7 +301,7 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     protected function getIdentitiesQuery($name)
     {
         // Clean up user query and try to find name components within it:
-        $name = trim(str_replace(array('"', ',', '-'), ' ', $name));
+        $name = trim(str_replace(['"', ',', '-'], ' ', $name));
         $parts = explode(' ', $name);
         $first = $last = '';
         foreach ($parts as $current) {
@@ -345,11 +346,11 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
         $subjects = isset($current->fastHeadings->fast) ?
             $current->fastHeadings->fast : null;
         if (isset($subjects->tag)) {
-            $subjects = array($subjects);
+            $subjects = [$subjects];
         }
 
         // Collect subjects for current name:
-        $retVal = array();
+        $retVal = [];
         if (!is_null($subjects) && count($subjects) > 0) {
             foreach ($subjects as $currentSubject) {
                 if ($currentSubject['tag'] == '650') {
@@ -367,6 +368,29 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     }
 
     /**
+     * Get the URL to perform a related identities query.
+     *
+     * @param string $query      Query
+     * @param int    $maxRecords Max # of records to read from API (more = slower).
+     *
+     * @return string
+     */
+    protected function getRelatedIdentitiesUrl($query, $maxRecords)
+    {
+        return "http://worldcat.org/identities/search/PersonalIdentities" .
+            "?query=" . urlencode($query) .
+            "&version=1.1" .
+            "&operation=searchRetrieve" .
+            "&recordSchema=info%3Asrw%2Fschema%2F1%2FIdentities" .
+            "&maximumRecords=" . intval($maxRecords) .
+            "&startRecord=1" .
+            "&resultSetTTL=300" .
+            "&recordPacking=xml" .
+            "&recordXPath=" .
+            "&sortKeys=holdingscount";
+    }
+
+    /**
      * Given a name string, get related identities.  Inspired by Eric Lease
      * Morgan's Name Finder demo (http://zoia.library.nd.edu/sandbox/name-finder/).
      * Return value is an associative array where key = author name and value =
@@ -380,27 +404,14 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
     public function getRelatedIdentities($name, $maxRecords = 10)
     {
         // Build the WorldCat Identities API query:
-        $query = $this->getIdentitiesQuery($name);
-        if (!$query) {
+        if (!($query = $this->getIdentitiesQuery($name))) {
             return false;
         }
 
-        // Get the API response:
-        $url = "http://worldcat.org/identities/search/PersonalIdentities" .
-            "?query=" . urlencode($query) .
-            "&version=1.1" .
-            "&operation=searchRetrieve" .
-            "&recordSchema=info%3Asrw%2Fschema%2F1%2FIdentities" .
-            "&maximumRecords=" . intval($maxRecords) .
-            "&startRecord=1" .
-            "&resultSetTTL=300" .
-            "&recordPacking=xml" .
-            "&recordXPath=" .
-            "&sortKeys=holdingscount";
-        $xml = $this->retrieve($url);
-
-        // Translate XML to object:
-        $data = simplexml_load_string($xml);
+        // Get the API response and translate it into an object:
+        $data = simplexml_load_string(
+            $this->retrieve($this->getRelatedIdentitiesUrl($query, $maxRecords))
+        );
 
         // Give up if expected data is missing:
         if (!isset($data->records->record)) {
@@ -408,7 +419,7 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
         }
 
         // Loop through data and collect names and related subjects:
-        $output = array();
+        $output = [];
         foreach ($data->records->record as $current) {
             // Build current name string:
             $current = isset($current->recordData->Identity->nameInfo) ?
@@ -486,9 +497,9 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
         }
 
         // Initialize arrays:
-        $exact = array();
-        $broader = array();
-        $narrower = array();
+        $exact = [];
+        $broader = [];
+        $narrower = [];
 
         while ($record = $marc->next()) {
             // Get exact terms; only save it if it is not a subset of the requested
@@ -529,11 +540,11 @@ class WorldCatUtils implements \Zend\Log\LoggerAwareInterface
             natcasesort($broader);
             natcasesort($narrower);
         }
-        return array(
+        return [
             'exact' => array_unique($exact),
             'broader' => array_unique($broader),
             'narrower' => array_unique($narrower)
-        );
+        ];
     }
 
     /**

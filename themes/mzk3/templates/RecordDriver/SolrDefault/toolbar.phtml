@@ -33,7 +33,7 @@
   <? endif; ?>
   
   <li class="list-group-item">
-    <i class="fa fa-x fa-plus-sign"></i>
+    <i class="fa fa-x fa-plus-circle"></i>
     <a class="modal-link <?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>">
       <?=$this->transEsc('Add to favorites')?>
     </a>
@@ -46,11 +46,11 @@
     <li id="bookbag-menu" class="list-group-item">
       <input id="cartId" type="hidden" name="ids[]" value="<?=$this->escapeHtml($cartId)?>" />
       <span id="cart-add" class="<? if(!$cart->contains($cartId)): ?>correct <? endif ?>hidden"">
-        <i class="fa fa-x fa-plus-sign"></i>
+        <i class="fa fa-x fa-plus-circle"></i>
         <a href="#"><?=$this->transEsc('Add to Book Bag') ?></a>
       </span>
       <span id="cart-remove" class="<? if($cart->contains($cartId)): ?>correct <? endif ?>hidden"">
-        <i class="fa fa-x fa-minus-sign"></i>
+        <i class="fa fa-x fa-minus-circle"></i>
         <a href="#"><?=$this->transEsc('Remove from Book Bag') ?></a>
       </span>
       <noscript>

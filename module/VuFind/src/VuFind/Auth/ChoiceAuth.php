@@ -26,7 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:authentication_handlers Wiki
  */
 namespace VuFind\Auth;
-use VuFind\Exception\Auth as AuthException;
+use VuFind\Db\Row\User, VuFind\Exception\Auth as AuthException;
 use Zend\Http\PhpEnvironment\Request;
 
 /**
@@ -50,7 +50,7 @@ class ChoiceAuth extends AbstractBase
      *
      * @var array
      */
-    protected $strategies = array();
+    protected $strategies = [];
 
     /**
      * Auth strategy selected by user
@@ -126,11 +126,20 @@ class ChoiceAuth extends AbstractBase
      * @param Request $request Request object containing account credentials.
      *
      * @throws AuthException
-     * @return \VuFind\Db\Row\User Object representing logged-in user.
+     * @return User Object representing logged-in user.
      */
     public function authenticate($request)
     {
-        return $this->proxyUserLoad($request, 'authenticate', func_get_args());
+        try {
+            return $this->proxyUserLoad($request, 'authenticate', func_get_args());
+        } catch (AuthException $e) {
+            // If an exception was thrown during login, we need to clear the
+            // stored strategy to ensure that we display the full ChoiceAuth
+            // form rather than the form for only the method that the user
+            // attempted to use.
+            $this->strategy = false;
+            throw $e;
+        }
     }
 
     /**
@@ -139,7 +148,7 @@ class ChoiceAuth extends AbstractBase
      * @param Request $request Request object containing new account details.
      *
      * @throws AuthException
-     * @return \VuFind\Db\Row\User New user row.
+     * @return User New user row.
      */
     public function create($request)
     {
@@ -239,12 +248,32 @@ class ChoiceAuth extends AbstractBase
     }
 
     /**
+     * Does this authentication method support password recovery
+     *
+     * @return bool
+     */
+    public function supportsPasswordRecovery()
+    {
+        return $this->proxyAuthMethod('supportsPasswordRecovery', func_get_args());
+    }
+
+    /**
+     * Password policy for a new password (e.g. minLength, maxLength)
+     *
+     * @return array
+     */
+    public function getPasswordPolicy()
+    {
+        return $this->proxyAuthMethod('getPasswordPolicy', func_get_args());
+    }
+
+    /**
      * Update a user's password from the request.
      *
      * @param Request $request Request object containing password change details.
      *
      * @throws AuthException
-     * @return \VuFind\Db\Row\User New user row.
+     * @return User New user row.
      */
     public function updatePassword($request)
     {
@@ -277,10 +306,10 @@ class ChoiceAuth extends AbstractBase
         }
         $authenticator = $this->getPluginManager()->get($this->strategy);
         $authenticator->setConfig($this->getConfig());
-        if (!is_callable(array($authenticator, $method))) {
+        if (!is_callable([$authenticator, $method])) {
             throw new AuthException($this->strategy . "has no method $method");
         }
-        return call_user_func_array(array($authenticator, $method), $params);
+        return call_user_func_array([$authenticator, $method], $params);
     }
 
     /**
@@ -297,14 +326,9 @@ class ChoiceAuth extends AbstractBase
     protected function proxyUserLoad($request, $method, $params)
     {
         $this->setStrategyFromRequest($request);
-        try {
-            $user = $this->proxyAuthMethod($method, $params);
-            if (!$user) {
-                throw new AuthException('Unexpected return value');
-            }
-        } catch (AuthException $e) {
-            $this->strategy = false;
-            throw $e;
+        $user = $this->proxyAuthMethod($method, $params);
+        if (!$user) {
+            throw new AuthException('Unexpected return value');
         }
         $this->session->auth_method = $this->strategy;
         return $user;
@@ -332,5 +356,29 @@ class ChoiceAuth extends AbstractBase
                 throw new AuthException('authentication_error_technical');
             }
         }
+    }
+
+    /**
+     * Validate the credentials in the provided request, but do not change the state
+     * of the current logged-in user. Return true for valid credentials, false
+     * otherwise.
+     *
+     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
+     * account credentials.
+     *
+     * @throws AuthException
+     * @return bool
+     */
+    public function validateCredentials($request)
+    {
+        try {
+            // In this instance we are checking credentials but do not wish to
+            // change the state of the current object. Thus, we use proxyAuthMethod()
+            // here instead of proxyUserLoad().
+            $user = $this->proxyAuthMethod('authenticate', func_get_args());
+        } catch (AuthException $e) {
+            return false;
+        }
+        return isset($user) && $user instanceof User;
     }
 }

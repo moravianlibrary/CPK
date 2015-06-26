@@ -26,7 +26,6 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
-
 namespace VuFindSearch;
 
 use VuFindSearch\Backend\BackendInterface;
@@ -86,7 +85,7 @@ class Service
      */
     public function __construct($searchSettings = null)
     {
-        $this->backends = array();
+        $this->backends = [];
         if ($searchSettings != null && isset($searchSettings->General->default_empty_sort)) {
             $this->defaultSort = $searchSettings->General->default_empty_sort;
         }
@@ -263,7 +262,7 @@ class Service
             } else {
                 // Default case: retrieve n random records:
                 $response = false;
-                $retrievedIndexes = array();
+                $retrievedIndexes = [];
                 for ($i = 0; $i < $limit; $i++) {
                     $nextIndex = rand(0, $total_records - 1);
                     while (in_array($nextIndex, $retrievedIndexes)) {
@@ -305,12 +304,15 @@ class Service
         $params  = $params ?: new ParamBag();
         $context = __FUNCTION__;
         $args = compact('backend', 'id', 'params', 'context');
-        $backend = $this->resolve($backend, $args);
-        $args['backend_instance'] = $backend;
+        $backendInstance = $this->resolve($backend, $args);
+        $args['backend_instance'] = $backendInstance;
 
-        $this->triggerPre($backend, $args);
+        $this->triggerPre($backendInstance, $args);
         try {
-            $response = $backend->similar($id, $params);
+            if (!($backendInstance instanceof Feature\SimilarInterface)) {
+                throw new BackendException("$backend does not support similar()");
+            }
+            $response = $backendInstance->similar($id, $params);
         } catch (BackendException $e) {
             $this->triggerError($e, $args);
             throw $e;
@@ -329,7 +331,7 @@ class Service
      */
     public function setEventManager(EventManagerInterface $events)
     {
-        $events->setIdentifiers(array('VuFind\Search', 'VuFindSearch'));
+        $events->setIdentifiers(['VuFind\Search', 'VuFindSearch']);
         $this->events = $events;
     }
 
@@ -368,7 +370,7 @@ class Service
                 $this,
                 $args,
                 function ($o) {
-                    return ($o instanceOf BackendInterface);
+                    return ($o instanceof BackendInterface);
                 }
             );
             if (!$response->stopped()) {

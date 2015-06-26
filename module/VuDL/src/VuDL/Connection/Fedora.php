@@ -45,7 +45,7 @@ class Fedora extends AbstractBase
      *
      * @var array
      */
-    protected $datastreams = array();
+    protected $datastreams = [];
 
     /**
      * Get Fedora Base URL.
@@ -69,7 +69,7 @@ class Fedora extends AbstractBase
     public function getClasses($id)
     {
         $data = $this->getDatastreamContent($id, 'RELS-EXT');
-        $matches = array();
+        $matches = [];
         preg_match_all(
             '/rdf:resource="info:fedora\/vudl-system:([^"]+)/',
             $data,
@@ -81,8 +81,8 @@ class Fedora extends AbstractBase
     /**
      * Returns file contents of the structmap, our most common call
      *
-     * @param string  $id  Record id
-     * @param boolean $xml Return data as SimpleXMLElement?
+     * @param string $id  Record id
+     * @param bool   $xml Return data as SimpleXMLElement?
      *
      * @return string|\SimpleXMLElement
      */
@@ -105,15 +105,16 @@ class Fedora extends AbstractBase
     /**
      * Return the content of a datastream.
      *
-     * @param string  $id         Record id
-     * @param string  $stream     Name of stream to retrieve
-     * @param boolean $justStream Do not append /content and return from url as is
+     * @param string $id         Record id
+     * @param string $stream     Name of stream to retrieve
+     * @param bool   $justStream Do not append /content and return from url as is
+     *
      * @return string
      */
     public function getDatastreamContent($id, $stream, $justStream = false)
     {
         if ($justStream) {
-            $url = $this->getBase() . $id . '/datastreams' . $stream;
+            $url = $this->getBase() . $id . $stream;
         } else {
             $url = $this->getBase() . $id . '/datastreams/' . $stream . '/content';
         }
@@ -138,21 +139,21 @@ class Fedora extends AbstractBase
     /**
      * Get details for the sidebar on a record.
      *
-     * @param string  $id     ID to retrieve
-     * @param boolean $format Send result through formatDetails?
+     * @param string $id     ID to retrieve
+     * @param bool   $format Send result through formatDetails?
      *
      * @return string
      */
     public function getDetails($id, $format = false)
     {
-        $dc = array();
+        $dc = [];
         preg_match_all(
             '/<[^\/]*dc:([^ >]+)>([^<]+)/',
             $this->getDatastreamContent($id, 'DC'),
             $dc
         );
-        $details = array();
-        foreach ($dc[2] as $i=>$detail) {
+        $details = [];
+        foreach ($dc[2] as $i => $detail) {
             $details[$dc[1][$i]] = $detail;
         }
         if ($format) {
@@ -186,7 +187,7 @@ class Fedora extends AbstractBase
     public function getLabel($id)
     {
         $query = 'select $memberTitle from <#ri> '
-            . 'where $member <dc:identifier> \''. $id .'\' '
+            . 'where $member <dc:identifier> \'' . $id . '\' '
             . 'and $member <fedora-model:label> $memberTitle';
         $response = $this->query($query);
         $list = explode("\n", $response->getBody());
@@ -203,13 +204,14 @@ class Fedora extends AbstractBase
     public function getMemberList($root)
     {
         $query = 'select $memberPID $memberTitle from <#ri> '
-            . 'where $member <fedora-rels-ext:isMemberOf> <info:fedora/' .$root. '> '
+            . 'where $member <fedora-rels-ext:isMemberOf> <info:fedora/'
+            . $root . '> '
             . 'and $member <fedora-model:label> $memberTitle '
             . 'and $member <dc:identifier> $memberPID';
         $response = $this->query($query);
         $list = explode("\n", $response->getBody());
-        $items = array();
-        for ($i=1;$i<count($list);$i++) {
+        $items = [];
+        for ($i = 1;$i<count($list);$i++) {
             if (empty($list[$i])) {
                 continue;
             }
@@ -233,7 +235,7 @@ class Fedora extends AbstractBase
             . 'where $member '
             . '<info:fedora/fedora-system:def/view#lastModifiedDate> '
             . '$lastModDate '
-            . 'and $member <dc:identifier> \''. $id .'\'';
+            . 'and $member <dc:identifier> \'' . $id . '\'';
         $response = $this->query($query);
         $list = explode("\n", $response->getBody());
         return $list[1];
@@ -249,16 +251,17 @@ class Fedora extends AbstractBase
     public function getOrderedMembers($root)
     {
         $query = 'select $memberPID $memberTitle $sequence $member from <#ri> '
-            . 'where $member <fedora-rels-ext:isMemberOf> <info:fedora/'.$root.'> '
+            . 'where $member <fedora-rels-ext:isMemberOf> <info:fedora/'
+            . $root . '> '
             . 'and $member <http://vudl.org/relationships#sequence> $sequence '
             . 'and $member <fedora-model:label> $memberTitle '
             . 'and $member <dc:identifier> $memberPID';
         $response = $this->query($query);
         $list = explode("\n", $response->getBody());
         if (count($list) > 2) {
-            $items = array();
+            $items = [];
             $sequenced = true;
-            for ($i=1;$i<count($list);$i++) {
+            for ($i = 1;$i<count($list);$i++) {
                 if (empty($list[$i])) {
                     continue;
                 }
@@ -268,10 +271,10 @@ class Fedora extends AbstractBase
                     $sequenced = false;
                     break;
                 }
-                $items[] = array(
+                $items[] = [
                     'seq' => $seq,
-                    'id' =>$id
-                );
+                    'id' => $id
+                ];
             }
             if ($sequenced) {
                 usort(
@@ -285,19 +288,20 @@ class Fedora extends AbstractBase
                         return $op['id'];
                     },
                     $items
-                );;
+                );
             }
         }
         // No sequence? Title sort.
         $query = 'select $memberPID $memberTitle from <#ri> '
-            . 'where $member <fedora-rels-ext:isMemberOf> <info:fedora/' .$root. '> '
+            . 'where $member <fedora-rels-ext:isMemberOf> <info:fedora/'
+            . $root . '> '
             . 'and $member <fedora-model:label> $memberTitle '
             . 'and $member <dc:identifier> $memberPID '
             . 'order by $memberTitle';
         $response = $this->query($query);
         $list = explode("\n", $response->getBody());
-        $items = array();
-        for ($i=1;$i<count($list);$i++) {
+        $items = [];
+        for ($i = 1;$i<count($list);$i++) {
             if (empty($list[$i])) {
                 continue;
             }
@@ -322,7 +326,7 @@ class Fedora extends AbstractBase
         // Walk to get all parents to root
         $query = 'select $child $parent $parentTitle from <#ri> '
                 . 'where walk ('
-                        . '<info:fedora/' .$id. '> '
+                        . '<info:fedora/' . $id . '> '
                         . '<fedora-rels-ext:isMemberOf> '
                         . '$parent '
                     . 'and $child <fedora-rels-ext:isMemberOf> $parent) '
@@ -330,15 +334,15 @@ class Fedora extends AbstractBase
         // Parse out relationships
         $response = $this->query($query);
         $list = explode("\n", trim($response->getBody(), "\n"));
-        $tree = array();
-        for ($i=1;$i<count($list);$i++) {
+        $tree = [];
+        for ($i = 1;$i<count($list);$i++) {
             list($child, $parent, $title) = explode(',', substr($list[$i], 12), 3);
             $parent = substr($parent, 12);
             if (!isset($tree[$parent])) {
-                $tree[$parent] = array(
-                    'children' => array(),
+                $tree[$parent] = [
+                    'children' => [],
                     'title' => $title
-                );
+                ];
             }
             $tree[$parent]['children'][] = $child;
         }
@@ -373,12 +377,14 @@ class Fedora extends AbstractBase
         if ($record == null) {
             return false;
         }
-        $ret = array();
+        $ret = [];
         // OCR
         if (isset($record['ocr-dirty'])) {
-            $record['ocr-dirty'] = $this->getDatastreamContent(
-                $record['id'],
-                'OCR-DIRTY'
+            $record['ocr-dirty'] = htmlentities(
+                $this->getDatastreamContent(
+                    $record['id'],
+                    'OCR-DIRTY'
+                )
             );
         }
         // Technical Information
@@ -393,7 +399,7 @@ class Fedora extends AbstractBase
         }
         if ($renderer != null) {
             $ret['div'] = $renderer
-                ->render('vudl/techinfo.phtml', array('record'=>$record));
+                ->render('vudl/techinfo.phtml', ['record' => $record]);
         }
         return $ret;
     }
@@ -407,23 +413,23 @@ class Fedora extends AbstractBase
      */
     protected function getSizeAndTypeInfo($techInfo)
     {
-        $data = $type = array();
+        $data = $type = [];
         preg_match('/<size[^>]*>([^<]*)/', $techInfo, $data);
         preg_match('/mimetype="([^"]*)/', $techInfo, $type);
         $size_index = 0;
         if (count($data) > 1) {
             $bytes = intval($data[1]);
-            $sizes = array('bytes','KB','MB');
+            $sizes = ['bytes','KB','MB'];
             while ($size_index < count($sizes)-1 && $bytes > 1024) {
                 $bytes /= 1024;
                 $size_index++;
             }
-            return array(
+            return [
                 'size' => round($bytes, 1) . ' ' . $sizes[$size_index],
                 'type' => $type[1]
-            );
+            ];
         }
-        return array();
+        return [];
     }
 
     /**
@@ -442,12 +448,12 @@ class Fedora extends AbstractBase
             $xml = $this->getDatastreamContent($id, 'LICENSE');
             preg_match('/xlink:href="(.*?)"/', $xml, $license);
             $license = $license[1];
-            foreach ($setLicenses as $tell=>$value) {
+            foreach ($setLicenses as $tell => $value) {
                 if (strpos($license, $tell)) {
-                    return array($license, $value);
+                    return [$license, $value];
                 }
             }
-            return array($license, false);
+            return [$license, false];
         }
         return null;
     }
@@ -460,16 +466,16 @@ class Fedora extends AbstractBase
      *
      * @return Response
      */
-    protected function query($query, $options = array())
+    protected function query($query, $options = [])
     {
-        $data = array(
+        $data = [
             'type'  => 'tuples',
             'flush' => false,
             'lang'  => 'itql',
-            'format'=> 'CSV',
+            'format' => 'CSV',
             'query' => $query
-        );
-        foreach ($options as $key=>$value) {
+        ];
+        foreach ($options as $key => $value) {
             $data[$key] = $value;
         }
         $client = $this->getHttpClient($this->getQueryURL());

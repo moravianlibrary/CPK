@@ -3,12 +3,11 @@
 namespace MZKPortal\Search\Solr;
 use VuFindSearch\ParamBag;
 
-
 class Params extends \VuFind\Search\Solr\Params
 {
     protected $languageDependentFacets = array();
     protected $locale = 'cs';
-    public function __construct($options, \VuFind\Config\PluginManager $configLoader, \Zend\I18n\Translator\Translator $translator = null)
+    public function __construct($options, \VuFind\Config\PluginManager $configLoader, \Zend\Mvc\I18n\Translator $translator = null)
     {
         parent::__construct($options, $configLoader);
         if ($translator) {
@@ -23,7 +22,7 @@ class Params extends \VuFind\Search\Solr\Params
    
     /**
      * Return current facet configurations -
-     *  language filter is applied on facets in 
+     *  language filter is applied on facets in
      *
      * @return array $facetSet
      */
@@ -42,7 +41,7 @@ class Params extends \VuFind\Search\Solr\Params
                             array($currentFacet, $currentFacet . '_cs_txtF_mv', $currentFacet . '_en_txtF_mv')
                     )
                 );
-                if (in_array($newFacet, $result['field'])) {          
+                if (in_array($newFacet, $result['field'])) {
                     $tmpCopy[] = $newFacet;
                 } else {
                     $tmpCopy[] = $currentFacet;

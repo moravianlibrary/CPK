@@ -61,11 +61,11 @@ class NoILSTest extends \VuFindTest\Unit\TestCase
     public function setUp()
     {
         $this->loader = $this->getMock(
-            'VuFind\Record\Loader', array(),
-            array(
+            'VuFind\Record\Loader', [],
+            [
                 $this->getMock('VuFindSearch\Service'),
                 $this->getMock('VuFind\RecordDriver\PluginManager')
-            )
+            ]
         );
         $this->driver = new NoILS($this->loader);
         $this->driver->init();
@@ -79,5 +79,50 @@ class NoILSTest extends \VuFindTest\Unit\TestCase
     public function testDefaultOfflineMode()
     {
         $this->assertEquals('ils-offline', $this->driver->getOfflineMode());
+    }
+
+    /**
+     * Test that driver defaults to visible login mode when no config is provided.
+     *
+     * @return void
+     */
+    public function testDefaultLoginVisibility()
+    {
+        $this->assertFalse($this->driver->loginIsHidden());
+    }
+
+    /**
+     * Test that driver defaults to hidden holdings mode when no config is provided.
+     *
+     * @return void
+     */
+    public function testDefaultHoldingsVisibility()
+    {
+        $this->assertFalse($this->driver->hasHoldings('foo'));
+    }
+
+    /**
+     * Test that driver makes holdings visible when in MARC mode.
+     *
+     * @return void
+     */
+    public function testMarcHoldingsVisibility()
+    {
+        $this->driver
+            ->setConfig(['settings' => ['useHoldings' => 'marc']]);
+        $this->assertTrue($this->driver->hasHoldings('foo'));
+    }
+
+    /**
+     * Test various methods that aren't expected to actually do anything.
+     *
+     * @return void
+     */
+    public function testUnsupportedFunctions()
+    {
+        $this->assertEquals([], $this->driver->getPurchaseHistory('foo'));
+        $this->assertEquals(null, $this->driver->patronLogin('foo', 'bar'));
+        $this->assertEquals([], $this->driver->getNewItems(1, 20, 30));
+        $this->assertFalse($this->driver->getConfig('Holds'));
     }
 }

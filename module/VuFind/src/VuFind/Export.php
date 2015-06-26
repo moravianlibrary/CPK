@@ -54,6 +54,13 @@ class Export
     protected $exportConfig;
 
     /**
+     * Bulk options (initialized to boolean false, populated later)
+     *
+     * @var array|bool
+     */
+    protected $bulkOptions = false;
+
+    /**
      * Constructor
      *
      * @param Config $mainConfig   Main VuFind configuration
@@ -72,10 +79,8 @@ class Export
      */
     public function getBulkOptions()
     {
-        static $options = false;
-
-        if ($options === false) {
-            $options = array();
+        if ($this->bulkOptions === false) {
+            $this->bulkOptions = [];
             if (isset($this->mainConfig->BulkExport->enabled)
                 && isset($this->mainConfig->BulkExport->options)
                 && $this->mainConfig->BulkExport->enabled
@@ -85,13 +90,13 @@ class Export
                     if (isset($this->mainConfig->Export->$option)
                         && $this->mainConfig->Export->$option == true
                     ) {
-                            $options[] = $option;
+                        $this->bulkOptions[] = $option;
                     }
                 }
             }
         }
 
-        return $options;
+        return $this->bulkOptions;
     }
 
     /**
@@ -107,7 +112,7 @@ class Export
      */
     public function getBulkUrl($view, $format, $ids)
     {
-        $params = array();
+        $params = [];
         $params[] = 'f=' . urlencode($format);
         foreach ($ids as $id) {
             $params[] = urlencode('i[]') . '=' . urlencode($id);
@@ -131,13 +136,12 @@ class Export
      */
     public function getRedirectUrl($format, $callback)
     {
-        // Fill in special tokens in template:/*
+        // Fill in special tokens in template:
         $template = $this->exportConfig->$format->redirectUrl;
         preg_match_all('/\{([^}]+)\}/', $template, $matches);
         foreach ($matches[1] as $current) {
             $parts = explode('|', $current);
             switch ($parts[0]) {
-                
             case 'config':
             case 'encodedConfig':
                 if (isset($this->mainConfig->{$parts[1]}->{$parts[2]})) {
@@ -186,7 +190,7 @@ class Export
         if (isset($this->exportConfig->$format->combineXpath)) {
             $ns = isset($this->exportConfig->$format->combineNamespaces)
                 ? $this->exportConfig->$format->combineNamespaces->toArray()
-                : array();
+                : [];
             $ns = array_map(
                 function ($current) {
                     return explode('|', $current, 2);
@@ -231,7 +235,7 @@ class Export
     public function recordSupportsFormat($driver, $format)
     {
         // Check if the driver explicitly disallows the format:
-        if ($driver->tryMethod('exportDisabled', array($format))) {
+        if ($driver->tryMethod('exportDisabled', [$format])) {
             return false;
         }
 
@@ -240,7 +244,7 @@ class Export
             if (isset($this->exportConfig->$format->requiredMethods)) {
                 foreach ($this->exportConfig->$format->requiredMethods as $method) {
                     // If a required method is missing, give up now:
-                    if (!is_callable(array($driver, $method))) {
+                    if (!is_callable([$driver, $method])) {
                         return false;
                     }
                 }
@@ -269,10 +273,10 @@ class Export
         // if nothing in config array).
         $active = isset($this->mainConfig->Export)
             ? $this->mainConfig->Export->toArray()
-            : array('RefWorks' => true, 'EndNote' => true);
+            : ['RefWorks' => true, 'EndNote' => true];
 
         // Loop through all possible formats:
-        $formats = array();
+        $formats = [];
         foreach (array_keys($this->exportConfig->toArray()) as $format) {
             if (isset($active[$format]) && $active[$format]
                 && $this->recordSupportsFormat($driver, $format)
@@ -298,7 +302,7 @@ class Export
         $formats = $this->getBulkOptions();
         foreach ($drivers as $driver) {
             // Filter out unsupported export formats:
-            $newFormats = array();
+            $newFormats = [];
             foreach ($formats as $current) {
                 if ($this->recordSupportsFormat($driver, $current)) {
                     $newFormats[] = $current;
@@ -319,6 +323,19 @@ class Export
     public function getHeaders($format)
     {
         return isset($this->exportConfig->$format->headers)
-            ? $this->exportConfig->$format->headers : array();
+            ? $this->exportConfig->$format->headers : [];
+    }
+
+    /**
+     * Get the display label for the specified export format.
+     *
+     * @param string $format Format identifier
+     *
+     * @return string
+     */
+    public function getLabelForFormat($format)
+    {
+        return isset($this->exportConfig->$format->label)
+            ? $this->exportConfig->$format->label : $format;
     }
 }

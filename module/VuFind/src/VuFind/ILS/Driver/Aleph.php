@@ -847,6 +847,7 @@ class AlephWebServices {
 class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     \VuFindHttp\HttpServiceAwareInterface
 {
+
     /**
      * Duedate configuration
      *
@@ -867,13 +868,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @var LoggerInterface|bool
      */
     protected $logger = false;
-
-    /**
-     * HTTP service
-     *
-     * @var \VuFindHttp\HttpServiceInterface
-     */
-    protected $httpService = null;
 
     /**
      * Date converter object
@@ -926,19 +920,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     }
 
     /**
-     * Set the logger
-     *
-     * @param LoggerInterface $logger Logger to use.
-     *
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-        $this->alephWebService->setLogger($logger);
-    }
-
-    /**
      * Set the HTTP service to be used for HTTP requests.
      *
      * @param HttpServiceInterface $service HTTP service
@@ -949,6 +930,19 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     {
         $this->httpService = $service;
         $this->alephWebService->setHttpService($service);
+    }
+
+    /**
+     * Set the logger
+     *
+     * @param LoggerInterface $logger Logger to use.
+     *
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        $this->alephWebService->setLogger($logger);
     }
 
     /**

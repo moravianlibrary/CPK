@@ -45,32 +45,32 @@ class AmazonEditorial extends \VuFind\Content\AbstractAmazon
      * This method is responsible for connecting to Amazon AWS and abstracting
      * editorial reviews for the specific ISBN
      *
-     * @param string            $key     API key
-     * @param \VuFind\Code\ISBN $isbnObj ISBN object
+     * @param string           $key     API key
+     * @param \VuFindCode\ISBN $isbnObj ISBN object
      *
      * @throws \Exception
      * @return array     Returns array with review data.
      * @author Andrew Nagy <vufind-tech@lists.sourceforge.net>
      */
-    public function loadByIsbn($key, \VuFind\Code\ISBN $isbnObj)
+    public function loadByIsbn($key, \VuFindCode\ISBN $isbnObj)
     {
         try {
             $amazon = new Amazon($key, 'US', $this->secret);
             $amazon->getRestClient()->setHttpClient($this->getHttpClient());
-            $params = array(
+            $params = [
                 'ResponseGroup' => 'EditorialReview',
                 'AssociateTag' => $this->associate
-            );
+            ];
             $isbn = $this->getIsbn10($isbnObj);
             $data = $amazon->itemLookup($isbn, $params);
         } catch (\Exception $e) {
             // Something went wrong?  Just return empty list.
-            return array();
+            return [];
         }
 
         if ($data) {
             $i = 0;
-            $result = array();
+            $result = [];
             $reviews = isset($data->EditorialReviews)
                 ? $data->EditorialReviews : null;
             if (!empty($reviews)) {

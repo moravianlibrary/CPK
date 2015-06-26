@@ -34,6 +34,11 @@
       $this->escapeHtml($lookfor) . '</li>';
   }
 
+  // Enable cart if appropriate:
+  $this->showCartControls = $this->supportsCart && $this->cart()->isActive();
+  // Enable bulk options if appropriate:
+  $this->showBulkOptions = $this->supportsCart && $this->showBulkOptions;
+
   // Load Javascript dependencies into header:
   $this->headScript()->appendFile("check_item_statuses.js");
   $this->headScript()->appendFile("check_save_statuses.js");
@@ -49,10 +54,17 @@
       <? endforeach; ?>
     </div>
   <? endif; ?>
-  <? if ($this->supportsCart && $this->cart()->isActive()): ?>
-    <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
-  <? endif; ?>
-  <?=$this->context($this)->renderInContext('combined/stack-'.$placement.'.phtml', array('searchClassId' => $searchClassId, 'combinedResults' => $this->combinedResults))?>
+  <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
+  <?
+    $viewParams = array(
+      'searchClassId' => $searchClassId,
+      'combinedResults' => $this->combinedResults,
+      'supportsCartOptions' => $this->supportsCartOptions,
+      'showCartControls' => $this->showCartControls,
+      'showBulkOptions' => $this->showBulkOptions
+    );
+  ?>
+  <?=$this->context($this)->renderInContext('combined/stack-'.$placement.'.phtml', $viewParams)?>
   <? $recs = $combinedResults->getRecommendations('bottom'); if (!empty($recs)): ?>
     <div>
       <? foreach ($recs as $current): ?>

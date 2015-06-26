@@ -46,13 +46,12 @@ class Options extends \VuFind\Search\Base\Options
     public function __construct(\VuFind\Config\PluginManager $configLoader)
     {
         parent::__construct($configLoader);
-
         $this->defaultSort = 'saved DESC';
-        $this->sortOptions = array(
+        $this->sortOptions = [
             'title' => 'sort_title', 'author' => 'sort_author',
             'year DESC' => 'sort_year', 'year' => 'sort_year asc',
             'saved DESC' => 'sort_created',
-        );
+        ];
     }
 
     /**

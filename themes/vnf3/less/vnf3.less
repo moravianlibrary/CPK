@@ -1,21 +1,18 @@
+//set inheritance
 @import "bootstrap";
 @import "obalkyknih";
-@import "common";
+@import "common-bootstrap";
+@import "portals-common";
 
+//import variables
 @import "variables";
+
+//import parts
 @import "parts/header";
-@import "parts/links";
+@import "parts/homepage";
 
-
-.copyright {
-    text-align: center;
-    margin-bottom: 20px;
-}
 
 html {
-    font-size: 100%;
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
     background-color: #f3ece6;
     background-image: url('/themes/vnf/images/fonoteka-body-bg.png');
 }
@@ -27,4 +24,11 @@ body {
     color: #92887E;
     background-color: #f3ece6;
     background-image: url('/themes/vnf/images/fonoteka-body-bg.png');
+}
+
+hr {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #E6DBBE;
 }
