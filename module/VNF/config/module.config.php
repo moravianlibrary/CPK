@@ -2,6 +2,11 @@
 namespace VNF\Module\Configuration;
 
 $config = array(
+    'controllers' => [
+       'invokables' => [
+            'ajax' => 'VNF\Controller\AjaxController',
+        ],
+    ],
     'vufind' => array(
         'plugin_managers' => array (
              'recorddriver' => array (
