@@ -31,7 +31,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-namespace MZKCommon\ILS\Driver;
+namespace CPK\ILS\Driver;
 
 use VuFind\ILS\Driver\AbstractBase;
 

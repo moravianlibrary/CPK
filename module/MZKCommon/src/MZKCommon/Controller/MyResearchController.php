@@ -34,8 +34,6 @@ VuFind\Exception\ListPermission as ListPermissionException,
 VuFind\Exception\RecordMissing as RecordMissingException,
 Zend\Stdlib\Parameters,
 Zend\Session\Container as SessionContainer;
-use VuFind\ILS\Driver\MultiBackend;
-use VuFind\ILS\Driver\XCNCIP2;
 
 /**
  * Controller for the user account area.
@@ -253,12 +251,13 @@ class MyResearchController extends MyResearchControllerBase
                 'author' => array('label' => 'Author', 'type' => 'text', 'required' => true),
                 'additional_authors' => array('label' => 'ill_additional_authors', 'type' => 'text', 'required' => false),
                 'title' => array('label' => 'Title', 'type' => 'text', 'required' => true),
-                'edition' => array('label' => 'Edition', 'type' => 'text', 'required' => false),
+                'edition' => array('label' => 'ill_edition', 'type' => 'text', 'required' => false),
                 'place-of-publication' => array('label' => 'ill_place_of_publication', 'type' => 'text', 'required' => false),
                 'isbn' => array('label' => 'ISBN', 'type' => 'text', 'required' => false),
                 'year-of-publication' => array('label' => 'ill_year', 'type' => 'text', 'required' => true),
                 'series' => array('label' => 'Series', 'type' => 'text', 'required' => false),
                 'source' => array('label' => 'ill_source', 'type' => 'text', 'required' => false),
+                'publisher' => array('label' => 'ill_publisher', 'type' => 'text', 'required' => false),
             ),
             'ill_part_of_the_monography' => array(
                 'sub-author' => array('label' => 'ill_sub_author', 'type' => 'text', 'required' => false),
@@ -374,35 +373,14 @@ class MyResearchController extends MyResearchControllerBase
 
     public function profileAction()
     {
-        // Forwarding for Dummy connector to Home page ..
-        if ($this->isLoggedInWithDummyDriver()) {
-            return $this->forwardTo('MyResearch', 'Home');
-        }
-
         $view = parent::profileAction();
-
         if ($view) {
             $catalog = $this->getILS();
             $view->profileChange = $catalog->checkCapability('changeUserRequest');
-
-            $this->checkBlocks($view->__get('profile'));
         }
-
+        
         $this->flashExceptions();
         return $view;
-    }
-
-    protected function checkBlocks($profile) {
-        foreach($profile['blocks'] as $block) {
-            if (! empty($block)) {
-                $this->flashMessenger()->addErrorMessage($block);
-            }
-        }
-    }
-
-    protected function isLoggedInWithDummyDriver() {
-        $user = $this->getAuthManager()->isLoggedIn();
-        return $user ? $user['home_library'] == "Dummy" : false;
     }
 
     public function profileChangeAction()

@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-namespace MZKCommon\View\Helper\Root;
+namespace Statistics\View\Helper\Root;
 use Zend\ServiceManager\ServiceManager;
 
 /**
@@ -53,4 +53,16 @@ class Factory
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
 
         return new Piwik($config);
-    }}
+    }
+
+    /* Piwik Factory->getPiwik is called after you declare it in your template's theme.config.php like so:
+
+return array(
+    'helpers' => array(
+        'factories' => array(
+            'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
+        ),
+    )
+);
+     */
+}

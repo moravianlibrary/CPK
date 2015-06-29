@@ -61,4 +61,37 @@ class MyResearchController extends MyResearchControllerBase
         $logoutTarget = $this->getConfig()->Site->url;
         return $this->redirect()->toUrl($this->getAuthManager()->logout($logoutTarget));
     }
+
+    public function profileAction()
+    {
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver()) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
+        $view = parent::profileAction();
+
+        if ($view) {
+            $catalog = $this->getILS();
+            $view->profileChange = $catalog->checkCapability('changeUserRequest');
+
+            $this->checkBlocks($view->__get('profile'));
+        }
+
+        $this->flashExceptions();
+        return $view;
+    }
+
+    protected function checkBlocks($profile) {
+        foreach($profile['blocks'] as $block) {
+            if (! empty($block)) {
+                $this->flashMessenger()->addErrorMessage($block);
+            }
+        }
+    }
+
+    protected function isLoggedInWithDummyDriver() {
+        $user = $this->getAuthManager()->isLoggedIn();
+        return $user ? $user['home_library'] == "Dummy" : false;
+    }
 }

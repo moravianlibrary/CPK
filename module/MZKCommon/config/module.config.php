@@ -8,9 +8,6 @@ $config = array(
                 'factories' => array(
                     'aleph' => 'MZKCommon\ILS\Driver\Factory::getAleph',
                 ), /* factories */
-                'invokables' => array(
-                    'dummy' => 'MZKCommon\ILS\Driver\Dummy',
-                ), /* invokables */
             ), /* ils_drivers */
             'recommend' => array(
                 'factories' => array(
@@ -39,7 +36,6 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'VuFind\ILSHoldLogic' => 'MZKCommon\ILS\Logic\Factory::getFlatHolds',
-        		
         ),
     ),
     'controllers' => array(
@@ -50,7 +46,6 @@ $config = array(
             'search'     => 'MZKCommon\Controller\SearchController',
             'ajax'       => 'MZKCommon\Controller\AjaxController',
             'myresearch' => 'MZKCommon\Controller\MyResearchController',
-            'librarycards' => 'MZKCommon\Controller\LibraryCardsController',
         ),
     ),
     'controller_plugins' => array(
@@ -63,7 +58,7 @@ $config = array(
 $staticRoutes = array(
     'Search/Conspectus', 'Search/MostSearched', 'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory', 'MyResearch/ShortLoans',
-    'MyResearch/FavoritesImport', 'MyResearch/ProfileChange', 
+    'MyResearch/FavoritesImport', 'MyResearch/ProfileChange',
 );
 
 foreach ($staticRoutes as $route) {

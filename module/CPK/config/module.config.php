@@ -4,6 +4,11 @@ namespace CPK\Module\Configuration;
 $config = array(
     'vufind' => array(
         'plugin_managers' => array(
+            'ils_driver' => array(
+                'invokables' => array(
+                    'dummy' => 'CPK\ILS\Driver\Dummy',
+                ), /* invokables */
+            ), /* ils_drivers */
             'recorddriver' => array (
                 'factories' => array(
                     'solrmarc'     => 'CPK\RecordDriver\Factory::getSolrMarc',
@@ -22,6 +27,7 @@ $config = array(
     'controllers' => array(
         'invokables' => array(
             'my-research' => 'CPK\Controller\MyResearchController',
+            'librarycards' => 'CPK\Controller\LibraryCardsController',
         ), /* invokables */
     ), /* controllers */
     'service_manager' => array(

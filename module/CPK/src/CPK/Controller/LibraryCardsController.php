@@ -25,9 +25,9 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-namespace MZKCommon\Controller;
+namespace CPK\Controller;
 
-use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, MZKPortal\Auth\ShibbolethWithWAYF as ShibbolethWithWAYF;
+use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase;
 use Zend\Mvc\Controller\Plugin\Redirect;
 use Zend\XmlRpc\Value\Integer;
 
