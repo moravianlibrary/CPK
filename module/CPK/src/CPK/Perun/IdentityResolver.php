@@ -26,11 +26,10 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-namespace MZKPortal\Perun;
+namespace CPK\Perun;
 
 use \VuFind\Exception\Auth as AuthException;
-use MZKPortal\Auth\ShibbolethWithWAYF;
-use MZKPortal\Auth\PerunShibboleth;
+use CPK\Auth\PerunShibboleth;
 
 /**
  * Class for resolving user's connected identities from Perun (https://github.com/CESNET/perun)

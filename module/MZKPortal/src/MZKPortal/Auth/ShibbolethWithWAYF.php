@@ -46,7 +46,7 @@ class ShibbolethWithWAYF extends Shibboleth
 
     const SHIB_IDENTITY_PROVIDER_ENV = 'Shib-Identity-Provider';
 
-    const SEPARATOR = ".";
+    const SEPARATOR = "\t";
 
     protected $configLoader;
 
@@ -119,14 +119,6 @@ class ShibbolethWithWAYF extends Shibboleth
         if (empty($attributes['username'])) {
             throw new AuthException('authentication_error_admin');
         }
-
-        if ($attributes['email'] == null)
-            $attributes['email'] = '';
-        if ($attributes['firstname'] == null)
-            $attributes['firstname'] = '';
-        if ($attributes['lastname'] == null)
-            $attributes['lastname'] = '';
-
         $user = $this->getUserTable()->getByUsername($attributes['username']);
         foreach ($attributes as $key => $value) {
             $user->$key = $value;

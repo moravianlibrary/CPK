@@ -26,82 +26,54 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace MZKPortal\Auth;
+use VuFind\Auth\Manager as BaseManager,
+    VuFind\Db\Table\User as UserTable,
+    VuFind\Auth\PluginManager as PluginManager, 
+    Zend\Config\Config as Config,
+    Zend\Session\SessionManager as SessionManager,
+    Zend\ServiceManager\ServiceLocatorAwareInterface,
+    Zend\ServiceManager\ServiceLocatorInterface;
 
-use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Wrapper class for handling logged-in user in session.
  *
  * @category VuFind2
- * @package Authentication
- * @author Demian Katz <demian.katz@villanova.edu>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link http://www.vufind.org Main Page
+ * @package  Authentication
+ * @author   Demian Katz <demian.katz@villanova.edu>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://www.vufind.org  Main Page
  */
 class Manager extends BaseManager
 {
-
+    
     /**
      * Constructor
      *
-     * @param \Zend\Config\Config $config
-     *            VuFind configuration
+     * @param \Zend\Config\Config $config VuFind configuration
      */
-    public function __construct(Config $config, UserTable $userTable, SessionManager $sessionManager, PluginManager $pm, CookieManager $cookieManager)
+    public function __construct(Config $config, UserTable $userTable,
+        SessionManager $sessionManager, PluginManager $pm)
     {
-        parent::__construct($config, $userTable, $sessionManager, $pm, $cookieManager);
+        parent::__construct($config, $userTable, $sessionManager, $pm);
     }
 
     /**
      * Get the URL to establish a session (needed when the internal VuFind login
-     * form is inadequate).
-     * Returns false when no session initiator is needed.
+     * form is inadequate).  Returns false when no session initiator is needed.
      *
-     * @param string $target
-     *            Full URL where external authentication method should
-     *            send user to after login (some drivers may override this).
+     * @param string $target Full URL where external authentication method should
+     * send user to after login (some drivers may override this).
      *
      * @return bool|string
      */
     public function getSessionInitiators($target)
     {
         if ($this->getAuth() instanceof ShibbolethWithWAYF) {
-            return $this->getAuth()->getSessionInitiators($target);
+           return $this->getAuth()->getSessionInitiators($target);
         } else {
             return false;
         }
-    }
-
-    /**
-     * Try to log in the user using current query parameters; return User object
-     * on success, throws exception on failure.
-     *
-     * @param \Zend\Http\PhpEnvironment\Request $request
-     *            Request object containing
-     *            account credentials.
-     *
-     * @throws AuthException
-     * @return UserRow Object representing logged-in user.
-     */
-    public function login($request)
-    {
-        return parent::login($request);
-    }
-
-
-    /**
-     * Log out the current user.
-     *
-     * @param string $url     URL to redirect user to after logging out.
-     * @param bool   $destroy Should we destroy the session (true) or just reset it
-     * (false); destroy is for log out, reset is for expiration.
-     *
-     * @return string     Redirect URL (usually same as $url, but modified in
-     * some authentication modules).
-     */
-    public function logout($url, $destroy = true)
-    {
-        return parent::logout($url, $destroy);
     }
 
 }

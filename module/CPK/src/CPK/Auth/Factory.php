@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
-namespace MZKPortal\Auth;
+namespace CPK\Auth;
 use Zend\ServiceManager\ServiceManager;
 
 /**
@@ -39,7 +39,6 @@ use Zend\ServiceManager\ServiceManager;
  */
 class Factory
 {
-
     /**
      * Factory for AuthManager.
      *
@@ -65,28 +64,30 @@ class Factory
             // still get handled appropriately later in processing.
             error_log($e->getMessage());
         }
-        
+
         // Load remaining dependencies:
         $userTable = $sm->get('VuFind\DbTablePluginManager')->get('user');
         $sessionManager = $sm->get('VuFind\SessionManager');
         $pm = $sm->get('VuFind\AuthPluginManager');
-        
+        $cookieManager = $sm->get('VuFind\CookieManager');
+
         // Build the object:
-        return new Manager($config, $userTable, $sessionManager, $pm, $catalog);
+        return new Manager($config, $userTable, $sessionManager, $pm, $cookieManager);
     }
-    
+
     /**
-     * Factory for ShibbolethWithWAYF.
+     * Factory for PerunShibboleth.
      *
      * @param ServiceManager $sm Service manager.
      *
-     * @return ShibbolethWithWAYF
+     * @return PerunShibboleth
      */
-    public function getShibbolethWithWAYF(ServiceManager $sm)
+    public function getPerunShibboleth(ServiceManager $sm)
     {
-        return new \MZKPortal\Auth\ShibbolethWithWAYF(
-            $sm->getServiceLocator()->get('VuFind\Config')
-        );
+        return new \CPK\Auth\PerunShibboleth(
+                $sm->getServiceLocator()->get('VuFind\Config'),
+                $sm->getServiceLocator()->get('identity-resolver')
+            );
     }
 
 }

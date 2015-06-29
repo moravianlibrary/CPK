@@ -25,11 +25,12 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://www.vufind.org  Main Page
  */
-namespace MZKPortal\Auth;
+namespace CPK\Auth;
 
-use VuFind\Exception\Auth as AuthException, MZKPortal\Perun\IdentityResolver, MZKPortal\Controller\MyResearchController;
+use VuFind\Exception\Auth as AuthException, CPK\Perun\IdentityResolver;
 use VuFind\Exception\VuFind\Exception;
 use VuFind\Db\Row\User;
+use VuFind\Auth\Shibboleth as Shibboleth;
 
 /**
  * Shibboleth authentication module.
@@ -40,8 +41,10 @@ use VuFind\Db\Row\User;
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link http://www.vufind.org Main Page
  */
-class PerunShibboleth extends ShibbolethWithWAYF
+class PerunShibboleth extends Shibboleth
 {
+
+    const SHIB_IDENTITY_PROVIDER_ENV = 'Shib-Identity-Provider';
 
     const SEPARATOR = ".";
 
@@ -51,24 +54,25 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
     protected $loginDrivers = null;
 
+    protected $configLoader;
+
+    protected $shibbolethConfig = null;
+
+    protected $attribsToCheck = array(
+        'username', 'cat_username', 'email', 'lastname',
+        'firstname', 'college', 'major', 'home_library'
+    );
+
     public function __construct(\VuFind\Config\PluginManager $configLoader, IdentityResolver $identityResolver)
     {
-        parent::__construct($configLoader);
+        $this->configLoader = $configLoader;
         $this->identityResolver = $identityResolver;
-
-        // One more attr to check ..
-        $this->attribsToCheck[] = 'epsa';
-    }
-
-    protected function init()
-    {
-        if ($this->identityResolver)
-            $this->identityResolver->init($this->getConfig());
     }
 
     public function authenticate($request)
     {
-        $this->init();
+        $this->identityResolver->init($this->getConfig());
+
         $entityId = $request->getServer()->get(self::SHIB_IDENTITY_PROVIDER_ENV);
         $config = null;
         $prefix = null;
@@ -175,6 +179,32 @@ class PerunShibboleth extends ShibbolethWithWAYF
         }
 
         return $user;
+    }
+
+    /**
+     * Get the URL to establish a session (needed when the internal VuFind login
+     * form is inadequate).  Returns false when no session initiator is needed.
+     *
+     * @param string $target Full URL where external authentication method should
+     * send user to after login (some drivers may override this).
+     *
+     * @return array
+     */
+    public function getSessionInitiators($target) {
+        $this->init();
+        $config = $this->getConfig();
+        if (isset($config->Shibboleth->target)) {
+            $shibTarget = $config->Shibboleth->target;
+        } else {
+            $shibTarget = $target;
+        }
+        $initiators = array();
+        foreach ($this->shibbolethConfig as $name => $configuration) {
+            $entityId = $configuration['entityId'];
+            $loginUrl = $config->Shibboleth->login . '?target=' . urlencode($shibTarget) . '&entityID=' . urlencode($entityId);
+            $initiators[$name] = $loginUrl;
+        }
+        return $initiators;
     }
 
     /**

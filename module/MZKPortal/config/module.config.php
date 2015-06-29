@@ -24,7 +24,6 @@ $config = array(
             'auth' => array(
                 'factories' => array(
                     'shibbolethWithWAYF' => 'MZKPortal\Auth\Factory::getShibbolethWithWAYF',
-                    'perunShibboleth' => 'MZKPortal\Auth\Factory::getPerunShibboleth',
                 ),
             ),
             'search_params' => array(
@@ -66,7 +65,7 @@ $config = array(
                     'Details' => 'StaffViewMARC',
                 ),
             ),
-
+                
             'MZKPortal\RecordDriver\SolrMarcKjm' => array(
                 'tabs' => array (
                     'holdings'     => 'MZKPortal\RecordTab\Holdings993',
@@ -85,9 +84,6 @@ $config = array(
         'factories' => array(
             'VuFind\AuthManager' => 'MZKPortal\Auth\Factory::getAuthManager',
         ),
-        'invokables' => [
-            'identity-resolver' => 'MZKPortal\Perun\IdentityResolver',
-        ],
     ),
 );
 

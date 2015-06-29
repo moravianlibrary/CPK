@@ -12,7 +12,25 @@ $config = array(
                     'solrcpk_nlk'  => 'CPK\RecordDriver\Factory::getSolrMarcNLK',
                 ) /* factories */
             ), /* recorddriver */
+            'auth' => array(
+                'factories' => array(
+                    'perunShibboleth' => 'CPK\Auth\Factory::getPerunShibboleth',
+                ), /* factories */
+            ), /* auth */
+        ), /* plugin_managers */
+    ), /* vufind */
+    'controllers' => array(
+        'invokables' => array(
+            'my-research' => 'CPK\Controller\MyResearchController',
+        ), /* invokables */
+    ), /* controllers */
+    'service_manager' => array(
+        'factories' => array(
+            'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
         ),
+        'invokables' => [
+            'identity-resolver' => 'CPK\Perun\IdentityResolver',
+        ],
     ),
 );
 
