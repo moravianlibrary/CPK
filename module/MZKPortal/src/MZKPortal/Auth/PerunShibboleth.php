@@ -27,7 +27,7 @@
  */
 namespace MZKPortal\Auth;
 
-use VuFind\Exception\Auth as AuthException, MZKPortal\Perun\IdentityResolver;
+use VuFind\Exception\Auth as AuthException, MZKPortal\Perun\IdentityResolver, MZKPortal\Controller\MyResearchController;
 use VuFind\Exception\VuFind\Exception;
 use VuFind\Db\Row\User;
 
@@ -62,13 +62,6 @@ class PerunShibboleth extends ShibbolethWithWAYF
 
     protected function init()
     {
-        parent::init();
-
-        if ($this->loginDrivers == null) {
-            $multiBackend = $this->configLoader->get('MultiBackend');
-            $this->loginDrivers = $multiBackend != null ? $multiBackend->Login->drivers->toArray() : [];
-        }
-
         if ($this->identityResolver)
             $this->identityResolver->init($this->getConfig());
     }
@@ -79,10 +72,13 @@ class PerunShibboleth extends ShibbolethWithWAYF
         $entityId = $request->getServer()->get(self::SHIB_IDENTITY_PROVIDER_ENV);
         $config = null;
         $prefix = null;
+
+        $isConnected = false;
         foreach ($this->shibbolethConfig as $name => $configuration) {
             if ($entityId == $configuration['entityId']) {
                 $config = $configuration;
                 $prefix = $name;
+                $isConnected = true;
                 break;
             }
         }
@@ -91,7 +87,7 @@ class PerunShibboleth extends ShibbolethWithWAYF
                 $config = $this->shibbolethConfig['default'];
                 $prefix = 'default';
             } else
-                throw new AuthException('config_for_entityid_not_found');
+                throw new AuthException('Recieved entityId was not found in shibboleth.ini config nor default config part exists.');
         }
         $attributes = array();
         foreach ($this->attribsToCheck as $attribute) {
@@ -127,60 +123,36 @@ class PerunShibboleth extends ShibbolethWithWAYF
         }
 
         if (empty($attributes['username'])) {
-            throw new AuthException('authentication_error_loggedout');
+            throw new AuthException('IdP "' . $prefix . '" didn\'t return the following attribute: "' . $configuration['username'] . '"');
         }
 
-        // Set home_library to eduPersonPrincipalName's institute name - this approach should always succeed
-        if (empty($attributes['home_library'])) {
+        if (! $isConnected) {
+            $prefix = 'Dummy';
 
-            if (! empty($attributes['epsa'])) {
-                $attributes['home_library'] = end(split('@', $attributes['epsa']));
-                unset($attributes['epsa']);
-            } else {
-                $attributes['home_library'] = end(split('@', $attributes['username'])); // Assume we have eppn here ..
-            }
-
-            // Get rid of all dots (because of multibackend's dot usage later)
-            $attributes['home_library'] = str_replace('.', '', $attributes['home_library']);
-        }
-
-        // Detect if the institute, user logged in with, is a connected library & not e.g. Facebook or another library
-        $isConnected = array_search($attributes['home_library'], $this->loginDrivers) !== FALSE;
-        if ($isConnected) {
-            // Set SIGLA & userId for Perun
-            $sigla = $attributes['home_library'];
-
-            // FIXME: DONOT COMMIT ME !
-            if (empty($attributes['cat_username'])) {
-                $attributes['cat_username'] = split("@", $attributes['username'])[0];
-            }
-
-            if (empty($attributes['cat_username'])) {
-                throw new AuthException('IdP didn\'t return the following attribute: "' . $configuration['cat_username'] . '"');
-            }
-
-            $userId = $attributes['cat_username'];
-        }
-
-        // Send data to Perun & get perunId with institutes
-        list ($perunId, $institutes) = $this->identityResolver->getUserIdentityFromPerun($attributes['username'], $sigla, $userId);
-
-        // This was eppn, now it is perunId
-        $attributes['username'] = $perunId;
-
-        if (empty($institutes)) {
-            // If are institutes empty, that means user is not member of any connected library
-            // In that case set cat_username's MultiBackend source dummy driver which
+            // Set cat_username's MultiBackend source dummy driver
             $attributes['cat_username'] = '';
-            $attributes['home_library'] = 'Dummy';
+            $attributes['home_library'] = $prefix;
         } else {
-            $handleLibraryCards = true;
+
+            // Process additional Perun requests
+            if (empty($attributes['cat_username'])) {
+                throw new AuthException('IdP "' . $prefix . '" didn\'t return the following attribute: "' . $configuration['cat_username'] . '"');
+            }
+
+            // Send data to Perun & get perunId with institutes
+            list ($perunId, $institutes) = $this->identityResolver->getUserIdentityFromPerun($attributes['username'], $prefix, $attributes['cat_username']);
+
+            // This was eppn, now it is perunId
+            $attributes['username'] = $perunId;
+
+            if (empty($institutes)) {
+                // TODO: Register user to Perun with current IdP
+            } else {
+                $handleLibraryCards = true;
+            }
+
+            $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
         }
-
-        $prefix = $attributes['home_library'];
-
-        $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
-
         if ($attributes['email'] == null)
             $attributes['email'] = '';
         if ($attributes['firstname'] == null)
@@ -198,7 +170,7 @@ class PerunShibboleth extends ShibbolethWithWAYF
         $user->save();
 
         // We need user->id to create library cards - that provides $user->save() method
-        if ($handleLibraryCards) {
+        if ($isConnected) {
             $this->handleLibraryCards($user, $institutes);
         }
 
@@ -263,6 +235,42 @@ class PerunShibboleth extends ShibbolethWithWAYF
             }
 
             return false;
+        }
+    }
+
+    /**
+     * Validate configuration parameters.
+     * This is a support method for getConfig(),
+     * so the configuration MUST be accessed using $this->config; do not call
+     * $this->getConfig() from within this method!
+     *
+     * @throws AuthException
+     * @return void
+     */
+    protected function validateConfig()
+    {
+
+        // Throw an exception if the required login setting is missing.
+        $shib = $this->config->Shibboleth;
+
+        if (! isset($shib->login)) {
+            throw new AuthException('Shibboleth login configuration parameter is not set.');
+        }
+
+        $this->shibbolethConfig = $this->configLoader->get('shibboleth');
+        foreach ($this->shibbolethConfig as $name => $configuration) {
+            if (! isset($configuration['username']) || empty($configuration['username'])) {
+                throw new AuthException("Shibboleth 'username' is missing in your shibboleth.ini configuration file for '" . $name . "'");
+            }
+
+            if ($name !== 'default') {
+                if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
+                    throw new AuthException("Shibboleth 'entityId' is missing in your shibboleth.ini configuration file for '" . $name . "'");
+                } else
+                    if (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
+                        throw new AuthException("Shibboleth 'cat_username' is missing in your shibboleth.ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
+                    }
+            }
         }
     }
 }

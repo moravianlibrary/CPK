@@ -96,10 +96,10 @@ class IdentityResolver
 
             array(
                 $sigla . PerunShibboleth::SEPARATOR . $userId,
-                "mzkcz.70" . rand(0, 2),
-                "KOHALIB1." . rand(3, 5),
-                "KOHALIB1." . rand(7, 8),
-                "KOHALIB1." . rand(9, 11)
+                "mzk.70" . rand(0, 2),
+                "xcncip2." . rand(3, 5),
+                "xcncip2." . rand(7, 8),
+                "xcncip2." . rand(9, 11)
             )
         );
     }
