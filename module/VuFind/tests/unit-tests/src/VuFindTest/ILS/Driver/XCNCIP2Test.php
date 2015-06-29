@@ -43,7 +43,6 @@ use \Zend\Http\Response;
 class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 {
 	const FIXTURE_DIRECTORY = '/fixtures/ils/xcncip2/';
-	//const DLF_API_BASE_URL = 'http://myuniversity.edu:8080/ncipv2/NCIPResponder';
 
 	protected $driver;
 
@@ -62,23 +61,47 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	    );
 
 	// Sample data - one of the individual item arrays returned by the getMyHolds method.
-	protected $sampleOneHold = array(
-	    'type' => '',
-	    'id'  => '20000',
-	    'location' => '',
-	    'reqnum' => '',
-	    'expire'     => '',
-	    'create' => '',
-	    'position' => '',
-	    'available' => '',
-	    'item_id' => '',
+	// For method getCancelHoldDetails.
+	protected $sampleHoldDetails = array(
+	    'type' => 'present',
+        'id'  => '25001',
+        'location' => 'prepazka 40',
+        'reqnum' => 'req0002',
+        'expire'     => '2014-09-24T12:30:00',
+        'create' => '2014-09-15T12:30:00',
+        'position' => '1',
+        'available' => 'true',
+        'item_id' => 'i25001',
+        'volume' => '',
+        'publication_year' => '',
+        'title' => 'Rezervovana',
+        'isbn' => '',
+        'issn' => '',
+        'oclc' => '',
+        'upc' => '',
+	);
+
+	// Sample data - one of the individual item arrays returned by the getMyTransactions method.
+	// For method getRenewDetails.
+	protected $sampleCheckOutDetails = array(
+	    'duedate' => '2014-10-01T12:30:00',
+	    'id'  => '26001',
+	    'barcode' => '',
+	    'renew' => '',
+	    'renewLimit'     => '',
+	    'request' => '',
 	    'volume' => '',
 	    'publication_year' => '',
-	    'title' => '',
+	    'renewable' => '',
+	    'message' => '',
+	    'title' => 'Pozicana kniha',
+	    'item_id' => 'i26001',
+	    'institution_name' => '',
 	    'isbn' => '',
 	    'issn' => '',
 	    'oclc' => '',
 	    'upc' => '',
+	    'borrowingLocation' => '',
 	);
 
 	protected function setUp()
@@ -133,9 +156,11 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	    throw new ILSException('Function not implemented!');
 	}
 
-	public function getCancelHoldDetails()
+	public function testGetCancelHoldDetails()
 	{
-	    throw new ILSException('Function not implemented!');
+	    $expectedResult = '25001';
+	    $actualResult = $this->driver->getCancelHoldDetails($this->sampleHoldDetails);
+	    $this->assertEquals($expectedResult, $actualResult);
 	}
 
 	public function getCancelHoldLink()
@@ -175,8 +200,10 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 
 	public function testGetHolding()
 	{
-	    $sampleResponse = $this->getResponse('v2.02', 'getStatuses2.xml');
-	    $this->mockZendClient->expects($this->once())->method('send')->will($this->returnValue($sampleResponse));
+	    $sampleResponse1 = $this->getResponse('v2.02', 'getStatuses2.xml');
+	    $sampleResponse2 = $this->getResponse('v2.02', 'getLocation.xml');
+	    $this->mockZendClient->expects($this->any())->method('send')
+	    ->will($this->onConsecutiveCalls($sampleResponse1, $sampleResponse2));
 
 	    $expectedResult[] = array(
 	            'id'        => '20002',
@@ -201,6 +228,7 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	            'holdOverride'        => '',
 	            'addStorageRetrievalRequestLink'        => '',
 	            'addILLRequestLink'        => '',
+	            'link'        => false,
 
 	    );
 	    $actualResult = $this->driver->getHolding('20002', $this->samplePatron);
@@ -307,11 +335,13 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 
 	public function testGetMyTransactions()
 	{
-	    $sampleResponse = $this->getResponse('v2.02', 'getMyTransactions.xml');
-	    $this->mockZendClient->expects($this->once())->method('send')->will($this->returnValue($sampleResponse));
+	    $sampleResponse1 = $this->getResponse('v2.02', 'getMyTransactions.xml');
+	    $sampleResponse2 = $this->getResponse('v2.02', 'getItemInfo.xml');
+	    $this->mockZendClient->expects($this->any())->method('send')
+	    ->will($this->onConsecutiveCalls($sampleResponse1, $sampleResponse2));
 	    $expectedResult = array(array(
     	        'duedate' => '2014-10-01T12:30:00',
-    	        'id'  => 'i20000',
+    	        'id'  => '',
     	        'barcode' => '',
     	        'renew' => '',
     	        'renewLimit'     => '',
@@ -321,7 +351,7 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
     	        'renewable' => '',
     	        'message' => '',
     	        'title' => 'Pozicana kniha',
-    	        'item_id' => '',
+    	        'item_id' => 'i20000',
     	        'institution_name' => '',
     	        'isbn' => '',
     	        'issn' => '',
@@ -330,7 +360,7 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
     	        'borrowingLocation' => '',),
 	        array(
 	            'duedate' => '2014-05-01T12:30:00',
-	            'id'  => 'i20001',
+	            'id'  => '',
 	            'barcode' => '',
 	            'renew' => '',
 	            'renewLimit'     => '',
@@ -340,7 +370,7 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	            'renewable' => '',
 	            'message' => '',
 	            'title' => 'Dalsia pozicana',
-	            'item_id' => '',
+	            'item_id' => 'i20001',
 	            'institution_name' => '',
 	            'isbn' => '',
 	            'issn' => '',
@@ -373,15 +403,20 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	    throw new ILSException('Function not implemented!');
 	}
 
-	public function getRenewDetails()
+	public function testGetRenewDetails()
 	{
-	    throw new ILSException('Function not implemented!');
+	    $expectedResult = '26001';
+	    $actualResult = $this->driver->getRenewDetails($this->sampleCheckOutDetails);
+	    $this->assertEquals($expectedResult, $actualResult);
 	}
 
+	/* X in the name is only for distinguish from method testGetStatuses. */
 	public function testGetStatusX()
 	{
-	    $sampleResponse = $this->getResponse('v2.02', 'getStatuses2.xml');
-	    $this->mockZendClient->expects($this->once())->method('send')->will($this->returnValue($sampleResponse));
+	    $sampleResponse1 = $this->getResponse('v2.02', 'getStatuses2.xml');
+	    $sampleResponse2 = $this->getResponse('v2.02', 'getLocation.xml');
+	    $this->mockZendClient->expects($this->any())->method('send')
+	    ->will($this->onConsecutiveCalls($sampleResponse1, $sampleResponse2));
 
 	    $expectedResult[] = array(
 	            'id'        => '20002',
@@ -400,12 +435,12 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	{
 	    $sampleResponse1 = $this->getResponse('v2.02', 'getStatuses1.xml');
 	    $sampleResponse2 = $this->getResponse('v2.02', 'getStatuses2.xml');
+	    $sampleResponse3 = $this->getResponse('v2.02', 'getLocation.xml');
 	    $this->mockZendClient->expects($this->any())->method('send')
-	    ->will($this->onConsecutiveCalls($sampleResponse1, $sampleResponse2, $sampleResponse2));
+	    ->will($this->onConsecutiveCalls($sampleResponse1, $sampleResponse2, $sampleResponse3, $sampleResponse3));
 
 	    $ids = array(
 	        '20000',
-	        '20002',
 	    );
 	    $expectedResult = array(array(array(
                     	                'id' => '20000',
@@ -413,8 +448,8 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
                     	                'location'        => 'temporary unknown',
                     	                'reserve'        => 'N',
                     	                'callnumber'        => '722 111 229',
-                    	                'availability' => false,),),
-                    	        array(array(
+                    	                'availability' => false,),
+                    	              array(
                     	                'id' => '20002',
                     	                'status' => 'On demand',
                     	                'location'        => 'mzk',
@@ -470,9 +505,37 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	    throw new ILSException('Function not implemented!');
 	}
 
-	public function renewMyItems()
+	public function testRenewMyItems()
 	{
-	    throw new ILSException('Function not implemented!');
+	    $sampleResponse1 = $this->getResponse('v2.02', 'renewMyItems1.xml');
+	    $sampleResponse2 = $this->getResponse('v2.02', 'renewMyItems2.xml');
+	    $this->mockZendClient->expects($this->any())->method('send')
+	    ->will($this->onConsecutiveCalls($sampleResponse1, $sampleResponse2));
+	    $renewDetails = array(
+	        'patron' => $this->samplePatron,
+            'details' => array('25001', '25002'),
+	    );
+	    $expectedResult = array(
+	        'blocks'    => false,
+	        'details'    => array(
+	            '25001' => array(
+	                'success' => true,
+	                'new_date' => '2015-05-06T12:20:00',
+	                'new_time' => '2015-05-06T12:20:00',
+	                'item_id' => '25001',
+	                'sysMessage' => '',
+	            ),
+	            '25002' => array(
+	                'success' => true,
+	                'new_date' => '2015-06-06T10:20:00',
+	                'new_time' => '2015-06-06T10:20:00',
+	                'item_id' => '25002',
+	                'sysMessage' => '',
+	            ),
+	        ),
+	    );
+	    $actualResult = $this->driver->renewMyItems($renewDetails);
+	    $this->assertEquals($expectedResult, $actualResult);
 	}
 
 	public function renewMyItemsLink()
@@ -564,11 +627,13 @@ class XCNCIP2Test extends \VuFindTest\Unit\ILSDriverTestCase
 	        );
 	    }
 	    $this->driverConfig = parse_ini_file($file, true);
-	    $this->driver = new XCNCIP2(new \VuFind\Date\Converter());
+	    $this->driver = new XCNCIP2();
 	    $this->mockedHttpService = $this->getMock('VuFindHttp\HttpServiceInterface');
 	    $this->mockZendClient = $this->getMock('\Zend\Http\Client');
 	    $this->mockedHttpService->expects($this->any())->method('createClient')->will($this->returnValue($this->mockZendClient));
-	    //$this->mockZendClient->expects($this->any())->method('setRawBody')->will($this->returnValue(null));
+	    $this->mockZendClient->expects($this->any())->method('setRawBody')->will($this->returnValue($this->mockZendClient));
+	    $this->mockZendClient->expects($this->any())->method('setEncType')->will($this->returnValue($this->mockZendClient));
+	    $this->mockZendClient->expects($this->any())->method('setMethod')->will($this->returnValue($this->mockZendClient));
 	    $this->driver->setHttpService($this->mockedHttpService);
 	    $this->driver->setConfig($this->driverConfig);
 	    $this->driver->init();

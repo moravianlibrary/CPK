@@ -147,6 +147,16 @@ class Record extends AbstractHelper
     {
         return $this->renderTemplate('core.phtml');
     }
+    
+    /**
+     * Render the core metadata area of the record view.
+     *
+     * @return string
+     */
+    public function getWantIt()
+    {
+    	return $this->renderTemplate('want-it.phtml');
+    }
 
     /**
      * Render the a brief record for use in collection mode.

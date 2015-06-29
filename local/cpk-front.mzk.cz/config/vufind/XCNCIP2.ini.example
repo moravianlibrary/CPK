@@ -1,0 +1,9 @@
+[Catalog]
+; Base URL for the XC NCIP Toolkit's NCIP responder:
+url             = https://whateverServerYourNCIPrunsAt:8443/koha-web/NCIPResponder
+hasUntrustedSSL = 1
+; Your library's Agency ID (ILSDefaultAgency setting in driver_config.properties):
+agency          = "MZK"
+
+
+; Don't forget to link or copy this config XCNCIP2.ini to lowercase xcncip2.ini in order to work MultiBackend driver properly

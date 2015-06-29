@@ -22,4 +22,12 @@ class Record extends ParentRecord
         }
     }
 
+    public function getObalkyKnihAdvert($description) {
+        $sigla = '';
+        if (isset($this->config->ObalkyKnih->sigla)) {
+            $sigla = $this->config->ObalkyKnih->sigla;
+        }
+        return 'advert' . $sigla . ' ' . $description;
+    }
+
 }

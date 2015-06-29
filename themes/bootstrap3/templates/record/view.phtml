@@ -48,7 +48,9 @@
       <?=$this->flashmessages()?>
       <?=$this->record($this->driver)->getCoreMetadata()?>
     </div>
-
+	
+	<?=$this->record($this->driver)->getWantIt()?>
+	
     <? if (count($this->tabs) > 0): ?>
       <a name="tabnav"></a>
       <ul class="recordTabs nav nav-tabs">
@@ -84,5 +86,8 @@
     <? foreach ($this->related()->getList($this->driver) as $current): ?>
       <?=$this->related()->render($current)?>
     <? endforeach; ?>
+    
+
+
   </div>
 </div>

@@ -77,6 +77,13 @@ class DeduplicationListener
     protected $dataSourceConfig;
 
     /**
+     * Is highlighting active?
+     *
+     * @var bool
+     */
+    protected $active = true;
+
+    /**
      * Constructor.
      *
      * @param BackendInterface        $backend          Search backend
@@ -125,7 +132,13 @@ class DeduplicationListener
             $params = $event->getParam('params');
             $context = $event->getParam('context');
             if (($context == 'search' || $context == 'similar') && $params) {
-                $params->add('fq', '-merged_child_boolean:TRUE');
+                $disableDedup = $params->get('disableDedup');
+                if (isset($disableDedup[0]) && $disableDedup[0] == TRUE) {
+                    $this->active = false;
+                } else {
+                    $params->add('fq', '-merged_child_boolean:TRUE');
+                }
+                $params->remove('disableDedup');
             }
         }
         return $event;
@@ -140,6 +153,11 @@ class DeduplicationListener
      */
     public function onSearchPost(EventInterface $event)
     {
+        // Do nothing if highlighting is disabled....
+        if (!$this->active) {
+            return $event;
+        }
+
         // Inject deduplication details into record objects:
         $backend = $event->getParam('backend');
 

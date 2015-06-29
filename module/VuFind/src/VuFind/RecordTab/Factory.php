@@ -261,4 +261,15 @@ class Factory
             || ($cfg->Social->comments && $cfg->Social->comments !== 'disabled');
         return new UserComments($enabled);
     }
+
+    /**
+     * Factory for UserComments tab plugin.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return UserComments
+     */
+    public static function getDedupedRecords(ServiceManager $sm) {
+       return new DedupedRecords($sm->getServiceLocator()->get('VuFind\Search'));
+    }
 }

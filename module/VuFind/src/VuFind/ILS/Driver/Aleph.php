@@ -335,6 +335,8 @@ class SolrIdResolver implements IdResolver {
 
     protected $itemIdentifier = 'adm_id';
 
+    protected $prefix = null;
+
     /**
      * Search service (used for lookups by barcode number)
      *
@@ -350,6 +352,9 @@ class SolrIdResolver implements IdResolver {
         }
         if (isset($config['IdResolver']['itemIdentifier'])) {
             $this->itemIdentifier = $config['IdResolver']['itemIdentifier'];
+        }
+        if (isset($config['IdResolver']['prefix'])) {
+            $this->prefix = $config['IdResolver']['prefix'];
         }
     }
 
@@ -384,25 +389,38 @@ class SolrIdResolver implements IdResolver {
             $query = new \VuFindSearch\Query\Query($this->solrQueryField. ':' . $id);
             $group->addQuery($query);
         }
-        $docs = $this->searchService->search('Solr', $group, 0, sizeof($ids));
+        if (isset($this->prefix)) {
+            $idPrefixQuery = new \VuFindSearch\Query\Query('id:' . $this->prefix . '*');
+            $group = new \VuFindSearch\Query\QueryGroup('AND', [$idPrefixQuery, $group]);
+        }
+        $params = new \VuFindSearch\ParamBag(['disableDedup' => TRUE]);
+        $docs = $this->searchService->search('Solr', $group, 0, sizeof($ids), $params);
         foreach ($docs->getRecords() as $record) {
             $fields = $record->getRawData();
             if (isset($fields[$this->solrQueryField])) {
                 if (is_array($fields[$this->solrQueryField])) {
                     foreach ($fields[$this->solrQueryField] as $value) {
                         if (in_array($value, $ids)) {
-                            $results[$value] = $record->getUniqueID();
+                            $results[$value] = $this->getId($record);
                         }
                     }
                 } else {
                     $value = $fields[$this->solrQueryField];
                     if (in_array($value, $ids)) {
-                        $results[$value] = $record->getUniqueID();
+                        $results[$value] = $this->getId($record);
                     }
                 }
             }
         }
         return $results;
+    }
+
+    protected function getId($record) {
+        $id = $record->getUniqueID();
+        if (substr($id, 0, strlen($this->prefix)) === $this->prefix) {
+            $id = substr($id, strlen($this->prefix));
+        }
+        return $id;
     }
 
 }
@@ -433,7 +451,7 @@ class XServerIdResolver implements IdResolver {
     public function __construct(AlephWebServices $service, $config)
     {
         $this->alephWebService = $service;
-        $this->bib = explode(',', $config['bib']);
+        $this->bib = explode(',', $config['Catalog']['bib']);
     }
 
     public function resolveIds(&$recordsToResolve)
@@ -717,8 +735,8 @@ class AlephWebServices {
             $path .= $path_element . "/";
         }
         $url = "http://$this->host:$this->dlfport/rest-dlf/" . $path;
-        //$url = $this->appendQueryString($url, $params);
-        $result = $this->doHTTPRequest($url, $params, $method, $body);
+        $headers = ["accept" => "application/xml"];
+        $result = $this->doHTTPRequest($url, $params, $method, $body, $headers);
         $replyCode = (string) $result->{'reply-code'};
         if ($replyCode != "0000") {
             $replyText = (string) $result->{'reply-text'};
@@ -766,7 +784,7 @@ class AlephWebServices {
      *
      * @return SimpleXMLElement
      */
-    public function doHTTPRequest($url, $params=null, $method='GET', $body = null)
+    public function doHTTPRequest($url, $params=null, $method='GET', $body = null, $headers = array())
     {
         if ($this->debug_enabled) {
             $fullUrl = $this->appendQueryString($url, $params);
@@ -780,7 +798,7 @@ class AlephWebServices {
         $result = null;
         try {
             if ($method == 'GET') {
-                $result = $this->httpService->get($url, $params, $this->timeout);
+                $result = $this->httpService->get($url, $params, $this->timeout, $headers);
             } else if ($method == 'POST') {
                 $url = $this->appendQueryString($url, $params);
                 $result = $this->httpService->post($url, $body, 'application/octet-stream', $this->timeout);
@@ -847,6 +865,8 @@ class AlephWebServices {
 class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     \VuFindHttp\HttpServiceAwareInterface
 {
+
+    const RECORD_ID_BASE_SEPARATOR = '-';
 
     /**
      * Duedate configuration
@@ -1049,10 +1069,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     protected function parseId($id)
     {
-        if (count($this->bib) == 1) {
-            return array($this->bib[0], $id);
+        if (strpos($id, self::RECORD_ID_BASE_SEPARATOR) !== FALSE) {
+            return explode(self::RECORD_ID_BASE_SEPARATOR, $id);
         } else {
-            return explode('-', $id);
+            return array($this->bib[0], $id);
         }
     }
 
@@ -1902,6 +1922,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $recordList['firstname'] = $firstname;
         $recordList['lastname'] = $lastname;
+        $recordList['cat_username'] = $user['id'];
         if (isset($user['email'])) {
             $recordList['email'] = $user['email'];
         }
@@ -1973,6 +1994,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $recordList['addressValidFrom'] = $this->parseDate($dateFrom);
         $recordList['addressValidTo'] = $this->parseDate($dateTo);
         $recordList['id'] = $user['id'];
+        $recordList['cat_username'] = $user['id'];
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $user['id'], 'patronStatus', 'registration')
         );

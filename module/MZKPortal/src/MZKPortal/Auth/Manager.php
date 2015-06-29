@@ -28,10 +28,9 @@
 namespace MZKPortal\Auth;
 use VuFind\Auth\Manager as BaseManager,
     VuFind\Db\Table\User as UserTable,
-    VuFind\Auth\PluginManager as PluginManager,
+    VuFind\Auth\PluginManager as PluginManager, 
     Zend\Config\Config as Config,
     Zend\Session\SessionManager as SessionManager,
-    VuFind\Cookie\CookieManager,
     Zend\ServiceManager\ServiceLocatorAwareInterface,
     Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -54,9 +53,9 @@ class Manager extends BaseManager
      * @param \Zend\Config\Config $config VuFind configuration
      */
     public function __construct(Config $config, UserTable $userTable,
-        SessionManager $sessionManager, PluginManager $pm, CookieManager $cookieManager)
+        SessionManager $sessionManager, PluginManager $pm)
     {
-        parent::__construct($config, $userTable, $sessionManager, $pm, $cookieManager);
+        parent::__construct($config, $userTable, $sessionManager, $pm);
     }
 
     /**

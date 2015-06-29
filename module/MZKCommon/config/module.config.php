@@ -70,7 +70,7 @@ foreach ($staticRoutes as $route) {
             'route'    => '/' . $route,
             'defaults' => array(
                 'controller' => $controller,
-                'action'     => $action,
+                'action'     => (! empty($action)) ? $action : 'default',
             )
         )
     );

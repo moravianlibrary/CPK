@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * Display all errors when APPLICATION_ENV is development.
+ */
+if ((isset($_SERVER['APPLICATION_ENV'])) AND ($_SERVER['APPLICATION_ENV'] === 'development')) {
+	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT ^ E_WARNING ^ E_NOTICE);
+	ini_set("display_errors", 1);
+}
+
 use Zend\Loader\AutoloaderFactory;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Mvc\Service\ServiceManagerConfig;

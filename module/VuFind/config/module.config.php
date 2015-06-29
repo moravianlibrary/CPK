@@ -473,6 +473,7 @@ $config = [
                     'reviews' => 'VuFind\RecordTab\Factory::getReviews',
                     'similaritemscarousel' => 'VuFind\RecordTab\Factory::getSimilarItemsCarousel',
                     'usercomments' => 'VuFind\RecordTab\Factory::getUserComments',
+                    'dedupedrecords' => 'VuFind\RecordTab\Factory::getDedupedRecords',
                 ],
                 'invokables' => [
                     'description' => 'VuFind\RecordTab\Description',
@@ -631,6 +632,7 @@ $config = [
                     'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
                     'Similar' => 'SimilarItemsCarousel',
                     'Details' => 'StaffViewArray',
+                    'DedupedRecords' => 'DedupedRecords',
                 ],
                 'defaultTab' => null,
             ],
@@ -643,6 +645,7 @@ $config = [
                     'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
                     'Similar' => 'SimilarItemsCarousel',
                     'Details' => 'StaffViewMARC',
+                    'DedupedRecords' => 'DedupedRecords',
                 ],
                 'defaultTab' => null,
             ],
