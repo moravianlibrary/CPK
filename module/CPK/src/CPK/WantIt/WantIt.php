@@ -22,12 +22,12 @@
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-namespace MZKCommon\WantIt;
+namespace CPK\WantIt;
 
-use MZKCommon\WantIt\WantItInterface;
-use MZKCommon\WantIt\PaperChoiceHandler;
-use MZKCommon\WantIt\ElectronicChoiceHandler;
-use MZKCommon\WantIt\BuyChoiceHandler;
+use CPK\WantIt\WantItInterface;
+use CPK\WantIt\PaperChoiceHandler;
+use CPK\WantIt\ElectronicChoiceHandler;
+use CPK\WantIt\BuyChoiceHandler;
 
 /**
  * WantIt Model

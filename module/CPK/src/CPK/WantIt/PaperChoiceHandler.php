@@ -22,10 +22,10 @@
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-namespace MZKCommon\WantIt;
+namespace CPK\WantIt;
 
-use MZKCommon\WantIt\PaperChoiceHandlerInterface;
-use MZKCommon\WantIt\AbstractHttpClient;
+use CPK\WantIt\PaperChoiceHandlerInterface;
+use CPK\WantIt\AbstractHttpClient;
 
 /**
  * PaperChoiceHandler Model

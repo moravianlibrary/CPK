@@ -22,10 +22,10 @@
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-namespace MZKCommon\WantIt;
+namespace CPK\WantIt;
 
-use MZKCommon\WantIt\ElectronicChoiceHandlerInterface;
-use MZKCommon\WantIt\AbstractHttpClient;
+use CPK\WantIt\ElectronicChoiceHandlerInterface;
+use CPK\WantIt\AbstractHttpClient;
 
 /**
  * ElectronicChoiceHandler Model
