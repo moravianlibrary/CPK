@@ -88,7 +88,6 @@ class Manager extends BaseManager
         return parent::login($request);
     }
 
-
     /**
      * Log out the current user.
      *
@@ -104,4 +103,7 @@ class Manager extends BaseManager
         return parent::logout($url, $destroy);
     }
 
+    public function getPerunShibboleth() {
+        return $this->auth['PerunShibboleth'];
+    }
 }

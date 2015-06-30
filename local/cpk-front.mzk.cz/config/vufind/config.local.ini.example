@@ -22,6 +22,7 @@ method		= PerunShibboleth
 [Shibboleth]
 login           = https://cpk-front-devel.mzk.cz/Shibboleth.sso/DS
 logout          = https://cpk-front-devel.mzk.cz/Shibboleth.sso/Logout
+getAssertion    = 1
 
 [Database]
 database        = mysql://user:pw@localhost/dbName

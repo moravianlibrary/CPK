@@ -70,7 +70,24 @@
             . $this->KeepAlive());
           $this->headScript()->appendFile("keep_alive.js");
       }
-    ?>
+
+        /*
+        * This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
+        * This part checks if ShibAssertion export is enabled if [Shibboleth] config section & if it is, it gets those assertions
+        */
+        $authManager = $this->auth()->getManager();
+        if ($authManager instanceof \CPK\Auth\Manager) {
+            $perunShibboleth = $authManager->getPerunShibboleth();
+
+            if ($perunShibboleth && $perunShibboleth->isShibAssertionExportEnabled()) {
+                $assertions = $perunShibboleth->getShibAssertions();
+
+                if (!empty($assertions)) {
+                    $assertionExportEnabled = true;
+                }
+            }
+        } ?>
+
     <?=$this->headScript()?>
   </head>
   <body>
@@ -93,9 +110,51 @@
           <? if ($this->layout()->searchbox !== false): ?>
           <div class="well clearfix">
           <?=$this->layout()->searchbox ?>
-            </div>
+
+                <?
+                /*
+                * This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
+                * This part creates button to show/hide division containing messages, which is created later
+                */
+                if($assertionExportEnabled): ?>
+                    <button id="shibAssertionHandler" class="btn btn-link" style="float: right" onclick="handleShibAssertion()" >Show Shib Assertions</button>
+                    <script type="text/javascript">
+                    function handleShibAssertion() {
+                         var __display = document.getElementById('shibAssertionExport').style.display;
+                         if (__display == 'block') {
+                            document.getElementById("shibAssertionHandler").innerHTML = "Show Shib Assertions";
+                            document.getElementById('shibAssertionExport').style.display = 'none';
+                         } else {
+                            document.getElementById("shibAssertionHandler").innerHTML = "Hide Shib Assertions";
+                            document.getElementById('shibAssertionExport').style.display = 'block';
+                         }
+                    }
+                    </script>
+                <? endif; ?>
+
+          </div>
           <? endif; ?>
       </div>
+
+        <?
+        /*
+        * This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
+        * This part echoes messages to separate division to have it beautiful.
+        */
+        if($assertionExportEnabled): ?>
+            <div class="container" id="shibAssertionExport" style="display: none"><div class="well clearfix">
+            <? for($i = 0; $i < sizeof($assertions);) {
+                $assertion = htmlentities($assertions[$i]);
+
+                // Create new-lines between "><" char pairs
+                $assertion = str_replace("&gt;&lt;", "&gt;<br />&lt;", $assertion);
+
+                // Render it
+                ?><h3>Assertion number <?=++$i?></h3><?=$assertion ?><?
+            } ?>
+            </div></div>
+        <? endif; ?>
+
     </header>
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
       <div class="container">

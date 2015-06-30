@@ -50,6 +50,11 @@ class PerunShibboleth extends Shibboleth
 
     const SEPARATOR_REGEXED = "\\.";
 
+    const SHIB_ASSERTION_01_ENV = 'Shib-Assertion-01';
+    const SHIB_ASSERTION_02_ENV = 'Shib-Assertion-02';
+
+    protected $shibAssertionExportEnabled = false;
+
     protected $identityResolver;
 
     protected $loginDrivers = null;
@@ -285,6 +290,8 @@ class PerunShibboleth extends Shibboleth
 
         if (! isset($shib->login)) {
             throw new AuthException('Shibboleth login configuration parameter is not set.');
+        } else if (isset($shib->getAssertion) && $shib->getAssertion == true) {
+            $this->shibAssertionExportEnabled = true;
         }
 
         $this->shibbolethConfig = $this->configLoader->get('shibboleth');
@@ -302,5 +309,21 @@ class PerunShibboleth extends Shibboleth
                     }
             }
         }
+    }
+
+    public function isShibAssertionExportEnabled() {
+        return $this->shibAssertionExportEnabled;
+    }
+
+    public function getShibAssertions() {
+        $assertions = array();
+
+        $assertions[0] = $_SERVER[$this::SHIB_ASSERTION_01_ENV];
+        $assertions[1] = $_SERVER[$this::SHIB_ASSERTION_02_ENV];
+
+        $assertions[0] = file_get_contents($assertions[0]);
+        $assertions[1] = file_get_contents($assertions[1]);
+
+        return $assertions;
     }
 }
