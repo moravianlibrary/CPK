@@ -27,6 +27,9 @@ logout          = https://cpk-front-devel.mzk.cz/Shibboleth.sso/Logout
 [Database]
 database        = mysql://user:pw@localhost/dbName
 
+[Logging]
+file            = /home/vufind/git/VuFind/messages-front-devel.log:alert,error,notice,debug
+
 [ExternalLinks]
 BOA001          = "https://vufind.mzk.cz/Record/"
 BOA001_end      = "/Holdings#tabnav"
