@@ -2,7 +2,7 @@
 debug           = false
 
 [Site]
-url             = https://cpk-front-devel.mzk.cz/
+url             = https://cpk-front.mzk.cz/
 email           = vufind@mzk.cz
 
 [Catalog]
@@ -10,25 +10,27 @@ library_cards = true
 
 [Index]
 engine          = Solr
-url		= http://cpk-back.mzk.cz:8080/solr
-default_core    = biblio
-;url		= http://cpk-front.mzk.cz:8080/solr
+;url		= http://cpk-back.mzk.cz:8080/solr
+;default_core    = biblio
+url		= http://cpk-front.mzk.cz:8080/solr
 ;default_core   = index
+default_core    = dedup1
 
 [Authentication]
 method		= PerunShibboleth
 ;method		= ShibbolethWithWAYF
 
 [Shibboleth]
-login           = https://cpk-front-devel.mzk.cz/Shibboleth.sso/DS
-logout          = https://cpk-front-devel.mzk.cz/Shibboleth.sso/Logout
+login           = https://cpk-front.mzk.cz/Shibboleth.sso/DS
+logout          = https://cpk-front.mzk.cz/Shibboleth.sso/Logout
 getAssertion    = 1
 
 [Database]
 database        = mysql://user:pw@localhost/dbName
 
 [Logging]
-file            = /home/vufind/git/VuFind/messages-front.log:alert,error,notice,debug
+file            = /home/vufind/git/VuFind/messages-front.log:alert,error
+;file            = /home/vufind/git/VuFind/messages-front.log:alert,error,notice,debug
 
 [ExternalLinks]
 BOA001		= "https://vufind.mzk.cz/Record/"

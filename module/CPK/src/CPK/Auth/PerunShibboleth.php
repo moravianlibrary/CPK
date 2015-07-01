@@ -318,11 +318,19 @@ class PerunShibboleth extends Shibboleth
     public function getShibAssertions() {
         $assertions = array();
 
+	// TODO: Parse Shib-Assertion-Count to create for cycle from this ..
         $assertions[0] = $_SERVER[$this::SHIB_ASSERTION_01_ENV];
         $assertions[1] = $_SERVER[$this::SHIB_ASSERTION_02_ENV];
 
-        $assertions[0] = file_get_contents($assertions[0]);
-        $assertions[1] = file_get_contents($assertions[1]);
+        if ($assertions[0] == null)
+            unset($assertions[0]);
+        else
+            $assertions[0] = file_get_contents($assertions[0]);
+
+        if ($assertions[1] == null)
+            unset($assertions[1]);
+        else
+            $assertions[1] = file_get_contents($assertions[1]);
 
         return $assertions;
     }
