@@ -46,12 +46,11 @@ class PerunShibboleth extends Shibboleth
 
     const SHIB_IDENTITY_PROVIDER_ENV = 'Shib-Identity-Provider';
 
+    const SHIB_ASSERTION_COUNT_ENV = 'Shib-Assertion-Count';
+
     const SEPARATOR = ".";
 
     const SEPARATOR_REGEXED = "\\.";
-
-    const SHIB_ASSERTION_01_ENV = 'Shib-Assertion-01';
-    const SHIB_ASSERTION_02_ENV = 'Shib-Assertion-02';
 
     protected $shibAssertionExportEnabled = false;
 
@@ -64,8 +63,14 @@ class PerunShibboleth extends Shibboleth
     protected $shibbolethConfig = null;
 
     protected $attribsToCheck = array(
-        'username', 'cat_username', 'email', 'lastname',
-        'firstname', 'college', 'major', 'home_library'
+        'username',
+        'cat_username',
+        'email',
+        'lastname',
+        'firstname',
+        'college',
+        'major',
+        'home_library'
     );
 
     public function __construct(\VuFind\Config\PluginManager $configLoader, IdentityResolver $identityResolver)
@@ -113,8 +118,7 @@ class PerunShibboleth extends Shibboleth
                             break;
                         }
                     }
-                } else
-                    if (strpos($key, ',') !== false) {
+                } elseif (strpos($key, ',') !== false) {
                         list ($key, $pattern) = explode(',', $key, 2);
                         $pattern = trim($pattern);
                     }
@@ -188,14 +192,17 @@ class PerunShibboleth extends Shibboleth
 
     /**
      * Get the URL to establish a session (needed when the internal VuFind login
-     * form is inadequate).  Returns false when no session initiator is needed.
+     * form is inadequate).
+     * Returns false when no session initiator is needed.
      *
-     * @param string $target Full URL where external authentication method should
-     * send user to after login (some drivers may override this).
+     * @param string $target
+     *            Full URL where external authentication method should
+     *            send user to after login (some drivers may override this).
      *
      * @return array
      */
-    public function getSessionInitiators($target) {
+    public function getSessionInitiators($target)
+    {
         $this->init();
         $config = $this->getConfig();
         if (isset($config->Shibboleth->target)) {
@@ -290,7 +297,7 @@ class PerunShibboleth extends Shibboleth
 
         if (! isset($shib->login)) {
             throw new AuthException('Shibboleth login configuration parameter is not set.');
-        } else if (isset($shib->getAssertion) && $shib->getAssertion == true) {
+        } elseif (isset($shib->getAssertion) && $shib->getAssertion == true) {
             $this->shibAssertionExportEnabled = true;
         }
 
@@ -301,37 +308,55 @@ class PerunShibboleth extends Shibboleth
             }
 
             if ($name !== 'default') {
-                if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
+                if (! isset($configuration['entityId']) || empty($configuration['entityId']))
+                    {
                     throw new AuthException("Shibboleth 'entityId' is missing in your shibboleth.ini configuration file for '" . $name . "'");
-                } else
-                    if (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
+                } elseif (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
                         throw new AuthException("Shibboleth 'cat_username' is missing in your shibboleth.ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
-                    }
+                }
             }
         }
     }
 
-    public function isShibAssertionExportEnabled() {
+    public function isShibAssertionExportEnabled()
+    {
         return $this->shibAssertionExportEnabled;
     }
 
-    public function getShibAssertions() {
+    public function getShibAssertions()
+    {
         $assertions = array();
 
-	// TODO: Parse Shib-Assertion-Count to create for cycle from this ..
-        $assertions[0] = $_SERVER[$this::SHIB_ASSERTION_01_ENV];
-        $assertions[1] = $_SERVER[$this::SHIB_ASSERTION_02_ENV];
+        $count = intval($_SERVER[$this::SHIB_ASSERTION_COUNT_ENV]);
 
-        if ($assertions[0] == null)
-            unset($assertions[0]);
-        else
-            $assertions[0] = file_get_contents($assertions[0]);
+        if (! empty($count))
+            for ($i = 0; $i < $count; ++ $i) {
+                $shibAssertionEnv = $this->getShibAssertionNumberEnv($i + 1);
 
-        if ($assertions[1] == null)
-            unset($assertions[1]);
-        else
-            $assertions[1] = file_get_contents($assertions[1]);
+                $assertions[$i] = $_SERVER[$shibAssertionEnv];
+
+                if ($assertions[$i] == null) {
+                    unset($assertions[$i]);
+                } else {
+                    $contents = file_get_contents($assertions[$i]);
+
+                    // If we have parsed contents successfully, set it to assertion
+                    // If not, then leave there the link to find out what is the problem
+                    if (! empty($contents)) {
+                        $assertions[$i] = $contents;
+                    }
+                }
+            }
 
         return $assertions;
+    }
+
+    protected function getShibAssertionNumberEnv($i)
+    {
+        if ($i < 10) {
+            return 'Shib-Assertion-0' . $i;
+        } else {
+            return 'Shib-Assertion-' . $i;
+        }
     }
 }
