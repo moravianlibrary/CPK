@@ -74,7 +74,7 @@
           <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="icon-search"></i> <?=$this->transEsc("Find")?></button>
         </span>
       </div>
-      
+
       <div class="search-query-options">
         <? if ($advSearch): ?>
           <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' offset1':''?>"><?=$this->transEsc("Advanced")?></a>
@@ -85,7 +85,7 @@
             <?=$this->transEsc('Geographical search')?>
           </a>
         <? endif; ?>
-      
+
 
         <?
         /* Do we have any checkbox filters? */
@@ -99,7 +99,7 @@
           }
         }
         ?>
-  
+
         <? $shards = $options->getShards(); if ($options->showShardCheckboxes() && !empty($shards)): ?>
           <?
           $selectedShards = isset($this->selectedShards)

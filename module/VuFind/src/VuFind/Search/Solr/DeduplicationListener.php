@@ -77,11 +77,11 @@ class DeduplicationListener
     protected $dataSourceConfig;
 
     /**
-     * Is highlighting active?
+     * Whether deduplication is enabled.
      *
      * @var bool
      */
-    protected $active = true;
+    protected $enabled;
 
     /**
      * Constructor.
@@ -90,18 +90,21 @@ class DeduplicationListener
      * @param ServiceLocatorInterface $serviceLocator   Service locator
      * @param string                  $searchConfig     Search config file id
      * @param string                  $dataSourceConfig Data source file id
+     * @param bool                    $enabled          Whether deduplication is
+     * enabled
      *
      * @return void
      */
     public function __construct(
         BackendInterface $backend,
         ServiceLocatorInterface $serviceLocator,
-        $searchConfig, $dataSourceConfig = 'datasources'
+        $searchConfig, $dataSourceConfig = 'datasources', $enabled = true
     ) {
         $this->backend = $backend;
         $this->serviceLocator = $serviceLocator;
         $this->searchConfig = $searchConfig;
         $this->dataSourceConfig = $dataSourceConfig;
+        $this->enabled = $enabled;
     }
 
     /**
@@ -134,11 +137,21 @@ class DeduplicationListener
             if (($context == 'search' || $context == 'similar') && $params) {
                 $disableDedup = $params->get('disableDedup');
                 if (isset($disableDedup[0]) && $disableDedup[0] == TRUE) {
-                    $this->active = false;
-                } else {
-                    $params->add('fq', '-merged_child_boolean:TRUE');
+                    $this->enabled = false;
                 }
                 $params->remove('disableDedup');
+                // If deduplication is enabled, filter out merged child records,
+                // otherwise filter out dedup records.
+                if ($this->enabled) {
+                    $fq = '-merged_child_boolean:true';
+                    if ($context == 'similar' && $id = $event->getParam('id')) {
+                        $fq .= ' AND -local_ids_str_mv:"'
+                            . addcslashes($id, '"') . '"';
+                    }
+                } else {
+                    $fq = '-merged_boolean:true';
+                }
+                $params->add('fq', $fq);
             }
         }
         return $event;
@@ -165,7 +178,7 @@ class DeduplicationListener
             return $event;
         }
         $context = $event->getParam('context');
-        if ($context == 'search') {
+        if ($this->enabled && ($context == 'search' || $context == 'similar')) {
             $this->fetchLocalRecords($event);
         }
         return $event;
@@ -287,6 +300,7 @@ class DeduplicationListener
                 $sourcePriority
             );
             $foundLocalRecord->setRawData($localRecordData);
+            $foundLocalRecord->setHighlightDetails($record->getHighlightDetails());
             $result->replace($record, $foundLocalRecord);
         }
     }

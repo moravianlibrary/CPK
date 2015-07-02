@@ -408,7 +408,8 @@ class User extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface,
 
         // Remove Resource (related tags are also removed implicitly)
         $userResourceTable = $this->getDbTable('UserResource');
-        $userResourceTable->destroyLinks($resourceIDs, $this->id);
+        // true here makes sure that only tags in lists are deleted
+        $userResourceTable->destroyLinks($resourceIDs, $this->id, true);
     }
 
     /**
@@ -576,7 +577,9 @@ class User extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface,
         }
         $row->card_name = $cardName;
         $row->cat_username = $username;
-        $row->home_library = $homeLib;
+        if (!empty($homeLib)) {
+            $row->home_library = $homeLib;
+        }
         if ($this->passwordEncryptionEnabled()) {
             $row->cat_password = null;
             $row->cat_pass_enc = $this->encryptOrDecrypt($password, true);
