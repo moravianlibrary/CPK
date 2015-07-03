@@ -1,0 +1,14 @@
+{
+    "type": "java.util.ArrayList",
+    "displayName": "libraryIDs",
+    "description": "All user's IDs to use with ILSs defined before the dot.",
+    "entity": "user",
+    "namespace": "urn:perun:user:attribute-def:def",
+    "baseFriendlyName": "libraryIDs",
+    "friendlyName": "libraryIDs",
+    "writable": false,
+    "friendlyNameParameter": "",
+    "id": 3381,
+    "value": "VALUE_HERE",
+    "beanName": "AttributeDefinition"
+}

@@ -140,6 +140,8 @@ class PerunShibboleth extends Shibboleth
 
                 // TODO: After user went through registery, we need to ask IdP again to provide us new info
                 // so that out SP can call AA to fetch new perunId to check if the registery was successfull
+
+                // TODO: Then, if user has new identity without libraryCard in Perun, push a card to Perun
             } else {
 
                 $handleLibraryCards = true;

@@ -54,8 +54,8 @@ targetNew               = https://cpk-front-devel.mzk.cz/MyResearch/Profile
 # Where to redirect if user is already in Perun after visiting registrar
 targetExtended          = https://cpk-front-devel.mzk.cz/MyResearch/Profile
 
-# Attribute Id in Perun to save libcards to (must be an ArrayList type)
-attributeNumberId       = 3381
+# JSON definition of attribute to save LibraryCards into
+attrDefFilename         = userLibraryIdsDefinition.json
 
 # Service user to use Perun's API (must have rights to read VO members & write to attributeId)
 voManagerLogin          = USER_HERE

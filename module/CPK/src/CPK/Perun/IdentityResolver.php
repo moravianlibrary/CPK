@@ -31,10 +31,11 @@ namespace CPK\Perun;
 use VuFind\Exception\Auth as AuthException;
 use CPK\Auth\PerunShibboleth;
 use Zend\Session\Container as SessionContainer;
-use VuFindSearch\Backend\Exception\BackendException;
 
 /**
  * Class for resolving user's connected identities from Perun (https://github.com/CESNET/perun)
+ *
+ * It basically manages all the communication with Perun
  *
  * @category VuFind2
  * @package Perun
@@ -44,6 +45,7 @@ use VuFindSearch\Backend\Exception\BackendException;
  */
 class IdentityResolver
 {
+    const URL_PATH_SET_ATTRIBUTE = "/json/attributesManager/setAttribute";
 
     /**
      * Container for storing cached Perun data.
@@ -51,8 +53,6 @@ class IdentityResolver
      * @var SessionContainer
      */
     protected $session;
-
-    const URL_PATH_GET_ATTR_DEF_BY_ID = "/json/attributesManager/getAttributeDefinitionById";
 
     protected $perunConfig;
 
@@ -63,7 +63,7 @@ class IdentityResolver
         "kerberosRpc",
         "targetNew",
         "targetExtended",
-        "attributeNumberId",
+        "attrDefFilename",
         "voManagerLogin",
         "voManagerPassword"
     );
@@ -116,34 +116,38 @@ class IdentityResolver
                 throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
             }
         }
-
-        // Being here means we have all we need to initialize static variables
-        $this->initializeStaticVariables();
     }
 
-    protected function initializeStaticVariables()
+    public function pushLibraryCardsToPerun(array $userLibraryIds) {
+
+        $attribute = $this->getAttributeWithValue(json_encode($userLibraryIds));
+
+        //FIXME: parse user Id from eppn
+        $userId = 49542;
+
+        $json = '{"user":'.$userId.',"attribute":'.$attribute.'}';
+
+        $url = $this->perunConfig->kerberosRpc . $this::URL_PATH_SET_ATTRIBUTE;
+
+        $response = $this->sendJSONpost($url, $json);
+    }
+
+    /**
+     * Returns predefined attribute definition with desired value to post.
+     *
+     * @throws AuthException
+     * @return string json
+     */
+    protected function getAttributeWithValue($value)
     {
-        // Aren't those in cache already?
-        if (empty($attributeDefinition)) {
-            $attributeDefinition = $this->getCache("attrDef");
+        $filename = $_SERVER['VUFIND_LOCAL_DIR'] . "/config/vufind/" . $this->perunConfig->attrDefFilename;
+        $jsonDef = file_get_contents($filename);
 
-            if (empty($attributeDefinition)) {
-                $urlToRetrieveAttrDef = $this->perunConfig->kerberosRpc . $this::URL_PATH_GET_ATTR_DEF_BY_ID;
-
-                $data = '{"id":' . $this->perunConfig->attributeNumberId . '}';
-
-                list ($statusCode, $response) = $this->sendJSONpost($urlToRetrieveAttrDef, $data);
-
-                if ($statusCode === 200) {
-                    $attributeDefinition = json_decode($response);
-
-                    $this->setCache("attrDef", $attributeDefinition);
-                } else {
-                    // Cannot throw anything .. nothing would catch it now
-                    $_ENV['exception'] = "IdentityResolver could not fetch attribute definition. Rejected with $statusCode status code.";
-                }
-            }
+        if (!$jsonDef) {
+            throw new AuthException("Could not locate " . $filename);
         }
+
+        return str_replace('"VALUE_HERE"', $value, $jsonDef);
     }
 
     /**
@@ -196,11 +200,17 @@ class IdentityResolver
      *
      * @param string $url
      * @param string $json
-     * @return array( int statusCode, string bodyResponse )
+     * @throws AuthException
+     * @return stdClass attributeDefinition
      */
     protected function sendJSONpost($url, $json)
     {
-        return $this->sendJSONpostWithBasicAuth($url, $this->perunConfig->voManagerLogin, $this->perunConfig->voManagerPassword, $json);
+        list ($statusCode, $response) = $this->sendJSONpostWithBasicAuth($url, $this->perunConfig->voManagerLogin, $this->perunConfig->voManagerPassword, $json);
+        if ($statusCode === 200) {
+            return json_decode($response);
+        } else {
+            throw new AuthException("IdentityResolver was rejected with $statusCode status code. Check your credentials in config.ini");
+        }
     }
 
     /**
