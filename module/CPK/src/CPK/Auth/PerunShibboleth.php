@@ -96,6 +96,7 @@ class PerunShibboleth extends Shibboleth
                 break;
             }
         }
+
         if ($config == null) {
             if (isset($this->shibbolethConfig['default'])) {
                 $config = $this->shibbolethConfig['default'];
@@ -103,64 +104,43 @@ class PerunShibboleth extends Shibboleth
             } else
                 throw new AuthException('Recieved entityId was not found in shibboleth.ini config nor default config part exists.');
         }
-        $attributes = array();
-        foreach ($this->attribsToCheck as $attribute) {
-            if (isset($config->$attribute)) {
-                $key = $config->$attribute;
-                $pattern = null;
-                $value = null;
-                if (strpos($key, '|') !== false) {
-                    $keys = explode('|', $key);
-                    foreach ($keys as $key) {
-                        $key = trim($key);
-                        $value = $request->getServer()->get($key);
-                        if ($value != null) {
-                            break;
-                        }
-                    }
-                } elseif (strpos($key, ',') !== false) {
-                        list ($key, $pattern) = explode(',', $key, 2);
-                        $pattern = trim($pattern);
-                    }
-                if ($value == null) {
-                    $value = $request->getServer()->get($key);
-                }
-                if ($pattern != null) {
-                    $matches = array();
-                    preg_match($pattern, $value, $matches);
-                    $value = $matches[1];
-                }
 
-                $attributes[$attribute] = $value;
-            }
-        }
+        $attributes = $this->fetchAttributes($request, $config);
 
         if (empty($attributes['username'])) {
-            throw new AuthException('IdP "' . $prefix . '" didn\'t return the following attribute: "' . $configuration['username'] . '"');
+            throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['username'] . '"');
         }
 
         if (! $isConnected) {
             $prefix = 'Dummy';
 
             // Set cat_username's MultiBackend source dummy driver
-            $attributes['cat_username'] = '';
+            $attributes['cat_username'] = 'Dummy.Dummy';
             $attributes['home_library'] = $prefix;
         } else {
 
             // Process additional Perun requests
             if (empty($attributes['cat_username'])) {
-                throw new AuthException('IdP "' . $prefix . '" didn\'t return the following attribute: "' . $configuration['cat_username'] . '"');
+                throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['cat_username'] . '"');
             }
 
-            // Send data to Perun & get perunId with institutes
-            list ($perunId, $institutes) = $this->identityResolver->getUserIdentityFromPerun($attributes['username'], $prefix, $attributes['cat_username']);
+            // Get dummy institutes for now
+            $institutes = $this->identityResolver->getDummyContent($prefix, $attributes['cat_username']);
 
-            // This was eppn, now it is perunId
-            $attributes['username'] = $perunId;
+            $perunId = $_SERVER['perunUserId'];
 
-            if (empty($institutes)) {
-                // TODO: Register user to Perun with current IdP
+            if (empty($perunId)) {
+
+                // User is now being redirected to registrar of Perun
+                $linkToRegister = $this->identityResolver->getPerunConfig()->registrar;
+                header('Location: ' . $linkToRegister, true, 307);
+                die();
+
+                // TODO: After user went through registery, we need to ask IdP again to provide us new info
+                // so that out SP can call AA to fetch new perunId to check if the registery was successfull
+
             } else {
+
                 $handleLibraryCards = true;
             }
 
@@ -316,6 +296,45 @@ class PerunShibboleth extends Shibboleth
                 }
             }
         }
+
+        // Validate also IdentityResolver's config from here
+        $this->identityResolver->validateConfig($this->config);
+    }
+
+    protected function fetchAttributes($request, $config) {
+        $attributes = array();
+        foreach ($this->attribsToCheck as $attribute) {
+            if (isset($config->$attribute)) {
+                $key = $config->$attribute;
+                $pattern = null;
+                $value = null;
+                if (strpos($key, '|') !== false) {
+                    $keys = explode('|', $key);
+                    foreach ($keys as $key) {
+                        $key = trim($key);
+                        $value = $request->getServer()->get($key);
+                        if ($value != null) {
+                            break;
+                        }
+                    }
+                } elseif (strpos($key, ',') !== false) {
+                    list ($key, $pattern) = explode(',', $key, 2);
+                    $pattern = trim($pattern);
+                }
+                if ($value == null) {
+                    $value = $request->getServer()->get($key);
+                }
+                if ($pattern != null) {
+                    $matches = array();
+                    preg_match($pattern, $value, $matches);
+                    $value = $matches[1];
+                }
+
+                $attributes[$attribute] = $value;
+            }
+        }
+
+        return $attributes;
     }
 
     public function isShibAssertionExportEnabled()

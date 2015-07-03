@@ -27,24 +27,20 @@
  */
 namespace CPK\Controller;
 
-
-use VuFind\Controller\MyResearchController as MyResearchControllerBase,
-VuFind\Exception\Auth as AuthException,
-VuFind\Exception\ListPermission as ListPermissionException,
-VuFind\Exception\RecordMissing as RecordMissingException,
-Zend\Stdlib\Parameters;
+use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFind\Exception\Auth as AuthException, VuFind\Exception\ListPermission as ListPermissionException, VuFind\Exception\RecordMissing as RecordMissingException, Zend\Stdlib\Parameters;
 
 /**
  * Controller for the user account area.
  *
  * @category VuFind2
- * @package  Controller
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @package Controller
+ * @author Demian Katz <demian.katz@villanova.edu>
+ * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link http://vufind.org Main Site
  */
 class MyResearchController extends MyResearchControllerBase
 {
+    protected $checkedRedirection = false;
 
     /**
      * Login Action
@@ -59,11 +55,16 @@ class MyResearchController extends MyResearchControllerBase
     public function logoutAction()
     {
         $logoutTarget = $this->getConfig()->Site->url;
-        return $this->redirect()->toUrl($this->getAuthManager()->logout($logoutTarget));
+        return $this->redirect()->toUrl($this->getAuthManager()
+            ->logout($logoutTarget));
     }
 
     public function profileAction()
     {
+        if (! $this->checkedRedirection) {
+            $this->checkRedirection();
+        }
+
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver()) {
             return $this->forwardTo('MyResearch', 'Home');
@@ -72,25 +73,39 @@ class MyResearchController extends MyResearchControllerBase
         $view = parent::profileAction();
 
         if ($view) {
-            $catalog = $this->getILS();
-            $view->profileChange = $catalog->checkCapability('changeUserRequest');
-
             $this->checkBlocks($view->__get('profile'));
         }
 
-        $this->flashExceptions();
         return $view;
     }
 
-    protected function checkBlocks($profile) {
-        foreach($profile['blocks'] as $block) {
+    protected function checkBlocks($profile)
+    {
+        foreach ($profile['blocks'] as $block) {
             if (! empty($block)) {
                 $this->flashMessenger()->addErrorMessage($block);
             }
         }
     }
 
-    protected function isLoggedInWithDummyDriver() {
+    protected function checkRedirection()
+    {
+        $this->checkedRedirection = true;
+
+        $confPerun = $this->getConfig()->Perun;
+
+        if ($confPerun != null) {
+            $perunRegistar = $confPerun->registrar;
+
+            // Condition for user redirected from Perun registrar
+            if ($perunRegistar != null && $_SERVER['HTTP_REFERER'] == $perunRegistar) {
+                // TODO: Restore user session created after he logged in ..
+            }
+        }
+    }
+
+    protected function isLoggedInWithDummyDriver()
+    {
         $user = $this->getAuthManager()->isLoggedIn();
         return $user ? $user['home_library'] == "Dummy" : false;
     }

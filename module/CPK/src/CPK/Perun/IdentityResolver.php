@@ -57,8 +57,7 @@ class IdentityResolver
             $this->perunConfig = $config->Perun;
 
             if ($this->perunConfig == null) {
-                // TODO: throw an exception or not? .. now is no config needed ...
-                //throw new AuthException('Could not load Perun config');
+                throw new AuthException('Config section "Perun" for PerunShibboleth Authentication method not found.');
             }
 
             $this->initialized = true;
@@ -66,47 +65,40 @@ class IdentityResolver
     }
 
     /**
-     * Sends eduPersonPrincipalName (eppn) to Perun & returns user's perunId & his institutes.
      *
-     * Can send to Perun also SIGLA & userId being used in connected library with appropriate eppn.
-     * In that case it basically says Perun to include this institute on output as connected institute.
+     * Gets Random identites to substitute for Perun implementation
      *
-     * Other institutes, where we send only eppn without SIGLA & userId we do not want to include on output.
-     * These are connected, but are not connected libraries we can use to e.g. Reserve a book for user.
-     *
-     * @param string $eppn
      * @param string $sigla
      * @param string $userId
-     * @return [string $perunId, array $institutes]
+     * @return array $institutes
      */
-    public function getUserIdentityFromPerun($eppn, $sigla = null, $userId = null)
-    {
-        // FIXME communicate with perun
-        if (empty($sigla) || empty($userId))
-            return $this->getDummyEmptyContent($eppn);
-
-        return $this->getDummyContent($eppn, $sigla, $userId);
-    }
-
-    protected function getDummyContent($eppn, $sigla, $userId)
+    public function getDummyContent($sigla, $userId)
     {
         return array(
-            $eppn,
-
-            array(
                 $sigla . PerunShibboleth::SEPARATOR . $userId,
                 "mzk.70" . rand(0, 2),
                 "xcncip2." . rand(3, 5),
                 "xcncip2." . rand(7, 8),
                 "xcncip2." . rand(9, 11)
-            )
         );
     }
 
-    protected function getDummyEmptyContent($eppn)
-    {
-        return array(
-            $eppn
-        );
+    public function getPerunConfig() {
+        return $this->perunConfig;
+    }
+
+    /**
+     * Validate configuration parameters.
+     * This is a support method for getConfig(),
+     * so the configuration MUST be accessed using $this->config; do not call
+     * $this->getConfig() from within this method!
+     *
+     * This method is basically called by PerunShibboleth on it's own validateConfig call.
+     *
+     * @throws AuthException
+     * @return void
+     */
+    public function validateConfig(\Zend\Config\Config $config) {
+        //TODO: Validate the config (registrar, voName etc..)
     }
 }

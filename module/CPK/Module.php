@@ -55,17 +55,21 @@ class Module
     public function onBootstrap(MvcEvent $e)
     {
     }
-    
+
     public function onMergeConfig(ModuleEvent $e)
     {
         $configListener = $e->getConfigListener();
         $config         = $configListener->getMergedConfig(false);
-    
+
         // Modify the configuration; here, we'll remove a specific key:
         if (isset($config['service_manager']['invokables']['VuFind\Search'])) {
             unset($config['service_manager']['invokables']['VuFind\Search']);
         }
-    
+
+        if (isset($config['controllers']['invokables']['myresearch'])) {
+            unset($config['controllers']['invokables']['myresearch']);
+        }
+
         // Pass the changed configuration back to the listener:
         $configListener->setMergedConfig($config);
     }
