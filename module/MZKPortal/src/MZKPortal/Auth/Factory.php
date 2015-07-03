@@ -65,16 +65,17 @@ class Factory
             // still get handled appropriately later in processing.
             error_log($e->getMessage());
         }
-        
+
         // Load remaining dependencies:
         $userTable = $sm->get('VuFind\DbTablePluginManager')->get('user');
         $sessionManager = $sm->get('VuFind\SessionManager');
         $pm = $sm->get('VuFind\AuthPluginManager');
-        
+        $cookies = $sm->get('VuFind\CookieManager');
+
         // Build the object:
-        return new Manager($config, $userTable, $sessionManager, $pm, $catalog);
+        return new Manager($config, $userTable, $sessionManager, $pm, $cookies);
     }
-    
+
     /**
      * Factory for ShibbolethWithWAYF.
      *
