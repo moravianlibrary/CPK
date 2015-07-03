@@ -81,8 +81,6 @@ class PerunShibboleth extends Shibboleth
 
     public function authenticate($request)
     {
-        $this->identityResolver->init($this->getConfig());
-
         $entityId = $request->getServer()->get(self::SHIB_IDENTITY_PROVIDER_ENV);
         $config = null;
         $prefix = null;
@@ -138,7 +136,6 @@ class PerunShibboleth extends Shibboleth
 
                 // TODO: After user went through registery, we need to ask IdP again to provide us new info
                 // so that out SP can call AA to fetch new perunId to check if the registery was successfull
-
             } else {
 
                 $handleLibraryCards = true;
@@ -288,20 +285,21 @@ class PerunShibboleth extends Shibboleth
             }
 
             if ($name !== 'default') {
-                if (! isset($configuration['entityId']) || empty($configuration['entityId']))
-                    {
+                if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
                     throw new AuthException("Shibboleth 'entityId' is missing in your shibboleth.ini configuration file for '" . $name . "'");
                 } elseif (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
-                        throw new AuthException("Shibboleth 'cat_username' is missing in your shibboleth.ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
+                    throw new AuthException("Shibboleth 'cat_username' is missing in your shibboleth.ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
                 }
             }
         }
 
         // Validate also IdentityResolver's config from here
         $this->identityResolver->validateConfig($this->config);
+
     }
 
-    protected function fetchAttributes($request, $config) {
+    protected function fetchAttributes($request, $config)
+    {
         $attributes = array();
         foreach ($this->attribsToCheck as $attribute) {
             if (isset($config->$attribute)) {

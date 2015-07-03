@@ -28,7 +28,7 @@
  */
 namespace CPK\Perun;
 
-use \VuFind\Exception\Auth as AuthException;
+use VuFind\Exception\Auth as AuthException;
 use CPK\Auth\PerunShibboleth;
 
 /**
@@ -43,26 +43,12 @@ use CPK\Auth\PerunShibboleth;
 class IdentityResolver
 {
 
-    const USER_KEY = "user";
-
-    const LIBRARY_KEY = "lib";
-
-    protected $initialized = false;
-
     protected $perunConfig;
 
-    public function init(\Zend\Config\Config $config)
-    {
-        if (! $this->initialized) {
-            $this->perunConfig = $config->Perun;
-
-            if ($this->perunConfig == null) {
-                throw new AuthException('Config section "Perun" for PerunShibboleth Authentication method not found.');
-            }
-
-            $this->initialized = true;
-        }
-    }
+    protected $requiredConfigVariables = array(
+        "registrar",
+        "voName"
+    );
 
     /**
      *
@@ -75,16 +61,12 @@ class IdentityResolver
     public function getDummyContent($sigla, $userId)
     {
         return array(
-                $sigla . PerunShibboleth::SEPARATOR . $userId,
-                "mzk.70" . rand(0, 2),
-                "xcncip2." . rand(3, 5),
-                "xcncip2." . rand(7, 8),
-                "xcncip2." . rand(9, 11)
+            $sigla . PerunShibboleth::SEPARATOR . $userId,
+            "mzk.70" . rand(0, 2),
+            "xcncip2." . rand(3, 5),
+            "xcncip2." . rand(7, 8),
+            "xcncip2." . rand(9, 11)
         );
-    }
-
-    public function getPerunConfig() {
-        return $this->perunConfig;
     }
 
     /**
@@ -98,7 +80,23 @@ class IdentityResolver
      * @throws AuthException
      * @return void
      */
-    public function validateConfig(\Zend\Config\Config $config) {
-        //TODO: Validate the config (registrar, voName etc..)
+    public function validateConfig(\Zend\Config\Config $config)
+    {
+        $this->perunConfig = $config->Perun;
+
+        if ($this->perunConfig == null) {
+            throw new AuthException('[Perun] section not found in config.ini');
+        }
+
+        foreach ($this->requiredConfigVariables as $reqConf) {
+            if (empty($this->perunConfig->$reqConf)) {
+                throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
+            }
+        }
+    }
+
+    public function getPerunConfig()
+    {
+        return $this->perunConfig;
     }
 }
