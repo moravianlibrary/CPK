@@ -43,11 +43,18 @@ use CPK\Auth\PerunShibboleth;
 class IdentityResolver
 {
 
+    // TODO: Fetch attribute definition once & keep it in cache
+
     protected $perunConfig;
 
     protected $requiredConfigVariables = array(
         "registrar",
-        "voName"
+        "kerberosRpc",
+        "targetNew",
+        "targetExtended",
+        "attributeNumberId",
+        "voManagerLogin",
+        "voManagerPassword"
     );
 
     /**
