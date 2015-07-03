@@ -43,9 +43,11 @@ use CPK\Auth\PerunShibboleth;
 class IdentityResolver
 {
 
-    // TODO: Fetch attribute definition once & keep it in cache
+    // TODO: Fetch attribute definition once & keep it in cache from https://[hostname]/krb/rpc/json/attributesManager/getAttributeDefinitionById
 
     protected $perunConfig;
+
+    protected $cacheManager;
 
     protected $requiredConfigVariables = array(
         "registrar",
@@ -56,6 +58,11 @@ class IdentityResolver
         "voManagerLogin",
         "voManagerPassword"
     );
+
+    public function __construct(\VuFind\Cache\Manager $cacheManager)
+    {
+        $this->cacheManager = $cacheManager;
+    }
 
     /**
      *
@@ -100,6 +107,9 @@ class IdentityResolver
                 throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
             }
         }
+
+        // Being here means we have all we need to initialize static variables
+
     }
 
     public function getPerunConfig()

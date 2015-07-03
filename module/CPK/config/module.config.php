@@ -33,10 +33,8 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
+            'Perun\IdentityResolver' => 'CPK\Perun\Factory::getIdentityResolver',
         ),
-        'invokables' => [
-            'identity-resolver' => 'CPK\Perun\IdentityResolver',
-        ],
     ),
 );
 

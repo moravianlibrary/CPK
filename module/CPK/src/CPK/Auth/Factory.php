@@ -86,7 +86,7 @@ class Factory
     {
         return new \CPK\Auth\PerunShibboleth(
                 $sm->getServiceLocator()->get('VuFind\Config'),
-                $sm->getServiceLocator()->get('identity-resolver')
+                $sm->getServiceLocator()->get('Perun\IdentityResolver')
             );
     }
 
