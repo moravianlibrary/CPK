@@ -76,6 +76,7 @@
         * This part checks if ShibAssertion export is enabled if [Shibboleth] config section & if it is, it gets those assertions
         */
         $authManager = $this->auth()->getManager();
+        $assertionExportEnabled = false;
         if ($authManager instanceof \CPK\Auth\Manager) {
             $perunShibboleth = $authManager->getPerunShibboleth();
 

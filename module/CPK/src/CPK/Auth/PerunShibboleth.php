@@ -28,7 +28,6 @@
 namespace CPK\Auth;
 
 use VuFind\Exception\Auth as AuthException, CPK\Perun\IdentityResolver;
-use VuFind\Exception\VuFind\Exception;
 use VuFind\Db\Row\User;
 use VuFind\Auth\Shibboleth as Shibboleth;
 
@@ -58,8 +57,6 @@ class PerunShibboleth extends Shibboleth
 
     protected $loginDrivers = null;
 
-    protected $configLoader;
-
     protected $shibbolethConfig = null;
 
     protected $attribsToCheck = array(
@@ -73,9 +70,16 @@ class PerunShibboleth extends Shibboleth
         'home_library'
     );
 
+    const CONFIG_FILE_NAME = "shibboleth";
+
     public function __construct(\VuFind\Config\PluginManager $configLoader, IdentityResolver $identityResolver)
     {
-        $this->configLoader = $configLoader;
+        $this->shibbolethConfig = $configLoader->get($this::CONFIG_FILE_NAME);
+
+        if (empty($this->shibbolethConfig)) {
+            throw new AuthException("Could not load " . $this::CONFIG_FILE_NAME . ".ini configuration file.");
+        }
+
         $this->identityResolver = $identityResolver;
     }
 
@@ -100,7 +104,7 @@ class PerunShibboleth extends Shibboleth
                 $config = $this->shibbolethConfig['default'];
                 $prefix = 'default';
             } else
-                throw new AuthException('Recieved entityId was not found in shibboleth.ini config nor default config part exists.');
+                throw new AuthException('Recieved entityId was not found in " . $this::CONFIG_FILE_NAME . ".ini config nor default config part exists.');
         }
 
         $attributes = $this->fetchAttributes($request, $config);
@@ -130,7 +134,7 @@ class PerunShibboleth extends Shibboleth
             if (empty($perunId)) {
 
                 // User is now being redirected to registrar of Perun
-                $linkToRegister = $this->identityResolver->getPerunConfig()->registrar;
+                $linkToRegister = $this->identityResolver->getPerunRegistrarLink();
                 header('Location: ' . $linkToRegister, true, 307);
                 die();
 
@@ -210,7 +214,7 @@ class PerunShibboleth extends Shibboleth
      * @param string $activeCard
      *            - it is basically cat_username user had active before new login
      */
-    protected function handleLibraryCards($user, $userLibraryIds)
+    protected function handleLibraryCards(User $user, $userLibraryIds)
     {
         $tableManager = $this->getDbTableManager();
         $userCardTable = $tableManager->get("UserCard");
@@ -278,24 +282,22 @@ class PerunShibboleth extends Shibboleth
             $this->shibAssertionExportEnabled = true;
         }
 
-        $this->shibbolethConfig = $this->configLoader->get('shibboleth');
         foreach ($this->shibbolethConfig as $name => $configuration) {
             if (! isset($configuration['username']) || empty($configuration['username'])) {
-                throw new AuthException("Shibboleth 'username' is missing in your shibboleth.ini configuration file for '" . $name . "'");
+                throw new AuthException("Shibboleth 'username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
             }
 
             if ($name !== 'default') {
                 if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
-                    throw new AuthException("Shibboleth 'entityId' is missing in your shibboleth.ini configuration file for '" . $name . "'");
+                    throw new AuthException("Shibboleth 'entityId' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
                 } elseif (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
-                    throw new AuthException("Shibboleth 'cat_username' is missing in your shibboleth.ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
+                    throw new AuthException("Shibboleth 'cat_username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
                 }
             }
         }
 
         // Validate also IdentityResolver's config from here
         $this->identityResolver->validateConfig($this->config);
-
     }
 
     protected function fetchAttributes($request, $config)

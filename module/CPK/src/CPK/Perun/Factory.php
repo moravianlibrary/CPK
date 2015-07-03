@@ -49,7 +49,7 @@ class Factory
     public function getIdentityResolver(ServiceManager $sm)
     {
         return new \CPK\Perun\IdentityResolver(
-                $sm->get('VuFind\CacheManager')
+                //$sm->get('VuFind\CacheManager')
             );
     }
 
