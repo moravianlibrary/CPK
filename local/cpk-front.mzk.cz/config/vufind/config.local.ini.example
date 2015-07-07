@@ -42,11 +42,16 @@ ABA013		= "http://aleph.techlib.cz/F?func=direct&doc_number="
 ABA008		= "http://www.medvik.cz/medvik/title_detail.do?id="
 
 [Perun]
-# URL of Perun's registrar to use - DO NOT FORGET TO SPECIFY VO
-registrar               = "https://perun.cesnet.cz/fed/registrar?vo=cpk"
+validateConfig          = 1
+
+# URL of Perun's registrar to use
+registrar               = "https://perun.cesnet.cz/fed/registrar/?vo=cpk"
+
+# Perun's /Login SP endpoint
+loginEndpoint           = "https://perun.cesnet.cz/Shibboleth.sso/Login"
 
 # URL of Perun's Kerberos RPC to use
-kerberosRpc             = https://perun.cesnet.cz/krb/rpc
+kerberosRpc             = https://perun.cesnet.cz/krb/rpc/
 
 # Where to redirect if user is new to Perun after visiting registrar
 targetNew               = https://cpk-front-devel.mzk.cz/MyResearch/Profile

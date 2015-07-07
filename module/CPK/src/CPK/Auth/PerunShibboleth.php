@@ -114,6 +114,8 @@ class PerunShibboleth extends Shibboleth
         }
 
         if (! $isConnected) {
+            // FIXME: User can login via FB & still can be member of one of connected institutes - look into his institutes
+            // TODO: If user logged in doesn't have connected his accounts from connected institutes, how should we tell him to do it?
             $prefix = 'Dummy';
 
             // Set cat_username's MultiBackend source dummy driver
@@ -134,14 +136,8 @@ class PerunShibboleth extends Shibboleth
             if (empty($perunId)) {
 
                 // User is now being redirected to registrar of Perun
-                $linkToRegister = $this->identityResolver->getPerunRegistrarLink();
-                header('Location: ' . $linkToRegister, true, 307);
-                die();
+                $this->identityResolver->registerUser($entityId);
 
-                // TODO: After user went through registery, we need to ask IdP again to provide us new info
-                // so that out SP can call AA to fetch new perunId to check if the registery was successfull
-
-                // TODO: Then, if user has new identity without libraryCard in Perun, push a card to Perun
             } else {
 
                 $handleLibraryCards = true;

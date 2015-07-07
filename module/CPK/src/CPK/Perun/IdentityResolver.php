@@ -45,14 +45,8 @@ use Zend\Session\Container as SessionContainer;
  */
 class IdentityResolver
 {
-    const URL_PATH_SET_ATTRIBUTE = "/json/attributesManager/setAttribute";
 
-    /**
-     * Container for storing cached Perun data.
-     *
-     * @var SessionContainer
-     */
-    protected $session;
+    const URL_PATH_SET_ATTRIBUTE = "/json/attributesManager/setAttribute";
 
     protected $perunConfig;
 
@@ -60,6 +54,7 @@ class IdentityResolver
 
     protected $requiredConfigVariables = array(
         "registrar",
+        "loginEndpoint",
         "kerberosRpc",
         "targetNew",
         "targetExtended",
@@ -69,9 +64,7 @@ class IdentityResolver
     );
 
     public function __construct()
-    {
-        $this->session = new SessionContainer("IdentityResolver");
-    }
+    {}
 
     /**
      *
@@ -111,21 +104,31 @@ class IdentityResolver
             throw new AuthException('[Perun] section not found in config.ini');
         }
 
-        foreach ($this->requiredConfigVariables as $reqConf) {
-            if (empty($this->perunConfig->$reqConf)) {
-                throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
+        if ($this->perunConfig->validateConfig) {
+            foreach ($this->requiredConfigVariables as $reqConf) {
+                if (empty($this->perunConfig->$reqConf)) {
+                    throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
+                } elseif ($reqConf === 'registrar' && strpos($this->perunConfig->$reqConf, "/?vo=" === false)) {
+                    // Attribute registrar must have VO specified in GET param ...
+                    throw new AuthException("Attribute '$reqConf' does not contain 'vo' specification, e.g. 'registrar/?vo=cpk'");
+                }
             }
         }
     }
 
-    public function pushLibraryCardsToPerun(array $userLibraryIds) {
-
+    /**
+     * Updates user's libraryCards in Perun
+     *
+     * @param array $userLibraryIds
+     */
+    public function pushLibraryCardsToPerun(array $userLibraryIds)
+    {
         $attribute = $this->getAttributeWithValue(json_encode($userLibraryIds));
 
-        //FIXME: parse user Id from eppn
+        // FIXME: parse user Id from eppn - or is it available in $_SERVER already?
         $userId = 49542;
 
-        $json = '{"user":'.$userId.',"attribute":'.$attribute.'}';
+        $json = '{"user":' . $userId . ',"attribute":' . $attribute . '}';
 
         $url = $this->perunConfig->kerberosRpc . $this::URL_PATH_SET_ATTRIBUTE;
 
@@ -143,11 +146,46 @@ class IdentityResolver
         $filename = $_SERVER['VUFIND_LOCAL_DIR'] . "/config/vufind/" . $this->perunConfig->attrDefFilename;
         $jsonDef = file_get_contents($filename);
 
-        if (!$jsonDef) {
-            throw new AuthException("Could not locate " . $filename);
+        if (! $jsonDef) {
+            throw new AuthException("Could not locate JSON definition of attribute for Perun at location " . $filename);
         }
 
         return str_replace('"VALUE_HERE"', $value, $jsonDef);
+    }
+
+    /**
+     * Redirects user to Perun's registrar through Perun's SP Login endpoint with current logged in entityID.
+     *
+     * This workaround is required in order to prevent user from choosing another institute.
+     */
+    public function registerUser($entityId)
+    {
+        $loginEndpoint = $this->perunConfig->loginEndpoint;
+
+        $registrar = $this->perunConfig->registrar;
+
+        $targetNew = $this->perunConfig->targetNew;
+        $targetExtended = $this->perunConfig->targetExtended;
+
+        // Whole url should look similar to this samle:
+        // "PerunShibboleth.sso/Login?entityID=...&target=...urlencode(linkToRegister?vo=cpk&targetNew=...&targetExtended=...)";
+
+        $redirectionUrl = $loginEndpoint . "?entityID=$entityId" . "&target=";
+
+        // We know registrar contains "?" - now we can append escaped "&"
+        $redirectionUrl .= urlencode($registrar . "&targetnew=$targetNew" . "&targetextended=$targetExtended");
+
+        header('Location: ' . $redirectionUrl, true, 307);
+        die();
+
+        // TODO: We should invoke the authentication process again after user is registered to see the process ...
+        // how about "manually" calling AuthManager->PerunShibboleth->authenticate? .. user should have all the session
+        // variables we need to identify him
+
+        // TODO: After user went through registery, we need to ask IdP again to provide us new info
+        // so that out SP can call AA to fetch new perunId to check if the registery was successfull
+
+        // TODO: Then, if user has new identity without libraryCard in Perun, push a card to Perun
     }
 
     /**
@@ -188,11 +226,6 @@ class IdentityResolver
         $this->session->cache[$id] = [
             'entry' => $entry
         ];
-    }
-
-    public function getPerunRegistrarLink()
-    {
-        return $this->perunConfig->registrar;
     }
 
     /**
@@ -237,7 +270,10 @@ class IdentityResolver
             'Content-Length: ' . strlen($json)
         ));
         curl_setopt($ch, CURLOPT_USERPWD, $username . ":" . $password);
+
+        // TODO: Shouldn't be the timeout set in config?
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
