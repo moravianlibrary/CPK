@@ -142,7 +142,7 @@ class IdentityResolver
      * @param string $entityId
      * @param string $targetToReturn
      */
-    public function registerUser($entityId, $targetToReturn)
+    public function redirectUserToRegistrar($entityId, $targetToReturn)
     {
         $loginEndpoint = $this->perunConfig->loginEndpoint;
 
@@ -169,15 +169,15 @@ class IdentityResolver
      *
      * This is most needed after was user registered to Perun & we need to know his perunId to push his libraryCards there.
      *
-     * @param unknown $entityId
-     * @param unknown $loginEndpoint
-     * @param unknown $targetToReturn
+     * @param string $entityId
+     * @param string $loginEndpoint
+     * @param string $targetToReturn
      */
-    public function refetchUser($entityId, $loginEndpoint, $targetToReturn)
+    public function redirectUserToLoginEndpoint($entityId, $loginEndpoint, $targetToReturn)
     {
-        // Append GET param "fromRegistrar" to know afterwards about this redirection
+        // Append GET param "redirected_from" to know afterwards about this redirection
         $append = (strpos($targetToReturn, '?') !== false) ? '&' : '?';
-        $targetToReturn .= $append . "auth_method=Shibboleth";
+        $targetToReturn .= $append . "auth_method=Shibboleth" . "&redirected_from=registery";
 
         $redirectionUrl = $loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=" . urlencode($targetToReturn);
 
@@ -192,13 +192,18 @@ class IdentityResolver
      * @param array $institutes
      * @return array institutes
      */
-    public function updateUserInstitutesInPerun($cat_username, array $institutes) {
+    public function updateUserInstitutesInPerun($cat_username, array $institutes)
+    {
 
         // Push current institutes only if those does not contain current cat_username,
         // which is possible only once - after user was registered into Perun ...
-
         if (! in_array($cat_username, $institutes)) {
-            array_push($institutes, $cat_username);
+
+            if (empty($institutes[0])) { // it is empty if no libraryIds was returned by AA
+                $institutes[0] = $cat_username;
+            } else {
+                array_push($institutes, $cat_username);
+            }
 
             $this->pushLibraryCardsToPerun($institutes);
         }

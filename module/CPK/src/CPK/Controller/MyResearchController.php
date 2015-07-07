@@ -40,8 +40,6 @@ use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFin
  */
 class MyResearchController extends MyResearchControllerBase
 {
-    protected $checkedRedirection = false;
-
     /**
      * Login Action
      *
@@ -61,10 +59,6 @@ class MyResearchController extends MyResearchControllerBase
 
     public function profileAction()
     {
-        if (! $this->checkedRedirection) {
-            $this->checkRedirection();
-        }
-
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver()) {
             return $this->forwardTo('MyResearch', 'Home');
@@ -87,23 +81,6 @@ class MyResearchController extends MyResearchControllerBase
             }
         }
     }
-
-    protected function checkRedirection()
-    {
-        $this->checkedRedirection = true;
-
-        $confPerun = $this->getConfig()->Perun;
-
-        if ($confPerun != null) {
-            $perunRegistar = $confPerun->registrar;
-
-            // Condition for user redirected from Perun registrar
-            if ($perunRegistar != null && $_SERVER['HTTP_REFERER'] == $perunRegistar) {
-                // TODO: Restore user session created after he logged in ..
-            }
-        }
-    }
-
     protected function isLoggedInWithDummyDriver()
     {
         $user = $this->getAuthManager()->isLoggedIn();

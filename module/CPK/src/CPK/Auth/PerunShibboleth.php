@@ -113,6 +113,13 @@ class PerunShibboleth extends Shibboleth
             throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['username'] . '"');
         }
 
+        $perunId = $_SERVER['perunUserId'];
+
+        // Empty perunId means user has no record in Perun or we didn't contact AA after user's registery
+        if (empty($perunId)) {
+            $this->registerUserToPerun($entityId);
+        }
+
         if (! $isConnected) {
             // FIXME: User can login via FB & still can be member of one of connected institutes - look into his institutes
             // TODO: If user logged in doesn't have connected his accounts from connected institutes, how should we tell him to do it?
@@ -128,27 +135,6 @@ class PerunShibboleth extends Shibboleth
             }
 
             $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
-
-            $perunId = $_SERVER['perunUserId'];
-
-            // Empty perunId means user has no record in Perun or we didn't contact AA after user's registery
-            if (empty($perunId)) {
-
-                $target = $this->getConfig()->Shibboleth->target;
-
-                if (! $this->isUserRedirectedFromPerunRegistrar()) {
-
-                    // User is now being redirected to registrar of Perun
-                    $this->identityResolver->registerUser($entityId, $target);
-                }
-
-                // User already registered - we just need to refetch his attributes from IdP & AA via our SP
-                // This is done by another redirect to our SP
-
-                $loginEndpoint = $this->getConfig()->Shibboleth->login;
-
-                $this->identityResolver->refetchUser($entityId, $loginEndpoint, $target);
-            }
 
             // Get dummy institutes for now
             $dummyInstitutes = $this->identityResolver->getDummyContent($attributes['cat_username']);
@@ -187,9 +173,42 @@ class PerunShibboleth extends Shibboleth
     }
 
     /**
+     * This method at first redirects the user to Perun registrar.
+     *
+     * At second, after the user is back, is redirected to local SP to renew our attributes from AA.
+     *
+     * @param string $entityId
+     */
+    protected function registerUserToPerun($entityId)
+    {
+        if (isset($_GET['redirected_from']) && $_GET['redirected_from'] === 'registery') {
+            throw new AuthException("User was successfully registered to Perun, but Perun AA didn't return perunId. Please contact the support.");
+        }
+
+        // This target is URL where user should return after is all done (redirect of redirect)
+        $target = $this->getConfig()->Shibboleth->target;
+
+        if (! $this->isUserRedirectedFromPerunRegistrar()) {
+
+            // TODO: User should be notified to connect existing accounts first ! -> contact Consolidator
+            // FIXME: If user creates new Perun account, he won't be able to join it with existing ones together later!
+
+            // User is now being redirected to registrar of Perun
+            $this->identityResolver->redirectUserToRegistrar($entityId, $target);
+        }
+
+        // User already registered - we just need to refetch his attributes from IdP & AA via our SP
+        // This is done by another redirect to our SP
+
+        $loginEndpoint = $this->getConfig()->Shibboleth->login;
+
+        $this->identityResolver->redirectUserToLoginEndpoint($entityId, $loginEndpoint, $target);
+    }
+
+    /**
      * Checks if user is redirected from Perun's registrar with our identifiers.
      *
-     * Return true only if there is no "auth_method" param & is set
+     * Return true only if there is no "auth_method" param & is set "from_registrar" param
      *
      * @return boolean
      */
