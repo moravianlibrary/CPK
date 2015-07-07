@@ -67,8 +67,6 @@ voManagerLogin          = USER_HERE
 voManagerPassword       = PASS_HERE
 
 [Piwik]
-
-[Piwik]
 url     = "https://cpk-front.mzk.cz/piwik"
 site_id = 1
 
