@@ -167,7 +167,7 @@ class DeduplicationListener
     public function onSearchPost(EventInterface $event)
     {
         // Do nothing if highlighting is disabled....
-        if (!$this->active) {
+        if (!$this->enabled) {
             return $event;
         }
 
