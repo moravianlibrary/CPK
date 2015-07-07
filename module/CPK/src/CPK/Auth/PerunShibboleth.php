@@ -27,9 +27,7 @@
  */
 namespace CPK\Auth;
 
-use VuFind\Exception\Auth as AuthException, CPK\Perun\IdentityResolver;
-use VuFind\Db\Row\User;
-use VuFind\Auth\Shibboleth as Shibboleth;
+use VuFind\Exception\Auth as AuthException, CPK\Perun\IdentityResolver, VuFind\Db\Row\User, VuFind\Auth\Shibboleth as Shibboleth;
 
 /**
  * Shibboleth authentication module.
@@ -117,6 +115,7 @@ class PerunShibboleth extends Shibboleth
 
         // Empty perunId means user has no record in Perun or we didn't contact AA after user's registery
         if (empty($perunId)) {
+            throw new AuthException("We cannot log you at this time. You have empty PerunId & we can't provide you full registery service.");
             $this->registerUserToPerun($entityId);
         }
 
