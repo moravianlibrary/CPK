@@ -27,9 +27,7 @@
  */
 namespace CPK\Auth;
 
-use VuFind\Exception\Auth as AuthException, CPK\Perun\IdentityResolver;
-use VuFind\Db\Row\User;
-use VuFind\Auth\Shibboleth as Shibboleth;
+use VuFind\Exception\Auth as AuthException, CPK\Perun\IdentityResolver, VuFind\Db\Row\User, VuFind\Auth\Shibboleth as Shibboleth;
 
 /**
  * Shibboleth authentication module.
@@ -113,6 +111,14 @@ class PerunShibboleth extends Shibboleth
             throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['username'] . '"');
         }
 
+        $perunId = $_SERVER['perunUserId'];
+
+        // Empty perunId means user has no record in Perun or we didn't contact AA after user's registery
+        if (empty($perunId)) {
+            throw new AuthException("We cannot log you at this time. You have empty PerunId & we can't provide you full registery service.");
+            $this->registerUserToPerun($entityId);
+        }
+
         if (! $isConnected) {
             // FIXME: User can login via FB & still can be member of one of connected institutes - look into his institutes
             // TODO: If user logged in doesn't have connected his accounts from connected institutes, how should we tell him to do it?
@@ -123,28 +129,24 @@ class PerunShibboleth extends Shibboleth
             $attributes['home_library'] = $prefix;
         } else {
 
-            // Process additional Perun requests
             if (empty($attributes['cat_username'])) {
                 throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['cat_username'] . '"');
             }
 
-            // Get dummy institutes for now
-            $institutes = $this->identityResolver->getDummyContent($prefix, $attributes['cat_username']);
-
-            $perunId = $_SERVER['perunUserId'];
-
-            if (empty($perunId)) {
-
-                // User is now being redirected to registrar of Perun
-                $this->identityResolver->registerUser($entityId);
-
-            } else {
-
-                $handleLibraryCards = true;
-            }
-
             $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
+
+            // Get dummy institutes for now
+            $dummyInstitutes = $this->identityResolver->getDummyContent($attributes['cat_username']);
+
+            $institutesFromPerun = split(";", $_SERVER['userLibraryIds']);
+
+            // If user has new identity without libraryCard in Perun, push a card of current account to Perun
+            // FIXME: update institutes using $institutesFromPerun, not $dummyInstitutes !! ... but after AA returns libraryIDs
+            $institutes = $this->identityResolver->updateUserInstitutesInPerun($attributes['cat_username'], $dummyInstitutes);
+
+            $handleLibraryCards = true;
         }
+
         if ($attributes['email'] == null)
             $attributes['email'] = '';
         if ($attributes['firstname'] == null)
@@ -167,6 +169,55 @@ class PerunShibboleth extends Shibboleth
         }
 
         return $user;
+    }
+
+    /**
+     * This method at first redirects the user to Perun registrar.
+     *
+     * At second, after the user is back, is redirected to local SP to renew our attributes from AA.
+     *
+     * @param string $entityId
+     */
+    protected function registerUserToPerun($entityId)
+    {
+        if (isset($_GET['redirected_from']) && $_GET['redirected_from'] === 'registery') {
+            throw new AuthException("User was successfully registered to Perun, but Perun AA didn't return perunId. Please contact the support.");
+        }
+
+        // This target is URL where user should return after is all done (redirect of redirect)
+        $target = $this->getConfig()->Shibboleth->target;
+
+        if (! $this->isUserRedirectedFromPerunRegistrar()) {
+
+            // TODO: User should be notified to connect existing accounts first ! -> contact Consolidator
+            // FIXME: If user creates new Perun account, he won't be able to join it with existing ones together later!
+
+            // User is now being redirected to registrar of Perun
+            $this->identityResolver->redirectUserToRegistrar($entityId, $target);
+        }
+
+        // User already registered - we just need to refetch his attributes from IdP & AA via our SP
+        // This is done by another redirect to our SP
+
+        $loginEndpoint = $this->getConfig()->Shibboleth->login;
+
+        $this->identityResolver->redirectUserToLoginEndpoint($entityId, $loginEndpoint, $target);
+    }
+
+    /**
+     * Checks if user is redirected from Perun's registrar with our identifiers.
+     *
+     * Return true only if there is no "auth_method" param & is set "from_registrar" param
+     *
+     * @return boolean
+     */
+    protected function isUserRedirectedFromPerunRegistrar()
+    {
+        // TODO: Can this determination of user being redirected be improved?
+        $hasAuthMethod = isset($_GET['auth_method']);
+        $isFromRegistrar = isset($_GET['from_registrar']) && $_GET['from_registrar'] === "1";
+
+        return ! $hasAuthMethod && $isFromRegistrar;
     }
 
     /**
@@ -270,13 +321,15 @@ class PerunShibboleth extends Shibboleth
      */
     protected function validateConfig()
     {
-
         // Throw an exception if the required login setting is missing.
         $shib = $this->config->Shibboleth;
 
         if (! isset($shib->login)) {
             throw new AuthException('Shibboleth login configuration parameter is not set.');
+        } elseif (! isset($shib->target)) {
+            throw new AuthException('Shibboleth target configuration parameter is not set.');
         } elseif (isset($shib->getAssertion) && $shib->getAssertion == true) {
+
             $this->shibAssertionExportEnabled = true;
         }
 

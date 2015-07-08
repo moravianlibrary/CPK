@@ -56,8 +56,6 @@ class IdentityResolver
         "registrar",
         "loginEndpoint",
         "kerberosRpc",
-        "targetNew",
-        "targetExtended",
         "attrDefFilename",
         "voManagerLogin",
         "voManagerPassword"
@@ -74,10 +72,10 @@ class IdentityResolver
      * @param string $userId
      * @return array $institutes
      */
-    public function getDummyContent($sigla, $userId)
+    public function getDummyContent($cat_username)
     {
         return array(
-            $sigla . PerunShibboleth::SEPARATOR . $userId,
+            $cat_username,
             "mzk.70" . rand(0, 2),
             "xcncip2." . rand(3, 5),
             "xcncip2." . rand(7, 8),
@@ -102,9 +100,8 @@ class IdentityResolver
 
         if ($this->perunConfig == null) {
             throw new AuthException('[Perun] section not found in config.ini');
-        }
-
-        if ($this->perunConfig->validateConfig) {
+        } elseif ($this->perunConfig->validateConfig) {
+            // Validation must be turned on by setting validateConfig = true
             foreach ($this->requiredConfigVariables as $reqConf) {
                 if (empty($this->perunConfig->$reqConf)) {
                     throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
@@ -114,25 +111,6 @@ class IdentityResolver
                 }
             }
         }
-    }
-
-    /**
-     * Updates user's libraryCards in Perun
-     *
-     * @param array $userLibraryIds
-     */
-    public function pushLibraryCardsToPerun(array $userLibraryIds)
-    {
-        $attribute = $this->getAttributeWithValue(json_encode($userLibraryIds));
-
-        // FIXME: parse user Id from eppn - or is it available in $_SERVER already?
-        $userId = 49542;
-
-        $json = '{"user":' . $userId . ',"attribute":' . $attribute . '}';
-
-        $url = $this->perunConfig->kerberosRpc . $this::URL_PATH_SET_ATTRIBUTE;
-
-        $response = $this->sendJSONpost($url, $json);
     }
 
     /**
@@ -154,38 +132,100 @@ class IdentityResolver
     }
 
     /**
+     *
      * Redirects user to Perun's registrar through Perun's SP Login endpoint with current logged in entityID.
      *
      * This workaround is required in order to prevent user from choosing another institute.
+     *
+     * Be aware of this method as the php thread dies.
+     *
+     * @param string $entityId
+     * @param string $targetToReturn
      */
-    public function registerUser($entityId)
+    public function redirectUserToRegistrar($entityId, $targetToReturn)
     {
         $loginEndpoint = $this->perunConfig->loginEndpoint;
 
         $registrar = $this->perunConfig->registrar;
 
-        $targetNew = $this->perunConfig->targetNew;
-        $targetExtended = $this->perunConfig->targetExtended;
+        // Append GET param "fromRegistrar" to know afterwards about this redirection
+        $append = (strpos($targetToReturn, '?') !== false) ? '&' : '?';
+        $targetToReturn .= $append . "from_registrar=1";
 
         // Whole url should look similar to this samle:
         // "PerunShibboleth.sso/Login?entityID=...&target=...urlencode(linkToRegister?vo=cpk&targetNew=...&targetExtended=...)";
 
-        $redirectionUrl = $loginEndpoint . "?entityID=$entityId" . "&target=";
+        $redirectionUrl = $loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=";
 
         // We know registrar contains "?" - now we can append escaped "&"
-        $redirectionUrl .= urlencode($registrar . "&targetnew=$targetNew" . "&targetextended=$targetExtended");
+        $redirectionUrl .= urlencode($registrar . "&targetnew=$targetToReturn" . "&targetextended=$targetToReturn");
 
         header('Location: ' . $redirectionUrl, true, 307);
         die();
+    }
 
-        // TODO: We should invoke the authentication process again after user is registered to see the process ...
-        // how about "manually" calling AuthManager->PerunShibboleth->authenticate? .. user should have all the session
-        // variables we need to identify him
+    /**
+     * Redirects user to local Service Provider with logged in entityId to refetch his attributes.
+     *
+     * This is most needed after was user registered to Perun & we need to know his perunId to push his libraryCards there.
+     *
+     * @param string $entityId
+     * @param string $loginEndpoint
+     * @param string $targetToReturn
+     */
+    public function redirectUserToLoginEndpoint($entityId, $loginEndpoint, $targetToReturn)
+    {
+        // Append GET param "redirected_from" to know afterwards about this redirection
+        $append = (strpos($targetToReturn, '?') !== false) ? '&' : '?';
+        $targetToReturn .= $append . "auth_method=Shibboleth" . "&redirected_from=registery";
 
-        // TODO: After user went through registery, we need to ask IdP again to provide us new info
-        // so that out SP can call AA to fetch new perunId to check if the registery was successfull
+        $redirectionUrl = $loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=" . urlencode($targetToReturn);
 
-        // TODO: Then, if user has new identity without libraryCard in Perun, push a card to Perun
+        header('Location: ' . $redirectionUrl, true, 307);
+        die();
+    }
+
+    /**
+     * Updates user's library cards in Perun only if current cat_username is not in array of institutes
+     *
+     * @param string $cat_username
+     * @param array $institutes
+     * @return array institutes
+     */
+    public function updateUserInstitutesInPerun($cat_username, array $institutes)
+    {
+
+        // Push current institutes only if those does not contain current cat_username,
+        // which is possible only once - after user was registered into Perun ...
+        if (! in_array($cat_username, $institutes)) {
+
+            if (empty($institutes[0])) { // it is empty if no libraryIds was returned by AA
+                $institutes[0] = $cat_username;
+            } else {
+                array_push($institutes, $cat_username);
+            }
+
+            $this->pushLibraryCardsToPerun($institutes);
+        }
+        return $institutes;
+    }
+
+    /**
+     * Updates user's libraryCards in Perun
+     *
+     * @param array $userLibraryIds
+     */
+    protected function pushLibraryCardsToPerun(array $userLibraryIds)
+    {
+        $attribute = $this->getAttributeWithValue(json_encode($userLibraryIds));
+
+        $userId = $_SERVER['perunUserId'];
+
+        $json = '{"user":' . $userId . ',"attribute":' . $attribute . '}';
+
+        $url = $this->perunConfig->kerberosRpc . $this::URL_PATH_SET_ATTRIBUTE;
+
+        $response = $this->sendJSONpost($url, $json);
     }
 
     /**
