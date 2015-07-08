@@ -1,0 +1,80 @@
+<VirtualHost *:80>
+   ServerName http://cpk-front-devel.mzk.cz:80
+   ServerAdmin cpk-dev@mzk.cz
+
+   RedirectPermanent / https://cpk-front-devel.mzk.cz/
+
+</VirtualHost>
+
+<VirtualHost *:443>
+   ServerName https://cpk-front-devel.mzk.cz:443
+   ServerAdmin cpk-dev@mzk.cz
+
+   SSLEngine On
+   SSLCertificateFile /etc/apache2/cert/cpk-front.mzk.cz.crt
+   SSLCertificateKeyFile /etc/apache2/cert/cpk-front.mzk.cz.key
+
+   <FilesMatch "\.(cgi|shtml|phtml|php)$">
+		SSLOptions +StdEnvVars
+   </FilesMatch>
+   <Directory /usr/lib/cgi-bin>
+		SSLOptions +StdEnvVars
+   </Directory>
+
+   Alias /piwik /var/www/piwik
+
+   DocumentRoot /home/kravec/git/VuFind-2.x/public
+
+   AliasMatch ^/themes/([0-9a-zA-Z-_]*)/(css|images|js)/(.*)$ /home/kravec/git/VuFind-2.x/themes/$1/$2/$3
+   <Directory ~ "^/home/kravec/git/VuFind-2.x/themes/([0-9a-zA-Z-_]*)/(css|images|js)/">
+      require all granted
+      AllowOverride All
+   </Directory>
+
+  <Directory /home/kravec/git/VuFind-2.x/public/>
+
+      <IfModule !mod_authz_core.c>
+          Order allow,deny
+          Allow from all
+      </IfModule>
+
+      <IfModule mod_authz_core.c>
+         Require all granted
+      </IfModule>
+
+      AllowOverride All
+
+      RewriteEngine On
+      RewriteCond %{REQUEST_URI} ^/Shibboleth.*$
+      RewriteRule .* - [S=3]
+      RewriteCond %{REQUEST_FILENAME} -s [OR]
+      RewriteCond %{REQUEST_FILENAME} -l [OR]
+      RewriteCond %{REQUEST_FILENAME} -d
+      RewriteRule ^.*$ - [NC,L]
+      RewriteRule ^.*$ index.php [NC,L]
+
+      php_value short_open_tag On
+
+   </Directory>
+
+   <Location />
+      AuthType shibboleth
+      ShibRequireSession Off
+
+      # Sets Shib-Assertion-1 & 2 with whole decoded SAML messages to read available input
+      ShibRequestSetting exportAssertion 1
+
+      Require shibboleth
+   </Location>
+
+   # cpk-front.mzk.cz is a config used to develop PerunShibboleth & PiwikStatistics
+   SetEnv VUFIND_LOCAL_DIR /home/kravec/git/VuFind-2.x/local/cpk-front.mzk.cz
+
+   SetEnv VUFIND_LOCAL_MODULES ObalkyKnihV3,MZKCommon,Statistics,CPK
+   SetEnv VUFIND_ENV development
+   
+   # What to show in browser output. Comment the line to hide the errors.
+   # SetEnv ERROR_REPORTING error,warning,notice,deprecated,strict,parse,compile_error
+   SetEnv ERROR_REPORTING error,warning,notice,deprecated,strict
+
+</VirtualHost>
