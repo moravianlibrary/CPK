@@ -46,12 +46,52 @@ use Zend\Session\Container as SessionContainer;
 class IdentityResolver
 {
 
+    /**
+     * This constant contains string which is used to append onto Perun Kerberos url
+     * to create valid url of setAttribute Perun method.
+     *
+     * @var const URL_PATH_SET_ATTRIBUTE
+     */
     const URL_PATH_SET_ATTRIBUTE = "/json/attributesManager/setAttribute";
 
+    /**
+     * This constant contains string which has to be replaced in loaded JSON attribute
+     * definition with desired value - usually it replaces with array, thus it needs
+     * doublequotes.
+     *
+     * @var const ATTR_DEF_VALUE_TO_REPLACE
+     */
+    const ATTR_DEF_VALUE_TO_REPLACE = '"VALUE_HERE"';
+
+    /**
+     * This config contains [Perun] section from config.ini.
+     *
+     * @var \Zend\Config\Config perunConfig
+     */
     protected $perunConfig;
 
+    /**
+     * This string contains url of Shibboleth's target from config.ini [Shibboleth] section
+     * to know where return client after all the redirections.
+     *
+     * @var string shibbolethTarget
+     */
+    protected $shibbolethTarget;
+
+    /**
+     * This string contains whole JSON definition of attribute in Perun of type ArrayList
+     * we use to store LibraryCards into.
+     *
+     * @var string attributeDefinition
+     */
     protected $attributeDefinition;
 
+    /**
+     * Each element of this array specifies which attribute must be set in [Perun] section
+     * of config.ini for IdentityProvider to work properly.
+     *
+     * @var array(string) requiredConfigVariables
+     */
     protected $requiredConfigVariables = array(
         "registrar",
         "loginEndpoint",
@@ -110,25 +150,23 @@ class IdentityResolver
                     throw new AuthException("Attribute '$reqConf' does not contain 'vo' specification, e.g. 'registrar/?vo=cpk'");
                 }
             }
-        }
-    }
 
-    /**
-     * Returns predefined attribute definition with desired value to post.
-     *
-     * @throws AuthException
-     * @return string json
-     */
-    protected function getAttributeWithValue($value)
-    {
-        $filename = $_SERVER['VUFIND_LOCAL_DIR'] . "/config/vufind/" . $this->perunConfig->attrDefFilename;
-        $jsonDef = file_get_contents($filename);
+            $filename = $_SERVER['VUFIND_LOCAL_DIR'] . "/config/vufind/" . $this->perunConfig->attrDefFilename;
+            $this->attributeDefinition = file_get_contents($filename);
 
-        if (! $jsonDef) {
-            throw new AuthException("Could not locate JSON definition of attribute for Perun at location " . $filename);
+            if (empty($this->attributeDefinition)) {
+                throw new AuthException("Could not locate JSON definition of attribute for Perun at location " . $filename);
+            }
         }
 
-        return str_replace('"VALUE_HERE"', $value, $jsonDef);
+        if (! isset($config->Shibboleth->target)) {
+            throw new AuthException("IdentityResolver could not load 'target' attribute from [Shibboleth] section in config.ini");
+        }
+
+        $this->shibbolethTarget = $config->Shibboleth->target;
+
+        // Shibboleth->login is checked in PerunShibboleth
+        $this->shibbolethLogin = $config->Shibboleth->login;
     }
 
     /**
@@ -140,25 +178,50 @@ class IdentityResolver
      * Be aware of this method as the php thread dies.
      *
      * @param string $entityId
-     * @param string $targetToReturn
      */
-    public function redirectUserToRegistrar($entityId, $targetToReturn)
+    public function redirectUserToRegistrar($entityId)
     {
-        $loginEndpoint = $this->perunConfig->loginEndpoint;
-
         $registrar = $this->perunConfig->registrar;
 
-        // Append GET param "fromRegistrar" to know afterwards about this redirection
-        $append = (strpos($targetToReturn, '?') !== false) ? '&' : '?';
-        $targetToReturn .= $append . "from_registrar=1";
+        $targetToReturn = $this->getShibbolethTargetWithRedirectionParam("registrar");
 
         // Whole url should look similar to this samle:
         // "PerunShibboleth.sso/Login?entityID=...&target=...urlencode(linkToRegister?vo=cpk&targetNew=...&targetExtended=...)";
 
-        $redirectionUrl = $loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=";
+        $redirectionUrl = $this->perunConfig->loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=";
 
         // We know registrar contains "?" - now we can append escaped "&"
-        $redirectionUrl .= urlencode($registrar . "&targetnew=$targetToReturn" . "&targetextended=$targetToReturn");
+        $redirectionUrl .= urlencode($registrar . "&targetnew=" . $targetToReturn . "&targetextended=" . $targetToReturn);
+
+        header('Location: ' . $redirectionUrl, true, 307);
+        die();
+    }
+
+    /**
+     *
+     * Redirects user to Perun's consolidator through Perun's SP Login endpoint with current logged in entityID.
+     *
+     * This workaround is required in order to prevent user from choosing another institute.
+     *
+     * Be aware of this method as the php thread dies.
+     *
+     * @param string $entityId
+     */
+    public function redirectUserToConsolidator($entityId) {
+
+        // TODO: Create custom consolidator with AJAX calls
+        // TODO: Implement redirect to consolidator & add config validation
+
+        throw new AuthException("Consolidator redirection not implemented yet");
+
+        $consolidator = ""; // TODO
+
+        $targetToReturn = $this->getShibbolethTargetWithRedirectionParam("consolidator");
+
+        $redirectionUrl = $this->perunConfig->loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=";
+
+        // FIXME: set the target so that it works with custom created consolidator
+        $redirectionUrl .= urlencode($consolidator . "?target=" .$targetToReturn);
 
         header('Location: ' . $redirectionUrl, true, 307);
         die();
@@ -169,27 +232,43 @@ class IdentityResolver
      *
      * This is most needed after was user registered to Perun & we need to know his perunId to push his libraryCards there.
      *
-     * @param string $entityId
-     * @param string $loginEndpoint
-     * @param string $targetToReturn
+     * Be aware of this method as the php thread dies.
+     *
+     * @param string entityId
+     * @param string redirectedFrom
      */
-    public function redirectUserToLoginEndpoint($entityId, $loginEndpoint, $targetToReturn)
+    public function redirectUserToLoginEndpoint($entityId, $redirectedFrom)
     {
-        // Append GET param "redirected_from" to know afterwards about this redirection
-        $append = (strpos($targetToReturn, '?') !== false) ? '&' : '?';
-        $targetToReturn .= $append . "auth_method=Shibboleth" . "&redirected_from=registery";
+        $targetToReturn = $this->getShibbolethTargetWithRedirectionParam($redirectedFrom);
 
-        $redirectionUrl = $loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=" . urlencode($targetToReturn);
+        $redirectionUrl = $this->shibbolethLogin . "?entityID=" . urlencode($entityId) . "&target=" . urlencode($targetToReturn);
 
         header('Location: ' . $redirectionUrl, true, 307);
         die();
     }
 
     /**
+     * Return url where should be user returned after all redirections are done.
+     *
+     * It actually appends ?auth_method=Shibboleth&redirected_from= $redirectedFrom, which
+     * is useful for later determining user's state of Perun registery.
+     *
+     * @param string redirectedFrom
+     * @return string targetToReturn
+     */
+    protected function getShibbolethTargetWithRedirectionParam($redirectedFrom) {
+        // Append GET param "redirected_from" to know afterwards about this redirection
+        $append = (strpos($this->shibbolethTarget, '?') !== false) ? '&' : '?';
+        return $this->shibbolethTarget . $append . "auth_method=Shibboleth" . "&redirected_from=" . $redirectedFrom;
+    }
+
+    /**
      * Updates user's library cards in Perun only if current cat_username is not in array of institutes
      *
-     * @param string $cat_username
-     * @param array $institutes
+     * Note that array of institutes is actually array of all user's cat_username stored in library cards.
+     *
+     * @param string cat_username
+     * @param array institutes
      * @return array institutes
      */
     public function updateUserInstitutesInPerun($cat_username, array $institutes)
@@ -229,43 +308,14 @@ class IdentityResolver
     }
 
     /**
-     * Helper function for fetching cached data.
-     * Data is cached until it is deleted
+     * Returns predefined attribute definition with desired value to post into Perun with it's API.
      *
-     * @param string $id
-     *            Cache entry id
-     *
-     * @return mixed|null Cached entry or null if not cached
+     * @return string attributeDefinitionWithCustomValue
      */
-    protected function getCache($id)
+    protected function getAttributeWithValue($value)
     {
-        if (isset($this->session->cache[$id])) {
-            $item = $this->session->cache[$id];
-            return $item['entry'];
-        }
-        return null;
-    }
-
-    /**
-     * Helper function for storing cached data.
-     * Data is cached until it is deleted
-     *
-     * @param string $id
-     *            Cache entry id
-     * @param mixed $entry
-     *            Entry to be cached
-     *
-     * @return void
-     */
-    protected function setCache($id, $entry)
-    {
-        if (! isset($this->session->cache)) {
-            $this->session->cache = [];
-        }
-
-        $this->session->cache[$id] = [
-            'entry' => $entry
-        ];
+        $attributeDefinitionWithCustomValue = str_replace($this::ATTR_DEF_VALUE_TO_REPLACE, $value, $this->attributeDefinition);
+        return $attributeDefinitionWithCustomValue;
     }
 
     /**
@@ -293,9 +343,11 @@ class IdentityResolver
      * @param string $username
      * @param string $password
      * @param string $json
+     * @param int $timeout
+     *            Timeout in seconds to wait for response from url
      * @return array( int statusCode, string bodyResponse )
      */
-    public function sendJSONpostWithBasicAuth($url, $username, $password, $json)
+    public function sendJSONpostWithBasicAuth($url, $username, $password, $json, $timeout = 10)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -311,8 +363,7 @@ class IdentityResolver
         ));
         curl_setopt($ch, CURLOPT_USERPWD, $username . ":" . $password);
 
-        // TODO: Shouldn't be the timeout set in config?
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
