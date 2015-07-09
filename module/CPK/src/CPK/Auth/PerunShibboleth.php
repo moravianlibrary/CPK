@@ -273,7 +273,7 @@ class PerunShibboleth extends Shibboleth
     protected function registerUserToPerun($entityId)
     {
         if ($this->isUserRedirectedFrom("registrar_relogged")) {
-            throw new AuthException("User was successfully registered to Perun, but Perun AA didn't return perunId. Please contact the support.");
+            throw new AuthException("User was successfully registered to Perun, but Perun AA didn't return perunId or didn't process VO registery. Please contact the support.");
         }
 
         if ($this->isUserRedirectedFrom("registrar")) {
