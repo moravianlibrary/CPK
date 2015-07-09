@@ -191,7 +191,7 @@ class IdentityResolver
         $redirectionUrl = $this->perunConfig->loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=";
 
         // We know registrar contains "?" - now we can append escaped "&"
-        $redirectionUrl .= urlencode($registrar . "&targetnew=" . $targetToReturn . "&targetextended=" . $targetToReturn);
+        $redirectionUrl .= urlencode($registrar . "&targetextended=" . urlencode($targetToReturn) . "&targetnew=" . urlencode($targetToReturn));
 
         header('Location: ' . $redirectionUrl, true, 307);
         die();

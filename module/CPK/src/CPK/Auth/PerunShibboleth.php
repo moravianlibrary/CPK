@@ -28,6 +28,7 @@
 namespace CPK\Auth;
 
 use VuFind\Exception\Auth as AuthException, CPK\Perun\IdentityResolver, VuFind\Db\Row\User, VuFind\Auth\Shibboleth as Shibboleth;
+use VuFind\Exception\VuFind\Exception;
 
 /**
  * Shibboleth authentication module.
@@ -227,14 +228,10 @@ class PerunShibboleth extends Shibboleth
 
             $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
 
-            // Get dummy institutes for now
-            $dummyInstitutes = $this->identityResolver->getDummyContent($attributes['cat_username']);
-
             $institutesFromPerun = split(";", $_SERVER['userLibraryIds']);
 
             // If user has new identity without libraryCard in Perun, push a card of current account to Perun
-            // FIXME: update institutes using $institutesFromPerun, not $dummyInstitutes !! ... but after AA returns libraryIDs
-            $institutes = $this->identityResolver->updateUserInstitutesInPerun($attributes['cat_username'], $dummyInstitutes);
+            $institutes = $this->identityResolver->updateUserInstitutesInPerun($attributes['cat_username'], $institutesFromPerun);
 
             $handleLibraryCards = true;
         }
@@ -286,7 +283,7 @@ class PerunShibboleth extends Shibboleth
 
             $this->identityResolver->redirectUserToLoginEndpoint($entityId, "registrar_relogged");
             // Died here ...
-        } elseif ($this->isUserRedirectedFrom("consolidator")) {
+            } elseif (true || $this->isUserRedirectedFrom("consolidator")) { // Temporary set user registery to Perun to be automatic
 
             /*
              * TODO: Detect if the user returned from consolidator has now assigned any PerunId
@@ -300,13 +297,12 @@ class PerunShibboleth extends Shibboleth
              *
              * TODO: Remove then following Exception
              */
-            throw new AuthException("Sorry, we cannot register you to Perun at this time.");
 
-            // TODO: Redirect user to registrar only if he has no PerunId now ...
             $this->identityResolver->redirectUserToRegistrar($entityId);
             // Died here ...
         }
 
+        // FIXME Code never gets here .. Will we be redirecting user through consolidator or not?
         $this->identityResolver->redirectUserToConsolidator($entityId);
         // Died here ...
     }
