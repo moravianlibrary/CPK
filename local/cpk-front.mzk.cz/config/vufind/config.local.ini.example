@@ -46,8 +46,10 @@ ABA008		= "http://www.medvik.cz/medvik/title_detail.do?id="
 [Perun]
 validateConfig          = 1
 
+virtualOrganization	= cpk
+
 # URL of Perun's registrar to use
-registrar               = "https://perun.cesnet.cz/fed/registrar/?vo=cpk"
+registrar               = "https://perun.cesnet.cz/fed/registrar"
 
 # Perun's /Login SP endpoint
 loginEndpoint           = "https://perun.cesnet.cz/Shibboleth.sso/Login"

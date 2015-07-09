@@ -207,7 +207,7 @@ class PerunShibboleth extends Shibboleth
         $perunId = $_SERVER['perunUserId'];
 
         // Empty perunId means user has no record in Perun or we didn't contact AA after user's registery
-        if (empty($perunId)) {
+        if (empty($perunId) || ! $this->identityResolver->isVoMember()) {
             $this->registerUserToPerun($entityId);
             // Died here ...
         }
@@ -283,7 +283,7 @@ class PerunShibboleth extends Shibboleth
 
             $this->identityResolver->redirectUserToLoginEndpoint($entityId, "registrar_relogged");
             // Died here ...
-            } elseif (true || $this->isUserRedirectedFrom("consolidator")) { // Temporary set user registery to Perun to be automatic
+        } elseif (true || $this->isUserRedirectedFrom("consolidator")) { // Temporary set user registery to Perun to be automatic
 
             /*
              * TODO: Detect if the user returned from consolidator has now assigned any PerunId
@@ -310,8 +310,7 @@ class PerunShibboleth extends Shibboleth
     /**
      * Returns true only if there is $_GET["redirected_from"] param set to $tag
      *
-     * @param
-     *            string tag
+     * @param string $tag
      * @return boolean isRedirectedFromTag
      */
     protected function isUserRedirectedFrom($tag)

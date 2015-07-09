@@ -94,6 +94,7 @@ class IdentityResolver
      */
     protected $requiredConfigVariables = array(
         "registrar",
+        "virtualOrganization",
         "loginEndpoint",
         "kerberosRpc",
         "attrDefFilename",
@@ -146,8 +147,8 @@ class IdentityResolver
                 if (empty($this->perunConfig->$reqConf)) {
                     throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
                 } elseif ($reqConf === 'registrar' && strpos($this->perunConfig->$reqConf, "/?vo=" === false)) {
-                    // Attribute registrar must have VO specified in GET param ...
-                    throw new AuthException("Attribute '$reqConf' does not contain 'vo' specification, e.g. 'registrar/?vo=cpk'");
+                    // Attribute registrar doesn't have VO specified in GET param, thus we will set it now
+                    $this->perunConfig->registrar .= "/?vo=" . $this->perunConfig->virtualOrganization;
                 }
             }
 
@@ -167,6 +168,20 @@ class IdentityResolver
 
         // Shibboleth->login is checked in PerunShibboleth
         $this->shibbolethLogin = $config->Shibboleth->login;
+    }
+
+    /**
+     * Checks if logged in user is member of VO specified in config.
+     *
+     * @return boolean $isVoMember
+     */
+    public function isVoMember()
+    {
+        $voName = $this->perunConfig->virtualOrganization;
+
+        $voMemberships = split(";", $_SERVER['perunVoName']);
+
+        return array_search($voName, $voMemberships) !== false;
     }
 
     /**
@@ -207,11 +222,11 @@ class IdentityResolver
      *
      * @param string $entityId
      */
-    public function redirectUserToConsolidator($entityId) {
+    public function redirectUserToConsolidator($entityId)
+    {
 
         // TODO: Create custom consolidator with AJAX calls
         // TODO: Implement redirect to consolidator & add config validation
-
         throw new AuthException("Consolidator redirection not implemented yet");
 
         $consolidator = ""; // TODO
@@ -221,7 +236,7 @@ class IdentityResolver
         $redirectionUrl = $this->perunConfig->loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=";
 
         // FIXME: set the target so that it works with custom created consolidator
-        $redirectionUrl .= urlencode($consolidator . "?target=" .$targetToReturn);
+        $redirectionUrl .= urlencode($consolidator . "?target=" . $targetToReturn);
 
         header('Location: ' . $redirectionUrl, true, 307);
         die();
@@ -234,8 +249,9 @@ class IdentityResolver
      *
      * Be aware of this method as the php thread dies.
      *
-     * @param string entityId
-     * @param string redirectedFrom
+     * @param string $entityId
+     * @param string $redirectedFrom
+     * @return Nothing .. the thread dies
      */
     public function redirectUserToLoginEndpoint($entityId, $redirectedFrom)
     {
@@ -253,10 +269,11 @@ class IdentityResolver
      * It actually appends ?auth_method=Shibboleth&redirected_from= $redirectedFrom, which
      * is useful for later determining user's state of Perun registery.
      *
-     * @param string redirectedFrom
+     * @param string $redirectedFrom
      * @return string targetToReturn
      */
-    protected function getShibbolethTargetWithRedirectionParam($redirectedFrom) {
+    protected function getShibbolethTargetWithRedirectionParam($redirectedFrom)
+    {
         // Append GET param "redirected_from" to know afterwards about this redirection
         $append = (strpos($this->shibbolethTarget, '?') !== false) ? '&' : '?';
         return $this->shibbolethTarget . $append . "auth_method=Shibboleth" . "&redirected_from=" . $redirectedFrom;
@@ -267,8 +284,8 @@ class IdentityResolver
      *
      * Note that array of institutes is actually array of all user's cat_username stored in library cards.
      *
-     * @param string cat_username
-     * @param array institutes
+     * @param string $cat_username
+     * @param array $institutes
      * @return array institutes
      */
     public function updateUserInstitutesInPerun($cat_username, array $institutes)
