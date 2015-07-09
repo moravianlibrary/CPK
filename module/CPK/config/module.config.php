@@ -38,4 +38,24 @@ $config = array(
     ),
 );
 
+$staticRoutes = array(
+	'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
+	'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/'
+);
+
+foreach ($staticRoutes as $route) {
+	list($controller, $action) = explode('/', $route);
+	$routeName = str_replace('/', '-', strtolower($route));
+	$config['router']['routes'][$routeName] = array(
+		'type' => 'Zend\Mvc\Router\Http\Literal',
+		'options' => array(
+			'route' => '/' . $route,
+			'defaults' => array(
+				'controller' => $controller,
+				'action' => (! empty($action)) ? $action : 'default',
+				)
+			)
+	);
+}
+
 return $config;
