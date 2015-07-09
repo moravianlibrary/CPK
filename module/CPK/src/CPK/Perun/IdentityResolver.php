@@ -153,7 +153,7 @@ class IdentityResolver
             foreach ($this->requiredConfigVariables as $reqConf) {
                 if (empty($this->perunConfig->$reqConf)) {
                     throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
-                } elseif ($reqConf === 'registrar' && strpos($this->perunConfig->$reqConf, "/?vo=" === false)) {
+                } elseif ($reqConf === 'registrar' && strpos($this->perunConfig->$reqConf, "/?vo=") === false) {
                     // Attribute registrar doesn't have VO specified in GET param, thus we will set it now
                     $this->registrar = $this->perunConfig->registrar . "/?vo=" . $this->perunConfig->virtualOrganization;
                 }
