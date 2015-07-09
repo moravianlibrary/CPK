@@ -12,7 +12,7 @@ class Factory
      *
      * @return SolrMarc
      */
-    public function getSolrMarc(ServiceManager $sm)
+    public static function getSolrMarc(ServiceManager $sm)
     {
         $driver = new \CPK\RecordDriver\SolrMarc(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
@@ -27,7 +27,7 @@ class Factory
         return $driver;
     }
 
-    public function getSolrMarcMZK(ServiceManager $sm)
+    public static function getSolrMarcMZK(ServiceManager $sm)
     {
         $driver = new \CPK\RecordDriver\SolrMarcMZK(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
@@ -42,7 +42,7 @@ class Factory
         return $driver;
     }
 
-    public function getSolrMarcVKOL(ServiceManager $sm)
+    public static function getSolrMarcVKOL(ServiceManager $sm)
     {
         $driver = new \CPK\RecordDriver\SolrMarcVKOL(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
@@ -57,7 +57,7 @@ class Factory
         return $driver;
     }
 
-    public function getSolrMarcNLK(ServiceManager $sm)
+    public static function getSolrMarcNLK(ServiceManager $sm)
     {
         $driver = new \CPK\RecordDriver\SolrMarcNLK(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),

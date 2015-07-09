@@ -46,7 +46,7 @@ class Factory
      *
      * @return Manager
      */
-    public function getAuthManager(ServiceManager $sm)
+    public static function getAuthManager(ServiceManager $sm)
     {
         $config = $sm->get('VuFind\Config')->get('config');
         try {
@@ -82,7 +82,7 @@ class Factory
      *
      * @return PerunShibboleth
      */
-    public function getPerunShibboleth(ServiceManager $sm)
+    public static function getPerunShibboleth(ServiceManager $sm)
     {
         return new \CPK\Auth\PerunShibboleth(
                 $sm->getServiceLocator()->get('VuFind\Config'),
