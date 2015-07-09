@@ -1,59 +1,16 @@
 @import "bootstrap";
 
 //import colors definitions
-@import "bootstrap-material-design/_colors";
+@import "parts/_bootstrap-material-design-colors";
+
 //import variables definitions
-@import "bootstrap-material-design/_variables";
-//import shadows definitions
-@import "bootstrap-material-design/_shadows";
+@import "parts/_bootstrap-material-design-variables";
+@import "variables";
 
-@import "bootstrap-material-design/_mixins";
-@import "bootstrap-material-design/_alerts";
-
+@import "parts/alerts";
 @import "parts/well";
 @import "parts/facets";
+@import "parts/header-searchbox";
 
-//top menu
-.navbar-nav > li > a {
-  font-weight: bold;
-}
-.navbar-right {
-  margin-top: 17px;
-}
-.navbar{
-  padding-bottom: 15px;
- // margin-bottom: 0px;
-}
-.navbar-brand {
-  height: auto;
-}
-
-
-//searchbox
-.container > .well{
-  margin-left: -15px;
-  margin-right: -15px;
-  margin-top: -20px;
-}
-
-@media (max-width: 767px) {
-  #searchForm_type {
-    margin-top: 3px;
-    margin-bottom: 10px;
-  }
-}
-
-
-.search-controls .form-inline {
-  display: inline-block;
-}
-
-
-.alert-info, .alert-danger, .alert-warning, .alert-success {
-  color: #FFF;
-}
-
-
-@import "variables";
 
 @import "statistics";
