@@ -213,13 +213,20 @@ class PerunShibboleth extends Shibboleth
         }
 
         if (! $isConnected) {
-            // FIXME: User can login via FB & still can be member of one of connected institutes - look into his institutes
             // TODO: If user logged in doesn't have connected his accounts from connected institutes, how should we tell him to do it?
-            $prefix = 'Dummy';
 
-            // Set cat_username's MultiBackend source dummy driver
-            $attributes['cat_username'] = 'Dummy.Dummy';
-            $attributes['home_library'] = $prefix;
+            $institutes = split(";", $_SERVER['userLibraryIds']);
+
+            if (! empty($institutes[0])) {
+                $attributes['cat_username'] = $institutes[0];
+                $attributes['home_library'] = split($this::SEPARATOR_REGEXED, $institutes[0])[0];
+            } else {
+                $prefix = 'Dummy';
+
+                // Set cat_username's MultiBackend source dummy driver
+                $attributes['cat_username'] = 'Dummy.Dummy';
+                $attributes['home_library'] = $prefix;
+            }
         } else {
 
             if (empty($attributes['cat_username'])) {
