@@ -87,6 +87,13 @@ class IdentityResolver
     protected $attributeDefinition;
 
     /**
+     * This string is basically URL to registrar of configured VO.
+     *
+     * @var string registrar
+     */
+    protected $registrar;
+
+    /**
      * Each element of this array specifies which attribute must be set in [Perun] section
      * of config.ini for IdentityProvider to work properly.
      *
@@ -148,7 +155,7 @@ class IdentityResolver
                     throw new AuthException("Attribute '$reqConf' is not set in config.ini's [Perun] section");
                 } elseif ($reqConf === 'registrar' && strpos($this->perunConfig->$reqConf, "/?vo=" === false)) {
                     // Attribute registrar doesn't have VO specified in GET param, thus we will set it now
-                    $this->perunConfig->registrar .= "/?vo=" . $this->perunConfig->virtualOrganization;
+                    $this->registrar = $this->perunConfig->registrar . "/?vo=" . $this->perunConfig->virtualOrganization;
                 }
             }
 
@@ -196,8 +203,6 @@ class IdentityResolver
      */
     public function redirectUserToRegistrar($entityId)
     {
-        $registrar = $this->perunConfig->registrar;
-
         $targetToReturn = $this->getShibbolethTargetWithRedirectionParam("registrar");
 
         // Whole url should look similar to this samle:
@@ -206,7 +211,7 @@ class IdentityResolver
         $redirectionUrl = $this->perunConfig->loginEndpoint . "?entityID=" . urlencode($entityId) . "&target=";
 
         // We know registrar contains "?" - now we can append escaped "&"
-        $redirectionUrl .= urlencode($registrar . "&targetextended=" . urlencode($targetToReturn) . "&targetnew=" . urlencode($targetToReturn));
+        $redirectionUrl .= urlencode($this->registrar . "&targetextended=" . urlencode($targetToReturn) . "&targetnew=" . urlencode($targetToReturn));
 
         header('Location: ' . $redirectionUrl, true, 307);
         die();
