@@ -31,6 +31,7 @@ namespace CPK\Perun;
 use VuFind\Exception\Auth as AuthException;
 use CPK\Auth\PerunShibboleth;
 use Zend\Session\Container as SessionContainer;
+use ZfcRbacTest\Guard\ProtectionPolicyTraitTest;
 
 /**
  * Class for resolving user's connected identities from Perun (https://github.com/CESNET/perun)
@@ -47,14 +48,6 @@ class IdentityResolver
 {
 
     /**
-     * This constant contains string which is used to append onto Perun Kerberos url
-     * to create valid url of setAttribute Perun method.
-     *
-     * @var const URL_PATH_SET_ATTRIBUTE
-     */
-    const URL_PATH_SET_ATTRIBUTE = "/json/attributesManager/setAttribute";
-
-    /**
      * This constant contains string which has to be replaced in loaded JSON attribute
      * definition with desired value - usually it replaces with array, thus it needs
      * doublequotes.
@@ -64,19 +57,12 @@ class IdentityResolver
     const ATTR_DEF_VALUE_TO_REPLACE = '"VALUE_HERE"';
 
     /**
-     * This config contains [Perun] section from config.ini.
+     * This constant contains string which is used to append onto Perun Kerberos url
+     * to create valid url of setAttribute Perun method.
      *
-     * @var \Zend\Config\Config perunConfig
+     * @var const URL_PATH_SET_ATTRIBUTE
      */
-    protected $perunConfig;
-
-    /**
-     * This string contains url of Shibboleth's target from config.ini [Shibboleth] section
-     * to know where return client after all the redirections.
-     *
-     * @var string shibbolethTarget
-     */
-    protected $shibbolethTarget;
+    const URL_PATH_SET_ATTRIBUTE = "/json/attributesManager/setAttribute";
 
     /**
      * This string contains whole JSON definition of attribute in Perun of type ArrayList
@@ -85,6 +71,26 @@ class IdentityResolver
      * @var string attributeDefinition
      */
     protected $attributeDefinition;
+
+    /**
+     * This boolean holds information about Perun connectivity.
+     * It is set to true only if is in [Perun] section of
+     * config.ini set "cantContactPerun = true".
+     *
+     * If you set this, then this VuFind configuration will not even try to contact Perun.
+     * There will be random library cards created to be able of doing custom design
+     * or new features without access to Perun.
+     *
+     * @var boolean cantContactPerun
+     */
+    protected $cantContactPerun = false;
+
+    /**
+     * This config contains [Perun] section from config.ini.
+     *
+     * @var \Zend\Config\Config perunConfig
+     */
+    protected $perunConfig;
 
     /**
      * This string is basically URL to registrar of configured VO.
@@ -109,27 +115,16 @@ class IdentityResolver
         "voManagerPassword"
     );
 
+    /**
+     * This string contains url of Shibboleth's target from config.ini [Shibboleth] section
+     * to know where return client after all the redirections.
+     *
+     * @var string shibbolethTarget
+     */
+    protected $shibbolethTarget;
+
     public function __construct()
     {}
-
-    /**
-     *
-     * Gets Random identites to substitute for Perun implementation
-     *
-     * @param string $sigla
-     * @param string $userId
-     * @return array $institutes
-     */
-    public function getDummyContent($cat_username)
-    {
-        return array(
-            $cat_username,
-            "mzk.70" . rand(0, 2),
-            "xcncip2." . rand(3, 5),
-            "xcncip2." . rand(7, 8),
-            "xcncip2." . rand(9, 11)
-        );
-    }
 
     /**
      * Validate configuration parameters.
@@ -175,6 +170,29 @@ class IdentityResolver
 
         // Shibboleth->login is checked in PerunShibboleth
         $this->shibbolethLogin = $config->Shibboleth->login;
+
+        if (isset($this->perunConfig->cantContactPerun)) {
+            $this->cantContactPerun = $this->perunConfig->cantContactPerun;
+        }
+    }
+
+    /**
+     * Checks if logged in user has to be registered to Perun's VO
+     * or no.
+     * If user has no PerunId yet, returns yes also, because
+     * registering user to VO automatically creates new Perun Id.
+     *
+     * @return boolean $shouldBeRegisteredToPerun
+     */
+    public function shouldBeRegisteredToPerun()
+    {
+        $perunId = $_SERVER['perunUserId'];
+
+        if ($this->cantContactPerun)
+            return false;
+
+            // Empty perunId means user has no record in Perun or we didn't contact AA after user's registery
+        return empty($perunId) || ! $this->isVoMember();
     }
 
     /**
@@ -182,13 +200,91 @@ class IdentityResolver
      *
      * @return boolean $isVoMember
      */
-    public function isVoMember()
+    protected function isVoMember()
     {
         $voName = $this->perunConfig->virtualOrganization;
 
         $voMemberships = split(";", $_SERVER['perunVoName']);
 
         return array_search($voName, $voMemberships) !== false;
+    }
+
+    /**
+     * Returns predefined attribute definition with desired value to post into Perun with it's API.
+     *
+     * @return string attributeDefinitionWithCustomValue
+     */
+    protected function getAttributeWithValue($value)
+    {
+        $attributeDefinitionWithCustomValue = str_replace($this::ATTR_DEF_VALUE_TO_REPLACE, $value, $this->attributeDefinition);
+        return $attributeDefinitionWithCustomValue;
+    }
+
+    /**
+     *
+     * Gets Random identites to substitute for Perun implementation
+     *
+     * @param string $sigla
+     * @param string $userId
+     * @return array $institutes
+     */
+    protected function getDummyContent($cat_username)
+    {
+        return array(
+            $cat_username,
+            "mzk.70" . rand(0, 2),
+            "xcncip2." . rand(3, 5),
+            "xcncip2." . rand(7, 8),
+            "xcncip2." . rand(9, 11)
+        );
+    }
+
+    /**
+     * Return url where should be user returned after all redirections are done.
+     *
+     * It actually appends ?auth_method=Shibboleth&redirected_from= $redirectedFrom, which
+     * is useful for later determining user's state of Perun registery.
+     *
+     * @param string $redirectedFrom
+     * @return string targetToReturn
+     */
+    protected function getShibbolethTargetWithRedirectionParam($redirectedFrom)
+    {
+        // Append GET param "redirected_from" to know afterwards about this redirection
+        $append = (strpos($this->shibbolethTarget, '?') !== false) ? '&' : '?';
+        return $this->shibbolethTarget . $append . "auth_method=Shibboleth" . "&redirected_from=" . $redirectedFrom;
+    }
+
+    /**
+     * Updates user's library cards in Perun only if current cat_username is not in array of institutes
+     *
+     * Note that array of institutes is actually array of all user's cat_username stored in library cards.
+     *
+     * If you can't contact Perun, it will return dummy institutes.
+     *
+     * @param string $cat_username
+     * @param array $institutes
+     * @return array institutes
+     */
+    public function updateUserInstitutesInPerun($cat_username, array $institutes)
+    {
+        if ($this->cantContactPerun) {
+            return $this->getDummyContent($cat_username);
+        }
+
+        // Push current institutes only if those does not contain current cat_username,
+        // which is possible only once - after user was registered into Perun ...
+        if (! in_array($cat_username, $institutes)) {
+
+            if (empty($institutes[0])) { // it is empty if no libraryIds was returned by AA
+                $institutes[0] = $cat_username;
+            } else {
+                array_push($institutes, $cat_username);
+            }
+
+            $this->pushLibraryCardsToPerun($institutes);
+        }
+        return $institutes;
     }
 
     /**
@@ -269,49 +365,6 @@ class IdentityResolver
     }
 
     /**
-     * Return url where should be user returned after all redirections are done.
-     *
-     * It actually appends ?auth_method=Shibboleth&redirected_from= $redirectedFrom, which
-     * is useful for later determining user's state of Perun registery.
-     *
-     * @param string $redirectedFrom
-     * @return string targetToReturn
-     */
-    protected function getShibbolethTargetWithRedirectionParam($redirectedFrom)
-    {
-        // Append GET param "redirected_from" to know afterwards about this redirection
-        $append = (strpos($this->shibbolethTarget, '?') !== false) ? '&' : '?';
-        return $this->shibbolethTarget . $append . "auth_method=Shibboleth" . "&redirected_from=" . $redirectedFrom;
-    }
-
-    /**
-     * Updates user's library cards in Perun only if current cat_username is not in array of institutes
-     *
-     * Note that array of institutes is actually array of all user's cat_username stored in library cards.
-     *
-     * @param string $cat_username
-     * @param array $institutes
-     * @return array institutes
-     */
-    public function updateUserInstitutesInPerun($cat_username, array $institutes)
-    {
-
-        // Push current institutes only if those does not contain current cat_username,
-        // which is possible only once - after user was registered into Perun ...
-        if (! in_array($cat_username, $institutes)) {
-
-            if (empty($institutes[0])) { // it is empty if no libraryIds was returned by AA
-                $institutes[0] = $cat_username;
-            } else {
-                array_push($institutes, $cat_username);
-            }
-
-            $this->pushLibraryCardsToPerun($institutes);
-        }
-        return $institutes;
-    }
-
-    /**
      * Updates user's libraryCards in Perun
      *
      * @param array $userLibraryIds
@@ -327,17 +380,6 @@ class IdentityResolver
         $url = $this->perunConfig->kerberosRpc . $this::URL_PATH_SET_ATTRIBUTE;
 
         $response = $this->sendJSONpost($url, $json);
-    }
-
-    /**
-     * Returns predefined attribute definition with desired value to post into Perun with it's API.
-     *
-     * @return string attributeDefinitionWithCustomValue
-     */
-    protected function getAttributeWithValue($value)
-    {
-        $attributeDefinitionWithCustomValue = str_replace($this::ATTR_DEF_VALUE_TO_REPLACE, $value, $this->attributeDefinition);
-        return $attributeDefinitionWithCustomValue;
     }
 
     /**

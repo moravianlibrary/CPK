@@ -204,28 +204,29 @@ class PerunShibboleth extends Shibboleth
             throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['username'] . '"');
         }
 
-        $perunId = $_SERVER['perunUserId'];
+        // TODO: How to let user know about accounts connectivity?
 
-        // Empty perunId means user has no record in Perun or we didn't contact AA after user's registery
-        if (empty($perunId) || ! $this->identityResolver->isVoMember()) {
+        if ($this->identityResolver->shouldBeRegisteredToPerun()) {
             $this->registerUserToPerun($entityId);
             // Died here ...
         }
 
         if (! $isConnected) {
-            // TODO: If user logged in doesn't have connected his accounts from connected institutes, how should we tell him to do it?
 
             $institutes = split(";", $_SERVER['userLibraryIds']);
 
             if (! empty($institutes[0])) {
+
+                // We need to set this to true here, because of library cards to be created ..
+                $isConnected = true;
+
                 $attributes['cat_username'] = $institutes[0];
                 $attributes['home_library'] = split($this::SEPARATOR_REGEXED, $institutes[0])[0];
             } else {
-                $prefix = 'Dummy';
 
                 // Set cat_username's MultiBackend source dummy driver
                 $attributes['cat_username'] = 'Dummy.Dummy';
-                $attributes['home_library'] = $prefix;
+                $attributes['home_library'] = 'Dummy';
             }
         } else {
 
@@ -239,8 +240,6 @@ class PerunShibboleth extends Shibboleth
 
             // If user has new identity without libraryCard in Perun, push a card of current account to Perun
             $institutes = $this->identityResolver->updateUserInstitutesInPerun($attributes['cat_username'], $institutesFromPerun);
-
-            $handleLibraryCards = true;
         }
 
         if ($attributes['email'] == null)
@@ -290,26 +289,26 @@ class PerunShibboleth extends Shibboleth
 
             $this->identityResolver->redirectUserToLoginEndpoint($entityId, "registrar_relogged");
             // Died here ...
-        } elseif (true || $this->isUserRedirectedFrom("consolidator")) { // Temporary set user registery to Perun to be automatic
-
-            /*
-             * TODO: Detect if the user returned from consolidator has now assigned any PerunId
-             * or still has no PerunId
-             *
-             * First possibility occurs only if user already had PerunId before & he successfully
-             * connected current account from IdP
-             *
-             * Second is after immediate redirect back here after consolidator didn't found any
-             * similar identity
-             *
-             * TODO: Remove then following Exception
-             */
+        } elseif (true || $this->isUserRedirectedFrom("consolidator")) {
+            // Temporarily set registery to Perun the first redirect
 
             $this->identityResolver->redirectUserToRegistrar($entityId);
             // Died here ...
         }
 
         // FIXME Code never gets here .. Will we be redirecting user through consolidator or not?
+
+        /*
+         * TODO: Detect if the user returned from consolidator then has assigned any PerunId
+         * or still has no PerunId
+         *
+         * First possibility occurs only if user already had PerunId before & he successfully
+         * connected current account from IdP - then it'll need redirect to local SP /Login
+         *
+         * Second is after immediate redirect back here after consolidator didn't found any
+         * similar identity
+         *
+         */
         $this->identityResolver->redirectUserToConsolidator($entityId);
         // Died here ...
     }
@@ -359,9 +358,9 @@ class PerunShibboleth extends Shibboleth
      * doesn't have compared to array $userLibraryIds
      *
      * @param User $user
-     * @param unknown $userLibraryIds
+     * @param array $currentLibCards
      */
-    protected function handleLibraryCards(User $user, $userLibraryIds)
+    protected function handleLibraryCards(User $user, array $currentLibCards)
     {
         $tableManager = $this->getDbTableManager();
         $userCardTable = $tableManager->get("UserCard");
@@ -375,22 +374,32 @@ class PerunShibboleth extends Shibboleth
             $cat_username = $result['cat_username'];
 
             // Doesn't exists -> delete it
-            if (! in_array($cat_username, $userLibraryIds)) {
+            if (! in_array($cat_username, $currentLibCards)) {
                 $result->delete();
             } else
                 $existing[] = $cat_username;
         }
 
         // Create new identities
-        foreach ($userLibraryIds as $userLibraryId) {
+        foreach ($currentLibCards as $cat_username) {
 
-            if (! in_array($userLibraryId, $existing)) {
-                $home_library = split(self::SEPARATOR_REGEXED, $userLibraryId)[0];
-                $this->createLibraryCard($user, $userLibraryId, $home_library);
+            if (! in_array($cat_username, $existing)) {
+                $home_library = split(self::SEPARATOR_REGEXED, $cat_username)[0];
+                $this->createLibraryCard($user, $cat_username, $home_library);
             }
         }
     }
 
+    /**
+     * Creates library card for User $user with $cat_username & $home_library.
+     *
+     * Returns library card id on success. Otherwise returns false.
+     *
+     * @param User $user
+     * @param string $cat_username
+     * @param string $home_library
+     * @return mixed int | boolean
+     */
     protected function createLibraryCard($user, $cat_username, $home_library)
     {
         try {
