@@ -26,8 +26,8 @@
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
         </div>
-    <div class="col-sm-7 col-xs-6 middle">
-      <div>
+    <div class="col-sm-10 col-xs-6 middle">
+      <div class="root-title">
         <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
@@ -66,6 +66,19 @@
             <?=!empty($summAuthor) ? '<br />' : ''?>
             <?=$this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0])?>
           <? endif; ?>
+            <? if ($this->userlist()->getMode() !== 'disabled'): ?>
+                <div class="pull-right">
+                <? /* Add to favorites */ ?>
+                <i class="fa fa-heart"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a>
+                <br/>
+
+                <? /* Saved lists */ ?>
+                <div class="savedLists alert alert-info hidden">
+                    <strong><?=$this->transEsc("Saved in")?>:</strong>
+                </div>
+                </div>
+            <? endif; ?>
+
           <? $summInCollection = $this->driver->getContainingCollections(); if (!empty($summInCollection)): ?>
             <? foreach ($summInCollection as $collId => $collText): ?>
               <div>
@@ -95,6 +108,8 @@
           <? endif; ?>
         <? endif; ?>
       <? endif; ?>
+	
+	<button class="btn btn-primary chci-to pull-right">CHCI TO!</button>
 
       <?
       /* Display information on duplicate records if available */
@@ -239,16 +254,6 @@
             <img alt="<?=$this->transEsc('QR Code')?>" src="<?=$this->escapeHtmlAttr($QRCode);?>"/>
           </div><br/>
         </span>
-      <? endif; ?>
-
-      <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-        <? /* Add to favorites */ ?>
-        <i class="fa fa-heart"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
-
-        <? /* Saved lists */ ?>
-        <div class="savedLists alert alert-info hidden">
-          <strong><?=$this->transEsc("Saved in")?>:</strong>
-        </div>
       <? endif; ?>
 
       <? /* Hierarchy tree link */ ?>
