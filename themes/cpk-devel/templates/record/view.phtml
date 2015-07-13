@@ -38,8 +38,6 @@
   </ul>
 <? endif; ?>
 
-<?=$this->record($this->driver)->getToolbar()?>
-
 <div class="row">
   <div class="<?=$this->layoutClass('mainbody')?>">
     <div class="record recordId source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" id="record">
@@ -85,6 +83,8 @@
   </div>
 
   <div class="<?=$this->layoutClass('sidebar')?>">
+      <?=$this->record($this->driver)->getToolbar()?>
+
     <? foreach ($this->related()->getList($this->driver) as $current): ?>
       <?=$this->related()->render($current)?>
     <? endforeach; ?>
