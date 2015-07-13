@@ -28,6 +28,7 @@ $config = array(
         'invokables' => array(
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
+            'search' => 'CPK\Controller\SearchController',
         ), /* invokables */
     ), /* controllers */
     'service_manager' => array(
