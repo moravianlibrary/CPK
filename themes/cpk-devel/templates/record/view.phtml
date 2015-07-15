@@ -44,13 +44,14 @@
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" id="record_id" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
       <?=$this->flashmessages()?>
-      <?=$this->record($this->driver)->getCoreMetadata()?>
+        <div class="well">
+      <?=$this->record($this->driver)->getCoreMetadata()?></div>
     </div>
 	
 	<?
 	 //echo $this->record($this->driver)->getWantIt() 
 	?>
-	
+	<div class="well">
     <? if (count($this->tabs) > 0): ?>
       <a name="tabnav"></a>
       <ul class="recordTabs nav nav-tabs">
@@ -78,17 +79,19 @@
         <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
       </div>
     </div>
-
+</div>
     <span class="Z3988" title="<?=$this->escapeHtmlAttr($this->driver->getOpenURL())?>"></span>
   </div>
 
   <div class="<?=$this->layoutClass('sidebar')?>">
+      <div class="well">
       <?=$this->record($this->driver)->getToolbar()?>
-
+      </div>
+      <div class="well">
     <? foreach ($this->related()->getList($this->driver) as $current): ?>
       <?=$this->related()->render($current)?>
     <? endforeach; ?>
-    
+    </div>
 
 
   </div>
