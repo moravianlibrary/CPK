@@ -20,8 +20,14 @@ $config = array(
             'auth' => array(
                 'factories' => array(
                     'perunShibboleth' => 'CPK\Auth\Factory::getPerunShibboleth',
+                    'shibbolethIdentityManager' => 'CPK\Auth\Factory::getShibbolethIdentityManager',
                 ), /* factories */
             ), /* auth */
+            'db_table' => [
+                'factories' => [
+                    'user' => 'CPK\Db\Table\Factory::getUser',
+                ], /* factories */
+            ], /* db_table */
         ), /* plugin_managers */
     ), /* vufind */
     'controllers' => array(

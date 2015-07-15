@@ -90,4 +90,11 @@ class Factory
             );
     }
 
+    public static function getShibbolethIdentityManager(ServiceManager $sm) {
+        return new ShibbolethIdentityManager(
+                $sm->getServiceLocator()->get('VuFind\Config')
+            );
+    }
+
+
 }

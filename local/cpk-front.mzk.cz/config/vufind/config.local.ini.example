@@ -18,6 +18,8 @@ default_core    = dedup1
 
 [Authentication]
 method		= PerunShibboleth
+
+;method		= ShibbolethIdentityManager
 ;method		= ShibbolethWithWAYF
 
 [Shibboleth]

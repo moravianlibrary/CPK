@@ -91,19 +91,46 @@ class Manager extends BaseManager
     /**
      * Log out the current user.
      *
-     * @param string $url     URL to redirect user to after logging out.
-     * @param bool   $destroy Should we destroy the session (true) or just reset it
-     * (false); destroy is for log out, reset is for expiration.
+     * @param string $url
+     *            URL to redirect user to after logging out.
+     * @param bool $destroy
+     *            Should we destroy the session (true) or just reset it
+     *            (false); destroy is for log out, reset is for expiration.
      *
-     * @return string     Redirect URL (usually same as $url, but modified in
-     * some authentication modules).
+     * @return string Redirect URL (usually same as $url, but modified in
+     *         some authentication modules).
      */
     public function logout($url, $destroy = true)
     {
-        return parent::logout($url, $destroy);
+        // Perform authentication-specific cleanup and modify redirect URL if
+        // necessary.
+        $auth = $this->getAuth();
+
+        if ($auth instanceof \CPK\Auth\ShibbolethIdentityManager)
+            $url = $auth->logout($url, $destroy);
+        else
+            $url = $auth->logout($url);
+
+            // Clear out the cached user object and session entry.
+        $this->currentUser = false;
+        unset($this->session->userId);
+        $this->cookieManager->set('loggedOut', 1);
+
+        // Destroy the session for good measure, if requested.
+        if ($destroy) {
+            $this->sessionManager->destroy();
+        } else {
+            // If we don't want to destroy the session, we still need to empty it.
+            // There should be a way to do this through Zend\Session, but there
+            // apparently isn't (TODO -- do this better):
+            $_SESSION = [];
+        }
+
+        return $url;
     }
 
-    public function getPerunShibboleth() {
+    public function getPerunShibboleth()
+    {
         return $this->auth['PerunShibboleth'];
     }
 }
