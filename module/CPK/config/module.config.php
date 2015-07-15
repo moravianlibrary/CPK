@@ -27,6 +27,9 @@ $config = array(
                 'factories' => [
                     'user' => 'CPK\Db\Table\Factory::getUser',
                 ], /* factories */
+                'invokables' => [
+                    'session' => 'VuFind\Db\Table\Session',
+                ],
             ], /* db_table */
         ), /* plugin_managers */
     ), /* vufind */
@@ -46,8 +49,9 @@ $config = array(
 );
 
 $staticRoutes = array(
-	'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
-	'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/'
+    'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
+    'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/',
+    'MyResearch/UserConnect'
 );
 
 foreach ($staticRoutes as $route) {

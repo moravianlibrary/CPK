@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\User as BaseUser, Zend\Db\Sql\Select;
+use VuFind\Db\Table\User as BaseUser, Zend\Db\Sql\Select, CPK\Db\Row\User as UserRow;
 
 /**
  * Table Definition for user
@@ -64,20 +64,28 @@ class User extends BaseUser
      */
     public function getByEppn($eppn)
     {
+        $rowId = $this->getUserRowIdByEppn($eppn);
+
+        if ($rowId) {
+            // Now get UserRow object using TableGateway
+            $userRow = $this->getUserByRowId($rowId);
+
+            return $userRow;
+        } else
+            return false;
+    }
+
+    public function getUserRowIdByEppn($eppn)
+    {
         // First find out if there is any eppn like this one
         $sql = "SELECT user_id FROM user_card WHERE eppn = '$eppn'";
 
         $result = $this->executeAnySQLCommand($sql)->current();
 
-        if($result == null || empty($result['user_id']))
+        if ($result == null || empty($result['user_id']))
             return false;
 
-        $rowId = $result['user_id'];
-
-        // Now get UserRow object using TableGateway
-        $userRow = $this->getUserByRowId($rowId);
-
-        return $userRow;
+        return $result['user_id'];
     }
 
     /**
@@ -86,8 +94,78 @@ class User extends BaseUser
      * @param integer $rowId
      * @return UserRow
      */
-    public function getUserByRowId($rowId) {
-        return $this->select(['id' => $rowId])->current();
+    public function getUserByRowId($rowId)
+    {
+        return $this->select([
+            'id' => $rowId
+        ])->current();
+    }
+
+    public function mergeIntoThisUser(User $user) {
+        // TODO ...
+        return true;
+    }
+
+    /**
+     * Saves user's connection token to session table in order to connect user's accounts later.
+     *
+     * @param string $token
+     * @param string $eppn
+     * @return mixed string $tokenRowId | false $succeeded
+     */
+    public function saveUserConsolidationToken($token, $eppn)
+    {
+        $userRowId = $this->getUserRowIdByEppn($eppn);
+
+        if (! $userRowId)
+            return false;
+
+        $last_used = time();
+        $created = date('Y-m-d H:i:s');
+
+        // 128 chars max ..
+        $session_id = $token;
+
+        $sql = "INSERT INTO vufind.session (session_id, data, last_used, created) VALUES ('" . $session_id . "', '" . $userRowId . "', '" . $last_used . "', '" . $created . "');";
+
+        $result = $this->executeAnySQLCommand($sql);
+        $generatedValue = $result->getGeneratedValue();
+
+        return $generatedValue === null ? false : $generatedValue;
+    }
+
+    /**
+     * Returns UserRow object with known token from session table.
+     *
+     * @param string $token
+     * @param int $lifetime
+     *            = 60*15
+     *            Lifetime represent time after which is this token expired in seconds
+     * @return UserRow
+     */
+    public function getUserFromConsolidationToken($token, $lifetime = 60*15)
+    {
+        $sql = "SELECT data, last_used FROM session WHERE session_id = '" . $token . "';";
+
+        $result = $this->executeAnySQLCommand($sql)->current();
+
+        if ($result == null || empty($result['data']))
+            return false;
+
+        $this->deleteConsolidationToken($token);
+
+        // enforce lifetime of this session data
+        if (! empty($result->last_used) && $result->last_used + $lifetime <= time()) {
+            throw new \VuFind\Exception\Auth('Consolidation token has expired.');
+        }
+
+        return $this->getUserByRowId($result['data']);
+    }
+
+    protected function deleteConsolidationToken($token)
+    {
+        $sql = "DELETE FROM session WHERE session_id = '" . $token . "';";
+        $this->executeAnySQLCommand($sql);
     }
 
     /**
@@ -95,7 +173,7 @@ class User extends BaseUser
      *
      * This was implemented because of the need of looking into user_card table.
      *
-     * @param \Zend\Db\Adapter\Driver\Mysqli\Result $sql
+     * @return \Zend\Db\Adapter\Driver\Mysqli\Result $result
      */
     protected function executeAnySQLCommand($sql)
     {

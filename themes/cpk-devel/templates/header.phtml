@@ -1,6 +1,10 @@
 <? $account = $this->auth()->getManager();
+
+// We need this to determine showing "Connect another account"
+$isActiveShibbolethIdentityManager = $account->getAuthMethod() === "ShibbolethIdentityManager";
+
 $user = $account->isLoggedIn();
-if ($user) $libraryCards = $user->getLibraryCards(); ?>
+if ($user) $libraryCards = $user->getLibraryCards(false); ?>
 <div class="navbar-header">
   <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#header-collapse">
     <span class="sr-only">Toggle navigation</span>
@@ -24,6 +28,9 @@ if ($user) $libraryCards = $user->getLibraryCards(); ?>
       <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
         <li class="logoutOptions<? if(!$user): ?> hidden<? endif ?>">
           <a href="<?=$this->url('myresearch-home', array(), array('query' => array('redirect' => 0)))?>" class="modal-link" title="<?=$this->transEsc("Your Account")?>"><i class="fa fa-home"></i> <?=$this->transEsc("Your Account")?></a>
+        </li>
+        <li class="logoutOptions<? if(!$user || !$isActiveShibbolethIdentityManager): ?> hidden<? endif ?>">
+          <a href="<?=$this->url('myresearch-userconnect')?>" class="modal-link" title="<?=$this->transEsc("Connect another account")?>"><i class="fa fa-home"></i> <?=$this->transEsc("Connect another account")?></a>
         </li>
         <li class="logoutOptions<? if(!$user): ?> hidden<? endif ?>">
           <a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><i class="fa fa-sign-out"></i> <?=$this->transEsc("Log Out")?></a>

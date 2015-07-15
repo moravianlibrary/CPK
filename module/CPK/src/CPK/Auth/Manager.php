@@ -27,7 +27,7 @@
  */
 namespace CPK\Auth;
 
-use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface;
+use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\Exception\Auth as AuthException;
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -100,14 +100,14 @@ class Manager extends BaseManager
      * @return string Redirect URL (usually same as $url, but modified in
      *         some authentication modules).
      */
-    public function logout($url, $destroy = true)
+    public function logout($url, $destroy = true, \VuFind\Controller\AbstractBase $controllerBase = null)
     {
         // Perform authentication-specific cleanup and modify redirect URL if
         // necessary.
         $auth = $this->getAuth();
 
         if ($auth instanceof \CPK\Auth\ShibbolethIdentityManager)
-            $url = $auth->logout($url, $destroy);
+            $url = $auth->logout($url, $destroy, $controllerBase);
         else
             $url = $auth->logout($url);
 
@@ -127,6 +127,36 @@ class Manager extends BaseManager
         }
 
         return $url;
+    }
+
+    public function connectIdentity($entityId) {
+
+        $auth = $this->getAuth();
+
+        if (! $auth instanceof \CPK\Auth\ShibbolethIdentityManager)
+            throw new AuthException("User's manual connection can provide only ShibbolethIdentityManager authentication method.");
+
+        try {
+            $user = $auth->connectIdentity($entityId);
+        } catch (AuthException $e) {
+            // Pass authentication exceptions through unmodified
+            throw $e;
+        } catch (\VuFind\Exception\PasswordSecurity $e) {
+            // Pass password security exceptions through unmodified
+            throw $e;
+        } catch (\Exception $e) {
+            // Catch other exceptions, log verbosely, and treat them as technical
+            // difficulties
+            error_log(
+                "Exception in " . get_class($this) . "::login: " . $e->getMessage()
+            );
+            error_log($e);
+            throw new AuthException('authentication_error_technical');
+        }
+
+        // Store the user in the session and send it back to the caller:
+        $this->updateSession($user);
+        return $user;
     }
 
     public function getPerunShibboleth()

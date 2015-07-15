@@ -9,7 +9,7 @@ $config = array(
                     'aleph' => 'MZKCommon\ILS\Driver\Factory::getAleph',
                 ), /* factories */
                 'invokables' => array(
-                    'dummy' => 'MZKCommon\ILS\Driver\Dummy',
+                    'dummy' => 'CPK\ILS\Driver\Dummy',
                 ), /* invokables */
             ), /* ils_drivers */
             'recommend' => array(

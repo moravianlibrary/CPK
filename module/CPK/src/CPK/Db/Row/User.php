@@ -115,4 +115,66 @@ class User extends BaseUser
 
         return $row->id;
     }
+
+
+
+    /**
+     * Get all library cards associated with the user. By default there are ommited all Dummy cards.
+     *
+     * If you wish to retrieve also Dummy cards, pass true to $includingDummyCards.
+     *
+     * @param boolean $includingDummyCards
+     *
+     * @return \Zend\Db\ResultSet\AbstractResultSet
+     * @throws \VuFind\Exception\LibraryCard
+     */
+
+    public function getLibraryCards($includingDummyCards = false)
+    {
+        if (!$this->libraryCardsEnabled()) {
+            return new \Zend\Db\ResultSet\ResultSet();
+        }
+        $userCard = $this->getDbTable('UserCard');
+        if ($includingDummyCards)
+        return $userCard->select(['user_id' => $this->id]);
+        return $userCard->select(['user_id' => $this->id, 'home_library != ?' => 'Dummy']);
+    }
+
+
+
+    /**
+     * Delete library card
+     *
+     * @param int $id Library card ID
+     *
+     * @return void
+     * @throws \VuFind\Exception\LibraryCard
+     */
+    public function deleteLibraryCard($id)
+    {
+        if (!$this->libraryCardsEnabled()) {
+            throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
+        }
+
+        $userCard = $this->getDbTable('UserCard');
+        $row = $userCard->select(['id' => $id, 'user_id' => $this->id])->current();
+
+        if (empty($row)) {
+            throw new \Exception('Library card not found');
+        }
+        $row->delete();
+
+        if ($row->cat_username == $this->cat_username) {
+            // Activate another card (if any) or remove cat_username and cat_password
+            $cards = $this->getLibraryCards(true); // We need all library cards here I suppose?
+            if ($cards->count() > 0) {
+                $this->activateLibraryCard($cards->current()->id);
+            } else {
+                $this->cat_username = null;
+                $this->cat_password = null;
+                $this->cat_pass_enc = null;
+                $this->save();
+            }
+        }
+    }
 }

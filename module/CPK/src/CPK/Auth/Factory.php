@@ -26,7 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
 namespace CPK\Auth;
-use Zend\ServiceManager\ServiceManager;
+use Zend\ServiceManager\ServiceManager, CPK\Db\Table\User;
 
 /**
  * Authentication Factory Class
@@ -92,9 +92,9 @@ class Factory
 
     public static function getShibbolethIdentityManager(ServiceManager $sm) {
         return new ShibbolethIdentityManager(
-                $sm->getServiceLocator()->get('VuFind\Config')
+            $sm->getServiceLocator()->get('VuFind\Config'),
+            $sm->getServiceLocator()->get('VuFind\DbTablePluginManager')->get('user')
             );
     }
-
 
 }

@@ -40,6 +40,7 @@ use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFin
  */
 class MyResearchController extends MyResearchControllerBase
 {
+
     /**
      * Login Action
      *
@@ -73,6 +74,41 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function userConnectAction()
+    {
+        $entityId = $_GET['eid'];
+        // Stop now if the user does not have valid catalog credentials available:
+        if (empty($entityId) && ! $this->isLoggedInWithDummyDriver() && ! is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        // Perform local logout & redirect user to force him login to another account
+
+        $authManager = $this->getAuthManager();
+
+        if (empty($entityId)) {
+
+            $redirectTo = $authManager->logout(null, false, $this);
+            return $this->redirect()->toUrl($redirectTo);
+        } else {
+
+            // Clear followUp ...
+            if ($this->getFollowupUrl())
+                $this->clearFollowupUrl();
+
+            try {
+                $this->getAuthManager()->connectIdentity($entityId);
+            } catch (AuthException $e) {
+                $this->processAuthenticationException($e);
+
+                // FIXME: Figure out how to inform the user about the problem ...
+            }
+
+            // TODO: What will we show user after connection?
+            return $this->redirect()->toRoute('myresearch-home');
+        }
+    }
+
     protected function checkBlocks($profile)
     {
         foreach ($profile['blocks'] as $block) {
@@ -81,6 +117,7 @@ class MyResearchController extends MyResearchControllerBase
             }
         }
     }
+
     protected function isLoggedInWithDummyDriver()
     {
         $user = $this->getAuthManager()->isLoggedIn();
