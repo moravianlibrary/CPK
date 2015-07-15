@@ -12,15 +12,15 @@
 ?>
 <ul class="list-group">
   <? if (count($this->driver->getCitationFormats()) > 0): ?>
-    <li class="list-group-item"><a id="cite-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>" rel="nofollow"><i class="fa fa-asterisk"></i> <?=$this->transEsc('Cite this')?></a></li>
+    <li class="list-group-item"><a id="cite-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>" rel="nofollow"><i class="fa fa-fw fa-asterisk"></i> <?=$this->transEsc('Cite this')?></a></li>
   <? endif; ?>
-  <li class="list-group-item"><a id="sms-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-sms', array('id'=>$id)) ?>" title="<?=$this->transEsc('Text this')?>" rel="nofollow"><i class="fa fa-mobile"></i> <?=$this->transEsc('Text this')?></a></li>
-  <li class="list-group-item"><a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow"><i class="fa fa-envelope"></i> <?=$this->transEsc('Email this')?></a></li>
+  <li class="list-group-item"><a id="sms-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-sms', array('id'=>$id)) ?>" title="<?=$this->transEsc('Text this')?>" rel="nofollow"><i class="fa fa-fw fa-mobile"></i> <?=$this->transEsc('Text this')?></a></li>
+  <li class="list-group-item"><a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow"><i class="fa fa-fw fa-envelope"></i> <?=$this->transEsc('Email this')?></a></li>
 
   <? $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>
   <? if(count($exportFormats) > 0): ?>
     <li class="dropdown list-group-item">
-      <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>" rel="nofollow"><i class="fa fa-list-alt"></i> <?=$this->transEsc('Export Record') ?></a>
+      <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>" rel="nofollow"><i class="fa fa-fw fa-list-alt"></i> <?=$this->transEsc('Export Record') ?></a>
       <ul class="dropdown-menu" role="menu">
         <? foreach ($exportFormats as $exportFormat): ?>
           <li><a <? if ($this->export()->needsRedirect($exportFormat)): ?>target="<?=$this->escapeHtmlAttr($exportFormat)?>Main" <? endif; ?>href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>?style=<?=$this->escapeHtmlAttr($exportFormat)?>" rel="nofollow"><?=$this->transEsc('Export to')?> <?=$this->transEsc($this->export()->getLabelForFormat($exportFormat))?></a></li>
@@ -30,16 +30,16 @@
   <? endif; ?>
 
   <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-    <li class="list-group-item"><a id="save-record" class="modal-link <?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-star"></i> <?=$this->transEsc('Add to favorites')?></a></li>
+    <li class="list-group-item"><a id="save-record" class="modal-link <?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-fw fa-star"></i> <?=$this->transEsc('Add to favorites')?></a></li>
   <? endif; ?>
   <? if (!empty($addThis)): ?>
-    <li><a class="addThis addthis_button list-group-item" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
+    <li><a class="addThis addthis_button list-group-item" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-fw fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
   <? endif; ?>
   <? if ($cart->isActive()): ?>
     <li id="bookbag-menu"  class="list-group-item">
       <input id="cartId" type="hidden" name="ids[]" value="<?=$this->escapeHtmlAttr($cartId)?>" />
-      <a id="cart-add" class="<? if(!$cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="fa fa-plus"></i> <?=$this->transEsc('Add to Book Bag') ?></a>
-      <a id="cart-remove" class="<? if($cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="fa fa-minus-circle"></i> <?=$this->transEsc('Remove from Book Bag') ?></a>
+      <a id="cart-add" class="<? if(!$cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="fa fa-fw fa-plus"></i> <?=$this->transEsc('Add to Book Bag') ?></a>
+      <a id="cart-remove" class="<? if($cart->contains($cartId)): ?>correct <? endif ?>hidden" href="#"><i class="fa fa-fw fa-minus-circle"></i> <?=$this->transEsc('Remove from Book Bag') ?></a>
       <noscript>
         <form method="post" name="addForm" action="<?=$this->url('cart-home')?>">
           <input type="hidden" name="ids[]" value="<?=$this->escapeHtmlAttr($cartId)?>" />
