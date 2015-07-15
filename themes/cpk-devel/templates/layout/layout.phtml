@@ -77,17 +77,24 @@
         */
         $authManager = $this->auth()->getManager();
         $assertionExportEnabled = false;
+        $isActiveShibbolethIdentityManager = false;
         if ($authManager instanceof \CPK\Auth\Manager) {
-            $perunShibboleth = $authManager->getPerunShibboleth();
+            if ($authManager->getAuthMethod() === "PerunShibboleth") {
+                $authMethod = $authManager->getAuthInstance("PerunShibboleth");
 
-            if ($perunShibboleth && $perunShibboleth->isShibAssertionExportEnabled()) {
-                $assertions = $perunShibboleth->getShibAssertions();
+            } elseif($authManager->getAuthMethod() === "ShibbolethIdentityManager") {
+                $authMethod = $authManager->getAuthInstance("ShibbolethIdentityManager");
+            }
+
+            if ($authMethod && $authMethod->isShibAssertionExportEnabled()) {
+                $assertions = $authMethod->getShibAssertions();
 
                 if (!empty($assertions)) {
                     $assertionExportEnabled = true;
                 }
             }
-        } ?>
+        }
+      ?>
 
     <?=$this->headScript()?>
   </head>

@@ -159,8 +159,8 @@ class Manager extends BaseManager
         return $user;
     }
 
-    public function getPerunShibboleth()
+    public function getAuthInstance($name)
     {
-        return $this->auth['PerunShibboleth'];
+        return $this->auth[$name];
     }
 }
