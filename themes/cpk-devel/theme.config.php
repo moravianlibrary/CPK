@@ -26,7 +26,7 @@ return array(
         'active' => false,
         'compiled.less'
     ),
-    'favicon' => 'vufind-favicon.ico',
+    'favicon' => 'favicon.ico',
     'helpers' => array(
         'factories' => array(
             'flashmessages' => 'VuFind\View\Helper\Bootstrap3\Factory::getFlashmessages',
