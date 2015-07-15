@@ -14,4 +14,9 @@ class SolrMarc extends ParentSolrMarc
         return $this->getLocalId();
     }
 
+    public function getFormats()
+    {
+        return isset($this->fields['cpk_detected_format_txtF_mv']) ? $this->fields['cpk_detected_format_txtF_mv'] : [];
+    }
+
 }
