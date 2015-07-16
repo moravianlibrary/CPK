@@ -1,7 +1,7 @@
 <?
     // Get source of the record to print it to h3 header
     $id = $this->driver->getUniqueID();
-    $source = split("\\.", $id)[0];
+    $source = explode(".", $id)[0];
 
 if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
 
