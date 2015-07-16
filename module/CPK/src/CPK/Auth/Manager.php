@@ -96,48 +96,48 @@ class Manager extends BaseManager
      * @param bool $destroy
      *            Should we destroy the session (true) or just reset it
      *            (false); destroy is for log out, reset is for expiration.
+     * @param bool $isGlobalLogout
+     *            Is global logout? Or do we want only local logout, so that
+     *            we the remove current session & prompt for proper redirection?
      *
      * @return string Redirect URL (usually same as $url, but modified in
      *         some authentication modules).
      */
-    public function logout($url, $destroy = true, \VuFind\Controller\AbstractBase $controllerBase = null)
+    public function logout($url, $destroy = true)
     {
-        // Perform authentication-specific cleanup and modify redirect URL if
-        // necessary.
-        $auth = $this->getAuth();
-
-        if ($auth instanceof \CPK\Auth\ShibbolethIdentityManager)
-            $url = $auth->logout($url, $destroy, $controllerBase);
-        else
-            $url = $auth->logout($url);
-
-            // Clear out the cached user object and session entry.
-        $this->currentUser = false;
-        unset($this->session->userId);
-        $this->cookieManager->set('loggedOut', 1);
-
-        // Destroy the session for good measure, if requested.
-        if ($destroy) {
-            $this->sessionManager->destroy();
-        } else {
-            // If we don't want to destroy the session, we still need to empty it.
-            // There should be a way to do this through Zend\Session, but there
-            // apparently isn't (TODO -- do this better):
-            $_SESSION = [];
-        }
-
-        return $url;
+        return parent::logout($url, $destroy);
     }
 
-    public function connectIdentity($entityId) {
+    /**
+     * Returns account consolidation redirect & handles setting token cookie &
+     * writing token to session table in DB.
+     *
+     * @return string Redirect URL (Returns redirect to account consolidation)
+     * @throws AuthException
+     */
+    public function getAccountConsolidationRedirect()
+    {
+        $this->checkActiveAuthIsSIM();
 
-        $auth = $this->getAuth();
+        return $this->getAuth()->getAccountConsolidationRedirect();
+    }
 
-        if (! $auth instanceof \CPK\Auth\ShibbolethIdentityManager)
-            throw new AuthException("User's manual connection can provide only ShibbolethIdentityManager authentication method.");
+    /**
+     * Tries to connect current logged in user with identity specified by token
+     * user holds in cookie & we in session table. Once the cookie is accessed
+     * is destroyed.
+     *
+     * @param string $entityIdInitiatedWith
+     * @throws AuthException
+     * @throws \VuFind\Exception\PasswordSecurity
+     * @return \CPK\Db\Row\UserRow $user
+     */
+    public function connectIdentity($entityIdInitiatedWith)
+    {
+        $this->checkActiveAuthIsSIM();
 
         try {
-            $user = $auth->connectIdentity($entityId);
+            $user = $this->getAuth()->connectIdentity($entityIdInitiatedWith);
         } catch (AuthException $e) {
             // Pass authentication exceptions through unmodified
             throw $e;
@@ -147,9 +147,7 @@ class Manager extends BaseManager
         } catch (\Exception $e) {
             // Catch other exceptions, log verbosely, and treat them as technical
             // difficulties
-            error_log(
-                "Exception in " . get_class($this) . "::login: " . $e->getMessage()
-            );
+            error_log("Exception in " . get_class($this) . "::login: " . $e->getMessage());
             error_log($e);
             throw new AuthException('authentication_error_technical');
         }
@@ -162,5 +160,32 @@ class Manager extends BaseManager
     public function getAuthInstance($name)
     {
         return $this->auth[$name];
+    }
+
+    /**
+     * Checks if the activeAuth matches "ShibbolethIdentityManager", else
+     * throws AuthException.
+     *
+     * @throws AuthExeption
+     */
+    protected function checkActiveAuthIsSIM() {
+        $this->checkActiveAuthIs("ShibbolethIdentityManager", "Account consolidation may provide only ShibbolethIdentityManager authentication method.");
+    }
+
+    /**
+     * Checks if the activeAuth matches $authToCheckFor, else
+     * throws AuthException with desired $errorMessage.
+     *
+     * @param string $authToCheckFor
+     * @param string $errorMessage
+     * @throws AuthException
+     */
+    protected function checkActiveAuthIs($authToCheckFor, $errorMessage = null)
+    {
+        if ($errorMessage === null)
+            $errorMessage = $this->activeAuth . " cannot process desired feature.";
+
+        if ($this->activeAuth !== $authToCheckFor)
+            throw new AuthException($errorMessage);
     }
 }

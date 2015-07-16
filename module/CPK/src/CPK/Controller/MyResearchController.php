@@ -76,9 +76,11 @@ class MyResearchController extends MyResearchControllerBase
 
     public function userConnectAction()
     {
-        $entityId = $_GET['eid'];
+        // This eid serves only to warn user he wants to connect the same instituion account
+        $entityIdInitiatedWith = $_GET['eid'];
+
         // Stop now if the user does not have valid catalog credentials available:
-        if (empty($entityId) && ! $this->isLoggedInWithDummyDriver() && ! is_array($patron = $this->catalogLogin())) {
+        if (empty($entityIdInitiatedWith) && ! $this->isLoggedInWithDummyDriver() && ! is_array($patron = $this->catalogLogin())) {
             return $patron;
         }
 
@@ -86,9 +88,9 @@ class MyResearchController extends MyResearchControllerBase
 
         $authManager = $this->getAuthManager();
 
-        if (empty($entityId)) {
+        if (empty($entityIdInitiatedWith)) {
 
-            $redirectTo = $authManager->logout(null, false, $this);
+            $redirectTo = $authManager->getAccountConsolidationRedirect();
             return $this->redirect()->toUrl($redirectTo);
         } else {
 
@@ -97,7 +99,7 @@ class MyResearchController extends MyResearchControllerBase
                 $this->clearFollowupUrl();
 
             try {
-                $this->getAuthManager()->connectIdentity($entityId);
+                $this->getAuthManager()->connectIdentity($entityIdInitiatedWith);
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
 

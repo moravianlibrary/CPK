@@ -179,29 +179,27 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * @param string $url
      *            URL to redirect user to after logging out.
-     * @param boolean $isGlobalLogout
-     *            Sets whether this has to be local logout or not.
      *
      * @return string Redirect URL (usually same as $url, but modified in
      *         some authentication modules).
      */
-    public function logout($url, $isGlobalLogout = true, \VuFind\Controller\AbstractBase $controllerBase = null)
+    public function logout($url)
     {
         // If single log-out is enabled, use a special URL:
-        $config = $this->getConfig();
+        $logoutEndpoint = $this->config->Shibboleth->logout;
 
-        if ($isGlobalLogout) {
-            if (isset($config->Shibboleth->logout) && ! empty($config->Shibboleth->logout)) {
-                $url = $config->Shibboleth->logout . '?return=' . urlencode($url);
-            }
-        } else {
-            // Local logout can be only identity connection for now, thus we need to handle the consolidation token
-            $this->handleConsolidationToken($_SERVER['eduPersonPrincipalName']);
-            $url = $this->createLocalLogoutURL($config, $controllerBase);
+        if (isset($logoutEndpoint) && ! empty($logoutEndpoint)) {
+            $url = $logoutEndpoint . '?return=' . urlencode($url);
         }
 
         // Send back the redirect URL (possibly modified):
         return $url;
+    }
+
+    public function getAccountConsolidationRedirect() {
+        // Local logout can be only identity connection for now, thus we need to handle the consolidation token
+        $this->handleConsolidationToken($_SERVER['eduPersonPrincipalName']);
+        return $this->createLocalLogoutURL();
     }
 
     public function authenticate($request = null, UserRow $userToConnectWith = null)
@@ -615,7 +613,7 @@ class ShibbolethIdentityManager extends Shibboleth
         }
     }
 
-    protected function createLocalLogoutURL($config, $controllerBase)
+    protected function createLocalLogoutURL()
     {
         $hostname = $this->config->Site->url;
 
@@ -623,12 +621,12 @@ class ShibbolethIdentityManager extends Shibboleth
             $hostname = substr($hostname, 0, - 1);
         }
 
-        $target = $hostname . $controllerBase->url()->fromRoute('myresearch-userconnect');
+        $target = $hostname . '/MyResearch/UserConnect';
 
         $entityId = $_SERVER[self::SHIB_IDENTITY_PROVIDER_ENV];
         $target .= '?eid=' . urlencode($entityId);
 
-        return $config->Shibboleth->login . '?target=' . $target;
+        return $this->config->Shibboleth->login . '?target=' . $target;
     }
 
     /**
