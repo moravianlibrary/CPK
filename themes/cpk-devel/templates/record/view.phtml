@@ -94,7 +94,7 @@
 	  	
 	  	<?php 
 	  	
-	  	$get996 = $this->driver->get996();
+	  	//$get996 = $this->driver->get996();
 	  	
 	  	$dedupedRecords = $this->tabs['DedupedRecords']->getRecordsInGroup();
 	  	
@@ -111,39 +111,50 @@
 
 		  	<div class="dropdown">
 			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-			    Moravská zemská knihovna
+			    <?
+			    	reset($recordGroup);
+			    	echo $this->translate(key($recordGroup));
+			    ?>
 			    <span class="caret"></span>
 			  </button>
 			  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" id='record-group'>
 			  	<?
 			  		foreach (array_keys($recordGroup) as $key) {
-			  			echo "<li><a title='$key'>".$this->translate($key)."</a></li>";
+			  			if (count($recordGroup[$key]) === 1) {
+			  				$link = $recordGroup[$key][0];
+			  				echo "<li><a href='".$this->url('record', array('id' => $link))."' title='$key'>".$this->translate($key)."</a></li>";
+			  			} else {
+			  				echo "<li><a class='multipleRecords' id='".implode("|", $recordGroup[$key])."' title='$key'>".$this->translate($key)."</a></li>";
+			  			}
 			  		}
 			  	?>
 			  </ul>
 			</div>
 	
-			<div class="dropdown">
+			<!--<div class="dropdown">
 			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-			    <?= $get996[0] ?>
+			    <span id='first-record'></span>
 			    <span class="caret"></span>
 			  </button>
 			  <ul class="dropdown-menu" aria-labelledby="dropdownMenu2" id='records-in-group'>
-			  <?php 
-			  	foreach ($get996 as $value) {
-			  		echo "<li><a title=''>$value</a></li>";
-			  	}
-			  ?>
 			  </ul>
-			</div>
+			</div>-->
 
 	  </div>
 	  <script>
 		jquery( document ).ready( function( $ ) {
-			$( '.record-group li a' ).on( "click", "option", function() {
+			$( '.record-group' ).on( "click", ".multipleRecords", function() {
 				var group = $( this ).attr('title');
-
+				var recordsArr = $( this ).attr('id').split("|");
 				var optionsHTML = "";
+				
+				recordsArr.forEach(function(record) {
+					// ajax 996lr pro kazdy record   
+
+					//optionsHTML .=  "<li><a href='' title=''></a></li>"; 
+				});
+				
+				// do .first-record dat prvni 996lr
 				
 				$( '.records-in-group' ).html(optionsHTML);
 			});
