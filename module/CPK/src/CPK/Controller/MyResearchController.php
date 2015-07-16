@@ -89,9 +89,16 @@ class MyResearchController extends MyResearchControllerBase
         $authManager = $this->getAuthManager();
 
         if (empty($entityIdInitiatedWith)) {
+            try {
+                $redirectTo = $authManager->getAccountConsolidationRedirectUrl();
 
-            $redirectTo = $authManager->getAccountConsolidationRedirect();
-            return $this->redirect()->toUrl($redirectTo);
+                return $this->redirect()->toUrl($redirectTo);
+            } catch (AuthException $e) {
+                $this->processAuthenticationException($e);
+
+                // FIXME: Figure out how to inform the user about the problem ...
+                return $this->redirect()->toRoute('myresearch-home');
+            }
         } else {
 
             // Clear followUp ...

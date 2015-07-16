@@ -112,14 +112,14 @@ class Manager extends BaseManager
      * Returns account consolidation redirect & handles setting token cookie &
      * writing token to session table in DB.
      *
-     * @return string Redirect URL (Returns redirect to account consolidation)
+     * @return string $accountConsolidationRedirectUrl
      * @throws AuthException
      */
-    public function getAccountConsolidationRedirect()
+    public function getAccountConsolidationRedirectUrl()
     {
         $this->checkActiveAuthIsSIM();
 
-        return $this->getAuth()->getAccountConsolidationRedirect();
+        return $this->getAuth()->getAccountConsolidationRedirectUrl();
     }
 
     /**

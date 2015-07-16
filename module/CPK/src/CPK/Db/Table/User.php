@@ -101,7 +101,8 @@ class User extends BaseUser
         ])->current();
     }
 
-    public function mergeIntoThisUser(User $user) {
+    public function mergeIntoThisUser(User $user)
+    {
         // TODO ...
         return true;
     }
@@ -138,12 +139,11 @@ class User extends BaseUser
      * Returns UserRow object with known token from session table.
      *
      * @param string $token
-     * @param int $lifetime
-     *            = 60*15
-     *            Lifetime represent time after which is this token expired in seconds
+     * @param int $secondsToExpire
+     *
      * @return UserRow
      */
-    public function getUserFromConsolidationToken($token, $lifetime = 60*15)
+    public function getUserFromConsolidationToken($token, $secondsToExpire = 60*15)
     {
         $sql = "SELECT data, last_used FROM session WHERE session_id = '" . $token . "';";
 
@@ -153,13 +153,26 @@ class User extends BaseUser
             return false;
 
         $this->deleteConsolidationToken($token);
+        $clearedTokens = $this->clearAllExpiredTokens($secondsToExpire);
 
         // enforce lifetime of this session data
-        if (! empty($result->last_used) && $result->last_used + $lifetime <= time()) {
+        if (! empty($result->last_used) && $result->last_used + $secondsToExpire <= time()) {
             throw new \VuFind\Exception\Auth('Consolidation token has expired.');
         }
 
         return $this->getUserByRowId($result['data']);
+    }
+
+    /**
+     * Clears all expired tokens.
+     *
+     * @return number clearedTokens
+     */
+    protected function clearAllExpiredTokens($secondsToExpire = 60*15)
+    {
+        $dateTime = date('Y-m-d H:i:s', time() - $secondsToExpire);
+        $sql = "DELETE FROM session WHERE created < '$dateTime';";
+        return $this->executeAnySQLCommand($sql)->getAffectedRows();
     }
 
     protected function deleteConsolidationToken($token)
