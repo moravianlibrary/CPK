@@ -67,8 +67,9 @@ class SearchController extends SearchControllerBase
 	 */
 	public function getUsersLibCards()
 	{
-		if (is_array($patron = $this->catalogLogin())) { // is loggedIn
-	
+        $account = $this->getAuthManager();
+        if ($account->isLoggedIn()) { // is loggedIn
+
 			$user = $this->getUser();
 			$libraryCards = $user->getLibraryCards()->toArray();
 			$myLibs = array();
