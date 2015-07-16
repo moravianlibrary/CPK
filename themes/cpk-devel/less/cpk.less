@@ -41,3 +41,10 @@ header{
 .template-dir-record > .container {
   padding: 0px;
 }
+
+.form-control {
+  &:focus {
+    @shadow: none;
+    .box-shadow(@shadow);
+  }
+}
