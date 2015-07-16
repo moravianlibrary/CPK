@@ -13,6 +13,11 @@ class SolrMarc extends ParentSolrMarc
     protected function getExternalID() {
         return $this->getLocalId();
     }
+    
+    public function get996()
+    {
+    	return $this->getFieldArray('996', array('l', 'r'));
+    }
 
     public function getFormats()
     {
