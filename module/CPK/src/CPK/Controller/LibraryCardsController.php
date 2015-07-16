@@ -27,9 +27,7 @@
  */
 namespace CPK\Controller;
 
-use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase;
-use Zend\Mvc\Controller\Plugin\Redirect;
-use Zend\XmlRpc\Value\Integer;
+use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\Db\Row\User as UserRow;
 
 /**
  * Controller for the library card functionality.
@@ -51,7 +49,41 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function homeAction()
     {
-        return parent::homeAction();
+
+        if (!($user = $this->getUser())) {
+            return $this->forceLogin();
+        }
+
+        // Check for "delete card" request; parameter may be in GET or POST depending
+        // on calling context.
+        $deleteId = $this->params()->fromPost(
+            'delete', $this->params()->fromQuery('delete')
+        );
+        if ($deleteId) {
+            // If the user already confirmed the operation, perform the delete now;
+            // otherwise prompt for confirmation:
+            $confirm = $this->params()->fromPost(
+                'confirm', $this->params()->fromQuery('confirm')
+            );
+            if ($confirm) {
+                $success = $this->performDeleteLibraryCard($deleteId);
+                if ($success !== true) {
+                    return $success;
+                }
+            } else {
+                return $this->confirmDeleteLibraryCard($deleteId);
+            }
+        }
+
+        // Connect to the ILS for login drivers:
+        $catalog = $this->getILS();
+
+        return $this->createViewModel(
+            [
+                'libraryCards' => $user->getAllLibraryCards(),
+                'multipleTargets' => $catalog->checkCapability('getLoginDrivers')
+            ]
+        );
     }
 
     /**
@@ -109,27 +141,27 @@ class LibraryCardsController extends LibraryCardsControllerBase
     /**
      * Process the "edit library card" submission.
      *
-     * @param \VuFind\Db\Row\User $user
+     * @param UserRow $user
      *            Logged in user
      *
      * @return object|bool Response object if redirect is
      *         needed, false if form needs to be redisplayed.
      */
-    protected function processEditLibraryCard($user)
+    protected function processEditLibraryCard(UserRow $user)
     {
         $cardName = $this->params()->fromPost('card_name', '');
 
         if (! trim($cardName)) {
             $this->flashMessenger()
                 ->setNamespace('error')
-                ->addMessage('cardname_empty_error');
+                ->addMessage('Card name cannot be empty');
             return false;
         }
 
         $id = $this->params()->fromRoute('id', $this->params()
             ->fromQuery('id'));
         try {
-            $user->saveLibraryCard($id, $cardName, $user['cat_username'], null);
+            $user->editLibraryCardName($id, $cardName);
         } catch (\VuFind\Exception\LibraryCard $e) {
             $this->flashMessenger()
                 ->setNamespace('error')

@@ -27,8 +27,7 @@
  */
 namespace CPK\Auth;
 
-use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth;
-use VuFind\Exception\VuFind\Exception;
+use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException;
 
 /**
  * Shibboleth authentication module.
@@ -316,7 +315,6 @@ class ShibbolethIdentityManager extends Shibboleth
 
         if ($currentEntityId === $entityIdInitiatedWith)
             throw new AuthException("Cannot connect two accounts from the same institution. Please try again.");
-
 
         $token = $this->getConsolidatorTokenFromCookie();
 
@@ -704,10 +702,11 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * @return string Token
      */
-    protected function getConsolidatorTokenFromCookie() {
+    protected function getConsolidatorTokenFromCookie()
+    {
         $token = $_COOKIE[$this::CONSOLIDATION_TOKEN_TAG];
         // unset the cookie ...
-        setcookie($this::CONSOLIDATION_TOKEN_TAG, null, -1, '/');
+        setcookie($this::CONSOLIDATION_TOKEN_TAG, null, - 1, '/');
         return $token;
     }
 }
