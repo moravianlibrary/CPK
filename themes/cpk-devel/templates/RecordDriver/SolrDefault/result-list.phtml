@@ -25,6 +25,7 @@
             </div>
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
+            <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
         </div>
     <div class="col-sm-10 col-xs-6 middle">
       <div class="root-title">
@@ -231,8 +232,6 @@
           <? endforeach; ?>
         <? endif; ?>
       <? endif; ?>
-
-      <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
 
       <? if (!$openUrlActive && empty($urls) && $this->driver->supportsAjaxStatus()): ?>
         <span class="status ajax-availability hidden">
