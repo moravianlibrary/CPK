@@ -119,7 +119,7 @@
         <div class="dedupInformation">
       
 	<? // deduped records
-		$myLibs = $this->myLibs;
+		$myLibs = (array) $this->myLibs;
 		
 		$isAnonyme = false;
 		if (count($myLibs) === 0)
