@@ -18,6 +18,7 @@
       <tr>
         <th width="15%">&nbsp;</th>
         <th><?=$this->transEsc('Identity')?></th>
+        <th><?=$this->transEsc('Associated email')?></th>
         <th width="30%">&nbsp;</th>
       </tr>
       <? foreach ($this->libraryCards as $record):
@@ -30,6 +31,7 @@
             <img height="32" src="<?=$logo ?>"/>
           </td>
           <td><?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?></td>
+          <td><?=$record['card_name'] ?></td>
           <td>
           <? if($this->libraryCards->count() !== 1): ?>
             <div class="btn-group">

@@ -28,7 +28,6 @@
 namespace CPK\Auth;
 
 use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\Exception\Auth as AuthException;
-use VuFind\Exception\VuFind\Exception;
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -134,17 +133,16 @@ class Manager extends BaseManager
      * user holds in cookie & we in session table. Once the cookie is accessed
      * is destroyed.
      *
-     * @param string $entityIdInitiatedWith
      * @throws AuthException
      * @throws \VuFind\Exception\PasswordSecurity
      * @return \CPK\Db\Row\UserRow $user
      */
-    public function connectIdentity($entityIdInitiatedWith)
+    public function connectIdentity()
     {
         $this->checkActiveAuthIsSIM();
 
         try {
-            $user = $this->getAuth()->connectIdentity($entityIdInitiatedWith);
+            $user = $this->getAuth()->connectIdentity();
         } catch (AuthException $e) {
             // Pass authentication exceptions through unmodified
             throw $e;

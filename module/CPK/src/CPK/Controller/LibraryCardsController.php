@@ -49,7 +49,6 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function homeAction()
     {
-
         if (!($user = $this->getUser())) {
             return $this->forceLogin();
         }

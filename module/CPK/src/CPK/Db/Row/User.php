@@ -54,19 +54,21 @@ class User extends BaseUser
      *            Password
      * @param string $home_library
      *            Home Library
+     * @param string $eppn
+     * @param array $canConsolidateMoreTimes
      *
      * @return int Card ID
      * @throws \VuFind\Exception\LibraryCard
      */
-    public function saveLibraryCard($id, $cardName, $cat_username = '', $cat_password = '', $home_library = '', $eppn = '')
+    public function saveLibraryCard($id, $cardName, $cat_username = '', $cat_password = '', $home_library = '', $eppn = '', $canConsolidateMoreTimes = [])
     {
         if (! $this->libraryCardsEnabled()) {
             throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
         }
         $userCard = $this->getDbTable('UserCard');
 
-        // Check that the user has only one instituion account
-        if ($home_library !== 'Dummy') {
+        // Check that the user has only one instituion account unless his organization is in $canConsolidateMoreTimes
+        if (! in_array(split("@", $eppn)[1], $canConsolidateMoreTimes)) {
             $hasAccountAlready = $userCard->select([
                 'user_id' => $this->id,
                 'home_library' => $home_library
@@ -143,11 +145,13 @@ class User extends BaseUser
      * @param string $cat_username
      * @param string $prefix
      * @param string $eppn
-     * @param string $mail
+     * @param string $email
+     * @param array $canConsolidateMoreTimes
+     *
      * @return mixed int | boolean
      * @throws AuthException
      */
-    public function createLibraryCard($cat_username, $prefix, $eppn, $mail = '')
+    public function createLibraryCard($cat_username, $prefix, $eppn, $email, $canConsolidateMoreTimes)
     {
         try {
             if (empty($eppn))
@@ -156,7 +160,10 @@ class User extends BaseUser
             if (empty($this->id))
                 throw new AuthException("Cannot create library card with empty user row id");
 
-            return $this->saveLibraryCard(null, $mail, $cat_username, null, $prefix, $eppn);
+            if (empty($email))
+                $email = '';
+
+            return $this->saveLibraryCard(null, $email, $cat_username, null, $prefix, $eppn, $canConsolidateMoreTimes);
         } catch (\VuFind\Exception\LibraryCard $e) {
             throw new AuthException($e->getMessage());
         }
@@ -271,7 +278,8 @@ class User extends BaseUser
      * @return void
      * @throws \VuFind\Exception\LibraryCard
      */
-    public function disconnectIdentity($id) {
+    public function disconnectIdentity($id)
+    {
         return $this->deleteLibraryCard($id, true);
     }
 

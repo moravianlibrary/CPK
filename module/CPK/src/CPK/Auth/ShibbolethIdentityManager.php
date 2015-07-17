@@ -252,7 +252,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
             if ($currentUser === false) {
                 // We now detected user has no entry with current eppn in our DB, thus append new libCard
-                $userToConnectWith->createLibraryCard($attributes['cat_username'], $prefix, $eppn);
+                $userToConnectWith->createLibraryCard($attributes['cat_username'], $prefix, $eppn, $attributes['email'], $this->canConsolidateMoreTimes);
             } else {
                 // We now detected user has two entries in our user table, thus we need to merge those
 
@@ -276,7 +276,6 @@ class ShibbolethIdentityManager extends Shibboleth
             }
 
             if ($updateUserRow) {
-
                 $userToConnectWith = $this->updateUserRow($userToConnectWith, $attributes);
             }
 
@@ -321,15 +320,8 @@ class ShibbolethIdentityManager extends Shibboleth
         }
     }
 
-    public function connectIdentity($entityIdInitiatedWith)
+    public function connectIdentity()
     {
-        $currentEntityId = $_SERVER[self::SHIB_IDENTITY_PROVIDER_ENV];
-
-        $canConsolidateMoreTimes = in_array($currentEntityId, $this->canConsolidateMoreTimes);
-
-        if (! $canConsolidateMoreTimes && $currentEntityId === $entityIdInitiatedWith)
-            throw new AuthException('Cannot connect two accounts from the same institution');
-
         $token = $this->getConsolidatorTokenFromCookie();
 
         if (empty($token))
@@ -456,7 +448,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow = $this->updateUserRow($userRow, $attributes);
 
         // Assign the user new library card
-        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn);
+        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, $userRow->email);
 
         return $userRow;
     }
@@ -533,7 +525,7 @@ class ShibbolethIdentityManager extends Shibboleth
             // First delete the old one to always have unique eppn accross the user_card table
             $from->deleteLibraryCard($libCard->id, false);
 
-            $into->createLibraryCard($libCard->cat_username, $libCard->home_library, $libCard->eppn);
+            $into->createLibraryCard($libCard->cat_username, $libCard->home_library, $libCard->eppn, $libCard->card_name, $this->canConsolidateMoreTimes);
         }
     }
 
