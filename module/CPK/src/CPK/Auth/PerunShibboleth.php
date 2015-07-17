@@ -385,35 +385,8 @@ class PerunShibboleth extends Shibboleth
 
             if (! in_array($cat_username, $existing)) {
                 $home_library = split(self::SEPARATOR_REGEXED, $cat_username)[0];
-                $this->createLibraryCard($user, $cat_username, $home_library);
+                $user->createLibraryCard($cat_username, $home_library);
             }
-        }
-    }
-
-    /**
-     * Creates library card for User $user with $cat_username & $home_library.
-     *
-     * Returns library card id on success. Otherwise returns false.
-     *
-     * @param User $user
-     * @param string $cat_username
-     * @param string $home_library
-     * @return mixed int | boolean
-     */
-    protected function createLibraryCard($user, $cat_username, $home_library)
-    {
-        try {
-            return $user->saveLibraryCard(null, '', $cat_username, null, $home_library);
-        } catch (\VuFind\Exception\LibraryCard $e) { // If an exception is thrown, just show a flash message ..
-            $exceptions = $_ENV['exception'];
-
-            if ($exceptions == null) {
-                $_ENV['exception'] = $e->getMessage();
-            } else {
-                $_ENV['exception'] .= "\n" . $e->getMessage();
-            }
-
-            return false;
         }
     }
 

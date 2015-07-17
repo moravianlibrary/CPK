@@ -108,7 +108,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
             'confirm', $this->params()->fromQuery('confirm')
         );
         if ($confirm) {
-            $user->deleteLibraryCard($cardID);
+            $user->disconnectIdentity($cardID);
 
             // Success Message
             $this->flashMessenger()->setNamespace('success')

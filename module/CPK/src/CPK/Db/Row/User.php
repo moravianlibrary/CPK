@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Row;
 
-use VuFind\Db\Row\User as BaseUser;
+use VuFind\Db\Row\User as BaseUser, VuFind\Exception\Auth as AuthException;
 
 /**
  * Row Definition for user
@@ -65,12 +65,16 @@ class User extends BaseUser
         }
         $userCard = $this->getDbTable('UserCard');
 
-        if (! empty($cat_username)) {
-            // Check that the username is not already in use in another card
-            $row = $userCard->select([
+        // Check that the user has only one instituion account
+        if ($home_library !== 'Dummy') {
+            $hasAccountAlready = $userCard->select([
                 'user_id' => $this->id,
-                'cat_username' => $cat_username
-            ])->current();
+                'home_library' => $home_library
+            ])->count() > 0;
+
+            if ($hasAccountAlready) {
+                throw new \VuFind\Exception\LibraryCard('Cannot connect two accounts from the same institution. Please try again.');
+            }
         }
 
         $row = null;
@@ -97,7 +101,6 @@ class User extends BaseUser
             $row->created = date('Y-m-d H:i:s');
         }
 
-        // TODO: if card_name is empty, then parse defined one from configuration based on eppn
         $row->card_name = $cardName;
 
         // Not empty checks serves to don't update the field unless desired
@@ -128,6 +131,35 @@ class User extends BaseUser
         $this->activateBestLibraryCard();
 
         return $row->id;
+    }
+
+    /**
+     * Creates library card for User with $cat_username & $prefix identified by $eppn.
+     *
+     * eduPersonPrincipalName is later used to identify loggedin user.
+     *
+     * Returns library card id on success. Otherwise throws an AuthException.
+     *
+     * @param string $cat_username
+     * @param string $prefix
+     * @param string $eppn
+     * @param string $mail
+     * @return mixed int | boolean
+     * @throws AuthException
+     */
+    public function createLibraryCard($cat_username, $prefix, $eppn, $mail = '')
+    {
+        try {
+            if (empty($eppn))
+                throw new AuthException("Cannot create library card with empty eppn");
+
+            if (empty($this->id))
+                throw new AuthException("Cannot create library card with empty user row id");
+
+            return $this->saveLibraryCard(null, $mail, $cat_username, null, $prefix, $eppn);
+        } catch (\VuFind\Exception\LibraryCard $e) {
+            throw new AuthException($e->getMessage());
+        }
     }
 
     /**
@@ -187,10 +219,12 @@ class User extends BaseUser
      * @param int $id
      *            Library card ID
      *
+     * @param boolean $doNotDeleteIfLast
+     *
      * @return void
      * @throws \VuFind\Exception\LibraryCard
      */
-    public function deleteLibraryCard($id)
+    public function deleteLibraryCard($id, $doNotDeleteIfLast = false)
     {
         if (! $this->libraryCardsEnabled()) {
             throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
@@ -206,7 +240,7 @@ class User extends BaseUser
             throw new \Exception('Library card not found');
         }
 
-        if ($this->getAllLibraryCards()->count() === 1) {
+        if ($doNotDeleteIfLast && $this->getAllLibraryCards()->count() === 1) {
             throw new \VuFind\Exception\LibraryCard('Cannot disconnect the last identity');
         }
 
@@ -227,14 +261,31 @@ class User extends BaseUser
     }
 
     /**
-     * Activates best library card. The algorithm chooses first available card,
+     * Disconnect desired identity.
+     *
+     * It is an alias for deleteLibraryCard($id, true)
+     *
+     * @param int $id
+     *            Library card ID
+     *
+     * @return void
+     * @throws \VuFind\Exception\LibraryCard
+     */
+    public function disconnectIdentity($id) {
+        return deleteLibraryCard($id, true);
+    }
+
+    /**
+     * Activates best library card.
+     * The algorithm chooses first available card,
      * if it is the only user's card. If user has more than one cards, it checks
      * for any not Dummy card & activates that one if finds any.
      *
      * If from all the cards doesn't find any non-Dummy card, nothing will happen
      * keeping in mind there has already been activated first Dummy card.
      */
-    public function activateBestLibraryCard() {
+    public function activateBestLibraryCard()
+    {
         $libCards = $this->getAllLibraryCards();
 
         // If this is the first library card or no credentials are currently set,
@@ -281,7 +332,8 @@ class User extends BaseUser
     /**
      * Returns IdPLogos section from config.ini with institutions mapping to their logos.
      */
-    public function getIdentityProvidersLogos() {
+    public function getIdentityProvidersLogos()
+    {
         return $this->config->IdPLogos;
     }
 }

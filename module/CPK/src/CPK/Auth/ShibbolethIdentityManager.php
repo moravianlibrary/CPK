@@ -28,6 +28,7 @@
 namespace CPK\Auth;
 
 use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException;
+use VuFind\Exception\VuFind\Exception;
 
 /**
  * Shibboleth authentication module.
@@ -251,7 +252,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
             if ($currentUser === false) {
                 // We now detected user has no entry with current eppn in our DB, thus append new libCard
-                $this->createLibraryCard($userToConnectWith, $attributes['cat_username'], $prefix, $eppn);
+                $userToConnectWith->createLibraryCard($attributes['cat_username'], $prefix, $eppn);
             } else {
                 // We now detected user has two entries in our user table, thus we need to merge those
 
@@ -310,7 +311,6 @@ class ShibbolethIdentityManager extends Shibboleth
             } else {
                 // We now detected unkown entityID - this identity will be Dummy
                 $attributes['cat_username'] = 'Dummy.Dummy';
-
             }
 
             if ($userRowCreatedRecently) {
@@ -444,7 +444,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow = $this->updateUserRow($userRow, $attributes);
 
         // Assign the user new library card
-        $this->createLibraryCard($userRow, $userRow->cat_username, $userRow->home_library, $eppn);
+        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn);
 
         return $userRow;
     }
@@ -513,51 +513,15 @@ class ShibbolethIdentityManager extends Shibboleth
         }
     }
 
-    /**
-     * Creates library card for User $user with $cat_username & $prefix identified by $eppn.
-     *
-     * eduPersonPrincipalName is later used to identify loggedin user.
-     *
-     * Returns library card id on success. Otherwise returns false.
-     *
-     * @param UserRow $user
-     * @param string $cat_username
-     * @param string $prefix
-     * @param string $eppn
-     * @return mixed int | boolean
-     */
-    protected function createLibraryCard(UserRow $user, $cat_username, $prefix, $eppn)
-    {
-        try {
-            if (empty($eppn))
-                throw new AuthException("Cannot create library card with empty eppn");
-
-            if (empty($user->id))
-                throw new AuthException("Cannot create library card with empty user row id");
-
-            return $user->saveLibraryCard(null, '', $cat_username, null, $prefix, $eppn);
-        } catch (\VuFind\Exception\LibraryCard $e) { // If an exception is thrown, just show a flash message ..
-            $exceptions = $_ENV['exception'];
-
-            if ($exceptions == null) {
-                $_ENV['exception'] = $e->getMessage();
-            } else {
-                $_ENV['exception'] .= "\n" . $e->getMessage();
-            }
-
-            return false;
-        }
-    }
-
     protected function transferLibraryCards(UserRow $from, UserRow $into)
     {
         // We need all user's cards here ... pass true
         $libCards = $from->getLibraryCards(true);
         foreach ($libCards as $libCard) {
             // First delete the old one to always have unique eppn accross the user_card table
-            $from->deleteLibraryCard($libCard->id);
+            $from->deleteLibraryCard($libCard->id, false);
 
-            $this->createLibraryCard($into, $libCard->cat_username, $libCard->home_library, $libCard->eppn);
+            $into->createLibraryCard($libCard->cat_username, $libCard->home_library, $libCard->eppn);
         }
     }
 
