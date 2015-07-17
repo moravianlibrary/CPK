@@ -14,9 +14,9 @@ class SolrMarc extends ParentSolrMarc
         return $this->getLocalId();
     }
     
-    public function get996()
+    public function get996(array $subfields)
     {
-    	return $this->getFieldArray('996', array('l', 'r'));
+    	return $this->getFieldArray('996', $subfields);
     }
 
     public function getFormats()
