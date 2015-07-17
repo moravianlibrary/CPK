@@ -34,6 +34,9 @@ $config = array(
         ), /* plugin_managers */
     ), /* vufind */
     'controllers' => array(
+    	'factories' => array(
+    		'record' => 'CPK\Controller\Factory::getRecordController',
+    	),
         'invokables' => array(
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
@@ -46,12 +49,17 @@ $config = array(
             'Perun\IdentityResolver' => 'CPK\Perun\Factory::getIdentityResolver',
         ),
     ),
+	'view_manager' => array(
+	    'strategies' => array(
+	        'ViewJsonStrategy',
+	    ),
+	),
 );
 
 $staticRoutes = array(
     'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
     'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/',
-    'MyResearch/UserConnect'
+    'MyResearch/UserConnect', 'Record/getMarcArrayViaAjax'
 );
 
 foreach ($staticRoutes as $route) {
