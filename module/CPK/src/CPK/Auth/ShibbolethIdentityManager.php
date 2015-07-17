@@ -292,7 +292,6 @@ class ShibbolethIdentityManager extends Shibboleth
             } else
                 $userRowCreatedRecently = false;
 
-            $createUser = true;
             if ($loggedWithKnownEntityId) {
 
                 // If user logged in with known entityID, we need userLibraryId to save into cat_username
@@ -312,14 +311,9 @@ class ShibbolethIdentityManager extends Shibboleth
                 // We now detected unkown entityID - this identity will be Dummy
                 $attributes['cat_username'] = 'Dummy.Dummy';
 
-                // There is a possibility of user being have connected active library
-                if (! $userRowCreatedRecently) {
-                    // Set cat_username to last cat_username because we always update user table using $attributes variable
-                    $createUser = false;
-                }
             }
 
-            if ($createUser) {
+            if ($userRowCreatedRecently) {
                 $userRow = $this->createUser($userRow, $attributes, $prefix, $eppn);
             }
 

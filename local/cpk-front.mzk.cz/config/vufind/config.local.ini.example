@@ -156,3 +156,8 @@ itam.cas.cz = https://jiftach.cas.cz/loga/logo-itam-44.png
 fzu.cas.cz = https://jiftach.cas.cz/loga/logo-fzu-40.png
 ibp.cas.cz = https://jiftach.cas.cz/loga/logo-ibp-44.png
 osu.cz = https://idptoo.osu.cz/simplesaml/logo_ou.png
+
+facebook.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/fb50.png
+mojeid.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/mojeid50.png
+google.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/googleicon50.png
+linkedin.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/LinkedIn50.png

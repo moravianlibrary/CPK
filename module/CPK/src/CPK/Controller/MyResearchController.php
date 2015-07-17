@@ -96,8 +96,7 @@ class MyResearchController extends MyResearchControllerBase
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
 
-                // FIXME: Figure out how to inform the user about the problem ...
-                return $this->redirect()->toRoute('myresearch-home');
+                return $this->redirect()->toRoute('librarycards-home');
             }
         } else {
 
@@ -109,15 +108,13 @@ class MyResearchController extends MyResearchControllerBase
                 $user = $this->getAuthManager()->connectIdentity($entityIdInitiatedWith);
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
-
-                // FIXME: Figure out how to inform the user about the problem ...
             }
 
             if ($user->consolidationSucceeded)
                 $this->processSuccessMessage("Identities were successfully connected");
 
-            // TODO: What will we show user after connection?
-            return $this->redirect()->toRoute('myresearch-home');
+            // Show user all his connected identities
+            return $this->redirect()->toRoute('librarycards-home');
         }
     }
 

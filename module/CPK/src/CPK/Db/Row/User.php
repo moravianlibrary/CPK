@@ -196,10 +196,6 @@ class User extends BaseUser
             throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
         }
 
-        if ($this->getAllLibraryCards()->count() === 1) {
-            throw new \VuFind\Exception\LibraryCard('Cannot disconnect the last identity');
-        }
-
         $userCard = $this->getDbTable('UserCard');
         $row = $userCard->select([
             'id' => $id,
@@ -209,6 +205,11 @@ class User extends BaseUser
         if (empty($row)) {
             throw new \Exception('Library card not found');
         }
+
+        if ($this->getAllLibraryCards()->count() === 1) {
+            throw new \VuFind\Exception\LibraryCard('Cannot disconnect the last identity');
+        }
+
         $row->delete();
 
         if ($row->cat_username == $this->cat_username) {

@@ -127,45 +127,23 @@ class LibraryCardsController extends LibraryCardsControllerBase
     }
 
     /**
-     * Activates a library card
+     * Only identity removal is allowed - redirect user to libcards/home
      *
-     * @return \Zend\Http\Response
+     * @return mixed
      */
     public function selectCardAction()
     {
-        return parent::selectCardAction();
+        return $this->redirect()->toRoute('librarycards-home');
     }
 
     /**
-     * Send user's library card to the edit view
+     * Only identity removal is allowed - redirect user to libcards/home
      *
      * @return mixed
      */
     public function editCardAction()
     {
-        // User must be logged in to edit library cards
-        $user = $this->getUser();
-        if ($user == false) {
-            return $this->forceLogin();
-        }
-
-        // Process form submission
-        if ($this->formWasSubmitted('submit')) {
-            if ($redirect = $this->processEditLibraryCard($user)) {
-                return $redirect;
-            }
-        }
-
-        $id = $this->params()->fromRoute('id');
-        if (!intval($id))
-            return $this->redirect()->toRoute('librarycards-home');
-
-        $card = $user->getLibraryCard($id);
-
-        // Send the card to the view:
-        return $this->createViewModel([
-            'card' => $card
-        ]);
+        return $this->redirect()->toRoute('librarycards-home');
     }
 
     /**
@@ -176,6 +154,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
      *
      * @return object|bool Response object if redirect is
      *         needed, false if form needs to be redisplayed.
+     * @deprecated
      */
     protected function processEditLibraryCard(UserRow $user)
     {
