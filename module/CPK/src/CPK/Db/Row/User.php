@@ -73,7 +73,7 @@ class User extends BaseUser
             ])->count() > 0;
 
             if ($hasAccountAlready) {
-                throw new \VuFind\Exception\LibraryCard('Cannot connect two accounts from the same institution. Please try again.');
+                throw new \VuFind\Exception\LibraryCard('Cannot connect two accounts from the same institution');
             }
         }
 
@@ -272,7 +272,7 @@ class User extends BaseUser
      * @throws \VuFind\Exception\LibraryCard
      */
     public function disconnectIdentity($id) {
-        return deleteLibraryCard($id, true);
+        return $this->deleteLibraryCard($id, true);
     }
 
     /**

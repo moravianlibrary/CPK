@@ -328,17 +328,17 @@ class ShibbolethIdentityManager extends Shibboleth
         $canConsolidateMoreTimes = in_array($currentEntityId, $this->canConsolidateMoreTimes);
 
         if (! $canConsolidateMoreTimes && $currentEntityId === $entityIdInitiatedWith)
-            throw new AuthException("Cannot connect two accounts from the same institution. Please try again.");
+            throw new AuthException('Cannot connect two accounts from the same institution');
 
         $token = $this->getConsolidatorTokenFromCookie();
 
         if (empty($token))
-            throw new AuthException("No token recieved after logging with another account. Please try it again.");
+            throw new AuthException('No token recieved after logging with another account');
 
         $userToConnectWith = $this->userTableGateway->getUserFromConsolidationToken($token);
 
         if (! $userToConnectWith)
-            throw new AuthException("It was supplied an invalid token to connect another account. Please try the whole process again.");
+            throw new AuthException('The consolidation has expired. Please authenticate again.');
 
         return $this->authenticate(null, $userToConnectWith);
     }
@@ -398,17 +398,29 @@ class ShibbolethIdentityManager extends Shibboleth
      * Returns account consolidation redirect url where should be user
      * redirected to successfully consolidate another identity.
      *
-     * It also handles setting token cookie & writing token to the session
-     * SQL table.
+     * It also handles generating & saving token to verify User's identity after connection
+     * from another identity to merge those identities.
+     *
+     * It also saves this token
+     * to session table where "data" column has value of user's row id from user table.
+     *
+     * @param number $userRowId
      *
      * @return string $accountConsolidationRedirectUrl
      * @throws AuthException
      */
-    public function getAccountConsolidationRedirectUrl()
+    public function getAccountConsolidationRedirectUrl($userRowId)
     {
-        $eppn = $this->fetchEduPersonPrincipalName();
-        $this->handleConsolidationToken($eppn);
+        // Create & write token to DB & user's cookie
+        $token = $this->generateToken();
+        setCookie($this::CONSOLIDATION_TOKEN_TAG, $token);
 
+        $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
+
+        if (! $tokenCreated)
+            throw new AuthException("Could not create consolidation token entry into session table.");
+
+            // Create redirection URL
         $hostname = $this->config->Site->url;
 
         if (substr($hostname, - 1) === '/') {
@@ -640,29 +652,6 @@ class ShibbolethIdentityManager extends Shibboleth
         } else {
             return 'Shib-Assertion-' . $i;
         }
-    }
-
-    /**
-     * Handles generating & saving token to verify User's identity after connection
-     * from another identity to merge those identities.
-     * It also saves this token
-     * to session table where "data" column has value of user's row id from user table.
-     *
-     * @param string $eppn
-     * @throws AuthException
-     */
-    protected function handleConsolidationToken($eppn)
-    {
-        if (empty($eppn))
-            throw new AuthException('ShibbolethIdentityManager->handleConsolidationToken($eppn) was called with empty eduPersonPrincipalName.');
-
-        $token = $this->generateToken();
-        setCookie($this::CONSOLIDATION_TOKEN_TAG, $token);
-
-        $succeeded = $this->userTableGateway->saveUserConsolidationToken($token, $eppn);
-
-        if (! $succeeded)
-            throw new AuthException("Could not create consolidation token entry into session table.");
     }
 
     /**

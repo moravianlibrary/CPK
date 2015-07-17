@@ -101,7 +101,7 @@ class User extends BaseUser
         ])->current();
     }
 
-    public function mergeIntoThisUser(User $user)
+    public function mergeIntoThisUser(UserRow $user)
     {
         // TODO ...
         return true;
@@ -111,23 +111,20 @@ class User extends BaseUser
      * Saves user's connection token to session table in order to connect user's accounts later.
      *
      * @param string $token
-     * @param string $eppn
+     * @param number $userRowId
      * @return mixed string $tokenRowId | false $succeeded
      */
-    public function saveUserConsolidationToken($token, $eppn)
+    public function saveUserConsolidationToken($token, $userRowId)
     {
-        $userRowId = $this->getUserRowIdByEppn($eppn);
-
-        if (! $userRowId)
+        if (empty ($userRowId))
             return false;
 
-        $last_used = time();
         $created = date('Y-m-d H:i:s');
 
         // 128 chars max ..
         $session_id = $token;
 
-        $sql = "INSERT INTO vufind.session (session_id, data, last_used, created) VALUES ('" . $session_id . "', '" . $userRowId . "', '" . $last_used . "', '" . $created . "');";
+        $sql = "INSERT INTO vufind.session (session_id, data, created) VALUES ('" . $session_id . "', '" . $userRowId . "', '" . $created . "');";
 
         $result = $this->executeAnySQLCommand($sql);
         $generatedValue = $result->getGeneratedValue();

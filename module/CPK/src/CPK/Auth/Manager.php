@@ -28,6 +28,7 @@
 namespace CPK\Auth;
 
 use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\Exception\Auth as AuthException;
+use VuFind\Exception\VuFind\Exception;
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -119,7 +120,13 @@ class Manager extends BaseManager
     {
         $this->checkActiveAuthIsSIM();
 
-        return $this->getAuth()->getAccountConsolidationRedirectUrl();
+        $userRow = $this->isLoggedIn();
+
+        if (! $userRow || empty($userRow->id)) {
+            throw new AuthException("Cannot consolidate empty UserRow");
+        }
+
+        return $this->getAuth()->getAccountConsolidationRedirectUrl($userRow->id);
     }
 
     /**
