@@ -276,4 +276,11 @@ class User extends BaseUser
 
         return sizeof($realCards) > 0 ? $realCards : false;
     }
+
+    /**
+     * Returns IdPLogos section from config.ini with institutions mapping to their logos.
+     */
+    public function getIdentityProvidersLogos() {
+        return $this->config->IdPLogos;
+    }
 }

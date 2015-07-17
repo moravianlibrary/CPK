@@ -81,7 +81,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
         return $this->createViewModel(
             [
                 'libraryCards' => $user->getAllLibraryCards(),
-                'multipleTargets' => $catalog->checkCapability('getLoginDrivers')
+                'logos' => $user->getIdentityProvidersLogos()
             ]
         );
     }
