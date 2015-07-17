@@ -31,6 +31,7 @@
           </td>
           <td><?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?></td>
           <td>
+          <? if($this->libraryCards->count() !== 1): ?>
             <div class="btn-group">
               <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('librarycards-deletecard') ?>?cardID=<?=urlencode($record['id'])?>">
                 <i class="fa fa-trash-o"></i> <?=$this->transEsc('Disconnect identity')?>
@@ -40,6 +41,7 @@
                 <li><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
               </ul>
             </div>
+          <? endif; ?>
           </td>
         </tr>
       <? endforeach; ?>

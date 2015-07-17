@@ -93,7 +93,37 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function deleteCardAction()
     {
-        return $this->redirect()->toRoute('librarycards-home');
+        // User must be logged in to edit library cards:
+        $user = $this->getUser();
+        if ($user == false) {
+            return $this->forceLogin();
+        }
+
+        // Get requested library card ID:
+        $cardID = $this->params()
+            ->fromPost('cardID', $this->params()->fromQuery('cardID'));
+
+        // Have we confirmed this?
+        $confirm = $this->params()->fromPost(
+            'confirm', $this->params()->fromQuery('confirm')
+        );
+        if ($confirm) {
+            $user->deleteLibraryCard($cardID);
+
+            // Success Message
+            $this->flashMessenger()->setNamespace('success')
+                ->addMessage('Identity disconnected');
+            // Redirect to MyResearch library cards
+            return $this->redirect()->toRoute('librarycards-home');
+        }
+
+        // If we got this far, we must display a confirmation message:
+        return $this->confirm(
+            'confirm_delete_library_card_brief',
+            $this->url()->fromRoute('librarycards-deletecard'),
+            $this->url()->fromRoute('librarycards-home'),
+            'confirm_delete_library_card_text', ['cardID' => $cardID]
+        );
     }
 
     /**
