@@ -125,6 +125,14 @@ class ShibbolethIdentityManager extends Shibboleth
         'major'
     );
 
+    /**
+     * This is either false (if not set at all), or contains
+     * array of entityIds which can user connect more than once.
+     *
+     * @var array $canConsolidateMoreTimes
+     */
+    protected $canConsolidateMoreTimes = null;
+
     public function __construct(\VuFind\Config\PluginManager $configLoader, UserTable $userTableGateway)
     {
         $this->shibbolethConfig = $configLoader->get($this::CONFIG_FILE_NAME);
@@ -157,18 +165,28 @@ class ShibbolethIdentityManager extends Shibboleth
         }
 
         foreach ($this->shibbolethConfig as $name => $configuration) {
-            if (! isset($configuration['username']) || empty($configuration['username'])) {
-                throw new AuthException("Shibboleth 'username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
-            }
-
-            if ($name !== 'default') {
-                if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
-                    throw new AuthException("Shibboleth 'entityId' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
-                } elseif (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
-                    throw new AuthException("Shibboleth 'cat_username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
+            if ($name !== 'main') {
+                if (! isset($configuration['username']) || empty($configuration['username'])) {
+                    throw new AuthException("Shibboleth 'username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
                 }
+
+                if ($name !== 'default') {
+                    if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
+                        throw new AuthException("Shibboleth 'entityId' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
+                    } elseif (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
+                        throw new AuthException("Shibboleth 'cat_username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
+                    }
+                }
+            } else {
+                $this->canConsolidateMoreTimes = $this->shibbolethConfig->main->canConsolidateMoreTimes;
+
+                if ($this->canConsolidateMoreTimes !== null)
+                    $this->canConsolidateMoreTimes = $this->canConsolidateMoreTimes->toArray();
             }
         }
+
+        if (empty($this->canConsolidateMoreTimes))
+            $this->canConsolidateMoreTimes = false;
     }
 
     public function authenticate($request, UserRow $userToConnectWith = null)
@@ -313,7 +331,9 @@ class ShibbolethIdentityManager extends Shibboleth
     {
         $currentEntityId = $_SERVER[self::SHIB_IDENTITY_PROVIDER_ENV];
 
-        if ($currentEntityId === $entityIdInitiatedWith)
+        $canConsolidateMoreTimes = in_array($currentEntityId, $this->canConsolidateMoreTimes);
+
+        if (! $canConsolidateMoreTimes && $currentEntityId === $entityIdInitiatedWith)
             throw new AuthException("Cannot connect two accounts from the same institution. Please try again.");
 
         $token = $this->getConsolidatorTokenFromCookie();

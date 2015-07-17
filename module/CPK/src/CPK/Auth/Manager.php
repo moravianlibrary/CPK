@@ -152,6 +152,9 @@ class Manager extends BaseManager
             throw new AuthException('authentication_error_technical');
         }
 
+        // Being here means the consolidation was a success
+        $user->consolidationSucceeded = true;
+
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
         return $user;

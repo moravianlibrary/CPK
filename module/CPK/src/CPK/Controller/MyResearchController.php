@@ -106,12 +106,15 @@ class MyResearchController extends MyResearchControllerBase
                 $this->clearFollowupUrl();
 
             try {
-                $this->getAuthManager()->connectIdentity($entityIdInitiatedWith);
+                $user = $this->getAuthManager()->connectIdentity($entityIdInitiatedWith);
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
 
                 // FIXME: Figure out how to inform the user about the problem ...
             }
+
+            if ($user->consolidationSucceeded)
+                $this->processSuccessMessage("Identities were successfully connected");
 
             // TODO: What will we show user after connection?
             return $this->redirect()->toRoute('myresearch-home');
@@ -131,5 +134,14 @@ class MyResearchController extends MyResearchControllerBase
     {
         $user = $this->getAuthManager()->isLoggedIn();
         return $user ? $user['home_library'] == "Dummy" : false;
+    }
+
+    /**
+     * Processess success message to Zend's flashMessenger
+     *
+     * @param string $msg
+     */
+    public function processSuccessMessage($msg) {
+        $this->flashMessenger()->setNamespace('success')->addMessage($msg);
     }
 }

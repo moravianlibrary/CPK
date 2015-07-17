@@ -71,10 +71,6 @@ class User extends BaseUser
                 'user_id' => $this->id,
                 'cat_username' => $cat_username
             ])->current();
-
-            if (! empty($row) && ($id === null || $row->id != $id)) {
-                throw new \VuFind\Exception\LibraryCard('Catalog username is already in use in another library card');
-            }
         }
 
         $row = null;
