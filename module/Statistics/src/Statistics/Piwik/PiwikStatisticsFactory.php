@@ -29,6 +29,6 @@ class PiwikStatisticsFactory
 		unset($drivers['main']);
 		unset($drivers['default']);
 
-		return new PiwikStatistics($config, $drivers);
+		return new PiwikStatistics($config, array_keys($drivers));
 	}
 }
