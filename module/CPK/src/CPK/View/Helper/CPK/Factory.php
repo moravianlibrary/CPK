@@ -1,10 +1,10 @@
 <?php
 /**
- * Record driver view helper
+ * Factory for Bootstrap view helpers.
  *
  * PHP version 5
  *
- * Copyright (C) MZK 2015.
+ * Copyright (C) Villanova University 2014.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -19,28 +19,33 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * @author	Martin Kravec	<kravec@mzk.cz>
+ * @category VuFind2
+ * @package  View_Helpers
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace CPK\View\Helper\CPK;
-use MZKCommon\View\Helper\MZKCommon\Record as ParentRecord;
+use Zend\ServiceManager\ServiceManager;
 
 /**
- * Record driver view helper
- * 
- * @author	Martin Kravec	<kravec@mzk.cz>
+ * Factory for Bootstrap view helpers.
+ *
+ * @category VuFind2
+ * @package  View_Helpers
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @codeCoverageIgnore
  */
-
-class Record extends ParentRecord
+class Factory
 {
-    /**
-     * Render WantIt HTML
-     *
-     * @return string
-     */
-    public function getWantIt()
+
+    public static function getRecord(ServiceManager $sm)
     {
-    	return $this->renderTemplate('want-it.phtml');
+        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        return new Record($config);
     }
+
+
 }

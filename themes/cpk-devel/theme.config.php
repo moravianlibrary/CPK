@@ -29,6 +29,7 @@ return array(
     'favicon' => 'favicon.ico',
     'helpers' => array(
         'factories' => array(
+            'record'     => 'CPK\View\Helper\CPK\Factory::getRecord',
             'flashmessages' => 'VuFind\View\Helper\Bootstrap3\Factory::getFlashmessages',
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
             'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
