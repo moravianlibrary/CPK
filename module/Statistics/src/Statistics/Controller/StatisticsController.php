@@ -607,12 +607,12 @@ class StatisticsController extends AbstractBase
 			} else { // all libs
 
 				$newVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date);
-				$newAnonymeVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date, "anonyme");
 				$newAuthenticatedVisitorsCount = $PiwikStatistics->getNewVisitorsCount('range', $date, "authenticated");
+				$newAnonymeVisitorsCount = $newVisitorsCount - $newAuthenticatedVisitorsCount;
 					
 				$returningVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date);
-				$returningAnonymeVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date, "anonyme");
 				$returningAuthenticatedVisitorsCount = $PiwikStatistics->getReturningVisitorsCount('range', $date, "authenticated");
+				$returningAnonymeVisitorsCount = $returningVisitorsCount - $returningAuthenticatedVisitorsCount;
 				
 			}
 			
