@@ -184,10 +184,11 @@
 						}
 	
 						// set initial record
-						if ( $( '#records-in-group li a[href*="'+recordID+'"]' ).text().length > 0) {
-							var textValue = $( '#records-in-group li a[href*="'+recordID+'"]' ).text();
+						if ( $( '#records-in-group li a[href*="'+recordID+'"]' ).length) {
+							var $element = $( '#records-in-group li a[href*="'+recordID+'"]' );
+							var textValue = $element.text();
 							$( '#first-record' ).text( textValue );
-							$( this ).css('font-weight', 'bold');
+							$element.css('font-weight', 'bold');
 						}
 
 					}
