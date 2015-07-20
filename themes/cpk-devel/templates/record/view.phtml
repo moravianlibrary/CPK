@@ -187,7 +187,7 @@
 						if ( $( '#records-in-group li a[href*="'+recordID+'"]' ).text().length > 0) {
 							var textValue = $( '#records-in-group li a[href*="'+recordID+'"]' ).text();
 							$( '#first-record' ).text( textValue );
-							$( this ).addStyle('font-weight', 'bold');
+							$( this ).css('font-weight', 'bold');
 						}
 
 					}
