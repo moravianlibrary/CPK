@@ -39,7 +39,7 @@ $libCard  = $this->urlGetParams['libCard'];
 		</span>
 	</span>
 	<span class="form-group">
-		<span class='date-picker-caption'><?= $this->transEsc('Choose library') ?></span>
+		<span><?= $this->transEsc('Choose library') ?></span>
 		<select id='libCard'>
 		    <option value='all' <? if (($libCard === 'all') OR (! $libCard)) echo 'selected'; ?>><?= $this->translate('All') ?></option>
 		    <? foreach ($this->cards as $card) :?>
