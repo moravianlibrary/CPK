@@ -152,8 +152,8 @@
 				// select default record group
 				$( '#record-group li a' ).each( function() {
 					
-					var title = $(this).attr( 'title' );
-					if ( $(this).attr( 'id' ).toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
+					var title = $( this ).attr( 'title' );
+					if ( $( this ).attr( 'id' ).toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
 						$( '#first-record-group' ).text( title );
 					}
 
@@ -162,7 +162,7 @@
 				// initial records in dropdown menu
 				$( '#record-group li a.multiple-records' ).each( function() {
 					
-					var records = $(this).attr( 'id' );
+					var records = $( this ).attr( 'id' );
 					var recordsArr = records.split( "|" );
 
 					if (recordsArr.length > 1) {
@@ -187,6 +187,7 @@
 						if ( $( '#records-in-group li a[href*="'+recordID+'"]' ).text().length > 0) {
 							var textValue = $( '#records-in-group li a[href*="'+recordID+'"]' ).text();
 							$( '#first-record' ).text( textValue );
+							$( this ).addStyle('font-weight', 'bold');
 						}
 
 					}
@@ -198,7 +199,7 @@
 	
 					event.preventDefault();
 	
-					$( '#first-record-group' ).text( $(this).attr( 'title' ) );
+					$( '#first-record-group' ).text( $( this ).attr( 'title' ) );
 					
 					var group = $( this ).attr( 'title' );
 					var recordsArr = $( this ).attr( 'id' ).split( "|" );
