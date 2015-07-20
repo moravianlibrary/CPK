@@ -22,8 +22,8 @@
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-namespace CPK\View\Helper\Root;
-use Zend\View\Exception\RuntimeException, Zend\View\Helper\AbstractHelper;
+namespace CPK\View\Helper\CPK;
+use CPK\View\Helper\Root\Record as ParentRecord;
 
 /**
  * Record driver view helper
@@ -31,7 +31,8 @@ use Zend\View\Exception\RuntimeException, Zend\View\Helper\AbstractHelper;
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-class Record extends AbstractHelper
+
+class Record extends ParentRecord
 {
     /**
      * Render WantIt HTML
