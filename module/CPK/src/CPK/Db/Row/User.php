@@ -67,12 +67,25 @@ class User extends BaseUser
         }
         $userCard = $this->getDbTable('UserCard');
 
+        $eppnScope = split("@", $eppn)[1];
+
         // Check that the user has only one instituion account unless his organization is in $canConsolidateMoreTimes
-        if (! in_array(split("@", $eppn)[1], $canConsolidateMoreTimes)) {
-            $hasAccountAlready = $userCard->select([
-                'user_id' => $this->id,
-                'home_library' => $home_library
-            ])->count() > 0;
+        if (! in_array($eppnScope, $canConsolidateMoreTimes)) {
+            if ($home_library !== 'Dummy') {
+
+                // Not being Dummy we know home_library is unique across institutions
+                $hasAccountAlready = $userCard->select([
+                    'user_id' => $this->id,
+                    'home_library' => $home_library
+                ])->count() > 0;
+            } else {
+
+                // We need to find out the same user's Dummy institution if any, thus compare eppnScope to user's eppns
+                $hasAccountAlready = $userCard->select([
+                    'user_id' => $this->id,
+                    'eppn LIKE ?' => '_@' . $eppnScope
+                ])->count() > 0;
+            }
 
             if ($hasAccountAlready) {
                 throw new \VuFind\Exception\LibraryCard('Cannot connect two accounts from the same institution');
@@ -255,7 +268,7 @@ class User extends BaseUser
 
         if ($row->cat_username == $this->cat_username) {
             // Activate another card (if any) or remove cat_username and cat_password
-            $cards = $this->getLibraryCards(true); // We need all library cards here I suppose?
+            $cards = $this->getLibraryCards(true); // We need all library cards here
             if ($cards->count() > 0) {
                 $this->activateLibraryCard($cards->current()->id);
             } else {

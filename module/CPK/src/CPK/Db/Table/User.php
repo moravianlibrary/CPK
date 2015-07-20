@@ -116,7 +116,7 @@ class User extends BaseUser
      */
     public function saveUserConsolidationToken($token, $userRowId)
     {
-        if (empty ($userRowId))
+        if (empty($userRowId))
             return false;
 
         $created = date('Y-m-d H:i:s');
@@ -124,7 +124,7 @@ class User extends BaseUser
         // 128 chars max ..
         $session_id = $token;
 
-        $sql = "INSERT INTO vufind.session (session_id, data, created) VALUES ('" . $session_id . "', '" . $userRowId . "', '" . $created . "');";
+        $sql = "INSERT INTO vufind.session (session_id, data, last_used, created) VALUES ('" . $session_id . "', '" . $userRowId . "', '-1', '" . $created . "');";
 
         $result = $this->executeAnySQLCommand($sql);
         $generatedValue = $result->getGeneratedValue();
@@ -142,20 +142,20 @@ class User extends BaseUser
      */
     public function getUserFromConsolidationToken($token, $secondsToExpire = 60*15)
     {
-        $sql = "SELECT data, last_used FROM session WHERE session_id = '" . $token . "';";
+        $sql = "SELECT data, UNIX_TIMESTAMP(created) AS created FROM session WHERE last_used = '-1' AND session_id = '" . $token . "';";
 
         $result = $this->executeAnySQLCommand($sql)->current();
 
-        if ($result == null || empty($result['data']))
+        if ($result == null || empty($result['data']) || empty($result['created']))
             return false;
 
         $this->deleteConsolidationToken($token);
         $clearedTokens = $this->clearAllExpiredTokens($secondsToExpire);
 
-        // enforce lifetime of this session data
-        if (! empty($result->last_used) && $result->last_used + $secondsToExpire <= time()) {
+        $isExpired = time() >= $result->created + $secondsToExpire;
+
+        if ($isExpired)
             throw new \VuFind\Exception\Auth('Consolidation token has expired.');
-        }
 
         return $this->getUserByRowId($result['data']);
     }
@@ -168,14 +168,21 @@ class User extends BaseUser
     protected function clearAllExpiredTokens($secondsToExpire = 60*15)
     {
         $dateTime = date('Y-m-d H:i:s', time() - $secondsToExpire);
-        $sql = "DELETE FROM session WHERE created < '$dateTime';";
+        $sql = "DELETE FROM session WHERE last_used = '-1' AND created <= '$dateTime';";
         return $this->executeAnySQLCommand($sql)->getAffectedRows();
     }
 
+    /**
+     * Deletes token from the session table & returns either 1 on success
+     * or 0 on failure.
+     *
+     * @param
+     *            number clearedTokens
+     */
     protected function deleteConsolidationToken($token)
     {
-        $sql = "DELETE FROM session WHERE session_id = '" . $token . "';";
-        $this->executeAnySQLCommand($sql);
+        $sql = "DELETE FROM session WHERE last_used = '-1' AND session_id = '" . $token . "';";
+        $this->executeAnySQLCommand($sql)->getAffectedRows();
     }
 
     /**
