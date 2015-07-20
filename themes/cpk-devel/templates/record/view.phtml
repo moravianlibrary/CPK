@@ -228,7 +228,7 @@
 						}
 					}).done( function( msg ) {
 
-						var arr996 = (msg.arr !== null) ? msg.arr[0] : 'record';
+						var arr996 = (msg.arr.length != undefined) ? msg.arr[0] : record;
 						
 						var link = '/Record/'+record;
 						optionsHTML += "<li><a href='"+link+"'>"+arr996+"</a></li>"; 
