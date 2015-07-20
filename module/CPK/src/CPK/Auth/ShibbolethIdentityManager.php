@@ -27,8 +27,7 @@
  */
 namespace CPK\Auth;
 
-use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException;
-use VuFind\Exception\VuFind\Exception;
+use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException, VuFind\Db\Row\UserCard;
 
 /**
  * Shibboleth authentication module.
@@ -272,8 +271,6 @@ class ShibbolethIdentityManager extends Shibboleth
                 $this->updateIdentityCatUsername($userToConnectWith, $prefix, $attributes['cat_username']);
 
                 $this->userTableGateway->mergeUserInAllTables($currentUser, $userToConnectWith);
-
-                $currentUser->delete();
             }
 
             if ($updateUserRow) {
@@ -533,11 +530,40 @@ class ShibbolethIdentityManager extends Shibboleth
         // We need all user's cards here ... pass true
         $libCards = $from->getLibraryCards(true);
         foreach ($libCards as $libCard) {
-            // First delete the old one to always have unique eppn accross the user_card table
-            $from->deleteLibraryCard($libCard->id, false);
 
-            $into->createLibraryCard($libCard->cat_username, $libCard->home_library, $libCard->eppn, $libCard->card_name, $this->canConsolidateMoreTimes);
+            // Because eppn column is across user_card table unique, we need to mark it to deletion
+            // in order to be able of recreating it after any failure while transferring
+            $this->setLibCardDeletionFlag($libCard, true);
+
+            try {
+                $into->createLibraryCard($libCard->cat_username, $libCard->home_library, $libCard->eppn, $libCard->card_name, $this->canConsolidateMoreTimes);
+            } catch (AuthException $e) {
+                // Something went wrong - restore libCard flagged for deletion
+                $this->setLibCardDeletionFlag($libCard, false);
+                throw $e;
+            }
+
+            $from->deleteLibraryCardRow($libCard, false);
         }
+    }
+
+    /**
+     * Marks library card for deletion so that it can be recovered easily.
+     *
+     * @param UserCard $userCard
+     * @param boolean $shouldBeDeleted
+     */
+    public function setLibCardDeletionFlag(UserCard $userCard, $shouldBeDeleted)
+    {
+        $eppn = $userCard->eppn;
+
+        if ($shouldBeDeleted) {
+            $userCard->eppn = "DEL_$eppn";
+        } elseif (substr($eppn, 0, 4) === 'DEL_') {
+            $userCard->eppn = substr($eppn, 4);
+        }
+
+        $userCard->save();
     }
 
     /**

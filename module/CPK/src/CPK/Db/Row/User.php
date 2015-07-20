@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Row;
 
-use VuFind\Db\Row\User as BaseUser, VuFind\Exception\Auth as AuthException;
+use VuFind\Db\Row\User as BaseUser, VuFind\Exception\Auth as AuthException, VuFind\Db\Row\UserCard;
 
 /**
  * Row Definition for user
@@ -128,7 +128,10 @@ class User extends BaseUser
         }
 
         if (! empty($eppn)) {
-            $row->eppn = $eppn;
+            if (substr($eppn, 0, 4) === 'DEL_')
+                $row->eppn = substr($eppn, 4);
+            else
+                $row->eppn = $eppn;
         }
 
         if (! empty($cat_password)) {
@@ -234,21 +237,27 @@ class User extends BaseUser
     }
 
     /**
-     * Delete library card
+     * Delete library card.
      *
-     * @param int $id
-     *            Library card ID
+     * Note that if you supply UserCard row to this method, it will delete it
+     * no matter if it is last.
+     *
+     * @param
+     *            mixed (int $id | UserCard $userCard)
      *
      * @param boolean $doNotDeleteIfLast
      *
      * @return void
      * @throws \VuFind\Exception\LibraryCard
      */
-    public function deleteLibraryCard($id, $doNotDeleteIfLast = false)
+    public function deleteLibraryCard($id, $doNotDeleteIfLast = false, $activateAnother = true)
     {
         if (! $this->libraryCardsEnabled()) {
             throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
         }
+
+        if ($id instanceof UserCard)
+            return $this->deleteLibraryCardRow($id, $activateAnother);
 
         $userCard = $this->getDbTable('UserCard');
         $row = $userCard->select([
@@ -266,24 +275,36 @@ class User extends BaseUser
 
         $row->delete();
 
-        if ($row->cat_username == $this->cat_username) {
+        if ($activateAnother && $row->cat_username == $this->cat_username) {
             // Activate another card (if any) or remove cat_username and cat_password
-            $cards = $this->getLibraryCards(true); // We need all library cards here
-            if ($cards->count() > 0) {
-                $this->activateLibraryCard($cards->current()->id);
-            } else {
-                $this->cat_username = null;
-                $this->cat_password = null;
-                $this->cat_pass_enc = null;
-                $this->save();
-            }
+            $this->activateBestLibraryCard();
         }
+    }
+
+    /**
+     * This method deletes UserCard row.
+     * If it was active card, then is activated another
+     * using activateBestLibraryCard method.
+     *
+     * @param UserCard $libCard
+     * @return number $affectedRows
+     */
+    public function deleteLibraryCardRow(UserCard $libCard, $activateAnother = true)
+    {
+        $affectedRows = $libCard->delete();
+
+        if ($activateAnother && $libCard->cat_username == $this->cat_username) {
+            // Activate another card (if any) or remove cat_username and cat_password
+            $this->activateBestLibraryCard();
+        }
+
+        return $affectedRows;
     }
 
     /**
      * Disconnect desired identity.
      *
-     * It is an alias for deleteLibraryCard($id, true)
+     * It is an alias for deleteLibraryCard($id, true, true)
      *
      * @param int $id
      *            Library card ID
@@ -293,7 +314,22 @@ class User extends BaseUser
      */
     public function disconnectIdentity($id)
     {
-        return $this->deleteLibraryCard($id, true);
+        return $this->deleteLibraryCard($id, true, true);
+    }
+
+    /**
+     * Checks if specified UserCard row id owns current User.
+     *
+     * @param int $id
+     * @return boolean $hasThisLibraryCard
+     */
+    public function hasThisLibraryCard($id)
+    {
+        $userCard = $this->getDbTable('UserCard');
+        return $userCard->select([
+            'id' => $id,
+            'user_id' => $this->id
+        ])->count() !== 0;
     }
 
     /**

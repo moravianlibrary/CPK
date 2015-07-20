@@ -49,21 +49,19 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function homeAction()
     {
-        if (!($user = $this->getUser())) {
+        if (! ($user = $this->getUser())) {
             return $this->forceLogin();
         }
 
         // Check for "delete card" request; parameter may be in GET or POST depending
         // on calling context.
-        $deleteId = $this->params()->fromPost(
-            'delete', $this->params()->fromQuery('delete')
-        );
+        $deleteId = $this->params()->fromPost('delete', $this->params()
+            ->fromQuery('delete'));
         if ($deleteId) {
             // If the user already confirmed the operation, perform the delete now;
             // otherwise prompt for confirmation:
-            $confirm = $this->params()->fromPost(
-                'confirm', $this->params()->fromQuery('confirm')
-            );
+            $confirm = $this->params()->fromPost('confirm', $this->params()
+                ->fromQuery('confirm'));
             if ($confirm) {
                 $success = $this->performDeleteLibraryCard($deleteId);
                 if ($success !== true) {
@@ -77,12 +75,10 @@ class LibraryCardsController extends LibraryCardsControllerBase
         // Connect to the ILS for login drivers:
         $catalog = $this->getILS();
 
-        return $this->createViewModel(
-            [
-                'libraryCards' => $user->getAllLibraryCards(),
-                'logos' => $user->getIdentityProvidersLogos()
-            ]
-        );
+        return $this->createViewModel([
+            'libraryCards' => $user->getAllLibraryCards(),
+            'logos' => $user->getIdentityProvidersLogos()
+        ]);
     }
 
     /**
@@ -99,30 +95,38 @@ class LibraryCardsController extends LibraryCardsControllerBase
         }
 
         // Get requested library card ID:
-        $cardID = $this->params()
-            ->fromPost('cardID', $this->params()->fromQuery('cardID'));
+        $cardID = $this->params()->fromPost('cardID', $this->params()
+            ->fromQuery('cardID'));
 
-        // Have we confirmed this?
-        $confirm = $this->params()->fromPost(
-            'confirm', $this->params()->fromQuery('confirm')
-        );
+        if (! $user->hasThisLibraryCard($cardID)) {
+            // Success Message
+            $this->flashMessenger()
+                ->setNamespace('error')
+                ->addMessage('Cannot disconnect foreign identity');
+            // Redirect to MyResearch library cards
+            return $this->redirect()->toRoute('librarycards-home');
+        }
+
+        $confirm = $this->params()->fromPost('confirm', $this->params()
+            ->fromQuery('confirm'));
+
         if ($confirm) {
             $user->disconnectIdentity($cardID);
 
             // Success Message
-            $this->flashMessenger()->setNamespace('success')
+            $this->flashMessenger()
+                ->setNamespace('success')
                 ->addMessage('Identity disconnected');
             // Redirect to MyResearch library cards
             return $this->redirect()->toRoute('librarycards-home');
         }
 
         // If we got this far, we must display a confirmation message:
-        return $this->confirm(
-            'confirm_delete_library_card_brief',
-            $this->url()->fromRoute('librarycards-deletecard'),
-            $this->url()->fromRoute('librarycards-home'),
-            'confirm_delete_library_card_text', ['cardID' => $cardID]
-        );
+        return $this->confirm('confirm_delete_library_card_brief', $this->url()
+            ->fromRoute('librarycards-deletecard'), $this->url()
+            ->fromRoute('librarycards-home'), 'confirm_delete_library_card_text', [
+            'cardID' => $cardID
+        ]);
     }
 
     /**
@@ -154,6 +158,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
      * @return object|bool Response object if redirect is
      *         needed, false if form needs to be redisplayed.
      * @deprecated
+     *
      */
     protected function processEditLibraryCard(UserRow $user)
     {

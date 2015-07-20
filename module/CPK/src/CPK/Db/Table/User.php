@@ -116,6 +116,8 @@ class User extends BaseUser
             throw new AuthException("Cannot merge two UserRows without knowlegde of both UserRow ids");
         }
 
+        $this->updateUserRows($from, $into);
+
         /**
          * Table names which contain user_id as a relation to user.id foreign key
          */
@@ -135,6 +137,58 @@ class User extends BaseUser
 
         // Perform User deletion
         $from->delete();
+    }
+
+    /**
+     * This method picks up non-empty values from $from into $into UserRow, which are
+     * probably more appreciated than current values within $into UserRow.
+     *
+     * This method <b>DOES NOT DELETE</b> any UserRow.
+     *
+     * It also doesn't handle cat_username neither home_library as those were previously
+     * set by UserRow::activateBestLibraryCard method.
+     *
+     * @param UserRow $from
+     * @param UserRow $into
+     * @return void
+     */
+    protected function updateUserRows(UserRow $from, UserRow $into)
+    {
+        $basicNonEmptyMerge = [
+            "firstname",
+            "lastname",
+            "email",
+            "password",
+            "pass_hash",
+            "verify_hash"
+        ];
+
+        foreach ($basicNonEmptyMerge as $column) {
+            // Replace current value only if it is empty
+            if (empty($into->$column) && ! empty($from->$column)) {
+                $into->$column = $from->$column;
+            }
+        }
+
+        $basicMerge = [
+            "major",
+            "college"
+        ];
+
+        foreach ($basicMerge as $column) {
+            if (! empty($from->$column)) {
+
+                // Replace current value only if it is empty
+                if (empty($into->$column)) {
+                    $into->$column = $from->$column;
+                } else {
+                    // If are both set, then merge those using ';' delimiter
+                    $into->$column .= ';' . $from->$column;
+                }
+            }
+        }
+
+        $into->save();
     }
 
     /**
@@ -235,20 +289,27 @@ class User extends BaseUser
      */
     protected function executeAnySQLTransaction(array $sqlCommands)
     {
-        $conn = $this->getDbConnection();
+        if (count($sqlCommands) > 0) {
+            try {
+                $conn = $this->getDbConnection();
 
-        $conn->beginTransaction();
+                $conn->beginTransaction();
 
-        foreach ($sqlCommands as $sql) {
-            $result = $conn->execute($sql);
+                foreach ($sqlCommands as $sql) {
+                    if (! empty($sql))
+                        $result = $conn->execute($sql);
+                }
+
+                $conn->commit();
+            } catch (\Exception $e) {
+                $conn->rollback();
+                throw $e;
+            }
         }
-
-        $conn->commit();
-
-        return $result;
     }
 
     /**
+     *
      * @return \Zend\Db\Adapter\Driver\Mysqli\Connection $conn
      */
     protected function getDbConnection()
