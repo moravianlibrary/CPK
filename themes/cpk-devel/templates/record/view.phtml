@@ -89,65 +89,134 @@
       </div>
       <div class="well">
 
-      <div>
-	  	<h4><?= $this->translate('Records in group') ?></h4>
-	  	
-	  	<?php   	
-		  	$dedupedRecords = $this->tabs['DedupedRecords']->getRecordsInGroup();
+	      <div>
+		  	<h4><?= $this->translate('Records in group') ?></h4>
 		  	
-		  	$recordGroup = array();
-			foreach ($dedupedRecords as $record) {
-				if(! array_key_exists($record['source'], $recordGroup)) {
-					$recordGroup[$record['source']] = array($record['id']);
-				} else {
-					$recordGroup[$record['source']][] = $record['id'];
+		  	<?php   	
+			  	$dedupedRecords = $this->tabs['DedupedRecords']->getRecordsInGroup();
+			  	
+			  	$recordGroup = array();
+				foreach ($dedupedRecords as $record) {
+					if(! array_key_exists($record['source'], $recordGroup)) {
+						$recordGroup[$record['source']] = array($record['id']);
+					} else {
+						$recordGroup[$record['source']][] = $record['id'];
+					}
 				}
-			}
-	  	?>
-
-		  	<div class="dropdown">
-			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-			    <?
-			    	reset($recordGroup);
-			    	echo $this->translate(key($recordGroup));
-			    ?>
-			    <span class="caret"></span>
-			  </button>
-			  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" id='record-group'>
-			  	<? 
-			  		foreach (array_keys($recordGroup) as $key) {
-			  			if (count($recordGroup[$key]) === 1) {
-			  				$link = $recordGroup[$key][0];
-			  				echo "<li><a href='".$this->url('record', array('id' => $link))."' title='$key'>".$this->translate($key)."</a></li>";
-			  			} else {
-			  				echo "<li><a class='multiple-records' id='".implode("|", $recordGroup[$key])."' title='$key'>".$this->translate($key)."</a></li>";
-			  			}
-			  		}
-			  	?>
-			  </ul>
-			</div>
+		  	?>
 	
-			<div class="dropdown hidden" id='recordsDropdown'>
-			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-			    <span id='first-record'></span>
-			    <span class="caret"></span>
-			  </button>
-			  <ul class="dropdown-menu" aria-labelledby="dropdownMenu2" id='records-in-group'>
-			  </ul>
-			</div>
+			  	<div class="dropdown">
+				  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				  	<span id='first-record-group'>
+					    <?
+					    	reset($recordGroup);
+					    	echo $this->translate(key($recordGroup));
+					    ?>
+				    </span>
+				    <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" id='record-group'>
+				  	<? 
+				  		foreach (array_keys($recordGroup) as $key) {
+				  			if (count($recordGroup[$key]) === 1) {
+				  				$link = $recordGroup[$key][0];
+				  				echo "<li><a href='".$this->url('record', array('id' => $link))."' id='$link' title='".$this->translate($key)."'>".$this->translate($key)."</a></li>";
+				  			} else {
+				  				echo "<li><a href='#' class='multiple-records' id='".implode("|", $recordGroup[$key])."' title='".$this->translate($key)."'>".$this->translate($key)."</a></li>";
+				  			}
+				  		}
+				  	?>
+				  </ul>
+				</div>
+		
+				<div class="dropdown hidden" id='recordsDropdown'>
+				  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+				    <span id='first-record'><?= $this->translate('Choose record') ?></span>
+				    <span class="caret"></span>
+				  </button>
+				  <ul class="dropdown-menu" aria-labelledby="dropdownMenu2" id='records-in-group'>
+				  </ul>
+				</div>
+	
+		  </div>
+		  <?
+		  	$recordSource = explode(".", $this->driver->getUniqueId())[0];
+		  ?>
+		  <script>
+			jQuery( document ).ready( function( $ ) {
+				
+				var source = "<?= $recordSource ?>";
 
-	  </div>
-	  <script>
-		jQuery( document ).ready( function( $ ) {
+				// select default record group
+				$( '#record-group li a' ).each( function() {
+					
+					var title = $(this).attr( 'title' );
+					if ( $(this).attr( 'id' ).toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
+						$( '#first-record-group' ).text( title );
+					}
 
-			$( '#record-group' ).on( "click", ".multiple-records", function() {
-				var group = $( this ).attr( 'title' );
-				var recordsArr = $( this ).attr( 'id' ).split( "|" );
-				var optionsHTML = "";
-				var i = 0;
+				});
 
-				recordsArr.forEach(function( record ) {
+				// initial records in dropdown menu
+				$( '#record-group li a.multiple-records' ).each( function() {
+					
+					var records = $(this).attr( 'id' );
+					var recordsArr = records.split( "|" );
 
+					if (recordsArr.length > 1) {
+
+						if ( records.toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
+							
+							var optionsHTML = "";
+							
+							recordsArr.forEach( function( record ) {
+								
+								optionsHTML += getRecordsForGroup( record );
+	
+							});
+							
+							$( '#recordsDropdown' ).removeClass( 'hidden' );
+							$( '#records-in-group' ).html( optionsHTML );
+							optionsHTML = null;
+							
+						}
+	
+						// set initial record
+						if ( $( '#records-in-group li a[href*="'+source+'"]' ).text().length > 0) {
+							var textValue = $( '#records-in-group li a[href*="'+source+'"]' ).text();
+							$( '#first-record' ).text(textValue);
+						}
+
+					}
+						
+				});
+
+				// ajax records in selected group generator
+				$( '#record-group' ).on( "click", ".multiple-records", function( event ) {
+	
+					event.preventDefault();
+	
+					$( '#first-record-group' ).text( $(this).attr( 'title' ) );
+					
+					var group = $( this ).attr( 'title' );
+					var recordsArr = $( this ).attr( 'id' ).split( "|" );
+					var optionsHTML = "";
+	
+					recordsArr.forEach( function( record ) {
+	
+						optionsHTML += getRecordsForGroup( record );
+
+					});
+					
+					$( '#recordsDropdown' ).removeClass( 'hidden' );
+					$( '#records-in-group' ).html( optionsHTML );
+					optionsHTML = null;
+				});
+
+				function getRecordsForGroup( record ) {
+
+					var optionsHTML = "";
+					
 					$.ajax({
 						url: 		"getMarcArrayViaAjax",
 						method: 	"POST",
@@ -164,23 +233,15 @@
 						var link = '/Record/'+record;
 						optionsHTML += "<li><a href='"+link+"'>"+arr996+"</a></li>"; 
 
-						if (i === 0) {
-							$( '#first-record' ).html(arr996)
-						}
-
 					}).fail( function( jqXHR, textStatus ) {
 						console.log( jqXHR+' '+textStatus );
 					});
 
-					i++;
-				});
-
-				$( '#recordsDropdown' ).removeClass( 'hidden' );
-				$( '#records-in-group' ).html( optionsHTML );
+					return optionsHTML;
+				}
+				
 			});
-			
-		});
-	  </script>
+		  </script>
 	  
 	  </div>
 	  <div class="well">
@@ -189,7 +250,6 @@
       <?=$this->related()->render($current)?>
     <? endforeach; ?>
     </div>
-
 
   </div>
 </div>
