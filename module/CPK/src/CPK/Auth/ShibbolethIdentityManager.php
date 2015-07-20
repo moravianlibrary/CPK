@@ -212,7 +212,7 @@ class ShibbolethIdentityManager extends Shibboleth
                 $config = $this->shibbolethConfig['default'];
                 $prefix = 'Dummy';
             } else
-                throw new AuthException('Recieved entityId was not found in " . $this::CONFIG_FILE_NAME . ".ini config nor default config part exists.');
+                throw new AuthException('Recieved entityId was not found in ' . $this::CONFIG_FILE_NAME . '.ini config nor default config part exists.');
         }
 
         $attributes = $this->fetchAttributes($config);
@@ -271,8 +271,9 @@ class ShibbolethIdentityManager extends Shibboleth
                 // We need to check, if there doesn't exist library card with the same institution to update it
                 $this->updateIdentityCatUsername($userToConnectWith, $prefix, $attributes['cat_username']);
 
-                // TODO: Merge favorites
-                // TODO: Call $currentUser->delete() then
+                $this->userTableGateway->mergeUserInAllTables($currentUser, $userToConnectWith);
+
+                $currentUser->delete();
             }
 
             if ($updateUserRow) {
@@ -410,7 +411,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
 
         if (! $tokenCreated)
-            throw new AuthException("Could not create consolidation token entry into session table.");
+            throw new AuthException('Could not create consolidation token entry into session table');
 
             // Create redirection URL
         $hostname = $this->config->Site->url;
@@ -487,9 +488,11 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * If the provided $cat_username differs from libCard's cat_username, it is than updated.
      *
-     * @param User $user
+     * @param UserRow $user
      * @param string $prefix
      * @param string $cat_username
+     *
+     * @return void
      */
     protected function updateIdentityCatUsername(UserRow $user, $prefix, $cat_username)
     {
@@ -517,6 +520,14 @@ class ShibbolethIdentityManager extends Shibboleth
         }
     }
 
+    /**
+     * This method deletes all cards within supplied User $from & saves those to User $into.
+     *
+     * @param UserRow $from
+     * @param UserRow $into
+     *
+     * @return void
+     */
     protected function transferLibraryCards(UserRow $from, UserRow $into)
     {
         // We need all user's cards here ... pass true

@@ -101,10 +101,40 @@ class User extends BaseUser
         ])->current();
     }
 
-    public function mergeIntoThisUser(UserRow $user)
+    /**
+     * This method basically replaces all occurrences of $from->id (UserRow id) in tables
+     * comments, user_resource, user_list & search with $into->id in user_id column.
+     *
+     * @param UserRow $from
+     * @param UserRow $into
+     * @throws AuthException
+     * @return void
+     */
+    public function mergeUserInAllTables(UserRow $from, UserRow $into)
     {
-        // TODO ...
-        return true;
+        if (empty($into->id) || empty($from->id)) {
+            throw new AuthException("Cannot merge two UserRows without knowlegde of both UserRow ids");
+        }
+
+        /**
+         * Table names which contain user_id as a relation to user.id foreign key
+         */
+        $tablesToUpdateUserId = [
+            "comments",
+            "user_resource",
+            "user_list",
+            "search"
+        ];
+
+        $sqlCommands = [];
+        foreach ($tablesToUpdateUserId as $table) {
+            $sqlCommands[] = "UPDATE $table t SET t.user_id = '$into->id' WHERE t.user_id = '$from->id';";
+        }
+
+        $this->executeAnySQLTransaction($sqlCommands);
+
+        // Perform User deletion
+        $from->delete();
     }
 
     /**
@@ -152,7 +182,7 @@ class User extends BaseUser
         $this->deleteConsolidationToken($token);
         $clearedTokens = $this->clearAllExpiredTokens($secondsToExpire);
 
-        $isExpired = time() >= $result->created + $secondsToExpire;
+        $isExpired = $time >= intval($result->created) + $secondsToExpire;
 
         if ($isExpired)
             throw new \VuFind\Exception\Auth('Consolidation token has expired.');
@@ -194,6 +224,35 @@ class User extends BaseUser
      */
     protected function executeAnySQLCommand($sql)
     {
-        return $this->getAdapter()->driver->getConnection()->execute($sql);
+        return $this->getDbConnection()->execute($sql);
+    }
+
+    /**
+     * Executes all supplied sqlCommands in a SQL transaction.
+     *
+     * @param array $sqlCommands
+     * @return void
+     */
+    protected function executeAnySQLTransaction(array $sqlCommands)
+    {
+        $conn = $this->getDbConnection();
+
+        $conn->beginTransaction();
+
+        foreach ($sqlCommands as $sql) {
+            $result = $conn->execute($sql);
+        }
+
+        $conn->commit();
+
+        return $result;
+    }
+
+    /**
+     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection $conn
+     */
+    protected function getDbConnection()
+    {
+        return $this->getAdapter()->driver->getConnection();
     }
 }
