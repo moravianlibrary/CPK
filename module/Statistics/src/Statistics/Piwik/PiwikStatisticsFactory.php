@@ -24,8 +24,10 @@ class PiwikStatisticsFactory
 	{
 		$config = $sm->get('VuFind\Config')->get('config');
 		
-		$multibackend = $sm->get('VuFind\Config')->get('MultiBackend');
-		$drivers = $multibackend->Login->drivers->toArray();
+		$multibackend = $sm->get('VuFind\Config')->get('shibboleth');
+		$drivers = $multibackend->toArray();
+		unset($drivers['main']);
+		unset($drivers['default']);
 
 		return new PiwikStatistics($config, $drivers);
 	}
