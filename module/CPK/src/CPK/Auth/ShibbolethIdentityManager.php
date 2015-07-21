@@ -28,7 +28,6 @@
 namespace CPK\Auth;
 
 use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException, VuFind\Db\Row\UserCard;
-use VuFind\Exception\VuFind\Exception;
 
 /**
  * Shibboleth authentication module.

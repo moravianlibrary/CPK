@@ -78,9 +78,16 @@ class User extends BaseUser
     public function getUserRowIdByEppn($eppn)
     {
         // First find out if there is any eppn like this one
-        $sql = "SELECT user_id FROM user_card WHERE eppn = '$eppn'";
+        $select = new \Zend\Db\Sql\Select();
+        $select->columns([
+            'user_id'
+        ]);
+        $select->from('user_card');
+        $select->where([
+            'eppn' => $eppn
+        ]);
 
-        $result = $this->executeAnySQLCommand($sql)->current();
+        $result = $this->executeAnyZendSQLSelect($select)->current();
 
         if ($result == null || empty($result['user_id']))
             return false;
@@ -128,12 +135,24 @@ class User extends BaseUser
             "search"
         ];
 
-        $sqlCommands = [];
+        // This will prevent autocommit to Db
+        $this->getDbConnection()->beginTransaction();
+
         foreach ($tablesToUpdateUserId as $table) {
-            $sqlCommands[] = "UPDATE $table t SET t.user_id = '$into->id' WHERE t.user_id = '$from->id';";
+            "UPDATE $table t SET t.user_id = '$into->id' WHERE t.user_id = '$from->id';";
+            $update = new \Zend\Db\Sql\Update($table);
+            $update->set([
+                'user_id' => $into->id
+            ]);
+            $update->where([
+                'user_id' => $from->id
+            ]);
+
+            $this->executeAnyZendSQLUpdate($update);
         }
 
-        $this->executeAnySQLTransaction($sqlCommands);
+        // Now commit whole transaction
+        $this->getDbConnection()->commit();
 
         // Perform User deletion
         $from->delete();
@@ -209,11 +228,20 @@ class User extends BaseUser
         if (empty($username))
             return 0;
 
-        $sql = "SELECT username FROM user WHERE username RLIKE '$username;[0-9]+' ORDER BY created DESC LIMIT 1";
+        $select = new \Zend\Db\Sql\Select();
+        $select->columns([
+            'username'
+        ]);
+        $select->from('user');
+        $select->order('created DESC');
+        $select->limit(1);
 
-        $result = $this->executeAnySQLCommand($sql)->current();
+        $predicate = new \Zend\Db\Sql\Predicate\Expression("username RLIKE '$username;[0-9]+'");
+        $select->where($predicate);
 
-        if (empty($result['username']))
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+
+        if (! $result || empty($result['username']))
             return 0;
 
         $splittedResult = split(';', $result['username']);
@@ -237,15 +265,14 @@ class User extends BaseUser
 
         $created = date('Y-m-d H:i:s');
 
-        // 128 chars max ..
-        $session_id = $token;
+        $generatedValue = $this->getDbTable('session')->insert([
+            'session_id' => $token,
+            'data' => $userRowId,
+            'last_used' => '-1',
+            'created' => $created
+        ]);
 
-        $sql = "INSERT INTO vufind.session (session_id, data, last_used, created) VALUES ('" . $session_id . "', '" . $userRowId . "', '-1', '" . $created . "');";
-
-        $result = $this->executeAnySQLCommand($sql);
-        $generatedValue = $result->getGeneratedValue();
-
-        return $generatedValue === null ? false : $generatedValue;
+        return $generatedValue === 1;
     }
 
     /**
@@ -258,9 +285,20 @@ class User extends BaseUser
      */
     public function getUserFromConsolidationToken($token, $secondsToExpire = 60*15)
     {
-        $sql = "SELECT data, UNIX_TIMESTAMP(created) AS created FROM session WHERE last_used = '-1' AND session_id = '" . $token . "';";
+        $select = new \Zend\Db\Sql\Select();
+        $select->columns([
+            'data',
+            'created' => new \Zend\Db\Sql\Expression("UNIX_TIMESTAMP(created)")
+        ]);
 
-        $result = $this->executeAnySQLCommand($sql)->current();
+        $select->from("session");
+
+        $select->where([
+            'last_used' => '-1',
+            'session_id' => $token
+        ]);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
 
         if ($result == null || empty($result['data']) || empty($result['created']))
             return false;
@@ -284,21 +322,25 @@ class User extends BaseUser
     protected function clearAllExpiredTokens($secondsToExpire = 60*15)
     {
         $dateTime = date('Y-m-d H:i:s', time() - $secondsToExpire);
-        $sql = "DELETE FROM session WHERE last_used = '-1' AND created <= '$dateTime';";
-        return $this->executeAnySQLCommand($sql)->getAffectedRows();
+
+        return $this->getDbTable('session')->delete([
+            'last_used' => '-1',
+            'created <= ?' => $dateTime
+        ]);
     }
 
     /**
      * Deletes token from the session table & returns either 1 on success
      * or 0 on failure.
      *
-     * @param
-     *            number clearedTokens
+     * @param string $token
      */
     protected function deleteConsolidationToken($token)
     {
-        $sql = "DELETE FROM session WHERE last_used = '-1' AND session_id = '" . $token . "';";
-        $this->executeAnySQLCommand($sql)->getAffectedRows();
+        $this->getDbTable('session')->delete([
+            'last_used' => '-1',
+            'session_id' => $token
+        ]);
     }
 
     /**
@@ -306,38 +348,29 @@ class User extends BaseUser
      *
      * This was implemented because of the need of looking into user_card table.
      *
+     * @param \Zend\Db\Sql\Select $select
+     *
      * @return \Zend\Db\Adapter\Driver\Mysqli\Result $result
      */
-    protected function executeAnySQLCommand($sql)
+    protected function executeAnyZendSQLSelect(\Zend\Db\Sql\Select $select)
     {
-        return $this->getDbConnection()->execute($sql);
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        return $statement->execute();
     }
 
     /**
-     * Executes all supplied sqlCommands in a SQL transaction.
+     * Executes any sql command.
      *
-     * @param array $sqlCommands
-     * @return void
+     * This was implemented because of the need of looking into user_card table.
+     *
+     * @param \Zend\Db\Sql\Update $update
+     *
+     * @return \Zend\Db\Adapter\Driver\Mysqli\Result $result
      */
-    protected function executeAnySQLTransaction(array $sqlCommands)
+    protected function executeAnyZendSQLUpdate(\Zend\Db\Sql\Update $update)
     {
-        if (count($sqlCommands) > 0) {
-            try {
-                $conn = $this->getDbConnection();
-
-                $conn->beginTransaction();
-
-                foreach ($sqlCommands as $sql) {
-                    if (! empty($sql))
-                        $result = $conn->execute($sql);
-                }
-
-                $conn->commit();
-            } catch (\Exception $e) {
-                $conn->rollback();
-                throw $e;
-            }
-        }
+        $statement = $this->sql->prepareStatementForSqlObject($update);
+        return $statement->execute();
     }
 
     /**
