@@ -89,7 +89,7 @@ class ShibbolethIdentityManager extends Shibboleth
     const SEPARATOR = ".";
 
     /**
-     * It's value is same as $this::SEPARATOR, but regex ready.
+     * It's value is same as static::SEPARATOR, but regex ready.
      *
      * @var const SEPARATOR_REGEXED
      */
@@ -144,10 +144,10 @@ class ShibbolethIdentityManager extends Shibboleth
 
     public function __construct(\VuFind\Config\PluginManager $configLoader, UserTable $userTableGateway)
     {
-        $this->shibbolethConfig = $configLoader->get($this::CONFIG_FILE_NAME);
+        $this->shibbolethConfig = $configLoader->get(static::CONFIG_FILE_NAME);
 
         if (empty($this->shibbolethConfig)) {
-            throw new AuthException("Could not load " . $this::CONFIG_FILE_NAME . ".ini configuration file.");
+            throw new AuthException("Could not load " . static::CONFIG_FILE_NAME . ".ini configuration file.");
         }
 
         $this->userTableGateway = $userTableGateway;
@@ -180,14 +180,14 @@ class ShibbolethIdentityManager extends Shibboleth
 
             if ($name !== 'main') {
                 if (! isset($configuration['username']) || empty($configuration['username'])) {
-                    throw new AuthException("Shibboleth 'username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
+                    throw new AuthException("Shibboleth 'username' is missing in your " . static::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
                 }
 
                 if ($name !== 'default') {
                     if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
-                        throw new AuthException("Shibboleth 'entityId' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
+                        throw new AuthException("Shibboleth 'entityId' is missing in your " . static::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
                     } elseif (! isset($configuration['cat_username']) || empty($configuration['cat_username'])) {
-                        throw new AuthException("Shibboleth 'cat_username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
+                        throw new AuthException("Shibboleth 'cat_username' is missing in your " . static::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "' with entityId " . $configuration['entityId']);
                     }
                 }
             } else {
@@ -232,7 +232,7 @@ class ShibbolethIdentityManager extends Shibboleth
                 $config = $this->shibbolethConfig['default'];
                 $prefix = 'Dummy';
             } else
-                throw new AuthException('Recieved entityId was not found in ' . $this::CONFIG_FILE_NAME . '.ini config nor default config part exists.');
+                throw new AuthException('Recieved entityId was not found in ' . static::CONFIG_FILE_NAME . '.ini config nor default config part exists.');
         }
 
         $attributes = $this->fetchAttributes($config);
@@ -437,7 +437,7 @@ class ShibbolethIdentityManager extends Shibboleth
     {
         // Create & write token to DB & user's cookie
         $token = $this->generateToken();
-        setCookie($this::CONSOLIDATION_TOKEN_TAG, $token);
+        setCookie(static::CONSOLIDATION_TOKEN_TAG, $token);
 
         $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
 
@@ -458,10 +458,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $loginRedirect = $this->config->Shibboleth->login . '?target=' . urlencode($target);
 
-        // Check if we can successfully logout the user from his Shibboleth session
-        $canLogoutSafely = in_array($entityId, $this->workingLogoutEntityIds);
-
-        if ($canLogoutSafely) {
+        if ($this->canLogoutSafely()) {
             return $this->config->Shibboleth->logout . '?return=' . urlencode($loginRedirect);
         } else
             return $loginRedirect;
@@ -662,7 +659,19 @@ class ShibbolethIdentityManager extends Shibboleth
 
     protected function fetchCurrentEntityId()
     {
-        return $_SERVER[$this::SHIB_IDENTITY_PROVIDER_ENV];
+        return $_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV];
+    }
+
+    /**
+     * Checks if User can logout safely.
+     * It basically checks for presence of current
+     * entityID in $this->workingLogoutEntityIds.
+     *
+     * @return boolean $canLogoutSafely
+     */
+    public function canLogoutSafely()
+    {
+        return in_array($this->fetchCurrentEntityId(), $this->workingLogoutEntityIds);
     }
 
     protected function fetchEduPersonPrincipalName()
@@ -694,7 +703,7 @@ class ShibbolethIdentityManager extends Shibboleth
     {
         $assertions = array();
 
-        $count = intval($_SERVER[$this::SHIB_ASSERTION_COUNT_ENV]);
+        $count = intval($_SERVER[static::SHIB_ASSERTION_COUNT_ENV]);
 
         if (! empty($count))
             for ($i = 0; $i < $count; ++ $i) {
@@ -744,9 +753,9 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function getConsolidatorTokenFromCookie()
     {
-        $token = $_COOKIE[$this::CONSOLIDATION_TOKEN_TAG];
+        $token = $_COOKIE[static::CONSOLIDATION_TOKEN_TAG];
         // unset the cookie ...
-        setcookie($this::CONSOLIDATION_TOKEN_TAG, null, - 1, '/');
+        setcookie(static::CONSOLIDATION_TOKEN_TAG, null, - 1, '/');
         return $token;
     }
 }

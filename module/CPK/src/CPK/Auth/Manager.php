@@ -167,6 +167,10 @@ class Manager extends BaseManager
 
     public function getAuthInstance($name)
     {
+        if (empty($name)) {
+            return $this->auth[$this->activeAuth];
+        }
+
         return $this->auth[$name];
     }
 
