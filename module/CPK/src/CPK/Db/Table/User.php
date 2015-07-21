@@ -139,7 +139,7 @@ class User extends BaseUser
         $this->getDbConnection()->beginTransaction();
 
         foreach ($tablesToUpdateUserId as $table) {
-            "UPDATE $table t SET t.user_id = '$into->id' WHERE t.user_id = '$from->id';";
+
             $update = new \Zend\Db\Sql\Update($table);
             $update->set([
                 'user_id' => $into->id
