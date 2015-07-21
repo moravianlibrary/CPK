@@ -192,6 +192,31 @@ class User extends BaseUser
     }
 
     /**
+     * Searches for count of '$username;[0-9]+' regex matches in username column of user table.
+     *
+     * @param string $username
+     * @return number
+     */
+    public function getUsernameRank($username)
+    {
+        if (empty($username))
+            return 0;
+
+        $sql = "SELECT username FROM user WHERE username RLIKE '$username;[0-9]+' ORDER BY created DESC LIMIT 1";
+
+        $result = $this->executeAnySQLCommand($sql)->current();
+
+        if (empty($result['username']))
+            return 0;
+
+        $splittedResult = split(';', $result['username']);
+        if (count($splittedResult) === 2) {
+            return intval($splittedResult[1]);
+        } else
+            return 0;
+    }
+
+    /**
      * Saves user's connection token to session table in order to connect user's accounts later.
      *
      * @param string $token

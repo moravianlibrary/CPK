@@ -76,7 +76,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
         $catalog = $this->getILS();
 
         return $this->createViewModel([
-            'libraryCards' => $user->getAllLibraryCards(),
+            'libraryCards' => $user->getAllUserLibraryCards(),
             'logos' => $user->getIdentityProvidersLogos()
         ]);
     }
@@ -146,42 +146,6 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function editCardAction()
     {
-        return $this->redirect()->toRoute('librarycards-home');
-    }
-
-    /**
-     * Process the "edit library card" submission.
-     *
-     * @param UserRow $user
-     *            Logged in user
-     *
-     * @return object|bool Response object if redirect is
-     *         needed, false if form needs to be redisplayed.
-     * @deprecated
-     *
-     */
-    protected function processEditLibraryCard(UserRow $user)
-    {
-        $cardName = $this->params()->fromPost('card_name', '');
-
-        if (! trim($cardName)) {
-            $this->flashMessenger()
-                ->setNamespace('error')
-                ->addMessage('Card name cannot be empty');
-            return false;
-        }
-
-        $id = $this->params()->fromRoute('id', $this->params()
-            ->fromQuery('id'));
-        try {
-            $user->editLibraryCardName($id, $cardName);
-        } catch (\VuFind\Exception\LibraryCard $e) {
-            $this->flashMessenger()
-                ->setNamespace('error')
-                ->addMessage($e->getMessage());
-            return false;
-        }
-
         return $this->redirect()->toRoute('librarycards-home');
     }
 }

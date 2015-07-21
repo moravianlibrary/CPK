@@ -11,7 +11,7 @@
     <?=$this->flashmessages()?>
 
     <h2><?=$this->transEsc('Library Cards')?></h2>
-    <? if ($this->libraryCards->count() == 0): ?>
+    <? if (empty($this->libraryCards)): ?>
       <div><?=$this->transEsc('You do not have any library cards')?></div>
     <? else: ?>
       <table class="table table-striped" summary="<?=$this->transEsc('Library Cards')?>">
@@ -33,7 +33,7 @@
           <td><?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?></td>
           <td><?=$record['card_name'] ?></td>
           <td>
-          <? if($this->libraryCards->count() !== 1): ?>
+          <? if(count($this->libraryCards) !== 1): ?>
             <div class="btn-group">
               <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('librarycards-deletecard') ?>?cardID=<?=urlencode($record['id'])?>">
                 <i class="fa fa-trash-o"></i> <?=$this->transEsc('Disconnect identity')?>

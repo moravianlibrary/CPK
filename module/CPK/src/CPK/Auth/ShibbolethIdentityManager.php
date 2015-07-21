@@ -437,8 +437,10 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function createUser(UserRow $userRow, $attributes, $prefix, $eppn)
     {
+        $usernameRank = $this->userTableGateway->getUsernameRank($eppn);
+
         // This username will never change, at least until is user row deleted
-        $userRow->username = $eppn;
+        $userRow->username = "$eppn;" . ++$usernameRank;
 
         $userRow->home_library = $prefix;
 
