@@ -28,6 +28,7 @@
 namespace CPK\Db\Row;
 
 use VuFind\Db\Row\User as BaseUser, VuFind\Exception\Auth as AuthException, VuFind\Db\Row\UserCard, CPK\Auth\ShibbolethIdentityManager;
+use VuFind\Exception\VuFind\Exception;
 
 /**
  * Row Definition for user
@@ -492,6 +493,13 @@ class User extends BaseUser
             if ($libCard->eppn === $eppn) {
                 $libCardWithDesiredEppn = $libCard;
                 break;
+            }
+        }
+
+        $realCards = $this->parseRealCards($libCards);
+        foreach($realCards as $realCard) {
+            if ($realCard->home_library === $new_home_library && $realCard->cat_username !== $new_cat_username) {
+                throw new AuthException('Cannot upgrade library card from Dummy while you have active non-dummy card from the same institution');
             }
         }
 
