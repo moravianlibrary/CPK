@@ -28,6 +28,7 @@
 namespace CPK\Auth;
 
 use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException, VuFind\Db\Row\UserCard;
+use VuFind\Exception\VuFind\Exception;
 
 /**
  * Shibboleth authentication module.
@@ -537,6 +538,7 @@ class ShibbolethIdentityManager extends Shibboleth
         // We do not need dummy cards .. pass false here
         $resultSet = $user->getLibraryCards(false);
 
+        $libCardToSave = false;
         foreach ($resultSet as $libraryCard) {
             $libCard_cat_username = $libraryCard->cat_username;
             $libCard_prefix = split(static::SEPARATOR_REGEXED, $libCard_cat_username)[0];
@@ -549,13 +551,19 @@ class ShibbolethIdentityManager extends Shibboleth
 
                     // else update it
                     $libraryCard->cat_username = $cat_username;
-                    $libraryCard->save();
-                }
 
-                // There is always only one match, thus we can break the cycle
-                break;
+                    if (! $libCardToSave) {
+                        $libCardToSave = $libraryCard;
+                    } else {
+                        // There can be more matches due to possibility of having different accounts with identical cat_username
+                        throw new AuthException('Cannot update cat_username provided by IdP while you have more identities with identical cat_username. Please disconnect one of these identities and try it again.');
+                    }
+                }
             }
         }
+
+        if ($libCardToSave instanceof UserCard)
+            $libCardToSave->save();
     }
 
     /**
