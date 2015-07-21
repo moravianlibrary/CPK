@@ -47,7 +47,6 @@ $config = array(
                     'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
                     'Preview' => 'preview',
                     'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
-                    'Similar' => 'SimilarItemsCarousel',
                     'Details' => 'StaffViewMARC',
                     'DedupedRecords' => 'DedupedRecords',
                 ],
