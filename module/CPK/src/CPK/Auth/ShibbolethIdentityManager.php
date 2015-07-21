@@ -127,11 +127,20 @@ class ShibbolethIdentityManager extends Shibboleth
 
     /**
      * This is either false (if not set at all), or contains
-     * array of entityIds which can user connect more than once.
+     * array of eppn scopes of institutes, with which can user
+     * connect more than once.
      *
      * @var array $canConsolidateMoreTimes
      */
     protected $canConsolidateMoreTimes = null;
+
+    /**
+     * This is either false (if not set at all), or contains
+     * array of entityIds which support SingleLogout service.
+     *
+     * @var array $workingLogoutEntityIds
+     */
+    protected $workingLogoutEntityIds = null;
 
     public function __construct(\VuFind\Config\PluginManager $configLoader, UserTable $userTableGateway)
     {
@@ -186,11 +195,19 @@ class ShibbolethIdentityManager extends Shibboleth
 
                 if ($this->canConsolidateMoreTimes !== null)
                     $this->canConsolidateMoreTimes = $this->canConsolidateMoreTimes->toArray();
+
+                $this->workingLogoutEntityIds = $this->shibbolethConfig->main->workingLogoutEntityIds;
+
+                if ($this->workingLogoutEntityIds !== null)
+                    $this->workingLogoutEntityIds = $this->workingLogoutEntityIds->toArray();
             }
         }
 
         if (empty($this->canConsolidateMoreTimes))
             $this->canConsolidateMoreTimes = false;
+
+        if (empty($this->workingLogoutEntityIds))
+            $this->workingLogoutEntityIds = false;
     }
 
     public function authenticate($request, UserRow $userToConnectWith = null)
@@ -439,7 +456,15 @@ class ShibbolethIdentityManager extends Shibboleth
         $entityId = $this->fetchCurrentEntityId();
         $target .= '?eid=' . urlencode($entityId);
 
-        return $this->config->Shibboleth->login . '?target=' . $target;
+        $loginRedirect = $this->config->Shibboleth->login . '?target=' . urlencode($target);
+
+        // Check if we can successfully logout the user from his Shibboleth session
+        $canLogoutSafely = in_array($entityId, $this->workingLogoutEntityIds);
+
+        if ($canLogoutSafely) {
+            return $this->config->Shibboleth->logout . '?return=' . urlencode($loginRedirect);
+        } else
+            return $loginRedirect;
     }
 
     /**
