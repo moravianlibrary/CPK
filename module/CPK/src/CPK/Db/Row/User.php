@@ -73,7 +73,7 @@ class User extends BaseUser
 
         $eppnScope = split('@', $eppn)[1];
 
-        // Check that the user has only one instituion account unless his organization is in $canConsolidateMoreTimes
+        // Check that the user has only one institution account unless his organization is in $canConsolidateMoreTimes
         if (! in_array($eppnScope, $canConsolidateMoreTimes)) {
             $hasAccountAlready = false;
             if ($home_library !== 'Dummy') {
@@ -87,11 +87,17 @@ class User extends BaseUser
                 }
             } else {
 
-                // We need to find out the same user's Dummy institution if any, thus compare eppnScope to user's eppns
-                foreach ($libCards as $libCard) {
-                    if (split('@', $libCard->eppn)[1] === $eppnScope) {
-                        $hasAccountAlready = true;
-                        break;
+                // Dummy account can be created even from connected institute (if IdP doesn't provide userLibraryId)
+                // We allow creation of more identities in this case (IdP must be defined in shibboleth.ini)
+                $cat_username_unscoped = split(ShibbolethIdentityManager::SEPARATOR_REGEXED, $cat_username)[1];
+                if ($cat_username_unscoped === 'Dummy') {
+
+                    // We need to find out the same user's Dummy institution if any, thus compare eppnScope to user's eppns
+                    foreach ($libCards as $libCard) {
+                        if (split('@', $libCard->eppn)[1] === $eppnScope) {
+                            $hasAccountAlready = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -456,6 +462,47 @@ class User extends BaseUser
             $this->home_library = $libCard->home_library;
             $this->save();
         }
+    }
+
+    /**
+     * Upgrades library card specified by eppn to non Dummy account with
+     * new_cat_username & new_home_library.
+     *
+     * This method also calles the activateBestLibraryCard method.
+     *
+     * @param string $eppn
+     * @param string $new_cat_username
+     * @param string $new_home_library
+     *
+     * @return void
+     * @throws AuthException
+     */
+    public function upgradeLibraryCardFromDummy($eppn, $new_cat_username, $new_home_library)
+    {
+        if (empty($new_cat_username))
+            throw new AuthException('Cannot upgrade library card from Dummy with empty new_cat_username');
+
+        if (empty($new_home_library))
+            throw new AuthException('Cannot upgrade library card from Dummy with empty new_home_library');
+
+        $libCardWithDesiredEppn = false;
+
+        $libCards = $this->getAllUserLibraryCards();
+        foreach ($libCards as $libCard) {
+            if ($libCard->eppn === $eppn) {
+                $libCardWithDesiredEppn = $libCard;
+                break;
+            }
+        }
+
+        if ($libCardWithDesiredEppn) {
+            $libCardWithDesiredEppn->cat_username = $new_cat_username;
+            $libCardWithDesiredEppn->home_library = $new_home_library;
+            $libCardWithDesiredEppn->save();
+
+            $this->activateBestLibraryCard($libCards);
+        } else
+            throw new AuthException("Couldn't find UserCard with eppn '$eppn'");
     }
 
     /**

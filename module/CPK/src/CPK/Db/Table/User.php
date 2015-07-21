@@ -154,6 +154,8 @@ class User extends BaseUser
      */
     protected function updateUserRows(UserRow $from, UserRow $into)
     {
+        $mergedSomething = false;
+
         $basicNonEmptyMerge = [
             "firstname",
             "lastname",
@@ -167,6 +169,7 @@ class User extends BaseUser
             // Replace current value only if it is empty
             if (empty($into->$column) && ! empty($from->$column)) {
                 $into->$column = $from->$column;
+                $mergedSomething = true;
             }
         }
 
@@ -176,19 +179,23 @@ class User extends BaseUser
         ];
 
         foreach ($basicMerge as $column) {
-            if (! empty($from->$column)) {
+            // Merge not needed if the columns are identical
+            if (! empty($from->$column) && $into->$column !== $from->$column) {
 
                 // Replace current value only if it is empty
                 if (empty($into->$column)) {
                     $into->$column = $from->$column;
+                    $mergedSomething = true;
                 } else {
                     // If are both set, then merge those using ';' delimiter
                     $into->$column .= ';' . $from->$column;
+                    $mergedSomething = true;
                 }
             }
         }
 
-        $into->save();
+        if ($mergedSomething)
+            $into->save();
     }
 
     /**

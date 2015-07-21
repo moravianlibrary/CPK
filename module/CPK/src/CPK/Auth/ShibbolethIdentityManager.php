@@ -165,6 +165,10 @@ class ShibbolethIdentityManager extends Shibboleth
         }
 
         foreach ($this->shibbolethConfig as $name => $configuration) {
+            if ($name === 'Dummy') {
+                throw new AuthException('Shibboleth config section cannot be called \'Dummy\', this name is reserved.');
+            }
+
             if ($name !== 'main') {
                 if (! isset($configuration['username']) || empty($configuration['username'])) {
                     throw new AuthException("Shibboleth 'username' is missing in your " . $this::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
@@ -233,20 +237,23 @@ class ShibbolethIdentityManager extends Shibboleth
             if ($currentUser->id === $userToConnectWith->id)
                 throw new AuthException("You already have this identity connected.");
 
-            if ($loggedWithKnownEntityId) {
-                // If user logged in with known entityID, we need userLibraryId to save into cat_username
-                if (empty($attributes['cat_username'])) {
-                    throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['cat_username'] . '"');
-                }
+            if ($loggedWithKnownEntityId && ! empty($attributes['cat_username'])) {
 
                 $updateUserRow = true;
 
                 // Set here the prefix to let MultiBackend understand which Driver it needs
-                $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
+                $attributes['cat_username'] = $prefix . static::SEPARATOR . $attributes['cat_username'];
             } else {
                 // We now detected unkown entityID - this identity will be Dummy
                 $updateUserRow = false;
-                $attributes['cat_username'] = 'Dummy.Dummy';
+
+                // We can't store current $prefix to home_library as it always needs to be Dummy,
+                // so we store the information about $prefix in cat_username unscoped
+                $attributes['cat_username'] = 'Dummy' . static::SEPARATOR . $prefix;
+
+                if ($loggedWithKnownEntityId) {
+                    $prefix = 'Dummy'; // This will be home_library
+                }
             }
 
             if ($currentUser === false) {
@@ -278,7 +285,7 @@ class ShibbolethIdentityManager extends Shibboleth
             }
 
             return $userToConnectWith;
-        } else { // Being here means there is no other identity to connect with
+        } else { // Being here means there is no other identity to connect with - regular login
 
             // If there was no User found, create one
             if (! $userRow) {
@@ -290,24 +297,34 @@ class ShibbolethIdentityManager extends Shibboleth
             } else
                 $userRowCreatedRecently = false;
 
-            if ($loggedWithKnownEntityId) {
-
-                // If user logged in with known entityID, we need userLibraryId to save into cat_username
-                if (empty($attributes['cat_username'])) {
-                    throw new AuthException('IdP "' . $prefix . '" didn\'t provide mandatory attribute: "' . $configuration['cat_username'] . '"');
-                }
+            if ($loggedWithKnownEntityId && ! empty($attributes['cat_username'])) {
 
                 // Set here the prefix to let MultiBackend understand which Driver it needs
-                $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
+                $attributes['cat_username'] = $prefix . static::SEPARATOR . $attributes['cat_username'];
 
-                // We need to check, if there doesn't exist library card with the same institution to update it
                 if (! $userRowCreatedRecently) {
-                    // We didn't create the user recently so we already know rowId, thus we can update libCards right now
-                    $this->updateIdentityCatUsername($userRow, $prefix, $attributes['cat_username']);
+
+                    $wasDummyBefore = $userRow->home_library === 'Dummy';
+
+                    // We need to check, if there doesn't exist library card with the same institution to update it
+                    if (! $wasDummyBefore) {
+                        // We didn't create the user recently so we already know rowId, thus we can update libCards right now
+                        $this->updateIdentityCatUsername($userRow, $prefix, $attributes['cat_username']);
+                    } else {
+                        // IdP finally returned cat_username for this User .. update proprietary libCard
+                        $userRow->upgradeLibraryCardFromDummy($eppn, $attributes['cat_username'], $prefix);
+                    }
                 }
             } else {
                 // We now detected unkown entityID - this identity will be Dummy
-                $attributes['cat_username'] = 'Dummy.Dummy';
+
+                // We can't store current $prefix to home_library as it always needs to be Dummy,
+                // so we store the information about $prefix in cat_username unscoped
+                $attributes['cat_username'] = 'Dummy' . static::SEPARATOR . $prefix;
+
+                if ($loggedWithKnownEntityId) {
+                    $prefix = 'Dummy'; // This will be home_library
+                }
             }
 
             if ($userRowCreatedRecently) {
@@ -440,7 +457,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $usernameRank = $this->userTableGateway->getUsernameRank($eppn);
 
         // This username will never change, at least until is user row deleted
-        $userRow->username = "$eppn;" . ++$usernameRank;
+        $userRow->username = "$eppn;" . ++ $usernameRank;
 
         $userRow->home_library = $prefix;
 
@@ -500,7 +517,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
         foreach ($resultSet as $libraryCard) {
             $libCard_cat_username = $libraryCard->cat_username;
-            $libCard_prefix = split($this::SEPARATOR_REGEXED, $libCard_cat_username)[0];
+            $libCard_prefix = split(static::SEPARATOR_REGEXED, $libCard_cat_username)[0];
 
             // We are performing the check of corresponding institutions by comparing the prefix
             // from shibboleth.ini config section name with MultiBackend's source from cat_username
@@ -574,7 +591,7 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * It basically returns array $attributes, which is later saved to 'user' table as current user.
      * There may be some minor modifications, e.g. to cat_username is appended institute delimited
-     * by $this::SEPARATOR.
+     * by SEPARATOR const.
      *
      * @param \Zend\Http\PhpEnvironment\Request $request
      * @param \Zend\Config\Config $config
