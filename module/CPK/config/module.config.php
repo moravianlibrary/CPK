@@ -20,6 +20,8 @@ $config = array(
             'recordtab' => array(
                 'invokables' => array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
+                    'eVersion' => 'CPK\RecordTab\EVersion',
+                    'buy' => 'CPK\RecordTab\Buy',
                 ), /* invokables */
             ), /* recordtab */
             'auth' => array(
@@ -47,7 +49,10 @@ $config = array(
         'recorddriver_tabs' => [
             'CPK\RecordDriver\SolrMarc' => [
                 'tabs' => [
-                    'Holdings' => 'HoldingsILS', 'Description' => 'Description',
+                    'Holdings' => 'HoldingsILS',
+                    'EVersion' => 'EVersion',
+                    'Buy' => 'Buy',
+                    'Description' => 'Description',
                     'TOC' => 'TOC', 'UserComments' => 'UserComments',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
