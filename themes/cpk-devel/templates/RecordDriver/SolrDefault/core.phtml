@@ -2,32 +2,7 @@
     // Get source of the record to print it to h3 header
     $id = $this->driver->getUniqueID();
     $source = explode(".", $id)[0];
-
-    $parentRecordID = $driver->getParentRecordID();
-
-if ($parentRecordID) : ?>
-<script>
-jQuery( document ).ready( function( $ ) {
-
-	var parentRecordID = "<?= $parentRecordID ?>";
-
-	$.ajax({
-		url: 		"getAntikvariatyLinkViaAjax",
-		method: 	"POST",
-		dataType: 	"json",
-		async: true,
-		data: { parentRecordID: parentRecordID }
-	}).done( function( msg ) {
-
-		console.log(msg.link);
-
-	}).fail( function( jqXHR, textStatus ) {
-		console.log( jqXHR+' '+textStatus );
-	});
-
-});
-</script>
-<? endif; ?>
+?>
 
 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
 

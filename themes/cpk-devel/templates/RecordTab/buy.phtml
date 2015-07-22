@@ -1,6 +1,44 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('Buy') . ': ' . $this->driver->getBreadcrumb());
+  
+  $parentRecordID = $driver->getParentRecordID();
 ?>
+<span id='kosmas-link'></span>
+<span id='google-books-link'></span>
+<span id='antikvariaty-link'></span>
+<span id='default-text'></span>
 
-<p>placeholder for buy</p>
+<script>
+jQuery( document ).ready( function( $ ) {
+	
+	<? if ($parentRecordID) : ?>
+
+	var parentRecordID = "<?= $parentRecordID ?>";
+
+	$.ajax({
+		url: 		"getAntikvariatyLinkViaAjax",
+		method: 	"POST",
+		dataType: 	"json",
+		async: false,
+		data: { parentRecordID: parentRecordID }
+	}).done( function( msg ) {
+
+		if (msg.link !== null) {
+			var html = "<a href='"+msg.link+"' title='<?= $this->translate('Antikvariat'); ?>' target='_blank'><?= $this->translate('Antikvariat'); ?></a>";
+			$( '#antikvariaty-link' ).html(html);
+		}
+
+	}).fail( function( jqXHR, textStatus ) {
+		console.log( jqXHR+' '+textStatus );
+	});
+
+	<? endif; ?>
+	
+	var textLength = $( '#kosmas-link' ).text().length + $( '#google-books-link' ).text().length + $( '#antikvariaty-link' ).text().length;
+	if ( textLength == 0 )
+		$( '#antikvariaty-link' ).html( '<?= $this->translate('No links') ?>' );
+	
+});
+</script>
+
