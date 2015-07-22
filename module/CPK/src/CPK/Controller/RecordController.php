@@ -39,7 +39,7 @@ class RecordController extends RecordControllerBase
 {
     
     /**
-     * Returns subfileds of MARC field for specific recordID
+     * Returns subfileds of MARC 996 field for specific recordID
      *
      * @param	string	$_POST['record']
      * @param	string	$_POST['field']
@@ -47,7 +47,7 @@ class RecordController extends RecordControllerBase
      * 
      * @return	array	$subfieldsValues	space-separated subfields values
      */
-	public function getMarcArrayViaAjaxAction()
+	public function getMarc996ArrayViaAjaxAction()
 	{
 		$recordID = $this->params()->fromPost('recordID');
 		$field = $this->params()->fromPost('field');
