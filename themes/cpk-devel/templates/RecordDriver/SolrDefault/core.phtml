@@ -2,9 +2,9 @@
     // Get source of the record to print it to h3 header
     $id = $this->driver->getUniqueID();
     $source = explode(".", $id)[0];
-    
+
     $parentRecordID = $driver->getParentRecordID();
-    
+
 if ($parentRecordID) : ?>
 <script>
 jQuery( document ).ready( function( $ ) {
@@ -15,7 +15,7 @@ jQuery( document ).ready( function( $ ) {
 		url: 		"getAntikvariatyLinkViaAjax",
 		method: 	"POST",
 		dataType: 	"json",
-		async: false,
+		async: true,
 		data: { parentRecordID: parentRecordID }
 	}).done( function( msg ) {
 
