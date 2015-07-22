@@ -138,7 +138,7 @@ class MyResearchController extends MyResearchControllerBase
      *
      * @param string $msg
      */
-    public function processSuccessMessage($msg) {
+    protected function processSuccessMessage($msg) {
         $this->flashMessenger()->setNamespace('success')->addMessage($msg);
     }
 }

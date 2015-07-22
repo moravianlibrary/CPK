@@ -39,7 +39,7 @@ class RecordController extends RecordControllerBase
 {
     
     /**
-     * Returns subfileds of MARC field for specific recordID
+     * Returns subfileds of MARC 996 field for specific recordID
      *
      * @param	string	$_POST['record']
      * @param	string	$_POST['field']
@@ -47,7 +47,7 @@ class RecordController extends RecordControllerBase
      * 
      * @return	array	$subfieldsValues	space-separated subfields values
      */
-	public function getMarcArrayViaAjaxAction()
+	public function getMarc996ArrayViaAjaxAction()
 	{
 		$recordID = $this->params()->fromPost('recordID');
 		$field = $this->params()->fromPost('field');
@@ -60,6 +60,22 @@ class RecordController extends RecordControllerBase
 		
 		$result = new JsonModel(array(
 			'arr' => $arr,
+		));
+	
+		return $result;
+	}
+	
+	public function getAntikvariatyLinkViaAjaxAction()
+	{
+		$parentRecordID = $this->params()->fromPost('parentRecordID');
+
+		$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+			
+		$recordDriver = $recordLoader->load($parentRecordID);
+		$link = $recordDriver->getAntikvariatyLink();
+	
+		$result = new JsonModel(array(
+			'link' => $link[0],
 		));
 	
 		return $result;

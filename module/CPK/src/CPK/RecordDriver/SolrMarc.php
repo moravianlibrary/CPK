@@ -24,6 +24,16 @@ class SolrMarc extends ParentSolrMarc
         return isset($this->fields['cpk_detected_format_txtF_mv']) ? $this->fields['cpk_detected_format_txtF_mv'] : [];
     }
 
+    public function getParentRecordID()
+    {
+        return isset($this->fields['parent_id_str']) ? $this->fields['parent_id_str'] : [];
+    }
+
+    public function getAntikvariatyLink()
+    {
+        return isset($this->fields['external_links_str_mv']) ? $this->fields['external_links_str_mv'] : [];
+    }
+
     /**
      * Get comments on obalkyknih.cz associated with this record.
      *
@@ -40,14 +50,14 @@ class SolrMarc extends ParentSolrMarc
 Sed ac malesuada ex. Praesent nec ipsum ut augue interdum ultrices sed ut ex. Phasellus hendrerit id dui et ullamcorper. Vestibulum non gravida dui. Curabitur semper sit amet eros et maximus. Nulla aliquet sodales nisl et posuere. Nam facilisis, nulla aliquet vestibulum dictum, magna ipsum lobortis sapien, eget accumsan magna metus at nunc. Nam nisl dui, interdum non ex in, placerat vulputate ligula. Suspendisse ipsum enim, posuere eu accumsan et, dignissim eget ipsum. Etiam fringilla velit quam. Nulla feugiat iaculis ornare. Phasellus luctus ultricies bibendum. ';
 
         return [
-        $comment,
-        $comment,
-        $comment,
+            $comment,
+            $comment,
+            $comment,
         ];
         $table = $this->getDbTable('Comments');
         return $table->getForResource(
             $this->getUniqueId(), $this->getResourceSource()
         );
     }
-
+    
 }

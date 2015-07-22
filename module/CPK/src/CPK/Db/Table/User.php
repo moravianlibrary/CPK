@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\User as BaseUser, Zend\Db\Sql\Select, CPK\Db\Row\User as UserRow;
+use VuFind\Db\Table\User as BaseUser, CPK\Db\Row\User as UserRow, Zend\Db\Sql\Select, Zend\Db\Sql\Update, Zend\Db\Adapter\Driver\Mysqli\Result;
 
 /**
  * Table Definition for user
@@ -55,14 +55,84 @@ class User extends BaseUser
     }
 
     /**
-     * Retrieve a user object from the database based on eppn which is in user_card table
+     * Returns UserRow object with known token from session table.
+     *
+     * @param string $token
+     * @param int $secondsToExpire
+     *
+     * @return UserRow
+     */
+    public function getUserFromConsolidationToken($token, $secondsToExpire = 900)
+    {
+        $select = new Select('session');
+        $select->columns([
+            'data',
+            'created' => new \Zend\Db\Sql\Expression('UNIX_TIMESTAMP(created)')
+        ]);
+
+        $select->where([
+            'last_used' => '-1',
+            'session_id' => $token
+        ]);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+
+        if ($result == null || empty($result['data']) || empty($result['created']))
+            return false;
+
+        $this->deleteConsolidationToken($token);
+        $clearedTokens = $this->clearAllExpiredTokens($secondsToExpire);
+
+        $isExpired = $time >= intval($result->created) + $secondsToExpire;
+
+        if ($isExpired)
+            throw new \VuFind\Exception\Auth('Consolidation token has expired.');
+
+        return $this->getUserByRowId($result['data']);
+    }
+
+    /**
+     * Searches for count of '$username;[0-9]+' regex matches in username column of user table.
+     *
+     * @param string $username
+     * @return number
+     */
+    public function getUsernameRank($username)
+    {
+        if (empty($username))
+            return 0;
+
+        $select = new Select('user');
+        $select->columns([
+            'username'
+        ]);
+        $select->order('created DESC');
+        $select->limit(1);
+
+        $predicate = new \Zend\Db\Sql\Predicate\Expression("username RLIKE '$username;[0-9]+'");
+        $select->where($predicate);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+
+        if (! $result || empty($result['username']))
+            return 0;
+
+        $splittedResult = split(';', $result['username']);
+        if (count($splittedResult) === 2) {
+            return intval($splittedResult[1]);
+        } else
+            return 0;
+    }
+
+    /**
+     * Retrieve a user object from the database based on eduPersonPrincipalName from his libCards
      *
      * @param string $eppn
      *            eduPersonPrincipalName to use for retrieval.
      *
      * @return UserRow
      */
-    public function getByEppn($eppn)
+    public function getUserRowByEppn($eppn)
     {
         $rowId = $this->getUserRowIdByEppn($eppn);
 
@@ -73,32 +143,6 @@ class User extends BaseUser
             return $userRow;
         } else
             return false;
-    }
-
-    public function getUserRowIdByEppn($eppn)
-    {
-        // First find out if there is any eppn like this one
-        $sql = "SELECT user_id FROM user_card WHERE eppn = '$eppn'";
-
-        $result = $this->executeAnySQLCommand($sql)->current();
-
-        if ($result == null || empty($result['user_id']))
-            return false;
-
-        return $result['user_id'];
-    }
-
-    /**
-     * Returns UserRow object with known row id.
-     *
-     * @param integer $rowId
-     * @return UserRow
-     */
-    public function getUserByRowId($rowId)
-    {
-        return $this->select([
-            'id' => $rowId
-        ])->current();
     }
 
     /**
@@ -116,7 +160,7 @@ class User extends BaseUser
             throw new AuthException("Cannot merge two UserRows without knowlegde of both UserRow ids");
         }
 
-        $this->updateUserRows($from, $into);
+        $this->mergeUserRows($from, $into);
 
         /**
          * Table names which contain user_id as a relation to user.id foreign key
@@ -128,92 +172,27 @@ class User extends BaseUser
             "search"
         ];
 
-        $sqlCommands = [];
+        // This will prevent autocommit to Db
+        $this->getDbConnection()->beginTransaction();
+
         foreach ($tablesToUpdateUserId as $table) {
-            $sqlCommands[] = "UPDATE $table t SET t.user_id = '$into->id' WHERE t.user_id = '$from->id';";
+
+            $update = new Update($table);
+            $update->set([
+                'user_id' => $into->id
+            ]);
+            $update->where([
+                'user_id' => $from->id
+            ]);
+
+            $this->executeAnyZendSQLUpdate($update);
         }
 
-        $this->executeAnySQLTransaction($sqlCommands);
+        // Now commit whole transaction
+        $this->getDbConnection()->commit();
 
         // Perform User deletion
         $from->delete();
-    }
-
-    /**
-     * This method picks up non-empty values from $from into $into UserRow, which are
-     * probably more appreciated than current values within $into UserRow.
-     *
-     * This method <b>DOES NOT DELETE</b> any UserRow.
-     *
-     * It also doesn't handle cat_username neither home_library as those were previously
-     * set by UserRow::activateBestLibraryCard method.
-     *
-     * @param UserRow $from
-     * @param UserRow $into
-     * @return void
-     */
-    protected function updateUserRows(UserRow $from, UserRow $into)
-    {
-        $basicNonEmptyMerge = [
-            "firstname",
-            "lastname",
-            "email",
-            "password",
-            "pass_hash",
-            "verify_hash"
-        ];
-
-        foreach ($basicNonEmptyMerge as $column) {
-            // Replace current value only if it is empty
-            if (empty($into->$column) && ! empty($from->$column)) {
-                $into->$column = $from->$column;
-            }
-        }
-
-        $basicMerge = [
-            "major",
-            "college"
-        ];
-
-        foreach ($basicMerge as $column) {
-            if (! empty($from->$column)) {
-
-                // Replace current value only if it is empty
-                if (empty($into->$column)) {
-                    $into->$column = $from->$column;
-                } else {
-                    // If are both set, then merge those using ';' delimiter
-                    $into->$column .= ';' . $from->$column;
-                }
-            }
-        }
-
-        $into->save();
-    }
-
-    /**
-     * Searches for count of '$username;[0-9]+' regex matches in username column of user table.
-     *
-     * @param string $username
-     * @return number
-     */
-    public function getUsernameRank($username)
-    {
-        if (empty($username))
-            return 0;
-
-        $sql = "SELECT username FROM user WHERE username RLIKE '$username;[0-9]+' ORDER BY created DESC LIMIT 1";
-
-        $result = $this->executeAnySQLCommand($sql)->current();
-
-        if (empty($result['username']))
-            return 0;
-
-        $splittedResult = split(';', $result['username']);
-        if (count($splittedResult) === 2) {
-            return intval($splittedResult[1]);
-        } else
-            return 0;
     }
 
     /**
@@ -230,43 +209,14 @@ class User extends BaseUser
 
         $created = date('Y-m-d H:i:s');
 
-        // 128 chars max ..
-        $session_id = $token;
+        $generatedValue = $this->getDbTable('session')->insert([
+            'session_id' => $token,
+            'data' => $userRowId,
+            'last_used' => '-1',
+            'created' => $created
+        ]);
 
-        $sql = "INSERT INTO vufind.session (session_id, data, last_used, created) VALUES ('" . $session_id . "', '" . $userRowId . "', '-1', '" . $created . "');";
-
-        $result = $this->executeAnySQLCommand($sql);
-        $generatedValue = $result->getGeneratedValue();
-
-        return $generatedValue === null ? false : $generatedValue;
-    }
-
-    /**
-     * Returns UserRow object with known token from session table.
-     *
-     * @param string $token
-     * @param int $secondsToExpire
-     *
-     * @return UserRow
-     */
-    public function getUserFromConsolidationToken($token, $secondsToExpire = 60*15)
-    {
-        $sql = "SELECT data, UNIX_TIMESTAMP(created) AS created FROM session WHERE last_used = '-1' AND session_id = '" . $token . "';";
-
-        $result = $this->executeAnySQLCommand($sql)->current();
-
-        if ($result == null || empty($result['data']) || empty($result['created']))
-            return false;
-
-        $this->deleteConsolidationToken($token);
-        $clearedTokens = $this->clearAllExpiredTokens($secondsToExpire);
-
-        $isExpired = $time >= intval($result->created) + $secondsToExpire;
-
-        if ($isExpired)
-            throw new \VuFind\Exception\Auth('Consolidation token has expired.');
-
-        return $this->getUserByRowId($result['data']);
+        return $generatedValue === 1;
     }
 
     /**
@@ -274,71 +224,163 @@ class User extends BaseUser
      *
      * @return number clearedTokens
      */
-    protected function clearAllExpiredTokens($secondsToExpire = 60*15)
+    protected function clearAllExpiredTokens($secondsToExpire)
     {
         $dateTime = date('Y-m-d H:i:s', time() - $secondsToExpire);
-        $sql = "DELETE FROM session WHERE last_used = '-1' AND created <= '$dateTime';";
-        return $this->executeAnySQLCommand($sql)->getAffectedRows();
+
+        return $this->getDbTable('session')->delete([
+            'last_used' => '-1',
+            'created <= ?' => $dateTime
+        ]);
     }
 
     /**
      * Deletes token from the session table & returns either 1 on success
      * or 0 on failure.
      *
-     * @param
-     *            number clearedTokens
+     * @param string $token
      */
     protected function deleteConsolidationToken($token)
     {
-        $sql = "DELETE FROM session WHERE last_used = '-1' AND session_id = '" . $token . "';";
-        $this->executeAnySQLCommand($sql)->getAffectedRows();
+        $this->getDbTable('session')->delete([
+            'last_used' => '-1',
+            'session_id' => $token
+        ]);
     }
 
     /**
-     * Executes any sql command.
+     * Executes any Select
      *
-     * This was implemented because of the need of looking into user_card table.
+     * @param Select $select
      *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Result $result
+     * @return Result $result
      */
-    protected function executeAnySQLCommand($sql)
+    protected function executeAnyZendSQLSelect(Select $select)
     {
-        return $this->getDbConnection()->execute($sql);
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        return $statement->execute();
     }
 
     /**
-     * Executes all supplied sqlCommands in a SQL transaction.
+     * Executes any Update
      *
-     * @param array $sqlCommands
-     * @return void
+     * @param Update $update
+     *
+     * @return Result $result
      */
-    protected function executeAnySQLTransaction(array $sqlCommands)
+    protected function executeAnyZendSQLUpdate(Update $update)
     {
-        if (count($sqlCommands) > 0) {
-            try {
-                $conn = $this->getDbConnection();
-
-                $conn->beginTransaction();
-
-                foreach ($sqlCommands as $sql) {
-                    if (! empty($sql))
-                        $result = $conn->execute($sql);
-                }
-
-                $conn->commit();
-            } catch (\Exception $e) {
-                $conn->rollback();
-                throw $e;
-            }
-        }
+        $statement = $this->sql->prepareStatementForSqlObject($update);
+        return $statement->execute();
     }
 
     /**
+     * Returns database connection.
      *
      * @return \Zend\Db\Adapter\Driver\Mysqli\Connection $conn
      */
     protected function getDbConnection()
     {
         return $this->getAdapter()->driver->getConnection();
+    }
+
+    /**
+     * Retrieve an UserRow id based on eduPersonPrincipalName from his libCards
+     *
+     * @param string $eppn
+     *            eduPersonPrincipalName to use for retrieval.
+     *
+     * @return number user_id
+     */
+    protected function getUserRowIdByEppn($eppn)
+    {
+        // First find out if there is any eppn like this one
+        $select = new Select();
+        $select->columns([
+            'user_id'
+        ]);
+        $select->from('user_card');
+        $select->where([
+            'eppn' => $eppn
+        ]);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+
+        if ($result == null || empty($result['user_id']))
+            return false;
+
+        return $result['user_id'];
+    }
+
+    /**
+     * Returns UserRow object with known row id.
+     *
+     * @param integer $rowId
+     * @return UserRow
+     */
+    protected function getUserByRowId($rowId)
+    {
+        return $this->select([
+            'id' => $rowId
+        ])->current();
+    }
+
+    /**
+     * This method picks up non-empty values from $from into $into UserRow, which are
+     * probably more appreciated than current values within $into UserRow.
+     *
+     * This method <b>DOES NOT DELETE</b> any UserRow.
+     *
+     * It also doesn't handle cat_username neither home_library as those were previously
+     * set by UserRow::activateBestLibraryCard method.
+     *
+     * @param UserRow $from
+     * @param UserRow $into
+     * @return void
+     */
+    protected function mergeUserRows(UserRow $from, UserRow $into)
+    {
+        $mergedSomething = false;
+
+        $basicNonEmptyMerge = [
+            "firstname",
+            "lastname",
+            "email",
+            "password",
+            "pass_hash",
+            "verify_hash"
+        ];
+
+        foreach ($basicNonEmptyMerge as $column) {
+            // Replace current value only if it is empty
+            if (empty($into->$column) && ! empty($from->$column)) {
+                $into->$column = $from->$column;
+                $mergedSomething = true;
+            }
+        }
+
+        $basicMerge = [
+            "major",
+            "college"
+        ];
+
+        foreach ($basicMerge as $column) {
+            // Merge not needed if the columns are identical
+            if (! empty($from->$column) && $into->$column !== $from->$column) {
+
+                // Replace current value only if it is empty
+                if (empty($into->$column)) {
+                    $into->$column = $from->$column;
+                    $mergedSomething = true;
+                } else {
+                    // If are both set, then merge those using ';' delimiter
+                    $into->$column .= ';' . $from->$column;
+                    $mergedSomething = true;
+                }
+            }
+        }
+
+        if ($mergedSomething)
+            $into->save();
     }
 }

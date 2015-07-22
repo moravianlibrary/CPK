@@ -2,8 +2,34 @@
     // Get source of the record to print it to h3 header
     $id = $this->driver->getUniqueID();
     $source = explode(".", $id)[0];
+    
+    $parentRecordID = $driver->getParentRecordID();
+    
+if ($parentRecordID) : ?>
+<script>
+jQuery( document ).ready( function( $ ) {
 
-if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
+	var parentRecordID = "<?= $parentRecordID ?>";
+
+	$.ajax({
+		url: 		"getAntikvariatyLinkViaAjax",
+		method: 	"POST",
+		dataType: 	"json",
+		async: false,
+		data: { parentRecordID: parentRecordID }
+	}).done( function( msg ) {
+
+		console.log(msg.link);
+
+	}).fail( function( jqXHR, textStatus ) {
+		console.log( jqXHR+' '+textStatus );
+	});
+
+});
+</script>
+<? endif; ?>
+
+<? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
 
 <? endif; ?>
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
