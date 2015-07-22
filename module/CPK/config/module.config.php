@@ -17,6 +17,11 @@ $config = array(
                     'solrcpk_nlk'  => 'CPK\RecordDriver\Factory::getSolrMarcNLK',
                 ) /* factories */
             ), /* recorddriver */
+            'recordtab' => array(
+                'invokables' => array(
+                    'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
+                ), /* invokables */
+            ), /* recordtab */
             'auth' => array(
                 'factories' => array(
                     'perunShibboleth' => 'CPK\Auth\Factory::getPerunShibboleth',
@@ -44,6 +49,7 @@ $config = array(
                 'tabs' => [
                     'Holdings' => 'HoldingsILS', 'Description' => 'Description',
                     'TOC' => 'TOC', 'UserComments' => 'UserComments',
+                    'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
                     'Preview' => 'preview',
                     'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
