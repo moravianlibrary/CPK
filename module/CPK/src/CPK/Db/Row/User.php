@@ -28,7 +28,6 @@
 namespace CPK\Db\Row;
 
 use VuFind\Db\Row\User as BaseUser, VuFind\Exception\Auth as AuthException, VuFind\Db\Row\UserCard, CPK\Auth\ShibbolethIdentityManager;
-use VuFind\Exception\VuFind\Exception;
 
 /**
  * Row Definition for user
@@ -43,6 +42,293 @@ class User extends BaseUser
 {
 
     const COLUMN_MAJOR_GLUE = ';';
+
+    /**
+     * Activates best library card.
+     * The algorithm chooses first available card,
+     * if it is the only user's card. If user has more than one cards, it checks
+     * for any not Dummy card & activates that one if finds any.
+     *
+     * If from all the cards doesn't find any non-Dummy card, nothing will happen
+     * keeping in mind there has already been activated first Dummy card.
+     *
+     * @param array $libCards
+     */
+    public function activateBestLibraryCard(array $libCards = null)
+    {
+        if (empty($libCards))
+            $libCards = $this->getAllUserLibraryCards();
+
+        $firstLibCard = reset($libCards);
+
+        // If this is the first library card or no credentials are currently set,
+        // activate the card now
+        if (count($libCards) === 1) {
+            $this->activateLibraryCardRow($firstLibCard);
+        } else {
+
+            $realCards = $this->parseRealCards($libCards);
+
+            // Activate any realCard if current UserRow's home_library is Dummy
+            if ($realCards && $this->home_library === 'Dummy') {
+                $this->activateLibraryCardRow($realCards[0]);
+            }
+
+            // If User have left no realCard & has not active Dummy account, activate any dummy
+            elseif (! $realCards && $this->home_library !== 'Dummy') {
+                $this->activateLibraryCardRow($firstLibCard);
+            }
+        }
+    }
+
+    /**
+     * Activate a library card using UserCard row object.
+     *
+     * This method is basically the same as activateLibraryCard($id),
+     * except it doesn't execute not needed sql command to parse the card.
+     *
+     * @param UserCard $libCard
+     *
+     * @return void
+     */
+    public function activateLibraryCardRow(UserCard $libCard)
+    {
+        if (! empty($libCard)) {
+            $this->cat_username = $libCard->cat_username;
+            $this->cat_password = $libCard->cat_password;
+            $this->cat_pass_enc = $libCard->cat_pass_enc;
+            $this->home_library = $libCard->home_library;
+            $this->save();
+        }
+    }
+
+    /**
+     * Creates library card for User with $cat_username & $prefix identified by $eppn.
+     *
+     * eduPersonPrincipalName is later used to identify loggedin user.
+     *
+     * Returns library card id on success. Otherwise throws an AuthException.
+     *
+     * @param string $cat_username
+     * @param string $prefix
+     * @param string $eppn
+     * @param string $email
+     * @param array $canConsolidateMoreTimes
+     *
+     * @return mixed int | boolean
+     * @throws AuthException
+     */
+    public function createLibraryCard($cat_username, $prefix, $eppn, $email, $canConsolidateMoreTimes)
+    {
+        try {
+            if (empty($eppn))
+                throw new AuthException("Cannot create library card with empty eppn");
+
+            if (empty($this->id))
+                throw new AuthException("Cannot create library card with empty user row id");
+
+            if (empty($email))
+                $email = '';
+
+            return $this->saveLibraryCard(null, $email, $cat_username, null, $prefix, $eppn, $canConsolidateMoreTimes);
+        } catch (\VuFind\Exception\LibraryCard $e) {
+            throw new AuthException($e->getMessage());
+        }
+    }
+
+    /**
+     * Delete library card.
+     *
+     * Note that if you supply UserCard row to this method, it will delete it
+     * no matter if it is last.
+     *
+     * @param
+     *            mixed (int $id | UserCard $userCard)
+     *
+     * @param boolean $doNotDeleteIfLast
+     *
+     * @return void
+     * @throws \VuFind\Exception\LibraryCard
+     */
+    public function deleteLibraryCard($id, $doNotDeleteIfLast = false, $activateAnother = true)
+    {
+        if (! $this->libraryCardsEnabled()) {
+            throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
+        }
+
+        if ($id instanceof UserCard)
+            return $this->deleteLibraryCardRow($id, $activateAnother);
+
+        $allLibCards = $this->getAllUserLibraryCards();
+
+        $found = false;
+        foreach ($allLibCards as $key => $libCard) {
+            if ($libCard->id === intval($id)) {
+                $found = $key;
+                break;
+            }
+        }
+
+        if ($found === false) {
+            throw new \Exception('Library card not found');
+        }
+
+        if ($doNotDeleteIfLast && count($allLibCards) === 1) {
+            throw new \VuFind\Exception\LibraryCard('Cannot disconnect the last identity');
+        }
+
+        $allLibCards[$found]->delete();
+
+        // To prevent major transitivity based on identities we need to delete
+        // major access connected with current identity being disconnected
+        $this->deleteMajorAccess($allLibCards[$found]->home_library);
+
+        if ($activateAnother && $allLibCards[$found]->cat_username == $this->cat_username) {
+            // Activate another card (if any) or remove cat_username and cat_password
+
+            // The method needs up-to-date $allLibCards .. thus unset the deleted one
+            unset($allLibCards[$found]);
+
+            $this->activateBestLibraryCard($allLibCards);
+        }
+    }
+
+    /**
+     * This method deletes UserCard row.
+     * If it was active card, then is activated another
+     * using activateBestLibraryCard method.
+     *
+     * @param UserCard $libCard
+     * @return number $affectedRows
+     */
+    public function deleteLibraryCardRow(UserCard $libCard, $activateAnother = true)
+    {
+        $affectedRows = $libCard->delete();
+
+        if ($activateAnother && $libCard->cat_username == $this->cat_username) {
+            // Activate another card (if any) or remove cat_username and cat_password
+            $this->activateBestLibraryCard();
+        }
+
+        return $affectedRows;
+    }
+
+    /**
+     * Disconnect desired identity.
+     *
+     * It is an alias for deleteLibraryCard($id, true, true)
+     *
+     * @param int $id
+     *            Library card ID
+     *
+     * @return void
+     * @throws \VuFind\Exception\LibraryCard
+     */
+    public function disconnectIdentity($id)
+    {
+        return $this->deleteLibraryCard($id, true, true);
+    }
+
+    /**
+     * Changes specified card's name to provided one.
+     *
+     * @param number $id
+     * @param string $cardName
+     */
+    public function editLibraryCardName($id, $cardName)
+    {
+        $this->saveLibraryCard($id, $cardName);
+    }
+
+    /**
+     * Gets all library cards including Dummy cards.
+     *
+     * @return array of UserCard
+     * @throws \VuFind\Exception\LibraryCard
+     */
+    public function getAllUserLibraryCards()
+    {
+        $toReturn = [];
+        foreach ($this->getLibraryCards(true) as $libCard) {
+            $toReturn[] = $libCard;
+        }
+        return $toReturn;
+    }
+
+    /**
+     * Returns IdPLogos section from config.ini with institutions mapping to their logos.
+     */
+    public function getIdentityProvidersLogos()
+    {
+        return $this->config->IdPLogos;
+    }
+
+    /**
+     * Get all library cards associated with the user.
+     * By default there are ommited all Dummy cards.
+     *
+     * If you wish to retrieve also Dummy cards, pass true to $includingDummyCards.
+     *
+     * @param boolean $includingDummyCards
+     *
+     * @return \Zend\Db\ResultSet\AbstractResultSet
+     * @throws \VuFind\Exception\LibraryCard
+     */
+    public function getLibraryCards($includingDummyCards = false)
+    {
+        if (! $this->libraryCardsEnabled()) {
+            return new \Zend\Db\ResultSet\ResultSet();
+        }
+        $userCard = $this->getDbTable('UserCard');
+        if ($includingDummyCards)
+            return $userCard->select([
+                'user_id' => $this->id
+            ]);
+        return $userCard->select([
+            'user_id' => $this->id,
+            'home_library != ?' => 'Dummy'
+        ]);
+    }
+
+    /**
+     * Checks if specified UserCard row id owns current User.
+     *
+     * @param int $id
+     * @return boolean $hasThisLibraryCard
+     */
+    public function hasThisLibraryCard($id)
+    {
+        $userCard = $this->getDbTable('UserCard');
+        return $userCard->select([
+            'id' => $id,
+            'user_id' => $this->id
+        ])->count() !== 0;
+    }
+
+    /**
+     * Filters out the dummy cards from passed $libCards array
+     * of libCards.
+     *
+     * If no realCard found, returns false.
+     *
+     * @param array $libCards
+     * @return mixed $realCards | false
+     */
+    public function parseRealCards($libCards)
+    {
+        $realCards = [];
+
+        try {
+            foreach ($libCards as $libCard) {
+                if ($libCard->home_library !== 'Dummy')
+                    $realCards[] = $libCard;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return sizeof($realCards) > 0 ? $realCards : false;
+    }
 
     /**
      * Save library card with the given information
@@ -179,294 +465,6 @@ class User extends BaseUser
     }
 
     /**
-     * Creates library card for User with $cat_username & $prefix identified by $eppn.
-     *
-     * eduPersonPrincipalName is later used to identify loggedin user.
-     *
-     * Returns library card id on success. Otherwise throws an AuthException.
-     *
-     * @param string $cat_username
-     * @param string $prefix
-     * @param string $eppn
-     * @param string $email
-     * @param array $canConsolidateMoreTimes
-     *
-     * @return mixed int | boolean
-     * @throws AuthException
-     */
-    public function createLibraryCard($cat_username, $prefix, $eppn, $email, $canConsolidateMoreTimes)
-    {
-        try {
-            if (empty($eppn))
-                throw new AuthException("Cannot create library card with empty eppn");
-
-            if (empty($this->id))
-                throw new AuthException("Cannot create library card with empty user row id");
-
-            if (empty($email))
-                $email = '';
-
-            return $this->saveLibraryCard(null, $email, $cat_username, null, $prefix, $eppn, $canConsolidateMoreTimes);
-        } catch (\VuFind\Exception\LibraryCard $e) {
-            throw new AuthException($e->getMessage());
-        }
-    }
-
-    /**
-     * Changes specified card's name to provided one.
-     *
-     * @param number $id
-     * @param string $cardName
-     */
-    public function editLibraryCardName($id, $cardName)
-    {
-        $this->saveLibraryCard($id, $cardName);
-    }
-
-    /**
-     * Get all library cards associated with the user.
-     * By default there are ommited all Dummy cards.
-     *
-     * If you wish to retrieve also Dummy cards, pass true to $includingDummyCards.
-     *
-     * @param boolean $includingDummyCards
-     *
-     * @return \Zend\Db\ResultSet\AbstractResultSet
-     * @throws \VuFind\Exception\LibraryCard
-     */
-    public function getLibraryCards($includingDummyCards = false)
-    {
-        if (! $this->libraryCardsEnabled()) {
-            return new \Zend\Db\ResultSet\ResultSet();
-        }
-        $userCard = $this->getDbTable('UserCard');
-        if ($includingDummyCards)
-            return $userCard->select([
-                'user_id' => $this->id
-            ]);
-        return $userCard->select([
-            'user_id' => $this->id,
-            'home_library != ?' => 'Dummy'
-        ]);
-    }
-
-    /**
-     * Gets all library cards including Dummy cards.
-     *
-     * @return array of UserCard
-     * @throws \VuFind\Exception\LibraryCard
-     */
-    public function getAllUserLibraryCards()
-    {
-        $toReturn = [];
-        foreach ($this->getLibraryCards(true) as $libCard) {
-            $toReturn[] = $libCard;
-        }
-        return $toReturn;
-    }
-
-    /**
-     * Delete library card.
-     *
-     * Note that if you supply UserCard row to this method, it will delete it
-     * no matter if it is last.
-     *
-     * @param
-     *            mixed (int $id | UserCard $userCard)
-     *
-     * @param boolean $doNotDeleteIfLast
-     *
-     * @return void
-     * @throws \VuFind\Exception\LibraryCard
-     */
-    public function deleteLibraryCard($id, $doNotDeleteIfLast = false, $activateAnother = true)
-    {
-        if (! $this->libraryCardsEnabled()) {
-            throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
-        }
-
-        if ($id instanceof UserCard)
-            return $this->deleteLibraryCardRow($id, $activateAnother);
-
-        $allLibCards = $this->getAllUserLibraryCards();
-
-        $found = false;
-        foreach ($allLibCards as $key => $libCard) {
-            if ($libCard->id === intval($id)) {
-                $found = $key;
-                break;
-            }
-        }
-
-        if ($found === false) {
-            throw new \Exception('Library card not found');
-        }
-
-        if ($doNotDeleteIfLast && count($allLibCards) === 1) {
-            throw new \VuFind\Exception\LibraryCard('Cannot disconnect the last identity');
-        }
-
-        $allLibCards[$found]->delete();
-
-        // To prevent major transitivity based on identities we need to delete
-        // major access connected with current identity being disconnected
-        $this->deleteMajorAccess($allLibCards[$found]->home_library);
-
-        if ($activateAnother && $allLibCards[$found]->cat_username == $this->cat_username) {
-            // Activate another card (if any) or remove cat_username and cat_password
-
-            // The method needs up-to-date $allLibCards .. thus unset the deleted one
-            unset($allLibCards[$found]);
-
-            $this->activateBestLibraryCard($allLibCards);
-        }
-    }
-
-    /**
-     * Checks for UserRow->major value to remove access connected with passed $home_library.
-     *
-     * @param string $home_library
-     *
-     * @return void
-     */
-    protected function deleteMajorAccess($home_library)
-    {
-        if (! empty($home_library) && $home_library !== 'Dummy' && ! empty($this->major)) {
-
-            $allowed = [];
-
-            $currentAccesses = split(static::COLUMN_MAJOR_GLUE, $this->major);
-            foreach ($currentAccesses as $currentAccess) {
-                $prefix = split(ShibbolethIdentityManager::SEPARATOR_REGEXED, $currentAccess)[0];
-
-                // We want to delete access connected with home_library being disconnected
-                if ($prefix !== $home_library) {
-                    $allowed[] = $currentAccess;
-                }
-            }
-
-            $currentAccesses = implode(static::COLUMN_MAJOR_GLUE, $allowed);
-
-            // Do not query SQL until neccessary
-            if ($currentAccesses !== $this->major) {
-
-                $this->major = $currentAccesses;
-                $this->save();
-            }
-        }
-    }
-
-    /**
-     * This method deletes UserCard row.
-     * If it was active card, then is activated another
-     * using activateBestLibraryCard method.
-     *
-     * @param UserCard $libCard
-     * @return number $affectedRows
-     */
-    public function deleteLibraryCardRow(UserCard $libCard, $activateAnother = true)
-    {
-        $affectedRows = $libCard->delete();
-
-        if ($activateAnother && $libCard->cat_username == $this->cat_username) {
-            // Activate another card (if any) or remove cat_username and cat_password
-            $this->activateBestLibraryCard();
-        }
-
-        return $affectedRows;
-    }
-
-    /**
-     * Disconnect desired identity.
-     *
-     * It is an alias for deleteLibraryCard($id, true, true)
-     *
-     * @param int $id
-     *            Library card ID
-     *
-     * @return void
-     * @throws \VuFind\Exception\LibraryCard
-     */
-    public function disconnectIdentity($id)
-    {
-        return $this->deleteLibraryCard($id, true, true);
-    }
-
-    /**
-     * Checks if specified UserCard row id owns current User.
-     *
-     * @param int $id
-     * @return boolean $hasThisLibraryCard
-     */
-    public function hasThisLibraryCard($id)
-    {
-        $userCard = $this->getDbTable('UserCard');
-        return $userCard->select([
-            'id' => $id,
-            'user_id' => $this->id
-        ])->count() !== 0;
-    }
-
-    /**
-     * Activates best library card.
-     * The algorithm chooses first available card,
-     * if it is the only user's card. If user has more than one cards, it checks
-     * for any not Dummy card & activates that one if finds any.
-     *
-     * If from all the cards doesn't find any non-Dummy card, nothing will happen
-     * keeping in mind there has already been activated first Dummy card.
-     *
-     * @param array $libCards
-     */
-    public function activateBestLibraryCard(array $libCards = null)
-    {
-        if (empty($libCards))
-            $libCards = $this->getAllUserLibraryCards();
-
-        $firstLibCard = reset($libCards);
-
-        // If this is the first library card or no credentials are currently set,
-        // activate the card now
-        if (count($libCards) === 1) {
-            $this->activateLibraryCardRow($firstLibCard);
-        } else {
-
-            $realCards = $this->parseRealCards($libCards);
-
-            // Activate any realCard if current UserRow's home_library is Dummy
-            if ($realCards && $this->home_library === 'Dummy') {
-                $this->activateLibraryCardRow($realCards[0]);
-            }
-
-            // If User have left no realCard & has not active Dummy account, activate any dummy
-            elseif (! $realCards && $this->home_library !== 'Dummy') {
-                $this->activateLibraryCardRow($firstLibCard);
-            }
-        }
-    }
-
-    /**
-     * Activate a library card using UserCard row object.
-     *
-     * This method is basically the same as activateLibraryCard($id),
-     * except it doesn't execute not needed sql command to parse the card.
-     *
-     * @param UserCard $libCard
-     *
-     * @return void
-     */
-    public function activateLibraryCardRow(UserCard $libCard)
-    {
-        if (! empty($libCard)) {
-            $this->cat_username = $libCard->cat_username;
-            $this->cat_password = $libCard->cat_password;
-            $this->cat_pass_enc = $libCard->cat_pass_enc;
-            $this->home_library = $libCard->home_library;
-            $this->save();
-        }
-    }
-
-    /**
      * Upgrades library card specified by eppn to non Dummy account with
      * new_cat_username & new_home_library.
      *
@@ -516,35 +514,36 @@ class User extends BaseUser
     }
 
     /**
-     * Filters out the dummy cards from passed $libCards array
-     * of libCards.
+     * Checks for UserRow->major value to remove access connected with passed $home_library.
      *
-     * If no realCard found, returns false.
+     * @param string $home_library
      *
-     * @param array $libCards
-     * @return mixed $realCards | false
+     * @return void
      */
-    public function parseRealCards($libCards)
+    protected function deleteMajorAccess($home_library)
     {
-        $realCards = [];
+        if (! empty($home_library) && $home_library !== 'Dummy' && ! empty($this->major)) {
 
-        try {
-            foreach ($libCards as $libCard) {
-                if ($libCard->home_library !== 'Dummy')
-                    $realCards[] = $libCard;
+            $allowed = [];
+
+            $currentAccesses = split(static::COLUMN_MAJOR_GLUE, $this->major);
+            foreach ($currentAccesses as $currentAccess) {
+                $prefix = split(ShibbolethIdentityManager::SEPARATOR_REGEXED, $currentAccess)[0];
+
+                // We want to delete access connected with home_library being disconnected
+                if ($prefix !== $home_library) {
+                    $allowed[] = $currentAccess;
+                }
             }
-        } catch (\Exception $e) {
-            return false;
+
+            $currentAccesses = implode(static::COLUMN_MAJOR_GLUE, $allowed);
+
+            // Do not query SQL until neccessary
+            if ($currentAccesses !== $this->major) {
+
+                $this->major = $currentAccesses;
+                $this->save();
+            }
         }
-
-        return sizeof($realCards) > 0 ? $realCards : false;
-    }
-
-    /**
-     * Returns IdPLogos section from config.ini with institutions mapping to their logos.
-     */
-    public function getIdentityProvidersLogos()
-    {
-        return $this->config->IdPLogos;
     }
 }

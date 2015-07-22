@@ -53,26 +53,6 @@ class Manager extends BaseManager
     }
 
     /**
-     * Get the URL to establish a session (needed when the internal VuFind login
-     * form is inadequate).
-     * Returns false when no session initiator is needed.
-     *
-     * @param string $target
-     *            Full URL where external authentication method should
-     *            send user to after login (some drivers may override this).
-     *
-     * @return bool|string
-     */
-    public function getSessionInitiators($target)
-    {
-        if ($this->getAuth() instanceof PerunShibboleth) {
-            return $this->getAuth()->getSessionInitiators($target);
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Try to log in the user using current query parameters; return User object
      * on success, throws exception on failure.
      *
@@ -109,28 +89,9 @@ class Manager extends BaseManager
     }
 
     /**
-     * Returns account consolidation redirect & handles setting token cookie &
-     * writing token to session table in DB.
-     *
-     * @return string $accountConsolidationRedirectUrl
-     * @throws AuthException
-     */
-    public function getAccountConsolidationRedirectUrl()
-    {
-        $this->checkActiveAuthIsSIM();
-
-        $userRow = $this->isLoggedIn();
-
-        if (! $userRow || empty($userRow->id)) {
-            throw new AuthException("Cannot consolidate empty UserRow");
-        }
-
-        return $this->getAuth()->getAccountConsolidationRedirectUrl($userRow->id);
-    }
-
-    /**
      * Tries to connect current logged in user with identity specified by token
-     * user holds in cookie & we in session table. Once the cookie is accessed
+     * user holds in cookie & we in session table.
+     * Once the cookie is accessed
      * is destroyed.
      *
      * @throws AuthException
@@ -165,23 +126,59 @@ class Manager extends BaseManager
         return $user;
     }
 
-    public function getAuthInstance($name)
+    /**
+     * Returns account consolidation redirect & handles setting token cookie &
+     * writing token to session table in DB.
+     *
+     * @return string $accountConsolidationRedirectUrl
+     * @throws AuthException
+     */
+    public function getAccountConsolidationRedirectUrl()
     {
-        if (empty($name)) {
-            return $this->auth[$this->activeAuth];
+        $this->checkActiveAuthIsSIM();
+
+        $userRow = $this->isLoggedIn();
+
+        if (! $userRow || empty($userRow->id)) {
+            throw new AuthException("Cannot consolidate empty UserRow");
         }
 
-        return $this->auth[$name];
+        return $this->getAuth()->getAccountConsolidationRedirectUrl($userRow->id);
     }
 
     /**
-     * Checks if the activeAuth matches "ShibbolethIdentityManager", else
-     * throws AuthException.
+     * Returns Auth instance based on name.
      *
-     * @throws AuthExeption
+     * @param string $authName
+     * @return \VuFind\Auth\AbstractBase
      */
-    protected function checkActiveAuthIsSIM() {
-        $this->checkActiveAuthIs("ShibbolethIdentityManager", "Account consolidation may provide only ShibbolethIdentityManager authentication method.");
+    public function getAuthInstance($authName)
+    {
+        if (empty($authName)) {
+            return $this->auth[$this->activeAuth];
+        }
+
+        return $this->auth[$authName];
+    }
+
+    /**
+     * Get the URL to establish a session (needed when the internal VuFind login
+     * form is inadequate).
+     * Returns false when no session initiator is needed.
+     *
+     * @param string $target
+     *            Full URL where external authentication method should
+     *            send user to after login (some drivers may override this).
+     *
+     * @return bool|string
+     */
+    public function getSessionInitiators($target)
+    {
+        if ($this->getAuth() instanceof PerunShibboleth) {
+            return $this->getAuth()->getSessionInitiators($target);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -199,5 +196,16 @@ class Manager extends BaseManager
 
         if ($this->activeAuth !== $authToCheckFor)
             throw new AuthException($errorMessage);
+    }
+
+    /**
+     * Checks if the activeAuth matches "ShibbolethIdentityManager", else
+     * throws AuthException.
+     *
+     * @throws AuthExeption
+     */
+    protected function checkActiveAuthIsSIM()
+    {
+        $this->checkActiveAuthIs("ShibbolethIdentityManager", "Account consolidation may provide only ShibbolethIdentityManager authentication method.");
     }
 }
