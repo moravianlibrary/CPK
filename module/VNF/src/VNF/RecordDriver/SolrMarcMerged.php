@@ -32,6 +32,7 @@ class SolrMarcMerged extends ParentSolr
                     break;
                 case 'kjm':
                 case 'mkpr':
+                case 'kmhk':
                     $finalID = substr($id, 6);
                     break;
                 case 'ktn':
