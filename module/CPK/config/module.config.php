@@ -15,6 +15,7 @@ $config = array(
                     'solrcpk_mzk'  => 'CPK\RecordDriver\Factory::getSolrMarcMZK',
                     'solrcpk_vkol' => 'CPK\RecordDriver\Factory::getSolrMarcVKOL',
                     'solrcpk_nlk'  => 'CPK\RecordDriver\Factory::getSolrMarcNLK',
+                    'solrlocal'    => 'CPK\RecordDriver\Factory::getSolrMarcLocal',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(

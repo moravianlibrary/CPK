@@ -72,4 +72,19 @@ class Factory
         return $driver;
     }
 
+    public static function getSolrMarcLocal(ServiceManager $sm)
+    {
+        $driver = new \CPK\RecordDriver\SolrMarcLocal(
+                        $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+                        null,
+                        $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+        );
+        $driver->attachILS(
+                        $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+                        $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+                        $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+        );
+        return $driver;
+    }
+
 }
