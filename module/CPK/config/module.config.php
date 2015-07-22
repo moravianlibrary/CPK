@@ -80,7 +80,7 @@ $config = array(
 $staticRoutes = array(
     'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
     'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/',
-    'MyResearch/UserConnect', 'Record/getMarc996ArrayViaAjax'
+    'MyResearch/UserConnect', 'Record/getMarc996ArrayViaAjax', 'Record/getAntikvariatyLinkViaAjax'
 );
 
 foreach ($staticRoutes as $route) {

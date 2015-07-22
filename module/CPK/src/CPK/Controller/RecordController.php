@@ -64,4 +64,20 @@ class RecordController extends RecordControllerBase
 	
 		return $result;
 	}
+	
+	public function getAntikvariatyLinkViaAjaxAction()
+	{
+		$parentRecordID = $this->params()->fromPost('parentRecordID');
+
+		$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+			
+		$recordDriver = $recordLoader->load($parentRecordID);
+		$link = $recordDriver->getAntikvariatyLink();
+	
+		$result = new JsonModel(array(
+			'link' => $link[0],
+		));
+	
+		return $result;
+	}
 }
