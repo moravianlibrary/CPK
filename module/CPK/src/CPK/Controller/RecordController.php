@@ -110,7 +110,14 @@ class RecordController extends RecordControllerBase
 		$view->defaultTab = strtolower($this->getDefaultTab());
 		
 		$buyChoiceHandler = $this->getServiceLocator()->get('WantIt\BuyChoiceHandler');
-		$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArray($this->driver->getCleanISBN());
+		$isbn = $this->driver->getCleanISBN();
+		$lccn = $this->driver->getLCCN();
+		$oclc = $this->driver->getOCLC();
+		
+		$gBooks =	$isbn ? $buyChoiceHandler->getGoogleBooksItemAsArray($isbn) : 
+					$lccn ? $buyChoiceHandler->getGoogleBooksItemAsArray($lccn) : 
+					$oclc ? $buyChoiceHandler->getGoogleBooksItemAsArray($isbn) : '';
+		
 		$gBooksLink = $gBooks['items'][0]['volumeInfo']['canonicalVolumeLink'];
 		$view->gBooksLink = $gBooksLink;
 	
