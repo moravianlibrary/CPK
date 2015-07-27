@@ -46,26 +46,4 @@ class Factory
         	// $sm->get('CPK\RecordDriver\SolrMarc') @FIXME Encapsulate CPK\RecordDriver\SolrMarc into \CPK\WantIt\BuyChoiceHandler
         );
     }
-
-/**
-     * Factory for SolrMarc record driver.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return SolrMarc
-     */
-    public static function getSolrMarc(ServiceManager $sm)
-    {
-        $driver = new \CPK\RecordDriver\SolrMarc(
-            $sm->get('VuFind\Config')->get('config'),
-            null,
-            $sm->get('VuFind\Config')->get('searches')
-        );
-        $driver->attachILS(
-            $sm->get('VuFind\ILSConnection'),
-            $sm->get('VuFind\ILSHoldLogic'),
-            $sm->get('VuFind\ILSTitleHoldLogic')
-        );
-        return $driver;
-    }
 }

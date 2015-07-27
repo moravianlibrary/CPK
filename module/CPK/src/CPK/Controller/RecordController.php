@@ -110,16 +110,24 @@ class RecordController extends RecordControllerBase
 		$view->defaultTab = strtolower($this->getDefaultTab());
 		
 		$buyChoiceHandler = $this->getServiceLocator()->get('WantIt\BuyChoiceHandler');
-		$isbn = $this->driver->getCleanISBN();
+		$isbn = $this->driver->getISBNs();
 		$lccn = $this->driver->getLCCN();
-		$oclc = $this->driver->getOCLC();
+		$oclc = $this->driver->getCleanOCLCNum();
 		
-		$gBooks =	$isbn ? $buyChoiceHandler->getGoogleBooksItemAsArray($isbn) : 
-					$lccn ? $buyChoiceHandler->getGoogleBooksItemAsArray($lccn) : 
-					$oclc ? $buyChoiceHandler->getGoogleBooksItemAsArray($isbn) : '';
+		if (isset($isbn[0])) {
+			$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArrayByISBN($isbn[0]);
+		} elseif ($lccn) {
+			$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArrayByLCCN($lccn);
+		} elseif ($oclc) {
+			$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArrayByOCLC($oclc);
+		} else {
+			$gBooks = null;
+		}
 		
-		$gBooksLink = $gBooks['items'][0]['volumeInfo']['canonicalVolumeLink'];
-		$view->gBooksLink = $gBooksLink;
+		if ($gBooks) {
+			$gBooksLink = $gBooks['items'][0]['volumeInfo']['canonicalVolumeLink'];
+			$view->gBooksLink = $gBooksLink;
+		}
 	
 		// Set up next/previous record links (if appropriate)
 		if ($this->resultScrollerActive()) {

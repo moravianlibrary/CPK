@@ -34,17 +34,41 @@ use CPK\WantIt\AbstractHttpClient;
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInterface
+class BuyChoiceHandler extends AbstractHttpClient
 {
 	/**
-	 * @inheritDoc
+	 * @param string $isbn isbn
 	 */
-	public function getGoogleBooksItemAsArray($isbn)
+	public function getGoogleBooksItemAsArrayByISBN($isbn)
 	{
 		$url = 'https://www.googleapis.com/books/v1/volumes';
-		$params = array ('q' => 'isbn:'.$isbn);
+		$params = array ('q' => 'isbn:'.str_replace("-", "", $isbn));
 		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
-		// @TODO if not ISBN -> OCLC or neco
+
+		return $dataArray;
+	}
+	
+	/**
+	 * @param string $lccn lccn
+	 */
+	public function getGoogleBooksItemAsArrayByLCCN($lccn)
+	{
+		$url = 'https://www.googleapis.com/books/v1/volumes';
+		$params = array ('q' => 'lccn:'.str_replace("-", "", $lccn));
+		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+	
+		return $dataArray;
+	}
+	
+	/**
+	 * @param string $oclc oclc
+	 */
+	public function getGoogleBooksItemAsArrayByOCLC($oclc)
+	{
+		$url = 'https://www.googleapis.com/books/v1/volumes';
+		$params = array ('q' => 'oclc:'.str_replace("-", "", $oclc));
+		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+	
 		return $dataArray;
 	}
 	
