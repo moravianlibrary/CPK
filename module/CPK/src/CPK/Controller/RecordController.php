@@ -80,4 +80,47 @@ class RecordController extends RecordControllerBase
 	
 		return $result;
 	}
+	
+	/**
+	 * Display a particular tab.
+	 *
+	 * @param string $tab  Name of tab to display
+	 * @param bool   $ajax Are we in AJAX mode?
+	 *
+	 * @return mixed
+	 */
+	protected function showTab($tab, $ajax = false)
+	{
+		// Special case -- handle login request (currently needed for holdings
+		// tab when driver-based holds mode is enabled, but may also be useful
+		// in other circumstances):
+		if ($this->params()->fromQuery('login', 'false') == 'true'
+				&& !$this->getUser()
+		) {
+			return $this->forceLogin(null);
+		} else if ($this->params()->fromQuery('catalogLogin', 'false') == 'true'
+				&& !is_array($patron = $this->catalogLogin())
+		) {
+			return $patron;
+		}
+	
+		$view = $this->createViewModel();
+		$view->tabs = $this->getAllTabs();
+		$view->activeTab = strtolower($tab);
+		$view->defaultTab = strtolower($this->getDefaultTab());
+		
+		$buyChoiceHandler = $this->getServiceLocator()->get('WantIt\BuyChoiceHandler');
+		$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArray($this->driver->getCleanISBN());
+		$gBooksLink = $gBooks['items'][0]['volumeInfo']['canonicalVolumeLink'];
+		$view->gBooksLink = $gBooksLink;
+	
+		// Set up next/previous record links (if appropriate)
+		if ($this->resultScrollerActive()) {
+			$driver = $this->loadRecord();
+			$view->scrollData = $this->resultScroller()->getScrollData($driver);
+		}
+	
+		$view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
+		return $view;
+	}
 }

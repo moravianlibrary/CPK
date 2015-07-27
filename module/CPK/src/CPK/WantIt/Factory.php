@@ -1,6 +1,6 @@
 <?php
 /**
- * BuyChoiceHandler Interface
+ * Factory for ServiceManager
  *
  * PHP version 5
  *
@@ -23,62 +23,28 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
 namespace CPK\WantIt;
+use Zend\ServiceManager\ServiceManager;
 
 /**
- * BuyChoiceHandlerInterface
- * Provides available Buy actions on records and handles user's requests.
- * 
+ * Factory for ServiceManager
+ *
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-interface BuyChoiceHandlerInterface
+class Factory
 {
-	/**
-	 * Returns GoogleBooks item as array
-	 *
-	 * @return	array
-	 */
-	public function getGoogleBooksItemAsArray($isbn);
-	
-	/**
-	 * Is item available on GoogleBooks
-	 * 
-	 * @return	boolean
-	 */
-	public function availableAtGoogleBooks();
-	
-	/**
-	 * Returns GoogleBooks item Url
-	 * 
-	 * @return	string
-	 */
-	public function getGoogleBooksItemUrl();
-	
-	/**
-	 * Is item available on Kosmas
-	 * 
-	 * @return	boolean
-	 */
-	public function availableAtKosmas();
-	
-	/**
-	 * Returns Kosmas item Url
-	 * 
-	 * @return	string
-	 */
-	public function getKosmasItemUrl();
-	
-	/**
-	 * Is item available in Antikvariat
-	 * 
-	 * @return	boolean
-	 */
-	public function availableAtAntikvariat();
-	
-	/**
-	 * Returns Antikvariat item Url
-	 * 
-	 * @return	string
-	 */
-	public function getAntikvariatItemUrl();
+    /**
+     * Construct the BuyChoiceHandler.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return BuyChoiceHandler
+     */
+    public static function getBuyChoiceHandler(ServiceManager $sm)
+    {
+        return new \CPK\WantIt\BuyChoiceHandler(
+        	//$sm->get('VuFind\RecordDriver\SolrDefault')
+        );
+    }
+
 }

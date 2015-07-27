@@ -37,29 +37,14 @@ use CPK\WantIt\AbstractHttpClient;
 class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInterface
 {
 	/**
-	 * Record object
-	 * @var	obj
-	 */
-	protected $record;
-
-	/**
-	 * Sets initial params
-	 * 
-	 * @param Record $record
-	 */
-	public function __construct(Record $record)
-	{
-		$this->record = $record;
-	}
-	
-	/**
 	 * @inheritDoc
 	 */
-	public function getGoogleBooksItemAsArray()
+	public function getGoogleBooksItemAsArray($isbn)
 	{
 		$url = 'https://www.googleapis.com/books/v1/volumes';
-		$params = array ('q' => 'isbn:'.$this->record->getIsbn());
+		$params = array ('q' => 'isbn:'.$isbn);
 		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+		// @TODO if not ISBN -> OCLC or neco
 		return $dataArray;
 	}
 	

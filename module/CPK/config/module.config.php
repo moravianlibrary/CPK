@@ -80,6 +80,7 @@ $config = array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
             'Perun\IdentityResolver' => 'CPK\Perun\Factory::getIdentityResolver',
+        	'WantIt\BuyChoiceHandler' => 'CPK\WantIt\Factory::getBuyChoiceHandler',
         ),
     ),
 	'view_manager' => array(
