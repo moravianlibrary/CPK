@@ -49,7 +49,7 @@
 				</div>
 			</div>
 			
-			<? if (($libCard) && ($libCard === 'all')) : ?>
+			<? if ( ($libCard && $libCard === 'all') || (! $libCard)) : ?>
 			<div class="col-lg-4">
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -187,7 +187,7 @@
 			],
 	        resize: true
 	    });
-	    <? if (($libCard) && ($libCard === 'all')) : ?>
+	    <? if ( ($libCard && $libCard === 'all') || (! $libCard)) : ?>
 	    Morris.Donut( {
 	        element: 'visits-comparision-anonymous',
 	        data: [
