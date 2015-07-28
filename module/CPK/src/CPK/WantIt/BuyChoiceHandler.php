@@ -34,10 +34,10 @@ use CPK\WantIt\AbstractHttpClient;
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
-class BuyChoiceHandler extends AbstractHttpClient
+class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInterface
 {
 	/**
-	 * @param string $isbn isbn
+	 * {@inheritdoc}
 	 */
 	public function getGoogleBooksItemAsArrayByISBN($isbn)
 	{
@@ -49,7 +49,7 @@ class BuyChoiceHandler extends AbstractHttpClient
 	}
 	
 	/**
-	 * @param string $lccn lccn
+	 * {@inheritdoc}
 	 */
 	public function getGoogleBooksItemAsArrayByLCCN($lccn)
 	{
@@ -61,7 +61,7 @@ class BuyChoiceHandler extends AbstractHttpClient
 	}
 	
 	/**
-	 * @param string $oclc oclc
+	 * {@inheritdoc}
 	 */
 	public function getGoogleBooksItemAsArrayByOCLC($oclc)
 	{
@@ -73,59 +73,23 @@ class BuyChoiceHandler extends AbstractHttpClient
 	}
 	
 	/**
-	 * @inheritDoc
+	 * {@inheritdoc}
 	 */
-	public function availableAtGoogleBooks()
+	public function getZboziLinkByISBN($isbn)
 	{
-		$dataArray = getGoogleBooksItemAsArray();
+		$url = 'http://www.zbozi.cz/api/v1/search';
+		$params = array ('groupByCategory' => 1,
+						'loadTopProducts' => 'true',
+						'page' => 1,
+						'query' => str_replace("-", "", $isbn),
+		);
 		
-		if (isset($dataArray['totalItems']) && ($dataArray['totalItems'] > 0)) 
-			return true;
-	
-		return false;
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getGoogleBooksItemUrl()
-	{
-		$dataArray = getGoogleBooksItemAsArray();
+		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
 		
-		$cannonicalUrl = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'];
-		
-		return $cannonicalUrl;
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function availableAtKosmas()
-	{
-	
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getKosmasItemUrl()
-	{
-	
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function availableAtAntikvariat()
-	{
-	
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getAntikvariatItemUrl()
-	{
-	
+		$link = '';
+		if (isset($dataArray['status']) && $dataArray['status'] === 200)
+			$link = 'http://www.zbozi.cz/vyrobek/'.$dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName'].'/';
+
+		return $link;
 	}
 }

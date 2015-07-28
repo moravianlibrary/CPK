@@ -128,6 +128,11 @@ class RecordController extends RecordControllerBase
 			$gBooksLink = $gBooks['items'][0]['volumeInfo']['canonicalVolumeLink'];
 			$view->gBooksLink = $gBooksLink;
 		}
+		
+		if (isset($isbn[0])) {
+			$zboziLink = $buyChoiceHandler->getZboziLinkByISBN($isbn[0]);
+			$view->zboziLink = $zboziLink;
+		}
 	
 		// Set up next/previous record links (if appropriate)
 		if ($this->resultScrollerActive()) {

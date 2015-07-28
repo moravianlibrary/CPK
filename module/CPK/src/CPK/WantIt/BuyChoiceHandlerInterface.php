@@ -36,49 +36,36 @@ interface BuyChoiceHandlerInterface
 	/**
 	 * Returns GoogleBooks item as array
 	 *
+	 * @param	string	$isbn
+	 *
 	 * @return	array
 	 */
-	public function getGoogleBooksItemAsArray($isbn);
+	public function getGoogleBooksItemAsArrayByISBN($isbn);
 	
 	/**
-	 * Is item available on GoogleBooks
-	 * 
-	 * @return	boolean
+	 * Returns GoogleBooks item as array
+	 *
+	 * @param	string	$isbn
+	 *
+	 * @return	array
 	 */
-	public function availableAtGoogleBooks();
+	public function getGoogleBooksItemAsArrayByOCLC($oclc);
 	
 	/**
-	 * Returns GoogleBooks item Url
-	 * 
-	 * @return	string
+	 * Returns GoogleBooks item as array
+	 *
+	 * @param	string	$isbn
+	 *
+	 * @return	array
 	 */
-	public function getGoogleBooksItemUrl();
+	public function getGoogleBooksItemAsArrayByLCCN($lccn);
 	
 	/**
-	 * Is item available on Kosmas
-	 * 
-	 * @return	boolean
+	 * Returns Zbozi.cz item link by ISBN
+	 *
+	 * @param	string	$isbn
+	 *
+	 * @return	array
 	 */
-	public function availableAtKosmas();
-	
-	/**
-	 * Returns Kosmas item Url
-	 * 
-	 * @return	string
-	 */
-	public function getKosmasItemUrl();
-	
-	/**
-	 * Is item available in Antikvariat
-	 * 
-	 * @return	boolean
-	 */
-	public function availableAtAntikvariat();
-	
-	/**
-	 * Returns Antikvariat item Url
-	 * 
-	 * @return	string
-	 */
-	public function getAntikvariatItemUrl();
+	public function getZboziLinkByISBN($isbn);
 }
