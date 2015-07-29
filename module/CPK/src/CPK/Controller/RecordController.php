@@ -139,8 +139,27 @@ class RecordController extends RecordControllerBase
 			$driver = $this->loadRecord();
 			$view->scrollData = $this->resultScroller()->getScrollData($driver);
 		}
+		
+		$view->jib = $this->callSfxJib();
 	
 		$view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 		return $view;
+	}
+	
+	/**
+	 * Downloads SFX JIB content for current record.
+	 * @param	string	$institute	Institute shortcut
+	 * 
+	 * @return	array
+	 */
+	public function callSfxJib($institute = 'ANY')
+	{
+		$openUrl = $this->driver->getOpenURL();
+		
+		$electronicChoiceHandler = new \CPK\WantIt\ElectronicChoiceHandler();
+		
+		$jibArrayResult = $electronicChoiceHandler->downloadSfxJibResult($openUrl, $institute);
+		
+		return $jibArrayResult;
 	}
 }

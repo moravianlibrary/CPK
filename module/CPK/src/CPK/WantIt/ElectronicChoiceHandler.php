@@ -37,19 +37,27 @@ use CPK\WantIt\AbstractHttpClient;
 class ElectronicChoiceHandler extends AbstractHttpClient implements ElectronicChoiceHandlerInterface
 {
 	/**
-	 * Record object
-	 * @var	obj
+	 * {@inheritdoc}
 	 */
-	protected $record;
-
-	/**
-	 * Sets initial params
-	 * 
-	 * @param Record $record
-	 */
-	public function __construct(Record $record)
+	public function downloadSfxJibResult($openUrl, $institute='ANY')
 	{
-		$this->record = $record;
+		$url = 'http://sfx.jib.cz/sfxlcl3';
+		
+		$additionalParams = array();
+		parse_str($openUrl, $additionalParams);
+		
+		$params = array (
+				'sfx.institute' => $institute,
+				'ctx_ver' => 'Z39.88-2004',
+				'ctx_enc' => 'info:ofi/enc:UTF-8',
+				'sfx.response_type' => 'simplexml'
+		);
+		
+		$allparams = array_merge($params, $additionalParams);
+		
+		$dataArray = $this->getRequestDataResponseAsArray($url, $allparams);
+		
+		return $dataArray;
 	}
 }
 	

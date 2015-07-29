@@ -60,7 +60,7 @@ abstract class AbstractHttpClient
 	}
 	
 	/**
-	 * Returns page content from Piwik API Request
+	 * Returns page XML/JSON content from remote web as array
 	 *
 	 * CURLOPT_HEADER - Include header in result? (0 = yes, 1 = no)
 	 * CURLOPT_RETURNTRANSFER - (true = return, false = print) data
@@ -72,9 +72,10 @@ abstract class AbstractHttpClient
 	 * 			or the encoded data is deeper than the recursion limit.
 	 * @throws	\Exception when response body contains error element
 	 * @throws	\Exception when reponse status code is not 200
+	 * @throws	\Exception when content is not JSON neither XML
 	 * @return	array
 	 */
-	protected function getRequestDataResponseFromJSON($url, array $params)
+	protected function getRequestDataResponseAsArray($url, array $params)
 	{
 		$url = $this->buildQuery($url, $params);
 	
@@ -105,12 +106,38 @@ abstract class AbstractHttpClient
 		//
 	
 		$output	= $response->getBody();
+		
+		if ($this->isJson($output)) {
 	
-		$dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
-	
-		if ($dataArray === NULL)
-			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
+			$dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
+		
+			if ($dataArray === NULL)
+				throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
+			
+		} elseif ($this->isXml($output)) {
+			
+			$xml = simplexml_load_string($output, "SimpleXMLElement", LIBXML_NOCDATA);
+			$output = \Zend\Json\Json::encode($xml);
+			$dataArray = \Zend\Json\Json::decode($json, \Zend\Json\Json::TYPE_ARRAY);
+			
+		} else {
+			throw new \Exception('Content is not JSON neither XML');
+		}
 			
 		return $dataArray;
 	}
+	
+
+	protected function isJson($string)
+	{
+		json_decode($string);
+		return (json_last_error() == JSON_ERROR_NONE);
+	}
+	
+	protected function isXml($string)
+	{
+		@$xml = simplexml_load_string($string);
+     	return $xml ? true : false;
+	}
+	
 }

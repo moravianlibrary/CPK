@@ -43,7 +43,7 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	{
 		$url = 'https://www.googleapis.com/books/v1/volumes';
 		$params = array ('q' => 'isbn:'.str_replace("-", "", $isbn));
-		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
 
 		return $dataArray;
 	}
@@ -55,7 +55,7 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	{
 		$url = 'https://www.googleapis.com/books/v1/volumes';
 		$params = array ('q' => 'lccn:'.str_replace("-", "", $lccn));
-		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
 	
 		return $dataArray;
 	}
@@ -67,7 +67,7 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	{
 		$url = 'https://www.googleapis.com/books/v1/volumes';
 		$params = array ('q' => 'oclc:'.str_replace("-", "", $oclc));
-		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
 	
 		return $dataArray;
 	}
@@ -84,7 +84,7 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 						'query' => str_replace("-", "", $isbn),
 		);
 		
-		$dataArray = $this->getRequestDataResponseFromJSON($url, $params);
+		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
 		
 		$link = '';
 		if (isset($dataArray['status']) && $dataArray['status'] === 200)
