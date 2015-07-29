@@ -107,6 +107,8 @@ abstract class AbstractHttpClient
 	
 		$output	= $response->getBody();
 		
+		$dataArray = array();
+		
 		if ($this->isJson($output)) {
 	
 			$dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
@@ -117,7 +119,7 @@ abstract class AbstractHttpClient
 		} elseif ($this->isXml($output)) {
 			
 			$xml = simplexml_load_string($output, "SimpleXMLElement", LIBXML_NOCDATA);
-			$output = \Zend\Json\Json::encode($xml);
+			$json = \Zend\Json\Json::encode($xml);
 			$dataArray = \Zend\Json\Json::decode($json, \Zend\Json\Json::TYPE_ARRAY);
 			
 		} else {

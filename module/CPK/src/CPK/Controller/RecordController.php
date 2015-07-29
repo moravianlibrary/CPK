@@ -140,7 +140,8 @@ class RecordController extends RecordControllerBase
 			$view->scrollData = $this->resultScroller()->getScrollData($driver);
 		}
 		
-		$view->jib = $this->callSfxJib();
+		$jibOutput = $this->callSfxJib();
+		$view->jib = $jibOutput;
 	
 		$view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 		return $view;
