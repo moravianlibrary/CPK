@@ -85,8 +85,8 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	 */
 	public function getZboziLink()
 	{
-		$isbn = $this->recordDriver->getISBNs();
-		if (! isset($isbn[0]))
+		$isbn = $this->recordDriver->getISBNs()[0];
+		if (! $isbn)
 			return false;
 		
 		$url = 'http://www.zbozi.cz/api/v1/search';
@@ -94,7 +94,7 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 				'groupByCategory' => 1,
 				'loadTopProducts' => 'true',
 				'page' => 1,
-				'query' => str_replace("-", "", $isbn[0]),
+				'query' => str_replace("-", "", $isbn),
 		);
 		
 		$dataArray = $this->getRequestDataResponseAsArray($url, $params);

@@ -1,6 +1,12 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('E-version') . ': ' . $this->driver->getBreadcrumb());
+  
+  if ($this->jib) {
+	echo '<pre>';
+  	print_r($this->jib);
+  	echo '</pre>';
+  } else {
+  	echo '<p>placeholder for e-version</p>';	
+  }
 ?>
-
-<p>placeholder for e-version</p>
