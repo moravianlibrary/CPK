@@ -31,7 +31,7 @@ class SolrMarc extends ParentSolrMarc
 
     public function getAntikvariatyLink()
     {
-        return isset($this->fields['external_links_str_mv']) ? $this->fields['external_links_str_mv'] : [];
+        return isset($this->fields['external_links_str_mv'][0]) ? $this->fields['external_links_str_mv'][0] : false;
     }
 
     /**

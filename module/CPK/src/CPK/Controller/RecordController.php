@@ -65,22 +65,6 @@ class RecordController extends RecordControllerBase
 		return $result;
 	}
 	
-	public function getAntikvariatyLinkViaAjaxAction()
-	{
-		$parentRecordID = $this->params()->fromPost('parentRecordID');
-
-		$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-			
-		$recordDriver = $recordLoader->load($parentRecordID);
-		$link = $recordDriver->getAntikvariatyLink();
-	
-		$result = new JsonModel(array(
-			'link' => $link[0],
-		));
-	
-		return $result;
-	}
-	
 	/**
 	 * Display a particular tab.
 	 *
@@ -110,6 +94,15 @@ class RecordController extends RecordControllerBase
 		$view->defaultTab = strtolower($this->getDefaultTab());
 		
 		// Wantit Buy choice
+		// Antikvariaty
+		$parentRecordID = $this->driver->getParentRecordID();
+		
+		$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+			
+		$recordDriver = $recordLoader->load($parentRecordID);
+		$antikvariatyLink = $recordDriver->getAntikvariatyLink();
+		
+		// GoogleBooks & Zbozi.cz
 		$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
 		$buyChoiceHandler = $wantItFactory->createBuyChoiceHandlerObject($this->driver);
 		

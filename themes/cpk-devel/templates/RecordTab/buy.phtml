@@ -1,44 +1,25 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('Buy') . ': ' . $this->driver->getBreadcrumb());
-  
-  $parentRecordID = $driver->getParentRecordID();
 ?>
-<div id='google-books-link'><?= ($this->gBooksLink) ? "<a href='$this->gBooksLink' title='".$this->translate('Google Books')."' target='_blank'>".$this->translate('Google Books')."</a>" : '' ?></div>
-<div id='antikvariaty-link'></div>
-<div id='zbozi-link'><?= ($this->zboziLink) ? "<a href='$this->zboziLink' title='".$this->translate('Zbozi.cz')."' target='_blank'>".$this->translate('Zbozi.cz')."</a>" : '' ?></div>
-<div id='default-text'></div>
 
-<script>
-jQuery( document ).ready( function( $ ) {
-	
-	<? if ($parentRecordID) : ?>
+<div id='google-books-link'>
+	<? 
+		if ($this->gBooksLink)
+			echo "<a href='$this->gBooksLink' title='".$this->translate('Google Books')."' target='_blank'>".$this->translate('Google Books')."</a>";
+	?>
+</div>
 
-	var parentRecordID = "<?= $parentRecordID ?>";
+<div id='antikvariaty-link'>
+	<?
+		if ($this->antikvariatyLink) 
+			echo "<a href='$this->antikvariatyLink' title='".$this->translate('Antikvariat')."' target='_blank'>".$this->translate('Antikvariat')."</a>";
+	?>
+</div>
 
-	$.ajax({
-		url: 		"getAntikvariatyLinkViaAjax",
-		method: 	"POST",
-		dataType: 	"json",
-		async: false,
-		data: { parentRecordID: parentRecordID }
-	}).done( function( msg ) {
-
-		if (msg.link !== null) {
-			var html = "<a href='"+msg.link+"' title='<?= $this->translate('Antikvariat'); ?>' target='_blank'><?= $this->translate('Antikvariat'); ?></a>";
-			$( '#antikvariaty-link' ).html(html);
-		}
-
-	}).fail( function( jqXHR, textStatus ) {
-		console.log( jqXHR+' '+textStatus );
-	});
-
-	<? endif; ?>
-	
-	var textLength = $( '#kosmas-link' ).text().length + $( '#google-books-link' ).text().length + $( '#antikvariaty-link' ).text().length + $( '#zbozi-link' ).text().length;
-	if ( textLength == 0 )
-		$( '#antikvariaty-link' ).html( '<?= $this->translate('No links') ?>' );
-	
-});
-</script>
-
+<div id='zbozi-link'>
+	<?
+		if ($this->zboziLink)
+			echo "<a href='$this->zboziLink' title='".$this->translate('Zboží.cz')."' target='_blank'>".$this->translate('Zboží.cz')."</a>";
+	?>
+</div>
