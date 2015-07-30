@@ -39,11 +39,19 @@ class Factory
      * @param ServiceManager $sm Service manager.
      *
      * @return BuyChoiceHandler
+     */    
+    public function createBuyChoiceHandlerObject(\CPK\RecordDriver\SolrMarc $recordDriver){
+    	return new \CPK\WantIt\BuyChoiceHandler($recordDriver);
+    }
+    
+    /**
+     * Construct the BuyChoiceHandler.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return BuyChoiceHandler
      */
-    public static function getBuyChoiceHandler(ServiceManager $sm)
-    {
-        return new \CPK\WantIt\BuyChoiceHandler(
-        	// $sm->get('CPK\RecordDriver\SolrMarc') @FIXME Encapsulate CPK\RecordDriver\SolrMarc into \CPK\WantIt\BuyChoiceHandler
-        );
+    public function createElectronicChoiceHandlerObject(\CPK\RecordDriver\SolrMarc $recordDriver){
+    	return new \CPK\WantIt\ElectronicChoiceHandler($recordDriver);
     }
 }

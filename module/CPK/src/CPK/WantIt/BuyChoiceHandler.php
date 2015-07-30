@@ -37,58 +37,72 @@ use CPK\WantIt\AbstractHttpClient;
 class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInterface
 {
 	/**
-	 * {@inheritdoc}
+	 * RecordDriver
+	 * @var	\CPK\RecordDriver\SolrMarc	$recordDriver
 	 */
-	public function getGoogleBooksItemAsArrayByISBN($isbn)
+	protected $recordDriver;
+	
+	public function __construct(\CPK\RecordDriver\SolrMarc $recordDriver)
 	{
-		$url = 'https://www.googleapis.com/books/v1/volumes';
-		$params = array ('q' => 'isbn:'.str_replace("-", "", $isbn));
-		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
-
-		return $dataArray;
+		$this->recordDriver = $recordDriver;
 	}
 	
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getGoogleBooksItemAsArrayByLCCN($lccn)
-	{
+	public function getGoogleBooksVolumeLink()
+	{ 
+		$isbn = $this->recordDriver->getISBNs()[0];
+		$lccn = $this->recordDriver->getLCCN();
+		$oclc = $this->recordDriver->getCleanOCLCNum();
+		
+		if ((! $isbn) && (! $lccn) && (! $oclc))
+			return false;
+		
 		$url = 'https://www.googleapis.com/books/v1/volumes';
-		$params = array ('q' => 'lccn:'.str_replace("-", "", $lccn));
+		
+		if ($isbn)
+			$params = array ('q' => 'isbn:'.str_replace("-", "", $isbn));
+			
+		if ($lccn)
+			$params = array ('q' => 'lccn:'.str_replace("-", "", $lccn));
+				
+		if ($oclc)
+			$params = array ('q' => 'oclc:'.str_replace("-", "", $oclc));
+		
 		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
-	
-		return $dataArray;
+		
+		$link = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'];
+		
+		if (! isset($link) || empty($link))
+			return null;
+		
+		return $link;
 	}
 	
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getGoogleBooksItemAsArrayByOCLC($oclc)
+	public function getZboziLink()
 	{
-		$url = 'https://www.googleapis.com/books/v1/volumes';
-		$params = array ('q' => 'oclc:'.str_replace("-", "", $oclc));
-		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
-	
-		return $dataArray;
-	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getZboziLinkByISBN($isbn)
-	{
+		$isbn = $this->recordDriver->getISBNs();
+		if (! isset($isbn[0]))
+			return false;
+		
 		$url = 'http://www.zbozi.cz/api/v1/search';
-		$params = array ('groupByCategory' => 1,
-						'loadTopProducts' => 'true',
-						'page' => 1,
-						'query' => str_replace("-", "", $isbn),
+		$params = array (
+				'groupByCategory' => 1,
+				'loadTopProducts' => 'true',
+				'page' => 1,
+				'query' => str_replace("-", "", $isbn[0]),
 		);
 		
 		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
 		
 		$link = '';
 		if (isset($dataArray['status']) && $dataArray['status'] === 200)
-			$link = 'http://www.zbozi.cz/vyrobek/'.$dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName'].'/';
+			if (isset($dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName']) && $dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName'] !== '')
+				$link = 'http://www.zbozi.cz/vyrobek/'.$dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName'].'/';
 
 		return $link;
 	}

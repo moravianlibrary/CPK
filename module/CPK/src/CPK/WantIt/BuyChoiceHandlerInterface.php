@@ -34,38 +34,16 @@ namespace CPK\WantIt;
 interface BuyChoiceHandlerInterface
 {
 	/**
-	 * Returns GoogleBooks item as array
-	 *
-	 * @param	string	$isbn
+	 * Returns GoogleBooks volume link
 	 *
 	 * @return	array
 	 */
-	public function getGoogleBooksItemAsArrayByISBN($isbn);
-	
-	/**
-	 * Returns GoogleBooks item as array
-	 *
-	 * @param	string	$isbn
-	 *
-	 * @return	array
-	 */
-	public function getGoogleBooksItemAsArrayByOCLC($oclc);
-	
-	/**
-	 * Returns GoogleBooks item as array
-	 *
-	 * @param	string	$isbn
-	 *
-	 * @return	array
-	 */
-	public function getGoogleBooksItemAsArrayByLCCN($lccn);
+	public function getGoogleBooksVolumeLink();
 	
 	/**
 	 * Returns Zbozi.cz item link by ISBN
 	 *
-	 * @param	string	$isbn
-	 *
 	 * @return	array
 	 */
-	public function getZboziLinkByISBN($isbn);
+	public function getZboziLink();
 }

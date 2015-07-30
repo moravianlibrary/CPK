@@ -109,30 +109,18 @@ class RecordController extends RecordControllerBase
 		$view->activeTab = strtolower($tab);
 		$view->defaultTab = strtolower($this->getDefaultTab());
 		
-		$buyChoiceHandler = $this->getServiceLocator()->get('WantIt\BuyChoiceHandler');
-		$isbn = $this->driver->getISBNs();
-		$lccn = $this->driver->getLCCN();
-		$oclc = $this->driver->getCleanOCLCNum();
+		// Wantit Buy choice
+		$buyChoiceHandlerFactory = $this->getServiceLocator()->get('WantIt\Factory');
+		$buyChoiceHandler = $buyChoiceHandlerFactory->createBuyChoiceHandlerObject($this->driver);
 		
-		if (isset($isbn[0])) {
-			$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArrayByISBN($isbn[0]);
-		} elseif ($lccn) {
-			$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArrayByLCCN($lccn);
-		} elseif ($oclc) {
-			$gBooks = $buyChoiceHandler->getGoogleBooksItemAsArrayByOCLC($oclc);
-		} else {
-			$gBooks = null;
-		}
+		$gBooks = $buyChoiceHandler->getGoogleBooksVolumeLink();
+		$zboziLink = $buyChoiceHandler->getZboziLink();
 		
-		if ($gBooks) {
-			$gBooksLink = $gBooks['items'][0]['volumeInfo']['canonicalVolumeLink'];
-			$view->gBooksLink = $gBooksLink;
-		}
+		if ($gBooks)
+			$view->gBooksLink = $gBooks;
 		
-		if (isset($isbn[0])) {
-			$zboziLink = $buyChoiceHandler->getZboziLinkByISBN($isbn[0]);
+		if ($zboziLink)
 			$view->zboziLink = $zboziLink;
-		}
 	
 		// Set up next/previous record links (if appropriate)
 		if ($this->resultScrollerActive()) {
@@ -155,11 +143,10 @@ class RecordController extends RecordControllerBase
 	 */
 	public function callSfxJib($institute = 'ANY')
 	{
-		$openUrl = $this->driver->getOpenURL();
+		$electronicChoiceHandlerFactory = $this->getServiceLocator()->get('WantIt\Factory');
+		$electronicChoiceHandler = $electronicChoiceHandlerFactory->createElectronicChoiceHandlerObject($this->driver);
 		
-		$electronicChoiceHandler = new \CPK\WantIt\ElectronicChoiceHandler();
-		
-		$jibArrayResult = $electronicChoiceHandler->downloadSfxJibResult($openUrl, $institute);
+		$jibArrayResult = $electronicChoiceHandler->downloadSfxJibResult($institute);
 		
 		return $jibArrayResult;
 	}
