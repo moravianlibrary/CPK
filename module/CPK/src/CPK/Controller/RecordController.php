@@ -116,20 +116,33 @@ class RecordController extends RecordControllerBase
 		$gBooks = $buyChoiceHandler->getGoogleBooksVolumeLink();
 		$zboziLink = $buyChoiceHandler->getZboziLink();
 		
-		if ($gBooks)
-			$view->gBooksLink = $gBooks;
+		$buyChoiceLinksCount = 0;
 		
-		if ($zboziLink)
+		if ($gBooks) {
+			$view->gBooksLink = $gBooks;
+			++$buyChoiceLinksCount;
+		}
+		
+		if ($zboziLink) {
 			$view->zboziLink = $zboziLink;
-	
+			++$buyChoiceLinksCount;
+		}
+		
+		if ($antikvariatyLink) {
+			$view->antikvariatyLink = $antikvariatyLink;
+			++$buyChoiceLinksCount;
+		}
+		$view->buyChoiceLinksCount = $buyChoiceLinksCount;
+		
+		// WantIt electronic choice
+		$jibOutput = $this->callSfxJib();
+		$view->jib = $jibOutput;
+		
 		// Set up next/previous record links (if appropriate)
 		if ($this->resultScrollerActive()) {
 			$driver = $this->loadRecord();
 			$view->scrollData = $this->resultScroller()->getScrollData($driver);
 		}
-		
-		$jibOutput = $this->callSfxJib();
-		$view->jib = $jibOutput;
 	
 		$view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 		return $view;
