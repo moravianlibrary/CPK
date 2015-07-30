@@ -110,8 +110,8 @@ class RecordController extends RecordControllerBase
 		$view->defaultTab = strtolower($this->getDefaultTab());
 		
 		// Wantit Buy choice
-		$buyChoiceHandlerFactory = $this->getServiceLocator()->get('WantIt\Factory');
-		$buyChoiceHandler = $buyChoiceHandlerFactory->createBuyChoiceHandlerObject($this->driver);
+		$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+		$buyChoiceHandler = $wantItFactory->createBuyChoiceHandlerObject($this->driver);
 		
 		$gBooks = $buyChoiceHandler->getGoogleBooksVolumeLink();
 		$zboziLink = $buyChoiceHandler->getZboziLink();
@@ -143,8 +143,8 @@ class RecordController extends RecordControllerBase
 	 */
 	public function callSfxJib($institute = 'ANY')
 	{
-		$electronicChoiceHandlerFactory = $this->getServiceLocator()->get('WantIt\Factory');
-		$electronicChoiceHandler = $electronicChoiceHandlerFactory->createElectronicChoiceHandlerObject($this->driver);
+		$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+		$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($this->driver);
 		
 		$jibArrayResult = $electronicChoiceHandler->downloadSfxJibResult($institute);
 		
