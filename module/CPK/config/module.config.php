@@ -74,6 +74,7 @@ $config = array(
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
+        	'ajax'       => 'CPK\Controller\AjaxController',
         ), /* invokables */
     ), /* controllers */
     'service_manager' => array(

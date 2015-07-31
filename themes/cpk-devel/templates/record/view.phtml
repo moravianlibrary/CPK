@@ -141,7 +141,33 @@
 		  	$recordSource = explode(".", $recordID)[0];
 		  ?>
 		  <script>
+
+			var buyLinks;
+		  
+		  	function getBuyLinks() {
+				var recordID = '<?= $this->driver->getUniqueID() ?>';
+				var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
+
+				$.ajax({
+					dataType: 'json',
+					url: '/AJAX/JSON?method=getBuyLinks',
+					data: { recordID: recordID, parentRecordID: parentRecordID },
+					success: function( response ) {
+						if( response.status == 'OK' ) {
+							buyLinks = response;
+							if ( buyLinks.data[0]['buyLinksCount'] === 0 )
+								$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+						} else {
+							// display the error message on each of the ajax status place holder
+							$( "#ajax-error-info" ).empty().append( response.data );
+						}
+					}
+				});
+			}
+		  
 			jQuery( document ).ready( function( $ ) {
+
+				getBuyLinks();
 				
 				var source = "<?= $recordSource ?>";
 				var recordID = "<?= $recordID ?>";

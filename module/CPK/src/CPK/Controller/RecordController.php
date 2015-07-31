@@ -93,40 +93,6 @@ class RecordController extends RecordControllerBase
 		$view->activeTab = strtolower($tab);
 		$view->defaultTab = strtolower($this->getDefaultTab());
 		
-		// Wantit Buy choice
-		// Antikvariaty
-		$parentRecordID = $this->driver->getParentRecordID();
-		
-		$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-			
-		$recordDriver = $recordLoader->load($parentRecordID);
-		$antikvariatyLink = $recordDriver->getAntikvariatyLink();
-		
-		// GoogleBooks & Zbozi.cz
-		$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-		$buyChoiceHandler = $wantItFactory->createBuyChoiceHandlerObject($this->driver);
-		
-		$gBooks = $buyChoiceHandler->getGoogleBooksVolumeLink();
-		$zboziLink = $buyChoiceHandler->getZboziLink();
-		
-		$buyChoiceLinksCount = 0;
-		
-		if ($gBooks) {
-			$view->gBooksLink = $gBooks;
-			++$buyChoiceLinksCount;
-		}
-		
-		if ($zboziLink) {
-			$view->zboziLink = $zboziLink;
-			++$buyChoiceLinksCount;
-		}
-		
-		if ($antikvariatyLink) {
-			$view->antikvariatyLink = $antikvariatyLink;
-			++$buyChoiceLinksCount;
-		}
-		$view->buyChoiceLinksCount = $buyChoiceLinksCount;
-		
 		// WantIt electronic choice
 		$jibOutput = $this->callSfxJib();
 		$view->jib = $jibOutput;
