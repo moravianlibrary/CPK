@@ -55,7 +55,7 @@ class ElectronicChoiceHandler extends AbstractHttpClient implements ElectronicCh
 		$url = 'http://sfx.jib.cz/sfxlcl3';
 		
 		$additionalParams = array();
-		parse_str($openUrl, $additionalParams);
+		parse_str($this->recordDriver->getOpenURL(), $additionalParams);
 		
 		$params = array (
 				'sfx.institute' => $this->recordDriver->getOpenURL(),
