@@ -86,7 +86,7 @@ abstract class AbstractHttpClient
 			'adapter'     => '\Zend\Http\Client\Adapter\Curl',
 			'curloptions' => array(
 				CURLOPT_FOLLOWLOCATION 	=> true,
-				CURLOPT_REFERER			=> $this->defaultStatisticsUrl,
+				//CURLOPT_REFERER			=> '',
 				CURLOPT_USERAGENT		=> "Mozilla/5.0",
 				CURLOPT_HEADER			=> 0,
 				CURLOPT_RETURNTRANSFER	=> true,
