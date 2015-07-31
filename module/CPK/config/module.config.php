@@ -86,17 +86,12 @@ $config = array(
     		'wantitfactory' => 'CPK\WantIt\Factory',
     	),
     ),
-	'view_manager' => array(
-	    'strategies' => array(
-	        'ViewJsonStrategy',
-	    ),
-	),
 );
 
 $staticRoutes = array(
     'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
     'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/',
-    'MyResearch/UserConnect', 'Record/getMarc996ArrayViaAjax'
+    'MyResearch/UserConnect'
 );
 
 foreach ($staticRoutes as $route) {

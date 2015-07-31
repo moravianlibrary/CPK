@@ -92,5 +92,32 @@ class AjaxController extends AjaxControllerBase
         // Done
         return $this->output($vars, self::STATUS_OK);
     }
-
+    
+    /**
+     * Returns subfileds of MARC 996 field for specific recordID
+     *
+     * @param	string	$_POST['record']
+     * @param	string	$_POST['field']
+     * @param	string	$_POST['subfields'] Comma-separated subfileds
+     *
+     * @return	array	$subfieldsValues	space-separated subfields values
+     */
+    public function getMarc996ArrayAjax()
+    {
+    	$recordID = $this->params()->fromQuery('recordID');
+    	$field = $this->params()->fromQuery('field');
+    	$subfieldsArray = explode(",", $this->params()->fromQuery('subfields'));
+    
+    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+    		
+    	$recordDriver = $recordLoader->load($recordID);
+    	$arr = $recordDriver->get996($subfieldsArray);
+    
+    	$vars[] = array(
+    		'arr' => $arr,
+    	);
+    	
+    	// Done
+    	return $this->output($vars, self::STATUS_OK);
+    }
 }

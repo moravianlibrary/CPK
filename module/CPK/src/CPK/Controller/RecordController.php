@@ -25,8 +25,6 @@
 namespace CPK\Controller;
 
 use VuFind\Controller\RecordController as RecordControllerBase;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
 use VuFind\XSLT\Import\VuFind;
 
 /**
@@ -37,34 +35,6 @@ use VuFind\XSLT\Import\VuFind;
  */
 class RecordController extends RecordControllerBase
 {
-    
-    /**
-     * Returns subfileds of MARC 996 field for specific recordID
-     *
-     * @param	string	$_POST['record']
-     * @param	string	$_POST['field']
-     * @param	string	$_POST['subfields'] Comma-separated subfileds
-     * 
-     * @return	array	$subfieldsValues	space-separated subfields values
-     */
-	public function getMarc996ArrayViaAjaxAction()
-	{
-		$recordID = $this->params()->fromPost('recordID');
-		$field = $this->params()->fromPost('field');
-		$subfieldsArray = explode(",", $this->params()->fromPost('subfields'));
-		
-		$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-			
-		$recordDriver = $recordLoader->load($recordID);
-		$arr = $recordDriver->get996($subfieldsArray);
-		
-		$result = new JsonModel(array(
-			'arr' => $arr,
-		));
-	
-		return $result;
-	}
-	
 	/**
 	 * Display a particular tab.
 	 *

@@ -245,17 +245,15 @@
 					var optionsHTML = "";
 					
 					$.ajax({
-						url: 		"getMarc996ArrayViaAjax",
-						method: 	"POST",
 						dataType: 	"json",
-						async: false,
+						url: '/AJAX/JSON?method=getMarc996Array',
 						data: { recordID: record, 
 								field: '996', 
 								subfields: "l,r" 
 						}
-					}).done( function( msg ) {
+					}).success( function( msg ) {
 
-						var arr996 = (msg.arr[0] !== undefined) ? msg.arr[0] : '<?= $this->translate('record') ?>'+' '+record;
+						var arr996 = (msg.data[0].arr[0] !== undefined) ? msg.data[0].arr[0] : '<?= $this->translate('record') ?>'+' '+record;
 						
 						var link = '/Record/'+record;
 						optionsHTML += "<li><a href='"+link+"'>"+arr996+"</a></li>"; 
