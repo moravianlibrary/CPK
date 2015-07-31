@@ -120,4 +120,33 @@ class AjaxController extends AjaxControllerBase
     	// Done
     	return $this->output($vars, self::STATUS_OK);
     }
+    
+    /**
+     * Downloads SFX JIB content for current record.
+     * @param	string	$institute	Institute shortcut
+     *
+     * @return	array
+     */
+    public function callSfxJibAjax()
+    {
+    	$institute = $this->params()->fromQuery('institute');
+    	if (! $institute)
+    		$institute = 'ANY';
+    	
+    	$recordID = $this->params()->fromQuery('recordID');
+    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+    	$recordDriver = $recordLoader->load($recordID);
+    	
+    	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+    	$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+    
+    	$jibArrayResult = $electronicChoiceHandler->downloadSfxJibResult($institute);
+    
+    	$vars[] = array(
+    		'jib' => $jibArrayResult,
+    	);
+    	 
+    	// Done
+    	return $this->output($vars, self::STATUS_OK);
+    }
 }

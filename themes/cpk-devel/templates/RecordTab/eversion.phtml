@@ -1,12 +1,19 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('E-version') . ': ' . $this->driver->getBreadcrumb());
-  
-  if ($this->jib) {
-	echo '<pre>';
-  	print_r($this->jib);
-  	echo '</pre>';
-  } else {
-  	echo '<p>placeholder for e-version</p>';	
-  }
 ?>
+<div id='sfx-jib-ajax-result'></div>
+
+<script>
+	jQuery( document ).ready( function( $ ) {
+
+		if ( typeof sfxJibResult == "undefined" )
+			getSfxJibResult(); /* @FIXME	When page with tabs is reloaded
+			 this script does not see this function declared in view.phtml so sfxJibResult is still undefined */
+		
+		if ( sfxJibResult.data[0]['jib'] !== '' ) {
+			$( "#sfx-jib-ajax-result" ).html( '<pre>' + JSON.stringify(sfxJibResult.data[0]['jib']) + '</pre>' );
+		}
+		
+	});
+</script>

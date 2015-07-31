@@ -141,9 +141,6 @@
 		  	$recordSource = explode(".", $recordID)[0];
 		  ?>
 		  <script>
-
-			var buyLinks;
-		  
 		  	function getBuyLinks() {
 				var recordID = '<?= $this->driver->getUniqueID() ?>';
 				var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
@@ -164,10 +161,32 @@
 					}
 				});
 			}
+
+		  	function getSfxJibResult(institute) {
+				var recordID = '<?= $this->driver->getUniqueID() ?>';
+				var institute = typeof institute !== 'undefined' ? institute : 'ANY';
+				$.ajax({
+					dataType: 'json',
+					url: '/AJAX/JSON?method=callSfxJib',
+					data: { recordID: recordID, institute: institute },
+					success: function( response ) {
+						if( response.status == 'OK' ) {
+							sfxJibResult = response;
+						} else {
+							// display the error message on each of the ajax status place holder
+							$( "#ajax-error-info" ).empty().append( response.data );
+						}
+					}
+				});
+			}
 		  
 			jQuery( document ).ready( function( $ ) {
 
+				var buyLinks;
 				getBuyLinks();
+
+				var sfxJibResult;
+				getSfxJibResult();
 				
 				var source = "<?= $recordSource ?>";
 				var recordID = "<?= $recordID ?>";
