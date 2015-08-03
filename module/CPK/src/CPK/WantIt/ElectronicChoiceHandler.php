@@ -46,5 +46,17 @@ class ElectronicChoiceHandler extends AbstractHttpClient implements ElectronicCh
 	{
 		$this->recordDriver = $recordDriver;
 	}
+	
+	/**
+	 * Detects if url is found and not forbidden
+	 * 
+	 * @param	string	$url
+	 * 
+	 * @return	boolean
+	 */
+	public function isAccessible($url)
+	{
+		return (get_headers($url)[0] === 'HTTP/1.1 200 OK');
+	}
 }
 	
