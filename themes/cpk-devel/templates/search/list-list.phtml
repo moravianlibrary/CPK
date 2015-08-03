@@ -3,7 +3,7 @@
   || (isset($this->showBulkOptions) && $this->showBulkOptions); ?>
 <? $i = $this->indexStart; foreach ($this->results->getResults() as $current):
   $recordNumber = $this->results->getStartRecord()+$i-$this->indexStart; ?>
-  <div id="result<?=$i++ ?>" class="row result clearfix well">
+  <div id="result<?=$i++ ?>" class="row result clearfix">
     <?=$this->record($current)->getSearchResult('list')?>
   </div>
 <? endforeach; ?>
