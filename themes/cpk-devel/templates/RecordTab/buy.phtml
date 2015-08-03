@@ -20,9 +20,14 @@
 <script>
 	jQuery( document ).ready( function( $ ) {
 
-		if ( typeof buyLinks == "undefined" )
-			getBuyLinks(); /* @FIXME	When page with tabs is reloaded
-			 this script does not see this function declared in view.phtml so buyLinks is still undefined */
+		if ( typeof buyLinks == "undefined" ) {
+
+			var recordID = '<?= $this->driver->getUniqueID() ?>';
+			var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
+			
+			getBuyLinks( recordID, parentRecordID );
+			 
+		}
 		
 		if ( buyLinks.data[0]['gBooksLink'] !== '' ) {
 			$( "#google-books-link" ).removeClass( 'hidden' );

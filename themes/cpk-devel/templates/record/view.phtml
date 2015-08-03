@@ -141,10 +141,7 @@
 		  	$recordSource = explode(".", $recordID)[0];
 		  ?>
 		  <script>
-		  	function getBuyLinks() {
-				var recordID = '<?= $this->driver->getUniqueID() ?>';
-				var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
-
+		  	function getBuyLinks( recordID, parentRecordID ) {
 				$.ajax({
 					dataType: 'json',
 					url: '/AJAX/JSON?method=getBuyLinks',
@@ -161,32 +158,32 @@
 					}
 				});
 			}
-
-		  	function getSfxJibResult(institute) {
-				var recordID = '<?= $this->driver->getUniqueID() ?>';
+		  	
+		  	function getSfxJibResult( sfxUrl, recordID, institute ) {
 				var institute = typeof institute !== 'undefined' ? institute : 'ANY';
-				$.ajax({
+				var ajaxResponse = $.ajax({
 					dataType: 'json',
-					url: '/AJAX/JSON?method=callSfxJib',
-					data: { recordID: recordID, institute: institute },
+					url: '/AJAX/JSON?method=callSfx',
+					data: { recordID: recordID, institute: institute, sfxUrl: sfxUrl },
 					success: function( response ) {
-						if( response.status == 'OK' ) {
-							sfxJibResult = response;
-						} else {
+						if( response.status !== 'OK' ) {
 							// display the error message on each of the ajax status place holder
 							$( "#ajax-error-info" ).empty().append( response.data );
 						}
 					}
 				});
+				return ajaxResponse.responseJSON;
 			}
 		  
 			jQuery( document ).ready( function( $ ) {
 
-				var buyLinks;
-				getBuyLinks();
+				var recordID = '<?= $this->driver->getUniqueID() ?>';
+				var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
 
-				var sfxJibResult;
-				getSfxJibResult();
+				var buyLinks;
+				getBuyLinks( recordID, parentRecordID );
+
+				var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
 				
 				var source = "<?= $recordSource ?>";
 				var recordID = "<?= $recordID ?>";
