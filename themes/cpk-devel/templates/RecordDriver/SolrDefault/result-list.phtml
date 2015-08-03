@@ -110,9 +110,7 @@
         <? endif; ?>
       <? endif; ?>
 	
-	<button class="btn btn-primary chci-to pull-right">CHCI TO!</button>
-
-      <?
+	  <?
       /* Display information on duplicate records if available */
       $dedupData = $this->driver->getDedupData();
       if ($dedupData): ?>	
@@ -247,5 +245,13 @@
 
       <?=$openUrl?'<span class="Z3988" title="'.$this->escapeHtmlAttr($openUrl).'"></span>':''?>
     </div>
+  </div>
+  <div class="row want-it">
+      <div class="col-sm-4 col-sm-offset-2 library">Z knihovny</div>
+      <div class="col-sm-2 e-version">E-verze</div>
+      <div class="col-sm-2 buy">Koupit</div>
+      <div class="col-sm-2 favourites">Oblíbené</div>
+
+
   </div>
 </div>
