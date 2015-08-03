@@ -140,53 +140,24 @@
 		  	$recordID = $this->driver->getUniqueId();
 		  	$recordSource = explode(".", $recordID)[0];
 		  ?>
+		  
+		  <script src="/themes/cpk-devel/js/record.js"></script>
 		  <script>
-		  	function getBuyLinks( recordID, parentRecordID ) {
-				$.ajax({
-					dataType: 'json',
-					url: '/AJAX/JSON?method=getBuyLinks',
-					data: { recordID: recordID, parentRecordID: parentRecordID },
-					success: function( response ) {
-						if( response.status == 'OK' ) {
-							buyLinks = response;
-							if ( buyLinks.data[0]['buyLinksCount'] === 0 )
-								$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-						} else {
-							// display the error message on each of the ajax status place holder
-							$( "#ajax-error-info" ).empty().append( response.data );
-						}
-					}
-				});
-			}
 		  	
-		  	function getSfxJibResult( sfxUrl, recordID, institute ) {
-				var institute = typeof institute !== 'undefined' ? institute : 'ANY';
-				var ajaxResponse = $.ajax({
-					dataType: 'json',
-					url: '/AJAX/JSON?method=callSfx',
-					data: { recordID: recordID, institute: institute, sfxUrl: sfxUrl },
-					success: function( response ) {
-						if( response.status !== 'OK' ) {
-							// display the error message on each of the ajax status place holder
-							$( "#ajax-error-info" ).empty().append( response.data );
-						}
-					}
-				});
-				return ajaxResponse.responseJSON;
-			}
 		  
 			jQuery( document ).ready( function( $ ) {
 
 				var recordID = '<?= $this->driver->getUniqueID() ?>';
 				var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
 
-				var buyLinks;
-				getBuyLinks( recordID, parentRecordID );
+				var buyLinks = getBuyLinks( recordID, parentRecordID );
+
+				if ( buyLinks.data[0]['buyLinksCount'] === 0 )
+					$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
 
 				var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
 				
 				var source = "<?= $recordSource ?>";
-				var recordID = "<?= $recordID ?>";
 
 				// select default record group
 				$( '#record-group li a' ).each( function() {

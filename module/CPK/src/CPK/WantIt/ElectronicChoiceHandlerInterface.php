@@ -33,12 +33,5 @@ namespace CPK\WantIt;
  */
 interface ElectronicChoiceHandlerInterface
 {
-	/**
-	 * Download SFX JIB result
-	 *
-	 * @param	string	$institute	Institute shortcut
-	 *
-	 * @return	array
-	 */
-	public function downloadSfxJibResult($institute = 'ANY');
+
 }

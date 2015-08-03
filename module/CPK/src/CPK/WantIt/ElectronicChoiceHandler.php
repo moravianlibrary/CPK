@@ -46,29 +46,5 @@ class ElectronicChoiceHandler extends AbstractHttpClient implements ElectronicCh
 	{
 		$this->recordDriver = $recordDriver;
 	}
-	
-	/**
-	 * {@inheritdoc}
-	 */
-	public function downloadSfxJibResult($institute = 'ANY')
-	{
-		$url = 'http://sfx.jib.cz/sfxlcl3';
-		
-		$additionalParams = array();
-		parse_str($this->recordDriver->getOpenURL(), $additionalParams);
-		
-		$params = array (
-				'sfx.institute' => $this->recordDriver->getOpenURL(),
-				'ctx_ver' => 'Z39.88-2004',
-				'ctx_enc' => 'info:ofi/enc:UTF-8',
-				'sfx.response_type' => 'simplexml'
-		);
-		
-		$allparams = array_merge($params, $additionalParams);
-		
-		$dataArray = $this->getRequestDataResponseAsArray($url, $allparams);
-		
-		return $dataArray;
-	}
 }
 	

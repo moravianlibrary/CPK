@@ -127,7 +127,7 @@ class AjaxController extends AjaxControllerBase
      *
      * @return	array
      */
-    public function callSfxJibAjax()
+    public function callSfxAjax()
     {
     	$institute = $this->params()->fromQuery('institute');
     	if (! $institute)
@@ -136,14 +136,28 @@ class AjaxController extends AjaxControllerBase
     	$recordID = $this->params()->fromQuery('recordID');
     	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
     	$recordDriver = $recordLoader->load($recordID);
+    
+    	$url = $this->params()->fromQuery('sfxUrl');
+    	
+    	$additionalParams = array();
+    	parse_str($recordDriver->getOpenURL(), $additionalParams);
+    	
+    	$params = array (
+    			'sfx.institute' => $institute,
+    			'ctx_ver' => 'Z39.88-2004',
+    			'ctx_enc' => 'info:ofi/enc:UTF-8',
+    			'sfx.response_type' => 'simplexml'
+    	);
+    	
+    	$allParams = array_merge($params, $additionalParams);
     	
     	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
     	$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
-    
-    	$jibArrayResult = $electronicChoiceHandler->downloadSfxJibResult($institute);
+    	
+    	$sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
     
     	$vars[] = array(
-    		'jib' => $jibArrayResult,
+    		'sfxResult' => $sfxResult,
     	);
     	 
     	// Done

@@ -51,7 +51,7 @@ abstract class AbstractHttpClient
 	 *
 	 * @return	string
 	 */
-	protected function buildQuery($url, array $params)
+	public function buildQuery($url, array $params)
 	{
 		$query = http_build_query($params);
 		$url   = $url.'?'.$query;
@@ -75,7 +75,7 @@ abstract class AbstractHttpClient
 	 * @throws	\Exception when content is not JSON neither XML
 	 * @return	array
 	 */
-	protected function getRequestDataResponseAsArray($url, array $params)
+	public function getRequestDataResponseAsArray($url, array $params)
 	{
 		$url = $this->buildQuery($url, $params);
 	
