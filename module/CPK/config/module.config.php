@@ -68,6 +68,7 @@ $config = array(
     ), /* vufind */
     'controllers' => array(
     	'factories' => array(
+    		'record' => 'CPK\Controller\Factory::getRecordController',
     	),
         'invokables' => array(
             'my-research' => 'CPK\Controller\MyResearchController',
