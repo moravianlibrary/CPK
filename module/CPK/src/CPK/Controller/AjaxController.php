@@ -163,4 +163,84 @@ class AjaxController extends AjaxControllerBase
     	// Done
     	return $this->output($vars, self::STATUS_OK);
     }
+    
+    /**
+     * Downloads SerialSoulution360link content for current record.
+     * @param	string	$institute	Institute shortcut
+     *
+     * @return	array
+     */
+    public function callSerialSoulution360link()
+    {
+    	$institute = $this->params()->fromQuery('institute');
+    	if (! $institute)
+    		$institute = 'ANY';
+    	 
+    	$recordID = $this->params()->fromQuery('recordID');
+    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+    	$recordDriver = $recordLoader->load($recordID);
+    
+    	$url = $this->params()->fromQuery('sfxUrl');
+    	 
+    	$additionalParams = array();
+    	parse_str($recordDriver->getOpenURL(), $additionalParams);
+    	 
+    	$params = array (
+    			
+    	);
+    	 
+    	$allParams = array_merge($params, $additionalParams);
+    	 
+    	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+    	$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+    	 
+    	$ss360linkResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+    
+    	$vars[] = array(
+    		'ss360link' => $ss360linkResult,
+    	);
+    
+    	// Done
+    	return $this->output($vars, self::STATUS_OK);
+    }
+    
+    /**
+     * Downloads EbscoLinksource content for current record.
+     * @param	string	$institute	Institute shortcut
+     *
+     * @return	array
+     */
+    public function callEbscoLinksource()
+    {
+    	$institute = $this->params()->fromQuery('institute');
+    	if (! $institute)
+    		$institute = 'ANY';
+    
+    	$recordID = $this->params()->fromQuery('recordID');
+    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+    	$recordDriver = $recordLoader->load($recordID);
+    
+    	$url = $this->params()->fromQuery('sfxUrl');
+    
+    	$additionalParams = array();
+    	parse_str($recordDriver->getOpenURL(), $additionalParams);
+    
+    	$params = array (
+    			 
+    	);
+    
+    	$allParams = array_merge($params, $additionalParams);
+    
+    	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+    	$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+    
+    	$ebscoLinksourceResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+    
+    	$vars[] = array(
+    		'ebscoLinksource' => $ebscoLinksourceResult,
+    	);
+    
+    	// Done
+    	return $this->output($vars, self::STATUS_OK);
+    }
 }
