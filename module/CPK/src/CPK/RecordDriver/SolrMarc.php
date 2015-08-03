@@ -33,6 +33,11 @@ class SolrMarc extends ParentSolrMarc
     {
         return isset($this->fields['external_links_str_mv'][0]) ? $this->fields['external_links_str_mv'][0] : false;
     }
+    
+    public function get856Links()
+    {
+    	return isset($this->fields['links_from_856_str']) ? $this->fields['links_from_856_str'][0] : false;
+    }
 
     /**
      * Get comments on obalkyknih.cz associated with this record.
