@@ -74,6 +74,84 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    /**
+     * Send list of holds to view
+     *
+     * @return mixed
+     */
+    public function holdsAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        $user = $this->getAuthManager()->isLoggedIn();
+
+        $identities = $user->getLibraryCards();
+
+        $viewVars = $libraryIdentities = [];
+
+        foreach ($identities as $identity) {
+
+            $patron = $this->parsePatronFromIdentity($identity);
+            // Start of VuFind/MyResearch/holdsAction
+
+            // Connect to the ILS:
+            $catalog = $this->getILS();
+
+            // Process cancel requests if necessary:
+            $cancelStatus = $catalog->checkFunction('cancelHolds', compact('patron'));
+            $currentIdentityView = $this->createViewModel();
+            $currentIdentityView->cancelResults = $cancelStatus ? $this->holds()->cancelHolds($catalog, $patron) : [];
+            // If we need to confirm
+            if (! is_array($currentIdentityView->cancelResults)) {
+                return $currentIdentityView->cancelResults;
+            }
+
+            // By default, assume we will not need to display a cancel form:
+            $currentIdentityView->cancelForm = false;
+
+            // Get held item details:
+            $result = $catalog->getMyHolds($patron);
+            $recordList = [];
+            $this->holds()->resetValidation();
+            foreach ($result as $current) {
+                // Add cancel details if appropriate:
+                $current = $this->holds()->addCancelDetails($catalog, $current, $cancelStatus);
+                if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink" && isset($current['cancel_details'])) {
+                    // Enable cancel form if necessary:
+                    $currentIdentityView->cancelForm = true;
+                }
+
+                // Build record driver:
+                $recordList[] = $this->getDriverForILSRecord($current);
+            }
+
+            // Get List of PickUp Libraries based on patron's home library
+            try {
+                $currentIdentityView->pickup = $catalog->getPickUpLocations($patron);
+            } catch (\Exception $e) {
+                // Do nothing; if we're unable to load information about pickup
+                // locations, they are not supported and we should ignore them.
+            }
+            $currentIdentityView->recordList = $recordList;
+            // End of VuFind/MyResearch/holdsAction
+
+            // Start of MZKCommon/MyResearch/holdsAction
+            $currentIdentityView = $this->addViews($currentIdentityView);
+            // End of MZKCommon/MyResearch/holdsAction
+
+            $libraryIdentities[$identity['eppn']] = $currentIdentityView;
+        }
+
+        $viewVars['libraryIdentities'] = $libraryIdentities;
+        $viewVars['logos'] = $user->getIdentityProvidersLogos();
+        $view = $this->createViewModel($viewVars);
+        $this->flashExceptions();
+        return $view;
+    }
+
     public function checkedoutAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
