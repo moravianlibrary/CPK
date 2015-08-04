@@ -45,30 +45,6 @@ HKA001		= "http://aleph2.svkhk.cz/F?func=direct&doc_number="
 ABA013		= "http://aleph.techlib.cz/F?func=direct&doc_number="
 ABA008		= "http://www.medvik.cz/medvik/title_detail.do?id="
 
-[Perun]
-validateConfig          = 1
-
-virtualOrganization	= cpk
-
-# URL of Perun's registrar to use
-registrar               = "https://perun.cesnet.cz/fed/registrar"
-
-# Perun's /Login SP endpoint
-loginEndpoint           = "https://perun.cesnet.cz/Shibboleth.sso/Login"
-
-# URL of Perun's Kerberos RPC to use
-kerberosRpc             = https://perun.cesnet.cz/krb/rpc/
-
-# JSON definition of attribute to save LibraryCards into
-attrDefFilename         = userLibraryIdsDefinition.json
-
-# Service user to use Perun's API (must have rights to read VO members & write to attributeId)
-voManagerLogin          = USER_HERE
-voManagerPassword       = PASS_HERE
-
-# Setting "cantContactPerun" to true will skip Perun's operations & will create Dummy library cards
-cantContactPerun	= 1
-
 [Piwik]
 url     = "https://cpk-front.mzk.cz/piwik"
 site_id = 1

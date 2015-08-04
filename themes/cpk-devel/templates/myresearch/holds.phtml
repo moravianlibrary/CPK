@@ -11,19 +11,16 @@
     <h2><?=$this->transEsc('Your Holds and Recalls') ?></h2>
 
     <?=$this->flashmessages()?>
-<? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
+    <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
+        $eppnHostname = split("@", $eppn)[1];
+        if ($logos !== null)
+            $libraryLogo = $logos->$eppnHostname; ?>
 
-    $eppnHostname = split("@", $eppn)[1];
-    if ($logos !== null)
-        $libraryLogo = $logos->$eppnHostname;
-?>
-<h3 class="col-md-9">
-<img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-</h3>
-
-<hr/>
-<hr/>
     <? if (!empty($libraryIdentity->recordList)): ?>
+      <h3 class="col-md-9">
+      <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+      </h3>
+      <hr/><hr/>
       <? if ($libraryIdentity->cancelForm): ?>
         <form name="cancelForm" class="inline" method="post" id="cancelHold">
           <input type="hidden" id="submitType" name="cancelSelected" value="1"/>
