@@ -33,7 +33,7 @@
           <td><?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?></td>
           <td title="<?=$record['cat_username'] ?>"><?=$record['card_name'] ?></td>
           <td>
-          <? /* Do not create a choice for deletion of last card */ if(count($this->libraryCards) !== 1): ?>
+          <? /* Do not create a choice for deletion if this is the only card */ if(count($this->libraryCards) !== 1): ?>
             <div class="btn-group">
               <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('librarycards-deletecard') ?>?cardID=<?=urlencode($record['id'])?>">
                 <i class="fa fa-trash-o"></i> <?=$this->transEsc('Disconnect identity')?>

@@ -74,6 +74,107 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function checkedoutAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        $user = $this->getAuthManager()->isLoggedIn();
+
+        $identities = $user->getLibraryCards();
+
+        $viewVars = $libraryIdentities = [];
+
+        foreach ($identities as $identity) {
+
+            $patron = $this->parsePatronFromIdentity($identity);
+
+            // Start of VuFind/MyResearch/checkedoutAction
+
+            // Connect to the ILS:
+            $catalog = $this->getILS();
+
+            // Get the current renewal status and process renewal form, if necessary:
+            $renewStatus = $catalog->checkFunction('Renewals', compact('patron'));
+            $renewResult = $renewStatus ? $this->renewals()->processRenewals($this->getRequest()
+                ->getPost(), $catalog, $patron) : [];
+
+            // By default, assume we will not need to display a renewal form:
+            $renewForm = false;
+
+            // Get checked out item details:
+            $result = $catalog->getMyTransactions($patron);
+
+            // Get page size:
+            $config = $this->getConfig();
+            $limit = isset($config->Catalog->checked_out_page_size) ? $config->Catalog->checked_out_page_size : 50;
+
+            // Build paginator if needed:
+            if ($limit > 0 && $limit < count($result)) {
+                $adapter = new \Zend\Paginator\Adapter\ArrayAdapter($result);
+                $paginator = new \Zend\Paginator\Paginator($adapter);
+                $paginator->setItemCountPerPage($limit);
+                $paginator->setCurrentPageNumber($this->params()
+                    ->fromQuery('page', 1));
+                $pageStart = $paginator->getAbsoluteItemNumber(1) - 1;
+                $pageEnd = $paginator->getAbsoluteItemNumber($limit) - 1;
+            } else {
+                $paginator = false;
+                $pageStart = 0;
+                $pageEnd = count($result);
+            }
+
+            $transactions = $hiddenTransactions = [];
+            foreach ($result as $i => $current) {
+                // Add renewal details if appropriate:
+                $current = $this->renewals()->addRenewDetails($catalog, $current, $renewStatus);
+                if ($renewStatus && ! isset($current['renew_link']) && $current['renewable']) {
+                    // Enable renewal form if necessary:
+                    $renewForm = true;
+                }
+
+                // Build record driver (only for the current visible page):
+                if ($i >= $pageStart && $i <= $pageEnd) {
+                    $transactions[] = $this->getDriverForILSRecord($current);
+                } else {
+                    $hiddenTransactions[] = $current;
+                }
+            }
+
+            $currentIdentityView = compact('transactions', 'renewForm', 'renewResult', 'paginator', 'hiddenTransactions');
+            // End of VuFind/MyResearch/checkedoutAction
+
+            // Start of MZKCommon/MyResearch/checkedoutAction
+            $showOverdueMessage = false;
+            foreach ($currentIdentityView->transactions as $resource) {
+                $ilsDetails = $resource->getExtraDetail('ils_details');
+                if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue") {
+                    $showOverdueMessage = true;
+                    break;
+                }
+            }
+            if ($showOverdueMessage) {
+                $this->flashMessenger()
+                    ->setNamespace('error')
+                    ->addMessage('overdue_error_message');
+            }
+            $currentIdentityView->history = false;
+            $currentIdentityView = $this->addViews($currentIdentityView);
+            // End of MZKCommon/MyResearch/checkedoutAction
+
+            $libraryIdentities[$identity['eppn']] = $currentIdentityView;
+        }
+
+        $viewVars['libraryIdentities'] = $libraryIdentities;
+        $viewVars['logos'] = $user->getIdentityProvidersLogos();
+        $view = $this->createViewModel($viewVars);
+
+        $this->flashExceptions();
+        return $view;
+    }
+
     public function userConnectAction()
     {
         // This eid serves only to warn user he wants to connect the same instituion account
@@ -113,7 +214,7 @@ class MyResearchController extends MyResearchControllerBase
             if ($user->consolidationSucceeded)
                 $this->processSuccessMessage("Identities were successfully connected");
 
-            // Show user all his connected identities
+                // Show user all his connected identities
             return $this->redirect()->toRoute('librarycards-home');
         }
     }
@@ -138,7 +239,20 @@ class MyResearchController extends MyResearchControllerBase
      *
      * @param string $msg
      */
-    protected function processSuccessMessage($msg) {
-        $this->flashMessenger()->setNamespace('success')->addMessage($msg);
+    protected function processSuccessMessage($msg)
+    {
+        $this->flashMessenger()
+            ->setNamespace('success')
+            ->addMessage($msg);
+    }
+
+    protected function parsePatronFromIdentity($identity)
+    {
+        $patron['cat_username'] = $identity->cat_username;
+        $patron['mail'] = $identity->card_name;
+        $patron['eppn'] = $identity->eppn;
+
+        $patron['id'] = $patron['cat_username'];
+        return $patron;
     }
 }
