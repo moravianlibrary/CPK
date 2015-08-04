@@ -39,6 +39,11 @@ $config = array(
                     'session' => 'VuFind\Db\Table\Session',
                 ],
             ], /* db_table */
+            'ils_driver' => [
+                'invokables' => [
+                    'xcncip2' => 'CPK\ILS\Driver\XCNCIP2',
+                ],
+            ], /* ils_driver */
         ), /* plugin_managers */
 
         // This section controls which tabs are used for which record driver classes.

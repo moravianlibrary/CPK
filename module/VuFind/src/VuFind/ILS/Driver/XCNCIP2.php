@@ -21,50 +21,54 @@
  *
  * @category VuFind2
  * @package  ILS_Drivers
- * @author   Matus Sabik <sabik@mzk.cz>
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 namespace VuFind\ILS\Driver;
-
-use VuFind\Exception\ILS as ILSException;
-use DOMDocument;
-use Zend\XmlRpc\Value\String;
+use VuFind\Exception\ILS as ILSException,
+    VuFind\Config\Locator as ConfigLocator;
 
 /**
  * XC NCIP Toolkit (v2) ILS Driver
  *
  * @category VuFind2
- * @package ILS_Drivers
- * @author Matus Sabik <sabik@mzk.cz>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public
- *          License
- * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
+ * @package  ILS_Drivers
+ * @author   Demian Katz <demian.katz@villanova.edu>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
 {
+    use \VuFindHttp\HttpServiceAwareTrait;
 
     /**
-     * HTTP service
+     * Is this a consortium? Default: false
      *
-     * @var \VuFindHttp\HttpServiceInterface
+     * @var boolean
      */
-    protected $httpService = null;
-
-    protected $requests = null;
+    protected $consortium = false;
 
     /**
-     * Set the HTTP service to be used for HTTP requests.
+     * Agency definitions (consortial) - Array list of consortium members
      *
-     * @param HttpServiceInterface $service
-     *            HTTP service
-     *
-     * @return void
+     * @var array
      */
-    public function setHttpService(\VuFindHttp\HttpServiceInterface $service)
-    {
-        $this->httpService = $service;
-    }
+    protected $agency = [];
+
+    /**
+     * NCIP server URL
+     *
+     * @var string
+     */
+    protected $url;
+
+    /**
+     * Pickup locations
+     *
+     * @var array
+     */
+    protected $pickupLocations = [];
 
     /**
      * Initialize the driver.
@@ -80,440 +84,227 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
         if (empty($this->config)) {
             throw new ILSException('Configuration needs to be set.');
         }
-        $this->requests = new NCIPRequests();
+
+        $this->url = $this->config['Catalog']['url'];
+        if ($this->config['Catalog']['consortium']) {
+            $this->consortium = true;
+            foreach ($this->config['Catalog']['agency'] as $agency) {
+                $this->agency[$agency] = 1;
+            }
+        } else {
+            $this->consortium = false;
+            if (is_array($this->config['Catalog']['agency'])) {
+                $this->agency[$this->config['Catalog']['agency'][0]] = 1;
+            } else {
+                $this->agency[$this->config['Catalog']['agency']] = 1;
+            }
+        }
+
+        $this->loadPickupLocations($this->config['Catalog']['pickupLocationsFile']);
+    }
+
+    /**
+     * Loads pickup location information from configuration file.
+     *
+     * @param string $filename File to load from
+     *
+     * @throws ILSException
+     * @return void
+     */
+    protected function loadPickupLocations($filename)
+    {
+        // Load pickup locations file:
+        $pickupLocationsFile
+            = ConfigLocator::getConfigPath($filename, 'config/vufind');
+        if (!file_exists($pickupLocationsFile)) {
+            throw new ILSException(
+                "Cannot load pickup locations file: {$pickupLocationsFile}."
+            );
+        }
+        if (($handle = fopen($pickupLocationsFile, "r")) !== false) {
+            while (($data = fgetcsv($handle)) !== false) {
+                $this->pickupLocations[$data[0]][] = [
+                    'locationID' => $data[1],
+                    'locationDisplay' => $data[2]
+                ];
+            }
+            fclose($handle);
+        }
     }
 
     /**
      * Send an NCIP request.
      *
-     * @param string $xml
-     *            XML request document
+     * @param string $xml XML request document
      *
-     * @return object SimpleXMLElement parsed from response
+     * @return object     SimpleXMLElement parsed from response
      */
     protected function sendRequest($xml)
     {
-        $xml = str_replace('BOA001.', 'MZK01', $xml); // Conversion BOA to MZK
-
-        // TODO: delete this part - begin
-                                                      // This is only for development purposes.
-        if (! $this->isValidXMLAgainstXSD($xml)) {
-            throw new ILSException('Not valid XML request!');
-        }
-        // delete this part - end
-
         // Make the NCIP request:
         try {
-            $client = $this->httpService->createClient($this->config['Catalog']['url']);
+            $client = $this->httpService->createClient($this->url);
+            // Set timeout value
+            $timeout = isset($this->config['Catalog']['http_timeout'])
+            ? $this->config['Catalog']['http_timeout'] : 30;
+            $client->setOptions(['timeout' => $timeout]);
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
-            $client->setMethod('POST');
-
-            if ($this->config['Catalog']['hasUntrustedSSL']) {
-                // Do not verify SSL certificate
-                $client->setOptions(array(
-                    'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                    'curloptions' => array(
-                        CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_SSL_VERIFYHOST => false,
-                        CURLOPT_SSL_VERIFYPEER => false
-                    )
-                ));
-            }
-
-            $result = $client->send();
+            $result = $client->setMethod('POST')->send();
         } catch (\Exception $e) {
-            $message = $e->getMessage();
-            $_ENV['exception'] = $message;
-            throw new ILSException($message);
+            throw new ILSException($e->getMessage());
         }
 
-        if (! $result->isSuccess()) {
-            $message = 'HTTP error';
-            $_ENV['exception'] = $message;
-            throw new ILSException($message);
+        if (!$result->isSuccess()) {
+            throw new ILSException('HTTP error');
         }
 
         // Process the NCIP response:
-        $body = $result->getBody();
-        $response = @simplexml_load_string($body);
-
-        if (! is_a($response, 'SimpleXMLElement')) {
-            $message = "Problem parsing XML";
-            $_ENV['exception'] = $message;
-            throw new ILSException($message);
+        $response = $result->getBody();
+        $result = @simplexml_load_string($response);
+        if (is_a($result, 'SimpleXMLElement')) {
+            $result->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
+            return $result;
+        } else {
+            throw new ILSException("Problem parsing XML");
         }
-        $response->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
-
-        if (! $this->isValidXMLAgainstXSD($response)) {
-            $message = 'Not valid XML response!';
-            $_ENV['exception'] = $message;
-            throw new ILSException($message);
-        }
-
-        if (! $this->isCorrect($response)) {
-            // TODO chcek problem type
-            return null;
-            // var_dump($response->AsXML());
-            // throw new ILSException('Problem has occured!');
-        }
-        $response = str_replace('MZK01', 'BOA001.', $response->AsXML());
-        $response = simplexml_load_string($response);
-        return $response;
-    }
-
-    /**
-     * Cancel Holds
-     *
-     * Cancels a list of holds for a specific patron.
-     *
-     * @param array $cancelDetails
-     *            - array with two keys: patron (array from patronLogin method) and
-     *            details (an array of strings returned by the driver's getCancelHoldDetails method)
-     *
-     * @throws ILSException
-     * @return array Status of canceled holds.
-     */
-    public function cancelHolds($cancelDetails)
-    {
-        $holds = $this->getMyHolds($cancelDetails['patron']);
-        $items = array();
-        foreach ($cancelDetails['details'] as $recent) {
-            foreach ($holds as $onehold) {
-                if ($onehold['id'] == $recent) {
-                    $item_id = $onehold['item_id'];
-                    break;
-                }
-            }
-            if (empty($item_id))
-                return null;
-            $request = $this->requests->cancelHolds($item_id, $cancelDetails['patron']['id']);
-            $response = $this->sendRequest($request);
-
-            $items[$item_id] = array(
-                'success' => true,
-                'status' => '',
-                'sysMessage' => ''
-            );
-        }
-        $retVal = array(
-            'count' => count($items),
-            'items' => $items
-        );
-        return $retVal;
-    }
-
-    /**
-     * Renew My Items
-     *
-     * his method renews a list of items for a specific patron.
-     *
-     * @param array $renewDetails
-     *            Two keys patron and details.
-     *
-     * @throws ILSException
-     * @return array An associative array with two keys: blocks and details.
-     */
-    public function renewMyItems($renewDetails)
-    {
-        $result = array();
-        foreach ($renewDetails['details'] as $item) {
-            $request = $this->requests->renewMyItems($renewDetails['patron'], $item);
-            $response = $this->sendRequest($request);
-            $date = $response->xpath('ns1:RenewItemResponse/ns1:DateForReturn');
-            $result[$item] = array(
-                'success' => true,
-                'new_date' => (string) $date[0],
-                'new_time' => (string) $date[0], // used the same like previous
-                'item_id' => $item,
-                'sysMessage' => ''
-            );
-        }
-        return array(
-            'blocks' => false,
-            'details' => $result
-        );
-    }
-
-    public function getAccruedOverdue($user)
-    {
-        // TODO testing purposes
-        return 12340;
-        $sum = 0;
-        $xml = $this->alephWebService->doRestDLFRequest(array(
-            'patron',
-            $user['id'],
-            'circulationActions'
-        ), null);
-        foreach ($xml->circulationActions->institution as $institution) {
-            $cashNote = (string) $institution->note;
-            $matches = array();
-            if (preg_match("/Please note that there is an additional accrued overdue items fine of: (\d+\.?\d*)\./", $cashNote, $matches) === 1) {
-                $sum = $matches[1];
-            }
-        }
-        return $sum;
-    }
-
-    public function getPaymentURL()
-    {
-        return 'www.mzk.cz';
-    }
-
-    /**
-     * Get Renew Details
-     *
-     * This method returns a string to use as the input form value for renewing each hold item.
-     *
-     * @param array $checkOutDetails
-     *            - One of the individual item arrays returned by the getMyTransactions method.
-     *
-     * @throws ILSException
-     * @return string Used as the input form value for renewing each item;
-     *         you can pass any data that is needed by your ILS to identify the transaction to renew –
-     *         the output of this method will be used as part of the input to the renewMyItems method.
-     */
-    public function getRenewDetails($checkOutDetails)
-    {
-        return $checkOutDetails['id'];
-    }
-
-    /**
-     * Get Cancel Hold Details
-     *
-     * This method returns a string to use as the input form value for cancelling each hold item.
-     *
-     * @param array $holdDetails
-     *            - One of the individual item arrays returned by the getMyHolds method.
-     *
-     * @throws ILSException
-     * @return string Used as the input value for cancelling each hold item;
-     *         any data needed to identify the hold –
-     *         the output will be used as part of the input to the cancelHolds method.
-     */
-    public function getCancelHoldDetails($holdDetails)
-    {
-        return $holdDetails['id'];
     }
 
     /**
      * Given a chunk of the availability response, extract the values needed
      * by VuFind.
      *
-     * @param array $current
-     *            Current XCItemAvailability chunk.
-     *            array $bibinfo Information about record.
+     * @param SimpleXMLElement $current Current LUIS holding chunk.
+     *
+     * @return array of status information for this holding
+     */
+    protected function getStatusForChunk($current)
+    {
+        $status = $current->xpath(
+            'ns1:ItemOptionalFields/ns1:CirculationStatus'
+        );
+        $status = empty($status) ? '' : (string)$status[0];
+
+        /* unused variable -- can we remove?
+        $itemId = $current->xpath(
+            'ns1:ItemId/ns1:ItemIdentifierValue'
+        );
+        $item_id = (string)$itemId[0];
+         */
+
+        $itemCallNo = $current->xpath(
+            'ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber'
+        );
+        $itemCallNo = (string)$itemCallNo[0];
+
+        $location = $current->xpath(
+            'ns1:ItemOptionalFields/ns1:Location/ns1:LocationName/' .
+            'ns1:LocationNameInstance/ns1:LocationNameValue'
+        );
+        $location = (string)$location[0];
+
+        return [
+            //'id' => ...
+            'status' => $status,
+            'location' => $location,
+            'callnumber' => $itemCallNo,
+            'availability' => ($status == "Not Charged"),
+            'reserve' => 'N',       // not supported
+        ];
+    }
+
+    /**
+     * Given a chunk of the availability response, extract the values needed
+     * by VuFind.
+     *
+     * @param array  $current      Current XCItemAvailability chunk.
+     * @param string $aggregate_id (Aggregate) ID of the consortial record
+     * @param string $bib_id       Bib ID of one of the consortial record's source
+     * record(s)
      *
      * @return array
      */
-    protected function getHoldingsForChunk($current, $bibinfo)
-    {
+    protected function getHoldingsForChunk($current, $aggregate_id = null,
+        $bib_id = null
+    ) {
+        // Maintain an internal static count of line numbers:
+        static $number = 1;
+
+        $current->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
+
         // Extract details from the XML:
-        $status = (string) $current->xpath('ns1:ItemOptionalFields/ns1:CirculationStatus')[0];
+        $status = $current->xpath(
+            'ns1:ItemOptionalFields/ns1:CirculationStatus'
+        );
+        $status = empty($status) ? '' : (string)$status[0];
 
-        $id = (string) $bibinfo->xpath('ns1:BibliographicId/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier')[0];
-        $itemIdentifierCode = (string) $current->xpath('ns1:ItemId/ns1:ItemIdentifierType')[0];
+        $itemId = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
 
-        $parsingLoans = $current->xpath('ns1:LoanedItem') != null;
-
-        if ($itemIdentifierCode == 'Accession Number') {
-
-            $item_id = (string) $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue')[0];
-        }
+        $itemAgencyId = $current->xpath('ns1:ItemId/ns1:AgencyId');
 
         // Pick out the permanent location (TODO: better smarts for dealing with
         // temporary locations and multi-level location names):
+        // $locationNodes = $current->xpath('ns1:HoldingsSet/ns1:Location');
+        // $location = '';
+        // foreach ($locationNodes as $curLoc) {
+        //     $type = $curLoc->xpath('ns1:LocationType');
+        //     if ((string)$type[0] == 'Permanent') {
+        //         $tmp = $curLoc->xpath(
+        //             'ns1:LocationName/ns1:LocationNameInstance' .
+        //             '/ns1:LocationNameValue'
+        //         );
+        //         $location = (string)$tmp[0];
+        //     }
+        // }
 
-        $locationNameInstance = $current->xpath('ns1:ItemOptionalFields/ns1:Location/ns1:LocationName/ns1:LocationNameInstance');
-
-        foreach ($locationNameInstance as $recent) {
-            // FIXME: Create config to map location abbreviations of each institute into human readable values
-
-            $locationLevel = (string) $recent->xpath('ns1:LocationNameLevel')[0];
-
-            if ($locationLevel == 4) {
-                $department = (string) $recent->xpath('ns1:LocationNameValue')[0];
-            } else
-                if ($locationLevel == 3) {
-                    $sublibrary = (string) $recent->xpath('ns1:LocationNameValue')[0];
-                } else {
-                    $locationInBuilding = (string) $recent->xpath('ns1:LocationNameValue')[0];
-                }
-        }
-
-        // Get both holdings and item level call numbers; we'll pick the most
-        // specific available value below.
-        // $holdCallNo = $current->xpath('ns1:HoldingsSet/ns1:CallNumber');
-        $itemCallNo = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber')[0];
-        // $itemCallNo = (string)$itemCallNo[0];
-
-        $bibliographicItemIdentifierCode = (string) $current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifierCode')[0];
-
-        if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
-
-            $barcode = (string) $current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier')[0];
-        }
-
-        $numberOfPieces = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces')[0];
-
-        $holdQueue = (string) $current->xpath('ns1:ItemOptionalFields/ns1:HoldQueueLength')[0];
-
-        $itemRestriction = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemUseRestrictionType')[0];
-
-        $available = $status === 'Available On Shelf';
-
-        // TODO Exists any clean way to get the due date without additional request?
-
-        if (! empty($locationInBuilding))
-            $onStock = substr($locationInBuilding, 0, 5) == 'Stock';
-        else
-            $onStock = false;
-
-        $onStock = true;
-
-        $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
-
-        $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
-
-        // FIXME: Add link logic
-        $link = false;
-        if ($onStock && $restrictedToLibrary) {
-            // This means the reader needs to place a request to prepare the
-            // item -> pick up the item from stock & bring it to circulation
-            // desc
-            // E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
-            $link = $this->createLinkFromAlephItemId($item_id);
-        } else
-            if ($onStock && $monthLoanPeriod) {
-                // Pickup from stock & prepare for month loan
-                $link = $this->createLinkFromAlephItemId($item_id);
-            } else
-                if (! $available && ! $onStock) {
-                    // Reserve item
-                    $link = $this->createLinkFromAlephItemId($item_id);
-                }
-        // End of FIXME
-
-        return array(
-            'id' => empty($id) ? "" : $id,
-            'availability' => empty($available) ? false : $available ? true : false,
-            'status' => empty($status) ? "" : $status,
-            'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
-            'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
-            'department' => empty($department) ? '' : $department,
-            'reserve' => "",
-            'callnumber' => "",
-            'collection_desc' => "",
-            'duedate' => empty($dueDate) ? "" : $dueDate,
-            'returnDate' => false,
-            'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
-            'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
-            'barcode' => empty($barcode) ? "" : $barcode,
-            'notes' => "",
-            'summary' => "",
-            'supplements' => "",
-            'indexes' => "",
-            'is_holdable' => "",
-            'holdtype' => "",
-            'addLink' => "",
-            'link' => $link,
-            'item_id' => empty($item_id) ? "" : $item_id,
-            'holdOverride' => "",
-            'addStorageRetrievalRequestLink' => "",
-            'addILLRequestLink' => ""
+        $tmp = $current->xpath(
+            'ns1:ItemOptionalFields/ns1:Location/' .
+            'ns1:LocationName/ns1:LocationNameInstance/ns1:LocationNameValue'
         );
-    }
+        $location = (string)$tmp[0];
 
-    private function createLinkFromAlephItemId($item_id)
-    {
-        // Input: MZK01000974548-MZK50000974548000010
-        // Output: MZK01-000974548/ExtendedHold?barcode=MZK50000974548000020
-        // Hold?id=MZK01-001422752&item_id=MZK50001457754000010&hashKey=451f0e3f0112decdadc4a9e507a60cfb#tabnav
-        $itemIdParts = explode("-", $item_id);
-
-        /*
-         * $id = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
-         * $link .= $id . '/Hold?id=' . $id . '&item_id=';
-         * $link .= $itemIdParts[1];
-         */
-        $link .= $itemIdParts[0] . '/Hold?id=' . $itemIdParts[0] . '&item_id=' . $itemIdParts[1];
-        $link .= '#tabnav';
-        return $link;
-    }
-
-    /*
-     * public function getHoldLink ($item_id)
-     * {
-     * // TODO testing purposes
-     * $itemIdParts = explode("-", $item_id);
-     *
-     * $id = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
-     * $link .= $id . '/Hold?id=' . $id . '&item_id=';
-     * $link .= $itemIdParts[1];
-     * $link .= '#tabnav';
-     * return 'odlisenie/Hold?id=MZK01-001422752&item_id=MZK50001457754000010#tabnav';
-     * return $link;
-     * }
-     */
-    public function placeHold($holdDetails)
-    {
-        // var_dump($holdDetails);
-        $request = $this->requests->placeHold($holdDetails);
-        // var_dump($request);
-        $response = $this->sendRequest($request);
-        // var_dump($response);
-        return array(
-            'success' => true,
-            'sysMessage' => ''
+        $itemCallNo = $current->xpath(
+            'ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber'
         );
-    }
+        $itemCallNo = (string)$itemCallNo[0];
 
-    public function getConfig($func)
-    {
-        if ($func == "Holds") {
-            if (isset($this->config['Holds'])) {
-                return $this->config['Holds'];
-            }
-            return array(
-                "HMACKeys" => "id:item_id",
-                "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
-                "defaultRequiredDate" => "0:1:0"
-            );
-        }
-        if ($func == "ILLRequests") {
-            return array(
-                "HMACKeys" => "id:item_id"
-            );
+        $volume = $current->xpath(
+            'ns1:ItemOptionalFields/ns1:ItemDescription/' .
+            'ns1:HoldingsInformation/ns1:UnstructuredHoldingsData'
+        );
+        $volume = (string)$volume[0];
+
+        if ($status === "Not Charged") {
+            $holdType = "hold";
         } else {
-            return array();
+            $holdType = "recall";
         }
-    }
 
-    public function getPickUpLocations($patron = null, $holdInformation = null)
-    {
-        return array(
-            '1' => array(
-                'locationID' => 'mzk',
-                'locationDisplay' => 'Moravska zemska knihovna'
-            ),
-            '2' => array(
-                'locationID' => 'knihovna_test',
-                'locationDisplay' => 'Knihovna 2 test'
-            )
-        );
-    }
-
-    public function getDefaultPickUpLocation($patron = null, $holdInformation = null)
-    {
-        // TODO testing purposes
-        return '1';
-    }
-
-    public function getMyHistory($patron, $currentLimit = 0)
-    {
-        $request = $this->requests->getMyHistory($patron);
-        $response = $this->sendRequest($request);
-        return $this->handleTransactions($response);
+        // Build return array:
+        return [
+            'id' => empty($aggregate_id) ?
+                (empty($bib_id) ? '' : $bib_id) : $aggregate_id,
+            'availability' => ($status == 'Not Charged'),
+            'status' => $status,
+            'item_id' => (string)$itemId[0],
+            'bib_id' => $bib_id,
+            'item_agency_id' => (string)$itemAgencyId[0],
+            'aggregate_id' => $aggregate_id,
+            'location' => $location,
+            'reserve' => 'N',       // not supported
+            'callnumber' => $itemCallNo,
+            'duedate' => '',        // not supported
+            //'number' => $number++,
+            'number' => $volume,
+            // XC NCIP does not support barcode, but we need a placeholder here
+            // to display anything on the record screen:
+            'barcode' => 'placeholder' . $number,
+            'is_holdable'  => true,
+            'addLink' => true,
+            'holdtype' => $holdType,
+            'storageRetrievalRequest' => 'auto',
+            'addStorageRetrievalRequestLink' => 'true',
+        ];
     }
 
     /**
@@ -522,45 +313,232 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      * This is responsible for retrieving the status information of a certain
      * record.
      *
-     * @param string $id
-     *            The record id to retrieve the holdings for
+     * @param string $id The record id to retrieve the holdings for
      *
      * @throws ILSException
-     * @return mixed On success, an associative array with the following keys:
-     *         id, availability (boolean), status, location, reserve,
-     *         callnumber.
+     * @return mixed     On success, an associative array with the following keys:
+     * id, availability (boolean), status, location, reserve, callnumber.
      */
     public function getStatus($id)
     {
-        // TODO
         // For now, we'll just use getHolding, since getStatus should return a
         // subset of the same fields, and the extra values will be ignored.
-        $holding = $this->getHolding($id);
+        return $this->getHolding($id);
+    }
 
-        foreach ($holding as $recent) {
-            $tmp[] = array_slice($recent, 0, 6);
+    /**
+     * Build NCIP2 request XML for item status information.
+     *
+     * @param array  $idList     IDs to look up.
+     * @param string $resumption Resumption token (null for first page of set).
+     * @param string $agency     Agency ID.
+     *
+     * @return string            XML request
+     */
+    protected function getStatusRequest($idList, $resumption = null, $agency = null)
+    {
+        // cedelis:
+        //if (is_null($agency)) $agency = $this->agency[0];
+
+        // pzurek:
+        //if (is_null($agency)) $agency = array_keys($this->agency)[0];
+        // The above does not work on older versions of php
+        $keys = array_keys($this->agency);
+        if (is_null($agency)) {
+            $agency = $keys[0];
         }
-        return $tmp;
+
+        // Build a list of the types of information we want to retrieve:
+        $desiredParts = [
+            'Bibliographic Description',
+            'Circulation Status',
+            'Electronic Resource',
+            'Hold Queue Length',
+            'Item Description',
+            'Item Use Restriction Type',
+            'Location'
+        ];
+
+        // Start the XML:
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+            'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/' .
+            'ncip_v2_0.xsd"><ns1:Ext><ns1:LookupItemSet>';
+
+        // Add the ID list:
+        foreach ($idList as $id) {
+            $xml .= '<ns1:BibliographicId>' .
+                    '<ns1:BibliographicRecordId>' .
+                        '<ns1:BibliographicRecordIdentifier>' .
+                            htmlspecialchars($id) .
+                        '</ns1:BibliographicRecordIdentifier>' .
+                        '<ns1:AgencyId>' .
+                            htmlspecialchars($agency) .
+                        '</ns1:AgencyId>' .
+                    '</ns1:BibliographicRecordId>' .
+                '</ns1:BibliographicId>';
+        }
+
+        // Add the desired data list:
+        foreach ($desiredParts as $current) {
+            $xml .= '<ns1:ItemElementType ' .
+                'ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/' .
+                'itemelementtype/itemelementtype.scm">' .
+                htmlspecialchars($current) . '</ns1:ItemElementType>';
+        }
+
+        // Add resumption token if necessary:
+        if (!empty($resumption)) {
+            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) .
+                '</ns1:NextItemToken>';
+        }
+
+        // Close the XML and send it to the caller:
+        $xml .= '</ns1:LookupItemSet></ns1:Ext></ns1:NCIPMessage>';
+        return $xml;
     }
 
     /**
      * Get Statuses
      *
-     * This method calls getStatus for an array of records.
+     * This is responsible for retrieving the status information for a
+     * collection of records.
      *
-     * @param
-     *            array Array of bibliographic record IDs.
+     * @param array $idList The array of record ids to retrieve the status for
      *
      * @throws ILSException
-     * @return array Array of return values from getStatus.
+     * @return array        An array of getStatus() return values on success.
      */
-    public function getStatuses($ids)
+    public function getStatuses($idList)
     {
-        $retVal = array();
-        foreach ($ids as $recent) {
-            $retVal[] = $this->getStatus($recent);
+        $status = [];
+
+        if ($this->consortium) {
+            return $status; // (empty) TODO: add support for consortial statuses.
         }
-        return $retVal;
+
+        $resumption = null;
+        do {
+            $request = $this->getStatusRequest($idList, $resumption);
+            $response = $this->sendRequest($request);
+            $avail = $response->xpath(
+                'ns1:Ext/ns1:LookupItemSetResponse/ns1:BibInformation'
+            );
+
+            // Build the array of statuses:
+            foreach ($avail as $current) {
+                $bib_id = $current->xpath(
+                    'ns1:BibliographicId/ns1:BibliographicRecordId/' .
+                    'ns1:BibliographicRecordIdentifier'
+                );
+                $bib_id = (string)$bib_id[0];
+
+                $holdings = $current->xpath('ns1:HoldingsSet');
+
+                foreach ($holdings as $current) {
+
+                    $holdCallNo = $current->xpath('ns1:CallNumber');
+                    $holdCallNo = (string)$holdCallNo[0];
+
+                    $items = $current->xpath('ns1:ItemInformation');
+
+                    foreach ($items as $item) {
+                        // Get data on the current chunk of data:
+                        $chunk = $this->getStatusForChunk($item);
+
+                        $chunk['callnumber'] = empty($chunk['callnumber']) ?
+                            $holdCallNo : $chunk['callnumber'];
+
+                        // Each bibliographic ID has its own key in the $status
+                        // array; make sure we initialize new arrays when necessary
+                        // and then add the current chunk to the right place:
+                        $chunk['id'] = $bib_id;
+                        if (!isset($status[$id])) {
+                            $status[$id] = [];
+                        }
+                        $status[$bib_id][] = $chunk;
+                    }
+                }
+            }
+
+            // Check for resumption token:
+            $resumption = $response->xpath(
+                'ns1:Ext/ns1:LookupItemSetResponse/ns1:NextItemToken'
+            );
+            $resumption = count($resumption) > 0 ? (string)$resumption[0] : null;
+        } while (!empty($resumption));
+        return $status;
+    }
+
+    /**
+     * Get Consortial Holding
+     *
+     * This is responsible for retrieving the holding information of a certain
+     * consortial record.
+     *
+     * @param string $id     The record id to retrieve the holdings for
+     * @param array  $patron Patron data
+     * @param array  $ids    The (consortial) source records for the record id
+     *
+     * @throws \VuFind\Exception\Date
+     * @throws ILSException
+     * @return array         On success, an associative array with the following
+     * keys: id, availability (boolean), status, location, reserve, callnumber,
+     * duedate, number, barcode.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getConsortialHoldings($id, array $patron = null,
+        array $ids = null
+    ) {
+        $aggregate_id = $id;
+
+        $item_agency_id = [];
+        if (! is_null($ids)) {
+            foreach ($ids as $_id) {
+                // Need to parse out the 035$a format, e.g., "(Agency) 123"
+                if (preg_match('/\(([^\)]+)\)\s*([0-9]+)/', $_id, $matches)) {
+                    $matched_agency = $matches[1];
+                    $matched_id = $matches[2];
+                    if ($this->agency[$matched_agency]) {
+                        $item_agency_id[$matched_agency] = $matched_id;
+                    }
+                }
+            }
+        }
+
+        $holdings = [];
+        foreach ($item_agency_id as $_agency => $_id) {
+            $request = $this->getStatusRequest([$_id], null, $_agency);
+            $response = $this->sendRequest($request);
+
+            $bib_id = $response->xpath(
+                'ns1:Ext/ns1:LookupItemSetResponse/ns1:BibInformation/' .
+                'ns1:BibliographicId/ns1:BibliographicRecordId/' .
+                'ns1:BibliographicRecordIdentifier'
+            );
+
+            $holdingSets = $response->xpath('//ns1:HoldingsSet');
+
+            foreach ($holdingSets as $holding) {
+                $holdCallNo = $holding->xpath('ns1:CallNumber');
+                $holdCallNo = (string)$holdCallNo[0];
+                $avail = $holding->xpath('ns1:ItemInformation');
+
+                // Build the array of holdings:
+                foreach ($avail as $current) {
+                    $chunk = $this->getHoldingsForChunk(
+                        $current, $aggregate_id, (string)$bib_id[0]
+                    );
+                    $chunk['callnumber'] = empty($chunk['callnumber']) ?
+                        $holdCallNo : $chunk['callnumber'];
+                    $holdings[] = $chunk;
+                }
+            }
+
+        }
+
+        return $holdings;
     }
 
     /**
@@ -569,51 +547,30 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      * This is responsible for retrieving the holding information of a certain
      * record.
      *
-     * @param string $id
-     *            The record id to retrieve the holdings.
-     * @param array $patron
-     *            Patron data.
+     * @param string $id     The record id to retrieve the holdings for
+     * @param array  $patron Patron data
      *
      * @throws \VuFind\Exception\Date
      * @throws ILSException
-     * @return array On success, an associative array with the following
-     *         keys: id, availability (boolean), status, location, reserve,
-     *         callnumber,
-     *         duedate, number, barcode.
+     * @return array         On success, an associative array with the following
+     * keys: id, availability (boolean), status, location, reserve, callnumber,
+     * duedate, number, barcode.
      */
     public function getHolding($id, array $patron = null)
     {
-        $maxItemsCount = 5; // use null for unlimited count of items
-        do {
-            if (isset($nextItemToken[0]))
-                $request = $this->requests->getHolding(array(
-                    $id
-                ), $maxItemsCount, (string) $nextItemToken[0]);
-            else {
-                $request = $this->requests->getHolding(array(
-                    $id
-                ), $maxItemsCount);
-                $all_iteminfo = [];
+        $ids = null;
+        if (! $this->consortium) {
+            // Translate $id into consortial (035$a) format,
+            // e.g., "123" -> "(Agency) 123"
+            $sourceRecord = '';
+            foreach (array_keys($this->agency) as $_agency) {
+                $sourceRecord = '(' . $_agency . ') ';
             }
-
-            $response = $this->sendRequest($request);
-            if ($response == null)
-                return null;
-
-            $new_iteminfo = $response->xpath('ns1:LookupItemSetResponse/ns1:BibInformation/ns1:HoldingsSet/ns1:ItemInformation');
-            $all_iteminfo = array_merge($all_iteminfo, $new_iteminfo);
-
-            $nextItemToken = $response->xpath('ns1:LookupItemSetResponse/ns1:NextItemToken');
-        } while ($this->isValidToken($nextItemToken));
-        $bibinfo = $response->xpath('ns1:LookupItemSetResponse/ns1:BibInformation');
-        $bibinfo = $bibinfo[0];
-
-        // Build the array of holdings:
-        $holdings = array();
-        foreach ($all_iteminfo as $current) {
-            $holdings[] = $this->getHoldingsForChunk($current, $bibinfo);
+            $sourceRecord .= $id;
+            $ids = [$sourceRecord];
         }
-        return $holdings;
+
+        return $this->getConsortialHoldings($id, $patron, $ids);
     }
 
     /**
@@ -622,17 +579,17 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      * This is responsible for retrieving the acquisitions history data for the
      * specific record (usually recently received issues of a serial).
      *
-     * @param string $id
-     *            The record id to retrieve the info for
+     * @param string $id The record id to retrieve the info for
      *
      * @throws ILSException
-     * @return array An array with the acquisitions data on success.
-     *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @return array     An array with the acquisitions data on success.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getPurchaseHistory($id)
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
@@ -640,234 +597,222 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      *
      * This is responsible for authenticating a patron against the catalog.
      *
-     * @param string $username
-     *            The patron username
-     * @param string $password
-     *            The patron's password
+     * @param string $username The patron username
+     * @param string $password The patron's password
      *
      * @throws ILSException
-     * @return mixed Associative array of patron info on successful login,
-     *         null on unsuccessful login.
+     * @return mixed          Associative array of patron info on successful login,
+     * null on unsuccessful login.
      */
     public function patronLogin($username, $password)
     {
-        // If password is null, than is user already logged in ..
-        if ($password == null) {
-            $temp = array(
-                "id" => $username
-            );
-            return $this->getMyProfile($temp);
-        }
-
-        $request = $this->requests->patronLogin($username, $password);
+        // TODO: we somehow need to figure out 'patron_agency_id' in the
+        // consortium=true case
+        //$request = $this->getLookupUserRequest(
+        //    $username, $password, 'patron_agency_id'
+        //);
+        $request = $this->getLookupUserRequest($username, $password);
         $response = $this->sendRequest($request);
-        $id = $response->xpath('ns1:LookupUserResponse/ns1:UserId/ns1:UserIdentifierValue');
-        $firstname = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:GivenName');
-
-        $lastname = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:Surname');
-        $email = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:ElectronicAddress/ns1:ElectronicAddressData');
-        if (! empty($id)) {
-            $patron = array(
-                'id' => empty($id) ? '' : (string) $id[0],
-                'firstname' => empty($firstname) ? '' : (string) $firstname[0],
-                'lastname' => empty($lastname) ? '' : (string) $lastname[0],
+        $id = $response->xpath(
+            'ns1:LookupUserResponse/ns1:UserId/ns1:UserIdentifierValue'
+        );
+        $patron_agency_id = $response->xpath(
+            'ns1:LookupUserResponse/ns1:UserId/ns1:AgencyId'
+        );
+        if (!empty($id)) {
+            // Fill in basic patron details:
+            $patron = [
+                'id' => (string)$id[0],
+                'patron_agency_id' => (string)$patron_agency_id[0],
                 'cat_username' => $username,
                 'cat_password' => $password,
-                'email' => empty($email) ? '' : (string) $email[0],
+                'email' => null,
                 'major' => null,
                 'college' => null
-            );
-            return $patron;
+            ];
+
+            // Look up additional details:
+            $details = $this->getMyProfile($patron);
+            if (!empty($details)) {
+                $patron['firstname'] = $details['firstname'];
+                $patron['lastname'] = $details['lastname'];
+                return $patron;
+            }
         }
+
         return null;
     }
 
     /**
      * Get Patron Transactions
      *
-     * This method queries the ILS for a patron's current checked out items.
+     * This is responsible for retrieving all transactions (i.e. checked out items)
+     * by a specific patron.
      *
-     * @param array $patron
-     *            The patron array
+     * @param array $patron The patron array from patronLogin
      *
+     * @throws \VuFind\Exception\Date
      * @throws ILSException
-     * @return array Array of arrays, one for each item checked out by the
-     *         specified account.
+     * @return array        Array of the patron's transactions on success.
      */
     public function getMyTransactions($patron)
     {
-        $request = $this->requests->getMyTransactions($patron);
+        $extras = ['<ns1:LoanedItemsDesired/>'];
+        $request = $this->getLookupUserRequest(
+            $patron['cat_username'], $patron['cat_password'],
+            $patron['patron_agency_id'], $extras
+        );
         $response = $this->sendRequest($request);
-        return $this->handleTransactions($response, $patron);
-    }
 
-    private function handleTransactions($response, $patron)
-    {
-        $retVal = array();
+        $retVal = [];
         $list = $response->xpath('ns1:LookupUserResponse/ns1:LoanedItem');
 
         foreach ($list as $current) {
+            $current->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
+            $tmp = $current->xpath('ns1:DateDue');
+            $due = strtotime((string)$tmp[0]);
+            $due = date("l, d-M-y h:i a", $due);
+            $title = $current->xpath('ns1:Title');
             $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
-            $dateDue = $current->xpath('ns1:DateDue');
-            $parsedDate = strtotime((string) $dateDue[0]);
-            /*
-             * $item_id = $current->xpath(
-             * 'ns1:Ext/ns1:BibliographicDescription/' .
-             * 'ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier');
-             * $bibliographicId = substr(explode("-", (string) $item_id[0])[0], 5);
-             * $amount = $current->xpath('ns1:Amount');
-             * $reminderLevel = $current->xpath('ns1:ReminderLevel');
-             * $ext = $current->xpath('ns1:Ext');
-             */
-            // TODO: is Renewable?
-            $additRequest = $this->requests->getItemInfo((string) $item_id[0]);
-            $additResponse = $this->sendRequest($additRequest);
-            $isbn = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier');
-            $bib_id = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:ComponentId/ns1:ComponentIdentifier');
-            $author = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:Author');
-            $title = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:Title');
-            $mediumType = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:MediumType');
-
-            $dateDue = date('j. n. Y', $parsedDate);
-
-            $retVal[] = array(
-                'cat_username' => $patron['cat_username'],
-                'duedate' => empty($dateDue) ? '' : $dateDue,
-                'id' => empty($item_id) ? '' : (string) $item_id[0],
-                'barcode' => '', // TODO
-                                 // 'renew' => '',
-                                 // 'renewLimit' => '',
-                'request' => empty($request) ? '' : (string) $request[0],
-                'volume' => '',
-                'author' => empty($author) ? '' : (string) $author[0],
-                'publication_year' => '', // TODO
-                'renewable' => empty($request) ? false : true,
-                'message' => '',
-                'title' => empty($title) ? '' : (string) $title[0],
-                'item_id' => empty($item_id) ? '' : (string) $item_id[0],
-                'institution_name' => '',
-                'isbn' => empty($isbn) ? '' : (string) $isbn[0],
-                'issn' => '',
-                'oclc' => '',
-                'upc' => '',
-                'borrowingLocation' => ''
+            $bib_id = $current->xpath(
+                'ns1:Ext/ns1:BibliographicDescription/' .
+                'ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier'
             );
+            // Hack to account for bibs from other non-local institutions
+            // temporarily until consortial functionality is enabled.
+            if ((string)$bib_id[0]) {
+                $tmp = (string)$bib_id[0];
+            } else {
+                $tmp = "1";
+            }
+            $retVal[] = [
+                'id' => $tmp,
+                'duedate' => $due,
+                'title' => (string)$title[0],
+                'item_id' => (string)$item_id[0],
+                'renewable' => true,
+            ];
         }
+
         return $retVal;
     }
 
     /**
      * Get Patron Fines
      *
-     * This method queries the ILS for a patron's current fines.
+     * This is responsible for retrieving all fines by a specific patron.
      *
-     * @param array $patron
-     *            The patron array
+     * @param array $patron The patron array from patronLogin
      *
-     * @return array Array of arrays containing fines information.
+     * @throws \VuFind\Exception\Date
+     * @throws ILSException
+     * @return mixed        Array of the patron's fines on success.
      */
     public function getMyFines($patron)
     {
-        $request = $this->requests->getMyFines($patron);
+        $extras = ['<ns1:UserFiscalAccountDesired/>'];
+        $request = $this->getLookupUserRequest(
+            $patron['cat_username'], $patron['cat_password'],
+            $patron['patron_agency_id'], $extras
+        );
         $response = $this->sendRequest($request);
 
-        $list = $response->xpath('ns1:LookupUserResponse/ns1:UserFiscalAccount/ns1:AccountDetails');
+        $list = $response->xpath(
+            'ns1:LookupUserResponse/ns1:UserFiscalAccount/ns1:AccountDetails'
+        );
 
-        $fines = array();
+        $fines = [];
+        $balance = 0;
         foreach ($list as $current) {
-            $amount = $current->xpath('ns1:FiscalTransactionInformation/ns1:Amount/ns1:MonetaryValue');
-            $type = $current->xpath('ns1:FiscalTransactionInformation/ns1:FiscalTransactionType');
-            $date = $current->xpath('ns1:AccrualDate');
-            $desc = $current->xpath('ns1:FiscalTransactionInformation/ns1:FiscalTransactionDescription');
-            /*
-             * This is an item ID, not a bib ID, so it's not actually useful:
-             * $tmp = $current->xpath(
-             * 'ns1:FiscalTransactionInformation/ns1:ItemDetails/' .
-             * 'ns1:ItemId/ns1:ItemIdentifierValue' ); $id = (string)$tmp[0];
-             */
 
-            $parsedDate = strtotime((string) $date[0]);
-            $date = date('j. n. Y', $parsedDate);
-            $amount_int = (int) $amount[0] * (- 1);
-            $sum += $amount_int;
+            $current->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
 
-            $fines[] = array(
-                'amount' => (string) $amount_int,
-                'checkout' => $date,
-                'fine' => (string) $desc[0],
-                'balance' => (string) $sum,
-                'createdate' => '',
-                'duedate' => '',
-                'id' => (string) $type[0]
+            $tmp = $current->xpath(
+                'ns1:FiscalTransactionInformation/ns1:Amount/ns1:MonetaryValue'
             );
+            $amount = (string)$tmp[0];
+            $tmp = $current->xpath('ns1:AccrualDate');
+            $date = (string)$tmp[0];
+            $tmp = $current->xpath(
+                'ns1:FiscalTransactionInformation/ns1:FiscalTransactionType'
+            );
+            $desc = (string)$tmp[0];
+            /* This is an item ID, not a bib ID, so it's not actually useful:
+            $tmp = $current->xpath(
+                'ns1:FiscalTransactionInformation/ns1:ItemDetails/' .
+                'ns1:ItemId/ns1:ItemIdentifierValue'
+            );
+            $id = (string)$tmp[0];
+             */
+            $id = '';
+            $balance += $amount;
+            $fines[] = [
+                'amount' => $amount,
+                'balance' => $balance,
+                'checkout' => '',
+                'fine' => $desc,
+                'duedate' => '',
+                'createdate' => $date,
+                'id' => $id
+            ];
         }
-        // TODO vymaz
-        /*
-         * $fines[] = array(
-         * 'amount' => '10',
-         * 'checkout' => '03. 08. 2014',
-         * 'fine' => 'takto to bude vyzerat',
-         * 'balance' => '-260',
-         * 'createdate' => '01. 08. 2014',
-         * 'duedate' => '09. 09. 2014',
-         * 'id' => 'MZK01-001276830',
-         * );
-         */
         return $fines;
     }
 
     /**
-     * Get Patron's current holds - books which are reserved.
+     * Get Patron Holds
      *
-     * @param array $patron
-     *            The patron array
+     * This is responsible for retrieving all holds by a specific patron.
      *
-     * @return array Array of arrays, one for each hold.
+     * @param array $patron The patron array from patronLogin
+     *
+     * @throws \VuFind\Exception\Date
+     * @throws ILSException
+     * @return array        Array of the patron's holds on success.
      */
     public function getMyHolds($patron)
     {
-        $request = $this->requests->getMyHolds($patron);
+        $extras = ['<ns1:RequestedItemsDesired/>'];
+        $request = $this->getLookupUserRequest(
+            $patron['cat_username'], $patron['cat_password'],
+            $patron['patron_agency_id'], $extras
+        );
         $response = $this->sendRequest($request);
 
-        $retVal = array();
+        $retVal = [];
         $list = $response->xpath('ns1:LookupUserResponse/ns1:RequestedItem');
-
         foreach ($list as $current) {
-            $type = $current->xpath('ns1:RequestType');
-            $id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
-            $location = $current->xpath('ns1:PickupLocation');
-            $reqnum = $current->xpath('ns1:RequestId/ns1:RequestIdentifierValue');
-            $expire = $current->xpath('ns1:PickupExpiryDate');
-            $create = $current->xpath('ns1:DatePlaced');
-            $position = $current->xpath('ns1:HoldQueuePosition');
-            $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
-            $title = $current->xpath('ns1:Title');
-            $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
-            // $bib_id = substr_replace($bib_id, '-', 5, 0); // number 5 is position
-
-            $parsedDate = empty($create) ? '' : strtotime($create[0]);
-            $create = date('j. n. Y', $parsedDate);
-            $parsedDate = empty($expire) ? '' : strtotime($expire[0]);
-            $expire = date('j. n. Y', $parsedDate);
-            $retVal[] = array(
-                'type' => empty($type) ? '' : (string) $type[0],
-                'id' => empty($bib_id) ? '' : $bib_id,
-                'location' => empty($location) ? '' : (string) $location[0],
-                'reqnum' => empty($reqnum) ? '' : (string) $reqnum[0],
-                'expire' => empty($expire) ? '' : $expire,
-                'create' => empty($create) ? '' : $create,
-                'position' => empty($position) ? '' : (string) $position[0],
-                'available' => false, // true means item is ready for check out
-                'item_id' => empty($item_id) ? '' : (string) $item_id[0],
-                'volume' => '',
-                'publication_year' => '',
-                'title' => empty($title) ? '' : (string) $title[0],
-                'isbn' => '',
-                'issn' => '',
-                'oclc' => '',
-                'upc' => ''
+            $id = $current->xpath(
+                'ns1:Ext/ns1:BibliographicDescription/' .
+                'ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier'
             );
+            // (unused variable): $created = $current->xpath('ns1:DatePlaced');
+            $title = $current->xpath('ns1:Title');
+            $pos = $current->xpath('ns1:HoldQueuePosition');
+            $requestType = $current->xpath('ns1:RequestType');
+            $requestId = $current->xpath('ns1:RequestId/ns1:RequestIdentifierValue');
+            $itemId = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+            $pickupLocation = $current->xpath('ns1:PickupLocation');
+            $expireDate = $current->xpath('ns1:PickupExpiryDate');
+            $expireDate = strtotime((string)$expireDate[0]);
+            $expireDate = date("l, d-M-y", $expireDate);
+            $requestType = (string)$requestType[0];
+            // Only return requests of type Hold or Recall. Callslips/Stack
+            // Retrieval requests are fetched using getMyStorageRetrievalRequests
+            if ($requestType === "Hold" or $requestType === "Recall") {
+                $retVal[] = [
+                    'id' => (string)$id[0],
+                    'create' => '',
+                    'expire' => $expireDate,
+                    'title' => (string)$title[0],
+                    'position' => (string)$pos[0],
+                    'requestId' => (string)$requestId[0],
+                    'item_id' => (string)$itemId[0],
+                    'location' => (string)$pickupLocation[0],
+                ];
+            }
         }
+
         return $retVal;
     }
 
@@ -876,81 +821,58 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      *
      * This is responsible for retrieving the profile for a specific patron.
      *
-     * @param array $patron
-     *            The patron array
+     * @param array $patron The patron array
      *
      * @throws ILSException
-     * @return array Array of the patron's profile data on success.
+     * @return array        Array of the patron's profile data on success.
      */
     public function getMyProfile($patron)
     {
-        $request = $this->requests->getMyProfile($patron);
-        $response = $this->sendRequest($request);
-
-        $name = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:GivenName');
-        $surname = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:Surname');
-        $address1 = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:Street');
-        $address2 = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:HouseName');
-        $city = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:Locality');
-        $country = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:Country');
-        $zip = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:PostalCode');
-        $electronicAddress = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:ElectronicAddress');
-        foreach ($electronicAddress as $recent) {
-            if ($recent->xpath('ns1:ElectronicAddressType')[0] == 'tel') {
-                $phone = $recent->xpath('ns1:ElectronicAddressData');
-            }
-        }
-        $group = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserPrivilege/ns1:UserPrivilegeDescription');
-
-        $blocksParsed = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:BlockOrTrap/ns1:BlockOrTrapType');
-
-        $i = -1;
-        foreach ($blocksParsed as $block) {
-            $blocks[++$i] = (string) $block;
-        }
-
-        $patron = array(
-            'cat_username' => $patron['id'],
-            'id' => $patron['id'],
-            'firstname' => empty($name) ? '' : (string) $name[0],
-            'lastname' => empty($surname) ? '' : (string) $surname[0],
-            'address1' => empty($address1) ? '' : (string) $address1[0],
-            'address2' => empty($address2) ? '' : (string) $address2[0],
-            'city' => empty($city) ? '' : (string) $city[0],
-            'country' => empty($country) ? '' : (string) $country[0],
-            'zip' => empty($zip) ? '' : (string) $zip[0],
-            'phone' => empty($phone) ? '' : (string) $phone[0],
-            'group' => empty($group) ? '' : (string) $group[0],
-            'blocks' => empty($blocks) ? array() : $blocks
+        $extras = [
+            '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
+                'schemes/userelementtype/userelementtype.scm">' .
+                'User Address Information' .
+            '</ns1:UserElementType>',
+            '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
+                'schemes/userelementtype/userelementtype.scm">' .
+                'Name Information' .
+            '</ns1:UserElementType>'
+        ];
+        $request = $this->getLookupUserRequest(
+            $patron['cat_username'], $patron['cat_password'],
+            $patron['patron_agency_id'], $extras
         );
-        return $patron;
-    }
-
-
-    /**
-     * Get Patron BlocksOrTraps
-     *
-     * This is responsible for retrieving blocks of a specific patron.
-     *
-     * @param array $cat_username
-     *            String of userId
-     *
-     * @throws ILSException
-     * @return array Array of the patron's blocks in string.
-     */
-    public function getBlocks($cat_username)
-    {
-        $request = $this->requests->getBlocks($cat_username);
         $response = $this->sendRequest($request);
 
-        $blocksParsed = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:BlockOrTrap/ns1:BlockOrTrapType');
+        $first = $response->xpath(
+            'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
+            'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/' .
+            'ns1:GivenName'
+        );
+        $last = $response->xpath(
+            'ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' .
+            'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/' .
+            'ns1:Surname'
+        );
 
-        $i = -1;
-        foreach ($blocksParsed as $block) {
-            $blocks[++$i] = (string) $block;
-        }
-
-        return $blocks;
+        // TODO: distinguish between permanent and other types of addresses; look
+        // at the UnstructuredAddressType field and handle multiple options.
+        $address = $response->xpath(
+            'ns1:LookupUserResponse/ns1:UserOptionalFields/' .
+            'ns1:UserAddressInformation/ns1:PhysicalAddress/' .
+            'ns1:UnstructuredAddress/ns1:UnstructuredAddressData'
+        );
+        $address = explode("\n", trim((string)$address[0]));
+        return [
+            'firstname' => (string)$first[0],
+            'lastname' => (string)$last[0],
+            'address1' => isset($address[0]) ? $address[0] : '',
+            'address2' => (isset($address[1]) ? $address[1] : '') .
+                (isset($address[2]) ? ', ' . $address[2] : ''),
+            'zip' => isset($address[3]) ? $address[3] : '',
+            'phone' => '',  // TODO: phone number support
+            'group' => ''
+        ];
     }
 
     /**
@@ -958,32 +880,25 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      *
      * Retrieve the IDs of items recently added to the catalog.
      *
-     * @param int $page
-     *            Page number of results to retrieve (counting starts at 1)
-     * @param int $limit
-     *            The size of each page of results to retrieve
-     * @param int $daysOld
-     *            The maximum age of records to retrieve in days (max. 30)
-     * @param int $fundId
-     *            optional fund ID to use for limiting results (use a value
-     *            returned by getFunds, or exclude for no limit); note that
-     *            "fund" may be a
-     *            misnomer - if funds are not an appropriate way to limit your
-     *            new item
-     *            results, you can return a different set of values from
-     *            getFunds. The
-     *            important thing is that this parameter supports an ID returned
-     *            by getFunds,
-     *            whatever that may mean.
+     * @param int $page    Page number of results to retrieve (counting starts at 1)
+     * @param int $limit   The size of each page of results to retrieve
+     * @param int $daysOld The maximum age of records to retrieve in days (max. 30)
+     * @param int $fundId  optional fund ID to use for limiting results (use a value
+     * returned by getFunds, or exclude for no limit); note that "fund" may be a
+     * misnomer - if funds are not an appropriate way to limit your new item
+     * results, you can return a different set of values from getFunds. The
+     * important thing is that this parameter supports an ID returned by getFunds,
+     * whatever that may mean.
      *
      * @throws ILSException
-     * @return array Associative array with 'count' and 'results' keys
-     *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @return array       Associative array with 'count' and 'results' keys
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getNewItems($page, $limit, $daysOld, $fundId = null)
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
@@ -997,7 +912,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     public function getFunds()
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
@@ -1006,13 +921,12 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      * Obtain a list of departments for use in limiting the reserves list.
      *
      * @throws ILSException
-     * @return array An associative array with key = dept. ID, value = dept.
-     *         name.
+     * @return array An associative array with key = dept. ID, value = dept. name.
      */
     public function getDepartments()
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
@@ -1026,7 +940,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     public function getInstructors()
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
@@ -1040,7 +954,7 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     public function getCourses()
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
@@ -1048,21 +962,19 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
      *
      * Obtain information on course reserves.
      *
-     * @param string $course
-     *            ID from getCourses (empty string to match all)
-     * @param string $inst
-     *            ID from getInstructors (empty string to match all)
-     * @param string $dept
-     *            ID from getDepartments (empty string to match all)
+     * @param string $course ID from getCourses (empty string to match all)
+     * @param string $inst   ID from getInstructors (empty string to match all)
+     * @param string $dept   ID from getDepartments (empty string to match all)
      *
      * @throws ILSException
      * @return array An array of associative arrays representing reserve items.
-     *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function findReserves($course, $inst, $dept)
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
@@ -1074,311 +986,717 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
     public function getSuppressedRecords()
     {
         // TODO
-        return array();
+        return [];
     }
 
     /**
-     * Validate XML against XSD schema.
+     * Public Function which retrieves Holds, StorageRetrivalRequests, and
+     * Consortial settings from the driver ini file.
      *
-     * @param string $XML
-     *            or SimpleXMLElement $XML
-     * @param
-     *            $path_to_XSD
+     * @param string $function The name of the feature to be checked
+     * @param array  $params   Optional feature-specific parameters (array)
+     *
+     * @return array An array with key-value pairs.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getConfig($function, $params = null)
+    {
+        if ($function == 'Holds') {
+            return [
+                'HMACKeys' => 'item_id:holdtype:item_agency_id:aggregate_id:bib_id',
+                'extraHoldFields' => 'comments:pickUpLocation:requiredByDate',
+                'defaultRequiredDate' => '0:2:0',
+                'consortium' => $this->consortium,
+            ];
+        }
+        if ($function == 'StorageRetrievalRequests') {
+            return [
+                'HMACKeys' => 'id:item_id:item_agency_id:aggregate_id:bib_id',
+                'extraFields' => 'comments:pickUpLocation:requiredByDate:item-issue',
+                'helpText' => 'This is a storage retrieval request help text' .
+                    ' with some <span style="color: red">styling</span>.',
+                'defaultRequiredDate' => '0:2:0',
+            ];
+        }
+        return [];
+    }
+
+    /**
+     * Get Default Pick Up Location
+     *
+     * Returns the default pick up location set in HorizonXMLAPI.ini
+     *
+     * @param array $patron      Patron information returned by the patronLogin
+     * method.
+     * @param array $holdDetails Optional array, only passed in when getting a list
+     * in the context of placing a hold; contains most of the same values passed to
+     * placeHold, minus the patron data.  May be used to limit the pickup options
+     * or may be ignored.
+     *
+     * @return string A location ID
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getDefaultPickUpLocation($patron, $holdDetails = null)
+    {
+        return $this->pickupLocations[$patron['patron_agency_id']][0]['locationID'];
+    }
+
+    /**
+     * Get Pick Up Locations
+     *
+     * This is responsible get a list of valid library locations for holds / recall
+     * retrieval
+     *
+     * @param array $patron      Patron information returned by the patronLogin
+     * method.
+     * @param array $holdDetails Optional array, only passed in when getting a list
+     * in the context of placing a hold; contains most of the same values passed to
+     * placeHold, minus the patron data.  May be used to limit the pickup options
+     * or may be ignored.  The driver must not add new options to the return array
+     * based on this data or other areas of VuFind may behave incorrectly.
+     *
+     * @return array        An array of associative arrays with locationID and
+     * locationDisplay keys
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getPickUpLocations($patron, $holdDetails = null)
+    {
+        $locations = [];
+        foreach (array_keys($this->agency) as $agency) {
+            foreach ($this->pickupLocations[$agency] as $thisAgency) {
+                $locations[]
+                    = [
+                        'locationID' => $thisAgency['locationID'],
+                        'locationDisplay' => $thisAgency['locationDisplay'],
+                    ];
+            }
+        }
+        return $locations;
+    }
+
+    /**
+     * Get Patron Storage Retrieval Requests
+     *
+     * This is responsible for retrieving all call slips by a specific patron.
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @return array        Array of the patron's storage retrieval requests.
+     */
+    public function getMyStorageRetrievalRequests($patron)
+    {
+        $extras = ['<ns1:RequestedItemsDesired/>'];
+        $request = $this->getLookupUserRequest(
+            $patron['cat_username'], $patron['cat_password'],
+            $patron['patron_agency_id'], $extras
+        );
+        $response = $this->sendRequest($request);
+
+        $retVal = [];
+        $list = $response->xpath('ns1:LookupUserResponse/ns1:RequestedItem');
+        foreach ($list as $current) {
+            $cancelled = true;
+            $id = $current->xpath(
+                'ns1:Ext/ns1:BibliographicDescription/' .
+                'ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier'
+            );
+            //$created = $current->xpath('ns1:DatePlaced');
+            $title = $current->xpath('ns1:Title');
+            $pos = $current->xpath('ns1:HoldQueuePosition');
+            $pickupLocation = $current->xpath('ns1:PickupLocation');
+            $requestId = $current->xpath('ns1:RequestId/ns1:RequestIdentifierValue');
+            $requestType = $current->xpath('ns1:RequestType');
+            $requestType = (string)$requestType[0];
+            $tmpStatus = $current->xpath('ns1:RequestStatusType');
+            list($status, $created) = explode(" ", (string)$tmpStatus[0], 2);
+            if ($status === "Accepted") {
+                $cancelled = false;
+            }
+            // Only return requests of type Stack Retrieval/Callslip. Hold
+            // and Recall requests are fetched using getMyHolds
+            if ($requestType === 'Stack Retrieval') {
+                $retVal[] = [
+                    'id' => (string)$id[0],
+                    'create' => $created,
+                    'expire' => '',
+                    'title' => (string)$title[0],
+                    'position' => (string)$pos[0],
+                    'requestId' => (string)$requestId[0],
+                    'location' => 'test',
+                    'canceled' => $cancelled,
+                    'location' => (string)$pickupLocation[0],
+                    'processed' => false,
+                ];
+            }
+        }
+
+        return $retVal;
+    }
+
+    /**
+     * Check if storage retrieval request available
+     *
+     * This is responsible for determining if an item is requestable
+     *
+     * @param string $id     The Bib ID
+     * @param array  $data   An Array of item data
+     * @param patron $patron An array of patron data
+     *
+     * @return bool True if request is valid, false if not
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function checkStorageRetrievalRequestIsValid($id, $data, $patron)
+    {
+        return true;
+    }
+
+    /**
+     * Place Storage Retrieval Request (Call Slip)
+     *
+     * Attempts to place a call slip request on a particular item and returns
+     * an array with result details
+     *
+     * @param array $details An array of item and patron data
+     *
+     * @return mixed An array of data on the request including
+     * whether or not it was successful.
+     */
+    public function placeStorageRetrievalRequest($details)
+    {
+        $username = $details['patron']['cat_username'];
+        $password = $details['patron']['cat_password'];
+        $bibId = $details['bib_id'];
+        $itemId = $details['item_id'];
+        $pickUpLocation = $details['pickUpLocation'];
+        $lastInterestDate = $details['requiredBy'];
+        $lastInterestDate = substr($lastInterestDate, 6, 10) . '-' .
+                substr($lastInterestDate, 0, 5);
+        $lastInterestDate = $lastInterestDate . "T00:00:00.000Z";
+
+        $request = $this->getRequest(
+            $username, $password, $bibId, $itemId,
+            $details['patron']['patron_agency_id'],
+            $details['patron']['patron_agency_id'],
+            $details['item_agency_id'],
+            "Stack Retrieval", "Item", $lastInterestDate, $pickUpLocation
+        );
+
+        $response = $this->sendRequest($request);
+        $success = $response->xpath(
+            'ns1:RequestItemResponse/ns1:ItemId/ns1:ItemIdentifierValue'
+        );
+
+        if ($success) {
+            return [
+                'success' => true,
+                "sysMessage" => 'Storage Retrieval Request Successful.'
+            ];
+        } else {
+            return [
+                'success' => false,
+                "sysMessage" => 'Storage Retrieval Request Not Successful.'
+            ];
+        }
+    }
+
+    /**
+     * Get Renew Details
+     *
+     * This function returns the item id as a string which is then used
+     * as submitted form data in checkedOut.php. This value is then extracted by
+     * the RenewMyItems function.
+     *
+     * @param array $checkOutDetails An array of item data
+     *
+     * @return string Data for use in a form field
+     */
+    public function getRenewDetails($checkOutDetails)
+    {
+        $renewDetails = $checkOutDetails['item_id'];
+        return $renewDetails;
+    }
+
+    /**
+     * Place Hold
+     *
+     * Attempts to place a hold or recall on a particular item and returns
+     * an array with result details or throws an exception on failure of support
+     * classes
+     *
+     * @param array $details An array of item and patron data
      *
      * @throws ILSException
-     * @return boolean Returns true, if XML is valid.
+     * @return mixed An array of data on the request including
+     * whether or not it was successful
      */
-    protected function isValidXMLAgainstXSD($XML, $path_to_XSD = './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
+    public function placeHold($details)
     {
-        $doc = new DOMDocument();
-        libxml_use_internal_errors(true); // Begin - Disable xml error messages.
-        if (is_string($XML))
-            $doc->loadXML($XML);
-        else
-            if (get_class($XML) == 'SimpleXMLElement')
-                $doc->loadXML($XML->asXML());
-            else
-                throw new ILSException('Expected SimpleXMLElement or string containing XML.');
-        libxml_clear_errors(); // End - Disable xml error messages.
-        return $doc->schemaValidate($path_to_XSD);
-    }
+        $username = $details['patron']['cat_username'];
+        $password = $details['patron']['cat_password'];
+        $bibId = $details['bib_id'];
+        $itemId = $details['item_id'];
+        $pickUpLocation = $details['pickUpLocation'];
+        $holdType = $details['holdtype'];
+        $lastInterestDate = $details['requiredBy'];
+        $lastInterestDate = substr($lastInterestDate, 6, 10) . '-'
+            . substr($lastInterestDate, 0, 5);
+        $lastInterestDate = $lastInterestDate . "T00:00:00.000Z";
 
-    /**
-     * Check response from NCIP responder.
-     * Check if $response is not containing problem tag.
-     *
-     * @param $response SimpleXMLElement
-     *            Object
-     *
-     * @return boolean Returns true, if response is without problem.
-     */
-    protected function isCorrect($response)
-    {
-        $problem = $response->xpath('//ns1:Problem');
-        if ($problem == null)
-            return true;
-            // print_r($problem[0]->AsXML());
-        return false;
-    }
-
-    /**
-     * Validate next item token.
-     * Check if $nextItemToken was set and contains data.
-     *
-     * @param
-     *            array, at index [0] SimpleXMLElement Object
-     *
-     * @return boolean Returns true, if token is valid.
-     */
-    protected function isValidToken($nextItemToken)
-    {
-        if (isset($nextItemToken[0])) {
-            if ($nextItemToken[0] != '')
-                return true;
-        }
-        return false;
-    }
-}
-
-/**
- * Building NCIP requests version 2.02.
- *
- * @category VuFind2
- * @package ILS_Drivers
- * @author Matus Sabik <sabik@mzk.cz>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public
- *          License
- */
-class NCIPRequests
-{
-
-    protected $cpk_conversion = false;
-
-    protected function cpkConvert($id) // Substituted by str_replace in method sendRequest.
-    {
-        if ($this->cpk_conversion) {
-            $id = substr_replace($id, 'MZK01', 0, 7);
-        }
-        return $id;
-    }
-
-    /**
-     * Build NCIP request XML for cancel holds.
-     *
-     * @param array $cancelDetails
-     *            Patron's information and details about cancel request.
-     *
-     * @return string XML request
-     */
-    public function cancelHolds($itemID, $patronID)
-    {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' . '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) . '</ns1:UserIdentifierValue></ns1:UserId>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '</ns1:CancelRequestItem></ns1:NCIPMessage>';
-        return $xml;
-    }
-
-    /**
-     * Build NCIP request XML for item status information.
-     *
-     * @param array $idList
-     *            IDs to look up.
-     * @param string $resumption
-     *            Resumption token (null for first page of set).
-     *
-     * @return string XML request
-     */
-    public function getHolding($idList, $maxItemsCount = null, $resumption = null)
-    {
-        // Build a list of the types of information we want to retrieve:
-        $desiredParts = array(
-            'Bibliographic Description',
-            'Circulation Status',
-            'Electronic Resource',
-            'Hold Queue Length',
-            'Item Description',
-            'Item Use Restriction Type',
-            'Location'
+        $request = $this->getRequest(
+            $username, $password, $bibId, $itemId,
+            $details['patron']['patron_agency_id'],
+            $details['patron']['patron_agency_id'],
+            $details['item_agency_id'],
+            $holdType, "Item", $lastInterestDate, $pickUpLocation
         );
-        // Start the XML:
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
-        // Add the ID list:
-        foreach ($idList as $id) {
-            // $id = str_replace("-", "", $id);
-            $id = $this->cpkConvert($id);
-            $xml .= '<ns1:BibliographicId>' . '<ns1:BibliographicItemId>' . '<ns1:BibliographicItemIdentifier>' . htmlspecialchars($id) . '</ns1:BibliographicItemIdentifier>' . '<ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>' . '</ns1:BibliographicItemId>' . '</ns1:BibliographicId>';
-        }
-        // Add the desired data list:
-        foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
-        }
-        if (! empty($maxItemsCount)) {
-            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($maxItemsCount) . '</ns1:MaximumItemsCount>';
-        }
-        // Add resumption token if necessary:
-        if (! empty($resumption)) {
-            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) . '</ns1:NextItemToken>';
-        }
-        // Close the XML and send it to the caller:
-        $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
-        return $xml;
-    }
-
-    /**
-     * Temporary method for dealing with item's location.
-     *
-     * @param string $itemID
-     */
-    public function getItemInfo($itemID)
-    {
-        $desiredParts = array(
-            'Bibliographic Description',
-            'Circulation Status',
-            'Electronic Resource',
-            'Hold Queue Length',
-            'Item Description',
-            'Item Use Restriction Type',
-            'Location',
-            'Physical Condition',
-            'Security Marker',
-            'Sensitization Flag'
+        $response = $this->sendRequest($request);
+        $success = $response->xpath(
+            'ns1:RequestItemResponse/ns1:ItemId/ns1:ItemIdentifierValue'
         );
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
-
-        foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
+        if ($success) {
+            return [
+                    'success' => true,
+                    "sysMessage" => 'Request Successful.'
+            ];
+        } else {
+            return [
+                    'success' => false,
+                    "sysMessage" => 'Request Not Successful.'
+            ];
         }
-        $xml .= '</ns1:LookupItem></ns1:NCIPMessage>';
-        return $xml;
     }
 
     /**
-     * Temporary method for dealing with item's location.
+     * Cancel Holds
      *
-     * @param string $itemID
+     * Attempts to Cancel a hold or recall on a particular item. The
+     * data in $cancelDetails['details'] is determined by getCancelHoldDetails().
+     *
+     * @param array $cancelDetails An array of item and patron data
+     *
+     * @return array               An array of data on each request including
+     * whether or not it was successful.
      */
-    public function getLocation($itemID)
+    public function cancelHolds($cancelDetails)
     {
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>' . '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . 'Location</ns1:ItemElementType>' . '</ns1:LookupItem>' . '</ns1:NCIPMessage>';
-    }
+        $count = 0;
+        $username = $cancelDetails['patron']['cat_username'];
+        $password = $cancelDetails['patron']['cat_password'];
+        $details = $cancelDetails['details'];
+        $response = [];
 
-    /**
-     * Build the NCIP request XML to get patron's fines.
-     *
-     * @param array $patron
-     *            The patron array
-     *
-     * @return string NCIP request XML
-     */
-    public function getMyFines($patron)
-    {
-        $extras = array(
-            '<ns1:UserFiscalAccountDesired/>'
-        );
-        return $this->getMyProfile($patron, $extras);
-    }
-
-    public function getMyHistory($patron)
-    {
-        $extras = array(
-            '<ns1:LoanedItemsDesired/>'
-        );
-        return $this->getMyProfile($patron, $extras);
-    }
-
-    /**
-     * Build the NCIP request XML to get patron's current holds - books which
-     * are reserved.
-     *
-     * @param array $patron
-     *            The patron array
-     *
-     * @return string NCIP request XML
-     */
-    public function getMyHolds($patron)
-    {
-        $extras = array(
-            '<ns1:RequestedItemsDesired/>'
-        );
-        return $this->getMyProfile($patron, $extras);
-    }
-
-    /**
-     * Build the NCIP request XML to get patron's details.
-     *
-     * @param array $patron
-     *            The patron array
-     *
-     * @return string NCIP request XML
-     */
-    public function getMyProfile($patron, $extras = null)
-    {
-        if ($extras == null) {
-            $extras = array(
-                '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm">Block Or Trap</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Address Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Privilege' . '</ns1:UserElementType>'
+        foreach ($details as $cancelDetails) {
+            list($itemId, $requestId) = explode("|", $cancelDetails);
+            $request = $this->getCancelRequest(
+                $username, $password, $requestId, "Hold"
             );
+            $cancelRequestResponse = $this->sendRequest($request);
+            $userId = $cancelRequestResponse->xpath(
+                'ns1:CancelRequestItemResponse/' .
+                'ns1:UserId/ns1:UserIdentifierValue'
+            );
+            $itemId = (string)$itemId;
+            if ($userId) {
+                $count++;
+                $response[$itemId] = [
+                        'success' => true,
+                        'status' => 'hold_cancel_success',
+                ];
+            } else {
+                $response[$itemId] = [
+                        'success' => false,
+                        'status' => 'hold_cancel_fail',
+                ];
+            }
+        }
+        $result = ['count' => $count, 'items' => $response];
+        return $result;
+    }
+
+    /**
+     * Get Cancel Hold Details
+     *
+     * This function returns the item id and recall id as a string
+     * separated by a pipe, which is then submitted as form data in Hold.php. This
+     * value is then extracted by the CancelHolds function.  item id is used as the
+     * array key in the response.
+     *
+     * @param array $holdDetails An array of item data
+     *
+     * @return string Data for use in a form field
+     */
+    public function getCancelHoldDetails($holdDetails)
+    {
+        $cancelDetails = $holdDetails['id'] . "|" . $holdDetails['requestId'];
+        return $cancelDetails;
+    }
+
+    /**
+     * Cancel Storage Retrieval Requests (Call Slips)
+     *
+     * Attempts to Cancel a call slip on a particular item. The
+     * data in $cancelDetails['details'] is determined by
+     * getCancelStorageRetrievalRequestDetails().
+     *
+     * @param array $cancelDetails An array of item and patron data
+     *
+     * @return array               An array of data on each request including
+     * whether or not it was successful.
+     */
+    public function cancelStorageRetrievalRequests($cancelDetails)
+    {
+        $count = 0;
+        $username = $cancelDetails['patron']['cat_username'];
+        $password = $cancelDetails['patron']['cat_password'];
+        $details = $cancelDetails['details'];
+        $response = [];
+
+        foreach ($details as $cancelDetails) {
+            list($itemId, $requestId) = explode("|", $cancelDetails);
+            $request = $this->getCancelRequest(
+                $username, $password, $requestId, "Stack Retrieval"
+            );
+            $cancelRequestResponse = $this->sendRequest($request);
+            $userId = $cancelRequestResponse->xpath(
+                'ns1:CancelRequestItemResponse/' .
+                'ns1:UserId/ns1:UserIdentifierValue'
+            );
+            $itemId = (string)$itemId;
+            if ($userId) {
+                $count++;
+                $response[$itemId] = [
+                    'success' => true,
+                    'status' => 'storage_retrieval_request_cancel_success',
+                ];
+            } else {
+                $response[$itemId] = [
+                    'success' => false,
+                    'status' => 'storage_retrieval_request_cancel_fail',
+                ];
+            }
+        }
+        $result = ['count' => $count, 'items' => $response];
+        return $result;
+    }
+
+    /**
+     * Get Cancel Storage Retrieval Request (Call Slip) Details
+     *
+     * This function returns the item id and call slip id as a
+     * string separated by a pipe, which is then submitted as form data. This
+     * value is then extracted by the CancelStorageRetrievalRequests function.
+     * The item id is used as the key in the return value.
+     *
+     * @param array $callslipDetails An array of item data
+     *
+     * @return string Data for use in a form field
+     */
+    public function getCancelStorageRetrievalRequestDetails($callslipDetails)
+    {
+        return $callslipDetails['id'] . "|" . $callslipDetails['requestId'];
+    }
+
+    /**
+     * Renew My Items
+     *
+     * Function for attempting to renew a patron's items.  The data in
+     * $renewDetails['details'] is determined by getRenewDetails().
+     *
+     * @param array $renewDetails An array of data required for renewing items
+     * including the Patron ID and an array of renewal IDS
+     *
+     * @return array              An array of renewal information keyed by item ID
+     */
+    public function renewMyItems($renewDetails)
+    {
+        $details = [];
+        foreach ($renewDetails['details'] as $renewId) {
+            $request = $this->getRenewRequest(
+                $renewDetails['patron']['cat_username'],
+                $renewDetails['patron']['cat_password'], $renewId
+            );
+            $response = $this->sendRequest($request);
+            $dueDate = $response->xpath('ns1:RenewItemResponse/ns1:DateDue');
+            if ($dueDate) {
+                $tmp = $dueDate;
+                $newDueDate = (string)$tmp[0];
+                $tmp = split("T", $newDueDate);
+                $splitDate = $tmp[0];
+                $splitTime = $tmp[1];
+                $details[$renewId] = [
+                    "success" => true,
+                    "new_date" => $splitDate,
+                    "new_time" => rtrim($splitTime, "Z"),
+                    "item_id" => $renewId,
+                ];
+
+            } else {
+                $details[$renewId] = [
+                    "success" => false,
+                    "item_id" => $renewId,
+                ];
+            }
         }
 
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:UserId>' . '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . implode('', $extras) . '</ns1:LookupUser>' . '</ns1:NCIPMessage>';
+        return [null, "details" => $details];
     }
 
     /**
-     * Build the NCIP request XML to get patron's current checked out items.
+     * Helper function to build the request XML to cancel a request:
      *
-     * @param array $patron
-     *            The patron array
+     * @param string $username  Username for login
+     * @param string $password  Password for login
+     * @param string $requestId Id of the request to cancel
+     * @param string $type      The type of request to cancel (Hold, etc)
      *
-     * @return string NCIP request XML
+     * @return string           NCIP request XML
      */
-    public function getMyTransactions($patron)
+    protected function getCancelRequest($username, $password, $requestId, $type)
     {
-        $extras = array(
-            '<ns1:LoanedItemsDesired/>'
-        );
-        return $this->getMyProfile($patron, $extras);
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+            'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' .
+            'xsd/ncip_v2_0.xsd">' .
+                '<ns1:CancelRequestItem>' .
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($username) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Username' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($password) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Password' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    '<ns1:RequestId>' .
+                        '<ns1:RequestIdentifierValue>' .
+                            htmlspecialchars($requestId) .
+                        '</ns1:RequestIdentifierValue>' .
+                    '</ns1:RequestId>' .
+                    '<ns1:RequestType>' .
+                        htmlspecialchars($type) .
+                    '</ns1:RequestType>' .
+                '</ns1:CancelRequestItem>' .
+            '</ns1:NCIPMessage>';
     }
 
     /**
-     * Build the request XML to log in a user.
+     * Helper function to build the request XML to request an item
+     * (Hold, Storage Retrieval, etc)
      *
-     * @param string $username
-     *            Username for login
-     * @param string $password
-     *            Password for login
-     * @param string $extras
-     *            Extra elements to include in the request
+     * @param string $username         Username for login
+     * @param string $password         Password for login
+     * @param string $bibId            Bib Id of item to request
+     * @param string $itemId           Id of item to request
+     * @param string $patron_agency_id Patron agency ID
+     * @param string $pickup_agency_id Pickup agency ID
+     * @param string $item_agency_id   Item agency ID
+     * @param string $requestType      Type of the request (Hold, Callslip, etc)
+     * @param string $requestScope     Level of request (title, item, etc)
+     * @param string $lastInterestDate Last date interested in item
+     * @param string $pickupLocation   Code of location to pickup request
      *
-     * @return string NCIP request XML
+     * @return string          NCIP request XML
      */
-    public function patronLogin($username, $password)
-    {
-        $extras = array(
-            '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Address Information' . '</ns1:UserElementType>'
-        );
-
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' . 'xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:AuthenticationInput>' . '<ns1:AuthenticationInputData>' . htmlspecialchars($username) . '</ns1:AuthenticationInputData>' . '<ns1:AuthenticationDataFormatType>' . 'text' . '</ns1:AuthenticationDataFormatType>' . '<ns1:AuthenticationInputType>' . 'User Id' . '</ns1:AuthenticationInputType>' . '</ns1:AuthenticationInput>' . '<ns1:AuthenticationInput>' . '<ns1:AuthenticationInputData>' . htmlspecialchars($password) . '</ns1:AuthenticationInputData>' . '<ns1:AuthenticationDataFormatType>' . 'text' . '</ns1:AuthenticationDataFormatType>' . '<ns1:AuthenticationInputType>' . 'Password' . '</ns1:AuthenticationInputType>' . '</ns1:AuthenticationInput>' . implode('', $extras) . '</ns1:LookupUser>' . '</ns1:NCIPMessage>';
-    }
-
-    public function placeHold($holdDetails)
-    {
-        $id = $holdDetails['id'];
-        // $id = substr_replace($id, '', 5, 1);
-        $id .= '-';
-        $id .= $holdDetails['item_id'];
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RequestItem>' . '<ns1:UserId>' . '<ns1:UserIdentifierValue>' . htmlspecialchars($holdDetails['patron']['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' . htmlspecialchars($id) . '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '<ns1:EarliestDateNeeded>2014-09-09T00:00:00</ns1:EarliestDateNeeded>' . '<ns1:NeedBeforeDate>2014-09-17T00:00:00</ns1:NeedBeforeDate>' . '<ns1:PickupLocation>' . $holdDetails['pickUpLocation'] . '</ns1:PickupLocation>' . '<ns1:PickupExpiryDate>2014-09-30T00:00:00</ns1:PickupExpiryDate>' . '</ns1:RequestItem></ns1:NCIPMessage>';
-        return $xml;
+    protected function getRequest($username, $password, $bibId, $itemId,
+        $patron_agency_id, $pickup_agency_id, $item_agency_id,
+        $requestType, $requestScope, $lastInterestDate, $pickupLocation = null
+    ) {
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+            'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' .
+            'xsd/ncip_v2_0.xsd">' .
+                '<ns1:RequestItem>' .
+                   '<ns1:InitiationHeader>' .
+                        '<ns1:FromAgencyId>' .
+                            '<ns1:AgencyId>' .
+                                htmlspecialchars($patron_agency_id) .
+                            '</ns1:AgencyId>' .
+                        '</ns1:FromAgencyId>' .
+                        '<ns1:ToAgencyId>' .
+                            '<ns1:AgencyId>' .
+                                htmlspecialchars($pickup_agency_id) .
+                            '</ns1:AgencyId>' .
+                        '</ns1:ToAgencyId>' .
+                    '</ns1:InitiationHeader>' .
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($username) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Username' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($password) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Password' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    '<ns1:BibliographicId>' .
+                        '<ns1:BibliographicRecordId>' .
+                            '<ns1:AgencyId>' .
+                                htmlspecialchars($item_agency_id) .
+                            '</ns1:AgencyId>' .
+                            '<ns1:BibliographicRecordIdentifier>' .
+                                htmlspecialchars($bibId) .
+                            '</ns1:BibliographicRecordIdentifier>' .
+                        '</ns1:BibliographicRecordId>' .
+                    '</ns1:BibliographicId>' .
+                    '<ns1:ItemId>' .
+                        '<ns1:ItemIdentifierValue>' .
+                            htmlspecialchars($itemId) .
+                        '</ns1:ItemIdentifierValue>' .
+                    '</ns1:ItemId>' .
+                    '<ns1:RequestType>' .
+                            htmlspecialchars($requestType) .
+                    '</ns1:RequestType>' .
+                    '<ns1:RequestScopeType ' .
+                        'ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes' .
+                        '/requestscopetype/requestscopetype.scm">' .
+                            htmlspecialchars($requestScope) .
+                    '</ns1:RequestScopeType>' .
+                    '<ns1:PickupLocation>' .
+                        htmlspecialchars($pickupLocation) .
+                    '</ns1:PickupLocation>' .
+                    '<ns1:PickupExpiryDate>' .
+                        htmlspecialchars($lastInterestDate) .
+                    '</ns1:PickupExpiryDate>' .
+                '</ns1:RequestItem>' .
+            '</ns1:NCIPMessage>';
     }
 
     /**
-     * Build the NCIP request XML to renew patron's items.
+     * Helper function to build the request XML to renew an item:
      *
-     * @param array $patron
-     * @param string $item
+     * @param string $username Username for login
+     * @param string $password Password for login
+     * @param string $itemId   Id of item to renew
      *
-     * @return string NCIP request XML
+     * @return string          NCIP request XML
      */
-    public function renewMyItems($patron, $item)
+    protected function getRenewRequest($username, $password, $itemId)
     {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RenewItem>' . '<ns1:UserId>' . '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' . htmlspecialchars($item) . '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' . '</ns1:RenewItem></ns1:NCIPMessage>';
-        return $xml;
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+            'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' .
+            'xsd/ncip_v2_0.xsd">' .
+                '<ns1:RenewItem>' .
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($username) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Username' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($password) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Password' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    '<ns1:ItemId>' .
+                        '<ns1:ItemIdentifierValue>' .
+                            htmlspecialchars($itemId) .
+                        '</ns1:ItemIdentifierValue>' .
+                    '</ns1:ItemId>' .
+                '</ns1:RenewItem>' .
+            '</ns1:NCIPMessage>';
+    }
+
+    /**
+     * Helper function to build the request XML to log in a user
+     * and/or retrieve loaned items / request information
+     *
+     * @param string $username         Username for login
+     * @param string $password         Password for login
+     * @param string $patron_agency_id Patron agency ID (optional)
+     * @param string $extras           Extra elements to include in the request
+     *
+     * @return string          NCIP request XML
+     */
+    protected function getLookupUserRequest($username, $password,
+        $patron_agency_id = null, $extras = []
+    ) {
+        $ret = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+            '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+            'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' .
+            'xsd/ncip_v2_0.xsd">' .
+                '<ns1:LookupUser>';
+
+        if (!is_null($patron_agency_id)) {
+            $ret .=
+                   '<ns1:InitiationHeader>' .
+                        '<ns1:ToAgencyId>' .
+                            '<ns1:AgencyId>' .
+                                htmlspecialchars($patron_agency_id) .
+                            '</ns1:AgencyId>' .
+                        '</ns1:ToAgencyId>' .
+                    '</ns1:InitiationHeader>';
+        }
+
+        $ret .=
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($username) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Username' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    '<ns1:AuthenticationInput>' .
+                        '<ns1:AuthenticationInputData>' .
+                            htmlspecialchars($password) .
+                        '</ns1:AuthenticationInputData>' .
+                        '<ns1:AuthenticationDataFormatType>' .
+                            'text' .
+                        '</ns1:AuthenticationDataFormatType>' .
+                        '<ns1:AuthenticationInputType>' .
+                            'Password' .
+                        '</ns1:AuthenticationInputType>' .
+                    '</ns1:AuthenticationInput>' .
+                    implode('', $extras) .
+                '</ns1:LookupUser>' .
+            '</ns1:NCIPMessage>';
+
+        return $ret;
     }
 }
+
