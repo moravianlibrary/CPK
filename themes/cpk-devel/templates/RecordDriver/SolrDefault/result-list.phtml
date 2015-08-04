@@ -25,7 +25,9 @@
             </div>
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
-            <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
+            <div class="format-list">
+            <?=$this->record($this->driver)->getFormatList()?>
+            </div>
         </div>
     <div class="col-sm-10 col-xs-6 middle">
       <div class="root-title">

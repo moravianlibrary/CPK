@@ -15,6 +15,14 @@
 
 }
 
+//formats
+.format-list{
+  margin:5px 0px;
+}
+.format-text{
+  font-size:12px;
+}
+
 
 //list of search results
 .root-title{
@@ -53,4 +61,65 @@
 
 .fa-heart, .fa-heart-o {
   color: @brand-primary;
+}
+
+.fa {
+  &.books:before {
+    //book
+    content: "\f02d";
+  }
+  &.electronicsource:before {
+    //globe
+    content: "\f0ac"
+  }
+  &.other:before, &.otherunspecified:before, {
+    //question
+    content: "\f128"
+  }
+  &.otherobject:before {
+    //cube
+    content: "\f1b2"
+  }
+  &.periodicals:before {
+    //newspaper-o
+    content: "\f1ea"
+  }
+  &.visualdocuments:before {
+    //picture-o
+    content: "\f03e"
+  }
+  &.articles:before, &.manuscripts:before {
+    //file-text-o
+    content: "\f0f6"
+  }
+  &.audio:before, &.audiocd:before, &.audioother:before, &.musicalscores:before, &.audiocassette:before, &.audiolp:before, &.audiodvd:before {
+    //fa-file-audio-o
+    content: "\f1c7"
+  }
+  &.maps:before {
+    //map
+    content: "\f279"
+  }
+  &.video:before, &.videodvd:before, &.videoother:before, &.videocd:before  {
+    //file-video-o
+    content: "\f1c8"
+  }
+  &.largeprints:before {
+    //search-plus
+    content: "\f00e"
+  }
+  &.braill:before {
+    //eye-slash
+    content: "\f070"
+  }
+  &.microforms:before {
+    //search-minus
+    content: "\f010"
+  }
+
+
+
+
+
+
 }
