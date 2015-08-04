@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-namespace VuFind\ILS\Driver;
+namespace CPK\ILS\Driver;
 
 use VuFind\Exception\ILS as ILSException;
 use DOMDocument;
@@ -41,7 +41,7 @@ use Zend\XmlRpc\Value\String;
  *          License
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
+class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
 {
 
     /**
