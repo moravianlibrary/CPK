@@ -297,6 +297,15 @@ class MyResearchController extends MyResearchControllerBase
         }
     }
 
+    /**
+     * Returns redirect to myresearch-home because the ill requests are disabled.
+     *
+     * @return \Zend\Http\Response
+     */
+    public function illRequestsAction() {
+        return $this->redirect()->toRoute('myresearch-home');
+    }
+
     protected function checkBlocks($profile)
     {
         foreach ($profile['blocks'] as $block) {
