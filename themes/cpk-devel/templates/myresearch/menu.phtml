@@ -22,12 +22,6 @@
 		<span class="pull-right"><i class="fa fa-archive"></i></span>
 	      </a>
 	    <? endif; ?>
-	    <? if ($this->ils()->checkFunction('ILLRequests')): ?>
-	    <a href="<?=$this->url('myresearch-illrequests')?>" class="list-group-item<?=$this->active == 'ILLRequests' ? ' active' : ''?>">
-	      <?=$this->transEsc('Interlibrary Loan Requests')?>
-	      <span class="pull-right"><i class="fa fa-exchange"></i></span>
-	    </a>
-	    <? endif; ?>
 	    <a href="<?=$this->url('myresearch-fines')?>" class="list-group-item<?=$this->active == 'fines' ? ' active' : ''?>">
 	      <?=$this->transEsc('Fines')?>
 	      <span class="pull-right"><i class="fa fa-usd"></i></span>

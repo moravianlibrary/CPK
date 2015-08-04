@@ -75,7 +75,8 @@ if ($user) $libraryCards = $user->getLibraryCards(false); ?>
           </ul>
         </li>
       <? endif; ?>
-      <? if (isset($libraryCards) && count($libraryCards) > 1): ?>
+      <? /* TODO: Should we enable switching library cards??
+       if (isset($libraryCards) && count($libraryCards) > 1): ?>
         <li class="dropdown">
           <form name="libcardsForm" action="<?=$this->url('librarycards-selectcard')?>" method="get" id="libcardsForm">
             <input type="hidden" name="cardID"/>
@@ -87,7 +88,7 @@ if ($user) $libraryCards = $user->getLibraryCards(false); ?>
           <? endforeach; ?>
           </ul>
         </li>
-      <? endif; ?>
+      <? endif; */ ?>
     </ul>
   </div>
 <? endif; ?>
