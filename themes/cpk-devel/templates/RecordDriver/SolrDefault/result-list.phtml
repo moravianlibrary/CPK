@@ -270,7 +270,7 @@
       </div>
       <div class="col-sm-2 favourites">
           <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-              <div class="pull-right">
+              <div>
                   <? /* Add to favorites */ ?>
                   <i class="fa fa-heart-o"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a>
                   <br/>
