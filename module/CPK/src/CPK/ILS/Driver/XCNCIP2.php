@@ -119,6 +119,14 @@ class XCNCIP2 extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterf
                         CURLOPT_SSL_VERIFYPEER => false
                     )
                 ));
+            } elseif ($this->config['Catalog']['cacert']) {
+                $client->setOptions(array(
+                    'adapter' => 'Zend\Http\Client\Adapter\Curl',
+                    'curloptions' => array(
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_CAINFO => $this->config['Catalog']['cacert']
+                    )
+                ));
             }
 
             $result = $client->send();
