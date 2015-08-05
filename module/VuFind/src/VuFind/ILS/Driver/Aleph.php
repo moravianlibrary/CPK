@@ -542,6 +542,11 @@ class AlephRestfulException extends ILSException
  */
 class AlephWebServices {
 
+    static protected $languages = [
+        'cs' => 'cze',
+        'en' => 'eng'
+    ];
+
     /**
      * Aleph server host name
      *
@@ -597,6 +602,13 @@ class AlephWebServices {
     protected $logger = false;
 
     /**
+     * Logger object for debug info (or false for no debugging).
+     *
+     * @var LoggerInterface|bool
+     */
+    protected $language = false;
+
+    /**
      *
      * @param array $config
      */
@@ -604,7 +616,7 @@ class AlephWebServices {
     {
     }
 
-    public function init($config)
+    public function init($config, $lang)
     {
         $this->host = $config['host'];
         $this->xserver_enabled = false;
@@ -619,6 +631,9 @@ class AlephWebServices {
         }
         if (isset($config['timeout'])) {
             $this->timeout = $config['timeout'];
+        }
+        if (isset($config['send_language']) && $config['send_language']) {
+            $this->language = AlephWebServices::$languages[$lang];
         }
         $this->dlfport = $config['dlfport'];
     }
@@ -736,6 +751,9 @@ class AlephWebServices {
         }
         $url = "http://$this->host:$this->dlfport/rest-dlf/" . $path;
         $headers = ["accept" => "application/xml"];
+        if ($this->language) {
+            $params['lang'] = $this->language;
+        }
         $result = $this->doHTTPRequest($url, $params, $method, $body, $headers);
         $replyCode = (string) $result->{'reply-code'};
         if ($replyCode != "0000") {
@@ -863,7 +881,7 @@ class AlephWebServices {
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
-    \VuFindHttp\HttpServiceAwareInterface
+    \VuFindHttp\HttpServiceAwareInterface, \VuFind\I18n\Translator\TranslatorAwareInterface
 {
 
     const RECORD_ID_BASE_SEPARATOR = '-';
@@ -922,6 +940,13 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @var \VuFind\ILS\Driver\AlephTranslator
      */
+    protected $alephTranslator = false;
+
+    /**
+     * Translation of statuses (used for hiding items and translation of statuses)
+     *
+     * @var \Zend\Mvc\I18n\Translator
+     */
     protected $translator = false;
 
     /**
@@ -966,6 +991,18 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     }
 
     /**
+     * Set the logger
+     *
+     * @param LoggerInterface $logger Logger to use.
+     *
+     * @return void
+     */
+    public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
+    }
+
+    /**
      * Initialize the driver.
      *
      * Validate configuration and perform all resource-intensive tasks needed to
@@ -988,7 +1025,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (!isset($this->config['sublibadm'])) {
             throw new ILSException('Missing sublibadm config setting.');
         }
-        $this->alephWebService->init($this->config['Catalog']);
+        $lang = $this->translator->getTranslator()->getLocale();
+        $this->alephWebService->init($this->config['Catalog'], $lang);
         $this->bib = explode(',', $this->config['Catalog']['bib']);
         $this->useradm = $this->config['Catalog']['useradm'];
         $this->admlib = $this->config['Catalog']['admlib'];
@@ -1010,16 +1048,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ) {
                 $cache = $this->cacheManager
                     ->getCache($this->config['Cache']['type']);
-                $this->translator = $cache->getItem('alephTranslator');
+                $this->alephTranslator = $cache->getItem('alephTranslator');
             }
-            if ($this->translator == false) {
-                $this->translator = new AlephFileTranslator($this->config);
+            if ($this->alephTranslator == false) {
+                $this->alephTranslator = new AlephFileTranslator($this->config);
                 if (isset($cache)) {
-                    $cache->setItem('alephTranslator', $this->translator);
+                    $cache->setItem('alephTranslator', $this->alephTranslator);
                 }
             }
         } else {
-            $this->translator = new AlephFixedTranslator();
+            $this->alephTranslator = new AlephFixedTranslator();
         }
         if (isset($this->config['Catalog']['preferred_pick_up_locations'])) {
             $this->preferredPickUpLocations = explode(
@@ -1243,7 +1281,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             return $holding;
         }
         foreach ($xml->{'items'}->{'item'} as $item) {
-            $item_status = $this->translator->tab15Translate($item);
+            $item_status = $this->alephTranslator->tab15Translate($item);
             if ($item_status['opac'] != 'Y') {
                 continue;
             }
@@ -1252,7 +1290,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $z30 = $item->z30;
             $collection = (string) $z30->{'z30-collection'};
             $collection_desc = array('desc' => $collection);
-            $collection_desc = $this->translator->tab40Translate($item);
+            $collection_desc = $this->alephTranslator->tab40Translate($item);
             $sub_library_code = (string) $item->{'z30-sub-library-code'};
             $requested = false;
             $duedate = null;
