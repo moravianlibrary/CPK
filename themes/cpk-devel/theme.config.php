@@ -21,7 +21,7 @@ return array(
     	'morris-0.4.1.min.js',
     	'raphael.min.js',
     	'jquery-ui.min.js',
-    	'record.js',
+    	'ajax-record-tabs.js',
     ),
     'less' => array(
         'active' => false,
