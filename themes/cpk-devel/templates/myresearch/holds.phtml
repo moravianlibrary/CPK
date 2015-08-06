@@ -16,11 +16,10 @@
         if ($logos !== null)
             $libraryLogo = $logos->$eppnHostname; ?>
 
+    <h3>
+    <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+    </h3>
     <? if (!empty($libraryIdentity->recordList)): ?>
-      <h3 class="col-md-9">
-      <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-      </h3>
-      <hr/><hr/>
       <? if ($libraryIdentity->cancelForm): ?>
         <form name="cancelForm" class="inline" method="post" id="cancelHold">
           <input type="hidden" id="submitType" name="cancelSelected" value="1"/>
@@ -157,7 +156,9 @@
       <? endforeach; ?>
       <? if ($libraryIdentity->cancelForm): ?></form><? endif; ?>
     <? else: ?>
-      <?=$this->transEsc('You do not have any holds or recalls placed') ?>.
+      <div class="label label-info">
+      <?=$this->transEsc('You do not have any holds or recalls placed in this institution') ?>.
+      </div>
     <? endif; ?>
     <? endforeach; ?>
   </div>

@@ -4,12 +4,13 @@
     if ($logos !== null)
         $libraryLogo = $logos->$eppnHostname;
 ?>
-<h3 class="col-md-9 text-center">
+<h3 class="col-md-12">
 <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
 </h3>
 
 <hr/>
-<? $i = 0; foreach ($libraryIdentity['transactions'] as $resource): ?>
+<hr/>
+<? $i = 0; foreach ($libraryIdentity['transactions'] as $resource): ++$i; ?>
   <hr/>
   <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
   <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row">
@@ -126,5 +127,13 @@
       <? endif; ?>
     </div>
   </div>
-<? endforeach; ?>
+<? endforeach;
+
+if ($i === 0): ?>
+    <div class="label label-info">
+    <?=$this->transEsc('You do not have any items checked out in this institution')?>.
+    </div>
+
+<?endif; ?>
+
 <? endforeach; ?>
