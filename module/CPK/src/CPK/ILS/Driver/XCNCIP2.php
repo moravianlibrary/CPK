@@ -27,10 +27,27 @@
  */
 namespace CPK\ILS\Driver;
 
-use VuFind\Exception\ILS as ILSException;
-use DOMDocument;
-use Zend\XmlRpc\Value\String;
+use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
 
+/* TODO List
+ *
+ * Parse and print problems into regular output on current page:
+            $_ENV['exception'] = $message;
+ *
+ * Check all functionalities of these services:
+ * LookupItem
+ * LookupItemSet
+ * LookupUser
+ * LookupAgency
+ * LookupRequest
+ * RequestItem
+ * - placeHold()
+ * CancelRequestItem
+ * - cancelHolds()
+ * RenewItem
+ * - renewMyItems()
+ *
+ */
 /**
  * XC NCIP Toolkit (v2) ILS Driver
  *
@@ -161,7 +178,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         if (! $this->isCorrect($response)) {
             // TODO chcek problem type
-            return null;
+            // return null;
             // var_dump($response->AsXML());
             // throw new ILSException('Problem has occured!');
         }
@@ -195,7 +212,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             }
             if (empty($item_id))
                 return null;
-            $request = $this->requests->cancelHolds($item_id, $cancelDetails['patron']['id']);
+            $request = $this->requests->cancelHold($item_id, $cancelDetails['patron']['id']);
             $response = $this->sendRequest($request);
 
             $items[$item_id] = array(
@@ -226,7 +243,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     {
         $result = array();
         foreach ($renewDetails['details'] as $item) {
-            $request = $this->requests->renewMyItems($renewDetails['patron'], $item);
+            $request = $this->requests->renewMyItem($renewDetails['patron'], $item);
             $response = $this->sendRequest($request);
             $date = $response->xpath('ns1:RenewItemResponse/ns1:DateForReturn');
             $result[$item] = array(
@@ -499,6 +516,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     public function getPickUpLocations($patron = null, $holdInformation = null)
     {
+        //FIXME
         return array(
             '1' => array(
                 'locationID' => 'mzk',
@@ -520,6 +538,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     public function getMyHistory($patron, $currentLimit = 0)
     {
         $request = $this->requests->getMyHistory($patron);
+        if ($request === null)
+            return [];
+
         $response = $this->sendRequest($request);
         return $this->handleTransactions($response);
     }
@@ -566,6 +587,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     {
         $retVal = array();
         foreach ($ids as $recent) {
+
+            // FIXME: We shouldn't iterate as we can use LookupItemSet ..
             $retVal[] = $this->getStatus($recent);
         }
         return $retVal;
@@ -714,6 +737,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $retVal = array();
         $list = $response->xpath('ns1:LookupUserResponse/ns1:LoanedItem');
 
+        //$listVal = $response->asXML();
         foreach ($list as $current) {
             $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
             $dateDue = $current->xpath('ns1:DateDue');
@@ -841,8 +865,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $list = $response->xpath('ns1:LookupUserResponse/ns1:RequestedItem');
 
         foreach ($list as $current) {
+            $xml = $current->asXML();
             $type = $current->xpath('ns1:RequestType');
-            $id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
+            $id = $current->xpath('ns1:BibliographicId/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
             $location = $current->xpath('ns1:PickupLocation');
             $reqnum = $current->xpath('ns1:RequestId/ns1:RequestIdentifierValue');
             $expire = $current->xpath('ns1:PickupExpiryDate');
@@ -1125,7 +1150,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $problem = $response->xpath('//ns1:Problem');
         if ($problem == null)
             return true;
-            // print_r($problem[0]->AsXML());
+        print_r($problem[0]->AsXML());
         return false;
     }
 
@@ -1178,7 +1203,7 @@ class NCIPRequests
      *
      * @return string XML request
      */
-    public function cancelHolds($itemID, $patronID)
+    public function cancelHold($itemID, $patronID)
     {
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' . '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) . '</ns1:UserIdentifierValue></ns1:UserId>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '</ns1:CancelRequestItem></ns1:NCIPMessage>';
         return $xml;
@@ -1287,10 +1312,8 @@ class NCIPRequests
 
     public function getMyHistory($patron)
     {
-        $extras = array(
-            '<ns1:LoanedItemsDesired/>'
-        );
-        return $this->getMyProfile($patron, $extras);
+        // TODO
+        return null;
     }
 
     /**
@@ -1384,7 +1407,7 @@ class NCIPRequests
      *
      * @return string NCIP request XML
      */
-    public function renewMyItems($patron, $item)
+    public function renewMyItem($patron, $item)
     {
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RenewItem>' . '<ns1:UserId>' . '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' . htmlspecialchars($item) . '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' . '</ns1:RenewItem></ns1:NCIPMessage>';
         return $xml;
