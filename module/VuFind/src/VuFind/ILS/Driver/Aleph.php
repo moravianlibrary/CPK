@@ -633,7 +633,8 @@ class AlephWebServices {
             $this->timeout = $config['timeout'];
         }
         if (isset($config['send_language']) && $config['send_language']) {
-            $this->language = AlephWebServices::$languages[$lang];
+            $tags = explode("-", $lang);
+            $this->language = AlephWebServices::$languages[$tags[0]];
         }
         $this->dlfport = $config['dlfport'];
     }
