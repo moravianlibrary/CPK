@@ -517,16 +517,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     public function getPickUpLocations($patron = null, $holdInformation = null)
     {
         //FIXME
-        return array(
-            '1' => array(
-                'locationID' => 'mzk',
-                'locationDisplay' => 'Moravska zemska knihovna'
-            ),
-            '2' => array(
-                'locationID' => 'knihovna_test',
-                'locationDisplay' => 'Knihovna 2 test'
-            )
-        );
+        return array();
     }
 
     public function getDefaultPickUpLocation($patron = null, $holdInformation = null)
@@ -1181,8 +1172,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected function isValidToken($nextItemToken)
     {
         if (isset($nextItemToken[0])) {
-            if ($nextItemToken[0] != '')
-                return true;
+                return ! empty((string) $nextItemToken[0]);
         }
         return false;
     }

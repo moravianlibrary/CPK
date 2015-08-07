@@ -65,12 +65,68 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forwardTo('MyResearch', 'Home');
         }
 
-        $view = parent::profileAction();
-
-        if ($view) {
-            $this->checkBlocks($view->__get('profile'));
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! is_array($patron = $this->catalogLogin())) {
+            return $patron;
         }
 
+        $user = $this->getAuthManager()->isLoggedIn();
+
+        $identities = $user->getLibraryCards();
+
+        $viewVars = $libraryIdentities = [];
+
+        foreach ($identities as $identity) {
+
+            $patron = $this->parsePatronFromIdentity($identity);
+
+            // Here starts VuFind/MyResearch/profileAction
+            // Process home library parameter (if present):
+            $homeLibrary = $this->params()->fromPost('home_library', false);
+            if (! empty($homeLibrary)) {
+                $user->changeHomeLibrary($homeLibrary);
+                $this->getAuthManager()->updateSession($user);
+                $this->flashMessenger()
+                    ->setNamespace('info')
+                    ->addMessage('profile_update');
+            }
+
+            // Begin building view object:
+            $currentIdentityView = $this->createViewModel();
+
+            // Obtain user information from ILS:
+            $catalog = $this->getILS();
+            $profile = $catalog->getMyProfile($patron);
+            $profile['home_library'] = $user->home_library;
+            $currentIdentityView->profile = $profile;
+            try {
+                $currentIdentityView->pickup = $catalog->getPickUpLocations($patron);
+                $currentIdentityView->defaultPickupLocation = $catalog->getDefaultPickUpLocation($patron);
+            } catch (\Exception $e) {
+                // Do nothing; if we're unable to load information about pickup
+                // locations, they are not supported and we should ignore them.
+            }
+            // Here ends VuFind/MyResearch/profileAction
+
+            // Here starts VuFind/MZKCommon/profileAction
+            if ($currentIdentityView) {
+                $catalog = $this->getILS();
+                $currentIdentityView->profileChange = $catalog->checkCapability('changeUserRequest');
+            }
+
+            // Here ends VuFind/MZKCommon/profileAction
+
+            if ($currentIdentityView) {
+                $this->checkBlocks($currentIdentityView->__get('profile'));
+            }
+
+            $libraryIdentities[$identity['eppn']] = $currentIdentityView;
+        }
+
+        $viewVars['libraryIdentities'] = $libraryIdentities;
+        $viewVars['logos'] = $user->getIdentityProvidersLogos();
+        $view = $this->createViewModel($viewVars);
+        $this->flashExceptions();
         return $view;
     }
 
@@ -302,7 +358,8 @@ class MyResearchController extends MyResearchControllerBase
      *
      * @return \Zend\Http\Response
      */
-    public function illRequestsAction() {
+    public function illRequestsAction()
+    {
         return $this->redirect()->toRoute('myresearch-home');
     }
 
