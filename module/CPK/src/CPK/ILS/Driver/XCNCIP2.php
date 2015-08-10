@@ -110,15 +110,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     protected function sendRequest($xml)
     {
-        $xml = str_replace('BOA001.', 'MZK01', $xml); // Conversion BOA to MZK
-
-        // TODO: delete this part - begin
-                                                      // This is only for development purposes.
-        if (! $this->isValidXMLAgainstXSD($xml)) {
-            throw new ILSException('Not valid XML request!');
-        }
-        // delete this part - end
-
         // Make the NCIP request:
         try {
             $client = $this->httpService->createClient($this->config['Catalog']['url']);
@@ -170,19 +161,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         }
         $response->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
 
-        if (! $this->isValidXMLAgainstXSD($response)) {
-            $message = 'Not valid XML response!';
-            $_ENV['exception'] = $message;
-            throw new ILSException($message);
-        }
-
         if (! $this->isCorrect($response)) {
             // TODO chcek problem type
             // return null;
             // var_dump($response->AsXML());
             // throw new ILSException('Problem has occured!');
         }
-        $response = str_replace('MZK01', 'BOA001.', $response->AsXML());
         $response = simplexml_load_string($response);
         return $response;
     }
@@ -517,16 +501,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     public function getPickUpLocations($patron = null, $holdInformation = null)
     {
         //FIXME
-        return array(
-            '1' => array(
-                'locationID' => 'mzk',
-                'locationDisplay' => 'Moravska zemska knihovna'
-            ),
-            '2' => array(
-                'locationID' => 'knihovna_test',
-                'locationDisplay' => 'Knihovna 2 test'
-            )
-        );
+        return array();
     }
 
     public function getDefaultPickUpLocation($patron = null, $holdInformation = null)
@@ -1162,11 +1137,29 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     protected function isCorrect($response)
     {
-        $problem = $response->xpath('//ns1:Problem');
+        //$problem = $response->xpath('//Problem');
+        $problem = $this->useXPath($response, '//Problem');
         if ($problem == null)
             return true;
-        print_r($problem[0]->AsXML());
+        var_dump($problem[0]->AsXML());
         return false;
+    }
+
+    protected function useXPath($xmlObject, $xPath)
+    {
+        $arrayXPath = explode('/', $xPath);
+        $newXPath = "";
+        foreach ( $arrayXPath as $key=>$part ) {
+            if ($part == null) {
+                $newXPath .= '/';
+                continue;
+            }
+            if ($key == 0) $newXPath .= '/';
+            $newXPath .= "*[local-name()='" . $part . "']";
+            if ($key != (sizeof($arrayXPath) - 1)) $newXPath .= '/';
+        }
+        //var_dump($newXPath);
+        return $xmlObject->xpath($newXPath);
     }
 
     /**
@@ -1181,8 +1174,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected function isValidToken($nextItemToken)
     {
         if (isset($nextItemToken[0])) {
-            if ($nextItemToken[0] != '')
-                return true;
+                return ! empty((string) $nextItemToken[0]);
         }
         return false;
     }
