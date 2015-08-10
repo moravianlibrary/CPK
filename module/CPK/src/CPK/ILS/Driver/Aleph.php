@@ -40,13 +40,13 @@ class Aleph extends AlephBase
     public function getMyProfile($user) {
         $profile = parent::getMyProfile($user);
 
-        $driverName = $this->config['Catalog']['multibackendName'];
+        $eppnScope = $this->config['Catalog']['eppnScope'];
 
         $blocks = null;
 
         foreach ($profile['blocks'] as $block) {
-            if (! empty($driverName)) {
-                $blocks[$driverName] = (string) $block;
+            if (! empty($eppnScope)) {
+                $blocks[$eppnScope] = (string) $block;
             } else
                 $blocks[] = (string) $block;
         }
