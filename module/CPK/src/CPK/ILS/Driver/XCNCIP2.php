@@ -943,9 +943,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $blocksParsed = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:BlockOrTrap/ns1:BlockOrTrapType');
 
-        $i = -1;
+        $driverName = $this->config['Catalog']['multibackendName'];
+
         foreach ($blocksParsed as $block) {
-            $blocks[++$i] = (string) $block;
+            if (! empty($driverName)) {
+                $blocks[$driverName] = (string) $block;
+            } else
+                $blocks[] = (string) $block;
         }
 
         $patron = array(

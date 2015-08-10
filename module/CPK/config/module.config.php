@@ -43,6 +43,9 @@ $config = array(
                 'invokables' => [
                     'xcncip2' => 'CPK\ILS\Driver\XCNCIP2',
                 ],
+                'factories' => array(
+                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
+                ), /* factories */
             ], /* ils_driver */
         ), /* plugin_managers */
 

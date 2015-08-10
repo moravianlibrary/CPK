@@ -1,6 +1,6 @@
 <?php
 /**
- * Factory for Bootstrap view helpers.
+ * ILS Driver Factory Class
  *
  * PHP version 5
  *
@@ -20,45 +20,40 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  View_Helpers
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @package  ILS_Drivers
+ * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
-namespace CPK\View\Helper\CPK;
+namespace CPK\ILS\Driver;
 use Zend\ServiceManager\ServiceManager;
 
 /**
- * Factory for Bootstrap view helpers.
+ * ILS Driver Factory Class
  *
  * @category VuFind2
- * @package  View_Helpers
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @package  ILS_Drivers
+ * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
- * @codeCoverageIgnore
+ * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
 class Factory
 {
-
-    public static function getRecord(ServiceManager $sm)
-    {
-        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
-        return new Record($config);
-    }
     /**
-     * Construct the Flashmessages helper.
+     * Factory for Aleph driver.
      *
      * @param ServiceManager $sm Service manager.
      *
-     * @return Flashmessages
+     * @return Aleph
      */
-    public static function getFlashmessages(ServiceManager $sm)
+    public static function getAleph(ServiceManager $sm)
     {
-        $messenger = $sm->getServiceLocator()->get('ControllerPluginManager')
-            ->get('FlashMessenger');
-        return new Flashmessages($messenger);
+        return new Aleph(
+            $sm->getServiceLocator()->get('VuFind\DateConverter'),
+            $sm->getServiceLocator()->get('VuFind\CacheManager'),
+            $sm->getServiceLocator()->get('VuFind\Search'),
+            $sm->getServiceLocator()->get('VuFind\DbTablePluginManager')->get('recordstatus')
+        );
     }
-
 
 }

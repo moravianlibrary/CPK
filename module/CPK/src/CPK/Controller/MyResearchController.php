@@ -76,12 +76,17 @@ class MyResearchController extends MyResearchControllerBase
 
         $viewVars = $libraryIdentities = [];
 
+        $logos = $user->getIdentityProvidersLogos();
+
         foreach ($identities as $identity) {
 
-            $patron = $this->parsePatronFromIdentity($identity);
+            $profileFetched = $identity->cat_username === $patron['cat_username'];
 
-            // Here starts VuFind/MyResearch/profileAction
-            // Process home library parameter (if present):
+            if (! $profileFetched)
+                $patron = $this->parsePatronFromIdentity($identity);
+
+                // Here starts VuFind/MyResearch/profileAction
+                // Process home library parameter (if present):
             $homeLibrary = $this->params()->fromPost('home_library', false);
             if (! empty($homeLibrary)) {
                 $user->changeHomeLibrary($homeLibrary);
@@ -96,9 +101,15 @@ class MyResearchController extends MyResearchControllerBase
 
             // Obtain user information from ILS:
             $catalog = $this->getILS();
-            $profile = $catalog->getMyProfile($patron);
+
+            if (! $profileFetched) {
+                $profile = $catalog->getMyProfile($patron);
+            } else
+                $profile = $patron;
+
             $profile['home_library'] = $user->home_library;
             $currentIdentityView->profile = $profile;
+
             try {
                 $currentIdentityView->pickup = $catalog->getPickUpLocations($patron);
                 $currentIdentityView->defaultPickupLocation = $catalog->getDefaultPickUpLocation($patron);
@@ -117,14 +128,14 @@ class MyResearchController extends MyResearchControllerBase
             // Here ends VuFind/MZKCommon/profileAction
 
             if ($currentIdentityView) {
-                $this->checkBlocks($currentIdentityView->__get('profile'));
+                $this->processBlocks($currentIdentityView->__get('profile'), $logos);
             }
 
             $libraryIdentities[$identity['eppn']] = $currentIdentityView;
         }
 
         $viewVars['libraryIdentities'] = $libraryIdentities;
-        $viewVars['logos'] = $user->getIdentityProvidersLogos();
+        $viewVars['logos'] = $logos;
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions();
         return $view;
@@ -363,19 +374,25 @@ class MyResearchController extends MyResearchControllerBase
         return $this->redirect()->toRoute('myresearch-home');
     }
 
-    protected function checkBlocks($profile)
-    {
-        foreach ($profile['blocks'] as $block) {
-            if (! empty($block)) {
-                $this->flashMessenger()->addErrorMessage($block);
-            }
-        }
-    }
-
     protected function isLoggedInWithDummyDriver()
     {
         $user = $this->getAuthManager()->isLoggedIn();
         return $user ? $user['home_library'] == "Dummy" : false;
+    }
+
+    protected function processBlocks($profile, $logos)
+    {
+        if ($logos instanceof \Zend\Config\Config) {
+            $logos = $logos->toArray();
+        }
+
+        foreach ($profile['blocks'] as $institution => $block) {
+            $logo = $logos[$institution];
+
+            $message[$logo] = $block;
+
+            $this->flashMessenger()->setNamespace('error')->addMessage($message);
+        }
     }
 
     /**
