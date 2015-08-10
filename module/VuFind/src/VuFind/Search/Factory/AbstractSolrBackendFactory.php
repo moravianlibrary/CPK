@@ -38,6 +38,7 @@ use VuFind\Search\Solr\V3\ErrorListener as LegacyErrorListener;
 use VuFind\Search\Solr\V4\ErrorListener;
 use VuFind\Search\Solr\DeduplicationListener;
 use VuFind\Search\Solr\HierarchicalFacetListener;
+use VuFind\Search\Solr\NestedFacetListener;
 
 use VuFindSearch\Backend\BackendInterface;
 use VuFindSearch\Backend\Solr\LuceneSyntaxHelper;
@@ -239,6 +240,12 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         // Attach hide facet value listener:
         if ($hfvListener = $this->getHideFacetValueListener($backend, $facet)) {
             $hfvListener->attach($events);
+        }
+
+        // Atach children facet listener
+        if (isset($facets->SpecialFacets->nested)) {
+            $nested = $facet->SpecialFacets->nested->toArray();
+            $this->getNestedFacetListener($backend, $nested)->attach($events);
         }
 
         // Attach error listeners for Solr 3.x and Solr 4.x (for backward
@@ -467,4 +474,17 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         );
         return $listener;
     }
+
+    /**
+     * Get a hierarchical facet listener for the backend
+     *
+     * @param BackendInterface $backend Search backend
+     *
+     * @return NestedFacetListener
+     */
+    protected function getNestedFacetListener(BackendInterface $backend, $nestedFacets)
+    {
+        return new NestedFacetListener($backend, $nestedFacets);
+    }
+
 }

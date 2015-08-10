@@ -123,7 +123,19 @@ class RecordCollection extends AbstractRecordCollection
     public function getFacets()
     {
         if (!$this->facets) {
-            $this->facets = new Facets($this->response['facet_counts']);
+            $facets = $this->response['facet_counts'];
+            if (isset($this->response['facets'])) {
+                foreach ($this->response['facets'] as $field => $facet) {
+                    if (is_array($facet)) {
+                        foreach ($facet['buckets'] as $bucket) {
+                            $value = $bucket['val'];
+                            $count = $bucket['count'];
+                            $facets['facet_fields'][$field][] = [$value, $count];
+                        }
+                    }
+                }
+            }
+            $this->facets = new Facets($facets);
         }
         return $this->facets;
     }
