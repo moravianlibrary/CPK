@@ -67,6 +67,7 @@ class MyResearchController extends MyResearchControllerBase
 
         // Stop now if the user does not have valid catalog credentials available:
         if (! is_array($patron = $this->catalogLogin())) {
+            $this->flashExceptions();
             return $patron;
         }
 

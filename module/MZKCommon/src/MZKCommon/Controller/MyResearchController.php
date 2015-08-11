@@ -562,7 +562,8 @@ class MyResearchController extends MyResearchControllerBase
 
     /**
      * This method represents an exception flashing system for backend without access to
-     * rendering the template ...
+     * rendering the template .
+     * ..
      *
      * Just add an array value to $_ENV['exceptions'] inside any Backend class to flash it later ..
      *
@@ -574,20 +575,21 @@ class MyResearchController extends MyResearchControllerBase
     protected function flashExceptions()
     {
         if (isset($_ENV['exceptions'])) {
-            foreach ($_ENV['exceptions'] as $institution => $exception) {
-
-                if (! is_numeric($institution))
-                    $exception = $institution . ':' . $exception;
+            foreach ($_ENV['exceptions'] as $source => $exception) {
 
                 // We actually cannot print multi-lined exception -> divide it into separate ones ..
                 $exceptions = explode("\n", $exception);
 
-                if (count($exceptions) > 1) {
-                    foreach ($exceptions as $exception) {
-                        $this->flashMessenger()->addErrorMessage($exception);
-                    }
-                } else
+                if ($exceptions == null) // It is probably an array
+                    $exceptions = $exception;
+
+                foreach ($exceptions as $exception) {
+
+                    if (! is_numeric($source))
+                        $exception = $source . ':' . $exception;
+
                     $this->flashMessenger()->addErrorMessage($exception);
+                }
             }
 
             unset($_ENV['exceptions']);
