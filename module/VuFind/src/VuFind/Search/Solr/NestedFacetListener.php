@@ -41,8 +41,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  *
  * @category VuFind2
  * @package  Search
- * @author   David Maus <maus@hab.de>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Vaclav Rosecky <xrosecky@gmail.com>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
@@ -109,35 +108,39 @@ class NestedFacetListener
 
     protected function process($event) {
         $params = $event->getParam('params');
-        if ($params) {
-            $data = [];
-            foreach ($this->nestedFacets as $field) {
-                $data[$field] = [
-                    'type' => 'terms',
-                    'field' => $field,
-                    'domain' => [ 'blockChildren' => 'merged_boolean:true' ]
-                ];
-            }
-            $params->set('json.facet', json_encode($data));
+        if (!$params) {
+            return;
         }
-        $fq = $params->get('fq');
-        if (is_array($fq) && !empty($fq)) {
+        $data = [];
+        foreach ($this->nestedFacets as $field) {
+            $data[$field] = [
+                'type' => 'terms',
+                'field' => $field,
+                'domain' => [ 'blockChildren' => 'merged_boolean:true' ]
+            ];
+        }
+        $params->set('json.facet', json_encode($data));
+        $fqs = $params->get('fq');
+        if (is_array($fqs) && !empty($fqs)) {
             $newfq = array();
-            foreach ($fq as &$query) {
-                $found = false;
-                foreach ($this->nestedFacets as $field) {
-                    if (substr($query, 0, strlen($field)) === $field) {
-                        $newfq[] = "{!parent which='merged_boolean:true'}" . $query;
-                        $found = true;
-                        break;
-                    }
-                }
-                if (!$found) {
+            foreach ($fqs as &$query) {
+                if ($this->isChildrenFacetQuery($query)) {
+                    $newfq[] = "{!parent which='merged_boolean:true'}" . $query;
+                } else {
                     $newfq[] = $query;
                 }
             }
             $params->set('fq', $newfq);
         }
+    }
+
+    protected function isChildrenFacetQuery($fq) {
+        list($field, $query) = explode(":", $fq);
+        $matches = [];
+        if (preg_match("/(\\{[^\\}]*\\})*(\S+)/", $field, $matches)) {
+            $field = $matches[2];
+        }
+        return in_array($field, $this->nestedFacets);
     }
 
 }
