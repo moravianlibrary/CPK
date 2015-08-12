@@ -175,7 +175,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         if ($problem = $this->getProblem($response)) {
             // TODO chcek problem type
 
-            $message = 'Problem recieved in XCNCIP2 Driver .. Content:<br/>' . str_replace('\n', '<br/>', htmlentities($problem));
+            $message = 'Problem recieved in XCNCIP2 Driver .. Content:' . str_replace('\n', '<br/>', $problem);
 
             $this->addEnviromentalException($message);
 

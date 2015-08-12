@@ -121,6 +121,7 @@ class ShibbolethIdentityManager extends Shibboleth
         'email',
         'lastname',
         'firstname',
+        'fullname',
         'college',
         'major'
     );
@@ -179,6 +180,8 @@ class ShibbolethIdentityManager extends Shibboleth
         }
 
         $attributes = $this->fetchAttributes($config);
+
+        $attributes = $this->parseFullName($attributes);
 
         $eppn = $this->fetchEduPersonPrincipalName();
 
@@ -668,6 +671,34 @@ class ShibbolethIdentityManager extends Shibboleth
         } else {
             return 'Shib-Assertion-' . $i;
         }
+    }
+
+    /**
+     * Some identity providers provide only fullname in "cn" attribute,
+     * thus it's needed to split it up into firstname & lastname to show
+     * that name properly.
+     *
+     * This method checks if is $attributes['fullname'] set & returns
+     * $attributes with firstname & lastname keys where lastname is
+     * the last word in fullname & others are in firstname.
+     *
+     * @param array $attributes
+     * @return string
+     */
+    protected function parseFullName(array $attributes)
+    {
+        $fullname = $attributes['fullname'];
+
+        if (! empty($fullname)) {
+            $splittedFullname = preg_split('/\s+/', $fullname);
+
+            $attributes['lastname'] = array_pop($splittedFullname);
+            $attributes['firstname'] = implode(' ', $splittedFullname);
+
+            unset($attributes['fullname']);
+        }
+
+        return $attributes;
     }
 
     /**
