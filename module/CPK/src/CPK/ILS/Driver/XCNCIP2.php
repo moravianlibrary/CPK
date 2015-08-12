@@ -68,6 +68,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     protected $requests = null;
 
+    protected $maximumItemsCount = null;
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -98,6 +100,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $this->addEnviromentalException($message);
             throw new ILSException($message);
         }
+
+        $maximumItemsCount = $this->config['Catalog']['maximumItemsCount'];
+
+        if (!empty($maximumItemsCount))
+            $this->maximumItemsCount = intval($maximumItemsCount);
+        else
+            $this->maximumItemsCount = 20;
+
         $this->requests = new NCIPRequests();
     }
 
@@ -648,16 +658,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         unset($idSplitted);
 
         // FIXME: Is this not async iteration useful??
-        $maxItemsCount = 5; // use null for unlimited count of items
         do {
             if (isset($nextItemToken[0]))
                 $request = $this->requests->getHolding(array(
                     $id
-                ), $maxItemsCount, (string) $nextItemToken[0]);
+                ), (string) $nextItemToken[0]);
             else {
                 $request = $this->requests->getHolding(array(
                     $id
-                ), $maxItemsCount);
+                ));
                 $all_iteminfo = [];
             }
 
@@ -1274,7 +1283,7 @@ class NCIPRequests
      *
      * @return string XML request
      */
-    public function getHolding($idList, $maxItemsCount = null, $resumption = null)
+    public function getHolding($idList, $resumption = null)
     {
         // Build a list of the types of information we want to retrieve:
         $desiredParts = array(
@@ -1303,8 +1312,8 @@ class NCIPRequests
         foreach ($desiredParts as $current) {
             $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
         }
-        if (! empty($maxItemsCount)) {
-            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($maxItemsCount) . '</ns1:MaximumItemsCount>';
+        if (! empty($this->maximumItemsCount)) {
+            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($this->maximumItemsCount) . '</ns1:MaximumItemsCount>';
         }
         // Add resumption token if necessary:
         if (! empty($resumption)) {
