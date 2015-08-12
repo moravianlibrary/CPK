@@ -22,6 +22,7 @@ return array(
     	'raphael.min.js',
     	'jquery-ui.min.js',
     	'ajax-record-tabs.js',
+        'cpk.js',
     ),
     'less' => array(
         'active' => false,
