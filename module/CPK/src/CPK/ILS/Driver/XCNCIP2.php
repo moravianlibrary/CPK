@@ -920,6 +920,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getMyProfile($patron)
     {
+        // $patron['id'] may have the form of "patronId:agencyId"
+        $agencyId = false;
+        $idSplitted = explode('.', $patron['id']);
+        if (count($idSplitted) > 1) {
+            $id = $idSplitted[0];
+            // Merge the rest of the array
+            $idSplitted = array_slice($idSplitted, 1);
+            $agencyId = implode('.', $idSplitted);
+            $patron['id'] = $id;
+        }
+        unset($idSplitted);
+        $patron['agency'] = $agencyId;
+
         $request = $this->requests->getMyProfile($patron);
         $response = $this->sendRequest($request);
 
@@ -1396,7 +1409,13 @@ class NCIPRequests
             );
         }
 
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:UserId>' . '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . implode('', $extras) . '</ns1:LookupUser>' . '</ns1:NCIPMessage>';
+        $agencyElement = "";
+        if ($patron['agency'])
+        {
+            $agencyElement = "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">" . htmlspecialchars($patron['agency']) . "</ns1:AgencyId>";
+        }
+
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:UserId>' . $agencyElement . '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . implode('', $extras) . '</ns1:LookupUser>' . '</ns1:NCIPMessage>';
     }
 
     /**
