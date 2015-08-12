@@ -65,12 +65,80 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forwardTo('MyResearch', 'Home');
         }
 
-        $view = parent::profileAction();
-
-        if ($view) {
-            $this->checkBlocks($view->__get('profile'));
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! is_array($patron = $this->catalogLogin())) {
+            $this->flashExceptions();
+            return $patron;
         }
 
+        $user = $this->getAuthManager()->isLoggedIn();
+
+        $identities = $user->getLibraryCards();
+
+        $viewVars = $libraryIdentities = [];
+
+        $logos = $user->getIdentityProvidersLogos();
+
+        foreach ($identities as $identity) {
+
+            $profileFetched = $identity->cat_username === $patron['cat_username'];
+
+            if (! $profileFetched)
+                $patron = $this->parsePatronFromIdentity($identity);
+
+                // Here starts VuFind/MyResearch/profileAction
+                // Process home library parameter (if present):
+            $homeLibrary = $this->params()->fromPost('home_library', false);
+            if (! empty($homeLibrary)) {
+                $user->changeHomeLibrary($homeLibrary);
+                $this->getAuthManager()->updateSession($user);
+                $this->flashMessenger()
+                    ->setNamespace('info')
+                    ->addMessage('profile_update');
+            }
+
+            // Begin building view object:
+            $currentIdentityView = $this->createViewModel();
+
+            // Obtain user information from ILS:
+            $catalog = $this->getILS();
+
+            if (! $profileFetched) {
+                $profile = $catalog->getMyProfile($patron);
+            } else
+                $profile = $patron;
+
+            $profile['home_library'] = $user->home_library;
+            $currentIdentityView->profile = $profile;
+
+            try {
+                $currentIdentityView->pickup = $catalog->getPickUpLocations($patron);
+                $currentIdentityView->defaultPickupLocation = $catalog->getDefaultPickUpLocation($patron);
+            } catch (\Exception $e) {
+                // Do nothing; if we're unable to load information about pickup
+                // locations, they are not supported and we should ignore them.
+            }
+            // Here ends VuFind/MyResearch/profileAction
+
+            // Here starts VuFind/MZKCommon/profileAction
+            if ($currentIdentityView) {
+                $catalog = $this->getILS();
+                $currentIdentityView->profileChange = $catalog->checkCapability('changeUserRequest');
+            }
+
+            // Here ends VuFind/MZKCommon/profileAction
+
+            if ($currentIdentityView) {
+                $this->processBlocks($currentIdentityView->__get('profile'), $logos);
+            }
+
+            $libraryIdentities[$identity['eppn']] = $currentIdentityView;
+        }
+
+        $viewVars['libraryIdentities'] = $libraryIdentities;
+        $viewVars['logos'] = $logos;
+        $view = $this->createViewModel($viewVars);
+        $this->flashExceptions();
         return $view;
     }
 
@@ -302,23 +370,30 @@ class MyResearchController extends MyResearchControllerBase
      *
      * @return \Zend\Http\Response
      */
-    public function illRequestsAction() {
-        return $this->redirect()->toRoute('myresearch-home');
-    }
-
-    protected function checkBlocks($profile)
+    public function illRequestsAction()
     {
-        foreach ($profile['blocks'] as $block) {
-            if (! empty($block)) {
-                $this->flashMessenger()->addErrorMessage($block);
-            }
-        }
+        return $this->redirect()->toRoute('myresearch-home');
     }
 
     protected function isLoggedInWithDummyDriver()
     {
         $user = $this->getAuthManager()->isLoggedIn();
         return $user ? $user['home_library'] == "Dummy" : false;
+    }
+
+    protected function processBlocks($profile, $logos)
+    {
+        if ($logos instanceof \Zend\Config\Config) {
+            $logos = $logos->toArray();
+        }
+
+        foreach ($profile['blocks'] as $institution => $block) {
+            $logo = $logos[$institution];
+
+            $message[$logo] = $block;
+
+            $this->flashMessenger()->setNamespace('error')->addMessage($message);
+        }
     }
 
     /**

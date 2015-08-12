@@ -378,7 +378,7 @@ class MyResearchController extends MyResearchControllerBase
             $catalog = $this->getILS();
             $view->profileChange = $catalog->checkCapability('changeUserRequest');
         }
-        
+
         $this->flashExceptions();
         return $view;
     }
@@ -561,21 +561,38 @@ class MyResearchController extends MyResearchControllerBase
     }
 
     /**
-     * New exception flashing system for backend without access to it ..
-     * Just set $_ENV['exception'] inside any Backend class to flash it later ..
+     * This method represents an exception flashing system for backend without access to
+     * rendering the template .
+     * ..
      *
-     * If you wish to add more exceptions, just append newline delimiter between those messages "\n"
+     * Just add an array value to $_ENV['exceptions'] inside any Backend class to flash it later ..
+     *
+     * If the key of appended array value will match any of User's registered institutions, it'll be
+     * shown as related to that institution.
      *
      * @return void
      */
-    protected function flashExceptions() {
+    protected function flashExceptions()
+    {
+        if (isset($_ENV['exceptions'])) {
+            foreach ($_ENV['exceptions'] as $source => $exception) {
 
-        if ($_ENV['exception']) {
-            $exceptions = split("\n", $_ENV['exception']);
-            foreach($exceptions as $exception) {
-                $this->flashMessenger()->addErrorMessage($exception);
+                // We actually cannot print multi-lined exception -> divide it into separate ones ..
+                $exceptions = explode("\n", $exception);
+
+                if ($exceptions == null) // It is probably an array
+                    $exceptions = $exception;
+
+                foreach ($exceptions as $exception) {
+
+                    if (! is_numeric($source))
+                        $exception = $source . ':' . $exception;
+
+                    $this->flashMessenger()->addErrorMessage($exception);
+                }
             }
-            unset($_ENV['exception']);
+
+            unset($_ENV['exceptions']);
         }
     }
 

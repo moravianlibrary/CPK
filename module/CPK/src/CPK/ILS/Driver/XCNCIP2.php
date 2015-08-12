@@ -29,10 +29,8 @@ namespace CPK\ILS\Driver;
 
 use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
 
-/* TODO List
- *
- * Parse and print problems into regular output on current page:
-            $_ENV['exception'] = $message;
+/*
+ * TODO List
  *
  * Check all functionalities of these services:
  * LookupItem
@@ -95,7 +93,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     public function init()
     {
         if (empty($this->config)) {
-            throw new ILSException('Configuration needs to be set.');
+            $message = 'Configuration needs to be set.';
+
+            $this->addEnviromentalException($message);
+            throw new ILSException($message);
         }
         $this->requests = new NCIPRequests();
     }
@@ -116,6 +117,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
+
+            $user = $this->config['Catalog']['username'];
+            $password = $this->config['Catalog']['password'];
+
+            if (!empty($user) && !empty($password)) {
+                $client->setAuth($user, $password);
+            }
 
             if ($this->config['Catalog']['hasUntrustedSSL']) {
                 // Do not verify SSL certificate
@@ -140,13 +148,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $result = $client->send();
         } catch (\Exception $e) {
             $message = $e->getMessage();
-            $_ENV['exception'] = $message;
+
+            $this->addEnviromentalException($message);
             throw new ILSException($message);
         }
 
         if (! $result->isSuccess()) {
-            $message = 'HTTP error';
-            $_ENV['exception'] = $message;
+            $message = 'HTTP error: ' . $result->getContent();
+
+            $this->addEnviromentalException($message);
             throw new ILSException($message);
         }
 
@@ -156,13 +166,20 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         if (! is_a($response, 'SimpleXMLElement')) {
             $message = "Problem parsing XML";
-            $_ENV['exception'] = $message;
+
+            $this->addEnviromentalException($message);
             throw new ILSException($message);
         }
         $response->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
 
-        if (! $this->isCorrect($response)) {
-            // throw new ILSException('Problem has occured!');
+        if ($problem = $this->getProblem($response)) {
+            // TODO chcek problem type
+
+            $message = 'Problem recieved in XCNCIP2 Driver .. Content:<br/>' . str_replace('\n', '<br/>', htmlentities($problem));
+
+            $this->addEnviromentalException($message);
+
+            throw new ILSException($message);
         }
         return $response;
     }
@@ -186,20 +203,51 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         foreach ($cancelDetails['details'] as $recent) {
             foreach ($holds as $onehold) {
                 if ($onehold['id'] == $recent) {
-                    $item_id = $onehold['item_id'];
+                    if (empty($onehold['item_id'])) { // This means we found an biblio-leveled reserve
+                        $request_id = $onehold['reqnum'];
+
+                        if (empty($request_id)) {
+                            $message = 'XCNCIP2 Driver cannot cancel biblio-leveled request without request id!';
+
+                            $this->addEnviromentalException($message);
+                            throw new ILSException($message);
+                        }
+
+                        $item_id = null;
+                    } else {
+                        $request_id = null;
+                        $item_id = $onehold['item_id'];
+                    }
                     break;
                 }
             }
-            if (empty($item_id))
-                return null;
-            $request = $this->requests->cancelHold($item_id, $cancelDetails['patron']['id']);
-            $response = $this->sendRequest($request);
+            if (empty($item_id) && empty($request_id)) {
+                $items[$recent] = array(
+                    'success' => false,
+                    'status' => '',
+                    'sysMessage' => ''
+                );
+            } elseif (! empty($item_id)) {
+                $request = $this->requests->cancelHoldUsingItemId($item_id, $cancelDetails['patron']['id']);
+                $response = $this->sendRequest($request);
+                // TODO: Process Problem elements
 
-            $items[$item_id] = array(
-                'success' => true,
-                'status' => '',
-                'sysMessage' => ''
-            );
+                $items[$item_id] = array(
+                    'success' => true,
+                    'status' => '',
+                    'sysMessage' => ''
+                );
+            } else {
+                $request = $this->requests->cancelHoldUsingRequestId($request_id, $cancelDetails['patron']['id']);
+                $response = $this->sendRequest($request);
+                // TODO: Process Problem elements
+
+                $items[$item_id] = array(
+                    'success' => true,
+                    'status' => '',
+                    'sysMessage' => ''
+                );
+            }
         }
         $retVal = array(
             'count' => count($items),
@@ -262,7 +310,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     public function getPaymentURL()
     {
-        return 'www.mzk.cz';
+        $paymentUrl = $this->config['paymentUrl'];
+        return empty($paymentUrl) ? null : $paymentUrl;
     }
 
     /**
@@ -495,7 +544,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     public function getPickUpLocations($patron = null, $holdInformation = null)
     {
-        //FIXME
+        // FIXME
         return array();
     }
 
@@ -891,9 +940,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
-        $i = -1;
+        $eppnScope = $this->config['Catalog']['eppnScope'];
+
         foreach ($blocksParsed as $block) {
-            $blocks[++$i] = (string) $block;
+            if (! empty($eppnScope)) {
+                $blocks[$eppnScope] = (string) $block;
+            } else
+                $blocks[] = (string) $block;
         }
 
         $patron = array(
@@ -913,7 +966,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         return $patron;
     }
 
-
     /**
      * Get Patron BlocksOrTraps
      *
@@ -932,9 +984,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
-        $i = -1;
+        $i = - 1;
         foreach ($blocksParsed as $block) {
-            $blocks[++$i] = (string) $block;
+            $blocks[++ $i] = (string) $block;
         }
 
         return $blocks;
@@ -1084,8 +1136,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         else
             if (get_class($XML) == 'SimpleXMLElement')
                 $doc->loadXML($XML->asXML());
-            else
-                throw new ILSException('Expected SimpleXMLElement or string containing XML.');
+            else {
+                $message = 'Expected SimpleXMLElement or string containing XML.';
+                $this->addEnviromentalException($message);
+                throw new ILSException($message);
+            }
+
         libxml_clear_errors(); // End - Disable xml error messages.
         return $doc->schemaValidate($path_to_XSD);
     }
@@ -1097,15 +1153,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      * @param $response SimpleXMLElement
      *            Object
      *
-     * @return boolean Returns true, if response is without problem.
+     * @return mixed string Problem | boolean Returns false, if response is without problem.
      */
-    protected function isCorrect($response)
+    protected function getProblem($response)
     {
         $problem = $this->useXPath($response, 'Problem');
+
         if ($problem == null)
-            return true;
-        var_dump($problem[0]->AsXML());
-        return false;
+            return false;
+
+        return $problem[0]->AsXML();
+    }
+
+    protected function addEnviromentalException($message)
+    {
+        $_ENV['exceptions']['ncip'][] = $message;
     }
 
     protected function useXPath($xmlObject, $xPath)
@@ -1133,7 +1195,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected function isValidToken($nextItemToken)
     {
         if (isset($nextItemToken[0])) {
-                return ! empty((string) $nextItemToken[0]);
+            return ! empty((string) $nextItemToken[0]);
         }
         return false;
     }
@@ -1169,9 +1231,23 @@ class NCIPRequests
      *
      * @return string XML request
      */
-    public function cancelHold($itemID, $patronID)
+    public function cancelHoldUsingItemId($itemID, $patronID)
     {
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' . '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) . '</ns1:UserIdentifierValue></ns1:UserId>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '</ns1:CancelRequestItem></ns1:NCIPMessage>';
+        return $xml;
+    }
+
+    /**
+     * Build NCIP request XML for cancel holds.
+     *
+     * @param array $cancelDetails
+     *            Patron's information and details about cancel request.
+     *
+     * @return string XML request
+     */
+    public function cancelHoldUsingRequestId($requestID, $patronID)
+    {
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' . '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) . '</ns1:UserIdentifierValue></ns1:UserId>' . '<ns1:RequestId><ns1:RequestIdentifierValue>' . htmlspecialchars($requestID) . '</ns1:RequestIdentifierValue></ns1:RequestId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '</ns1:CancelRequestItem></ns1:NCIPMessage>';
         return $xml;
     }
 
@@ -1200,13 +1276,13 @@ class NCIPRequests
         // Start the XML:
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
         // Add the ID list:
-        $i = -1;
+        $i = - 1;
         foreach ($idList as $agencyId => $id) {
 
             $agencyIdExt = '';
-            if (++$i !== $agencyId)
-                $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">'.$agencyId.'</ns1:AgencyId></ns1:Ext>';
-            // $id = str_replace("-", "", $id);
+            if (++ $i !== $agencyId)
+                $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . $agencyId . '</ns1:AgencyId></ns1:Ext>';
+                // $id = str_replace("-", "", $id);
             $id = $this->cpkConvert($id);
             $xml .= '<ns1:BibliographicId>' . '<ns1:BibliographicItemId>' . '<ns1:BibliographicItemIdentifier>' . htmlspecialchars($id) . '</ns1:BibliographicItemIdentifier>' . '<ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>' . '</ns1:BibliographicItemId>' . $agencyIdExt . '</ns1:BibliographicId>';
         }
