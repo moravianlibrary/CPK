@@ -23,6 +23,7 @@ return array(
     	'jquery-ui.min.js',
     	'ajax-record-tabs.js',
         'cpk.js',
+        'search-results-tabs.js'
     ),
     'less' => array(
         'active' => false,

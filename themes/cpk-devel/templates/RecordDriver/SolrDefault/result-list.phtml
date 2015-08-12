@@ -157,7 +157,7 @@
   </div>
   <div class="row want-it">
       <div class="col-md-4 col-md-offset-2 col-sm-6 col-sm-offset-2 col-xs-6 library">
-          <a>
+          <a id="holdings" href="#">
               <i class="fa fa-rw fa-book"></i>
               <?=$this->transEsc('from_library')?>
               <b class="caret"></b>
@@ -240,6 +240,12 @@
                          else {} // record is not in libraries and so wont be displayed
 
                      }
+
+                     foreach($recordsInOtherLibs as $key => $value){
+                         $key = key($value);
+                         $id = $value[$key]['id'];
+                         echo '<span class="recordId inOtherLibs hidden">' . $id . '</span>';
+                     }
                      ?>
                  </div>
 
@@ -247,7 +253,7 @@
          </small>
       </div>
       <div class="col-md-2 col-sm-4 col-xs-6 e-version">
-          <a>
+          <a id="eversion" href="#">
               <i class="fa fa-rw fa-globe"></i>
               <?=$this->transEsc('e-version')?>
               <b class="caret"></b>
@@ -259,7 +265,7 @@
           </p>
       </div>
       <div class="col-md-2 col-md-offset-0 col-sm-6 col-sm-offset-2 col-xs-6 buy">
-          <a>
+          <a id="buy" href="#">
               <i class="fa fa-rw fa-shopping-cart"></i>
               <?=$this->transEsc('buy')?>
               <b class="caret"></b>
@@ -284,7 +290,7 @@
               </div>
           <? endif; ?>
       </div>
-
-
   </div>
+  <div class="want-it-tabs"></div>
+
 </div>
