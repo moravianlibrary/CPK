@@ -4,8 +4,11 @@ var cookies_agreed = function(yesNo) {
         var date = new Date();
         date.setFullYear(date.getFullYear() + 10);
         document.cookie = 'eu-cookies=1; path=/; expires=' + date.toGMTString();
-    } else
+        
+        $('.eu-cookies').remove();
+    } else {
         document.cookie = 'eu-cookies=1; path=/';
-    
-    $('.eu-cookies').remove();
+     
+        // Do not remove the div as the user didn't agree
+    }
 }

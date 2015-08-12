@@ -10,10 +10,15 @@ class SolrMarc extends ParentSolrMarc
         return $localId;
     }
 
+    public function getSourceId() {
+        list($source, $localId) = explode('.', $this->getUniqueID());
+        return $source;
+    }
+
     protected function getExternalID() {
         return $this->getLocalId();
     }
-    
+
     public function get996(array $subfields)
     {
     	return $this->getFieldArray('996', $subfields);
@@ -22,6 +27,35 @@ class SolrMarc extends ParentSolrMarc
     public function getFormats()
     {
         return isset($this->fields['cpk_detected_format_txtF_mv']) ? $this->fields['cpk_detected_format_txtF_mv'] : [];
+    }
+
+    public function getRealTimeHoldings($filters = array())
+    {
+        if ($this->ils === null)
+            return [];
+
+        $config = $this->ils->getDriverConfig();
+
+        $remappedRecordIds = $config['RecordIdRemapped'];
+
+        $recordSource = $this->getSourceId();
+
+        foreach ($remappedRecordIds as $source => $fieldOfValidRecordId) {
+            if ($source === $recordSource) {
+                $recordIdField = $this->getMarcRecord()->getFields($fieldOfValidRecordId);
+
+                if (empty($recordIdField) || empty($recordIdField[0]))
+                    return [];
+
+                $recordId = $recordIdField[0]->getData();
+                if (empty($recordId))
+                    return [];
+
+                return $this->holdLogic->getHoldings($source . '.' . $recordId, $filters);
+            }
+        }
+
+        return $this->holdLogic->getHoldings($this->getUniqueID(), $filters);
     }
 
     public function getParentRecordID()
@@ -33,7 +67,7 @@ class SolrMarc extends ParentSolrMarc
     {
         return isset($this->fields['external_links_str_mv'][0]) ? $this->fields['external_links_str_mv'][0] : false;
     }
-    
+
     public function get856Links()
     {
     	return isset($this->fields['links_from_856_str']) ? $this->fields['links_from_856_str'][0] : false;
@@ -83,5 +117,5 @@ class SolrMarc extends ParentSolrMarc
 
         return $commentArray;
     }
-    
+
 }
