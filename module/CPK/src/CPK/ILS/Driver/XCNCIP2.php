@@ -162,12 +162,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $response->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
 
         if (! $this->isCorrect($response)) {
-            // TODO chcek problem type
-            // return null;
-            // var_dump($response->AsXML());
             // throw new ILSException('Problem has occured!');
         }
-        $response = simplexml_load_string($response);
         return $response;
     }
 
@@ -229,7 +225,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         foreach ($renewDetails['details'] as $item) {
             $request = $this->requests->renewMyItem($renewDetails['patron'], $item);
             $response = $this->sendRequest($request);
-            $date = $response->xpath('ns1:RenewItemResponse/ns1:DateForReturn');
+            $date = $this->useXPath($response, 'RenewItemResponse/DateForReturn');
             $result[$item] = array(
                 'success' => true,
                 'new_date' => (string) $date[0],
@@ -318,56 +314,55 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected function getHoldingsForChunk($current, $bibinfo)
     {
         // Extract details from the XML:
-        $status = (string) $current->xpath('ns1:ItemOptionalFields/ns1:CirculationStatus')[0];
+        $status = (string) $this->useXPath($current, 'ItemOptionalFields/CirculationStatus')[0];
 
-        $id = (string) $bibinfo->xpath('ns1:BibliographicId/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier')[0];
-        $itemIdentifierCode = (string) $current->xpath('ns1:ItemId/ns1:ItemIdentifierType')[0];
+        $id = (string) $this->useXPath($bibinfo, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier')[0];
+        $itemIdentifierCode = (string) $this->useXPath($current, 'ItemId/ItemIdentifierType')[0];
 
-        $parsingLoans = $current->xpath('ns1:LoanedItem') != null;
+        $parsingLoans = $this->useXPath($current, 'LoanedItem') != null;
 
         if ($itemIdentifierCode == 'Accession Number') {
 
-            $item_id = (string) $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue')[0];
+            $item_id = (string) $this->useXPath($current, 'ItemId/ItemIdentifierValue')[0];
         }
 
         // Pick out the permanent location (TODO: better smarts for dealing with
         // temporary locations and multi-level location names):
 
-        $locationNameInstance = $current->xpath('ns1:ItemOptionalFields/ns1:Location/ns1:LocationName/ns1:LocationNameInstance');
+        $locationNameInstance = $this->useXPath($current, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
 
         foreach ($locationNameInstance as $recent) {
             // FIXME: Create config to map location abbreviations of each institute into human readable values
 
-            $locationLevel = (string) $recent->xpath('ns1:LocationNameLevel')[0];
+            $locationLevel = (string) $this->useXPath($recent, 'LocationNameLevel')[0];
 
             if ($locationLevel == 4) {
-                $department = (string) $recent->xpath('ns1:LocationNameValue')[0];
+                $department = (string) $this->useXPath($recent, 'LocationNameValue')[0];
             } else
                 if ($locationLevel == 3) {
-                    $sublibrary = (string) $recent->xpath('ns1:LocationNameValue')[0];
+                    $sublibrary = (string) $this->useXPath($recent, 'LocationNameValue')[0];
                 } else {
-                    $locationInBuilding = (string) $recent->xpath('ns1:LocationNameValue')[0];
+                    $locationInBuilding = (string) $this->useXPath($recent, 'LocationNameValue')[0];
                 }
         }
 
         // Get both holdings and item level call numbers; we'll pick the most
         // specific available value below.
-        // $holdCallNo = $current->xpath('ns1:HoldingsSet/ns1:CallNumber');
-        $itemCallNo = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:CallNumber')[0];
+        // $holdCallNo = $this->useXPath($current, 'HoldingsSet/CallNumber');
+        $itemCallNo = (string) $this->useXPath($current, 'ItemOptionalFields/ItemDescription/CallNumber')[0];
         // $itemCallNo = (string)$itemCallNo[0];
 
-        $bibliographicItemIdentifierCode = (string) $current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifierCode')[0];
+        $bibliographicItemIdentifierCode = (string) $this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifierCode')[0];
 
         if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
-
-            $barcode = (string) $current->xpath('ns1:ItemOptionalFields/ns1:BibliographicDescription/ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier')[0];
+            $barcode = (string) $this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier')[0];
         }
 
-        $numberOfPieces = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemDescription/ns1:NumberOfPieces')[0];
+        $numberOfPieces = (string) $this->useXPath($current, 'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
 
-        $holdQueue = (string) $current->xpath('ns1:ItemOptionalFields/ns1:HoldQueueLength')[0];
+        $holdQueue = (string) $this->useXPath($current, 'ItemOptionalFields/HoldQueueLength')[0];
 
-        $itemRestriction = (string) $current->xpath('ns1:ItemOptionalFields/ns1:ItemUseRestrictionType')[0];
+        $itemRestriction = (string) $this->useXPath($current, 'ItemOptionalFields/ItemUseRestrictionType')[0];
 
         $available = $status === 'Available On Shelf';
 
@@ -621,12 +616,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             if ($response == null)
                 return null;
 
-            $new_iteminfo = $response->xpath('ns1:LookupItemSetResponse/ns1:BibInformation/ns1:HoldingsSet/ns1:ItemInformation');
+            $new_iteminfo = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
             $all_iteminfo = array_merge($all_iteminfo, $new_iteminfo);
 
-            $nextItemToken = $response->xpath('ns1:LookupItemSetResponse/ns1:NextItemToken');
+            $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
         } while ($this->isValidToken($nextItemToken));
-        $bibinfo = $response->xpath('ns1:LookupItemSetResponse/ns1:BibInformation');
+        $bibinfo = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
         $bibinfo = $bibinfo[0];
 
         // Build the array of holdings:
@@ -682,11 +677,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $request = $this->requests->patronLogin($username, $password);
         $response = $this->sendRequest($request);
-        $id = $response->xpath('ns1:LookupUserResponse/ns1:UserId/ns1:UserIdentifierValue');
-        $firstname = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:GivenName');
+        $id = $this->useXPath($response, 'LookupUserResponse/UserId/UserIdentifierValue');
+        $firstname = $this->useXPath($response, 'UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
 
-        $lastname = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:Surname');
-        $email = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:ElectronicAddress/ns1:ElectronicAddressData');
+        $lastname = $this->useXPath($response, 'UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
+        $email = $this->useXPath($response, 'UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
         if (! empty($id)) {
             $patron = array(
                 'id' => empty($id) ? '' : (string) $id[0],
@@ -725,30 +720,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     private function handleTransactions($response, $patron)
     {
         $retVal = array();
-        $list = $response->xpath('ns1:LookupUserResponse/ns1:LoanedItem');
+        $list = $this->useXPath($response, 'LookupUserResponse/LoanedItem');
 
-        //$listVal = $response->asXML();
         foreach ($list as $current) {
-            $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
-            $dateDue = $current->xpath('ns1:DateDue');
+            $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
+            $dateDue = $this->useXPath($current, 'DateDue');
             $parsedDate = strtotime((string) $dateDue[0]);
-            /*
-             * $item_id = $current->xpath(
-             * 'ns1:Ext/ns1:BibliographicDescription/' .
-             * 'ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier');
-             * $bibliographicId = substr(explode("-", (string) $item_id[0])[0], 5);
-             * $amount = $current->xpath('ns1:Amount');
-             * $reminderLevel = $current->xpath('ns1:ReminderLevel');
-             * $ext = $current->xpath('ns1:Ext');
-             */
-            // TODO: is Renewable?
             $additRequest = $this->requests->getItemInfo((string) $item_id[0]);
             $additResponse = $this->sendRequest($additRequest);
-            $isbn = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:BibliographicRecordId/ns1:BibliographicRecordIdentifier');
-            $bib_id = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:ComponentId/ns1:ComponentIdentifier');
-            $author = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:Author');
-            $title = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:Title');
-            $mediumType = $additResponse->xpath('ns1:LookupItemResponse/ns1:ItemOptionalFields/ns1:BibliographicDescription/' . 'ns1:MediumType');
+            $isbn = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
+            $bib_id = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
+            $author = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
+            $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
+            $mediumType = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
             $dateDue = date('j. n. Y', $parsedDate);
 
@@ -793,21 +777,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $request = $this->requests->getMyFines($patron);
         $response = $this->sendRequest($request);
 
-        $list = $response->xpath('ns1:LookupUserResponse/ns1:UserFiscalAccount/ns1:AccountDetails');
+        $list = $this->useXPath($response, 'LookupUserResponse/UserFiscalAccount/AccountDetails');
 
         $fines = array();
         foreach ($list as $current) {
-            $amount = $current->xpath('ns1:FiscalTransactionInformation/ns1:Amount/ns1:MonetaryValue');
-            $type = $current->xpath('ns1:FiscalTransactionInformation/ns1:FiscalTransactionType');
-            $date = $current->xpath('ns1:AccrualDate');
-            $desc = $current->xpath('ns1:FiscalTransactionInformation/ns1:FiscalTransactionDescription');
-            /*
-             * This is an item ID, not a bib ID, so it's not actually useful:
-             * $tmp = $current->xpath(
-             * 'ns1:FiscalTransactionInformation/ns1:ItemDetails/' .
-             * 'ns1:ItemId/ns1:ItemIdentifierValue' ); $id = (string)$tmp[0];
-             */
-
+            $amount = $this->useXPath($current, 'FiscalTransactionInformation/Amount/MonetaryValue');
+            $type = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionType');
+            $date = $this->useXPath($current, 'AccrualDate');
+            $desc = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionDescription');
             $parsedDate = strtotime((string) $date[0]);
             $date = date('j. n. Y', $parsedDate);
             $amount_int = (int) $amount[0] * (- 1);
@@ -823,18 +800,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                 'id' => (string) $type[0]
             );
         }
-        // TODO vymaz
-        /*
-         * $fines[] = array(
-         * 'amount' => '10',
-         * 'checkout' => '03. 08. 2014',
-         * 'fine' => 'takto to bude vyzerat',
-         * 'balance' => '-260',
-         * 'createdate' => '01. 08. 2014',
-         * 'duedate' => '09. 09. 2014',
-         * 'id' => 'MZK01-001276830',
-         * );
-         */
         return $fines;
     }
 
@@ -852,19 +817,18 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $response = $this->sendRequest($request);
 
         $retVal = array();
-        $list = $response->xpath('ns1:LookupUserResponse/ns1:RequestedItem');
+        $list = $this->useXPath($response, 'LookupUserResponse/RequestedItem');
 
         foreach ($list as $current) {
-            $xml = $current->asXML();
-            $type = $current->xpath('ns1:RequestType');
-            $id = $current->xpath('ns1:BibliographicId/ns1:BibliographicItemId/ns1:BibliographicItemIdentifier');
-            $location = $current->xpath('ns1:PickupLocation');
-            $reqnum = $current->xpath('ns1:RequestId/ns1:RequestIdentifierValue');
-            $expire = $current->xpath('ns1:PickupExpiryDate');
-            $create = $current->xpath('ns1:DatePlaced');
-            $position = $current->xpath('ns1:HoldQueuePosition');
-            $item_id = $current->xpath('ns1:ItemId/ns1:ItemIdentifierValue');
-            $title = $current->xpath('ns1:Title');
+            $type = $this->useXPath($current, 'RequestType');
+            $id = $this->useXPath($current, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+            $location = $this->useXPath($current, 'PickupLocation');
+            $reqnum = $this->useXPath($current, 'RequestId/RequestIdentifierValue');
+            $expire = $this->useXPath($current, 'PickupExpiryDate');
+            $create = $this->useXPath($current, 'DatePlaced');
+            $position = $this->useXPath($current, 'HoldQueuePosition');
+            $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
+            $title = $this->useXPath($current, 'Title');
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
             // $bib_id = substr_replace($bib_id, '-', 5, 0); // number 5 is position
 
@@ -910,22 +874,22 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $request = $this->requests->getMyProfile($patron);
         $response = $this->sendRequest($request);
 
-        $name = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:GivenName');
-        $surname = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:NameInformation/' . 'ns1:PersonalNameInformation/ns1:StructuredPersonalUserName/ns1:Surname');
-        $address1 = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:Street');
-        $address2 = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:HouseName');
-        $city = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:Locality');
-        $country = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:Country');
-        $zip = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:PhysicalAddress/ns1:StructuredAddress/ns1:PostalCode');
-        $electronicAddress = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserAddressInformation/' . 'ns1:ElectronicAddress');
+        $name = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
+        $surname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
+        $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Street');
+        $address2 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/HouseName');
+        $city = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Locality');
+        $country = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Country');
+        $zip = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostalCode');
+        $electronicAddress = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress');
         foreach ($electronicAddress as $recent) {
-            if ($recent->xpath('ns1:ElectronicAddressType')[0] == 'tel') {
-                $phone = $recent->xpath('ns1:ElectronicAddressData');
+            if ($this->useXPath($recent, 'ElectronicAddressType')[0] == 'tel') {
+                $phone = $this->useXPath($recent, 'ElectronicAddressData');
             }
         }
-        $group = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:UserPrivilege/ns1:UserPrivilegeDescription');
+        $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
 
-        $blocksParsed = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:BlockOrTrap/ns1:BlockOrTrapType');
+        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
         $i = -1;
         foreach ($blocksParsed as $block) {
@@ -966,7 +930,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $request = $this->requests->getBlocks($cat_username);
         $response = $this->sendRequest($request);
 
-        $blocksParsed = $response->xpath('ns1:LookupUserResponse/ns1:UserOptionalFields/ns1:BlockOrTrap/ns1:BlockOrTrapType');
+        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
         $i = -1;
         foreach ($blocksParsed as $block) {
@@ -1137,8 +1101,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     protected function isCorrect($response)
     {
-        //$problem = $response->xpath('//Problem');
-        $problem = $this->useXPath($response, '//Problem');
+        $problem = $this->useXPath($response, 'Problem');
         if ($problem == null)
             return true;
         var_dump($problem[0]->AsXML());
@@ -1148,13 +1111,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected function useXPath($xmlObject, $xPath)
     {
         $arrayXPath = explode('/', $xPath);
-        $newXPath = "";
+        $newXPath = "//";
         foreach ( $arrayXPath as $key=>$part ) {
-            if ($part == null) {
-                $newXPath .= '/';
-                continue;
-            }
-            if ($key == 0) $newXPath .= '/';
+            if ($part == null) continue;
             $newXPath .= "*[local-name()='" . $part . "']";
             if ($key != (sizeof($arrayXPath) - 1)) $newXPath .= '/';
         }
