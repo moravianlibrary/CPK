@@ -44,7 +44,7 @@
 <? foreach ($holdings as $row): //FIXME: Create proprietary links?>
   <? $check = (isset($row['check']) && $row['check']); ?>
   <? $rowNo++; $onShelf=$row['status']=="On Shelf";?>
-  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>" id="<?=$row['item_id']?>">
+  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>" id="<?=$row['agency_id'] . '.' . $row['item_id']?>">
     <td data-title="<?=$this->transEsc("item status")?>">
       <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>
       <div>
@@ -52,11 +52,7 @@
       <div class="jt" title="<?=$this->transEsc('Description Status '. $row['status'])?>">
       <? endif; ?>
 
-      <? if ($row['status'] !== 'pending'): ?>
-        <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($onShelf?'Holdable':'NotHoldable')?></span>
-      <? else: ?>
-        <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
-      <? endif; ?>
+      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($onShelf?'Holdable':'NotHoldable')?></span>
 
       </div>
       <? if ($row['reserve'] == "Y"): ?>
@@ -85,6 +81,8 @@
             <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
             </a>
+          <? elseif (isset($row['loadAsync']) && $row['loadAsync']): ?>
+              <span class="label label-info loader"><?=$this->transEsc('Loading')?> ...</span>
           <? endif; ?>
           </div>
         <? endif; ?>

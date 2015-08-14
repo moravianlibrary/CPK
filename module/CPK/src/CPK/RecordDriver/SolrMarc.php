@@ -6,23 +6,6 @@ use MZKCommon\RecordDriver\SolrMarc as ParentSolrMarc;
 class SolrMarc extends ParentSolrMarc
 {
 
-    const FIELD_996_SUBFIELDS = [
-        'a',
-        'b',
-        'c',
-        '9',
-        'l',
-        'd',
-        'y',
-        'v',
-        'i',
-        'p',
-        's',
-        'e',
-        'f',
-        'o'
-    ];
-
     protected $ilsConfig = null;
 
     protected function getILSconfig()
@@ -89,7 +72,9 @@ class SolrMarc extends ParentSolrMarc
     }
 
     /**
-     * Returns
+     * Returns array of holdings parsed via indexed 996 fields.
+     *
+     * TODO: Implement filtering
      *
      * @return array
      */
@@ -112,6 +97,7 @@ class SolrMarc extends ParentSolrMarc
                 }
 
                 $holding['id'] = $id;
+                $holding['loadAsync'] = true;
                 $holdings[] = $holding;
             }
         }
@@ -139,7 +125,7 @@ class SolrMarc extends ParentSolrMarc
         if ($overriden996Mappings === null)
             return $default996Mappings;
 
-        // This will override all identical entries
+            // This will override all identical entries
         $merged = array_merge($default996Mappings, $overriden996Mappings);
 
         // We shouldn't set value where is the subfield the same as in any other overriden default variableName
