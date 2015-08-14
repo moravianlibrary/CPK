@@ -190,8 +190,6 @@ class AjaxController extends AjaxControllerBase
 
         $params = array();
 
-
-
         $allParams = array_merge($params, $additionalParams);
 
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
@@ -231,8 +229,6 @@ class AjaxController extends AjaxControllerBase
 
         $params = array();
 
-
-
         $allParams = array_merge($params, $additionalParams);
 
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
@@ -250,20 +246,18 @@ class AjaxController extends AjaxControllerBase
 
     public function getHoldingsStatusesAjax()
     {
-        $bibId = $this->params()->fromQuery('bibId');
-
-        $ids = explode(",", $this->params()->fromQuery('ids'));
+        $ids = $this->params()->fromQuery('ids');
 
         $ilsDriver = $this->getILS()->getDriver();
 
         if ($ilsDriver instanceof \VuFind\ILS\Driver\MultiBackend) {
 
-            $status = $ilsDriver->getStatus($bibId);
-
             $statuses = $ilsDriver->getStatuses($ids);
 
-            // Done
-            return $this->output(null, self::STATUS_OK);
+            if (null !== $statuses)
+                return $this->output($statuses, self::STATUS_OK);
+
+            return $this->output("\$ilsDriver->getStatuses returned null", self::STATUS_ERROR);
         } else
             return $this->output("ILS Driver isn't instanceof MultiBackend - ending job now.", self::STATUS_ERROR);
     }

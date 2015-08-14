@@ -70,6 +70,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     protected $maximumItemsCount = null;
 
+    protected $cannotUseLUIS = false;
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -103,10 +105,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $maximumItemsCount = $this->config['Catalog']['maximumItemsCount'];
 
-        if (!empty($maximumItemsCount))
+        if (! empty($maximumItemsCount))
             $this->maximumItemsCount = intval($maximumItemsCount);
         else
             $this->maximumItemsCount = 20;
+
+        if (isset($this->config['Catalog']['cannotUseLUIS']) && $this->config['Catalog']['cannotUseLUIS'])
+            $this->cannotUseLUIS = true;
 
         $this->requests = new NCIPRequests();
     }
@@ -131,7 +136,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $user = $this->config['Catalog']['username'];
             $password = $this->config['Catalog']['password'];
 
-            if (!empty($user) && !empty($password)) {
+            if (! empty($user) && ! empty($password)) {
                 $client->setAuth($user, $password);
             }
 
@@ -590,15 +595,118 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getStatus($id)
     {
-        // TODO
-        // For now, we'll just use getHolding, since getStatus should return a
-        // subset of the same fields, and the extra values will be ignored.
-        $holding = $this->getHolding($id);
+        if (! $this->cannotUseLUIS) {
+            // TODO
+            // For now, we'll just use getHolding, since getStatus should return a
+            // subset of the same fields, and the extra values will be ignored.
+            $holding = $this->getHolding($id);
 
-        foreach ($holding as $recent) {
-            $tmp[] = array_slice($recent, 0, 6);
+            foreach ($holding as $recent) {
+                $tmp[] = array_slice($recent, 0, 6);
+            }
+            return $tmp;
+        } else {
+            // $id may have the form of "agencyId:itemId"
+            $agencyId = false;
+            $idSplitted = explode(':', $id);
+
+            if (count($idSplitted) > 1) {
+                $agencyId = $idSplitted[0];
+
+                // Merge the rest of the array
+                $idSplitted = array_slice($idSplitted, 1);
+                $id = implode(':', $idSplitted);
+            }
+
+            unset($idSplitted);
+
+            $request = $this->requests->getLookupItemStatus($id, $agencyId);
+            $response = $this->sendRequest($request);
+            if ($response == null)
+                return null;
+
+            // Extract details from the XML:
+            $status = (string) $this->useXPath($response, 'ItemOptionalFields/CirculationStatus')[0];
+
+            // Pick out the permanent location (TODO: better smarts for dealing with
+            // temporary locations and multi-level location names):
+
+            $locationNameInstance = $this->useXPath($response, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
+
+            foreach ($locationNameInstance as $recent) {
+                // FIXME: Create config to map location abbreviations of each institute into human readable values
+
+                $locationLevel = (string) $this->useXPath($recent, 'LocationNameLevel')[0];
+
+                if ($locationLevel == 4) {
+                    $department = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                } else
+                    if ($locationLevel == 3) {
+                        $sublibrary = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                    } else {
+                        $locationInBuilding = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                    }
+            }
+
+            $numberOfPieces = (string) $this->useXPath($response, 'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
+
+            $holdQueue = (string) $this->useXPath($response, 'ItemOptionalFields/HoldQueueLength')[0];
+
+            $itemRestriction = (string) $this->useXPath($response, 'ItemOptionalFields/ItemUseRestrictionType')[0];
+
+            $available = $status === 'Available On Shelf';
+
+            // TODO Exists any clean way to get the due date without additional request?
+
+            if (! empty($locationInBuilding))
+                $onStock = substr($locationInBuilding, 0, 5) == 'Stock';
+            else
+                $onStock = false;
+
+            $onStock = true;
+
+            $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
+
+            $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
+
+            // FIXME: Add link logic
+            $link = false;
+            if ($onStock && $restrictedToLibrary) {
+                // This means the reader needs to place a request to prepare the
+                // item -> pick up the item from stock & bring it to circulation
+                // desc
+                // E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
+                $link = $this->createLinkFromAlephItemId($item_id);
+            } else
+                if ($onStock && $monthLoanPeriod) {
+                    // Pickup from stock & prepare for month loan
+                    $link = $this->createLinkFromAlephItemId($item_id);
+                } else
+                    if (! $available && ! $onStock) {
+                        // Reserve item
+                        $link = $this->createLinkFromAlephItemId($item_id);
+                    }
+                // End of FIXME
+
+                if (!empty($agencyId))
+                    $id = $agencyId . ':' . $id;
+
+                return array(
+                    'id' => empty($id) ? "" : $id,
+                    'availability' => empty($available) ? false : $available ? true : false,
+                    'status' => empty($status) ? "" : $status,
+                    'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
+                    'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
+                    'department' => empty($department) ? '' : $department,
+                    'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
+                    'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
+                    'item_id' => empty($id) ? "" : $id,
+                    'holdOverride' => "",
+                    'addStorageRetrievalRequestLink' => "",
+                    'addILLRequestLink' => ""
+                );
+
         }
-        return $tmp;
     }
 
     /**
@@ -1196,12 +1304,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     {
         $arrayXPath = explode('/', $xPath);
         $newXPath = "//";
-        foreach ( $arrayXPath as $key=>$part ) {
-            if ($part == null) continue;
+        foreach ($arrayXPath as $key => $part) {
+            if ($part == null)
+                continue;
             $newXPath .= "*[local-name()='" . $part . "']";
-            if ($key != (sizeof($arrayXPath) - 1)) $newXPath .= '/';
+            if ($key != (sizeof($arrayXPath) - 1))
+                $newXPath .= '/';
         }
-        //var_dump($newXPath);
+        // var_dump($newXPath);
         return $xmlObject->xpath($newXPath);
     }
 
@@ -1353,6 +1463,36 @@ class NCIPRequests
         return $xml;
     }
 
+
+    /**
+     * Temporary method for dealing with item's location.
+     *
+     * @param string $itemID
+     */
+    public function getLookupItemStatus($itemID, $agencyID = false)
+    {
+        $desiredParts = array(
+            'Circulation Status',
+            'Hold Queue Length',
+            'Item Description',
+            'Item Use Restriction Type',
+            'Location'
+        );
+
+        if (false !== $agencyID)
+            $agencyId = '<ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">'.$agencyID.'</ns1:AgencyId>';
+        else
+            $agencyId = '';
+
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd"><ns1:LookupItem><ns1:ItemId>' . $agencyId . '<ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
+
+        foreach ($desiredParts as $current) {
+            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
+        }
+        $xml .= '</ns1:LookupItem></ns1:NCIPMessage>';
+        return $xml;
+    }
+
     /**
      * Temporary method for dealing with item's location.
      *
@@ -1419,8 +1559,7 @@ class NCIPRequests
         }
 
         $agencyElement = "";
-        if ($patron['agency'])
-        {
+        if ($patron['agency']) {
             $agencyElement = "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">" . htmlspecialchars($patron['agency']) . "</ns1:AgencyId>";
         }
 

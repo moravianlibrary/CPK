@@ -44,7 +44,7 @@
 <? foreach ($holdings as $row): //FIXME: Create proprietary links?>
   <? $check = (isset($row['check']) && $row['check']); ?>
   <? $rowNo++; $onShelf=$row['status']=="On Shelf";?>
-  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>" id="<?=$row['agency_id'] . '.' . $row['item_id']?>">
+  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>" id="<?=$row['source'] . '.' .$row['agency_id'] . ':' . $row['item_id']?>">
     <td data-title="<?=$this->transEsc("item status")?>">
       <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>
       <div>

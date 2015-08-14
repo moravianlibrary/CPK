@@ -83,7 +83,9 @@ class SolrMarc extends ParentSolrMarc
         $id = $this->getUniqueID();
         $fields = $this->getAll996Subfields();
 
-        $mappingsFor996 = $this->getMappingsFor996();
+        $source = $this->getSourceId();
+
+        $mappingsFor996 = $this->getMappingsFor996($source);
 
         $restrictions = $default996Mappings['restricted'];
 
@@ -97,6 +99,7 @@ class SolrMarc extends ParentSolrMarc
                 }
 
                 $holding['id'] = $id;
+                $holding['source'] = $source;
                 $holding['loadAsync'] = true;
                 $holdings[] = $holding;
             }
@@ -116,11 +119,11 @@ class SolrMarc extends ParentSolrMarc
      *
      * @return mixed null | array
      */
-    protected function getMappingsFor996()
+    protected function getMappingsFor996($source)
     {
         $default996Mappings = $this->getDefault996Mappings();
 
-        $overriden996Mappings = $this->getOverriden996Mappings();
+        $overriden996Mappings = $this->getOverriden996Mappings($source);
 
         if ($overriden996Mappings === null)
             return $default996Mappings;
@@ -151,9 +154,8 @@ class SolrMarc extends ParentSolrMarc
      *
      * @return mixed null | array
      */
-    protected function getOverriden996Mappings()
+    protected function getOverriden996Mappings($source)
     {
-        $source = $this->getSourceId();
         $overriden996Mappings = $this->getILSconfig()['Overriden996Mappings'];
         foreach ($overriden996Mappings as $institution => $configToOverrideWith) {
             if ($source === $institution)

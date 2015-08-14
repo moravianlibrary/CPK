@@ -13,23 +13,28 @@ var cookies_agreed = function(yesNo) {
     }
 }
 
+function getHoldingsIds() {
+    
+}
+
 // Async holdings loader
 // TODO: Make the request cancellable after user chooses any filter
+// FIXME: Call one id by one & everytime update everyone
 $(function() {
-    var urlSplitted = document.URL.split('/'),
-    recordID = urlSplitted[urlSplitted.length - 1],
-    ids = [], // FIXME get all 996 to parse data for
-    ajaxResponse = $.ajax({
+    var ids = [];
+    
+    $("div#holdings-tab tbody tr").each(function() {
+        ids.push($(this).attr('id'))
+    });
+    
+    var ajaxResponse = $.ajax({
         dataType : 'json',
         url : '/AJAX/JSON?method=getHoldingsStatuses',
         data : {
-            bibId : recordID,
             ids : ids
         },
         async : true,
-        success : function(response) {
-
-            console.log(response);
+        complete : function(response) {
 
             if (response.status !== 'OK') {
                 // display the error message on each of the ajax status place
