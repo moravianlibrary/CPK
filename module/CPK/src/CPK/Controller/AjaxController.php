@@ -33,10 +33,10 @@ use MZKCommon\Controller\AjaxController as AjaxControllerBase;
  * This controller handles global AJAX functionality
  *
  * @category VuFind2
- * @package  Controller
- * @author   Martin Kravec <Martin.Kravec@mzk.cz>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:building_a_controller Wiki
+ * @package Controller
+ * @author Martin Kravec <Martin.Kravec@mzk.cz>
+ * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link http://vufind.org/wiki/vufind2:building_a_controller Wiki
  */
 class AjaxController extends AjaxControllerBase
 {
@@ -45,202 +45,226 @@ class AjaxController extends AjaxControllerBase
      * Get Buy Links
      *
      * @author Martin Kravec <Martin.Kravec@mzk.cz>
-     * 
+     *
      * @return \Zend\Http\Response
      */
     protected function getBuyLinksAjax()
     {
-    	// Antikvariaty
-    	$parentRecordID = $this->params()->fromQuery('parentRecordID');
-    	$recordID = $this->params()->fromQuery('recordID');
-    	
-    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    		
-    	$parentRecordDriver = $recordLoader->load($parentRecordID);
-    	$recordDriver = $recordLoader->load($recordID);
-    	
-    	$antikvariatyLink = $parentRecordDriver->getAntikvariatyLink();
-    	
-    	// GoogleBooks & Zbozi.cz
-    	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-    	$buyChoiceHandler = $wantItFactory->createBuyChoiceHandlerObject($recordDriver);
-    	
-    	$gBooksLink = $buyChoiceHandler->getGoogleBooksVolumeLink();
-    	$zboziLink = $buyChoiceHandler->getZboziLink();
-    	
-    	$buyChoiceLinksCount = 0;
-    	
-    	if ($gBooksLink) {
-    		++$buyChoiceLinksCount;
-    	}
-    	
-    	if ($zboziLink) {
-    		++$buyChoiceLinksCount;
-    	}
-    	
-    	if ($antikvariatyLink) {
-    		++$buyChoiceLinksCount;
-    	}
-    	
-		$vars[] = array(
-			'gBooksLink'		=> $gBooksLink ?: '',
- 			'zboziLink'			=> $zboziLink ?: '',
-			'antikvariatyLink'	=> $antikvariatyLink ?: '',
-			'buyLinksCount'		=> $buyChoiceLinksCount,
-		);
-        
+        // Antikvariaty
+        $parentRecordID = $this->params()->fromQuery('parentRecordID');
+        $recordID = $this->params()->fromQuery('recordID');
+
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+
+        $parentRecordDriver = $recordLoader->load($parentRecordID);
+        $recordDriver = $recordLoader->load($recordID);
+
+        $antikvariatyLink = $parentRecordDriver->getAntikvariatyLink();
+
+        // GoogleBooks & Zbozi.cz
+        $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+        $buyChoiceHandler = $wantItFactory->createBuyChoiceHandlerObject($recordDriver);
+
+        $gBooksLink = $buyChoiceHandler->getGoogleBooksVolumeLink();
+        $zboziLink = $buyChoiceHandler->getZboziLink();
+
+        $buyChoiceLinksCount = 0;
+
+        if ($gBooksLink) {
+            ++ $buyChoiceLinksCount;
+        }
+
+        if ($zboziLink) {
+            ++ $buyChoiceLinksCount;
+        }
+
+        if ($antikvariatyLink) {
+            ++ $buyChoiceLinksCount;
+        }
+
+        $vars[] = array(
+            'gBooksLink' => $gBooksLink ?  : '',
+            'zboziLink' => $zboziLink ?  : '',
+            'antikvariatyLink' => $antikvariatyLink ?  : '',
+            'buyLinksCount' => $buyChoiceLinksCount
+        );
+
         // Done
         return $this->output($vars, self::STATUS_OK);
     }
-    
+
     /**
      * Returns subfileds of MARC 996 field for specific recordID
      *
-     * @param	string	$_POST['record']
-     * @param	string	$_POST['field']
-     * @param	string	$_POST['subfields'] Comma-separated subfileds
+     * @param string $_POST['record']
+     * @param string $_POST['field']
+     * @param string $_POST['subfields']
+     *            subfileds
      *
-     * @return	array	$subfieldsValues	space-separated subfields values
+     * @return array subfields values
      */
     public function getMarc996ArrayAjax()
     {
-    	$recordID = $this->params()->fromQuery('recordID');
-    	$field = $this->params()->fromQuery('field');
-    	$subfieldsArray = explode(",", $this->params()->fromQuery('subfields'));
-    
-    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    		
-    	$recordDriver = $recordLoader->load($recordID);
-    	$arr = $recordDriver->get996($subfieldsArray);
-    
-    	$vars[] = array(
-    		'arr' => $arr,
-    	);
-    	
-    	// Done
-    	return $this->output($vars, self::STATUS_OK);
+        $recordID = $this->params()->fromQuery('recordID');
+        $field = $this->params()->fromQuery('field');
+        $subfieldsArray = explode(",", $this->params()->fromQuery('subfields'));
+
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+
+        $recordDriver = $recordLoader->load($recordID);
+        $arr = $recordDriver->get996($subfieldsArray);
+
+        $vars[] = array(
+            'arr' => $arr
+        );
+
+        // Done
+        return $this->output($vars, self::STATUS_OK);
     }
-    
+
     /**
      * Downloads SFX JIB content for current record.
-     * @param	string	$institute	Institute shortcut
      *
-     * @return	array
+     * @param string $institute
+     *
+     * @return array
      */
     public function callSfxAjax()
     {
-    	$institute = $this->params()->fromQuery('institute');
-    	if (! $institute)
-    		$institute = 'ANY';
-    	
-    	$recordID = $this->params()->fromQuery('recordID');
-    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    	$recordDriver = $recordLoader->load($recordID);
-    
-    	$url = $this->params()->fromQuery('sfxUrl');
-    	
-    	$additionalParams = array();
-    	parse_str($recordDriver->getOpenURL(), $additionalParams);
-    	
-    	$params = array (
-    			'sfx.institute' => $institute,
-    			'ctx_ver' => 'Z39.88-2004',
-    			'ctx_enc' => 'info:ofi/enc:UTF-8',
-    			'sfx.response_type' => 'simplexml'
-    	);
-    	
-    	$allParams = array_merge($params, $additionalParams);
-    	
-    	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-    	$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
-    	
-    	$sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
-    
-    	$vars[] = array(
-    		'sfxResult' => $sfxResult,
-    	);
-    	 
-    	// Done
-    	return $this->output($vars, self::STATUS_OK);
+        $institute = $this->params()->fromQuery('institute');
+        if (! $institute)
+            $institute = 'ANY';
+
+        $recordID = $this->params()->fromQuery('recordID');
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordID);
+
+        $url = $this->params()->fromQuery('sfxUrl');
+
+        $additionalParams = array();
+        parse_str($recordDriver->getOpenURL(), $additionalParams);
+
+        $params = array(
+            'sfx.institute' => $institute,
+            'ctx_ver' => 'Z39.88-2004',
+            'ctx_enc' => 'info:ofi/enc:UTF-8',
+            'sfx.response_type' => 'simplexml'
+        );
+
+        $allParams = array_merge($params, $additionalParams);
+
+        $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+
+        $sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+
+        $vars[] = array(
+            'sfxResult' => $sfxResult
+        );
+
+        // Done
+        return $this->output($vars, self::STATUS_OK);
     }
-    
+
     /**
      * Downloads SerialSoulution360link content for current record.
-     * @param	string	$institute	Institute shortcut
      *
-     * @return	array
+     * @param string $institute
+     *
+     * @return array
      */
     public function callSerialSoulution360link()
     {
-    	$institute = $this->params()->fromQuery('institute');
-    	if (! $institute)
-    		$institute = 'ANY';
-    	 
-    	$recordID = $this->params()->fromQuery('recordID');
-    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    	$recordDriver = $recordLoader->load($recordID);
-    
-    	$url = $this->params()->fromQuery('sfxUrl');
-    	 
-    	$additionalParams = array();
-    	parse_str($recordDriver->getOpenURL(), $additionalParams);
-    	 
-    	$params = array (
-    			
-    	);
-    	 
-    	$allParams = array_merge($params, $additionalParams);
-    	 
-    	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-    	$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
-    	 
-    	$ss360linkResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
-    
-    	$vars[] = array(
-    		'ss360link' => $ss360linkResult,
-    	);
-    
-    	// Done
-    	return $this->output($vars, self::STATUS_OK);
+        $institute = $this->params()->fromQuery('institute');
+        if (! $institute)
+            $institute = 'ANY';
+
+        $recordID = $this->params()->fromQuery('recordID');
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordID);
+
+        $url = $this->params()->fromQuery('sfxUrl');
+
+        $additionalParams = array();
+        parse_str($recordDriver->getOpenURL(), $additionalParams);
+
+        $params = array();
+
+
+
+        $allParams = array_merge($params, $additionalParams);
+
+        $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+
+        $ss360linkResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+
+        $vars[] = array(
+            'ss360link' => $ss360linkResult
+        );
+
+        // Done
+        return $this->output($vars, self::STATUS_OK);
     }
-    
+
     /**
      * Downloads EbscoLinksource content for current record.
-     * @param	string	$institute	Institute shortcut
      *
-     * @return	array
+     * @param string $institute
+     *
+     * @return array
      */
     public function callEbscoLinksource()
     {
-    	$institute = $this->params()->fromQuery('institute');
-    	if (! $institute)
-    		$institute = 'ANY';
-    
-    	$recordID = $this->params()->fromQuery('recordID');
-    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    	$recordDriver = $recordLoader->load($recordID);
-    
-    	$url = $this->params()->fromQuery('sfxUrl');
-    
-    	$additionalParams = array();
-    	parse_str($recordDriver->getOpenURL(), $additionalParams);
-    
-    	$params = array (
-    			 
-    	);
-    
-    	$allParams = array_merge($params, $additionalParams);
-    
-    	$wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-    	$electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
-    
-    	$ebscoLinksourceResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
-    
-    	$vars[] = array(
-    		'ebscoLinksource' => $ebscoLinksourceResult,
-    	);
-    
-    	// Done
-    	return $this->output($vars, self::STATUS_OK);
+        $institute = $this->params()->fromQuery('institute');
+        if (! $institute)
+            $institute = 'ANY';
+
+        $recordID = $this->params()->fromQuery('recordID');
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordID);
+
+        $url = $this->params()->fromQuery('sfxUrl');
+
+        $additionalParams = array();
+        parse_str($recordDriver->getOpenURL(), $additionalParams);
+
+        $params = array();
+
+
+
+        $allParams = array_merge($params, $additionalParams);
+
+        $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
+        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+
+        $ebscoLinksourceResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+
+        $vars[] = array(
+            'ebscoLinksource' => $ebscoLinksourceResult
+        );
+
+        // Done
+        return $this->output($vars, self::STATUS_OK);
+    }
+
+    public function getHoldingsStatusesAjax()
+    {
+        $bibId = $this->params()->fromQuery('bibId');
+
+        $ids = explode(",", $this->params()->fromQuery('ids'));
+
+        $ilsDriver = $this->getILS()->getDriver();
+
+        if ($ilsDriver instanceof \VuFind\ILS\Driver\MultiBackend) {
+
+            $status = $ilsDriver->getStatus($bibId);
+
+            $statuses = $ilsDriver->getStatuses($ids);
+
+            // Done
+            return $this->output(null, self::STATUS_OK);
+        } else
+            return $this->output("ILS Driver isn't instanceof MultiBackend - ending job now.", self::STATUS_ERROR);
     }
 }
