@@ -23,6 +23,16 @@ class SolrMarc extends ParentSolrMarc
         'o'
     ];
 
+    protected $ilsConfig = null;
+
+    protected function getILSconfig()
+    {
+        if ($this->ilsConfig === null)
+            $this->ilsConfig = $this->ils->getDriverConfig();
+
+        return $this->ilsConfig;
+    }
+
     public function getLocalId()
     {
         list ($source, $localId) = explode('.', $this->getUniqueID());
@@ -45,6 +55,22 @@ class SolrMarc extends ParentSolrMarc
         return $this->getFieldArray('996', $subfields);
     }
 
+    protected function getAll996Subfields()
+    {
+        $fields = [];
+        $fieldsParsed = $this->getMarcRecord()->getFields('996');
+
+        foreach ($fieldsParsed as $field) {
+            $subfieldsParsed = $field->getSubfields();
+            $subfields = [];
+            foreach ($subfieldsParsed as $subfield) {
+                $subfields[trim($subfield->getCode())] = $subfield->getData();
+            }
+            $fields[] = $subfields;
+        }
+        return $fields;
+    }
+
     public function getFormats()
     {
         return isset($this->fields['cpk_detected_format_txtF_mv']) ? $this->fields['cpk_detected_format_txtF_mv'] : [];
@@ -59,70 +85,116 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getRealTimeHoldings($filters = array())
     {
-        $holdings = $this->parseHoldingsFrom996field();
-
-        return $holdings;
-
-        // TODO Delete rest of the code after implemented remappedRecordIds elsewhere (getStatuses in MultiBackend ??)
-        if ($this->ils === null)
-            return [];
-
-        $config = $this->ils->getDriverConfig();
-
-        $remappedRecordIds = $config['RecordIdRemapped'];
-
-        $recordSource = $this->getSourceId();
-
-        foreach ($remappedRecordIds as $source => $fieldOfValidRecordId) {
-            if ($source === $recordSource) {
-                $recordIdField = $this->getMarcRecord()->getFields($fieldOfValidRecordId);
-
-                if (empty($recordIdField) || empty($recordIdField[0]))
-                    return [];
-
-                $recordId = $recordIdField[0]->getData();
-                if (empty($recordId))
-                    return [];
-
-                $toReturn = $this->holdLogic->getHoldings($source . '.' . $recordId, $filters);
-                return $toReturn;
-            }
-        }
-
-        return $this->holdLogic->getHoldings($this->getUniqueID(), $filters);
+        return $this->parseHoldingsFrom996field($filters);
     }
 
-    protected function parseHoldingsFrom996field()
+    /**
+     * Returns
+     *
+     * @return array
+     */
+    protected function parseHoldingsFrom996field($filters = [])
     {
-        $fieldsParsed = $this->getMarcRecord()->getFields('996');
-        $fields = [];
-        foreach ($fieldsParsed as $field) {
-            $subfieldsParsed = $field->getSubfields();
-            $subfields = [];
-            foreach ($subfieldsParsed as $subfield) {
-                $subfields[trim($subfield->getCode())] = $subfield->getData();
-            }
-            $fields[] = $subfields;
-        }
-
-        $config = $this->ils->getDriverConfig();
-        $default996Mappings = $config['Default996Mappings'];
-
         $id = $this->getUniqueID();
+        $fields = $this->getAll996Subfields();
+
+        $mappingsFor996 = $this->getMappingsFor996();
+
+        $restrictions = $default996Mappings['restricted'];
 
         $holdings = [];
         foreach ($fields as $currentField) {
+            if (! $this->shouldBeRestricted($currentField, $restrictions)) {
 
-            foreach ($default996Mappings as $variableName => $default996Mapping) {
-                if (! empty($currentField[$default996Mapping]))
-                    $holding[$variableName] = $currentField[$default996Mapping];
+                foreach ($mappingsFor996 as $variableName => $default996Mapping) {
+                    if (! empty($currentField[$default996Mapping]))
+                        $holding[$variableName] = $currentField[$default996Mapping];
+                }
+
+                $holding['id'] = $id;
+                $holdings[] = $holding;
             }
-
-            $holding['id'] = $id;
-            $holdings[] = $holding;
         }
 
         return $holdings;
+    }
+
+    /**
+     * Returns array of key->value pairs where the key is variableName &
+     * value is mapped subfield.
+     *
+     * This method basically fetches default996Mappings & overrides there
+     * these variableNames, which are present in overriden996mappings.
+     *
+     * For more info see method getOverriden996Mappings
+     *
+     * @return mixed null | array
+     */
+    protected function getMappingsFor996()
+    {
+        $default996Mappings = $this->getDefault996Mappings();
+
+        $overriden996Mappings = $this->getOverriden996Mappings();
+
+        if ($overriden996Mappings === null)
+            return $default996Mappings;
+
+        // This will override all identical entries
+        $merged = array_merge($default996Mappings, $overriden996Mappings);
+
+        // We shouldn't set value where is the subfield the same as in any other overriden default variableName
+        return array_unique(array_reverse($merged));
+    }
+
+    /**
+     * Returns array of config to process 996 mappings with.
+     *
+     * Returns null if not found.
+     *
+     * @return mixed null | array
+     */
+    protected function getDefault996Mappings()
+    {
+        return $this->getILSconfig()['Default996Mappings'];
+    }
+
+    /**
+     * Returns array of config with which it is desired to override the default one.
+     *
+     * Also returnes null if no overriden config is found.
+     *
+     * @return mixed null | array
+     */
+    protected function getOverriden996Mappings()
+    {
+        $source = $this->getSourceId();
+        $overriden996Mappings = $this->getILSconfig()['Overriden996Mappings'];
+        foreach ($overriden996Mappings as $institution => $configToOverrideWith) {
+            if ($source === $institution)
+                return $this->ilsConfig[$configToOverrideWith];
+        }
+        return null;
+    }
+
+    /**
+     * Returns true only if in $subfields is found key->value pair identical
+     * with any key->value pair in restrictions.
+     *
+     * @param array $subfields
+     * @param array $restrictions
+     * @return boolean
+     */
+    protected function shouldBeRestricted($subfields, $restrictions)
+    {
+        if ($restrictions === null)
+            return false;
+
+        foreach ($restrictions as $key => $restrictedValue) {
+            if ($subfields[$key] == $restrictedValue)
+                return true;
+        }
+
+        return false;
     }
 
     public function getParentRecordID()
