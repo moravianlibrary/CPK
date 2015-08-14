@@ -59,7 +59,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getRealTimeHoldings($filters = array())
     {
-        $holdings = $this->parseHoldingsFrom996field('a', '9');
+        $holdings = $this->parseHoldingsFrom996field();
 
         return $holdings;
 
@@ -92,62 +92,34 @@ class SolrMarc extends ParentSolrMarc
         return $this->holdLogic->getHoldings($this->getUniqueID(), $filters);
     }
 
-    protected function parseHoldingsFrom996field($subfieldOfItemId, $subfieldOfAgencyId)
+    protected function parseHoldingsFrom996field()
     {
-        $subfieldOfAgencyIdPos = array_search($subfieldOfAgencyId, self::FIELD_996_SUBFIELDS);
-        $subfieldOfItemIdPos = array_search($subfieldOfItemId, self::FIELD_996_SUBFIELDS);
-
-        if ($subfieldOfAgencyIdPos === false || $subfieldOfItemIdPos === false) {
-            return [];
+        $fieldsParsed = $this->getMarcRecord()->getFields('996');
+        $fields = [];
+        foreach ($fieldsParsed as $field) {
+            $subfieldsParsed = $field->getSubfields();
+            $subfields = [];
+            foreach ($subfieldsParsed as $subfield) {
+                $subfields[trim($subfield->getCode())] = $subfield->getData();
+            }
+            $fields[] = $subfields;
         }
 
-        $subfieldsElements = $this->getFieldArray('996', [
-            'a',
-            '9'
-        ]);
+        $config = $this->ils->getDriverConfig();
+        $default996Mappings = $config['Default996Mappings'];
 
+        $id = $this->getUniqueID();
 
         $holdings = [];
-        $id = $this->getUniqueID();
-        $itemIdBehindAgencyId = $subfieldOfAgencyIdPos < $subfieldOfItemIdPos;
+        foreach ($fields as $currentField) {
 
-        foreach ($subfieldsElements as $subfieldsElement) {
+            foreach ($default996Mappings as $variableName => $default996Mapping) {
+                if (! empty($currentField[$default996Mapping]))
+                    $holding[$variableName] = $currentField[$default996Mapping];
+            }
 
-            if ($itemIdBehindAgencyId)
-                list ($agencyId, $itemId) = preg_split('/\s+/', $subfieldsElement);
-            else
-                // sfield of agency is after sfield of itemId, thus we need to switch those
-                list ($itemId, $agencyId) = preg_split('/\s+/', $subfieldsElement);
-
-            $holdings[] = array(
-                'id' =>  $id,
-                'item_id' => $itemId,
-                'department' => $agencyId,
-                'status' => 'pending',
-                'availability' => false,
-                'returnDate' => false,
-                'location' => '',
-                'sub_lib_desc' => '',
-                'reserve' => '',
-                'callnumber' => '',
-                'collection_desc' => '',
-                'duedate' => '',
-                'number' => '',
-                'requests_placed' => '',
-                'barcode' => '',
-                'notes' => '',
-                'description' => '',
-                'summary' => '',
-                'supplements' => '',
-                'indexes' => '',
-                'is_holdable' => '',
-                'holdtype' => '',
-                'addLink' => '',
-                'link' => '',
-                'holdOverride' => '',
-                'addStorageRetrievalRequestLink' => '',
-                'addILLRequestLink' => ''
-            );
+            $holding['id'] = $id;
+            $holdings[] = $holding;
         }
 
         return $holdings;
