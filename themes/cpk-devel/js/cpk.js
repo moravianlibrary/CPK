@@ -13,36 +13,40 @@ var cookies_agreed = function(yesNo) {
     }
 }
 
-function getHoldingsIds() {
-    
+function isRecordPage() {
+    return document.location.pathname.match(/\/Record\/\w+[.].*/) != null;
 }
 
-// Async holdings loader
-// TODO: Make the request cancellable after user chooses any filter
-// FIXME: Call one id by one & everytime update everyone
-$(function() {
-    var ids = [];
-    
+function getHoldingsIds() {
+    ids = [];
     $("div#holdings-tab tbody tr").each(function() {
-        ids.push($(this).attr('id'))
+        ids.push($(this).attr('id'));
     });
-    
-    var ajaxResponse = $.ajax({
-        dataType : 'json',
-        url : '/AJAX/JSON?method=getHoldingsStatuses',
-        data : {
-            ids : ids
-        },
-        async : true,
-        complete : function(response) {
+    return ids;
+}
 
-            if (response.status !== 'OK') {
-                // display the error message on each of the ajax status place
-                // holder
-                $("#ajax-error-info").empty().append(response.data);
-            }
-        }
+if (isRecordPage()) {
+
+    // Async holdings loader
+    // TODO: Make the request cancellable after user chooses any filter
+    // FIXME: Call one id by one & everytime update everyone
+    $(function() {
+
+        if (document.location.pathname.indexOf('Record/'))
+            var ajaxResponse = $.getJSON(
+                    '/AJAX/JSON?method=getHoldingsStatuses', {
+                        ids : getHoldingsIds()
+                    }, function(resp) {
+
+                        // Log each key in the response data
+                        $.each(resp, function(key, value) {
+                            console.log('Printing response: ' + key + " : "
+                                    + value);
+                        });
+                    });
+
+        console.log('ajaxResponse = ' + ajaxResponse);
+
+        // TODO process every holding
     });
-
-    // TODO process every holding
-});
+}
