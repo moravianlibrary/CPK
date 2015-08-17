@@ -4,46 +4,43 @@ namespace CPK\Module\Configuration;
 $config = array(
     'vufind' => array(
         'plugin_managers' => array(
-            'ils_driver' => array(
-                'invokables' => array(
-                    'dummy' => 'CPK\ILS\Driver\Dummy',
-                ), /* invokables */
-            ), /* ils_drivers */
-            'recorddriver' => array (
+            'recorddriver' => array(
                 'factories' => array(
-                    'solrmarc'     => 'CPK\RecordDriver\Factory::getSolrMarc',
-                    'solrcpk_mzk'  => 'CPK\RecordDriver\Factory::getSolrMarcMZK',
+                    'solrmarc' => 'CPK\RecordDriver\Factory::getSolrMarc',
+                    'solrcpk_mzk' => 'CPK\RecordDriver\Factory::getSolrMarcMZK',
                     'solrcpk_vkol' => 'CPK\RecordDriver\Factory::getSolrMarcVKOL',
-                    'solrcpk_nlk'  => 'CPK\RecordDriver\Factory::getSolrMarcNLK',
-                    'solrlocal'    => 'CPK\RecordDriver\Factory::getSolrMarcLocal',
+                    'solrcpk_nlk' => 'CPK\RecordDriver\Factory::getSolrMarcNLK',
+                    'solrlocal' => 'CPK\RecordDriver\Factory::getSolrMarcLocal'
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
                 'invokables' => array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
                     'eVersion' => 'CPK\RecordTab\EVersion',
-                    'buy' => 'CPK\RecordTab\Buy',
+                    'buy' => 'CPK\RecordTab\Buy'
                 ), /* invokables */
             ), /* recordtab */
             'auth' => array(
                 'factories' => array(
                     'perunShibboleth' => 'CPK\Auth\Factory::getPerunShibboleth',
-                    'shibbolethIdentityManager' => 'CPK\Auth\Factory::getShibbolethIdentityManager',
+                    'shibbolethIdentityManager' => 'CPK\Auth\Factory::getShibbolethIdentityManager'
                 ), /* factories */
             ), /* auth */
             'db_table' => [
                 'factories' => [
-                    'user' => 'CPK\Db\Table\Factory::getUser',
+                    'user' => 'CPK\Db\Table\Factory::getUser'
                 ], /* factories */
                 'invokables' => [
-                    'session' => 'VuFind\Db\Table\Session',
-                ],
+                    'session' => 'VuFind\Db\Table\Session'
+                ]
             ], /* db_table */
             'ils_driver' => [
                 'invokables' => [
+                    'dummy' => 'CPK\ILS\Driver\Dummy',
                     'xcncip2' => 'CPK\ILS\Driver\XCNCIP2',
                 ],
                 'factories' => array(
+                    'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
                     'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
                 ), /* factories */
             ], /* ils_driver */
@@ -62,59 +59,67 @@ $config = array(
                     'EVersion' => 'EVersion',
                     'Buy' => 'Buy',
                     'Description' => 'Description',
-                    'TOC' => 'TOC', 'UserComments' => 'UserComments',
+                    'TOC' => 'TOC',
+                    'UserComments' => 'UserComments',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
-                    'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
+                    'Reviews' => 'Reviews',
+                    'Excerpt' => 'Excerpt',
                     'Preview' => 'preview',
-                    'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
+                    'HierarchyTree' => 'HierarchyTree',
+                    'Map' => 'Map',
                     'Details' => 'StaffViewMARC',
-                    'DedupedRecords' => 'DedupedRecords',
+                    'DedupedRecords' => 'DedupedRecords'
                 ],
-                'defaultTab' => null,
-            ],
-        ],
+                'defaultTab' => null
+            ]
+        ]
     ), /* vufind */
     'controllers' => array(
-    	'factories' => array(
-    		'record' => 'CPK\Controller\Factory::getRecordController',
-    	),
+        'factories' => array(
+            'record' => 'CPK\Controller\Factory::getRecordController'
+        ),
         'invokables' => array(
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
-        	'ajax'       => 'CPK\Controller\AjaxController',
+            'ajax' => 'CPK\Controller\AjaxController'
         ), /* invokables */
     ), /* controllers */
     'service_manager' => array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
-            'Perun\IdentityResolver' => 'CPK\Perun\Factory::getIdentityResolver',
+            'Perun\IdentityResolver' => 'CPK\Perun\Factory::getIdentityResolver'
         ),
-    	'invokables' => array(
-    		'wantitfactory' => 'CPK\WantIt\Factory',
-    	),
-    ),
+        'invokables' => array(
+            'wantitfactory' => 'CPK\WantIt\Factory'
+        )
+    )
 );
 
 $staticRoutes = array(
-    'Statistics/Dashboard', 'Statistics/Visits', 'Statistics/Circulations',
-    'Statistics/Payments', 'Statistics/Searches', 'Statistics', 'Statistics/',
+    'Statistics/Dashboard',
+    'Statistics/Visits',
+    'Statistics/Circulations',
+    'Statistics/Payments',
+    'Statistics/Searches',
+    'Statistics',
+    'Statistics/',
     'MyResearch/UserConnect'
 );
 
 foreach ($staticRoutes as $route) {
-	list($controller, $action) = explode('/', $route);
-	$routeName = str_replace('/', '-', strtolower($route));
-	$config['router']['routes'][$routeName] = array(
-		'type' => 'Zend\Mvc\Router\Http\Literal',
-		'options' => array(
-			'route' => '/' . $route,
-			'defaults' => array(
-				'controller' => $controller,
-				'action' => (! empty($action)) ? $action : 'default',
-				)
-			)
-	);
+    list ($controller, $action) = explode('/', $route);
+    $routeName = str_replace('/', '-', strtolower($route));
+    $config['router']['routes'][$routeName] = array(
+        'type' => 'Zend\Mvc\Router\Http\Literal',
+        'options' => array(
+            'route' => '/' . $route,
+            'defaults' => array(
+                'controller' => $controller,
+                'action' => (! empty($action)) ? $action : 'default'
+            )
+        )
+    );
 }
 
 return $config;

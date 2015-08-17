@@ -250,7 +250,7 @@ class AjaxController extends AjaxControllerBase
 
         $ilsDriver = $this->getILS()->getDriver();
 
-        if ($ilsDriver instanceof \VuFind\ILS\Driver\MultiBackend) {
+        if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
             $statuses = $ilsDriver->getStatuses($ids);
 
