@@ -111,12 +111,6 @@
           <?=$this->openUrl($openUrl)?>
           <? if ($this->driver->replaceURLsWithOpenURL()) $urls = array(); // clear URL list if replace setting is active ?>
         <? endif; ?>
-        <? if (!is_array($urls)) $urls = array();
-          if(!$this->driver->isCollection()):
-            foreach ($urls as $current): ?>
-              <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
-          <? endforeach; ?>
-        <? endif; ?>
       <? endif; ?>
 
       <?=$this->record($this->driver)->getPreviews()?>
