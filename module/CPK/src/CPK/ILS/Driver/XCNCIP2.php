@@ -72,6 +72,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     protected $cannotUseLUIS = false;
 
+    protected $hasUntrustedSSL = false;
+
+    protected $cacert = null;
+
+    protected $timeout = null;
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -113,6 +119,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         if (isset($this->config['Catalog']['cannotUseLUIS']) && $this->config['Catalog']['cannotUseLUIS'])
             $this->cannotUseLUIS = true;
 
+        if (isset($this->config['Catalog']['hasUntrustedSSL']) && $this->config['Catalog']['hasUntrustedSSL'])
+            $this->hasUntrustedSSL = true;
+
+        if (isset($this->config['Catalog']['cacert']))
+            $this->cacert = $this->config['Catalog']['cacert'];
+
+        if (isset($this->config['Catalog']['timeout']))
+            $this->timeout = intval($this->config['Catalog']['timeout']);
+
         $this->requests = new NCIPRequests();
     }
 
@@ -133,14 +148,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
 
-            $user = $this->config['Catalog']['username'];
-            $password = $this->config['Catalog']['password'];
+            if (isset($this->timeout))
+                $client->setOptions(array(
+                    'timeout' => $this->timeout
+                ));
 
-            if (! empty($user) && ! empty($password)) {
+            if (isset($this->config['Catalog']['username']) && isset($this->config['Catalog']['password'])) {
+
+                $user = $this->config['Catalog']['username'];
+                $password = $this->config['Catalog']['password'];
                 $client->setAuth($user, $password);
             }
 
-            if ($this->config['Catalog']['hasUntrustedSSL']) {
+            if ($this->hasUntrustedSSL) {
                 // Do not verify SSL certificate
                 $client->setOptions(array(
                     'adapter' => 'Zend\Http\Client\Adapter\Curl',
@@ -150,7 +170,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                         CURLOPT_SSL_VERIFYPEER => false
                     )
                 ));
-            } elseif ($this->config['Catalog']['cacert']) {
+            } elseif (isset($this->cacert)) {
                 $client->setOptions(array(
                     'adapter' => 'Zend\Http\Client\Adapter\Curl',
                     'curloptions' => array(
@@ -625,7 +645,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             if ($response == null)
                 return null;
 
-            // Extract details from the XML:
+                // Extract details from the XML:
             $status = (string) $this->useXPath($response, 'ItemOptionalFields/CirculationStatus')[0];
 
             // Pick out the permanent location (TODO: better smarts for dealing with
@@ -686,26 +706,25 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                         // Reserve item
                         $link = $this->createLinkFromAlephItemId($item_id);
                     }
-                // End of FIXME
+            // End of FIXME
 
-                if (!empty($agencyId))
-                    $id = $agencyId . ':' . $id;
+            if (! empty($agencyId))
+                $id = $agencyId . ':' . $id;
 
-                return array(
-                    'id' => empty($id) ? "" : $id,
-                    'availability' => empty($available) ? false : $available ? true : false,
-                    'status' => empty($status) ? "" : $status,
-                    'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
-                    'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
-                    'department' => empty($department) ? '' : $department,
-                    'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
-                    'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
-                    'item_id' => empty($id) ? "" : $id,
-                    'holdOverride' => "",
-                    'addStorageRetrievalRequestLink' => "",
-                    'addILLRequestLink' => ""
-                );
-
+            return array(
+                'id' => empty($id) ? "" : $id,
+                'availability' => empty($available) ? false : $available ? true : false,
+                'status' => empty($status) ? "" : $status,
+                'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
+                'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
+                'department' => empty($department) ? '' : $department,
+                'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
+                'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
+                'item_id' => empty($id) ? "" : $id,
+                'holdOverride' => "",
+                'addStorageRetrievalRequestLink' => "",
+                'addILLRequestLink' => ""
+            );
         }
     }
 
@@ -1463,7 +1482,6 @@ class NCIPRequests
         return $xml;
     }
 
-
     /**
      * Temporary method for dealing with item's location.
      *
@@ -1480,7 +1498,7 @@ class NCIPRequests
         );
 
         if (false !== $agencyID)
-            $agencyId = '<ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">'.$agencyID.'</ns1:AgencyId>';
+            $agencyId = '<ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . $agencyID . '</ns1:AgencyId>';
         else
             $agencyId = '';
 
