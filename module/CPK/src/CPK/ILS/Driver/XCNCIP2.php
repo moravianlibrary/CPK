@@ -59,6 +59,8 @@ use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
 class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
 {
 
+    const AGENCY_ID_DELIMITER = ':';
+
     /**
      * HTTP service
      *
@@ -626,26 +628,18 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             }
             return $tmp;
         } else {
-            // $id may have the form of "agencyId:itemId"
-            $agencyId = false;
-            $idSplitted = explode(':', $id);
-
-            if (count($idSplitted) > 1) {
-                $agencyId = $idSplitted[0];
-
-                // Merge the rest of the array
-                $idSplitted = array_slice($idSplitted, 1);
-                $id = implode(':', $idSplitted);
-            }
-
-            unset($idSplitted);
+            // id may have the form of "patronId:agencyId"
+            list ($id, $agencyId) = $this->splitAgencyId($id);
 
             $request = $this->requests->getLookupItemStatus($id, $agencyId);
             $response = $this->sendRequest($request);
             if ($response == null)
                 return null;
 
-                // Extract details from the XML:
+                // Merge it back if the agency was specified before ..
+            $id = $this->joinAgencyId($id, $agencyId);
+
+            // Extract details from the XML:
             $status = (string) $this->useXPath($response, 'ItemOptionalFields/CirculationStatus')[0];
 
             // Pick out the permanent location (TODO: better smarts for dealing with
@@ -708,9 +702,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                     }
             // End of FIXME
 
-            if (! empty($agencyId))
-                $id = $agencyId . ':' . $id;
-
             return array(
                 'id' => empty($id) ? "" : $id,
                 'availability' => empty($available) ? false : $available ? true : false,
@@ -770,19 +761,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getHolding($id, array $patron = null)
     {
-        // $id may have the form of "agencyId:bibId"
-        $agencyId = false;
-        $idSplitted = explode(':', $id);
-
-        if (count($idSplitted) > 1) {
-            $agencyId = $idSplitted[0];
-
-            // Merge the rest of the array
-            $idSplitted = array_slice($idSplitted, 1);
-            $id = implode(':', $idSplitted);
-        }
-
-        unset($idSplitted);
+        // id may have the form of "patronId:agencyId"
+        list ($id, $agencyId) = $this->splitAgencyId($id);
 
         // FIXME: Is this not async iteration useful??
         do {
@@ -1056,21 +1036,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getMyProfile($patron)
     {
-        // $patron['id'] may have the form of "patronId:agencyId"
-        $agencyId = false;
-        $idSplitted = explode('.', $patron['id']);
-        if (count($idSplitted) > 1) {
-            $id = $idSplitted[0];
-            // Merge the rest of the array
-            $idSplitted = array_slice($idSplitted, 1);
-            $agencyId = implode('.', $idSplitted);
-            $patron['id'] = $id;
-        }
-        unset($idSplitted);
-        $patron['agency'] = $agencyId;
+        // id may have the form of "patronId:agencyId"
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
 
         $request = $this->requests->getMyProfile($patron);
         $response = $this->sendRequest($request);
+
+        // Merge it back if the agency was specified before ..
+        $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
         $name = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
         $surname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
@@ -1349,6 +1322,55 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             return ! empty((string) $nextItemToken[0]);
         }
         return false;
+    }
+
+    /**
+     * Explodes string using const AGENCY_ID_DELIMITER to fetch agencyId.
+     *
+     * If no AGENCY_ID_DELIMITER found in string, it returns false in $agencyId.
+     *
+     * Return value = [ $id, $agencyId ]
+     *
+     * @param string $id
+     * @return array
+     */
+    protected function splitAgencyId($id)
+    {
+
+        // $id may have the form of "agencyId:itemId"
+        $agencyId = false;
+        $idSplitted = explode(static::AGENCY_ID_DELIMITER, $id);
+
+        if (count($idSplitted) > 1) {
+            $agencyId = $idSplitted[0];
+
+            // Merge the rest of the array
+            $idSplitted = array_slice($idSplitted, 1);
+            $id = implode(static::AGENCY_ID_DELIMITER, $idSplitted);
+        }
+
+        return [
+            $id,
+            $agencyId
+        ];
+    }
+
+    /**
+     * If agencyId isn't false, it will return $agencyId joined with $id
+     * using AGENCY_ID_DELIMITER.
+     *
+     * Else it returns only $id.
+     *
+     * @param string $id
+     * @param string $agencyId
+     * @return string
+     */
+    protected function joinAgencyId($id, $agencyId)
+    {
+        if ($agencyId)
+            return $agencyId . static::AGENCY_ID_DELIMITER . $id;
+        else
+            return $id;
     }
 }
 

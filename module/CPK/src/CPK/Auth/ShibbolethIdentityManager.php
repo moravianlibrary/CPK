@@ -625,10 +625,11 @@ class ShibbolethIdentityManager extends Shibboleth
                 }
 
                 // cat_username needs to contain agencyId in some cases for XCNCIP2 valid LookupUser message
-                if ($attribute === 'cat_username' && isset($config['changeAgencyIdSeparator'])) {
-                    $agencyIdSeparator = $config['changeAgencyIdSeparator']->toArray();
-                    $currentSeparator = key($agencyIdSeparator);
-                    $desiredSeparator = $agencyIdSeparator[$currentSeparator];
+                if ($attribute === 'cat_username' && isset($config['changeAgencyIdSeparator']) && $config['changeAgencyIdSeparator'] instanceof \Zend\Config\Config) {
+                    $agencyIdSeparators = $config['changeAgencyIdSeparator']->toArray();
+
+                    $currentSeparator = key($agencyIdSeparators);
+                    $desiredSeparator = $agencyIdSeparators[$currentSeparator];
 
                     $catUsernameSplitted = explode($currentSeparator, $value);
 
