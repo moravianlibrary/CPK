@@ -82,7 +82,8 @@
               <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
             </a>
           <? elseif (isset($row['loadAsync']) && $row['loadAsync']): ?>
-              <span class="label label-info loader"><?=$this->transEsc('Loading')?> ...</span>
+              <i class="fa fa-spinner fa-spin"></i>
+              <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
           <? endif; ?>
           </div>
         <? endif; ?>

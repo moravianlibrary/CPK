@@ -254,10 +254,29 @@ class AjaxController extends AjaxControllerBase
 
             $statuses = $ilsDriver->getStatuses($ids);
 
-            if (null !== $statuses)
-                return $this->output($statuses, self::STATUS_OK);
+            if (null === $statuses)
+                return $this->output("\$ilsDriver->getStatuses returned null", self::STATUS_ERROR);
 
-            return $this->output("\$ilsDriver->getStatuses returned null", self::STATUS_ERROR);
+            $itemsStatuses = [];
+
+            foreach ($statuses as $status) {
+                $id = $status['id'];
+
+                // FIXME: Translate the status ...
+                $itemsStatuses[$id] = $status['status'];
+
+                // TODO: Compare $statuses to $ids & include to response which ids has to be parsed next
+                // TODO: Include NextItemToken if any ..
+
+                $key = array_search($id, $ids);
+                unset($ids[$key]);
+            }
+
+            if (isset($ids) && count($ids) > 0)
+                $retVal['remaining'] = $ids;
+
+            $retVal['statuses'] = $itemsStatuses;
+            return $this->output($retVal, self::STATUS_OK);
         } else
             return $this->output("ILS Driver isn't instanceof MultiBackend - ending job now.", self::STATUS_ERROR);
     }

@@ -17,6 +17,10 @@ function isRecordPage() {
     return document.location.pathname.match(/\/Record\/\w+[.].*/) != null;
 }
 
+if (isRecordPage()) {
+    $(getHoldingStatuses());
+}
+
 function getHoldingsIds() {
     ids = [];
     $("div#holdings-tab tbody tr").each(function() {
@@ -25,28 +29,56 @@ function getHoldingsIds() {
     return ids;
 }
 
-if (isRecordPage()) {
+function updateHoldingId(id, value) {
+    var tableRow = $("div#holdings-tab tbody tr#" + id.replace(/([.:])/g,'\\$1')),
+    statusDiv = tableRow.find('div')[1],
+    icon = $(statusDiv).children('i'),
+    label = $(statusDiv).children('span.label');
+    
+    // Purge the loading icon
+    icon.remove();
+    
+    // Set status to the label
+    label.text(value);
+    
+    // TODO: Add some kind of style appropriate to the status parsed ...
+    label.removeClass('label-primary').addClass('label-success');
+    
+}
 
-    // Async holdings loader
-    // TODO: Make the request cancellable after user chooses any filter
-    // FIXME: Call one id by one & everytime update everyone
-    $(function() {
+function processGetHoldingStatusesResponse(r) {
+    
+    var data = r.data;
 
-        if (document.location.pathname.indexOf('Record/'))
+    $.each(data.statuses, function(key, value) {
+        updateHoldingId(key, value);
+    });
+    
+    if (data.remaining != null) {
+        // FIXME pass nextItemTokens somehow if any ...
+        getHoldingStatuses()(data.remaining);
+    }
+}
+
+// Async holdings loader
+// TODO: Make the request cancellable after user chooses any filter
+// FIXME: Call one id by one & everytime update everyone
+function getHoldingStatuses() {
+    return function(ids = null) {
+
+        if (document.location.pathname.indexOf('Record/')) {
+            
+            if( Object.prototype.toString.call( ids ) !== '[object Array]' )
+                ids = getHoldingsIds();
+            
             var ajaxResponse = $.getJSON(
                     '/AJAX/JSON?method=getHoldingsStatuses', {
-                        ids : getHoldingsIds()
+                        ids : ids
                     }, function(resp) {
-
-                        // Log each key in the response data
-                        $.each(resp, function(key, value) {
-                            console.log('Printing response: ' + key + " : "
-                                    + value);
-                        });
+                        processGetHoldingStatusesResponse(resp);
                     });
 
-        console.log('ajaxResponse = ' + ajaxResponse);
-
+        }
         // TODO process every holding
-    });
+    }
 }

@@ -80,6 +80,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     protected $timeout = null;
 
+    protected $eppnScope = null;
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -130,6 +132,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         if (isset($this->config['Catalog']['timeout']))
             $this->timeout = intval($this->config['Catalog']['timeout']);
 
+        if (isset($this->config['Catalog']['eppnScope']))
+            $this->eppnScope = $this->config['Catalog']['eppnScope'];
+
         $this->requests = new NCIPRequests();
     }
 
@@ -177,7 +182,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                     'adapter' => 'Zend\Http\Client\Adapter\Curl',
                     'curloptions' => array(
                         CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_CAINFO => $this->config['Catalog']['cacert']
+                        CURLOPT_CAINFO => $this->cacert
                     )
                 ));
             }
@@ -347,8 +352,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     public function getPaymentURL()
     {
-        $paymentUrl = $this->config['paymentUrl'];
-        return empty($paymentUrl) ? null : $paymentUrl;
+        if (isset($this->config['paymentUrl']))
+            return $this->config['paymentUrl'];
+
+        return null;
     }
 
     /**
@@ -685,22 +692,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
             // FIXME: Add link logic
             $link = false;
-            if ($onStock && $restrictedToLibrary) {
-                // This means the reader needs to place a request to prepare the
-                // item -> pick up the item from stock & bring it to circulation
-                // desc
-                // E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
-                $link = $this->createLinkFromAlephItemId($item_id);
-            } else
-                if ($onStock && $monthLoanPeriod) {
-                    // Pickup from stock & prepare for month loan
-                    $link = $this->createLinkFromAlephItemId($item_id);
-                } else
-                    if (! $available && ! $onStock) {
-                        // Reserve item
-                        $link = $this->createLinkFromAlephItemId($item_id);
-                    }
-            // End of FIXME
 
             return array(
                 'id' => empty($id) ? "" : $id,
@@ -732,12 +723,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getStatuses($ids)
     {
-        $retVal = array();
-        foreach ($ids as $recent) {
+        $retVal = [];
 
-            // FIXME: We shouldn't iterate as we can use LookupItemSet ..
-            $retVal[] = $this->getStatus($recent);
+        if ($this->cannotUseLUIS)
+            // If we cannot use LUIS we will parse only the first one
+            $retVal[] = $this->getStatus($ids[key($ids)]);
+        else {
+
+            $request = $this->requests->getHolding($ids);
+            $response = $this->sendRequest($request);
+
+            // TODO: parse response ..
         }
+
         return $retVal;
     }
 
@@ -835,7 +833,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         // If password is null, than is user already logged in ..
         if ($password == null) {
             $temp = array(
-                "id" => $username
+                'id' => $username
             );
             return $this->getMyProfile($temp);
         }
@@ -1062,7 +1060,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
-        $eppnScope = $this->config['Catalog']['eppnScope'];
+        $eppnScope = $this->eppnScope;
 
         foreach ($blocksParsed as $block) {
             if (! empty($eppnScope)) {
@@ -1434,7 +1432,7 @@ class NCIPRequests
      *
      * @return string XML request
      */
-    public function getHolding($idList, $resumption = null)
+    public function getHolding($idList, $resumption = null, XCNCIP2 $mainClass = null)
     {
         // Build a list of the types of information we want to retrieve:
         $desiredParts = array(
@@ -1450,10 +1448,13 @@ class NCIPRequests
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
         // Add the ID list:
         $i = - 1;
-        foreach ($idList as $agencyId => $id) {
+        foreach ($idList as $id) {
+
+            if ($mainClass !== null)
+                list ($id, $agencyId) = $mainClass->splitAgencyId($id);
 
             $agencyIdExt = '';
-            if (++ $i !== $agencyId)
+            if ($agencyId)
                 $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . $agencyId . '</ns1:AgencyId></ns1:Ext>';
                 // $id = str_replace("-", "", $id);
             $id = $this->cpkConvert($id);
