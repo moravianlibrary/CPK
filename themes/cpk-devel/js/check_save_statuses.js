@@ -24,7 +24,7 @@ function checkSaveStatuses() {
           $.each(response.data, function(i, result) {
             var $container = $('#result'+result.record_number).find('.savedLists');
             var $link = $('#result'+result.record_number).find('.save-record');
-            var $icon = $('#result'+result.record_number).find('.fa-heart-o');
+            var $icon = $('#result'+result.record_number).find('.fa-star-o');
 
             if ($container.length == 0) { // Record view
               $container = $('#savedLists');
@@ -38,8 +38,8 @@ function checkSaveStatuses() {
                      + result.list_title + '</a></li>';
             $ul.append(html);
             $link.html("Editovat oblíbené");
-            $icon.removeClass('fa-heart-o');
-            $icon.addClass('fa-heart');
+            $icon.removeClass('fa-star-o');
+            $icon.addClass('fa-star');
             //$container.removeClass('hidden');
           });
         }
