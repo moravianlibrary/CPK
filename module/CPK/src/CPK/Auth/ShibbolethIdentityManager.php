@@ -624,6 +624,20 @@ class ShibbolethIdentityManager extends Shibboleth
                     $value = $matches[1];
                 }
 
+                // cat_username needs to contain agencyId in some cases for XCNCIP2 valid LookupUser message
+                if ($attribute === 'cat_username' && isset($config['changeAgencyIdSeparator'])) {
+                    $agencyIdSeparator = $config['changeAgencyIdSeparator']->toArray();
+                    $currentSeparator = key($agencyIdSeparator);
+                    $desiredSeparator = $agencyIdSeparator[$currentSeparator];
+
+                    $catUsernameSplitted = explode($currentSeparator, $value);
+
+                    if (isset($config['invertAgencyIdWithUsername']) && $config['invertAgencyIdWithUsername'])
+                        $catUsernameSplitted = array_reverse($catUsernameSplitted);
+
+                    $value = implode($desiredSeparator, $catUsernameSplitted);
+                }
+
                 $attributes[$attribute] = $value;
             }
         }
@@ -772,8 +786,13 @@ class ShibbolethIdentityManager extends Shibboleth
             }
         }
 
-        if ($libCardToSave instanceof UserCard)
+        // It is instanceof UserCard only it there was a cat_username mismatch ..
+        if ($libCardToSave instanceof UserCard) {
             $libCardToSave->save();
+
+            // We need to update user table with the new cat_username
+            $user->activateLibraryCardRow($libCardToSave);
+        }
     }
 
     /**
