@@ -733,7 +733,69 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $request = $this->requests->getStatuses($ids, $nextItemToken, $this);
             $response = $this->sendRequest($request);
 
-            // TODO: parse response ..
+            if ($response === null)
+                return [];
+
+            $bibInfos = $this->useXPath($response, 'BibInformation');
+
+            foreach ($bibInfos as $bibInfo) {
+
+                $id = (string) $this->useXPath($bibInfo, 'BibliographicRecordId/BibliographicRecordIdentifier')[0];
+
+                $status = (string) $this->useXPath($bibInfo, 'ItemOptionalFields/CirculationStatus')[0];
+
+                $itemCallNo = (string) $this->useXPath($bibInfo, 'ItemOptionalFields/ItemDescription/CallNumber')[0];
+
+                $holdQueue = (string) $this->useXPath($bibInfo, 'ItemOptionalFields/HoldQueueLength')[0];
+
+                $itemRestrictions = $this->useXPath($bibInfo, 'ItemOptionalFields/ItemUseRestrictionType');
+
+                $restrictions = [];
+                foreach ($itemRestrictions as $itemRestriction) {
+                    $restrictions[] = (string) $itemRestriction;
+                }
+
+                $locationNameInstances = $this->useXPath($bibInfo, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
+
+                foreach ($locationNameInstances as $locationNameInstance) {
+                    // FIXME: Create config to map location abbreviations of each institute into human readable values
+
+                    $locationLevel = (string) $this->useXPath($locationNameInstance, 'LocationNameLevel')[0];
+
+                    if ($locationLevel == 4) {
+                        $department = (string) $this->useXPath($locationNameInstance, 'LocationNameValue')[0];
+                    } else
+                        if ($locationLevel == 3) {
+                            $sublibrary = (string) $this->useXPath($locationNameInstance, 'LocationNameValue')[0];
+                        } else {
+                            $locationInBuilding = (string) $this->useXPath($locationNameInstance, 'LocationNameValue')[0];
+                        }
+                }
+
+                $available = $status === 'Available On Shelf';
+
+                $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
+
+                $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
+
+                // FIXME: Add link logic
+                $link = false;
+
+                $retVal[] = array(
+                    'id' => empty($id) ? "" : $id,
+                    'availability' => empty($available) ? false : $available ? true : false,
+                    'status' => empty($status) ? "" : $status,
+                    'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
+                    'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
+                    'department' => empty($department) ? '' : $department,
+                    'requests_placed' => ! isset($holdQueue) ? "" : $holdQueue,
+                    'link' => $link,
+                    'item_id' => empty($id) ? "" : $id,
+                    'holdOverride' => "",
+                    'addStorageRetrievalRequestLink' => "",
+                    'addILLRequestLink' => ""
+                );
+            }
         }
 
         return $retVal;
@@ -1267,7 +1329,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         ];
     }
 
-    public function getMaximumItemsCount() {
+    public function getMaximumItemsCount()
+    {
         return $this->maximumItemsCount;
     }
 
@@ -1387,6 +1450,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
  */
 class NCIPRequests
 {
+
     /**
      * Build NCIP request XML for cancel holds.
      *
@@ -1508,7 +1572,6 @@ class NCIPRequests
         // Close the XML and send it to the caller:
         $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
         return $xml;
-
     }
 
     /**
