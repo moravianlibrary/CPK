@@ -248,6 +248,9 @@ class AjaxController extends AjaxControllerBase
     {
         $ids = $this->params()->fromQuery('ids');
 
+        if (null === $ids)
+            return $this->output('There has been sent empty "ids" Object', self::STATUS_ERROR);
+
         $nextItemToken = $this->params()->fromQuery('nextItemToken');
 
         $ilsDriver = $this->getILS()->getDriver();

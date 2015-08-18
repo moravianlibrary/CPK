@@ -20,6 +20,11 @@ $config = array(
                     'buy' => 'CPK\RecordTab\Buy'
                 ), /* invokables */
             ), /* recordtab */
+            'recommend' => [
+                'factories' => [
+                    'sidefacets' => 'CPK\Recommend\Factory::getSideFacets',
+                    ], /* factories */
+            ], /* recommend */
             'auth' => array(
                 'factories' => array(
                     'perunShibboleth' => 'CPK\Auth\Factory::getPerunShibboleth',
