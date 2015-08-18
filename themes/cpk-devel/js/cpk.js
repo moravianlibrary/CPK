@@ -23,14 +23,17 @@ if (isRecordPage()) {
 
 function getHoldingsIds() {
     ids = [];
-    $("div#holdings-tab tbody tr").each(function() {
+    $("div#holdings-tab tbody tr:not(.loading, .loaded)").each(function() {
         ids.push($(this).attr('id'));
+        
+        // Add loading class so that we know about being it parsed
+        $(this).addClass('loading');
     });
     return ids;
 }
 
 function updateHoldingId(id, value) {
-    var tableRow = $("div#holdings-tab tbody tr#" + id.replace(/([.:])/g,'\\$1')),
+    var tableRow = $("tr#" + id.replace(/([.:])/g,'\\$1')),
     statusDiv = tableRow.find('div')[1],
     icon = $(statusDiv).children('i'),
     label = $(statusDiv).children('span.label');
@@ -43,6 +46,8 @@ function updateHoldingId(id, value) {
     
     // TODO: Add some kind of style appropriate to the status parsed ...
     label.removeClass('label-primary').addClass('label-success');
+    
+    tableRow.removeClass('loading').addClass('loaded');
     
 }
 
@@ -62,7 +67,6 @@ function processGetHoldingStatusesResponse(r) {
 
 // Async holdings loader
 // TODO: Make the request cancellable after user chooses any filter
-// FIXME: Call one id by one & everytime update everyone
 function getHoldingStatuses() {
     return function(ids) {
 
@@ -77,8 +81,6 @@ function getHoldingStatuses() {
                     }, function(response) {
                         processGetHoldingStatusesResponse(response);
                     });
-
         }
-        // TODO process every holding
     }
 }

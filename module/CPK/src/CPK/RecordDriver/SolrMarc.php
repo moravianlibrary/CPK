@@ -102,7 +102,6 @@ class SolrMarc extends ParentSolrMarc
 
                 $holding['id'] = $id;
                 $holding['source'] = $source;
-                $holding['loadAsync'] = true;
                 $holdings[] = $holding;
             }
         }
