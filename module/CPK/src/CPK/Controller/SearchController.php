@@ -28,7 +28,7 @@ use VuFind\Controller\SearchController as SearchControllerBase;
 
 /**
  * SearchController
- * 
+ *
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
@@ -51,36 +51,37 @@ class SearchController extends SearchControllerBase
 		if ($this->params()->fromQuery('type') == 'tag') {
 			return $this->forwardTo('Tag', 'Home');
 		}
-	
+
 		// Default case -- standard behavior.
 		$view = parent::resultsAction();
-	
-		$view->myLibs = $this->getUsersLibCards();
-		
+
+		$view->myLibs = $this->getUsersHomeLibraries();
+
 		return $view;
 	}
-	
+
 	/**
 	 * User's Library cards (home_library values)
 	 *
 	 * @return	array
 	 */
-	public function getUsersLibCards()
+	public function getUsersHomeLibraries()
 	{
         $account = $this->getAuthManager();
         if ($account->isLoggedIn()) { // is loggedIn
 
 			$user = $this->getUser();
 			$libraryCards = $user->getLibraryCards()->toArray();
+
 			$myLibs = array();
-	
-			foreach ($libraryCards as $key => $value) {
-				$lib = $value['home_library'];
-				if(! in_array($lib, $myLibs))
-					$myLibs[] = $lib;
+
+			foreach ($libraryCards as $libCard) {
+				$homeLib = $libCard['home_library'];
+				$myLibs[] = $homeLib;
 			}
-		}
-		 
-		return $myLibs;
+
+			return array_unique($myLibs);
+		} else
+		  return [];
 	}
 }

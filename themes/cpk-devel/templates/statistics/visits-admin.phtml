@@ -3,15 +3,18 @@
     $this->headTitle($this->translate('Statistics'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->transEsc('Your Account').'</a></li>' 
+    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->transEsc('Your Account').'</a></li>'
     							  .'<li><a href="'.$this->url('statistics-dashboard').'">' . $this->transEsc('Statistics') . '</a></li>'
     							  .'<li class="active">' . $this->transEsc('Visits') . '</li>';
-    
+
     echo $this->render('statistics/menu.phtml');
-    
+
     echo $this->render('statistics/calendar.phtml');
-    
-    $libCard  = $this->urlGetParams['libCard'];
+
+    $libCard = null;
+
+    if (isset($this->urlGetParams['libCard']))
+        $libCard  = $this->urlGetParams['libCard'];
 ?>
 
 <div class="row">
@@ -33,7 +36,7 @@
 			</div>
 		</div>
 		<!-- /.row -->
-		
+
 		<div class="row">
 			<div class="col-lg-4">
 				<div class="panel panel-default">
@@ -48,7 +51,7 @@
 					</div>
 				</div>
 			</div>
-			
+
 			<? if ( ($libCard && $libCard === 'all') || (! $libCard)) : ?>
 			<div class="col-lg-4">
 				<div class="panel panel-default">
@@ -77,16 +80,16 @@
 				</div>
 			</div>
 			<? endif; ?>
-			
+
 		</div>
 		<!-- /.row -->
-		
+
 		<div class='row'>
 			<div class="col-lg-6">
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">
-							<i class="fa fa-users fa-fw"></i> 
+							<i class="fa fa-users fa-fw"></i>
 							<?= $this->transEsc('Dashboard') ?>
 						</h3>
 					</div>
@@ -156,7 +159,7 @@
 			</div>
 		</div>
 		<!-- /.row -->
-		
+
 	</div>
 	<div class="<?=$this->layoutClass('sidebar')?>">
     	<?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'statistics'))?>
@@ -178,11 +181,11 @@
 	    Morris.Donut( {
 	        element: 'visits-comparision',
 	        data: [
-	        	{ label: "<?= $this->transEsc('Returning readers'); ?>", 
-		          value: <?= $this->returningVisitorsCount ?> 
+	        	{ label: "<?= $this->transEsc('Returning readers'); ?>",
+		          value: <?= $this->returningVisitorsCount ?>
 		        },
-			    { label: "<?= $this->transEsc('New readers'); ?>", 
-				  value: <?= $this->newVisitorsCount ?> 
+			    { label: "<?= $this->transEsc('New readers'); ?>",
+				  value: <?= $this->newVisitorsCount ?>
 				},
 			],
 	        resize: true
@@ -191,11 +194,11 @@
 	    Morris.Donut( {
 	        element: 'visits-comparision-anonymous',
 	        data: [
-	        	{ label: "<?= $this->transEsc('Returning readers'); ?>", 
-		          value: <?= $this->returningAnonymeVisitorsCount ?> 
+	        	{ label: "<?= $this->transEsc('Returning readers'); ?>",
+		          value: <?= $this->returningAnonymeVisitorsCount ?>
 		        },
-			    { label: "<?= $this->transEsc('New readers'); ?>", 
-				  value: <?= $this->newAnonymeVisitorsCount ?> 
+			    { label: "<?= $this->transEsc('New readers'); ?>",
+				  value: <?= $this->newAnonymeVisitorsCount ?>
 				},
 			],
 	        resize: true
@@ -204,27 +207,27 @@
 	    Morris.Donut( {
 	        element: 'visits-comparision-authenticated',
 	        data: [
-	        	{ label: "<?= $this->transEsc('Returning readers'); ?>", 
-		          value: <?= $this->returningAuthenticatedVisitorsCount ?> 
+	        	{ label: "<?= $this->transEsc('Returning readers'); ?>",
+		          value: <?= $this->returningAuthenticatedVisitorsCount ?>
 		        },
-			    { label: "<?= $this->transEsc('New readers'); ?>", 
-				  value: <?= $this->newAuthenticatedVisitorsCount ?> 
+			    { label: "<?= $this->transEsc('New readers'); ?>",
+				  value: <?= $this->newAuthenticatedVisitorsCount ?>
 				},
 			],
 	        resize: true
 	    });
 		<? endif; ?>
-	    
+
 	 	// Initializes area chart for visits in time
 	    Morris.Area( {
 	        element: 'visits-in-time',
 	        data: [
-	   	    	<?php 
+	   	    	<?php
 	   	    		$data = "";
 	   	    		foreach ($this->visitsInTime as $key => $value) {
 						$data .= "{ period: '$key', novi: ".$value["newVisits"].", vracejici: ".$value["returningVisits"]." },";
-	   	    		}	   
-	   	    		echo rtrim($data, ",");	   
+	   	    		}
+	   	    		echo rtrim($data, ",");
 				?>
 	        ],
 	        xkey: 'period',
@@ -234,6 +237,6 @@
 	        parseTime: false,
 	        hideHover: 'auto'
 	      });
-		
+
 	});
 </script>

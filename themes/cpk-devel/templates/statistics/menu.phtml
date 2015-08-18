@@ -1,6 +1,9 @@
 <?php
 
-	$libCard  = $this->urlGetParams['libCard'];
+    $libCard = null;
+
+    if (isset($this->urlGetParams['libCard']))
+	   $libCard  = $this->urlGetParams['libCard'];
 
 	$params = $this->urlGetParams;
 	$options = [
@@ -12,7 +15,7 @@
 	];
 	if ($libCard)
 		$options['query']['libCard']  = (! empty($params['libCard']))  ? $params['libCard'] : 'all';
-	
+
 ?>
 
 <ul class='nav nav-tabs nav-justified statistics-menu'>

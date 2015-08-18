@@ -1,11 +1,21 @@
-<?php 
-$period   = $this->urlGetParams['period'];
-$dateFrom = $this->urlGetParams['dateFrom'];
-$dateTo   = $this->urlGetParams['dateTo'];
-$libCard  = $this->urlGetParams['libCard'];
+<?php
+
+$period = $dateFrom = $dateTo = $libCard = null;
+
+if (isset($this->urlGetParams['period']))
+    $period   = $this->urlGetParams['period'];
+
+if (isset($this->urlGetParams['dateFrom']))
+    $dateFrom = $this->urlGetParams['dateFrom'];
+
+if (isset($this->urlGetParams['dateTo']))
+    $dateTo   = $this->urlGetParams['dateTo'];
+
+if (isset($this->urlGetParams['libCard']))
+    $libCard  = $this->urlGetParams['libCard'];
 ?>
 <div class='calendar form-inline' >
-	
+
 	<?= $this->transEsc('Period') ?>
 	<span class='period-picker'>
 		<select id='period' class="form-control">
@@ -24,14 +34,14 @@ $libCard  = $this->urlGetParams['libCard'];
 			<input class="form-control" type="text" id="day-datepicker">
 		</span>
 	</span>
-	
+
 	<span id='range-calendar'>
 		<span class='date-picker-caption'><?= $this->transEsc('From') ?></span>
 		<span class="input-group">
 			<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
 			<input class="form-control" type="text" id="range-datepicker-from">
 		</span>
-		
+
 		<span class='date-picker-caption'><?= $this->transEsc('To') ?></span>
 		<span class="input-group">
 			<span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
@@ -47,18 +57,19 @@ $libCard  = $this->urlGetParams['libCard'];
 			<? endforeach; ?>
 		</select>
 	</span>
-	
+
 	<span class='update-stats'>
 		<button class='btn btn-primary' id='update-stats'><?= $this->transEsc('Update stats') ?></button>
 	</span>
-	
+
 	<span class='selected-date-range pull-right'>
-	<?php 
-		if ($this->urlGetParams['dateFrom'] AND $this->urlGetParams['dateTo']) 
-			echo $this->urlGetParams['dateFrom'].' - '.$this->urlGetParams['dateTo']; 
+	<?php
+	if (isset($this->urlGetParams['dateFrom']) && isset($this->urlGetParams['dateTo']))
+		if ($this->urlGetParams['dateFrom'] AND $this->urlGetParams['dateTo'])
+			echo $this->urlGetParams['dateFrom'].' - '.$this->urlGetParams['dateTo'];
 	?>
 	</span>
-	
+
 </div>
 
 
@@ -66,7 +77,7 @@ $libCard  = $this->urlGetParams['libCard'];
 	jQuery( document ).ready( function( $ ) {
 
 		/**
-		 * Gets period from Url query or by select change 
+		 * Gets period from Url query or by select change
 		 * and shows or hides calendars depending on period.
 		 *
 		 * @param	{string}	p_period
@@ -74,64 +85,64 @@ $libCard  = $this->urlGetParams['libCard'];
 		 * @return	void
 		 */
 		var showOrHideCalendars = function(p_period){
-			
+
 			var start,
 				end;
 
 			if( p_period === 'week' ) {
-				
+
 				start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
 				end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
 
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).hide();
-				
+
 			} else if ( p_period === 'month' ) {
-				
+
 				start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
 				end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
 
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).hide();
-				
+
 			} else if ( p_period ==='year' ) {
 
-				var year = todayDate.getFullYear(); 
-				
+				var year = todayDate.getFullYear();
+
 				start = year + '-01-01';
 				end   = year + '-12-31';
 
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).hide();
-				
+
 			} else if ( p_period === 'day' ) {
-				
+
 				$( '#day-calendar' ).show();
 				$( '#range-calendar' ).hide();
-				
+
 			} else if ( p_period === 'range' ){
 
 				start = defaultDateFrom;
 				end   = defaultDateTo;
-				
+
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).show();
-				
+
 			} else {
 
 				$( '#day-calendar' ).hide();
 				$( '#range-calendar' ).hide();
-				
+
 			}
-			
+
 			$( '#range-datepicker-from' ).datepicker('setDate', start);
 			$( '#range-datepicker-to' ).datepicker('setDate', end);
-			
+
 		}
 
 		var period = $( '#period' ).val();
 		var todayDate = new Date();
-				
+
 		// Initializes calendars
 		$( '#day-datepicker, #range-datepicker-from, #range-datepicker-to' ).datepicker( {
 			changeMonth: true,
@@ -142,18 +153,18 @@ $libCard  = $this->urlGetParams['libCard'];
 		// Sets default dates
 		var defaultDateFrom = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
 		var defaultDateTo  = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
-	
+
 		$( '#day-datepicker' ).datepicker('setDate', todayDate);
-		
+
 		$( '#range-datepicker-from' ).datepicker('setDate', defaultDateFrom);
 		$( '#range-datepicker-to' ).datepicker('setDate', defaultDateTo);
 
 		// Document write chosen or default dates
 		if ( $( '.selected-date-range' ).text().trim().length == 0)
-			$( '.selected-date-range' ).html( 
-				defaultDateFrom.getFullYear() + '-' + (defaultDateFrom.getMonth()+1) + '-' + defaultDateFrom.getDate() 
-				+ ' - ' + 
-				defaultDateTo.getFullYear() + '-' + (defaultDateTo.getMonth()+1) + '-' + defaultDateTo.getDate() 
+			$( '.selected-date-range' ).html(
+				defaultDateFrom.getFullYear() + '-' + (defaultDateFrom.getMonth()+1) + '-' + defaultDateFrom.getDate()
+				+ ' - ' +
+				defaultDateTo.getFullYear() + '-' + (defaultDateTo.getMonth()+1) + '-' + defaultDateTo.getDate()
 			);
 
 		// show chosen calendar
@@ -164,31 +175,31 @@ $libCard  = $this->urlGetParams['libCard'];
 				echo "showOrHideCalendars(period);";
 			}
 		?>
-		
+
 
 		<?php
 			if ($period === 'day') {
 				echo "$( '#day-datepicker' ).datepicker('setDate', '$dateFrom');";
 			}
-			
+
 			if ($period === 'range') {
 				echo "$( '#range-datepicker-from' ).datepicker('setDate', '$dateFrom');";
 				echo "$( '#range-datepicker-to' ).datepicker('setDate', '$dateTo');";
 			}
 		?>
-		
+
 		// On period change, sets default dates
 		$( '#period' ).on( 'change', function() {
-			
+
 			period = $( this ).val();
 			console.log( 'Period changed to: ' + period );
-			
+
 			showOrHideCalendars(period);
 		});
 
 		// On click (time change), updates data with reloading
 		$( '#update-stats' ).on( 'click', function( event ) {
-			
+
 			event.preventDefault();
 
 			<? if ($isAdmin) : ?>
@@ -196,16 +207,16 @@ $libCard  = $this->urlGetParams['libCard'];
 			<? endif; ?>
 
 			if ( period == 'day' ) {
-				
+
 				var day = $( '#day-datepicker' ).val();
 				<? if ($isAdmin) : ?>
 					$(location).attr( 'href', '?period=' + period + '&dateFrom=' + day + '&dateTo=' + day + '&libCard=' + libCard );
 				<? else : ?>
 					$(location).attr( 'href', '?period=' + period + '&dateFrom=' + day + '&dateTo=' + day );
 				<? endif; ?>
-				
+
 			} else {
-				
+
 				var dateFrom = $( '#range-datepicker-from' ).val();
 				var dateTo = $( '#range-datepicker-to' ).val();
 
@@ -214,9 +225,9 @@ $libCard  = $this->urlGetParams['libCard'];
 				<? else : ?>
 					$(location).attr( 'href', '?period=' + period + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo );
 				<? endif; ?>
-				
+
 			}
-			
+
 		});
 
 });

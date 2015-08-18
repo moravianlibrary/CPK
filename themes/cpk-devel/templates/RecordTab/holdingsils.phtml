@@ -43,8 +43,22 @@
 <? $rowNo = 0; ?>
 <? foreach ($holdings as $row): //FIXME: Create proprietary links?>
   <? $check = (!empty($row['check']) && $row['check']); ?>
-  <? $rowNo++; $onShelf=$row['status']=="On Shelf";?>
-  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>" id="<?=$row['source'] . '.' .$row['agency_id'] . ':' . $row['item_id']?>">
+  <? $rowNo++; $onShelf=$row['status']=="On Shelf";
+  $row['uniqueRowId'] =
+        (isset($row['source']) && isset($row['agency_id']) && isset($row['item_id'])) ?
+            $row['source'] . '.' .$row['agency_id'] . ':' . $row['item_id'] :
+            ((isset($row['source']) && isset($row['item_id'])) ?
+                $row['source'] . '.' . $row['item_id'] :
+                null);
+
+  ?>
+  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>"
+
+  <? if (! empty($row['uniqueRowId'])): ?>
+    id="<?=$row['uniqueRowId']?>
+  <? endif; ?>
+  ">
+
     <td data-title="<?=$this->transEsc("item status")?>">
       <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>
       <div>
@@ -140,136 +154,3 @@
   <? endforeach; ?>
 </ul>
 <? endif; ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
