@@ -26,7 +26,6 @@
 <? $hierarchicalFacets = $this->recommend->getHierarchicalFacets() ?>
 <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
   <div class="list-group filters">
-
     <div class="list-group-item title"><?=$this->transEsc('Remove Filters')?></div>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $i => $filter): ?>
