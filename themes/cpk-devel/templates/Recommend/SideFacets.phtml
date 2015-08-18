@@ -54,7 +54,7 @@
 <? endif;
 // Here starts custom code (everything else is from upstream)
 ?>
-<? if ($this->recommend instanceof \CPK\Recommend\SideFacets && isset($myLibs) && is_array($myLibs)):
+<? if ($this->recommend instanceof \CPK\Recommend\SideFacets && isset($myLibs) && is_array($myLibs) && count($myLibs) > 0):
 
     $url = '/Search/Results?type=AllFields';
     foreach ($myLibs as $myLib) {
