@@ -36,7 +36,7 @@
     <th><?=$this->transEsc("Collection")?>&nbsp;</th>
     <th><?=$this->transEsc("Location")?>&nbsp;</th>
     <th><?=$this->transEsc("Description")?>&nbsp;</th>
-    <th><?=$this->transEsc("Note")?>&nbsp;</th>
+    <th><?=$this->transEsc("callnumber_abbrev")?>&nbsp;</th>
   </tr>
 </thead>
 <tbody>
@@ -129,9 +129,9 @@
         <?=$this->escapeHtml($row['description']);?>
       <? endif;?>
     </td>
-    <td data-title="<?=$this->transEsc("note")?>">
-      <? if (!empty($row['notes'])):?>
-        <?=$this->escapeHtml($row['notes'][0])?>
+    <td data-title="<?=$this->transEsc("callnumber in stock")?>">
+      <? if (!empty($row['callnumber'])):?>
+        <?=$this->escapeHtml($row['callnumber'])?>
       <? endif;?>
     </td>
   </tr>
