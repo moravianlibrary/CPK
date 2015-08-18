@@ -502,41 +502,42 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     public function getShibAssertions()
     {
-        $assertions = array();
+        if (! isset($_SERVER[static::SHIB_ASSERTION_COUNT_ENV]))
+            return [];
 
         $count = intval($_SERVER[static::SHIB_ASSERTION_COUNT_ENV]);
 
-        if (! empty($count))
-            for ($i = 0; $i < $count; ++ $i) {
-                $shibAssertionEnv = $this->getShibAssertionNumberEnv($i + 1);
+        $assertions = array();
 
-                $assertions[$i] = $_SERVER[$shibAssertionEnv];
+        for ($i = 0; $i < $count; ++ $i) {
+            $shibAssertionEnv = $this->getShibAssertionNumberEnv($i + 1);
 
-                if ($assertions[$i] == null) {
-                    unset($assertions[$i]);
-                } else {
-                    $url = $assertions[$i];
+            $assertions[$i] = $_SERVER[$shibAssertionEnv];
 
-                    if (strpos($url, 'https:') !== false) {
-                        $ch = curl_init();
-                        // Running on localhost means we can trust whatever SSL it has .. (Shibboleth SP should run on loc)
-                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-                        curl_setopt($ch, CURLOPT_HEADER, false);
-                        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                        curl_setopt($ch, CURLOPT_URL, $url);
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                        $contents = curl_exec($ch);
-                        curl_close($ch);
-                    } else
-                        $contents = file_get_contents($assertions[$i]);
+            if ($assertions[$i] == null) {
+                unset($assertions[$i]);
+            } else {
+                $url = $assertions[$i];
 
-                        // If we have parsed contents successfully, set it to assertion
-                        // If not, then leave there the link to find out what is the problem
-                    if (! empty($contents)) {
-                        $assertions[$i] = $contents;
-                    }
+                if (strpos($url, 'https:') !== false) {
+                    $ch = curl_init();
+                    // Running on localhost means we can trust whatever SSL it has .. (Shibboleth SP should run on loc)
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                    curl_setopt($ch, CURLOPT_URL, $url);
+
+                    $contents = curl_exec($ch);
+                    curl_close($ch);
+                } else
+                    $contents = file_get_contents($assertions[$i]);
+
+                    // If we have parsed contents successfully, set it to assertion
+                    // If not, then leave there the link to find out what is the problem
+                if (! empty($contents)) {
+                    $assertions[$i] = $contents;
                 }
             }
+        }
 
         return $assertions;
     }

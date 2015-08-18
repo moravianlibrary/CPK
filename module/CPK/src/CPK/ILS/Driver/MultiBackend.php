@@ -57,7 +57,7 @@ class MultiBackend extends MultiBackendBase
      * @throws ILSException
      * @return array An array of getStatus() return values on success.
      */
-    public function getStatuses($ids)
+    public function getStatuses($ids, $nextItemToken = null)
     {
         // We assume all the ids passed here are being processed by only one ILS/Driver
         $source = $this->getSource(reset($ids));
@@ -68,7 +68,7 @@ class MultiBackend extends MultiBackendBase
                 $ids[$key] = $this->stripIdPrefixes($id, $source);
             }
 
-            $statuses = $driver->getStatuses($ids);
+            $statuses = $driver->getStatuses($ids, $nextItemToken);
             return $this->addIdPrefixes($statuses, $source);
         } else
             return parent::getStatuses($ids);

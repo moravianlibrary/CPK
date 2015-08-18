@@ -61,6 +61,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
     const AGENCY_ID_DELIMITER = ':';
 
+    protected $maximumItemsCount = null;
+
     /**
      * HTTP service
      *
@@ -69,8 +71,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected $httpService = null;
 
     protected $requests = null;
-
-    protected $maximumItemsCount = null;
 
     protected $cannotUseLUIS = false;
 
@@ -721,7 +721,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      * @throws ILSException
      * @return array Array of return values from getStatus.
      */
-    public function getStatuses($ids)
+    public function getStatuses($ids, $nextItemToken = null)
     {
         $retVal = [];
 
@@ -730,7 +730,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $retVal[] = $this->getStatus(reset($ids));
         else {
 
-            $request = $this->requests->getHolding($ids);
+            $request = $this->requests->getStatuses($ids, $nextItemToken, $this);
             $response = $this->sendRequest($request);
 
             // TODO: parse response ..
@@ -1237,6 +1237,41 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     }
 
     /**
+     * Explodes string using const AGENCY_ID_DELIMITER to fetch agencyId.
+     *
+     * If no AGENCY_ID_DELIMITER found in string, it returns false in $agencyId.
+     *
+     * Return value = [ $id, $agencyId ]
+     *
+     * @param string $id
+     * @return array
+     */
+    public function splitAgencyId($id)
+    {
+
+        // $id may have the form of "agencyId:itemId"
+        $agencyId = false;
+        $idSplitted = explode(static::AGENCY_ID_DELIMITER, $id);
+
+        if (count($idSplitted) > 1) {
+            $agencyId = $idSplitted[0];
+
+            // Merge the rest of the array
+            $idSplitted = array_slice($idSplitted, 1);
+            $id = implode(static::AGENCY_ID_DELIMITER, $idSplitted);
+        }
+
+        return [
+            $id,
+            $agencyId
+        ];
+    }
+
+    public function getMaximumItemsCount() {
+        return $this->maximumItemsCount;
+    }
+
+    /**
      * Validate XML against XSD schema.
      *
      * @param string $XML
@@ -1320,37 +1355,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             return ! empty((string) $nextItemToken[0]);
         }
         return false;
-    }
-
-    /**
-     * Explodes string using const AGENCY_ID_DELIMITER to fetch agencyId.
-     *
-     * If no AGENCY_ID_DELIMITER found in string, it returns false in $agencyId.
-     *
-     * Return value = [ $id, $agencyId ]
-     *
-     * @param string $id
-     * @return array
-     */
-    protected function splitAgencyId($id)
-    {
-
-        // $id may have the form of "agencyId:itemId"
-        $agencyId = false;
-        $idSplitted = explode(static::AGENCY_ID_DELIMITER, $id);
-
-        if (count($idSplitted) > 1) {
-            $agencyId = $idSplitted[0];
-
-            // Merge the rest of the array
-            $idSplitted = array_slice($idSplitted, 1);
-            $id = implode(static::AGENCY_ID_DELIMITER, $idSplitted);
-        }
-
-        return [
-            $id,
-            $agencyId
-        ];
     }
 
     /**
@@ -1444,16 +1448,17 @@ class NCIPRequests
 
             $agencyIdExt = '';
             if ($agencyId)
-                $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . $agencyId . '</ns1:AgencyId></ns1:Ext>';
-
+                $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . htmlspecialchars($agencyId) . '</ns1:AgencyId></ns1:Ext>';
+                // $id = str_replace("-", "", $id);
+            $id = $this->cpkConvert($id);
             $xml .= '<ns1:BibliographicId>' . '<ns1:BibliographicItemId>' . '<ns1:BibliographicItemIdentifier>' . htmlspecialchars($id) . '</ns1:BibliographicItemIdentifier>' . '<ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>' . '</ns1:BibliographicItemId>' . $agencyIdExt . '</ns1:BibliographicId>';
         }
         // Add the desired data list:
         foreach ($desiredParts as $current) {
             $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
         }
-        if (! empty($this->maximumItemsCount)) {
-            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($this->maximumItemsCount) . '</ns1:MaximumItemsCount>';
+        if (! empty($mainClass->getMaximumItemsCount())) {
+            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($mainClass->getMaximumItemsCount()) . '</ns1:MaximumItemsCount>';
         }
         // Add resumption token if necessary:
         if (! empty($resumption)) {
@@ -1462,6 +1467,48 @@ class NCIPRequests
         // Close the XML and send it to the caller:
         $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
         return $xml;
+    }
+
+    public function getStatuses($ids, $resumption = null, XCNCIP2 $mainClass = null)
+    {
+
+        // Build a list of the types of information we want to retrieve:
+        $desiredParts = array(
+            'Circulation Status',
+            'Hold Queue Length',
+            'Item Use Restriction Type',
+            'Location'
+        );
+        // Start the XML:
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
+        // Add the ID list:
+        $i = - 1;
+        foreach ($ids as $id) {
+
+            if ($mainClass !== null)
+                list ($id, $agencyId) = $mainClass->splitAgencyId($id);
+
+            $agencyIdTag = '';
+            if ($agencyId)
+                $agencyIdTag = '><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . htmlspecialchars($agencyId) . '</ns1:AgencyId>';
+
+            $xml .= '<ns1:ItemId>' . $agencyIdTag . '<ns1:ItemIdentifierType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/visibleitemidentifiertype/visibleitemidentifiertype.scm">Accession Number</ns1:ItemIdentifierType><ns1:ItemIdentifierValue>' . htmlspecialchars($id) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
+        }
+        // Add the desired data list:
+        foreach ($desiredParts as $current) {
+            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
+        }
+        if (! empty($mainClass->getMaximumItemsCount())) {
+            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($mainClass->getMaximumItemsCount()) . '</ns1:MaximumItemsCount>';
+        }
+        // Add resumption token if necessary:
+        if (! empty($resumption)) {
+            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) . '</ns1:NextItemToken>';
+        }
+        // Close the XML and send it to the caller:
+        $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
+        return $xml;
+
     }
 
     /**

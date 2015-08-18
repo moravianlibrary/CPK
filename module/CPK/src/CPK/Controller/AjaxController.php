@@ -248,12 +248,14 @@ class AjaxController extends AjaxControllerBase
     {
         $ids = $this->params()->fromQuery('ids');
 
+        $nextItemToken = $this->params()->fromQuery('nextItemToken');
+
         $ilsDriver = $this->getILS()->getDriver();
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
             //die();
-            $statuses = $ilsDriver->getStatuses($ids);
+            $statuses = $ilsDriver->getStatuses($ids, $nextItemToken);
 
             if (null === $statuses)
                 return $this->output('$ilsDriver->getStatuses returned null', self::STATUS_ERROR);
