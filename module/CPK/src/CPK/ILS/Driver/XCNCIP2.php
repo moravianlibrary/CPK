@@ -1383,17 +1383,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
  */
 class NCIPRequests
 {
-
-    protected $cpk_conversion = false;
-
-    protected function cpkConvert($id) // Substituted by str_replace in method sendRequest.
-    {
-        if ($this->cpk_conversion) {
-            $id = substr_replace($id, 'MZK01', 0, 7);
-        }
-        return $id;
-    }
-
     /**
      * Build NCIP request XML for cancel holds.
      *
@@ -1456,8 +1445,7 @@ class NCIPRequests
             $agencyIdExt = '';
             if ($agencyId)
                 $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . $agencyId . '</ns1:AgencyId></ns1:Ext>';
-                // $id = str_replace("-", "", $id);
-            $id = $this->cpkConvert($id);
+
             $xml .= '<ns1:BibliographicId>' . '<ns1:BibliographicItemId>' . '<ns1:BibliographicItemIdentifier>' . htmlspecialchars($id) . '</ns1:BibliographicItemIdentifier>' . '<ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>' . '</ns1:BibliographicItemId>' . $agencyIdExt . '</ns1:BibliographicId>';
         }
         // Add the desired data list:
