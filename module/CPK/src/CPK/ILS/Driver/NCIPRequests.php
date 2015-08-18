@@ -21,6 +21,16 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->patronInformation($patron, $extras);
     }
 
+    public function lookupItem($itemId, $patron) {
+        $body =
+        "<ns1:LookupItem>" .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertItemIdTag($itemId, $patron) .
+        $this->allItemElementType() .
+        "</ns1:LookupItem>";
+        return $this->header() . $body . $this->footer();
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
@@ -79,5 +89,59 @@ class NCIPRequests extends OldNCIPRequests {
                 "<ns1:AgencyId>" :
                 "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">") .
         htmlspecialchars($agency) . "</ns1:AgencyId>";
+    }
+
+    protected function insertItemIdTag($itemId, $patron) {
+        $body =
+        "<ns1:ItemId>" .
+        $this->insertAgencyIdTag($patron['agency']) .
+        $this->insertItemIdentifierType() .
+        "<ns1:ItemIdentifierValue>" . htmlspecialchars($itemId) . "</ns1:ItemIdentifierValue>" .
+        "</ns1:ItemId>";
+        return $body;
+    }
+
+    /* Allowed values are: Accession Number, Barcode. */
+    protected function insertItemIdentifierType() {
+        $itemIdentifierType = "Accession Number";
+        // TODO if (library.equals("Liberec")) itemIdentifierType = "Barcode";
+        return ($this->noScheme ?
+                "<ns1:ItemIdentifierType>" :
+                "<ns1:ItemIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
+                "visibleitemidentifiertype/visibleitemidentifiertype.scm\">") .
+        $itemIdentifierType . "</ns1:ItemIdentifierType>";
+    }
+
+    protected function allItemElementType() {
+        $body =
+        $this->itemElementType("Bibliographic Description") .
+        $this->itemElementType("Hold Queue Length") .
+        $this->itemElementType("Circulation Status") .
+        $this->itemElementType("Electronic Resource") .
+        $this->itemElementType("Item Use Restriction Type") .
+        $this->itemElementType("Location") .
+        $this->itemElementType("Physical Condition") .
+        $this->itemElementType("Security Marker") .
+        $this->itemElementType("Item Description") .
+        $this->itemElementType("Sensitization Flag");
+        // TODO
+        /*if (library.equals("Liberec")) {
+            body =
+            itemElementType("Bibliographic Description") +
+            itemElementType("Hold Queue Length") +
+            itemElementType("Circulation Status") +
+            itemElementType("Item Use Restriction Type") +
+            itemElementType("Location") +
+            itemElementType("Item Description");
+        }*/
+        return $body;
+    }
+
+    protected function itemElementType($value) {
+        return ($this->noScheme ?
+                "<ns1:ItemElementType>" :
+                "<ns1:ItemElementType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/itemelementtype/" .
+                "itemelementtype.scm\">") .
+        $value . "</ns1:ItemElementType>";
     }
 }

@@ -953,14 +953,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
             $dateDue = $this->useXPath($current, 'DateDue');
             $parsedDate = strtotime((string) $dateDue[0]);
-            $additRequest = $this->requests->getItemInfo((string) $item_id[0]);
-            /*$additResponse = $this->sendRequest($additRequest);
+            $additRequest = $this->requests->lookupItem((string) $item_id[0], $patron);
+            $additResponse = $this->sendRequest($additRequest);
             $isbn = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
             $bib_id = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
             $author = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
             $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
             $mediumType = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
-*/
+
             $dateDue = date('j. n. Y', $parsedDate);
 
             $retVal[] = array(
