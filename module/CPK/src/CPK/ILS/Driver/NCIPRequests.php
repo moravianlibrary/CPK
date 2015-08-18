@@ -1,0 +1,83 @@
+<?php
+/**
+ * Subsidiary class for XCNCIP2 driver.
+ *
+ * PHP version 5
+ *
+ * @category VuFind2
+ * @package  ILS_Drivers
+ * @author   Matus Sabik <sabik@mzk.cz>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
+ */
+namespace CPK\ILS\Driver;
+
+class NCIPRequests extends OldNCIPRequests {
+
+    protected $noScheme = false;
+
+    public function patronLoanedItems($patron) {
+        $extras = "<ns1:LoanedItemsDesired />";
+        return $this->patronInformation($patron, $extras);
+    }
+
+    protected function header() {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
+        "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
+        "ns1:version=\"http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd\">";
+    }
+
+    protected function footer() {
+        return "</ns1:NCIPMessage>";
+    }
+
+    protected function patronInformation($patron, $extras) {
+        $body =
+        "<ns1:LookupUser>" .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertUserIdTag($patron) .
+        $extras .
+        "</ns1:LookupUser>";
+        return $this->header() . $body . $this->footer();
+    }
+
+    protected function insertInitiationHeader($to, $from = "CPK") {
+        $initiationHeader =
+        "<ns1:InitiationHeader>" .
+        "<ns1:FromAgencyId>" .
+        ($this->noScheme ?
+                "<ns1:AgencyId>" :
+                "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">") .
+        htmlspecialchars($from) . "</ns1:AgencyId>" .
+        "</ns1:FromAgencyId>" .
+        "<ns1:ToAgencyId>" .
+        ($this->noScheme ?
+                "<ns1:AgencyId>" :
+                "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">") .
+        htmlspecialchars($to) . "</ns1:AgencyId>" .
+        "</ns1:ToAgencyId>" .
+        "</ns1:InitiationHeader>";
+        return $initiationHeader;
+    }
+
+    protected function insertUserIdTag($patron) {
+        $body =
+        "<ns1:UserId>" .
+        $this->insertAgencyIdTag($patron['agency']) .
+        ($this->noScheme ?
+                "<ns1:UserIdentifierType>" :
+                "<ns1:UserIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
+                "visibleuseridentifiertype/visibleuseridentifiertype.scm\">") .
+        "Institution Id Number" . "</ns1:UserIdentifierType>" .
+        "<ns1:UserIdentifierValue>" . htmlspecialchars($patron['id']) . "</ns1:UserIdentifierValue>" .
+        "</ns1:UserId>";
+        return $body;
+    }
+
+    protected function insertAgencyIdTag($agency) {
+        return ($this->noScheme ?
+                "<ns1:AgencyId>" :
+                "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">") .
+        htmlspecialchars($agency) . "</ns1:AgencyId>";
+    }
+}

@@ -937,8 +937,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getMyTransactions($patron)
     {
-        $request = $this->requests->getMyTransactions($patron);
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $request = $this->requests->patronLoanedItems($patron);
         $response = $this->sendRequest($request);
+        $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
         return $this->handleTransactions($response, $patron);
     }
 
@@ -952,13 +954,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $dateDue = $this->useXPath($current, 'DateDue');
             $parsedDate = strtotime((string) $dateDue[0]);
             $additRequest = $this->requests->getItemInfo((string) $item_id[0]);
-            $additResponse = $this->sendRequest($additRequest);
+            /*$additResponse = $this->sendRequest($additRequest);
             $isbn = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
             $bib_id = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
             $author = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
             $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
             $mediumType = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
-
+*/
             $dateDue = date('j. n. Y', $parsedDate);
 
             $retVal[] = array(
@@ -1451,7 +1453,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public
  *          License
  */
-class NCIPRequests
+class OldNCIPRequests
 {
 
     /**
