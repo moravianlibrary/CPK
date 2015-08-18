@@ -903,10 +903,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $request = $this->requests->patronLogin($username, $password);
         $response = $this->sendRequest($request);
         $id = $this->useXPath($response, 'LookupUserResponse/UserId/UserIdentifierValue');
-        $firstname = $this->useXPath($response, 'UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
+        $firstname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
 
-        $lastname = $this->useXPath($response, 'UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
-        $email = $this->useXPath($response, 'UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
+        $lastname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
+        $email = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
         if (! empty($id)) {
             $patron = array(
                 'id' => empty($id) ? '' : (string) $id[0],
@@ -1375,7 +1375,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     protected function getProblem($response)
     {
-        $problem = $this->useXPath($response, 'Problem');
+        $problem = $this->useXPath($response, '//Problem');
 
         if ($problem == null)
             return false;
@@ -1391,10 +1391,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected function useXPath($xmlObject, $xPath)
     {
         $arrayXPath = explode('/', $xPath);
-        $newXPath = "//";
+        $newXPath = "";
         foreach ($arrayXPath as $key => $part) {
             if ($part == null)
+            {
+                $newXPath .= "/";
                 continue;
+            }
             $newXPath .= "*[local-name()='" . $part . "']";
             if ($key != (sizeof($arrayXPath) - 1))
                 $newXPath .= '/';
