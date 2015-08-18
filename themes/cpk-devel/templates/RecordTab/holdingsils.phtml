@@ -52,12 +52,7 @@
                 null);
 
   ?>
-  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>"
-
-  <? if (! empty($row['uniqueRowId'])): ?>
-    id="<?=$row['uniqueRowId']?>
-  <? endif; ?>
-  ">
+  <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>" <? if (! empty($row['uniqueRowId'])): ?>id="<?=$row['uniqueRowId']?>"<? endif; ?> >
 
     <td data-title="<?=$this->transEsc("item status")?>">
       <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>

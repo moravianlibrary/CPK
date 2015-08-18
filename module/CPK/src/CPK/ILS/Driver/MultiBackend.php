@@ -60,7 +60,7 @@ class MultiBackend extends MultiBackendBase
     public function getStatuses($ids)
     {
         // We assume all the ids passed here are being processed by only one ILS/Driver
-        $source = $this->getSource($ids[0]);
+        $source = $this->getSource(reset($ids));
         $driver = $this->getDriver($source);
 
         if ($driver instanceof XCNCIP2) {

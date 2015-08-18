@@ -727,7 +727,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         if ($this->cannotUseLUIS)
             // If we cannot use LUIS we will parse only the first one
-            $retVal[] = $this->getStatus($ids[key($ids)]);
+            $retVal[] = $this->getStatus(reset($ids));
         else {
 
             $request = $this->requests->getHolding($ids);

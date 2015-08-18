@@ -252,10 +252,11 @@ class AjaxController extends AjaxControllerBase
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
+            //die();
             $statuses = $ilsDriver->getStatuses($ids);
 
             if (null === $statuses)
-                return $this->output("\$ilsDriver->getStatuses returned null", self::STATUS_ERROR);
+                return $this->output('$ilsDriver->getStatuses returned null', self::STATUS_ERROR);
 
             $itemsStatuses = [];
 

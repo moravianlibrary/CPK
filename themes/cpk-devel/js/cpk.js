@@ -54,7 +54,7 @@ function processGetHoldingStatusesResponse(r) {
         updateHoldingId(key, value);
     });
     
-    if (data.remaining != null) {
+    if (data.remaining) {
         // FIXME pass nextItemTokens somehow if any ...
         getHoldingStatuses()(data.remaining);
     }
@@ -68,14 +68,15 @@ function getHoldingStatuses() {
 
         if (document.location.pathname.indexOf('Record/')) {
             
-            if( Object.prototype.toString.call( ids ) !== '[object Array]' )
+            if( Object.prototype.toString.call( ids ) !== '[object Object]' )
                 ids = getHoldingsIds();
             
             var ajaxResponse = $.getJSON(
                     '/AJAX/JSON?method=getHoldingsStatuses', {
                         ids : ids
-                    }, processGetHoldingStatusesResponse(response);
-                    );
+                    }, function(response) {
+                        processGetHoldingStatusesResponse(response);
+                    });
 
         }
         // TODO process every holding
