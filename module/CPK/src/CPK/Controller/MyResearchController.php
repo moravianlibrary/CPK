@@ -151,6 +151,7 @@ class MyResearchController extends MyResearchControllerBase
     {
         // Stop now if the user does not have valid catalog credentials available:
         if (! is_array($patron = $this->catalogLogin())) {
+            $this->flashExceptions();
             return $patron;
         }
 
@@ -224,6 +225,7 @@ class MyResearchController extends MyResearchControllerBase
     {
         // Stop now if the user does not have valid catalog credentials available:
         if (! is_array($patron = $this->catalogLogin())) {
+            $this->flashExceptions();
             return $patron;
         }
 
@@ -324,10 +326,14 @@ class MyResearchController extends MyResearchControllerBase
     public function userConnectAction()
     {
         // This eid serves only to warn user he wants to connect the same instituion account
-        $entityIdInitiatedWith = $_GET['eid'];
+        if (isset($_GET['eid']))
+            $entityIdInitiatedWith = $_GET['eid'];
+        else
+            $entityIdInitiatedWith = null;
 
-        // Stop now if the user does not have valid catalog credentials available:
+            // Stop now if the user does not have valid catalog credentials available:
         if (empty($entityIdInitiatedWith) && ! $this->isLoggedInWithDummyDriver() && ! is_array($patron = $this->catalogLogin())) {
+            $this->flashExceptions();
             return $patron;
         }
 
