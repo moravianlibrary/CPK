@@ -515,7 +515,14 @@ class MyResearchController extends MyResearchControllerBase
                 'selected' => $availView == $selectedView
             );
         }
-        $view->view = array('selected' => $selectedView, 'views' => $views);
+
+        $childView = array('selected' => $selectedView, 'views' => $views);
+
+        if ($view instanceof \Zend\View\Model\ViewModel) {
+            $view->view = $childView;
+        } elseif (is_array($view)) {
+            $view['view'] = $childView;
+        }
 
         return $view;
     }

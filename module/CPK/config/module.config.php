@@ -102,8 +102,6 @@ $staticRoutes = array(
     'Statistics/Circulations',
     'Statistics/Payments',
     'Statistics/Searches',
-    'Statistics',
-    'Statistics/',
     'MyResearch/UserConnect'
 );
 

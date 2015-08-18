@@ -42,7 +42,7 @@
 <tbody>
 <? $rowNo = 0; ?>
 <? foreach ($holdings as $row): //FIXME: Create proprietary links?>
-  <? $check = (isset($row['check']) && $row['check']); ?>
+  <? $check = (!empty($row['check']) && $row['check']); ?>
   <? $rowNo++; $onShelf=$row['status']=="On Shelf";?>
   <tr class="<?=(($rowNo % 2) == 0)?'oddrow':'evenrow'?>" id="<?=$row['source'] . '.' .$row['agency_id'] . ':' . $row['item_id']?>">
     <td data-title="<?=$this->transEsc("item status")?>">
@@ -52,24 +52,24 @@
       <div class="jt" title="<?=$this->transEsc('Description Status '. $row['status'])?>">
       <? endif; ?>
 
-      <span class="<?=($row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($onShelf?'Holdable':'NotHoldable')?></span>
+      <span class="<?=(!empty($row['availability']) && $row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($onShelf?'Holdable':'NotHoldable')?></span>
 
       </div>
-      <? if ($row['reserve'] == "Y"): ?>
+      <? if (!empty($row['reserve']) && $row['reserve'] == "Y"): ?>
       <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
-      <? elseif (isset($row['use_unknown_message']) && $row['use_unknown_message']): ?>
+      <? elseif (!empty($row['use_unknown_message']) && $row['use_unknown_message']): ?>
         <span class="unknown"><?=$this->transEsc("status_unknown_message")?></span>
       <? else: ?>
-        <? if ($row['holdtype'] == 'shortloan'):?>
-          <? if (isset($row['link']) && $row['link']): ?>
+        <? if (!empty($row['holdtype']) && $row['holdtype'] == 'shortloan'):?>
+          <? if (!empty($row['link']) && $row['link']): ?>
             <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc("Reserve")?></span>
             </a>
           <? endif; ?>
-        <? elseif ($row['availability']): ?>
+        <? elseif (!empty($row['availability']) && $row['availability']): ?>
           <? /* Begin Available Items (Holds) */ ?>
           <div>
-          <? if (isset($row['link']) && $row['link']): ?>
+          <? if (!empty($row['link']) && $row['link']): ?>
             <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc($check ? "Check Hold" : "Order from stock")?></span>
             </a>
@@ -77,11 +77,11 @@
           </div>
         <? else: ?>
           <div>
-          <? if (isset($row['link']) && $row['link']): ?>
+          <? if (!empty($row['link']) && $row['link']): ?>
             <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
             </a>
-          <? elseif (isset($row['loadAsync']) && $row['loadAsync']): ?>
+          <? elseif (!empty($row['loadAsync']) && $row['loadAsync']): ?>
               <i class="fa fa-spinner fa-spin"></i>
               <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
           <? endif; ?>
@@ -90,9 +90,9 @@
       <? endif; ?>
     </td>
     <td data-title="<?=$this->transEsc("Due Date")?>">
-      <?if ($row['duedate']) : ?>
+      <?if (!empty($row['duedate']) && $row['duedate']) : ?>
         <?=$this->transEsc($row['duedate'])?>
-      <? elseif ($row['duedate_status'] != $row['status']):?>
+      <? elseif (!empty($row['duedate_status']) && $row['duedate_status'] != $row['status']):?>
         <?=$this->transEsc($row['duedate_status'])?>
       <?endif;?>
     </td>
@@ -111,13 +111,17 @@
       </div>
     </td>
     <td data-title="<?=$this->transEsc("location / second signature")?>">
-      <?=$this->escapeHtml($row['location'])?>
+      <?if (!empty($row['location'])):?>
+        <?=$this->escapeHtml($row['location'])?>
+      <?endif;?>
     </td>
     <td data-title="<?=$this->transEsc("description")?>">
-      <?=$this->escapeHtml($row['description'])?>
+      <?if (!empty($row['description'])):?>
+        <?=$this->escapeHtml($row['description']);?>
+      <? endif;?>
     </td>
     <td data-title="<?=$this->transEsc("note")?>">
-      <? if ($row['notes'] != null):?>
+      <? if (!empty($row['notes'])):?>
         <?=$this->escapeHtml($row['notes'][0])?>
       <? endif;?>
     </td>

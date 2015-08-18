@@ -64,7 +64,7 @@ function processGetHoldingStatusesResponse(r) {
 // TODO: Make the request cancellable after user chooses any filter
 // FIXME: Call one id by one & everytime update everyone
 function getHoldingStatuses() {
-    return function(ids = null) {
+    return function(ids) {
 
         if (document.location.pathname.indexOf('Record/')) {
             
@@ -74,9 +74,8 @@ function getHoldingStatuses() {
             var ajaxResponse = $.getJSON(
                     '/AJAX/JSON?method=getHoldingsStatuses', {
                         ids : ids
-                    }, function(resp) {
-                        processGetHoldingStatusesResponse(resp);
-                    });
+                    }, processGetHoldingStatusesResponse(response);
+                    );
 
         }
         // TODO process every holding

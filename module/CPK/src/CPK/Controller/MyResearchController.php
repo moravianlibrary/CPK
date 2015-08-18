@@ -294,7 +294,7 @@ class MyResearchController extends MyResearchControllerBase
 
             // Start of MZKCommon/MyResearch/checkedoutAction
             $showOverdueMessage = false;
-            foreach ($currentIdentityView->transactions as $resource) {
+            foreach ($currentIdentityView['transactions'] as $resource) {
                 $ilsDetails = $resource->getExtraDetail('ils_details');
                 if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue") {
                     $showOverdueMessage = true;
@@ -306,7 +306,7 @@ class MyResearchController extends MyResearchControllerBase
                     ->setNamespace('error')
                     ->addMessage('overdue_error_message');
             }
-            $currentIdentityView->history = false;
+            $currentIdentityView['history'] = false;
             $currentIdentityView = $this->addViews($currentIdentityView);
             // End of MZKCommon/MyResearch/checkedoutAction
 
@@ -383,16 +383,20 @@ class MyResearchController extends MyResearchControllerBase
 
     protected function processBlocks($profile, $logos)
     {
-        if ($logos instanceof \Zend\Config\Config) {
-            $logos = $logos->toArray();
-        }
+        if (isset($profile['blocks'])) {
+            if ($logos instanceof \Zend\Config\Config) {
+                $logos = $logos->toArray();
+            }
 
-        foreach ($profile['blocks'] as $institution => $block) {
-            $logo = $logos[$institution];
+            foreach ($profile['blocks'] as $institution => $block) {
+                $logo = $logos[$institution];
 
-            $message[$logo] = $block;
+                $message[$logo] = $block;
 
-            $this->flashMessenger()->setNamespace('error')->addMessage($message);
+                $this->flashMessenger()
+                    ->setNamespace('error')
+                    ->addMessage($message);
+            }
         }
     }
 

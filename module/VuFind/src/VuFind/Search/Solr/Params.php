@@ -114,7 +114,7 @@ class Params extends \VuFind\Search\Base\Params
         ) {
             $this->setFacetLimit($config->Results_Settings->facet_limit);
         }
-        if (isset($config->SpecialFacets->hierarchical)) {
+        if (isset($config->SpecialFacets->hierarchical) && is_string($config->SpecialFacets->hierarchical)) {
             $this->setHierarchicalFacets(explode(',', $config->SpecialFacets->hierarchical));
         }
         if (isset($config->Results_Settings->sorted_by_index)

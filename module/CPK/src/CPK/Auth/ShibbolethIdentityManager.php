@@ -386,7 +386,14 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     public function canLogoutSafely()
     {
-        return in_array($this->fetchCurrentEntityId(), $this->workingLogoutEntityIds);
+        $currentEntityId = $this->fetchCurrentEntityId();
+        if (array_search(null, [
+            $currentEntityId,
+            $this->workingLogoutEntityIds
+        ]) === false)
+            return in_array($currentEntityId, $this->workingLogoutEntityIds);
+        else
+            return true;
     }
 
     /**
@@ -508,10 +515,23 @@ class ShibbolethIdentityManager extends Shibboleth
                 if ($assertions[$i] == null) {
                     unset($assertions[$i]);
                 } else {
-                    $contents = file_get_contents($assertions[$i]);
+                    $url = $assertions[$i];
 
-                    // If we have parsed contents successfully, set it to assertion
-                    // If not, then leave there the link to find out what is the problem
+                    if (strpos($url, 'https:') !== false) {
+                        $ch = curl_init();
+                        // Running on localhost means we can trust whatever SSL it has .. (Shibboleth SP should run on loc)
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                        curl_setopt($ch, CURLOPT_HEADER, false);
+                        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                        curl_setopt($ch, CURLOPT_URL, $url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                        $contents = curl_exec($ch);
+                        curl_close($ch);
+                    } else
+                        $contents = file_get_contents($assertions[$i]);
+
+                        // If we have parsed contents successfully, set it to assertion
+                        // If not, then leave there the link to find out what is the problem
                     if (! empty($contents)) {
                         $assertions[$i] = $contents;
                     }
@@ -648,7 +668,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
     protected function fetchCurrentEntityId()
     {
-        return $_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV];
+        return isset($_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV]) ? $_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV] : null;
     }
 
     protected function fetchEduPersonPrincipalName()
@@ -702,10 +722,9 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function parseFullName(array $attributes)
     {
-        $fullname = $attributes['fullname'];
+        if (isset($attributes['fullname'])) {
 
-        if (! empty($fullname)) {
-            $splittedFullname = preg_split('/\s+/', $fullname);
+            $splittedFullname = preg_split('/\s+/', $attributes['fullname']);
 
             $attributes['lastname'] = array_pop($splittedFullname);
             $attributes['firstname'] = implode(' ', $splittedFullname);

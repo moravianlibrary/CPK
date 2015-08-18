@@ -87,7 +87,9 @@ class SolrMarc extends ParentSolrMarc
 
         $mappingsFor996 = $this->getMappingsFor996($source);
 
-        $restrictions = $default996Mappings['restricted'];
+        // Remember to unset all arrays at that would log an error providing array as another's array key
+        $restrictions = $mappingsFor996['restricted'];
+        unset($mappingsFor996['restricted']);
 
         $holdings = [];
         foreach ($fields as $currentField) {
@@ -129,10 +131,37 @@ class SolrMarc extends ParentSolrMarc
             return $default996Mappings;
 
             // This will override all identical entries
-        $merged = array_merge($default996Mappings, $overriden996Mappings);
+        $merged = array_reverse(array_merge($default996Mappings, $overriden996Mappings));
 
         // We shouldn't set value where is the subfield the same as in any other overriden default variableName
-        return array_unique(array_reverse($merged));
+        return $this->array_unique_with_nested_arrays($merged);
+    }
+
+    /**
+     * This function is similar to array_unique, but with support
+     * for nested arrays to make sure no error occurs.
+     *
+     * @param array $mergedOnes
+     * @return array
+     */
+    protected function array_unique_with_nested_arrays($mergedOnes)
+    {
+        $nestedArrays = [];
+        foreach ($mergedOnes as $key => $value) {
+            if ($value !== null && is_array($value)) {
+                $nestedArrays[$key] = $value;
+                unset($mergedOnes[$key]);
+            }
+        }
+
+        $toReturn = array_unique($mergedOnes);
+
+        foreach ($nestedArrays as $key => $value) {
+            // We won't do callback here as e.g. array 'restricted' may have multiple key-value pair with duplicate values
+            $toReturn[$key] = $value;
+        }
+
+        return $toReturn;
     }
 
     /**
@@ -178,7 +207,7 @@ class SolrMarc extends ParentSolrMarc
             return false;
 
         foreach ($restrictions as $key => $restrictedValue) {
-            if ($subfields[$key] == $restrictedValue)
+            if (isset($subfields[$key]) && $subfields[$key] == $restrictedValue)
                 return true;
         }
 
@@ -220,15 +249,16 @@ class SolrMarc extends ParentSolrMarc
 
         $responseBody = $response->getBody();
 
-        $phpResponse = json_decode($responseBody);
+        $phpResponse = json_decode($responseBody, true);
 
-        echo '<p>Hodnocení knihy:</p><img src="' . $phpResponse[0]->rating_url . '"/>';
+        if (isset($phpResponse[0]['rating_url']))
+            echo '<p>Hodnocení knihy:</p><img src="' . $phpResponse[0]['rating_url'] . '"/>';
 
         $commentArray = array();
 
         $i = 0;
 
-        foreach ($phpResponse[0]->reviews as $review) {
+        foreach ($phpResponse[0]['reviews'] as $review) {
             $com = new \stdClass();
             $com->firstname = $review->library_name;
             $com->created = $review->created;

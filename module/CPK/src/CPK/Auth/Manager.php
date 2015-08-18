@@ -152,7 +152,7 @@ class Manager extends BaseManager
      * @param string $authName
      * @return \VuFind\Auth\AbstractBase
      */
-    public function getAuthInstance($authName)
+    public function getAuthInstance($authName = null)
     {
         if (empty($authName)) {
             return $this->auth[$this->activeAuth];
