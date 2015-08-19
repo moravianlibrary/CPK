@@ -27,7 +27,7 @@
 <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
   <div class="list-group filters">
 
-    <div class="list-group-item title"><?=$this->transEsc('Remove Filters')?></div>
+    <a href='/Search/Results?type=AllFields'><div class="list-group-item title"><?=$this->transEsc('Remove Filters')?></div></a>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $i => $filter): ?>
         <?
@@ -67,10 +67,10 @@
             <li class="jstree-facet jstree jstree-2 jstree-default jstree-default-responsive">
                 <ul class="jstree-container-ul">
                     <li aria-selected="false" class="jstree-node  jstree-closed list-group-item" id="j2_1" aria-expanded="false" role="treeitem">
-                        <i class="jstree-icon jstree-ocl"></i>
-                        <a href="#" class="jstree-anchor">
-                            <i class="jstree-icon jstree-themeicon"></i>
-                            <span class="main" title="<?=$this->transEsc('Connected institutions')?>" onclick="document.location.href='<?=$url?>'; return false;"><?=$this->transEsc('Connected institutions')?></span>
+                        <a href="<?=$url?>" class="jstree-anchor">
+                            <span class="main" title="<?=$this->transEsc('Connected institutions')?>">
+                                <i class="fa fa-home"></i> <?=$this->transEsc('Connected institutions only')?>
+                            </span>
                         </a>
                     </li>
                 </ul>
