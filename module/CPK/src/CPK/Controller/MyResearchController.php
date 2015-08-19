@@ -427,4 +427,72 @@ class MyResearchController extends MyResearchControllerBase
         $patron['id'] = $patron['cat_username'];
         return $patron;
     }
+
+    /**
+     * Send list of fines to view
+     *
+     * @return mixed
+     */
+    public function finesAction()
+    {
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver()) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            $this->flashExceptions();
+            return $patron;
+        }
+
+        $user = $this->getAuthManager()->isLoggedIn();
+
+        $identities = $user->getLibraryCards();
+
+        $viewVars = $libraryIdentities = [];
+
+        $allFines = [];
+
+        foreach ($identities as $identity) {
+            $profileFetched = $identity->cat_username === $patron['cat_username'];
+
+            if (! $profileFetched)
+                $patron = $this->parsePatronFromIdentity($identity);
+
+            // Begin building view object:
+            $currentIdentityView = $this->createViewModel();
+
+            // Connect to the ILS:
+            $catalog = $this->getILS();
+
+            // Get fine details:
+            $result = $catalog->getMyFines($patron);
+
+            $fines = [];
+            foreach ($result as $row) {
+                // Attempt to look up and inject title:
+                try {
+                    if (!isset($row['id']) || empty($row['id'])) {
+                        throw new \Exception();
+                    }
+                    $source = isset($row['source']) ? $row['source'] : 'VuFind';
+                    $row['driver'] = $this->getServiceLocator()
+                    ->get('VuFind\RecordLoader')->load($row['id'], $source);
+                    $row['title'] = $row['driver']->getShortTitle();
+                } catch (\Exception $e) {
+                    if (!isset($row['title'])) {
+                        $row['title'] = null;
+                    }
+                }
+                $fines[] = $row;
+            }
+            $allFines[$identity['eppn']] = $fines;
+        }
+        $viewVars['fines'] = $allFines;
+        $viewVars['logos'] = $user->getIdentityProvidersLogos();
+        $view = $this->createViewModel($viewVars);
+        $this->flashExceptions();
+        return $view;
+    }
 }

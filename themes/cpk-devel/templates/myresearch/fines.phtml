@@ -8,7 +8,7 @@
 ?>
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Your Fines')?></h2>
-  
+
   <?=$this->flashmessages()?>
 
   <? if (isset($this->paymentUrl)):?>
@@ -20,37 +20,54 @@
   <? if (empty($this->fines)): ?>
     <?=$this->transEsc('You do not have any fines')?>
   <? else: ?>
-    <table class="table table-striped" summary="<?=$this->transEsc('Your Fines')?>">
-    <tr>
-      <th><?=$this->transEsc('Title')?></th>
-      <th><?=$this->transEsc('Checked Out')?></th>
-      <th><?=$this->transEsc('Due Date')?></th>
-      <th><?=$this->transEsc('Fine description')?></th>
-      <th><?=$this->transEsc('Fee')?></th>
-      <th><?=$this->transEsc('Balance')?></th>
-    </tr>
-    <? $totalDue = 0; ?>
-    <? foreach ($this->fines as $record): ?>
-      <tr>
-        <td>
-          <? if (empty($record['title'])): ?>
-            <?=$this->transEsc('not_applicable')?>
-          <? elseif (!isset($record['id'])): ?>
-            <?=$this->escapeHtml(trim($record['title'], '/:'))?>
-          <? else: ?>
-            <a href="<?=$this->url('record', array('id' => $record['id']))?>"><?=$this->escapeHtml(trim($record['title'], '/:'))?></a>
-          <? endif; ?>
-        </td>
-        <td><?=isset($record['checkout']) ? $this->escapeHtml($record['checkout']) : ''?></td>
-        <td><?=isset($record['duedate']) ? $this->escapeHtml($record['duedate']) : ''?></td>
-        <td><?=isset($record['fine']) ? $this->escapeHtml($record['fine']) : ''?></td>
-        <td><?=isset($record['amount']) ? $this->safeMoneyFormat($record['amount']/100.00) : ''?></td>
-        <td><?=isset($record['balance']) ? $this->safeMoneyFormat($record['balance']/100.00) : ''?></td>
-      </tr>
-      <? $totalDue += $record['amount']; ?>
+    <? foreach($this->fines as $eppn => $identityFines):
+        $eppnHostname = split("@", $eppn)[1];
+        if ($logos !== null)
+            $libraryLogo = $logos->$eppnHostname; ?>
+
+        <h3>
+        <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+        </h3>
+
+        <? if (empty($identityFines)): ?>
+            <div class="label label-info">
+            <?=$this->transEsc('You do not have any fines in this institution')?>.
+            </div>
+        <? else: ?>
+            <table class="table table-striped" summary="<?=$this->transEsc('Your Fines')?>">
+            <tr>
+              <th><?=$this->transEsc('Title')?></th>
+              <th><?=$this->transEsc('Checked Out')?></th>
+              <th><?=$this->transEsc('Due Date')?></th>
+              <th><?=$this->transEsc('Fine description')?></th>
+              <th><?=$this->transEsc('Fee')?></th>
+              <th><?=$this->transEsc('Balance')?></th>
+            </tr>
+            <? $totalDue = 0; ?>
+
+                <? foreach ($identityFines as $record): ?>
+                  <tr>
+                    <td>
+                      <? if (empty($record['title'])): ?>
+                        <?=$this->transEsc('not_applicable')?>
+                      <? elseif (!isset($record['id'])): ?>
+                        <?=$this->escapeHtml(trim($record['title'], '/:'))?>
+                      <? else: ?>
+                        <a href="<?=$this->url('record', array('id' => $record['id']))?>"><?=$this->escapeHtml(trim($record['title'], '/:'))?></a>
+                      <? endif; ?>
+                    </td>
+                    <td><?=isset($record['checkout']) ? $this->escapeHtml($record['checkout']) : ''?></td>
+                    <td><?=isset($record['duedate']) ? $this->escapeHtml($record['duedate']) : ''?></td>
+                    <td><?=isset($record['fine']) ? $this->escapeHtml($record['fine']) : ''?></td>
+                    <td><?=isset($record['amount']) ? $this->safeMoneyFormat($record['amount']/100.00) : ''?></td>
+                    <td><?=isset($record['balance']) ? $this->safeMoneyFormat($record['balance']/100.00) : ''?></td>
+                  </tr>
+                  <? $totalDue += $record['amount']; ?>
+                <? endforeach; ?>
+              <tr style="font-weight:bold"><td colspan="5"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue/100.00) ?></td></tr>
+            </table>
+        <? endif; ?>
     <? endforeach; ?>
-      <tr style="font-weight:bold"><td colspan="5"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue/100.00) ?></td></tr>
-    </table>
   <? endif; ?>
 </div>
 

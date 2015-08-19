@@ -1001,8 +1001,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getMyFines($patron)
     {
-        $request = $this->requests->getMyFines($patron);
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $request = $this->requests->patronFiscalAccount($patron);
         $response = $this->sendRequest($request);
+        $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
         $list = $this->useXPath($response, 'LookupUserResponse/UserFiscalAccount/AccountDetails');
 
