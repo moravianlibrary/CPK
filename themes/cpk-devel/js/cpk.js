@@ -70,7 +70,7 @@ function processGetHoldingStatusesResponse(r) {
 function getHoldingStatuses() {
     return function(ids) {
 
-        if (document.location.pathname.indexOf('Record/')) {
+        if (document.location.pathname.indexOf('Record/') || ids === true) {
             
             if( Object.prototype.toString.call( ids ) !== '[object Object]' )
                 ids = getHoldingsIds();

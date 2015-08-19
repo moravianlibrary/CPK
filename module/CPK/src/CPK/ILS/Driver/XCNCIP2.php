@@ -733,42 +733,46 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $request = $this->requests->getStatuses($ids, $nextItemToken, $this);
             $response = $this->sendRequest($request);
 
+            $rawResponse = $response->asXML();
+
             if ($response === null)
                 return [];
 
-            $bibInfos = $this->useXPath($response, 'BibInformation');
+            $bibInfos = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
+
+            $isTheSame = $bibInfos[0] === $bibInfos[1];
 
             foreach ($bibInfos as $bibInfo) {
 
-                $id = (string) $this->useXPath($bibInfo, 'BibliographicRecordId/BibliographicRecordIdentifier')[0];
+                $id = (string) $this->useXPath($bibInfo, 'BibliographicId/BibliographicRecordId/BibliographicRecordIdentifier')[0];
 
-                $status = (string) $this->useXPath($bibInfo, 'ItemOptionalFields/CirculationStatus')[0];
+                $status = (string) $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus')[0];
 
-                $itemCallNo = (string) $this->useXPath($bibInfo, 'ItemOptionalFields/ItemDescription/CallNumber')[0];
+                $itemCallNo = (string) $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/ItemDescription/CallNumber')[0];
 
-                $holdQueue = (string) $this->useXPath($bibInfo, 'ItemOptionalFields/HoldQueueLength')[0];
+                $holdQueue = (string) $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/HoldQueueLength')[0];
 
-                $itemRestrictions = $this->useXPath($bibInfo, 'ItemOptionalFields/ItemUseRestrictionType');
+                $itemRestrictions = $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
 
                 $restrictions = [];
                 foreach ($itemRestrictions as $itemRestriction) {
                     $restrictions[] = (string) $itemRestriction;
                 }
 
-                $locationNameInstances = $this->useXPath($bibInfo, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
+                $locationNameInstances = $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/Location/LocationName/LocationNameInstance');
 
                 foreach ($locationNameInstances as $locationNameInstance) {
                     // FIXME: Create config to map location abbreviations of each institute into human readable values
 
-                    $locationLevel = (string) $this->useXPath($locationNameInstance, 'LocationNameLevel')[0];
+                    $locationLevel = (string) $this->useXPath($locationNameInstance, '//LocationNameLevel')[0];
 
                     if ($locationLevel == 4) {
-                        $department = (string) $this->useXPath($locationNameInstance, 'LocationNameValue')[0];
+                        $department = (string) $this->useXPath($locationNameInstance, '//LocationNameValue')[0];
                     } else
                         if ($locationLevel == 3) {
-                            $sublibrary = (string) $this->useXPath($locationNameInstance, 'LocationNameValue')[0];
+                            $sublibrary = (string) $this->useXPath($locationNameInstance, '//LocationNameValue')[0];
                         } else {
-                            $locationInBuilding = (string) $this->useXPath($locationNameInstance, 'LocationNameValue')[0];
+                            $locationInBuilding = (string) $this->useXPath($locationNameInstance, '//LocationNameValue')[0];
                         }
                 }
 

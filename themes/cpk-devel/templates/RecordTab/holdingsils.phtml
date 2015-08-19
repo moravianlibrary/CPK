@@ -87,11 +87,12 @@
           </div>
         <? else: ?>
           <div>
-          <? if (!empty($row['link']) && $row['link']): ?>
+          <? if (!empty($row['link']) && $row['link']): // FIXME: Link cannot be shown until we are sure it is available .. ?>
             <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
             </a>
-          <? elseif (!empty($row['loadAsync']) && $row['loadAsync']): ?>
+          <? endif; ?>
+          <? if (!empty($row['uniqueRowId'])): ?>
               <i class="fa fa-spinner fa-spin"></i>
               <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
           <? endif; ?>

@@ -11,7 +11,7 @@ function ajaxLoadWantItContent(resultid, tabid, recordid) {
       $('#'+resultid+' .want-it-tabs .tab-pane.active').removeClass('active');
       $('#'+resultid+' #'+tabid+'-tab').html(data).addClass('active');
       $('#'+resultid+' #'+tabid).tab('show');
-      getHoldingStatuses()();
+      getHoldingStatuses()(true);
     }
   });
   return false;
