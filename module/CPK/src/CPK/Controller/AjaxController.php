@@ -286,4 +286,35 @@ class AjaxController extends AjaxControllerBase
         } else
             return $this->output("ILS Driver isn't instanceof MultiBackend - ending job now.", self::STATUS_ERROR);
     }
+
+    /**
+     *  Filter dates in future
+     *
+     */
+    protected function processFacetValues($fields, $results)
+    {
+        $facets = $results->getFullFieldFacets(array_keys($fields));
+        $retVal = [];
+        $currentYear = date("Y");
+        foreach ($facets as $field => $values) {
+            $newValues = ['data' => []];
+            foreach ($values['data']['list'] as $current) {
+                // Only retain numeric values!
+                if (preg_match("/^[0-9]+$/", $current['value'])) {
+                    if ($current['value'] < $currentYear) {
+                        $data[$current['value']] = $current['count'];
+                    }
+                }
+            }
+            ksort($data);
+            $newValues = array('data' => array());
+            foreach ($data as $key => $value) {
+                $newValues['data'][] = array(
+                    $key, $value);
+            }
+            $retVal[$field] = $newValues;
+        }
+
+        return $retVal;
+    }
 }
