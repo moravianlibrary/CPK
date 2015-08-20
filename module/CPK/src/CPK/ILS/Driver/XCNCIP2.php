@@ -733,14 +733,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $request = $this->requests->getStatuses($ids, $nextItemToken, $this);
             $response = $this->sendRequest($request);
 
-            $rawResponse = $response->asXML();
-
             if ($response === null)
                 return [];
 
             $bibInfos = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
-
-            $isTheSame = $bibInfos[0] === $bibInfos[1];
 
             foreach ($bibInfos as $bibInfo) {
 
