@@ -32,12 +32,14 @@
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 namespace CPK\ILS\Driver;
+
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
 
 class Aleph extends AlephBase
 {
 
-    public function getMyProfile($user) {
+    public function getMyProfile($user)
+    {
         $profile = parent::getMyProfile($user);
 
         $eppnScope = $this->config['Catalog']['eppnScope'];
@@ -54,6 +56,110 @@ class Aleph extends AlephBase
         $profile['blocks'] = $blocks;
 
         return $profile;
+    }
 
+    /**
+     * Get Status
+     *
+     * This is responsible for retrieving the status information of a certain
+     * record.
+     *
+     * @param string $id
+     *            The record id to retrieve the holdings for
+     *
+     * @throws ILSException
+     * @return mixed On success, an associative array with the following keys:
+     *         id, availability (boolean), status, location, reserve, callnumber.
+     */
+    public function getStatuses($ids)
+    {
+        $statuses = array();
+
+        if (isset($this->config['Availability']['maxItemsParsed'])) {
+            $maxItemsParsed = $this->config['Availability']['maxItemsParsed'];
+        } else
+            $maxItemsParsed = 10;
+
+        $idsCount = count($ids);
+        if ($maxItemsParsed == -1 || $idsCount <= $maxItemsParsed) {
+            // Query all items at once ..
+
+            // Get bibId from this e.g. [ MZK01-000910444:MZK50000910444000270, ... ]
+            $bibId = reset(explode(':', reset($ids)));
+
+            $path_elements = array(
+                'record',
+                str_replace('-', '', $bibId),
+                'items'
+            );
+
+            $xml = $this->alephWebService->doRestDLFRequest($path_elements, [
+                'view' => 'full'
+            ]);
+
+            if (! isset($xml->{'items'})) {
+                return $statuses;
+            }
+
+            foreach ($xml->{'items'}->{'item'} as $item) {
+
+                $item_id = $item->attributes()->href;
+                $item_id = substr($item_id, strrpos($item_id, '/') + 1);
+
+                $id = $bibId . ':' . $item_id;
+
+                // do not process ids which are not desired
+                if (array_search($id, $ids) === false)
+                    continue;
+
+                $status = (string) $item->{'status'};
+
+                if (in_array($status, $this->available_statuses))
+                    $status = 'available';
+                else
+                    $status = 'unavailable';
+
+                $statuses[] = array(
+                    'id' => $id,
+                    'status' => $status
+                );
+            }
+        } else // Query one by one item
+            foreach ($ids as $id) {
+                list ($resource, $itemId) = explode(':', $id);
+
+                $path_elements = array(
+                    'record',
+                    str_replace('-', '', $resource),
+                    'items',
+                    $itemId
+                );
+
+                $xml = $this->alephWebService->doRestDLFRequest($path_elements);
+
+                if (! isset($xml->{'item'})) {
+                    continue;
+                }
+
+                $item = $xml->{'item'};
+
+                $status = (string) $item->{'status'};
+
+                if (in_array($status, $this->available_statuses))
+                    $status = 'available';
+                else
+                    $status = 'unavailable';
+
+                $statuses[] = array(
+                    'id' => $id,
+                    'status' => $status
+                );
+
+                // Returns parsed items to show it to user
+                if (count($statuses) === $maxItemsParsed)
+                    break;
+            }
+
+        return $statuses;
     }
 }

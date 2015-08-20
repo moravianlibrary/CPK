@@ -21,47 +21,67 @@ if (isRecordPage()) {
     $(getHoldingStatuses());
 }
 
-function getHoldingsIds() {
+function getHoldingsIds(allNotLoaded = false) {
     ids = [];
-    $("div#holdings-tab tbody tr:not(.loading, .loaded)").each(function() {
+    var selector;
+    
+    if (allNotLoaded) {
+        selector = "div#holdings-tab tbody tr:not(.loaded)";
+    } else {
+        selector = "div#holdings-tab tbody tr:not(.loading, .loaded)"
+    }
+    
+    $(selector).each(function() {
         ids.push($(this).attr('id'));
-        
+
         // Add loading class so that we know about being it parsed
         $(this).addClass('loading');
     });
     return ids;
 }
 
-function updateHoldingId(id, value) {
-    var tableRow = $("tr#" + id.replace(/([.:])/g,'\\$1')),
-    statusDiv = tableRow.find('div')[1],
-    icon = $(statusDiv).children('i'),
-    label = $(statusDiv).children('span.label');
-    
+function updateHoldingId(id, value, isItBad = false) {
+    var tableRow = $("tr#" + id.replace(/([.:])/g, '\\$1')),
+        statusDiv = tableRow.find('div')[1],
+        icon = $(statusDiv).children('i'),
+        label = $(statusDiv).children('span.label');
+
     // Purge the loading icon
     icon.remove();
-    
+
     // Set status to the label
     label.text(value);
-    
-    // TODO: Add some kind of style appropriate to the status parsed ...
-    label.removeClass('label-primary').addClass('label-success');
-    
+
+    if (isItBad) {
+        label.removeClass('label-primary').addClass('label-danger');
+    } else {
+        label.removeClass('label-primary').addClass('label-success');
+    }
     tableRow.removeClass('loading').addClass('loaded');
-    
+
 }
 
 function processGetHoldingStatusesResponse(r) {
-    
+
     var data = r.data;
 
-    $.each(data.statuses, function(key, value) {
-        updateHoldingId(key, value);
-    });
-    
-    if (data.remaining) {
-        // FIXME pass nextItemTokens somehow if any ...
-        getHoldingStatuses()(data.remaining);
+    if (typeof data.statuses !== 'undefined') {
+        
+        // Update the status
+        $.each(data.statuses, function(key, value) {
+            updateHoldingId(key, value);
+        });
+
+        if (data.remaining) {
+            getHoldingStatuses()(data.remaining);
+        }
+    } else {
+        
+        // Show error messages
+        var ids = getHoldingsIds(true);
+        $.each(ids, function() {
+            updateHoldingId(this, data, true);
+        });
     }
 }
 
@@ -71,10 +91,10 @@ function getHoldingStatuses() {
     return function(ids) {
 
         if (document.location.pathname.indexOf('Record/') || ids === true) {
-            
-            if( Object.prototype.toString.call( ids ) !== '[object Object]' )
+
+            if (Object.prototype.toString.call(ids) !== '[object Object]')
                 ids = getHoldingsIds();
-            
+
             var ajaxResponse = $.getJSON(
                     '/AJAX/JSON?method=getHoldingsStatuses', {
                         ids : ids

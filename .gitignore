@@ -10,6 +10,7 @@ vendor/.git
 .buildpath
 /nbproject
 messages.log
+messages-front.log
 cache
 log
 .settings

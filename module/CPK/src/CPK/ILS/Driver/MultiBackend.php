@@ -63,9 +63,9 @@ class MultiBackend extends MultiBackendBase
         $source = $this->getSource(reset($ids));
         $driver = $this->getDriver($source);
 
-        if ($driver instanceof XCNCIP2) {
-            foreach ($ids as $key => $id) {
-                $ids[$key] = $this->stripIdPrefixes($id, $source);
+        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
+            foreach ($ids as &$id) {
+                $id = $this->stripIdPrefixes($id, $source);
             }
 
             $statuses = $driver->getStatuses($ids, $nextItemToken);

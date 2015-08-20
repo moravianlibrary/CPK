@@ -95,13 +95,25 @@ class SolrMarc extends ParentSolrMarc
         foreach ($fields as $currentField) {
             if (! $this->shouldBeRestricted($currentField, $restrictions)) {
 
-                foreach ($mappingsFor996 as $variableName => $default996Mapping) {
-                    if (! empty($currentField[$default996Mapping]))
-                        $holding[$variableName] = $currentField[$default996Mapping];
+                foreach ($mappingsFor996 as $variableName => $current996Mapping) {
+                    if (! empty($currentField[$current996Mapping]))
+                        $holding[$variableName] = $currentField[$current996Mapping];
                 }
 
                 $holding['id'] = $id;
                 $holding['source'] = $source;
+
+                if (isset($holding['sequence_no']) && isset($holding['item_id']) && isset($holding['agency_id'])) {
+                    // having all these variables set means we are dealing with aleph .. join these into item_id
+
+                    $holding['item_id'] = $holding['agency_id'] . $holding['item_id'] . $holding['sequence_no'];
+
+                    // instead of agency_id set bibId so that aleph driver knows what bibId he has to build the query on
+
+                    $bibId = array_pop(explode('.', $id));
+                    $holding['agency_id'] = $bibId;
+                }
+
                 $holdings[] = $holding;
             }
         }
