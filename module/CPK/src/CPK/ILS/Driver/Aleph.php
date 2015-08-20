@@ -156,7 +156,7 @@ class Aleph extends AlephBase
                 );
 
                 // Returns parsed items to show it to user
-                if (count($statuses) === $maxItemsParsed)
+                if (count($statuses) == $maxItemsParsed)
                     break;
             }
 
