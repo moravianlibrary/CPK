@@ -21,6 +21,11 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->patronInformation($patron, $extras);
     }
 
+    public function patronRequestedItems($patron) {
+        $extras = "<ns1:RequestedItemsDesired />";
+        return $this->patronInformation($patron, $extras);
+    }
+
     public function patronFiscalAccount($patron) {
         $extras = "<ns1:UserFiscalAccountDesired />";
         return $this->patronInformation($patron, $extras);

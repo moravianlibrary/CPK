@@ -1042,8 +1042,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      */
     public function getMyHolds($patron)
     {
-        $request = $this->requests->getMyHolds($patron);
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $request = $this->requests->patronRequestedItems($patron);
         $response = $this->sendRequest($request);
+        $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
         $retVal = array();
         $list = $this->useXPath($response, 'LookupUserResponse/RequestedItem');
