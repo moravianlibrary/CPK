@@ -1,0 +1,62 @@
+[Catalog]
+host           = ALEPH_SERVER
+dlfport        = ALEPH_PORT
+debug          = true
+default_patron = DEFAULT_PATRON_ID
+send_language  = true
+
+; bibliographic libraries
+bib          = BIB_LIB
+
+; user library
+useradm      = USR_LIB
+
+; adm-Lib
+admlib       = ADM_LIB
+
+; WWW-X user - optional, if not set, X-server functionality will be disabled
+wwwuser      = "WWW-X"
+wwwpasswd    = "WWW-X"
+
+; statuses when an item is available
+available_statuses = "On Shelf,Open St.-Month,Vol.výb.-měs."
+quick_availability = true
+disable_ils_auth   = false
+
+; This is needed to parse institution logo
+eppnScope = SCOPE_OF_YOUR_ORGANIZATION_IN_EDU_PERSON_PRINCIPAL_NAME
+
+[sublibadm]
+ARC     = SUBLIB_ARC
+CBR     = SUBLIB_CBR
+
+; match z30-item-status-code item_status - optional
+[duedates]
+;on_site_loan     = "/^(On\ site\ Loan|Study\ Room)/"
+;reference_library   = "/^Reference\ Library/"
+;in_processing       = "/^/"
+;absent_loan         = "/.*/"
+
+[IdResolver]
+;type = xserver
+type = solr
+solrQueryField = availability_id_str
+itemIdentifier = adm_id
+
+[ILL]
+hidden_statuses         = "Closed,Cancelled,Returned,Expired,Waiting for Cancel Reply,Deleted"
+default_ill_unit        = DEF_ILL_UNIT
+default_pickup_location = DEF_PICKUP_LOC
+
+[History]
+limit = 100
+
+[Availability]
+source = NAME_OF_THIS_CONFIG_WITHNOUT_DOT_INI_FOR_MULTIBACKEND
+
+; To disable this feature set this to -1 .. if you unset it, there will be set 10 as default :)
+maxItemsParsed = MAX_NUMBER_OF_ITEMS_TO_PARSE_ASYNCHRONOUSLY
+
+[holdings]
+default_required_date = "7:0:0"
+
