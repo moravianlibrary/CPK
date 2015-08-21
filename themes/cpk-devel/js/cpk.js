@@ -46,7 +46,7 @@ function getHoldingsIds(allNotLoaded) {
 
 function updateHoldingId(id, value, isItBad) {
     
-    if (Object.prototype.toString.call(isItBad) === "[object Undefined]")
+    if (typeof isItBad === 'undefined')
         isItBad = false;
     
     var tableRow = $("tr#" + id.replace(/([.:])/g, '\\$1')),
@@ -57,8 +57,20 @@ function updateHoldingId(id, value, isItBad) {
     // Purge the loading icon
     icon.remove();
 
+    var status = value.status;
     // Set status to the label
-    label.text(value);
+    if (typeof status !== 'undefined')
+        label.text(status);
+    else {
+        label.text('unknown status');
+        isItBad = true;
+    }
+    
+    var dueDate = value.due_date;
+    if (typeof dueDate !== 'undefined') {
+        var dueDateColumn = $(tableRow.children('td')[1]);
+        dueDateColumn.text(dueDate);
+    }
 
     if (isItBad) {
         label.removeClass('label-primary').addClass('label-danger');

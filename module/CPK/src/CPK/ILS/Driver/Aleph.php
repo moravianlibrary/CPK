@@ -123,22 +123,19 @@ class Aleph extends AlephBase
                 $item_id = $item->attributes()->href;
                 $item_id = substr($item_id, strrpos($item_id, '/') + 1);
 
+                // Build the id into initial state so that jQuery knows which row has to be updated
                 $id = $bibId . ':' . $item_id;
 
-                // do not process ids which are not desired
+                // do not process ids which are not in desired $ids array
                 if (array_search($id, $ids) === false)
                     continue;
 
-                $status = (string) $item->{'status'};
-
-                if (in_array($status, $this->available_statuses))
-                    $status = 'available';
-                else
-                    $status = 'unavailable';
+                list($status, $dueDate) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
-                    'status' => $status
+                    'status' => $status,
+                    'due_date' => $dueDate
                 );
             }
         } else // Query one by one item
@@ -160,16 +157,12 @@ class Aleph extends AlephBase
 
                 $item = $xml->{'item'};
 
-                $status = (string) $item->{'status'};
-
-                if (in_array($status, $this->available_statuses))
-                    $status = 'available';
-                else
-                    $status = 'unavailable';
+                list($status, $dueDate) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
-                    'status' => $status
+                    'status' => $status,
+                    'due_date' => $dueDate
                 );
 
                 // Returns parsed items to show it to user
@@ -178,5 +171,34 @@ class Aleph extends AlephBase
             }
 
         return $statuses;
+    }
+
+    /**
+     * Parses the status from <status> tag .. Sometimes there is due date, thus
+     * it will always return an array of both status & dueDate (which will often be null)
+     *
+     * @param \SimpleXMLElement $item
+     * @return array [ $status, $dueDate ]
+     */
+    protected function parseStatusFromItem(\SimpleXMLElement $item)
+    {
+        $status = (string) $item->{'status'};
+
+        $isDueDate = preg_match('/[0-9]{2}\/.+\/[0-9]{4}/', $status);
+
+        if ($isDueDate)
+            $dueDate = $status;
+        else
+            $dueDate = null;
+
+        if (in_array($status, $this->available_statuses))
+            $status = 'available';
+        else
+            $status = 'unavailable';
+
+        return [
+            $status,
+            $dueDate
+        ];
     }
 }

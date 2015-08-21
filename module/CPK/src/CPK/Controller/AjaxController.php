@@ -258,7 +258,6 @@ class AjaxController extends AjaxControllerBase
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
-            //die();
             $statuses = $ilsDriver->getStatuses($ids, $nextItemToken);
 
             if (null === $statuses)
@@ -270,10 +269,10 @@ class AjaxController extends AjaxControllerBase
                 $id = $status['id'];
 
                 // FIXME: Translate the status ...
-                $itemsStatuses[$id] = $status['status'];
+                $itemsStatuses[$id]['status'] = $status['status'];
 
-                // TODO: Compare $statuses to $ids & include to response which ids has to be parsed next
-                // TODO: Include NextItemToken if any ..
+                if (! empty($status['due_date']))
+                    $itemsStatuses[$id]['due_date'] = $status['due_date'];
 
                 $key = array_search($id, $ids);
                 unset($ids[$key]);
