@@ -38,17 +38,39 @@ use MZKCommon\ILS\Driver\Aleph as AlephBase;
 class Aleph extends AlephBase
 {
 
+    const AVAILABLE_STATUSES_DELIMITER = ',';
+
+    protected $available_statuses = [];
+
+    protected $eppnScope = null;
+
+    protected $maxItemsParsed;
+
+    public function init()
+    {
+        parent::init();
+
+        if (isset($this->config['Catalog']['available_statuses']))
+            $this->available_statuses = explode(self::AVAILABLE_STATUSES_DELIMITER, $this->config['Catalog']['available_statuses']);
+
+        if (isset($this->config['Catalog']['eppnScope']))
+            $this->eppnScope = $this->config['Catalog']['eppnScope'];
+
+        if (isset($this->config['Availability']['maxItemsParsed'])) {
+            $this->maxItemsParsed = intval($this->config['Availability']['maxItemsParsed']);
+        } else
+            $this->maxItemsParsed = 10;
+    }
+
     public function getMyProfile($user)
     {
         $profile = parent::getMyProfile($user);
 
-        $eppnScope = $this->config['Catalog']['eppnScope'];
-
         $blocks = null;
 
         foreach ($profile['blocks'] as $block) {
-            if (! empty($eppnScope)) {
-                $blocks[$eppnScope] = (string) $block;
+            if (! empty($this->eppnScope)) {
+                $blocks[$this->eppnScope] = (string) $block;
             } else
                 $blocks[] = (string) $block;
         }
@@ -75,13 +97,8 @@ class Aleph extends AlephBase
     {
         $statuses = array();
 
-        if (isset($this->config['Availability']['maxItemsParsed'])) {
-            $maxItemsParsed = $this->config['Availability']['maxItemsParsed'];
-        } else
-            $maxItemsParsed = 10;
-
         $idsCount = count($ids);
-        if ($maxItemsParsed == -1 || $idsCount <= $maxItemsParsed) {
+        if ($this->maxItemsParsed === - 1 || $idsCount <= $this->maxItemsParsed) {
             // Query all items at once ..
 
             // Get bibId from this e.g. [ MZK01-000910444:MZK50000910444000270, ... ]
@@ -156,7 +173,7 @@ class Aleph extends AlephBase
                 );
 
                 // Returns parsed items to show it to user
-                if (count($statuses) == $maxItemsParsed)
+                if (count($statuses) === $this->maxItemsParsed)
                     break;
             }
 

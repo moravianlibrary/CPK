@@ -246,7 +246,8 @@ class AjaxController extends AjaxControllerBase
 
     public function getHoldingsStatusesAjax()
     {
-        $ids = $this->params()->fromQuery('ids');
+        $request = $this->getRequest();
+        $ids = $this->params()->fromPost('ids');
 
         if (null === $ids)
             return $this->output('There has been sent empty "ids" Object', self::STATUS_ERROR);

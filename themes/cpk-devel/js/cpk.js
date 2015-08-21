@@ -103,12 +103,18 @@ function getHoldingStatuses() {
             if (Object.prototype.toString.call(ids) !== '[object Object]')
                 ids = getHoldingsIds();
 
-            var ajaxResponse = $.getJSON(
-                    '/AJAX/JSON?method=getHoldingsStatuses', {
-                        ids : ids
-                    }, function(response) {
-                        processGetHoldingStatusesResponse(response);
-                    });
+            var ajaxResponse = $.ajax
+            ({
+                type: "POST",
+                url: '/AJAX/JSON?method=getHoldingsStatuses',
+                dataType: 'json',
+                async: true,
+                //json object to sent to the authentication url
+                data: {ids: ids},
+                success: function(response) {
+                    processGetHoldingStatusesResponse(response);
+                }
+            })
         }
     }
 }
