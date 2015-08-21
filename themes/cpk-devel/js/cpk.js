@@ -21,7 +21,11 @@ if (isRecordPage()) {
     $(getHoldingStatuses());
 }
 
-function getHoldingsIds(allNotLoaded = false) {
+function getHoldingsIds(allNotLoaded) {
+    
+    if (Object.prototype.toString.call(allNotLoaded) === "[object Undefined]")
+        allNotLoaded = false;
+    
     ids = [];
     var selector;
     
@@ -40,7 +44,11 @@ function getHoldingsIds(allNotLoaded = false) {
     return ids;
 }
 
-function updateHoldingId(id, value, isItBad = false) {
+function updateHoldingId(id, value, isItBad) {
+    
+    if (Object.prototype.toString.call(isItBad) === "[object Undefined]")
+        isItBad = false;
+    
     var tableRow = $("tr#" + id.replace(/([.:])/g, '\\$1')),
         statusDiv = tableRow.find('div')[1],
         icon = $(statusDiv).children('i'),
