@@ -63,19 +63,17 @@
 
     ?>
     <div class="list-group facet" id="side-panel-institution">
-    <div id="side-collapse-institution-member" class="collapse in">
-            <li class="jstree-facet jstree jstree-2 jstree-default jstree-default-responsive">
-                <ul class="jstree-container-ul">
-                    <li aria-selected="false" class="jstree-node  jstree-closed list-group-item" id="j2_1" aria-expanded="false" role="treeitem">
-                        <a href="<?=$url?>" class="jstree-anchor">
-                            <span class="main" title="<?=$this->transEsc('Connected institutions only')?>">
-                                <i class="fa fa-home"></i> <?=$this->transEsc('Connected institutions only')?>
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-    </div>
+        <div id="side-collapse-institution-member" class="collapse in">
+            <ul class="jstree-container-ul">
+                <li aria-selected="false" class="jstree-facet jstree jstree-2 jstree-default jstree-default-responsive">
+                    <a href="<?=$url?>" class="jstree-anchor">
+                        <span class="main" title="<?=$this->transEsc('Connected institutions only')?>">
+                            <i class="fa fa-home"></i> <?=$this->transEsc('Connected institutions only')?>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 <? endif;
 // Here ends custom code (everything else is from upstream)
