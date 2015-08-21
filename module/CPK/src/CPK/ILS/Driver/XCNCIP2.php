@@ -1126,6 +1126,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         }
         $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
 
+        $rawExpire = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
+
+        $expireDate = empty($rawExpire) ? '' : date('j. n. Y', strtotime((string) $rawExpire[0]));
+
         $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
         $eppnScope = $this->eppnScope;
@@ -1149,7 +1153,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             'zip' => empty($zip) ? '' : (string) $zip[0],
             'phone' => empty($phone) ? '' : (string) $phone[0],
             'group' => empty($group) ? '' : (string) $group[0],
-            'blocks' => empty($blocks) ? array() : $blocks
+            'blocks' => empty($blocks) ? array() : $blocks,
+            'expire' => $expireDate
         );
         return $patron;
     }
