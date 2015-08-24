@@ -56,7 +56,7 @@
   <tr <? if (! empty($row['uniqueRowId'])): ?>class="<?=$trClass?>" id="<?=$row['uniqueRowId']?>"<? else: ?>class="danger"<? endif; ?> >
 
     <td data-title="<?=$this->transEsc("item status")?>">
-      <div class="jt" title="<?=$this->transEsc('Description Status '. $row['status'])?>">
+      <div class="jt" title="<?=$this->transEsc('Description Status')?>">
         <span class="availability"><?=empty($row['availability']) ? 'Unknown availability' : $this->transEsc('availability_' . $row['availability'])?></span>
       </div>
 

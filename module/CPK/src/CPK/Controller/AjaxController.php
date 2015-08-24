@@ -265,11 +265,12 @@ class AjaxController extends AjaxControllerBase
 
             $itemsStatuses = [];
 
+            $viewRend = $this->getViewRenderer();
+
             foreach ($statuses as $status) {
                 $id = $status['id'];
 
-                // FIXME: Translate the status ...
-                $itemsStatuses[$id]['status'] = $status['status'];
+                $itemsStatuses[$id]['status'] = $viewRend->transEsc('status_' . $status['status'], null, $status['status']);
 
                 if (! empty($status['due_date']))
                     $itemsStatuses[$id]['due_date'] = $status['due_date'];
@@ -288,8 +289,7 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
-     *  Filter dates in future
-     *
+     * Filter dates in future
      */
     protected function processFacetValues($fields, $results)
     {
@@ -297,7 +297,9 @@ class AjaxController extends AjaxControllerBase
         $retVal = [];
         $currentYear = date("Y");
         foreach ($facets as $field => $values) {
-            $newValues = ['data' => []];
+            $newValues = [
+                'data' => []
+            ];
             foreach ($values['data']['list'] as $current) {
                 // Only retain numeric values!
                 if (preg_match("/^[0-9]+$/", $current['value'])) {
@@ -307,10 +309,14 @@ class AjaxController extends AjaxControllerBase
                 }
             }
             ksort($data);
-            $newValues = array('data' => array());
+            $newValues = array(
+                'data' => array()
+            );
             foreach ($data as $key => $value) {
                 $newValues['data'][] = array(
-                    $key, $value);
+                    $key,
+                    $value
+                );
             }
             $retVal[$field] = $newValues;
         }
