@@ -139,3 +139,11 @@ facebook.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/fb50.png
 mojeid.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/mojeid50.png
 google.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/googleicon50.png
 linkedin.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/LinkedIn50.png
+
+[IdPLogosMappedToSolr]
+ntk = techlib.cz 
+nlk = medvik.cz 
+svkhk = svkhk.cz 
+nkp = nkp.cz 
+mzk = mzk.cz 
+tre = ceska-trebova.knihovny.cz 
