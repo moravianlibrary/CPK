@@ -82,7 +82,7 @@
       <? foreach ($this->driver->getExternalLinks() as $current): ?> <br/>
          <? if (isset($current['url']) && !empty($current['url'])): ?>
            <?='<br />' . $this->transEsc('Institution') . ': ' ?>
-             <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>           
+             <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
           <? endif; ?>
         <? endforeach;?>
       </div>
@@ -97,7 +97,7 @@
           <? endif; ?>
         <? endif; ?>
       <? endif; ?>
-	
+
       <? /* We need to find out if we're supposed to display an OpenURL link ($openUrlActive),
             but even if we don't plan to display the link, we still want to get the $openUrl
             value for use in generating a COinS (Z3988) tag -- see bottom of file.
@@ -186,7 +186,7 @@
                      if ($recordsInMyLibsCount === 1) {
                          $record = key($recordsInMyLibs[0]);
                          $source = $recordsInMyLibs[0][$record]['id'];
-                         echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_".$record."', array(), $record)."</a> ")."a";
+                         echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ")."a";
                      } else if ($recordsInMyLibsCount > 1) {
                          echo ucfirst($this->translate("in")." ".$recordsInMyLibsCount.$this->translate("my_libraries_in_local"));
                      }
@@ -196,9 +196,9 @@
                          $record = key($recordsInOtherLibs[0]);
                          $source = $recordsInOtherLibs[0][$record]['id'];
                          if ($recordsInMyLibsCount === 0) {
-                             echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_".$record."', array(), $record)."</a> ");
+                             echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ");
                          } else {
-                             echo $this->translate("and")." ".$this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_".$record."', array(), $record)."</a> ";
+                             echo $this->translate("and")." ".$this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ";
                          }
                      } else if ($recordsInOtherLibsCount > 1) {
                          if ($recordsInMyLibsCount === 0) {
@@ -215,9 +215,9 @@
                          $record = key($recordsInOtherLibs[0]);
                          $source = $recordsInOtherLibs[0][$record]['id'];
                          if ($recordsInMyLibsCount === 0) {
-                             echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_".$record."', array(), $record)."</a> ");
+                             echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ");
                          } else {
-                             echo $this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_".$record."', array(), $record)."</a> ";
+                             echo $this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ";
                          }
                      } else if ($recordsInOtherLibsCount > 1) {
                          if ($recordsInMyLibsCount === 0) {

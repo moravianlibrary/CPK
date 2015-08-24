@@ -130,7 +130,7 @@ class Aleph extends AlephBase
                 if (array_search($id, $ids) === false)
                     continue;
 
-                list($status, $dueDate) = $this->parseStatusFromItem($item);
+                list ($status, $dueDate) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
@@ -157,7 +157,7 @@ class Aleph extends AlephBase
 
                 $item = $xml->{'item'};
 
-                list($status, $dueDate) = $this->parseStatusFromItem($item);
+                list ($status, $dueDate) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
@@ -174,7 +174,8 @@ class Aleph extends AlephBase
     }
 
     /**
-     * Parses the status from <status> tag .. Sometimes there is due date, thus
+     * Parses the status from <status> tag .
+     * . Sometimes there is due date, thus
      * it will always return an array of both status & dueDate (which will often be null)
      *
      * @param \SimpleXMLElement $item
@@ -191,7 +192,7 @@ class Aleph extends AlephBase
         else
             $dueDate = null;
 
-        if (in_array($status, $this->available_statuses))
+        if (! $isDueDate && in_array($status, $this->available_statuses))
             $status = 'available';
         else
             $status = 'unavailable';
