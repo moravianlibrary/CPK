@@ -157,7 +157,7 @@
               <?=$this->transEsc('from_library')?>
               <b class="caret"></b>
           </a>
-         <small>
+         <small id="holdings">
              <?
              /* Display information on duplicate records if available */
              $dedupData = $this->driver->getDedupData();
@@ -254,7 +254,7 @@
               <b class="caret"></b>
           </a>
           <p>
-              <small>
+              <small id="eversion">
                   <?=$this->transEsc('availability-info')?>
               </small>
           </p>
@@ -266,7 +266,7 @@
               <b class="caret"></b>
           </a>
           <p>
-              <small>
+              <small id="buy">
                   <?=$this->transEsc('availability-info')?>
               </small>
           </p>
@@ -286,6 +286,7 @@
           <? endif; ?>
       </div>
   </div>
-  <div class="want-it-tabs"></div>
+  <div class="want-it-tabs-row1"></div>
+  <div class="want-it-tabs-row2"></div>
 
 </div>
