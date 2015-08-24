@@ -156,7 +156,7 @@
          /* Display information on duplicate records if available */
          $dedupData = $this->driver->getDedupData();
          if ($dedupData)
-             echo $this->context($this)->renderInContext('RecordDriver/SolrDefault/records-in-libraries.phtml', array('dedupData' => $dedupData));
+             echo $this->context($this)->renderInContext('RecordDriver/SolrDefault/records-in-libraries.phtml', array('records' => $dedupData));
 
          ?>
       </div>

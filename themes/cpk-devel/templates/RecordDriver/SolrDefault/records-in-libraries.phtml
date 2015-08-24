@@ -1,84 +1,17 @@
 <div class="dedupInformation">
 
+<p><?= $this->translate('Found in') ?>:</p>
+
 <?
-	
-
-                 $myLibs = (array) $this->myLibs;
-
-                 $isAnonyme = false;
-                 if (count($myLibs) === 0)
-                     $isAnonyme = true;
-
-                 $records = $dedupData;
-                 $recordsInMyLibs = array();
-                 $recordsInOtherLibs = array();
-
-                 foreach ($records as $key => $value) {
-                     if (in_array($key, $myLibs)) {
-                         array_push($recordsInMyLibs, array($key => $value));
-                     } else {
-                         array_push($recordsInOtherLibs, array($key => $value));
-                     }
-                 }
-
-                 $recordsCount = count($dedupData);
-                 $recordsInMyLibsCount = count($recordsInMyLibs);
-                 $recordsInOtherLibsCount = count($recordsInOtherLibs);
-
-                 if (! $isAnonyme) { // loggedIn user
-
-                     if ($recordsInMyLibsCount === 1) {
-                         $record = key($recordsInMyLibs[0]);
-                         $source = $recordsInMyLibs[0][$record]['id'];
-                         echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ")."a";
-                     } else if ($recordsInMyLibsCount > 1) {
-                         echo ucfirst($this->translate("in")." ".$recordsInMyLibsCount.$this->translate("my_libraries_in_local"));
-                     }
-                     else {} // record is not in my libraries and so wont be displayed
-
-                     if ($recordsInOtherLibsCount === 1) {
-                         $record = key($recordsInOtherLibs[0]);
-                         $source = $recordsInOtherLibs[0][$record]['id'];
-                         if ($recordsInMyLibsCount === 0) {
-                             echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ");
-                         } else {
-                             echo $this->translate("and")." ".$this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ";
-                         }
-                     } else if ($recordsInOtherLibsCount > 1) {
-                         if ($recordsInMyLibsCount === 0) {
-                             echo ucfirst($this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("my_libraries_in_local"));
-                         } else {
-                             echo $this->translate("and")." ".$this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("other_libraries_in_local");
-                         }
-                     }	
-                     else {} // record is not in other libraries and so wont be displayed
-
-                 } else { // is anonyme
-
-                     if ($recordsInOtherLibsCount === 1) {
-                         $record = key($recordsInOtherLibs[0]);
-                         $source = $recordsInOtherLibs[0][$record]['id'];
-                         if ($recordsInMyLibsCount === 0) {
-                             echo ucfirst($this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ");
-                         } else {
-                             echo $this->translate("in")." <a href=".$this->recordLink()->getUrl($source).">".$this->transEsc('source_' . $record, array(), $record)."</a> ";
-                         }
-                     } else if ($recordsInOtherLibsCount > 1) {
-                         if ($recordsInMyLibsCount === 0) {
-                             echo ucfirst($this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("libraries_in_local"));
-                         } else {
-                             echo $this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("libraries_in_local");
-                         }
-                     }
-                     else {} // record is not in libraries and so wont be displayed
-
-                 }
-
-                 foreach($recordsInOtherLibs as $key => $value){
-                     $key = key($value);
-                     $id = $value[$key]['id'];
-                     echo '<span class="recordId inOtherLibs hidden">' . $id . '</span>';
-                 }
-
+	foreach ($records as $record => $value) {
+		$source = $value['id'];
+		$recordInLibraryOwnershipClass = in_array($record, $this->myLibs) ? 'my-library-record' : 'other-library-record';
+		$logoUrl = $this->config->IdPLogos->$record;
+		$recordUrl = $this->recordLink()->getUrl($source);
+		$anchor = $this->transEsc('source_' . $record);
+		
+		echo "<span class='$recordInLibraryOwnershipClass'><img height='16' src='$logoUrl'><a href='$recordUrl'>$anchor</a></span><br>\n";
+	}
 ?>
+
 </div>
