@@ -47,7 +47,11 @@ class SolrMarc extends ParentSolrMarc
             $subfieldsParsed = $field->getSubfields();
             $subfields = [];
             foreach ($subfieldsParsed as $subfield) {
-                $subfields[trim($subfield->getCode())] = $subfield->getData();
+                $subfieldCode = trim($subfield->getCode());
+
+                // If is this subfield already set, ignore next value .. probably incorrect OAI data
+                if (! isset($subfields[$subfieldCode]))
+                    $subfields[$subfieldCode] = $subfield->getData();
             }
             $fields[] = $subfields;
         }
