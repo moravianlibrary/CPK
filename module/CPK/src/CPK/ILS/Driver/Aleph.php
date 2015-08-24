@@ -175,6 +175,7 @@ class Aleph extends AlephBase
 
     /**
      * Parses the status from <status> tag .
+     *
      * . Sometimes there is due date, thus
      * it will always return an array of both status & dueDate (which will often be null)
      *
@@ -187,15 +188,18 @@ class Aleph extends AlephBase
 
         $isDueDate = preg_match('/[0-9]{2}\/.+\/[0-9]{4}/', $status);
 
-        if ($isDueDate)
+        if ($isDueDate) {
             $dueDate = $status;
-        else
+
+            $status = 'On Loan';
+        } else {
             $dueDate = null;
 
-        if (! $isDueDate && in_array($status, $this->available_statuses))
-            $status = 'available';
-        else
-            $status = 'unavailable';
+            if (in_array($status, $this->available_statuses))
+                $status = 'available';
+            else
+                $status = 'unavailable';
+        }
 
         return [
             $status,
