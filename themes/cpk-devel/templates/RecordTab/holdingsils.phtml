@@ -43,7 +43,7 @@
 <? $rowNo = 0; ?>
 <? foreach ($holdings as $row): //FIXME: Create proprietary links?>
   <? $check = (!empty($row['check']) && $row['check']); ?>
-  <? $rowNo++; $onShelf=$row['status']=="On Shelf";
+  <? $rowNo++;
   $row['uniqueRowId'] =
         (isset($row['source']) && isset($row['agency_id']) && isset($row['item_id'])) ?
             $row['source'] . '.' .$row['agency_id'] . ':' . $row['item_id'] :
@@ -56,15 +56,17 @@
   <tr <? if (! empty($row['uniqueRowId'])): ?>class="<?=$trClass?>" id="<?=$row['uniqueRowId']?>"<? else: ?>class="danger"<? endif; ?> >
 
     <td data-title="<?=$this->transEsc("item status")?>">
-      <? if ($this->transEsc('Description Status '. $row['status']) == 'Description Status '. $row['status']):?>
-      <div>
-      <? else: ?>
       <div class="jt" title="<?=$this->transEsc('Description Status '. $row['status'])?>">
+        <span class="availability"><?=empty($row['availability']) ? 'Unknown availability' : $this->transEsc('availability_' . $row['availability'])?></span>
+      </div>
+
+      <? if (!empty($row['uniqueRowId'])): ?>
+        <div>
+          <i class="fa fa-spinner fa-spin"></i>
+          <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+        </div>
       <? endif; ?>
 
-      <span class="<?=(!empty($row['availability']) && $row['availability'])?'available':'checkedout'?>"><?=$this->transEsc($onShelf?'Holdable':'NotHoldable')?></span>
-
-      </div>
       <? if (!empty($row['reserve']) && $row['reserve'] == "Y"): ?>
       <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>
       <? elseif (!empty($row['use_unknown_message']) && $row['use_unknown_message']): ?>
@@ -91,10 +93,6 @@
             <a class="holdPlace<?=$check ? ' checkRequest' : ''?>" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
               <span><?=$this->transEsc($check ? "Check Recall" : "Reserve")?></span>
             </a>
-          <? endif; ?>
-          <? if (!empty($row['uniqueRowId'])): ?>
-              <i class="fa fa-spinner fa-spin"></i>
-              <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
           <? endif; ?>
           </div>
         <? endif; ?>
