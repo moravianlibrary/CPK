@@ -56,6 +56,7 @@ class SearchController extends SearchControllerBase
 		$view = parent::resultsAction();
 
 		$view->myLibs = $this->getUsersHomeLibraries();
+		$view->config = $this->getConfig();
 
 		return $view;
 	}
