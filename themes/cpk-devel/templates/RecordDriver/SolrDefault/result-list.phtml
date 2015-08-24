@@ -208,7 +208,7 @@
                              }
                          } else if ($recordsInOtherLibsCount > 1) {
                              if ($recordsInMyLibsCount === 0) {
-                                 echo ucfirst($this->translate("in")." ".$recordsInOtherLibsCount.$this->translate("my_libraries_in_local"));
+                                 echo ucfirst($this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("my_libraries_in_local"));
                              } else {
                                  echo $this->translate("and")." ".$this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("other_libraries_in_local");
                              }
@@ -229,7 +229,7 @@
                              if ($recordsInMyLibsCount === 0) {
                                  echo ucfirst($this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("libraries_in_local"));
                              } else {
-                                 echo $this->translate("in")." ".$recordsInOtherLibsCount.$this->translate("libraries_in_local");
+                                 echo $this->translate("in")." ".$recordsInOtherLibsCount." ".$this->translate("libraries_in_local");
                              }
                          }
                          else {} // record is not in libraries and so wont be displayed
