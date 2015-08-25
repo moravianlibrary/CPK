@@ -4,13 +4,21 @@
 	  	$dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
 
 	  	$recordSource = explode(".", $this->driver->getUniqueId())[0];
+	  	
+	  	$logoKey = $this->config->IdPLogosMappedToSolr->$recordSource ?: '';
+	  	$logoUrl = $this->config->IdPLogos->$logoKey ?: '';
+	  	
+	  	$currentInstitution = $this->translate('source_'.$recordSource);
   	?>
   	
   	<div class='dropdown pull-right'>
 		<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="records-in-groups-nav" href="#">
 			<h3 style='display: inline;'>
 			<?
-				echo $this->translate('source_'.$recordSource);
+				if ($logoUrl)
+					echo "<img height='32' src='$logoUrl' alt='$currentInstitution'> ";
+				
+				echo $currentInstitution;
 			?>
 			</h3>
 			<b class="caret"></b>

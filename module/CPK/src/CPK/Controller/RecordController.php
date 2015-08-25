@@ -78,6 +78,8 @@ class RecordController extends RecordControllerBase
         $linksFrom856 = $this->get886Links();
         if ($linksFrom856 !== false)
         	$view->linksFrom856 = $linksFrom856;
+        
+        $view->config = $this->getConfig();
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
         return $view;
