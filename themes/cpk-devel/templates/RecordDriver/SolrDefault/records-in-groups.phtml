@@ -12,17 +12,30 @@
   	?>
   	
   	<div class='dropdown pull-right'>
-		<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="records-in-groups-nav" href="#">
-			<h3 style='display: inline;'>
+						
+			<? if (count($dedupedRecords) !== 1) :?>
+				<span class='ropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' id='records-in-groups-nav'>
+			<? else : ?>
+				<span>
+			<? endif;?>
+			
 			<?
 				if ($logoUrl)
 					echo "<img height='32' src='$logoUrl' alt='$currentInstitution'> ";
-				
+			?>
+			
+			<h3 style='display: inline;'>
+			
+			<?
 				echo $currentInstitution;
 			?>
 			</h3>
-			<b class="caret"></b>
-		</a>
+			<?
+				if (count($dedupedRecords) !== 1)
+					echo "<b class='caret'></b>";
+			?>
+		</span>
+		
 		<ul class="dropdown-menu" aria-labelledby="records-in-groups-nav">
 			<? 
 		  		foreach ($dedupedRecords as $record) {
