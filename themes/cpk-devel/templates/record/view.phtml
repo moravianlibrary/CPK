@@ -84,7 +84,41 @@
       <div class="well">
       <?=$this->record($this->driver)->getToolbar()?>
       </div>
-      <?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
+      <?
+  	$recordID = $this->driver->getUniqueId();
+  	$recordSource = explode(".", $recordID)[0];
+  ?>
+  
+  <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
+  <script>
+  	
+  
+	jQuery( document ).ready( function( $ ) {
+
+		var recordID = '<?= $this->driver->getUniqueID() ?>';
+		var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
+
+		var buyLinks = getBuyLinks( recordID, parentRecordID );
+
+		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
+			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+
+		var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
+		
+		var source = "<?= $recordSource ?>";
+
+		// select default record group
+		$( '#record-group li a' ).each( function() {
+			
+			var title = $( this ).attr( 'title' );
+			if ( $( this ).attr( 'id' ).toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
+				$( '#first-record-group' ).text( title );
+			}
+
+		});
+
+	});
+  </script>
 	  <div class="well">
 	  
     <? foreach ($this->related()->getList($this->driver) as $current): ?>

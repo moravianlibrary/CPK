@@ -2,167 +2,32 @@
 
   	<?php   	
 	  	$dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
-	  	
-	  	$recordGroup = array();
-		foreach ($dedupedRecords as $record) {
-			if(! array_key_exists($record['source'], $recordGroup)) {
-				$recordGroup[$record['source']] = array($record['id']);
-			} else {
-				$recordGroup[$record['source']][] = $record['id'];
-			}
-		}
-  	?>
 
-	  	<div class="dropdown">
-		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-		  	<span id='first-record-group'>
-			    <?
-			    	reset($recordGroup);
-			    	echo $this->translate(key($recordGroup));
-			    ?>
-		    </span>
-		    <span class="caret"></span>
-		  </button>
-		  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" id='record-group'>
-		  	<? 
-		  		foreach (array_keys($recordGroup) as $key) {
-		  			if (count($recordGroup[$key]) === 1) {
-		  				$link = $recordGroup[$key][0];
-		  				echo "<li><a href='".$this->url('record', array('id' => $link))."' id='$link' title='".$this->translate($key)."'>".$this->translate($key)."</a></li>";
-		  			} else {
-		  				echo "<li><a href='#' class='multiple-records' id='".implode("|", $recordGroup[$key])."' title='".$this->translate($key)."'>".$this->translate($key)."</a></li>";
-		  			}
+	  	$recordSource = explode(".", $this->driver->getUniqueId())[0];
+  	?>
+  	
+  	<div class='dropdown pull-right'>
+		<a class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="records-in-groups-nav" href="#">
+			<h3 style='display: inline;'>
+			<?
+				echo $this->translate('source_'.$recordSource);
+			?>
+			</h3>
+			<b class="caret"></b>
+		</a>
+		<ul class="dropdown-menu" aria-labelledby="records-in-groups-nav">
+			<? 
+		  		foreach ($dedupedRecords as $record) {
+	  				$link = $record['id'];
+	  				$source = $record['source'];
+	  				if ($source === 'source_'.$recordSource) {
+	  					echo "<li class='active'><a href='".$this->url('record', array('id' => $link))."' title='".$this->translate($source)."'>".$this->translate($source)."</a></li>";
+	  				} else {
+	  					echo "<li><a href='".$this->url('record', array('id' => $link))."' title='".$this->translate($source)."'>".$this->translate($source)."</a></li>";
+	  				}
 		  		}
 		  	?>
-		  </ul>
-		</div>
+		</ul>
+	</div>
 
-		<div class="dropdown hidden" id='recordsDropdown'>
-		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-		    <span id='first-record'><?= $this->translate('Choose record') ?></span>
-		    <span class="caret"></span>
-		  </button>
-		  <ul class="dropdown-menu" aria-labelledby="dropdownMenu2" id='records-in-group'>
-		  </ul>
-		</div>
-
-  <?
-  	$recordID = $this->driver->getUniqueId();
-  	$recordSource = explode(".", $recordID)[0];
-  ?>
-  
-  <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
-  <script>
-  	
-  
-	jQuery( document ).ready( function( $ ) {
-
-		var recordID = '<?= $this->driver->getUniqueID() ?>';
-		var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
-
-		var buyLinks = getBuyLinks( recordID, parentRecordID );
-
-		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
-			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-
-		var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
-		
-		var source = "<?= $recordSource ?>";
-
-		// select default record group
-		$( '#record-group li a' ).each( function() {
-			
-			var title = $( this ).attr( 'title' );
-			if ( $( this ).attr( 'id' ).toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
-				$( '#first-record-group' ).text( title );
-			}
-
-		});
-
-		// initial records in dropdown menu
-		$( '#record-group li a.multiple-records' ).each( function() {
-			
-			var records = $( this ).attr( 'id' );
-			var recordsArr = records.split( "|" );
-
-			if (recordsArr.length > 1) {
-
-				if ( records.toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
-					
-					var optionsHTML = "";
-					
-					recordsArr.forEach( function( record ) {
-						
-						optionsHTML += getRecordsForGroup( record );
-
-					});
-					
-					$( '#recordsDropdown' ).removeClass( 'hidden' );
-					$( '#records-in-group' ).html( optionsHTML );
-					optionsHTML = null;
-					
-				}
-
-				// set initial record
-				if ( $( '#records-in-group li a[href*="'+recordID+'"]' ).length) {
-					var $element = $( '#records-in-group li a[href*="'+recordID+'"]' );
-					var textValue = $element.text();
-					$( '#first-record' ).text( textValue );
-					$element.css('font-weight', 'bold');
-				}
-
-			}
-				
-		});
-
-		// ajax records in selected group generator
-		$( '#record-group' ).on( "click", ".multiple-records", function( event ) {
-
-			event.preventDefault();
-
-			$( '#first-record-group' ).text( $( this ).attr( 'title' ) );
-			
-			var group = $( this ).attr( 'title' );
-			var recordsArr = $( this ).attr( 'id' ).split( "|" );
-			var optionsHTML = "";
-
-			recordsArr.forEach( function( record ) {
-
-				optionsHTML += getRecordsForGroup( record );
-
-			});
-			
-			$( '#recordsDropdown' ).removeClass( 'hidden' );
-			$( '#records-in-group' ).html( optionsHTML );
-			optionsHTML = null;
-		});
-
-		function getRecordsForGroup( record ) {
-
-			var optionsHTML = "";
-			
-			$.ajax({
-				dataType: 	"json",
-				url: '/AJAX/JSON?method=getMarc996Array',
-				data: { recordID: record, 
-						field: '996', 
-						subfields: "l,r" 
-				}
-			}).success( function( msg ) {
-
-				var arr996 = (msg.data[0].arr[0] !== undefined) ? msg.data[0].arr[0] : '<?= $this->translate('record') ?>'+' '+record;
-				
-				var link = '/Record/'+record;
-				optionsHTML += "<li><a href='"+link+"'>"+arr996+"</a></li>"; 
-
-			}).fail( function( jqXHR, textStatus ) {
-				console.log( jqXHR+' '+textStatus );
-			});
-
-			return optionsHTML;
-		}
-		
-	});
-  </script>
-  
   </div>
