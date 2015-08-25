@@ -38,17 +38,39 @@ use MZKCommon\ILS\Driver\Aleph as AlephBase;
 class Aleph extends AlephBase
 {
 
+    const AVAILABLE_STATUSES_DELIMITER = ',';
+
+    protected $available_statuses = [];
+
+    protected $eppnScope = null;
+
+    protected $maxItemsParsed;
+
+    public function init()
+    {
+        parent::init();
+
+        if (isset($this->config['Catalog']['available_statuses']))
+            $this->available_statuses = explode(self::AVAILABLE_STATUSES_DELIMITER, $this->config['Catalog']['available_statuses']);
+
+        if (isset($this->config['Catalog']['eppnScope']))
+            $this->eppnScope = $this->config['Catalog']['eppnScope'];
+
+        if (isset($this->config['Availability']['maxItemsParsed'])) {
+            $this->maxItemsParsed = intval($this->config['Availability']['maxItemsParsed']);
+        } else
+            $this->maxItemsParsed = 10;
+    }
+
     public function getMyProfile($user)
     {
         $profile = parent::getMyProfile($user);
 
-        $eppnScope = $this->config['Catalog']['eppnScope'];
-
         $blocks = null;
 
         foreach ($profile['blocks'] as $block) {
-            if (! empty($eppnScope)) {
-                $blocks[$eppnScope] = (string) $block;
+            if (! empty($this->eppnScope)) {
+                $blocks[$this->eppnScope] = (string) $block;
             } else
                 $blocks[] = (string) $block;
         }
@@ -75,13 +97,8 @@ class Aleph extends AlephBase
     {
         $statuses = array();
 
-        if (isset($this->config['Availability']['maxItemsParsed'])) {
-            $maxItemsParsed = $this->config['Availability']['maxItemsParsed'];
-        } else
-            $maxItemsParsed = 10;
-
         $idsCount = count($ids);
-        if ($maxItemsParsed == -1 || $idsCount <= $maxItemsParsed) {
+        if ($this->maxItemsParsed === - 1 || $idsCount <= $this->maxItemsParsed) {
             // Query all items at once ..
 
             // Get bibId from this e.g. [ MZK01-000910444:MZK50000910444000270, ... ]
@@ -106,22 +123,19 @@ class Aleph extends AlephBase
                 $item_id = $item->attributes()->href;
                 $item_id = substr($item_id, strrpos($item_id, '/') + 1);
 
+                // Build the id into initial state so that jQuery knows which row has to be updated
                 $id = $bibId . ':' . $item_id;
 
-                // do not process ids which are not desired
+                // do not process ids which are not in desired $ids array
                 if (array_search($id, $ids) === false)
                     continue;
 
-                $status = (string) $item->{'status'};
-
-                if (in_array($status, $this->available_statuses))
-                    $status = 'available';
-                else
-                    $status = 'unavailable';
+                list ($status, $dueDate) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
-                    'status' => $status
+                    'status' => $status,
+                    'due_date' => $dueDate
                 );
             }
         } else // Query one by one item
@@ -143,23 +157,53 @@ class Aleph extends AlephBase
 
                 $item = $xml->{'item'};
 
-                $status = (string) $item->{'status'};
-
-                if (in_array($status, $this->available_statuses))
-                    $status = 'available';
-                else
-                    $status = 'unavailable';
+                list ($status, $dueDate) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
-                    'status' => $status
+                    'status' => $status,
+                    'due_date' => $dueDate
                 );
 
                 // Returns parsed items to show it to user
-                if (count($statuses) == $maxItemsParsed)
+                if (count($statuses) === $this->maxItemsParsed)
                     break;
             }
 
         return $statuses;
+    }
+
+    /**
+     * Parses the status from <status> tag .
+     *
+     * . Sometimes there is due date, thus
+     * it will always return an array of both status & dueDate (which will often be null)
+     *
+     * @param \SimpleXMLElement $item
+     * @return array [ $status, $dueDate ]
+     */
+    protected function parseStatusFromItem(\SimpleXMLElement $item)
+    {
+        $status = (string) $item->{'status'};
+
+        $isDueDate = preg_match('/[0-9]{2}\/.+\/[0-9]{4}/', $status);
+
+        if ($isDueDate) {
+            $dueDate = $status;
+
+            $status = 'On Loan';
+        } else {
+            $dueDate = null;
+
+            if (in_array($status, $this->available_statuses))
+                $status = 'available';
+            else
+                $status = 'unavailable';
+        }
+
+        return [
+            $status,
+            $dueDate
+        ];
     }
 }

@@ -3,9 +3,9 @@
     $this->headTitle($this->translate('Statistics'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->transEsc('Your Account').'</a></li>' 
-    							  .'<li><a href="'.$this->url('statistics-dashboard').'">' . $this->transEsc('Statistics') . '</a></li>'
-    							  .'<li class="active">' . $this->transEsc('Visits') . '</li>';
+    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->translate('Your Account').'</a></li>' 
+    							  .'<li><a href="'.$this->url('statistics-dashboard').'">' . $this->translate('Statistics') . '</a></li>'
+    							  .'<li class="active">' . $this->translate('Visits') . '</li>';
     
     echo $this->render('statistics/menu.phtml');
     
@@ -21,7 +21,7 @@
 				    <div class="panel-heading">
 				        <h3 class="panel-title">
 				            <i class="fa fa-clock-o fa-fw"></i>
-				             <?= $this->transEsc('Visits in time') ?>
+				             <?= $this->translate('Visits in time') ?>
 				        </h3>
 				    </div>
 				    <div class="panel-body">
@@ -38,7 +38,7 @@
 					<div class="panel-heading">
 						<h3 class="panel-title">
 							<i class="fa fa-user fa-fw"></i>
-		 					<?= $this->transEsc('Visitors') ?>
+		 					<?= $this->translate('Visitors') ?>
 						</h3>
 					</div>
 					<div class="panel-body">
@@ -51,7 +51,7 @@
 					<div class="panel-heading">
 						<h3 class="panel-title">
 							<i class="fa fa-users fa-fw"></i> 
-							<?= $this->transEsc('Dashboard') ?>
+							<?= $this->translate('Dashboard') ?>
 						</h3>
 					</div>
 					<div class="panel-body">
@@ -60,7 +60,7 @@
 								<tbody>
 									<tr>
 										<td>
-											<?= $this->transEsc('Total visits') ?>
+											<?= $this->translate('Total visits') ?>
 										</td>
 										<td>
 											<?= $this->totalVisits ?>
@@ -68,7 +68,7 @@
 									</tr>
 									<!--<tr>
 										<td>
-											<?= $this->transEsc('Total time') ?>
+											<?= $this->translate('Total time') ?>
 										</td>
 										<td>
 											<?= $this->totalTimeOnSite ?>
@@ -76,7 +76,7 @@
 									</tr>-->
 									<tr>
 										<td>
-											<?= $this->transEsc('Average visit time') ?>
+											<?= $this->translate('Average visit time') ?>
 										</td>
 										<td>
 											<?= $this->avgTimeOnSite ?>
@@ -84,7 +84,7 @@
 									</tr>
 									<tr>
 										<td>
-											<?= $this->transEsc('Actions') ?>
+											<?= $this->translate('Actions') ?>
 										</td>
 										<td>
 											<?= $this->nbActions ?>
@@ -92,7 +92,7 @@
 									</tr>
 									<tr>
 										<td>
-											<?= $this->transEsc('Actions per visit') ?>
+											<?= $this->translate('Actions per visit') ?>
 										</td>
 										<td>
 											<?= $this->nbActionPerVisit ?>
@@ -100,7 +100,7 @@
 									</tr>
 									<tr>
 										<td>
-											<?= $this->transEsc('Online borrowers') ?>
+											<?= $this->translate('Online borrowers') ?>
 										</td>
 										<td>
 											<?= $this->nbOnlineUsers ?>
@@ -136,10 +136,10 @@
 	    Morris.Donut( {
 	        element: 'visits-comparision',
 	        data: [
-	        	{ label: "<?= $this->transEsc('Returning readers') ?>", 
+	        	{ label: "<?= $this->translate('Returning readers') ?>", 
 		          value: <?= $this->returningVisitorsCount ?> 
 		        },
-			    { label: "<?= $this->transEsc('New readers') ?>", 
+			    { label: "<?= $this->translate('New readers') ?>", 
 				  value: <?= $this->newVisitorsCount ?> 
 				},
 			],
@@ -160,7 +160,7 @@
 	        ],
 	        xkey: 'period',
 	        ykeys: [ 'novi', 'vracejici' ],
-	        labels: [ '<?= $this->transEsc('New visits'); ?>', '<?= $this->transEsc('Returning visits'); ?>' ],
+	        labels: [ '<?= $this->translate('New visits'); ?>', '<?= $this->translate('Returning visits'); ?>' ],
 	        pointSize: 2,
 	        parseTime: false,
 	        hideHover: 'auto'

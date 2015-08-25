@@ -22,7 +22,8 @@ return array(
     	'raphael.min.js',
     	'jquery-ui.min.js',
     	'ajax-record-tabs.js',
-        'cpk.js',
+        'eu-cookies.js',
+        'async-holdings-statuses.js',
         'search-results-tabs.js'
     ),
     'less' => array(

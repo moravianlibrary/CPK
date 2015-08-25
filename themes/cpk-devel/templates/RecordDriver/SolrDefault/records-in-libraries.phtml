@@ -1,0 +1,23 @@
+<div class="dedupInformation">
+
+<p><?= $this->translate('Found in') ?>:</p>
+
+<?
+	foreach ($records as $record => $value) {
+		$source = $value['id'];
+		$recordInLibraryOwnershipClass = in_array($record, $this->myLibs) ? 'my-library-record' : 'other-library-record';
+		$recordUrl = $this->recordLink()->getUrl($source);
+		$anchor = $this->transEsc('source_' . $record);
+		
+		$logoKey = $this->config->IdPLogosMappedToSolr->$record;
+		$logoUrl = $this->config->IdPLogos->$logoKey;
+
+		if ($logoUrl) {
+			echo "<span class='$recordInLibraryOwnershipClass'><img height='16' src='$logoUrl'> <a href='$recordUrl'>$anchor</a></span><br>\n";
+		} else {
+			echo "<span class='$recordInLibraryOwnershipClass'><a href='$recordUrl'>$anchor</a></span><br>\n";
+		}
+	}
+?>
+
+</div>

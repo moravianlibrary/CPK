@@ -47,7 +47,11 @@ class SolrMarc extends ParentSolrMarc
             $subfieldsParsed = $field->getSubfields();
             $subfields = [];
             foreach ($subfieldsParsed as $subfield) {
-                $subfields[trim($subfield->getCode())] = $subfield->getData();
+                $subfieldCode = trim($subfield->getCode());
+
+                // If is this subfield already set, ignore next value .. probably incorrect OAI data
+                if (! isset($subfields[$subfieldCode]))
+                    $subfields[$subfieldCode] = $subfield->getData();
             }
             $fields[] = $subfields;
         }
@@ -89,7 +93,9 @@ class SolrMarc extends ParentSolrMarc
 
         // Remember to unset all arrays at that would log an error providing array as another's array key
         $restrictions = $mappingsFor996['restricted'];
-        unset($mappingsFor996['restricted']);
+
+        if ($restrictions !== null)
+            unset($mappingsFor996['restricted']);
 
         $holdings = [];
         foreach ($fields as $currentField) {
@@ -103,15 +109,21 @@ class SolrMarc extends ParentSolrMarc
                 $holding['id'] = $id;
                 $holding['source'] = $source;
 
-                if (isset($holding['sequence_no']) && isset($holding['item_id']) && isset($holding['agency_id'])) {
-                    // having all these variables set means we are dealing with aleph .. join these into item_id
+                // If is Aleph ..
+                if (isset($this->getILSconfig()['Drivers'][$source]) && $this->getILSconfig()['Drivers'][$source] === 'Aleph') {
+                    // If we have all we need
+                    if (isset($holding['sequence_no']) && isset($holding['item_id']) && isset($holding['agency_id'])) {
 
-                    $holding['item_id'] = $holding['agency_id'] . $holding['item_id'] . $holding['sequence_no'];
+                        $holding['item_id'] = $holding['agency_id'] . $holding['item_id'] . $holding['sequence_no'];
 
-                    // instead of agency_id set bibId so that aleph driver knows what bibId he has to build the query on
+                        // instead of agency_id set bibId so that aleph driver knows what bibId he has to build the query on
 
-                    $bibId = array_pop(explode('.', $id));
-                    $holding['agency_id'] = $bibId;
+                        $bibId = array_pop(explode('.', $id));
+                        $holding['agency_id'] = $bibId;
+                    } else {
+                        // We actually cannot process Aleph holdings without complete item id ..
+                        unset($holding['item_id']);
+                    }
                 }
 
                 $holdings[] = $holding;

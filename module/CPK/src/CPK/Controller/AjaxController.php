@@ -246,7 +246,8 @@ class AjaxController extends AjaxControllerBase
 
     public function getHoldingsStatusesAjax()
     {
-        $ids = $this->params()->fromQuery('ids');
+        $request = $this->getRequest();
+        $ids = $this->params()->fromPost('ids');
 
         if (null === $ids)
             return $this->output('There has been sent empty "ids" Object', self::STATUS_ERROR);
@@ -257,7 +258,6 @@ class AjaxController extends AjaxControllerBase
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
-            //die();
             $statuses = $ilsDriver->getStatuses($ids, $nextItemToken);
 
             if (null === $statuses)
@@ -265,14 +265,15 @@ class AjaxController extends AjaxControllerBase
 
             $itemsStatuses = [];
 
+            $viewRend = $this->getViewRenderer();
+
             foreach ($statuses as $status) {
                 $id = $status['id'];
 
-                // FIXME: Translate the status ...
-                $itemsStatuses[$id] = $status['status'];
+                $itemsStatuses[$id]['status'] = $viewRend->transEsc('status_' . $status['status'], null, $status['status']);
 
-                // TODO: Compare $statuses to $ids & include to response which ids has to be parsed next
-                // TODO: Include NextItemToken if any ..
+                if (! empty($status['due_date']))
+                    $itemsStatuses[$id]['due_date'] = $status['due_date'];
 
                 $key = array_search($id, $ids);
                 unset($ids[$key]);
@@ -288,8 +289,7 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
-     *  Filter dates in future
-     *
+     * Filter dates in future
      */
     protected function processFacetValues($fields, $results)
     {
@@ -297,7 +297,9 @@ class AjaxController extends AjaxControllerBase
         $retVal = [];
         $currentYear = date("Y");
         foreach ($facets as $field => $values) {
-            $newValues = ['data' => []];
+            $newValues = [
+                'data' => []
+            ];
             foreach ($values['data']['list'] as $current) {
                 // Only retain numeric values!
                 if (preg_match("/^[0-9]+$/", $current['value'])) {
@@ -307,10 +309,14 @@ class AjaxController extends AjaxControllerBase
                 }
             }
             ksort($data);
-            $newValues = array('data' => array());
+            $newValues = array(
+                'data' => array()
+            );
             foreach ($data as $key => $value) {
                 $newValues['data'][] = array(
-                    $key, $value);
+                    $key,
+                    $value
+                );
             }
             $retVal[$field] = $newValues;
         }
