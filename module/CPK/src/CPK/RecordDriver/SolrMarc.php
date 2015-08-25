@@ -97,13 +97,23 @@ class SolrMarc extends ParentSolrMarc
         if ($restrictions !== null)
             unset($mappingsFor996['restricted']);
 
+        $ignoredKeyValsPairs = $mappingsFor996['ignoredVals'];
+
+        if ($ignoredKeyValsPairs !== null) {
+            unset($mappingsFor996['ignoredVals']);
+
+            foreach ($ignoredKeyValsPairs as &$ignoredValue)
+                $ignoredValue = array_map('trim', explode(',', $ignoredValue));
+        }
+
         $holdings = [];
         foreach ($fields as $currentField) {
             if (! $this->shouldBeRestricted($currentField, $restrictions)) {
 
                 foreach ($mappingsFor996 as $variableName => $current996Mapping) {
-                    if (! empty($currentField[$current996Mapping]))
+                    if (! empty($currentField[$current996Mapping]) && ! $this->isIgnored($currentField[$current996Mapping], $current996Mapping, $ignoredKeyValsPairs)) {
                         $holding[$variableName] = $currentField[$current996Mapping];
+                    }
                 }
 
                 $holding['id'] = $id;
@@ -233,6 +243,29 @@ class SolrMarc extends ParentSolrMarc
             if (isset($subfields[$key]) && $subfields[$key] == $restrictedValue)
                 return true;
         }
+
+        return false;
+    }
+
+    /**
+     * Returns true only if $ignoredKeyValsPairs has any restriction on current key
+     * and the restriction on current key has at least one value in it's array of
+     * ignored values identical with passed $subfieldValue.
+     *
+     * Otherwise returns false.
+     *
+     * @param string $subfieldValue
+     * @param string $subfieldKey
+     * @param array $ignoredKeyValsPairs
+     * @return boolean
+     */
+    protected function isIgnored($subfieldValue, $subfieldKey, $ignoredKeyValsPairs)
+    {
+        if ($ignoredKeyValsPairs === null)
+            return false;
+
+        if (isset($ignoredKeyValsPairs[$subfieldKey]))
+            return array_search($subfieldValue, $ignoredKeyValsPairs[$subfieldKey]) !== false;
 
         return false;
     }

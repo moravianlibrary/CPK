@@ -57,7 +57,7 @@
 
     <td data-title="<?=$this->transEsc("item status")?>">
       <div class="jt" title="<?=$this->transEsc('Description Status')?>">
-        <span class="availability"><?=empty($row['availability']) ? 'Unknown availability' : $this->transEsc('availability_' . $row['availability'])?></span>
+        <span class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
       </div>
 
       <? if (!empty($row['uniqueRowId'])): ?>
