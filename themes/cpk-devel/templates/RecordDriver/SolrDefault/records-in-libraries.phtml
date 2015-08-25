@@ -2,13 +2,13 @@
 
 <div class="col-sm-12 dedupInformation">
 
-<? $maxInstitutionsShown = 2; $i = 0; foreach ($records as $record => $value):
-		$source = $value['id'];
-		$recordInLibraryOwnershipClass = in_array($record, $this->myLibs) ? 'my-library-record' : 'other-library-record';
-		$recordUrl = $this->recordLink()->getUrl($source);
-		$anchor = $this->transEsc('source_' . $record);
+<? $maxInstitutionsShown = 2; $i = 0; foreach ($records as $source => $value):
+		$record = $value['id'];
+		$recordInLibraryOwnershipClass = in_array($source, $this->myLibs) ? 'my-library-record' : 'other-library-record';
+		$recordUrl = $this->recordLink()->getUrl($record);
+		$anchor = $this->transEsc('source_' . $source, null, $source);
 
-		$logoKey = $this->config->IdPLogosMappedToSolr->$record;
+		$logoKey = $this->config->IdPLogosMappedToSolr->$source;
 		$logoUrl = $this->config->IdPLogos->$logoKey; ?>
 
 <a class="title" href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>" <?=(++$i > $maxInstitutionsShown) ? 'hidden="hidden"' : '' ?>>
