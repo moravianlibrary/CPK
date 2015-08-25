@@ -79,7 +79,7 @@ class MyResearchController extends MyResearchControllerBase
             $view->profile = $profile;
             $expire = date_create_from_format('d. m. Y', $view->profile['expire']);
             $dateDiff = date_diff($expire, date_create());
-            if ($dateDiff->days < 30 && $dateDiff->invert != 0) {
+            if ($dateDiff->days < 31 && $dateDiff->invert != 0) {
                 $this->flashMessenger()->setNamespace('error')->addMessage('library_card_expiration_warning');
                 $view->prolongRegistrationUrl = $catalog->getProlongRegistrationUrl($patron);
             }
