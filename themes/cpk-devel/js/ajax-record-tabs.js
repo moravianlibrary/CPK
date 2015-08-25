@@ -30,3 +30,11 @@ function getSfxJibResult( sfxUrl, recordID, institute ) {
 	});
 	return ajaxResponse.responseJSON;
 }
+
+function showNextInstitutions(obj) {
+    var anchors = obj.parentNode.parentNode.getElementsByTagName('a');
+    
+    $(anchors).each(function(key, val) {val.removeAttribute('hidden')});
+    
+    obj.remove();
+}

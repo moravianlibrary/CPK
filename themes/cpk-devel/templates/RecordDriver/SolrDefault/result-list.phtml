@@ -150,8 +150,8 @@
       <?=$openUrl?'<span class="Z3988" title="'.$this->escapeHtmlAttr($openUrl).'"></span>':''?>
     </div>
   </div>
-  <div class="row">
-      <div class="col-xs-12">
+  <hr/>
+  <div class="col-sm-12">
          <?
          /* Display information on duplicate records if available */
          $dedupData = $this->driver->getDedupData();
@@ -159,8 +159,6 @@
              echo $this->context($this)->renderInContext('RecordDriver/SolrDefault/records-in-libraries.phtml', array('records' => $dedupData, 'config' => $this->config));
 
          ?>
-      </div>
-
   </div>
 
 </div>

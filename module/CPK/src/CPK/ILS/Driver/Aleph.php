@@ -58,7 +58,9 @@ class Aleph extends AlephBase
 
         if (isset($this->config['Availability']['maxItemsParsed'])) {
             $this->maxItemsParsed = intval($this->config['Availability']['maxItemsParsed']);
-        } else
+        }
+
+        if (! isset($this->maxItemsParsed) || $this->maxItemsParsed < 2)
             $this->maxItemsParsed = 10;
     }
 
@@ -175,6 +177,7 @@ class Aleph extends AlephBase
 
     /**
      * Parses the status from <status> tag .
+     *
      *
      * . Sometimes there is due date, thus
      * it will always return an array of both status & dueDate (which will often be null)

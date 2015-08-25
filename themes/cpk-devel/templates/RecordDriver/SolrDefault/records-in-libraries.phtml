@@ -1,23 +1,35 @@
-<div class="dedupInformation">
+<span class="label label-info"><?=$this->translate('Found in these institutions') ?>:</span>
 
-<p><?= $this->translate('Found in') ?>:</p>
+<div class="col-sm-12 dedupInformation">
 
-<?
-	foreach ($records as $record => $value) {
+<? $maxInstitutionsShown = 2; $i = 0; foreach ($records as $record => $value):
 		$source = $value['id'];
 		$recordInLibraryOwnershipClass = in_array($record, $this->myLibs) ? 'my-library-record' : 'other-library-record';
 		$recordUrl = $this->recordLink()->getUrl($source);
 		$anchor = $this->transEsc('source_' . $record);
-		
-		$logoKey = $this->config->IdPLogosMappedToSolr->$record;
-		$logoUrl = $this->config->IdPLogos->$logoKey;
 
-		if ($logoUrl) {
-			echo "<span class='$recordInLibraryOwnershipClass'><img height='16' src='$logoUrl'> <a href='$recordUrl'>$anchor</a></span><br>\n";
-		} else {
-			echo "<span class='$recordInLibraryOwnershipClass'><a href='$recordUrl'>$anchor</a></span><br>\n";
-		}
-	}
-?>
+		$logoKey = $this->config->IdPLogosMappedToSolr->$record;
+		$logoUrl = $this->config->IdPLogos->$logoKey; ?>
+
+<a class="title" href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>" <?=(++$i > $maxInstitutionsShown) ? 'hidden="hidden"' : '' ?>>
+    <div class="row root-title">
+        <div class="col-sm-1 nopadding text-center">
+            <? if($logoUrl): ?>
+                <img height='16px' src='<?=$logoUrl?>' />
+            <? endif; ?>
+        </div>
+        <div class="col-sm-8 nav-tabs">
+            <span class="<?=$recordInLibraryOwnershipClass?>"><?=$anchor?></span>
+        </div>
+    </div>
+</a>
+
+<? endforeach; ?>
+
+<? if ($i > $maxInstitutionsShown): ?>
+<div class="margin-bottom">
+    <div onclick="showNextInstitutions(this);" class="show-next-institutions text-center"><?=$this->translate('Show next institutions')?></div>
+</div>
+<? endif; ?>
 
 </div>
