@@ -7,9 +7,9 @@
 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
 
 <? endif; ?>
-
 <?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
 
+<div class="well">
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
   <div class="col-sm-3">
     <div class="text-center #cover" id="cover">
@@ -268,4 +268,5 @@
     </table>
     <?/* End Main Details */?>
   </div>
+</div>
 </div>

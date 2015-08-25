@@ -44,8 +44,8 @@
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" id="record_id" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
       <?=$this->flashmessages()?>
-        <div class="well">
-      <?=$this->record($this->driver)->getCoreMetadata()?></div>
+
+      <?=$this->record($this->driver)->getCoreMetadata()?>
     </div>
 
 	<div class="well">
