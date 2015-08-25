@@ -24,10 +24,26 @@
 <? $collapsedFacets = $this->recommend->getCollapsedFacets() ?>
 <? $hierarchicalFacetSortOptions = $this->recommend->getHierarchicalFacetSortOptions() ?>
 <? $hierarchicalFacets = $this->recommend->getHierarchicalFacets() ?>
-<? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
+<?
+$queryParams = $results->getUrlQuery()->getParamArray();
+unset($queryParams['filter']);
+
+$i = '?';
+$removeFilterUrl = '/Search/Results';
+foreach ($queryParams as $key => $value) {
+
+    $removeFilterUrl .= $i . $key . '=' . urlencode($value);
+
+    if ($i === '?')
+        $i = '&';
+}
+
+
+?>
+ <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
   <div class="list-group filters">
 
-    <a href='/Search/Results?type=AllFields'><div class="list-group-item title"><?=$this->transEsc('Remove Filters')?></div></a>
+    <a href='<?=$removeFilterUrl?>'><div class="list-group-item title"><?=$this->transEsc('Remove Filters')?></div></a>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $i => $filter): ?>
         <?
