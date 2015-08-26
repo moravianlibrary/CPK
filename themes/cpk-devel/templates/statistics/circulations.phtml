@@ -63,50 +63,47 @@
 				            <tr>
 				                <td>Ebsco</td>
 				                <td>15 dní, 6h 30min 25sek</td>
-				                <td class='text-center'>3 560</td>
-				                <td class='text-center'>3 112</td>
+				                <td class='text-center'><?= number_format(3560, 0, ',', ' ') ?></td>
+				                <td class='text-center'><?= number_format(3112, 0, ',', ' ') ?></td>
 				                <td>159 readers (10%)</td>
 							</tr>
 							<tr>
 				                <td>Ebsco</td>
 				                <td>15 dní, 6h 30min 25sek</td>
-				                <td class='text-center'>3 560</td>
-				                <td class='text-center'>3 112</td>
+				                <td class='text-center'><?= number_format(3560, 0, ',', ' ') ?></td>
+				                <td class='text-center'><?= number_format(3112, 0, ',', ' ') ?></td>
 				                <td>159 readers (10%)</td>
 							</tr>
 							<tr>
 				                <td>Ebsco</td>
 				                <td>15 dní, 6h 30min 25sek</td>
-				                <td class='text-center'>3 560</td>
-				                <td class='text-center'>3 112</td>
+				                <td class='text-center'><?= number_format(3560, 0, ',', ' ') ?></td>
+				                <td class='text-center'><?= number_format(3112, 0, ',', ' ') ?></td>
+				                <td>159 readers (10%)</td>
+							</tr><tr>
+				                <td>Ebsco</td>
+				                <td>15 dní, 6h 30min 25sek</td>
+				                <td class='text-center'><?= number_format(3560, 0, ',', ' ') ?></td>
+				                <td class='text-center'><?= number_format(3112, 0, ',', ' ') ?></td>
+				                <td>159 readers (10%)</td>
+							</tr><tr>
+				                <td>Ebsco</td>
+				                <td>15 dní, 6h 30min 25sek</td>
+				                <td class='text-center'><?= number_format(3560, 0, ',', ' ') ?></td>
+				                <td class='text-center'><?= number_format(3112, 0, ',', ' ') ?></td>
 				                <td>159 readers (10%)</td>
 							</tr>
 							<tr>
 				                <td>Ebsco</td>
 				                <td>15 dní, 6h 30min 25sek</td>
-				                <td class='text-center'>3 560</td>
-				                <td class='text-center'>3 112</td>
+				                <td class='text-center'><?= number_format(3560, 0, ',', ' ') ?></td>
+				                <td class='text-center'><?= number_format(3112, 0, ',', ' ') ?></td>
 				                <td>159 readers (10%)</td>
-							</tr>
-							<tr>
+							</tr><tr>
 				                <td>Ebsco</td>
 				                <td>15 dní, 6h 30min 25sek</td>
-				                <td class='text-center'>3 560</td>
-				                <td class='text-center'>3 112</td>
-				                <td>159 readers (10%)</td>
-							</tr>
-							<tr>
-				                <td>Ebsco</td>
-				                <td>15 dní, 6h 30min 25sek</td>
-				                <td class='text-center'>3 560</td>
-				                <td class='text-center'>3 112</td>
-				                <td>159 readers (10%)</td>
-							</tr>
-							<tr>
-				                <td>Ebsco</td>
-				                <td>15 dní, 6h 30min 25sek</td>
-				                <td class='text-center'>3 560</td>
-				                <td class='text-center'>3 112</td>
+				                <td class='text-center'><?= number_format(3560, 0, ',', ' ') ?></td>
+				                <td class='text-center'><?= number_format(3112, 0, ',', ' ') ?></td>
 				                <td>159 readers (10%)</td>
 							</tr>
 						</tbody>
@@ -138,10 +135,10 @@
 	        element: 'readers-comparision',
 	        data: [
 	        	{ label: "<?= $this->translate('Registrations'); ?>", 
-		          value: 20
+		          value: <?= number_format(20, 0, ',', ' ') ?>
 		        },
 			    { label: "<?= $this->translate('Prolongations'); ?>", 
-				  value: 30 
+				  value: <?= number_format(30, 0, ',', ' ') ?> 
 				},
 			],
 	        resize: true
@@ -152,13 +149,13 @@
 	        element: 'circulations-comparision',
 	        data: [
 	        	{ label: "<?= $this->translate('Reserved'); ?>", 
-		          value: 20 
+		          value: <?= number_format(20, 0, ',', ' ') ?> 
 		        },
 			    { label: "<?= $this->translate('Prolonged'); ?>", 
-				  value: 30
+				  value: <?= number_format(30) ?>
 				},
 				{ label: "<?= $this->translate('Ordered'); ?>", 
-				  value: 10
+				  value: <?= number_format(10, 0, ',', ' ') ?>
 				},
 			],
 	        resize: true

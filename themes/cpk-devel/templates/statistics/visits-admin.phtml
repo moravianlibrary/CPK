@@ -102,7 +102,7 @@
 											<?= $this->translate('Total visits') ?>
 										</td>
 										<td>
-											<?= $this->totalVisits ?>
+											<?= number_format($this->totalVisits, 0, ',', ' ') ?>
 										</td>
 									</tr>
 									<!--<tr>
@@ -126,7 +126,7 @@
 											<?= $this->translate('Actions') ?>
 										</td>
 										<td>
-											<?= $this->nbActions ?>
+											<?= number_format($this->nbActions, 0, ',', ' ') ?>
 										</td>
 									</tr>
 									<tr>
@@ -134,7 +134,7 @@
 											<?= $this->translate('Actions per visit') ?>
 										</td>
 										<td>
-											<?= $this->nbActionPerVisit ?>
+											<?= number_format($this->nbActionPerVisit, 1, ',', ' ') ?>
 										</td>
 									</tr>
 									<tr>
@@ -142,14 +142,14 @@
 											<?= $this->translate('Online borrowers') ?>
 										</td>
 										<td>
-											<?= $this->nbOnlineUsers ?>
+											<?= number_format($this->nbOnlineUsers, 0, ',', ' ') ?>
 										</td>
 									</tr>
 									<? if (($libCard) && ($libCard === 'all')) : ?>
-									<tr><td><?= $this->translate('Returning anonymous visitors') ?></td><td><?= $this->returningAnonymeVisitorsCount ?></td></tr>
-									<tr><td><?= $this->translate('Returning authenticated visitors') ?></td><td><?= $this->returningAuthenticatedVisitorsCount ?></td></tr>
-									<tr><td><?= $this->translate('New anonymous visitors') ?></td><td><?= $this->newAnonymeVisitorsCount ?></td></tr>
-									<tr><td><?= $this->translate('New authenticated visitors') ?></td><td><?= $this->newAuthenticatedVisitorsCount ?></td></tr>
+									<tr><td><?= $this->translate('Returning anonymous visitors') ?></td><td><?= number_format($this->returningAnonymeVisitorsCount, 0, ',', ' ') ?></td></tr>
+									<tr><td><?= $this->translate('Returning authenticated visitors') ?></td><td><?= number_format($this->returningAuthenticatedVisitorsCount, 0, ',', ' ') ?></td></tr>
+									<tr><td><?= $this->translate('New anonymous visitors') ?></td><td><?= number_format($this->newAnonymeVisitorsCount, 0, ',', ' ') ?></td></tr>
+									<tr><td><?= $this->translate('New authenticated visitors') ?></td><td><?= number_format($this->newAuthenticatedVisitorsCount, 0, ',', ' ') ?></td></tr>
 									<? endif; ?>
 								</tbody>
 							</table>
@@ -182,10 +182,10 @@
 	        element: 'visits-comparision',
 	        data: [
 	        	{ label: "<?= $this->translate('Returning readers'); ?>",
-		          value: <?= $this->returningVisitorsCount ?>
+		          value: <?= number_format($this->returningVisitorsCount, 0, ',', ' ') ?>
 		        },
 			    { label: "<?= $this->translate('New readers'); ?>",
-				  value: <?= $this->newVisitorsCount ?>
+				  value: <?= number_format($this->newVisitorsCount, 0, ',', ' ') ?>
 				},
 			],
 	        resize: true
@@ -195,10 +195,10 @@
 	        element: 'visits-comparision-anonymous',
 	        data: [
 	        	{ label: "<?= $this->translate('Returning readers'); ?>",
-		          value: <?= $this->returningAnonymeVisitorsCount ?>
+		          value: <?= number_format($this->returningAnonymeVisitorsCount, 0, ',', ' ') ?>
 		        },
 			    { label: "<?= $this->translate('New readers'); ?>",
-				  value: <?= $this->newAnonymeVisitorsCount ?>
+				  value: <?= number_format($this->newAnonymeVisitorsCount, 0, ',', ' ') ?>
 				},
 			],
 	        resize: true
@@ -208,10 +208,10 @@
 	        element: 'visits-comparision-authenticated',
 	        data: [
 	        	{ label: "<?= $this->translate('Returning readers'); ?>",
-		          value: <?= $this->returningAuthenticatedVisitorsCount ?>
+		          value: <?= number_format($this->returningAuthenticatedVisitorsCount, 0, ',', ' ') ?>
 		        },
 			    { label: "<?= $this->translate('New readers'); ?>",
-				  value: <?= $this->newAuthenticatedVisitorsCount ?>
+				  value: <?= number_format($this->newAuthenticatedVisitorsCount, 0, ',', ' ') ?>
 				},
 			],
 	        resize: true

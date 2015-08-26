@@ -63,7 +63,7 @@
 											<?= $this->translate('Total visits') ?>
 										</td>
 										<td>
-											<?= $this->totalVisits ?>
+											<?= number_format($this->totalVisits, 0, ',', ' ') ?>
 										</td>
 									</tr>
 									<!--<tr>
@@ -87,7 +87,7 @@
 											<?= $this->translate('Actions') ?>
 										</td>
 										<td>
-											<?= $this->nbActions ?>
+											<?= number_format($this->nbActions, 0, ',', ' ') ?>
 										</td>
 									</tr>
 									<tr>
@@ -95,7 +95,7 @@
 											<?= $this->translate('Actions per visit') ?>
 										</td>
 										<td>
-											<?= $this->nbActionPerVisit ?>
+											<?= number_format($this->nbActionPerVisit, 1, ',', ' ') ?>
 										</td>
 									</tr>
 									<tr>
@@ -103,7 +103,7 @@
 											<?= $this->translate('Online borrowers') ?>
 										</td>
 										<td>
-											<?= $this->nbOnlineUsers ?>
+											<?= number_format($this->nbOnlineUsers, 0, ',', ' ') ?>
 										</td>
 									</tr>
 								</tbody>
@@ -137,10 +137,10 @@
 	        element: 'visits-comparision',
 	        data: [
 	        	{ label: "<?= $this->translate('Returning readers') ?>", 
-		          value: <?= $this->returningVisitorsCount ?> 
+		          value: <?= number_format($this->returningVisitorsCount, 0, ',', ' ') ?> 
 		        },
 			    { label: "<?= $this->translate('New readers') ?>", 
-				  value: <?= $this->newVisitorsCount ?> 
+				  value: <?= number_format($this->newVisitorsCount, 0, ',', ' ') ?> 
 				},
 			],
 	        resize: true
