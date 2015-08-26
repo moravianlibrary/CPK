@@ -66,7 +66,9 @@ if (isset($this->urlGetParams['libCard']))
 	<?php
 	if (isset($this->urlGetParams['dateFrom']) && isset($this->urlGetParams['dateTo']))
 		if ($this->urlGetParams['dateFrom'] AND $this->urlGetParams['dateTo'])
-			echo $this->urlGetParams['dateFrom'].' - '.$this->urlGetParams['dateTo'];
+			echo date_format(date_create($this->urlGetParams['dateFrom']), "d. m. Y")
+				.' - '
+				.date_format(date_create($this->urlGetParams['dateTo']), "d. m. Y");
 	?>
 	</span>
 
