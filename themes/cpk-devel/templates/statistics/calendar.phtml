@@ -53,7 +53,7 @@ if (isset($this->urlGetParams['libCard']))
 		<select id='libCard'>
 		    <option value='all' <? if (($libCard === 'all') OR (! $libCard)) echo 'selected'; ?>><?= $this->translate('All') ?></option>
 		    <? foreach ($this->cards as $card) :?>
-		    <option value='<?= $card ?>' <? if ($libCard === $card) echo 'selected'; ?>><?= $card ?></option>
+		    <option value='<?= $card ?>' <? if ($libCard === $card) echo 'selected'; ?>><?= $this->translate('source_'.$card) ?></option>
 			<? endforeach; ?>
 		</select>
 	</span>
