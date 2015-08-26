@@ -14,7 +14,6 @@
   <? if (count($this->driver->getCitationFormats()) > 0): ?>
     <li class="list-group-item"><a id="cite-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-cite', array('id'=>$id)) ?>" title="<?=$this->transEsc('Cite this')?>" rel="nofollow"><i class="fa fa-fw fa-asterisk"></i> <?=$this->transEsc('Cite this')?></a></li>
   <? endif; ?>
-  <li class="list-group-item"><a id="sms-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-sms', array('id'=>$id)) ?>" title="<?=$this->transEsc('Text this')?>" rel="nofollow"><i class="fa fa-fw fa-mobile"></i> <?=$this->transEsc('Text this')?></a></li>
   <li class="list-group-item"><a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow"><i class="fa fa-fw fa-envelope"></i> <?=$this->transEsc('Email this')?></a></li>
 
   <? $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>
