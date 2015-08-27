@@ -68,14 +68,15 @@ class Aleph extends AlephBase
     {
         $profile = parent::getMyProfile($user);
 
-        $blocks = null;
+        $blocks = [];
 
-        foreach ($profile['blocks'] as $block) {
-            if (! empty($this->eppnScope)) {
-                $blocks[$this->eppnScope] = (string) $block;
-            } else
-                $blocks[] = (string) $block;
-        }
+        if (isset($profile['blocks']))
+            foreach ($profile['blocks'] as $block) {
+                if (! empty($this->eppnScope)) {
+                    $blocks[$this->eppnScope] = (string) $block;
+                } else
+                    $blocks[] = (string) $block;
+            }
 
         $profile['blocks'] = $blocks;
 
@@ -176,10 +177,9 @@ class Aleph extends AlephBase
     }
 
     /**
-     * Parses the status from <status> tag .
+     * Parses the status from <status> tag
      *
-     *
-     * . Sometimes there is due date, thus
+     * Sometimes there is due date, thus
      * it will always return an array of both status & dueDate (which will often be null)
      *
      * @param \SimpleXMLElement $item
