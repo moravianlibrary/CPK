@@ -26,18 +26,19 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace CPK\Service;
+
 use Zend\ServiceManager\ServiceManager, VuFind\Service\Factory as FactoryBase;
 
 /**
  * Factory for various top-level VuFind services.
  *
  * @category VuFind2
- * @package  Service
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @package Service
+ * @author Demian Katz <demian.katz@villanova.edu>
+ * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link http://vufind.org/wiki/vufind2:developer_manual Wiki
  *
- * @codeCoverageIgnore
+ *       @codeCoverageIgnore
  */
 class Factory extends FactoryBase
 {
@@ -45,7 +46,8 @@ class Factory extends FactoryBase
     /**
      * Construct the HTTP service.
      *
-     * @param ServiceManager $sm Service manager.
+     * @param ServiceManager $sm
+     *            Service manager.
      *
      * @return \VuFindHttp\HttpService
      */
@@ -58,16 +60,14 @@ class Factory extends FactoryBase
 
             if (isset($config->Proxy->host)) {
                 $options['host'] = $config->Proxy->host;
-                if (isset($config->Proxy->port)) {
+
+                if (isset($config->Proxy->port))
                     $options['port'] = $config->Proxy->port;
 
-                    $options['socks5'] = true;
-                    // Configure curl adapter if is SOCKS 5 proxy desired
+                $options['socks5'] = true;
 
-                    return new \CPK\Http\HttpService($options);
-                }
+                return new \CPK\Http\HttpService($options);
             }
-
         }
 
         if (isset($config->Proxy->host)) {
@@ -80,5 +80,4 @@ class Factory extends FactoryBase
         $defaults = isset($config->Http) ? $config->Http->toArray() : [];
         return new \VuFindHttp\HttpService($options, $defaults);
     }
-
 }
