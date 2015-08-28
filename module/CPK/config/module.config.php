@@ -94,9 +94,7 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
-            'Perun\IdentityResolver' => 'CPK\Perun\Factory::getIdentityResolver', // TODO: This is deprecated, should we remove it?
             'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator', // Exceptions throwing system
-            'VuFind\Http' => 'CPK\Service\Factory::getHttp', // Needed for SOCKS 5 proxy support
         ),
         'invokables' => array(
             'wantitfactory' => 'CPK\WantIt\Factory'
