@@ -87,4 +87,19 @@ class Factory
         return $driver;
     }
 
+    public static function getSolrDublinCore(ServiceManager $sm)
+    {
+        $driver = new \CPK\RecordDriver\SolrDublinCore(
+                $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+                null,
+                $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+        );
+        $driver->attachILS(
+                $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+                $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+                $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+        );
+        return $driver;
+    }
+
 }
