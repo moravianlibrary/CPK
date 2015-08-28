@@ -62,8 +62,8 @@ class HttpService extends HttpServiceBase
 
                 if ($socks5) {
                     $adapter = new \Zend\Http\Client\Adapter\Curl();
-                    $host = $this->proxyConfig['host'];
-                    $port = $this->proxyConfig['port'];
+                    $host = $this->proxyConfig['proxy_host'];
+                    $port = $this->proxyConfig['proxy_port'];
 
                     $adapter->setCurlOption(CURLOPT_FOLLOWLOCATION, true);
                     $adapter->setCurlOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);

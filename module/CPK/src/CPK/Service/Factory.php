@@ -56,25 +56,15 @@ class Factory extends FactoryBase
         $config = $sm->get('VuFind\Config')->get('config');
         $options = [];
 
-        if (isset($config->Proxy->socks5) && $config->Proxy->socks5) {
-
-            if (isset($config->Proxy->host)) {
-                $options['host'] = $config->Proxy->host;
-
-                if (isset($config->Proxy->port))
-                    $options['port'] = $config->Proxy->port;
-
-                $options['socks5'] = true;
-
-                return new \CPK\Http\HttpService($options);
-            }
-        }
-
         if (isset($config->Proxy->host)) {
             $options['proxy_host'] = $config->Proxy->host;
+
             if (isset($config->Proxy->port)) {
                 $options['proxy_port'] = $config->Proxy->port;
             }
+
+            if (isset($config->Proxy->socks5) && $config->Proxy->socks5)
+                $options['socks5'] = true;
         }
 
         $defaults = isset($config->Http) ? $config->Http->toArray() : [];
