@@ -431,6 +431,11 @@ $config = [
                     'webresults' => 'VuFind\Recommend\Factory::getWebResults',
                     'worldcatidentities' => 'VuFind\Recommend\Factory::getWorldCatIdentities',
                     'worldcatterms' => 'VuFind\Recommend\Factory::getWorldCatTerms',
+                    'mapscale' => function($sm) {
+                        return new \VuFind\Recommend\MapScale(
+                            $sm->getServiceLocator()->get('VuFind\Config')
+                        );
+                    }
                 ],
                 'invokables' => [
                     'alphabrowselink' => 'VuFind\Recommend\AlphaBrowseLink',
