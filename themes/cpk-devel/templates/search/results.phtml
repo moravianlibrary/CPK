@@ -80,6 +80,9 @@
           <?=$this->transEsc('nohit_prefix')?> - <strong><?=$this->escapeHtml($lookfor)?></strong> - <?=$this->transEsc('nohit_suffix')?>
         <? endif; ?>
       </p>
+      <p>
+      	<?= $this->translate('nohit_recommendation') ?>
+      </p>
       <? if (isset($this->parseError)): ?>
         <p class="alert alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
       <? endif; ?>
