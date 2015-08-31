@@ -11,7 +11,7 @@
 		$logoKey = $this->config->IdPLogosMappedToSolr->$source ?: '';
 		$logoUrl = $this->config->IdPLogos->$logoKey ?: '' ?>
 
-<a class="title" href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>" <?=(++$i > $maxInstitutionsShown) ? 'hidden="hidden"' : '' ?>>
+<a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>" <?=(++$i > $maxInstitutionsShown) ? 'hidden="hidden"' : '' ?>>
     <div class="row root-title">
         <div class="col-sm-1 nopadding text-center">
             <? if($logoUrl): ?>
