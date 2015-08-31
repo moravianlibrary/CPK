@@ -2,6 +2,8 @@
 namespace CPK\RecordDriver;
 
 use CPK\RecordDriver\SolrMarc as ParentSolrMarc;
+use VuFind\XSLT\Import\VuFind;
+use VuFind\RecordDriver\Response;
 
 class SolrDublinCore extends ParentSolrMarc
 {
@@ -87,9 +89,9 @@ class SolrDublinCore extends ParentSolrMarc
      *
      * @return array
      */
-    protected function getPublicationInfo($subfield = 'a')
+    protected function getPublicationInfo()
     {
-        return "";
+        return [];
     }
 
     /**
@@ -239,6 +241,19 @@ class SolrDublinCore extends ParentSolrMarc
     }
 
     /**
+     * Get the main author of the record.
+     *
+     * @return string
+     */
+    public function getPrimaryAuthor()
+    {
+        $fullrecord = $this->fields['fullrecord'];
+        $dc = simplexml_load_string($fullrecord);
+        $value = $dc->xpath('//dc:creator');
+        return empty($value) ? "" : (string) $value[0];
+    }
+
+    /**
      * Get an array of all the languages associated with the record.
      *
      * @return array
@@ -277,6 +292,45 @@ class SolrDublinCore extends ParentSolrMarc
         }
 
         return $retval;
+    }
+
+    /**
+     * Get the item's places of publication.
+     *
+     * @return array
+     */
+    public function getPlacesOfPublication()
+    {
+        return [];
+    }
+
+    /**
+     * Get the publishers of the record.
+     *
+     * @return array
+     */
+    public function getPublishers()
+    {
+        $fullrecord = $this->fields['fullrecord'];
+        $dc = simplexml_load_string($fullrecord);
+        $value = $dc->xpath('//dc:publisher');
+        $ret[] = (string) $value[0];
+        return empty($value) ? [] : $ret;
+    }
+
+    /**
+     * Get human readable publication dates for display purposes (may not be suitable
+     * for computer processing -- use getPublicationDates() for that).
+     *
+     * @return array
+     */
+    public function getHumanReadablePublicationDates()
+    {
+        $fullrecord = $this->fields['fullrecord'];
+        $dc = simplexml_load_string($fullrecord);
+        $value = $dc->xpath('//dc:date');
+        $ret[] = (string) $value[0];
+        return empty($value) ? [] : $ret;
     }
 
     /**
@@ -366,6 +420,11 @@ class SolrDublinCore extends ParentSolrMarc
     public function get856Links()
     {
         return isset($this->fields['links_from_856_str']) ? $this->fields['links_from_856_str'][0] : false;
+    }
+
+    public function getParentRecordID()
+    {
+        return isset($this->fields['parent_id_str']) ? $this->fields['parent_id_str'] : [];
     }
 
 }
