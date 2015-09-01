@@ -68,6 +68,11 @@
             </table>
         <? endif; ?>
     <? endforeach; ?>
+
+    <? if (isset($this->paymentUrl)):?>
+      <a href="<?=$this->paymentUrl?>"><?=$this->transEsc('Online payment of fines')?></a>
+    <? endif; ?>
+
   <? endif; ?>
 </div>
 

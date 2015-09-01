@@ -50,18 +50,21 @@ class Aleph extends AlephBase
     {
         parent::init();
 
-        if (isset($this->config['Catalog']['available_statuses']))
+        if (isset($this->config['Catalog']['available_statuses'])) {
             $this->available_statuses = explode(self::AVAILABLE_STATUSES_DELIMITER, $this->config['Catalog']['available_statuses']);
+        }
 
-        if (isset($this->config['Catalog']['eppnScope']))
+        if (isset($this->config['Catalog']['eppnScope'])) {
             $this->eppnScope = $this->config['Catalog']['eppnScope'];
+        }
 
         if (isset($this->config['Availability']['maxItemsParsed'])) {
             $this->maxItemsParsed = intval($this->config['Availability']['maxItemsParsed']);
         }
 
-        if (! isset($this->maxItemsParsed) || $this->maxItemsParsed < 2)
+        if (!isset($this->maxItemsParsed) || $this->maxItemsParsed < 2) {
             $this->maxItemsParsed = 10;
+        }
     }
 
     public function getMyProfile($user)

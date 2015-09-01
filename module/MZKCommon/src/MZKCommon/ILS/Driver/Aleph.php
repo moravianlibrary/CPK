@@ -56,11 +56,17 @@ class Aleph extends AlephBase
 
     protected $hmacKey = null;
 
+    protected $paymentUrl = null;
+
+    protected $prolongRegistrationUrl = null;
+
+    /*
     // FIXME: move to configuration file
     const PAYMENT_URL = 'https://aleph.mzk.cz/cgi-bin/c-gpe1-vufind.pl';
 
     // FIXME: move to configuration file
     const PROLONG_REGISTRATION_URL = 'http://aleph.mzk.cz/cgi-bin/prodl_reg.pl';
+    */
 
     public function __construct(\VuFind\Date\Converter $dateConverter,
         \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null,
@@ -69,7 +75,7 @@ class Aleph extends AlephBase
         parent::__construct($dateConverter, $cacheManager, $searchService);
         $this->recordStatus = $recordStatus;
     }
-    
+
     public function init()
     {
         parent::init();
@@ -89,8 +95,14 @@ class Aleph extends AlephBase
             $this->wwwuser = $this->config['Catalog']['wwwuser'];
             $this->wwwpasswd = $this->config['Catalog']['wwwpasswd'];
         }
+        if (isset($this->config['Catalog']['payment_url'])) {
+            $this->paymentUrl = $this->config['Catalog']['payment_url'];
+        }
+        if (isset($this->config['Catalog']['prolong_registration_url'])) {
+            $this->prolongRegistrationUrl = $this->config['Catalog']['prolong_registration_url'];
+        }
     }
-    
+
     public function getStatuses($idList)
     {
         $statuses = $this->recordStatus->getByIds($this->availabilitySource, $idList);
@@ -246,6 +258,9 @@ class Aleph extends AlephBase
 
     public function getPaymentURL($patron, $fine)
     {
+        if ($this->paymentUrl == null) {
+            return null;
+        }
         $params = array (
             'id'     => $patron['id'],
             'adm'    => $this->useradm,
@@ -253,12 +268,20 @@ class Aleph extends AlephBase
             'time'   => time(),
         );
         $query = http_build_query($params);
-        $url = self::PAYMENT_URL . '?' . $query;
+        $url = $this->paymentUrl . '?' . $query;
         return $url;
     }
 
     public function getProlongRegistrationUrl($patron)
     {
+        if ($this->prolongRegistrationUrl == null) {
+            return null;
+        }
+        $expire = date_create_from_format('d. m. Y', $patron['expire']);
+        $dateDiff = date_diff($expire, date_create());
+        if ($dateDiff->days >= 31 || $dateDiff->invert == 0) {
+            return null;
+        }
         $hash = hash_hmac('sha256', $patron['id'], $this->hmacKey, true);
         $hash = base64_encode($hash);
         $params = array (
@@ -267,8 +290,9 @@ class Aleph extends AlephBase
             'hmac'   => $hash,
         );
         $query = http_build_query($params);
-        $url = self::PROLONG_REGISTRATION_URL . '?' . $query;
+        $url = $this->prolongRegistrationUrl . '?' . $query;
         return $url;
+
     }
 
 }

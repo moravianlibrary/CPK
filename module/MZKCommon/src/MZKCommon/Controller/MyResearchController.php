@@ -373,6 +373,10 @@ class MyResearchController extends MyResearchControllerBase
 
     public function profileAction()
     {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
         $view = parent::profileAction();
         if ($view) {
             $catalog = $this->getILS();

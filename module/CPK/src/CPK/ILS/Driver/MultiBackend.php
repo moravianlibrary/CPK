@@ -73,4 +73,25 @@ class MultiBackend extends MultiBackendBase
         } else
             return parent::getStatuses($ids);
     }
+
+    public function getProlongRegistrationUrl($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if (!$driver || !$this->methodSupported($driver, 'getProlongRegistrationUrl', compact('patron'))) {
+            return null;
+        }
+        return $driver->getProlongRegistrationUrl($patron);
+    }
+
+    public function getPaymentURL($patron, $fine)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if (!$driver || !$this->methodSupported($driver, 'getPaymentURL', compact('patron', 'fine'))) {
+            return null;
+        }
+        return $driver->getPaymentURL($patron, $fine);
+    }
+
 }
