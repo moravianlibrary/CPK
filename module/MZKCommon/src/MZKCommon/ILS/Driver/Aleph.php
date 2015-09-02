@@ -60,6 +60,8 @@ class Aleph extends AlephBase
 
     protected $prolongRegistrationUrl = null;
 
+    protected $prolongRegistrationStatus = null;
+
     /*
     // FIXME: move to configuration file
     const PAYMENT_URL = 'https://aleph.mzk.cz/cgi-bin/c-gpe1-vufind.pl';
@@ -100,6 +102,9 @@ class Aleph extends AlephBase
         }
         if (isset($this->config['Catalog']['prolong_registration_url'])) {
             $this->prolongRegistrationUrl = $this->config['Catalog']['prolong_registration_url'];
+        }
+        if (isset($this->config['Catalog']['prolong_registration_status'])) {
+            $this->prolongRegistrationStatus = $this->config['Catalog']['prolong_registration_status'];
         }
     }
 
@@ -277,6 +282,7 @@ class Aleph extends AlephBase
         if ($this->prolongRegistrationUrl == null) {
             return null;
         }
+        $status = '03';
         $expire = date_create_from_format('d. m. Y', $patron['expire']);
         $dateDiff = date_diff($expire, date_create());
         if ($dateDiff->days >= 31 || $dateDiff->invert == 0) {
@@ -285,9 +291,10 @@ class Aleph extends AlephBase
         $hash = hash_hmac('sha256', $patron['id'], $this->hmacKey, true);
         $hash = base64_encode($hash);
         $params = array (
-            'id'     => $patron['id'],
-            'from'   => 'vufind',
-            'hmac'   => $hash,
+            'id'           => $patron['id'],
+            'status_cten'  => $this->prolongRegistrationStatus,
+            'from'         => 'vufind',
+            'hmac'         => $hash,
         );
         $query = http_build_query($params);
         $url = $this->prolongRegistrationUrl . '?' . $query;

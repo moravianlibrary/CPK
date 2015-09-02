@@ -81,6 +81,7 @@ class MultiBackend extends MultiBackendBase
         if (!$driver || !$this->methodSupported($driver, 'getProlongRegistrationUrl', compact('patron'))) {
             return null;
         }
+        $patron = $this->stripIdPrefixes($patron, $source);
         return $driver->getProlongRegistrationUrl($patron);
     }
 
@@ -91,6 +92,7 @@ class MultiBackend extends MultiBackendBase
         if (!$driver || !$this->methodSupported($driver, 'getPaymentURL', compact('patron', 'fine'))) {
             return null;
         }
+        $patron = $this->stripIdPrefixes($patron, $source);
         return $driver->getPaymentURL($patron, $fine);
     }
 
