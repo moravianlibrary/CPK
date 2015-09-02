@@ -74,8 +74,8 @@ class RecordController extends RecordControllerBase
             $view->scrollData = $this->resultScroller()->getScrollData($driver);
         }
         
-        // get 886links
-        $linksFrom856 = $this->get886Links();
+        // get 856links
+        $linksFrom856 = $this->get856Links();
         if ($linksFrom856 !== false)
         	$view->linksFrom856 = $linksFrom856;
         
@@ -85,7 +85,7 @@ class RecordController extends RecordControllerBase
         return $view;
     }
 	
-    protected function get886Links()
+    protected function get856Links()
     {
     	$parentRecordID = $this->driver->getParentRecordID();
     	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
