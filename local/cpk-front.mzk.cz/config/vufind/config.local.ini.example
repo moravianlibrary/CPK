@@ -7,9 +7,6 @@ email           = vufind@mzk.cz
 theme		= cpk-devel-green
 defaultCurrency	= CZK
 
-[Record]
-marc_links = "773"
-
 [Catalog]
 library_cards = true
 
