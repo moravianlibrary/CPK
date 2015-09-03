@@ -128,6 +128,8 @@
 		      	
 		      	if ($this->sourceTitle['x']) {
 		      		$sourceTitleLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->sourceTitle['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} elseif ($this->sourceTitle['z']) {
+		      		$sourceTitleLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->sourceTitle['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
 		      	} else {
 		      		$sourceTitleLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->sourceTitle['t'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
 		      	}
