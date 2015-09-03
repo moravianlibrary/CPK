@@ -119,12 +119,20 @@
         </tr>
       <? endif; ?>
       
-      <? if (!empty($sourceTitle[0])): ?>
-        <tr>
-          <th><?=$this->transEsc('Source document')?>: </th>
-          <td><?=$sourceTitle[0]?></td>
-        </tr>
-      <? endif; ?>
+      <? if (! empty($sourceTitle[0])) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Source document')."</th>";
+	      
+		      if (! empty($this->field773x[0])) {
+		      	$sourceTitleLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field773x[0].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	echo "<td><a href='".$sourceTitleLink."' title='".$sourceTitle[0]."'>".$sourceTitle[0]."</a></td>";
+		      } else {
+		      	echo "<td>".$sourceTitle[0]."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
 
       <? $langs = $this->driver->getLanguages(); if (!empty($langs)): ?>
         <tr>

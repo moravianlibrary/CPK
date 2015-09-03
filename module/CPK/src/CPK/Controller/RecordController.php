@@ -85,6 +85,10 @@ class RecordController extends RecordControllerBase
         if ($sourceTitle !== false)
         	$view->sourceTitle = $sourceTitle;
         
+        $field773x = $this->driver->get773(array('x'));
+        if ($field773x !== false)
+        	$view->field773x = $field773x;
+        
         $view->config = $this->getConfig();
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
