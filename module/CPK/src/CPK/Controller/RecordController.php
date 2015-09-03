@@ -84,10 +84,10 @@ class RecordController extends RecordControllerBase
         if ($sourceDocument !== false)
         	$view->sourceDocument = $sourceDocument;
         
-        // get 770 - sourceTitle
-        $field770 = $this->driver->get770();
-        if ($field770 !== false)
-        	$view->field770 = $field770;
+        // get 772 - sourceTitle
+        $field772 = $this->driver->get772();
+        if ($field772 !== false)
+        	$view->field772 = $field772;
         
         $view->config = $this->getConfig();
 
