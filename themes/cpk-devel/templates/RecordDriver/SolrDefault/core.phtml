@@ -242,6 +242,31 @@
       	
       	}
       ?>
+      
+      <? if ( ! empty($this->field785['t'])  || ! empty($this->field785['g']) ) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Then like')."</th>";
+	      
+	      	$anchor = $this->field785['t'].$this->field785['g'];
+	      	
+		      if (! empty($this->field785['x']) || ! empty($this->field785['z']) || ! empty($this->field785['t'])) {
+		      	
+		      	if (! empty($this->field785['x'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field785['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field785['z'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field785['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field785['t'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field785['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	}
+		      	
+		      	echo "<td><a href='".$link."' title='".$anchor."'>".$anchor."</a></td>";
+		      } else {
+		      	echo "<td>".$anchor."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
 
       <? $langs = $this->driver->getLanguages(); if (!empty($langs)): ?>
         <tr>
