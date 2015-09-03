@@ -80,14 +80,9 @@ class RecordController extends RecordControllerBase
         	$view->linksFrom856 = $linksFrom856;
         
         // get 773 - sourceTitle
-        $subFieldsOf773 = array('t', 'd', 'x', 'g', 'q', '9');
-        $sourceTitle = $this->driver->get773($subFieldsOf773);
+        $sourceTitle = $this->driver->get773();
         if ($sourceTitle !== false)
         	$view->sourceTitle = $sourceTitle;
-        
-        $field773x = $this->driver->get773(array('x'));
-        if ($field773x !== false)
-        	$view->field773x = $field773x;
         
         $view->config = $this->getConfig();
 

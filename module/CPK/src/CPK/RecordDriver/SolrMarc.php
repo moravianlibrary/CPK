@@ -38,9 +38,14 @@ class SolrMarc extends ParentSolrMarc
         return $this->getFieldArray('996', $subfields);
     }
     
-    public function get773(array $subfields)
+    public function get773()
     {
-    	return $this->getFieldArray('773', $subfields);
+    	$subfields = ['t', 'd', 'x', 'g', 'q', '9'];
+    	$field773 = [];
+    	foreach ($subfields as $subfield) {
+    		$field773[$subfield] = $this->getFieldArray('773', array($subfield))[0];
+    	}
+    	return $field773;
     }
 
     protected function getAll996Subfields()
