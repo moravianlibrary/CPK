@@ -118,6 +118,13 @@
           <td><?=$this->record($this->driver)->getFormatList()?></td>
         </tr>
       <? endif; ?>
+      
+      <? if (!empty($sourceTitle[0])): ?>
+        <tr>
+          <th><?=$this->transEsc('Source')?>: </th>
+          <td><?=$sourceTitle[0]?></td>
+        </tr>
+      <? endif; ?>
 
       <? $langs = $this->driver->getLanguages(); if (!empty($langs)): ?>
         <tr>

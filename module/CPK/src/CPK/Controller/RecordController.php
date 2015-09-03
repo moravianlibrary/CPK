@@ -79,6 +79,12 @@ class RecordController extends RecordControllerBase
         if ($linksFrom856 !== false)
         	$view->linksFrom856 = $linksFrom856;
         
+        // get 773 - sourceTitle
+        $subFieldsOf773 = array('t', 'd', 'x', 'g', 'q', '9');
+        $sourceTitle = $this->driver->get773($subFieldsOf773);
+        if ($sourceTitle !== false)
+        	$view->sourceTitle = $sourceTitle;
+        
         $view->config = $this->getConfig();
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
