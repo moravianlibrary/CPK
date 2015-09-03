@@ -5,6 +5,7 @@ debug           = false
 url             = https://cpk-front.mzk.cz/
 email           = vufind@mzk.cz
 theme		= cpk-devel-green
+defaultCurrency	= CZK
 
 [Catalog]
 library_cards = true
