@@ -55,13 +55,24 @@
               <input type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
             </div>
           <? endif; ?>
-          <div class="col-sm-2 col-xs-11 text-center">
-            <? if ($summThumb = $this->record($resource)->getThumbnail()): ?>
-              <img src="<?=$this->escapeHtmlAttr($summThumb)?>" class="recordcover" alt="<?=$this->transEsc('Cover Image')?>"/>
-            <? else: ?>
-              <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
-            <? endif; ?>
+          <div class="col-md-2 text-center">
+            <?
+            $recordId = $resource->getUniqueId();
+            $backLink = $this->serverUrl($this->recordLink()->getUrl($resource));
+            $formats = $resource->getFormats();
+            ?>
+            <? $recordId =  preg_replace("/\./", "", $recordId)?>
+            <div id="cover_<?=$recordId?>" class="coverThumbnail">
+              <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
+                <script type="text/javascript">
+                  $(document).ready(function() {
+                    obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($resource)->getObalkyKnihAdvert('checkedout'))?>);
+                  });
+                </script>
+              <? endif;?>
+            </div>
           </div>
+
           <div class="col-sm-6 col-xs-12">
             <?
               // If this is a non-missing Solr record, we should display a link:
