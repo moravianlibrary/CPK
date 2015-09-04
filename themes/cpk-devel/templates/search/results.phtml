@@ -42,11 +42,6 @@
 
 <div class="row">
   <? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
-  <div class="well" style="padding: 0px;">
-    <? foreach ($this->results->getRecommendations('top') as $current): ?>
-      <?=$this->recommend($current)?>
-    <? endforeach; ?>
-  </div>
   <? endif; ?>
   <div class="<?=$this->layoutClass('mainbody')?>">
     <?=$this->flashmessages()?>
