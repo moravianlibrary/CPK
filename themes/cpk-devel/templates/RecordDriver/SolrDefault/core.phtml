@@ -118,55 +118,37 @@
           <td><?=$this->record($this->driver)->getFormatList()?></td>
         </tr>
       <? endif; ?>
-      
+        
 	<?
-		if (count($this->sourceDocument)) {
-			echo "<tr><th>".$this->transEsc('Source document')."</th>";
-			echo "<td>";
-			foreach ($this->sourceDocument as $field) {
-
-			    if (! empty($field['t'])) {
-			      	$anchor = join(" ", $field);
-			      	
-			      	if (! empty($field['x'])) {
-			      		$sourceDocumentLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$field['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
-			      	} elseif (! empty($field['z'])) {
-			      		$sourceDocumentLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$field['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
-			      	} else {
-			      		$sourceDocumentLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$field['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
-			      	}
-			      	
-			      	echo "<a href='".$sourceDocumentLink."' title='".$anchor."'>".$anchor."</a><br>";
-			    } else {
-			      	echo $anchor."<br>";
-			    }
-
-			}
-			echo "</td>";
-			echo "</tr>";
-		}
-	?>
-      
-	<?
-		$enabled7xxFields = ['770', '772', '777', '780', '785'];
+	// 	a bit of magic now
+		$enabled7xxFields = ['773', '770', '772', '777', '780', '785'];
 		$fieldsOf7xx = [];
 		foreach($enabled7xxFields as $enabledField) {
 			$varName = 'field'.$enabledField;
-			$fieldsOf7xx[] = $this->$varName;
+			$translated[$varName] = $this->translate($varName); // e.g. field785
+			$fieldsOf7xx[$enabledField] = $this->$varName;
 		}
 
-		foreach($fieldsOf7xx as $activeField) {
-			
+		foreach($fieldsOf7xx as $number => $activeField) {
+			$i = 0;
 			foreach ($activeField as $field) {
 			
 				if (null === $field)
 					continue;
 				
+				if (count($activeField)) {
+					++$i;
+					if($i === 1)
+						echo "<tr><th>".$this->transEsc('field'.$number)."</th><td>";
+					}
+				
 				if ( ! empty($field['t']) || ! empty($field['g']) ) {
 					 
-					echo "<tr><th>".$this->transEsc('Then like')."</th>";
-					 
-					$anchor = $field['t'].$field['g'];
+					if($activeField === $this->field733) {
+						$anchor = join(" ", $field);
+					} else {
+						$anchor = $field['t'].$field['g'];
+					}
 				
 					if (! empty($field['x']) || ! empty($field['z']) || ! empty($field['t'])) {
 						 
@@ -178,15 +160,17 @@
 							$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$field['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
 						}
 						 
-						echo "<td><a href='".$link."' title='".$anchor."'>".$anchor."</a></td>";
+						echo "<a href='".$link."' title='".$anchor."'>".$anchor."</a><br>\n";
 					} else {
-						echo "<td>".$anchor."</td>";
+						echo $anchor."<br>\n";
 					}
-					echo "</tr>";
-					 
+					
 				}
 				
 			}
+			echo "</td>";
+			echo "</tr>";
+			
 		}
 	?>
 

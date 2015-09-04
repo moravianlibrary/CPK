@@ -78,14 +78,9 @@ class RecordController extends RecordControllerBase
         $linksFrom856 = $this->get856Links();
         if ($linksFrom856 !== false)
         	$view->linksFrom856 = $linksFrom856;
-        
-        // get 773 - sourceTitle
-        $sourceDocument = $this->driver->get773();
-        if ($sourceDocument !== false)
-        	$view->sourceDocument = $sourceDocument;
-        
-        $fieldsOf7xx = ['770', '772', '777', '780', '785'];
-        $subfieldsOf733 = ['t', 'g', 'x', 'z'];
+                
+        $fieldsOf7xx = ['773', '770', '772', '777', '780', '785'];
+        $subfieldsOf733 = ['t', 'd', 'x', 'g', 'q', '9', 'z'];
         foreach ($fieldsOf7xx as $field) {
         	$field7xx = $this->driver->get7xxField($field, $subfieldsOf733);
         	if ($field7xx !== false) {
