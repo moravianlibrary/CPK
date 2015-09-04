@@ -1,4 +1,4 @@
-<span class="label label-info"><?=$this->translate('Found in these institutions') ?>:</span>
+<span class=""><?=$this->translate('Found in these institutions') ?>:</span>
 
 <div class="col-sm-12 dedupInformation">
 
@@ -28,7 +28,7 @@
 
 <? if ($i > $maxInstitutionsShown): ?>
 <div class="margin-bottom">
-    <div onclick="showNextInstitutions(this);" class="show-next-institutions text-center"><?=$this->translate('Show next institutions')?></div>
+    <div onclick="showNextInstitutions(this);" class="show-next-institutions text-center"><a><?=$this->translate('Show next institutions')?><b class="caret"></b></a></div>
 </div>
 <? endif; ?>
 
