@@ -66,7 +66,6 @@ $config = array(
                     'Buy' => 'Buy',
                     'Description' => 'Description',
                     'TOC' => 'TOC',
-                    'UserComments' => 'UserComments',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews',
                     'Excerpt' => 'Excerpt',

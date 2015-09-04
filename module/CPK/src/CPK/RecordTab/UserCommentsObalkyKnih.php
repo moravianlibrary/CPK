@@ -73,6 +73,6 @@ class UserCommentsObalkyKnih extends AbstractBase
      */
     public function getDescription()
     {
-        return 'Comments-ObalkyKnih';
+        return 'Comments';
     }
 }
