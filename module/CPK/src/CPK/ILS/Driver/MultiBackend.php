@@ -57,21 +57,35 @@ class MultiBackend extends MultiBackendBase
      * @throws ILSException
      * @return array An array of getStatus() return values on success.
      */
-    public function getStatuses($ids, $nextItemToken = null)
+    public function getStatuses($ids)
     {
         // We assume all the ids passed here are being processed by only one ILS/Driver
         $source = $this->getSource(reset($ids));
         $driver = $this->getDriver($source);
+
+        if ($driver === null)
+            return $this->getEmptyStatuses($ids);
 
         if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
             }
 
-            $statuses = $driver->getStatuses($ids, $nextItemToken);
+            $statuses = $driver->getStatuses($ids);
             return $this->addIdPrefixes($statuses, $source);
         } else
             return parent::getStatuses($ids);
+    }
+
+    protected function getEmptyStatuses($ids)
+    {
+        $emptyStatuses = [];
+
+        foreach ($ids as $id)
+            $emptyStatuses[]['id'] = $id;
+
+        return $emptyStatuses;
+
     }
 
     public function getProlongRegistrationUrl($patron)
@@ -113,5 +127,4 @@ class MultiBackend extends MultiBackendBase
         }
         return parent::supportsMethod($method, $params);
     }
-
 }

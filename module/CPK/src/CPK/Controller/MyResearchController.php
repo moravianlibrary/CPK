@@ -165,7 +165,10 @@ class MyResearchController extends MyResearchControllerBase
 
         foreach ($identities as $identity) {
 
-            $patron = $this->parsePatronFromIdentity($identity);
+            $profileFetched = $identity->cat_username === $patron['cat_username'];
+
+            if (! $profileFetched)
+                $patron = $this->parsePatronFromIdentity($identity);
             // Start of VuFind/MyResearch/holdsAction
 
             // Connect to the ILS:
@@ -239,7 +242,10 @@ class MyResearchController extends MyResearchControllerBase
 
         foreach ($identities as $identity) {
 
-            $patron = $this->parsePatronFromIdentity($identity);
+            $profileFetched = $identity->cat_username === $patron['cat_username'];
+
+            if (! $profileFetched)
+                $patron = $this->parsePatronFromIdentity($identity);
 
             // Start of VuFind/MyResearch/checkedoutAction
 

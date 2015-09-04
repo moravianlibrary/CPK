@@ -27,7 +27,7 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\AjaxController as AjaxControllerBase;
+use MZKCommon\Controller\AjaxController as AjaxControllerBase, VuFind\Exception\ILS as ILSException;
 
 /**
  * This controller handles global AJAX functionality
@@ -63,7 +63,8 @@ class AjaxController extends AjaxControllerBase
 
         // GoogleBooks & Zbozi.cz
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-        $buyChoiceHandler = $wantItFactory->createBuyChoiceHandlerObject($recordDriver);
+        $buyChoiceHandler = $wantItFactory->createBuyChoiceHandlerObject(
+            $recordDriver);
 
         $gBooksLink = $buyChoiceHandler->getGoogleBooksVolumeLink();
         $zboziLink = $buyChoiceHandler->getZboziLink();
@@ -155,9 +156,11 @@ class AjaxController extends AjaxControllerBase
         $allParams = array_merge($params, $additionalParams);
 
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject(
+            $recordDriver);
 
-        $sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+        $sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url,
+            $allParams);
 
         $vars[] = array(
             'sfxResult' => $sfxResult
@@ -194,9 +197,11 @@ class AjaxController extends AjaxControllerBase
         $allParams = array_merge($params, $additionalParams);
 
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject(
+            $recordDriver);
 
-        $ss360linkResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+        $ss360linkResult = $electronicChoiceHandler->getRequestDataResponseAsArray(
+            $url, $allParams);
 
         $vars[] = array(
             'ss360link' => $ss360linkResult
@@ -233,9 +238,11 @@ class AjaxController extends AjaxControllerBase
         $allParams = array_merge($params, $additionalParams);
 
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
-        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject($recordDriver);
+        $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject(
+            $recordDriver);
 
-        $ebscoLinksourceResult = $electronicChoiceHandler->getRequestDataResponseAsArray($url, $allParams);
+        $ebscoLinksourceResult = $electronicChoiceHandler->getRequestDataResponseAsArray(
+            $url, $allParams);
 
         $vars[] = array(
             'ebscoLinksource' => $ebscoLinksourceResult
@@ -251,18 +258,18 @@ class AjaxController extends AjaxControllerBase
         $ids = $this->params()->fromPost('ids');
 
         if (null === $ids)
-            return $this->output('There has been sent empty "ids" Object', self::STATUS_ERROR);
-
-        $nextItemToken = $this->params()->fromQuery('nextItemToken');
+            return $this->output('There has been sent empty "ids" Object',
+                self::STATUS_ERROR);
 
         $ilsDriver = $this->getILS()->getDriver();
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
-            $statuses = $ilsDriver->getStatuses($ids, $nextItemToken);
+            $statuses = $ilsDriver->getStatuses($ids);
 
             if (null === $statuses)
-                return $this->output('$ilsDriver->getStatuses returned null', self::STATUS_ERROR);
+                return $this->output('$ilsDriver->getStatuses returned null',
+                    self::STATUS_ERROR);
 
             $itemsStatuses = [];
 
@@ -271,7 +278,11 @@ class AjaxController extends AjaxControllerBase
             foreach ($statuses as $status) {
                 $id = $status['id'];
 
-                $itemsStatuses[$id]['status'] = $viewRend->transEsc('status_' . $status['status'], null, $status['status']);
+                $itemsStatuses[$id] = [];
+
+                if (! empty($status['status']))
+                    $itemsStatuses[$id]['status'] = $viewRend->transEsc(
+                        'status_' . $status['status'], null, $status['status']);
 
                 if (! empty($status['due_date']))
                     $itemsStatuses[$id]['due_date'] = $status['due_date'];
@@ -286,7 +297,9 @@ class AjaxController extends AjaxControllerBase
             $retVal['statuses'] = $itemsStatuses;
             return $this->output($retVal, self::STATUS_OK);
         } else
-            return $this->output("ILS Driver isn't instanceof MultiBackend - ending job now.", self::STATUS_ERROR);
+            return $this->output(
+                "ILS Driver isn't instanceof MultiBackend - ending job now.",
+                self::STATUS_ERROR);
     }
 
     /**

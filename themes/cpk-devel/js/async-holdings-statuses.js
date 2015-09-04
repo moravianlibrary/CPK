@@ -83,8 +83,11 @@ function updateHoldingId(id, value, setDangerLabel) {
 
     // Escape special chars ..
     id = id.replace(/([.:])/g, '\\$1');
+    
+    if (! id)
+        return null;
 
-    var tableRow = $("tr#" + id), 
+    var tableRow = $("tr#" + id),
         statusDiv = tableRow.find('div')[1], 
         icon = $(statusDiv).children('i'),
         label = $(statusDiv).children('span.label');

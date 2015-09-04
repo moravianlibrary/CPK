@@ -721,7 +721,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      * @throws ILSException
      * @return array Array of return values from getStatus.
      */
-    public function getStatuses($ids, $nextItemToken = null)
+    public function getStatuses($ids)
     {
         $retVal = [];
 
@@ -730,7 +730,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $retVal[] = $this->getStatus(reset($ids));
         else {
 
-            $request = $this->requests->getStatuses($ids, $nextItemToken, $this);
+            $request = $this->requests->getStatuses($ids, null, $this);
             $response = $this->sendRequest($request);
 
             if ($response === null)
