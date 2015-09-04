@@ -53,19 +53,17 @@
 
   $trClass = ($rowNo % 2) == 0 ? 'oddrow' : 'evenrow' ;
   ?>
-  <tr <? if (! empty($row['uniqueRowId'])): ?>class="<?=$trClass?>" id="<?=$row['uniqueRowId']?>"<? else: ?>class="danger"<? endif; ?> >
+  <tr class="<?=$trClass?>" <? if (! empty($row['uniqueRowId'])): ?>id="<?=$row['uniqueRowId']?>"<? endif; ?> >
 
     <td data-title="<?=$this->transEsc("item status")?>">
       <div class="jt" title="<?=$this->transEsc('Description Status')?>">
         <span class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
       </div>
 
-      <? if (!empty($row['uniqueRowId'])): ?>
         <div>
           <i class="fa fa-spinner fa-spin"></i>
           <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
         </div>
-      <? endif; ?>
 
       <? if (!empty($row['reserve']) && $row['reserve'] == "Y"): ?>
       <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?>

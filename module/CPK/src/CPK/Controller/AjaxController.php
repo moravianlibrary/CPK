@@ -150,7 +150,8 @@ class AjaxController extends AjaxControllerBase
             'ctx_ver' => 'Z39.88-2004',
             'ctx_enc' => 'info:ofi/enc:UTF-8',
             'sfx.response_type' => 'simplexml',
-        	'rft.isbn' => str_replace("-", "", (string) $recordDriver->getCleanISBN())
+            'rft.isbn' => str_replace("-", "",
+                (string) $recordDriver->getCleanISBN())
         );
 
         $allParams = array_merge($params, $additionalParams);
@@ -257,8 +258,10 @@ class AjaxController extends AjaxControllerBase
         $request = $this->getRequest();
         $ids = $this->params()->fromPost('ids');
 
+        $viewRend = $this->getViewRenderer();
+
         if (null === $ids)
-            return $this->output('There has been sent empty "ids" Object',
+            return $this->output(['status' => $this->getTranslatedUnknownStatus($viewRend)],
                 self::STATUS_ERROR);
 
         $ilsDriver = $this->getILS()->getDriver();
@@ -273,8 +276,6 @@ class AjaxController extends AjaxControllerBase
 
             $itemsStatuses = [];
 
-            $viewRend = $this->getViewRenderer();
-
             foreach ($statuses as $status) {
                 $id = $status['id'];
 
@@ -288,12 +289,9 @@ class AjaxController extends AjaxControllerBase
                     $itemsStatuses[$id]['label'] = 'label-danger';
 
                     // And set the status to unknown status
-                    $status['status'] = 'Unknown Status';
-
-                    $itemsStatuses[$id]['status'] = $viewRend->transEsc(
-                        'status_' . $status['status'], null, $status['status']);
+                    $itemsStatuses[$id]['status'] = $this->getTranslatedUnknownStatus(
+                        $viewRend);
                 }
-
 
                 if (! empty($status['due_date']))
                     $itemsStatuses[$id]['due_date'] = $status['due_date'];
@@ -347,5 +345,11 @@ class AjaxController extends AjaxControllerBase
         }
 
         return $retVal;
+    }
+
+    protected function getTranslatedUnknownStatus($viewRend)
+    {
+        $initialString = 'Unknown Status';
+        return $viewRend->transEsc('status_' . $initialString, null, $initialString);
     }
 }

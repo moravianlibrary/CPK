@@ -34,15 +34,9 @@ function getHoldingsIds(includingBeingLoadedIds) {
     if (typeof includingBeingLoadedIds === 'undefined')
         includingBeingLoadedIds = false;
 
-    var selector, ids = [];
+    var ids = [];
 
-    if (includingBeingLoadedIds) {
-        selector = 'div#holdings-tab tbody tr:not(.loaded)';
-    } else {
-        selector = 'div#holdings-tab tbody tr:not(.loading, .loaded)';
-    }
-
-    $(selector).each(function() {
+    getAllNotLoadedHoldings(includingBeingLoadedIds).each(function() {
         ids.push($(this).attr('id'));
 
         // Add loading class so that we know about being it parsed
@@ -50,6 +44,22 @@ function getHoldingsIds(includingBeingLoadedIds) {
     });
 
     return ids;
+}
+
+function getAllNotLoadedHoldings(includingBeingLoaded) {
+
+    if (typeof includingBeingLoaded === 'undefined')
+        includingBeingLoaded = true;
+
+    var selector;
+
+    if (includingBeingLoaded) {
+        selector = 'div#holdings-tab tbody tr:not(.loaded)';
+    } else {
+        selector = 'div#holdings-tab tbody tr:not(.loading, .loaded)';
+    }
+    
+    return $(selector);
 }
 
 function processGetHoldingStatusesResponse(r) {
@@ -69,8 +79,7 @@ function processGetHoldingStatusesResponse(r) {
     } else {
 
         // Show error messages
-        var ids = getHoldingsIds(true);
-        $.each(ids, function() {
+        getAllNotLoadedHoldings(true).each(function() {
             updateHoldingId(this, data, true);
         });
     }
@@ -78,17 +87,27 @@ function processGetHoldingStatusesResponse(r) {
 
 function updateHoldingId(id, value, setDangerLabel) {
 
-    if (typeof isItBad === 'undefined')
+    if (typeof setDangerLabel === 'undefined')
         setDangerLabel = false;
-
-    // Escape special chars ..
-    id = id.replace(/([.:])/g, '\\$1');
+    
+    var tableRow;
     
     if (! id)
         return null;
+    
+    if (typeof id === 'object') {
+        
+        tableRow = $(id);
+                
+    } else {
 
-    var tableRow = $("tr#" + id),
-        statusDiv = tableRow.find('div')[1], 
+        // Escape special chars ..
+        id = id.replace(/([.:])/g, '\\$1');
+        
+        tableRow = $("tr#" + id);
+    }
+    
+    var statusDiv = tableRow.find('div')[1], 
         icon = $(statusDiv).children('i'),
         label = $(statusDiv).children('span.label');
 
