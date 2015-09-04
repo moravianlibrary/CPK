@@ -64,7 +64,6 @@ $config = array(
                     'Holdings' => 'HoldingsILS',
                     'EVersion' => 'EVersion',
                     'Buy' => 'Buy',
-                    'Description' => 'Description',
                     'TOC' => 'TOC',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews',
