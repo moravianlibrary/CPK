@@ -212,4 +212,24 @@ class Aleph extends AlephBase
             $dueDate
         ];
     }
+
+    public function resolveIds(&$recordsToResolve)
+    {
+        $idsToResolve = array();
+        foreach ($recordsToResolve as $record) {
+            $identifier = $record[$this->itemIdentifier];
+            if (isset($identifier) && !empty($identifier)) {
+                $idsToResolve[] = $record[$this->itemIdentifier];
+            }
+        }
+        $resolved = $this->convertToIDUsingSolr($idsToResolve);
+        foreach ($recordsToResolve as &$record) {
+            if (isset($record[$this->itemIdentifier])) {
+                $id = $record[$this->itemIdentifier];
+                if (isset($resolved[$id])) {
+                    $record['id'] = explode(".",$resolved[$id])[1];
+                }
+            }
+        }
+    }
 }
