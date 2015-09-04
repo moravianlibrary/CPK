@@ -283,6 +283,17 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['status']))
                     $itemsStatuses[$id]['status'] = $viewRend->transEsc(
                         'status_' . $status['status'], null, $status['status']);
+                else {
+                    // The status is empty - set label to 'label-danger'
+                    $itemsStatuses[$id]['label'] = 'label-danger';
+
+                    // And set the status to unknown status
+                    $status['status'] = 'Unknown Status';
+
+                    $itemsStatuses[$id]['status'] = $viewRend->transEsc(
+                        'status_' . $status['status'], null, $status['status']);
+                }
+
 
                 if (! empty($status['due_date']))
                     $itemsStatuses[$id]['due_date'] = $status['due_date'];

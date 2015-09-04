@@ -105,20 +105,23 @@ function updateHoldingId(id, value, setDangerLabel) {
     }
 
     var dueDate = value.due_date;
-    if (typeof dueDate === 'undefined') {
-
-        if (setDangerLabel) {
-            label.removeClass('label-primary').addClass('label-danger');
-        } else {
-            label.removeClass('label-primary').addClass('label-success');
-        }
+    if (typeof dueDate !== 'undefined') {
         
-    } else {
         // We have some due date here ..
         var dueDateColumn = $(tableRow.children('td')[1]);
         dueDateColumn.text(dueDate);
 
         label.removeClass('label-primary').addClass('label-warning');
+        
+    } else {
+
+        if (setDangerLabel) {
+            label.removeClass('label-primary').addClass('label-danger');
+        } else {
+            var labelType = typeof value.label === 'undefined' ? 'label-success' : value.label;
+            
+            label.removeClass('label-primary').addClass(labelType);
+        }
     }
 
     tableRow.removeClass('loading').addClass('loaded');
