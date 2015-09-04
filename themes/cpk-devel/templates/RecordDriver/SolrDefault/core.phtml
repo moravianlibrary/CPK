@@ -121,7 +121,7 @@
         
 	<?
 	// 	a bit of magic now
-		$enabled7xxFields = ['773', '770', '772', '777', '780', '785'];
+		$enabled7xxFields = explode(",", $this->config->Record->fields_in_core);
 		$fieldsOf7xx = [];
 		foreach($enabled7xxFields as $enabledField) {
 			$varName = 'field'.$enabledField;

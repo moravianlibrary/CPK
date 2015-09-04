@@ -7,6 +7,13 @@ email           = vufind@mzk.cz
 theme		= cpk-devel-green
 defaultCurrency	= CZK
 
+[Record]
+;This will build links from 7xx fiedls. Link is build from subfields x or z for searching by ISN, 
+; or t for searching by AllFields.\
+;Anchor is build from subfields t and g. Anchor in field 773 is build from all subfields.
+;It is better than ;marc_links so use this instead of ;marc_link
+fields_in_core = "773,770,772,777,780,785"
+
 [Catalog]
 library_cards = true
 

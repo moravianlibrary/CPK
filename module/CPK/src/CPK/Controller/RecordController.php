@@ -79,7 +79,7 @@ class RecordController extends RecordControllerBase
         if ($linksFrom856 !== false)
         	$view->linksFrom856 = $linksFrom856;
                 
-        $fieldsOf7xx = ['773', '770', '772', '777', '780', '785'];
+        $fieldsOf7xx = explode(",", $this->getConfig()->Record->fields_in_core);
         $subfieldsOf733 = ['t', 'd', 'x', 'g', 'q', '9', 'z'];
         foreach ($fieldsOf7xx as $field) {
         	$field7xx = $this->driver->get7xxField($field, $subfieldsOf733);
