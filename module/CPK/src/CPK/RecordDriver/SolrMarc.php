@@ -43,59 +43,41 @@ class SolrMarc extends ParentSolrMarc
     	$subfields = ['t', 'd', 'x', 'g', 'q', '9'];
     	$field773 = [];
     	foreach ($subfields as $subfield) {
-    		$field773[$subfield] = $this->getFieldArray('773', array($subfield))[0];
+    		$field773[$subfield] = $this->getFieldArray('773', array($subfield));
     	}
-    	return $field773;
-    }
-
-    public function get770()
-    {
-    	$subfields = ['t', 'g', 'x', 'z', 't'];
-    	$field = [];
-    	foreach ($subfields as $subfield) {
-    		$field[$subfield] = $this->getFieldArray('770', array($subfield))[0];
+    	
+    	$resultArray = [];
+    	foreach ($field773 as $subfieldKey => $subfieldValue) {
+    		foreach ($subfieldValue as $intKey => $value) {
+    			$resultArray[$intKey][$subfieldKey] = $value; 
+    		}
     	}
-    	return $field;
+    	
+    	return $resultArray;
     }
     
-    public function get772()
-    {
-    	$subfields = ['t', 'g', 'x', 'z', 't'];
-    	$field = [];
+    public function get7xxField($field, array $subfields = null) {
+    	$array = [];
+    	$notFalseSubfields = 0;
     	foreach ($subfields as $subfield) {
-    		$field[$subfield] = $this->getFieldArray('772', array($subfield))[0];
+    		$result = $this->getFieldArray($field, array($subfield));
+    		if (count($result))
+    			++$notFalseSubfields;
+    		
+    		$array[$subfield] = $result;
     	}
-    	return $field;
-    }
-    
-    public function get777()
-    {
-    	$subfields = ['t', 'g', 'x', 'z', 't'];
-    	$field = [];
-    	foreach ($subfields as $subfield) {
-    		$field[$subfield] = $this->getFieldArray('777', array($subfield))[0];
+    	
+    	if ($notFalseSubfields === 0)
+    		return false;
+    	
+    	$resultArray = [];
+    	foreach ($array as $subfieldKey => $subfieldValue) {
+    		foreach ($subfieldValue as $intKey => $value) {
+    			$resultArray[$intKey][$subfieldKey] = $value;
+    		}
     	}
-    	return $field;
-    }
-    
-    public function get780()
-    {
-    	$subfields = ['t', 'g', 'x', 'z', 't'];
-    	$field = [];
-    	foreach ($subfields as $subfield) {
-    		$field[$subfield] = $this->getFieldArray('780', array($subfield))[0];
-    	}
-    	return $field;
-    }
-    
-    public function get785()
-    {
-    	$subfields = ['t', 'g', 'x', 'z', 't'];
-    	$field = [];
-    	foreach ($subfields as $subfield) {
-    		$field[$subfield] = $this->getFieldArray('785', array($subfield))[0];
-    	}
-    	return $field;
+    	
+    	return $resultArray;
     }
 
     protected function getAll996Subfields()
