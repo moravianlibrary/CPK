@@ -1,6 +1,7 @@
 function loadMapSelection(
         geoField, boundingBox, baseURL, searchParams, showSelection) {
     var init = true;
+    var useWKT = true;
     var srcProj = new OpenLayers.Projection('EPSG:4326');
     var dstProj = new OpenLayers.Projection('EPSG:900913')
     $('#geo_search').show();
@@ -15,18 +16,29 @@ function loadMapSelection(
                 featureadded: function(e) {
                     if (init) {
                         return;
-                    }    
+                    }
                     var box = e.feature.geometry.getBounds().transform(
                             dstProj, srcProj).toArray();
-                    box[0] = Math.max(-180, box[0]);
-                    box[1] = Math.max(-85, box[1]);
-                    box[2] = Math.min(180, box[2]);
-                    box[3] = Math.min(85, box[3]);
-                    
-                    var rawFilter = encodeURIComponent(
-                            geoField + ':"Intersects(' + box.join(' ') + ')"');
-                    location.href = baseURL + searchParams
-                                    + "&filter[]=" + rawFilter;
+                    var rawFilter = null;
+                    if (useWKT) {
+                        var polygon = "POLYGON(({0} {1}, {2} {1}, {2} {3}, {0} {3}, {0} {1}))"
+                            .replace(/\{0\}/g, box[0])
+                            .replace(/\{1\}/g, box[1])
+                            .replace(/\{2\}/g, box[2])
+                            .replace(/\{3\}/g, box[3]);
+                        rawFilter = encodeURIComponent(
+                                geoField + ':"Intersects(' + polygon + ')"');
+                    } else {
+                        box[0] = Math.max(-180, box[0]);
+                        box[1] = Math.max(-85, box[1]);
+                        box[2] = Math.min(180, box[2]);
+                        box[3] = Math.min(85, box[3]);
+                        rawFilter = encodeURIComponent(
+                                geoField + ':"Intersects(' + box.join(' ') + ')"');
+                    }
+                    if (rawFilter != null) {
+                        location.href = baseURL + searchParams + "&filter[]=" + rawFilter;
+                    }
                 }
             }
         }

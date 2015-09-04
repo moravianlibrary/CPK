@@ -6,14 +6,35 @@
 
 <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
 <script>
+
+	function extractDomain( url )
+	{
+	    var domain;
+	    
+	    //find & remove protocol (http, ftp, etc.) and get domain
+	    if (url.indexOf("://") > -1) {
+	        domain = url.split('/')[2];
+	    } else {
+	        domain = url.split('/')[0];
+	    }
+	
+	    //find & remove port number
+	    domain = domain.split(':')[0];
+	
+	    return domain;
+	}
+
 	jQuery( document ).ready( function( $ ) {
 
 		if ( typeof sfxJibResult == "undefined" )
 			var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY'); /* @FIXME	When page with tabs is reloaded
 			 this script does not see this function declared in view.phtml so sfxJibResult is still undefined */
-
-		if ( sfxJibResult.data[0]['sfxResult'] !== '' ) {
-			$( "#sfx-jib-ajax-result" ).html( '<pre>' + JSON.stringify(sfxJibResult.data[0]['sfxResult']) + '</pre>' );
+			 
+		if ( sfxJibResult.data[0]['sfxResult']['targets']['target'] !== '' ) {
+			for (var i = 0; i <= sfxJibResult.data[0]['sfxResult']['targets']['target'].length; i++) {
+				var url = sfxJibResult.data[0]['sfxResult']['targets']['target'][i]['target_url'];
+				$( "#sfx-jib-ajax-result" ).append( "<a href='"+url+"'>"+extractDomain(url)+"</a>" + '<br>' );
+			}
 		}
 		
 	});

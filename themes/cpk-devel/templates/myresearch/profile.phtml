@@ -66,6 +66,10 @@
       ?>
     </table>
 
+    <? if (isset($this->prolongRegistrationUrl)):?>
+      <a href="<?=$this->prolongRegistrationUrl?>"><?=$this->transEsc('Prolong your registration')?></a>
+    <? endif; ?>
+
     <? endforeach; ?>
   </div>
 

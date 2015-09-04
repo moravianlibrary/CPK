@@ -79,8 +79,10 @@ class MyResearchController extends MyResearchControllerBase
 
         $logos = $user->getIdentityProvidersLogos();
 
-        foreach ($identities as $identity) {
+        // Obtain user information from ILS:
+        $catalog = $this->getILS();
 
+        foreach ($identities as $identity) {
             $profileFetched = $identity->cat_username === $patron['cat_username'];
 
             if (! $profileFetched)
@@ -99,9 +101,6 @@ class MyResearchController extends MyResearchControllerBase
 
             // Begin building view object:
             $currentIdentityView = $this->createViewModel();
-
-            // Obtain user information from ILS:
-            $catalog = $this->getILS();
 
             if (! $profileFetched) {
                 $profile = $catalog->getMyProfile($patron);
@@ -133,7 +132,10 @@ class MyResearchController extends MyResearchControllerBase
             }
 
             $libraryIdentities[$identity['eppn']] = $currentIdentityView;
+
         }
+
+        $viewVars['prolongRegistrationUrl'] = $catalog->getProlongRegistrationUrl($profile);
 
         $viewVars['libraryIdentities'] = $libraryIdentities;
         $viewVars['logos'] = $logos;
@@ -454,6 +456,9 @@ class MyResearchController extends MyResearchControllerBase
 
         $allFines = [];
 
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
         foreach ($identities as $identity) {
             $profileFetched = $identity->cat_username === $patron['cat_username'];
 
@@ -462,9 +467,6 @@ class MyResearchController extends MyResearchControllerBase
 
             // Begin building view object:
             $currentIdentityView = $this->createViewModel();
-
-            // Connect to the ILS:
-            $catalog = $this->getILS();
 
             // Get fine details:
             $result = $catalog->getMyFines($patron);
@@ -491,6 +493,15 @@ class MyResearchController extends MyResearchControllerBase
         }
         $viewVars['fines'] = $allFines;
         $viewVars['logos'] = $user->getIdentityProvidersLogos();
+        $totalFine = 0;
+        if (!empty($result)) {
+            foreach ($result as $fine) {
+                $totalFine += ($fine['amount']);
+            }
+        }
+        if ($totalFine < 0) {
+            $viewVars['paymentUrl'] = $catalog->getPaymentURL($patron, -1 * $totalFine);
+        }
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions();
         return $view;

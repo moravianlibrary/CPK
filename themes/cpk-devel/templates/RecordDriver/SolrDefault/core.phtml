@@ -34,7 +34,7 @@
   </div>
 
   <div class="col-sm-9">
-    <h3 property="name"><?=$this->escapeHtml($this->driver->getTitle() . ' ' . $this->driver->getSubtitle())?></h3>
+    <h3 property="name"><?=$this->escapeHtml($this->driver->getTitle())?></h3>
 
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $this->escapeHtml($summary[0]) : false; ?>
     <? if ($summary): ?>
@@ -56,7 +56,7 @@
     <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
       <? $journalTitle = $this->driver->getContainerTitle(); if (!empty($journalTitle)): ?>
       <tr>
-        <th><?=$this->transEsc('Published in')?>:</th>
+        <th class="col-md-4"><?=$this->transEsc('Published in')?>:</th>
         <td>
           <? $containerID = $this->driver->getContainerRecordID(); ?>
           <a href="<?=($containerID ? $this->recordLink()->getUrl("VuFind|$containerID") : $this->record($this->driver)->getLink('journaltitle', $journalTitle))?>"><?=$this->escapeHtml($journalTitle)?></a>
@@ -68,7 +68,7 @@
       <? $nextTitles = $this->driver->getNewerTitles(); $prevTitles = $this->driver->getPreviousTitles(); ?>
       <? if (!empty($nextTitles)): ?>
       <tr>
-        <th><?=$this->transEsc('New Title')?>: </th>
+        <th class="col-md-4"><?=$this->transEsc('New Title')?>: </th>
         <td>
           <? foreach($nextTitles as $field): ?>
             <a href="<?=$this->record($this->driver)->getLink('title', $field)?>"><?=$this->escapeHtml($field)?></a><br/>
@@ -79,7 +79,7 @@
 
       <? if (!empty($prevTitles)): ?>
       <tr>
-        <th><?=$this->transEsc('Previous Title')?>: </th>
+        <th class="col-md-4"><?=$this->transEsc('Previous Title')?>: </th>
         <td>
           <? foreach($prevTitles as $field): ?>
             <a href="<?=$this->record($this->driver)->getLink('title', $field)?>"><?=$this->escapeHtml($field)?></a><br/>
@@ -91,21 +91,21 @@
       <? $authors = $this->driver->getDeduplicatedAuthors(); ?>
       <? if (isset($authors['main']) && !empty($authors['main'])): ?>
       <tr>
-        <th><?=$this->transEsc('Main Author')?>: </th>
+        <th class="col-md-4"><?=$this->transEsc('Main Author')?>: </th>
         <td property="author"><a href="<?=$this->record($this->driver)->getLink('author', $authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a></td>
       </tr>
       <? endif; ?>
 
       <? if (isset($authors['corporate']) && !empty($authors['corporate'])): ?>
       <tr>
-        <th><?=$this->transEsc('Corporate Author')?>: </th>
+        <th class="col-md-4"><?=$this->transEsc('Corporate Author')?>: </th>
         <td property="creator"><a href="<?=$this->record($this->driver)->getLink('author', $authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
       </tr>
       <? endif; ?>
 
       <? if (isset($authors['secondary']) && !empty($authors['secondary'])): ?>
       <tr>
-        <th><?=$this->transEsc('Other Authors')?>: </th>
+        <th class="col-md-4"><?=$this->transEsc('Other Authors')?>: </th>
         <td>
           <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="<?=$this->record($this->driver)->getLink('author', $field)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
         </td>
@@ -114,10 +114,159 @@
 
       <? $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
         <tr>
-          <th><?=$this->transEsc('Format')?>: </th>
+          <th class="col-md-4"><?=$this->transEsc('Format')?>: </th>
           <td><?=$this->record($this->driver)->getFormatList()?></td>
         </tr>
       <? endif; ?>
+      
+      <? if (! empty($this->sourceDocument['t'])) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Source document')."</th>";
+	      
+		      if (! empty($this->sourceDocument['t'])) {
+		      	$anchor = join(" ", $this->sourceDocument);
+		      	
+		      	if (! empty($this->sourceDocument['x'])) {
+		      		$sourceDocumentLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->sourceDocument['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} elseif (! empty($this->sourceDocument['z'])) {
+		      		$sourceDocumentLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->sourceDocument['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else {
+		      		$sourceDocumentLink = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->sourceDocument['t'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	}
+		      	
+		      	echo "<td><a href='".$sourceDocumentLink."' title='".$anchor."'>".$anchor."</a></td>";
+		      } else {
+		      	echo "<td>".$anchor."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
+      
+      <? if ( ! empty($this->field770['t'])  || ! empty($this->field770['g']) ) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Special print')."</th>";
+	      
+	      	$anchor = $this->field770['t'].$this->field770['g'];
+	      	
+		      if (! empty($this->field770['x']) || ! empty($this->field770['z']) || ! empty($this->field770['t'])) {
+		      	
+		      	if (! empty($this->field770['x'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field770['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field770['z'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field770['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field770['t'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field770['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	}
+		      	
+		      	echo "<td><a href='".$link."' title='".$anchor."'>".$anchor."</a></td>";
+		      } else {
+		      	echo "<td>".$anchor."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
+      
+      <? if ( ! empty($this->field772['t'])  || ! empty($this->field772['g']) ) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Special print to')."</th>";
+	      
+	      	$anchor = $this->field772['t'].$this->field772['g'];
+	      	
+		      if (! empty($this->field772['x']) || ! empty($this->field772['z']) || ! empty($this->field772['t'])) {
+		      	
+		      	if (! empty($this->field772['x'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field772['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field772['z'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field772['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field772['t'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field772['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	}
+		      	
+		      	echo "<td><a href='".$link."' title='".$anchor."'>".$anchor."</a></td>";
+		      } else {
+		      	echo "<td>".$anchor."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
+      
+      <? if ( ! empty($this->field777['t'])  || ! empty($this->field777['g']) ) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Distributed with')."</th>";
+	      
+	      	$anchor = $this->field777['t'].$this->field777['g'];
+	      	
+		      if (! empty($this->field777['x']) || ! empty($this->field777['z']) || ! empty($this->field777['t'])) {
+		      	
+		      	if (! empty($this->field777['x'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field777['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field777['z'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field777['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field777['t'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field777['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	}
+		      	
+		      	echo "<td><a href='".$link."' title='".$anchor."'>".$anchor."</a></td>";
+		      } else {
+		      	echo "<td>".$anchor."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
+      
+      <? if ( ! empty($this->field780['t'])  || ! empty($this->field780['g']) ) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Before like')."</th>";
+	      
+	      	$anchor = $this->field780['t'].$this->field780['g'];
+	      	
+		      if (! empty($this->field780['x']) || ! empty($this->field780['z']) || ! empty($this->field780['t'])) {
+		      	
+		      	if (! empty($this->field780['x'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field780['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field780['z'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field780['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field780['t'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field780['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	}
+		      	
+		      	echo "<td><a href='".$link."' title='".$anchor."'>".$anchor."</a></td>";
+		      } else {
+		      	echo "<td>".$anchor."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
+      
+      <? if ( ! empty($this->field785['t'])  || ! empty($this->field785['g']) ) {
+	  
+	      	echo "<tr><th>".$this->transEsc('Then like')."</th>";
+	      
+	      	$anchor = $this->field785['t'].$this->field785['g'];
+	      	
+		      if (! empty($this->field785['x']) || ! empty($this->field785['z']) || ! empty($this->field785['t'])) {
+		      	
+		      	if (! empty($this->field785['x'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field785['x'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field785['z'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field785['z'].'"&type0[]=isn&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	} else if (! empty($this->field785['t'])) {
+		      		$link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="'.$this->field785['t'].'"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="'.$id.'"&type1[]=id&sort=title&view=list';
+		      	}
+		      	
+		      	echo "<td><a href='".$link."' title='".$anchor."'>".$anchor."</a></td>";
+		      } else {
+		      	echo "<td>".$anchor."</td>";
+		      }
+	      	echo "</tr>";
+      	
+      	}
+      ?>
 
       <? $langs = $this->driver->getLanguages(); if (!empty($langs)): ?>
         <tr>

@@ -40,7 +40,7 @@ use VuFind\Controller\RecordController as RecordControllerBase;
  */
 class RecordController extends RecordControllerBase
 {
-    
+
     /**
      * Add a tag
      *
@@ -52,10 +52,10 @@ class RecordController extends RecordControllerBase
         if (!($user = $this->getUser())) {
             return $this->forceLogin();
         }
-    
+
         // Obtain the current record object:
         $driver = $this->loadRecord();
-    
+
         // Save tags, if any:
         if ($this->params()->fromPost('submit')) {
             $tags = $this->params()->fromPost('tag');
@@ -63,7 +63,7 @@ class RecordController extends RecordControllerBase
             $driver->addTags($user, $tagParser->parse($tags));
             return $this->redirectToRecord('', 'TagsAndComments');
         }
-    
+
         // Display the "add tag" form:
         $view = $this->createViewModel();
         $view->setTemplate('record/addtag');
@@ -158,6 +158,9 @@ class RecordController extends RecordControllerBase
             '1600' => 4,
             '1800' => 5,
             '2000' => 6,
+            '1100' => 2,
+            '1700' => 3,
+            '1900' => 4,
         );
 
         $results = array();

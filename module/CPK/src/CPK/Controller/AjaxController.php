@@ -148,7 +148,8 @@ class AjaxController extends AjaxControllerBase
             'sfx.institute' => $institute,
             'ctx_ver' => 'Z39.88-2004',
             'ctx_enc' => 'info:ofi/enc:UTF-8',
-            'sfx.response_type' => 'simplexml'
+            'sfx.response_type' => 'simplexml',
+        	'rft.isbn' => str_replace("-", "", (string) $recordDriver->getCleanISBN())
         );
 
         $allParams = array_merge($params, $additionalParams);

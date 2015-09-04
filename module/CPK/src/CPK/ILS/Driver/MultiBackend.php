@@ -73,4 +73,45 @@ class MultiBackend extends MultiBackendBase
         } else
             return parent::getStatuses($ids);
     }
+
+    public function getProlongRegistrationUrl($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if (!$driver || !$this->methodSupported($driver, 'getProlongRegistrationUrl', compact('patron'))) {
+            return null;
+        }
+        $patron = $this->stripIdPrefixes($patron, $source);
+        return $driver->getProlongRegistrationUrl($patron);
+    }
+
+    public function getPaymentURL($patron, $fine)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if (!$driver || !$this->methodSupported($driver, 'getPaymentURL', compact('patron', 'fine'))) {
+            return null;
+        }
+        $patron = $this->stripIdPrefixes($patron, $source);
+        return $driver->getPaymentURL($patron, $fine);
+    }
+
+    /**
+     * Helper method to determine whether or not a certain method can be
+     * called on this driver.  Required method for any smart drivers.
+     *
+     * @param string $method The name of the called method.
+     * @param array  $params Array of passed parameters.
+     *
+     * @return bool True if the method can be called with the given parameters,
+     * false otherwise.
+     */
+    public function supportsMethod($method, $params)
+    {
+        if ($method == 'getProlongRegistrationUrl' || $method == 'getPaymentURL') {
+            return true;
+        }
+        return parent::supportsMethod($method, $params);
+    }
+
 }

@@ -74,10 +74,40 @@ class RecordController extends RecordControllerBase
             $view->scrollData = $this->resultScroller()->getScrollData($driver);
         }
         
-        // get 886links
-        $linksFrom856 = $this->get886Links();
+        // get 856links
+        $linksFrom856 = $this->get856Links();
         if ($linksFrom856 !== false)
         	$view->linksFrom856 = $linksFrom856;
+        
+        // get 773 - sourceTitle
+        $sourceDocument = $this->driver->get773();
+        if ($sourceDocument !== false)
+        	$view->sourceDocument = $sourceDocument;
+        
+        // get 770 - sourceTitle
+        $field770 = $this->driver->get770();
+        if ($field770 !== false)
+        	$view->field770 = $field770;
+        
+        // get 772 - sourceTitle
+        $field772 = $this->driver->get772();
+        if ($field772 !== false)
+        	$view->field772 = $field772;
+        
+        // get 777 - sourceTitle
+        $field777 = $this->driver->get777();
+        if ($field777 !== false)
+        	$view->field777 = $field777;
+        
+        // get 780 - sourceTitle
+        $field780 = $this->driver->get780();
+        if ($field780 !== false)
+        	$view->field780 = $field780;
+        
+        // get 785 - sourceTitle
+        $field785 = $this->driver->get785();
+        if ($field785 !== false)
+        	$view->field785 = $field785;
         
         $view->config = $this->getConfig();
 
@@ -85,7 +115,7 @@ class RecordController extends RecordControllerBase
         return $view;
     }
 	
-    protected function get886Links()
+    protected function get856Links()
     {
     	$parentRecordID = $this->driver->getParentRecordID();
     	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
