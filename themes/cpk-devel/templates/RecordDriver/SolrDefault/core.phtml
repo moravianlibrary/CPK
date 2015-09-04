@@ -516,10 +516,6 @@
     </tr>
   <? endif; ?>
 
-  <? if (!isset($contentDisplayed) || !$contentDisplayed): // Avoid errors if there were no rows above ?>
-    <tr><td><?=$this->transEsc('no_description')?></td></tr>
-  <? endif; ?>
-
       <? $recordLinks = $this->driver->getAllRecordLinks(); ?>
       <? if(!empty($recordLinks)): ?>
         <tr>
