@@ -60,14 +60,21 @@
 
 	jQuery( document ).ready( function( $ ) {
 
-		
-		var arrayOf866 = get866( '<?= $this->driver->getParentRecordID() ?>' )['data'][0]['field866'];
-		console.log('Pole 866: '+arrayOf866);
+		// @TODO split strings in array by | and on line 73 check the IDs and then assign right URL on line 74 and remove console logs
+		var rawDataArrayOf866 = get866( '<?= $this->driver->getParentRecordID() ?>' )['data'][0]['field866'];
+		console.log('Solr: Pole 866: '+rawDataArrayOf866);
+		var arrayOf866 = [];
 
+		rawDataArrayOf866.forEach(function(entry) {
+			arrayOf866[] = entry.split("|");
+		});
+
+		console.log('Pole 866: '+arrayOf866);
+		
 		if ( typeof sfxJibResult == "undefined" )
 			var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
 
-		if ( sfxJibResult.data[0].sfxResult.targets.target !== '' ) {
+		if ( sfxJibResult.data[0].sfxResult.targets.target !== '' && arrayOf866 !== '') {
 			for (var i = 0; i < sfxJibResult.data[0].sfxResult.targets.target.length; i++) {
 				var targetServiceId = sfxJibResult.data[0].sfxResult.targets.target[i].target_service_id;
 				if( $.inArray(targetServiceId, arrayOf866) != -1) {
