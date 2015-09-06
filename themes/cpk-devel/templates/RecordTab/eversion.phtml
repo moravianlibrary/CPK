@@ -2,6 +2,31 @@
   // Set page title.
   $this->headTitle($this->translate('E-version') . ': ' . $this->driver->getBreadcrumb());
 ?>
+<? if ($this->linksFrom856): ?>
+	<div class='field856'>
+		<table class='table'>
+			<tr>
+				<th><?=$this->translate('Destination');?></th>
+				<th><?=$this->translate('Link');?></th>
+				<th><?=$this->translate('Access');?></th>
+				<th><?=$this->translate('Distributor');?></th>
+			</tr>
+			<? foreach ($this->linksFrom856 as $linkRawString): 
+				$link = explode("|", $linkRawString);
+				$anchor = ! empty($link[3]) ? $link[3] : $this->transEsc('Link');
+				$destination = (substr($link[0], 0, 4) === 'kram') ? $this->translate('Digital library') : $this->translate('Link');
+				$title = ! empty($link[3]) ? $link[3] : $destination;
+			?>
+				<tr>
+					<td><?=$destination?></td>
+					<td><a title='<?=$title?>' href='<?=$link[2]?>'><?=$anchor?></a></td>
+					<td><?=$this->transEsc($link[1])?></td>
+					<td><?=$this->transEsc('source_'.$link[0])?></td>
+				</tr>
+			<? endforeach; ?>
+		</table>
+	</div>
+<? endif; ?>
 <div id='sfx-jib-ajax-result'></div>
 
 <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
@@ -26,14 +51,19 @@
 
 	jQuery( document ).ready( function( $ ) {
 
+		var arrayOf866 = ['3450000000000050', '3450000000000043', 'OAPEN:Full Text', '3450000000022002'];
+
 		if ( typeof sfxJibResult == "undefined" )
 			var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY'); /* @FIXME	When page with tabs is reloaded
 			 this script does not see this function declared in view.phtml so sfxJibResult is still undefined */
-			 
-		if ( sfxJibResult.data[0]['sfxResult']['targets']['target'] !== '' ) {
-			for (var i = 0; i <= sfxJibResult.data[0]['sfxResult']['targets']['target'].length; i++) {
-				var url = sfxJibResult.data[0]['sfxResult']['targets']['target'][i]['target_url'];
-				$( "#sfx-jib-ajax-result" ).append( "<a href='"+url+"'>"+extractDomain(url)+"</a>" + '<br>' );
+
+		if ( sfxJibResult.data[0].sfxResult.targets.target !== '' ) {
+			for (var i = 0; i < sfxJibResult.data[0].sfxResult.targets.target.length; i++) {
+				var targetServiceId = sfxJibResult.data[0].sfxResult.targets.target[i].target_service_id;
+				if( $.inArray(targetServiceId, arrayOf866) != -1) {
+					var url = sfxJibResult.data[0].sfxResult.targets.target[i].target_url;
+					$( "#sfx-jib-ajax-result" ).append( "<a href='"+url+"'>"+extractDomain(url)+"</a>" + '<br>' );
+				}
 			}
 		}
 		
