@@ -16,13 +16,18 @@
 				$anchor = ! empty($link[3]) ? $link[3] : $this->transEsc('Link');
 				$destination = (substr($link[0], 0, 4) === 'kram') ? $this->translate('Digital library') : $this->translate('Web');
 				$title = ! empty($link[3]) ? $link[3] : $destination;
+				$statusClass = ($link[1] === 'online') ? 'success' : ($link[1] === 'unknown') ? 'warning' : 'danger';
 			?>
 				<tr>
 					<td><?=$destination?></td>
 					<? if ($link[1] === 'protected') : ?>
-					 <td><?=$this->transEsc('link_access_status_'.$link[1])?><a target='_blank' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('What does it mean?')?>" href='https://cs.wikipedia.org/wiki/Voln%C3%A9_d%C3%ADlo'><sup>?</sup></a></td>
+					 <td>
+					 	<a target='_blank' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('What does it mean?')?>" href='https://cs.wikipedia.org/wiki/Voln%C3%A9_d%C3%ADlo'>
+					 		<span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span>
+					 	</a>
+					 </td>
 					<? else : ?>
-					<td><?=$this->transEsc('link_access_status_'.$link[1])?></td>
+					<td><span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span></td>
 					<? endif; ?>
 					<td><a title='<?=$title?>' href='<?=$link[2]?>'><?=$anchor?></a></td>
 					<td><?=$this->transEsc('source_'.$link[0])?></td>
