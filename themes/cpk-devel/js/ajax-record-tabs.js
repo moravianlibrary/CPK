@@ -31,6 +31,19 @@ function getSfxJibResult( sfxUrl, recordID, institute ) {
 	return ajaxResponse.responseJSON;
 }
 
+function get866( recordID ) {
+	var ajaxResponse = $.ajax({
+		dataType: 'json',
+		async: false,
+		url: '/AJAX/JSON?method=get866',
+		data: { recordID: recordID },
+		success: function( response ) {
+			console.log( response );
+		}
+	});
+	return ajaxResponse.responseJSON;
+}
+
 function showNextInstitutions(obj) {
     var anchors = obj.parentNode.parentNode.getElementsByTagName('a');
     

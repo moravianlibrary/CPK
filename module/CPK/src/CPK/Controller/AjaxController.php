@@ -170,6 +170,29 @@ class AjaxController extends AjaxControllerBase
         // Done
         return $this->output($vars, self::STATUS_OK);
     }
+    
+    /**
+     * Downloads SFX JIB content for current record.
+     *
+     * @param string $institute
+     *
+     * @return array
+     */
+    public function get866Ajax()
+    {    
+    	$recordID = $this->params()->fromQuery('recordID');
+    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+    	$recordDriver = $recordLoader->load($recordID);
+    
+    	$field866 = $recordDriver->get866();
+    
+    	$vars[] = array(
+    			'field866' => $field866
+    	);
+    
+    	// Done
+    	return $this->output($vars, self::STATUS_OK);
+    }
 
     /**
      * Downloads SerialSoulution360link content for current record.
