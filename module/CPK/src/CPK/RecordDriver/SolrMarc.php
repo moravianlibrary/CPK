@@ -354,6 +354,11 @@ class SolrMarc extends ParentSolrMarc
     {
         return isset($this->fields['url']) ? $this->fields['url'] : false;
     }
+    
+    public function get866Data()
+    {
+    	return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : false;
+    }
 
     /**
      * Get comments on obalkyknih.cz associated with this record.

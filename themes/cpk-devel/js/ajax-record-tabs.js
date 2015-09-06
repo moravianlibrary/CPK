@@ -31,12 +31,12 @@ function getSfxJibResult( sfxUrl, recordID, institute ) {
 	return ajaxResponse.responseJSON;
 }
 
-function get866( recordID ) {
+function get866( parentRecordID ) {
 	var ajaxResponse = $.ajax({
 		dataType: 'json',
 		async: false,
 		url: '/AJAX/JSON?method=get866',
-		data: { recordID: recordID },
+		data: { parentRecordID: parentRecordID },
 		success: function( response ) {
 			console.log( response );
 		}

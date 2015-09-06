@@ -180,11 +180,11 @@ class AjaxController extends AjaxControllerBase
      */
     public function get866Ajax()
     {    
-    	$recordID = $this->params()->fromQuery('recordID');
+    	$parentRecordID = $this->params()->fromQuery('parentRecordID');
     	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    	$recordDriver = $recordLoader->load($recordID);
+    	$recordDriver = $recordLoader->load($parentRecordID);
     
-    	$field866 = $recordDriver->get866();
+    	$field866 = $recordDriver->get866Data();
     
     	$vars[] = array(
     			'field866' => $field866
