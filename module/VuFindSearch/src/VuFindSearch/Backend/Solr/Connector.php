@@ -195,8 +195,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     public function similar($id, ParamBag $params = null)
     {
         $params = $params ?: new ParamBag();
+        $uniqueId = $this->uniqueKey;
+        if ($params->get('uniqueId') != null) {
+            $uniqueId = $params->get('uniqueId')[0];
+            $params->remove('uniqueId');
+        }
         $params
-            ->set('q', sprintf('%s:"%s"', $this->uniqueKey, addcslashes($id, '"')));
+            ->set('q', sprintf('%s:"%s"', $uniqueId, addcslashes($id, '"')));
         $params->set('qt', 'morelikethis');
 
         $handler = $this->map->getHandler(__FUNCTION__);

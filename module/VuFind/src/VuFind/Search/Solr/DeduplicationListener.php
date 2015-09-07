@@ -158,6 +158,7 @@ class DeduplicationListener
                 // If deduplication is enabled, filter out merged child records,
                 // otherwise filter out dedup records.
                 if ($this->enabled) {
+                    $params->set('uniqueId', 'local_ids_str_mv');
                     $fq = '-merged_child_boolean:true';
                     if ($context == 'similar' && $id = $event->getParam('id')) {
                         $fq .= ' AND -local_ids_str_mv:"'
@@ -187,9 +188,9 @@ class DeduplicationListener
         }
 
         // Inject deduplication details into record objects:
-        $backend = $event->getParam('backend');
+        $backend = $event->getTarget();
 
-        if ($backend != $this->backend->getIdentifier()) {
+        if ($backend != $event->getTarget()) {
             return $event;
         }
         $context = $event->getParam('context');
