@@ -102,15 +102,15 @@ foreach ($queryParams as $key => $value) {
     <div class="list-group facet" id="side-panel-<?=$this->escapeHtmlAttr($title) ?>">
       <div class="list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
         <?=$this->transEsc($cluster['label'])?>
+          <? if (isset($rangeFacets[$title])): ?>
+          <? if ($rangeFacets[$title]['type'] == 'date'): ?>
+          <button type="button" class="btn btn-primary btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
+          <? endif; ?>
+          <? endif; ?>
       </div>
       <div id="side-collapse-<?=$this->escapeHtmlAttr($title) ?>" class="collapse<? if(!in_array($title, $collapsedFacets)): ?> in<? endif ?>">
         <? if (isset($rangeFacets[$title])): ?>
           <div class="list-group-item">
-              <? foreach ($this->results->getRecommendations('top') as $current): ?>
-                  <div>
-                  <?=$this->recommend($current)?>
-                  </div>
-              <? endforeach; ?>
             <form name="<?=$this->escapeHtmlAttr($title)?>Filter" id="<?=$this->escapeHtmlAttr($title)?>Filter">
               <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$title}:.*/"))?>
               <input type="hidden" name="<?=$this->escapeHtmlAttr($rangeFacets[$title]['type'])?>range[]" value="<?=$this->escapeHtmlAttr($title)?>"/>
@@ -255,3 +255,33 @@ JS;
     </div>
   <? endforeach; ?>
 <? endif; ?>
+<!--data-toggle="modal" data-target="#exampleModal"-->
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel"><?=$this->transEsc('Timeline') ?></h4>
+            </div>
+            <div class="modal-body">
+            <? foreach ($this->results->getRecommendations('top') as $current): ?>
+                <div>
+                    <?=$this->recommend($current)?>
+                </div>
+            <? endforeach; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->transEsc('Close') ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$('#showmodal').click(function() {
+    $('#exampleModal').modal('show');
+    return false;
+});
+</script>

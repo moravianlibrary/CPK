@@ -12,16 +12,26 @@
     <div class="authorbox">
       <div id="datevis<?=$this->escapeHtml($facetField)?>xWrapper" class="hidden">
         <? /* space the flot visualisation */ ?>
-        <div id="datevis<?=$facetField ?>x" style="margin:0 0px;width:auto;height:60px;cursor:crosshair;"></div>
+        <div id="datevis<?=$facetField ?>x" style="margin:10px;width:auto;height:80px;cursor:crosshair;"></div>
       </div>
     </div>
   <? endforeach; ?>
   <div id="dateVisColorSettings"><!-- do not delete! used for passing CSS to Javascript --></div>
   <?
-    $js = "loadVis('" . $this->recommend->getFacetFields() . "', '"
-        . $this->recommend->getSearchParams() . "', path, "
-        . $this->recommend->getZooming() . ");";
-    echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+  $js = "loadVis('" . $this->recommend->getFacetFields() . "', '"
+      . $this->recommend->getSearchParams() . "', path, "
+      . $this->recommend->getZooming() . ");";
   ?>
+
+  <script>
+    $('#exampleModal').on('show.bs.modal', function (event) {
+
+      <?
+    echo $js;
+    ?>
+
+    })
+
+  </script>
 
 <? endif; ?>
