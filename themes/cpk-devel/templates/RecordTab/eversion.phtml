@@ -19,7 +19,13 @@
 					$anchor = ! empty($link[3]) ? $link[3] : $this->transEsc('Link');
 					$destination = (substr($link[0], 0, 4) === 'kram') ? $this->translate('Digital library') : $this->translate('Web');
 					$title = ! empty($link[3]) ? $link[3] : $destination;
-					$statusClass = ($link[1] === 'online') ? 'success' : ($link[1] === 'unknown') ? 'warning' : 'danger';
+					if ($link[1] === 'online') {
+						$statusClass = 'success';
+					} else if ($link[1] === 'unknown') {
+						$statusClass = 'warning';
+					} else {
+						$statusClass = 'danger';
+					}
 				?>
 					
 					<tr>
