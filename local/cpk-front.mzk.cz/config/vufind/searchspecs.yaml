@@ -306,7 +306,7 @@ AllFields:
     - title_new^100
     - series^50
     - series2^30
-    - author_search^300
+    - author_search^10000
     - author_fuller^150
     - contents^10
     - topic_unstemmed^550
@@ -320,6 +320,8 @@ AllFields:
     - fulltext
     - isbn
     - issn
+  DismaxParams:
+    - [bq, "cpk_detected_format_facet_str_mv:0/BOOKS/^1000"]
 #  DismaxParams:
 #    - [bq, "relevancy_str:default^50000"]
   QueryFields:
