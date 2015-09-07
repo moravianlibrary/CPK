@@ -34,6 +34,7 @@
 namespace CPK\ILS\Driver;
 
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
+use VuFind\ILS\Driver\SolrIdResolver as SolrIdResolverBase;
 
 class Aleph extends AlephBase
 {
@@ -64,6 +65,13 @@ class Aleph extends AlephBase
 
         if (!isset($this->maxItemsParsed) || $this->maxItemsParsed < 2) {
             $this->maxItemsParsed = 10;
+        }
+
+        if (isset($this->config['IdResolver']['type'])) {
+            $idResolverType = $this->config['IdResolver']['type'];
+        }
+        if ($idResolverType == 'solr') {
+            $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
         }
     }
 
@@ -213,6 +221,16 @@ class Aleph extends AlephBase
         ];
     }
 
+
+}
+
+
+/**
+ * SolrIdResolver - resolve bibliographic base against solr.
+ *
+ */
+class SolrIdResolver extends SolrIdResolverBase
+{
     public function resolveIds(&$recordsToResolve)
     {
         $idsToResolve = array();
