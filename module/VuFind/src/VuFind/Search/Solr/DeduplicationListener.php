@@ -77,11 +77,25 @@ class DeduplicationListener
     protected $dataSourceConfig;
 
     /**
+     *
+     *
+     * @var \VuFind\Auth\Manager
+     */
+    protected $authManager;
+
+    /**
      * Whether deduplication is enabled.
      *
      * @var bool
      */
     protected $enabled;
+
+    /**
+     * Whether deduplication is enabled.
+     *
+     * @var bool
+     */
+    protected $useLibraryCardsForPriority = true;
 
     /**
      * Constructor.
@@ -104,6 +118,7 @@ class DeduplicationListener
         $this->serviceLocator = $serviceLocator;
         $this->searchConfig = $searchConfig;
         $this->dataSourceConfig = $dataSourceConfig;
+        $this->authManager = $serviceLocator->get('VuFind\AuthManager');
         $this->enabled = $enabled;
     }
 
@@ -335,6 +350,10 @@ class DeduplicationListener
      */
     protected function determineSourcePriority($recordSources)
     {
+        $priorities = array_flip($this->getUsersHomeLibraries());
+        if (!empty($priorities)) {
+            return array_reverse($priorities);
+        }
         return array_flip(explode(',', $recordSources));
     }
 
@@ -367,6 +386,25 @@ class DeduplicationListener
         array_unshift($result, '');
         $result = array_flip($result);
         return $result;
+    }
+
+    /**
+     * User's Library cards (home_library values)
+     *
+     * @return	array
+     */
+    public function getUsersHomeLibraries()
+    {
+        if ($this->useLibraryCardsForPriority && ($user = $this->authManager->isLoggedIn())) { // is loggedIn
+            $libraryCards = $user->getLibraryCards()->toArray();
+            $myLibs = array();
+            foreach ($libraryCards as $libCard) {
+                $homeLib = $libCard['home_library'];
+                $myLibs[] = $homeLib;
+            }
+            return array_unique($myLibs);
+        }
+        return [];
     }
 
 }
