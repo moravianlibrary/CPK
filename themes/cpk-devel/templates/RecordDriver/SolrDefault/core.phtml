@@ -119,20 +119,6 @@
         </tr>
       <? endif; ?>
       
-      <? $range = $this->driver->getRange()[0]; if (!empty($range)): ?>
-        <tr>
-          <th class="col-md-4"><?=$this->transEsc('Document range')?>: </th>
-          <td><?=$range?></td>
-        </tr>
-      <? endif; ?>
-      
-      <? $release = $this->driver->getRelease()[0]; if (!empty($release)): ?>
-        <tr>
-          <th class="col-md-4"><?=$this->transEsc('Release')?>: </th>
-          <td><?=$release?></td>
-        </tr>
-      <? endif; ?>
-        
 	<?
 	// @todo Call this magic via helper. Assigned to xkravec.
 		$enabled7xxFields = explode(",", $this->config->Record->fields_in_core);
@@ -192,6 +178,20 @@
         <tr>
           <th><?=$this->transEsc('Language')?>: </th>
           <td><? foreach ($langs as $lang): ?><?= $this->escapeHtml($lang)?><br/><? endforeach; ?></td>
+        </tr>
+      <? endif; ?>
+      
+      <? $range = $this->driver->getRange()[0]; if (!empty($range)): ?>
+        <tr>
+          <th class="col-md-4"><?=$this->transEsc('Document range')?>: </th>
+          <td><?=$range?></td>
+        </tr>
+      <? endif; ?>
+      
+      <? $release = $this->driver->getRelease()[0]; if (!empty($release)): ?>
+        <tr>
+          <th class="col-md-4"><?=$this->transEsc('Release')?>: </th>
+          <td><?=$release?></td>
         </tr>
       <? endif; ?>
 
