@@ -4,35 +4,40 @@
 ?>
 <? if ($this->linksFrom856): ?>
 	<div class='field856'>
-		<table class='table'>
+		<table class='table' id='e-version-table'>
+			<thead>
 			<tr>
 				<th><?=$this->translate('Destination');?></th>
 				<th><?=$this->translate('Accessibility');?></th>
 				<th><?=$this->translate('Link');?></th>
 				<th><?=$this->translate('Distributor');?></th>
 			</tr>
-			<? foreach ($this->linksFrom856 as $linkRawString): 
-				$link = explode("|", $linkRawString);
-				$anchor = ! empty($link[3]) ? $link[3] : $this->transEsc('Link');
-				$destination = (substr($link[0], 0, 4) === 'kram') ? $this->translate('Digital library') : $this->translate('Web');
-				$title = ! empty($link[3]) ? $link[3] : $destination;
-				$statusClass = ($link[1] === 'online') ? 'success' : ($link[1] === 'unknown') ? 'warning' : 'danger';
-			?>
-				<tr>
-					<td><?=$destination?></td>
-					<? if ($link[1] === 'protected') : ?>
-					 <td>
-					 	<a target='_blank' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('What does it mean?')?>" href='https://cs.wikipedia.org/wiki/Voln%C3%A9_d%C3%ADlo'>
-					 		<span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span>
-					 	</a>
-					 </td>
-					<? else : ?>
-					<td><span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span></td>
-					<? endif; ?>
-					<td><a title='<?=$title?>' href='<?=$link[2]?>'><?=$anchor?></a></td>
-					<td><?=$this->transEsc('source_'.$link[0])?></td>
-				</tr>
-			<? endforeach; ?>
+			</thead>
+			<tbody>
+				<? foreach ($this->linksFrom856 as $linkRawString): 
+					$link = explode("|", $linkRawString);
+					$anchor = ! empty($link[3]) ? $link[3] : $this->transEsc('Link');
+					$destination = (substr($link[0], 0, 4) === 'kram') ? $this->translate('Digital library') : $this->translate('Web');
+					$title = ! empty($link[3]) ? $link[3] : $destination;
+					$statusClass = ($link[1] === 'online') ? 'success' : ($link[1] === 'unknown') ? 'warning' : 'danger';
+				?>
+					
+					<tr>
+						<td><?=$destination?></td>
+						<? if ($link[1] === 'protected') : ?>
+						 <td>
+						 	<a target='_blank' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('What does it mean?')?>" href='https://cs.wikipedia.org/wiki/Voln%C3%A9_d%C3%ADlo'>
+						 		<span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span>
+						 	</a>
+						 </td>
+						<? else : ?>
+						<td><span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span></td>
+						<? endif; ?>
+						<td><a title='<?=$title?>' href='<?=$link[2]?>'><?=$anchor?></a></td>
+						<td><?=$this->transEsc('source_'.$link[0])?></td>
+					</tr>
+				<? endforeach; ?>
+			</tbody>
 		</table>
 	</div>
 <? endif; ?>
@@ -41,45 +46,44 @@
 <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
 <script>
 
-	function extractDomain( url )
-	{
-	    var domain;
-	    
-	    //find & remove protocol (http, ftp, etc.) and get domain
-	    if (url.indexOf("://") > -1) {
-	        domain = url.split('/')[2];
-	    } else {
-	        domain = url.split('/')[0];
-	    }
-	
-	    //find & remove port number
-	    domain = domain.split(':')[0];
-	
-	    return domain;
-	}
-
 	jQuery( document ).ready( function( $ ) {
 
 		// @TODO split strings in array by | and on line 73 check the IDs and then assign right URL on line 74 and remove console logs
 		var rawDataArrayOf866 = get866( '<?= $this->driver->getParentRecordID() ?>' )['data'][0]['field866'];
-		console.log('Solr: Pole 866: '+rawDataArrayOf866);
-		var arrayOf866 = [];
 
-		rawDataArrayOf866.forEach(function(entry) {
-			arrayOf866[] = entry.split("|");
-		});
+		var arrayOf866 = {};
 
-		console.log('Pole 866: '+arrayOf866);
-		
-		if ( typeof sfxJibResult == "undefined" )
-			var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
+		if (false != rawDataArrayOf866) {
+			rawDataArrayOf866.forEach(function(entry) {
+				var pole = entry.split("|");
 
-		if ( sfxJibResult.data[0].sfxResult.targets.target !== '' && arrayOf866 !== '') {
-			for (var i = 0; i < sfxJibResult.data[0].sfxResult.targets.target.length; i++) {
-				var targetServiceId = sfxJibResult.data[0].sfxResult.targets.target[i].target_service_id;
-				if( $.inArray(targetServiceId, arrayOf866) != -1) {
-					var url = sfxJibResult.data[0].sfxResult.targets.target[i].target_url;
-					$( "#sfx-jib-ajax-result" ).append( "<a href='"+url+"'>"+extractDomain(url)+"</a>" + '<br>' );
+				arrayOf866[pole[1]] = {
+					'source': pole[0], 
+					'anchor': pole[2]
+				}
+			});
+
+			if ( typeof sfxJibResult == "undefined" )
+				var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
+	
+			if ( sfxJibResult.data[0].sfxResult.targets.target !== '' && arrayOf866 !== '') {
+				var count = sfxJibResult.data[0].sfxResult.targets.target.length;
+				
+				for (var i = 0; i < count; i++) {
+					var targetServiceId = sfxJibResult.data[0].sfxResult.targets.target[i].target_service_id;
+					if ( arrayOf866[targetServiceId] != null ) {
+						var record = arrayOf866[targetServiceId];
+						var anchor = record.anchor;
+						var source = record.source;
+						var url = sfxJibResult.data[0].sfxResult.targets.target[i].target_url;
+						$( "#e-version-table tbody" ).append( "<tr>"
+								+"<td><?=$this->translate('Database')?></td>"
+								+"<td><span class='label label-warning'><?=$this->translate('link_access_status_unknown')?></span></td>"
+								+"<td><a href='"+url+"'>"+anchor+"</a></td>"
+								+"<td>"+source+"</td>"
+								+"</tr>");
+						console.log('je tam'+anchor);
+					}
 				}
 			}
 		}
