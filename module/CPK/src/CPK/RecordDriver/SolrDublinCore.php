@@ -263,7 +263,8 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:language');
-        return empty($value) ? [] : $value;
+        $ret[] = (string) $value[0];
+        return empty($value) ? [] : $ret;
     }
 
     /**
@@ -425,6 +426,20 @@ class SolrDublinCore extends ParentSolrMarc
     public function getParentRecordID()
     {
         return isset($this->fields['parent_id_str']) ? $this->fields['parent_id_str'] : [];
+    }
+
+    /**
+     * Get hierarchical place names (MARC field 752)
+     *
+     * Returns an array of formatted hierarchical place names, consisting of all
+     * alpha-subfields, concatenated for display
+     *
+     * @return array
+     */
+    public function getHierarchicalPlaceNames()
+    {
+        $placeNames = [];
+        return $placeNames;
     }
 
 }
