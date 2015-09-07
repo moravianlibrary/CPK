@@ -136,7 +136,7 @@
 # These searches use Dismax when possible:
 Author:
   DismaxFields:
-	- author_search^150
+    - author_search^150
     - author^100
     - author_fuller^50
     - author2
@@ -144,7 +144,7 @@ Author:
   DismaxParams:
     - [bq, "relevancy_str:default^2"]
   QueryFields:
-	author_search:
+    author_search:
       - [onephrase, 350]
       - [and, 200]
       - [or, 100]
