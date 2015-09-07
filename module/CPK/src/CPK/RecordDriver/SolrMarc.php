@@ -360,6 +360,11 @@ class SolrMarc extends ParentSolrMarc
     	return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : false;
     }
 
+    public function getRange()
+    {
+    	return $this->getFieldArray('300');
+    }
+    
     /**
      * Get comments on obalkyknih.cz associated with this record.
      *

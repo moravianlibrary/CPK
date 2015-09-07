@@ -118,6 +118,13 @@
           <td><?=$this->record($this->driver)->getFormatList()?></td>
         </tr>
       <? endif; ?>
+      
+      <? $range = $this->driver->getRange()[0]; if (!empty($range)): ?>
+        <tr>
+          <th class="col-md-4"><?=$this->transEsc('Document range')?>: </th>
+          <td><?=$range?></td>
+        </tr>
+      <? endif; ?>
         
 	<?
 	// @todo Call this magic via helper. Assigned to xkravec.
