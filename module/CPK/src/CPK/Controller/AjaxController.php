@@ -139,6 +139,10 @@ class AjaxController extends AjaxControllerBase
         $recordID = $this->params()->fromQuery('recordID');
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         $recordDriver = $recordLoader->load($recordID);
+        
+        $parentRecordID = $recordDriver->getParentRecordID();
+        $parentRecordDriver = $recordLoader->load($parentRecordID);
+        $isbn = $parentRecordDriver->getIsn();
 
         $url = $this->params()->fromQuery('sfxUrl');
 
@@ -151,7 +155,7 @@ class AjaxController extends AjaxControllerBase
             'ctx_enc' => 'info:ofi/enc:UTF-8',
             'sfx.response_type' => 'simplexml',
             'rft.isbn' => str_replace("-", "",
-                (string) $recordDriver->getCleanISBN())
+                (string) $isbn)
         );
 
         $allParams = array_merge($params, $additionalParams);

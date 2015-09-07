@@ -380,6 +380,11 @@ class SolrMarc extends ParentSolrMarc
     	return $this->getFieldArray('250');
     }
     
+    public function getIsn()
+    {
+    	return isset($this->fields['issnIsbnIsmn_search_str_mv'][0]) ? $this->fields['issnIsbnIsmn_search_str_mv'][0] : false;
+    }
+    
     /**
      * Get comments on obalkyknih.cz associated with this record.
      *
