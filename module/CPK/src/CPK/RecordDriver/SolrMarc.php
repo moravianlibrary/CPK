@@ -365,6 +365,11 @@ class SolrMarc extends ParentSolrMarc
     	return $this->getFieldArray('300');
     }
     
+    public function getRelease()
+    {
+    	return $this->getFieldArray('250');
+    }
+    
     /**
      * Get comments on obalkyknih.cz associated with this record.
      *

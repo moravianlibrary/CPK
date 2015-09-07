@@ -125,6 +125,13 @@
           <td><?=$range?></td>
         </tr>
       <? endif; ?>
+      
+      <? $release = $this->driver->getRelease()[0]; if (!empty($release)): ?>
+        <tr>
+          <th class="col-md-4"><?=$this->transEsc('Release')?>: </th>
+          <td><?=$release?></td>
+        </tr>
+      <? endif; ?>
         
 	<?
 	// @todo Call this magic via helper. Assigned to xkravec.
