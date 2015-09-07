@@ -41,13 +41,13 @@ namespace VuFind\Autocomplete;
  */
 class SolrEdgeFaceted implements AutocompleteInterface
 {
-    
+
     protected $searchClassId = 'Solr';
-    
+
     protected $autocompleteField;
-    
+
     protected $facetField;
-    
+
     /**
      * Constructor
      *
@@ -94,12 +94,12 @@ class SolrEdgeFaceted implements AutocompleteInterface
         }
         return array_unique($results);
     }
-    
+
     protected function mungeQuery($query) {
         $forbidden = array(':', '(', ')', '*', '+', '"');
         return str_replace($forbidden, " ", $query);
     }
-    
+
     /**
      * setConfig
      *
@@ -115,7 +115,7 @@ class SolrEdgeFaceted implements AutocompleteInterface
         list($this->autocompleteField, $this->facetField) = explode(':', $params, 2);
         $this->initSearchObject();
     }
-    
+
     /**
      * initSearchObject
      *
@@ -129,7 +129,6 @@ class SolrEdgeFaceted implements AutocompleteInterface
         $this->searchObject = $this->resultsManager->get($this->searchClassId);
         $this->searchObject->getOptions()->spellcheckEnabled(false);
         $this->searchObject->getOptions()->disableHighlighting();
-        $this->searchObject->getParams()->recommendationsEnabled(false);
     }
-    
+
 }
