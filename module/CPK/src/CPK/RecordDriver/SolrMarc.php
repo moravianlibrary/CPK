@@ -105,6 +105,16 @@ class SolrMarc extends ParentSolrMarc
         }
         return $fields;
     }
+    
+    /**
+     * Get the publishers of the record.
+     *
+     * @return array
+     */
+    public function getPublishers()
+    {
+    	return $this->getFieldArray('260', array('b'));
+    }
 
     public function getFormats()
     {
