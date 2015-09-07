@@ -117,7 +117,13 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getAllSubjectHeadings()
     {
-        return [];
+        $fullrecord = $this->fields['fullrecord'];
+        $dc = simplexml_load_string($fullrecord);
+        $value = $dc->xpath('//dc:subject');
+        foreach ($value as $part) {
+            $ret[] = (string) $part;
+        }
+        return empty($value) ? [] : $ret;
     }
 
     /**
@@ -263,7 +269,9 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:language');
-        $ret[] = (string) $value[0];
+        foreach ($value as $part) {
+            $ret[] = (string) $part;
+        }
         return empty($value) ? [] : $ret;
     }
 
@@ -315,7 +323,9 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:publisher');
-        $ret[] = (string) $value[0];
+        foreach ($value as $part) {
+            $ret[] = (string) $part;
+        }
         return empty($value) ? [] : $ret;
     }
 
@@ -330,7 +340,9 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:date');
-        $ret[] = (string) $value[0];
+        foreach ($value as $part) {
+            $ret[] = (string) $part;
+        }
         return empty($value) ? [] : $ret;
     }
 
@@ -440,6 +452,50 @@ class SolrDublinCore extends ParentSolrMarc
     {
         $placeNames = [];
         return $placeNames;
+    }
+
+    /**
+     * Get general notes on the record.
+     *
+     * @return array
+     */
+    public function getGeneralNotes()
+    {
+        $fullrecord = $this->fields['fullrecord'];
+        $dc = simplexml_load_string($fullrecord);
+        $value = $dc->xpath('//dc:description');
+        foreach ($value as $part) {
+            $ret[] = (string) $part;
+        }
+        return empty($value) ? [] : $ret;
+    }
+
+    /**
+     * Get the first call number associated with the record (empty string if none).
+     *
+     * @return string
+     */
+    public function getCallNumber()
+    {
+        $all = $this->getCallNumbers();
+        return isset($all[0]) ? $all[0] : '';
+    }
+
+    /**
+     * Get all call numbers associated with the record (empty string if none).
+     *
+     * @return array
+     */
+    public function getCallNumbers()
+    {
+        $fullrecord = $this->fields['fullrecord'];
+        $dc = simplexml_load_string($fullrecord);
+        $value = $dc->xpath('//dc:identifier');
+        foreach ($value as $part) {
+            if (! is_int(strpos((string) $part, "signature:"))) continue;
+            $ret[] = str_replace("signature:", "", (string) $part);
+        }
+        return empty($value) ? [] : $ret;
     }
 
 }
