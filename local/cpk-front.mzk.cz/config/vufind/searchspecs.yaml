@@ -136,6 +136,7 @@
 # These searches use Dismax when possible:
 Author:
   DismaxFields:
+	- author_search^150
     - author^100
     - author_fuller^50
     - author2
@@ -143,6 +144,10 @@ Author:
   DismaxParams:
     - [bq, "relevancy_str:default^2"]
   QueryFields:
+	author_search:
+      - [onephrase, 350]
+      - [and, 200]
+      - [or, 100]
     author:
       - [onephrase, 350]
       - [and, 200]
@@ -301,7 +306,7 @@ AllFields:
     - title_new^100
     - series^50
     - series2^30
-    - author^300
+    - author_search^300
     - author_fuller^150
     - contents^10
     - topic_unstemmed^550
@@ -315,8 +320,8 @@ AllFields:
     - fulltext
     - isbn
     - issn
-  DismaxParams:
-    - [bq, "relevancy_str:default^50000"]
+#  DismaxParams:
+#    - [bq, "relevancy_str:default^50000"]
   QueryFields:
     0:
       0:
@@ -340,7 +345,7 @@ AllFields:
       - [and, 50]
     series2:
       - [and, 30]
-    author:
+    author_search:
       - [onephrase, 300]
       - [and, 250]
     author_fuller:
