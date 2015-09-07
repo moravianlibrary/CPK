@@ -39,14 +39,15 @@ use Zend\ServiceManager\ServiceManager;
  */
 class Factory
 {
+
     /**
-     * Factory for Aleph driver.
+     * Factory for FlatHolds
      *
      * @param ServiceManager $sm Service manager.
      *
-     * @return Aleph
+     * @return FlatHolds
      */
-    public function getFlatHolds(ServiceManager $sm)
+    public static function getFlatHolds(ServiceManager $sm)
     {
         return new \MZKCommon\ILS\Logic\FlatHolds(
             $sm->get('VuFind\ILSAuthenticator'), $sm->get('VuFind\ILSConnection'),
