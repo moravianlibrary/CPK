@@ -32,11 +32,11 @@ class FlatHolds extends Holds
      *
      * @return array A sorted results set
      */
-    
+
     public function getHoldings($id, $filters=array())
     {
         $holdings = array();
-    
+
         // Get Holdings Data
         if ($this->catalog) {
             // Retrieve stored patron credentials; it is the responsibility of the
@@ -45,7 +45,7 @@ class FlatHolds extends Holds
             $patron = $this->ilsAuth->storedCatalogLogin();
             $result = $this->catalog->getHolding($id, $patron ? $patron : null, $filters);
             $mode = $this->catalog->getHoldsMode();
-    
+
             if ($mode == "disabled") {
                 $holdings = $this->standardHoldings($result);
             } else if ($mode == "driver") {
@@ -56,15 +56,16 @@ class FlatHolds extends Holds
         }
         return $this->formatHoldings($holdings);
     }
-    
+
     /**
      * Protected method for driver defined holdings
      *
-     * @param array $result A result set returned from a driver
+     * @param array $result     A result set returned from a driver
+     * @param array $holdConfig Hold configuration from driver
      *
      * @return array A sorted results set
      */
-    protected function driverHoldings($result)
+    protected function driverHoldings($result, $holdConfig)
     {
         $holdings = array();
 
