@@ -123,6 +123,8 @@ function updateHoldingId(id, value, setDangerLabel) {
 	setDangerLabel = true;
     }
 
+    var divLink = tableRow.find('div[data-type=link]')[0];
+
     var dueDate = value.due_date;
     if (typeof dueDate !== 'undefined') {
 
@@ -132,25 +134,34 @@ function updateHoldingId(id, value, setDangerLabel) {
 
 	label.removeClass('label-primary').addClass('label-warning');
 
+	if (divLink !== 'undefined')
+	    divLink.remove();
+
     } else {
 
 	if (setDangerLabel) {
 	    label.removeClass('label-primary').addClass('label-danger');
+
+	    if (divLink !== 'undefined')
+		divLink.remove();
+
 	} else {
 	    var labelType = typeof value.label === 'undefined' ? 'label-success'
 		    : value.label;
 
 	    label.removeClass('label-primary').addClass(labelType);
 
-	    // Show hidden link
-	    var divLink = tableRow.find('div[data-type=link]')[0], linkSpan = divLink.children[0].children[0], holdType = value.hold_type;
+	    if (divLink !== 'undefined') {
+		// Show hidden link
+		var linkSpan = divLink.children[0].children[0], holdType = value.hold_type;
 
-	    if (typeof holdType === 'undefined')
-		holdType = 'Reserve';
+		if (typeof holdType === 'undefined')
+		    holdType = 'Reserve';
 
-	    linkSpan.innerHTML = holdType;
+		linkSpan.innerHTML = holdType;
 
-	    $(divLink).removeAttr('hidden');
+		$(divLink).removeAttr('hidden');
+	    }
 	}
     }
 
