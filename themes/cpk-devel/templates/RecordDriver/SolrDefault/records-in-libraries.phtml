@@ -1,8 +1,18 @@
 <span class=""><?=$this->translate('Found in these institutions') ?>:</span>
 
 <div class="col-sm-12 dedupInformation">
+<?php 
 
-<? $maxInstitutionsShown = 2; $i = 0; foreach ($records as $source => $value):
+	$count = count($records);
+	if ($count <= 2) {
+		$maxInstitutionsShown = 2;
+	} else if ($count === 3) {
+		$maxInstitutionsShown = 3;
+	} else if ($count >= 4) {
+		$maxInstitutionsShown = 2;
+	}
+
+	 $i = 0; foreach ($records as $source => $value):
 		$record = $value['id'];
 		$recordInLibraryOwnershipClass = in_array($source, $this->myLibs) ? 'my-library-record' : 'other-library-record';
 		$recordUrl = $this->recordLink()->getUrl($record);
