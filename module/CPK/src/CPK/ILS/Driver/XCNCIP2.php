@@ -56,7 +56,8 @@ use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
  *          License
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
+class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
+    \VuFindHttp\HttpServiceAwareInterface
 {
 
     const AGENCY_ID_DELIMITER = ':';
@@ -120,10 +121,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         else
             $this->maximumItemsCount = 20;
 
-        if (isset($this->config['Catalog']['cannotUseLUIS']) && $this->config['Catalog']['cannotUseLUIS'])
+        if (isset($this->config['Catalog']['cannotUseLUIS']) &&
+             $this->config['Catalog']['cannotUseLUIS'])
             $this->cannotUseLUIS = true;
 
-        if (isset($this->config['Catalog']['hasUntrustedSSL']) && $this->config['Catalog']['hasUntrustedSSL'])
+        if (isset($this->config['Catalog']['hasUntrustedSSL']) &&
+             $this->config['Catalog']['hasUntrustedSSL'])
             $this->hasUntrustedSSL = true;
 
         if (isset($this->config['Catalog']['cacert']))
@@ -150,17 +153,20 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     {
         // Make the NCIP request:
         try {
-            $client = $this->httpService->createClient($this->config['Catalog']['url']);
+            $client = $this->httpService->createClient(
+                $this->config['Catalog']['url']);
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
 
             if (isset($this->timeout))
-                $client->setOptions(array(
-                    'timeout' => $this->timeout
-                ));
+                $client->setOptions(
+                    array(
+                        'timeout' => $this->timeout
+                    ));
 
-            if (isset($this->config['Catalog']['username']) && isset($this->config['Catalog']['password'])) {
+            if (isset($this->config['Catalog']['username']) &&
+                 isset($this->config['Catalog']['password'])) {
 
                 $user = $this->config['Catalog']['username'];
                 $password = $this->config['Catalog']['password'];
@@ -169,22 +175,24 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
             if ($this->hasUntrustedSSL) {
                 // Do not verify SSL certificate
-                $client->setOptions(array(
-                    'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                    'curloptions' => array(
-                        CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_SSL_VERIFYHOST => false,
-                        CURLOPT_SSL_VERIFYPEER => false
-                    )
-                ));
+                $client->setOptions(
+                    array(
+                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
+                        'curloptions' => array(
+                            CURLOPT_FOLLOWLOCATION => true,
+                            CURLOPT_SSL_VERIFYHOST => false,
+                            CURLOPT_SSL_VERIFYPEER => false
+                        )
+                    ));
             } elseif (isset($this->cacert)) {
-                $client->setOptions(array(
-                    'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                    'curloptions' => array(
-                        CURLOPT_FOLLOWLOCATION => true,
-                        CURLOPT_CAINFO => $this->cacert
-                    )
-                ));
+                $client->setOptions(
+                    array(
+                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
+                        'curloptions' => array(
+                            CURLOPT_FOLLOWLOCATION => true,
+                            CURLOPT_CAINFO => $this->cacert
+                        )
+                    ));
             }
 
             $result = $client->send();
@@ -217,7 +225,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         if ($problem = $this->getProblem($response)) {
             // TODO chcek problem type
 
-            $message = 'Problem recieved in XCNCIP2 Driver .. Content:' . str_replace('\n', '<br/>', $problem);
+            $message = 'Problem recieved in XCNCIP2 Driver .. Content:' .
+                 str_replace('\n', '<br/>', $problem);
 
             $this->addEnviromentalException($message);
 
@@ -270,7 +279,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                     'sysMessage' => ''
                 );
             } elseif (! empty($item_id)) {
-                $request = $this->requests->cancelHoldUsingItemId($item_id, $cancelDetails['patron']['id']);
+                $request = $this->requests->cancelHoldUsingItemId($item_id,
+                    $cancelDetails['patron']['id']);
                 $response = $this->sendRequest($request);
                 // TODO: Process Problem elements
 
@@ -280,7 +290,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                     'sysMessage' => ''
                 );
             } else {
-                $request = $this->requests->cancelHoldUsingRequestId($request_id, $cancelDetails['patron']['id']);
+                $request = $this->requests->cancelHoldUsingRequestId($request_id,
+                    $cancelDetails['patron']['id']);
                 $response = $this->sendRequest($request);
                 // TODO: Process Problem elements
 
@@ -335,15 +346,18 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         // TODO testing purposes
         return 12340;
         $sum = 0;
-        $xml = $this->alephWebService->doRestDLFRequest(array(
-            'patron',
-            $user['id'],
-            'circulationActions'
-        ), null);
+        $xml = $this->alephWebService->doRestDLFRequest(
+            array(
+                'patron',
+                $user['id'],
+                'circulationActions'
+            ), null);
         foreach ($xml->circulationActions->institution as $institution) {
             $cashNote = (string) $institution->note;
             $matches = array();
-            if (preg_match("/Please note that there is an additional accrued overdue items fine of: (\d+\.?\d*)\./", $cashNote, $matches) === 1) {
+            if (preg_match(
+                "/Please note that there is an additional accrued overdue items fine of: (\d+\.?\d*)\./",
+                $cashNote, $matches) === 1) {
                 $sum = $matches[1];
             }
         }
@@ -407,22 +421,27 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
     protected function getHoldingsForChunk($current, $bibinfo)
     {
         // Extract details from the XML:
-        $status = (string) $this->useXPath($current, 'ItemOptionalFields/CirculationStatus')[0];
+        $status = (string) $this->useXPath($current,
+            'ItemOptionalFields/CirculationStatus')[0];
 
-        $id = (string) $this->useXPath($bibinfo, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier')[0];
-        $itemIdentifierCode = (string) $this->useXPath($current, 'ItemId/ItemIdentifierType')[0];
+        $id = (string) $this->useXPath($bibinfo,
+            'BibliographicId/BibliographicItemId/BibliographicItemIdentifier')[0];
+        $itemIdentifierCode = (string) $this->useXPath($current,
+            'ItemId/ItemIdentifierType')[0];
 
         $parsingLoans = $this->useXPath($current, 'LoanedItem') != null;
 
         if ($itemIdentifierCode == 'Accession Number') {
 
-            $item_id = (string) $this->useXPath($current, 'ItemId/ItemIdentifierValue')[0];
+            $item_id = (string) $this->useXPath($current,
+                'ItemId/ItemIdentifierValue')[0];
         }
 
         // Pick out the permanent location (TODO: better smarts for dealing with
         // temporary locations and multi-level location names):
 
-        $locationNameInstance = $this->useXPath($current, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
+        $locationNameInstance = $this->useXPath($current,
+            'ItemOptionalFields/Location/LocationName/LocationNameInstance');
 
         foreach ($locationNameInstance as $recent) {
             // FIXME: Create config to map location abbreviations of each institute into human readable values
@@ -433,29 +452,37 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
                 $department = (string) $this->useXPath($recent, 'LocationNameValue')[0];
             } else
                 if ($locationLevel == 3) {
-                    $sublibrary = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                    $sublibrary = (string) $this->useXPath($recent,
+                        'LocationNameValue')[0];
                 } else {
-                    $locationInBuilding = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                    $locationInBuilding = (string) $this->useXPath($recent,
+                        'LocationNameValue')[0];
                 }
         }
 
         // Get both holdings and item level call numbers; we'll pick the most
         // specific available value below.
         // $holdCallNo = $this->useXPath($current, 'HoldingsSet/CallNumber');
-        $itemCallNo = (string) $this->useXPath($current, 'ItemOptionalFields/ItemDescription/CallNumber')[0];
+        $itemCallNo = (string) $this->useXPath($current,
+            'ItemOptionalFields/ItemDescription/CallNumber')[0];
         // $itemCallNo = (string)$itemCallNo[0];
 
-        $bibliographicItemIdentifierCode = (string) $this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifierCode')[0];
+        $bibliographicItemIdentifierCode = (string) $this->useXPath($current,
+            'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifierCode')[0];
 
         if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
-            $barcode = (string) $this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier')[0];
+            $barcode = (string) $this->useXPath($current,
+                'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier')[0];
         }
 
-        $numberOfPieces = (string) $this->useXPath($current, 'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
+        $numberOfPieces = (string) $this->useXPath($current,
+            'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
 
-        $holdQueue = (string) $this->useXPath($current, 'ItemOptionalFields/HoldQueueLength')[0];
+        $holdQueue = (string) $this->useXPath($current,
+            'ItemOptionalFields/HoldQueueLength')[0];
 
-        $itemRestriction = (string) $this->useXPath($current, 'ItemOptionalFields/ItemUseRestrictionType')[0];
+        $itemRestriction = (string) $this->useXPath($current,
+            'ItemOptionalFields/ItemUseRestrictionType')[0];
 
         $available = $status === 'Available On Shelf';
 
@@ -470,7 +497,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
 
-        $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
+        $monthLoanPeriod = ($itemRestriction ==
+             'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
 
         // FIXME: Add link logic
         $link = false;
@@ -533,7 +561,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
          * $link .= $id . '/Hold?id=' . $id . '&item_id=';
          * $link .= $itemIdParts[1];
          */
-        $link .= $itemIdParts[0] . '/Hold?id=' . $itemIdParts[0] . '&item_id=' . $itemIdParts[1];
+        $link .= $itemIdParts[0] . '/Hold?id=' . $itemIdParts[0] . '&item_id=' .
+             $itemIdParts[1];
         $link .= '#tabnav';
         return $link;
     }
@@ -573,7 +602,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             }
             return array(
                 "HMACKeys" => "id:item_id",
-                "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
+                "extraHoldFields" => "comments:requiredByDate",
                 "defaultRequiredDate" => "0:1:0"
             );
         }
@@ -647,33 +676,42 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $id = $this->joinAgencyId($id, $agencyId);
 
             // Extract details from the XML:
-            $status = (string) $this->useXPath($response, 'ItemOptionalFields/CirculationStatus')[0];
+            $status = (string) $this->useXPath($response,
+                'ItemOptionalFields/CirculationStatus')[0];
 
             // Pick out the permanent location (TODO: better smarts for dealing with
             // temporary locations and multi-level location names):
 
-            $locationNameInstance = $this->useXPath($response, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
+            $locationNameInstance = $this->useXPath($response,
+                'ItemOptionalFields/Location/LocationName/LocationNameInstance');
 
             foreach ($locationNameInstance as $recent) {
                 // FIXME: Create config to map location abbreviations of each institute into human readable values
 
-                $locationLevel = (string) $this->useXPath($recent, 'LocationNameLevel')[0];
+                $locationLevel = (string) $this->useXPath($recent,
+                    'LocationNameLevel')[0];
 
                 if ($locationLevel == 4) {
-                    $department = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                    $department = (string) $this->useXPath($recent,
+                        'LocationNameValue')[0];
                 } else
                     if ($locationLevel == 3) {
-                        $sublibrary = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                        $sublibrary = (string) $this->useXPath($recent,
+                            'LocationNameValue')[0];
                     } else {
-                        $locationInBuilding = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                        $locationInBuilding = (string) $this->useXPath($recent,
+                            'LocationNameValue')[0];
                     }
             }
 
-            $numberOfPieces = (string) $this->useXPath($response, 'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
+            $numberOfPieces = (string) $this->useXPath($response,
+                'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
 
-            $holdQueue = (string) $this->useXPath($response, 'ItemOptionalFields/HoldQueueLength')[0];
+            $holdQueue = (string) $this->useXPath($response,
+                'ItemOptionalFields/HoldQueueLength')[0];
 
-            $itemRestriction = (string) $this->useXPath($response, 'ItemOptionalFields/ItemUseRestrictionType')[0];
+            $itemRestriction = (string) $this->useXPath($response,
+                'ItemOptionalFields/ItemUseRestrictionType')[0];
 
             $available = $status === 'Available On Shelf';
 
@@ -688,7 +726,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
             $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
 
-            $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
+            $monthLoanPeriod = ($itemRestriction ==
+                 'Limited Circulation, Normal Loan Period') || empty(
+                    $itemRestriction);
 
             // FIXME: Add link logic
             $link = false;
@@ -736,39 +776,50 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             if ($response === null)
                 return [];
 
-            $bibInfos = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
+            $bibInfos = $this->useXPath($response,
+                'LookupItemSetResponse/BibInformation');
 
             foreach ($bibInfos as $bibInfo) {
 
-                $id = (string) $this->useXPath($bibInfo, 'BibliographicId/BibliographicRecordId/BibliographicRecordIdentifier')[0];
+                $id = (string) $this->useXPath($bibInfo,
+                    'BibliographicId/BibliographicRecordId/BibliographicRecordIdentifier')[0];
 
-                $status = (string) $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus')[0];
+                $status = (string) $this->useXPath($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus')[0];
 
-                $itemCallNo = (string) $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/ItemDescription/CallNumber')[0];
+                $itemCallNo = (string) $this->useXPath($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/ItemDescription/CallNumber')[0];
 
-                $holdQueue = (string) $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/HoldQueueLength')[0];
+                $holdQueue = (string) $this->useXPath($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/HoldQueueLength')[0];
 
-                $itemRestrictions = $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
+                $itemRestrictions = $this->useXPath($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
 
                 $restrictions = [];
                 foreach ($itemRestrictions as $itemRestriction) {
                     $restrictions[] = (string) $itemRestriction;
                 }
 
-                $locationNameInstances = $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/ItemOptionalFields/Location/LocationName/LocationNameInstance');
+                $locationNameInstances = $this->useXPath($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/Location/LocationName/LocationNameInstance');
 
                 foreach ($locationNameInstances as $locationNameInstance) {
                     // FIXME: Create config to map location abbreviations of each institute into human readable values
 
-                    $locationLevel = (string) $this->useXPath($locationNameInstance, '//LocationNameLevel')[0];
+                    $locationLevel = (string) $this->useXPath($locationNameInstance,
+                        '//LocationNameLevel')[0];
 
                     if ($locationLevel == 4) {
-                        $department = (string) $this->useXPath($locationNameInstance, '//LocationNameValue')[0];
+                        $department = (string) $this->useXPath($locationNameInstance,
+                            '//LocationNameValue')[0];
                     } else
                         if ($locationLevel == 3) {
-                            $sublibrary = (string) $this->useXPath($locationNameInstance, '//LocationNameValue')[0];
+                            $sublibrary = (string) $this->useXPath(
+                                $locationNameInstance, '//LocationNameValue')[0];
                         } else {
-                            $locationInBuilding = (string) $this->useXPath($locationNameInstance, '//LocationNameValue')[0];
+                            $locationInBuilding = (string) $this->useXPath(
+                                $locationNameInstance, '//LocationNameValue')[0];
                         }
                 }
 
@@ -776,7 +827,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
                 $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
 
-                $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
+                $monthLoanPeriod = ($itemRestriction ==
+                     'Limited Circulation, Normal Loan Period') ||
+                     empty($itemRestriction);
 
                 // FIXME: Add link logic
                 $link = false;
@@ -827,13 +880,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         // FIXME: Is this not async iteration useful??
         do {
             if (isset($nextItemToken[0]))
-                $request = $this->requests->getHolding(array(
-                    $id
-                ), (string) $nextItemToken[0]);
+                $request = $this->requests->getHolding(
+                    array(
+                        $id
+                    ), (string) $nextItemToken[0]);
             else {
-                $request = $this->requests->getHolding(array(
-                    $id
-                ));
+                $request = $this->requests->getHolding(
+                    array(
+                        $id
+                    ));
                 $all_iteminfo = [];
             }
 
@@ -841,10 +896,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             if ($response == null)
                 return null;
 
-            $new_iteminfo = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
+            $new_iteminfo = $this->useXPath($response,
+                'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
             $all_iteminfo = array_merge($all_iteminfo, $new_iteminfo);
 
-            $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
+            $nextItemToken = $this->useXPath($response,
+                'LookupItemSetResponse/NextItemToken');
         } while ($this->isValidToken($nextItemToken));
         $bibinfo = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
         $bibinfo = $bibinfo[0];
@@ -902,11 +959,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         $request = $this->requests->patronLogin($username, $password);
         $response = $this->sendRequest($request);
-        $id = $this->useXPath($response, 'LookupUserResponse/UserId/UserIdentifierValue');
-        $firstname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
+        $id = $this->useXPath($response,
+            'LookupUserResponse/UserId/UserIdentifierValue');
+        $firstname = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
 
-        $lastname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
-        $email = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
+        $lastname = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
+        $email = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
         if (! empty($id)) {
             $patron = array(
                 'id' => empty($id) ? '' : (string) $id[0],
@@ -953,13 +1014,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
             $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
             $dateDue = $this->useXPath($current, 'DateDue');
             $parsedDate = strtotime((string) $dateDue[0]);
-            $additRequest = $this->requests->lookupItem((string) $item_id[0], $patron);
+            $additRequest = $this->requests->lookupItem((string) $item_id[0],
+                $patron);
             $additResponse = $this->sendRequest($additRequest);
-            $isbn = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
-            $bib_id = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
-            $author = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
-            $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
-            $mediumType = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
+            $isbn = $this->useXPath($additResponse,
+                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
+            $bib_id = $this->useXPath($additResponse,
+                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
+            $author = $this->useXPath($additResponse,
+                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
+            $title = $this->useXPath($additResponse,
+                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
+            $mediumType = $this->useXPath($additResponse,
+                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
             $dateDue = date('j. n. Y', $parsedDate);
 
@@ -1006,14 +1073,18 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $response = $this->sendRequest($request);
         $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
-        $list = $this->useXPath($response, 'LookupUserResponse/UserFiscalAccount/AccountDetails');
+        $list = $this->useXPath($response,
+            'LookupUserResponse/UserFiscalAccount/AccountDetails');
 
         $fines = array();
         foreach ($list as $current) {
-            $amount = $this->useXPath($current, 'FiscalTransactionInformation/Amount/MonetaryValue');
-            $type = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionType');
+            $amount = $this->useXPath($current,
+                'FiscalTransactionInformation/Amount/MonetaryValue');
+            $type = $this->useXPath($current,
+                'FiscalTransactionInformation/FiscalTransactionType');
             $date = $this->useXPath($current, 'AccrualDate');
-            $desc = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionDescription');
+            $desc = $this->useXPath($current,
+                'FiscalTransactionInformation/FiscalTransactionDescription');
             $parsedDate = strtotime((string) $date[0]);
             $date = date('j. n. Y', $parsedDate);
             $amount_int = (int) $amount[0] * (- 1);
@@ -1052,7 +1123,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
 
         foreach ($list as $current) {
             $type = $this->useXPath($current, 'RequestType');
-            $id = $this->useXPath($current, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+            $id = $this->useXPath($current,
+                'BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
             $location = $this->useXPath($current, 'PickupLocation');
             $reqnum = $this->useXPath($current, 'RequestId/RequestIdentifierValue');
             $expire = $this->useXPath($current, 'PickupExpiryDate');
@@ -1111,26 +1183,38 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         // Merge it back if the agency was specified before ..
         $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
-        $name = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
-        $surname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
-        $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Street');
-        $address2 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/HouseName');
-        $city = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Locality');
-        $country = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Country');
-        $zip = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostalCode');
-        $electronicAddress = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress');
+        $name = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
+        $surname = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
+        $address1 = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Street');
+        $address2 = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/HouseName');
+        $city = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Locality');
+        $country = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Country');
+        $zip = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostalCode');
+        $electronicAddress = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress');
         foreach ($electronicAddress as $recent) {
             if ($this->useXPath($recent, 'ElectronicAddressType')[0] == 'tel') {
                 $phone = $this->useXPath($recent, 'ElectronicAddressData');
             }
         }
-        $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
+        $group = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
 
-        $rawExpire = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
+        $rawExpire = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
 
-        $expireDate = empty($rawExpire) ? '' : date('j. n. Y', strtotime((string) $rawExpire[0]));
+        $expireDate = empty($rawExpire) ? '' : date('j. n. Y',
+            strtotime((string) $rawExpire[0]));
 
-        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
+        $blocksParsed = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
         $eppnScope = $this->eppnScope;
 
@@ -1175,7 +1259,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $request = $this->requests->getBlocks($cat_username);
         $response = $this->sendRequest($request);
 
-        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
+        $blocksParsed = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
         $i = - 1;
         foreach ($blocksParsed as $block) {
@@ -1356,7 +1441,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
      * @throws ILSException
      * @return boolean Returns true, if XML is valid.
      */
-    protected function isValidXMLAgainstXSD($XML, $path_to_XSD = './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
+    protected function isValidXMLAgainstXSD($XML,
+        $path_to_XSD = './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
     {
         $doc = new DOMDocument();
         libxml_use_internal_errors(true); // Begin - Disable xml error messages.
@@ -1404,8 +1490,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements \VuFindHttp\Htt
         $arrayXPath = explode('/', $xPath);
         $newXPath = "";
         foreach ($arrayXPath as $key => $part) {
-            if ($part == null)
-            {
+            if ($part == null) {
                 $newXPath .= "/";
                 continue;
             }
@@ -1475,7 +1560,16 @@ class OldNCIPRequests
      */
     public function cancelHoldUsingItemId($itemID, $patronID)
     {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' . '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) . '</ns1:UserIdentifierValue></ns1:UserId>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '</ns1:CancelRequestItem></ns1:NCIPMessage>';
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
+             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' .
+             '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) .
+             '</ns1:UserIdentifierValue></ns1:UserId>' .
+             '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) .
+             '</ns1:ItemIdentifierValue></ns1:ItemId>' .
+             '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' .
+             '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' .
+             '</ns1:CancelRequestItem></ns1:NCIPMessage>';
         return $xml;
     }
 
@@ -1489,7 +1583,17 @@ class OldNCIPRequests
      */
     public function cancelHoldUsingRequestId($requestID, $patronID)
     {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' . '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) . '</ns1:UserIdentifierValue></ns1:UserId>' . '<ns1:RequestId><ns1:RequestIdentifierValue>' . htmlspecialchars($requestID) . '</ns1:RequestIdentifierValue></ns1:RequestId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '</ns1:CancelRequestItem></ns1:NCIPMessage>';
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
+             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' .
+             '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) .
+             '</ns1:UserIdentifierValue></ns1:UserId>' .
+             '<ns1:RequestId><ns1:RequestIdentifierValue>' .
+             htmlspecialchars($requestID) .
+             '</ns1:RequestIdentifierValue></ns1:RequestId>' .
+             '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' .
+             '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' .
+             '</ns1:CancelRequestItem></ns1:NCIPMessage>';
         return $xml;
     }
 
@@ -1516,7 +1620,9 @@ class OldNCIPRequests
             'Location'
         );
         // Start the XML:
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
+             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
         // Add the ID list:
         $i = - 1;
         foreach ($idList as $id) {
@@ -1526,21 +1632,31 @@ class OldNCIPRequests
 
             $agencyIdExt = '';
             if ($agencyId)
-                $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . htmlspecialchars($agencyId) . '</ns1:AgencyId></ns1:Ext>';
+                $agencyIdExt = '<ns1:Ext><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' .
+                     htmlspecialchars($agencyId) . '</ns1:AgencyId></ns1:Ext>';
                 // $id = str_replace("-", "", $id);
             $id = $this->cpkConvert($id);
-            $xml .= '<ns1:BibliographicId>' . '<ns1:BibliographicItemId>' . '<ns1:BibliographicItemIdentifier>' . htmlspecialchars($id) . '</ns1:BibliographicItemIdentifier>' . '<ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>' . '</ns1:BibliographicItemId>' . $agencyIdExt . '</ns1:BibliographicId>';
+            $xml .= '<ns1:BibliographicId>' . '<ns1:BibliographicItemId>' .
+                 '<ns1:BibliographicItemIdentifier>' . htmlspecialchars($id) .
+                 '</ns1:BibliographicItemIdentifier>' .
+                 '<ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>' .
+                 '</ns1:BibliographicItemId>' . $agencyIdExt .
+                 '</ns1:BibliographicId>';
         }
         // Add the desired data list:
         foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
+            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
+                 htmlspecialchars($current) . '</ns1:ItemElementType>';
         }
         if (! empty($mainClass->getMaximumItemsCount())) {
-            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($mainClass->getMaximumItemsCount()) . '</ns1:MaximumItemsCount>';
+            $xml .= '<ns1:MaximumItemsCount>' .
+                 htmlspecialchars($mainClass->getMaximumItemsCount()) .
+                 '</ns1:MaximumItemsCount>';
         }
         // Add resumption token if necessary:
         if (! empty($resumption)) {
-            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) . '</ns1:NextItemToken>';
+            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) .
+                 '</ns1:NextItemToken>';
         }
         // Close the XML and send it to the caller:
         $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
@@ -1568,20 +1684,27 @@ class OldNCIPRequests
 
             $agencyIdTag = '';
             if ($agencyId)
-                $agencyIdTag = '><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . htmlspecialchars($agencyId) . '</ns1:AgencyId>';
+                $agencyIdTag = '><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' .
+                     htmlspecialchars($agencyId) . '</ns1:AgencyId>';
 
-            $xml .= '<ns1:ItemId>' . $agencyIdTag . '<ns1:ItemIdentifierType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/visibleitemidentifiertype/visibleitemidentifiertype.scm">Accession Number</ns1:ItemIdentifierType><ns1:ItemIdentifierValue>' . htmlspecialchars($id) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
+            $xml .= '<ns1:ItemId>' . $agencyIdTag .
+                 '<ns1:ItemIdentifierType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/visibleitemidentifiertype/visibleitemidentifiertype.scm">Accession Number</ns1:ItemIdentifierType><ns1:ItemIdentifierValue>' .
+                 htmlspecialchars($id) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
         }
         // Add the desired data list:
         foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
+            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
+                 htmlspecialchars($current) . '</ns1:ItemElementType>';
         }
         if (! empty($mainClass->getMaximumItemsCount())) {
-            $xml .= '<ns1:MaximumItemsCount>' . htmlspecialchars($mainClass->getMaximumItemsCount()) . '</ns1:MaximumItemsCount>';
+            $xml .= '<ns1:MaximumItemsCount>' .
+                 htmlspecialchars($mainClass->getMaximumItemsCount()) .
+                 '</ns1:MaximumItemsCount>';
         }
         // Add resumption token if necessary:
         if (! empty($resumption)) {
-            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) . '</ns1:NextItemToken>';
+            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) .
+                 '</ns1:NextItemToken>';
         }
         // Close the XML and send it to the caller:
         $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
@@ -1608,10 +1731,15 @@ class OldNCIPRequests
             'Sensitization Flag'
         );
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+             'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
+             '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' .
+             htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
 
         foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
+            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
+                 htmlspecialchars($current) . '</ns1:ItemElementType>';
         }
         $xml .= '</ns1:LookupItem></ns1:NCIPMessage>';
         return $xml;
@@ -1633,14 +1761,18 @@ class OldNCIPRequests
         );
 
         if (false !== $agencyID)
-            $agencyId = '<ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' . $agencyID . '</ns1:AgencyId>';
+            $agencyId = '<ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' .
+                 $agencyID . '</ns1:AgencyId>';
         else
             $agencyId = '';
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd"><ns1:LookupItem><ns1:ItemId>' . $agencyId . '<ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd"><ns1:LookupItem><ns1:ItemId>' .
+             $agencyId . '<ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) .
+             '</ns1:ItemIdentifierValue></ns1:ItemId>';
 
         foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . htmlspecialchars($current) . '</ns1:ItemElementType>';
+            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
+                 htmlspecialchars($current) . '</ns1:ItemElementType>';
         }
         $xml .= '</ns1:LookupItem></ns1:NCIPMessage>';
         return $xml;
@@ -1653,7 +1785,14 @@ class OldNCIPRequests
      */
     public function getLocation($itemID)
     {
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>' . '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' . 'Location</ns1:ItemElementType>' . '</ns1:LookupItem>' . '</ns1:NCIPMessage>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+             'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
+             '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' .
+             htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>' .
+             '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
+             'Location</ns1:ItemElementType>' . '</ns1:LookupItem>' .
+             '</ns1:NCIPMessage>';
     }
 
     /**
@@ -1707,16 +1846,32 @@ class OldNCIPRequests
     {
         if ($extras == null) {
             $extras = array(
-                '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm">Block Or Trap</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Address Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Privilege' . '</ns1:UserElementType>'
+                '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm">Block Or Trap</ns1:UserElementType>' .
+                     '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
+                     'schemes/userelementtype/userelementtype.scm">' .
+                     'Name Information' . '</ns1:UserElementType>' .
+                     '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
+                     'schemes/userelementtype/userelementtype.scm">' .
+                     'User Address Information' . '</ns1:UserElementType>' .
+                     '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
+                     'schemes/userelementtype/userelementtype.scm">' .
+                     'User Privilege' . '</ns1:UserElementType>'
             );
         }
 
         $agencyElement = "";
         if ($patron['agency']) {
-            $agencyElement = "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">" . htmlspecialchars($patron['agency']) . "</ns1:AgencyId>";
+            $agencyElement = "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">" .
+                 htmlspecialchars($patron['agency']) . "</ns1:AgencyId>";
         }
 
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:UserId>' . $agencyElement . '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . implode('', $extras) . '</ns1:LookupUser>' . '</ns1:NCIPMessage>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+             'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
+             '<ns1:LookupUser>' . '<ns1:UserId>' . $agencyElement .
+             '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) .
+             '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . implode('', $extras) .
+             '</ns1:LookupUser>' . '</ns1:NCIPMessage>';
     }
 
     /**
@@ -1750,10 +1905,30 @@ class OldNCIPRequests
     public function patronLogin($username, $password)
     {
         $extras = array(
-            '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' . '</ns1:UserElementType>' . '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' . 'schemes/userelementtype/userelementtype.scm">' . 'User Address Information' . '</ns1:UserElementType>'
+            '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
+                 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' .
+                 '</ns1:UserElementType>' .
+                 '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
+                 'schemes/userelementtype/userelementtype.scm">' .
+                 'User Address Information' . '</ns1:UserElementType>'
         );
 
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' . 'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' . 'xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:AuthenticationInput>' . '<ns1:AuthenticationInputData>' . htmlspecialchars($username) . '</ns1:AuthenticationInputData>' . '<ns1:AuthenticationDataFormatType>' . 'text' . '</ns1:AuthenticationDataFormatType>' . '<ns1:AuthenticationInputType>' . 'User Id' . '</ns1:AuthenticationInputType>' . '</ns1:AuthenticationInput>' . '<ns1:AuthenticationInput>' . '<ns1:AuthenticationInputData>' . htmlspecialchars($password) . '</ns1:AuthenticationInputData>' . '<ns1:AuthenticationDataFormatType>' . 'text' . '</ns1:AuthenticationDataFormatType>' . '<ns1:AuthenticationInputType>' . 'Password' . '</ns1:AuthenticationInputType>' . '</ns1:AuthenticationInput>' . implode('', $extras) . '</ns1:LookupUser>' . '</ns1:NCIPMessage>';
+        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
+             'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' .
+             'xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:AuthenticationInput>' .
+             '<ns1:AuthenticationInputData>' . htmlspecialchars($username) .
+             '</ns1:AuthenticationInputData>' . '<ns1:AuthenticationDataFormatType>' .
+             'text' . '</ns1:AuthenticationDataFormatType>' .
+             '<ns1:AuthenticationInputType>' . 'User Id' .
+             '</ns1:AuthenticationInputType>' . '</ns1:AuthenticationInput>' .
+             '<ns1:AuthenticationInput>' . '<ns1:AuthenticationInputData>' .
+             htmlspecialchars($password) . '</ns1:AuthenticationInputData>' .
+             '<ns1:AuthenticationDataFormatType>' . 'text' .
+             '</ns1:AuthenticationDataFormatType>' . '<ns1:AuthenticationInputType>' .
+             'Password' . '</ns1:AuthenticationInputType>' .
+             '</ns1:AuthenticationInput>' . implode('', $extras) . '</ns1:LookupUser>' .
+             '</ns1:NCIPMessage>';
     }
 
     public function placeHold($holdDetails)
@@ -1762,7 +1937,22 @@ class OldNCIPRequests
         // $id = substr_replace($id, '', 5, 1);
         $id .= '-';
         $id .= $holdDetails['item_id'];
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RequestItem>' . '<ns1:UserId>' . '<ns1:UserIdentifierValue>' . htmlspecialchars($holdDetails['patron']['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' . htmlspecialchars($id) . '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' . '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' . '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' . '<ns1:EarliestDateNeeded>2014-09-09T00:00:00</ns1:EarliestDateNeeded>' . '<ns1:NeedBeforeDate>2014-09-17T00:00:00</ns1:NeedBeforeDate>' . '<ns1:PickupLocation>' . $holdDetails['pickUpLocation'] . '</ns1:PickupLocation>' . '<ns1:PickupExpiryDate>2014-09-30T00:00:00</ns1:PickupExpiryDate>' . '</ns1:RequestItem></ns1:NCIPMessage>';
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
+             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RequestItem>' .
+             '<ns1:UserId>' . '<ns1:UserIdentifierValue>' .
+             htmlspecialchars($holdDetails['patron']['id']) .
+             '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . '<ns1:ItemId>' .
+             '<ns1:ItemIdentifierValue>' . htmlspecialchars($id) .
+             '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' .
+             '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' .
+             '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' .
+             '<ns1:EarliestDateNeeded>2014-09-09T00:00:00</ns1:EarliestDateNeeded>' .
+             '<ns1:NeedBeforeDate>2014-09-17T00:00:00</ns1:NeedBeforeDate>' .
+             '<ns1:PickupLocation>' . $holdDetails['pickUpLocation'] .
+             '</ns1:PickupLocation>' .
+             '<ns1:PickupExpiryDate>2014-09-30T00:00:00</ns1:PickupExpiryDate>' .
+             '</ns1:RequestItem></ns1:NCIPMessage>';
         return $xml;
     }
 
@@ -1776,7 +1966,14 @@ class OldNCIPRequests
      */
     public function renewMyItem($patron, $item)
     {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' . '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RenewItem>' . '<ns1:UserId>' . '<ns1:UserIdentifierValue>' . htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' . htmlspecialchars($item) . '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' . '</ns1:RenewItem></ns1:NCIPMessage>';
+        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
+             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
+             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RenewItem>' .
+             '<ns1:UserId>' . '<ns1:UserIdentifierValue>' .
+             htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' .
+             '</ns1:UserId>' . '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' .
+             htmlspecialchars($item) . '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' .
+             '</ns1:RenewItem></ns1:NCIPMessage>';
         return $xml;
     }
 }
