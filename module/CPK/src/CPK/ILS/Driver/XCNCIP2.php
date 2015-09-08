@@ -623,8 +623,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     public function getDefaultPickUpLocation($patron = null, $holdInformation = null)
     {
-        // TODO testing purposes
-        return '1';
+        return false;
     }
 
     public function getMyHistory($patron, $currentLimit = 0)
@@ -831,9 +830,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                      'Limited Circulation, Normal Loan Period') ||
                      empty($itemRestriction);
 
-                // FIXME: Add link logic
-                $link = false;
-
                 $retVal[] = array(
                     'id' => empty($id) ? "" : $id,
                     'availability' => empty($available) ? false : $available ? true : false,
@@ -842,11 +838,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
                     'department' => empty($department) ? '' : $department,
                     'requests_placed' => ! isset($holdQueue) ? "" : $holdQueue,
-                    'link' => $link,
                     'item_id' => empty($id) ? "" : $id,
-                    'holdOverride' => "",
-                    'addStorageRetrievalRequestLink' => "",
-                    'addILLRequestLink' => ""
+                    'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold'
                 );
             }
         }
@@ -1934,24 +1927,20 @@ class OldNCIPRequests
 
     public function placeHold($holdDetails)
     {
-        $id = $holdDetails['id'];
-        // $id = substr_replace($id, '', 5, 1);
-        $id .= '-';
-        $id .= $holdDetails['item_id'];
+        $pickupLocation = ! empty($holdDetails['pickUpLocation']) ? '<ns1:PickupLocation>' .
+             $holdDetails['pickUpLocation'] . '</ns1:PickupLocation>' : '';
+
         $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
              '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
              '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RequestItem>' .
              '<ns1:UserId>' . '<ns1:UserIdentifierValue>' .
              htmlspecialchars($holdDetails['patron']['id']) .
              '</ns1:UserIdentifierValue>' . '</ns1:UserId>' . '<ns1:ItemId>' .
-             '<ns1:ItemIdentifierValue>' . htmlspecialchars($id) .
+             '<ns1:ItemIdentifierValue>' . htmlspecialchars($holdDetails['item_id']) .
              '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' .
              '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' .
              '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' .
-             '<ns1:EarliestDateNeeded>2014-09-09T00:00:00</ns1:EarliestDateNeeded>' .
-             '<ns1:NeedBeforeDate>2014-09-17T00:00:00</ns1:NeedBeforeDate>' .
-             '<ns1:PickupLocation>' . $holdDetails['pickUpLocation'] .
-             '</ns1:PickupLocation>' .
+             $pickupLocation .
              '<ns1:PickupExpiryDate>2014-09-30T00:00:00</ns1:PickupExpiryDate>' .
              '</ns1:RequestItem></ns1:NCIPMessage>';
         return $xml;

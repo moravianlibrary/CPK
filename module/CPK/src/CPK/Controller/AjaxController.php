@@ -139,7 +139,7 @@ class AjaxController extends AjaxControllerBase
         $recordID = $this->params()->fromQuery('recordID');
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         $recordDriver = $recordLoader->load($recordID);
-        
+
         $parentRecordID = $recordDriver->getParentRecordID();
         $parentRecordDriver = $recordLoader->load($parentRecordID);
         $isbn = $parentRecordDriver->getIsn();
@@ -183,7 +183,7 @@ class AjaxController extends AjaxControllerBase
         // Done
         return $this->output($vars, self::STATUS_OK);
     }
-    
+
     /**
      * Downloads SFX JIB content for current record.
      *
@@ -192,17 +192,17 @@ class AjaxController extends AjaxControllerBase
      * @return array
      */
     public function get866Ajax()
-    {    
+    {
     	$parentRecordID = $this->params()->fromQuery('parentRecordID');
     	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
     	$recordDriver = $recordLoader->load($parentRecordID);
-    
+
     	$field866 = $recordDriver->get866Data();
-    
+
     	$vars[] = array(
     			'field866' => $field866
     	);
-    
+
     	// Done
     	return $this->output($vars, self::STATUS_OK);
     }
@@ -297,8 +297,10 @@ class AjaxController extends AjaxControllerBase
         $viewRend = $this->getViewRenderer();
 
         if (null === $ids)
-            return $this->output(['status' => $this->getTranslatedUnknownStatus($viewRend)],
-                self::STATUS_ERROR);
+            return $this->output(
+                [
+                    'status' => $this->getTranslatedUnknownStatus($viewRend)
+                ], self::STATUS_ERROR);
 
         $ilsDriver = $this->getILS()->getDriver();
 
@@ -306,8 +308,8 @@ class AjaxController extends AjaxControllerBase
 
             $statuses = $ilsDriver->getStatuses($ids);
 
-            if (null === $statuses)
-                return $this->output('$ilsDriver->getStatuses returned null',
+            if (null === $statuses || empty($statuses))
+                return $this->output('$ilsDriver->getStatuses returned nothing',
                     self::STATUS_ERROR);
 
             $itemsStatuses = [];
@@ -332,8 +334,13 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['due_date']))
                     $itemsStatuses[$id]['due_date'] = $status['due_date'];
 
+                if (! empty($status['hold_type']))
+                    $itemsStatuses[$id]['hold_type'] = $viewRend->transEsc($status['hold_type']);
+
                 $key = array_search($id, $ids);
-                unset($ids[$key]);
+
+                if ($key !== false)
+                    unset($ids[$key]);
             }
 
             if (isset($ids) && count($ids) > 0)

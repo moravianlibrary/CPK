@@ -144,12 +144,13 @@ class Aleph extends AlephBase
                 if (array_search($id, $ids) === false)
                     continue;
 
-                list ($status, $dueDate) = $this->parseStatusFromItem($item);
+                list ($status, $dueDate, $holdType) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
                     'status' => $status,
-                    'due_date' => $dueDate
+                    'due_date' => $dueDate,
+                    'hold_type' => $holdType
                 );
             }
         } else // Query one by one item
@@ -171,12 +172,13 @@ class Aleph extends AlephBase
 
                 $item = $xml->{'item'};
 
-                list ($status, $dueDate) = $this->parseStatusFromItem($item);
+                list ($status, $dueDate, $holdType) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
                     'status' => $status,
-                    'due_date' => $dueDate
+                    'due_date' => $dueDate,
+                    'hold_type' => $holdType
                 );
 
                 // Returns parsed items to show it to user
@@ -190,17 +192,18 @@ class Aleph extends AlephBase
     /**
      * Parses the status from <status> tag
      *
-     * Sometimes there is due date, thus
-     * it will always return an array of both status & dueDate (which will often be null)
+     * Returns an array of status, dueDate (which will often be null) & holdType
      *
      * @param \SimpleXMLElement $item
-     * @return array [ $status, $dueDate ]
+     * @return array [ $status, $dueDate, $holdType ]
      */
     protected function parseStatusFromItem(\SimpleXMLElement $item)
     {
         $status = (string) $item->{'status'};
 
         $isDueDate = preg_match('/[0-9]{2}\/.+\/[0-9]{4}/', $status);
+
+        $holdType = 'Recall This';
 
         if ($isDueDate) {
             $dueDate = $status;
@@ -209,15 +212,19 @@ class Aleph extends AlephBase
         } else {
             $dueDate = null;
 
-            if (in_array($status, $this->available_statuses))
+            if (in_array($status, $this->available_statuses)) {
+
                 $status = 'available';
-            else
+                $holdType = 'Place a Hold';
+
+            } else
                 $status = 'unavailable';
         }
 
         return [
             $status,
-            $dueDate
+            $dueDate,
+            $holdType
         ];
     }
 
