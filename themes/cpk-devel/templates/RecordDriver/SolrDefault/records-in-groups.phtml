@@ -44,7 +44,7 @@
 		  		foreach ($dedupedRecords as $record) {
 	  				$link = $record['id'];
 	  				$source = $record['source'];
-	  				if ($source !== 'source_'.$recordSource)
+	  				//if ($source !== 'source_'.$recordSource)
 	  					echo "<li><a href='".$this->url('record', array('id' => $link))."' title='".$this->translate($source)."'>".$this->translate($source)."</a></li>";
 		  		}
 		  	?>
