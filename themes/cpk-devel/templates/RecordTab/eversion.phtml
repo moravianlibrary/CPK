@@ -53,45 +53,23 @@
 
 <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
 <script>
-
+console.log('krok -4');
 	jQuery( document ).ready( function( $ ) {
-
-		var rawDataArrayOf866 = get866( '<?= $this->driver->getParentRecordID() ?>' )['data'][0]['field866'];
-
-		var arrayOf866 = {};
-
-		if (false != rawDataArrayOf866) {
-			rawDataArrayOf866.forEach(function(entry) {
-				var pole = entry.split("|");
-
-				arrayOf866[pole[1]] = {
-					'source': pole[0], 
-					'anchor': pole[2]
-				}
-			});
-
-			if ( typeof sfxJibResult == "undefined" )
-				var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
+		console.log('krok -3');
+		var recordUniqueID = '<?= $this->driver->getUniqueID() ?>';
+		databaseTranslation = '<?=$this->translate('Database')?>';
+		unknownTranslation = '<?=$this->translate('link_access_status_unknown')?>';
+		var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
+		
+		if ( eVersionLinksCount === 0 ) {
+			$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );		
+			$( "#e-version-table" ).addClass( 'hidden' );		
+		}
+		console.log('krok -2');
+		if ( eVersionLinksCount > 0 ) {
+			console.log('krok -1');
+			get866( recordUniqueID, '<?= $this->driver->getParentRecordID() ?>', display866 );
 	
-			if ( sfxJibResult.data[0].sfxResult.targets.target !== '' && arrayOf866 !== '') {
-				var count = sfxJibResult.data[0].sfxResult.targets.target.length;
-				
-				for (var i = 0; i < count; i++) {
-					var targetServiceId = sfxJibResult.data[0].sfxResult.targets.target[i].target_service_id;
-					if ( arrayOf866[targetServiceId] != null ) {
-						var record = arrayOf866[targetServiceId];
-						var anchor = record.anchor;
-						var source = record.source;
-						var url = sfxJibResult.data[0].sfxResult.targets.target[i].target_url;
-						$( "#e-version-table tbody" ).append( "<tr>"
-								+"<td><?=$this->translate('Database')?></td>"
-								+"<td><span class='label label-warning'><?=$this->translate('link_access_status_unknown')?></span></td>"
-								+"<td><a href='"+url+"'>"+anchor+"</a></td>"
-								+"<td>"+source+"</td>"
-								+"</tr>");
-					}
-				}
-			}
 		}
 		
 	});

@@ -95,6 +95,14 @@
 
 	jQuery( document ).ready( function( $ ) {
 
+		// Disable eversion tab
+		var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
+		if ( eVersionLinksCount === 0 ) {
+			$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+			$( "#e-version-table" ).addClass( 'hidden' );		
+		}
+		
+		//
 		var recordID = '<?= $this->driver->getUniqueID() ?>';
 		var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
 
@@ -102,8 +110,6 @@
 
 		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
 			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-
-		var sfxJibResult = getSfxJibResult('http://sfx.jib.cz/sfxlcl3', '<?= $this->driver->getUniqueID() ?>', 'ANY');
 
 		var source = "<?= $recordSource ?>";
 
