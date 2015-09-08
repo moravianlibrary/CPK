@@ -37,7 +37,7 @@ class SolrMarc extends ParentSolrMarc
     {
         return $this->getFieldArray('996', $subfields);
     }
-    
+
     public function get866()
     {
     	$field866 = $this->getFieldArray('866', array('s', 'x'));
@@ -105,7 +105,7 @@ class SolrMarc extends ParentSolrMarc
         }
         return $fields;
     }
-    
+
     /**
      * Get the publishers of the record.
      *
@@ -286,7 +286,9 @@ class SolrMarc extends ParentSolrMarc
      */
     protected function getDefault996Mappings()
     {
-        return $this->getILSconfig()['Default996Mappings'];
+        $ilsConfig = $this->getILSconfig();
+
+        return isset($ilsConfig['Default996Mappings']) ? $ilsConfig['Default996Mappings'] : [];
     }
 
     /**
@@ -298,7 +300,8 @@ class SolrMarc extends ParentSolrMarc
      */
     protected function getOverriden996Mappings($source)
     {
-        $overriden996Mappings = $this->getILSconfig()['Overriden996Mappings'];
+        $ilsConfig = $this->getILSconfig();
+        $overriden996Mappings = isset($ilsConfig['Overriden996Mappings']) ? $ilsConfig['Overriden996Mappings'] : [];
         foreach ($overriden996Mappings as $institution => $configToOverrideWith) {
             if ($source === $institution)
                 return $this->ilsConfig[$configToOverrideWith];
@@ -364,7 +367,7 @@ class SolrMarc extends ParentSolrMarc
     {
         return isset($this->fields['url']) ? $this->fields['url'] : false;
     }
-    
+
     public function get866Data()
     {
     	return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : false;
@@ -374,17 +377,17 @@ class SolrMarc extends ParentSolrMarc
     {
     	return $this->getFieldArray('300');
     }
-    
+
     public function getRelease()
     {
     	return $this->getFieldArray('250');
     }
-    
+
     public function getIsn()
     {
     	return isset($this->fields['issnIsbnIsmn_search_str_mv'][0]) ? $this->fields['issnIsbnIsmn_search_str_mv'][0] : false;
     }
-    
+
     /**
      * Get comments on obalkyknih.cz associated with this record.
      *
