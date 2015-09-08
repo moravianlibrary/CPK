@@ -207,12 +207,10 @@ class Manager extends BaseManager
             else
                 $institutionToMatch = reset(explode('.', $firstHolding['id']));
 
-            $usersLibCards = $user->getLibraryCards();
+            $userInstitutions = $user->getNonDummyInstitutions();
 
-            foreach ($usersLibCards as $userLibCard) {
-                $source = $userLibCard['home_library'];
-
-                if ($source === $institutionToMatch)
+            foreach ($userInstitutions as $userInstitution) {
+                if ($userInstitution === $institutionToMatch)
                     return true;
             }
         }

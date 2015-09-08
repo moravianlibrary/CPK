@@ -248,11 +248,7 @@ class User extends BaseUser
      */
     public function getAllUserLibraryCards()
     {
-        $toReturn = [];
-        foreach ($this->getLibraryCards(true) as $libCard) {
-            $toReturn[] = $libCard;
-        }
-        return $toReturn;
+        return $this->getLibraryCards(true);
     }
 
     /**
@@ -288,6 +284,25 @@ class User extends BaseUser
             'user_id' => $this->id,
             'home_library != ?' => 'Dummy'
         ]);
+    }
+
+    /**
+     * Get all User's non-dummy connected institutions.
+     *
+     * @return array
+     */
+    public function getNonDummyInstitutions() {
+
+        $institutes = [];
+
+        $libCards = $this->getLibraryCards(false);
+
+        foreach($libCards as $libCard) {
+            if (isset($libCard['home_library']))
+                $institutes[] = $libCard['home_library'];
+        }
+
+        return array_unique($institutes);
     }
 
     /**

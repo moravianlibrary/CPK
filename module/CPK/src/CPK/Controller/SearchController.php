@@ -61,28 +61,21 @@ class SearchController extends SearchControllerBase
 		return $view;
 	}
 
-	/**
-	 * User's Library cards (home_library values)
-	 *
-	 * @return	array
-	 */
-	public function getUsersHomeLibraries()
-	{
+    /**
+     * User's Library cards (home_library values)
+     *
+     * @return array
+     */
+    public function getUsersHomeLibraries()
+    {
         $account = $this->getAuthManager();
         if ($account->isLoggedIn()) { // is loggedIn
 
-			$user = $this->getUser();
-			$libraryCards = $user->getLibraryCards()->toArray();
+            $user = $this->getUser();
 
-			$myLibs = array();
-
-			foreach ($libraryCards as $libCard) {
-				$homeLib = $libCard['home_library'];
-				$myLibs[] = $homeLib;
-			}
-
-			return array_unique($myLibs);
-		} else
-		  return [];
-	}
+            if ($user instanceof \CPK\Db\Row\User)
+                return $user->getNonDummyInstitutions();
+        } else
+            return [];
+    }
 }

@@ -746,8 +746,7 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function transferLibraryCards(UserRow $from, UserRow $into)
     {
-        // We need all user's cards here ... pass true
-        $libCards = $from->getLibraryCards(true);
+        $libCards = $from->getAllUserLibraryCards();
         foreach ($libCards as $libCard) {
 
             // Because eppn column is across user_card table unique, we need to mark it to deletion
@@ -780,8 +779,7 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function updateIdentityCatUsername(UserRow $user, $prefix, $cat_username)
     {
-        // We do not need dummy cards .. pass false here
-        $resultSet = $user->getLibraryCards(false);
+        $resultSet = $user->getLibraryCards();
 
         $libCardToSave = false;
         foreach ($resultSet as $libraryCard) {
