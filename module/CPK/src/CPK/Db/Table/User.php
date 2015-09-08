@@ -83,7 +83,7 @@ class User extends BaseUser
         $this->deleteConsolidationToken($token);
         $clearedTokens = $this->clearAllExpiredTokens($secondsToExpire);
 
-        $isExpired = $time >= intval($result->created) + $secondsToExpire;
+        $isExpired = $time >= intval($result['created']) + $secondsToExpire;
 
         if ($isExpired)
             throw new \VuFind\Exception\Auth('Consolidation token has expired.');
