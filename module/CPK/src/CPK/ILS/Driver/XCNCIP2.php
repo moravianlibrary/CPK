@@ -1025,6 +1025,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
             $title = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
+            if (empty($title) || $title[0] == '') $title = $this->useXPath($current, 'Title');
             $mediumType = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
