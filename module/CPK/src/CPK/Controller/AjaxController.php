@@ -143,11 +143,20 @@ class AjaxController extends AjaxControllerBase
         $parentRecordID = $recordDriver->getParentRecordID();
         $parentRecordDriver = $recordLoader->load($parentRecordID);
         $isbn = $parentRecordDriver->getIsn();
+        if ($isbn === false)
+        	$isbn = $recordDriver->getIsn();
+        
 
         $url = $this->params()->fromQuery('sfxUrl');
 
+        
+        $openUrl = $recordDriver->getOpenURL();
         $additionalParams = array();
-        parse_str($recordDriver->getOpenURL(), $additionalParams);
+        parse_str($openUrl, $additionalParams);
+        
+        foreach ($additionalParams as $key => $val) {
+        	$additionalParams[str_replace("rft_", "rft.", $key)] = $val;
+        }
 
         $params = array(
             'sfx.institute' => $institute,

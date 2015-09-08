@@ -2,18 +2,19 @@
   // Set page title.
   $this->headTitle($this->translate('E-version') . ': ' . $this->driver->getBreadcrumb());
 ?>
-<? if ($this->linksFrom856): ?>
-	<div class='field856'>
-		<table class='table' id='e-version-table'>
-			<thead>
-			<tr>
-				<th class="col-md-2"><?=$this->translate('Destination');?></th>
-				<th class="col-md-2"><?=$this->translate('Accessibility');?></th>
-				<th class="col-md-5"><?=$this->translate('Link');?></th>
-				<th class="col-md-3"><?=$this->translate('Distributor');?></th>
-			</tr>
-			</thead>
-			<tbody>
+
+<div class='field856'>
+	<table class='table' id='e-version-table'>
+		<thead>
+		<tr>
+			<th class="col-md-2"><?=$this->translate('Destination');?></th>
+			<th class="col-md-2"><?=$this->translate('Accessibility');?></th>
+			<th class="col-md-5"><?=$this->translate('Link');?></th>
+			<th class="col-md-3"><?=$this->translate('Distributor');?></th>
+		</tr>
+		</thead>
+		<tbody>
+			<? if ($this->linksFrom856): ?>
 				<? foreach ($this->linksFrom856 as $linkRawString): 
 					$link = explode("|", $linkRawString);
 					$anchor = ! empty($link[3]) ? $link[3] : $this->transEsc('Link');
@@ -43,10 +44,11 @@
 						<td><?=$this->transEsc('source_'.$link[0])?></td>
 					</tr>
 				<? endforeach; ?>
-			</tbody>
-		</table>
-	</div>
-<? endif; ?>
+			<? endif; ?>
+		</tbody>
+	</table>
+</div>
+
 <div id='sfx-jib-ajax-result'></div>
 
 <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
@@ -87,7 +89,6 @@
 								+"<td><a href='"+url+"'>"+anchor+"</a></td>"
 								+"<td>"+source+"</td>"
 								+"</tr>");
-						console.log('je tam'+anchor);
 					}
 				}
 			}
