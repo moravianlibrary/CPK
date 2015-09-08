@@ -204,6 +204,13 @@ class AjaxController extends AjaxControllerBase
     	$recordDriver = $recordLoader->load($parentRecordID);
 
     	$field866 = $recordDriver->get866Data();
+    	
+    	foreach ($field866 as $key => $field) {
+    		$fieldArr = explode("|", $field);
+    		$source = $fieldArr[0];
+    		$translation = $this->translate('source_'.$source);
+    		$field866[$key] = str_replace($source, $translation, $field);
+    	}
 
     	$vars[] = array(
     			'field866' => $field866
