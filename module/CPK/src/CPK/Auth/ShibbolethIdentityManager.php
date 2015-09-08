@@ -597,7 +597,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow = $this->updateUserRow($userRow, $attributes);
 
         // Assign the user new library card
-        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, $userRow->email);
+        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, $userRow->email, $this->canConsolidateMoreTimes);
 
         return $userRow;
     }

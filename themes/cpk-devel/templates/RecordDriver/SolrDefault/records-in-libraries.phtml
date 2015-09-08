@@ -1,7 +1,7 @@
 <span class=""><?=$this->translate('Found in these institutions') ?>:</span>
 
 <div class="col-sm-12 dedupInformation">
-<?php 
+<?php
 
 	$count = count($records);
 	if ($count <= 2) {
@@ -18,8 +18,8 @@
 		$recordUrl = $this->recordLink()->getUrl($record);
 		$anchor = $this->transEsc('source_' . $source, null, $source);
 
-		$logoKey = $this->config->IdPLogosMappedToSolr->$source ?: '';
-		$logoUrl = $this->config->IdPLogos->$logoKey ?: '' ?>
+		$logoKey = $this->config->IdPLogosMappedToSolr[$source] ?: '';
+		$logoUrl = $this->config->IdPLogos[$logoKey] ?: '' ?>
 
 <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>" <?=(++$i > $maxInstitutionsShown) ? 'hidden="hidden"' : '' ?>>
     <div class="row root-title">
