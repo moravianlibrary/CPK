@@ -16,24 +16,23 @@ function getBuyLinks( recordID, parentRecordID ) {
 
 function getSfxJibResult( sfxUrl, recordID, institute, arrayOf866 ) {
 	var institute = typeof institute !== 'undefined' ? institute : 'ANY';
-	console.log('krok 3');
+
 	$.ajax({
 		dataType: 'json',
 		async: true,
 		url: '/AJAX/JSON?method=callSfx',
 		data: { recordID: recordID, institute: institute, sfxUrl: sfxUrl },
 		success: function( sfxJibResult ) {
-			console.log('krok 3.2');
+
 			if( sfxJibResult.status !== 'OK' ) {
-				console.log('krok 3.3');
+
 				// display the error message on each of the ajax status place holder
 				$( "#ajax-error-info" ).empty().append( response.data );
 			} else {
-				console.log('krok 3.4');
-				console.log('krok 8');
+
 				if ( sfxJibResult.data[0].sfxResult.targets.target !== '' && arrayOf866 !== '') {
 					var count = sfxJibResult.data[0].sfxResult.targets.target.length;
-					console.log('krok 8');
+
 					for (var i = 0; i < count; i++) {
 						var targetServiceId = sfxJibResult.data[0].sfxResult.targets.target[i].target_service_id;
 						if ( arrayOf866[targetServiceId] != null ) {
@@ -47,7 +46,7 @@ function getSfxJibResult( sfxUrl, recordID, institute, arrayOf866 ) {
 									+"<td><a href='"+url+"'>"+anchor+"</a></td>"
 									+"<td>"+source+"</td>"
 									+"</tr>");
-							console.log('krok 5');
+
 						}
 					}
 				}

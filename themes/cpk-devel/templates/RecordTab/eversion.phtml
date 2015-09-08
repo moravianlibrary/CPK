@@ -53,9 +53,9 @@
 
 <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
 <script>
-console.log('krok -4');
+
 	jQuery( document ).ready( function( $ ) {
-		console.log('krok -3');
+
 		var recordUniqueID = '<?= $this->driver->getUniqueID() ?>';
 		databaseTranslation = '<?=$this->translate('Database')?>';
 		unknownTranslation = '<?=$this->translate('link_access_status_unknown')?>';
@@ -65,9 +65,7 @@ console.log('krok -4');
 			$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );		
 			$( "#e-version-table" ).addClass( 'hidden' );		
 		}
-		console.log('krok -2');
 		if ( eVersionLinksCount > 0 ) {
-			console.log('krok -1');
 			get866( recordUniqueID, '<?= $this->driver->getParentRecordID() ?>', display866 );
 	
 		}
