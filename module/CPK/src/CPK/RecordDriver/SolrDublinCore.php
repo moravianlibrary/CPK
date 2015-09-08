@@ -120,6 +120,7 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:subject');
+        $ret = [];
         foreach ($value as $part) {
             $ret[] = (string) $part;
         }
@@ -269,6 +270,7 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:language');
+        $ret = [];
         foreach ($value as $part) {
             $ret[] = (string) $part;
         }
@@ -323,6 +325,7 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:publisher');
+        $ret = [];
         foreach ($value as $part) {
             $ret[] = (string) $part;
         }
@@ -340,6 +343,7 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:date');
+        $ret = [];
         foreach ($value as $part) {
             $ret[] = (string) $part;
         }
@@ -465,6 +469,7 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:description');
+        $ret = [];
         foreach ($value as $part) {
             $ret[] = (string) $part;
         }
@@ -492,11 +497,24 @@ class SolrDublinCore extends ParentSolrMarc
         $fullrecord = $this->fields['fullrecord'];
         $dc = simplexml_load_string($fullrecord);
         $value = $dc->xpath('//dc:identifier');
+        $ret = [];
         foreach ($value as $part) {
             if (! is_int(strpos((string) $part, "signature:"))) continue;
             $ret[] = str_replace("signature:", "", (string) $part);
         }
         return empty($value) ? [] : $ret;
+    }
+
+    public function getRelease()
+    {
+        //return $this->getFieldArray('250');
+        return [];
+    }
+
+    public function getRange()
+    {
+        //return $this->getFieldArray('300');
+        return [];
     }
 
 }

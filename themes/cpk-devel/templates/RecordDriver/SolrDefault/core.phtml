@@ -131,6 +131,7 @@
 
 		foreach($fieldsOf7xx as $number => $activeField) {
 			$i = 0;
+			if (! $activeField) continue;
 			foreach ($activeField as $field) {
 			
 				if (null === $field)
@@ -180,18 +181,18 @@
           <td><? foreach ($langs as $lang): ?><?= $this->escapeHtml($lang)?><br/><? endforeach; ?></td>
         </tr>
       <? endif; ?>
-      
-      <? $range = $this->driver->getRange()[0]; if (!empty($range)): ?>
+
+      <? $range = $this->driver->getRange(); if (!empty($range) && ($range[0] != '')): ?>
         <tr>
           <th class="col-md-4"><?=$this->transEsc('Document range')?>: </th>
-          <td><?=$range?></td>
+          <td><?=$range[0]?></td>
         </tr>
       <? endif; ?>
-      
-      <? $release = $this->driver->getRelease()[0]; if (!empty($release)): ?>
+
+      <? $release = $this->driver->getRelease(); if (!empty($release) && ($release[0] != '')): ?>
         <tr>
           <th class="col-md-4"><?=$this->transEsc('Release')?>: </th>
-          <td><?=$release?></td>
+          <td><?=$release[0]?></td>
         </tr>
       <? endif; ?>
 
