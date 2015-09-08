@@ -142,14 +142,13 @@ class AjaxController extends AjaxControllerBase
 
         $parentRecordID = $recordDriver->getParentRecordID();
         $parentRecordDriver = $recordLoader->load($parentRecordID);
-        $isbn = $parentRecordDriver->getIsn();
-        if ($isbn === false)
-        	$isbn = $recordDriver->getIsn();
+        $isn = $parentRecordDriver->getIsn();
+        if ($isn === false)
+        	$isn = $recordDriver->getIsn();
         
 
         $url = $this->params()->fromQuery('sfxUrl');
 
-        
         $openUrl = $recordDriver->getOpenURL();
         $additionalParams = array();
         parse_str($openUrl, $additionalParams);
@@ -157,14 +156,21 @@ class AjaxController extends AjaxControllerBase
         foreach ($additionalParams as $key => $val) {
         	$additionalParams[str_replace("rft_", "rft.", $key)] = $val;
         }
+        
+        $issnPattern = "[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]";
+        if (preg_match($issnPattern, $isbn)) {
+        	$isnKey = "rft.issn";
+        } else {
+        	$isnKey = "rft.isbn";
+        }
 
         $params = array(
             'sfx.institute' => $institute,
             'ctx_ver' => 'Z39.88-2004',
             'ctx_enc' => 'info:ofi/enc:UTF-8',
             'sfx.response_type' => 'simplexml',
-            'rft.isbn' => str_replace("-", "",
-                (string) $isbn)
+            $isnKey => str_replace("-", "",
+                (string) $isn)
         );
 
         $allParams = array_merge($params, $additionalParams);
