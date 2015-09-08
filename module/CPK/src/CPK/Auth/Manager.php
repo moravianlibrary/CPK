@@ -47,9 +47,12 @@ class Manager extends BaseManager
      * @param \Zend\Config\Config $config
      *            VuFind configuration
      */
-    public function __construct(Config $config, UserTable $userTable, SessionManager $sessionManager, PluginManager $pm, CookieManager $cookieManager)
+    public function __construct(Config $config, UserTable $userTable,
+        SessionManager $sessionManager, PluginManager $pm,
+        CookieManager $cookieManager)
     {
-        parent::__construct($config, $userTable, $sessionManager, $pm, $cookieManager);
+        parent::__construct($config, $userTable, $sessionManager, $pm,
+            $cookieManager);
     }
 
     /**
@@ -113,7 +116,8 @@ class Manager extends BaseManager
         } catch (\Exception $e) {
             // Catch other exceptions, log verbosely, and treat them as technical
             // difficulties
-            error_log("Exception in " . get_class($this) . "::login: " . $e->getMessage());
+            error_log(
+                "Exception in " . get_class($this) . "::login: " . $e->getMessage());
             error_log($e);
             throw new AuthException('authentication_error_technical');
         }
@@ -182,6 +186,41 @@ class Manager extends BaseManager
     }
 
     /**
+     * Determines whether can current User place a reserve on any of passed holdings.
+     *
+     * We suppose the array of holdings contains items from only one institution.
+     *
+     * Returns false if are holdings empty or user not logged in.
+     *
+     * @param unknown $holdings
+     * @param unknown $user
+     * @return boolean $canReserveWithinInstitution
+     */
+    public function canReserveWithinInstitution($holdings, $user)
+    {
+        if (count($holdings) > 0 && $user instanceof \CPK\Db\Row\User) {
+
+            $firstHolding = reset($holdings);
+
+            if (isset($firstHolding['source']))
+                $institutionToMatch = $firstHolding['source'];
+            else
+                $institutionToMatch = reset(explode('.', $firstHolding['id']));
+
+            $usersLibCards = $user->getLibraryCards();
+
+            foreach ($usersLibCards as $userLibCard) {
+                $source = $userLibCard['home_library'];
+
+                if ($source === $institutionToMatch)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Checks if the activeAuth matches $authToCheckFor, else
      * throws AuthException with desired $errorMessage.
      *
@@ -206,6 +245,7 @@ class Manager extends BaseManager
      */
     protected function checkActiveAuthIsSIM()
     {
-        $this->checkActiveAuthIs("ShibbolethIdentityManager", "Account consolidation may provide only ShibbolethIdentityManager authentication method.");
+        $this->checkActiveAuthIs("ShibbolethIdentityManager",
+            "Account consolidation may provide only ShibbolethIdentityManager authentication method.");
     }
 }

@@ -3,9 +3,12 @@
 $this->headTitle(
     $this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
 // Set up convenience variables:
-$account = $this->auth()->getManager();
-$user = $account->isLoggedIn();
 $holdings = $this->driver->getRealTimeHoldings();
+$authManager = $this->auth()->getManager();
+$user = $authManager->isLoggedIn();
+
+$canReserveThisInstitution = $authManager->canReserveWithinInstitution($holdings, $user);
+
 $offlineMode = $this->ils()->getOfflineMode();
 // Account for replace_other_urls setting
 
@@ -64,8 +67,8 @@ $this->headTitle(
         $row['uniqueRowId'] = (isset($row['source']) && ! empty($itemId)) ? $row['source'] .
              '.' . $itemId : null;
 
-        if (! empty($row['item_id'])) {
-            // Create link for reserve
+        // Create link for reserve
+        if (! empty($row['item_id']) && $canReserveThisInstitution) {
             $row['link'] = '/Record/' . $row['id'] . '/Hold?id=' . $row['id'] .
                  '&item_id=' . end(explode(':', $row['item_id']));
 
