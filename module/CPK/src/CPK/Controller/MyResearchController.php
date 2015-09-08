@@ -86,7 +86,7 @@ class MyResearchController extends MyResearchControllerBase
             $profileFetched = $identity->cat_username === $patron['cat_username'];
 
             if (! $profileFetched)
-                $patron = $this->parsePatronFromIdentity($identity);
+                $patron = $this->parsePatronuser->libCardToPatronArrayntity($identity);
 
                 // Here starts VuFind/MyResearch/profileAction
                 // Process home library parameter (if present):
@@ -168,7 +168,7 @@ class MyResearchController extends MyResearchControllerBase
             $profileFetched = $identity->cat_username === $patron['cat_username'];
 
             if (! $profileFetched)
-                $patron = $this->parsePatronFromIdentity($identity);
+                $patron = $user->libCardToPatronArray($identity);
             // Start of VuFind/MyResearch/holdsAction
 
             // Connect to the ILS:
@@ -245,7 +245,7 @@ class MyResearchController extends MyResearchControllerBase
             $profileFetched = $identity->cat_username === $patron['cat_username'];
 
             if (! $profileFetched)
-                $patron = $this->parsePatronFromIdentity($identity);
+                $patron = $user->libCardToPatronArray($identity);
 
             // Start of VuFind/MyResearch/checkedoutAction
 
@@ -426,16 +426,6 @@ class MyResearchController extends MyResearchControllerBase
             ->addMessage($msg);
     }
 
-    protected function parsePatronFromIdentity($identity)
-    {
-        $patron['cat_username'] = $identity->cat_username;
-        $patron['mail'] = $identity->card_name;
-        $patron['eppn'] = $identity->eppn;
-
-        $patron['id'] = $patron['cat_username'];
-        return $patron;
-    }
-
     /**
      * Send list of fines to view
      *
@@ -469,7 +459,7 @@ class MyResearchController extends MyResearchControllerBase
             $profileFetched = $identity->cat_username === $patron['cat_username'];
 
             if (! $profileFetched)
-                $patron = $this->parsePatronFromIdentity($identity);
+                $patron = $user->libCardToPatronArray($identity);
 
             // Begin building view object:
             $currentIdentityView = $this->createViewModel();

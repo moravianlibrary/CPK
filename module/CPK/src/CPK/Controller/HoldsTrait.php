@@ -31,10 +31,10 @@ namespace CPK\Controller;
  * Holds trait (for subclasses of AbstractRecord)
  *
  * @category VuFind2
- * @package  Controller
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @package Controller
+ * @author Demian Katz <demian.katz@villanova.edu>
+ * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link http://vufind.org Main Site
  */
 trait HoldsTrait
 {
@@ -47,71 +47,101 @@ trait HoldsTrait
     public function holdAction()
     {
         $driver = $this->loadRecord();
+        $uniqueId = $driver->getUniqueID();
 
         // Stop now if the user does not have valid catalog credentials available:
-        if (!is_array($patron = $this->catalogLogin())) {
+        if (! is_array($patron = $this->catalogLogin())) {
             return $patron;
         }
 
+        $source = reset(explode('.', $uniqueId));
+
+        $user = $this->getUser();
+
+        $libCardToUse = false;
+
+        if ($user instanceof \CPK\Db\Row\User) {
+            $libCards = $user->getLibraryCards();
+            foreach ($libCards as $libCard) {
+                $instutition = $libCard->home_library;
+
+                if (empty($instutition))
+                    continue;
+
+                if ($instutition === $source) {
+                    $libCardToUse = $libCard;
+                    break;
+                }
+            }
+        }
+
+        // Some curious user tries to reserve holding which doesn't belong to any of his institutions..
+        if ($libCardToUse === false) {
+            $this->forceLogin();
+        }
+
+        $patron = $user->libCardToPatronArray($libCardToUse);
+
         // If we're not supposed to be here, give up now!
         $catalog = $this->getILS();
-        $checkHolds = $catalog->checkFunction(
-            'Holds',
+        $checkHolds = $catalog->checkFunction('Holds',
             [
-                'id' => $driver->getUniqueID(),
+                'id' => $uniqueId,
                 'patron' => $patron
-            ]
-        );
-        if (!$checkHolds) {
+            ]);
+        if (! $checkHolds) {
             return $this->redirectToRecord();
         }
 
         // Do we have valid information?
         // Sets $this->logonURL and $this->gatheredDetails
         $gatheredDetails = $this->holds()->validateRequest($checkHolds['HMACKeys']);
-        if (!$gatheredDetails) {
+        if (! $gatheredDetails) {
             return $this->redirectToRecord();
         }
 
         // Block invalid requests:
-        if (!$catalog->checkRequestIsValid(
-            $driver->getUniqueID(), $gatheredDetails, $patron
-        )) {
+        if (! $catalog->checkRequestIsValid($driver->getUniqueID(), $gatheredDetails,
+            $patron)) {
             return $this->blockedholdAction();
         }
 
         // Send various values to the view so we can build the form:
         $pickup = $catalog->getPickUpLocations($patron, $gatheredDetails);
-        $requestGroups = $catalog->checkCapability(
-            'getRequestGroups', [$driver->getUniqueID(), $patron]
-        ) ? $catalog->getRequestGroups($driver->getUniqueID(), $patron) : [];
-        $extraHoldFields = isset($checkHolds['extraHoldFields'])
-            ? explode(":", $checkHolds['extraHoldFields']) : [];
+        $requestGroups = $catalog->checkCapability('getRequestGroups',
+            [
+                $driver->getUniqueID(),
+                $patron
+            ]) ? $catalog->getRequestGroups($driver->getUniqueID(), $patron) : [];
+        $extraHoldFields = isset($checkHolds['extraHoldFields']) ? explode(":",
+            $checkHolds['extraHoldFields']) : [];
 
         // Process form submissions if necessary:
-        if (!is_null($this->params()->fromPost('placeHold'))) {
+        if (! is_null($this->params()->fromPost('placeHold'))) {
             // If the form contained a pickup location or request group, make sure
             // they are valid:
-            $valid = $this->holds()->validateRequestGroupInput(
-                $gatheredDetails, $extraHoldFields, $requestGroups
-            );
-            if (!$valid) {
-                $this->flashMessenger()->setNamespace('error')
+            $valid = $this->holds()->validateRequestGroupInput($gatheredDetails,
+                $extraHoldFields, $requestGroups);
+            if (! $valid) {
+                $this->flashMessenger()
+                    ->setNamespace('error')
                     ->addMessage('hold_invalid_request_group');
-            } elseif (!$this->holds()->validatePickUpInput(
-                $gatheredDetails['pickUpLocation'], $extraHoldFields, $pickup
-            )) {
-                $this->flashMessenger()->setNamespace('error')
+            } elseif (! $this->holds()->validatePickUpInput(
+                $gatheredDetails['pickUpLocation'], $extraHoldFields, $pickup)) {
+                $this->flashMessenger()
+                    ->setNamespace('error')
                     ->addMessage('hold_invalid_pickup');
             } else {
                 // If we made it this far, we're ready to place the hold;
                 // if successful, we will redirect and can stop here.
 
                 // Add Patron Data to Submitted Data
-                $holdDetails = $gatheredDetails + ['patron' => $patron];
+                $holdDetails = $gatheredDetails + [
+                    'patron' => $patron
+                ];
 
                 // Attempt to place the hold:
-                $function = (string)$checkHolds['function'];
+                $function = (string) $checkHolds['function'];
                 $results = $catalog->$function($holdDetails);
 
                 // Success: Go to Display Holds
@@ -121,19 +151,23 @@ trait HoldsTrait
                         'msg' => 'hold_place_success_html',
                         'tokens' => [
                             '%%url%%' => $this->url()->fromRoute('myresearch-holds')
-                        ],
+                        ]
                     ];
-                    $this->flashMessenger()->setNamespace('info')->addMessage($msg);
+                    $this->flashMessenger()
+                        ->setNamespace('info')
+                        ->addMessage($msg);
                     return $this->redirectToRecord('#top');
                 } else {
                     // Failure: use flash messenger to display messages, stay on
                     // the current form.
                     if (isset($results['status'])) {
-                        $this->flashMessenger()->setNamespace('error')
+                        $this->flashMessenger()
+                            ->setNamespace('error')
                             ->addMessage($results['status']);
                     }
                     if (isset($results['sysMessage'])) {
-                        $this->flashMessenger()->setNamespace('error')
+                        $this->flashMessenger()
+                            ->setNamespace('error')
                             ->addMessage($results['sysMessage']);
                     }
                 }
@@ -141,29 +175,27 @@ trait HoldsTrait
         }
 
         // Find and format the default required date:
-        $defaultRequired = $this->holds()->getDefaultRequiredDate(
-            $checkHolds, $catalog, $patron, $gatheredDetails
-        );
-        $defaultRequired = $this->getServiceLocator()->get('VuFind\DateConverter')
+        $defaultRequired = $this->holds()->getDefaultRequiredDate($checkHolds,
+            $catalog, $patron, $gatheredDetails);
+        $defaultRequired = $this->getServiceLocator()
+            ->get('VuFind\DateConverter')
             ->convertToDisplayDate("U", $defaultRequired);
         try {
-            $defaultPickup
-                = $catalog->getDefaultPickUpLocation($patron, $gatheredDetails);
+            $defaultPickup = $catalog->getDefaultPickUpLocation($patron,
+                $gatheredDetails);
         } catch (\Exception $e) {
             $defaultPickup = false;
         }
         try {
-            $defaultRequestGroup = empty($requestGroups)
-                ? false
-                : $catalog->getDefaultRequestGroup($patron, $gatheredDetails);
+            $defaultRequestGroup = empty($requestGroups) ? false : $catalog->getDefaultRequestGroup(
+                $patron, $gatheredDetails);
         } catch (\Exception $e) {
             $defaultRequestGroup = false;
         }
 
-        $requestGroupNeeded = in_array('requestGroup', $extraHoldFields)
-            && !empty($requestGroups)
-            && (empty($gatheredDetails['level'])
-                || $gatheredDetails['level'] != 'copy');
+        $requestGroupNeeded = in_array('requestGroup', $extraHoldFields) &&
+             ! empty($requestGroups) && (empty($gatheredDetails['level']) ||
+             $gatheredDetails['level'] != 'copy');
 
         $view = $this->createViewModel(
             [
@@ -176,10 +208,8 @@ trait HoldsTrait
                 'requestGroups' => $requestGroups,
                 'defaultRequestGroup' => $defaultRequestGroup,
                 'requestGroupNeeded' => $requestGroupNeeded,
-                'helpText' => isset($checkHolds['helpText'])
-                    ? $checkHolds['helpText'] : null
-            ]
-        );
+                'helpText' => isset($checkHolds['helpText']) ? $checkHolds['helpText'] : null
+            ]);
         $view->setTemplate('record/hold');
         return $view;
     }

@@ -306,6 +306,22 @@ class User extends BaseUser
     }
 
     /**
+     * Converts libraryCard into 'patron' array used by major part of VuFind.
+     *
+     * @param VuFind\Db\Row\UserCard $libCard
+     * @return array
+     */
+    public function libCardToPatronArray(\VuFind\Db\Row\UserCard $libCard)
+    {
+        $patron['cat_username'] = $libCard->cat_username;
+        $patron['mail'] = $libCard->card_name;
+        $patron['eppn'] = $libCard->eppn;
+
+        $patron['id'] = $patron['cat_username'];
+        return $patron;
+    }
+
+    /**
      * Checks if specified UserCard row id owns current User.
      *
      * @param int $id
