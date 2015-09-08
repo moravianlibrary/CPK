@@ -23,8 +23,7 @@ return array(
     	'jquery-ui.min.js',
     	'ajax-record-tabs.js',
         'eu-cookies.js',
-        'async-holdings-statuses.js',
-        'search-results-tabs.js'
+        'async-holdings-statuses.js'
     ),
     'less' => array(
         'active' => false,

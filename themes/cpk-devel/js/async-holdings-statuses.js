@@ -134,7 +134,7 @@ function updateHoldingId(id, value, setDangerLabel) {
 
 	label.removeClass('label-primary').addClass('label-warning');
 
-	if (divLink !== 'undefined')
+	if (typeof divLink !== 'undefined')
 	    divLink.remove();
 
     } else {
@@ -142,7 +142,7 @@ function updateHoldingId(id, value, setDangerLabel) {
 	if (setDangerLabel) {
 	    label.removeClass('label-primary').addClass('label-danger');
 
-	    if (divLink !== 'undefined')
+	    if (typeof divLink !== 'undefined')
 		divLink.remove();
 
 	} else {
@@ -151,7 +151,7 @@ function updateHoldingId(id, value, setDangerLabel) {
 
 	    label.removeClass('label-primary').addClass(labelType);
 
-	    if (divLink !== 'undefined') {
+	    if (typeof divLink !== 'undefined') {
 		// Show hidden link
 		var linkSpan = divLink.children[0].children[0], holdType = value.hold_type;
 
