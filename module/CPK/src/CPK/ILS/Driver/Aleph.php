@@ -39,7 +39,7 @@ use VuFind\ILS\Driver\SolrIdResolver as SolrIdResolverBase;
 class Aleph extends AlephBase
 {
 
-    const AVAILABLE_STATUSES_DELIMITER = ',';
+    const CONFIG_ARRAY_DELIMITER = ',';
 
     protected $available_statuses = [];
 
@@ -52,7 +52,7 @@ class Aleph extends AlephBase
         parent::init();
 
         if (isset($this->config['Catalog']['available_statuses'])) {
-            $this->available_statuses = explode(self::AVAILABLE_STATUSES_DELIMITER, $this->config['Catalog']['available_statuses']);
+            $this->available_statuses = explode(self::CONFIG_ARRAY_DELIMITER, $this->config['Catalog']['available_statuses']);
         }
 
         if (isset($this->config['Catalog']['eppnScope'])) {
@@ -70,8 +70,13 @@ class Aleph extends AlephBase
         if (isset($this->config['IdResolver']['type'])) {
             $idResolverType = $this->config['IdResolver']['type'];
         }
+
         if ($idResolverType == 'solr') {
             $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
+        }
+
+        if (isset($this->config['Catalog']['dont_show_link'])) {
+            $this->dontShowLink = explode(self::CONFIG_ARRAY_DELIMITER, $this->config['Catalog']['dont_show_link']);
         }
     }
 
@@ -144,13 +149,14 @@ class Aleph extends AlephBase
                 if (array_search($id, $ids) === false)
                     continue;
 
-                list ($status, $dueDate, $holdType) = $this->parseStatusFromItem($item);
+                list ($status, $dueDate, $holdType, $label) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
                     'status' => $status,
                     'due_date' => $dueDate,
-                    'hold_type' => $holdType
+                    'hold_type' => $holdType,
+                    'label' => $label
                 );
             }
         } else // Query one by one item
@@ -172,13 +178,14 @@ class Aleph extends AlephBase
 
                 $item = $xml->{'item'};
 
-                list ($status, $dueDate, $holdType) = $this->parseStatusFromItem($item);
+                list ($status, $dueDate, $holdType, $label) = $this->parseStatusFromItem($item);
 
                 $statuses[] = array(
                     'id' => $id,
                     'status' => $status,
                     'due_date' => $dueDate,
-                    'hold_type' => $holdType
+                    'hold_type' => $holdType,
+                    'label' => $label
                 );
 
                 // Returns parsed items to show it to user
@@ -201,9 +208,12 @@ class Aleph extends AlephBase
     {
         $status = (string) $item->{'status'};
 
+        $itemStatus = (string) $item->{'z30'}->{'z30-item-status'};
+
         $isDueDate = preg_match('/[0-9]{2}\/.+\/[0-9]{4}/', $status);
 
         $holdType = 'Recall This';
+        $label = 'label-danger';
 
         if ($isDueDate) {
             $dueDate = $status;
@@ -216,15 +226,22 @@ class Aleph extends AlephBase
 
                 $status = 'available';
                 $holdType = 'Place a Hold';
+                $label = 'label-success';
 
-            } else
+            } else {
                 $status = 'unavailable';
+            }
+
+            if (in_array($itemStatus, $this->dontShowLink)) {
+                $holdType = 'false';
+            }
         }
 
         return [
             $status,
             $dueDate,
-            $holdType
+            $holdType,
+            $label
         ];
     }
 

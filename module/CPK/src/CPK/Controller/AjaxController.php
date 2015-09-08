@@ -145,18 +145,18 @@ class AjaxController extends AjaxControllerBase
         $isn = $parentRecordDriver->getIsn();
         if ($isn === false)
         	$isn = $recordDriver->getIsn();
-        
+
 
         $url = $this->params()->fromQuery('sfxUrl');
 
         $openUrl = $recordDriver->getOpenURL();
         $additionalParams = array();
         parse_str($openUrl, $additionalParams);
-        
+
         foreach ($additionalParams as $key => $val) {
         	$additionalParams[str_replace("rft_", "rft.", $key)] = $val;
         }
-        
+
         $issnPattern = "[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]";
         if (preg_match($issnPattern, $isn)) {
         	$isnKey = "rft.issn";
@@ -204,7 +204,7 @@ class AjaxController extends AjaxControllerBase
     	$recordDriver = $recordLoader->load($parentRecordID);
 
     	$field866 = $recordDriver->get866Data();
-    	
+
     	foreach ($field866 as $key => $field) {
     		$fieldArr = explode("|", $field);
     		$source = $fieldArr[0];
@@ -349,6 +349,9 @@ class AjaxController extends AjaxControllerBase
 
                 if (! empty($status['hold_type']))
                     $itemsStatuses[$id]['hold_type'] = $viewRend->transEsc($status['hold_type']);
+
+                if (! empty($status['label']))
+                    $itemsStatuses[$id]['label'] = $status['label'];
 
                 $key = array_search($id, $ids);
 

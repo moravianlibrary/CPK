@@ -19,7 +19,9 @@ wwwuser      = "WWW-X"
 wwwpasswd    = "WWW-X"
 
 ; statuses when an item is available
-available_statuses = "On Shelf,Open St.-Month,Vol.výb.-měs."
+available_statuses = "On Shelf,Open St.-Month,Jen do studovny"
+dont_show_link     = "Studovna,Vol.výb.-měs."
+
 quick_availability = true
 disable_ils_auth   = false
 

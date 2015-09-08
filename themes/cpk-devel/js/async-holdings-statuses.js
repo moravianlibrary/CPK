@@ -151,12 +151,16 @@ function updateHoldingId(id, value, setDangerLabel) {
 
 	    label.removeClass('label-primary').addClass(labelType);
 
-	    if (typeof divLink !== 'undefined') {
+	    toBeBroken: if (typeof divLink !== 'undefined') {
 		// Show hidden link
 		var linkSpan = divLink.children[0].children[0], holdType = value.hold_type;
 
-		if (typeof holdType === 'undefined')
+		if (typeof holdType === 'undefined') {
 		    holdType = 'Reserve';
+		} else if (holdType === 'false') {
+		    divLink.remove();
+		    break toBeBroken;
+		}		
 
 		linkSpan.innerHTML = holdType;
 
