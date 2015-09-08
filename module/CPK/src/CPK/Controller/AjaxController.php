@@ -158,7 +158,7 @@ class AjaxController extends AjaxControllerBase
         }
         
         $issnPattern = "[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]";
-        if (preg_match($issnPattern, $isbn)) {
+        if (preg_match($issnPattern, $isn)) {
         	$isnKey = "rft.issn";
         } else {
         	$isnKey = "rft.isbn";
