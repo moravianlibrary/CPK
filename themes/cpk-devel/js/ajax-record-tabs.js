@@ -18,7 +18,7 @@ function getSfxJibResult( sfxUrl, recordID, institute ) {
 	var institute = typeof institute !== 'undefined' ? institute : 'ANY';
 	var ajaxResponse = $.ajax({
 		dataType: 'json',
-		async: false,
+		async: true,
 		url: '/AJAX/JSON?method=callSfx',
 		data: { recordID: recordID, institute: institute, sfxUrl: sfxUrl },
 		success: function( response ) {
@@ -34,7 +34,7 @@ function getSfxJibResult( sfxUrl, recordID, institute ) {
 function get866( parentRecordID ) {
 	var ajaxResponse = $.ajax({
 		dataType: 'json',
-		async: false,
+		async: true,
 		url: '/AJAX/JSON?method=get866',
 		data: { parentRecordID: parentRecordID },
 		success: function( response ) {
