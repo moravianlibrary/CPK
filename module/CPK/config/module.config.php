@@ -112,9 +112,6 @@ $config = array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
             'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator', // Exceptions throwing system
         ),
-        'invokables' => array(
-            'wantitfactory' => 'CPK\WantIt\Factory'
-        ),
     ),
 );
 
