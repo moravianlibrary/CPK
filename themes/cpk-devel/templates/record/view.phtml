@@ -92,6 +92,11 @@
   <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
   <script>
 
+  	function disableBuyTab( buyLinks )
+	{
+		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
+			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+	}
 
 	jQuery( document ).ready( function( $ ) {
 
@@ -106,10 +111,7 @@
 		var recordID = '<?= $this->driver->getUniqueID() ?>';
 		var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
 
-		var buyLinks = getBuyLinks( recordID, parentRecordID );
-
-		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
-			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+		var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );
 
 		var source = "<?= $recordSource ?>";
 

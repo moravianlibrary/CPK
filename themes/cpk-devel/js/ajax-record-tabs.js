@@ -1,17 +1,18 @@
-function getBuyLinks( recordID, parentRecordID ) {
-	var ajaxResponse = $.ajax({
+function getBuyLinks( recordID, parentRecordID, callback ) {
+	$.ajax({
 		dataType: 'json',
 		url: '/AJAX/JSON?method=getBuyLinks',
 		data: { recordID: recordID, parentRecordID: parentRecordID },
-		async: false,
+		async: true,
 		success: function( response ) {
 			if( response.status !== 'OK' ) {
 				// display the error message on each of the ajax status place holder
 				$( "#ajax-error-info" ).empty().append( response.data );
+			} else {
+				callback( response );
 			}
 		}
 	});
-	return ajaxResponse.responseJSON;
 }
 
 function getSfxJibResult( sfxUrl, recordID, institute, arrayOf866 ) {
