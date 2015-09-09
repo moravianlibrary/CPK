@@ -33,7 +33,7 @@
 						<td><?=$destination?></td>
 						<? if ($link[1] === 'protected') : ?>
 						 <td>
-						 	<a target='_blank' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('What does it mean?')?>" href='https://cs.wikipedia.org/wiki/Voln%C3%A9_d%C3%ADlo'>
+						 	<a target='_blank' data-toggle="tooltip" data-placement="top" rel='nofollow' title="<?=$this->translate('What does it mean?')?>" href='https://cs.wikipedia.org/wiki/Voln%C3%A9_d%C3%ADlo'>
 						 		<span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span>
 						 	</a>
 						 </td>
