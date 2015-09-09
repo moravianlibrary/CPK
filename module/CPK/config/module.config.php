@@ -18,7 +18,8 @@ $config = array(
                 'invokables' => array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
                     'eVersion' => 'CPK\RecordTab\EVersion',
-                    'buy' => 'CPK\RecordTab\Buy'
+                    'buy' => 'CPK\RecordTab\Buy',
+                    'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore'
                 ), /* invokables */
             ), /* recordtab */
             'recommend' => [
@@ -75,6 +76,23 @@ $config = array(
                     'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => null
+            ],
+            'CPK\RecordDriver\SolrDublinCore' => [
+                'tabs' => [
+                    'Holdings' => 'HoldingsILS',
+                    'EVersion' => 'EVersion',
+                    'Buy' => 'Buy',
+                    'TOC' => 'TOC',
+                    'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
+                    'Reviews' => 'Reviews',
+                    'Excerpt' => 'Excerpt',
+                    'Preview' => 'preview',
+                    'HierarchyTree' => 'HierarchyTree',
+                    'Map' => 'Map',
+                    'Details' => 'StaffViewDublinCore',
+                    'DedupedRecords' => 'DedupedRecords'
+                ],
+                'defaultTab' => 'EVersion'
             ]
         ]
     ), /* vufind */

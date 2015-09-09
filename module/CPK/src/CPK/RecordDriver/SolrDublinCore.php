@@ -517,4 +517,29 @@ class SolrDublinCore extends ParentSolrMarc
         return [];
     }
 
+    /**
+     * Return an XML representation of the record using the specified format.
+     * Return false if the format is unsupported.
+     *
+     * @param string     $format     Name of format to use (corresponds with OAI-PMH
+     * metadataPrefix parameter).
+     * @param string     $baseUrl    Base URL of host containing VuFind (optional;
+     * may be used to inject record URLs into XML when appropriate).
+     * @param RecordLink $recordLink Record link helper (optional; may be used to
+     * inject record URLs into XML when appropriate).
+     *
+     * @return mixed         XML, or false if format unsupported.
+     */
+    public function getXML($format, $baseUrl = null, $recordLink = null)
+    {
+        // Special case for Dublin Core:
+        if ($format == 'oai_dc') {
+            $fullrecord = $this->fields['fullrecord'];
+            return $fullrecord;
+        }
+
+        // Try the parent method:
+        return parent::getXML($format, $baseUrl, $recordLink);
+    }
+
 }
