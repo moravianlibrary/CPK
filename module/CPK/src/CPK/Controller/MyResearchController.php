@@ -86,7 +86,7 @@ class MyResearchController extends MyResearchControllerBase
             $profileFetched = $identity->cat_username === $patron['cat_username'];
 
             if (! $profileFetched)
-                $patron = $this->parsePatronuser->libCardToPatronArrayntity($identity);
+                $patron = $user->libCardToPatronArray($identity);
 
                 // Here starts VuFind/MyResearch/profileAction
                 // Process home library parameter (if present):
