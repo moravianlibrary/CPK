@@ -24,8 +24,8 @@ $config = array(
             ), /* recordtab */
             'recommend' => [
                 'factories' => [
-                    'sidefacets' => 'CPK\Recommend\Factory::getSideFacets',
-                    ], /* factories */
+                    'sidefacets' => 'CPK\Recommend\Factory::getSideFacets'
+                ], /* factories */
             ], /* recommend */
             'auth' => array(
                 'factories' => array(
@@ -44,11 +44,11 @@ $config = array(
             'ils_driver' => [
                 'invokables' => [
                     'dummy' => 'CPK\ILS\Driver\Dummy',
-                    'xcncip2' => 'CPK\ILS\Driver\XCNCIP2',
+                    'xcncip2' => 'CPK\ILS\Driver\XCNCIP2'
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
-                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
+                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
                 ), /* factories */
             ], /* ils_driver */
         ), /* plugin_managers */
@@ -110,9 +110,13 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
-            'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator', // Exceptions throwing system
-        ),
-    ),
+            'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator'
+        ), // Exceptions throwing system
+
+        'invokables' => array(
+            'wantitfactory' => 'CPK\WantIt\Factory'
+        )
+    )
 );
 
 $staticRoutes = array(
