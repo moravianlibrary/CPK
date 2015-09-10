@@ -42,7 +42,7 @@ class Record extends ParentRecord
     public function displayFieldsOf7xx()
     {
         return $this->contextHelper->renderInContext(
-            'RecordDriver/SolrDefault/fieldsOf7xx.phtml', $context
+            'RecordDriver/SolrDefault/fieldsOf7xx.phtml', array()
         );
     }
 }
