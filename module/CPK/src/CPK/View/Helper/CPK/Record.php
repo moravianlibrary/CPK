@@ -39,8 +39,10 @@ class Record extends ParentRecord
      *
      * @return string
      */
-    public function getWantIt()
+    public function displayFieldsOf7xx()
     {
-    	return $this->renderTemplate('want-it.phtml');
+        return $this->contextHelper->renderInContext(
+            'RecordDriver/SolrDefault/fieldsOf7xx.phtml', $context
+        );
     }
 }
