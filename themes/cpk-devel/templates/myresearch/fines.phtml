@@ -21,7 +21,7 @@
     <?=$this->transEsc('You do not have any fines')?>
   <? else: ?>
     <? foreach($this->fines as $eppn => $identityFines):
-        $eppnHostname = split("@", $eppn)[1];
+        $eppnHostname = explode("@", $eppn)[1];
         if ($logos !== null)
             $libraryLogo = $logos->$eppnHostname; ?>
 

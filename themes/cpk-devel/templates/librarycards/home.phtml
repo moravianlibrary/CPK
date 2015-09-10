@@ -22,7 +22,7 @@
         <th width="30%">&nbsp;</th>
       </tr>
       <? foreach ($this->libraryCards as $record):
-            $eppnHostname = split("@", $record['eppn'])[1];
+            $eppnHostname = explode("@", $record['eppn'])[1];
             if ($logos !== null)
                 $logo = $logos->$eppnHostname;
       ?>
