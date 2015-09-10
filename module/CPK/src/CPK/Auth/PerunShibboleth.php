@@ -213,7 +213,7 @@ class PerunShibboleth extends Shibboleth
 
         if (! $isConnected) {
 
-            $institutes = split(";", $_SERVER['userLibraryIds']);
+            $institutes = explode(";", $_SERVER['userLibraryIds']);
 
             if (! empty($institutes[0])) {
 
@@ -221,7 +221,7 @@ class PerunShibboleth extends Shibboleth
                 $isConnected = true;
 
                 $attributes['cat_username'] = $institutes[0];
-                $attributes['home_library'] = split($this::SEPARATOR_REGEXED, $institutes[0])[0];
+                $attributes['home_library'] = explode($this::SEPARATOR, $institutes[0])[0];
             } else {
 
                 // Set cat_username's MultiBackend source dummy driver
@@ -236,7 +236,7 @@ class PerunShibboleth extends Shibboleth
 
             $attributes['cat_username'] = $prefix . self::SEPARATOR . $attributes['cat_username'];
 
-            $institutesFromPerun = split(";", $_SERVER['userLibraryIds']);
+            $institutesFromPerun = explode(";", $_SERVER['userLibraryIds']);
 
             // If user has new identity without libraryCard in Perun, push a card of current account to Perun
             $institutes = $this->identityResolver->updateUserInstitutesInPerun($attributes['cat_username'], $institutesFromPerun);
@@ -384,7 +384,7 @@ class PerunShibboleth extends Shibboleth
         foreach ($currentLibCards as $cat_username) {
 
             if (! in_array($cat_username, $existing)) {
-                $home_library = split(self::SEPARATOR_REGEXED, $cat_username)[0];
+                $home_library = explode(self::SEPARATOR, $cat_username)[0];
                 $user->createLibraryCard($cat_username, $home_library);
             }
         }

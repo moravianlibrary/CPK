@@ -61,7 +61,7 @@ class RecordController extends RecordControllerBase
         
         // Load default tab setting:
         $this->digiRequestFrom = $config->Site->email;
-        $this->digiRequestTo = split(',', $config->{'DigiRequest'}->to);
+        $this->digiRequestTo = explode(',', $config->{'DigiRequest'}->to);
         $this->digiRequestSubject = $config->{'DigiRequest'}->subject;
         
     }

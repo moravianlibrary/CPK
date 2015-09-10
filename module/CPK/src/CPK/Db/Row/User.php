@@ -406,7 +406,7 @@ class User extends BaseUser
         // Only one SQL query should speed up the process ...
         $libCards = $this->getAllUserLibraryCards();
 
-        $eppnScope = split('@', $eppn)[1];
+        $eppnScope = explode('@', $eppn)[1];
 
         // Check that the user has only one institution account unless his organization is in $canConsolidateMoreTimes
         if (! in_array($eppnScope, $canConsolidateMoreTimes)) {
@@ -426,13 +426,13 @@ class User extends BaseUser
 
                 // Dummy account can be created even from connected institute (if IdP doesn't provide userLibraryId)
                 // We allow creation of more identities in this case (IdP must be defined in shibboleth.ini)
-                $cat_username_unscoped = split(
-                    ShibbolethIdentityManager::SEPARATOR_REGEXED, $cat_username)[1];
+                $cat_username_unscoped = explode(
+                    ShibbolethIdentityManager::SEPARATOR, $cat_username)[1];
                 if ($cat_username_unscoped === 'Dummy') {
 
                     // We need to find out the same user's Dummy institution if any, thus compare eppnScope to user's eppns
                     foreach ($libCards as $libCard) {
-                        if (split('@', $libCard->eppn)[1] === $eppnScope) {
+                        if (explode('@', $libCard->eppn)[1] === $eppnScope) {
                             $hasAccountAlready = true;
                             break;
                         }
@@ -587,9 +587,9 @@ class User extends BaseUser
 
             $allowed = [];
 
-            $currentAccesses = split(static::COLUMN_MAJOR_GLUE, $this->major);
+            $currentAccesses = explode(static::COLUMN_MAJOR_GLUE, $this->major);
             foreach ($currentAccesses as $currentAccess) {
-                $prefix = split(ShibbolethIdentityManager::SEPARATOR_REGEXED,
+                $prefix = explode(ShibbolethIdentityManager::SEPARATOR,
                     $currentAccess)[0];
 
                 // We want to delete access connected with home_library being disconnected

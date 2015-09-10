@@ -149,7 +149,7 @@ class SolrMarc extends ParentSolrDefault
 
     public function getNativeLinks()
     {
-        list($base, $sysno) = split('-', $this->getUniqueID());
+        list($base, $sysno) = explode('-', $this->getUniqueID());
         $fullView = self::ALEPH_BASE_URL . "F?func=direct&doc_number=$sysno&local_base=$base&format=999";
         $holdings = self::ALEPH_BASE_URL . "F?func=item-global&doc_library=$base&doc_number=$sysno";
         return array(

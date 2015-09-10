@@ -204,7 +204,7 @@ class IdentityResolver
     {
         $voName = $this->perunConfig->virtualOrganization;
 
-        $voMemberships = split(";", $_SERVER['perunVoName']);
+        $voMemberships = explode(";", $_SERVER['perunVoName']);
 
         return array_search($voName, $voMemberships) !== false;
     }

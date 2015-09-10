@@ -670,7 +670,7 @@ class ShibbolethIdentityManager extends Shibboleth
                         $key = trim($key);
 
                         if (isset($_SERVER[$key])) {
-                            $value = split(";", $_SERVER[$key])[0];
+                            $value = explode(";", $_SERVER[$key])[0];
                             break;
                         }
                     }
@@ -680,7 +680,7 @@ class ShibbolethIdentityManager extends Shibboleth
                 }
 
                 if (isset($_SERVER[$key])) {
-                    $value = split(";", $_SERVER[$key])[0];
+                    $value = explode(";", $_SERVER[$key])[0];
 
                     if ($pattern != null && $value != null) {
                         $matches = array();
@@ -722,7 +722,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
     protected function fetchEduPersonPrincipalName()
     {
-        return split(";", $_SERVER[$this->shibbolethConfig->default->username])[0];
+        return explode(";", $_SERVER[$this->shibbolethConfig->default->username])[0];
     }
 
     /**
@@ -836,7 +836,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $libCardToSave = false;
         foreach ($resultSet as $libraryCard) {
             $libCard_cat_username = $libraryCard->cat_username;
-            $libCard_prefix = split(static::SEPARATOR_REGEXED, $libCard_cat_username)[0];
+            $libCard_prefix = explode(static::SEPARATOR, $libCard_cat_username)[0];
 
             // We are performing the check of corresponding institutions by comparing the prefix
             // from shibboleth.ini config section name with MultiBackend's source from cat_username

@@ -117,7 +117,7 @@ class User extends BaseUser
         if (! $result || empty($result['username']))
             return 0;
 
-        $splittedResult = split(';', $result['username']);
+        $splittedResult = explode(';', $result['username']);
         if (count($splittedResult) === 2) {
             return intval($splittedResult[1]);
         } else

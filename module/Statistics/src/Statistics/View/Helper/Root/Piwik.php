@@ -186,7 +186,7 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
         $user = $authManager->getIdentity();
 
         if ($user != null) {
-            $splitUsername = split("\.", $user['cat_username']);
+            $splitUsername = explode(".", $user['cat_username']);
 
             if (count($splitUsername) > 1) {
                 $userVars['UserLibcard'] = $splitUsername[0];

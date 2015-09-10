@@ -672,7 +672,7 @@ class StatisticsController extends AbstractBase
 	protected function isAdmin($user) {
 	    $adminLibCard = isset($config->PiwikStatistics->major_adm) ? $config->PiwikStatistics->major_adm : 'CPK';
 
-	    $splittedMajor = split('\\.', $user['major']);
+	    $splittedMajor = explode(".", $user['major']);
 	    return $user['major'] === $adminLibCard || (count($splittedMajor) === 2 && $splittedMajor[1] === $adminLibCard);
 	}
 

@@ -21,7 +21,7 @@ class Citation extends AbstractBase
     public function getCitationURL()
     {
         $id = $this->getRecordDriver()->getUniqueID();
-        list($base, $sysno) = split("-", $id);
+        list($base, $sysno) = explode("-", $id);
         $url = self::CITACE_API_URL . 'mzk/' . $base . '/citace/' . $sysno;
         //$interface->assign('citace', array('url' => $baseURL . $base . "/citace/" . $sysno));
         return $url;

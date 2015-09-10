@@ -1,6 +1,6 @@
 <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
 
-    $eppnHostname = split("@", $eppn)[1];
+    $eppnHostname = explode("@", $eppn)[1];
     if ($logos !== null)
         $libraryLogo = $logos->$eppnHostname;
 ?>
