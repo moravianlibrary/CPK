@@ -116,9 +116,7 @@ class SolrMarc extends ParentSolrMarc
     	$array = $this->getFieldArray('260', array('b'));
     	if (count($array) === 0) 
     		$array = $this->getFieldArray('264', array('b'));
-    	else {
-    		$array = [];
-    	}
+
     	return $array;
     }
 
