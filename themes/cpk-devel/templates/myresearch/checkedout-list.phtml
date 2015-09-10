@@ -114,7 +114,7 @@
       <? else: ?>
         <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
         <?if (!empty($ilsDetails['fine'])):?>
-          | <strong><?=$this->transEsc('Fine')?>: <?=$this->escapeHtml($ilsDetails['fine'])?></strong>
+          | <strong><?=$this->transEsc('Fine')?>: <?=$this->safeMoneyFormat($this->escapeHtml($ilsDetails['fine']))?></strong>
         <?endif;?>
         <? if ($showStatus): ?>
           <? if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue"): ?>
