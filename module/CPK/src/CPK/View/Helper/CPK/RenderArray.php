@@ -44,6 +44,10 @@ class RenderArray extends AbstractHelper
     /**
      * Render a portion of an array.
      *
+     * If $sync is TRUE, then $arr can be null. But also please
+     * keep in mind to include %%KEY%% value into the template
+     * in order to place the key for AJAX selector in proper place.
+     *
      * @param string $tpl
      *            A template for displaying each row. This should
      *            include %%LABEL%% and %%VALUE%% placeholders
@@ -52,6 +56,9 @@ class RenderArray extends AbstractHelper
      * @param array $rows
      *            A label => profile key associative array specifying
      *            which rows of $arr to display
+     *
+     * @param bool $async
+     *            If the data will be loaded later by AJAX
      *
      * @return string
      */
