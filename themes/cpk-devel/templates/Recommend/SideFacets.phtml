@@ -72,9 +72,16 @@ foreach ($queryParams as $key => $value) {
 ?>
 <? if ($this->recommend instanceof \CPK\Recommend\SideFacets && isset($myLibs) && is_array($myLibs) && count($myLibs) > 0):
 
-    $url = '/Search/Results?type=AllFields';
+    $firstFilter = true;
     foreach ($myLibs as $myLib) {
-        $url .= '&' . urlencode('filter[]'). '=' . urlencode('institution:"' . $this->recommend->getInstutitionMapping($myLib) . '"');
+        if ($firstFilter) {
+            $url = $this->currentPath().$results->getUrlQuery()->addFacet("institution",
+                    $this->recommend->getInstutitionMapping($myLib), "OR");
+            $firstFilter = false;
+        }
+        else
+            $url .= '&' . urlencode('filter[]'). '=~' . urlencode('institution:"' .
+                    $this->recommend->getInstutitionMapping($myLib) . '"');
     }
 
     ?>
