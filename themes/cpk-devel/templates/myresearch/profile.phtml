@@ -2,11 +2,17 @@
     // Set up page title:
     $this->headTitle($this->translate('My Profile'));
 
+    $this->headScript()->appendFile("async-profile.js");
+
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Profile') . '</li>';
 
     // Template for use by the renderArray helper:
-    $arrTemplate = '<tr><th>%%LABEL%%:</th><td> %%VALUE%%</td></tr>';
+    $arrTemplate = '<tr><th>%%LABEL%%:</th><td>%%VALUE%%</td></tr>';
+
+    $asyncTemplate = '<tr hidden="hidden" data-key="%%KEY%%"><th>%%LABEL%%:</th><td></td></tr>';
+
+    $isSynchronous = $this->isSynchronous;
 ?>
 
 <div class="row">
@@ -21,6 +27,7 @@
     <h3>
     <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
     </h3>
+    <? if ($isSynchronous): ?>
 
     <table class="table table-striped">
       <?
@@ -66,11 +73,41 @@
       ?>
     </table>
 
-    <? if (isset($this->prolongRegistrationUrl)):?>
-      <a href="<?=$this->prolongRegistrationUrl?>"><?=$this->transEsc('Prolong your registration')?></a>
+    <? if (isset($libraryIdentity->profile['prolongRegistrationUrl'])):?>
+      <a href="<?=$libraryIdentity->profile['prolongRegistrationUrl']?>"><?=$this->transEsc('Prolong your registration')?></a>
     <? endif; ?>
+    <? else: // We have some async deal here .. ?>
 
-    <? endforeach; ?>
+      <table id="<?=$libraryIdentity->profile['cat_username']?>" class="table table-striped">
+        <caption data-type="loading-info">
+                <i class="fa fa-spinner fa-spin"></i>
+                <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+        </caption>
+        <tbody>
+        <?
+        // We will call CPK\View\Helper\CPK\RenderArray class with async option
+            echo $this->renderArray(
+            $asyncTemplate, null,
+            array(
+                $this->transEsc('First Name') => 'firstname',
+                $this->transEsc('Last Name') => 'lastname',
+                $this->transEsc('Address') . ' 1' => 'address1',
+                $this->transEsc('Address') . ' 2' => 'address2',
+                $this->transEsc('Zip') => 'zip',
+                $this->transEsc('City') => 'city',
+                $this->transEsc('Country') => 'country',
+                $this->transEsc('Phone Number') => 'phone',
+                $this->transEsc('Group') => 'group',
+                $this->transEsc('Expire') => 'expire'
+            ),
+                true
+            );
+        ?>
+        </tbody>
+      </table>
+    <? endif; ?>
+  <? endforeach; ?>
+
   </div>
 
   <div class="<?=$this->layoutClass('sidebar')?>">

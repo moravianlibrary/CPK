@@ -370,6 +370,33 @@ class AjaxController extends AjaxControllerBase
                 self::STATUS_ERROR);
     }
 
+    public function getMyProfileAjax() {
+        $request = $this->getRequest();
+        $cat_username = $this->params()->fromPost('cat_username');
+
+        if ($cat_username === null)
+            return $this->output('No cat_username provided', self::STATUS_ERROR);
+
+        $viewRend = $this->getViewRenderer();
+
+        $ilsDriver = $this->getILS()->getDriver();
+
+        if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
+
+            $patron = [
+                'cat_username' => $cat_username,
+                'id' => $cat_username
+            ];
+
+            $profile = $ilsDriver->getMyProfile($patron);
+
+            return $this->output($profile, self::STATUS_OK);
+        } else
+            return $this->output(
+                "ILS Driver isn't instanceof MultiBackend - ending job now.",
+                self::STATUS_ERROR);
+    }
+
     /**
      * Filter dates in future
      */

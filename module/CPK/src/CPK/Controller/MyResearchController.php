@@ -41,21 +41,12 @@ use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFin
 class MyResearchController extends MyResearchControllerBase
 {
 
-    /**
-     * Login Action
-     *
-     * @return mixed
-     */
-    public function loginAction()
-    {
-        return parent::loginAction();
-    }
-
     public function logoutAction()
     {
         $logoutTarget = $this->getConfig()->Site->url;
-        return $this->redirect()->toUrl($this->getAuthManager()
-            ->logout($logoutTarget));
+        return $this->redirect()->toUrl(
+            $this->getAuthManager()
+                ->logout($logoutTarget));
     }
 
     public function profileAction()
@@ -82,60 +73,47 @@ class MyResearchController extends MyResearchControllerBase
         // Obtain user information from ILS:
         $catalog = $this->getILS();
 
+        $config = $catalog->getDriverConfig();
+
+        if (isset($config['General']['async_profile']) &&
+             $config['General']['async_profile'])
+            $isSynchronous = false;
+        else
+            $isSynchronous = true;
+
+        $viewVars['isSynchronous'] = $isSynchronous;
+
         foreach ($identities as $identity) {
-            $profileFetched = $identity->cat_username === $patron['cat_username'];
-
-            if (! $profileFetched)
-                $patron = $user->libCardToPatronArray($identity);
-
-                // Here starts VuFind/MyResearch/profileAction
-                // Process home library parameter (if present):
-            $homeLibrary = $this->params()->fromPost('home_library', false);
-            if (! empty($homeLibrary)) {
-                $user->changeHomeLibrary($homeLibrary);
-                $this->getAuthManager()->updateSession($user);
-                $this->flashMessenger()
-                    ->setNamespace('info')
-                    ->addMessage('profile_update');
-            }
 
             // Begin building view object:
             $currentIdentityView = $this->createViewModel();
 
-            if (! $profileFetched) {
-                $profile = $catalog->getMyProfile($patron);
-            } else
-                $profile = $patron;
+            if (! $isSynchronous) {
 
-            $profile['home_library'] = $user->home_library;
+                // We only need to let AJAX handle itself with the right data
+                $profile = $user->libCardToPatronArray($identity);
+
+            } else {
+                $profileFetched = $identity->cat_username === $patron['cat_username'];
+
+                if (! $profileFetched) {
+                    $patron = $user->libCardToPatronArray($identity);
+
+                    $profile = $catalog->getMyProfile($patron);
+                } else {
+                    $profile = $patron;
+                    $profile['home_library'] = $user->home_library;
+                }
+
+                $profile['prolongRegistrationUrl'] = $catalog->getProlongRegistrationUrl(
+                    $profile);
+
+                $this->processBlocks($profile, $logos);
+            }
+
             $currentIdentityView->profile = $profile;
-
-            try {
-                $currentIdentityView->pickup = $catalog->getPickUpLocations($patron);
-                $currentIdentityView->defaultPickupLocation = $catalog->getDefaultPickUpLocation($patron);
-            } catch (\Exception $e) {
-                // Do nothing; if we're unable to load information about pickup
-                // locations, they are not supported and we should ignore them.
-            }
-            // Here ends VuFind/MyResearch/profileAction
-
-            // Here starts VuFind/MZKCommon/profileAction
-            if ($currentIdentityView) {
-                $catalog = $this->getILS();
-                $currentIdentityView->profileChange = $catalog->checkCapability('changeUserRequest');
-            }
-
-            // Here ends VuFind/MZKCommon/profileAction
-
-            if ($currentIdentityView) {
-                $this->processBlocks($currentIdentityView->__get('profile'), $logos);
-            }
-
             $libraryIdentities[$identity['eppn']] = $currentIdentityView;
-
         }
-
-        $viewVars['prolongRegistrationUrl'] = $catalog->getProlongRegistrationUrl($profile);
 
         $viewVars['libraryIdentities'] = $libraryIdentities;
         $viewVars['logos'] = $logos;
@@ -169,7 +147,7 @@ class MyResearchController extends MyResearchControllerBase
 
             if (! $profileFetched)
                 $patron = $user->libCardToPatronArray($identity);
-            // Start of VuFind/MyResearch/holdsAction
+                // Start of VuFind/MyResearch/holdsAction
 
             // Connect to the ILS:
             $catalog = $this->getILS();
@@ -177,7 +155,8 @@ class MyResearchController extends MyResearchControllerBase
             // Process cancel requests if necessary:
             $cancelStatus = $catalog->checkFunction('cancelHolds', compact('patron'));
             $currentIdentityView = $this->createViewModel();
-            $currentIdentityView->cancelResults = $cancelStatus ? $this->holds()->cancelHolds($catalog, $patron) : [];
+            $currentIdentityView->cancelResults = $cancelStatus ? $this->holds()->cancelHolds(
+                $catalog, $patron) : [];
             // If we need to confirm
             if (! is_array($currentIdentityView->cancelResults)) {
                 return $currentIdentityView->cancelResults;
@@ -192,8 +171,10 @@ class MyResearchController extends MyResearchControllerBase
             $this->holds()->resetValidation();
             foreach ($result as $current) {
                 // Add cancel details if appropriate:
-                $current = $this->holds()->addCancelDetails($catalog, $current, $cancelStatus);
-                if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink" && isset($current['cancel_details'])) {
+                $current = $this->holds()->addCancelDetails($catalog, $current,
+                    $cancelStatus);
+                if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink" &&
+                     isset($current['cancel_details'])) {
                     // Enable cancel form if necessary:
                     $currentIdentityView->cancelForm = true;
                 }
@@ -247,15 +228,16 @@ class MyResearchController extends MyResearchControllerBase
             if (! $profileFetched)
                 $patron = $user->libCardToPatronArray($identity);
 
-            // Start of VuFind/MyResearch/checkedoutAction
+                // Start of VuFind/MyResearch/checkedoutAction
 
             // Connect to the ILS:
             $catalog = $this->getILS();
 
             // Get the current renewal status and process renewal form, if necessary:
             $renewStatus = $catalog->checkFunction('Renewals', compact('patron'));
-            $renewResult = $renewStatus ? $this->renewals()->processRenewals($this->getRequest()
-                ->getPost(), $catalog, $patron) : [];
+            $renewResult = $renewStatus ? $this->renewals()->processRenewals(
+                $this->getRequest()
+                    ->getPost(), $catalog, $patron) : [];
 
             // By default, assume we will not need to display a renewal form:
             $renewForm = false;
@@ -272,8 +254,9 @@ class MyResearchController extends MyResearchControllerBase
                 $adapter = new \Zend\Paginator\Adapter\ArrayAdapter($result);
                 $paginator = new \Zend\Paginator\Paginator($adapter);
                 $paginator->setItemCountPerPage($limit);
-                $paginator->setCurrentPageNumber($this->params()
-                    ->fromQuery('page', 1));
+                $paginator->setCurrentPageNumber(
+                    $this->params()
+                        ->fromQuery('page', 1));
                 $pageStart = $paginator->getAbsoluteItemNumber(1) - 1;
                 $pageEnd = $paginator->getAbsoluteItemNumber($limit) - 1;
             } else {
@@ -285,8 +268,10 @@ class MyResearchController extends MyResearchControllerBase
             $transactions = $hiddenTransactions = [];
             foreach ($result as $i => $current) {
                 // Add renewal details if appropriate:
-                $current = $this->renewals()->addRenewDetails($catalog, $current, $renewStatus);
-                if ($renewStatus && ! isset($current['renew_link']) && $current['renewable']) {
+                $current = $this->renewals()->addRenewDetails($catalog, $current,
+                    $renewStatus);
+                if ($renewStatus && ! isset($current['renew_link']) &&
+                     $current['renewable']) {
                     // Enable renewal form if necessary:
                     $renewForm = true;
                 }
@@ -299,14 +284,16 @@ class MyResearchController extends MyResearchControllerBase
                 }
             }
 
-            $currentIdentityView = compact('transactions', 'renewForm', 'renewResult', 'paginator', 'hiddenTransactions');
+            $currentIdentityView = compact('transactions', 'renewForm',
+                'renewResult', 'paginator', 'hiddenTransactions');
             // End of VuFind/MyResearch/checkedoutAction
 
             // Start of MZKCommon/MyResearch/checkedoutAction
             $showOverdueMessage = false;
             foreach ($currentIdentityView['transactions'] as $resource) {
                 $ilsDetails = $resource->getExtraDetail('ils_details');
-                if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue") {
+                if (isset($ilsDetails['dueStatus']) &&
+                     $ilsDetails['dueStatus'] == "overdue") {
                     $showOverdueMessage = true;
                     break;
                 }
@@ -340,7 +327,8 @@ class MyResearchController extends MyResearchControllerBase
             $entityIdInitiatedWith = null;
 
             // Stop now if the user does not have valid catalog credentials available:
-        if (empty($entityIdInitiatedWith) && ! $this->isLoggedInWithDummyDriver() && ! is_array($patron = $this->catalogLogin())) {
+        if (empty($entityIdInitiatedWith) && ! $this->isLoggedInWithDummyDriver() &&
+             ! is_array($patron = $this->catalogLogin())) {
             $this->flashExceptions();
             return $patron;
         }
@@ -372,11 +360,91 @@ class MyResearchController extends MyResearchControllerBase
             }
 
             if ($user->consolidationSucceeded)
-                $this->processSuccessMessage("Identities were successfully connected");
+                $this->processSuccessMessage(
+                    "Identities were successfully connected");
 
                 // Show user all his connected identities
             return $this->redirect()->toRoute('librarycards-home');
         }
+    }
+
+    /**
+     * Send list of fines to view
+     *
+     * @return mixed
+     */
+    public function finesAction()
+    {
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver()) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! is_array($patron = $this->catalogLogin())) {
+            $this->flashExceptions();
+            return $patron;
+        }
+
+        $user = $this->getAuthManager()->isLoggedIn();
+
+        $identities = $user->getLibraryCards();
+
+        $viewVars = $libraryIdentities = [];
+
+        $allFines = [];
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        foreach ($identities as $identity) {
+            $profileFetched = $identity->cat_username === $patron['cat_username'];
+
+            if (! $profileFetched)
+                $patron = $user->libCardToPatronArray($identity);
+
+                // Begin building view object:
+            $currentIdentityView = $this->createViewModel();
+
+            // Get fine details:
+            $result = $catalog->getMyFines($patron);
+
+            $fines = [];
+            foreach ($result as $row) {
+                // Attempt to look up and inject title:
+                try {
+                    if (! isset($row['id']) || empty($row['id'])) {
+                        throw new \Exception();
+                    }
+                    $source = isset($row['source']) ? $row['source'] : 'VuFind';
+                    $row['driver'] = $this->getServiceLocator()
+                        ->get('VuFind\RecordLoader')
+                        ->load($row['id'], $source);
+                    $row['title'] = $row['driver']->getShortTitle();
+                } catch (\Exception $e) {
+                    if (! isset($row['title'])) {
+                        $row['title'] = null;
+                    }
+                }
+                $fines[] = $row;
+            }
+            $allFines[$identity['eppn']] = $fines;
+        }
+        $viewVars['fines'] = $allFines;
+        $viewVars['logos'] = $user->getIdentityProvidersLogos();
+        $totalFine = 0;
+        if (! empty($result)) {
+            foreach ($result as $fine) {
+                $totalFine += ($fine['amount']);
+            }
+        }
+        if ($totalFine < 0) {
+            $viewVars['paymentUrl'] = $catalog->getPaymentURL($patron,
+                - 1 * $totalFine);
+        }
+        $view = $this->createViewModel($viewVars);
+        $this->flashExceptions();
+        return $view;
     }
 
     /**
@@ -424,82 +492,5 @@ class MyResearchController extends MyResearchControllerBase
         $this->flashMessenger()
             ->setNamespace('success')
             ->addMessage($msg);
-    }
-
-    /**
-     * Send list of fines to view
-     *
-     * @return mixed
-     */
-    public function finesAction()
-    {
-        // Forwarding for Dummy connector to Home page ..
-        if ($this->isLoggedInWithDummyDriver()) {
-            return $this->forwardTo('MyResearch', 'Home');
-        }
-
-        // Stop now if the user does not have valid catalog credentials available:
-        if (!is_array($patron = $this->catalogLogin())) {
-            $this->flashExceptions();
-            return $patron;
-        }
-
-        $user = $this->getAuthManager()->isLoggedIn();
-
-        $identities = $user->getLibraryCards();
-
-        $viewVars = $libraryIdentities = [];
-
-        $allFines = [];
-
-        // Connect to the ILS:
-        $catalog = $this->getILS();
-
-        foreach ($identities as $identity) {
-            $profileFetched = $identity->cat_username === $patron['cat_username'];
-
-            if (! $profileFetched)
-                $patron = $user->libCardToPatronArray($identity);
-
-            // Begin building view object:
-            $currentIdentityView = $this->createViewModel();
-
-            // Get fine details:
-            $result = $catalog->getMyFines($patron);
-
-            $fines = [];
-            foreach ($result as $row) {
-                // Attempt to look up and inject title:
-                try {
-                    if (!isset($row['id']) || empty($row['id'])) {
-                        throw new \Exception();
-                    }
-                    $source = isset($row['source']) ? $row['source'] : 'VuFind';
-                    $row['driver'] = $this->getServiceLocator()
-                    ->get('VuFind\RecordLoader')->load($row['id'], $source);
-                    $row['title'] = $row['driver']->getShortTitle();
-                } catch (\Exception $e) {
-                    if (!isset($row['title'])) {
-                        $row['title'] = null;
-                    }
-                }
-                $fines[] = $row;
-            }
-            $allFines[$identity['eppn']] = $fines;
-        }
-        $viewVars['fines'] = $allFines;
-        $viewVars['logos'] = $user->getIdentityProvidersLogos();
-        $totalFine = 0;
-        if (!empty($result)) {
-            foreach ($result as $fine) {
-                $totalFine += ($fine['amount']);
-            }
-        }
-        if ($totalFine < 0) {
-            $viewVars['paymentUrl'] = $catalog->getPaymentURL($patron, -1 * $totalFine);
-        }
-        $view = $this->createViewModel($viewVars);
-        $this->flashExceptions();
-        return $view;
     }
 }
