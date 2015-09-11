@@ -27,7 +27,7 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFind\Exception\Auth as AuthException, VuFind\Exception\ListPermission as ListPermissionException, VuFind\Exception\RecordMissing as RecordMissingException, Zend\Stdlib\Parameters;
+use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFind\Exception\Auth as AuthException, VuFind\Exception\ListPermission as ListPermissionException, VuFind\Exception\RecordMissing as RecordMissingException, Zend\Stdlib\Parameters, MZKCommon\Controller\ExceptionsTrait;
 
 /**
  * Controller for the user account area.
@@ -40,6 +40,7 @@ use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFin
  */
 class MyResearchController extends MyResearchControllerBase
 {
+    use ExceptionsTrait;
 
     public function logoutAction()
     {
@@ -51,18 +52,16 @@ class MyResearchController extends MyResearchControllerBase
 
     public function profileAction()
     {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
         // Forwarding for Dummy connector to Home page ..
-        if ($this->isLoggedInWithDummyDriver()) {
+        if ($this->isLoggedInWithDummyDriver($user)) {
             return $this->forwardTo('MyResearch', 'Home');
         }
-
-        // Stop now if the user does not have valid catalog credentials available:
-        if (! is_array($patron = $this->catalogLogin())) {
-            $this->flashExceptions();
-            return $patron;
-        }
-
-        $user = $this->getAuthManager()->isLoggedIn();
 
         $identities = $user->getLibraryCards();
 
@@ -92,18 +91,11 @@ class MyResearchController extends MyResearchControllerBase
 
                 // We only need to let AJAX handle itself with the right data
                 $profile = $user->libCardToPatronArray($identity);
-
             } else {
-                $profileFetched = $identity->cat_username === $patron['cat_username'];
 
-                if (! $profileFetched) {
-                    $patron = $user->libCardToPatronArray($identity);
+                $patron = $user->libCardToPatronArray($identity);
 
-                    $profile = $catalog->getMyProfile($patron);
-                } else {
-                    $profile = $patron;
-                    $profile['home_library'] = $user->home_library;
-                }
+                $profile = $catalog->getMyProfile($patron);
 
                 $profile['prolongRegistrationUrl'] = $catalog->getProlongRegistrationUrl(
                     $profile);
@@ -118,7 +110,7 @@ class MyResearchController extends MyResearchControllerBase
         $viewVars['libraryIdentities'] = $libraryIdentities;
         $viewVars['logos'] = $logos;
         $view = $this->createViewModel($viewVars);
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -130,12 +122,15 @@ class MyResearchController extends MyResearchControllerBase
     public function holdsAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! is_array($patron = $this->catalogLogin())) {
-            $this->flashExceptions();
-            return $patron;
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
         }
 
-        $user = $this->getAuthManager()->isLoggedIn();
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver($user)) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
 
         $identities = $user->getLibraryCards();
 
@@ -143,11 +138,8 @@ class MyResearchController extends MyResearchControllerBase
 
         foreach ($identities as $identity) {
 
-            $profileFetched = $identity->cat_username === $patron['cat_username'];
-
-            if (! $profileFetched)
-                $patron = $user->libCardToPatronArray($identity);
-                // Start of VuFind/MyResearch/holdsAction
+            $patron = $user->libCardToPatronArray($identity);
+            // Start of VuFind/MyResearch/holdsAction
 
             // Connect to the ILS:
             $catalog = $this->getILS();
@@ -203,19 +195,22 @@ class MyResearchController extends MyResearchControllerBase
         $viewVars['libraryIdentities'] = $libraryIdentities;
         $viewVars['logos'] = $user->getIdentityProvidersLogos();
         $view = $this->createViewModel($viewVars);
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
     public function checkedoutAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! is_array($patron = $this->catalogLogin())) {
-            $this->flashExceptions();
-            return $patron;
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
         }
 
-        $user = $this->getAuthManager()->isLoggedIn();
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver($user)) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
 
         $identities = $user->getLibraryCards();
 
@@ -223,12 +218,9 @@ class MyResearchController extends MyResearchControllerBase
 
         foreach ($identities as $identity) {
 
-            $profileFetched = $identity->cat_username === $patron['cat_username'];
+            $patron = $user->libCardToPatronArray($identity);
 
-            if (! $profileFetched)
-                $patron = $user->libCardToPatronArray($identity);
-
-                // Start of VuFind/MyResearch/checkedoutAction
+            // Start of VuFind/MyResearch/checkedoutAction
 
             // Connect to the ILS:
             $catalog = $this->getILS();
@@ -314,7 +306,7 @@ class MyResearchController extends MyResearchControllerBase
         $viewVars['logos'] = $user->getIdentityProvidersLogos();
         $view = $this->createViewModel($viewVars);
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -329,7 +321,7 @@ class MyResearchController extends MyResearchControllerBase
             // Stop now if the user does not have valid catalog credentials available:
         if (empty($entityIdInitiatedWith) && ! $this->isLoggedInWithDummyDriver() &&
              ! is_array($patron = $this->catalogLogin())) {
-            $this->flashExceptions();
+            $this->flashExceptions($this->flashMessenger());
             return $patron;
         }
 
@@ -375,18 +367,16 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function finesAction()
     {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
         // Forwarding for Dummy connector to Home page ..
-        if ($this->isLoggedInWithDummyDriver()) {
+        if ($this->isLoggedInWithDummyDriver($user)) {
             return $this->forwardTo('MyResearch', 'Home');
         }
-
-        // Stop now if the user does not have valid catalog credentials available:
-        if (! is_array($patron = $this->catalogLogin())) {
-            $this->flashExceptions();
-            return $patron;
-        }
-
-        $user = $this->getAuthManager()->isLoggedIn();
 
         $identities = $user->getLibraryCards();
 
@@ -398,12 +388,10 @@ class MyResearchController extends MyResearchControllerBase
         $catalog = $this->getILS();
 
         foreach ($identities as $identity) {
-            $profileFetched = $identity->cat_username === $patron['cat_username'];
 
-            if (! $profileFetched)
-                $patron = $user->libCardToPatronArray($identity);
+            $patron = $user->libCardToPatronArray($identity);
 
-                // Begin building view object:
+            // Begin building view object:
             $currentIdentityView = $this->createViewModel();
 
             // Get fine details:
@@ -443,7 +431,7 @@ class MyResearchController extends MyResearchControllerBase
                 - 1 * $totalFine);
         }
         $view = $this->createViewModel($viewVars);
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -457,9 +445,8 @@ class MyResearchController extends MyResearchControllerBase
         return $this->redirect()->toRoute('myresearch-home');
     }
 
-    protected function isLoggedInWithDummyDriver()
+    protected function isLoggedInWithDummyDriver($user)
     {
-        $user = $this->getAuthManager()->isLoggedIn();
         return $user ? $user['home_library'] == "Dummy" : false;
     }
 

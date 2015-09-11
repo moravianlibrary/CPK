@@ -41,9 +41,7 @@ class ILSAuthenticator extends ILSAuthenticatorBase
 {
 
     /**
-     * Log the current user into the catalog using stored credentials; if this
-     * fails, clear the user's stored credentials so they can enter new, corrected
-     * ones.
+     * We don't actually use credentials .. this is what Shibboleth is for
      *
      * Returns associative array of patron data on success, false on failure.
      *
@@ -51,34 +49,15 @@ class ILSAuthenticator extends ILSAuthenticatorBase
      */
     public function storedCatalogLogin()
     {
-        // Fail if no username is found, but allow a missing password (not every ILS
-        // requires a password to connect).
         if (($user = $this->auth->isLoggedIn())
             && isset($user->cat_username) && !empty($user->cat_username)
         ) {
-            // Do we have a previously cached ILS account?
-            if (isset($this->ilsAccount[$user->cat_username])) {
-                return $this->ilsAccount[$user->cat_username];
-            }
-            try {
-                $patron = $this->catalog->patronLogin(
-                    $user->cat_username, $user->getCatPassword()
-                );
-            } catch (ILSException $e) {
-                $patron = null;
+            $patron = [
+                'cat_username' => $user->cat_username,
+                'id' => $user->cat_username
+            ];
 
-                $_ENV['exceptions']['login'] = $e->getMessage(); // This is only added compared to parent
-            }
-            if (empty($patron)) {
-                // Problem logging in -- clear user credentials so they can be
-                // prompted again; perhaps their password has changed in the
-                // system!
-                $user->clearCredentials();
-            } else {
-                // cache for future use
-                $this->ilsAccount[$user->cat_username] = $patron;
-                return $patron;
-            }
+            return $patron;
         }
 
         return false;

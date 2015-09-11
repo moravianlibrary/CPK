@@ -27,7 +27,8 @@
  */
 namespace CPK\Controller;
 
-use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\Db\Row\User as UserRow;
+use MZKCommon;
+use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\Db\Row\User as UserRow, MZKCommon\Controller\ExceptionsTrait;
 
 /**
  * Controller for the library card functionality.
@@ -41,6 +42,7 @@ use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\
  */
 class LibraryCardsController extends LibraryCardsControllerBase
 {
+    use ExceptionsTrait;
 
     /**
      * Send user's library cards to the view
@@ -49,19 +51,23 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function homeAction()
     {
-        if (! ($user = $this->getUser())) {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions();
             return $this->forceLogin();
         }
 
         // Check for "delete card" request; parameter may be in GET or POST depending
         // on calling context.
-        $deleteId = $this->params()->fromPost('delete', $this->params()
-            ->fromQuery('delete'));
+        $deleteId = $this->params()->fromPost('delete',
+            $this->params()
+                ->fromQuery('delete'));
         if ($deleteId) {
             // If the user already confirmed the operation, perform the delete now;
             // otherwise prompt for confirmation:
-            $confirm = $this->params()->fromPost('confirm', $this->params()
-                ->fromQuery('confirm'));
+            $confirm = $this->params()->fromPost('confirm',
+                $this->params()
+                    ->fromQuery('confirm'));
             if ($confirm) {
                 $success = $this->performDeleteLibraryCard($deleteId);
                 if ($success !== true) {
@@ -75,10 +81,11 @@ class LibraryCardsController extends LibraryCardsControllerBase
         // Connect to the ILS for login drivers:
         $catalog = $this->getILS();
 
-        return $this->createViewModel([
-            'libraryCards' => $user->getAllUserLibraryCards(),
-            'logos' => $user->getIdentityProvidersLogos()
-        ]);
+        return $this->createViewModel(
+            [
+                'libraryCards' => $user->getAllUserLibraryCards(),
+                'logos' => $user->getIdentityProvidersLogos()
+            ]);
     }
 
     /**
@@ -88,15 +95,16 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function deleteCardAction()
     {
-        // User must be logged in to edit library cards:
-        $user = $this->getUser();
-        if ($user == false) {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions();
             return $this->forceLogin();
         }
 
         // Get requested library card ID:
-        $cardID = $this->params()->fromPost('cardID', $this->params()
-            ->fromQuery('cardID'));
+        $cardID = $this->params()->fromPost('cardID',
+            $this->params()
+                ->fromQuery('cardID'));
 
         if (! $user->hasThisLibraryCard($cardID)) {
             // Success Message
@@ -107,8 +115,9 @@ class LibraryCardsController extends LibraryCardsControllerBase
             return $this->redirect()->toRoute('librarycards-home');
         }
 
-        $confirm = $this->params()->fromPost('confirm', $this->params()
-            ->fromQuery('confirm'));
+        $confirm = $this->params()->fromPost('confirm',
+            $this->params()
+                ->fromQuery('confirm'));
 
         if ($confirm) {
             $user->disconnectIdentity($cardID);
@@ -122,11 +131,14 @@ class LibraryCardsController extends LibraryCardsControllerBase
         }
 
         // If we got this far, we must display a confirmation message:
-        return $this->confirm('confirm_delete_library_card_brief', $this->url()
-            ->fromRoute('librarycards-deletecard'), $this->url()
-            ->fromRoute('librarycards-home'), 'confirm_delete_library_card_text', [
-            'cardID' => $cardID
-        ]);
+        return $this->confirm('confirm_delete_library_card_brief',
+            $this->url()
+                ->fromRoute('librarycards-deletecard'),
+            $this->url()
+                ->fromRoute('librarycards-home'), 'confirm_delete_library_card_text',
+            [
+                'cardID' => $cardID
+            ]);
     }
 
     /**

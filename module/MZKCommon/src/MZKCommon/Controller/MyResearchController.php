@@ -46,6 +46,7 @@ Zend\Session\Container as SessionContainer;
  */
 class MyResearchController extends MyResearchControllerBase
 {
+    use ExceptionsTrait;
 
     /**
      * Login Action
@@ -56,7 +57,7 @@ class MyResearchController extends MyResearchControllerBase
     {
         $view = parent::loginAction();
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -70,7 +71,7 @@ class MyResearchController extends MyResearchControllerBase
         $view = parent::holdsAction();
         $view = $this->addViews($view);
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -96,7 +97,7 @@ class MyResearchController extends MyResearchControllerBase
         $view->history = false;
         $view = $this->addViews($view);
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -140,7 +141,7 @@ class MyResearchController extends MyResearchControllerBase
         );
         $view->setTemplate('myresearch/shortloans');
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -237,7 +238,7 @@ class MyResearchController extends MyResearchControllerBase
             $view = $this->createViewModel(array('fields' => $fields));
             $view->setTemplate('myresearch/illrequest-new');
 
-            $this->flashExceptions();
+            $this->flashExceptions($this->flashMessenger());
             return $view;
         } else {
             return parent::illRequestsAction();
@@ -367,7 +368,7 @@ class MyResearchController extends MyResearchControllerBase
         $view->limitList = array(50, 100, 200);
         $this->addViews($view);
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -383,7 +384,7 @@ class MyResearchController extends MyResearchControllerBase
             $view->profileChange = $catalog->checkCapability('changeUserRequest');
         }
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -467,7 +468,7 @@ class MyResearchController extends MyResearchControllerBase
         }
         $view->setTemplate('myresearch/profilechange');
 
-        $this->flashExceptions();
+        $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
@@ -570,41 +571,4 @@ class MyResearchController extends MyResearchControllerBase
         }
         return $session;
     }
-
-    /**
-     * This method represents an exception flashing system for backend without access to
-     * rendering the template .
-     * ..
-     *
-     * Just add an array value to $_ENV['exceptions'] inside any Backend class to flash it later ..
-     *
-     * If the key of appended array value will match any of User's registered institutions, it'll be
-     * shown as related to that institution.
-     *
-     * @return void
-     */
-    protected function flashExceptions()
-    {
-        if (isset($_ENV['exceptions'])) {
-            foreach ($_ENV['exceptions'] as $source => $exception) {
-
-                // We actually cannot print multi-lined exception -> divide it into separate ones ..
-                $exceptions = explode("\n", $exception);
-
-                if ($exceptions == null) // It is probably an array
-                    $exceptions = $exception;
-
-                foreach ($exceptions as $exception) {
-
-                    if (! is_numeric($source))
-                        $exception = $source . ':' . $exception;
-
-                    $this->flashMessenger()->addErrorMessage($exception);
-                }
-            }
-
-            unset($_ENV['exceptions']);
-        }
-    }
-
 }
