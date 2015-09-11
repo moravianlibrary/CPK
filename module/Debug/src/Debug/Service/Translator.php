@@ -79,11 +79,12 @@ class Translator extends \Zend\I18n\Translator\Translator
             return '';
         }
 
-        $callStack = debug_backtrace()[5];
-        $fullpath = $callStack[file];
+        $callStack = debug_backtrace()[7];
+        $fullpath = $callStack['file'];
         $pathParts = explode("themes", $fullpath);
-        $shortPath = $pathParts[1];
-        $lineNumber = $callStack[line];
+        $shortPath = '';
+        if (! empty($pathParts) && array_key_exists('1', $pathParts)) $shortPath = $pathParts[1];
+        $lineNumber = $callStack['line'];
         return "" . $message . " (" . $shortPath . ")[" . $lineNumber . "]";
     }
 
