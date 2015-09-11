@@ -27,7 +27,6 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon;
 use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\Db\Row\User as UserRow, MZKCommon\Controller\ExceptionsTrait;
 
 /**
@@ -53,7 +52,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
     {
         // Stop now if the user does not have valid catalog credentials available:
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
-            $this->flashExceptions();
+            $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
 
@@ -97,7 +96,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
     {
         // Stop now if the user does not have valid catalog credentials available:
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
-            $this->flashExceptions();
+            $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
 
