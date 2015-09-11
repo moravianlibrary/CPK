@@ -371,11 +371,13 @@ class AjaxController extends AjaxControllerBase
 
     public function getMyProfileAjax()
     {
-        $request = $this->getRequest();
+        // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
 
-        if ($cat_username === null)
-            return $this->output('No cat_username provided', self::STATUS_ERROR);
+        $hasPermissions = $this->hasPermissions($user, $cat_username);
+
+        if ($hasPermissions instanceof \Zend\Http\Response)
+            return $hasPermissions;
 
         $viewRend = $this->getViewRenderer();
 
@@ -457,4 +459,46 @@ class AjaxController extends AjaxControllerBase
         $initialString = 'Unknown Status';
         return $viewRend->transEsc('status_' . $initialString, null, $initialString);
     }
+
+    /**
+     * Checks whether User identified by his cookies ownes the identity
+     * he is asking informations about.
+     *
+     * Returns true, if the User has all the rights to do so.
+     *
+     * If the User is not authorized, an \Zend\Http\Response with JSON message
+     * is returned.
+     *
+     * @param string $cat_username
+     * @return \Zend\Http\Response|boolean
+     */
+    protected function hasPermissions($cat_username) {
+
+        // Check user is logged in ..
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            return $this->output('You are not logged in.', self::STATUS_ERROR);
+        }
+
+        if ($cat_username === null) {
+            return $this->output('No cat_username provided', self::STATUS_ERROR);
+        }
+
+        // Check user ownes the identity he is requesting for ..
+        $identities = $user->getLibraryCards();
+
+        $isOwner = false;
+        foreach($identities as $identity) {
+            if ($identity->cat_username === $cat_username) {
+                $isOwner = true;
+                break;
+            }
+        }
+
+        if (!$isOwner) {
+            return $this->output('This is not your identity.', self::STATUS_ERROR);
+        }
+
+        return true;
+    }
+
 }
