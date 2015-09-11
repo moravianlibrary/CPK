@@ -88,4 +88,12 @@ class Translator extends \Zend\I18n\Translator\Translator
         return "" . $message . " (" . $shortPath . ")[" . $lineNumber . "]";
     }
 
+    /**
+     * @return I18nTranslatorInterface
+     */
+    public function getTranslator()
+    {
+        return $this;
+    }
+
 }
