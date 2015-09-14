@@ -43,7 +43,7 @@ class Aleph extends AlephBase
 
     protected $available_statuses = [];
 
-    protected $eppnScope = null;
+    protected $logo = null;
 
     protected $maxItemsParsed;
 
@@ -55,8 +55,8 @@ class Aleph extends AlephBase
             $this->available_statuses = explode(self::CONFIG_ARRAY_DELIMITER, $this->config['Catalog']['available_statuses']);
         }
 
-        if (isset($this->config['Catalog']['eppnScope'])) {
-            $this->eppnScope = $this->config['Catalog']['eppnScope'];
+        if (isset($this->config['Catalog']['logo'])) {
+            $this->logo = $this->config['Catalog']['logo'];
         }
 
         if (isset($this->config['Availability']['maxItemsParsed'])) {
@@ -88,8 +88,8 @@ class Aleph extends AlephBase
 
         if (isset($profile['blocks']))
             foreach ($profile['blocks'] as $block) {
-                if (! empty($this->eppnScope)) {
-                    $blocks[$this->eppnScope] = (string) $block;
+                if (! empty($this->logo)) {
+                    $blocks[$this->logo] = (string) $block;
                 } else
                     $blocks[] = (string) $block;
             }

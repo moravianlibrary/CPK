@@ -458,7 +458,10 @@ class MyResearchController extends MyResearchControllerBase
             }
 
             foreach ($profile['blocks'] as $institution => $block) {
-                $logo = $logos[$institution];
+                if (isset($logos[$institution]))
+                    $logo = $logos[$institution];
+                else
+                    $logo = $institution;
 
                 $message[$logo] = $block;
 
