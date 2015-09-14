@@ -16,7 +16,7 @@
         if ($logos !== null)
             $libraryLogo = $logos->$eppnHostname; ?>
 
-    <h3>
+    <h3 class="well row">
     <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
     </h3>
     <? if (!empty($libraryIdentity->recordList)): ?>
@@ -44,10 +44,9 @@
 
       <? $iteration = 0; ?>
       <? foreach ($libraryIdentity->recordList as $resource): ?>
-        <hr/>
         <? $iteration++; ?>
         <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
-        <div id="record<?=$this->escapeHtmlAttr($resource->getUniqueId()) ?>" class="row">
+        <div id="record<?=$this->escapeHtmlAttr($resource->getUniqueId()) ?>" class="row well">
           <? if ($libraryIdentity->cancelForm && isset($ilsDetails['cancel_details'])): ?>
             <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $resource->getUniqueId()); ?>
             <input type="hidden" name="cancelAllIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" />
