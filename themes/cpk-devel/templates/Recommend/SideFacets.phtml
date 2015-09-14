@@ -72,12 +72,21 @@ foreach ($queryParams as $key => $value) {
 ?>
 <? if ($this->recommend instanceof \CPK\Recommend\SideFacets && isset($myLibs) && is_array($myLibs) && count($myLibs) > 0):
 
-    $firstFilter = true;
+    $urlParams = $results->getUrlQuery()->getParamArray();
+    $newParams = array('type' => 'AllFields');
+    $filtered = array();
+    if (isset($urlParams['filter'])) foreach ($urlParams['filter'] as $param) {
+        if (strpos($param, '~institution:') === 0) continue;
+        $filtered[] = $param;
+    }
+    $newParams['filter'] = $filtered;
+
+    $firstLib = true;
     foreach ($myLibs as $myLib) {
-        if ($firstFilter) {
+        if ($firstLib) {
             $url = $this->currentPath().$results->getUrlQuery()->addFacet("institution",
-                    $this->recommend->getInstutitionMapping($myLib), "OR");
-            $firstFilter = false;
+                    $this->recommend->getInstutitionMapping($myLib), "OR", $newParams);
+            $firstLib = false;
         }
         else
             $url .= '&' . urlencode('filter[]'). '=~' . urlencode('institution:"' .
