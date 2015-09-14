@@ -119,7 +119,7 @@ function getTableRowFromFine(tableBody, fine, counter) {
 	if (typeof dataVal != 'undefined') {
 
 	    if (dataKey == 'title') {
-		if (typeof fine['id'] != 'undefined') {
+		if (typeof fine['id'] != 'undefined' && dataVal) {
 		    // Create a link if id is available
 		    var anchor = $('<a href="/Record/' + fine['id'] + '">');
 		    anchor.text(dataVal);
