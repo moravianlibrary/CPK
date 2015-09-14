@@ -27,7 +27,6 @@
  */
 namespace CPK\View\Helper\CPK;
 use Zend\ServiceManager\ServiceManager;
-use VuFind\View\Helper\Root\Flashmessages;
 
 /**
  * Factory for Bootstrap view helpers.
@@ -57,7 +56,7 @@ class Factory
     public static function getFlashmessages(ServiceManager $sm)
     {
         $messenger = $sm->getServiceLocator()->get('ControllerPluginManager')
-        ->get('FlashMessenger');
+            ->get('FlashMessenger');
         return new Flashmessages($messenger);
     }
 
