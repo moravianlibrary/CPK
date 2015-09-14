@@ -91,7 +91,10 @@ class Aleph extends AlephBase
                 if (! empty($this->logo)) {
                     $blocks[$this->logo] = (string) $block;
                 } else
-                    $blocks[] = (string) $block;
+                    if (! empty($this->config['Catalog']['agency']))
+                        $blocks[] = $this->translator->getTranslator()->translate($this->config['Catalog']['agency'] .
+                                " " . "Block" . " " . (string) $block);
+                    else $blocks[] = $this->translator->getTranslator()->translate("Block " . (string) $block);
             }
 
         $profile['blocks'] = $blocks;
