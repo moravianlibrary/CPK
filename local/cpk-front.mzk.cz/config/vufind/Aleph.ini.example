@@ -25,8 +25,7 @@ dont_show_link     = "Studovna,Vol.výb.-měs."
 quick_availability = true
 disable_ils_auth   = false
 
-; This is needed to parse institution logo
-eppnScope = SCOPE_OF_YOUR_ORGANIZATION_IN_EDU_PERSON_PRINCIPAL_NAME
+logo = LOGO_OF_YOUR_ORGANIZATION
 
 [sublibadm]
 ARC     = SUBLIB_ARC

@@ -5,5 +5,6 @@ hasUntrustedSSL = 1
 ; Your library's Agency ID (ILSDefaultAgency setting in driver_config.properties):
 agency          = "MZK"
 
+logo 		= LOGO_URL_TO_SHOW_IN_ASYNC_PROFILE
 
 ; Don't forget to link or copy this config XCNCIP2.ini to lowercase xcncip2.ini in order to work MultiBackend driver properly
