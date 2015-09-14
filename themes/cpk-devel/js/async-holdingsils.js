@@ -1,10 +1,5 @@
-function isRecordPage() {
-    return document.location.pathname.match(/\/Record\/\w+[.].*/) != null;
-}
+$(getHoldingStatuses); // Launch this function onLoad event
 
-if ((isRecordPage())) {
-    $(getHoldingStatuses); // Launch this function onLoad event
-}
 
 // Async holdings loader
 function getHoldingStatuses(ids) {

@@ -2,6 +2,9 @@
 // Set page title.
 $this->headTitle(
     $this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
+
+$this->headScript()->appendFile('async-holdingsils.js');
+
 // Set up convenience variables:
 $holdings = $this->driver->getRealTimeHoldings();
 $authManager = $this->auth()->getManager();
