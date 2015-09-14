@@ -32,46 +32,57 @@ function updateFinesTable(response) {
     }
 
     if (parentTable.length) {
+	var tableBody = parentTable.children('tbody'), divLoadingInfo = parentTable
+		.find('div[data-type=loading-info]');
+
 	if (status == "OK") {
 
 	    var counter = new Counter();
 
-	    var tableBody = parentTable.children('tbody');
 	    var moneyFormat = tableBody.attr('data-money-format');
 	    var summaryRow = tableBody.children().next();
 
 	    var finesAppended = 0;
 
 	    // Remove the loading caption
-	    parentTable.find('div[data-type=loading-info]').remove();
+	    divLoadingInfo.remove();
 
 	    // Update only recieved data
-	    $.each(data.fines, function(key, fine) {
-		if (typeof fine == 'object') {
+	    $.each(data.fines,
+		    function(key, fine) {
+			if (typeof fine == 'object') {
 
-		    var tableRow = getTableRowFromFine(tableBody, fine, counter);
+			    var tableRow = getTableRowFromFine(tableBody, fine,
+				    counter);
 
-		    summaryRow.before(tableRow);
-		    ++finesAppended;
-		}
-	    });
+			    summaryRow.before(tableRow);
+			    ++finesAppended;
+			}
+		    });
 
 	    if (finesAppended) {
+		// Show total sum ..
 		var totalSum = counter.getTotalSum();
 
 		var formattedMoney = formatMoney(moneyFormat, totalSum);
 		summaryRow.find('td[data-type=sum]').text(formattedMoney);
 
+		// Unhide the table
 		tableBody.removeAttr('hidden');
+
+		// Purge <caption>
+		parentTable.children('caption').remove();
 	    } else {
 		// No fines were recieved ..
 		parentTable.find('div[data-type=without-fines-info]').addClass(
 			'label label-info').removeAttr('hidden');
+
+		// Purge <tbody>
+		tableBody.remove();
 	    }
 
 	} else {
-	    var message = response.data.message, divLoadingInfo = parentTable
-		    .find('div[data-type=loading-info]');
+	    var message = response.data.message;
 
 	    // Remove loading icon
 	    divLoadingInfo.children('i').remove();
@@ -79,7 +90,7 @@ function updateFinesTable(response) {
 	    var label = divLoadingInfo.children('span.label');
 
 	    // Set red background to the label
-	    label.removeClass('label-primary').addClass('label-danger');
+	    label.addClass('label label-danger');
 
 	    // Print the message
 	    if (message) {
@@ -87,24 +98,28 @@ function updateFinesTable(response) {
 	    } else {
 		label.html('Unknown problem occured');
 	    }
+
+	    // Purge <tbody>
+	    tableBody.remove();
 	}
     }
 }
 
 /**
- * Crafts a 'tr' element with all the 'td's based on passed 'th' elements within 'tbody' element.
+ * Crafts a 'tr' element with all the 'td's based on passed 'th' elements within
+ * 'tbody' element.
  * 
  * All the 'th' elements should have an attribute called 'data-key' with value,
  * which determines what data should be placed into that column.
  * 
- * @param tableBody
- * @param fine
- * @param counter
- * @returns DOM object tr
+ * @param DOM tableBody
+ * @param object fine
+ * @param Counter counter
+ * @returns DOM tr
  */
 function getTableRowFromFine(tableBody, fine, counter) {
     var tr = $('<tr>');
-    
+
     var ths = tableBody.children().first().children();
     var moneyFormat = tableBody.attr('data-money-format');
 
@@ -113,13 +128,13 @@ function getTableRowFromFine(tableBody, fine, counter) {
 
 	var dataKey = $(this).attr('data-key');
 	var dataVal = fine[dataKey];
-	
+
 	var unknownTitle = tableBody.attr('data-title-unknown');
 
 	if (typeof dataVal != 'undefined') {
 
 	    if (dataKey == 'title') {
-		if (typeof fine['id'] != 'undefined' && dataVal) {
+		if (dataVal && typeof fine['id'] != 'undefined') {
 		    // Create a link if id is available
 		    var anchor = $('<a href="/Record/' + fine['id'] + '">');
 		    anchor.text(dataVal);
@@ -142,7 +157,7 @@ function getTableRowFromFine(tableBody, fine, counter) {
 	} else if (dataKey == 'title') {
 	    // If title is empty, set the string to unknown
 	    dataVal = unknownTitle;
-	    tableCell.text(dataVal);	    
+	    tableCell.text(dataVal);
 	}
 
 	tr.append(tableCell);
@@ -161,7 +176,6 @@ var Counter = (function() {
     function Counter() {
 	totalSum = 0
     }
-    ;
 
     Counter.prototype.getTotalSum = function() {
 	return totalSum;
