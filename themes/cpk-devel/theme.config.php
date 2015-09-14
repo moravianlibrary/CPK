@@ -41,6 +41,7 @@ return array(
             'search' => 'VuFind\View\Helper\Bootstrap3\Search',
             'vudl' => 'VuDL\View\Helper\Bootstrap3\VuDL',
             'renderarray' => 'CPK\View\Helper\CPK\RenderArray',
+            'currenturl' => 'CPK\View\Helper\CPK\CurrentURL',
         )
     )
 );

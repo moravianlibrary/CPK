@@ -1,0 +1,42 @@
+<? $limitList = $this->params->getLimitList();
+   $currentURL = $this->currentURL();
+
+   // Purge limit parameter ..
+   $currentURL = preg_replace('/(&?)limit=\d+[&?]/', '\\1', $currentURL);
+
+   // Get array of filters
+   $filtersFromURL = preg_split('/[?&]/', $currentURL);
+   array_shift($filtersFromURL);
+
+   $filters = [];
+
+   foreach($filtersFromURL as $filterFromURL) {
+       $exploded = explode('=', $filterFromURL, 2);
+
+       // Apply html escaping ..
+       array_walk($exploded, function (&$val) {
+           $val = $this->escapeHtmlAttr(urldecode($val));
+       });
+
+       if (isset($exploded[0]) && isset($exploded[1]))
+           $filters[$exploded[0]] = $exploded[1];
+   }
+
+   // Leave only the domain ..
+   $currentURL = explode('?', $currentURL, 1)[0];
+
+?>
+<? if (count($limitList) > 1): ?>
+  <form class="form-inline" action="<?=$currentURL?>" method="get">
+    <label for="limit"><?=$this->transEsc('Results per page')?></label>
+    <select id="limit" name="limit" class="jumpMenu form-control">
+      <? foreach ($limitList as $limitVal => $limitData): ?>
+        <option value="<?=$this->escapeHtmlAttr($limitVal)?>"<?=$limitData['selected']?' selected="selected"':''?>><?=$this->escapeHtml($limitData['desc'])?></option>
+      <? endforeach; ?>
+    </select>
+    <? foreach ($filters as $name => $value): ?>
+      <input type="hidden" name="<?=$name ?>" value="<?=$value ?>" />
+    <? endforeach; ?>
+    <noscript><input type="submit" value="<?=$this->transEsc("Set")?>" /></noscript>
+  </form>
+<? endif; ?>
