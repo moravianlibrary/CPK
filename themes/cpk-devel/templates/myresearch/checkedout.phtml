@@ -5,6 +5,11 @@
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> <span class="divider">&gt;</span></li>'
         . '<li class="active">' . $this->transEsc('Checked Out Items') . '</li>';
+
+    $isSynchronous = $this->isSynchronous;
+
+    if (! $isSynchronous)
+        $this->headScript()->appendFile("async-checkedout.js");
 ?>
 
 <div class="<?=$this->layoutClass('mainbody')?>">

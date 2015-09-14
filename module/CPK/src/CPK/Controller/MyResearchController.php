@@ -136,13 +136,23 @@ class MyResearchController extends MyResearchControllerBase
 
         $viewVars = $libraryIdentities = [];
 
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        $config = $catalog->getDriverConfig();
+
+        if (isset($config['General']['async_holds']) &&
+             $config['General']['async_holds'])
+            $isSynchronous = false;
+        else
+            $isSynchronous = true;
+
+        $viewVars['isSynchronous'] = $isSynchronous;
+
         foreach ($identities as $identity) {
 
             $patron = $user->libCardToPatronArray($identity);
             // Start of VuFind/MyResearch/holdsAction
-
-            // Connect to the ILS:
-            $catalog = $this->getILS();
 
             // Process cancel requests if necessary:
             $cancelStatus = $catalog->checkFunction('cancelHolds', compact('patron'));
@@ -216,14 +226,24 @@ class MyResearchController extends MyResearchControllerBase
 
         $viewVars = $libraryIdentities = [];
 
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        $config = $catalog->getDriverConfig();
+
+        if (isset($config['General']['async_checkedout']) &&
+             $config['General']['async_checkedout'])
+            $isSynchronous = false;
+        else
+            $isSynchronous = true;
+
+        $viewVars['isSynchronous'] = $isSynchronous;
+
         foreach ($identities as $identity) {
 
             $patron = $user->libCardToPatronArray($identity);
 
             // Start of VuFind/MyResearch/checkedoutAction
-
-            // Connect to the ILS:
-            $catalog = $this->getILS();
 
             // Get the current renewal status and process renewal form, if necessary:
             $renewStatus = $catalog->checkFunction('Renewals', compact('patron'));
@@ -387,6 +407,16 @@ class MyResearchController extends MyResearchControllerBase
         // Connect to the ILS:
         $catalog = $this->getILS();
 
+        $config = $catalog->getDriverConfig();
+
+        if (isset($config['General']['async_fines']) &&
+             $config['General']['async_fines'])
+            $isSynchronous = false;
+        else
+            $isSynchronous = true;
+
+        $viewVars['isSynchronous'] = $isSynchronous;
+
         foreach ($identities as $identity) {
 
             $patron = $user->libCardToPatronArray($identity);
@@ -394,27 +424,32 @@ class MyResearchController extends MyResearchControllerBase
             // Begin building view object:
             $currentIdentityView = $this->createViewModel();
 
-            // Get fine details:
-            $result = $catalog->getMyFines($patron);
-
             $fines = [];
-            foreach ($result as $row) {
-                // Attempt to look up and inject title:
-                try {
-                    if (! isset($row['id']) || empty($row['id'])) {
-                        throw new \Exception();
+
+            if (! $isSynchronous) {
+                $fines['cat_username'] = $patron['cat_username'];
+            } else {
+                // Get fine details:
+                $result = $catalog->getMyFines($patron);
+
+                foreach ($result as $row) {
+                    // Attempt to look up and inject title:
+                    try {
+                        if (! isset($row['id']) || empty($row['id'])) {
+                            throw new \Exception();
+                        }
+                        $source = isset($row['source']) ? $row['source'] : 'VuFind';
+                        $row['driver'] = $this->getServiceLocator()
+                            ->get('VuFind\RecordLoader')
+                            ->load($row['id'], $source);
+                        $row['title'] = $row['driver']->getShortTitle();
+                    } catch (\Exception $e) {
+                        if (! isset($row['title'])) {
+                            $row['title'] = null;
+                        }
                     }
-                    $source = isset($row['source']) ? $row['source'] : 'VuFind';
-                    $row['driver'] = $this->getServiceLocator()
-                        ->get('VuFind\RecordLoader')
-                        ->load($row['id'], $source);
-                    $row['title'] = $row['driver']->getShortTitle();
-                } catch (\Exception $e) {
-                    if (! isset($row['title'])) {
-                        $row['title'] = null;
-                    }
+                    $fines[] = $row;
                 }
-                $fines[] = $row;
             }
             $allFines[$identity['eppn']] = $fines;
         }

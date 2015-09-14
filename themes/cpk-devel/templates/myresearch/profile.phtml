@@ -2,8 +2,6 @@
     // Set up page title:
     $this->headTitle($this->translate('My Profile'));
 
-    $this->headScript()->appendFile("async-profile.js");
-
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Profile') . '</li>';
 
@@ -13,6 +11,9 @@
     $asyncTemplate = '<tr hidden="hidden" data-key="%%KEY%%"><th>%%LABEL%%:</th><td></td></tr>';
 
     $isSynchronous = $this->isSynchronous;
+
+    if (! $isSynchronous)
+        $this->headScript()->appendFile("async-profile.js");
 ?>
 
 <div class="row">

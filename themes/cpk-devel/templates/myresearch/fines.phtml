@@ -5,6 +5,11 @@
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a>' . '</li>'
         . '<li class="active">' . $this->transEsc('Fines') . '</li>';
+
+    $isSynchronous = $this->isSynchronous;
+
+    if (! $isSynchronous)
+        $this->headScript()->appendFile("async-fines.js");
 ?>
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Your Fines')?></h2>
@@ -25,9 +30,10 @@
         if ($logos !== null)
             $libraryLogo = $logos->$eppnHostname; ?>
 
-        <h3>
-        <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-        </h3>
+    <h3>
+    <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+    </h3>
+    <? if ($isSynchronous): ?>
 
         <? if (empty($identityFines)): ?>
             <div class="label label-info">
@@ -67,13 +73,37 @@
               <tr style="font-weight:bold"><td colspan="5"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue/100.00) ?></td></tr>
             </table>
         <? endif; ?>
-    <? endforeach; ?>
-
-    <? if (isset($this->paymentUrl)):?>
-      <a href="<?=$this->paymentUrl?>"><?=$this->transEsc('Online payment of fines')?></a>
+    <? else: // We have some async deal here .. ?>
+    <table id="<?=$identityFines['cat_username']?>" class="table table-striped">
+        <caption>
+            <div data-type="loading-info">
+                <i class="fa fa-spinner fa-spin"></i>
+                <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+            </div>
+            <div data-type="without-fines-info" hidden="hidden">
+                <?=$this->transEsc('You do not have any fines in this institution')?>.
+            </div>
+        </caption>
+        <tbody hidden="hidden" data-money-format="<?=$this->transEsc('__MONEY_FORMAT__', null, '$ VALUE') ?>" data-title-unknown="<?=$this->transEsc('unknown') ?>">
+        <tr>
+              <th data-key='title'><?=$this->transEsc('Title')?></th>
+              <th data-key='checkout'><?=$this->transEsc('Checked Out')?></th>
+              <th data-key='duedate'><?=$this->transEsc('Due Date')?></th>
+              <th data-key='fine'><?=$this->transEsc('Fine description')?></th>
+              <th data-key='amount'><?=$this->transEsc('Fee')?></th>
+              <th data-key='balance'><?=$this->transEsc('Balance')?></th>
+            </tr>
+            <tr style="font-weight:bold"><td colspan="5"><?=$this->transEsc('Total Balance Due')?></td><td data-type="sum"></td></tr>
+        </tbody>
+      </table>
     <? endif; ?>
+   <? endforeach; ?>
 
-  <? endif; ?>
+   <? if (isset($this->paymentUrl)):?>
+     <a href="<?=$this->paymentUrl?>"><?=$this->transEsc('Online payment of fines')?></a>
+   <? endif; ?>
+
+ <? endif; ?>
 </div>
 
 <div class="<?=$this->layoutClass('sidebar')?>">

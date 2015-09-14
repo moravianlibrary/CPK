@@ -485,6 +485,10 @@ class AjaxController extends AjaxControllerBase
             try {
                 // Try to get the profile ..
                 $fines = $ilsDriver->getMyFines($patron);
+
+                $data['cat_username'] = $cat_username;
+                $data['fines'] = $fines;
+
             } catch (\VuFind\Exception\ILS $e) {
 
                 // Something went wrong - include cat_username to properly
@@ -503,7 +507,7 @@ class AjaxController extends AjaxControllerBase
                 return $this->output($data, self::STATUS_ERROR);
             }
 
-            return $this->output($fines, self::STATUS_OK);
+            return $this->output($data, self::STATUS_OK);
         } else
             return $this->output(
                 "ILS Driver isn't instanceof MultiBackend - ending job now.",
