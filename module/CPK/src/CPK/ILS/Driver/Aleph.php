@@ -85,16 +85,19 @@ class Aleph extends AlephBase
         $profile = parent::getMyProfile($user);
 
         $blocks = [];
+        $translatedBlock = '';
 
         if (isset($profile['blocks']))
             foreach ($profile['blocks'] as $block) {
+                if (! empty($this->config['Catalog']['agency']))
+                    $translatedBlock = $this->translator->getTranslator()->translate($this->config['Catalog']['agency'] .
+                            " " . "Block" . " " . (string) $block);
+                else $translatedBlock = $this->translator->getTranslator()->translate("Block " . (string) $block);
+
                 if (! empty($this->logo)) {
-                    $blocks[$this->logo] = (string) $block;
+                    $blocks[$this->logo] = $translatedBlock;
                 } else
-                    if (! empty($this->config['Catalog']['agency']))
-                        $blocks[] = $this->translator->getTranslator()->translate($this->config['Catalog']['agency'] .
-                                " " . "Block" . " " . (string) $block);
-                    else $blocks[] = $this->translator->getTranslator()->translate("Block " . (string) $block);
+                    $blocks[] = $translatedBlock;
             }
 
         $profile['blocks'] = $blocks;
