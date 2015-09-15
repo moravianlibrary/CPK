@@ -27,6 +27,7 @@
  */
 namespace VuFind\Recommend;
 use Zend\ServiceManager\ServiceManager;
+use Vufind\Recommend\MapScale;
 
 /**
  * Recommendation Module Factory Class
@@ -178,7 +179,7 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\Config')
         );
     }
-    
+
     /**
      * Factory for MapSelection module.
      *
@@ -192,7 +193,7 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\Config')
         );
     }
-    
+
     /**
      * Factory for NewItems module.
      *
@@ -387,6 +388,18 @@ class Factory
         return new WorldCatTerms(
             $sm->getServiceLocator()->get('VuFind\WorldCatUtils')
         );
+    }
+
+    /**
+     * Factory for MapScale module.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return MapScale
+     */
+    public static function getMapScale(ServiceManager $sm)
+    {
+        return new \VuFind\Recommend\MapScale($sm->getServiceLocator()->get('VuFind\Config'));
     }
 
 }
