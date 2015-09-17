@@ -654,3 +654,80 @@ cityInstitution:
       - [onephrase, 100] 
       - [and, 50]
       - [or, ~]
+
+adv_search_title_series:
+  QueryFields:
+    titleSeries_search_txt_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_author_corporation:
+  QueryFields:
+    authorCorporation_search_txt_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_subject_keywords:
+  QueryFields:
+    subjectKeywords_search_txt_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_source_title:
+  QueryFields:
+    sourceTitle_search_txt_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_isbn_issn_ismn:
+  QueryFields:
+    issnIsbnIsmn_search_str_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_call_number:
+  QueryFields:
+    callNumber_search_txt_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_publisher:
+  QueryFields:
+    publisher_search_str_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_year_of_publication:
+  QueryFields:
+    publishDate:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_place_of_publication:
+  QueryFields:
+    placeOfPublication_txt_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_001:
+  QueryFields:
+    id001_search_str:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+
+adv_search_nbn:
+  QueryFields:
+    cnb_search_str:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
