@@ -66,6 +66,7 @@
             $formats = $resource->getFormats();
             ?>
             <? $recordId =  preg_replace("/\./", "", $recordId)?>
+            <? $recordId =  preg_replace("/:/", "", $recordId)?>
             <div id="cover_<?=$recordId?>" class="coverThumbnail">
               <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
                 <script type="text/javascript">

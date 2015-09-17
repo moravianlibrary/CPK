@@ -14,6 +14,7 @@
   }
 ?>
 <? $recordId =  preg_replace("/\./", "", $recordId)?>
+<? $recordId =  preg_replace("/:/", "", $recordId)?>
 <div class="row result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
   <div class="col-xs-2 left">
     <label class="pull-left"><?=$this->record($this->driver)->getCheckbox() ?></label>

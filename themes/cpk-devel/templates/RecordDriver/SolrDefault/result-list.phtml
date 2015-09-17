@@ -11,6 +11,7 @@
     <div class="row">
         <div class="col-sm-2 col-xs-3 left">
             <? $recordId =  preg_replace("/\./", "", $recordId)?>
+            <? $recordId =  preg_replace("/:/", "", $recordId)?>
             <div class="coverThumbnail cover_<?=$recordId?>">
                 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
                     <script type="text/javascript">
