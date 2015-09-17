@@ -163,7 +163,7 @@ class SolrDublinCore extends ParentSolrMarc
 
     public function getFormats()
     {
-        return $this->fields['format_display_mv'];
+        return isset($this->fields['format_display_mv']) ? $this->fields['format_display_mv'] : [];
     }
 
     /**
