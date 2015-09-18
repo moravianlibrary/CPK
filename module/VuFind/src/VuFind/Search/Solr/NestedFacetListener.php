@@ -66,6 +66,8 @@ class NestedFacetListener
      */
     protected $orFacets = [];
 
+    protected $allFacetsAreOr = false;
+
     /**
      * Constructor.
      *
@@ -79,6 +81,9 @@ class NestedFacetListener
         $this->backend = $backend;
         $this->nestedFacets = $nestedFacets;
         $this->orFacets = $orFacets;
+        if (!empty($this->orFacets) && $this->orFacets[0] == "*") {
+            $this->allFacetsAreOr = true;
+        }
     }
 
     /**
@@ -125,7 +130,7 @@ class NestedFacetListener
                 'field' => $field,
                 'domain' => [ 'blockChildren' => 'merged_boolean:true' ]
             ];
-            if (in_array($field, $this->orFacets) || $this->orFacets == "*") {
+            if ($this->allFacetsAreOr || in_array($field, $this->orFacets)) {
                 $data[$field]['excludeTags'] = [ $field . '_filter' ];
             }
         }
