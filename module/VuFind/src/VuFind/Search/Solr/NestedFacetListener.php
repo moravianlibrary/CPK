@@ -47,6 +47,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  */
 class NestedFacetListener
 {
+
+    const SOLR_LOCAL_PARAMS = "/(\\{[^\\}]*\\})*(\S+)/";
+
     /**
      * Backend.
      *
@@ -68,6 +71,8 @@ class NestedFacetListener
 
     protected $allFacetsAreOr = false;
 
+    protected $enabledForAllFacets = false;
+
     /**
      * Constructor.
      *
@@ -76,11 +81,12 @@ class NestedFacetListener
      *
      * @return void
      */
-    public function __construct(BackendInterface $backend, $nestedFacets, $orFacets)
+    public function __construct(BackendInterface $backend, $nestedFacets, $orFacets, $enabledForAllFacets = false)
     {
         $this->backend = $backend;
         $this->nestedFacets = $nestedFacets;
         $this->orFacets = $orFacets;
+        $this->enabledForAllFacets = $enabledForAllFacets;
         if (!empty($this->orFacets) && $this->orFacets[0] == "*") {
             $this->allFacetsAreOr = true;
         }
@@ -123,18 +129,25 @@ class NestedFacetListener
         if (!$params) {
             return;
         }
-        $data = [];
-        foreach ($this->nestedFacets as $field) {
-            $data[$field] = [
-                'type' => 'terms',
-                'field' => $field,
-                'domain' => [ 'blockChildren' => 'merged_boolean:true' ]
-            ];
-            if ($this->allFacetsAreOr || in_array($field, $this->orFacets)) {
-                $data[$field]['excludeTags'] = [ $field . '_filter' ];
+
+        $facets = $this->nestedFacets;
+        if ($this->enabledForAllFacets) {
+            foreach ($params->get('facet.field') as $facetField) {
+                if (preg_match(self::SOLR_LOCAL_PARAMS, $facetField, $matches)) {
+                    $facets[] = $matches[2];
+                }
             }
+            $params->remove('facet.field');
         }
-        $params->set('json.facet', json_encode($data));
+
+        $data = [];
+        foreach ($facets as $facetField) {
+            $data[$facetField] = $this->getFacetConfig($facetField);
+        }
+        if (!empty($data)) {
+            $params->set('json.facet', json_encode($data));
+        }
+
         $fqs = $params->get('fq');
         if (is_array($fqs) && !empty($fqs)) {
             $newfqs = array();
@@ -145,11 +158,25 @@ class NestedFacetListener
         }
     }
 
+    protected function getFacetConfig($field) {
+        $data = [
+                'type' => 'terms',
+                'field' => $field
+        ];
+        if (in_array($field, $this->nestedFacets)) {
+            $data['domain'] = [ 'blockChildren' => 'merged_boolean:true' ];
+        }
+        if ($this->allFacetsAreOr || in_array($field, $this->orFacets)) {
+            $data['excludeTags'] = [ $field . '_filter' ];
+        }
+        return $data;
+    }
+
     protected function transformFacetQuery($fq) {
         list($field, $query) = explode(":", $fq, 2);
         $params = null;
         $matches = [];
-        if (preg_match("/(\\{[^\\}]*\\})*(\S+)/", $field, $matches)) {
+        if (preg_match(self::SOLR_LOCAL_PARAMS, $field, $matches)) {
             $params = $matches[1];
             $field = $matches[2];
         }
