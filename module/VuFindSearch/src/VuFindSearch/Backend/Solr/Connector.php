@@ -68,7 +68,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      *
      * @var integer
      */
-    const MAX_GET_URL_LENGTH = 2048;
+    const MAX_GET_URL_LENGTH = 16384;
 
     /**
      * URL of SOLR core.

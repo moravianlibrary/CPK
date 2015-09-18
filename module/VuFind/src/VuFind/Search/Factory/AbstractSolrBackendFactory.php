@@ -245,7 +245,11 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         // Atach children facet listener
         if (isset($facets->SpecialFacets->nested)) {
             $nested = $facet->SpecialFacets->nested->toArray();
-            $this->getNestedFacetListener($backend, $nested)->attach($events);
+            $orFacets = [];
+            if (isset($facets->Results_Settings->orFacets)) {
+                $orFacets = explode(',', $facet->Results_Settings->orFacets);
+            }
+            $this->getNestedFacetListener($backend, $nested, $orFacets)->attach($events);
         }
 
         // Attach error listeners for Solr 3.x and Solr 4.x (for backward
@@ -482,9 +486,9 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
      *
      * @return NestedFacetListener
      */
-    protected function getNestedFacetListener(BackendInterface $backend, $nestedFacets)
+    protected function getNestedFacetListener(BackendInterface $backend, $nestedFacets, $orFacets)
     {
-        return new NestedFacetListener($backend, $nestedFacets);
+        return new NestedFacetListener($backend, $nestedFacets, $orFacets);
     }
 
 }

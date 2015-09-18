@@ -61,6 +61,12 @@ class NestedFacetListener
     protected $nestedFacets = [];
 
     /**
+     *
+     *
+     */
+    protected $orFacets = [];
+
+    /**
      * Constructor.
      *
      * @param BackendInterface $backend   Backend
@@ -68,10 +74,11 @@ class NestedFacetListener
      *
      * @return void
      */
-    public function __construct(BackendInterface $backend, $nestedFacets)
+    public function __construct(BackendInterface $backend, $nestedFacets, $orFacets)
     {
         $this->backend = $backend;
         $this->nestedFacets = $nestedFacets;
+        $this->orFacets = $orFacets;
     }
 
     /**
@@ -118,29 +125,38 @@ class NestedFacetListener
                 'field' => $field,
                 'domain' => [ 'blockChildren' => 'merged_boolean:true' ]
             ];
+            if (in_array($field, $this->orFacets) || $this->orFacets == "*") {
+                $data[$field]['excludeTags'] = [ $field . '_filter' ];
+            }
         }
         $params->set('json.facet', json_encode($data));
         $fqs = $params->get('fq');
         if (is_array($fqs) && !empty($fqs)) {
-            $newfq = array();
+            $newfqs = array();
             foreach ($fqs as &$query) {
-                if ($this->isChildrenFacetQuery($query)) {
-                    $newfq[] = "{!parent which='merged_boolean:true'}" . $query;
-                } else {
-                    $newfq[] = $query;
-                }
+                $newfqs[] = $this->transformFacetQuery($query);
             }
-            $params->set('fq', $newfq);
+            $params->set('fq', $newfqs);
         }
     }
 
-    protected function isChildrenFacetQuery($fq) {
-        list($field, $query) = explode(":", $fq);
+    protected function transformFacetQuery($fq) {
+        list($field, $query) = explode(":", $fq, 2);
+        $params = null;
         $matches = [];
         if (preg_match("/(\\{[^\\}]*\\})*(\S+)/", $field, $matches)) {
+            $params = $matches[1];
             $field = $matches[2];
         }
-        return in_array($field, $this->nestedFacets);
+        if (!in_array($field, $this->nestedFacets)) {
+            return $fq;
+        }
+        if ($params != null) {
+            $params = rtrim($params, "}") . " parent which='merged_boolean:true'" . "}";
+            return $params . $field . ':' . $query;
+        } else {
+            return "{!parent which='merged_boolean:true'}" . $fq;
+        }
     }
 
 }
