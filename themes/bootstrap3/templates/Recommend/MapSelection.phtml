@@ -10,9 +10,12 @@
   }
   $height = $this->recommend->getHeight();
   $searchParams = $this->recommend->getSearchParams();
-  $params = array(json_encode($geoField), json_encode($coordinates), "path",
-    json_encode($searchParams), json_encode($showSelection));
-  $jsParams = implode(', ', $params);
+  $jsParams = json_encode([
+    'geoField'      => $geoField,
+    'boundingBox'   => $coordinates,
+    'searchParams'  => $searchParams,
+    'showSelection' => $showSelection
+  ]);
   $jsLoad = "loadMapSelection(" . $jsParams . ");";
 ?>
 <div class="authorbox">

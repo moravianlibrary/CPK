@@ -3,6 +3,7 @@
   $this->headScript()->appendFile('map_selection.js');
   $geoField = $this->recommend->getGeoField();
   $coordinates = $this->recommend->getSelectedCoordinates();
+  $useWKT = $this->recommend->isUseWKT();
   $showSelection = true;
   if ($coordinates == null) {
     $coordinates = $this->recommend->getDefaultCoordinates();
@@ -10,9 +11,13 @@
   }
   $height = $this->recommend->getHeight();
   $searchParams = $this->recommend->getSearchParams();
-  $params = array(json_encode($geoField), json_encode($coordinates), "path",
-    json_encode($searchParams), json_encode($showSelection));
-  $jsParams = implode(', ', $params);
+  $jsParams = json_encode([
+    'geoField'      => $geoField,
+    'boundingBox'   => array_map('doubleval', $coordinates),
+    'searchParams'  => $searchParams,
+    'showSelection' => $showSelection,
+    'useWKT'        => $useWKT,
+  ]);
   $jsLoad = "loadMapSelection(" . $jsParams . ");";
   $addSearchOption = <<<EOF
     $('.search-query-options>.advanced').after('&nbsp;&nbsp;<a href="#" class="advanced" onclick=\\'{$jsLoad} $(this).remove(); return false;\\'>{$this->translate('Geographical search')}</a>');

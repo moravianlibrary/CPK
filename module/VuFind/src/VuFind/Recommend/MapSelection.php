@@ -53,6 +53,10 @@ class MapSelection implements RecommendInterface
 
     protected $polygonMatch = null;
 
+    protected $useWKT = false;
+
+    protected $boost = true;
+
     /**
      * Configuration loader
      *
@@ -96,6 +100,12 @@ class MapSelection implements RecommendInterface
             if (isset($entries->height)) {
                 $this->height = $entries->height;
             }
+            if (isset($entries->useWKT)) {
+                $this->useWKT = $entries->useWKT;
+            }
+            if (isset($entries->boost)) {
+                $this->boost = $entries->boost;
+            }
         }
     }
 
@@ -122,11 +132,15 @@ class MapSelection implements RecommendInterface
                 if (preg_match('/Intersects\(([0-9 \\-\\.]+)\)/', $value[0], $match)) {
                     $this->selectedCoordinates = explode(' ', $match[1]);
                     $coords = $match[1];
-                    $params->addBoostFunction("geo_overlap('$coords', bbox_geo_str)");
+                    if ($this->boost) {
+                        $params->addBoostFunction("geo_overlap('$coords', bbox_geo_str)");
+                    }
                 } else if (preg_match($this->polygonMatch, $value[0], $match)) {
                     $this->selectedCoordinates = [ $match[1], $match[2], $match[3], $match[4] ];
                     $coords = $match[1] . ' ' . $match[2] . ' ' . $match[3] . ' ' . $match[4];
-                    $params->addBoostFunction("geo_overlap('$coords', bbox_geo_str)");
+                    if ($this->boost) {
+                        $params->addBoostFunction("geo_overlap('$coords', bbox_geo_str)");
+                    }
                 }
             }
         }
@@ -218,6 +232,10 @@ class MapSelection implements RecommendInterface
     public function getGeoField()
     {
         return $this->geoField;
+    }
+
+    public function isUseWKT() {
+        return $this->useWKT;
     }
 
 }
