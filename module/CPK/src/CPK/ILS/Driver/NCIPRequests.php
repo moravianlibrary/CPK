@@ -41,6 +41,22 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function requestItem($patron, $holdDetails) {
+        $requestScopeType = "Item";
+        // TODO if (library.equals("Liberec")) requestScopeType = "Bibliographic Item";
+
+        $body =
+        "<ns1:RequestItem>" .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertUserIdTag($patron) .
+        $this->insertItemIdTag($holdDetails['item_id'], $patron) .
+        $this->insertRequestType("Hold") .
+        $this->insertRequestScopeType($requestScopeType);
+        if (! empty($holdDetails['pickUpLocation'])) $body .= "<ns1:PickupLocation>" . htmlspecialchars($holdDetails['pickUpLocation']) . "</ns1:PickupLocation>";
+        $body .= "</ns1:RequestItem>";
+        return $this->header() . $body . $this->footer();
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
@@ -152,6 +168,23 @@ class NCIPRequests extends OldNCIPRequests {
                 "<ns1:ItemElementType>" :
                 "<ns1:ItemElementType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/itemelementtype/" .
                 "itemelementtype.scm\">") .
-        $value . "</ns1:ItemElementType>";
+                htmlspecialchars($value) . "</ns1:ItemElementType>";
+    }
+
+    /* Allowed values are: Hold, Loan. Estimate is also used. */
+    protected function insertRequestType($value) {
+        return ($this->noScheme ?
+                "<ns1:RequestType>" :
+                "<ns1:RequestType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm\">") .
+                htmlspecialchars($value) . "</ns1:RequestType>";
+    }
+
+    /* Allowed values are: Item, Bibliographic Item. */
+    protected function insertRequestScopeType($value) {
+        return ($this->noScheme ?
+                "<ns1:RequestScopeType>" :
+                "<ns1:RequestScopeType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/" .
+                "requestscopetype.scm\">") .
+                htmlspecialchars($value) . "</ns1:RequestScopeType>";
     }
 }

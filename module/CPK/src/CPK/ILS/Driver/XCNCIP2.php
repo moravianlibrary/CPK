@@ -583,11 +583,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function placeHold($holdDetails)
     {
-        // var_dump($holdDetails);
-        $request = $this->requests->placeHold($holdDetails);
-        // var_dump($request);
+        $patron = $holdDetails['patron'];
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $request = $this->requests->requestItem($patron, $holdDetails);
         $response = $this->sendRequest($request);
-        // var_dump($response);
         return array(
             'success' => true,
             'sysMessage' => ''
