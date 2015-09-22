@@ -4,7 +4,7 @@
 	  <? if ('ils-none' !== $this->ils()->getOfflineMode()): ?>
 	    <a href="<?=$this->url('myresearch-checkedout')?>" class="list-group-item<?=$this->active == 'checkedout' ? ' active' : ''?>">
 	      <?=$this->transEsc('Checked Out Items')?>
-	      <span class="pull-right"><i class="fa fa-book"></i></span>
+	      <span class="pull-right"><i class="icon-typ-kniha"></i></span>
 	    </a>
 	    <a href="<?=$this->url('myresearch-holds')?>" class="list-group-item<?=$this->active == 'holds' ? ' active' : ''?>">
 	      <?=$this->transEsc('Holds and Recalls')?>
@@ -18,7 +18,7 @@
 	    <? endif; ?>
 	    <a href="<?=$this->url('myresearch-fines')?>" class="list-group-item<?=$this->active == 'fines' ? ' active' : ''?>">
 	      <?=$this->transEsc('Fines and Charges')?>
-	      <span class="pull-right"><i class="fa fa-usd"></i></span>
+	      <span class="pull-right"><i class="icon-za-poplatek"></i></span>
 	    </a>
 	    <a href="<?=$this->url('myresearch-profile')?>" class="list-group-item<?=$this->active == 'profile' ? ' active' : ''?>">
 	      <?=$this->transEsc('Profile')?>
@@ -42,12 +42,12 @@
   <? endif; ?>
   <a href="<?=$this->url('search-history')?>?require_login" class="list-group-item<?=$this->active == 'history' ? ' active' : ''?>">
     <?=$this->transEsc('history_saved_searches')?>
-    <span class="pull-right"><i class="fa fa-search"></i></span>
+    <span class="pull-right"><i class="icon-hledani"></i></span>
   </a>
   <? if ($user = $this->auth()->isLoggedIn()): ?>
     <a href="<?=$this->url('myresearch-logout')?>" class="list-group-item">
       <?=$this->transEsc("Log Out")?>
-      <span class="pull-right"><i class="fa fa-sign-out"></i></span>
+      <span class="pull-right"><i class="icon-odhlasit"></i></span>
     </a>
   <? endif; ?>
 </ul>
@@ -64,7 +64,7 @@
   <ul class="list-group">
     <a href="<?=$this->url('myresearch-favorites')?>" class="list-group-item<?=$this->active == 'favorites' ? ' active' : ''?>">
       <?=$this->transEsc('Your Favorites')?>
-      <span class="pull-right"><i class="fa fa-star"></i></span>
+      <span class="pull-right"><i class="icon-oblibene"></i></span>
     </a>
     <? $lists = $user->getLists() ?>
     <div style=" margin-left: 15px; ">
