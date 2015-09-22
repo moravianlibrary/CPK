@@ -405,6 +405,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             $backend,
             $this->serviceLocator,
             $this->searchConfig,
+            $this->facetConfig,
             'datasources',
             $enabled
         );

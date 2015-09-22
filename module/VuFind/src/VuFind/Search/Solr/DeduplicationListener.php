@@ -70,6 +70,13 @@ class DeduplicationListener
     protected $searchConfig;
 
     /**
+     * Search configuration file identifier.
+     *
+     * @var string
+     */
+    protected $facetConfig;
+
+    /**
      * Data source configuration file identifier.
      *
      * @var string
@@ -112,11 +119,12 @@ class DeduplicationListener
     public function __construct(
         BackendInterface $backend,
         ServiceLocatorInterface $serviceLocator,
-        $searchConfig, $dataSourceConfig = 'datasources', $enabled = true
+        $searchConfig, $facetConfig, $dataSourceConfig = 'datasources', $enabled = true
     ) {
         $this->backend = $backend;
         $this->serviceLocator = $serviceLocator;
         $this->searchConfig = $searchConfig;
+        $this->facetConfig = $facetConfig;
         $this->dataSourceConfig = $dataSourceConfig;
         $this->authManager = $serviceLocator->get('VuFind\AuthManager');
         $this->enabled = $enabled;
@@ -215,8 +223,8 @@ class DeduplicationListener
         $recordSources = isset($searchConfig->Records->sources)
             ? $searchConfig->Records->sources
             : '';
-        $sourcePriority = $this->determineSourcePriority($recordSources);
         $params = $event->getParam('params');
+        $sourcePriority = $this->determineSourcePriority($recordSources, $params);
         $buildingPriority = $this->determineBuildingPriority($params);
 
         $idList = [];
@@ -349,11 +357,16 @@ class DeduplicationListener
      *
      * @return array Array keyed by source with priority as the value
      */
-    protected function determineSourcePriority($recordSources)
+    protected function determineSourcePriority($recordSources, $params)
     {
+        $userLibraries = $this->getUsersHomeLibraries();
         $priorities = array_flip($this->getUsersHomeLibraries());
         if (!empty($priorities)) {
             return array_reverse($priorities);
+        }
+        $priorities = $this->determineInstitutionPriority($params);
+        if (!empty($priorities)) {
+            return $priorities;
         }
         return array_flip(explode(',', $recordSources));
     }
@@ -406,6 +419,32 @@ class DeduplicationListener
             return array_unique($myLibs);
         }
         return [];
+    }
+
+    /**
+     * User's Library cards (home_library values)
+     *
+     * @return	array
+     */
+    public function determineInstitutionPriority($params) {
+        $config = $this->serviceLocator->get('VuFind\Config');
+        $facetConfig = $config->get($this->facetConfig);
+        if (!isset($facetConfig->InstitutionsMappings)) {
+            return [];
+        }
+        $institutionMappings = array_flip($facetConfig->InstitutionsMappings->toArray());
+        $result = [];
+        foreach ($params->get('fq') as $fq) {
+            if (preg_match('/\binstitution:"([^"]+)"/', $fq, $matches)) {
+                $value = $matches[1];
+                $prefix = $institutionMappings[$value];
+                if ($prefix) {
+                    $result[] = $prefix;
+                }
+            }
+        }
+        $result = array_flip($result);
+        return $result;
     }
 
 }
