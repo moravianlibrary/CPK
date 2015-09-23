@@ -48,6 +48,11 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  */
 class DeduplicationListener
 {
+
+    const OR_FACETS_REGEX = '/(\\{[^\\}]*\\})*([\S]+):\\((.+)\\)/';
+
+    const FILTER_REGEX = '/(\S+):"([^"]+)"/';
+
     /**
      * Backend.
      *
@@ -435,7 +440,21 @@ class DeduplicationListener
         $institutionMappings = array_flip($facetConfig->InstitutionsMappings->toArray());
         $result = [];
         foreach ($params->get('fq') as $fq) {
-            if (preg_match('/\binstitution:"([^"]+)"/', $fq, $matches)) {
+            if (preg_match(self::OR_FACETS_REGEX, $fq, $matches)) {
+                $field = $matches[2];
+                if ($field == 'institution') {
+                    $filters = explode('OR', $matches[3]);
+                    foreach ($filters as $filter) {
+                        if (preg_match(self::FILTER_REGEX, $filter, $matches)) {
+                            $value = $matches[2];
+                            $prefix = $institutionMappings[$value];
+                            if ($prefix) {
+                                $result[] = $prefix;
+                            }
+                        }
+                    }
+                }
+            } else if (preg_match('/binstitution:"([^"]+)"/', $fq, $matches)) {
                 $value = $matches[1];
                 $prefix = $institutionMappings[$value];
                 if ($prefix) {
