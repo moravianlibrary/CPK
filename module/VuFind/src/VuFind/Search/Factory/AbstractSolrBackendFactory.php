@@ -37,6 +37,7 @@ use VuFind\Search\Solr\MultiIndexListener;
 use VuFind\Search\Solr\V3\ErrorListener as LegacyErrorListener;
 use VuFind\Search\Solr\V4\ErrorListener;
 use VuFind\Search\Solr\DeduplicationListener;
+use VuFind\Search\Solr\MZKDeduplicationListener;
 use VuFind\Search\Solr\HierarchicalFacetListener;
 use VuFind\Search\Solr\NestedFacetListener;
 
@@ -225,6 +226,10 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             )->attach($events);
         }
 
+        if (isset($search->Records->mzk_deduplication)) {
+            $this->getMZKDeduplicationListener($backend)->attach($events);
+        }
+
         // Attach hierarchical facet listener:
         $this->getHierarchicalFacetListener($backend)->attach($events);
 
@@ -408,6 +413,27 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             $this->facetConfig,
             'datasources',
             $enabled
+        );
+    }
+
+    /**
+     * Get a deduplication listener for the backend
+     *
+     * @param BackendInterface $backend Search backend
+     * @param bool             $enabled Whether deduplication is enabled
+     *
+     * @return DeduplicationListener
+     */
+    protected function getMZKDeduplicationListener(BackendInterface $backend)
+    {
+        $searchConfig = $this->config->get($this->searchConfig);
+        $facetConfig = $this->config->get($this->facetConfig);
+        $authManager = $this->serviceLocator->get('VuFind\AuthManager');
+        return new MZKDeduplicationListener(
+                        $backend,
+                        $authManager,
+                        $searchConfig,
+                        $facetConfig
         );
     }
 

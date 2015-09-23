@@ -46,7 +46,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class DeduplicationListener
+class MZKDeduplicationListener
 {
 
     const OR_FACETS_REGEX = '/(\\{[^\\}]*\\})*([\S]+):\\((.+)\\)/';
@@ -60,33 +60,20 @@ class DeduplicationListener
      */
     protected $backend;
 
-    /**
-     * Superior service manager.
-     *
-     * @var ServiceLocatorInterface
-     */
-    protected $serviceLocator;
 
     /**
-     * Search configuration file identifier.
+     * Search configuration
      *
      * @var string
      */
     protected $searchConfig;
 
     /**
-     * Search configuration file identifier.
+     * Facet configuration
      *
      * @var string
      */
     protected $facetConfig;
-
-    /**
-     * Data source configuration file identifier.
-     *
-     * @var string
-     */
-    protected $dataSourceConfig;
 
     /**
      *
@@ -94,6 +81,13 @@ class DeduplicationListener
      * @var \VuFind\Auth\Manager
      */
     protected $authManager;
+
+    /**
+     * Solr instution field
+     *
+     * @var string
+     */
+    protected $institutionField = 'institution';
 
     /**
      * Whether deduplication is enabled.
@@ -123,16 +117,18 @@ class DeduplicationListener
      */
     public function __construct(
         BackendInterface $backend,
-        ServiceLocatorInterface $serviceLocator,
-        $searchConfig, $facetConfig, $dataSourceConfig = 'datasources', $enabled = true
+        \VuFind\Auth\Manager $authManager,
+        $searchConfig, $facetConfig
     ) {
         $this->backend = $backend;
         $this->serviceLocator = $serviceLocator;
         $this->searchConfig = $searchConfig;
         $this->facetConfig = $facetConfig;
-        $this->dataSourceConfig = $dataSourceConfig;
-        $this->authManager = $serviceLocator->get('VuFind\AuthManager');
-        $this->enabled = $enabled;
+        $this->authManager = $authManager;
+        $this->enabled = $searchConfig->Records->mzk_deduplication;
+        if (isset($searchConfig->Records->institution_field)) {
+            $this->institutionField = $searchConfig->Records->institution_field;
+        }
     }
 
     /**
@@ -158,6 +154,10 @@ class DeduplicationListener
      */
     public function onSearchPre(EventInterface $event)
     {
+        // Do nothing if deduplication is disabled....
+        if (!$this->enabled) {
+            return $event;
+        }
         $backend = $event->getTarget();
         if ($backend === $this->backend) {
             $params = $event->getParam('params');
@@ -195,7 +195,7 @@ class DeduplicationListener
      */
     public function onSearchPost(EventInterface $event)
     {
-        // Do nothing if highlighting is disabled....
+        // Do nothing if deduplication is disabled....
         if (!$this->enabled) {
             return $event;
         }
@@ -222,15 +222,12 @@ class DeduplicationListener
      */
     protected function fetchLocalRecords($event)
     {
-        $config = $this->serviceLocator->get('VuFind\Config');
-        $searchConfig = $config->get($this->searchConfig);
-        $dataSourceConfig = $config->get($this->dataSourceConfig);
-        $recordSources = isset($searchConfig->Records->sources)
-            ? $searchConfig->Records->sources
+        $dataSourceConfig = [];
+        $recordSources = isset($this->searchConfig->Records->sources)
+            ? $this->$searchConfig->Records->sources
             : '';
         $params = $event->getParam('params');
         $sourcePriority = $this->determineSourcePriority($recordSources, $params);
-        $buildingPriority = $this->determineBuildingPriority($params);
 
         $idList = [];
         // Find out the best records and list their IDs:
@@ -250,22 +247,10 @@ class DeduplicationListener
             foreach ($localIds as $localId) {
                 $localPriority = null;
                 list($source) = explode('.', $localId, 2);
-                if (!empty($buildingPriority)) {
-                    if (isset($buildingPriority[$source])) {
-                        $localPriority = -$buildingPriority[$source];
-                    } elseif (isset($dataSourceConfig[$source]['institution'])) {
-                        $institution = $dataSourceConfig[$source]['institution'];
-                        if (isset($buildingPriority[$institution])) {
-                            $localPriority = -$buildingPriority[$institution];
-                        }
-                    }
-                }
-                if (!isset($localPriority)) {
-                    if (isset($sourcePriority[$source])) {
-                        $localPriority = $sourcePriority[$source];
-                    } else {
-                        $localPriority = ++$undefPriority;
-                    }
+                if (isset($sourcePriority[$source])) {
+                    $localPriority = $sourcePriority[$source];
+                } else {
+                    $localPriority = ++$undefPriority;
                 }
                 if (isset($localPriority) && $localPriority < $priority) {
                     $dedupId = $localId;
@@ -377,40 +362,9 @@ class DeduplicationListener
     }
 
     /**
-     * Function that determines the priority for buildings
-     *
-     * @param object $params Query parameters
-     *
-     * @return array Array keyed by building with priority as the value
-     */
-    protected function determineBuildingPriority($params)
-    {
-        $result = [];
-        foreach ($params->get('fq') as $fq) {
-            if (preg_match(
-                '/\bbuilding:"([^"]+)"/', //'/\bbuilding:"?\d+\/([^\/]+?)\//',
-                $fq,
-                $matches
-            )) {
-                $value = $matches[1];
-                if (preg_match('/^\d+\/([^\/]+?)\//', $value, $matches)) {
-                    // Hierarchical facets; take only first level:
-                    $result[] = $matches[1];
-                } else {
-                    $result[] = $value;
-                }
-            }
-        }
-
-        array_unshift($result, '');
-        $result = array_flip($result);
-        return $result;
-    }
-
-    /**
      * User's Library cards (home_library values)
      *
-     * @return	array
+     * @return  array
      */
     public function getUsersHomeLibraries()
     {
@@ -429,20 +383,18 @@ class DeduplicationListener
     /**
      * User's Library cards (home_library values)
      *
-     * @return	array
+     * @return  array
      */
     public function determineInstitutionPriority($params) {
-        $config = $this->serviceLocator->get('VuFind\Config');
-        $facetConfig = $config->get($this->facetConfig);
-        if (!isset($facetConfig->InstitutionsMappings)) {
+        if (!isset($this->facetConfig->InstitutionsMappings)) {
             return [];
         }
-        $institutionMappings = array_flip($facetConfig->InstitutionsMappings->toArray());
+        $institutionMappings = array_flip($this->facetConfig->InstitutionsMappings->toArray());
         $result = [];
         foreach ($params->get('fq') as $fq) {
             if (preg_match(self::OR_FACETS_REGEX, $fq, $matches)) {
                 $field = $matches[2];
-                if ($field != 'institution') {
+                if ($field != $this->institutionField) {
                     continue;
                 }
                 $filters = explode('OR', $matches[3]);
@@ -457,7 +409,7 @@ class DeduplicationListener
                 }
             } else if (preg_match(self::FILTER_REGEX, $fq, $matches)) {
                 $field = $matches[1];
-                if ($field != 'institution') {
+                if ($field != $this->institutionField) {
                     continue;
                 }
                 $value = $matches[2];
