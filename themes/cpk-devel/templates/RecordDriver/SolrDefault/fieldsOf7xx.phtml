@@ -1,4 +1,5 @@
 <?
+$id = $this->driver->getUniqueID();
 $enabled7xxFields = explode(",", $this->config->Record->fields_in_core);
 $fieldsOf7xx = [];
 foreach ($enabled7xxFields as $enabledField) {
