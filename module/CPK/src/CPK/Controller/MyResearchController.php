@@ -343,8 +343,9 @@ class MyResearchController extends MyResearchControllerBase
             $entityIdInitiatedWith = null;
 
             // Stop now if the user does not have valid catalog credentials available:
-        if (empty($entityIdInitiatedWith) && ! $this->isLoggedInWithDummyDriver() &&
-             ! is_array($patron = $this->catalogLogin())) {
+        if (empty($entityIdInitiatedWith) && ! is_array(
+            $patron = $this->catalogLogin()) &&
+             ! $this->isLoggedInWithDummyDriver($patron)) {
             $this->flashExceptions($this->flashMessenger());
             return $patron;
         }
