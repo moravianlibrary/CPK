@@ -88,12 +88,15 @@ class RecordController extends RecordControllerBase
 
 
         // get number of links
-        
+
         $field866 = $this->get866Data();
         $noLinksFrom856 = $linksFrom856 === false ? 0 : count($linksFrom856);
         $noLinksFrom866 = $field866 === false ? 0 : count($field866);
         $view->eVersionLinksCount = $noLinksFrom856 + $noLinksFrom856;
-                
+
+        if ($view->eVersionLinksCount > 0 && array_key_exists('EVersion', $view->tabs)) {
+            if (empty($holdings = $this->driver->getRealTimeHoldings())) $view->activeTab = 'eversion';
+        }
 
         $fieldsOf7xx = explode(",", $this->getConfig()->Record->fields_in_core);
         $subfieldsOf733 = [
@@ -127,7 +130,7 @@ class RecordController extends RecordControllerBase
         $links = $recordDriver->get856Links();
         return $links;
     }
-    
+
     protected function get866Data()
     {
     	$parentRecordID = $this->driver->getParentRecordID();
