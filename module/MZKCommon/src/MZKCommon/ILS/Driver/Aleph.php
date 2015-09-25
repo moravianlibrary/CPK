@@ -284,8 +284,9 @@ class Aleph extends AlephBase
         }
         $status = '03';
         $expire = date_create_from_format('d. m. Y', $patron['expire']);
-        $dateDiff = date_diff($expire, date_create());
-        if ($dateDiff->days >= 31 || $dateDiff->invert == 0) {
+        $dateDiff = date_diff(date_create(), $expire);
+        $daysDiff =  (($dateDiff->invert == 0) ? 1: -1) *  $dateDiff->days;
+        if ($daysDiff > 31) {
             return null;
         }
         $hash = hash_hmac('sha256', $patron['id'], $this->hmacKey, true);
