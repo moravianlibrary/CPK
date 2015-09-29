@@ -92,11 +92,7 @@ class RecordController extends RecordControllerBase
         $field866 = $this->get866Data();
         $noLinksFrom856 = $linksFrom856 === false ? 0 : count($linksFrom856);
         $noLinksFrom866 = $field866 === false ? 0 : count($field866);
-        $view->eVersionLinksCount = $noLinksFrom856 + $noLinksFrom856;
-
-        if ($view->eVersionLinksCount > 0 && array_key_exists('EVersion', $view->tabs)) {
-            if (empty($holdings = $this->driver->getRealTimeHoldings())) $view->activeTab = 'eversion';
-        }
+        $view->eVersionLinksCount = $noLinksFrom856 + $noLinksFrom866;
 
         $fieldsOf7xx = explode(",", $this->getConfig()->Record->fields_in_core);
         $subfieldsOf733 = [
@@ -138,5 +134,44 @@ class RecordController extends RecordControllerBase
     	$recordDriver = $recordLoader->load($parentRecordID);
     	$links = $recordDriver->get866Data();
     	return $links;
+    }
+
+    /**
+     * Get default tab for a given driver
+     *
+     * @return string
+     */
+    protected function getDefaultTab()
+    {
+        // Load default tab if not already retrieved:
+        if (null === $this->defaultTab) {
+            // Load record driver tab configuration:
+            $driver = $this->loadRecord();
+            $this->defaultTab = $this->getDefaultTabForRecord($driver);
+
+            $linksFrom856 = $this->get856Links();
+            $field866 = $this->get866Data();
+            $noLinksFrom856 = $linksFrom856 === false ? 0 : count($linksFrom856);
+            $noLinksFrom866 = $field866 === false ? 0 : count($field866);
+            $linksCount = $noLinksFrom856 + $noLinksFrom866;
+            if ($linksCount > 0) {
+                if (empty($holdings = $this->driver->getRealTimeHoldings())) $this->defaultTab = 'EVersion';
+            }
+
+            // Missing/invalid record driver configuration? Fall back to configured
+            // default:
+            $tabs = $this->getAllTabs();
+            if (empty($this->defaultTab) || !isset($tabs[$this->defaultTab])) {
+                $this->defaultTab = $this->fallbackDefaultTab;
+            }
+
+            // Is configured tab also invalid? If so, pick first existing tab:
+            if (empty($this->defaultTab) || !isset($tabs[$this->defaultTab])) {
+                $keys = array_keys($tabs);
+                $this->defaultTab = isset($keys[0]) ? $keys[0] : '';
+            }
+        }
+
+        return $this->defaultTab;
     }
 }
