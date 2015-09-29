@@ -5,12 +5,12 @@
   <? foreach ($comments as $comment): ?>
     <div class="comment row">
       <div class="col-sm-3 name">
-        <strong><?=$this->escapeHtml(trim($comment->firstname . ' ' . $comment->lastname))?></strong><br/>
+        <strong><?=$this->escapeHtml(trim($comment->library))?></strong><br/>
         <small>
           <?=$this->escapeHtml($comment->created)?>
-          <? if (($user = $this->auth()->isLoggedIn()) && $comment->user_id == $user->id): ?>
-            <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'DeleteComment')?>?delete=<?=urlencode($comment->id)?>" id="recordComment<?=$this->escapeHtml($comment->id)?>" class="delete text-danger"><?=$this->transEsc('Delete')?></a>
-          <? endif; ?>
+<!--          --><?// if (($user = $this->auth()->isLoggedIn()) && $comment->user_id == $user->id): ?>
+<!--            <a href="--><?//=$this->recordLink()->getActionUrl($this->driver, 'DeleteComment')?><!--?delete=--><?//=urlencode($comment->id)?><!--" id="recordComment--><?//=$this->escapeHtml($comment->id)?><!--" class="delete text-danger">--><?//=$this->transEsc('Delete')?><!--</a>-->
+<!--          --><?// endif; ?>
         </small>
       </div>
       <div class="col-sm-9">

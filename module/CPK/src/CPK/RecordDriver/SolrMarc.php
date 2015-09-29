@@ -410,9 +410,11 @@ class SolrMarc extends ParentSolrMarc
 
         $response = $client->send();
 
+
         $responseBody = $response->getBody();
 
         $phpResponse = json_decode($responseBody, true);
+
 
         if (isset($phpResponse[0]['rating_url']))
             echo '<p>Hodnocení knihy:</p><img src="' . $phpResponse[0]['rating_url'] . '"/>';
@@ -423,9 +425,9 @@ class SolrMarc extends ParentSolrMarc
 
         foreach ($phpResponse[0]['reviews'] as $review) {
             $com = new \stdClass();
-            $com->firstname = $review->library_name;
-            $com->created = $review->created;
-            $com->comment = $review->html_text;
+            $com->library = $review[library_name];
+            $com->created = $review[created];
+            $com->comment = $review[html_text];
 
             $commentArray[$i] = $com;
             $i ++;
