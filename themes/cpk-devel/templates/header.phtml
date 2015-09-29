@@ -16,7 +16,9 @@ if ($user) $libraryCards = $user->getLibraryCards(false); ?>
   </button>
     <a role="logo" class="navbar-brand"  href="<?=$this->url('home')?>">
       <img alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>"></img>
-      <div class="pull-right beta-logo">BETA v2.1.0</div>
+      <div class="pull-right beta-logo" onclick='window.open("<?=$this->translate('beta_changelog_link')?>");' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('Changelog')?>">
+      	<?=$this->translate('beta_tag')?>
+      </div>
     </a>
 </div>
 <? if (!isset($this->layout()->renderingError)): ?>
@@ -105,3 +107,8 @@ if ($user) $libraryCards = $user->getLibraryCards(false); ?>
     </ul>
   </div>
 <? endif; ?>
+<script>
+	$(function () {
+	  $('.beta-logo').tooltip();
+	})
+</script>
