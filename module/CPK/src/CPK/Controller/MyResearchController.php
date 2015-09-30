@@ -342,11 +342,18 @@ class MyResearchController extends MyResearchControllerBase
         else
             $entityIdInitiatedWith = null;
 
-            // Stop now if the user does not have valid catalog credentials available:
-        if (empty($entityIdInitiatedWith) && ! is_array(
-            $patron = $this->catalogLogin()) &&
-             ! $this->isLoggedInWithDummyDriver($patron)) {
+        $patron = $this->catalogLogin();
+
+        // We can't really determine if is user logged in if entityIdInitiatedWith is provided
+        // We have to leave this on ShibbolethIdentityManager ..
+        $haveToLogin = ! is_array($patron) &&
+             ! $this->isLoggedInWithDummyDriver($patron) &&
+             empty($entityIdInitiatedWith);
+
+        // Stop now if the user does not have valid catalog credentials available:
+        if ($haveToLogin) {
             $this->flashExceptions($this->flashMessenger());
+            $this->clearFollowupUrl();
             return $patron;
         }
 
@@ -487,7 +494,9 @@ class MyResearchController extends MyResearchControllerBase
 
     protected function isLoggedInWithDummyDriver($user)
     {
-        return $user ? $user['home_library'] == "Dummy" : false;
+        if ($user instanceof \Zend\View\Model\ViewModel)
+            return false;
+        return isset($user['home_library']) ? $user['home_library'] == "Dummy" : false;
     }
 
     protected function processBlocks($profile, $logos)
