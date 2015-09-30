@@ -1,5 +1,4 @@
-![](https://www.dropbox.com/home?preview=Knihovny.cz_.jpg)
-
+CPK
 
 
 Issues najdete na https://github.com/moravianlibrary/CPK/issues
