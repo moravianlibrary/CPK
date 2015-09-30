@@ -1,0 +1,9 @@
+<?
+$author = $this->driver->tryMethod('getPrimaryAuthor');
+if (!empty($author)) {
+    echo $this->transEsc('Main Author') . ": $author\n";
+}
+
+$title = rtrim($this->driver->getTitle(), " /");
+echo $this->transEsc('Title') . ": $title\n";
+?>
