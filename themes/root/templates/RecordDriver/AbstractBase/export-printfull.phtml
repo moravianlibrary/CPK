@@ -58,7 +58,11 @@ $subjects = $this->driver->tryMethod('getAllSubjectHeadings');
 if (is_array($subjects)) {
     echo $this->transEsc('Subjects') . ":\n";
     foreach ($subjects as $subject) {
-        echo '  ' . $subject . "\n";
+        if (is_array($subject)) {
+            echo '  ' . $subject[0] . "\n";
+        } else {
+            echo '  ' . $subject . "\n";
+        }
     }
 }
 
