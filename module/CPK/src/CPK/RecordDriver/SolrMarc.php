@@ -415,10 +415,6 @@ class SolrMarc extends ParentSolrMarc
 
         $phpResponse = json_decode($responseBody, true);
 
-
-        if (isset($phpResponse[0]['rating_url']))
-            echo '<p>Hodnocení knihy:</p><img src="' . $phpResponse[0]['rating_url'] . '"/>';
-
         $commentArray = array();
 
         $i = 0;
