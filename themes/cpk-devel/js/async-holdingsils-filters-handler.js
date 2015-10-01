@@ -36,9 +36,6 @@ function filterSelected(filter, value) {
 	}
 
     } else {
-	// First hide current unhidden rows ..
-	$('tr[data-type=holding]:not([hidden=hidden])')
-		.attr('hidden', 'hidden');
 
 	// We have to consider currently selected filters ..
 	var exclude = filter;
@@ -53,6 +50,10 @@ function filterSelected(filter, value) {
 	    }
 	}
 
+	// Hide unhidden rows which are about to be hidden
+	$('tr[data-type=holding]:not([hidden=hidden]' + selectorToAppend + ')')
+		.attr('hidden', 'hidden');
+
 	selector += '[data-' + filter + '=' + value + ']';
 	selector += selectorToAppend;
     }
@@ -62,15 +63,17 @@ function filterSelected(filter, value) {
 
     // And now query the status of the unhidden
     getHoldingStatuses();
+    
+    // TODO: hide filter options which would result in an empty set
 }
 
 function getSelectedOptions(exclude) {
 
     var retVal = {};
 
-    [ 'year', 'volume', 'issue' ].forEach(function(filter) {
-	if (exclude != filter)
-	    retVal[filter] = $('#' + filter + '_filter option:selected').val();
+    [ 'year', 'volume', 'issue' ].forEach(function(current) {
+	if (exclude != current)
+	    retVal[current] = $('#' + current + '_filter option:selected').val();
     });
 
     return retVal;
