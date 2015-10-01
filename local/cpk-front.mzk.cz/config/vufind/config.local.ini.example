@@ -17,6 +17,7 @@ fields_in_core = "773,770,772,777,780,785"
 
 [Catalog]
 library_cards = true
+minHoldingsToApplyFilters = 30
 
 [Index]
 engine          = Solr

@@ -49,9 +49,9 @@ function getAllNotLoadedHoldings(includingBeingLoaded) {
     var selector;
 
     if (includingBeingLoaded) {
-	selector = 'tr[data-type=holding]:not(.loaded)';
+	selector = 'tr[data-type=holding]:not(.loaded):not([hidden=hidden])';
     } else {
-	selector = 'tr[data-type=holding]:not(.loading, .loaded)';
+	selector = 'tr[data-type=holding]:not(.loading, .loaded):not([hidden=hidden])';
     }
 
     return $(selector);
@@ -155,7 +155,7 @@ function updateHoldingId(id, value, setDangerLabel) {
 		} else if (holdType === 'false') {
 		    divLink.remove();
 		    break toBeBroken;
-		}		
+		}
 
 		linkSpan.innerHTML = holdType;
 
