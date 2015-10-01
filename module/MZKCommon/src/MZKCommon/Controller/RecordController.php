@@ -152,15 +152,11 @@ class RecordController extends RecordControllerBase
 
         static $positions = array(
             '0830' => 0,
-            '1000' => 1,
-            '1200' => 2,
-            '1400' => 3,
-            '1600' => 4,
-            '1800' => 5,
-            '2000' => 6,
-            '1100' => 2,
+            '0900' => 0,
+            '1100' => 1,
+            '1400' => 2,
             '1700' => 3,
-            '1900' => 4,
+            '2000' => 4,
         );
 
         $results = array();
