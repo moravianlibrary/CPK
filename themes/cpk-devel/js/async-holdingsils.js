@@ -1,27 +1,30 @@
 $(getHoldingStatuses); // Launch this function onLoad event
 
-
 // Async holdings loader
 function getHoldingStatuses(ids) {
-    // TODO: Make the request cancellable after user chooses any filter
 
     if (typeof ids !== 'object')
 	ids = getHoldingsIds();
 
-    var ajaxResponse = $.ajax({
-	type : 'POST',
-	url : '/AJAX/JSON?method=getHoldingsStatuses',
-	dataType : 'json',
-	async : true,
-	// json object to sent to the authentication url
-	data : {
-	    ids : ids
-	},
-	success : function(response) {
-	    processGetHoldingStatusesResponse(response);
-	}
-    })
-
+    if (ids.length != 0) {
+	$.ajax({
+	    type : 'POST',
+	    url : '/AJAX/JSON?method=getHoldingsStatuses',
+	    dataType : 'json',
+	    async : true,
+	    // json object to sent to the authentication url
+	    data : {
+		ids : ids
+	    },
+	    success : function(response) {
+		processGetHoldingStatusesResponse(response);
+	    },
+	    error : function(msg) {
+		// TODO: Think about showing the error somewhere somehow..
+		// alert(msg.toSource());
+	    }
+	})
+    }
 }
 
 function getHoldingsIds(includingBeingLoadedIds) {

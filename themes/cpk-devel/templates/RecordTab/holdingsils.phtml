@@ -62,9 +62,10 @@ $this->headTitle(
 
             $isFirst = true;
             foreach ($filters['year'] as $yearFilter) {
+                $yearFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $yearFilter);
 
                 if ($isFirst) { // Select first year available ..
-                    echo "<option value='$yearFilter' selected>$yearFilter</option>";
+                    echo "<option value='$yearFilterEscaped' selected>$yearFilter</option>";
                     $firstYearFilter = $yearFilter;
 
                     $isFirst = false;
@@ -83,7 +84,8 @@ $this->headTitle(
 				<?
 
             foreach ($filters['volume'] as $volumeFilter) {
-                echo "<option value='$volumeFilter'>$volumeFilter</option>\n";
+                $volumeFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $volumeFilter);
+                echo "<option value='$volumeFilterEscaped'>$volumeFilter</option>\n";
             }
             ?>
 			</select>
@@ -97,7 +99,8 @@ $this->headTitle(
 				<?
 
             foreach ($filters['issue'] as $issueFilter) {
-                echo "<option value='$issueFilter'>$issueFilter</option>\n";
+                $issueFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $issueFilter);
+                echo "<option value='$issueFilterEscaped'>$issueFilter</option>\n";
             }
             ?>
 			</select>
