@@ -104,9 +104,15 @@
 		var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
 		if ( eVersionLinksCount === 0 ) {
 			$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-			$( "#e-version-table" ).addClass( 'hidden' );		
+			$( "#e-version-table" ).addClass( 'hidden' );
 		}
-		
+
+		// Disable holdings tab
+		var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
+		if ( holdingsCount === 0 ) {
+			$( '#holdings' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+		}
+
 		//
 		var recordID = '<?= $this->driver->getUniqueID() ?>';
 		var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
@@ -127,14 +133,14 @@
 
 	});
   </script>
-  <?php 
+  <?php
   $related = $this->related();
   $list = $related->getList($this->driver);
   foreach ($list as $current) {
   	echo $related->render($current);
   }
-  
-  
+
+
   ?>
 
   </div>
