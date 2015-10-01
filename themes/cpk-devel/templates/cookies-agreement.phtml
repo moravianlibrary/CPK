@@ -1,10 +1,10 @@
 <? if (empty($_COOKIE['eu-cookies'])): ?>
 <div class="eu-cookies">
 
-    Tento web používá k poskytování služeb a analýze návštěvnosti soubory cookie. Používáním tohoto webu s tím souhlasíte.
+    <?=$this->translate('cookies_agreement')?>
 
-    <button class="btn btn-default" onclick='cookies_agreed(true)'>V pořádku</button>
-    <a href="https://www.google.com/policies/technologies/cookies/">Další informace</a>
+    <button class="btn btn-default" onclick='cookies_agreed(true)'><?=$this->translate('All right')?></button>
+    <a href="https://www.google.com/policies/technologies/cookies/"><?=$this->translate('More information')?></a>
     <noscript><style>.eu-cookies { display:none }</style></noscript>
 </div>
 <? endif; ?>
