@@ -45,12 +45,9 @@ class User extends BaseUser
 
     /**
      * Activates best library card.
-     * The algorithm chooses first available card,
-     * if it is the only user's card. If user has more than one cards, it checks
-     * for any not Dummy card & activates that one if finds any.
      *
-     * If from all the cards doesn't find any non-Dummy card, nothing will happen
-     * keeping in mind there has already been activated first Dummy card.
+     * There is one possibility of activating no card - it is only when there
+     * are no other nonDummy cards & dummy card is already activated.
      *
      * @param array $libCards
      */
@@ -69,14 +66,13 @@ class User extends BaseUser
 
             $realCards = $this->parseRealCards($libCards);
 
-            // Activate any realCard if current UserRow's home_library is Dummy
-            if ($realCards && $this->home_library === 'Dummy') {
+            if (! $realCards) {
+                if ($this->home_library !== 'Dummy')
+                    // If User have left no realCard & has not active Dummy account, activate any dummy
+                    $this->activateLibraryCardRow($firstLibCard);
+            } else {
+                // Activate any realCard
                 $this->activateLibraryCardRow($realCards[0]);
-            }
-
-            // If User have left no realCard & has not active Dummy account, activate any dummy
-            elseif (! $realCards && $this->home_library !== 'Dummy') {
-                $this->activateLibraryCardRow($firstLibCard);
             }
         }
     }
