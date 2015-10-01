@@ -436,6 +436,35 @@ class SolrMarc extends ParentSolrMarc
         return $commentArray;
     }
 
+
+    /**
+     * Get an array of summary strings for the record.
+     *
+     * @return array
+     */
+    public function getSummaryObalkyKnih()
+    {
+        $isbnArray = $this->getBibinfoForObalkyKnihV3();
+
+        $isbnJson = json_encode($isbnArray);
+
+        $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/api/books');
+        $client->setParameterGet(array(
+            'multi' => '[' . $isbnJson . ']'
+        ));
+
+        $response = $client->send();
+
+        $responseBody = $response->getBody();
+
+        $phpResponse = json_decode($responseBody, true);
+
+        $anot = $phpResponse[0]['annotation'][html];
+        $source = $phpResponse[0]['annotation'][source];
+
+        return $anot . " - " . $source;
+    }
+
     /**
      * Save this record to the user's favorites.
      *
