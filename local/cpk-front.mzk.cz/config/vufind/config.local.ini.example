@@ -1,14 +1,12 @@
 [System]
 debug           = false
+;error_reporting = true
 
 [Site]
 url             = https://cpk-front.mzk.cz/
 email           = vufind@mzk.cz
 theme		= cpk-devel-green
 defaultCurrency	= CZK
-browserDetectLanguage = false
-language        = cs-mzk
-locale          = cs_CZ
 
 [Record]
 ;This will build links from 7xx fiedls. Link is build from subfields x or z for searching by ISN, 
