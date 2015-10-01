@@ -79,6 +79,7 @@ foreach ($queryParams as $key => $value) {
         if (strpos($param, '~institution:') === 0) continue;
         $filtered[] = $param;
     }
+    $newParams = $urlParams;
     $newParams['filter'] = $filtered;
 
     $firstLib = true;
