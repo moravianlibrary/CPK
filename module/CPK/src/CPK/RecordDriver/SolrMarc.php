@@ -436,7 +436,7 @@ class SolrMarc extends ParentSolrMarc
     /**
      * Get an array of summary strings for the record.
      *
-     * @return array
+     * @return string
      */
     public function getSummaryObalkyKnih()
     {
@@ -454,6 +454,9 @@ class SolrMarc extends ParentSolrMarc
         $responseBody = $response->getBody();
 
         $phpResponse = json_decode($responseBody, true);
+
+        if ($phpResponse[0]['annotation'][html]==null)
+            return null;
 
         $anot = $phpResponse[0]['annotation'][html];
         $source = $phpResponse[0]['annotation'][source];
