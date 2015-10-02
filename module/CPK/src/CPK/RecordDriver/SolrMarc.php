@@ -421,9 +421,9 @@ class SolrMarc extends ParentSolrMarc
 
         foreach ($phpResponse[0]['reviews'] as $review) {
             $com = new \stdClass();
-            $com->library = $review[library_name];
-            $com->created = $review[created];
-            $com->comment = $review[html_text];
+            $com->library = $review['library_name'];
+            $com->created = $review['created'];
+            $com->comment = $review['html_text'];
 
             $commentArray[$i] = $com;
             $i ++;
@@ -455,13 +455,17 @@ class SolrMarc extends ParentSolrMarc
 
         $phpResponse = json_decode($responseBody, true);
 
-        if ($phpResponse[0]['annotation']['html']==null)
-            return null;
+        if (isset($phpResponse[0]['annotation'])) {
 
-        $anot = $phpResponse[0]['annotation']['html'];
-        $source = $phpResponse[0]['annotation']['source'];
+            if ($phpResponse[0]['annotation']['html'] == null)
+                return null;
 
-        return $anot . " - " . $source;
+            $anot = $phpResponse[0]['annotation']['html'];
+            $source = $phpResponse[0]['annotation']['source'];
+
+            return $anot . " - " . $source;
+        }
+        return null;
     }
 
     /**
