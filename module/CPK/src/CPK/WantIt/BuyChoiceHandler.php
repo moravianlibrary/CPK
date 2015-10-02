@@ -30,7 +30,7 @@ use CPK\WantIt\AbstractHttpClient;
 /**
  * BuyChoiceHandler Model
  * Provides available Buy actions on records and handles user's requests.
- * 
+ *
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
@@ -41,54 +41,54 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	 * @var	\CPK\RecordDriver\SolrMarc	$recordDriver
 	 */
 	protected $recordDriver;
-	
+
 	public function __construct(\CPK\RecordDriver\SolrMarc $recordDriver)
 	{
 		$this->recordDriver = $recordDriver;
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 */
 	public function getGoogleBooksVolumeLink()
-	{ 
-		$isbn = $this->recordDriver->getISBNs()[0];
+	{
+		$isbn = (! empty($isbns = $this->recordDriver->getISBNs())) ? $isbns[0] : null;
 		$lccn = $this->recordDriver->getLCCN();
 		$oclc = $this->recordDriver->getCleanOCLCNum();
-		
+
 		if ((! $isbn) && (! $lccn) && (! $oclc))
 			return false;
-		
+
 		$url = 'https://www.googleapis.com/books/v1/volumes';
-		
+
 		if ($isbn)
 			$params = array ('q' => 'isbn:'.str_replace("-", "", $isbn));
-			
+
 		if ($lccn)
 			$params = array ('q' => 'lccn:'.str_replace("-", "", $lccn));
-				
+
 		if ($oclc)
 			$params = array ('q' => 'oclc:'.str_replace("-", "", $oclc));
-		
+
 		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
-		
+
 		$link = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'];
-		
+
 		if (! isset($link) || empty($link))
 			return null;
-		
+
 		return $link;
 	}
-	
+
 	/**
 	 * {@inheritdoc}
 	 */
 	public function getZboziLink()
 	{
-		$isbn = $this->recordDriver->getISBNs()[0];
+		$isbn = (! empty($isbns = $this->recordDriver->getISBNs())) ? $isbns[0] : null;
 		if (! $isbn)
 			return false;
-		
+
 		$url = 'http://www.zbozi.cz/api/v1/search';
 		$params = array (
 				'groupByCategory' => 1,
@@ -96,9 +96,9 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 				'page' => 1,
 				'query' => str_replace("-", "", $isbn),
 		);
-		
+
 		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
-		
+
 		$link = '';
 		if (isset($dataArray['status']) && $dataArray['status'] === 200)
 			if (isset($dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName']) && $dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName'] !== '')
