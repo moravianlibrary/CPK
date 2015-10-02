@@ -7,7 +7,13 @@
       <div class="col-sm-3 name">
         <strong><?=$this->escapeHtml(trim($comment->library))?></strong><br/>
         <small>
-          <?=$this->escapeHtml($comment->created)?>
+          <? $parsedDate = strtotime($comment->created); ?>
+          <? if ($parsedDate): ?>
+            <? $date = date('j. n. Y H:i', $parsedDate); ?>
+            <?=$this->escapeHtml($date)?>
+          <? else: ?>
+            <?=$this->escapeHtml($comment->created)?>
+          <? endif; ?>
 <!--          --><?// if (($user = $this->auth()->isLoggedIn()) && $comment->user_id == $user->id): ?>
 <!--            <a href="--><?//=$this->recordLink()->getActionUrl($this->driver, 'DeleteComment')?><!--?delete=--><?//=urlencode($comment->id)?><!--" id="recordComment--><?//=$this->escapeHtml($comment->id)?><!--" class="delete text-danger">--><?//=$this->transEsc('Delete')?><!--</a>-->
 <!--          --><?// endif; ?>
