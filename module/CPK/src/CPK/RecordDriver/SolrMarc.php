@@ -455,11 +455,11 @@ class SolrMarc extends ParentSolrMarc
 
         $phpResponse = json_decode($responseBody, true);
 
-        if ($phpResponse[0]['annotation'][html]==null)
+        if ($phpResponse[0]['annotation']['html']==null)
             return null;
 
-        $anot = $phpResponse[0]['annotation'][html];
-        $source = $phpResponse[0]['annotation'][source];
+        $anot = $phpResponse[0]['annotation']['html'];
+        $source = $phpResponse[0]['annotation']['source'];
 
         return $anot . " - " . $source;
     }
