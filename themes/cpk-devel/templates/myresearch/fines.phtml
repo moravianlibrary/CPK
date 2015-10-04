@@ -11,6 +11,7 @@
     if (! $isSynchronous)
         $this->headScript()->appendFile("async-fines.js");
 ?>
+<div class="row">
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Your Fines')?></h2>
 
@@ -30,8 +31,10 @@
         if ($logos !== null)
             $libraryLogo = $logos->$eppnHostname; ?>
 
+    <div class="well row">
     <h3>
-    <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
     </h3>
     <? if ($isSynchronous): ?>
 
@@ -97,6 +100,7 @@
         </tbody>
       </table>
     <? endif; ?>
+    </div>
    <? endforeach; ?>
 
    <? if (isset($this->paymentUrl)):?>
@@ -108,4 +112,5 @@
 
 <div class="<?=$this->layoutClass('sidebar')?>">
   <?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'fines'))?>
+</div>
 </div>
