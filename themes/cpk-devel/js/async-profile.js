@@ -1,5 +1,5 @@
 $(function() { // Onload DOM ..
-    $('table[id].table.table-striped').each(function() {
+    $('table[id].table').each(function() {
 	var cat_username = $(this).attr('id');
 
 	fetchProfile(cat_username);
@@ -28,7 +28,7 @@ function updateProfileTable(response) {
     var cat_username = patron.cat_username, parentTable = {};
 
     if (cat_username) {
-	parentTable = $('table[id="' + cat_username + '"].table.table-striped');
+	parentTable = $('table[id="' + cat_username + '"].table');
     }
 
     if (parentTable.length) {

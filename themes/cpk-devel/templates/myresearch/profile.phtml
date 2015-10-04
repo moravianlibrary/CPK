@@ -24,13 +24,14 @@
         $eppnHostname = explode("@", $eppn)[1];
         if ($logos !== null)
             $libraryLogo = $logos->$eppnHostname; ?>
-
+    <div class="well">
     <h3>
-    <img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
     </h3>
     <? if ($isSynchronous): ?>
 
-    <table class="table table-striped">
+    <table class="table">
       <?
         echo $this->renderArray(
           $arrTemplate, $libraryIdentity->profile,
@@ -79,7 +80,7 @@
     <? endif; ?>
     <? else: // We have some async deal here .. ?>
 
-      <table id="<?=$libraryIdentity->profile['cat_username']?>" class="table table-striped">
+      <table id="<?=$libraryIdentity->profile['cat_username']?>" class="table">
         <caption data-type="loading-info">
                 <i class="fa fa-spinner fa-spin"></i>
                 <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
@@ -107,6 +108,7 @@
         </tbody>
       </table>
     <? endif; ?>
+    </div>
   <? endforeach; ?>
 
   </div>
