@@ -5,13 +5,14 @@
         $libraryLogo = $logos->$eppnHostname;
 ?>
 <div class="library-identity">
-<h3 class="well row">
-<img height="32" src="<?=$libraryLogo ?>"/> <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+<h3 class="well row" style="margin-bottom: 3px;">
+<?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+<img height="32" class="pull-right" src="<?=$libraryLogo ?>"/>
 </h3>
 
 <? $i = 0; foreach ($libraryIdentity['transactions'] as $resource): ++$i; ?>
   <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
-  <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row well">
+  <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row well" style="margin-bottom: 2px;">
 
       <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['request'])): ?>
         <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['request']); ?>
@@ -135,9 +136,11 @@
 <? endforeach;
 
 if ($i === 0): ?>
+  <div class="row well" style="margin-bottom: 2px;">
     <div class="label label-info">
     <?=$this->transEsc('You do not have any items checked out in this institution')?>.
     </div>
+  </div>
 
 <?endif; ?>
 </div>

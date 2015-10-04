@@ -60,7 +60,7 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
                 } else
                     $logoInstitution = null;
 
-                $html .= '<div class="' . $this->getClassForNamespace($ns) . '">';
+                $html .= '<div class="row"><div class="' . $this->getClassForNamespace($ns) . '">';
 
                 if (! empty($logoInstitution)) {
                     $imgSource = "<img class=\"logo-error\" src=\"$logoInstitution\" height=\"32\">";
@@ -89,7 +89,7 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
             $transEsc = $this->getView()->plugin('transEsc');
                 $html .= $transEsc($msg);
             }
-            $html .= '</div>';
+            $html .= '</div></div>';
             }
             $this->fm->clearMessages();
             $this->fm->clearCurrentMessages();
