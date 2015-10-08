@@ -24,7 +24,7 @@ $offlineMode = $this->ils()->getOfflineMode();
 
 // Set page title.
 $this->headTitle(
-    $this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
+    $this->driver->getBreadcrumb());
 ?>
 <? if ($offlineMode == "ils-offline"): ?>
 <div class="alert alert-warning">
