@@ -52,6 +52,7 @@ $this->headTitle(
 <table class="table table-view" id="no-more-tables">
     <? if ($filters !== false): ?>
       <caption>
+        <div class="col-md-2"></div>
 		<div class="col-md-4">
 		  <? if (! empty($filters['year'])): ?>
 
@@ -91,21 +92,7 @@ $this->headTitle(
 			</select>
 		  <? endif; ?>
 		</div>
-		<div class="col-md-4">
-		  <? if (! empty($filters['issue'])): ?>
-			<label for="issue"><?=$this->transEsc('Issue filter')?>: </label> <select
-				name="issue" id="issue_filter">
-				<option value="ALL"><?=$this->transEsc('All')?></option>
-				<?
-
-            foreach ($filters['issue'] as $issueFilter) {
-                $issueFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $issueFilter);
-                echo "<option value='$issueFilterEscaped'>$issueFilter</option>\n";
-            }
-            ?>
-			</select>
-		  <? endif; ?>
-		</div>
+		<div class="col-md-2"></div>
 	</caption>
     <? endif; ?>
 	<thead>

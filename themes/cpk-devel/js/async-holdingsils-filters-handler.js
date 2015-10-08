@@ -12,10 +12,6 @@ $(function() { // Append these eventListeners after DOM loaded ..
     $("#volume_filter").on('change', function() {
 	filterSelected('volume', this.value);
     });
-
-    $("#issue_filter").on('change', function() {
-	filterSelected('issue', this.value);
-    });
 });
 
 function filterSelected(filter, value) {
@@ -71,7 +67,7 @@ function getSelectedOptions(exclude) {
 
     var retVal = {};
 
-    [ 'year', 'volume', 'issue' ].forEach(function(current) {
+    [ 'year', 'volume' ].forEach(function(current) {
 	if (exclude != current)
 	    retVal[current] = $('#' + current + '_filter option:selected').val();
     });

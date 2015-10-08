@@ -53,7 +53,6 @@ class ParseFilterOptions extends AbstractHelper
         if (is_array($holdings) && count($holdings) >= $minHoldings) {
             $yearOptions = [];
             $volumeOptions = [];
-            $issueOptions = [];
 
             foreach ($holdings as $holding) {
                 if (isset($holding['year'])) {
@@ -63,24 +62,17 @@ class ParseFilterOptions extends AbstractHelper
                 if (isset($holding['volume'])) {
                     array_push($volumeOptions, $holding['volume']);
                 }
-
-                if (isset($holding['issue'])) {
-                    array_push($issueOptions, $holding['issue']);
-                }
             }
 
             $yearOptions = array_unique($yearOptions, SORT_NUMERIC);
             $volumeOptions = array_unique($volumeOptions, SORT_NUMERIC);
-            $issueOptions = array_unique($issueOptions, SORT_NUMERIC);
 
             array_multisort($yearOptions, SORT_DESC);
             array_multisort($volumeOptions);
-            array_multisort($issueOptions);
 
             return array(
                 'year' => $yearOptions,
                 'volume' => $volumeOptions,
-                'issue' => $issueOptions,
             );
 
         }
