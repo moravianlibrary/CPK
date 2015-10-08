@@ -228,11 +228,13 @@ class Manager extends BaseManager
      */
     protected function checkActiveAuthIs($authToCheckFor, $errorMessage = null)
     {
-        if ($errorMessage === null)
-            $errorMessage = $this->activeAuth . " cannot process desired feature.";
+        if ($this->activeAuth !== $authToCheckFor) {
 
-        if ($this->activeAuth !== $authToCheckFor)
+            if ($errorMessage === null)
+                $errorMessage = $this->activeAuth . " cannot process desired feature.";
+
             throw new AuthException($errorMessage);
+        }
     }
 
     /**
