@@ -31,36 +31,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <ul class="sidebar-nav">
-                <li class="sidebar-brand">
-                    <a href="#">
-                        CPK tests
-                    </a>
-                </li>
-                <li>
-                    <a href="index.html">Summary</a>
-                </li>
-                <li>
-                    <a href="unit-tests.html">Unit tests</a>
-                </li>
-                <li>
-                    <a href="system-tests.html">System tests</a>
-                </li>
-                <li>
-                    <a href="logs.html">Logs</a>
-                </li>
-                <li>
-                    <a href="ncip-tests.html">NCIP tests</a>
-                </li>
-                <li>
-                    <a href="stress-tests.html">Stress tests</a>
-                </li>
-                <li>
-                    <a href="accessibility.html">Accessibility</a>
-                </li>
-            </ul>
-        </div>
+        <?php require_once(__DIR__.'/menu.phtml');?>
         <!-- /#sidebar-wrapper -->
 
         <!-- Page Content -->
@@ -68,85 +39,87 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1>NCIP-tests</h1>
+                        <h1>Unit-tests</h1>
 
 						<table class='table' data-toggle="table" data-url="data1.json" data-cache="false" data-height="299">
 							<thead>
 								<tr>
-									<th>Knihovna</th>
-									<th>Funkce</th>
+									<th>Part</th>
+									<th>File</th>
 									<th>Status</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr>
-									<td>Česká Třebová</td>
-									<td>LookUpItem</td>
+									<td>Statistics</td>
+									<td>./Statistics/neco.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td>Česká Třebová</td>
-									<td>LookUpUser</td>
+									<td>Statistics</td>
+									<td>./Statistics/necoJineho.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td>MZK</td>
-									<td>LookUpItem</td>
+									<td>Catalog</td>
+									<td>./Catalog/neco.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td class='warning'>MZK</td>
-									<td class='warning'>LookUpUser</td>
+									<td class='warning'>E-version</td>
+									<td class='warning'>./CPK/neco.test.php</td>
 									<td class='warning'><span class="label label-danger">Failed</span></td>
 								</tr>
 								<tr>
-									<td class='warning'>Pachol</td>
-									<td class='warning'>LookUpUser</td>
+									<td class='warning'>E-buy</td>
+									<td class='warning'>./CPK/neco.test.php</td>
 									<td class='warning'><span class="label label-danger">Failed</span></td>
 								</tr>
 								<tr>
-									<td>Ústí nad Orlicí</td>
-									<td>LookUpItem</td>
+									<td>CPKCommon</td>
+									<td>./Statistics/neco.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td>Ústí nad Orlicí</td>
-									<td>LookUpItem</td>
+									<td>Statistics</td>
+									<td>./Statistics/neco.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td>Česká Třebová</td>
-									<td>LookUpItem</td>
+									<td>Statistics</td>
+									<td>./Statistics/neco.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td>Česká Třebová</td>
-									<td>LookUpUser</td>
+									<td>Statistics</td>
+									<td>./Statistics/necoJineho.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td>MZK</td>
-									<td>LookUpItem</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td class='warning'>MZK</td>
-									<td class='warning'>LookUpUser</td>
+									<td class='warning'>E-buy</td>
+									<td class='warning'>./CPK/neco.test.php</td>
 									<td class='warning'><span class="label label-danger">Failed</span></td>
 								</tr>
 								<tr>
-									<td class='warning'>Pachol</td>
-									<td class='warning'>LookUpUser</td>
+									<td>Catalog</td>
+									<td>./Catalog/neco.test.php</td>
+									<td><span class="label label-success">Success</span></td>
+								</tr>
+								
+								
+								<tr>
+									<td class='warning'>E-version</td>
+									<td class='warning'>./CPK/neco.test.php</td>
 									<td class='warning'><span class="label label-danger">Failed</span></td>
 								</tr>
 								<tr>
-									<td>Ústí nad Orlicí</td>
-									<td>LookUpItem</td>
+									<td>CPKCommon</td>
+									<td>./Statistics/neco.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 								<tr>
-									<td>Ústí nad Orlicí</td>
-									<td>LookUpItem</td>
+									<td>Statistics</td>
+									<td>./Statistics/neco.test.php</td>
 									<td><span class="label label-success">Success</span></td>
 								</tr>
 							</body>
