@@ -200,7 +200,7 @@ class User extends BaseUser
      *
      * @param string $token
      * @param number $userRowId
-     * @return mixed string $tokenRowId | false $succeeded
+     * @return boolean $succeeded
      */
     public function saveUserConsolidationToken($token, $userRowId)
     {

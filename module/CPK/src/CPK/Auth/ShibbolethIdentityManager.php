@@ -484,16 +484,16 @@ class ShibbolethIdentityManager extends Shibboleth
             // Create redirection URL
         $hostname = $this->config->Site->url;
 
-        if (substr($hostname, - 1) === '/') {
-            $hostname = substr($hostname, 0, - 1);
+        if (substr($hostname, - 1) !== '/') {
+            $hostname .= '/';
         }
 
-        $target = $hostname . '/MyResearch/UserConnect';
+        $target = $hostname . 'MyResearch/UserConnect';
 
         $entityId = $this->fetchCurrentEntityId();
         $target .= '?eid=' . urlencode($entityId);
 
-        $loginRedirect = $this->config->Shibboleth->login . '?target=' .
+        $loginRedirect = $this->config->Shibboleth->login . '?forceAuthn=1&target=' .
              urlencode($target);
 
         if ($this->canLogoutSafely()) {
