@@ -204,8 +204,10 @@ class ShibbolethIdentityManager extends Shibboleth
         if ($connectIdentities) {
             $currentUser = $userRow;
 
-            if ($currentUser !== false && $currentUser->id === $userToConnectWith['id'])
-                throw new AuthException($this->translate("You already have this identity connected"));
+            if ($currentUser !== false &&
+                 $currentUser->id === $userToConnectWith['id'])
+                throw new AuthException(
+                    $this->translate("You already have this identity connected"));
 
             if ($loggedWithKnownEntityId && ! empty($attributes['cat_username'])) {
 
@@ -435,20 +437,22 @@ class ShibbolethIdentityManager extends Shibboleth
      * @throws AuthException
      * @return UserRow $userRow
      */
-    public function connectIdentity()
+    public function consolidateIdentity()
     {
-        $token = $this->getConsolidatorTokenFromCookie();
+        $token = $this->getConsolidationTokenFromCookie();
 
         if (empty($token))
             throw new AuthException(
-                'No token recieved after logging with another account');
+                $this->translate(
+                    'No token recieved after logging with another account'));
 
         $userToConnectWith = $this->userTableGateway->getUserFromConsolidationToken(
             $token);
 
         if (! $userToConnectWith)
             throw new AuthException(
-                'The consolidation has expired. Please authenticate again.');
+                $this->translate(
+                    'The consolidation has expired. Please authenticate again.'));
 
         return $this->authenticate(null, $userToConnectWith);
     }
@@ -741,7 +745,7 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * @return string Token
      */
-    protected function getConsolidatorTokenFromCookie()
+    protected function getConsolidationTokenFromCookie()
     {
         $token = $_COOKIE[static::CONSOLIDATION_TOKEN_TAG];
         // unset the cookie ...
@@ -850,9 +854,10 @@ class ShibbolethIdentityManager extends Shibboleth
                     if (! $libCardToSave) {
                         $libCardToSave = $libraryCard;
                     } else {
-                        // There can be more matches due to possibility of having different accounts with identical cat_username
+                        // User has more accounts consolidated within institution he logged in with & we don't know which libcard has to be updated
                         throw new AuthException(
-                            'Cannot update cat_username provided by IdP while you have more identities with identical cat_username. Please disconnect one of these identities and try it again.');
+                            $this->translate('auth_cat_username_update_failed', null,
+                            "Cannot update new catalog username provided by IdP. You have more than one account within this institution - please disconnect one of these and try this again."));
                     }
                 }
             }
@@ -862,8 +867,8 @@ class ShibbolethIdentityManager extends Shibboleth
         if ($libCardToSave instanceof UserCard) {
             $libCardToSave->save();
 
-            // We need to update user table with the new cat_username
-            $user->activateLibraryCardRow($libCardToSave);
+            // We need to update user table with the new cat_username in case User did have only dummy accounts consolidated
+            $user->activateBestLibraryCard();
         }
     }
 

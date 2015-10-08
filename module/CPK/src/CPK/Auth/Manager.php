@@ -101,12 +101,12 @@ class Manager extends BaseManager
      * @throws \VuFind\Exception\PasswordSecurity
      * @return \CPK\Db\Row\UserRow $user
      */
-    public function connectIdentity()
+    public function consolidateIdentity()
     {
         $this->checkActiveAuthIsSIM();
 
         try {
-            $user = $this->getAuth()->connectIdentity();
+            $user = $this->getAuth()->consolidateIdentity();
         } catch (AuthException $e) {
             // Pass authentication exceptions through unmodified
             throw $e;

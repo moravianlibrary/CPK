@@ -378,7 +378,7 @@ class MyResearchController extends MyResearchControllerBase
                 $this->clearFollowupUrl();
 
             try {
-                $user = $this->getAuthManager()->connectIdentity();
+                $user = $this->getAuthManager()->consolidateIdentity();
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
             }
