@@ -1,0 +1,11 @@
+#!/bin/bash
+clear
+
+echo -e "\e[44m\e[1mTesting CPK: Started\e[21m\e[0m"
+
+echo "Unit testing..."
+echo "System selenium testing..."
+
+echo -e "Results can be found in: \e[4mhttps://host.tld/Diagnostics\e[24m"
+echo -e "\e[1mTesting CPK: Finished\e[21m"
+echo ""

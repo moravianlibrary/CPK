@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>CPK Diagnostics</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/simple-sidebar.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="#">
+                        CPK CPK Diagnostics
+                    </a>
+                </li>
+                <li>
+                    <a href="index.html">Summary</a>
+                </li>
+                <li>
+                    <a href="unit-tests.html">Unit tests</a>
+                </li>
+                <li>
+                    <a href="system-tests.html">System tests</a>
+                </li>
+                <li>
+                    <a href="logs.html">Logs</a>
+                </li>
+                <li>
+                    <a href="ncip-tests.html">NCIP tests</a>
+                </li>
+                <li>
+                    <a href="stress-tests.html">Stress tests</a>
+                </li>
+                <li>
+                    <a href="accessibility.html">Accessibility</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>Summary</h1>
+
+						<div class="alert alert-danger" role="alert">
+						  <a href="#" class="alert-link">Too low disc space!</a>
+						</div>
+
+						<div class="alert alert-warning" role="alert">
+						  <a href="#" class="alert-link">Solr is a bit slow</a>
+						</div>
+							
+						<div class='row'>
+							<div class='col-md-6'>
+								<div id="storage-usage" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>	
+							</div>
+							<div class='col-md-6'>
+								<div id="solr-usage" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+							</div>
+						</div>
+
+						<h4>
+							Unit tests
+							<span class='pull-right'>25/100 - 25% success</span>
+						</h4>
+                        <div class="progress">
+							<div class="progress-bar progress-bar-success" style="width: 25%">
+								<span class="sr-only">35% Complete (success)</span>
+							</div>
+
+							<div class="progress-bar progress-bar-danger" style="width: 75%">
+								<span class="sr-only">65% Complete (danger)</span>
+							</div>
+						</div>
+							
+						<h4>
+							System tests
+							<span class='pull-right'>25/100 - 25% success</span>
+						</h4>
+						<div class="progress">
+							<div class="progress-bar progress-bar-success" style="width: 45%">
+								<span class="sr-only">35% Complete (success)</span>
+							</div>
+
+							<div class="progress-bar progress-bar-danger" style="width: 55%">
+								<span class="sr-only">65% Complete (danger)</span>
+							</div>
+						</div>
+
+						<h4>
+							Logs
+							<span class='pull-right'>25/100 - 25% success</span>
+						</h4>
+						<div class="progress">
+							<div class="progress-bar progress-bar-success" style="width: 20%">
+								<span class="sr-only">35% Complete (success)</span>
+							</div>
+
+							<div class="progress-bar progress-bar-danger" style="width: 80%">
+								<span class="sr-only">65% Complete (danger)</span>
+							</div>
+						</div>
+
+						<h4>
+							NCIP tests
+							<span class='pull-right'>25/100 - 25% success</span>
+						</h4>
+						<div class="progress">
+							<div class="progress-bar progress-bar-success" style="width: 100%">
+								<span class="sr-only">35% Complete (success)</span>
+							</div>
+
+							<div class="progress-bar progress-bar-danger" style="width: 0%">
+								<span class="sr-only">65% Complete (danger)</span>
+							</div>
+						</div>
+
+						<h4>
+							Stress tests
+							<span class='pull-right'>25/100 - 25% success</span>
+						</h4>
+						<div class="progress">
+							<div class="progress-bar progress-bar-success" style="width: 90%">
+								<span class="sr-only">35% Complete (success)</span>
+							</div>
+
+							<div class="progress-bar progress-bar-danger" style="width: 10%">
+								<span class="sr-only">65% Complete (danger)</span>
+							</div>
+						</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+
+    <!-- Menu Toggle Script -->
+    <script>
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    
+    $('#storage-usage').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: 'Storage usage'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            }
+        },
+        series: [{
+            name: "Storage usage",
+            colorByPoint: true,
+            data: [{
+                name: "Free",
+                y: 25,
+                sliced: true,
+                selected: true
+            }, {
+                name: "Used",
+                y: 75
+            }]
+        }]
+    });
+    
+    $('#solr-usage').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: 'SOLR usage'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            }
+        },
+        series: [{
+            name: "Storage usage",
+            colorByPoint: true,
+            data: [{
+                name: "Free",
+                y: 65,
+                sliced: true,
+                selected: true
+            }, {
+                name: "Used",
+                y: 35
+            }]
+        }]
+    });
+    </script>
+   
+
+</body>
+
+</html>
