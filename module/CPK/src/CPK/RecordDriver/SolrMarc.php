@@ -517,4 +517,15 @@ class SolrMarc extends ParentSolrMarc
                 isset($params['notes']) ? $params['notes'] : ''
         );
     }
+
+    /**
+     * Get text that can be displayed to represent this record in
+     * breadcrumbs.
+     *
+     * @return string Breadcrumb text to represent this record.
+     */
+    public function getBreadcrumb()
+    {
+        return $this->getTitle();
+    }
 }
