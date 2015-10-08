@@ -6,7 +6,7 @@ debug           = false
 ; your instance. See http://www.google.com/recaptcha for more information on Captcha
 ; and create keys for your domain.
 ; You will need to provide a sslcapath in the [Http] section for your Captcha to work.
-;[Captcha]
+[Captcha]
 siteKey  = "6LceOg4TAAAAABNlNWpIH0cEjMhBOG_ec9eguSD_"
 secretKey = "6LceOg4TAAAAAMIpTAknf9opttn04gqVrB0aS0rZ"
 ; Valid theme values: dark, light

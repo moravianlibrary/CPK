@@ -205,7 +205,7 @@ class ShibbolethIdentityManager extends Shibboleth
             $currentUser = $userRow;
 
             if ($currentUser !== false && $currentUser->id === $userToConnectWith['id'])
-                throw new AuthException("You already have this identity connected.");
+                throw new AuthException($this->translate("You already have this identity connected"));
 
             if ($loggedWithKnownEntityId && ! empty($attributes['cat_username'])) {
 
