@@ -156,10 +156,6 @@ $this->headTitle(
             if (isset($row['volume'])) {
                 $attributes .= 'data-volume="' . $row['volume'] . '" ';
             }
-
-            if (isset($row['issue'])) {
-                $attributes .= 'data-issue="' . $row['issue'] . '" ';
-            }
         }
 
         ?>
@@ -167,7 +163,7 @@ $this->headTitle(
 
 			<td>
 				<div class="jt" title="<?=$this->transEsc('Description Status')?>">
-					<span class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
+					<span data-type="availability" class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
 				</div>
 
 				<div title="<?=$this->transEsc('Item Status')?>"

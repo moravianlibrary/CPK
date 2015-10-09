@@ -317,7 +317,16 @@ class AjaxController extends AjaxControllerBase
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
-            $statuses = $ilsDriver->getStatuses($ids);
+            try {
+                $statuses = $ilsDriver->getStatuses($ids);
+            } catch (\Exception $e) {
+                return $this->output(
+                    [
+                        'status' => $this->getTranslatedUnknownStatus($viewRend),
+                        'message' => $e->getMessage(),
+                        'code' => $e->getCode()
+                    ], self::STATUS_ERROR);
+            }
 
             if (null === $statuses || empty($statuses))
                 return $this->output('$ilsDriver->getStatuses returned nothing',
@@ -351,6 +360,9 @@ class AjaxController extends AjaxControllerBase
 
                 if (! empty($status['label']))
                     $itemsStatuses[$id]['label'] = $status['label'];
+
+                if (! empty($status['availability']))
+                    $itemsStatuses[$id]['availability'] = $status['availability'];
 
                 $key = array_search($id, $ids);
 
@@ -488,7 +500,6 @@ class AjaxController extends AjaxControllerBase
 
                 $data['cat_username'] = $cat_username;
                 $data['fines'] = $fines;
-
             } catch (\VuFind\Exception\ILS $e) {
 
                 // Something went wrong - include cat_username to properly

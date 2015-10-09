@@ -121,6 +121,14 @@ function updateHoldingId(id, value, setDangerLabel) {
 	setDangerLabel = true;
     }
 
+    var availability = value.availability;
+
+    if (typeof availability !== 'undefined') {
+	var availabilitySpan = tableRow.find('span[data-type=availability]')[0];
+	
+	availabilitySpan.textContent = availability;
+    }
+
     var divLink = tableRow.find('div[data-type=link]')[0];
 
     var dueDate = value.due_date;
