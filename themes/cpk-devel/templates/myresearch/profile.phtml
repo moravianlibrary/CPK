@@ -18,7 +18,7 @@
 
 <div class="row">
   <div class="<?=$this->layoutClass('mainbody')?>">
-    <h2><?=$this->transEsc('Your Profile')?></h2>
+    <h2><?=$this->transEsc('Profile')?></h2>
     <?=$this->flashmessages();?>
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
         $eppnHostname = explode("@", $eppn)[1];
