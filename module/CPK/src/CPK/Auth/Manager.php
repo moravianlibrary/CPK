@@ -68,7 +68,33 @@ class Manager extends BaseManager
      */
     public function login($request)
     {
-        return parent::login($request);
+        // Perform authentication:
+        try {
+            $hasShibbolethSession = $request->getServer('Shib-Session-ID', false);
+
+            if ($hasShibbolethSession) {
+                $user = $this->getAuth()->authenticate($request);
+            } else {
+                throw new AuthException('authentication_error_loggedout');
+            }
+        } catch (AuthException $e) {
+            // Pass authentication exceptions through unmodified
+            throw $e;
+        } catch (\VuFind\Exception\PasswordSecurity $e) {
+            // Pass password security exceptions through unmodified
+            throw $e;
+        } catch (\Exception $e) {
+            // Catch other exceptions, log verbosely, and treat them as technical
+            // difficulties
+            error_log(
+                "Exception in " . get_class($this) . "::login: " . $e->getMessage());
+            error_log($e);
+            throw new AuthException('authentication_error_technical');
+        }
+
+        // Store the user in the session and send it back to the caller:
+        $this->updateSession($user);
+        return $user;
     }
 
     /**
