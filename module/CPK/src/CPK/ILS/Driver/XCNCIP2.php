@@ -829,6 +829,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                      'Limited Circulation, Normal Loan Period') ||
                      empty($itemRestriction);
 
+                $label = 'label-danger';
+                if ($status === 'Available On Shelf') $label = 'label-success';
+                else if ($status === 'On Loan') $label = 'label-warning';
+
                 $retVal[] = array(
                     'id' => empty($id) ? "" : $id,
                     'availability' => empty($available) ? false : $available ? true : false,
@@ -838,11 +842,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'department' => empty($department) ? '' : $department,
                     'requests_placed' => ! isset($holdQueue) ? "" : $holdQueue,
                     'item_id' => empty($id) ? "" : $id,
+                    'label' => $label,
                     'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold'
                 );
             }
         }
-
         return $retVal;
     }
 
