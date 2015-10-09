@@ -119,9 +119,6 @@ class ShibbolethIdentityManager extends Shibboleth
     protected $attribsToCheck = array(
         'cat_username',
         'email',
-        'lastname',
-        'firstname',
-        'fullname',
         'college',
         'major'
     );
@@ -185,8 +182,6 @@ class ShibbolethIdentityManager extends Shibboleth
         }
 
         $attributes = $this->fetchAttributes($config);
-
-        $attributes = $this->parseFullName($attributes);
 
         $eppn = $this->fetchEduPersonPrincipalName();
 
@@ -763,33 +758,6 @@ class ShibbolethIdentityManager extends Shibboleth
     }
 
     /**
-     * Some identity providers provide only fullname in "cn" attribute,
-     * thus it's needed to split it up into firstname & lastname to show
-     * that name properly.
-     *
-     * This method checks if is $attributes['fullname'] set & returns
-     * $attributes with firstname & lastname keys where lastname is
-     * the last word in fullname & others are in firstname.
-     *
-     * @param array $attributes
-     * @return string
-     */
-    protected function parseFullName(array $attributes)
-    {
-        if (isset($attributes['fullname'])) {
-
-            $splittedFullname = preg_split('/\s+/', $attributes['fullname']);
-
-            $attributes['lastname'] = array_pop($splittedFullname);
-            $attributes['firstname'] = implode(' ', $splittedFullname);
-
-            unset($attributes['fullname']);
-        }
-
-        return $attributes;
-    }
-
-    /**
      * This method deletes all cards within supplied User $from & saves those to User $into.
      *
      * @param UserRow $from
@@ -887,12 +855,6 @@ class ShibbolethIdentityManager extends Shibboleth
 
         if (! isset($userRow->email))
             $userRow->email = '';
-
-        if (! isset($userRow->firstname))
-            $userRow->firstname = '';
-
-        if (! isset($userRow->lastname))
-            $userRow->lastname = '';
 
             // Save/Update user in database
         $userRow->save();
