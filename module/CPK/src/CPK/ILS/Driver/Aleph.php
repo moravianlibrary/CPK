@@ -257,29 +257,30 @@ class Aleph extends AlephBase
             ->setHoldType($holdType)
             ->setStatus($status);
     }
-}
 
     /**
      * Get profile information using X-server.
      *
-     * @param array $user The patron array
+     * @param array $user
+     *            The patron array
      *
      * @throws ILSException
-     * @return array      Array of the patron's profile data on success.
+     * @return array Array of the patron's profile data on success.
      */
     public function getMyProfileX($user)
     {
-        $recordList=array();
-        if (!isset($user['college'])) {
+        $recordList = array();
+        if (! isset($user['college'])) {
             $user['college'] = $this->useradm;
         }
-        $xml = $this->alephWebService->doXRequest(
-                "bor-info",
-                array(
-                    'loans' => 'N', 'cash' => 'N', 'hold' => 'N',
-                    'library' => $user['college'], 'bor_id' => $user['id']
-                ), true
-        );
+        $xml = $this->alephWebService->doXRequest("bor-info",
+            array(
+                'loans' => 'N',
+                'cash' => 'N',
+                'hold' => 'N',
+                'library' => $user['college'],
+                'bor_id' => $user['id']
+            ), true);
         $id = (string) $xml->z303->{'z303-id'};
         $address1 = (string) $xml->z304->{'z304-address-2'};
         $address2 = (string) $xml->z304->{'z304-address-3'};
@@ -292,7 +293,7 @@ class Aleph extends AlephBase
         $credit_sign = (string) $xml->z305->{'z305-credit-debit'};
         $name = (string) $xml->z303->{'z303-name'};
         if (strstr($name, ",")) {
-            list($lastname, $firstname) = explode(",", $name);
+            list ($lastname, $firstname) = explode(",", $name);
         } else {
             $lastname = $name;
             $firstname = "";
@@ -305,8 +306,7 @@ class Aleph extends AlephBase
         $recordList['cat_username'] = $user['id'];
         if (isset($user['email'])) {
             $recordList['email'] = $user['email'];
-        }
-        else {
+        } else {
             $recordList['email'] = (string) $xml->z304->{'z304-email-address'};
         }
         $recordList['address1'] = $address1;
@@ -322,21 +322,30 @@ class Aleph extends AlephBase
         $recordList['id'] = $id;
         // deliquencies
         $blocks = array();
-        foreach (array('z303-delinq-1', 'z303-delinq-2', 'z303-delinq-3') as $elementName) {
+        foreach (array(
+            'z303-delinq-1',
+            'z303-delinq-2',
+            'z303-delinq-3'
+        ) as $elementName) {
             $block = (string) $xml->z303->{$elementName};
-            if (!empty($block) && $block != '00') {
+            if (! empty($block) && $block != '00') {
                 $blocks[] = $block;
             }
         }
-        foreach (array('z305-delinq-1', 'z305-delinq-2', 'z305-delinq-3') as $elementName) {
+        foreach (array(
+            'z305-delinq-1',
+            'z305-delinq-2',
+            'z305-delinq-3'
+        ) as $elementName) {
             $block = (string) $xml->z305->{$elementName};
-            if (!empty($block) && $block != '00') {
+            if (! empty($block) && $block != '00') {
                 $blocks[] = $block;
             }
         }
         $recordList['blocks'] = array_unique($blocks);
         return $recordList;
     }
+}
 
 class AlephItem
 {
