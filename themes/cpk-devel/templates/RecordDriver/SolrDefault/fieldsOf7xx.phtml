@@ -28,7 +28,11 @@ foreach ($fieldsOf7xx as $number => $activeField) {
             if ($activeField === $this->field733) {
                 $anchor = join(" ", $field);
             } else {
-                $anchor = $field['t'] . " " . $field['g'];
+                $anchor = '';
+                if (! empty($field['t'])) 
+                    $anchor .= $field['t'];
+                if (! empty($field['g']))
+                    $anchor .= " " . $field['g'];
             }
             
             if (! empty($field['x']) || ! empty($field['z']) || ! empty($field['t'])) {
