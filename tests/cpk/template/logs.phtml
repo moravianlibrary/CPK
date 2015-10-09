@@ -1,3 +1,8 @@
+<?php
+    if (isset($_POST['purge']) && $_POST['purge'] === 'true') {
+        file_put_contents(__DIR__.'/data/error.log', 'Log is clean');
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,7 +52,12 @@
 							</p>
 							
 						</div>
-						<p><a href="#" class="btn btn-primary" role="button">Resolved. Purge log file</a></p>
+						<div>
+							<form action='?' method='post'>
+								<input type='hidden' name='purge' value='true'>
+								<input type='submit' class="btn btn-primary" value='Resolved. Purge log file'>
+							</form>
+						</div>
                     </div>
                 </div>
             </div>
