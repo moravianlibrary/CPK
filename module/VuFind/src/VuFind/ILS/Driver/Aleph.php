@@ -1965,9 +1965,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (isset($user['email'])) {
             $recordList['email'] = $user['email'];
         }
-        else {
-            $recordList['email'] = (string) $xml->z304->{'z304-email-address'};
-        }
         $recordList['address1'] = $address1;
         $recordList['address2'] = $address2;
         $recordList['zip'] = $zip;
