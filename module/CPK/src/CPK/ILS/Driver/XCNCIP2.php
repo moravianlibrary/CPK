@@ -1196,6 +1196,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if ($this->useXPath($recent, 'ElectronicAddressType')[0] == 'tel') {
                 $phone = $this->useXPath($recent, 'ElectronicAddressData');
             }
+            if ($this->useXPath($recent, 'ElectronicAddressType')[0] == 'mailto') {
+                $email = $this->useXPath($recent, 'ElectronicAddressData');
+            }
         }
         $group = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
@@ -1231,6 +1234,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'phone' => empty($phone) ? '' : (string) $phone[0],
             'group' => empty($group) ? '' : (string) $group[0],
             'blocks' => empty($blocks) ? array() : $blocks,
+            'email' => empty($email) ? '' : (string) $email[0],
             'expire' => $expireDate
         );
         return $patron;
