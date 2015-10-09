@@ -41,7 +41,7 @@
     </a>
   <? endif; ?>
   <a href="<?=$this->url('search-history')?>?require_login" class="list-group-item<?=$this->active == 'history' ? ' active' : ''?>">
-    <?=$this->transEsc('history_saved_searches')?>
+    <?=$this->transEsc('Search History')?>
     <span class="pull-right"><i class="icon-hledani"></i></span>
   </a>
   <? if ($user = $this->auth()->isLoggedIn()): ?>
