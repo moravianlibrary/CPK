@@ -49,6 +49,8 @@ class Aleph extends AlephBase
 
     protected $alephLocale;
 
+    protected $dontShowLink;
+
     public function init()
     {
         parent::init();
@@ -83,6 +85,8 @@ class Aleph extends AlephBase
         if (isset($this->config['Catalog']['dont_show_link'])) {
             $this->dontShowLink = explode(self::CONFIG_ARRAY_DELIMITER,
                 $this->config['Catalog']['dont_show_link']);
+        } else {
+            $this->dontShowLink = [];
         }
 
         $this->alephLocale = $this->translator->getTranslator()->getLocale();
@@ -148,7 +152,8 @@ class Aleph extends AlephBase
             // Query all items at once ..
 
             // Get bibId from this e.g. [ MZK01-000910444:MZK50000910444000270, ... ]
-            $bibId = reset(explode(':', reset($ids)));
+            $explodedBibId = explode(':', reset($ids));
+            $bibId = reset($explodedBibId);
 
             $path_elements = array(
                 'record',
