@@ -125,15 +125,18 @@ class User extends BaseUser
     }
 
     /**
-     * Retrieve a user object from the database based on eduPersonPrincipalName from his libCards
+     * Retrieve a user object from the database based on eduPersonPrincipalName from his libCards.
+     *
+     * Returns false if not found anything
      *
      * @param string $eppn
      *            eduPersonPrincipalName to use for retrieval.
      *
-     * @return UserRow
+     * @return mixed UserRow | false
      */
     public function getUserRowByEppn($eppn)
     {
+        // FIXME: Process of retrieving User from eppn would be faster if made in one query ..
         $rowId = $this->getUserRowIdByEppn($eppn);
 
         if ($rowId) {
