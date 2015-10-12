@@ -779,24 +779,33 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             foreach ($bibInfos as $bibInfo) {
 
-                $id = (string) $this->useXPath($bibInfo,
-                    'BibliographicId/BibliographicRecordId/BibliographicRecordIdentifier')[0];
+                $id = $this->getFirstXPathMatchAsString($bibInfo,
+                    'BibliographicId/BibliographicRecordId/BibliographicRecordIdentifier');
 
-                $status = (string) $this->useXPath($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus')[0];
+                $status = $this->getFirstXPathMatchAsString($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus');
 
-                $itemCallNo = (string) $this->useXPath($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/ItemDescription/CallNumber')[0];
+                $itemCallNo = $this->getFirstXPathMatchAsString($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/ItemDescription/CallNumber');
 
-                $holdQueue = (string) $this->useXPath($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/HoldQueueLength')[0];
+                $holdQueue = $this->getFirstXPathMatchAsString($bibInfo,
+                    'HoldingsSet/ItemInformation/ItemOptionalFields/HoldQueueLength');
 
                 $itemRestrictions = $this->useXPath($bibInfo,
                     'HoldingsSet/ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
 
+                $restrictedToLibrary = false;
+                $monthLoanPeriod = false;
+
                 $restrictions = [];
                 foreach ($itemRestrictions as $itemRestriction) {
                     $restrictions[] = (string) $itemRestriction;
+
+                    $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
+
+                    $monthLoanPeriod = ($itemRestriction ==
+                         'Limited Circulation, Normal Loan Period') ||
+                         empty($itemRestriction);
                 }
 
                 $locationNameInstances = $this->useXPath($bibInfo,
@@ -805,37 +814,33 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 foreach ($locationNameInstances as $locationNameInstance) {
                     // FIXME: Create config to map location abbreviations of each institute into human readable values
 
-                    $locationLevel = (string) $this->useXPath($locationNameInstance,
-                        '//LocationNameLevel')[0];
+                    $locationLevel = $this->getFirstXPathMatchAsString($locationNameInstance,
+                        '//LocationNameLevel');
 
                     if ($locationLevel == 4) {
-                        $department = (string) $this->useXPath($locationNameInstance,
-                            '//LocationNameValue')[0];
+                        $department = $this->getFirstXPathMatchAsString($locationNameInstance,
+                            '//LocationNameValue');
                     } else
                         if ($locationLevel == 3) {
-                            $sublibrary = (string) $this->useXPath(
-                                $locationNameInstance, '//LocationNameValue')[0];
+                            $sublibrary = $this->getFirstXPathMatchAsString(
+                                $locationNameInstance, '//LocationNameValue');
                         } else {
-                            $locationInBuilding = (string) $this->useXPath(
-                                $locationNameInstance, '//LocationNameValue')[0];
+                            $locationInBuilding = $this->useXPath(
+                                $locationNameInstance, '//LocationNameValue');
                         }
                 }
 
                 $available = $status === 'Available On Shelf';
 
-                $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
-
-                $monthLoanPeriod = ($itemRestriction ==
-                     'Limited Circulation, Normal Loan Period') ||
-                     empty($itemRestriction);
-
                 $label = 'label-danger';
-                if ($status === 'Available On Shelf') $label = 'label-success';
-                else if ($status === 'On Loan') $label = 'label-warning';
+                if ($status === 'Available On Shelf')
+                    $label = 'label-success';
+                else
+                    if ($status === 'On Loan')
+                        $label = 'label-warning';
 
                 $retVal[] = array(
                     'id' => empty($id) ? "" : $id,
-                    'availability' => empty($available) ? false : $available ? true : false,
                     'status' => empty($status) ? "" : $status,
                     'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
                     'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
@@ -843,7 +848,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'requests_placed' => ! isset($holdQueue) ? "" : $holdQueue,
                     'item_id' => empty($id) ? "" : $id,
                     'label' => $label,
-                    'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold'
+                    'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
+                    'restrictions' => $restrictions
                 );
             }
         }
@@ -1021,7 +1027,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
             $title = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
-            if (empty($title) || $title[0] == '') $title = $this->useXPath($current, 'Title');
+            if (empty($title) || $title[0] == '')
+                $title = $this->useXPath($current, 'Title');
             $mediumType = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
@@ -1486,7 +1493,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $_ENV['exceptions']['ncip'][] = $message;
     }
 
-    protected function useXPath($xmlObject, $xPath)
+    protected function useXPath(\SimpleXMLElement $xmlObject, $xPath)
     {
         $arrayXPath = explode('/', $xPath);
         $newXPath = "";
@@ -1501,6 +1508,25 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         }
         // var_dump($newXPath);
         return $xmlObject->xpath($newXPath);
+    }
+
+    /**
+     *
+     * @param \SimpleXMLElement $xmlObject
+     * @param string $xPath
+     * @return boolean
+     */
+    protected function getFirstXPathMatchAsString(\SimpleXMLElement $xmlObject,
+        $xPath)
+    {
+        $xPathMatch = $this->useXPath($xmlObject, $xPath);
+
+        if ($xPathMatch !== false && is_array($xPathMatch)) {
+            if (count($xPathMatch) > 0) {
+                return (string) $xPathMatch[0];
+            }
+        }
+        return false;
     }
 
     /**
