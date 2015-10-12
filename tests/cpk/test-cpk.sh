@@ -5,7 +5,7 @@ printf "\e[44m\e[1mTesting CPK: Started\e[21m\e[0m\n"
 printf "This may take several minutes \n"
 printf "Results will be available in: ~/git/VuFind-2.x/tests/cpk/template/index.phtml\n\n"
 printf "[1/5] Unit testing ... "
-#
+./phing.sh phpunitfast
 printf "\e[92mDONE\e[21m\e[0m\n"
 
 printf "[2/5] System selenium testing ... "

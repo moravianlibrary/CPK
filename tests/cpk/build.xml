@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="CPK" basedir="." default="main">
+
+	<target name="clean"> 
+		<delete dir="coverage-report"/>
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="coverage-report"/>
+	</target>
+	
+	<!-- PHPUnit -->
+	<target name="phpunitTests" depends="prepare">
+	
+		<coverage-setup database="./coverage-report/database">
+			<fileset dir=".">
+				<include name="*.php"/>
+				<exclude name="*Test.php"/>
+			</fileset>
+		</coverage-setup>
+	
+		<phpunit printsummary="true" haltonfailure="false" haltonerror="false" codecoverage="true">
+			<batchtest>
+				<fileset dir="../../module/Statistics/tests/unit-tests/src/Piwik">
+					<include name="*Test.php"/>
+				</fileset>
+			</batchtest>
+			<formatter type="xml" outfile="./template/data/unitTestsResults.xml"/>
+		</phpunit>
+		
+		<coverage-report outfile="coverage-report/coverage.xml">
+			<report styledir="/usr/share/php/data/phing/etc" todir="coverage-report"/>
+		</coverage-report>
+		
+	</target>
+   
+	<!-- Main Target -->
+	<target name="main">
+			<trycatch property="exceptionmsg">
+				<try>
+					<phingcall target="phpunitTests" />
+				</try>
+				<catch>
+					<fail>Unexpected error during unit testing -- ${exceptionmsg}</fail>
+				</catch>
+			</trycatch>
+	</target>
+
+</project>

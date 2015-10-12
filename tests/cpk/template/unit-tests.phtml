@@ -24,7 +24,11 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
+	<style>
+	   #mainResults thead tr th, #mainResults tbody tr td  {
+	       text-align: center;
+	   }
+	</style>
 </head>
 
 <body>
@@ -41,90 +45,22 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1>Unit-tests</h1>
-
-						<table class='table' data-toggle="table" data-url="data1.json" data-cache="false" data-height="299">
-							<thead>
-								<tr>
-									<th>Part</th>
-									<th>File</th>
-									<th>Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td>Statistics</td>
-									<td>./Statistics/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td>Statistics</td>
-									<td>./Statistics/necoJineho.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td>Catalog</td>
-									<td>./Catalog/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td class='warning'>E-version</td>
-									<td class='warning'>./CPK/neco.test.php</td>
-									<td class='warning'><span class="label label-danger">Failed</span></td>
-								</tr>
-								<tr>
-									<td class='warning'>E-buy</td>
-									<td class='warning'>./CPK/neco.test.php</td>
-									<td class='warning'><span class="label label-danger">Failed</span></td>
-								</tr>
-								<tr>
-									<td>CPKCommon</td>
-									<td>./Statistics/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td>Statistics</td>
-									<td>./Statistics/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td>Statistics</td>
-									<td>./Statistics/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td>Statistics</td>
-									<td>./Statistics/necoJineho.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td class='warning'>E-buy</td>
-									<td class='warning'>./CPK/neco.test.php</td>
-									<td class='warning'><span class="label label-danger">Failed</span></td>
-								</tr>
-								<tr>
-									<td>Catalog</td>
-									<td>./Catalog/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								
-								
-								<tr>
-									<td class='warning'>E-version</td>
-									<td class='warning'>./CPK/neco.test.php</td>
-									<td class='warning'><span class="label label-danger">Failed</span></td>
-								</tr>
-								<tr>
-									<td>CPKCommon</td>
-									<td>./Statistics/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-								<tr>
-									<td>Statistics</td>
-									<td>./Statistics/neco.test.php</td>
-									<td><span class="label label-success">Success</span></td>
-								</tr>
-							</body>
-						</table>
+						
+								<?php
+    								$xml = new DOMDocument;
+            						$xml->load(__DIR__.'/data/unitTestsResults.xml');
+            						
+            						$xsl = new DOMDocument;
+            						$xsl->load(__DIR__.'/../system/unitTestsToHTML.xsl');
+            						
+            						$proc = new XSLTProcessor;
+            						$proc->importStyleSheet($xsl);
+            						
+            						echo $proc->transformToXML($xml);
+						          ?>						
+						
+						<h3>Details</h3>
+						<?= '<pre>'.xml_highlight(file_get_contents(__DIR__.'/data/unitTestsResults.xml')).'</pre>' ?>
                     </div>
                 </div>
             </div>
