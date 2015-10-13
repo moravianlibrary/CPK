@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites>
-  <testsuite name="AllTests" tests="1" assertions="1" failures="0" errors="0" time="0.010712">
-    <testsuite name="StatisticsTest\Piwik\PiwikStatisticsTest" file="/home/kravec/git/VuFind-2.x/module/Statistics/tests/unit-tests/src/Piwik/PiwikStatisticsTest.php" tests="1" assertions="1" failures="0" errors="0" time="0.010712">
-      <testcase name="testBuildQuery" class="StatisticsTest\Piwik\PiwikStatisticsTest" file="/home/kravec/git/VuFind-2.x/module/Statistics/tests/unit-tests/src/Piwik/PiwikStatisticsTest.php" line="44" assertions="1" time="0.010712"/>
-    </testsuite>
-  </testsuite>
-</testsuites>
