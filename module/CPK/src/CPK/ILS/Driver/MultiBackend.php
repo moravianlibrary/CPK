@@ -46,6 +46,105 @@ class MultiBackend extends MultiBackendBase
 {
 
     /**
+     * Cancel Holds
+     *
+     * Attempts to Cancel a hold or recall on a particular item. The
+     * data in $cancelDetails['details'] is determined by getCancelHoldDetails().
+     *
+     * @param array $cancelDetails
+     *            An array of item and patron data
+     *
+     * @return array An array of data on each request including
+     *         whether or not it was successful and a system message (if available)
+     */
+    public function cancelHolds($cancelDetails)
+    {
+        $patronSource = $this->getSource($cancelDetails['patron']['cat_username']);
+
+        // MyResearch Controller sends us here all the cancelHolds the user want to process
+        // & doesn't care about the institutions the hold belongs in compared to passed
+        // patron array - which is always only one in order to properly determine
+        // current patron being iterated
+        $cancelDetailsForCurrentPatron = $this->getCancelDetailsFromCurrentSource(
+            $patronSource, $cancelDetails['details']);
+
+        if (count($cancelDetailsForCurrentPatron) > 0) {
+            $driver = $this->getDriver($patronSource);
+            if ($driver) {
+                return $driver->cancelHolds(
+                    $this->stripIdPrefixes($cancelDetails, $patronSource));
+            }
+            throw new ILSException('No suitable backend driver found');
+        } else
+            return [
+                'count' => 0,
+                'validIDS' => array_diff($cancelDetails['details'], $cancelDetailsForCurrentPatron)
+            ];
+    }
+
+    /**
+     * Get Cancel Hold Details
+     *
+     * In order to cancel a hold, the ILS requires some information on the hold.
+     * This function returns the required information, which is then submitted
+     * as form data in Hold.php. This value is then extracted by the CancelHolds
+     * function.
+     *
+     * @param array $holdDetails
+     *            An array of item data
+     *
+     * @return string Data for use in a form field
+     */
+    public function getCancelHoldDetails($holdDetails)
+    {
+        $source = $this->getSource(
+            $holdDetails['id'] ? $holdDetails['id'] : $holdDetails['item_id']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            $holdDetails = $this->stripIdPrefixes($holdDetails, $source);
+
+            // Because we know "getCancelHoldDetails" returns string, we can append
+            // the source directly back
+            return "$source.{$driver->getCancelHoldDetails($holdDetails)}";
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    protected function getEmptyStatuses($ids)
+    {
+        $emptyStatuses = [];
+
+        foreach ($ids as $id)
+            $emptyStatuses[]['id'] = $id;
+
+        return $emptyStatuses;
+    }
+
+    public function getPaymentURL($patron, $fine)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if (! $driver || ! $this->methodSupported($driver, 'getPaymentURL',
+            compact('patron', 'fine'))) {
+            return null;
+        }
+        $patron = $this->stripIdPrefixes($patron, $source);
+        return $driver->getPaymentURL($patron, $fine);
+    }
+
+    public function getProlongRegistrationUrl($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if (! $driver || ! $this->methodSupported($driver,
+            'getProlongRegistrationUrl', compact('patron'))) {
+            return null;
+        }
+        $patron = $this->stripIdPrefixes($patron, $source);
+        return $driver->getProlongRegistrationUrl($patron);
+    }
+
+    /**
      * Get Statuses
      *
      * This is responsible for retrieving the status information for a
@@ -77,48 +176,18 @@ class MultiBackend extends MultiBackendBase
             return parent::getStatuses($ids);
     }
 
-    protected function getEmptyStatuses($ids)
-    {
-        $emptyStatuses = [];
-
-        foreach ($ids as $id)
-            $emptyStatuses[]['id'] = $id;
-
-        return $emptyStatuses;
-
-    }
-
-    public function getProlongRegistrationUrl($patron)
-    {
-        $source = $this->getSource($patron['cat_username']);
-        $driver = $this->getDriver($source);
-        if (!$driver || !$this->methodSupported($driver, 'getProlongRegistrationUrl', compact('patron'))) {
-            return null;
-        }
-        $patron = $this->stripIdPrefixes($patron, $source);
-        return $driver->getProlongRegistrationUrl($patron);
-    }
-
-    public function getPaymentURL($patron, $fine)
-    {
-        $source = $this->getSource($patron['cat_username']);
-        $driver = $this->getDriver($source);
-        if (!$driver || !$this->methodSupported($driver, 'getPaymentURL', compact('patron', 'fine'))) {
-            return null;
-        }
-        $patron = $this->stripIdPrefixes($patron, $source);
-        return $driver->getPaymentURL($patron, $fine);
-    }
-
     /**
      * Helper method to determine whether or not a certain method can be
-     * called on this driver.  Required method for any smart drivers.
+     * called on this driver.
+     * Required method for any smart drivers.
      *
-     * @param string $method The name of the called method.
-     * @param array  $params Array of passed parameters.
+     * @param string $method
+     *            The name of the called method.
+     * @param array $params
+     *            Array of passed parameters.
      *
      * @return bool True if the method can be called with the given parameters,
-     * false otherwise.
+     *         false otherwise.
      */
     public function supportsMethod($method, $params)
     {
@@ -126,5 +195,20 @@ class MultiBackend extends MultiBackendBase
             return true;
         }
         return parent::supportsMethod($method, $params);
+    }
+
+    protected function getCancelDetailsFromCurrentSource($source, $cancelDetails)
+    {
+        $cancelDetailsForCurrentPatron = [];
+
+        foreach ($cancelDetails as $cancelDetail) {
+            $cancelDetailSource = $this->getSource($cancelDetail);
+
+            if ($cancelDetailSource === $source) {
+                array_push($cancelDetailsForCurrentPatron, $cancelDetail);
+            }
+        }
+
+        return $cancelDetailsForCurrentPatron;
     }
 }

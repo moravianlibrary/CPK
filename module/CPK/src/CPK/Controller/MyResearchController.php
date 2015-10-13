@@ -175,6 +175,13 @@ class MyResearchController extends MyResearchControllerBase
             $result = $catalog->getMyHolds($patron);
             $recordList = [];
             $this->holds()->resetValidation();
+
+            // Add validIDS which could not be processed by MultiBackend ...
+            if (isset($currentIdentityView->cancelResults['validIDS']))
+                foreach ($currentIdentityView->cancelResults['validIDS'] as $validID) {
+                    $this->holds()->rememberValidId($validID);
+                }
+
             foreach ($result as $current) {
                 // Add cancel details if appropriate:
                 $current = $this->holds()->addCancelDetails($catalog, $current,
