@@ -126,7 +126,7 @@ class AjaxController extends AjaxControllerBase
     /**
      * Downloads SFX JIB content for current record.
      *
-     * @param string $institute
+     * @param string $_GET['institute']
      *
      * @return array
      */
@@ -156,7 +156,7 @@ class AjaxController extends AjaxControllerBase
             $additionalParams[str_replace("rft_", "rft.", $key)] = $val;
         }
 
-        $issnPattern = "[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]";
+        $issnPattern = "/[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]/";
         if (preg_match($issnPattern, $isn)) {
             $isnKey = "rft.issn";
         } else {
