@@ -35,7 +35,7 @@ use MZKCommon\View\Helper\MZKCommon\Record as ParentRecord;
 class Record extends ParentRecord
 {
     /**
-     * Render WantIt HTML
+     * Display fields of 7xx
      *
      * @return string
      */
