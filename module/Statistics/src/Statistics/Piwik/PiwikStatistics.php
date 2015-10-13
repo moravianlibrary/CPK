@@ -118,12 +118,12 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	 * Sets initial params
 	 * 
 	 * @param	\Zend\Config\Config $config
-	 * @param	array $drivers
+	 * @param	array $drivers Array of strings
 	 *
 	 * @todo set missing default urls
 	 * @todo set variables in config [PiwikStatistics]
 	 */
-	public function __construct(\Zend\Config\Config $config, $drivers)
+	public function __construct(\Zend\Config\Config $config, array $drivers)
 	{
 		$this->siteId 			    = isset($config->PiwikStatistics->site_id) 				  ? $config->PiwikStatistics->site_id 			  	  : 1;
 		$this->catalogBrowserUrl    = isset($config->PiwikStatistics->catalog_browser_url) 	  ? $config->PiwikStatistics->catalog_browser_url     : "https://vufind.localhost/Browse/";
@@ -140,6 +140,10 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		$this->drivers 				= $drivers;
 	}
 	
+	/**
+	 * Returns array of strings representing driver names
+	 * @return array
+	 */
 	public function getDrivers()
 	{
 		return $this->drivers;
@@ -230,7 +234,6 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		
 		if ($dataArray === NULL)
 			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
-	
 		
 		if ((isset($dataArray['result']) && ($dataArray['result'] == 'error')))
 			throw new \Exception($dataArray['message']);
@@ -333,7 +336,6 @@ class PiwikStatistics implements PiwikStatisticsInterface
 				}
 			}
 		}
-		
 
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
@@ -550,7 +552,6 @@ class PiwikStatistics implements PiwikStatisticsInterface
 			$params['filter_sort_order'] = 'desc';
 			
 		}
-		
 		
 		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 		
