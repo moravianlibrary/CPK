@@ -77,6 +77,9 @@ function get866( recordUniqueID, parentRecordID, callback ) {
 
 function display866( recordUniqueID, rawDataArrayOf866 ) {
 	var arrayOf866 = {};
+	
+	var institute = 'MZK'; // @FIXME this is temporary hard-coded
+	
 	if (false != rawDataArrayOf866) {
 		rawDataArrayOf866.forEach(function(entry) {
 			var pole = entry.split("|");
@@ -87,7 +90,7 @@ function display866( recordUniqueID, rawDataArrayOf866 ) {
 			}
 		});
 
-		getSfxJibResult('http://sfx.jib.cz/sfxlcl3', recordUniqueID, 'ANY', arrayOf866);
+		getSfxJibResult('http://sfx.jib.cz/sfxlcl3', recordUniqueID, institute, arrayOf866);
 
 	}
 }
