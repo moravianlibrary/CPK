@@ -156,10 +156,11 @@ class AjaxController extends AjaxControllerBase
             $additionalParams[str_replace("rft_", "rft.", $key)] = $val;
         }
 
-        $issnPattern = "/[0-9][0-9][0-9][0-9][-][0-9][0-9][0-9][X0-9]/";
-        if (preg_match($issnPattern, $isn)) {
+        if (substr($isn, 0, 1) === 'M') {
+            $isnKey = "rft.ismn";
+        } else if ((strlen($isn) === 8) OR (strlen($isn) === 9)) {
             $isnKey = "rft.issn";
-        } else {
+        } else { // (strlen($isn) === 10) OR (strlen($isn) === 13)
             $isnKey = "rft.isbn";
         }
 
