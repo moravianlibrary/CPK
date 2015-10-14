@@ -1,3 +1,11 @@
+/**
+ * Gets Buy Links via AjaxController
+ * 
+ * @param	{string}	recordID
+ * @param	{string}	parentRecordID
+ * @param	{function}	callback
+ * @return	{undefined}
+ */
 function getBuyLinks( recordID, parentRecordID, callback ) {
 	$.ajax({
 		dataType: 'json',
@@ -15,7 +23,21 @@ function getBuyLinks( recordID, parentRecordID, callback ) {
 	});
 }
 
+/**
+ * Prints SFX JIB Results
+ * 
+ * @param	{string}	sfxUrl
+ * @param	{string}	recordID
+ * @param	{string}	institute
+ * @param	{array}		arrayOf866
+ * @return	{undefined}	
+ */
 function getSfxJibResult( sfxUrl, recordID, institute, arrayOf866 ) {
+	
+	/**
+	 * Institute ID.
+	 * @type {string}
+	 */
 	var institute = typeof institute !== 'undefined' ? institute : 'ANY';
 
 	$.ajax({
@@ -56,6 +78,14 @@ function getSfxJibResult( sfxUrl, recordID, institute, arrayOf866 ) {
 	});
 }
 
+/**
+ * Gets Buy Links via AjaxController
+ * 
+ * @param	{string}	recordID
+ * @param	{string}	parentRecordID
+ * @param	{function}	callback
+ * @return	{undefined}
+ */
 function get866( recordUniqueID, parentRecordID, callback ) {
 	$.ajax({
 		dataType: 'json',
@@ -74,10 +104,26 @@ function get866( recordUniqueID, parentRecordID, callback ) {
 	});
 }
 
-
+/**
+ * Downloads SFX JIB content for current record 
+ * and displays it via getSfxJibResult() callback
+ * 
+ * @param	{string}	recordUniqueID
+ * @param	{array}		rawDataArrayOf866
+ * @return	{getSfxJibResult}
+ */
 function display866( recordUniqueID, rawDataArrayOf866 ) {
+	
+	/**
+	 * Array of values from field 866
+	 * @type {array}
+	 */
 	var arrayOf866 = {};
 	
+	/**
+	 * Institute ID.
+	 * @type {string}
+	 */
 	var institute = 'MZK'; // @FIXME this is temporary hard-coded
 	
 	if (false != rawDataArrayOf866) {

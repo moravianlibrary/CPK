@@ -92,6 +92,12 @@
   <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
   <script>
 
+    /**
+     * Removes active state from Buy Link when there are no buyLinks
+     *
+     * @param {array} buyLinks
+     * @return {void}
+     */
   	function disableBuyTab( buyLinks )
 	{
 		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
