@@ -133,15 +133,14 @@
 
 	});
   </script>
-  <?php
-  $related = $this->related();
-  $list = $related->getList($this->driver);
-  foreach ($list as $current) {
-  	echo $related->render($current);
-  }
-
-
-  ?>
+  
+	<?php
+        $related = $this->related();
+        $list = $related->getList($this->driver);
+        foreach ($list as $current) {
+            echo $related->render($current);
+        }
+    ?>
 
   </div>
 </div>

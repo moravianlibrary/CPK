@@ -34,6 +34,7 @@ abstract class AbstractHttpClient
 {
 	/**
 	 * TrustSSLHost
+	 * 
 	 * @var	boolean
 	 */
 	protected $trustSSLHost;
@@ -130,12 +131,22 @@ abstract class AbstractHttpClient
 	}
 	
 
+	/**
+	 * Returns whether given string is in JSON
+	 * 
+	 * @param boolean
+	 */
 	protected function isJson($string)
 	{
 		json_decode($string);
 		return (json_last_error() == JSON_ERROR_NONE);
 	}
 	
+	/**
+	 * Returns whether given string is in XML
+	 *
+	 * @param boolean
+	 */
 	protected function isXml($string)
 	{
 		@$xml = simplexml_load_string($string);

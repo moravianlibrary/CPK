@@ -357,36 +357,71 @@ class SolrMarc extends ParentSolrMarc
         return false;
     }
 
+    /**
+     * Returns perent record ID from SOLR
+     * 
+     * @return  string
+     */
     public function getParentRecordID()
     {
         return isset($this->fields['parent_id_str']) ? $this->fields['parent_id_str'] : [];
     }
 
+    /**
+     * Returns link to antikvariaty from SOLR
+     *
+     * @return  string
+     */
     public function getAntikvariatyLink()
     {
         return isset($this->fields['external_links_str_mv'][0]) ? $this->fields['external_links_str_mv'][0] : false;
     }
 
+    /**
+     * Returns links from SOLR indexed from 856
+     *
+     * @return  string
+     */
     public function get856Links()
     {
-        return isset($this->fields['url']) ? $this->fields['url'] : false;
+        return array($this->fields['url']) ? $this->fields['url'] : false;
     }
 
+    /**
+     * Returns data from SOLR representing links and metadata to access SFX
+     *
+     * @return  array
+     */
     public function get866Data()
     {
     	return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : false;
     }
 
+    /**
+     * Returns document range info from field 300
+     *
+     * @return  array
+     */
     public function getRange()
     {
     	return $this->getFieldArray('300');
     }
 
+    /**
+     * Returns document release info from field 250
+     *
+     * @return  array
+     */
     public function getRelease()
     {
     	return $this->getFieldArray('250');
     }
 
+    /**
+     * Returns all ISSNs, ISBNs and ISMNs from SOLR
+     *
+     * @return  string
+     */
     public function getIsn()
     {
     	return isset($this->fields['issnIsbnIsmn_search_str_mv'][0]) ? $this->fields['issnIsbnIsmn_search_str_mv'][0] : false;

@@ -88,7 +88,6 @@ class RecordController extends RecordControllerBase
 
 
         // get number of links
-
         $field866 = $this->get866Data();
         $noLinksFrom856 = $linksFrom856 === false ? 0 : count($linksFrom856);
         $noLinksFrom866 = $field866 === false ? 0 : count($field866);
@@ -118,6 +117,11 @@ class RecordController extends RecordControllerBase
         return $view;
     }
 
+    /**
+     * Returns links from SOLR indexed from 856
+     *
+     * @return  string
+     */
     protected function get856Links()
     {
         $parentRecordID = $this->driver->getParentRecordID();
@@ -127,6 +131,12 @@ class RecordController extends RecordControllerBase
         return $links;
     }
 
+
+    /**
+     * Returns data from SOLR representing links and metadata to access SFX
+     *
+     * @return  array
+     */
     protected function get866Data()
     {
     	$parentRecordID = $this->driver->getParentRecordID();
