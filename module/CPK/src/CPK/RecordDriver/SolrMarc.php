@@ -212,7 +212,8 @@ class SolrMarc extends ParentSolrMarc
 
                         // instead of agency_id set bibId so that aleph driver knows what bibId he has to build the query on
 
-                        $bibId = array_pop(explode('.', $id));
+                        $explodedId = explode('.', $id);
+                        $bibId = array_pop($explodedId);
                         $holding['agency_id'] = $bibId;
                     } else {
                         // We actually cannot process Aleph holdings without complete item id ..
