@@ -35,6 +35,7 @@ namespace CPK\ILS\Driver;
 
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
 use VuFind\ILS\Driver\SolrIdResolver as SolrIdResolverBase;
+use VuFind\ILS\Driver\AlephRestfulException;
 
 class Aleph extends AlephBase
 {
@@ -95,6 +96,71 @@ class Aleph extends AlephBase
             if (isset($this->config['LocaleToLangMapping'][$this->alephLocale]))
                 $this->alephLocale = $this->config['LocaleToLangMapping'][$this->alephLocale];
         }
+    }
+
+    /**
+     * Cancel Holds
+     *
+     * Attempts to Cancel a hold or recall on a particular item. The
+     * data in $cancelDetails['details'] is determined by getCancelHoldDetails().
+     *
+     * @param array $details
+     *            An array of item and patron data
+     *
+     * @return array An array of data on each request including
+     *         whether or not it was successful and a system message (if available)
+     */
+    public function cancelHolds($details)
+    {
+        $patron = $details['patron'];
+        $patronId = $patron['id'];
+        $count = 0;
+        $statuses = array();
+
+        $statuses['fails'] = 0;
+
+        foreach ($details['details'] as $id) {
+
+            try {
+                $result = $this->alephWebService->doRestDLFRequest(
+                    array(
+                        'patron',
+                        $patronId,
+                        'circulationActions',
+                        'requests',
+                        'holds',
+                        $id
+                    ), null, "DELETE");
+            } catch (\Exception $ex) {
+                $statuses[$id] = array(
+                    'success' => false,
+                    'status' => 'cancel_hold_failed',
+                    'sysMessage' => $ex->getMessage()
+                );
+                continue;
+            }
+
+            $reply_code = $result->{'reply-code'};
+            if ($reply_code != "0000") {
+                $message = $result->{'del-pat-hold'}->{'note'};
+                if ($message == null) {
+                    $message = $result->{'reply-text'};
+                }
+                $statuses[$id] = array(
+                    'success' => false,
+                    'status' => 'cancel_hold_failed',
+                    'sysMessage' => (string) $message
+                );
+            } else {
+                $count ++;
+                $statuses[$id] = array(
+                    'success' => true,
+                    'status' => 'cancel_hold_ok'
+                );
+            }
+        }
+        $statuses['count'] = $count;
+        return $statuses;
     }
 
     public function getMyProfile($user)

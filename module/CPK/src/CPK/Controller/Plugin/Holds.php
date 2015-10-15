@@ -42,39 +42,6 @@ class Holds extends HoldsBase
 {
 
     /**
-     * Update ILS details with cancellation-specific information, if appropriate.
-     *
-     * @param \VuFind\ILS\Connection $catalog
-     *            ILS connection object
-     * @param array $ilsDetails
-     *            Hold details from ILS driver's
-     *            getMyHolds() method
-     * @param array $cancelStatus
-     *            Cancel settings from ILS driver's
-     *            checkFunction() method
-     *
-     * @return array $ilsDetails with cancellation info added
-     */
-    public function addCancelDetails($catalog, $ilsDetails, $cancelStatus)
-    {
-        // Generate Form Details for cancelling Holds if Cancelling Holds
-        // is enabled
-        if ($cancelStatus) {
-            if ($cancelStatus['function'] == "getCancelHoldLink") {
-                // Build OPAC URL
-                $ilsDetails['cancel_link'] = $catalog->getCancelHoldLink($ilsDetails);
-            } else {
-                // Form Details
-                $ilsDetails['cancel_details'] = $catalog->getCancelHoldDetails(
-                    $ilsDetails);
-                $this->rememberValidId($ilsDetails['cancel_details']);
-            }
-        }
-
-        return $ilsDetails;
-    }
-
-    /**
      * Process cancellation requests.
      *
      * @param \VuFind\ILS\Connection $catalog
@@ -141,13 +108,8 @@ class Holds extends HoldsBase
             foreach ($details as $info) {
                 // If the user input contains a value not found in the session
                 // whitelist, something has been tampered with -- abort the process.
-                if (! in_array($info, $this->getSession()->validIds)) {
-
-                    if (! $isSynchronous) {
-                        return [
-                            'error' => 'error_inconsistent_parameters'
-                        ];
-                    }
+                if ($isSynchronous && ! in_array($info,
+                    $this->getSession()->validIds)) {
 
                     $flashMsg->setNamespace('error')->addMessage(
                         'error_inconsistent_parameters');

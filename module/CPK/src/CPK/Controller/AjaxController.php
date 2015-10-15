@@ -158,11 +158,12 @@ class AjaxController extends AjaxControllerBase
 
         if (substr($isn, 0, 1) === 'M') {
             $isnKey = "rft.ismn";
-        } else if ((strlen($isn) === 8) OR (strlen($isn) === 9)) {
-            $isnKey = "rft.issn";
-        } else { // (strlen($isn) === 10) OR (strlen($isn) === 13)
-            $isnKey = "rft.isbn";
-        }
+        } else
+            if ((strlen($isn) === 8) or (strlen($isn) === 9)) {
+                $isnKey = "rft.issn";
+            } else { // (strlen($isn) === 10) OR (strlen($isn) === 13)
+                $isnKey = "rft.isbn";
+            }
 
         $params = array(
             'sfx.institute' => $institute,
@@ -439,7 +440,11 @@ class AjaxController extends AjaxControllerBase
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
 
-        $ilsDriver = $this->getILS()->getDriver();
+        $renderer = $this->getViewRenderer();
+
+        $catalog = $this->getILS();
+
+        $ilsDriver = $catalog->getDriver();
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
@@ -450,7 +455,7 @@ class AjaxController extends AjaxControllerBase
 
             try {
                 // Try to get the profile ..
-                $holds = $ilsDriver->getMyHolds($patron);
+                $holds = $catalog->getMyHolds($patron);
             } catch (\VuFind\Exception\ILS $e) {
 
                 // Something went wrong - include cat_username to properly
@@ -469,7 +474,68 @@ class AjaxController extends AjaxControllerBase
                 return $this->output($data, self::STATUS_ERROR);
             }
 
-            return $this->output($holds, self::STATUS_OK);
+            $recordList = $obalky = [];
+
+            $libraryIdentity = $this->createViewModel();
+
+            // Let's assume there is not avaiable any cancelling
+            $libraryIdentity->cancelForm = false;
+
+            $cancelStatus = $catalog->checkFunction('cancelHolds', compact('patron'));
+
+            foreach ($holds as $hold) {
+                // Add cancel details if appropriate:
+                $hold = $this->holds()->addCancelDetails($catalog, $hold,
+                    $cancelStatus);
+                if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink" &&
+                     isset($hold['cancel_details'])) {
+                    // Enable cancel form if necessary:
+                    $libraryIdentity->cancelForm = true;
+                }
+
+                // Build record driver:
+                $resource = $this->getDriverForILSRecord($hold);
+                $recordList[] = $resource;
+
+                $recordId = $resource->getUniqueId();
+                $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+                if ($bibInfo) {
+                    $recordId = "#cover_$recordId";
+
+                    $recordId = preg_replace("/[\.:]/", "", $recordId);
+
+                    $obalky[$recordId] = [
+                        'bibInfo' => $bibInfo,
+                        'advert' => $renderer->record($resource)->getObalkyKnihAdvert(
+                            'checkedout')
+                    ];
+                }
+            }
+
+            // Get List of PickUp Libraries based on patron's home library
+            try {
+                $libraryIdentity->pickup = $catalog->getPickUpLocations($patron);
+            } catch (\Exception $e) {
+                // Do nothing; if we're unable to load information about pickup
+                // locations, they are not supported and we should ignore them.
+            }
+
+            $libraryIdentity->recordList = $recordList;
+
+            $html = $renderer->render('myresearch/holds-from-identity.phtml',
+                [
+                    'libraryIdentity' => $libraryIdentity,
+                    'AJAX' => true
+                ]);
+
+            $toRet = [
+                'html' => $html,
+                'obalky' => $obalky,
+                'canCancel' => $libraryIdentity->cancelForm,
+                'cat_username' => str_replace('.', '\.', $cat_username)
+            ];
+
+            return $this->output($toRet, self::STATUS_OK);
         } else
             return $this->output(
                 "ILS Driver isn't instanceof MultiBackend - ending job now.",
@@ -574,39 +640,23 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
-     * Filter dates in future
+     * Get a record driver object corresponding to an array returned by an ILS
+     * driver's getMyHolds / getMyTransactions method.
+     *
+     * @param array $current
+     *            Record information
+     *
+     * @return \VuFind\RecordDriver\AbstractBase
      */
-    protected function processFacetValues($fields, $results)
+    protected function getDriverForILSRecord($current)
     {
-        $facets = $results->getFullFieldFacets(array_keys($fields));
-        $retVal = [];
-        $currentYear = date("Y");
-        foreach ($facets as $field => $values) {
-            $newValues = [
-                'data' => []
-            ];
-            foreach ($values['data']['list'] as $current) {
-                // Only retain numeric values!
-                if (preg_match("/^[0-9]+$/", $current['value'])) {
-                    if ($current['value'] < $currentYear) {
-                        $data[$current['value']] = $current['count'];
-                    }
-                }
-            }
-            ksort($data);
-            $newValues = array(
-                'data' => array()
-            );
-            foreach ($data as $key => $value) {
-                $newValues['data'][] = array(
-                    $key,
-                    $value
-                );
-            }
-            $retVal[$field] = $newValues;
-        }
-
-        return $retVal;
+        $id = isset($current['id']) ? $current['id'] : null;
+        $source = isset($current['source']) ? $current['source'] : 'VuFind';
+        $record = $this->getServiceLocator()
+            ->get('VuFind\RecordLoader')
+            ->load($id, $source, true);
+        $record->setExtraDetail('ils_details', $current);
+        return $record;
     }
 
     protected function getTranslatedUnknownStatus($viewRend)
@@ -661,70 +711,38 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
-     * Comment on a record.
-     *
-     * @return \Zend\Http\Response
+     * Filter dates in future
      */
-    protected function commentRecordObalkyKnihAjax()
+    protected function processFacetValues($fields, $results)
     {
-        //TODO: user should not be able to add more than one comment
-        $user = $this->getUser();
-        if ($user === false) {
-            return $this->output(
-                $this->translate('You must be logged in first'),
-                self::STATUS_NEED_AUTH
+        $facets = $results->getFullFieldFacets(array_keys($fields));
+        $retVal = [];
+        $currentYear = date("Y");
+        foreach ($facets as $field => $values) {
+            $newValues = [
+                'data' => []
+            ];
+            foreach ($values['data']['list'] as $current) {
+                // Only retain numeric values!
+                if (preg_match("/^[0-9]+$/", $current['value'])) {
+                    if ($current['value'] < $currentYear) {
+                        $data[$current['value']] = $current['count'];
+                    }
+                }
+            }
+            ksort($data);
+            $newValues = array(
+                'data' => array()
             );
+            foreach ($data as $key => $value) {
+                $newValues['data'][] = array(
+                    $key,
+                    $value
+                );
+            }
+            $retVal[$field] = $newValues;
         }
 
-        $id = $this->params()->fromPost('id');
-        $comment = $this->params()->fromPost('comment');
-        if (empty($id) || empty($comment)) {
-            return $this->output(
-                $this->translate('An error has occurred'), self::STATUS_ERROR
-            );
-        }
-
-        $table = $this->getTable('Resource');
-        $resource = $table->findResource(
-            $id, $this->params()->fromPost('source', 'VuFind')
-        );
-        $id = $resource->addComment($comment, $user);
-
-
-        //obalky
-        $bookid = $this->params()->fromPost('obalkyknihbookid');
-        ////////////////////////////////////////////
-        $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/?add_review=true');
-        $client->setMethod('POST');
-        $client->setParameterGet(array(
-            'book_id' => $bookid ,
-            'id' => $id,
-        ));
-        $client->setParameterPost(array(
-            'review_text' => $comment,
-        ));
-        $response = $client->send();
-        $responseBody = $response->getBody();
-        if($responseBody == "ok")
-            return $this->output($id, self::STATUS_OK);
-
-        return $this->output($responseBody, self::STATUS_ERROR);
-
-    }
-
-    /**
-     * Get list of comments for a record as HTML.
-     *
-     * @return \Zend\Http\Response
-     */
-    protected function getRecordCommentsObalkyKnihAsHTMLAjax()
-    {
-        $driver = $this->getRecordLoader()->load(
-            $this->params()->fromQuery('id'),
-            $this->params()->fromQuery('source', 'VuFind')
-        );
-        $html = $this->getViewRenderer()
-            ->render('record/comments-list-obalkyknih.phtml', ['driver' => $driver]);
-        return $this->output($html, self::STATUS_OK);
+        return $retVal;
     }
 }

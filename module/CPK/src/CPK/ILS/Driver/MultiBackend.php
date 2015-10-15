@@ -71,6 +71,11 @@ class MultiBackend extends MultiBackendBase
         if (count($cancelDetails['details']) > 0) {
             $driver = $this->getDriver($patronSource);
             if ($driver) {
+                foreach($cancelDetails['details'] as $key => $detail) {
+                    // stripIdPrefixed does not work correctly here ..
+                    $cancelDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
+                }
+
                 return $driver->cancelHolds(
                     $this->stripIdPrefixes($cancelDetails, $patronSource));
             }
@@ -108,7 +113,7 @@ class MultiBackend extends MultiBackendBase
             // don't know whether there is a source already, we have to do that this way
             $hasSource = count(explode('.', $cancelHoldDetails)) > 1;
 
-            if (! $hasSource) {
+            if ($cancelHoldDetails !== null && ! $hasSource) {
                 return "$source.$cancelHoldDetails";
             }
 

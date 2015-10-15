@@ -139,6 +139,14 @@ class MyResearchController extends MyResearchControllerBase
         // Connect to the ILS:
         $catalog = $this->getILS();
 
+        $config = $catalog->getDriverConfig();
+
+        if (isset($config['General']['async_holds']) &&
+             $config['General']['async_holds'])
+            $isSynchronous = false;
+        else
+            $isSynchronous = true;
+
         $viewVars = $patrons = [];
 
         $identities = $user->getLibraryCards();
@@ -153,7 +161,7 @@ class MyResearchController extends MyResearchControllerBase
             // Process cancel requests if necessary:
             $cancelStatus = $catalog->checkFunction('cancelHolds', compact('patron'));
             $patron['cancelResults'] = $cancelStatus ? $this->holds()->cancelHolds(
-                $catalog, $patron) : [];
+                $catalog, $patron, $isSynchronous) : [];
             // If we need to confirm
             if (! is_array($patron['cancelResults'])) {
                 return $patron['cancelResults'];
@@ -165,54 +173,52 @@ class MyResearchController extends MyResearchControllerBase
 
         $this->holds()->resetValidation();
 
-        if (isset($config['General']['async_holds']) &&
-            $config['General']['async_holds'])
-                $isSynchronous = false;
-            else
-                $isSynchronous = true;
-
-        // Now process actual holds rendering
+            // Now process actual holds rendering
         foreach ($patrons as $eppn => $patron) {
 
             $currentIdentityView = $this->createViewModel();
 
-            // Append cancelResults from previous iteration ..
+
+                // Append cancelResults from previous iteration ..
             $currentIdentityView->cancelResults = $patron['cancelResults'];
 
-            // Get held item details:
-            $result = $catalog->getMyHolds($patron);
-            $recordList = [];
+            if ($isSynchronous) {
+                // Get held item details:
+                $result = $catalog->getMyHolds($patron);
+                $recordList = [];
 
-            // Let's assume there is not avaiable any cancelling
-            $currentIdentityView->cancelForm = false;
+                // Let's assume there is not avaiable any cancelling
+                $currentIdentityView->cancelForm = false;
 
-            foreach ($result as $current) {
-                // Add cancel details if appropriate:
-                $current = $this->holds()->addCancelDetails($catalog, $current,
-                    $cancelStatus);
-                if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink" &&
-                     isset($current['cancel_details'])) {
-                    // Enable cancel form if necessary:
-                    $currentIdentityView->cancelForm = true;
+                foreach ($result as $current) {
+                    // Add cancel details if appropriate:
+                    $current = $this->holds()->addCancelDetails($catalog, $current,
+                        $cancelStatus);
+                    if ($cancelStatus &&
+                         $cancelStatus['function'] != "getCancelHoldLink" &&
+                         isset($current['cancel_details'])) {
+                        // Enable cancel form if necessary:
+                        $currentIdentityView->cancelForm = true;
+                    }
+
+                    // Build record driver:
+                    $recordList[] = $this->getDriverForILSRecord($current);
                 }
 
-                // Build record driver:
-                $recordList[] = $this->getDriverForILSRecord($current);
-            }
+                // Get List of PickUp Libraries based on patron's home library
+                try {
+                    $currentIdentityView->pickup = $catalog->getPickUpLocations(
+                        $patron);
+                } catch (\Exception $e) {
+                    // Do nothing; if we're unable to load information about pickup
+                    // locations, they are not supported and we should ignore them.
+                }
+                $currentIdentityView->recordList = $recordList;
+            } else // This means we have async deal ..
+                $currentIdentityView->cat_username = $patron['cat_username'];
 
-            // Get List of PickUp Libraries based on patron's home library
-            try {
-                $currentIdentityView->pickup = $catalog->getPickUpLocations($patron);
-            } catch (\Exception $e) {
-                // Do nothing; if we're unable to load information about pickup
-                // locations, they are not supported and we should ignore them.
-            }
-            $currentIdentityView->recordList = $recordList;
-            // End of VuFind/MyResearch/holdsAction
-
-            // Start of MZKCommon/MyResearch/holdsAction
+            // Unknown purpose .. copied from parent MZKCommon ..
             $currentIdentityView = $this->addViews($currentIdentityView);
-            // End of MZKCommon/MyResearch/holdsAction
 
             $viewVars['libraryIdentities'][$eppn] = $currentIdentityView;
         }

@@ -306,7 +306,7 @@ AllFields:
     - title_new^100
     - series^50
     - series2^30
-    - author_search^300
+    - author_search^700
     - author_fuller^150
     - contents^10
     - topic_unstemmed^550
