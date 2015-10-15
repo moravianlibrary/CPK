@@ -107,6 +107,11 @@ $config = array(
             'ajax' => 'CPK\Controller\AjaxController'
         ), /* invokables */
     ), /* controllers */
+    'controller_plugins' => [
+        'factories' => [
+            'holds' => 'CPK\Controller\Plugin\Factory::getHolds',
+        ],
+    ],
     'service_manager' => array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',

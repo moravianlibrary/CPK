@@ -65,10 +65,10 @@ class MultiBackend extends MultiBackendBase
         // & doesn't care about the institutions the hold belongs in compared to passed
         // patron array - which is always only one in order to properly determine
         // current patron being iterated
-        $cancelDetailsForCurrentPatron = $this->getCancelDetailsFromCurrentSource(
+        $cancelDetails['details'] = $this->getCancelDetailsFromCurrentSource(
             $patronSource, $cancelDetails['details']);
 
-        if (count($cancelDetailsForCurrentPatron) > 0) {
+        if (count($cancelDetails['details']) > 0) {
             $driver = $this->getDriver($patronSource);
             if ($driver) {
                 return $driver->cancelHolds(
@@ -78,7 +78,6 @@ class MultiBackend extends MultiBackendBase
         } else
             return [
                 'count' => 0,
-                'validIDS' => array_diff($cancelDetails['details'], $cancelDetailsForCurrentPatron)
             ];
     }
 
@@ -103,9 +102,17 @@ class MultiBackend extends MultiBackendBase
         if ($driver) {
             $holdDetails = $this->stripIdPrefixes($holdDetails, $source);
 
-            // Because we know "getCancelHoldDetails" returns string, we can append
-            // the source directly back
-            return "$source.{$driver->getCancelHoldDetails($holdDetails)}";
+            $cancelHoldDetails = $driver->getCancelHoldDetails($holdDetails);
+
+            // Since addIdPrefixes is unable to ammend source to string & we
+            // don't know whether there is a source already, we have to do that this way
+            $hasSource = count(explode('.', $cancelHoldDetails)) > 1;
+
+            if (! $hasSource) {
+                return "$source.$cancelHoldDetails";
+            }
+
+            return $cancelHoldDetails;
         }
         throw new ILSException('No suitable backend driver found');
     }

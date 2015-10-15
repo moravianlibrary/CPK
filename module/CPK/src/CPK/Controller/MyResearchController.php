@@ -136,51 +136,55 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forwardTo('MyResearch', 'Home');
         }
 
-        $identities = $user->getLibraryCards();
-
-        $viewVars = $libraryIdentities = [];
-
         // Connect to the ILS:
         $catalog = $this->getILS();
 
-        $config = $catalog->getDriverConfig();
+        $viewVars = $patrons = [];
 
-        if (isset($config['General']['async_holds']) &&
-             $config['General']['async_holds'])
-            $isSynchronous = false;
-        else
-            $isSynchronous = true;
+        $identities = $user->getLibraryCards();
 
-        $viewVars['isSynchronous'] = $isSynchronous;
-
+        // Process cancel jobs if any ..
         foreach ($identities as $identity) {
 
             $patron = $user->libCardToPatronArray($identity);
+
             // Start of VuFind/MyResearch/holdsAction
 
             // Process cancel requests if necessary:
             $cancelStatus = $catalog->checkFunction('cancelHolds', compact('patron'));
-            $currentIdentityView = $this->createViewModel();
-            $currentIdentityView->cancelResults = $cancelStatus ? $this->holds()->cancelHolds(
+            $patron['cancelResults'] = $cancelStatus ? $this->holds()->cancelHolds(
                 $catalog, $patron) : [];
             // If we need to confirm
-            if (! is_array($currentIdentityView->cancelResults)) {
-                return $currentIdentityView->cancelResults;
+            if (! is_array($patron['cancelResults'])) {
+                return $patron['cancelResults'];
             }
 
-            // By default, assume we will not need to display a cancel form:
-            $currentIdentityView->cancelForm = false;
+            $eppn = $patron['eppn'];
+            $patrons[$eppn] = $patron;
+        }
+
+        $this->holds()->resetValidation();
+
+        if (isset($config['General']['async_holds']) &&
+            $config['General']['async_holds'])
+                $isSynchronous = false;
+            else
+                $isSynchronous = true;
+
+        // Now process actual holds rendering
+        foreach ($patrons as $eppn => $patron) {
+
+            $currentIdentityView = $this->createViewModel();
+
+            // Append cancelResults from previous iteration ..
+            $currentIdentityView->cancelResults = $patron['cancelResults'];
 
             // Get held item details:
             $result = $catalog->getMyHolds($patron);
             $recordList = [];
-            $this->holds()->resetValidation();
 
-            // Add validIDS which could not be processed by MultiBackend ...
-            if (isset($currentIdentityView->cancelResults['validIDS']))
-                foreach ($currentIdentityView->cancelResults['validIDS'] as $validID) {
-                    $this->holds()->rememberValidId($validID);
-                }
+            // Let's assume there is not avaiable any cancelling
+            $currentIdentityView->cancelForm = false;
 
             foreach ($result as $current) {
                 // Add cancel details if appropriate:
@@ -210,11 +214,13 @@ class MyResearchController extends MyResearchControllerBase
             $currentIdentityView = $this->addViews($currentIdentityView);
             // End of MZKCommon/MyResearch/holdsAction
 
-            $libraryIdentities[$identity['eppn']] = $currentIdentityView;
+            $viewVars['libraryIdentities'][$eppn] = $currentIdentityView;
         }
 
-        $viewVars['libraryIdentities'] = $libraryIdentities;
         $viewVars['logos'] = $user->getIdentityProvidersLogos();
+
+        $viewVars['isSynchronous'] = $isSynchronous;
+
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;

@@ -147,7 +147,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @param string $xml
      *            XML request document
      *
-     * @return object SimpleXMLElement parsed from response
+     * @return \SimpleXMLElement parsed from response
      */
     protected function sendRequest($xml)
     {
@@ -251,61 +251,72 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     {
         $holds = $this->getMyHolds($cancelDetails['patron']);
         $items = array();
-        foreach ($cancelDetails['details'] as $recent) {
-            foreach ($holds as $onehold) {
-                if ($onehold['id'] == $recent) {
-                    if (empty($onehold['item_id'])) { // This means we found an biblio-leveled reserve
-                        $request_id = $onehold['reqnum'];
 
-                        if (empty($request_id)) {
+        $problemValue = null;
+
+        $desiredRequestFound = $problemOccurred = false;
+
+        foreach ($cancelDetails['details'] as $recent) {
+            foreach ($holds as $hold) {
+                if ($hold['item_id'] == $recent) { // Item-leveled cancel request
+
+                    $desiredRequestFound = true;
+
+                    $request = $this->requests->cancelHoldUsingItemId($recent,
+                        $cancelDetails['patron']['id']);
+                    $response = $this->sendRequest($request);
+
+                    $problem = $this->useXPath($response, 'NCIPMessage/CancelRequestItemResponse/Problem');
+
+                    if ($problem !== false && is_array($problem) && count($problem) > 0) {
+                        $problemValue = $this->getFirstXPathMatchAsString($problem, 'ProblemValue');
+                        $problemDetail = $this->getFirstXPathMatchAsString($problem, 'ProblemDetail');
+
+                        $problemOccurred = true;
+                    }
+
+                    $rawResponse = $response->asXML();
+                    // TODO: Process Problem elements
+
+                    break;
+                } else
+                    if ($hold['id'] == $recent) { // Biblio-leveled cancel request
+
+                        $request_id = $hold['reqnum'];
+
+                        if (! $request_id > 0) {
                             $message = 'XCNCIP2 Driver cannot cancel biblio-leveled request without request id!';
 
                             $this->addEnviromentalException($message);
                             throw new ILSException($message);
                         }
 
-                        $item_id = null;
-                    } else {
-                        $request_id = null;
-                        $item_id = $onehold['item_id'];
+                        $desiredRequestFound = true;
+
+                        $request = $this->requests->cancelHoldUsingRequestId(
+                            $request_id, $cancelDetails['patron']['id']);
+                        $response = $this->sendRequest($request);
+                        // TODO: Process Problem elements
+
+                        $rawResponse = $response->asXML();
+                        break;
                     }
-                    break;
-                }
             }
-            if (empty($item_id) && empty($request_id)) {
-                $items[$recent] = array(
-                    'success' => false,
-                    'status' => '',
-                    'sysMessage' => ''
-                );
-            } elseif (! empty($item_id)) {
-                $request = $this->requests->cancelHoldUsingItemId($item_id,
-                    $cancelDetails['patron']['id']);
-                $response = $this->sendRequest($request);
-                // TODO: Process Problem elements
 
-                $items[$item_id] = array(
-                    'success' => true,
-                    'status' => '',
-                    'sysMessage' => ''
-                );
-            } else {
-                $request = $this->requests->cancelHoldUsingRequestId($request_id,
-                    $cancelDetails['patron']['id']);
-                $response = $this->sendRequest($request);
-                // TODO: Process Problem elements
+            $didWeTheJob = $desiredRequestFound && ! $problemOccurred;
 
-                $items[$item_id] = array(
-                    'success' => true,
-                    'status' => '',
-                    'sysMessage' => ''
-                );
-            }
+            $items[$recent] = array(
+                'success' => $didWeTheJob,
+                'status' => '',
+                'sysMessage' => isset($problemValue) ?:''
+            );
         }
+
         $retVal = array(
             'count' => count($items),
             'items' => $items
         );
+
         return $retVal;
     }
 
@@ -405,7 +416,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getCancelHoldDetails($holdDetails)
     {
-        return $holdDetails['id'];
+        return $holdDetails['item_id'];
     }
 
     /**
@@ -814,12 +825,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 foreach ($locationNameInstances as $locationNameInstance) {
                     // FIXME: Create config to map location abbreviations of each institute into human readable values
 
-                    $locationLevel = $this->getFirstXPathMatchAsString($locationNameInstance,
-                        '//LocationNameLevel');
+                    $locationLevel = $this->getFirstXPathMatchAsString(
+                        $locationNameInstance, '//LocationNameLevel');
 
                     if ($locationLevel == 4) {
-                        $department = $this->getFirstXPathMatchAsString($locationNameInstance,
-                            '//LocationNameValue');
+                        $department = $this->getFirstXPathMatchAsString(
+                            $locationNameInstance, '//LocationNameValue');
                     } else
                         if ($locationLevel == 3) {
                             $sublibrary = $this->getFirstXPathMatchAsString(
@@ -1514,7 +1525,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *
      * @param \SimpleXMLElement $xmlObject
      * @param string $xPath
-     * @return boolean
+     * @return boolean false || string
      */
     protected function getFirstXPathMatchAsString(\SimpleXMLElement $xmlObject,
         $xPath)

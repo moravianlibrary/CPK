@@ -16,15 +16,8 @@
     <h2><?=$this->transEsc('Your Holds and Recalls') ?></h2>
 
     <?=$this->flashmessages()?>
-    <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-        $eppnHostname = explode("@", $eppn)[1];
-        if ($logos !== null)
-            $libraryLogo = $logos->$eppnHostname; ?>
+    <? foreach($this->libraryIdentities as $eppn => $libraryIdentity): ?>
 
-    <h3 class="well row" style="margin-bottom: 3px;">
-    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
-    </h3>
     <? if (!empty($libraryIdentity->recordList)): ?>
       <? if ($libraryIdentity->cancelForm): ?>
         <form name="cancelForm" class="inline" method="post" id="cancelHold">
@@ -46,7 +39,22 @@
               <li><a href="#" onClick="return false;"><?=$this->transEsc('confirm_dialog_no')?></a></li>
             </ul>
           </div>
-      <? endif; ?>
+          </form>
+      <? break; endif; endif; ?>
+
+    <? endforeach; ?>
+    <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
+        $eppnHostname = explode("@", $eppn)[1];
+        if ($logos !== null)
+            $libraryLogo = $logos->$eppnHostname; ?>
+
+    <h3 class="well row" style="margin-bottom: 3px;">
+    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
+    </h3>
+
+    <? if ($isSynchronous): ?>
+    <? if (!empty($libraryIdentity->recordList)): ?>
 
       <? $iteration = 0; ?>
       <? foreach ($libraryIdentity->recordList as $resource): ?>
@@ -55,9 +63,9 @@
         <div id="record<?=$this->escapeHtmlAttr($resource->getUniqueId()) ?>" class="row well" style="margin-bottom: 2px;">
           <? if ($libraryIdentity->cancelForm && isset($ilsDetails['cancel_details'])): ?>
             <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $resource->getUniqueId()); ?>
-            <input type="hidden" name="cancelAllIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" />
+            <input form="cancelHold" type="hidden" name="cancelAllIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" />
             <div class="col-xs-1">
-              <input type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
+              <input form="cancelHold" type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
             </div>
           <? endif; ?>
           <div class="col-md-2 text-center">
@@ -171,13 +179,16 @@
           </div>
         </div>
       <? endforeach; ?>
-      <? if ($libraryIdentity->cancelForm): ?></form><? endif; ?>
     <? else: ?>
     <div class="row well" style="margin-bottom: 2px;">
       <div class="label label-info">
       <?=$this->transEsc('You do not have any holds or recalls placed in this institution') ?>.
       </div>
     </div>
+    <? endif; ?>
+    <? else: // TODO End of "isSynchronous condition .." - now we are dealing with asynchronous holds ..?>
+
+
     <? endif; ?>
     <? endforeach; ?>
   </div>
