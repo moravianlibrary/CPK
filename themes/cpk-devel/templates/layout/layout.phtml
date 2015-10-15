@@ -1,5 +1,5 @@
 <?=$this->doctype('HTML5')?>
-<html lang="<?=$this->layout()->userLang?>">
+<html lang="<?=explode("-", $this->layout()->userLang)[0]?>">
   <head>
     <?$this->headThemeResources()?>
     <meta charset="utf-8">
