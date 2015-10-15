@@ -43,7 +43,7 @@ function updateHolds(response) {
 	    if (obalkyLocal.hasOwnProperty(id)) {
 		var obalka = obalkyLocal[id];
 
-		obalky.display_thumbnail(id, obalka.bibInfo, obalka.advert);
+		obalky.fetchImage(id, obalka.bibInfo, obalka.advert, 'icon');
 	    }
 	}
     }

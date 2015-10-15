@@ -502,6 +502,8 @@ class AjaxController extends AjaxControllerBase
                 if ($bibInfo) {
                     $recordId = "#cover_$recordId";
 
+                    $bibInfo = json_decode($bibInfo);
+
                     $recordId = preg_replace("/[\.:]/", "", $recordId);
 
                     $obalky[$recordId] = [

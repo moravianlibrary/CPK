@@ -29,23 +29,30 @@ obalky.imageIsLoaded = obalky.imageIsLoaded || function (image) {
   return (image.height > 1 && image.width > 1);
 }
 
+obalky.fetchImage = obalky.fetchImage || function (element, bibinfo, query, type) {
+	    var img = new Image();
+
+	    var multi = encodeURIComponent(JSON.stringify(bibinfo));
+	    img.onload = function() {
+	      if (obalky.imageIsLoaded(img)) {
+	        var href = obalky.coverTargetUrl(bibinfo);
+	        var dim = "height='80' width='63'";
+	        if (type == "thumbnail") {
+	            dim = "height='36' width='27'";
+	        }
+	        $(element).html("<a href='" + href + "' class='title'><img src='" + img.src + "' alt='" + obalky.coverText + "' " + dim + "></img></a>");
+	      }
+	    }
+	    img.src = obalky.coverUrl + "?multi=" + multi + "&type=" + type  + "&keywords=" + encodeURIComponent(query);
+}
+
 obalky.display_thumbnail = obalky.display_thumbnail || function (element, bibinfo, query, type) {
   type = type || "icon";
-  var multi = encodeURIComponent(JSON.stringify(bibinfo));
-  $(document).ready(function() {
-    var img = new Image();
-    img.onload = function() {
-      if (obalky.imageIsLoaded(img)) {
-        var href = obalky.coverTargetUrl(bibinfo);
-        var dim = "height='80' width='63'";
-        if (type == "thumbnail") {
-            dim = "height='36' width='27'";
-        }
-        $(element).html("<a href='" + href + "' class='title'><img src='" + img.src + "' alt='" + obalky.coverText + "' " + dim + "></img></a>");
-      }
-    }
-    img.src = obalky.coverUrl + "?multi=" + multi + "&type=" + type  + "&keywords=" + encodeURIComponent(query);
-  });
+  
+  $(document).ready(
+	  obalky.fetchImage(element, bibinfo, query, type)
+  );
+  
 }
 
 obalky.display_cover = obalky.display_cover || function (element, bibinfo, query) {
