@@ -92,6 +92,27 @@ function refreshCommentList(recordId, recordSource) {
   });
 }
 
+function refreshCommentListObalkyKnih(recordId, recordSource) {
+  var url = path + '/AJAX/JSON?' + $.param({method:'getRecordCommentsObalkyKnihAsHTML',id:recordId,'source':recordSource});
+  $.ajax({
+    dataType: 'json',
+    url: url,
+    success: function(response) {
+      // Update HTML
+      if (response.status == 'OK') {
+        $('#commentList').empty();
+        $('#commentList').append(response.data);
+        $('input[type="submit"]').button('reset');
+        $('.delete').unbind('click').click(function() {
+          var commentId = $(this).attr('id').substr('recordComment'.length);
+          deleteRecordComment(this, recordId, recordSource, commentId);
+          return false;
+        });
+      }
+    }
+  });
+}
+
 function registerAjaxCommentRecord() {
   // Form submission
   $('form[name="commentRecord"]').unbind('submit').submit(function(){
@@ -126,9 +147,47 @@ function registerAjaxCommentRecord() {
   $('.delete').click(function(){deleteRecordComment(this, $('.hiddenId').val(), $('.hiddenSource').val(), this.id.substr(13));return false;});
 }
 
+
+function registerAjaxCommentRecordObalkyKnih() {
+  // Form submission
+  $('form[name="commentRecordObalkyKnih"]').unbind('submit').submit(function(){
+    var form = this;
+    var id = form.id.value;
+    var recordSource = form.source.value;
+    var obalkyknihbookid = form.obalkyknihbookid.value;
+    var url = path + '/AJAX/JSON?' + $.param({method:'commentRecordObalkyKnih'});
+    var data = {
+      comment:form.comment.value,
+      id:id,
+      source:recordSource,
+      obalkyknihbookid:obalkyknihbookid
+    };
+    $.ajax({
+      type: 'POST',
+      url:  url,
+      data: data,
+      dataType: 'json',
+      success: function(response) {
+        var form = 'form[name="commentRecord"]';
+        if (response.status == 'OK') {
+          refreshCommentListObalkyKnih(id, recordSource);
+          $(form).find('textarea[name="comment"]').val('');
+          $(form).find('input[type="submit"]').button('loading');
+        } else {
+          Lightbox.displayError(response.data);
+        }
+      }
+    });
+    return false;
+  });
+  // Delete links
+  $('.delete').click(function(){deleteRecordComment(this, $('.hiddenId').val(), $('.hiddenSource').val(), this.id.substr(13));return false;});
+}
+
 function registerTabEvents() {
   // register the record comment form to be submitted via AJAX
   registerAjaxCommentRecord();
+  registerAjaxCommentRecordObalkyKnih();
 
   setUpCheckRequest();
 

@@ -468,6 +468,26 @@ class SolrMarc extends ParentSolrMarc
         return $commentArray;
     }
 
+    /**
+     * Get bookid on obalkyknih.cz associated with this record.
+     *
+     * @return bookid
+     */
+    public function getObalkyKnihBookId()
+    {
+        $isbnArray = $this->getBibinfoForObalkyKnihV3();
+        $isbnJson = json_encode($isbnArray);
+        $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/api/books');
+        $client->setParameterGet(array(
+            'multi' => '[' . $isbnJson . ']'
+        ));
+        $response = $client->send();
+        $responseBody = $response->getBody();
+        $phpResponse = json_decode($responseBody, true);
+        $bookid = $phpResponse[0]['book_id'];
+        return $bookid;
+    }
+
 
     /**
      * Get an array of summary strings for the record.

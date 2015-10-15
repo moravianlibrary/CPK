@@ -6,10 +6,11 @@
 <div id="commentList">
   <?=$this->render('record/comments-list-obalkyknih.phtml')?>
 </div>
-<form class="comment row" name="commentRecord" id="commentRecord" action="<?=$this->recordLink()->getActionUrl($this->driver, 'AddComment')?>" method="post">
+<form class="comment row" name="commentRecordObalkyKnih" id="commentRecord" action="<?=$this->recordLink()->getActionUrl($this->driver, 'AddComment')?>" method="post">
   <div class="col-sm-3 name">
     <input type="hidden" name="id" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>"/>
     <input type="hidden" name="source" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>"/>
+    <input type="hidden" name="obalkyknihbookid" value="<?=$this->escapeHtmlAttr($this->driver->getObalkyKnihBookId())?>"/>
     <strong><?=$this->transEsc("Your Comment")?></strong>
   </div>
   <div class="col-sm-9">
