@@ -269,14 +269,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     $problem = $this->useXPath($response, 'NCIPMessage/CancelRequestItemResponse/Problem');
 
                     if ($problem !== false && is_array($problem) && count($problem) > 0) {
-                        $problemValue = $this->getFirstXPathMatchAsString($problem, 'ProblemValue');
-                        $problemDetail = $this->getFirstXPathMatchAsString($problem, 'ProblemDetail');
+                        $problemValue = $this->getFirstXPathMatchAsString($problem[0], 'ProblemValue');
+                        $problemDetail = $this->getFirstXPathMatchAsString($problem[0], 'ProblemDetail');
 
                         $problemOccurred = true;
                     }
 
-                    $rawResponse = $response->asXML();
-                    // TODO: Process Problem elements
+                    //$rawResponse = $response->asXML();
 
                     break;
                 } else
@@ -296,9 +295,17 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                         $request = $this->requests->cancelHoldUsingRequestId(
                             $request_id, $cancelDetails['patron']['id']);
                         $response = $this->sendRequest($request);
-                        // TODO: Process Problem elements
 
-                        $rawResponse = $response->asXML();
+                        $problem = $this->useXPath($response, 'NCIPMessage/CancelRequestItemResponse/Problem');
+
+                        if ($problem !== false && is_array($problem) && count($problem) > 0) {
+                            $problemValue = $this->getFirstXPathMatchAsString($problem[0], 'ProblemValue');
+                            $problemDetail = $this->getFirstXPathMatchAsString($problem[0], 'ProblemDetail');
+
+                            $problemOccurred = true;
+                        }
+
+                        //$rawResponse = $response->asXML();
                         break;
                     }
             }
