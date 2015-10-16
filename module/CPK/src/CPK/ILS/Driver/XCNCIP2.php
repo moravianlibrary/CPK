@@ -249,7 +249,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function cancelHolds($cancelDetails)
     {
-        $holds = $this->getMyHolds($cancelDetails['patron']);
+        $patron = $cancelDetails['patron'];
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $holds = $this->getMyHolds($patron);
         $items = array();
 
         $problemValue = null;
@@ -262,8 +264,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
                     $desiredRequestFound = true;
 
-                    $request = $this->requests->cancelHoldUsingItemId($recent,
-                        $cancelDetails['patron']['id']);
+                    $request = $this->requests->cancelRequestItemUsingItemId($patron, $recent);
                     $response = $this->sendRequest($request);
 
                     $problem = $this->useXPath($response, 'NCIPMessage/CancelRequestItemResponse/Problem');
@@ -292,8 +293,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
                         $desiredRequestFound = true;
 
-                        $request = $this->requests->cancelHoldUsingRequestId(
-                            $request_id, $cancelDetails['patron']['id']);
+                        $request = $this->requests->cancelRequestItemUsingRequestId($patron, $request_id);
                         $response = $this->sendRequest($request);
 
                         $problem = $this->useXPath($response, 'NCIPMessage/CancelRequestItemResponse/Problem');
@@ -1594,54 +1594,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
  */
 class OldNCIPRequests
 {
-
-    /**
-     * Build NCIP request XML for cancel holds.
-     *
-     * @param array $cancelDetails
-     *            Patron's information and details about cancel request.
-     *
-     * @return string XML request
-     */
-    public function cancelHoldUsingItemId($itemID, $patronID)
-    {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
-             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
-             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' .
-             '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) .
-             '</ns1:UserIdentifierValue></ns1:UserId>' .
-             '<ns1:ItemId><ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) .
-             '</ns1:ItemIdentifierValue></ns1:ItemId>' .
-             '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' .
-             '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' .
-             '</ns1:CancelRequestItem></ns1:NCIPMessage>';
-        return $xml;
-    }
-
-    /**
-     * Build NCIP request XML for cancel holds.
-     *
-     * @param array $cancelDetails
-     *            Patron's information and details about cancel request.
-     *
-     * @return string XML request
-     */
-    public function cancelHoldUsingRequestId($requestID, $patronID)
-    {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
-             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
-             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:CancelRequestItem>' .
-             '<ns1:UserId><ns1:UserIdentifierValue>' . htmlspecialchars($patronID) .
-             '</ns1:UserIdentifierValue></ns1:UserId>' .
-             '<ns1:RequestId><ns1:RequestIdentifierValue>' .
-             htmlspecialchars($requestID) .
-             '</ns1:RequestIdentifierValue></ns1:RequestId>' .
-             '<ns1:RequestType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requesttype/requesttype.scm">Hold</ns1:RequestType>' .
-             '<ns1:RequestScopeType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/requestscopetype.scm">Item</ns1:RequestScopeType>' .
-             '</ns1:CancelRequestItem></ns1:NCIPMessage>';
-        return $xml;
-    }
-
     /**
      * Build NCIP request XML for item status information.
      *

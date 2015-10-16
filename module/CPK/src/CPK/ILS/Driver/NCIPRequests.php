@@ -57,6 +57,30 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function cancelRequestItemUsingItemId($patron, $itemId) {
+        $body =
+        "<ns1:CancelRequestItem>" .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertUserIdTag($patron) .
+        $this->insertItemIdTag($itemId, $patron) .
+        $this->insertRequestType("Estimate") .
+        $this->insertRequestScopeType("Item") .
+        "</ns1:CancelRequestItem>";
+        return $this->header() . $body . $this->footer();
+    }
+
+    public function cancelRequestItemUsingRequestId($patron, $requestId) {
+        $body =
+        "<ns1:CancelRequestItem>" .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertUserIdTag($patron) .
+        $this->insertRequestIdTag($requestId, $patron) .
+        $this->insertRequestType("Estimate") .
+        $this->insertRequestScopeType("Item") .
+        "</ns1:CancelRequestItem>";
+        return $this->header() . $body . $this->footer();
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
@@ -111,6 +135,7 @@ class NCIPRequests extends OldNCIPRequests {
     }
 
     protected function insertAgencyIdTag($agency) {
+        if (empty($agency)) return '';
         return ($this->noScheme ?
                 "<ns1:AgencyId>" :
                 "<ns1:AgencyId ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm\">") .
@@ -125,6 +150,19 @@ class NCIPRequests extends OldNCIPRequests {
         "<ns1:ItemIdentifierValue>" . htmlspecialchars($itemId) . "</ns1:ItemIdentifierValue>" .
         "</ns1:ItemId>";
         return $body;
+    }
+
+    protected function insertRequestIdTag($requestId, $patron) {
+        $body =
+        "<ns1:RequestId>" .
+        $this->insertAgencyIdTag($patron['agency']) .
+        ($this->noScheme ?
+                "<ns1:RequestIdentifierType>" :
+                "<ns1:RequestIdentifierType ns1:Scheme=\"http://www.library.sk/ncip/v2_02/schemes.scm\">") .
+                "IDX" . "</ns1:RequestIdentifierType>" .
+        "<ns1:RequestIdentifierValue>" . $requestId . "</ns1:RequestIdentifierValue>" .
+        "</ns1:RequestId>";
+        return body;
     }
 
     /* Allowed values are: Accession Number, Barcode. */
