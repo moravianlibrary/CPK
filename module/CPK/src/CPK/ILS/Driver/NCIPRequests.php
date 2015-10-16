@@ -81,6 +81,18 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function renewItem($patron, $itemId) {
+        $body =
+        "<ns1:RenewItem>" .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertUserIdTag($patron) .
+        $this->insertItemIdTag($itemId, $patron) .
+        $this->allItemElementType() .
+        $this->allUserElementType() .
+        "</ns1:RenewItem>";
+        return $this->header() . $body . $this->footer();
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
@@ -197,6 +209,26 @@ class NCIPRequests extends OldNCIPRequests {
             itemElementType("Item Use Restriction Type") +
             itemElementType("Location") +
             itemElementType("Item Description");
+        }*/
+        return $body;
+    }
+
+    protected function allUserElementType() {
+        $body =
+        insertUserElementType("Authentication Input") .
+        insertUserElementType("Block Or Trap") .
+        insertUserElementType("Date Of Birth") .
+        insertUserElementType("Name Information") .
+        insertUserElementType("User Address Information") .
+        insertUserElementType("User Language") .
+        insertUserElementType("User Privilege") .
+        insertUserElementType("User Id") .
+        insertUserElementType("Previous User Id");
+        // TODO
+        /*if (library.equals("Liberec")) {
+            body =
+            insertUserElementType("Name Information") +
+            insertUserElementType("User Address Information");
         }*/
         return $body;
     }

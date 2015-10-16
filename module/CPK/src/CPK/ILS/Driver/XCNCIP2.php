@@ -340,9 +340,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function renewMyItems($renewDetails)
     {
+        $patron = $renewDetails['patron'];
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
         $result = array();
         foreach ($renewDetails['details'] as $item) {
-            $request = $this->requests->renewMyItem($renewDetails['patron'], $item);
+            $request = $this->requests->renewItem($patron, $item);
             $response = $this->sendRequest($request);
             $date = $this->useXPath($response, 'RenewItemResponse/DateForReturn');
             $result[$item] = array(
@@ -1946,27 +1948,6 @@ class OldNCIPRequests
              $pickupLocation .
              '<ns1:PickupExpiryDate>2014-09-30T00:00:00</ns1:PickupExpiryDate>' .
              '</ns1:RequestItem></ns1:NCIPMessage>';
-        return $xml;
-    }
-
-    /**
-     * Build the NCIP request XML to renew patron's items.
-     *
-     * @param array $patron
-     * @param string $item
-     *
-     * @return string NCIP request XML
-     */
-    public function renewMyItem($patron, $item)
-    {
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
-             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version' .
-             '="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:RenewItem>' .
-             '<ns1:UserId>' . '<ns1:UserIdentifierValue>' .
-             htmlspecialchars($patron['id']) . '</ns1:UserIdentifierValue>' .
-             '</ns1:UserId>' . '<ns1:ItemId>' . '<ns1:ItemIdentifierValue>' .
-             htmlspecialchars($item) . '</ns1:ItemIdentifierValue>' . '</ns1:ItemId>' .
-             '</ns1:RenewItem></ns1:NCIPMessage>';
         return $xml;
     }
 }
