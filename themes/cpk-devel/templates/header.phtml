@@ -15,7 +15,7 @@ if ($user) $libraryCards = $user->getLibraryCards(false); ?>
     <i class="fa fa-bars"></i>
   </button>
     <a role="logo" class="navbar-brand"  href="<?=$this->url('home')?>">
-      <img alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>"></img>
+      <img alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>">
       <div class="pull-right beta-logo" onclick='window.open("<?=$this->translate('beta_changelog_link')?>");' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('Changelog')?>">
       	<?=$this->translate('beta_tag')?>
       </div>
