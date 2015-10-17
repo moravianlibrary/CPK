@@ -130,7 +130,7 @@ class AjaxController extends AjaxControllerBase
      *
      * @return array
      */
-    public function callLinkeServerAjax()
+    public function callLinkServerAjax()
     {
         $sourceInstitute = $this->params()->fromQuery('source');
         if (! $sourceInstitute)

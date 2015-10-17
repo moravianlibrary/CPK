@@ -43,7 +43,7 @@ function getSfxJibResult( recordID, sourceInstitute, arrayOf866 ) {
 	$.ajax({
 		dataType: 'json',
 		async: true,
-		url: '/AJAX/JSON?method=callLinkeServer',
+		url: '/AJAX/JSON?method=callLinkServer',
 		data: { recordID: recordID, institute: sourceInstitute },
 		success: function( sfxJibResult ) {
 
