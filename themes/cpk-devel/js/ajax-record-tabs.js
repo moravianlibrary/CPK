@@ -38,13 +38,13 @@ function getSfxJibResult( recordID, sourceInstitute, arrayOf866 ) {
 	 * Institute ID.
 	 * @type {string}
 	 */
-	var sourceInstitute = typeof institute !== 'undefined' ? sourceInstitute : 'default';
+	var sourceInstitute = typeof sourceInstitute !== 'undefined' ? sourceInstitute : 'default';
 
 	$.ajax({
 		dataType: 'json',
 		async: true,
 		url: '/AJAX/JSON?method=callLinkServer',
-		data: { recordID: recordID, institute: sourceInstitute },
+		data: { recordID: recordID, sourceInstitute: sourceInstitute },
 		success: function( sfxJibResult ) {
 
 			if( sfxJibResult.status !== 'OK' ) {
