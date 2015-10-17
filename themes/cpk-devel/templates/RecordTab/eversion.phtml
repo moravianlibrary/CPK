@@ -66,8 +66,7 @@
 			$( "#e-version-table" ).addClass( 'hidden' );		
 		}
 		if ( eVersionLinksCount > 0 ) {
-			get866( recordUniqueID, '<?= $this->driver->getParentRecordID() ?>', display866 );
-	
+			get866( recordUniqueID, '<?= $this->driver->getParentRecordID() ?>', '<?= explode(".", $this->driver->getUniqueID())[0]?>', display866 );
 		}
 		
 	});

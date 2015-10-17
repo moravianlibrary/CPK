@@ -32,19 +32,19 @@ function getBuyLinks( recordID, parentRecordID, callback ) {
  * @param	{array}		arrayOf866
  * @return	{undefined}	
  */
-function getSfxJibResult( sfxUrl, recordID, institute, arrayOf866 ) {
+function getSfxJibResult( recordID, sourceInstitute, arrayOf866 ) {
 	
 	/**
 	 * Institute ID.
 	 * @type {string}
 	 */
-	var institute = typeof institute !== 'undefined' ? institute : 'ANY';
+	var sourceInstitute = typeof institute !== 'undefined' ? sourceInstitute : 'default';
 
 	$.ajax({
 		dataType: 'json',
 		async: true,
-		url: '/AJAX/JSON?method=callSfx',
-		data: { recordID: recordID, institute: institute, sfxUrl: sfxUrl },
+		url: '/AJAX/JSON?method=callLinkeServer',
+		data: { recordID: recordID, institute: sourceInstitute },
 		success: function( sfxJibResult ) {
 
 			if( sfxJibResult.status !== 'OK' ) {
@@ -86,7 +86,7 @@ function getSfxJibResult( sfxUrl, recordID, institute, arrayOf866 ) {
  * @param	{function}	callback
  * @return	{undefined}
  */
-function get866( recordUniqueID, parentRecordID, callback ) {
+function get866( recordUniqueID, parentRecordID, sourceInstitute, callback ) {
 	$.ajax({
 		dataType: 'json',
 		async: true,
@@ -98,7 +98,7 @@ function get866( recordUniqueID, parentRecordID, callback ) {
 				$( "#ajax-error-info" ).empty().append( response.data );
 			} else {
 				console.log( response );
-				callback( recordUniqueID, response['data'][0]['field866'] );
+				callback( recordUniqueID, response['data'][0]['field866'], sourceInstitute );
 			}
 		}
 	});
@@ -112,19 +112,13 @@ function get866( recordUniqueID, parentRecordID, callback ) {
  * @param	{array}		rawDataArrayOf866
  * @return	{getSfxJibResult}
  */
-function display866( recordUniqueID, rawDataArrayOf866 ) {
+function display866( recordUniqueID, rawDataArrayOf866, sourceInstitute ) {
 	
 	/**
 	 * Array of values from field 866
 	 * @type {array}
 	 */
 	var arrayOf866 = {};
-	
-	/**
-	 * Institute ID.
-	 * @type {string}
-	 */
-	var institute = 'MZK'; // @FIXME this is temporary hard-coded
 	
 	if (false != rawDataArrayOf866) {
 		rawDataArrayOf866.forEach(function(entry) {
@@ -136,7 +130,7 @@ function display866( recordUniqueID, rawDataArrayOf866 ) {
 			}
 		});
 
-		getSfxJibResult('http://sfx.jib.cz/sfxlcl3', recordUniqueID, institute, arrayOf866);
+		getSfxJibResult(recordUniqueID, sourceInstitute, arrayOf866);
 
 	}
 }
