@@ -385,7 +385,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function get856Links()
     {
-        return array($this->fields['url']) ? $this->fields['url'] : false;
+        return isset($this->fields['url']) ? $this->fields['url'] : false;
     }
 
     /**
