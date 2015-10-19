@@ -669,4 +669,72 @@ class AjaxController extends AjaxControllerBase
 
         return $retVal;
     }
+
+    /**
+     * Comment on a record.
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function commentRecordObalkyKnihAjax()
+    {
+        //TODO: user should not be able to add more than one comment
+        $user = $this->getUser();
+        if ($user === false) {
+            return $this->output(
+                $this->translate('You must be logged in first'),
+                self::STATUS_NEED_AUTH
+            );
+        }
+
+        $id = $this->params()->fromPost('id');
+        $comment = $this->params()->fromPost('comment');
+        if (empty($id) || empty($comment)) {
+            return $this->output(
+                $this->translate('An error has occurred'), self::STATUS_ERROR
+            );
+        }
+
+        $table = $this->getTable('Resource');
+        $resource = $table->findResource(
+            $id, $this->params()->fromPost('source', 'VuFind')
+        );
+        $id = $resource->addComment($comment, $user);
+
+
+        //obalky
+        $bookid = $this->params()->fromPost('obalkyknihbookid');
+        ////////////////////////////////////////////
+        $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/?add_review=true');
+        $client->setMethod('POST');
+        $client->setParameterGet(array(
+            'book_id' => $bookid ,
+            'id' => $id,
+        ));
+        $client->setParameterPost(array(
+            'review_text' => $comment,
+        ));
+        $response = $client->send();
+        $responseBody = $response->getBody();
+        if($responseBody == "ok")
+            return $this->output($id, self::STATUS_OK);
+
+        return $this->output($responseBody, self::STATUS_ERROR);
+
+    }
+
+    /**
+     * Get list of comments for a record as HTML.
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function getRecordCommentsObalkyKnihAsHTMLAjax()
+    {
+        $driver = $this->getRecordLoader()->load(
+            $this->params()->fromQuery('id'),
+            $this->params()->fromQuery('source', 'VuFind')
+        );
+        $html = $this->getViewRenderer()
+            ->render('record/comments-list-obalkyknih.phtml', ['driver' => $driver]);
+        return $this->output($html, self::STATUS_OK);
+    }
 }
