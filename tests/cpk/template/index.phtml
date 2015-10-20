@@ -58,18 +58,29 @@
 								<div id="solr-usage" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
 							</div>
 						</div>-->
+						<?php					
+    						$xml = new DOMDocument;
+    						$xml->load(__DIR__.'/data/unitTestsResults.xml');
+    						$xpath = new DOMXpath($xml);
 
+    						$total = $xpath->query("/testsuites/testsuite[@name='AllTests']/@tests")[0]->value;
+    						$done = $total - $xpath->query("/testsuites/testsuite/@failures")[0]->value;
+    						
+    						$green = ($done * 100) / $total;
+    						$red = 100 - $green;
+    						
+						?>
 						<h4>
 							Unit tests
-							<span class='pull-right'>25/100 - 25% success</span>
+							<span class='pull-right'><?=$done?> / <?=$total?> - <?=$green?>% success</span>
 						</h4>
                         <div class="progress">
-							<div class="progress-bar progress-bar-success" style="width: 25%">
-								<span class="sr-only">35% Complete (success)</span>
+							<div class="progress-bar progress-bar-success" style="width: <?=$green?>%">
+								<span class="sr-only"><?=$green?>% Complete (success)</span>
 							</div>
 
-							<div class="progress-bar progress-bar-danger" style="width: 75%">
-								<span class="sr-only">65% Complete (danger)</span>
+							<div class="progress-bar progress-bar-danger" style="width: <?=$red?>%">
+								<span class="sr-only"><?=$red?>% Complete (danger)</span>
 							</div>
 						</div>
 							
