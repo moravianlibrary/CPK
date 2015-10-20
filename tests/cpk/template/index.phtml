@@ -42,7 +42,7 @@
                     <div class="col-lg-12">
                         <h1>Summary</h1>
 
-						<div class="alert alert-danger" role="alert">
+						<!--<div class="alert alert-danger" role="alert">
 						  <a href="#" class="alert-link">Too low disc space!</a>
 						</div>
 
@@ -57,7 +57,7 @@
 							<div class='col-md-6'>
 								<div id="solr-usage" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
 							</div>
-						</div>
+						</div>-->
 
 						<h4>
 							Unit tests
@@ -73,7 +73,7 @@
 							</div>
 						</div>
 							
-						<h4>
+						<!--<h4>
 							System tests
 							<span class='pull-right'>25/100 - 25% success</span>
 						</h4>
@@ -85,23 +85,32 @@
 							<div class="progress-bar progress-bar-danger" style="width: 55%">
 								<span class="sr-only">65% Complete (danger)</span>
 							</div>
-						</div>
-
+						</div>-->
+						<?php 
+    						$log = fgets(fopen(__DIR__.'/data/error.log', 'r'));
+                            if ($log === 'Log is clean') {
+                                $red = 0;
+                                $green = 100;
+                            } else {
+                                $red = 100;
+                                $green = 0;
+                            }
+						?>
 						<h4>
 							Logs
-							<span class='pull-right'>25/100 - 25% success</span>
+							<span class='pull-right'><?=$green?>% success</span>
 						</h4>
 						<div class="progress">
-							<div class="progress-bar progress-bar-success" style="width: 20%">
-								<span class="sr-only">35% Complete (success)</span>
+							<div class="progress-bar progress-bar-success" style="width: <?=$green?>%">
+								<span class="sr-only"><?=$green?>% Complete (success)</span>
 							</div>
 
-							<div class="progress-bar progress-bar-danger" style="width: 80%">
-								<span class="sr-only">65% Complete (danger)</span>
+							<div class="progress-bar progress-bar-danger" style="width: <?=$red?>%">
+								<span class="sr-only"><?=$red?>% Complete (danger)</span>
 							</div>
 						</div>
 
-						<h4>
+						<!--<h4>
 							NCIP tests
 							<span class='pull-right'>25/100 - 25% success</span>
 						</h4>
@@ -113,21 +122,7 @@
 							<div class="progress-bar progress-bar-danger" style="width: 0%">
 								<span class="sr-only">65% Complete (danger)</span>
 							</div>
-						</div>
-
-						<h4>
-							Stress tests
-							<span class='pull-right'>25/100 - 25% success</span>
-						</h4>
-						<div class="progress">
-							<div class="progress-bar progress-bar-success" style="width: 90%">
-								<span class="sr-only">35% Complete (success)</span>
-							</div>
-
-							<div class="progress-bar progress-bar-danger" style="width: 10%">
-								<span class="sr-only">65% Complete (danger)</span>
-							</div>
-						</div>
+						</div>-->
                     </div>
                 </div>
             </div>

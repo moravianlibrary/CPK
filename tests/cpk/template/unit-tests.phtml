@@ -17,6 +17,8 @@
 
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -27,6 +29,9 @@
 	<style>
 	   #mainResults thead tr th, #mainResults tbody tr td  {
 	       text-align: center;
+	   }
+	   #results tr:hover {
+	       cursor: default;
 	   }
 	</style>
 </head>
@@ -60,7 +65,9 @@
 						          ?>						
 						
 						<h3>Details</h3>
-						<?= '<pre>'.xml_highlight(file_get_contents(__DIR__.'/data/unitTestsResults.xml')).'</pre>' ?>
+						 <button class="btn btn-default" id="details-button">Show details</button>
+						 <br><br>
+						<?= '<pre class="hidden" id="details">'.xml_highlight(file_get_contents(__DIR__.'/data/unitTestsResults.xml')).'</pre>' ?>
                     </div>
                 </div>
             </div>
@@ -81,6 +88,12 @@
     $("#menu-toggle").click(function(e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
+    });
+
+    jQuery( document ).ready( function( $ ) {
+		$( "#details-button" ).on('click', function(){
+			$( "#details" ).removeClass( 'hidden' );
+		});
     });
     </script>
 

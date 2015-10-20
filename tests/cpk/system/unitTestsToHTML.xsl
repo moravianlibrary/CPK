@@ -22,26 +22,40 @@
 				</tbody>
 			</table>
 		<h3>Tests</h3>
-		<table class='table' data-toggle="table" data-height="299">
+		<table class='table' id='results' data-toggle="table" data-height="299">
 			<thead>
 				<tr>
 					<th>Part</th>
 					<th>File</th>
+					<th>Test</th>
 					<th>Assertions</th>
-					<th>Failures</th>
-					<th>Errors</th>
+					<th>Status</th>
 					<th>Time</th>
 				</tr>
 			</thead>
 			<tbody>
-				<xsl:for-each select="testsuites/testsuite/testsuite">
+				<xsl:for-each select="testsuites/testsuite/testsuite/testcase">
    	    	 		<tr>
-   		       			<td><xsl:value-of select="testcase/@class"/></td>
-          				<td><xsl:value-of select="testcase/@file"/></td>
-  	        			<td><span class="label label-success"><xsl:value-of select="testcase/@assertions"/></span></td>
-          				<td><span class="label label-danger"><xsl:value-of select="testcase/@failures"/></span></td>
-          				<td><span class="label label-danger"><xsl:value-of select="testcase/@errors"/></span></td>
-          				<td><xsl:value-of select="testcase/@time"/></td>
+   		       			<td><xsl:value-of select="@class"/></td>
+          				<td><xsl:value-of select="@file"/>:<xsl:value-of select="@line"/></td>
+          				<td><xsl:value-of select="@name"/></td>
+  	        			<td><xsl:value-of select="@assertions"/></td>
+          				<!--<td><span class="label label-danger"><xsl:value-of select="@failures"/></span></td>-->
+                        <xsl:if test="./failure">
+                            <td>
+                                <span class="label label-danger">
+                                    failed
+                                </span>
+                            </td>
+                        </xsl:if>
+                        <xsl:if test="not(./failure)">
+                            <td>
+                                <span class="label label-success">
+                                    success
+                                </span>
+                            </td>
+                        </xsl:if>
+          				<td><xsl:value-of select="@time"/></td>
         			</tr>
       			</xsl:for-each>
       		</tbody>

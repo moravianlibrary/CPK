@@ -41,10 +41,37 @@ class PiwikStatisticsTest extends PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testBuildQuery()
+    public function testBuildQuery1()
+    {
+        $a = 5;
+        $b = 4;
+        $this->assertEquals($a, $b);
+    }
+    
+    public function testBuildQuery2()
     {
         $a = 5;
         $b = 5;
         $this->assertEquals($a, $b);
+    }
+    
+    public function testBuildQuery3()
+    {
+        $a = 5;
+        $b = 5;
+        $this->assertEquals($a, $b);
+    }
+    
+    public function testBuildQuery4()
+    {
+        $a = 5;
+        $b = 4;
+        $this->assertEquals($a, $b);
+    }
+    
+    public function testBuildQuery5()
+    {
+        $stack = array('ahoj');
+        $this->assertEmpty($stack);
     }
 }
