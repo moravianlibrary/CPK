@@ -10,7 +10,8 @@ touch ./template/data/unitTestsResults.xml
 printf "\e[92mDONE\e[21m\e[0m\n"
 
 printf "[2/5] System selenium testing ... "
-#
+seleniumPomPath="$PWD/selenium_cpk_tests/pom.xml"
+sh ./selenium_cpk_tests/run_selenium_tests.sh $seleniumPomPath
 printf "\e[92mDONE\e[21m\e[0m\n"
 
 printf "[3/5] NCIP testing ... "
