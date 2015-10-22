@@ -65,15 +65,16 @@ class MultiBackend extends MultiBackendBase
         // & doesn't care about the institutions the hold belongs in compared to passed
         // patron array - which is always only one in order to properly determine
         // current patron being iterated
-        $cancelDetails['details'] = $this->getCancelDetailsFromCurrentSource(
-            $patronSource, $cancelDetails['details']);
+        $cancelDetails['details'] = $this->getDetailsFromCurrentSource($patronSource,
+            $cancelDetails['details']);
 
         if (count($cancelDetails['details']) > 0) {
             $driver = $this->getDriver($patronSource);
             if ($driver) {
-                foreach($cancelDetails['details'] as $key => $detail) {
+                foreach ($cancelDetails['details'] as $key => $detail) {
                     // stripIdPrefixed does not work correctly here ..
-                    $cancelDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
+                    $cancelDetails['details'][$key] = preg_replace(
+                        "/$patronSource\./", '', $detail);
                 }
 
                 return $driver->cancelHolds(
@@ -82,7 +83,7 @@ class MultiBackend extends MultiBackendBase
             throw new ILSException('No suitable backend driver found');
         } else
             return [
-                'count' => 0,
+                'count' => 0
             ];
     }
 
@@ -130,6 +131,36 @@ class MultiBackend extends MultiBackendBase
             $emptyStatuses[]['id'] = $id;
 
         return $emptyStatuses;
+    }
+
+    /**
+     * Get Patron Transactions
+     *
+     * This is responsible for retrieving all transactions (i.e. checked out items)
+     * by a specific patron.
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @return mixed      Array of the patron's transactions
+     */
+    public function getMyTransactions($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            $transactions = $driver->getMyTransactions(
+                $this->stripIdPrefixes($patron, $source)
+            );
+
+            foreach($transactions as &$transaction) {
+                if (isset($transaction['loan_id']) && strpos($transaction['loan_id'], '.') === false) {
+                    // Prepend source to loan_id if not there already ..
+                    $transaction['loan_id'] = $source . '.' . $transaction['loan_id'];
+                }
+            }
+            return $this->addIdPrefixes($transactions, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
     }
 
     public function getPaymentURL($patron, $fine)
@@ -189,6 +220,44 @@ class MultiBackend extends MultiBackendBase
     }
 
     /**
+     * Renew My Items
+     *
+     * Function for attempting to renew a patron's items. The data in
+     * $renewDetails['details'] is determined by getRenewDetails().
+     *
+     * @param array $renewDetails
+     *            An array of data required for renewing items
+     *            including the Patron ID and an array of renewal IDS
+     *
+     * @return array An array of renewal information keyed by item ID
+     */
+    public function renewMyItems($renewDetails)
+    {
+        $patronSource = $this->getSource($renewDetails['patron']['cat_username']);
+
+        $renewDetails['details'] = $this->getDetailsFromCurrentSource($patronSource,
+            $renewDetails['details']);
+
+        if (count($renewDetails['details']) > 0) {
+            $driver = $this->getDriver($patronSource);
+            if ($driver) {
+                foreach ($renewDetails['details'] as $key => $detail) {
+                    // stripIdPrefixed does not work correctly here ..
+                    $renewDetails['details'][$key] = preg_replace(
+                        "/$patronSource\./", '', $detail);
+                }
+
+                return $driver->renewMyItems(
+                    $this->stripIdPrefixes($renewDetails, $patronSource));
+            }
+            throw new ILSException('No suitable backend driver found');
+        } else
+            return [
+                'count' => 0
+            ];
+    }
+
+    /**
      * Helper method to determine whether or not a certain method can be
      * called on this driver.
      * Required method for any smart drivers.
@@ -209,18 +278,18 @@ class MultiBackend extends MultiBackendBase
         return parent::supportsMethod($method, $params);
     }
 
-    protected function getCancelDetailsFromCurrentSource($source, $cancelDetails)
+    protected function getDetailsFromCurrentSource($source, $details)
     {
-        $cancelDetailsForCurrentPatron = [];
+        $detailsForCurrentSource = [];
 
-        foreach ($cancelDetails as $cancelDetail) {
-            $cancelDetailSource = $this->getSource($cancelDetail);
+        foreach ($details as $detail) {
+            $detailSource = $this->getSource($detail);
 
-            if ($cancelDetailSource === $source) {
-                array_push($cancelDetailsForCurrentPatron, $cancelDetail);
+            if ($detailSource === $source) {
+                array_push($detailsForCurrentSource, $detail);
             }
         }
 
-        return $cancelDetailsForCurrentPatron;
+        return $detailsForCurrentSource;
     }
 }

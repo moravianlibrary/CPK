@@ -521,6 +521,7 @@ class AjaxController extends AjaxControllerBase
         // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
 
+
         $hasPermissions = $this->hasPermissions($cat_username);
 
         if ($hasPermissions instanceof \Zend\Http\Response)
