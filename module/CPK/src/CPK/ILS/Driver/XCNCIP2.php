@@ -657,12 +657,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     public function getMyHistory($patron, $currentLimit = 0)
     {
-        $request = $this->requests->getMyHistory($patron);
-        if ($request === null)
-            return [];
-
-        $response = $this->sendRequest($request);
-        return $this->handleTransactions($response);
+        return [];
     }
 
     /**
@@ -1825,12 +1820,6 @@ class OldNCIPRequests
             '<ns1:UserFiscalAccountDesired/>'
         );
         return $this->getMyProfile($patron, $extras);
-    }
-
-    public function getMyHistory($patron)
-    {
-        // TODO
-        return null;
     }
 
     /**
