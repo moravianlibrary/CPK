@@ -191,6 +191,16 @@ class Aleph extends AlephBase
         return $profile;
     }
 
+    public function getMyTransactions($user, $history=false, $limit = 0) {
+        $transactions = parent::getMyTransactions($user, $history, $limit);
+
+        foreach($transactions as &$transaction) {
+            $transaction['loan_id'] = $transaction['item_id'];
+        }
+
+        return $transactions;
+    }
+
     /**
      * Get Status
      *

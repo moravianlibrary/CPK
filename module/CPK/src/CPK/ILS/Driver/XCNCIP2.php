@@ -264,19 +264,24 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
                     $desiredRequestFound = true;
 
-                    $request = $this->requests->cancelRequestItemUsingItemId($patron, $recent);
+                    $request = $this->requests->cancelRequestItemUsingItemId($patron,
+                        $recent);
                     $response = $this->sendRequest($request);
 
-                    $problem = $this->useXPath($response, 'NCIPMessage/CancelRequestItemResponse/Problem');
+                    $problem = $this->useXPath($response,
+                        'NCIPMessage/CancelRequestItemResponse/Problem');
 
-                    if ($problem !== false && is_array($problem) && count($problem) > 0) {
-                        $problemValue = $this->getFirstXPathMatchAsString($problem[0], 'ProblemValue');
-                        $problemDetail = $this->getFirstXPathMatchAsString($problem[0], 'ProblemDetail');
+                    if ($problem !== false && is_array($problem) &&
+                         count($problem) > 0) {
+                        $problemValue = $this->getFirstXPathMatchAsString(
+                            $problem[0], 'ProblemValue');
+                        $problemDetail = $this->getFirstXPathMatchAsString(
+                            $problem[0], 'ProblemDetail');
 
                         $problemOccurred = true;
                     }
 
-                    //$rawResponse = $response->asXML();
+                    // $rawResponse = $response->asXML();
 
                     break;
                 } else
@@ -293,19 +298,24 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
                         $desiredRequestFound = true;
 
-                        $request = $this->requests->cancelRequestItemUsingRequestId($patron, $request_id);
+                        $request = $this->requests->cancelRequestItemUsingRequestId(
+                            $patron, $request_id);
                         $response = $this->sendRequest($request);
 
-                        $problem = $this->useXPath($response, 'NCIPMessage/CancelRequestItemResponse/Problem');
+                        $problem = $this->useXPath($response,
+                            'NCIPMessage/CancelRequestItemResponse/Problem');
 
-                        if ($problem !== false && is_array($problem) && count($problem) > 0) {
-                            $problemValue = $this->getFirstXPathMatchAsString($problem[0], 'ProblemValue');
-                            $problemDetail = $this->getFirstXPathMatchAsString($problem[0], 'ProblemDetail');
+                        if ($problem !== false && is_array($problem) &&
+                             count($problem) > 0) {
+                            $problemValue = $this->getFirstXPathMatchAsString(
+                                $problem[0], 'ProblemValue');
+                            $problemDetail = $this->getFirstXPathMatchAsString(
+                                $problem[0], 'ProblemDetail');
 
                             $problemOccurred = true;
                         }
 
-                        //$rawResponse = $response->asXML();
+                        // $rawResponse = $response->asXML();
                         break;
                     }
             }
@@ -315,7 +325,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $items[$recent] = array(
                 'success' => $didWeTheJob,
                 'status' => '',
-                'sysMessage' => isset($problemValue) ?:''
+                'sysMessage' => isset($problemValue) ?  : ''
             );
         }
 
@@ -1033,11 +1043,16 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $list = $this->useXPath($response, 'LookupUserResponse/LoanedItem');
 
         foreach ($list as $current) {
-            $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
+            $item_id = $this->getFirstXPathMatchAsString($current,
+                'ItemId/ItemIdentifierValue');
+
+            if (! $item_id)
+                throw new ILSException(
+                    "ItemIdentifierValue within ItemId is empty - cannot continue");
+
             $dateDue = $this->useXPath($current, 'DateDue');
             $parsedDate = strtotime((string) $dateDue[0]);
-            $additRequest = $this->requests->lookupItem((string) $item_id[0],
-                $patron);
+            $additRequest = $this->requests->lookupItem($item_id, $patron);
             $additResponse = $this->sendRequest($additRequest);
             $isbn = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
@@ -1057,7 +1072,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $retVal[] = array(
                 'cat_username' => $patron['cat_username'],
                 'duedate' => empty($dateDue) ? '' : $dateDue,
-                'id' => empty($item_id) ? '' : (string) $item_id[0],
+                'id' => $item_id,
                 'barcode' => '', // TODO
                                  // 'renew' => '',
                                  // 'renewLimit' => '',
@@ -1068,13 +1083,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'renewable' => empty($request) ? false : true,
                 'message' => '',
                 'title' => empty($title) ? '' : (string) $title[0],
-                'item_id' => empty($item_id) ? '' : (string) $item_id[0],
+                'item_id' => $item_id,
                 'institution_name' => '',
                 'isbn' => empty($isbn) ? '' : (string) $isbn[0],
                 'issn' => '',
                 'oclc' => '',
                 'upc' => '',
-                'borrowingLocation' => ''
+                'borrowingLocation' => '',
+                'loan_id' => $item_id
             );
         }
         return $retVal;
@@ -1596,6 +1612,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
  */
 class OldNCIPRequests
 {
+
     /**
      * Build NCIP request XML for item status information.
      *

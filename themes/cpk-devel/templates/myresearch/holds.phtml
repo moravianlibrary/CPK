@@ -82,15 +82,15 @@
         if ($logos !== null)
             $libraryLogo = $logos->$eppnHostname; ?>
 
-    <h3 class="well row" style="margin-bottom: 3px;">
-    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
-    </h3>
+      <h3 class="well row" style="margin-bottom: 3px;">
+      <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+      <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
+      </h3>
 
-    <div id="<?=$libraryIdentity->cat_username?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
-      <i class="fa fa-spinner fa-spin"></i>
-      <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
-    </div>
+      <div id="<?=$libraryIdentity->cat_username?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
+        <i class="fa fa-spinner fa-spin"></i>
+        <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+      </div>
     <? endforeach; ?>
     <? endif; ?>
   </div>
