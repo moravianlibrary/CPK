@@ -161,7 +161,7 @@ $this->headTitle(
         ?>
   <tr <?=$attributes?> data-type="holding">
 
-			<td>
+			<td data-title="<?=$this->transEsc("Status")?>">
 				<div class="jt" title="<?=$this->transEsc('Description Status')?>">
 					<span data-type="availability" class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
 				</div>
