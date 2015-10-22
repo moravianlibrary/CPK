@@ -28,7 +28,26 @@
       </form>
       </div>
       <?=$this->flashmessages()?>
-      <?= $this->render("myresearch/checkedout-list.phtml"); ?>
+
+      <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
+        $eppnHostname = explode("@", $eppn)[1];
+        if ($logos !== null)
+          $libraryLogo = $logos->$eppnHostname;
+      ?>
+        <h3 class="well row" style="margin-bottom: 3px;">
+        <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
+        <img height="32" class="pull-right" src="<?=$libraryLogo ?>"/>
+        </h3>
+
+        <? if ($isSynchronous): ?>
+          <?= $this->render("myresearch/checkedout-from-identity.phtml", ['libraryIdentity' => $libraryIdentity, 'AJAX' => false]); ?>
+        <? else: ?>
+          <div id="<?=$libraryIdentity['cat_username']?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
+            <i class="fa fa-spinner fa-spin"></i>
+            <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+          </div>
+        <? endif; ?>
+      <? endforeach; ?>
 </div>
 
 <div class="<?=$this->layoutClass('sidebar')?>">

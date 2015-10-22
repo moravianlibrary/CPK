@@ -135,9 +135,9 @@ class AjaxController extends AjaxControllerBase
         $sourceInstitute = $this->params()->fromQuery('sourceInstitute');
         if (! $sourceInstitute)
             $sourceInstitute = 'default';
-        
+
         $multiBackendConfig = $this->getConfig('MultiBackend');
-        $lsID = 'ls_'.$sourceInstitute;
+        $lsID = 'ls_' . $sourceInstitute;
         $linkServer = $multiBackendConfig->LinkServers->$lsID;
         $instituteLsShortcut = explode("|", $linkServer)[0];
         $instituteLsLink = explode("|", $linkServer)[1];
@@ -183,8 +183,8 @@ class AjaxController extends AjaxControllerBase
         $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject(
             $recordDriver);
 
-        $sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray($instituteLsLink,
-            $allParams);
+        $sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray(
+            $instituteLsLink, $allParams);
 
         $vars[] = array(
             'sfxResult' => $sfxResult
@@ -526,6 +526,8 @@ class AjaxController extends AjaxControllerBase
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
 
+        $renderer = $this->getViewRenderer();
+
         $ilsDriver = $this->getILS()->getDriver();
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
@@ -537,7 +539,7 @@ class AjaxController extends AjaxControllerBase
 
             try {
                 // Try to get the profile ..
-                $transactions = $ilsDriver->getMyTransactions($patron);
+                $result = $ilsDriver->getMyTransactions($patron);
             } catch (\VuFind\Exception\ILS $e) {
 
                 // Something went wrong - include cat_username to properly
@@ -556,7 +558,66 @@ class AjaxController extends AjaxControllerBase
                 return $this->output($data, self::STATUS_ERROR);
             }
 
-            return $this->output($transactions, self::STATUS_OK);
+            $obalky = $transactions = [];
+
+            $canRenew = $showOverdueMessage = false;
+
+            foreach ($result as $current) {
+
+                $current = $this->renewals()->addRenewDetails($catalog, $current,
+                    $renewStatus);
+
+                if ($canRenew === false && isset($current['renewable']) &&
+                     $current['renewable'] && isset($current['loan_id'])) {
+
+                    $canRenew = true;
+                }
+
+                $resource = $this->getDriverForILSRecord($current);
+
+                // We need to let JS know what to opt for ...
+                $recordId = $resource->getUniqueId();
+                $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+
+                if ($bibInfo) {
+                    $recordId = "#cover_$recordId";
+
+                    $bibInfo = json_decode($bibInfo);
+
+                    $recordId = preg_replace("/[\.:]/", "", $recordId);
+
+                    $obalky[$recordId] = [
+                        'bibInfo' => $bibInfo,
+                        'advert' => $renderer->record($resource)->getObalkyKnihAdvert(
+                            'checkedout')
+                    ];
+                }
+
+                $ilsDetails = $resource->getExtraDetail('ils_details');
+                if (isset($ilsDetails['dueStatus']) &&
+                     $ilsDetails['dueStatus'] == "overdue") {
+                    $showOverdueMessage = true;
+                    break;
+                }
+
+                $transactions[] = $resource;
+            }
+
+            $html = $renderer->render('myresearch/checkedout-from-identity.phtml',
+                [
+                    'libraryIdentity' => compact('transactions'),
+                    'AJAX' => true
+                ]);
+
+            $toRet = [
+                'html' => $html,
+                'obalky' => $obalky,
+                'canRenew' => $canRenew,
+                'overdue' => $showOverdueMessage,
+                'cat_username' => str_replace('.', '\.', $cat_username)
+            ];
+
+            return $this->output($toRet, self::STATUS_OK);
         } else
             return $this->output(
                 "ILS Driver isn't instanceof MultiBackend - ending job now.",
@@ -677,49 +738,46 @@ class AjaxController extends AjaxControllerBase
      */
     protected function commentRecordObalkyKnihAjax()
     {
-        //TODO: user should not be able to add more than one comment
+        // TODO: user should not be able to add more than one comment
         $user = $this->getUser();
         if ($user === false) {
-            return $this->output(
-                $this->translate('You must be logged in first'),
-                self::STATUS_NEED_AUTH
-            );
+            return $this->output($this->translate('You must be logged in first'),
+                self::STATUS_NEED_AUTH);
         }
 
         $id = $this->params()->fromPost('id');
         $comment = $this->params()->fromPost('comment');
         if (empty($id) || empty($comment)) {
-            return $this->output(
-                $this->translate('An error has occurred'), self::STATUS_ERROR
-            );
+            return $this->output($this->translate('An error has occurred'),
+                self::STATUS_ERROR);
         }
 
         $table = $this->getTable('Resource');
-        $resource = $table->findResource(
-            $id, $this->params()->fromPost('source', 'VuFind')
-        );
+        $resource = $table->findResource($id,
+            $this->params()
+                ->fromPost('source', 'VuFind'));
         $id = $resource->addComment($comment, $user);
 
-
-        //obalky
+        // obalky
         $bookid = $this->params()->fromPost('obalkyknihbookid');
-        ////////////////////////////////////////////
+        // //////////////////////////////////////////
         $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/?add_review=true');
         $client->setMethod('POST');
-        $client->setParameterGet(array(
-            'book_id' => $bookid ,
-            'id' => $id,
-        ));
-        $client->setParameterPost(array(
-            'review_text' => $comment,
-        ));
+        $client->setParameterGet(
+            array(
+                'book_id' => $bookid,
+                'id' => $id
+            ));
+        $client->setParameterPost(
+            array(
+                'review_text' => $comment
+            ));
         $response = $client->send();
         $responseBody = $response->getBody();
-        if($responseBody == "ok")
+        if ($responseBody == "ok")
             return $this->output($id, self::STATUS_OK);
 
         return $this->output($responseBody, self::STATUS_ERROR);
-
     }
 
     /**
@@ -730,11 +788,15 @@ class AjaxController extends AjaxControllerBase
     protected function getRecordCommentsObalkyKnihAsHTMLAjax()
     {
         $driver = $this->getRecordLoader()->load(
-            $this->params()->fromQuery('id'),
-            $this->params()->fromQuery('source', 'VuFind')
-        );
-        $html = $this->getViewRenderer()
-            ->render('record/comments-list-obalkyknih.phtml', ['driver' => $driver]);
+            $this->params()
+                ->fromQuery('id'),
+            $this->params()
+                ->fromQuery('source', 'VuFind'));
+        $html = $this->getViewRenderer()->render(
+            'record/comments-list-obalkyknih.phtml',
+            [
+                'driver' => $driver
+            ]);
         return $this->output($html, self::STATUS_OK);
     }
 }

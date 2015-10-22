@@ -173,13 +173,12 @@ class MyResearchController extends MyResearchControllerBase
 
         $this->holds()->resetValidation();
 
-            // Now process actual holds rendering
+        // Now process actual holds rendering
         foreach ($patrons as $eppn => $patron) {
 
             $currentIdentityView = $this->createViewModel();
 
-
-                // Append cancelResults from previous iteration ..
+            // Append cancelResults from previous iteration ..
             $currentIdentityView->cancelResults = $patron['cancelResults'];
 
             if ($isSynchronous) {
@@ -217,7 +216,7 @@ class MyResearchController extends MyResearchControllerBase
             } else // This means we have async deal ..
                 $currentIdentityView->cat_username = $patron['cat_username'];
 
-            // Unknown purpose .. copied from parent MZKCommon ..
+                // Unknown purpose .. copied from parent MZKCommon ..
             $currentIdentityView = $this->addViews($currentIdentityView);
 
             $viewVars['libraryIdentities'][$eppn] = $currentIdentityView;
@@ -274,71 +273,86 @@ class MyResearchController extends MyResearchControllerBase
                 $this->getRequest()
                     ->getPost(), $catalog, $patron) : [];
 
+            if (is_array($renewResult) && count($renewResult)) {
+                foreach ($renewResult as $id => $detail) {
+                    if ($detail['success'] === false && isset($detail['sysMessage'])) {
+                        $this->flashMessenger()
+                            ->setNamespace('error')
+                            ->addMessage($detail['sysMessage']);
+                    }
+                }
+            }
+
             // By default, assume we will not need to display a renewal form:
             $renewForm = false;
 
-            // Get checked out item details:
-            $result = $catalog->getMyTransactions($patron);
+            if ($isSynchronous) {
 
-            // Get page size:
-            $config = $this->getConfig();
-            $limit = isset($config->Catalog->checked_out_page_size) ? $config->Catalog->checked_out_page_size : 50;
+                // Get checked out item details:
+                $result = $catalog->getMyTransactions($patron);
 
-            // Build paginator if needed:
-            if ($limit > 0 && $limit < count($result)) {
-                $adapter = new \Zend\Paginator\Adapter\ArrayAdapter($result);
-                $paginator = new \Zend\Paginator\Paginator($adapter);
-                $paginator->setItemCountPerPage($limit);
-                $paginator->setCurrentPageNumber(
-                    $this->params()
-                        ->fromQuery('page', 1));
-                $pageStart = $paginator->getAbsoluteItemNumber(1) - 1;
-                $pageEnd = $paginator->getAbsoluteItemNumber($limit) - 1;
-            } else {
-                $paginator = false;
-                $pageStart = 0;
-                $pageEnd = count($result);
-            }
+                // Get page size:
+                $config = $this->getConfig();
+                $limit = isset($config->Catalog->checked_out_page_size) ? $config->Catalog->checked_out_page_size : 50;
 
-            $transactions = $hiddenTransactions = [];
-            foreach ($result as $i => $current) {
-                // Add renewal details if appropriate:
-                $current = $this->renewals()->addRenewDetails($catalog, $current,
-                    $renewStatus);
-                if ($renewStatus && ! isset($current['renew_link']) &&
-                     $current['renewable']) {
-                    // Enable renewal form if necessary:
-                    $renewForm = true;
-                }
-
-                // Build record driver (only for the current visible page):
-                if ($i >= $pageStart && $i <= $pageEnd) {
-                    $transactions[] = $this->getDriverForILSRecord($current);
+                // Build paginator if needed:
+                if ($limit > 0 && $limit < count($result)) {
+                    $adapter = new \Zend\Paginator\Adapter\ArrayAdapter($result);
+                    $paginator = new \Zend\Paginator\Paginator($adapter);
+                    $paginator->setItemCountPerPage($limit);
+                    $paginator->setCurrentPageNumber(
+                        $this->params()
+                            ->fromQuery('page', 1));
+                    $pageStart = $paginator->getAbsoluteItemNumber(1) - 1;
+                    $pageEnd = $paginator->getAbsoluteItemNumber($limit) - 1;
                 } else {
-                    $hiddenTransactions[] = $current;
+                    $paginator = false;
+                    $pageStart = 0;
+                    $pageEnd = count($result);
                 }
-            }
 
-            $currentIdentityView = compact('transactions', 'renewForm',
-                'renewResult', 'paginator', 'hiddenTransactions');
-            // End of VuFind/MyResearch/checkedoutAction
+                $transactions = $hiddenTransactions = [];
+                foreach ($result as $i => $current) {
+                    // Add renewal details if appropriate:
+                    $current = $this->renewals()->addRenewDetails($catalog, $current,
+                        $renewStatus);
+                    if ($renewStatus && ! isset($current['renew_link']) &&
+                         $current['renewable']) {
+                        // Enable renewal form if necessary:
+                        $renewForm = true;
+                    }
 
-            // Start of MZKCommon/MyResearch/checkedoutAction
-            $showOverdueMessage = false;
-            foreach ($currentIdentityView['transactions'] as $resource) {
-                $ilsDetails = $resource->getExtraDetail('ils_details');
-                if (isset($ilsDetails['dueStatus']) &&
-                     $ilsDetails['dueStatus'] == "overdue") {
-                    $showOverdueMessage = true;
-                    break;
+                    // Build record driver (only for the current visible page):
+                    if ($i >= $pageStart && $i <= $pageEnd) {
+                        $transactions[] = $this->getDriverForILSRecord($current);
+                    } else {
+                        $hiddenTransactions[] = $current;
+                    }
                 }
-            }
-            if ($showOverdueMessage) {
-                $this->flashMessenger()
-                    ->setNamespace('error')
-                    ->addMessage('overdue_error_message');
-            }
-            $currentIdentityView['history'] = false;
+
+                $currentIdentityView = compact('transactions', 'renewForm',
+                    'renewResult', 'paginator', 'hiddenTransactions');
+                // End of VuFind/MyResearch/checkedoutAction
+
+                // Start of MZKCommon/MyResearch/checkedoutAction
+                $showOverdueMessage = false;
+                foreach ($currentIdentityView['transactions'] as $resource) {
+                    $ilsDetails = $resource->getExtraDetail('ils_details');
+                    if (isset($ilsDetails['dueStatus']) &&
+                         $ilsDetails['dueStatus'] == "overdue") {
+                        $showOverdueMessage = true;
+                        break;
+                    }
+                }
+                if ($showOverdueMessage) {
+                    $this->flashMessenger()
+                        ->setNamespace('error')
+                        ->addMessage('overdue_error_message');
+                }
+                $currentIdentityView['history'] = false;
+            } else
+                $currentIdentityView['cat_username'] = $patron['cat_username'];
+
             $currentIdentityView = $this->addViews($currentIdentityView);
             // End of MZKCommon/MyResearch/checkedoutAction
 

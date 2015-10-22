@@ -1,16 +1,7 @@
-<? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-
-    $eppnHostname = explode("@", $eppn)[1];
-    if ($logos !== null)
-        $libraryLogo = $logos->$eppnHostname;
-?>
-<div class="library-identity">
-<h3 class="well row" style="margin-bottom: 3px;">
-<?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-<img height="32" class="pull-right" src="<?=$libraryLogo ?>"/>
-</h3>
-
-<? $i = 0; foreach ($libraryIdentity['transactions'] as $resource): ++$i; ?>
+<?
+$isAJAX = isset($AJAX) && $AJAX === true; $i = 0;
+foreach ($libraryIdentity['transactions'] as $resource):
+     ++$i; ?>
   <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
   <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row well" style="margin-bottom: 2px;">
 
@@ -26,10 +17,9 @@
         $backLink = $this->serverUrl($this->recordLink()->getUrl($resource));
         $formats = $resource->getFormats();
       ?>
-      <? $recordId =  preg_replace("/\./", "", $recordId)?>
-      <? $recordId =  preg_replace("/:/", "", $recordId)?>
+      <? $recordId =  preg_replace("/[\.:]/", "", $recordId)?>
       <div id="cover_<?=$recordId?>" class="coverThumbnail">
-        <? if ($bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
+        <? if (! $isAJAX && $bibinfo = $this->record($resource)->getObalkyKnihJSONV3()): ?>
           <script type="text/javascript">
             $(document).ready(function() {
               obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($resource)->getObalkyKnihAdvert('checkedout'))?>);
@@ -141,7 +131,4 @@ if ($i === 0): ?>
     <?=$this->transEsc('You do not have any items checked out in this institution')?>.
     </div>
   </div>
-
-<?endif; ?>
-</div>
-<? endforeach; ?>
+<? endif; ?>
