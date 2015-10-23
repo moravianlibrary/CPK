@@ -690,7 +690,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // id may have the form of "patronId:agencyId"
             list ($id, $agencyId) = $this->splitAgencyId($id);
 
-            $request = $this->requests->getLookupItemStatus($id, $agencyId);
+            $request = $this->requests->lookupItem($id, $agencyId);
             $response = $this->sendRequest($request);
             if ($response == null)
                 return null;
@@ -1047,7 +1047,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $dateDue = $this->useXPath($current, 'DateDue');
             $parsedDate = strtotime((string) $dateDue[0]);
-            $additRequest = $this->requests->lookupItem($item_id, $patron);
+            $additRequest = $this->requests->lookupItem($item_id, $patron['agency']);
             $additResponse = $this->sendRequest($additRequest);
             $isbn = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
@@ -1747,39 +1747,6 @@ class OldNCIPRequests
              'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">' .
              '<ns1:LookupItem>' . '<ns1:ItemId><ns1:ItemIdentifierValue>' .
              htmlspecialchars($itemID) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
-
-        foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
-                 htmlspecialchars($current) . '</ns1:ItemElementType>';
-        }
-        $xml .= '</ns1:LookupItem></ns1:NCIPMessage>';
-        return $xml;
-    }
-
-    /**
-     * Temporary method for dealing with item's location.
-     *
-     * @param string $itemID
-     */
-    public function getLookupItemStatus($itemID, $agencyID = false)
-    {
-        $desiredParts = array(
-            'Circulation Status',
-            'Hold Queue Length',
-            'Item Description',
-            'Item Use Restriction Type',
-            'Location'
-        );
-
-        if (false !== $agencyID)
-            $agencyId = '<ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' .
-                 $agencyID . '</ns1:AgencyId>';
-        else
-            $agencyId = '';
-
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd"><ns1:LookupItem><ns1:ItemId>' .
-             $agencyId . '<ns1:ItemIdentifierValue>' . htmlspecialchars($itemID) .
-             '</ns1:ItemIdentifierValue></ns1:ItemId>';
 
         foreach ($desiredParts as $current) {
             $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .

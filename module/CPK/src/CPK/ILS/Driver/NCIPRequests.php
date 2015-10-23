@@ -31,11 +31,11 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->patronInformation($patron, $extras);
     }
 
-    public function lookupItem($itemId, $patron) {
+    public function lookupItem($itemId, $agency) {
         $body =
         "<ns1:LookupItem>" .
-        $this->insertInitiationHeader($patron['agency']) .
-        $this->insertItemIdTag($itemId, $patron) .
+        $this->insertInitiationHeader($agency) .
+        $this->insertItemIdTag($itemId, $agency) .
         $this->allItemElementType() .
         "</ns1:LookupItem>";
         return $this->header() . $body . $this->footer();
@@ -49,7 +49,7 @@ class NCIPRequests extends OldNCIPRequests {
         "<ns1:RequestItem>" .
         $this->insertInitiationHeader($patron['agency']) .
         $this->insertUserIdTag($patron) .
-        $this->insertItemIdTag($holdDetails['item_id'], $patron) .
+        $this->insertItemIdTag($holdDetails['item_id'], $patron['agency']) .
         $this->insertRequestType("Hold") .
         $this->insertRequestScopeType($requestScopeType);
         if (! empty($holdDetails['pickUpLocation'])) $body .= "<ns1:PickupLocation>" . htmlspecialchars($holdDetails['pickUpLocation']) . "</ns1:PickupLocation>";
@@ -62,7 +62,7 @@ class NCIPRequests extends OldNCIPRequests {
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron['agency']) .
         $this->insertUserIdTag($patron) .
-        $this->insertItemIdTag($itemId, $patron) .
+        $this->insertItemIdTag($itemId, $patron['agency']) .
         $this->insertRequestType("Estimate") .
         $this->insertRequestScopeType("Item") .
         "</ns1:CancelRequestItem>";
@@ -86,7 +86,7 @@ class NCIPRequests extends OldNCIPRequests {
         "<ns1:RenewItem>" .
         $this->insertInitiationHeader($patron['agency']) .
         $this->insertUserIdTag($patron) .
-        $this->insertItemIdTag($itemId, $patron) .
+        $this->insertItemIdTag($itemId, $patron['agency']) .
         $this->allItemElementType() .
         $this->allUserElementType() .
         "</ns1:RenewItem>";
@@ -154,10 +154,10 @@ class NCIPRequests extends OldNCIPRequests {
         htmlspecialchars($agency) . "</ns1:AgencyId>";
     }
 
-    protected function insertItemIdTag($itemId, $patron) {
+    protected function insertItemIdTag($itemId, $agency) {
         $body =
         "<ns1:ItemId>" .
-        $this->insertAgencyIdTag($patron['agency']) .
+        $this->insertAgencyIdTag($agency) .
         $this->insertItemIdentifierType() .
         "<ns1:ItemIdentifierValue>" . htmlspecialchars($itemId) . "</ns1:ItemIdentifierValue>" .
         "</ns1:ItemId>";
