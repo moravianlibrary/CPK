@@ -16,6 +16,26 @@ class NCIPRequests extends OldNCIPRequests {
 
     protected $noScheme = false;
 
+    public function patronLogin($username, $password) {
+        $body =
+        "<ns1:LookupUser>" .
+        $this->insertInitiationHeader() . // TODO add agency
+        "<ns1:AuthenticationInput>" .
+        "<ns1:AuthenticationInputData>" . $username . "</ns1:AuthenticationInputData>" .
+        "<ns1:AuthenticationDataFormatType>text/plain</ns1:AuthenticationDataFormatType>" .
+        "<ns1:AuthenticationInputType>" . $this->userAuthenticationInputType() . "</ns1:AuthenticationInputType>" .
+        "</ns1:AuthenticationInput>" .
+        "<ns1:AuthenticationInput>" .
+        "<ns1:AuthenticationInputData>" . $password . "</ns1:AuthenticationInputData>" .
+        "<ns1:AuthenticationDataFormatType>text/plain</ns1:AuthenticationDataFormatType>" .
+        "<ns1:AuthenticationInputType>Password</ns1:AuthenticationInputType>" .
+        "</ns1:AuthenticationInput>" .
+        $this->insertUserElementType("Name Information") .
+        $this->insertUserElementType("User Address Information") .
+        "</ns1:LookupUser>";
+        return $this->header() . $body . $this->footer();
+    }
+
     public function patronLoanedItems($patron) {
         $extras = "<ns1:LoanedItemsDesired />";
         return $this->patronInformation($patron, $extras);
@@ -245,16 +265,16 @@ class NCIPRequests extends OldNCIPRequests {
 
     protected function allItemElementType() {
         $body =
-        $this->itemElementType("Bibliographic Description") .
-        $this->itemElementType("Hold Queue Length") .
-        $this->itemElementType("Circulation Status") .
-        $this->itemElementType("Electronic Resource") .
-        $this->itemElementType("Item Use Restriction Type") .
-        $this->itemElementType("Location") .
-        $this->itemElementType("Physical Condition") .
-        $this->itemElementType("Security Marker") .
-        $this->itemElementType("Item Description") .
-        $this->itemElementType("Sensitization Flag");
+        $this->insertItemElementType("Bibliographic Description") .
+        $this->insertItemElementType("Hold Queue Length") .
+        $this->insertItemElementType("Circulation Status") .
+        $this->insertItemElementType("Electronic Resource") .
+        $this->insertItemElementType("Item Use Restriction Type") .
+        $this->insertItemElementType("Location") .
+        $this->insertItemElementType("Physical Condition") .
+        $this->insertItemElementType("Security Marker") .
+        $this->insertItemElementType("Item Description") .
+        $this->insertItemElementType("Sensitization Flag");
         // TODO
         /*if (library.equals("Liberec")) {
             body =
@@ -270,15 +290,15 @@ class NCIPRequests extends OldNCIPRequests {
 
     protected function allUserElementType() {
         $body =
-        insertUserElementType("Authentication Input") .
-        insertUserElementType("Block Or Trap") .
-        insertUserElementType("Date Of Birth") .
-        insertUserElementType("Name Information") .
-        insertUserElementType("User Address Information") .
-        insertUserElementType("User Language") .
-        insertUserElementType("User Privilege") .
-        insertUserElementType("User Id") .
-        insertUserElementType("Previous User Id");
+        $this->insertUserElementType("Authentication Input") .
+        $this->insertUserElementType("Block Or Trap") .
+        $this->insertUserElementType("Date Of Birth") .
+        $this->insertUserElementType("Name Information") .
+        $this->insertUserElementType("User Address Information") .
+        $this->insertUserElementType("User Language") .
+        $this->insertUserElementType("User Privilege") .
+        $this->insertUserElementType("User Id") .
+        $this->insertUserElementType("Previous User Id");
         // TODO
         /*if (library.equals("Liberec")) {
             body =
@@ -288,12 +308,20 @@ class NCIPRequests extends OldNCIPRequests {
         return $body;
     }
 
-    protected function itemElementType($value) {
+    protected function insertItemElementType($value) {
         return ($this->noScheme ?
                 "<ns1:ItemElementType>" :
                 "<ns1:ItemElementType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/itemelementtype/" .
                 "itemelementtype.scm\">") .
                 htmlspecialchars($value) . "</ns1:ItemElementType>";
+    }
+
+    protected function insertUserElementType($value) {
+        return ($this->noScheme ?
+                "<ns1:UserElementType>" :
+                "<ns1:UserElementType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/userelementtype/" .
+                "userelementtype.scm\">") .
+                htmlspecialchars($value) . "</ns1:UserElementType>";
     }
 
     /* Allowed values are: Hold, Loan. Estimate is also used. */
@@ -321,5 +349,10 @@ class NCIPRequests extends OldNCIPRequests {
                 "bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm\">") .
                 htmlspecialchars($value) .
                 "</ns1:BibliographicItemIdentifierCode>";
+    }
+
+    protected function userAuthenticationInputType() {
+        //if (library.equals("Zlin")) return "Username"; // TODO
+        return "User Id";
     }
 }

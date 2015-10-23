@@ -1747,47 +1747,6 @@ class OldNCIPRequests
         return $this->getMyProfile($patron, $extras);
     }
 
-    /**
-     * Build the request XML to log in a user.
-     *
-     * @param string $username
-     *            Username for login
-     * @param string $password
-     *            Password for login
-     * @param string $extras
-     *            Extra elements to include in the request
-     *
-     * @return string NCIP request XML
-     */
-    public function patronLogin($username, $password)
-    {
-        $extras = array(
-            '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
-                 'schemes/userelementtype/userelementtype.scm">' . 'Name Information' .
-                 '</ns1:UserElementType>' .
-                 '<ns1:UserElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/' .
-                 'schemes/userelementtype/userelementtype.scm">' .
-                 'User Address Information' . '</ns1:UserElementType>'
-        );
-
-        return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' .
-             '<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ' .
-             'ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/' .
-             'xsd/ncip_v2_0.xsd">' . '<ns1:LookupUser>' . '<ns1:AuthenticationInput>' .
-             '<ns1:AuthenticationInputData>' . htmlspecialchars($username) .
-             '</ns1:AuthenticationInputData>' . '<ns1:AuthenticationDataFormatType>' .
-             'text' . '</ns1:AuthenticationDataFormatType>' .
-             '<ns1:AuthenticationInputType>' . 'User Id' .
-             '</ns1:AuthenticationInputType>' . '</ns1:AuthenticationInput>' .
-             '<ns1:AuthenticationInput>' . '<ns1:AuthenticationInputData>' .
-             htmlspecialchars($password) . '</ns1:AuthenticationInputData>' .
-             '<ns1:AuthenticationDataFormatType>' . 'text' .
-             '</ns1:AuthenticationDataFormatType>' . '<ns1:AuthenticationInputType>' .
-             'Password' . '</ns1:AuthenticationInputType>' .
-             '</ns1:AuthenticationInput>' . implode('', $extras) . '</ns1:LookupUser>' .
-             '</ns1:NCIPMessage>';
-    }
-
     public function placeHold($holdDetails)
     {
         $pickupLocation = ! empty($holdDetails['pickUpLocation']) ? '<ns1:PickupLocation>' .
