@@ -12,7 +12,7 @@
  */
 namespace CPK\ILS\Driver;
 
-class NCIPRequests extends OldNCIPRequests {
+class NCIPRequests {
 
     protected $noScheme = false;
 
@@ -21,12 +21,12 @@ class NCIPRequests extends OldNCIPRequests {
         "<ns1:LookupUser>" .
         $this->insertInitiationHeader() . // TODO add agency
         "<ns1:AuthenticationInput>" .
-        "<ns1:AuthenticationInputData>" . $username . "</ns1:AuthenticationInputData>" .
+        "<ns1:AuthenticationInputData>" . htmlspecialchars($username) . "</ns1:AuthenticationInputData>" .
         "<ns1:AuthenticationDataFormatType>text/plain</ns1:AuthenticationDataFormatType>" .
         "<ns1:AuthenticationInputType>" . $this->userAuthenticationInputType() . "</ns1:AuthenticationInputType>" .
         "</ns1:AuthenticationInput>" .
         "<ns1:AuthenticationInput>" .
-        "<ns1:AuthenticationInputData>" . $password . "</ns1:AuthenticationInputData>" .
+        "<ns1:AuthenticationInputData>" . htmlspecialchars($password) . "</ns1:AuthenticationInputData>" .
         "<ns1:AuthenticationDataFormatType>text/plain</ns1:AuthenticationDataFormatType>" .
         "<ns1:AuthenticationInputType>Password</ns1:AuthenticationInputType>" .
         "</ns1:AuthenticationInput>" .
@@ -34,6 +34,11 @@ class NCIPRequests extends OldNCIPRequests {
         $this->insertUserElementType("User Address Information") .
         "</ns1:LookupUser>";
         return $this->header() . $body . $this->footer();
+    }
+
+    public function patronFullInformation($patron) {
+        $extras = $this->allUserElementType();
+        return $this->patronInformation($patron, $extras);
     }
 
     public function patronLoanedItems($patron) {
@@ -170,7 +175,7 @@ class NCIPRequests extends OldNCIPRequests {
         "<ns1:LookupUser>" .
         $this->insertInitiationHeader($patron['agency']) .
         $this->insertUserIdTag($patron) .
-        $extras .
+        htmlspecialchars($extras) .
         "</ns1:LookupUser>";
         return $this->header() . $body . $this->footer();
     }
@@ -234,7 +239,7 @@ class NCIPRequests extends OldNCIPRequests {
                 "<ns1:RequestIdentifierType>" :
                 "<ns1:RequestIdentifierType ns1:Scheme=\"http://www.library.sk/ncip/v2_02/schemes.scm\">") .
                 "IDX" . "</ns1:RequestIdentifierType>" .
-        "<ns1:RequestIdentifierValue>" . $requestId . "</ns1:RequestIdentifierValue>" .
+        "<ns1:RequestIdentifierValue>" . htmlspecialchars($requestId) . "</ns1:RequestIdentifierValue>" .
         "</ns1:RequestId>";
         return body;
     }
