@@ -8,6 +8,7 @@
   }
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
+    <div class="white-box clearfix">
     <div class="row">
         <div class="col-sm-2 col-xs-3 left">
             <? $recordId =  preg_replace("/\./", "", $recordId)?>
@@ -162,6 +163,7 @@
              echo $this->context($this)->renderInContext('RecordDriver/SolrDefault/records-in-libraries.phtml', array('records' => $dedupData, 'config' => $this->config));
 
          ?>
+  </div>
   </div>
 
 </div>

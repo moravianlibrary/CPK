@@ -117,8 +117,10 @@
     ?>
     <header role="banner" class="hidden-print">
       <div class="container navbar navbar-inverse">
-        <a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
-        <?=$this->render('header.phtml')?>
+        <div class="red-box">
+          <a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
+          <?=$this->render('header.phtml')?>
+        </div>
       </div>
       <div class="container">
           <? if ($this->layout()->searchbox !== false): ?>
