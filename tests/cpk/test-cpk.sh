@@ -25,7 +25,10 @@ cp -p ./selenium_cpk_tests/target/surefire-reports/Command\ line\ suite/Command\
 printf "\e[92mDONE\e[21m\e[0m\n"
 
 printf "[3/5] NCIP testing ... "
-#
+cd ./ncip_testy
+git pull origin master
+mvn test
+cd ../
 printf "\e[92mDONE\e[21m\e[0m\n"
 
 printf "[4/5] Getting error log ... "
