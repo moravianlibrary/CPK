@@ -93,6 +93,27 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function LUISItemId($itemList, $nextItemToken = null, XCNCIP2 $mainClass = null) {
+        $body = "<ns1:LookupItemSet>";
+        foreach ($itemList as $id) {
+            if ($mainClass !== null)
+                list ($id, $agency) = $mainClass->splitAgencyId($id);
+            $body .= $this->insertItemIdTag($id, $agency);
+        }
+        $body .= $this->allItemElementType();
+        if (! empty($mainClass->getMaximumItemsCount())) {
+            $body .= "<ns1:MaximumItemsCount>" .
+                    htmlspecialchars($mainClass->getMaximumItemsCount()) .
+                    "</ns1:MaximumItemsCount>";
+        }
+        if (! empty($nextItemToken)) {
+            $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
+            "</ns1:NextItemToken>";
+        }
+        $body .= "</ns1:LookupItemSet>";
+        return $this->header() . $body . $this->footer();
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .

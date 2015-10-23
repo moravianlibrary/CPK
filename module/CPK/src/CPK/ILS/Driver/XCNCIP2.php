@@ -792,9 +792,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids));
         else {
-
-            $request = $this->requests->getStatuses($ids, null, $this);
+            $request = $this->requests->LUISItemId($ids, null, $this);
             $response = $this->sendRequest($request);
+            $a = $response->AsXML();
 
             if ($response === null)
                 return [];
@@ -1653,54 +1653,6 @@ class OldNCIPRequests
                  '<ns1:BibliographicItemIdentifierCode ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm">Legal Deposit Number</ns1:BibliographicItemIdentifierCode>' .
                  '</ns1:BibliographicItemId>' . $agencyIdExt .
                  '</ns1:BibliographicId>';
-        }
-        // Add the desired data list:
-        foreach ($desiredParts as $current) {
-            $xml .= '<ns1:ItemElementType ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/itemelementtype/itemelementtype.scm">' .
-                 htmlspecialchars($current) . '</ns1:ItemElementType>';
-        }
-        if (! empty($mainClass->getMaximumItemsCount())) {
-            $xml .= '<ns1:MaximumItemsCount>' .
-                 htmlspecialchars($mainClass->getMaximumItemsCount()) .
-                 '</ns1:MaximumItemsCount>';
-        }
-        // Add resumption token if necessary:
-        if (! empty($resumption)) {
-            $xml .= '<ns1:NextItemToken>' . htmlspecialchars($resumption) .
-                 '</ns1:NextItemToken>';
-        }
-        // Close the XML and send it to the caller:
-        $xml .= '</ns1:LookupItemSet></ns1:NCIPMessage>';
-        return $xml;
-    }
-
-    public function getStatuses($ids, $resumption = null, XCNCIP2 $mainClass = null)
-    {
-
-        // Build a list of the types of information we want to retrieve:
-        $desiredParts = array(
-            'Circulation Status',
-            'Hold Queue Length',
-            'Item Use Restriction Type',
-            'Location'
-        );
-        // Start the XML:
-        $xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd"><ns1:LookupItemSet>';
-        // Add the ID list:
-        $i = - 1;
-        foreach ($ids as $id) {
-
-            if ($mainClass !== null)
-                list ($id, $agencyId) = $mainClass->splitAgencyId($id);
-
-            $agencyIdTag = '';
-            if ($agencyId)
-                $agencyIdTag = '><ns1:AgencyId ns1:Scheme="http://www.niso.org/ncip/v1_0/schemes/agencyidtype/agencyidtype.scm">' .
-                     htmlspecialchars($agencyId) . '</ns1:AgencyId>';
-
-            $xml .= '<ns1:ItemId>' . $agencyIdTag .
-                 '<ns1:ItemIdentifierType ns1:Scheme="http://www.niso.org/ncip/v1_0/imp1/schemes/visibleitemidentifiertype/visibleitemidentifiertype.scm">Accession Number</ns1:ItemIdentifierType><ns1:ItemIdentifierValue>' .
-                 htmlspecialchars($id) . '</ns1:ItemIdentifierValue></ns1:ItemId>';
         }
         // Add the desired data list:
         foreach ($desiredParts as $current) {
