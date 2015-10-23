@@ -907,15 +907,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         // FIXME: Is this not async iteration useful??
         do {
             if (isset($nextItemToken[0]))
-                $request = $this->requests->getHolding(
+                $request = $this->requests->LUISBibItem(
                     array(
                         $id
-                    ), (string) $nextItemToken[0]);
+                    ), (string) $nextItemToken[0], $this);
             else {
-                $request = $this->requests->getHolding(
+                $request = $this->requests->LUISBibItem(
                     array(
                         $id
-                    ));
+                    ), null, $this);
                 $all_iteminfo = [];
             }
 

@@ -114,6 +114,27 @@ class NCIPRequests extends OldNCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function LUISBibItem($bibItemList, $nextItemToken = null, XCNCIP2 $mainClass = null) {
+        $body = "<ns1:LookupItemSet>";
+        foreach ($bibItemList as $id) {
+            if ($mainClass !== null)
+                list ($id, $agency) = $mainClass->splitAgencyId($id);
+            $body .= $this->insertBibliographicItemIdTag($id);
+        }
+        $body .= $this->allItemElementType();
+        if (! empty($mainClass->getMaximumItemsCount())) {
+            $body .= "<ns1:MaximumItemsCount>" .
+                    htmlspecialchars($mainClass->getMaximumItemsCount()) .
+                    "</ns1:MaximumItemsCount>";
+        }
+        if (! empty($nextItemToken)) {
+            $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
+            "</ns1:NextItemToken>";
+        }
+        $body .= "</ns1:LookupItemSet>";
+        return $this->header() . $body . $this->footer();
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
@@ -198,6 +219,19 @@ class NCIPRequests extends OldNCIPRequests {
         return body;
     }
 
+    protected function insertBibliographicItemIdTag($itemId) {
+        $body =
+        "<ns1:BibliographicId>" .
+        "<ns1:BibliographicItemId>" .
+        "<ns1:BibliographicItemIdentifier>" .
+        htmlspecialchars($itemId) .
+        "</ns1:BibliographicItemIdentifier>" .
+        $this->bibliographicItemIdentifierCode("Legal Deposit Number") .
+        "</ns1:BibliographicItemId>" .
+        "</ns1:BibliographicId>";
+        return $body;
+    }
+
     /* Allowed values are: Accession Number, Barcode. */
     protected function insertItemIdentifierType() {
         $itemIdentifierType = "Accession Number";
@@ -277,5 +311,15 @@ class NCIPRequests extends OldNCIPRequests {
                 "<ns1:RequestScopeType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/requestscopetype/" .
                 "requestscopetype.scm\">") .
                 htmlspecialchars($value) . "</ns1:RequestScopeType>";
+    }
+
+    /* Allowed values are: Legal Deposit Number, ISBN. */
+    protected function bibliographicItemIdentifierCode($value) {
+        return ($this->noScheme ?
+                "<ns1:BibliographicItemIdentifierCode>" :
+                "<ns1:BibliographicItemIdentifierCode ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
+                "bibliographicitemidentifiercode/bibliographicitemidentifiercode.scm\">") .
+                htmlspecialchars($value) .
+                "</ns1:BibliographicItemIdentifierCode>";
     }
 }
