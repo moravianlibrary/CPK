@@ -10,8 +10,18 @@ touch ./template/data/unitTestsResults.xml
 printf "\e[92mDONE\e[21m\e[0m\n"
 
 printf "[2/5] System selenium testing ... "
+
+echo "Updating selenium repository [Git pull]"
+cd ./selenium_cpk_tests/
+git pull origin master
+cd ../
+echo "Updating selenium repository [Git pull] Finished"
+
 seleniumPomPath="$PWD/selenium_cpk_tests/pom.xml"
-sh ./selenium_cpk_tests/run_selenium_tests.sh $seleniumPomPath
+sh ./selenium_cpk_tests/run_selenium_tests.sh -p $seleniumPomPath
+rm -rf ./selenium_cpk_tests/target/surefire-reports/Command-line-suite/ 
+cp -p ./selenium_cpk_tests/target/surefire-reports/Command\ line\ suite/ ./selenium_cpk_tests/target/surefire-reports/Command-line-suite/ -R
+cp -p ./selenium_cpk_tests/target/surefire-reports/Command\ line\ suite/Command\ line\ test.html ./selenium_cpk_tests/target/surefire-reports/Command-line-suite/Command-line-test.html -R  
 printf "\e[92mDONE\e[21m\e[0m\n"
 
 printf "[3/5] NCIP testing ... "
