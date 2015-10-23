@@ -56,6 +56,11 @@ class NCIPRequests {
         return $this->patronInformation($patron, $extras);
     }
 
+    public function patronBlocks($patron) {
+        $extras = $this->insertUserElementType("Block Or Trap");
+        return $this->patronInformation($patron, $extras);
+    }
+
     public function lookupItem($itemId, $agency) {
         $body =
         "<ns1:LookupItem>" .

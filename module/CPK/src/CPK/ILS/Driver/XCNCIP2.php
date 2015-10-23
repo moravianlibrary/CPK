@@ -1295,7 +1295,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getBlocks($cat_username)
     {
-        $request = $this->requests->getBlocks($cat_username);
+        $patron = array(
+            'id' => $cat_username
+            );
+        $request = $this->requests->patronBlocks($patron);
         $response = $this->sendRequest($request);
 
         $blocksParsed = $this->useXPath($response,
