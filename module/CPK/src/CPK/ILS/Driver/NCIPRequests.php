@@ -180,7 +180,8 @@ class NCIPRequests {
         "<ns1:LookupUser>" .
         $this->insertInitiationHeader($patron['agency']) .
         $this->insertUserIdTag($patron) .
-        htmlspecialchars($extras) .
+        // Do not use htmlspecialchars for $extras.
+        $extras .
         "</ns1:LookupUser>";
         return $this->header() . $body . $this->footer();
     }
