@@ -114,7 +114,7 @@ class SolrMarc extends ParentSolrMarc
     public function getPublishers()
     {
     	$array = $this->getFieldArray('260', array('b'));
-    	if (count($array) === 0) 
+    	if (count($array) === 0)
     		$array = $this->getFieldArray('264', array('b'));
 
     	return $array;
@@ -168,17 +168,34 @@ class SolrMarc extends ParentSolrMarc
                 $ignoredValue = array_map('trim', explode(',', $ignoredValue));
         }
 
+        $toUpper = $mappingsFor996['toUpper'];
+
+        if ($toUpper !== null) {
+            // We will take care of the upperation process in the closest iteration
+            unset($mappingsFor996['toUpper']);
+        } else {
+            // We will iterate over this, so don't let this be null
+            $toUpper = [];
+        }
+
         $toTranslate = [];
 
+        $toTranslateArray = $mappingsFor996['translate'];
+
         // Here particular fields translation configuration takes place (see comments in MultiBackend.ini)
-        if (isset($mappingsFor996['translate'])) {
-            $toTranslateArray = array_map('trim', explode(',', $mappingsFor996['translate']));
+        if ($toTranslateArray !== null) {
+
+            unset($mappingsFor996['translate']);
 
             foreach ($toTranslateArray as $toTranslateElement) {
-                list ($fieldToTranslate, $prependString) = explode(':', $toTranslateElement);
+                $toTranslateElements = explode(':', $toTranslateElement);
 
-                if (empty($prependString))
+                $fieldToTranslate = $toTranslateElements[0];
+
+                if (count($toTranslateElements) < 2)
                     $prependString = '';
+                else
+                    $prependString = $toTranslateElements[1];
 
                 $toTranslate[$fieldToTranslate] = $prependString;
             }
@@ -190,14 +207,21 @@ class SolrMarc extends ParentSolrMarc
             if (! $this->shouldBeRestricted($currentField, $restrictions)) {
 
                 foreach ($mappingsFor996 as $variableName => $current996Mapping) {
+                    // Here it omits unset values & values, which are desired to be ignored by their presence in ignoredVals MultiBackend.ini's array
                     if (! empty($currentField[$current996Mapping]) && ! $this->isIgnored($currentField[$current996Mapping], $current996Mapping, $ignoredKeyValsPairs)) {
                         $holding[$variableName] = $currentField[$current996Mapping];
                     }
                 }
 
+                // Translation takes place from translate
                 foreach ($toTranslate as $fieldToTranslate => $prependString) {
                     if (! empty($holding[$fieldToTranslate]))
                         $holding[$fieldToTranslate] = $this->translate($prependString . $holding[$fieldToTranslate], null, $holding[$fieldToTranslate]);
+                }
+
+                foreach ($toUpper as $fieldToBeUpperred) {
+                    if (! empty($holding[$fieldToBeUpperred]))
+                        $holding[$fieldToBeUpperred] = strtoupper($holding[$fieldToBeUpperred]);
                 }
 
                 $holding['id'] = $id;
@@ -360,7 +384,7 @@ class SolrMarc extends ParentSolrMarc
 
     /**
      * Returns perent record ID from SOLR
-     * 
+     *
      * @return  string
      */
     public function getParentRecordID()
