@@ -700,13 +700,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             // Extract details from the XML:
             $status = (string) $this->useXPath($response,
-                'ItemOptionalFields/CirculationStatus')[0];
+                'LookupItemResponse/ItemOptionalFields/CirculationStatus')[0];
 
             // Pick out the permanent location (TODO: better smarts for dealing with
             // temporary locations and multi-level location names):
 
             $locationNameInstance = $this->useXPath($response,
-                'ItemOptionalFields/Location/LocationName/LocationNameInstance');
+                'LookupItemResponse/ItemOptionalFields/Location/LocationName/LocationNameInstance');
 
             foreach ($locationNameInstance as $recent) {
                 // FIXME: Create config to map location abbreviations of each institute into human readable values
@@ -728,13 +728,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
 
             $numberOfPieces = (string) $this->useXPath($response,
-                'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
+                'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
 
             $holdQueue = (string) $this->useXPath($response,
-                'ItemOptionalFields/HoldQueueLength')[0];
+                'LookupItemResponse/ItemOptionalFields/HoldQueueLength')[0];
 
             $itemRestriction = (string) $this->useXPath($response,
-                'ItemOptionalFields/ItemUseRestrictionType')[0];
+                'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType')[0];
 
             $available = $status === 'Available On Shelf';
 
@@ -794,7 +794,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         else {
             $request = $this->requests->LUISItemId($ids, null, $this);
             $response = $this->sendRequest($request);
-            $a = $response->AsXML();
 
             if ($response === null)
                 return [];
@@ -1261,6 +1260,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $blocks[$logo] = (string) $block;
             } else
                 $blocks[] = (string) $block;
+        }
+
+        if (empty($name) && empty($surname)) {
+            $name = $this->useXPath($response,
+                    'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/UnstructuredPersonalUserName');
+        }
+        if (empty($address1)) {
+            $address1 = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line1');
+        }
+        if (empty($city)) {
+            $city = $this->useXPath($response,
+            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line2');
         }
 
         $patron = array(
