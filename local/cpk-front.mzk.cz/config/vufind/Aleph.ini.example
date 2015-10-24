@@ -28,7 +28,7 @@ disable_ils_auth   = false
 logo = LOGO_OF_YOUR_ORGANIZATION
 
 [LocaleToLangMapping]
-cs = cze
+cs-cpk = cze
 
 [sublibadm]
 ARC     = SUBLIB_ARC
