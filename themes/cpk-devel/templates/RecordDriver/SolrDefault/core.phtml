@@ -64,7 +64,7 @@
     <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
       <? $journalTitle = $this->driver->getContainerTitle(); if (!empty($journalTitle)): ?>
       <tr>
-        <th class="col-md-4"><?=$this->transEsc('Published in')?>:</th>
+        <th class="col-md-3"><?=$this->transEsc('Published in')?>:</th>
         <td>
           <? $containerID = $this->driver->getContainerRecordID(); ?>
           <a href="<?=($containerID ? $this->recordLink()->getUrl("VuFind|$containerID") : $this->record($this->driver)->getLink('journaltitle', $journalTitle))?>"><?=$this->escapeHtml($journalTitle)?></a>
@@ -76,7 +76,7 @@
       <? $nextTitles = $this->driver->getNewerTitles(); $prevTitles = $this->driver->getPreviousTitles(); ?>
       <? if (!empty($nextTitles)): ?>
       <tr>
-        <th class="col-md-4"><?=$this->transEsc('New Title')?>: </th>
+        <th class="col-md-3"><?=$this->transEsc('New Title')?>: </th>
         <td>
           <? foreach($nextTitles as $field): ?>
             <a href="<?=$this->record($this->driver)->getLink('title', $field)?>"><?=$this->escapeHtml($field)?></a><br/>
@@ -87,7 +87,7 @@
 
       <? if (!empty($prevTitles)): ?>
       <tr>
-        <th class="col-md-4"><?=$this->transEsc('Previous Title')?>: </th>
+        <th class="col-md-3"><?=$this->transEsc('Previous Title')?>: </th>
         <td>
           <? foreach($prevTitles as $field): ?>
             <a href="<?=$this->record($this->driver)->getLink('title', $field)?>"><?=$this->escapeHtml($field)?></a><br/>
@@ -99,21 +99,21 @@
       <? $authors = $this->driver->getDeduplicatedAuthors(); ?>
       <? if (isset($authors['main']) && !empty($authors['main'])): ?>
       <tr>
-        <th class="col-md-4"><?=$this->transEsc('Main Author')?>: </th>
+        <th class="col-md-3"><?=$this->transEsc('Main Author')?>: </th>
         <td property="author"><a href="<?=$this->record($this->driver)->getLink('author', $authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a></td>
       </tr>
       <? endif; ?>
 
       <? if (isset($authors['corporate']) && !empty($authors['corporate'])): ?>
       <tr>
-        <th class="col-md-4"><?=$this->transEsc('Corporate Author')?>: </th>
+        <th class="col-md-3"><?=$this->transEsc('Corporate Author')?>: </th>
         <td property="creator"><a href="<?=$this->record($this->driver)->getLink('author', $authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
       </tr>
       <? endif; ?>
 
       <? if (isset($authors['secondary']) && !empty($authors['secondary'])): ?>
       <tr>
-        <th class="col-md-4"><?=$this->transEsc('Other Authors')?>: </th>
+        <th class="col-md-3"><?=$this->transEsc('Other Authors')?>: </th>
         <td>
           <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="<?=$this->record($this->driver)->getLink('author', $field)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
         </td>
@@ -122,7 +122,7 @@
 
       <? $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
         <tr>
-          <th class="col-md-4"><?=$this->transEsc('Format')?>: </th>
+          <th class="col-md-3"><?=$this->transEsc('Format')?>: </th>
           <td><?=$this->record($this->driver)->getFormatList()?></td>
         </tr>
       <? endif; ?>
@@ -136,14 +136,14 @@
 
       <? $range = $this->driver->getRange(); if (!empty($range) && ($range[0] != '')): ?>
         <tr>
-          <th class="col-md-4"><?=$this->transEsc('Document range')?>: </th>
+          <th class="col-md-3"><?=$this->transEsc('Document range')?>: </th>
           <td><?=$range[0]?></td>
         </tr>
       <? endif; ?>
 
       <? $release = $this->driver->getRelease(); if (!empty($release) && ($release[0] != '')): ?>
         <tr>
-          <th class="col-md-4"><?=$this->transEsc('Release')?>: </th>
+          <th class="col-md-3"><?=$this->transEsc('Release')?>: </th>
           <td><?=$release[0]?></td>
         </tr>
       <? endif; ?>
