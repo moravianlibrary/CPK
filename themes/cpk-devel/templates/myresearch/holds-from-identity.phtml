@@ -120,6 +120,9 @@
             <? if (isset($ilsDetails['cancel_link'])): ?>
               <p><a href="<?=$this->escapeHtmlAttr($ilsDetails['cancel_link']) ?>"><?=$this->transEsc("hold_cancel") ?></a></p>
             <? endif; ?>
+            <? if (isset($ilsDetails['status'])): ?>
+              <strong><?=$this->transEsc('Status') ?>:</strong> <?=$this->escapeHtml($ilsDetails['status']) ?>
+            <? endif; ?>
 
           </div>
         </div>
