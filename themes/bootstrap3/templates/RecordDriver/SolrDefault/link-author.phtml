@@ -1,1 +1,7 @@
 <?=$this->url('author-home')?>?author=<?=urlencode($this->lookfor)?>
+<? if (($limit = $params->getLimit()) != null):?>
+&limit=<?= $limit;?>
+<? endif;?>
+<? if (($sort = $params->getSort()) != null):?>
+&sort=<?= $sort;?>
+<? endif;?>
