@@ -40,6 +40,8 @@ php system/validateDOM.php
 echo -e "\e[92mDONE\e[21m\e[0m\n"
 
 user=`whoami`
-echo -e "Results can be found in: \e[4mfile:///home/$user/git/VuFind-2.x/tests/cpk/template/index.phtml\e[24m"
 echo -e "\e[1mTesting CPK: Finished\e[21m"
+echo -e "Results can be found in: \e[4mfile:///home/$user/git/VuFind-2.x/tests/cpk/template/index.phtml\e[24m"
+echo "To see them, create an alias /test on this server and visit localhost/test/index.phtml.";
+
 echo ""
