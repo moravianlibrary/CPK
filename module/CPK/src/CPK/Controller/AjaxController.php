@@ -598,7 +598,6 @@ class AjaxController extends AjaxControllerBase
                 if (isset($ilsDetails['dueStatus']) &&
                      $ilsDetails['dueStatus'] == "overdue") {
                     $showOverdueMessage = true;
-                    break;
                 }
 
                 $transactions[] = $resource;

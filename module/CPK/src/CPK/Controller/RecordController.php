@@ -45,6 +45,8 @@ class RecordController extends RecordControllerBase
         HoldsTrait::holdAction insteadof HoldsTraitBase;
     }
 
+    protected $recordLoader = null;
+
     /**
      * Display a particular tab.
      *
@@ -125,8 +127,11 @@ class RecordController extends RecordControllerBase
     protected function get856Links()
     {
         $parentRecordID = $this->driver->getParentRecordID();
-        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-        $recordDriver = $recordLoader->load($parentRecordID);
+
+        if ($this->recordLoader === null)
+            $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+
+        $recordDriver = $this->recordLoader->load($parentRecordID);
         $links = $recordDriver->get856Links();
         return $links;
     }
@@ -140,9 +145,30 @@ class RecordController extends RecordControllerBase
     protected function get866Data()
     {
     	$parentRecordID = $this->driver->getParentRecordID();
-    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    	$recordDriver = $recordLoader->load($parentRecordID);
+
+    	if ($this->recordLoader === null)
+    	    $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+
+    	$recordDriver = $this->recordLoader->load($parentRecordID);
     	$links = $recordDriver->get866Data();
     	return $links;
+    }
+
+    /**
+     * Support method to load tab information from the RecordTabPluginManager.
+     *
+     * @return void
+     */
+    protected function loadTabDetails()
+    {
+        parent::loadTabDetails();
+
+        if (empty($this->driver->getRealTimeHoldings())) {
+
+            // If there is no real holding to display, than show EVersion tab if
+            // there is something ..
+            if (count($this->get856Links()) || count($this->get866Data()))
+                $this->defaultTab = 'EVersion';
+        }
     }
 }
