@@ -53,26 +53,33 @@ function getSfxJibResult( recordID, sourceInstitute, arrayOf866 ) {
 				$( "#ajax-error-info" ).empty().append( response.data );
 			} else {
 
-				if ( sfxJibResult.data[0].sfxResult.targets.target !== '' && arrayOf866 !== '') {
-					var count = sfxJibResult.data[0].sfxResult.targets.target.length;
+				var c = sfxJibResult.data[0].sfxResult.length;
 
-					for (var i = 0; i < count; i++) {
-						var targetServiceId = sfxJibResult.data[0].sfxResult.targets.target[i].target_service_id;
-						if ( arrayOf866[targetServiceId] != null ) {
-							var record = arrayOf866[targetServiceId];
-							var anchor = record.anchor;
-							var source = record.source;
-							var url = sfxJibResult.data[0].sfxResult.targets.target[i].target_url;
-							$( "#e-version-table tbody" ).append( "<tr>"
-									+"<td>"+databaseTranslation+"</td>"
-									+"<td><span class='label label-warning'>"+unknownTranslation+"</span></td>"
-									+"<td><a href='"+url+"'>"+anchor+"</a></td>"
-									+"<td>"+source+"</td>"
-									+"</tr>");
+				for (var j = 0; j < c; j++){
 
+					if ( sfxJibResult.data[0].sfxResult[j].targets.target[0] !== '' && arrayOf866 !== '') {
+
+						var count = sfxJibResult.data[0].sfxResult[j].targets.target.length;
+				
+						for (var i = 0; i < count; i++) {
+							var targetServiceId = sfxJibResult.data[0].sfxResult[j].targets.target[i].target_service_id;
+							if ( arrayOf866[targetServiceId] != null ) {
+								var record = arrayOf866[targetServiceId];
+								var anchor = record.anchor;
+								var source = record.source;
+								var url = sfxJibResult.data[0].sfxResult[j].targets.target[i].target_url;
+								$( "#e-version-table tbody" ).append( "<tr>"
+										+"<td>"+databaseTranslation+"</td>"
+										+"<td><span class='label label-warning'>"+unknownTranslation+"</span></td>"
+										+"<td><a href='"+url+"'>"+anchor+"</a></td>"
+										+"<td>"+source+"</td>"
+										+"</tr>");
+	
+							}
 						}
 					}
-				}
+				}	
+				
 			}
 		}
 	});

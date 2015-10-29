@@ -132,15 +132,7 @@ class AjaxController extends AjaxControllerBase
      */
     public function callLinkServerAjax()
     {
-        $sourceInstitute = $this->params()->fromQuery('sourceInstitute');
-        if (! $sourceInstitute)
-            $sourceInstitute = 'default';
-
         $multiBackendConfig = $this->getConfig('MultiBackend');
-        $lsID = 'ls_' . $sourceInstitute;
-        $linkServer = $multiBackendConfig->LinkServers->$lsID;
-        $instituteLsShortcut = explode("|", $linkServer)[0];
-        $instituteLsLink = explode("|", $linkServer)[1];
 
         $recordID = $this->params()->fromQuery('recordID');
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
@@ -148,6 +140,26 @@ class AjaxController extends AjaxControllerBase
 
         $parentRecordID = $recordDriver->getParentRecordID();
         $parentRecordDriver = $recordLoader->load($parentRecordID);
+        
+        $childrenIds = $parentRecordDriver->getChildrenIds();
+        
+        $linkServers = [];
+        foreach ($childrenIds as $childrenId) {
+            $sourceInstitute = explode('.', $childrenId)[0];
+            
+            $lsID = 'ls_' . $sourceInstitute;
+            $linkServer = $multiBackendConfig->LinkServers->$lsID;
+        
+            if ($linkServer === null) // if there is no configuration in Multibackend.ini, use default settings
+                $linkServer = $multiBackendConfig->LinkServers->ls_default;
+        
+            $instituteLsShortcut = explode("|", $linkServer)[0];
+            $instituteLsLink = explode("|", $linkServer)[1];
+            
+            if (! array_key_exists($instituteLsShortcut, $linkServers))
+            $linkServers[$instituteLsShortcut] = $instituteLsLink;
+        }
+        
         $isn = $parentRecordDriver->getIsn();
         if ($isn === false)
             $isn = $recordDriver->getIsn();
@@ -170,7 +182,6 @@ class AjaxController extends AjaxControllerBase
             }
 
         $params = array(
-            'sfx.institute' => $instituteLsShortcut,
             'ctx_ver' => 'Z39.88-2004',
             'ctx_enc' => 'info:ofi/enc:UTF-8',
             'sfx.response_type' => 'simplexml',
@@ -182,9 +193,13 @@ class AjaxController extends AjaxControllerBase
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
         $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject(
             $recordDriver);
-
-        $sfxResult = $electronicChoiceHandler->getRequestDataResponseAsArray(
-            $instituteLsLink, $allParams);
+        
+        $sfxResult = [];
+        foreach ($linkServers as $shortcut => $link) {
+            $allParams['sfx.institute'] = $shortcut;
+            $sfxResult[] = $electronicChoiceHandler->getRequestDataResponseAsArray(
+            $link, $allParams);
+        }
 
         $vars[] = array(
             'sfxResult' => $sfxResult

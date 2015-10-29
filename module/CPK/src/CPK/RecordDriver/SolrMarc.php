@@ -21,6 +21,11 @@ class SolrMarc extends ParentSolrMarc
         list ($source, $localId) = explode('.', $this->getUniqueID());
         return $localId;
     }
+    
+    public function getChildrenIds()
+    {
+        return isset($this->fields['local_ids_str_mv']) ? $this->fields['local_ids_str_mv'] : [];
+    }
 
     public function getSourceId()
     {
