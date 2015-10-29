@@ -43,11 +43,18 @@ class Params extends \VuFind\Search\Base\Params
     const PER_FIELD_PARAM = 'f.';
 
     /**
-     * Facet result limit
+     * Default facet result limit
      *
      * @var int
      */
     protected $facetLimit = 30;
+
+    /**
+     * Per-field facet result limit
+     *
+     * @var array
+     */
+    protected $facetLimitByField = [];
 
     /**
      * Offset for facet results
@@ -114,9 +121,17 @@ class Params extends \VuFind\Search\Base\Params
         ) {
             $this->setFacetLimit($config->Results_Settings->facet_limit);
         }
+
         if (isset($config->SpecialFacets->hierarchical) && is_string($config->SpecialFacets->hierarchical)) {
             $this->setHierarchicalFacets(explode(',', $config->SpecialFacets->hierarchical));
         }
+
+        if (isset($config->Results_Settings->facet_limit_by_field)) {
+            foreach ($config->Results_Settings->facet_limit_by_field as $k => $v) {
+                $this->facetLimitByField[$k] = $v;
+            }
+        }
+
         if (isset($config->Results_Settings->sorted_by_index)
             && count($config->Results_Settings->sorted_by_index) > 0
         ) {
@@ -181,10 +196,13 @@ class Params extends \VuFind\Search\Base\Params
         if (!empty($this->facetConfig)) {
             $facetSet['limit'] = $this->facetLimit;
             foreach (array_keys($this->facetConfig) as $facetField) {
-                //temporary disabled due fo hierarchical facets problems
-                //if (in_array($facetField, $this->hierarchicalFacets) && $this->facetPrefix == NULL) {
-                //    $facetSet[self::PER_FIELD_PARAM . $facetField . '.facet.prefix'] = '0';
-                //}
+
+		// This if section was commented out before upstream merge ..
+                if (isset($this->facetLimitByField[$facetField])) {
+                    $facetSet["f.{$facetField}.facet.limit"]
+                        = $this->facetLimitByField[$facetField];
+                }
+
                 if ($this->getFacetOperator($facetField) == 'OR') {
                     $facetField = '{!ex=' . $facetField . '_filter}' . $facetField;
                 }
@@ -196,17 +214,11 @@ class Params extends \VuFind\Search\Base\Params
             if ($this->facetPrefix != null) {
                 $facetSet['prefix'] = $this->facetPrefix;
             }
-            if ($this->facetSort != null) {
-                $facetSet['sort'] = $this->facetSort;
-            } else {
-                // No explicit setting? Set one based on the documented Solr behavior
-                // (index order for limit = -1, count order for limit > 0)
-                // Later Solr versions may have different defaults than earlier ones,
-                // so making this explicit ensures consistent behavior.
-                $facetSet['sort'] = ($this->facetLimit > 0) ? 'count' : 'index';
-            }
+            $facetSet['sort'] = $this->facetSort ?: 'count';
             if ($this->indexSortedFacets != null) {
-                $facetSet['indexSortedFacets'] = $this->indexSortedFacets;
+                foreach ($this->indexSortedFacets as $field) {
+                    $facetSet["f.{$field}.facet.sort"] = 'index';
+                }
             }
         }
         return $facetSet;
@@ -525,14 +537,9 @@ class Params extends \VuFind\Search\Base\Params
         if (!empty($facets)) {
             $backendParams->add('facet', 'true');
 
-            if (isset($facets['indexSortedFacets'])) {
-                foreach ($facets['indexSortedFacets'] as $field) {
-                    $backendParams->add("f.{$field}.facet.sort", 'index');
-                }
-                unset($facets['indexSortedFacets']);
-            }
-
             foreach ($facets as $key => $value) {
+
+                // prefix keys with "facet" unless they already have a "f." prefix:
                 if (substr($key, 0, strlen(self::PER_FIELD_PARAM)) === self::PER_FIELD_PARAM) {
                     $backendParams->add($key, $value);
                 } else {
@@ -664,6 +671,14 @@ class Params extends \VuFind\Search\Base\Params
             $filter['displayText'] = $facetHelper->formatDisplayText(
                 $filter['displayText'], true, $separator
             );
+            if ($translate) {
+                $domain = $this->getOptions()->getTextDomainForTranslatedFacet(
+                    $field
+                );
+                $filter['displayText'] = $this->translate(
+                    [$domain, $filter['displayText']]
+                );
+            }
         }
 
         return $filter;

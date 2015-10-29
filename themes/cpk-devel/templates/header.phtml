@@ -14,7 +14,7 @@ if ($user) $libraryCards = $user->getLibraryCards(false); ?>
     <span class="sr-only">Toggle navigation</span>
     <i class="fa fa-bars"></i>
   </button>
-    <a role="logo" class="navbar-brand"  href="<?=$this->url('home')?>">
+    <a class="navbar-brand lang-<?=$this->layout()->userLang ?>"  href="<?=$this->url('home')?>">
       <img alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>">
       <div class="pull-right beta-logo" onclick='window.open("<?=$this->translate('beta_changelog_link')?>");' data-toggle="tooltip" data-placement="top" title="<?=$this->translate('Changelog')?>">
       	<?=$this->translate('beta_tag')?>
@@ -23,88 +23,76 @@ if ($user) $libraryCards = $user->getLibraryCards(false); ?>
 </div>
 <? if (!isset($this->layout()->renderingError)): ?>
   <div class="collapse navbar-collapse" id="header-collapse">
-    <ul role="navigation" class="nav navbar-nav navbar-right">
-      <? if ($this->feedback()->tabEnabled()): ?>
-        <li>
-          <a id="feedbackLink" class="modal-link" href="<?=$this->url('feedback-home') ?>"><i class="fa fa-envelope"></i> <?=$this->transEsc("Feedback")?></a>
-        </li>
-      <? endif; ?>
-      <? $cart = $this->cart(); if ($cart->isActive()): ?>
-        <li id="cartSummary">
-          <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>"><i class="fa fa-suitcase"></i> <strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
-        </li>
-      <? endif; ?>
-      <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
-        <li class="dropdown<? if(!$user): ?> hidden<? endif ?>">
-        <? if (!empty($user->firstname) || !empty($user->lastname)) {
-            $fullname = $user->firstname . ' ' . $user->lastname;
-        } else {
-            $fullname = $this->transEsc("Your Account");
-        } ?>
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$fullname?> <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <li class="logoutOptions">
-              <a href="<?=$this->url('myresearch-home', array(), array('query' => array('redirect' => 0)))?>" class="modal-link" title="<?=$this->transEsc("Your Account")?>"><i class="fa fa-home"></i> <?=$this->transEsc("Your Account")?></a>
-            </li>
-            <li class="logoutOptions<? if(!$isActiveShibbolethIdentityManager): ?> hidden<? endif ?>">
-              <a href="<?=$this->url('myresearch-userconnect')?>" class="modal-link" title="<?=$this->transEsc("Connect another account")?>"><i class="fa fa-home"></i> <?=$this->transEsc("Connect another account")?></a>
-            </li>
-            <li class="logoutOptions">
-              <a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
-            </li>
-          </ul>
-        </li>
-        <li id="loginOptions"<? if($user): ?> class="hidden"<? endif ?>>
-          <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
-            <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i class="icon-prihlasit"></i> <?=$this->transEsc("Institutional Login")?></a>
-          <? else: ?>
-            <a href="<?=$this->url('myresearch-userlogin')?>" class="modal-link" title="<?=$this->transEsc("Login")?>"><i class="icon-prihlasit"></i> <?=$this->transEsc("Login")?></a>
-          <? endif; ?>
-        </li>
-      <? endif; ?>
+    <nav>
+      <ul class="nav navbar-nav navbar-right flip">
+        <? if ($this->feedback()->tabEnabled()): ?>
+          <li>
+            <a id="feedbackLink" class="modal-link" href="<?=$this->url('feedback-home') ?>"><i class="fa fa-envelope"></i> <?=$this->transEsc("Feedback")?></a>
+          </li>
+        <? endif; ?>
+        <? $cart = $this->cart(); if ($cart->isActive()): ?>
+          <li id="cartSummary">
+            <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>"><i class="fa fa-suitcase"></i> <strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
+          </li>
+        <? endif; ?>
+        <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
+          <li class="dropdown<? if(!$user): ?> hidden<? endif ?>">
+            <? if (!empty($user->firstname) || !empty($user->lastname)) {
+                $fullname = $user->firstname . ' ' . $user->lastname;
+            } else {
+                $fullname = $this->transEsc("Your Account");
+            } ?>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$fullname?> <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="logoutOptions">
+                <a href="<?=$this->url('myresearch-home', array(), array('query' => array('redirect' => 0)))?>" class="modal-link" title="<?=$this->transEsc("Your Account")?>"><i class="fa fa-home"></i> <?=$this->transEsc("Your Account")?></a>
+              </li>
+              <li class="logoutOptions<? if(!$isActiveShibbolethIdentityManager): ?> hidden<? endif ?>">
+                <a href="<?=$this->url('myresearch-userconnect')?>" class="modal-link" title="<?=$this->transEsc("Connect another account")?>"><i class="fa fa-home"></i> <?=$this->transEsc("Connect another account")?></a>
+              </li>
+              <li class="logoutOptions">
+                <a href="<?=$this->url('myresearch-logout')?>" class="modal-link" title="<?=$this->transEsc("Log Out")?>"><i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
+              </li>
+            </ul>
+          </li>
+          <li id="loginOptions"<? if($user): ?> class="hidden"<? endif ?>>
+            <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
+              <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i class="icon-prihlasit"></i> <?=$this->transEsc("Institutional Login")?></a>
+            <? else: ?>
+              <a href="<?=$this->url('myresearch-userlogin')?>" class="modal-link" title="<?=$this->transEsc("Login")?>"><i class="icon-prihlasit"></i> <?=$this->transEsc("Login")?></a>
+            <? endif; ?>
+          </li>
+        <? endif; ?>
 
-      <? if (isset($this->layout()->themeOptions) && count($this->layout()->themeOptions) > 1): ?>
-        <li class="dropdown">
-          <form method="post" name="themeForm" action="" id="themeForm">
-            <input type="hidden" name="ui"/>
-          </form>
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$this->transEsc("Theme")?> <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <? foreach ($this->layout()->themeOptions as $current): ?>
-              <li<?=$current['selected'] ? ' class="active"' : ''?>><a href="#" onClick="document.themeForm.ui.value='<?=$this->escapeHtmlAttr($current['name'])?>';document.themeForm.submit()"><?=$this->transEsc($current['desc'])?></a></li>
-            <? endforeach; ?>
-          </ul>
-        </li>
-      <? endif; ?>
+        <? if (isset($this->layout()->themeOptions) && count($this->layout()->themeOptions) > 1): ?>
+          <li class="dropdown">
+            <form method="post" name="themeForm" id="themeForm">
+              <input type="hidden" name="ui"/>
+            </form>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$this->transEsc("Theme")?> <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <? foreach ($this->layout()->themeOptions as $current): ?>
+                <li<?=$current['selected'] ? ' class="active"' : ''?>><a href="#" onClick="document.themeForm.ui.value='<?=$this->escapeHtmlAttr($current['name'])?>';document.themeForm.submit()"><?=$this->transEsc($current['desc'])?></a></li>
+              <? endforeach; ?>
+            </ul>
+          </li>
+        <? endif; ?>
 
-      <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
-        <li class="dropdown">
-          <form method="post" name="langForm" action="" id="langForm">
-            <input type="hidden" name="mylang"/>
-          </form>
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$this->transEsc("Language")?> <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-          <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
-            <li<?=$this->layout()->userLang == $langCode ? ' class="active"' : ''?>><a href="#" onClick="document.langForm.mylang.value='<?=$langCode?>';document.langForm.submit()"><?=$this->displayLanguageOption($langName)?></a></li>
-          <? endforeach; ?>
-          </ul>
-        </li>
-      <? endif; ?>
-      <? /* TODO: Should we enable switching library cards??
-       if (isset($libraryCards) && count($libraryCards) > 1): ?>
-        <li class="dropdown">
-          <form name="libcardsForm" action="<?=$this->url('librarycards-selectcard')?>" method="get" id="libcardsForm">
-            <input type="hidden" name="cardID"/>
-          </form>
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$this->transEsc("Library Cards")?> <b class="caret"></b></a>
-          <ul class="dropdown-menu">
-          <? foreach ($libraryCards as $libraryCard): ?>
-            <li<?=$libraryCard['cat_username'] == $user['cat_username'] ? ' class="active"' : ''?>><a href="#" onClick="document.libcardsForm.cardID.value='<?=$libraryCard['id']?>';document.libcardsForm.submit()"><?=$this->transEsc($libraryCard['cat_username'])?></a></li>
-          <? endforeach; ?>
-          </ul>
-        </li>
-      <? endif; */ ?>
-    </ul>
+        <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
+          <li class="dropdown">
+            <form method="post" name="langForm" id="langForm">
+              <input type="hidden" name="mylang"/>
+            </form>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$this->transEsc("Language")?> <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
+                <li<?=$this->layout()->userLang == $langCode ? ' class="active"' : ''?>><a href="#" onClick="document.langForm.mylang.value='<?=$langCode?>';document.langForm.submit()"><?=$this->displayLanguageOption($langName)?></a></li>
+              <? endforeach; ?>
+            </ul>
+          </li>
+        <? endif; ?>
+      </ul>
+    </nav>
   </div>
 <? endif; ?>
 <script>

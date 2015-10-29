@@ -45,6 +45,8 @@ class RecordController extends RecordControllerBase
         HoldsTrait::holdAction insteadof HoldsTraitBase;
     }
 
+    protected $recordLoader = null;
+
     /**
      * Display a particular tab.
      *
@@ -125,8 +127,11 @@ class RecordController extends RecordControllerBase
     protected function get856Links()
     {
         $parentRecordID = $this->driver->getParentRecordID();
-        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-        $recordDriver = $recordLoader->load($parentRecordID);
+
+        if ($this->recordLoader === null)
+            $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+
+        $recordDriver = $this->recordLoader->load($parentRecordID);
         $links = $recordDriver->get856Links();
         return $links;
     }
@@ -140,48 +145,30 @@ class RecordController extends RecordControllerBase
     protected function get866Data()
     {
     	$parentRecordID = $this->driver->getParentRecordID();
-    	$recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-    	$recordDriver = $recordLoader->load($parentRecordID);
+
+    	if ($this->recordLoader === null)
+    	    $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+
+    	$recordDriver = $this->recordLoader->load($parentRecordID);
     	$links = $recordDriver->get866Data();
     	return $links;
     }
 
     /**
-     * Get default tab for a given driver
+     * Support method to load tab information from the RecordTabPluginManager.
      *
-     * @return string
+     * @return void
      */
-    protected function getDefaultTab()
+    protected function loadTabDetails()
     {
-        // Load default tab if not already retrieved:
-        if (null === $this->defaultTab) {
-            // Load record driver tab configuration:
-            $driver = $this->loadRecord();
-            $this->defaultTab = $this->getDefaultTabForRecord($driver);
+        parent::loadTabDetails();
 
-            $linksFrom856 = $this->get856Links();
-            $field866 = $this->get866Data();
-            $noLinksFrom856 = $linksFrom856 === false ? 0 : count($linksFrom856);
-            $noLinksFrom866 = $field866 === false ? 0 : count($field866);
-            $linksCount = $noLinksFrom856 + $noLinksFrom866;
-            if ($linksCount > 0) {
-                if (empty($holdings = $this->driver->getRealTimeHoldings())) $this->defaultTab = 'EVersion';
-            }
+        if (empty($this->driver->getRealTimeHoldings())) {
 
-            // Missing/invalid record driver configuration? Fall back to configured
-            // default:
-            $tabs = $this->getAllTabs();
-            if (empty($this->defaultTab) || !isset($tabs[$this->defaultTab])) {
-                $this->defaultTab = $this->fallbackDefaultTab;
-            }
-
-            // Is configured tab also invalid? If so, pick first existing tab:
-            if (empty($this->defaultTab) || !isset($tabs[$this->defaultTab])) {
-                $keys = array_keys($tabs);
-                $this->defaultTab = isset($keys[0]) ? $keys[0] : '';
-            }
+            // If there is no real holding to display, than show EVersion tab if
+            // there is something ..
+            if (count($this->get856Links()) || count($this->get866Data()))
+                $this->defaultTab = 'EVersion';
         }
-
-        return $this->defaultTab;
     }
 }

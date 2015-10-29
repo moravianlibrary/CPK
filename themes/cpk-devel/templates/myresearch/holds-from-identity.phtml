@@ -54,7 +54,7 @@
             <? endif; ?>
 
             <? $formats = $resource->getFormats(); if (count($formats) > 0): ?>
-              <?=$this->record($resource)->getFormatList()?>
+              <?=str_replace('class="', 'class="label label-info ', $this->record($resource)->getFormatList())?>
               <br/>
             <? endif; ?>
             <? if (isset($ilsDetails['volume']) && !empty($ilsDetails['volume'])): ?>

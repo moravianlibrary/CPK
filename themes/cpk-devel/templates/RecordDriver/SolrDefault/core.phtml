@@ -11,6 +11,10 @@
 
 <div class="well">
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
+  <? $QRCode = $this->record($this->driver)->getQRCode("core"); 
+     $cover = $this->record($this->driver)->getCover('core', 'medium', $this->record($this->driver)->getThumbnail('large'));
+     $preview = $this->record($this->driver)->getPreviews(); ?>
+  <? if ($QRCode || $cover || $preview): ?>
   <div class="col-sm-3">
     <div class="text-center #cover" id="cover">
         <? $formats = $this->driver->getFormats(); ?>
@@ -35,10 +39,14 @@
        // from this area of the record view, this can be split into
        // getPreviewData() (should stay here) and
        // getPreviewLink() (can go in your desired tab) ?>
-    <?=$this->record($this->driver)->getPreviews()?>
+    <? if ($preview): ?><?=$preview?><? endif; ?>
   </div>
 
   <div class="col-sm-9">
+  <? else: ?>
+  <div class="col-sm-12">
+  <? endif; ?>
+
     <h3 property="name"><?=$this->escapeHtml($this->driver->getTitle())?></h3>
 
     <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
