@@ -159,36 +159,37 @@ class SolrMarc extends ParentSolrMarc
         $mappingsFor996 = $this->getMappingsFor996($source);
 
         // Remember to unset all arrays at that would log an error providing array as another's array key
-        $restrictions = $mappingsFor996['restricted'];
+        if (isset($mappingsFor996['restricted'])) {
+            $restrictions = $mappingsFor996['restricted'];
 
-        if ($restrictions !== null)
             unset($mappingsFor996['restricted']);
+        }
 
-        $ignoredKeyValsPairs = $mappingsFor996['ignoredVals'];
+        if (isset($mappingsFor996['ignoredVals'])) {
+            $ignoredKeyValsPairs = $mappingsFor996['ignoredVals'];
 
-        if ($ignoredKeyValsPairs !== null) {
             unset($mappingsFor996['ignoredVals']);
 
             foreach ($ignoredKeyValsPairs as &$ignoredValue)
                 $ignoredValue = array_map('trim', explode(',', $ignoredValue));
         }
 
-        $toUpper = $mappingsFor996['toUpper'];
+        if (isset($mappingsFor996['toUpper'])) {
+            $toUpper = $mappingsFor996['toUpper'];
 
-        if ($toUpper !== null) {
             // We will take care of the upperation process in the closest iteration
             unset($mappingsFor996['toUpper']);
         } else {
-            // We will iterate over this, so don't let this be null
+            // We will iterate over this, so don't let it be null
             $toUpper = [];
         }
 
         $toTranslate = [];
 
-        $toTranslateArray = $mappingsFor996['translate'];
-
         // Here particular fields translation configuration takes place (see comments in MultiBackend.ini)
-        if ($toTranslateArray !== null) {
+        if (isset($mappingsFor996['translate'])) {
+
+            $toTranslateArray = $mappingsFor996['translate'];
 
             unset($mappingsFor996['translate']);
 
