@@ -94,7 +94,7 @@ function refreshCommentList(recordId, recordSource) {
 
 function registerAjaxCommentRecord() {
   // Form submission
-  $('form[name="commentRecord"]').unbind('submit').submit(function(){
+  $('form.comment').unbind('submit').submit(function(){
     var form = this;
     var id = form.id.value;
     var recordSource = form.source.value;
@@ -110,7 +110,6 @@ function registerAjaxCommentRecord() {
       data: data,
       dataType: 'json',
       success: function(response) {
-        var form = 'form[name="commentRecord"]';
         if (response.status == 'OK') {
           refreshCommentList(id, recordSource);
           $(form).find('textarea[name="comment"]').val('');
@@ -148,14 +147,20 @@ function registerTabEvents() {
 }
 
 function ajaxLoadTab(tabid) {
-  var id = $('.hiddenId')[0].value;
-  // Try to parse out the controller portion of the URL. If this fails, or if
-  // we're flagged to skip AJAX for this tab, just return true and let the
+  // if we're flagged to skip AJAX for this tab, just return true and let the
   // browser handle it.
-  var urlroot = document.URL.match(new RegExp('/[^/]+/'+id));
-  if(!urlroot || document.getElementById(tabid).parentNode.className.indexOf('noajax') > -1) {
+  if(document.getElementById(tabid).parentNode.className.indexOf('noajax') > -1) {
     return true;
   }
+
+  // Parse out the base URL for the current record:
+  var urlParts = document.URL.split('#');
+  var urlWithoutFragment = urlParts[0];
+  var pathInUrl = urlWithoutFragment.indexOf(path);
+  var chunks = urlWithoutFragment.substring(pathInUrl + path.length + 1).split('/');
+  var urlroot = '/' + chunks[0] + '/' + chunks[1];
+
+  // Request the tab via AJAX:
   $.ajax({
     url: path + urlroot + '/AjaxTab',
     type: 'POST',
@@ -168,6 +173,7 @@ function ajaxLoadTab(tabid) {
       if(typeof syn_get_widget === "function") {
         syn_get_widget();
       }
+      window.location.hash = tabid;
     }
   });
   return false;
@@ -186,7 +192,7 @@ function refreshTagList(loggedin) {
       url: url,
       complete: function(response) {
         if(response.status == 200) {
-          tagList.html(response.responseText);
+          tagList.replaceWith(response.responseText);
           if(loggedin) {
             $('#tagList').addClass('loggedin');
           } else {
@@ -217,6 +223,23 @@ function ajaxTagUpdate(tag, remove) {
   });
 }
 
+function applyRecordTabHash()
+{
+  var activeTab = $('ul.recordTabs li.active a').attr('id');
+  var initiallyActiveTab = $('ul.recordTabs li.initiallyActive a').attr('id');
+  var newTab = typeof window.location.hash !== 'undefined'
+    ? window.location.hash.toLowerCase() : '';
+
+  // Open tag in url hash
+  if (newTab.length == 0 || newTab == '#tabnav') {
+    $('#' + initiallyActiveTab).click();
+  } else if (newTab.length > 0 && '#' + activeTab != newTab) {
+    $(newTab).click();
+  }
+}
+
+$(window).on('hashchange', applyRecordTabHash);
+
 $(document).ready(function(){
   var id = $('.hiddenId')[0].value;
   registerTabEvents();
@@ -230,6 +253,7 @@ $(document).ready(function(){
       $('#record-tabs .tab-pane.active').removeClass('active');
       $('#'+tabid+'-tab').addClass('active');
       $('#'+tabid).tab('show');
+      window.location.hash = tabid;
       return false;
     } else {
       $('#record-tabs').append('<div class="tab-pane" id="'+tabid+'-tab"><i class="fa fa-spinner fa-spin"></i> '+vufindString['loading']+'...</div>');
@@ -238,6 +262,7 @@ $(document).ready(function(){
       return ajaxLoadTab(tabid);
     }
   });
+  applyRecordTabHash();
 
   /* --- LIGHTBOX --- */
   // Cite lightbox
