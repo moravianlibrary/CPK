@@ -15,13 +15,9 @@
 ?>
 <? $recordId =  preg_replace("/\./", "", $recordId)?>
 <? $recordId =  preg_replace("/:/", "", $recordId)?>
-<div class="row result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
-  <? $cover=$this->record($this->driver)->getCover('list-entry', 'small', $this->recordLink()->getUrl($this->driver)); ?>
-  <? if ($cover): ?>
+<div class="row well result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
   <div class="col-xs-2 left">
-  <? else: ?>
-  <div class="col-xs-1 left">
-  <? endif ?>
+
     <label class="pull-left flip"><?=$this->record($this->driver)->getCheckbox() ?></label>
     <input type="hidden" value="<?=$id ?>" class="hiddenId"/>
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
@@ -36,11 +32,6 @@
     </div>
   </div>
   <div class="col-xs-6 middle">
-  <? else: ?>
-  </div>
-  <div class="col-xs-7 middle">
-  <? endif ?>
-
     <div class="resultItemLine1">
       <a class="title" href="<?=$this->recordLink()->getUrl($this->driver)?>">
         <?=$this->record($this->driver)->getTitleHtml()?>
