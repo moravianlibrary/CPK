@@ -83,20 +83,33 @@
 								<span class="sr-only"><?=$red?>% Complete (danger)</span>
 							</div>
 						</div>
-							
-						<!--<h4>
+						<?php				
+    						$file = file_get_contents(__DIR__ . "/../selenium_cpk_tests/target/surefire-reports/Command-line-suite/Command-line-test.html");
+    						$regex = "/[0-9]{1}\/[0-9]{1}\/[0-9]{1}/";
+    						preg_match($regex, $file, $match);
+    						$seleniumTestsResults = explode("/", $match[0]);
+    						$passed = $seleniumTestsResults[0];
+    						$failed = $seleniumTestsResults[1];
+    						$skipped = $seleniumTestsResults[2];
+    						$total = $seleniumTestsResults[0]+$seleniumTestsResults[1]+$seleniumTestsResults[2];
+						?>
+						<h4>
 							System tests
-							<span class='pull-right'>25/100 - 25% success</span>
+							<span class='pull-right'><?=$passed?>/<?=$total?> - <?=$passed*100/$total?>% success</span>
 						</h4>
 						<div class="progress">
-							<div class="progress-bar progress-bar-success" style="width: 45%">
-								<span class="sr-only">35% Complete (success)</span>
+							<div class="progress-bar progress-bar-success" style="width: <?=$passed*100/$total?>%">
+								<span class="sr-only"><?=$passed*100/$total?>% Complete (success)</span>
 							</div>
 
-							<div class="progress-bar progress-bar-danger" style="width: 55%">
-								<span class="sr-only">65% Complete (danger)</span>
+							<div class="progress-bar progress-bar-danger" style="width: <?=$failed*100/$total?>%">
+								<span class="sr-only"><?=$failed*100/$total?>% Complete (danger)</span>
 							</div>
-						</div>-->
+							
+							<div class="progress-bar progress-bar-warning" style="width: <?=$skipped*100/$total?>%">
+								<span class="sr-only"><?=$skipped*100/$total?>% Complete (warning)</span>
+							</div>
+						</div>
 						<?php 
     						$log = fgets(fopen(__DIR__.'/data/error.log', 'r'));
                             if ($log === 'Log is clean') {
