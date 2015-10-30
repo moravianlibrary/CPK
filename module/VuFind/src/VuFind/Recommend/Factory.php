@@ -201,7 +201,7 @@ class Factory
      *
      * @return NewItems
      */
-    public function getNewItems(ServiceManager $sm)
+    public static function getNewItems(ServiceManager $sm)
     {
         return new NewItems(
             $sm->getServiceLocator()->get('VuFind\Config')
@@ -315,7 +315,7 @@ class Factory
      *
      * @return RecommendLinks
      */
-    public function getRecommendlinks(ServiceManager $sm)
+    public static function getRecommendlinks(ServiceManager $sm)
     {
         return new \VuFind\Recommend\RecommendLinks(
             $sm->getServiceLocator()->get('VuFind\Config')
