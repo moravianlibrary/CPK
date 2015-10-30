@@ -140,26 +140,26 @@ class AjaxController extends AjaxControllerBase
 
         $parentRecordID = $recordDriver->getParentRecordID();
         $parentRecordDriver = $recordLoader->load($parentRecordID);
-        
+
         $childrenIds = $parentRecordDriver->getChildrenIds();
-        
+
         $linkServers = [];
         foreach ($childrenIds as $childrenId) {
             $sourceInstitute = explode('.', $childrenId)[0];
-            
+
             $lsID = 'ls_' . $sourceInstitute;
             $linkServer = $multiBackendConfig->LinkServers->$lsID;
-        
+
             if ($linkServer === null) // if there is no configuration in Multibackend.ini, use default settings
                 $linkServer = $multiBackendConfig->LinkServers->ls_default;
-        
+
             $instituteLsShortcut = explode("|", $linkServer)[0];
             $instituteLsLink = explode("|", $linkServer)[1];
-            
+
             if (! array_key_exists($instituteLsShortcut, $linkServers))
             $linkServers[$instituteLsShortcut] = $instituteLsLink;
         }
-        
+
         $isn = $parentRecordDriver->getIsn();
         if ($isn === false)
             $isn = $recordDriver->getIsn();
@@ -193,7 +193,7 @@ class AjaxController extends AjaxControllerBase
         $wantItFactory = $this->getServiceLocator()->get('WantIt\Factory');
         $electronicChoiceHandler = $wantItFactory->createElectronicChoiceHandlerObject(
             $recordDriver);
-        
+
         $sfxResult = [];
         foreach ($linkServers as $shortcut => $link) {
             $allParams['sfx.institute'] = $shortcut;
@@ -813,5 +813,42 @@ class AjaxController extends AjaxControllerBase
                 'driver' => $driver
             ]);
         return $this->output($html, self::STATUS_OK);
+    }
+
+    /**
+     * Send output data and exit.
+     *
+     * @param mixed  $data     The response data
+     * @param string $status   Status of the request
+     * @param int    $httpCode A custom HTTP Status Code
+     *
+     * @return \Zend\Http\Response
+     * @throws \Exception
+     */
+    protected function output($data, $status, $httpCode = null)
+    {
+        $response = $this->getResponse();
+        $headers = $response->getHeaders();
+        $headers->addHeaderLine('Cache-Control', 'no-cache, must-revalidate');
+        $headers->addHeaderLine('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
+        $headers->addHeaderLine('Access-Control-Allow-Origin', '*');
+        if ($httpCode !== null) {
+            $response->setStatusCode($httpCode);
+        }
+        if ($this->outputMode == 'json') {
+            $headers->addHeaderLine('Content-type', 'application/javascript');
+            $output = ['data' => $data, 'status' => $status];
+            if ('development' == APPLICATION_ENV && count(self::$php_errors) > 0) {
+                $output['php_errors'] = self::$php_errors;
+            }
+            $response->setContent(json_encode($output));
+            return $response;
+        } else if ($this->outputMode == 'plaintext') {
+            $headers->addHeaderLine('Content-type', 'text/plain');
+            $response->setContent($data ? $status . " $data" : $status);
+            return $response;
+        } else {
+            throw new \Exception('Unsupported output mode: ' . $this->outputMode);
+        }
     }
 }
