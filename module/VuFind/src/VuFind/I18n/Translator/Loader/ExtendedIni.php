@@ -247,7 +247,7 @@ class ExtendedIni implements FileLoaderInterface
             return $data;
         }
         $parent = $this->loadLanguageFile($data['@parent_ini']);
-        $data->merge($parent);
-        return $data;
+        $parent->merge($data);
+        return $parent;
     }
 }
