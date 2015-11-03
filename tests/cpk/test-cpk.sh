@@ -18,7 +18,9 @@ cd ../
 echo "Updating selenium repository [Git pull] Finished"
 
 seleniumPomPath="$PWD/selenium_cpk_tests/pom.xml"
-sh ./selenium_cpk_tests/run_selenium_tests.sh -p $seleniumPomPath
+#server="beta.knihovny.cz"
+server="cpk-front.mzk.cz"
+sh ./selenium_cpk_tests/run_selenium_tests.sh -s $server -p $seleniumPomPath
 rm -rf ./selenium_cpk_tests/target/surefire-reports/Command-line-suite/ 
 cp -p ./selenium_cpk_tests/target/surefire-reports/Command\ line\ suite/ ./selenium_cpk_tests/target/surefire-reports/Command-line-suite/ -R
 cp -p ./selenium_cpk_tests/target/surefire-reports/Command\ line\ suite/Command\ line\ test.html ./selenium_cpk_tests/target/surefire-reports/Command-line-suite/Command-line-test.html -R  
