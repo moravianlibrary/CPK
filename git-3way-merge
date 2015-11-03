@@ -1,0 +1,140 @@
+#!/bin/bash
+
+function printHelp
+{
+
+echo -e "Usage: git-3way-merge [options] [revision]\n"
+echo -e "   -h, --help      Prints this help\n"
+echo -e "   [revision]      This can be any string which specifies the git revision to perform the git show against"
+echo -e "                     - for example passing 'HEAD~5' will do 'git show HEAD~5:fileToHasAsTheSecondOne'"
+
+}
+
+if [ $# -eq 0 ]
+  then
+    revision="HEAD~1"
+else
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]
+    then
+      printHelp
+      exit 0
+  fi
+  revision="$1"
+fi
+
+needsManualMerge=()
+
+function merge_directory
+{
+if [ -d "$2" ]
+  then
+
+    local localDir=$1
+    local localDirLength=${#localDir}
+    local coreDir=$2
+
+    echo -e "INFO:\t ------------------"
+    echo -e "INFO:\t Merging directory $2"
+    echo -e "INFO:\t    into directory $1"
+    echo -e "INFO:\t ------------------"
+
+    for current in $localDir/*
+    do
+        local coreEquivalent=$coreDir${current:$localDirLength}
+        if [ -d "$current" ]
+        then
+          merge_directory "$current" "$coreEquivalent"
+        else
+          local oldFile="/tmp/tmp-merge-old-`basename \"$coreEquivalent\"`"
+          local newFile="/tmp/tmp-merge-new-`basename \"$coreEquivalent\"`"
+          if [ -f "$coreEquivalent" ]
+          then
+            git show $revision:$coreEquivalent > $oldFile
+            diff3 -m "$current" "$oldFile" "$coreEquivalent" > "$newFile"
+            if [ $? == 1 ]
+            then
+              echo -e "CONFLICT - needs manual merge!: $current"
+              needsManualMerge+=("$current")
+            else
+              echo -e "SUCCESS: Successfully merged '$coreEquivalent' into '$current'"
+            fi
+            cp $newFile $current
+          else
+            echo -e "INFO:\t Skipping $current; no equivalent in core code."
+          fi
+        fi
+    done
+fi
+}
+
+function summarizeConflicts
+{
+ needsManualMergeSize=${#needsManualMerge[@]}
+
+#debugging content
+#echo "declaration of needsMerge: $(declare -p needsManualMerge) ... size of it is: $needsManualMergeSize"
+
+ if [[ $needsManualMergeSize > 0 ]]
+  then
+
+    echo -e "\n\n There is a need for manual merge :))"
+    echo -e "\t Files needed to be merged are:\n"
+    for i in "${needsManualMerge[@]}"
+     do
+    
+      echo -e "Conflict which has to be merged manually: '$i' "
+
+    done
+
+ else
+
+   echo -e "\n\n Everything went OK ! :)"
+
+ fi
+
+ echo ""
+ echo "Performed against revision '$revision'"
+ echo ""
+ 
+}
+
+merge_directory local/cpk-front.mzk.cz/config/vufind config/vufind
+
+merge_directory themes/cpk-devel/templates themes/bootstrap3/templates
+merge_directory themes/cpk-devel/js themes/bootstrap3/js
+
+#merge_directory themes/villanova_mobile/templates themes/jquerymobile/templates
+#merge_directory themes/villanova_mobile/js themes/jquerymobile/js
+
+#mergeAll=true
+mergeAll=false
+
+if $mergeAll 
+ then
+   merge_directory local/narodnifonoteka.cz/config/vufind config/vufind
+   merge_directory themes/vnf3/templates themes/bootstrap3/templates
+   merge_directory themes/vnf3/js themes/bootstrap3/js
+
+   merge_directory local/vufind2.mzk.cz/config/vufind config/vufind
+   merge_directory themes/mzk3/templates themes/bootstrap3/templates
+   merge_directory themes/mzk3/js themes/bootstrap3/js
+
+   merge_directory local/historickefondy.mzk.cz/config/vufind config/vufind
+   merge_directory themes/historickefondy3/templates themes/bootstrap3/templates
+   merge_directory themes/historickefondy3/js themes/bootstrap3/js
+
+   merge_directory themes/common-bootstrap3/templates themes/bootstrap3/templates
+   merge_directory themes/common-bootstrap3/js themes/bootstrap3/js
+
+   merge_directory local/www.cistbrno.cz/config/vufind config/vufind
+   merge_directory themes/cistbrno3/templates themes/bootstrap3/templates
+   merge_directory themes/cistbrno3/js themes/bootstrap3/js
+
+   merge_directory themes/portals-common3/templates themes/bootstrap3/templates
+   merge_directory themes/portals-common3/js themes/bootstrap3/js
+
+   merge_directory themes/obalkyknih-api-v3-bootstrap3/templates themes/bootstrap3/templates
+   merge_directory themes/obalkyknih-api-v3-bootstrap3/js themes/bootstrap3/js
+fi
+
+summarizeConflicts
