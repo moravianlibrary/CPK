@@ -1,140 +1,247 @@
 #!/bin/bash
 
-function printHelp
+declare -A mergeMappings
+declare -A skippableMergeMappings
+
+function defineMappings
 {
 
-echo -e "Usage: git-3way-merge [options] [revision]\n"
-echo -e "   -h, --help      Prints this help\n"
-echo -e "   [revision]      This can be any string which specifies the git revision to perform the git show against"
-echo -e "                     - for example passing 'HEAD~5' will do 'git show HEAD~5:fileToHasAsTheSecondOne'"
+	# Define mappings for directories always being merged ..
 
+	mergeMappings[bootstrap3_templates]="themes/bootstrap3/templates"
+	mergeMappings[bootstrap3_js]="themes/bootstrap3/js"
+	mergeMappings[config_vufind]="config/vufind"
+
+	bootstrap3_templates=( themes/cpk-devel/templates )
+	bootstrap3_js=( themes/cpk-devel/js )
+	config_vufind=( local/cpk-front.mzk.cz/config/vufind )
+
+	# Define mappings which are about to be merged once upon a time (if is -a option specified ..)
+
+	skippableMergeMappings[skippable_bootstrap3_templates]="themes/bootstrap3/templates"
+	skippableMergeMappings[skippable_bootstrap3_js]="themes/bootstrap3/js"
+	skippableMergeMappings[skippable_config_vufind]="config/vufind"
+
+	skippable_bootstrap3_templates=( \
+		themes/vnf3/templates \
+		themes/mzk3/templates \
+		themes/historickefondy3/templates \
+		themes/common-bootstrap3/templates \
+		themes/cistbrno3/templates \
+		themes/portals-common3/templates \
+		themes/obalkyknih-api-v3-bootstrap3/templates
+	)
+
+	skippable_bootstrap3_js=( \
+		themes/vnf3/js \
+		themes/mzk3/js \
+		themes/historickefondy3/js \
+		themes/common-bootstrap3/js \
+		themes/cistbrno3/js \
+		themes/portals-common3/js \
+		themes/obalkyknih-api-v3-bootstrap3/js
+	)
+
+	skippable_config_vufind=( \
+		local/narodnifonoteka.cz/config/vufind \
+		local/vufind2.mzk.cz/config/vufind \
+		local/historickefondy.mzk.cz/config/vufind \
+		local/www.cistbrno.cz/config/vufind
+	)
 }
 
-if [ $# -eq 0 ]
-  then
-    revision="HEAD~1"
-else
-  if [ "$1" = "-h" ] || [ "$1" = "--help" ]
-    then
-      printHelp
-      exit 0
-  fi
-  revision="$1"
-fi
+function parseArgs
+{
+	mergeAll=false
+	revision="HEAD~1"
+	verbose=false
+	extra_verbose=false
 
-needsManualMerge=()
+	finalSummary=""
+
+	needsManualMerge=()
+
+	while [[ $# > 0 ]]
+	do
+		key="$1"
+		case $key in
+			-a|--all)
+				mergeAll=true
+				;;
+			-h|--help)
+				printHelp
+				exit 0
+				;;
+			-r|--revision)
+				revision="$2"
+				shift
+				;;
+			-v|--verbose)
+				verbose=true
+				;;
+			-vv|--extra-verbose)
+				verbose=true
+				extra_verbose=true
+				;;
+			*)
+				echo -e "\n Invalid argument was supplied!\n"
+				printHelp
+				exit 1
+				;;
+		esac
+		shift
+
+	done
+}
 
 function merge_directory
 {
-if [ -d "$2" ]
-  then
+	if [ -d "$2" ]
+	then
 
-    local localDir=$1
-    local localDirLength=${#localDir}
-    local coreDir=$2
+		local localDir=$1
+		local localDirLength=${#localDir}
+		local coreDir=$2
 
-    echo -e "INFO:\t ------------------"
-    echo -e "INFO:\t Merging directory $2"
-    echo -e "INFO:\t    into directory $1"
-    echo -e "INFO:\t ------------------"
+		if $extra_verbose
+		then
+			echo -e "INFO:\t ------------------"
+			echo -e "INFO:\t Merging directory $2"
+			echo -e "INFO:\t    into directory $1"
+			echo -e "INFO:\t ------------------"
+		fi
 
-    for current in $localDir/*
-    do
-        local coreEquivalent=$coreDir${current:$localDirLength}
-        if [ -d "$current" ]
-        then
-          merge_directory "$current" "$coreEquivalent"
-        else
-          local oldFile="/tmp/tmp-merge-old-`basename \"$coreEquivalent\"`"
-          local newFile="/tmp/tmp-merge-new-`basename \"$coreEquivalent\"`"
-          if [ -f "$coreEquivalent" ]
-          then
-            git show $revision:$coreEquivalent > $oldFile
-            diff3 -m "$current" "$oldFile" "$coreEquivalent" > "$newFile"
-            if [ $? == 1 ]
-            then
-              echo -e "CONFLICT - needs manual merge!: $current"
-              needsManualMerge+=("$current")
-            else
-              echo -e "SUCCESS: Successfully merged '$coreEquivalent' into '$current'"
-            fi
-            cp $newFile $current
-          else
-            echo -e "INFO:\t Skipping $current; no equivalent in core code."
-          fi
-        fi
-    done
-fi
+		for current in $localDir/*
+		do
+			local coreEquivalent=$coreDir${current:$localDirLength}
+			if [ -d "$current" ]
+			then
+				merge_directory "$current" "$coreEquivalent"
+			else
+				local oldFile="/tmp/tmp-merge-old-`basename \"$coreEquivalent\"`"
+				local newFile="/tmp/tmp-merge-new-`basename \"$coreEquivalent\"`"
+				if [ -f "$coreEquivalent" ]
+				then
+					git show $revision:$coreEquivalent > $oldFile
+					diff3 -m "$current" "$oldFile" "$coreEquivalent" > "$newFile"
+					if [ $? == 1 ]
+					then
+						echo -e "CONFLICT - needs manual merge!: $current"
+						needsManualMerge+=("$current")
+					elif $verbose
+					then
+						echo -e "SUCCESS: Successfully merged '$current' with '$coreEquivalent'"
+					fi
+					cp $newFile $current
+				elif $extra_verbose
+				then
+					echo -e "INFO:\t Skipping file $current; no equivalent in core code."
+				fi
+			fi
+		done
+	elif $extra_verbose
+	then
+		echo -e "INFO:\t Skipping directory $2; no equivalent in core code."
+	fi
 }
 
 function summarizeConflicts
 {
- needsManualMergeSize=${#needsManualMerge[@]}
+	needsManualMergeSize=${#needsManualMerge[@]}
 
-#debugging content
-#echo "declaration of needsMerge: $(declare -p needsManualMerge) ... size of it is: $needsManualMergeSize"
+	# Assume there will be no error
+	toReturn=0
 
- if [[ $needsManualMergeSize > 0 ]]
-  then
+	echo -e "---------------------------------------------\n"
+	echo -e " There has been recurrently merged these dirs:"
+	echo -e "$finalSummary\n"
 
-    echo -e "\n\n There is a need for manual merge :))"
-    echo -e "\t Files needed to be merged are:\n"
-    for i in "${needsManualMerge[@]}"
-     do
-    
-      echo -e "Conflict which has to be merged manually: '$i' "
+	echo -e "---------------------------------------------\n"
 
-    done
+	if [[ $needsManualMergeSize > 0 ]]
+	then
+		toReturn=1
+		echo " There is a need for manual merge :))"
+		echo -e "\t Files needed to be merged are:\n"
+		for i in "${needsManualMerge[@]}"
+		do
 
- else
+			echo -e "Conflict which has to be merged manually: '$i' "
 
-   echo -e "\n\n Everything went OK ! :)"
+		done
 
- fi
+	else
 
- echo ""
- echo "Performed against revision '$revision'"
- echo ""
- 
+		echo " Everything went OK ! :)"
+
+	fi
+
+	echo ""
+	echo "Performed 3way diff against revision '$revision'"
+	echo ""
+
 }
 
-merge_directory local/cpk-front.mzk.cz/config/vufind config/vufind
+function printHelp
+{
+	echo -e "Usage: git-3way-merge [options]\n"
+	echo -e "  All options are optional:\n"
+	echo -e "   -a, --all                    Does include directories specified in skippable array"
+	echo -e "   -h, --help                   Prints this help"
+	echo -e "   -r, --revision 'HEAD~n'      This can be any string which specifies the git revision to perform the git show against"
+	echo -e "                                  - for example passing 'HEAD~5' will do 'git show HEAD~5:fileToHasAsTheSecondOne'"
+	echo -e "   -v, --verbose                Include also SUCCESS outputs"
+	echo -e "   -vv, --extra-verbose         Include all the output possible (INFO & SUCCESS)"
+	echo
+}
 
-merge_directory themes/cpk-devel/templates themes/bootstrap3/templates
-merge_directory themes/cpk-devel/js themes/bootstrap3/js
+function callMerges
+{
+	if $mergeAll
+	then
+		for key in "${!skippableMergeMappings[@]}"
+		do
+			local mergeMappingName="$key[@]"
+			local mergeMapping=( "${!mergeMappingName}" )
 
-#merge_directory themes/villanova_mobile/templates themes/jquerymobile/templates
-#merge_directory themes/villanova_mobile/js themes/jquerymobile/js
+			local dirToMergeWith=${skippableMergeMappings[$key]}
 
-#mergeAll=true
-mergeAll=false
+			for dirToBeMerged in "${mergeMapping[@]}"
+			do
+				finalSummary+="\n   $dirToBeMerged"
+				merge_directory $dirToBeMerged $dirToMergeWith
+			done
+				finalSummary+="\n"
+		done
+	fi
 
-if $mergeAll 
- then
-   merge_directory local/narodnifonoteka.cz/config/vufind config/vufind
-   merge_directory themes/vnf3/templates themes/bootstrap3/templates
-   merge_directory themes/vnf3/js themes/bootstrap3/js
+	for key in "${!mergeMappings[@]}"
+	do
+		local mergeMappingName="$key[@]"
+		local mergeMapping=( "${!mergeMappingName}" )
 
-   merge_directory local/vufind2.mzk.cz/config/vufind config/vufind
-   merge_directory themes/mzk3/templates themes/bootstrap3/templates
-   merge_directory themes/mzk3/js themes/bootstrap3/js
+		local dirToMergeWith=${mergeMappings[$key]}
 
-   merge_directory local/historickefondy.mzk.cz/config/vufind config/vufind
-   merge_directory themes/historickefondy3/templates themes/bootstrap3/templates
-   merge_directory themes/historickefondy3/js themes/bootstrap3/js
+		for dirToBeMerged in "${mergeMapping[@]}"
+		do
+			finalSummary+="\n   $dirToBeMerged"
+			merge_directory $dirToBeMerged $dirToMergeWith
+		done
+	done
 
-   merge_directory themes/common-bootstrap3/templates themes/bootstrap3/templates
-   merge_directory themes/common-bootstrap3/js themes/bootstrap3/js
+}
 
-   merge_directory local/www.cistbrno.cz/config/vufind config/vufind
-   merge_directory themes/cistbrno3/templates themes/bootstrap3/templates
-   merge_directory themes/cistbrno3/js themes/bootstrap3/js
+function initialize
+{
+	parseArgs $@
 
-   merge_directory themes/portals-common3/templates themes/bootstrap3/templates
-   merge_directory themes/portals-common3/js themes/bootstrap3/js
+	defineMappings
 
-   merge_directory themes/obalkyknih-api-v3-bootstrap3/templates themes/bootstrap3/templates
-   merge_directory themes/obalkyknih-api-v3-bootstrap3/js themes/bootstrap3/js
-fi
+	callMerges
 
-summarizeConflicts
+	summarizeConflicts
+}
+
+initialize $@
+
+exit $toReturn
