@@ -5,7 +5,6 @@ declare -A skippableMergeMappings
 
 function defineMappings
 {
-
 	# Define mappings for directories always being merged ..
 
 	mergeMappings[bootstrap3_templates]="themes/bootstrap3/templates"
@@ -61,8 +60,8 @@ function parseArgs
 
 	needsManualMerge=()
 
-	while [[ $# > 0 ]]
-	do
+	while [[ $# > 0 ]]; do
+
 		key="$1"
 		case $key in
 			-a|--all)
@@ -96,51 +95,51 @@ function parseArgs
 
 function merge_directory
 {
-	if [ -d "$2" ]
-	then
+	if [ -d "$2" ]; then
 
 		local localDir=$1
 		local localDirLength=${#localDir}
 		local coreDir=$2
 
-		if $extra_verbose
-		then
+		if $extra_verbose; then
+
 			echo -e "INFO:\t ------------------"
 			echo -e "INFO:\t Merging directory $2"
 			echo -e "INFO:\t    into directory $1"
 			echo -e "INFO:\t ------------------"
 		fi
 
-		for current in $localDir/*
-		do
+		for current in $localDir/* ; do
+
 			local coreEquivalent=$coreDir${current:$localDirLength}
-			if [ -d "$current" ]
-			then
+			if [ -d "$current" ]; then
+
 				merge_directory "$current" "$coreEquivalent"
 			else
 				local oldFile="/tmp/tmp-merge-old-`basename \"$coreEquivalent\"`"
 				local newFile="/tmp/tmp-merge-new-`basename \"$coreEquivalent\"`"
-				if [ -f "$coreEquivalent" ]
-				then
+				if [ -f "$coreEquivalent" ]; then
+
 					git show $revision:$coreEquivalent > $oldFile
 					diff3 -m "$current" "$oldFile" "$coreEquivalent" > "$newFile"
-					if [ $? == 1 ]
-					then
-						echo -e "CONFLICT - needs manual merge!: $current"
+
+					if [ $? == 1 ]; then
+						if $verbose; then
+							echo -e "CONFLICT - needs manual merge!: $current"
+						fi
 						needsManualMerge+=("$current")
-					elif $verbose
-					then
+					elif $verbose; then
 						echo -e "SUCCESS: Successfully merged '$current' with '$coreEquivalent'"
 					fi
 					cp $newFile $current
-				elif $extra_verbose
-				then
+				elif $extra_verbose; then
+
 					echo -e "INFO:\t Skipping file $current; no equivalent in core code."
 				fi
 			fi
 		done
-	elif $extra_verbose
-	then
+	elif $extra_verbose; then
+
 		echo -e "INFO:\t Skipping directory $2; no equivalent in core code."
 	fi
 }
@@ -158,22 +157,33 @@ function summarizeConflicts
 
 	echo -e "---------------------------------------------\n"
 
-	if [[ $needsManualMergeSize > 0 ]]
-	then
+	if [[ $needsManualMergeSize > 0 ]]; then
+
 		toReturn=1
 		echo " There is a need for manual merge :))"
 		echo -e "\t Files needed to be merged are:\n"
-		for i in "${needsManualMerge[@]}"
-		do
+		for i in "${needsManualMerge[@]}"; do
 
 			echo -e "Conflict which has to be merged manually: '$i' "
-
 		done
 
+		echo
+		inquire "Do you wish to resolve all the conflicts with meld?" "y" "N"
+		case $answer in
+			y)
+				for i in "${needsManualMerge[@]}"; do
+					args+="--diff $i "
+				done
+				echo -e "  Running meld with cmd:\nmeld $args&\n"
+				meld $args&
+				;;
+			*)
+				echo -e "  Okay, not opening meld - but don't forget to merge these conflicts ;)"
+				;;
+		esac
 	else
 
 		echo " Everything went OK ! :)"
-
 	fi
 
 	echo ""
@@ -197,38 +207,60 @@ function printHelp
 
 function callMerges
 {
-	if $mergeAll
-	then
-		for key in "${!skippableMergeMappings[@]}"
-		do
+	if $mergeAll; then
+
+		for key in "${!skippableMergeMappings[@]}"; do
+
 			local mergeMappingName="$key[@]"
 			local mergeMapping=( "${!mergeMappingName}" )
 
 			local dirToMergeWith=${skippableMergeMappings[$key]}
 
-			for dirToBeMerged in "${mergeMapping[@]}"
-			do
+			for dirToBeMerged in "${mergeMapping[@]}"; do
+
 				finalSummary+="\n   $dirToBeMerged"
 				merge_directory $dirToBeMerged $dirToMergeWith
 			done
-				finalSummary+="\n"
+			finalSummary+="\n"
 		done
 	fi
 
-	for key in "${!mergeMappings[@]}"
-	do
+	for key in "${!mergeMappings[@]}"; do
+
 		local mergeMappingName="$key[@]"
 		local mergeMapping=( "${!mergeMappingName}" )
 
 		local dirToMergeWith=${mergeMappings[$key]}
 
-		for dirToBeMerged in "${mergeMapping[@]}"
-		do
+		for dirToBeMerged in "${mergeMapping[@]}"; do
+
 			finalSummary+="\n   $dirToBeMerged"
 			merge_directory $dirToBeMerged $dirToMergeWith
 		done
 	done
 
+}
+
+inquire ()  {
+	echo -e -n "$1 [$2/$3]? "
+	read answer
+	finish="-1"
+	while [ "$finish" = '-1' ]
+	do
+		finish="1"
+		if [ "$answer" = '' ];
+		then
+			answer=""
+		else
+			case $answer in
+				y | Y | yes | YES ) answer="y";;
+				n | N | no | NO ) answer="n";;
+				*) finish="-1";
+					echo -n 'Invalid response -- please reenter:';
+					read answer;;
+			esac
+		fi
+	done
 }
 
 function initialize
@@ -242,6 +274,7 @@ function initialize
 	summarizeConflicts
 }
 
+# Initialize with the incoming arguments
 initialize $@
 
 exit $toReturn
