@@ -1,0 +1,7 @@
+<phpunit bootstrap="./bootstrap.php" backupGlobals="false" colors="true">
+    <testsuites>
+        <testsuite name="AllUnitTests">
+            <directory>./unit-tests/src/Piwik</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
