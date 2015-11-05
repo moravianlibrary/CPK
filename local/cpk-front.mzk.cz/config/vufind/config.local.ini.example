@@ -156,6 +156,7 @@ fzu.cas.cz = https://jiftach.cas.cz/loga/logo-fzu-40.png
 ibp.cas.cz = https://jiftach.cas.cz/loga/logo-ibp-44.png
 osu.cz = https://idptoo.osu.cz/simplesaml/logo_ou.png
 digiknihovna.cz = https://shibboleth.digiknihovna.cz/logo.png
+vkta.knihovny.cz = https://vkta.knihovny.cz/logo.png
 
 facebook.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/fb50.png
 mojeid.extidp.cesnet.cz = https://extidp.cesnet.cz/idp/loga/mojeid50.png
@@ -169,3 +170,4 @@ svkhk = svkhk.cz
 nkp = nkp.cz 
 mzk = mzk.cz 
 tre = digiknihovna.cz
+vkta = vkta.knihovny.cz
