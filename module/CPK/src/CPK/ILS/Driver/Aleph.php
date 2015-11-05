@@ -48,8 +48,6 @@ class Aleph extends AlephBase
 
     protected $maxItemsParsed;
 
-    protected $alephLocale;
-
     protected $dontShowLink;
 
     public function init()
@@ -88,13 +86,6 @@ class Aleph extends AlephBase
                 $this->config['Catalog']['dont_show_link']);
         } else {
             $this->dontShowLink = [];
-        }
-
-        $this->alephLocale = $this->translator->getTranslator()->getLocale();
-
-        if (isset($this->config['LocaleToLangMapping'])) {
-            if (isset($this->config['LocaleToLangMapping'][$this->alephLocale]))
-                $this->alephLocale = $this->config['LocaleToLangMapping'][$this->alephLocale];
         }
     }
 
@@ -172,9 +163,9 @@ class Aleph extends AlephBase
 
         if (isset($profile['blocks']))
             foreach ($profile['blocks'] as $block) {
-                if (! empty($this->config['Catalog']['agency']))
+                if (isset($this->availabilitySource))
                     $translatedBlock = $this->translator->getTranslator()->translate(
-                        $this->config['Catalog']['agency'] . " " . "Block" . " " .
+                        $this->availabilitySource . " " . "Block" . " " .
                              (string) $block);
                 else
                     $translatedBlock = $this->translator->getTranslator()->translate(
@@ -222,7 +213,6 @@ class Aleph extends AlephBase
 
         $additionalAttributes = [
             'view' => 'full',
-            'lang' => $this->alephLocale
         ];
         if ($this->maxItemsParsed === - 1 || $idsCount <= $this->maxItemsParsed) {
             // Query all items at once ..

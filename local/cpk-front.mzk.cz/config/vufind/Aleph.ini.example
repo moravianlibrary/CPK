@@ -1,66 +1,85 @@
 [Catalog]
 host           = ALEPH_SERVER
 dlfport        = ALEPH_PORT
+
+; Print extra messages
 debug          = true
+
+; Default patron ID will be included into these queries, where we want to know item's requestability
 default_patron = DEFAULT_PATRON_ID
+
+; This will make sure to include the "lang" parameter into every GET HTTP request
 send_language  = true
 
-; bibliographic libraries
-bib          = BIB_LIB
+# This is used with creating a hash to verify prolongation url
+hmac_key       = HMAC_KEY
 
-; user library
-useradm      = USR_LIB
+; Base for bibliographic library
+bib          = BIB_LIB1,BIB_LIB2,...
 
-; adm-Lib
-admlib       = ADM_LIB
+; Base for user library
+useradm      = USR_LIB1,USR_LIB2,...
 
-; WWW-X user - optional, if not set, X-server functionality will be disabled
-wwwuser      = "WWW-X"
-wwwpasswd    = "WWW-X"
+; Base for administrative library
+admlib       = ADM_LIB1,ADM_LIB2,...
+
+; Uncomment following lines and set credentials for X-User to allow XServices
+; wwwuser      = X-SERVICES_USER
+; wwwpasswd    = X-SERVICES_PW
 
 ; statuses when an item is available
-available_statuses = "On Shelf,Open St.-Month,Jen do studovny"
-dont_show_link     = "Studovna,Vol.výb.-měs."
+; EXAMPLE: available_statuses = "On Shelf,Open St.-Month,Jen do studovny"
+available_statuses = "AVAILABLE_STATUS1,AVAILABLE_STATUS2,..."
 
-quick_availability = true
-disable_ils_auth   = false
+; Will not show link to place a reserve if the status is:
+; EXAMPLE: dont_show_link     = "Studovna,Vol.výb.-měs."
+dont_show_link = "STATUS_NOT_TO_SHOW_LINK_WITH1,STATUS_NOT_TO_SHOW_LINK_WITH2,..."
 
-logo = LOGO_OF_YOUR_ORGANIZATION
+; TODO: Will we support any of this ??
+; CGI script for favorite items import (optional) 
+; fav_cgi_url = FAV_CGI_URL
+; CGI script for changing user password or alias
+; user_cgi_url = USER_CGI_URL
+; payment_url = PAYMENT_URL
+; prolong_registration_url = PROLONG_URL
+; prolong_registration_status = 05
+; adm-lib / sub-library array
+; This is a list of patron home libraries and the ADM the library belongs to
 
-[LocaleToLangMapping]
-cs-cpk = cze
+; This logo URL enables the blocks to show proper institution logo
+logo = URL_OF_LOGO_OF_YOUR_ORGANIZATION
 
-[sublibadm]
-ARC     = SUBLIB_ARC
-CBR     = SUBLIB_CBR
-
-; match z30-item-status-code item_status - optional
 [duedates]
-;on_site_loan     = "/^(On\ site\ Loan|Study\ Room)/"
+; match z30-item-status-code item_status - optional
+; If the value regex-matches the z30-item-status, than the duedate value will be the key
+; of matched value, which is then processed by some phtml
+; Some Examples:
+;on_site_loan        = "/^(On\ site\ Loan|Study\ Room)/"
 ;reference_library   = "/^Reference\ Library/"
 ;in_processing       = "/^/"
 ;absent_loan         = "/.*/"
 
+; TODO: These are common settings - how about exporting those?
 [IdResolver]
+; Which resolver to choose - xserver or solr?
 ;type = xserver
 type = solr
-solrQueryField = availability_id_str
-itemIdentifier = adm_id
 
-[ILL]
-hidden_statuses         = "Closed,Cancelled,Returned,Expired,Waiting for Cancel Reply,Deleted"
-default_ill_unit        = DEF_ILL_UNIT
-default_pickup_location = DEF_PICKUP_LOC
-
-[History]
-limit = 100
+; solrQueryField must contain the name of field within which are all the IDs located
+solrQueryField = barcodes
+; itemIdentifier must contain the name of field within which is the ID located
+itemIdentifier = barcode
 
 [Availability]
+; This is needed to properly create translation string to translate blocks
 source = NAME_OF_THIS_CONFIG_WITHNOUT_DOT_INI_FOR_MULTIBACKEND
 
 ; To disable this feature set this to -1 .. if you unset it, there will be set 10 as default :)
 maxItemsParsed = MAX_NUMBER_OF_ITEMS_TO_PARSE_ASYNCHRONOUSLY
 
 [holdings]
+; defaultRequiredDate - A colon-separated list used to set the default "not required
+; after" date for holds in the format days:months:years
+; e.g. 0:1:0 will set a "not required after" date of 1 month from the current date
 default_required_date = "7:0:0"
 
