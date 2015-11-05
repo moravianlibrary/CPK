@@ -57,27 +57,27 @@ class AjaxController extends AjaxControllerBase
         $catalog = $this->getILS();
         $ids = $this->params()->fromQuery('id');
         $results = $catalog->getStatuses($ids);
-        
+
         if (!is_array($results)) {
             $results = array();
         }
-        
+
         // In order to detect IDs missing from the status response, create an
         // array with a key for every requested ID.  We will clear keys as we
         // encounter IDs in the response -- anything left will be problems that
         // need special handling.
         $missingIds = array_flip($ids);
-        
+
         // Get access to PHP template renderer for partials:
         $renderer = $this->getViewRenderer();
-        
+
         // Load messages for response:
         $messages = array(
             'available' => $renderer->render('ajax/status-available.phtml'),
             'unavailable' => $renderer->render('ajax/status-unavailable.phtml'),
+            'no-items' => $renderer->render('ajax/status-no-items.phtml'),
         );
-        
-        
+
         // Loop through all the status information that came back
         $statuses = array();
         foreach ($results as $recordNumber => $record) {
@@ -88,12 +88,19 @@ class AjaxController extends AjaxControllerBase
             $current['record_number'] = array_search($current['id'], $ids);
             $current['full_status'] = $renderer->render('ajax/status-full.phtml',
                 array('status' => $current));
-            $current['availability_message'] = ($current['availability']) ? $messages['available'] : $messages['unavailable'];
+            $message =  $messages['unavailable'];
+            if (isset($current['absent_total']) && isset($current['present_total']) &&
+                    $current['absent_total'] + $current['present_total'] == 0) {
+                $message = $messages['no-items'];
+            } else if ($current['availability']) {
+                $message = $messages['available'];
+            }
+            $current['availability_message'] = $message;
             $statuses[] = $current;
             // The current ID is not missing -- remove it from the missing list.
             unset($missingIds[$current['id']]);
         }
-        
+
         // If any IDs were missing, send back appropriate dummy data
         foreach ($missingIds as $missingId => $recordNumber) {
             $statuses[] = array(
@@ -109,7 +116,7 @@ class AjaxController extends AjaxControllerBase
                 'record_number'        => $recordNumber
             );
         }
-        
+
         // Done
         return $this->output($statuses, self::STATUS_OK);
     }
