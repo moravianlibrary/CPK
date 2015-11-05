@@ -48,12 +48,21 @@
                                 </span>
                             </td>
                         </xsl:if>
-                        <xsl:if test="not(./failure)">
+                         <xsl:if test="./error">
                             <td>
-                                <span class="label label-success">
-                                    success
+                                <span class="label label-danger">
+                                    error
                                 </span>
                             </td>
+                        </xsl:if>
+                        <xsl:if test="not(./failure)">
+                        	<xsl:if test="not(./error)">
+                            	<td>
+                                	<span class="label label-success">
+                                 	   success
+                                	</span>
+                            	</td>
+                            </xsl:if>
                         </xsl:if>
           				<td><xsl:value-of select="@time"/></td>
         			</tr>
