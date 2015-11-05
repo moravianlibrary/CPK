@@ -1,0 +1,50 @@
+#!/bin/bash
+# This one example config simply inverts mergeMappings with skippableMergeMappings compared to git-3way-merge.cfg
+
+declare -A mergeMappings
+declare -A skippableMergeMappings
+
+# Define mappings for directories always being merged ..
+
+mergeMappings[bootstrap3_templates]="themes/bootstrap3/templates"
+mergeMappings[bootstrap3_js]="themes/bootstrap3/js"
+mergeMappings[config_vufind]="config/vufind"
+
+bootstrap3_templates=( \
+		themes/vnf3/templates \
+		themes/mzk3/templates \
+		themes/historickefondy3/templates \
+		themes/common-bootstrap3/templates \
+		themes/cistbrno3/templates \
+		themes/portals-common3/templates \
+		themes/obalkyknih-api-v3-bootstrap3/templates
+		)
+
+bootstrap3_js=( \
+		themes/vnf3/js \
+		themes/mzk3/js \
+		themes/historickefondy3/js \
+		themes/common-bootstrap3/js \
+		themes/cistbrno3/js \
+		themes/portals-common3/js \
+		themes/obalkyknih-api-v3-bootstrap3/js
+		)
+
+config_vufind=( \
+		local/narodnifonoteka.cz/config/vufind \
+		local/vufind2.mzk.cz/config/vufind \
+		local/historickefondy.mzk.cz/config/vufind \
+		local/www.cistbrno.cz/config/vufind
+		)
+
+# Define mappings which are about to be merged once upon a time (if is -a option specified ..)
+
+skippableMergeMappings[b3_templates]="themes/bootstrap3/templates"
+skippableMergeMappings[b3_js]="themes/bootstrap3/js"
+skippableMergeMappings[conf_vufind]="config/vufind"
+
+b3_templates=( themes/cpk-devel/templates )
+b3_js=( themes/cpk-devel/js )
+conf_vufind=( local/cpk-front.mzk.cz/config/vufind )
+
+
