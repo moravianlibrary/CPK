@@ -332,7 +332,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 					$params[$key] = $value;
 				} else {
 					if($key == 'segment')
-						$param[$key] .= ';'.$value;
+						$params[$key] .= ';'.$value;
 				}
 			}
 		}
