@@ -72,6 +72,15 @@ class Aleph extends AlephBase
             $this->maxItemsParsed = 10;
         }
 
+        if (isset ( $this->config ['IdResolver'] ['type'] )) {
+            $idResolverType = $this->config ['IdResolver'] ['type'];
+        }
+
+        if ($idResolverType == 'solr') {
+            $this->idResolver = new SolrIdResolver ( $this->searchService,
+                    $this->config);
+        }
+
         if (isset($this->config['Catalog']['dont_show_link'])) {
             $this->dontShowLink = explode(self::CONFIG_ARRAY_DELIMITER,
                 $this->config['Catalog']['dont_show_link']);
