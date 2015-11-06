@@ -505,7 +505,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 		if ($userLibCard)
 			$params['segment'] = 'customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard;
 	
-		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params, 1);
+		$dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
 	
 		$count = count($dataArray);
 	
@@ -682,7 +682,7 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getNbRecordVisitsForLibrary($period, $date, $userLibCard)
+	public function getNbRecordVisitsForLibrary($period, $date, $userLibCard, $type = "all")
 	{
 		$params = array(
 				'method'  => 'Actions.get',
