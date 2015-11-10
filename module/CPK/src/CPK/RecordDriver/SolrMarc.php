@@ -614,4 +614,9 @@ class SolrMarc extends ParentSolrMarc
     {
         return $this->getTitle();
     }
+    
+    public function getRecordType()
+    {
+        return isset($this->fields['recordtype']) ? $this->fields['recordtype'] : '';
+    }
 }
