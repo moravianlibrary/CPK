@@ -112,7 +112,13 @@ class RecordController extends RecordControllerBase
                 $view->$varName = $field7xx;
             }
         }
+        
+        // getCitation
+        $citationId = $this->getCitationId();
+        if ($citationId !== false)
+            $view->citationId = $citationId;
 
+        //
         $view->config = $this->getConfig();
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
@@ -170,5 +176,33 @@ class RecordController extends RecordControllerBase
             if (count($this->get856Links()) || count($this->get866Data()))
                 $this->defaultTab = 'EVersion';
         }
+    }
+    
+    public function getCitationId()
+    {
+        $recordID = $this->params()->fromQuery('recordID');
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordID);
+    
+        $parentRecordID = $recordDriver->getParentRecordID();
+        $parentRecordDriver = $recordLoader->load($parentRecordID);
+    
+        $citationServerUrl = "http://www.citacepro.com/api/cpk/citace/".$parentRecordID;
+    
+        $soap = curl_init();
+        curl_setopt($soap, CURLOPT_URL, $citationServerUrl);
+        curl_setopt($soap, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($soap, CURLOPT_TIMEOUT, 10);
+        curl_setopt($soap, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($soap, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($soap, CURLOPT_SSL_VERIFYHOST, false);
+    
+        $citation = curl_exec($soap);
+        curl_close($soap);
+    
+        if ($citation === false)
+            return false;
+    
+        return $parentRecordID;
     }
 }
