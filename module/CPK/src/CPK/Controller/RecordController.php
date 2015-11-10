@@ -59,6 +59,12 @@ class RecordController extends RecordControllerBase
      */
     protected function showTab($tab, $ajax = false)
     {
+        if ($this->params()->fromQuery('getXml') 
+            && ($this->params()->fromQuery('getXml') === true)
+        ) {
+            return getXml();
+        }
+        
         // Special case -- handle login request (currently needed for holdings
         // tab when driver-based holds mode is enabled, but may also be useful
         // in other circumstances):
@@ -180,14 +186,15 @@ class RecordController extends RecordControllerBase
     
     public function getCitationId()
     {
-        $recordID = $this->params()->fromQuery('recordID');
+        $recordID = $this->getUniqueID();
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         $recordDriver = $recordLoader->load($recordID);
     
         $parentRecordID = $recordDriver->getParentRecordID();
         $parentRecordDriver = $recordLoader->load($parentRecordID);
     
-        $citationServerUrl = "http://www.citacepro.com/api/cpk/citace/".$parentRecordID;
+        $citationServerUrl = "http://www.citacepro.com/api/cpk/citace/"
+                             .$parentRecordID;
     
         $soap = curl_init();
         curl_setopt($soap, CURLOPT_URL, $citationServerUrl);
@@ -204,5 +211,27 @@ class RecordController extends RecordControllerBase
             return false;
     
         return $parentRecordID;
+    }
+    
+    protected function getXml()
+    {
+        $recordID = $this->getUniqueID();
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordID);
+        
+        $parentRecordID = $recordDriver->getParentRecordID();
+        $parentRecordDriver = $recordLoader->load($parentRecordID);
+        
+        $format = $parentRecordDriver->getRecordType();
+        if ($format === 'marc')
+            $format .= '21';
+        $xml = $parentRecordDriver->getXml($format);
+        
+        $this->_helper->layout->disableLayout();
+        $content = "<?xml version='1.0'?>".$xml;
+        $this->getResponse()->clearHeaders();
+        $this->getResponse()->setheader('Content-Type', 'text/xml');
+        $this->getResponse()->setBody($content);
+        $this->getResponse()->sendResponse();
     }
 }
