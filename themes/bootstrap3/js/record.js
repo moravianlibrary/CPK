@@ -146,7 +146,7 @@ function registerTabEvents() {
   });
 }
 
-function ajaxLoadTab(tabid) {
+function ajaxLoadTab(tabid, setHash) {
   // if we're flagged to skip AJAX for this tab, just return true and let the
   // browser handle it.
   if(document.getElementById(tabid).parentNode.className.indexOf('noajax') > -1) {
@@ -154,11 +154,18 @@ function ajaxLoadTab(tabid) {
   }
 
   // Parse out the base URL for the current record:
-  var urlParts = document.URL.split('#');
+  var urlParts = document.URL.split(/[?#]/);
   var urlWithoutFragment = urlParts[0];
-  var pathInUrl = urlWithoutFragment.indexOf(path);
-  var chunks = urlWithoutFragment.substring(pathInUrl + path.length + 1).split('/');
-  var urlroot = '/' + chunks[0] + '/' + chunks[1];
+  if (path == '') {
+    // special case -- VuFind installed at site root:
+    var chunks = urlWithoutFragment.split('/');
+    var urlroot = '/' + chunks[3] + '/' + chunks[4];
+  } else {
+    // standard case -- VuFind has its own path under site:
+    var pathInUrl = urlWithoutFragment.indexOf(path);
+    var chunks = urlWithoutFragment.substring(pathInUrl + path.length + 1).split('/');
+    var urlroot = '/' + chunks[0] + '/' + chunks[1];
+  }
 
   // Request the tab via AJAX:
   $.ajax({
@@ -173,7 +180,9 @@ function ajaxLoadTab(tabid) {
       if(typeof syn_get_widget === "function") {
         syn_get_widget();
       }
-      window.location.hash = tabid;
+      if (typeof setHash == 'undefined' || setHash) {
+        window.location.hash = tabid;
+      }
     }
   });
   return false;
