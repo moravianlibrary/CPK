@@ -158,6 +158,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
+            $client->setHeaders(array(
+                'Content-Type' => 'application/xml'
+            ));
 
             if (isset($this->timeout))
                 $client->setOptions(
