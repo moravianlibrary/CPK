@@ -1,24 +1,3 @@
-<?
-
-$account = $this->auth()->getManager();
-
-$user = $account->isLoggedIn();
-
-if ($user) {
-    // FIXME: We are surely getting library cards more than once - implement some cache
-    $libraryCards = $user->getLibraryCards(false);
-
-    if ($account instanceof \CPK\Auth\Manager) {
-        $notificationsEnabled = $account->isNotificationSystemEnabled();
-    } else {
-        $notificationsEnabled = false;
-    }
-
-    if ($notificationsEnabled) {
-        $this->headScript()->appendFile("async-notifications.js");
-    }
-}
-?>
 <div class="navbar-header">
 	<button type="button" class="navbar-toggle" data-toggle="collapse"
 		data-target="#header-collapse">
@@ -60,11 +39,11 @@ if ($user) {
 			<? foreach ($libraryCards as $libraryCard):
 			       $source = explode('.', $libraryCard['cat_username'])[0];
 			?>
-				<li id="<?=$libraryCard['cat_username'] ?>" class="notification-section">
+				<li class="notification-section">
 				    <div class="notification-institution">
 				      <?=$this->translate('source_' . $source, null, $source)?><img height="20" class="pull-right" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
 					</div>
-					<div class="notification"><i class="fa fa-spinner fa-spin"></i> <span
+					<div id="<?=$libraryCard['cat_username'] ?>" class="notification"><i class="fa fa-spinner fa-spin"></i> <span
 						class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
 					</div>
 			    </li>

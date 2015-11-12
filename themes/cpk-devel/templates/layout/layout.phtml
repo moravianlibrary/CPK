@@ -1,10 +1,10 @@
 <?=$this->doctype('HTML5')?>
 <html lang="<?=explode("-", $this->layout()->userLang)[0]?>">
-  <head>
+<head>
     <?$this->headThemeResources()?>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <?=$this->headMeta()?>
     <?=$this->headTitle()?>
     <?
@@ -103,11 +103,33 @@
             }
         }
 
-      ?>
+        /*
+         * Will we show the notifications ??
+         */
+        $user = $authManager->isLoggedIn();
+
+        $libraryCards = [];
+
+        $notificationsEnabled = false;
+
+        if ($user) {
+            // FIXME: We are surely getting library cards more than once - implement some cache
+            $libraryCards = $user->getLibraryCards(false);
+
+            if ($authManager instanceof \CPK\Auth\Manager) {
+                $notificationsEnabled = $authManager->isNotificationSystemEnabled();
+            }
+
+            if ($notificationsEnabled) {
+                $this->headScript()->appendFile("async-notifications.js");
+            }
+        }
+    ?>
 
     <?=$this->headScript()?>
   </head>
-  <body class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?>">
+<body
+	class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?>">
     <?=$this->render('cookies-agreement.phtml')?>
     <?=$this->render('info.phtml')?>
     <? // Set up the search box -- there are three possible cases:
@@ -121,13 +143,13 @@
       }
     ?>
     <header class="hidden-print">
-      <div class="container navbar navbar-inverse">
-        <div class="red-box">
-          <a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
-          <?=$this->render('header.phtml')?>
+		<div class="container navbar navbar-inverse">
+			<div class="red-box">
+				<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
+          <?=$this->render('header.phtml', ['account' => $authManager, 'user' => $user, 'libraryCards' => $libraryCards, 'notificationsEnabled' => $notificationsEnabled])?>
         </div>
-      </div>
-      <div class="container">
+		</div>
+		<div class="container">
           <? if ($this->layout()->searchbox !== false): ?>
           <div class="well clearfix">
           <?=$this->layout()->searchbox ?>
@@ -138,8 +160,10 @@
                 * This part creates button to show/hide division containing messages, which is created later
                 */
                 if($assertionExportEnabled): ?>
-                    <button id="shibAssertionHandler" class="btn btn-link" style="float: right" onclick="handleShibAssertion()" >Show Shib Assertions</button>
-                    <script type="text/javascript">
+                    <button id="shibAssertionHandler"
+					class="btn btn-link" style="float: right"
+					onclick="handleShibAssertion()">Show Shib Assertions</button>
+				<script type="text/javascript">
                     function handleShibAssertion() {
                          var __display = document.getElementById('shibAssertionExport').style.display;
                          if (__display == 'block') {
@@ -163,7 +187,9 @@
         * This part echoes messages to separate division to have it beautiful.
         */
         if($assertionExportEnabled): ?>
-            <div class="container" id="shibAssertionExport" style="display: none"><div class="well clearfix">
+            <div class="container" id="shibAssertionExport"
+			style="display: none">
+			<div class="well clearfix">
             <? for($i = 0; $i < sizeof($assertions);) {
                 $assertion = htmlentities($assertions[$i]);
 
@@ -173,33 +199,37 @@
                 // Render it
                 ?><h3>Assertion number <?=++$i?></h3><?=$assertion ?><?
             } ?>
-            </div></div>
+            </div>
+		</div>
         <? endif; ?>
 
     </header>
-    <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
-      <div class="container">
+	<div role="main"
+		class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
+		<div class="container">
         <?=$this->layout()->content ?>
       </div>
-    </div>
-    <footer class="hidden-print">
-      <div class="container">
+	</div>
+	<footer class="hidden-print">
+		<div class="container">
         <?=$this->render('footer.phtml')?>
         <?=$this->layout()->poweredBy ?>
       </div>
-    </footer>
-    <!-- MODAL IN CASE WE NEED ONE -->
-    <div id="modal" class="modal fade hidden-print" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 id="modalTitle" class="modal-title">&nbsp;</h4>
-          </div>
-          <div class="modal-body"><?=$this->transEsc('Loading') ?>...</div>
-        </div>
-      </div>
-    </div>
+	</footer>
+	<!-- MODAL IN CASE WE NEED ONE -->
+	<div id="modal" class="modal fade hidden-print" tabindex="-1"
+		role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true">&times;</button>
+					<h4 id="modalTitle" class="modal-title">&nbsp;</h4>
+				</div>
+				<div class="modal-body"><?=$this->transEsc('Loading') ?>...</div>
+			</div>
+		</div>
+	</div>
     <?=$this->googleanalytics()?>
     <?=$this->piwik()?>
   </body>
