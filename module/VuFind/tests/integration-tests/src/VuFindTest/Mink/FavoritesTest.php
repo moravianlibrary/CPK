@@ -111,9 +111,10 @@ class FavoritesTest extends \VuFindTest\Unit\MinkTestCase
         $this->findCss($page, '#save_list');
         // Make list
         $this->findCss($page, '#make-list')->click();
+        $this->snooze();
         // Empty
         $this->findCss($page, '.modal-body .btn.btn-primary')->click();
-        $this->findCss($page, '#list_title');
+        $this->snooze();
         $this->findCss($page, '#list_title')->setValue('Test List');
         $this->findCss($page, '#list_desc')->setValue('Just. THE BEST.');
         $this->findCss($page, '.modal-body .btn.btn-primary')->click();
@@ -191,9 +192,7 @@ class FavoritesTest extends \VuFindTest\Unit\MinkTestCase
         $this->findCss($page, '#loginOptions a')->click();
         $this->fillInLoginForm($page, 'username1', 'test');
         $this->submitLoginForm($page);
-        //$this->getMinkSession()->reload();
         // Save Record
-        $this->snooze();
         $this->findCss($page, '#save-record')->click();
         $this->snooze();
         $this->findCss($page, '#save_list');
@@ -231,9 +230,10 @@ class FavoritesTest extends \VuFindTest\Unit\MinkTestCase
         $this->findCss($page, '#save_list');
         // Make list
         $this->findCss($page, '#make-list')->click();
+        $this->snooze();
         // Empty
         $this->findCss($page, '.modal-body .btn.btn-primary')->click();
-        $this->findCss($page, '#list_title');
+        $this->snooze();
         $this->findCss($page, '#list_title')->setValue('Test List');
         $this->findCss($page, '#list_desc')->setValue('Just. THE BEST.');
         $this->findCss($page, '.modal-body .btn.btn-primary')->click();
@@ -312,7 +312,6 @@ class FavoritesTest extends \VuFindTest\Unit\MinkTestCase
         $this->findCss($page, '#loginOptions a')->click();
         $this->fillInLoginForm($page, 'username2', 'test');
         $this->submitLoginForm($page);
-        $this->snooze();    // wait for login
         // Save Record
         $this->findCss($page, '.save-record')->click();
         $this->snooze();
