@@ -43,7 +43,7 @@
 				    <div class="notification-institution">
 				      <?=$this->translate('source_' . $source, null, $source)?><img height="20" class="pull-right" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
 					</div>
-					<div id="<?=$libraryCard['cat_username'] ?>" class="notification"><i class="fa fa-spinner fa-spin"></i> <span
+					<div data-identity="<?=$libraryCard['cat_username'] ?>" class="notification"><i class="fa fa-spinner fa-spin"></i> <span
 						class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
 					</div>
 			    </li>

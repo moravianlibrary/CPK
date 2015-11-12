@@ -1,6 +1,6 @@
 $(function() { // Onload DOM ..
-    $('div[id].notification').each(function() {
-	var cat_username = $(this).attr('id');
+    $('div[data-identity].notification').each(function() {
+	var cat_username = $(this).attr('data-identity');
 
 	fetchNotifications(cat_username);
     });
@@ -34,7 +34,7 @@ function processNotificationsFetched(response) {
 
     var cat_username = data.cat_username, html = data.html;
 
-    var div = $('div#' + cat_username);
+    var div = $('div[data-identity=' + cat_username + ']');
 
     if (status == 'OK') {
 	// Also change the icon so that it is more likely to be spotted (probably with count of notifications ?)
