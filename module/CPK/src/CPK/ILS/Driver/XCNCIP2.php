@@ -530,25 +530,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $monthLoanPeriod = ($itemRestriction ==
              'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
 
-        // FIXME: Add link logic
-        $link = false;
-        if ($onStock && $restrictedToLibrary) {
-            // This means the reader needs to place a request to prepare the
-            // item -> pick up the item from stock & bring it to circulation
-            // desc
-            // E.g. https://vufind.mzk.cz/Record/MZK01-000974548#bd
-            $link = $this->createLinkFromAlephItemId($item_id);
-        } else
-            if ($onStock && $monthLoanPeriod) {
-                // Pickup from stock & prepare for month loan
-                $link = $this->createLinkFromAlephItemId($item_id);
-            } else
-                if (! $available && ! $onStock) {
-                    // Reserve item
-                    $link = $this->createLinkFromAlephItemId($item_id);
-                }
-        // End of FIXME
-
         return array(
             'id' => empty($id) ? "" : $id,
             'availability' => empty($available) ? false : $available ? true : false,
@@ -577,24 +558,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'addStorageRetrievalRequestLink' => "",
             'addILLRequestLink' => ""
         );
-    }
-
-    private function createLinkFromAlephItemId($item_id)
-    {
-        // Input: MZK01000974548-MZK50000974548000010
-        // Output: MZK01-000974548/ExtendedHold?barcode=MZK50000974548000020
-        // Hold?id=MZK01-001422752&item_id=MZK50001457754000010&hashKey=451f0e3f0112decdadc4a9e507a60cfb#tabnav
-        $itemIdParts = explode("-", $item_id);
-
-        /*
-         * $id = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
-         * $link .= $id . '/Hold?id=' . $id . '&item_id=';
-         * $link .= $itemIdParts[1];
-         */
-        $link .= $itemIdParts[0] . '/Hold?id=' . $itemIdParts[0] . '&item_id=' .
-             $itemIdParts[1];
-        $link .= '#tabnav';
-        return $link;
     }
 
     /*
