@@ -343,21 +343,7 @@ class AjaxController extends AjaxControllerBase
                 // Try to get the profile ..
                 $profile = $ilsDriver->getMyProfile($patron);
             } catch (\VuFind\Exception\ILS $e) {
-
-                // Something went wrong - include cat_username to properly
-                // attach the error message into the right table
-
-                $debugMsg = ('development' == APPLICATION_ENV) ? ': ' .
-                     $e->getMessage() : '';
-
-                $message = $this->translate('An error has occurred') . $debugMsg;
-
-                $data = [
-                    'message' => $message,
-                    'cat_username' => $cat_username
-                ];
-
-                return $this->output($data, self::STATUS_ERROR);
+                return $this->outputException($e, $cat_username);
             }
 
             return $this->output($profile, self::STATUS_OK);
@@ -369,7 +355,7 @@ class AjaxController extends AjaxControllerBase
 
     public function getMyHoldsAjax()
     {
-        // Get the cat_username being requested
+            // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
 
         $hasPermissions = $this->hasPermissions($cat_username);
@@ -394,21 +380,7 @@ class AjaxController extends AjaxControllerBase
                 // Try to get the profile ..
                 $holds = $catalog->getMyHolds($patron);
             } catch (\VuFind\Exception\ILS $e) {
-
-                // Something went wrong - include cat_username to properly
-                // attach the error message into the right table
-
-                $debugMsg = ('development' == APPLICATION_ENV) ? ': ' .
-                     $e->getMessage() : '';
-
-                $message = $this->translate('An error has occurred') . $debugMsg;
-
-                $data = [
-                    'message' => $message,
-                    'cat_username' => $cat_username
-                ];
-
-                return $this->output($data, self::STATUS_ERROR);
+               return $this->outputException($e, $cat_username);
             }
 
             $recordList = $obalky = [];
@@ -507,21 +479,7 @@ class AjaxController extends AjaxControllerBase
                 $data['cat_username'] = $cat_username;
                 $data['fines'] = $fines;
             } catch (\VuFind\Exception\ILS $e) {
-
-                // Something went wrong - include cat_username to properly
-                // attach the error message into the right table
-
-                $debugMsg = ('development' == APPLICATION_ENV) ? ': ' .
-                     $e->getMessage() : '';
-
-                $message = $this->translate('An error has occurred') . $debugMsg;
-
-                $data = [
-                    'message' => $message,
-                    'cat_username' => $cat_username
-                ];
-
-                return $this->output($data, self::STATUS_ERROR);
+                return $this->outputException($e, $cat_username);
             }
 
             return $this->output($data, self::STATUS_OK);
@@ -557,21 +515,7 @@ class AjaxController extends AjaxControllerBase
                 // Try to get the profile ..
                 $result = $ilsDriver->getMyTransactions($patron);
             } catch (\VuFind\Exception\ILS $e) {
-
-                // Something went wrong - include cat_username to properly
-                // attach the error message into the right table
-
-                $debugMsg = ('development' == APPLICATION_ENV) ? ': ' .
-                     $e->getMessage() : '';
-
-                $message = $this->translate('An error has occurred') . $debugMsg;
-
-                $data = [
-                    'message' => $message,
-                    'cat_username' => $cat_username
-                ];
-
-                return $this->output($data, self::STATUS_ERROR);
+                return $this->outputException($e, $cat_username);
             }
 
             $obalky = $transactions = [];
@@ -708,6 +652,38 @@ class AjaxController extends AjaxControllerBase
         }
 
         return true;
+    }
+
+    /**
+     * This function should be provided with cat_username as many of the AJAX implementations
+     * counts on recieving it in order to properly append it to proprietary element.
+     *
+     * @param \Exception $e
+     * @param string $cat_username
+     * @return \Zend\Http\Response
+     */
+    protected function outputException(\Exception $e, $cat_username = null) {
+
+            // Something went wrong - include cat_username to properly
+            // attach the error message into the right table
+        $debugMsg = ('development' == APPLICATION_ENV) ? ': ' . $e->getMessage() : '';
+
+        $message = $this->translate('An error has occurred') . $debugMsg;
+
+        if ($cat_username == null) {
+            $cat_username = 'unknown';
+        }
+
+        $data = [
+            'message' => $message,
+            'cat_username' => $cat_username
+        ];
+
+        if ($e instanceof VuFind\Exception\ILS) {
+            $data['consideration'] = 'There is a chance you have missing configuration file called "' . explode('.', $cat_username)[0] . '.ini"';
+        }
+
+        return $this->output($data, self::STATUS_ERROR);
     }
 
     /**
