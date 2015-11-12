@@ -322,7 +322,7 @@ class AjaxController extends AjaxControllerBase
 
     public function getMyProfileAjax()
     {
-        // Get the cat_username being requested
+            // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
 
         $hasPermissions = $this->hasPermissions($cat_username);
@@ -342,6 +342,17 @@ class AjaxController extends AjaxControllerBase
             try {
                 // Try to get the profile ..
                 $profile = $ilsDriver->getMyProfile($patron);
+
+                if (is_array($profile) && count($profile) === 0) {
+                    return $this->output(
+                        [
+                            'cat_username' => $cat_username,
+                            'message' => $this->translate(
+                                'profile_fetch_problem'),
+                            'consideration' => 'There is a chance you have missing configuration file called "' .
+                                 explode('.', $cat_username)[0] . '.ini"'
+                        ], self::STATUS_ERROR);
+                }
             } catch (\VuFind\Exception\ILS $e) {
                 return $this->outputException($e, $cat_username);
             }
