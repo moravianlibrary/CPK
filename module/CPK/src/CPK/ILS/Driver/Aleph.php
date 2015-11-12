@@ -44,7 +44,7 @@ class Aleph extends AlephBase
 
     protected $available_statuses = [];
 
-    protected $logo = null;
+    protected $logo= null;
 
     protected $maxItemsParsed;
 
@@ -72,13 +72,9 @@ class Aleph extends AlephBase
             $this->maxItemsParsed = 10;
         }
 
-        if (isset ( $this->config ['IdResolver'] ['type'] )) {
-            $idResolverType = $this->config ['IdResolver'] ['type'];
-        }
-
-        if ($idResolverType == 'solr') {
-            $this->idResolver = new SolrIdResolver ( $this->searchService,
-                    $this->config);
+        if ($this->idResolver instanceof \VuFind\ILS\Driver\SolrIdResolver) {
+            $this->idResolver = new SolrIdResolver($this->searchService,
+                $this->config);
         }
 
         if (isset($this->config['Catalog']['dont_show_link'])) {
