@@ -236,7 +236,7 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives
 <ListRecords>
 <record>
 <header>
-<identifier>cpk-merged-record-id:'.$parentRecordID.'</identifier>
+<identifier>cpk-record-id:'.$recordID.'</identifier>
 </header>
 <metadata>'.$recordXml.'</metadata>
 </record>
