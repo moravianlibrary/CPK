@@ -1132,13 +1132,18 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $position = $this->useXPath($current, 'HoldQueuePosition');
             $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
             $title = $this->useXPath($current, 'Title');
-            $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
-            // $bib_id = substr_replace($bib_id, '-', 5, 0); // number 5 is position
 
+            // Deal with Zlin.
+            if (empty($id)) $id = $this->useXPath($current,
+                    'Ext/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+            if (empty($title)) $title = $this->useXPath($current, 'Ext/BibliographicDescription/Title');
+
+            $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
             $parsedDate = empty($create) ? '' : strtotime($create[0]);
             $create = date('j. n. Y', $parsedDate);
             $parsedDate = empty($expire) ? '' : strtotime($expire[0]);
             $expire = date('j. n. Y', $parsedDate);
+
             $retVal[] = array(
                 'type' => empty($type) ? '' : (string) $type[0],
                 'id' => empty($bib_id) ? '' : $bib_id,
