@@ -137,7 +137,9 @@ class AjaxController extends AjaxControllerBase
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
 
-        // Do we have this feature enabled ??
+        $renderer = $this->getViewRenderer();
+
+            // Do we have this feature enabled ??
         $config = $this->getConfig();
         $isThisEnabled = $config->Site['notificationsEnabled'] !== null &&
              $config->Site['notificationsEnabled'];
@@ -161,26 +163,34 @@ class AjaxController extends AjaxControllerBase
 
             try {
                 // Try to get the profile ..
-                //$fines = $ilsDriver->getMyFines($patron);
+                $profile = $ilsDriver->getMyProfile($patron);
 
-                $data['cat_username'] = str_replace('.', '\.', $cat_username);
+                $blocks = [];
+
+                if ($profile['blocks'] !== null) {
+                    $blocks = $profile['blocks'];
+                }
+
+                $html = $renderer->render('notifications.phtml', ['blocks' => $blocks]);
+
+                $data = [
+                    'html' => $html,
+                    'cat_username' => str_replace('.', '\.', $cat_username),
+                    'count' => count($blocks)
+                ];
 
                 // TODO: Obtain all the blocks & pass it to some phtml ...
             } catch (\VuFind\Exception\ILS $e) {
                 return $this->outputException($e, $cat_username);
             }
 
-            // FIXME: Implement this ..
-            $data['message'] = "Not implemented yet";
-
-            return $this->output($data, self::STATUS_ERROR);
+            return $this->output($data, self::STATUS_OK);
         } else
             return $this->output(
                 [
                     'cat_username' => $cat_username,
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
-                ],
-                self::STATUS_ERROR);
+                ], self::STATUS_ERROR);
     }
 
     /**

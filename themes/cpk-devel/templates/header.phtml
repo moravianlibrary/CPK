@@ -103,25 +103,26 @@
 			</li>
         <? endif; ?>
         <? if ($user && $notificationsEnabled): ?>
-        <li class="dropdown"><a
-				href="#" class="dropdown-toggle" data-toggle="dropdown"
-				id="notif_icon"> <i style="font-size: 20px; color: #eee;"
-					class="fa fa-fw books"></i>
-			</a>
-			<ul class="dropdown-menu">
-			<? foreach ($libraryCards as $libraryCard):
-			       $source = explode('.', $libraryCard['cat_username'])[0];
-			?>
-				<li class="notification-section">
-				    <div class="notification-institution">
-				      <?=$this->translate('source_' . $source, null, $source)?><img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
-					</div>
-					<div data-identity="<?=$libraryCard['cat_username'] ?>" class="notification"><i class="fa fa-spinner fa-spin"></i> <span
-						class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
-					</div>
-			    </li>
-			<? endforeach; ?>
-			</ul>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"	id="notif_icon">
+            <i style="font-size: 20px; color: #222;" class="fa fa-fw books"></i>
+            <span id="notification-counter" class="label label-danger overIcon">0</span>
+	      </a>
+		  <ul class="dropdown-menu" style="width: 300px;">
+		  <? foreach ($libraryCards as $libraryCard):
+			   $source = explode('.', $libraryCard['cat_username'])[0];
+		  ?>
+			<li class="notification-section">
+			   <h4 class="well row"> <?=$this->translate('source_' . $source, null, $source)?>
+			     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
+			   </h4>
+			   <li data-identity="<?=$libraryCard['cat_username'] ?>" class="notification">
+			     <i class="fa fa-spinner fa-spin"></i>
+			     <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+			   </li>
+			</li>
+	      <? endforeach; ?>
+		  </ul>
 		</li>
         <? endif; ?>
       </ul>
