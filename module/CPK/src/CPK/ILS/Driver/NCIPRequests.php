@@ -15,6 +15,11 @@ namespace CPK\ILS\Driver;
 class NCIPRequests {
 
     protected $noScheme = false;
+    protected $sigla = '';
+
+    public function __construct($agency) {
+        $this->sigla = $agency;
+    }
 
     public function patronLogin($username, $password) {
         $body =
@@ -187,6 +192,7 @@ class NCIPRequests {
     }
 
     protected function insertInitiationHeader($to, $from = "CPK") {
+        if (empty($to)) $to = $this->sigla;
         $initiationHeader =
         "<ns1:InitiationHeader>" .
         "<ns1:FromAgencyId>" .
@@ -220,6 +226,7 @@ class NCIPRequests {
     }
 
     protected function insertAgencyIdTag($agency) {
+        if (empty($agency)) $agency = $this->sigla;
         if (empty($agency)) return '';
         return ($this->noScheme ?
                 "<ns1:AgencyId>" :
@@ -310,12 +317,11 @@ class NCIPRequests {
         $this->insertUserElementType("User Privilege") .
         $this->insertUserElementType("User Id") .
         $this->insertUserElementType("Previous User Id");
-        // TODO
-        /*if (library.equals("Liberec")) {
-            body =
-            insertUserElementType("Name Information") +
-            insertUserElementType("User Address Information");
-        }*/
+        if ($this->sigla == "LIA001") {
+            $body =
+            $this->insertUserElementType("Name Information") .
+            $this->insertUserElementType("User Address Information");
+        }
         return $body;
     }
 

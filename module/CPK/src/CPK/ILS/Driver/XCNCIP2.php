@@ -83,6 +83,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     protected $logo = null;
 
+    protected $agency = '';
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -138,7 +140,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (isset($this->config['Catalog']['logo']))
             $this->logo = $this->config['Catalog']['logo'];
 
-        $this->requests = new NCIPRequests();
+        if (isset($this->config['Catalog']['agency']))
+            $this->agency = $this->config['Catalog']['agency'];
+
+        $this->requests = new NCIPRequests($this->agency);
     }
 
     /**
