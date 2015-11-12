@@ -92,6 +92,7 @@
 
             } elseif($authManager->getAuthMethod() === "ShibbolethIdentityManager") {
                 $authMethod = $authManager->getAuthInstance("ShibbolethIdentityManager");
+                $isActiveShibbolethIdentityManager = true;
             }
 
             if ($authMethod && $authMethod->isShibAssertionExportEnabled()) {
@@ -124,6 +125,14 @@
                 $this->headScript()->appendFile("async-notifications.js");
             }
         }
+
+        $headerParams = [
+            'account' => $authManager,
+            'user' => $user,
+            'libraryCards' => $libraryCards,
+            'notificationsEnabled' => $notificationsEnabled,
+            'isActiveShibbolethIdentityManager' => $isActiveShibbolethIdentityManager
+        ];
     ?>
 
     <?=$this->headScript()?>
@@ -146,7 +155,7 @@
 		<div class="container navbar navbar-inverse">
 			<div class="red-box">
 				<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
-          <?=$this->render('header.phtml', ['account' => $authManager, 'user' => $user, 'libraryCards' => $libraryCards, 'notificationsEnabled' => $notificationsEnabled])?>
+          <?=$this->render('header.phtml', $headerParams)?>
         </div>
 		</div>
 		<div class="container">

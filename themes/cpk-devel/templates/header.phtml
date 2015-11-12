@@ -41,7 +41,7 @@
 			?>
 				<li class="notification-section">
 				    <div class="notification-institution">
-				      <?=$this->translate('source_' . $source, null, $source)?><img height="20" class="pull-right" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
+				      <?=$this->translate('source_' . $source, null, $source)?><img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
 					</div>
 					<div data-identity="<?=$libraryCard['cat_username'] ?>" class="notification"><i class="fa fa-spinner fa-spin"></i> <span
 						class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>

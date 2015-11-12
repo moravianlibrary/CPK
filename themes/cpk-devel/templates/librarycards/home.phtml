@@ -29,15 +29,21 @@
         <th width="30%">&nbsp;</th>
       </tr>
       <? foreach ($this->libraryCards as $record):
-            $eppnHostname = explode("@", $record['eppn'])[1];
-            if ($logos !== null)
-                $logo = $logos->$eppnHostname;
+            $source = explode('.', $record['cat_username'])[0];
+      if ($source === 'Dummy') {
+          // The source is dummy, thus in order to parse logo & correctly tranlate it, we need to get at least eppnScope
+          $atPos = strpos($record['eppn'], '@');
+          $eppnScope = substr($record['eppn'], ++$atPos);
+
+          $source = $eppnScope;
+      }
+
       ?>
         <tr>
           <td style="text-align: center;">
-            <img height="32" src="<?=$logo ?>"/>
+            <img height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
           </td>
-          <td><?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?></td>
+          <td><?=$this->transEsc("source_$source", null, $source) ?></td>
           <td title="<?=$record['cat_username'] ?>"><?=$record['card_name'] ?></td>
           <td>
           <? /* Do not create a choice for deletion if this is the only card */ if(count($this->libraryCards) !== 1): ?>

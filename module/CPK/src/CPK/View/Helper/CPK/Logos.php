@@ -77,7 +77,7 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      *
      * @param string $source
      */
-    public function getLogoFromSource($source)
+    public function getLogo($source)
     {
         if ($this->idpLogos[$source] !== null) {
             return $this->idpLogos[$source];

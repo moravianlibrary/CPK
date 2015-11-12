@@ -47,7 +47,7 @@
 
       <h3 class="well row" style="margin-bottom: 3px;">
       <?=$this->transEsc("source_$source", null, $source) ?>
-      <img class="pull-right" height="32" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
+      <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
       </h3>
 
     <?=$this->render('myresearch/holds-from-identity.phtml', [ 'libraryIdentity' => $libraryIdentity] )?>
@@ -80,7 +80,7 @@
 
       <h3 class="well row" style="margin-bottom: 3px;">
       <?=$this->transEsc("source_$source", null, $source) ?>
-      <img class="pull-right" height="32" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
+      <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
       </h3>
 
       <div id="<?=$libraryIdentity->cat_username?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
