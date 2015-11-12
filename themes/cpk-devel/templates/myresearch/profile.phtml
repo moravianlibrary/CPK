@@ -21,13 +21,11 @@
     <h2><?=$this->transEsc('Profile')?></h2>
     <?=$this->flashmessages();?>
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-        $eppnHostname = explode("@", $eppn)[1];
-        if ($logos !== null)
-            $libraryLogo = $logos->$eppnHostname; ?>
+        $source = explode('.', $libraryIdentity->profile['cat_username'])[0];?>
     <div class="well">
     <h3>
-    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
+    <?=$this->transEsc("source_$source", null, $source) ?>
+    <img class="pull-right" height="32" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
     </h3>
     <? if ($isSynchronous): ?>
 

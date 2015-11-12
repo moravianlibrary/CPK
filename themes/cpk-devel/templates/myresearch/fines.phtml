@@ -27,15 +27,13 @@
     <?=$this->transEsc('You do not have any fines')?>
   <? else: ?>
     <? foreach($this->fines as $eppn => $identityFines):
-        $eppnHostname = explode("@", $eppn)[1];
-        if ($logos !== null)
-            $libraryLogo = $logos->$eppnHostname; ?>
+        $source = explode('.', $identityFines['cat_username'])[0]; ?>
 
     <div class="well row">
     <h3>
-    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
-    </h3>
+      <?=$this->transEsc("source_$source", null, $source) ?>
+      <img class="pull-right" height="32" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
+      </h3>
     <? if ($isSynchronous): ?>
 
         <? if (empty($identityFines)): ?>

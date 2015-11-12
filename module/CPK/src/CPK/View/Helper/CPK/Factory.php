@@ -46,6 +46,7 @@ class Factory
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
         return new Record($config);
     }
+
     /**
      * Construct the Flashmessages helper.
      *
@@ -60,5 +61,10 @@ class Factory
         return new Flashmessages($messenger);
     }
 
+    public static function getLogos(ServiceManager $sm)
+    {
+        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        return new Logos($config);
+    }
 
 }

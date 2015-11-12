@@ -43,14 +43,12 @@
       <? break; endif; ?>
     <? endforeach; ?>
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-        $eppnHostname = explode("@", $eppn)[1];
-        if ($logos !== null)
-            $libraryLogo = $logos->$eppnHostname; ?>
+        $source = explode('.', $libraryIdentity['cat_username'])[0]; ?>
 
-    <h3 class="well row" style="margin-bottom: 3px;">
-    <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-    <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
-    </h3>
+      <h3 class="well row" style="margin-bottom: 3px;">
+      <?=$this->transEsc("source_$source", null, $source) ?>
+      <img class="pull-right" height="32" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
+      </h3>
 
     <?=$this->render('myresearch/holds-from-identity.phtml', [ 'libraryIdentity' => $libraryIdentity] )?>
 
@@ -78,13 +76,11 @@
           </form>
 
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-        $eppnHostname = explode("@", $eppn)[1];
-        if ($logos !== null)
-            $libraryLogo = $logos->$eppnHostname; ?>
+        $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
 
       <h3 class="well row" style="margin-bottom: 3px;">
-      <?=$this->transEsc("source_$eppnHostname", null, $eppnHostname) ?>
-      <img class="pull-right" height="32" src="<?=$libraryLogo ?>"/>
+      <?=$this->transEsc("source_$source", null, $source) ?>
+      <img class="pull-right" height="32" src="<?=$this->logos()->getLogoFromSource($source) ?>"/>
       </h3>
 
       <div id="<?=$libraryIdentity->cat_username?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">

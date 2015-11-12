@@ -112,7 +112,6 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         $viewVars['libraryIdentities'] = $libraryIdentities;
-        $viewVars['logos'] = $logos;
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;
@@ -216,13 +215,11 @@ class MyResearchController extends MyResearchControllerBase
             } else // This means we have async deal ..
                 $currentIdentityView->cat_username = $patron['cat_username'];
 
-                // Unknown purpose .. copied from parent MZKCommon ..
+            // Unknown purpose .. copied from parent MZKCommon ..
             $currentIdentityView = $this->addViews($currentIdentityView);
 
             $viewVars['libraryIdentities'][$eppn] = $currentIdentityView;
         }
-
-        $viewVars['logos'] = $user->getIdentityProvidersLogos();
 
         $viewVars['isSynchronous'] = $isSynchronous;
 
@@ -360,7 +357,6 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         $viewVars['libraryIdentities'] = $libraryIdentities;
-        $viewVars['logos'] = $user->getIdentityProvidersLogos();
         $view = $this->createViewModel($viewVars);
 
         $this->flashExceptions($this->flashMessenger());
@@ -499,7 +495,6 @@ class MyResearchController extends MyResearchControllerBase
             $allFines[$identity['eppn']] = $fines;
         }
         $viewVars['fines'] = $allFines;
-        $viewVars['logos'] = $user->getIdentityProvidersLogos();
         $totalFine = 0;
         if (! empty($result)) {
             foreach ($result as $fine) {

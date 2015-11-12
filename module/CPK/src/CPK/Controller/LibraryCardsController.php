@@ -82,8 +82,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
 
         return $this->createViewModel(
             [
-                'libraryCards' => $user->getAllUserLibraryCards(),
-                'logos' => $user->getIdentityProvidersLogos()
+                'libraryCards' => $user->getAllUserLibraryCards()
             ]);
     }
 

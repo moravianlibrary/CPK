@@ -18,8 +18,7 @@
 		$recordUrl = $this->recordLink()->getUrl($record);
 		$anchor = $this->transEsc('source_' . $source, null, $source);
 
-		$logoKey = isset($this->config['IdPLogosMappedToSolr'][$source]) ? $this->config['IdPLogosMappedToSolr'][$source] : '';
-		$logoUrl = isset($this->config['IdPLogos'][$logoKey]) ? $this->config['IdPLogos'][$logoKey] : '' ?>
+		$logoUrl = isset($this->config['IdPLogos'][$source]) ? $this->config['IdPLogos'][$source] : '' ?>
 
 <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>" <?=(++$i > $maxInstitutionsShown) ? 'hidden="hidden"' : '' ?>>
     <div class="row root-title">

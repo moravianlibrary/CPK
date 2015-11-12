@@ -32,10 +32,11 @@ return array(
     'favicon' => 'favicon.ico',
     'helpers' => array(
         'factories' => array(
-            'record'     => 'CPK\View\Helper\CPK\Factory::getRecord',
+            'record' => 'CPK\View\Helper\CPK\Factory::getRecord',
             'flashmessages' => 'CPK\View\Helper\CPK\Factory::getFlashmessages',
+            'logos' => 'CPK\View\Helper\CPK\Factory::getLogos',
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
-            'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
+            'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik'
         ),
         'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',
@@ -43,7 +44,7 @@ return array(
             'vudl' => 'VuDL\View\Helper\Bootstrap3\VuDL',
             'parseFilterOptions' => 'CPK\View\Helper\CPK\ParseFilterOptions',
             'renderarray' => 'CPK\View\Helper\CPK\RenderArray',
-            'currenturl' => 'CPK\View\Helper\CPK\CurrentURL',
+            'currenturl' => 'CPK\View\Helper\CPK\CurrentURL'
         )
     )
 );
