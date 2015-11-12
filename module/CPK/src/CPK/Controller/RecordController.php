@@ -59,10 +59,8 @@ class RecordController extends RecordControllerBase
      */
     protected function showTab($tab, $ajax = false)
     {
-        if ($this->params()->fromQuery('getXml') 
-            && ($this->params()->fromQuery('getXml') === true)
-        ) {
-            return getXml();
+        if ($this->params()->fromQuery('getXml')) {
+            return $this->getXml();
         }
         
         // Special case -- handle login request (currently needed for holdings
@@ -120,9 +118,9 @@ class RecordController extends RecordControllerBase
         }
         
         // getCitation
-        $citationId = $this->getCitationId();
-        if ($citationId !== false)
-            $view->citationId = $citationId;
+        $citation = $this->getCitation();
+        if ($citation !== false)
+            $view->citation = $citation;
 
         //
         $view->config = $this->getConfig();
@@ -184,9 +182,9 @@ class RecordController extends RecordControllerBase
         }
     }
     
-    public function getCitationId()
+    public function getCitation()
     {
-        $recordID = $this->getUniqueID();
+        $recordID = $this->driver->getUniqueID();
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         $recordDriver = $recordLoader->load($recordID);
     
@@ -210,12 +208,12 @@ class RecordController extends RecordControllerBase
         if ($citation === false)
             return false;
     
-        return $parentRecordID;
+        return $citation;
     }
     
     protected function getXml()
     {
-        $recordID = $this->getUniqueID();
+        $recordID = $this->driver->getUniqueID();
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         $recordDriver = $recordLoader->load($recordID);
         
@@ -225,13 +223,31 @@ class RecordController extends RecordControllerBase
         $format = $parentRecordDriver->getRecordType();
         if ($format === 'marc')
             $format .= '21';
-        $xml = $parentRecordDriver->getXml($format);
+        $recordXml = $parentRecordDriver->getXml($format);
         
-        $this->_helper->layout->disableLayout();
-        $content = "<?xml version='1.0'?>".$xml;
-        $this->getResponse()->clearHeaders();
-        $this->getResponse()->setheader('Content-Type', 'text/xml');
-        $this->getResponse()->setBody($content);
-        $this->getResponse()->sendResponse();
+        session_regenerate_id();
+        $sessionId = session_id();
+        
+        $xml = '<?xml version = "1.0" encoding = "UTF-8"?>
+<publish-avail>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<ListRecords>
+<record>
+<header>
+<identifier>cpk-merged-record-id:'.$parentRecordID.'</identifier>
+</header>
+<metadata>'.$recordXml.'</metadata>
+</record>
+</ListRecords>
+</OAI-PMH>
+<session-id>'.$sessionId.'</session-id>
+</publish-avail>';
+        
+        $response = new \Zend\Http\Response();
+        $response->getHeaders()->addHeaderLine('Content-Type', 'text/xml; charset=utf-8');
+        $response->setContent($xml);
+        return $response;
     }
 }
