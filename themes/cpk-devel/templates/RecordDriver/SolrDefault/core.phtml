@@ -462,11 +462,11 @@
     </tr>
   <? endif; ?>
   
-  <? if ($this->citationId): ?>
+  <? if ($this->citation): ?>
     <tr>
       <th><?=$this->transEsc('Citation')?>: </th>
       <td>
-        <iframe src="http://www.citacepro.com/api/cpk/citace/"<?=$this->citationId?>
+        <iframe src="http://www.citacepro.com/api/cpk/citace/"<?=$id?>
         		frameborder="0" width="1024" height="90">
         </iframe>
       </td>
