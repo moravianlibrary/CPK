@@ -22,7 +22,6 @@ return array(
     	'morris-0.4.1.min.js',
     	'raphael.min.js',
     	'jquery-ui.min.js',
-    	'ajax-record-tabs.js',
         'eu-cookies.js',
     ),
     'less' => array(
