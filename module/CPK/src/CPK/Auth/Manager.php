@@ -118,6 +118,39 @@ class Manager extends BaseManager
     }
 
     /**
+     * Determines whether can current User place a reserve on any of passed holdings.
+     *
+     * We suppose the array of holdings contains items from only one institution.
+     *
+     * Returns false if are holdings empty or user not logged in.
+     *
+     * @param unknown $holdings
+     * @param unknown $user
+     * @return boolean $canReserveWithinInstitution
+     */
+    public function canReserveWithinInstitution($holdings, $user)
+    {
+        if (count($holdings) > 0 && $user instanceof \CPK\Db\Row\User) {
+
+            $firstHolding = reset($holdings);
+
+            if (isset($firstHolding['source']))
+                $institutionToMatch = $firstHolding['source'];
+            else
+                $institutionToMatch = reset(explode('.', $firstHolding['id']));
+
+            $userInstitutions = $user->getNonDummyInstitutions();
+
+            foreach ($userInstitutions as $userInstitution) {
+                if ($userInstitution === $institutionToMatch)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Tries to connect current logged in user with identity specified by token
      * user holds in cookie & we in session table.
      * Once the cookie is accessed
@@ -212,39 +245,6 @@ class Manager extends BaseManager
     }
 
     /**
-     * Determines whether can current User place a reserve on any of passed holdings.
-     *
-     * We suppose the array of holdings contains items from only one institution.
-     *
-     * Returns false if are holdings empty or user not logged in.
-     *
-     * @param unknown $holdings
-     * @param unknown $user
-     * @return boolean $canReserveWithinInstitution
-     */
-    public function canReserveWithinInstitution($holdings, $user)
-    {
-        if (count($holdings) > 0 && $user instanceof \CPK\Db\Row\User) {
-
-            $firstHolding = reset($holdings);
-
-            if (isset($firstHolding['source']))
-                $institutionToMatch = $firstHolding['source'];
-            else
-                $institutionToMatch = reset(explode('.', $firstHolding['id']));
-
-            $userInstitutions = $user->getNonDummyInstitutions();
-
-            foreach ($userInstitutions as $userInstitution) {
-                if ($userInstitution === $institutionToMatch)
-                    return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Checks if the activeAuth matches $authToCheckFor, else
      * throws AuthException with desired $errorMessage.
      *
@@ -273,5 +273,22 @@ class Manager extends BaseManager
     {
         $this->checkActiveAuthIs("ShibbolethIdentityManager",
             "Account consolidation may provide only ShibbolethIdentityManager authentication method.");
+    }
+
+    /**
+     * Finds out if the notification system is enabled or not for logged in users
+     *
+     * This feature can be enabled in [Site] caption of config.ini with this:<br/>
+     * notificationsEnabled = 1
+     *
+     * @return boolean
+     */
+    public function isNotificationSystemEnabled()
+    {
+        if ($this->config->Site['notificationsEnabled'] !== null) {
+            return $this->config->Site['notificationsEnabled'];
+        }
+
+        return false;
     }
 }
