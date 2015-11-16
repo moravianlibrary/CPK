@@ -7,6 +7,9 @@
       </li>
     </ul>
 
+    <form method="post" name="langForm" id="langForm">
+      <input type="hidden" name="mylang"/>
+    </form>
     <ul class="nav navbar-nav navbar-right flip">
       <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
         <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
@@ -17,7 +20,7 @@
             $queryParams = array_merge($params, $queryParams);
           ?>
           <li>
-            <a class="modal-link" href="<?=$this->url(null, array(), array('query' => $queryParams), true);?>">
+            <a class="modal-link" href="#" onClick="document.langForm.mylang.value='<?=$langCode?>';document.langForm.submit()">
               <img class="langFlag" src="<?=$this->imageLink($langImg)?>" alt="<?=$langName?>">
             </a>
           </li>
