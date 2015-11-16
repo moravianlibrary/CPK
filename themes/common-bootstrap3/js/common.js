@@ -48,6 +48,9 @@ function html_entity_decode(string, quote_style)
 
 // Turn GET string into array
 function deparam(url) {
+  if(!url.match(/\?|&/)) {
+    return [];
+  }
   var request = {};
   var pairs = url.substring(url.indexOf('?') + 1).split('&');
   for (var i = 0; i < pairs.length; i++) {
@@ -128,36 +131,38 @@ $(document).ready(function() {
     });
 
   // Search autocomplete
-  $('.autocomplete').typeahead(
-    {
-      highlight: true,
-      minLength: 3
-    }, {
-      displayKey:'val',
-      source: function(query, cb) {
-        var searcher = extractClassParams('.autocomplete');
-        $.ajax({
-          url: path + '/AJAX/JSON',
-          data: {
-            q:query,
-            method:'getACSuggestions',
-            searcher:searcher['searcher'],
-            type:$('#searchForm_type').val()
-          },
-          dataType:'json',
-          success: function(json) {
-            if (json.status == 'OK' && json.data.length > 0) {
-              var datums = [];
-              for (var i=0;i<json.data.length;i++) {
-                datums.push({val:json.data[i]});
+  $('.autocomplete').each(function (i, element) {
+    $(element).typeahead(
+      {
+        highlight: true,
+        minLength: 3
+      }, {
+        displayKey:'val',
+        source: function(query, cb) {
+          var searcher = extractClassParams(element);
+          $.ajax({
+            url: path + '/AJAX/JSON',
+            data: {
+              q:query,
+              method:'getACSuggestions',
+              searcher:searcher['searcher'],
+              type:searcher['type'] ? searcher['type'] : $(element).closest('.searchForm').find('.searchForm_type').val()
+            },
+            dataType:'json',
+            success: function(json) {
+              if (json.status == 'OK' && json.data.length > 0) {
+                var datums = [];
+                for (var i=0;i<json.data.length;i++) {
+                  datums.push({val:json.data[i]});
+                }
+                cb(datums);
+              } else {
+                cb([]);
               }
-              cb(datums);
-            } else {
-              cb([]);
             }
-          }
-        });
-      }
+          });
+        }
+      })
     }
   );
 
@@ -232,7 +237,7 @@ function updateCart(item) {
 
 function refreshCartItems() {
   items = getFullCartItems();
-  $('.checkbox-select-all').closest('form').find('.checkbox-select-item').each(function(index) {
+  $('.checkbox-select-all').closest('form').find('.checkbox-select-item').each(function (index) {
     if (items.indexOf($(this).attr('value')) >= 0) {
       $(this).attr('checked', true);
     }

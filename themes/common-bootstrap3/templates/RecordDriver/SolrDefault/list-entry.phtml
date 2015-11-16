@@ -18,7 +18,7 @@
   }
 ?>
 <div class="row result<? if($this->driver->supportsAjaxStatus()): ?> ajaxItem<? endif ?>">
-  <label class="pull-left"><?=$this->record($this->driver)->getCheckboxWithoutAutoAddingToCart() ?></label>
+  <label class="pull-left flip"><?=$this->record($this->driver)->getCheckboxWithoutAutoAddingToCart() ?></label>
   <input type="hidden" value="<?=$id ?>" class="hiddenId"/>
   <div class="availabilityId hide"><?=$this->escapeHtml($availabilityId)?></div>
 
@@ -173,8 +173,8 @@
       <i class="fa fa-x fa-trash"></i> <a class="dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#" href="<?=$deleteUrlGet ?>">
         <?=$this->transEsc('Delete') ?>
       </a>
-      <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-        <li><a onClick="$.post('<?=$deleteUrl?>', {'delete':'<?=$this->escapeHtml($id) ?>','source':'<?=$this->escapeHtml($source) ?>','confirm':true},function(){location.reload(true)})" title="<?=$this->transEsc('confirm_delete_brief')?>"><?=$this->transEsc('confirm_dialog_yes')?></a></li>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="<?=$dLabel ?>">
+        <li><a onClick="$.post('<?=$deleteUrl?>', {'delete':'<?=$this->escapeJs($id) ?>','source':'<?=$this->escapeJs($source) ?>','confirm':true},function(){location.reload(true)})" title="<?=$this->transEsc('confirm_delete_brief')?>"><?=$this->transEsc('confirm_dialog_yes')?></a></li>
         <li><a><?=$this->transEsc('confirm_dialog_no')?></a></li>
       </ul>
     </div>

@@ -8,6 +8,9 @@
     </script>
 <? endif; ?>
 <div class="row">
+  <? $QRCode = $this->record($this->driver)->getQRCode("core"); 
+     $cover = $this->record($this->driver)->getCover('core', 'medium', $this->record($this->driver)->getThumbnail('large'));
+     $preview = $this->record($this->driver)->getPreviews(); ?>
 
   <div class="col-md-9">
     <h3><?=$this->escapeHtml($this->driver->getShortTitle() . ' ' . $this->driver->getSubtitle() . ' ' . $this->driver->getTitleSection())?></h3>
@@ -252,7 +255,6 @@
       <? endif; ?>
     
       <? /* Display qrcode if appropriate: */ ?>
-      <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
       <? if($QRCode): ?>
         <img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtml($QRCode);?>"/>
       <? endif; ?>
@@ -263,7 +265,7 @@
       <strong><?=$this->transEsc("Saved in")?>:</strong>
     </div>
 
-    <?=$this->record($this->driver)->getPreviews()?>
+    <? if ($preview): ?><?=$preview?><? endif; ?>
   </div>
   
 </div>

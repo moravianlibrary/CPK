@@ -60,7 +60,7 @@
           <? endif; ?>
           <?=$this->search()->renderSpellingSuggestions('<strong>' . $this->transEsc('spell_suggest') . '</strong>:', $this->results, $this); ?>
         <? else: ?>
-          <p class="lead"><?=$this->transEsc('nohit_heading')?></p>
+          <h2><?=$this->transEsc('nohit_heading')?></h2>
         <? endif; ?>
       </div>
     </div>

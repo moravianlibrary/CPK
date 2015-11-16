@@ -114,7 +114,7 @@
         <? if ((isset($this->filterList) && is_array($this->filterList) && count($this->filterList) > 0) || $hasCheckboxFilters): ?>
           <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
           <label class="checkbox">
-            <input onChange="$('.applied-filter').click()" type="checkbox"<?=$defaultFilterState?> id="searchFormKeepFilters"/>
+            <input onChange="$('.applied-filter').click()" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
             <?=$this->transEsc("basic_search_keep_filters")?>
           </label>
           <div class="hidden">
@@ -151,5 +151,5 @@
         ?>
       </div>
     </form>
-    <script type="text/javascript">$("#searchForm_lookfor").focus()</script>
+  <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
   <? endif; ?>

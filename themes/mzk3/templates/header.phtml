@@ -42,8 +42,8 @@
         </li>
       </ul>
     <? endif; ?>
-
-    <ul class="nav navbar-nav pull-right">
+    <nav>
+    <ul class="nav navbar-nav navbar-right flip">
       
       
       <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
@@ -76,6 +76,7 @@
       <? endif; ?>
       
     </ul>
+    </nav>
 
     <div class="header-finisher"></div>
 

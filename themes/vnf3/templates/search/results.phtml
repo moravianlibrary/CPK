@@ -55,7 +55,7 @@
           <i class="fa fa-fw fa-envelope"></i><a href="<?=$this->url('search-email')?>" class="mailSearch" id="mailSearch<?=$this->escapeHtml($this->results->getSearchId())?>" onClick="processEmailSearch(this); return false;"title="<?=$this->transEsc('Email this Search')?>"><?=$this->transEsc('Email this Search')?></a>
           <?=$this->search()->renderSpellingSuggestions('<strong>' . $this->transEsc('spell_suggest') . '</strong>:', $this->results, $this); ?>
         <? else: ?>
-          <p class="lead"><?=$this->transEsc('nohit_heading')?></p>
+          <h2><?=$this->transEsc('nohit_heading')?></h2>
         <? endif; ?>
       </div>
     </div>

@@ -5,7 +5,11 @@
     $selectedFilters = $this->tab->getSelectedFilters();
     $availableFilters = $this->tab->getAvailableFilters();
     $user = $account->isLoggedIn();
-    $holdings = $this->tab->getRealTimeHoldings();
+    $holdings = $this->driver->getRealTimeHoldings();
+    $openUrl = $this->openUrl($this->driver, 'holdings');
+    $openUrlActive = $openUrl->isActive();
+    // Account for replace_other_urls setting
+    $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
     $offlineMode = $this->ils()->getOfflineMode();
 
     // Set page title.
