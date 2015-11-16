@@ -466,7 +466,7 @@
     <tr>
       <th><?=$this->transEsc('Citation')?>: </th>
       <td>
-        <iframe src="http://www.citacepro.com/api/cpk/citace/"<?=$id?>
+        <iframe src="http://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>"
         		frameborder="0" width="1024" height="90">
         </iframe>
       </td>
