@@ -89,7 +89,7 @@ class SolrDublinCore extends ParentSolrMarc
      *
      * @return array
      */
-    protected function getPublicationInfo()
+    protected function getPublicationInfo($subfield = 'a')
     {
         return [];
     }
