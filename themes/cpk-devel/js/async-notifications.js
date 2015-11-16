@@ -34,8 +34,6 @@ function fetchNotifications(cat_username) {
     })
 }
 
-// TODO: Executre this jQuery sequence only if not too often
-
 function processNotificationsFetched(response) {
 
     var data = response.data, status = response.status;

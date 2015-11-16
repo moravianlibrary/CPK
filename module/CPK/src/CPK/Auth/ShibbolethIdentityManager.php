@@ -812,7 +812,7 @@ class ShibbolethIdentityManager extends Shibboleth
             if ($libraryCard->eppn === $eppn) {
 
                 // Now check if the cat_username has changed ..
-                if ($libCard_cat_username !== $cat_username) {
+                if ($libraryCard->cat_username !== $cat_username) {
 
                     // Set new cat_username
                     $libraryCard->cat_username = $cat_username;
