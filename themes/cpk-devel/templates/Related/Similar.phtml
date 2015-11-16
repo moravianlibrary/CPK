@@ -1,21 +1,47 @@
 <h4><?=$this->transEsc('Similar Items')?></h4>
 <? $similarRecords = $this->related->getResults(); ?>
 <? if (!empty($similarRecords)): ?>
-    <? foreach ($similarRecords as $data): ?>
+    <? foreach ($similarRecords as $similarRecordDriver): ?>
+    
+        <?
+          $recordId = $similarRecordDriver->getUniqueID();
+          $formats = $similarRecordDriver->getFormats();
+          if (empty($lookfor)) {
+              $lookfor = $this->record($similarRecordDriver)->getObalkyKnihAdvert('record');
+          }
+        ?>
+    
       <div class="row well" style='margin: 0px 0px 2px 0px; padding: 10px;'>
-      	<div class='col-md-2'>
-      		<img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+      	<div class='col-md-3  #cover' id='cover'>
+      		<? $recordId =  preg_replace("/\./", "", $recordId)?>
+            <? $recordId =  preg_replace("/:/", "", $recordId)?>
+      		<div class="coverThumbnail cover_<?=$recordId?>">
+                <? if ($bibinfo = $this->record($similarRecordDriver)->getObalkyKnihJSONV3()): ?>
+                    <script type="text/javascript">
+                        obalky.display_thumbnail(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                    </script>
+                <? endif;?>
+                
+                <? if (! empty($formats)): ?>
+                    <div class="iconlabel"><i style="font-size: 50px; color: #cccccc;" class="fa fa-fw <?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
+                <? elseif ($summThumb = $this->record($similarRecordDriver)->getThumbnail('small')): ?>
+                    <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                <? else: ?>
+                    <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                <? endif; ?>
+
+            </div>
       	</div>
-      	<div class='col-md-10'>
-            <? $formats = $data->getFormats(); ?>
+      	<div class='col-md-9'>
+            <? $formats = $similarRecordDriver->getFormats(); ?>
             <i class="fa fa-x<? if (count($formats) > 0): ?> fa-<?=preg_replace('/[^a-z0-9]/', '', strtolower($formats[0]))?>" title="<?=$formats[0] ?><? endif; ?>"></i>
-            <a href="<?=$this->recordLink()->getUrl($data)?>">
-              <?=$this->escapeHtml($data->getTitle())?>
+            <a href="<?=$this->recordLink()->getUrl($similarRecordDriver)?>">
+              <?=$this->escapeHtml($similarRecordDriver->getTitle())?>
             </a>
-            <? $author = $data->getPrimaryAuthor(); if (!empty($author)): ?>
+            <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
               <br/><?=$this->transEsc('by')?>: <?=$this->escapeHtml($author);?>
             <? endif; ?>
-            <? $pubDates = $data->getPublicationDates(); if (!empty($pubDates)): ?>
+            <? $pubDates = $similarRecordDriver->getPublicationDates(); if (!empty($pubDates)): ?>
               <br/><?=$this->transEsc('Published')?>: (<?=$this->escapeHtml($pubDates[0])?>)
             <? endif; ?>
         </div>
