@@ -53,7 +53,7 @@
 					</li>
 					<li class="logoutOptions"><a
 						href="<?=$this->url('myresearch-logout')?>" class="modal-link"
-						title="<?=$this->transEsc("Log Out")?>"><i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
+						title="<?=$this->transEsc("Log Out")?>" onclick="localforage.clearTheCrumbs();"><i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
 					</li>
 				</ul>
 			</li>

@@ -1,5 +1,4 @@
-//FIXME: Delete all the notifications when logging out !!
-
+// TODO: Let the "MyResearch/Profile" fetch the notifications regardless they expired .. using it's getMyProfile method of course ..
 $(function() { // Onload DOM ..
     // Get the notifies object if any
     localforage.getItem('notifies', function(err, lastNotifies) {
@@ -14,6 +13,7 @@ $(function() { // Onload DOM ..
 });
 
 var __notif = {
+    development : true,
     // Time to wait until next refresh of the notifications in milisecs
     toWait : 60 * 60 * 1000,
     // We want only to save the fetched items after all institutions are fetched
@@ -30,6 +30,7 @@ var __notif = {
 	    __notif.fetchNotificationsForCatUsername(cat_username);
 	});
     },
+    // Create a query to fetch notifications about one institution
     fetchNotificationsForCatUsername : function(cat_username) {
 
 	$.ajax({
@@ -48,8 +49,9 @@ var __notif = {
 	    error : function(err) {
 		__notif.printErr(err);
 	    }
-	})
+	});
     },
+    // Recovers saved notifications from the local database
     processSavedNotifications : function(lastNotifies) {
 
 	// Decide whether will we renew the notifications
@@ -68,6 +70,7 @@ var __notif = {
 	    __notif.processNotificationsFetched(response);
 	});
     },
+    // Updates saved notifications
     updateNotifies : function(response) {
 
 	this.responses.push(response);
@@ -87,8 +90,7 @@ var __notif = {
 
 	    localforage.setItem('notifies', lastNotifies, function(err, val) {
 		__notif.printErr(err, val);
-	    })
-
+	    });
 	}
 
 	// have we fetched all the institutions ?
@@ -143,7 +145,7 @@ var __notif = {
     },
     // Error printing function
     printErr : function(err, val) {
-	if (err) {
+	if (this.development && err) {
 	    console.error("localforage produced an error: " + err);
 	    if (val) {
 		console.error("value having problem with is '" + val + "'");
