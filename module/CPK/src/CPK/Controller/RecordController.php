@@ -204,6 +204,10 @@ class RecordController extends RecordControllerBase
     
         $citation = curl_exec($soap);
         curl_close($soap);
+        
+        $headers = get_headers($citationServerUrl);
+        if ($headers !== 'HTTP/1.1 200 OK')
+            return false;
     
         if ($citation === false)
             return false;
