@@ -181,7 +181,7 @@ $this->headTitle(
       <? endif; ?>
 
     </td>
-			<td data-title="<?=$this->transEsc("Due Date")?>">
+			<td data-title="<?=$this->transEsc("Due Date")?>" data-type="due_date">
       <?if (!empty($row['duedate']) && $row['duedate']) : ?>
         <?=$this->transEsc($row['duedate'])?>
       <? elseif (!empty($row['duedate_status']) && $row['duedate_status'] != $row['status']):?>

@@ -105,7 +105,7 @@ function updateHoldingId(id, value, setDangerLabel) {
 	tableRow = $("tr#" + id);
     }
 
-    var statusDiv = tableRow.find('div[data-type=item-status]')[0], icon = $(
+    var statusDiv = tableRow.find('[data-type=item-status]')[0], icon = $(
 	    statusDiv).children('i'), label = $(statusDiv).children(
 	    'span.label');
 
@@ -124,18 +124,18 @@ function updateHoldingId(id, value, setDangerLabel) {
     var availability = value.availability;
 
     if (typeof availability !== 'undefined') {
-	var availabilitySpan = tableRow.find('span[data-type=availability]')[0];
+	var availabilitySpan = tableRow.find('[data-type=availability]')[0];
 	
 	availabilitySpan.textContent = availability;
     }
 
-    var divLink = tableRow.find('div[data-type=link]')[0];
+    var divLink = tableRow.find('[data-type=link]')[0];
 
     var dueDate = value.due_date;
     if (typeof dueDate !== 'undefined') {
 
 	// We have some due date here ..
-	var dueDateColumn = $(tableRow.children('td')[1]);
+	var dueDateColumn = $(tableRow.children('[data-type=due_date]')[0]);
 	dueDateColumn.text(dueDate);
 
 	label.removeClass('label-primary').addClass('label-warning');
