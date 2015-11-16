@@ -1,0 +1,26 @@
+<h4><?=$this->transEsc('Similar Items')?></h4>
+<? $similarRecords = $this->related->getResults(); ?>
+<? if (!empty($similarRecords)): ?>
+    <? foreach ($similarRecords as $data): ?>
+      <div class="row well" style='margin: 0px 0px 2px 0px; padding: 10px;'>
+      	<div class='col-md-2'>
+      		<img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+      	</div>
+      	<div class='col-md-10'>
+            <? $formats = $data->getFormats(); ?>
+            <i class="fa fa-x<? if (count($formats) > 0): ?> fa-<?=preg_replace('/[^a-z0-9]/', '', strtolower($formats[0]))?>" title="<?=$formats[0] ?><? endif; ?>"></i>
+            <a href="<?=$this->recordLink()->getUrl($data)?>">
+              <?=$this->escapeHtml($data->getTitle())?>
+            </a>
+            <? $author = $data->getPrimaryAuthor(); if (!empty($author)): ?>
+              <br/><?=$this->transEsc('by')?>: <?=$this->escapeHtml($author);?>
+            <? endif; ?>
+            <? $pubDates = $data->getPublicationDates(); if (!empty($pubDates)): ?>
+              <br/><?=$this->transEsc('Published')?>: (<?=$this->escapeHtml($pubDates[0])?>)
+            <? endif; ?>
+        </div>
+      </div>
+    <? endforeach; ?>
+<? else: ?>
+  <p><?=$this->transEsc('Cannot find similar records')?></p>
+<? endif; ?>
