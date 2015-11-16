@@ -20,6 +20,7 @@ return array(
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
+        'localforage.min.js',
     ),
     'less' => array(
         'active' => false,
