@@ -19,9 +19,6 @@ return array(
         'vendor/rc4.js',
         'common.js',
         'lightbox.js',
-    	'morris-0.4.1.min.js',
-    	'raphael.min.js',
-    	'jquery-ui.min.js',
         'eu-cookies.js',
     ),
     'less' => array(

@@ -1,3 +1,5 @@
+<? $this->headScript()->appendFile("jquery-ui.min.js"); ?>
+
 <?php
 
 $period = $dateFrom = $dateTo = $libCard = null;
@@ -74,73 +76,73 @@ if (isset($this->urlGetParams['libCard']))
 
 </div>
 
-
 <script>
+
 	jQuery( document ).ready( function( $ ) {
 
-		/**
-		 * Gets period from Url query or by select change
-		 * and shows or hides calendars depending on period.
-		 *
-		 * @param	{string}	p_period
-		 *
-		 * @return	void
-		 */
-		var showOrHideCalendars = function( p_period ){
+	    /**
+	     * Gets period from Url query or by select change
+	     * and shows or hides calendars depending on period.
+	     *
+	     * @param	{string}	p_period
+	     *
+	     * @return	void
+	     */
+	    var showOrHideCalendars = function( p_period ){
 
-			var start,
-				end;
-
-			if ( p_period === 'week' ) {
-
-				start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
-				end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-
-			} else if ( p_period === 'month' ) {
-
-				start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
-				end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-
-			} else if ( p_period ==='year' ) {
-
-				var year = todayDate.getFullYear();
-
-				start = year + '-01-01';
-				end   = year + '-12-31';
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-
-			} else if ( p_period === 'day' ) {
-
-				$( '#day-calendar' ).show();
-				$( '#range-calendar' ).hide();
-
-			} else if ( p_period === 'range' ){
-
-				start = defaultDateFrom;
-				end   = defaultDateTo;
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).show();
-
-			} else {
-
-				$( '#day-calendar' ).hide();
-				$( '#range-calendar' ).hide();
-
-			}
-
-			$( '#range-datepicker-from' ).datepicker('setDate', start);
-			$( '#range-datepicker-to' ).datepicker('setDate', end);
-
-		}
+	    	var start,
+	    		end;
+	    
+	    	if ( p_period === 'week' ) {
+	    
+	    		start = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 1) );
+	    		end   = new Date( todayDate.setDate( todayDate.getDate() - todayDate.getDay() + 6 + 1 ) );
+	    
+	    		$( '#day-calendar' ).hide();
+	    		$( '#range-calendar' ).hide();
+	    
+	    	} else if ( p_period === 'month' ) {
+	    
+	    		start = new Date( todayDate.getFullYear(), todayDate.getMonth(), 1 );
+	    		end   = new Date( todayDate.getFullYear(), todayDate.getMonth() + 1, 0 );
+	    
+	    		$( '#day-calendar' ).hide();
+	    		$( '#range-calendar' ).hide();
+	    
+	    	} else if ( p_period ==='year' ) {
+	    
+	    		var year = todayDate.getFullYear();
+	    
+	    		start = year + '-01-01';
+	    		end   = year + '-12-31';
+	    
+	    		$( '#day-calendar' ).hide();
+	    		$( '#range-calendar' ).hide();
+	    
+	    	} else if ( p_period === 'day' ) {
+	    
+	    		$( '#day-calendar' ).show();
+	    		$( '#range-calendar' ).hide();
+	    
+	    	} else if ( p_period === 'range' ){
+	    
+	    		start = defaultDateFrom;
+	    		end   = defaultDateTo;
+	    
+	    		$( '#day-calendar' ).hide();
+	    		$( '#range-calendar' ).show();
+	    
+	    	} else {
+	    
+	    		$( '#day-calendar' ).hide();
+	    		$( '#range-calendar' ).hide();
+	    
+	    	}
+	    
+	    	$( '#range-datepicker-from' ).datepicker('setDate', start);
+	    	$( '#range-datepicker-to' ).datepicker('setDate', end);
+	    
+	    }
 
 		var period = $( '#period' ).val();
 		var todayDate = new Date();
