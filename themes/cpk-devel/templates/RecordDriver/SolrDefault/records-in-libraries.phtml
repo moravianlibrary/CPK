@@ -4,6 +4,14 @@
 <?php
 
 	$count = count($records);
+	
+	// put caslin at the end, when available
+	if (isset($records['caslin'])) {
+	    $caslin = $records['caslin'];
+	    unset($records['caslin']);
+	    $records['caslin'] = $caslin;
+	}
+	
 	if ($count <= 2) {
 		$maxInstitutionsShown = 2;
 	} else if ($count === 3) {
