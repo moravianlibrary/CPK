@@ -292,7 +292,7 @@ class Aleph extends AlephBase
 
         $availability = (string) $item->{'z30'}->{'z30-item-status'};
 
-        $isDueDate = preg_match('/[0-9]{2}\/.+\/[0-9]{4}/', $status);
+        $isDueDate = preg_match('/^[0-9]+\/.+\/[0-9]+/', $status);
 
         $holdType = 'Recall This';
         $label = 'label-danger';
