@@ -10,42 +10,42 @@
               $lookfor = $this->record($similarRecordDriver)->getObalkyKnihAdvert('record');
           }
         ?>
+    	<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
+          <div class="row well" style='margin: 0px 0px 2px 0px; padding: 10px;'>
+          	<div class='col-md-3  #cover' id='cover'>
+          		<? $recordId =  preg_replace("/\./", "", $recordId)?>
+                <? $recordId =  preg_replace("/:/", "", $recordId)?>
+          		<div class="coverThumbnail cover_<?=$recordId?>">
+                    <? if ($bibinfo = $this->record($similarRecordDriver)->getObalkyKnihJSONV3()): ?>
+                        <script type="text/javascript">
+                            obalky.display_thumbnail(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        </script>
+                    <? endif;?>
+                    
+                    <? if (! empty($formats)): ?>
+                        <div class="iconlabel"><i style="font-size: 50px; color: #cccccc;" class="fa fa-fw <?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
+                    <? elseif ($summThumb = $this->record($similarRecordDriver)->getThumbnail('small')): ?>
+                        <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                    <? else: ?>
+                        <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                    <? endif; ?>
     
-      <div class="row well" style='margin: 0px 0px 2px 0px; padding: 10px;'>
-      	<div class='col-md-3  #cover' id='cover'>
-      		<? $recordId =  preg_replace("/\./", "", $recordId)?>
-            <? $recordId =  preg_replace("/:/", "", $recordId)?>
-      		<div class="coverThumbnail cover_<?=$recordId?>">
-                <? if ($bibinfo = $this->record($similarRecordDriver)->getObalkyKnihJSONV3()): ?>
-                    <script type="text/javascript">
-                        obalky.display_thumbnail(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
-                    </script>
-                <? endif;?>
+                </div>
+          	</div>
+          	<div class='col-md-9'>
+                <i class="fa fa-x<? if (count($formats) > 0): ?> fa-<?=preg_replace('/[^a-z0-9]/', '', strtolower($formats[0]))?>" title="<?=$this->translate($formats[0]) ?><? endif; ?>"></i>
                 
-                <? if (! empty($formats)): ?>
-                    <div class="iconlabel"><i style="font-size: 50px; color: #cccccc;" class="fa fa-fw <?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
-                <? elseif ($summThumb = $this->record($similarRecordDriver)->getThumbnail('small')): ?>
-                    <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
-                <? else: ?>
-                    <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                  <?=$this->escapeHtml($similarRecordDriver->getTitle())?>
+                
+                <? $pubDates = $similarRecordDriver->getPublicationDates(); if (!empty($pubDates)): ?>
+                  <?=$this->escapeHtml($pubDates[0])?>
                 <? endif; ?>
-
+                <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
+                  <br/><?=$this->escapeHtml($author);?>
+                <? endif; ?>
             </div>
-      	</div>
-      	<div class='col-md-9'>
-            <? $formats = $similarRecordDriver->getFormats(); ?>
-            <i class="fa fa-x<? if (count($formats) > 0): ?> fa-<?=preg_replace('/[^a-z0-9]/', '', strtolower($formats[0]))?>" title="<?=$this->translate($formats[0]) ?><? endif; ?>"></i>
-            <a href="<?=$this->recordLink()->getUrl($similarRecordDriver)?>">
-              <?=$this->escapeHtml($similarRecordDriver->getTitle())?>
-            </a>
-            <? $pubDates = $similarRecordDriver->getPublicationDates(); if (!empty($pubDates)): ?>
-              <?=$this->escapeHtml($pubDates[0])?>
-            <? endif; ?>
-            <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
-              <br/><?=$this->escapeHtml($author);?>
-            <? endif; ?>
-        </div>
-      </div>
+          </div>
+      </a>
     <? endforeach; ?>
 <? else: ?>
   <p><?=$this->transEsc('Cannot find similar records')?></p>
