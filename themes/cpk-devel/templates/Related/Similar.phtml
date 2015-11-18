@@ -1,3 +1,8 @@
+<style>
+.similar-item:hover {
+    border: 1px solid #2196f3;
+}
+</style>
 <h4><?=$this->transEsc('Similar Items')?></h4>
 <? $similarRecords = $this->related->getResults(); ?>
 <? if (!empty($similarRecords)): ?>
@@ -11,11 +16,11 @@
           }
         ?>
     	<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
-          <div class="row well" style='margin: 0px 0px 2px 0px; padding: 10px;'>
+          <div class="row well similar-item" style='margin: 0px 0px 2px 0px; padding: 10px;' tabindex='-1'>
           	<div class='col-md-3  #cover' id='cover'>
           		<? $recordId =  preg_replace("/\./", "", $recordId)?>
                 <? $recordId =  preg_replace("/:/", "", $recordId)?>
-          		<div class="coverThumbnail cover_<?=$recordId?>">
+          		<div class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
                     <? if ($bibinfo = $this->record($similarRecordDriver)->getObalkyKnihJSONV3()): ?>
                         <script type="text/javascript">
                             obalky.display_thumbnail(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
@@ -32,14 +37,14 @@
     
                 </div>
           	</div>
-          	<div class='col-md-9'>
-                <i class="fa fa-x<? if (count($formats) > 0): ?> fa-<?=preg_replace('/[^a-z0-9]/', '', strtolower($formats[0]))?>" title="<?=$this->translate($formats[0]) ?><? endif; ?>"></i>
-                
-                  <?=$this->escapeHtml($similarRecordDriver->getTitle())?>
+          	
+          	<div class='col-md-9' style='color: #333;'>
+                <strong><?=$this->escapeHtml($similarRecordDriver->getTitle())?></strong>
                 
                 <? $pubDates = $similarRecordDriver->getPublicationDates(); if (!empty($pubDates)): ?>
                   <?=$this->escapeHtml($pubDates[0])?>
                 <? endif; ?>
+                
                 <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
                   <br/><?=$this->escapeHtml($author);?>
                 <? endif; ?>
