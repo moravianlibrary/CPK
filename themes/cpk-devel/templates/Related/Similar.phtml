@@ -38,11 +38,11 @@
             <a href="<?=$this->recordLink()->getUrl($similarRecordDriver)?>">
               <?=$this->escapeHtml($similarRecordDriver->getTitle())?>
             </a>
-            <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
-              <br/><?=$this->transEsc('by')?>: <?=$this->escapeHtml($author);?>
-            <? endif; ?>
             <? $pubDates = $similarRecordDriver->getPublicationDates(); if (!empty($pubDates)): ?>
-              <br/><?=$this->transEsc('Published')?>: (<?=$this->escapeHtml($pubDates[0])?>)
+              <?=$this->escapeHtml($pubDates[0])?>
+            <? endif; ?>
+            <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
+              <br/><?=$this->escapeHtml($author);?>
             <? endif; ?>
         </div>
       </div>
