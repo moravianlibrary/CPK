@@ -12,33 +12,29 @@
 
 
 	<? if (count($dedupedRecords) !== 1) :?>
-	<div class='dropdown btn btn-default'>
+	<div class='dropdown btn btn-default' style='width: 100%;'>
 		<span class='ropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' id='records-in-groups-nav'>
 	<? else : ?>
-	<div class='dropdown'>
+	<div class='dropdown' style='width: 100%;'>
 		<span>
 	<? endif;?>
 			<h3 style="margin-top: 5px; margin-bottom: 5px;">
-			<?
-				if ($logoUrl)
-					echo "<img class='hidden-xs' height='32' src='$logoUrl'> ";
-			?>
+			<? if ($logoUrl) : ?>
+				<img class='hidden-xs' height='32' src='<?=$logoUrl?>' align='right'>
+			<? endif;?>
 
-
-			<?
-				echo $currentInstitution;
-			?>
-
-			<?
-				if (count($dedupedRecords) !== 1)
-					echo "<b class='caret'></b>";
-			?>
-
+			<span class='pull-left'>
+				<?=$currentInstitution?>
+				
+				<? if (count($dedupedRecords) !== 1) : ?>
+					<b class='caret'></b>
+				<? endif;?>	
+			</span>
 			</h3>
 
 		</span>
 
-		<ul class="dropdown-menu" aria-labelledby="records-in-groups-nav">
+		<ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
 			<?
     			// put caslin at the end and cnb before caslin, when available
                 $tempCnbs = [];
@@ -66,8 +62,16 @@
 		  		foreach ($dedupedRecords as $record) {
 	  				$link = $record['id'];
 	  				$source = $record['source'];
+	  				$sourceWithoutPrefix = substr($source, 7);
+	  				$logoUrl = $this->config->IdPLogos->$sourceWithoutPrefix ?: '';
 	  				//if ($source !== 'source_'.$recordSource)
-	  					echo "<li><a href='".$this->url('record', array('id' => $link))."' title='".$this->translate($source)."'>".$this->translate($source)."</a></li>";
+	  					echo "<li><a href='".$this->url('record', array('id' => $link))."' title='".$this->translate($source)."'>";
+	  					echo "<span>".$this->translate($source)."</span>";
+	  					
+	  					if ($logoUrl)
+	  					    echo "<img class='hidden-xs pull-right' height='16' src='$logoUrl'>";
+
+                        echo "</li></a>";
 		  		}
 		  	?>
 		</ul>

@@ -1,0 +1,10 @@
+<div class="well">
+	<?=$this->record($this->driver)->getToolbar()?>
+</div>
+<?
+    $related = $this->related();
+    $list = $related->getList($this->driver);
+    foreach ($list as $current) {
+        echo $related->render($current);
+    }
+?>

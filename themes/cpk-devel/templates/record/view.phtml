@@ -39,116 +39,21 @@
 <? endif; ?>
 
 <div class="row">
-  <div class="<?=$this->layoutClass('mainbody')?>">
+  <div>
     <div class="record recordId source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" id="record">
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" id="record_id" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
       <?=$this->flashmessages()?>
+      
+		<div class='col-sm-9'>
+			<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
+			<?=$this->record($this->driver)->getCoreMetadata()?>
+		</div>
+    
+    	<div class='col-sm-3'>
+    		<?= $this->render('RecordDriver/SolrDefault/record-sidebar.phtml'); ?>
+        </div> 
 
-      <?=$this->record($this->driver)->getCoreMetadata()?>
     </div>
-
-	<div class="well">
-    <? if (count($this->tabs) > 0): ?>
-      <a name="tabnav"></a>
-      <ul class="recordTabs nav nav-tabs">
-        <? foreach ($this->tabs as $tab => $obj): ?>
-        <? // add current tab to breadcrumbs if applicable:
-          $desc = $obj->getDescription();
-          $tab_classes = array();
-          if (0 === strcasecmp($this->activeTab, $tab)) {
-            $tab_classes[] = 'active';
-            $tab_classes[] = 'initiallyActive';
-            $this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc($desc) . '</li>';
-            $activeTabObj = $obj;
-          }
-          if (!$obj->isVisible()) { $tab_classes[] = 'hidden'; }
-          if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
-        ?>
-        <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
-          <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?>#tabnav"><?=$this->transEsc($desc)?></a>
-        </li>
-        <? endforeach; ?>
-      </ul>
-    <? endif; ?>
-
-    <div class="tab-content" id="record-tabs">
-      <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
-        <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
-      </div>
-    </div>
-
-    <?=$this->driver->supportsCoinsOpenURL()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenURL()).'"></span>':''?>
-  </div>
-</div>
-
-  <div class="<?=$this->layoutClass('sidebar')?>">
-      <div class="well">
-      <?=$this->record($this->driver)->getToolbar()?>
-      </div>
-      <?
-  	$recordID = $this->driver->getUniqueId();
-  	$recordSource = explode(".", $recordID)[0];
-  ?>
-
-  <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
-  <script>
-
-    /**
-     * Removes active state from Buy Link when there are no buyLinks
-     *
-     * @param {array} buyLinks
-     * @return {void}
-     */
-  	function disableBuyTab( buyLinks )
-	{
-		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
-			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-	}
-
-	jQuery( document ).ready( function( $ ) {
-
-		// Disable eversion tab
-		var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
-		if ( eVersionLinksCount === 0 ) {
-			$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-			$( "#e-version-table" ).addClass( 'hidden' );
-		}
-
-		// Disable holdings tab
-		var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
-		if ( holdingsCount === 0 ) {
-			$( '#holdings' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-		}
-
-		//
-		var recordID = '<?= $this->driver->getUniqueID() ?>';
-		var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
-
-		var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );
-
-		var source = "<?= $recordSource ?>";
-
-		// select default record group
-		$( '#record-group li a' ).each( function() {
-
-			var title = $( this ).attr( 'title' );
-			if ( $( this ).attr( 'id' ).toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
-				$( '#first-record-group' ).text( title );
-			}
-
-		});
-
-	});
-  </script>
-  
-	<?php
-        $related = $this->related();
-        $list = $related->getList($this->driver);
-        foreach ($list as $current) {
-            echo $related->render($current);
-        }
-    ?>
-
   </div>
 </div>
