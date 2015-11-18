@@ -17,9 +17,8 @@ var __notif = {
     // Time to wait until next refresh of the notifications in milisecs
     toWait : 60 * 60 * 1000,
     // We want only to save the fetched items after all institutions are fetched
-    itemsToFetch : 0, // it'll get incremented as we'll iterate over the
-    // institutions
-    responses : [],
+    itemsToFetch : 0, // it'll get incremented as we'll iterate institutions
+    responses : {},
     // Async notifications loader
     fetchNotifications : function() {
 	$('[data-identity].notification').each(function() {
@@ -73,15 +72,17 @@ var __notif = {
     // Updates saved notifications
     updateNotifies : function(response) {
 
-	this.responses.push(response);
+	var cat_username = response.data.cat_username;
+
+	this.responses[cat_username] = response;
 
 	this.saveResponses();
     },
     // This function will save all the responses fetched
     saveResponses : function() {
 
-	function privateSavingFunc() {
-	    // Call the async item getting
+	// have we fetched all the institutions ?
+	if (Object.keys(this.responses).length == this.itemsToFetch) {
 
 	    var lastNotifies = {};
 
@@ -91,11 +92,6 @@ var __notif = {
 	    localforage.setItem('notifies', lastNotifies, function(err, val) {
 		__notif.printErr(err, val);
 	    });
-	}
-
-	// have we fetched all the institutions ?
-	if (this.responses.length == this.itemsToFetch) {
-	    privateSavingFunc();
 	}
     },
     // This function will render the html passed to it ..
@@ -116,8 +112,6 @@ var __notif = {
 	}
 
 	if (status == 'OK') {
-	    // Also change the icon so that it is more likely to be spotted
-	    // (probably with count of notifications ?)
 	    // Overwrite current div with the new one from renderer
 	    div[0].outerHTML = html;
 
@@ -142,6 +136,11 @@ var __notif = {
 	    div.children('span.label').text(message).removeClass(
 		    'label-primary').addClass('label-danger');
 	}
+    },
+    // Clears provided identity's stored notification
+    // Useful e.g. while disconnecting an account ..
+    clearIdentity : function(cat_username) {
+
     },
     // Error printing function
     printErr : function(err, val) {
