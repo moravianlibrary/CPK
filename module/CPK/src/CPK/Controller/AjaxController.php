@@ -127,7 +127,7 @@ class AjaxController extends AjaxControllerBase
         return $this->output($vars, self::STATUS_OK);
     }
 
-    public function fetchNotificationsAjax()
+    public function fetchBlocksAjax()
     {
             // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
