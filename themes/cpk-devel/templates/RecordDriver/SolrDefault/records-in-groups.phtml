@@ -15,7 +15,7 @@
 	<div class='dropdown btn btn-default' style='width: 100%;'>
 		<span class='ropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' id='records-in-groups-nav'>
 	<? else : ?>
-	<div class='dropdown' style='width: 100%;'>
+	<div class='dropdown'>
 		<span>
 	<? endif;?>
 			<h3 style="margin-top: 5px; margin-bottom: 5px;">
@@ -65,13 +65,14 @@
 	  				$sourceWithoutPrefix = substr($source, 7);
 	  				$logoUrl = $this->config->IdPLogos->$sourceWithoutPrefix ?: '';
 	  				//if ($source !== 'source_'.$recordSource)
-	  					echo "<li><a href='".$this->url('record', array('id' => $link))."' title='".$this->translate($source)."'>";
-	  					echo "<span>".$this->translate($source)."</span>";
+	  					echo "<li><a href='".$this->url('record', array('id' => $link))."' title='".$this->translate($source)."'><div class='record-group-list-item'>";
 	  					
 	  					if ($logoUrl)
 	  					    echo "<img class='hidden-xs pull-right' height='16' src='$logoUrl'>";
+	  					
+	  					echo "<span>".$this->translate($source)."</span>";
 
-                        echo "</li></a>";
+                        echo "</div></a></li>";
 		  		}
 		  	?>
 		</ul>
