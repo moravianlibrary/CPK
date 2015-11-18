@@ -7,7 +7,9 @@ $(function() { // Onload DOM ..
 	if (!lastNotifies) {
 	    __notif.fetchNotifications();
 	} else {
-	    __notif.processSavedNotifications(lastNotifies);
+	    __notif.lastSaved = lastNotifies.timeSaved;
+	    __notif.responses = lastNotifies.responses;
+	    __notif.processSavedNotifications();
 	}
     });
 });
@@ -19,6 +21,7 @@ var __notif = {
     // We want only to save the fetched items after all institutions are fetched
     itemsToFetch : 0, // it'll get incremented as we'll iterate institutions
     responses : {},
+    lastSaved : 0,
     // Async notifications loader
     fetchNotifications : function() {
 	$('[data-identity].notification').each(function() {
@@ -51,21 +54,24 @@ var __notif = {
 	});
     },
     // Recovers saved notifications from the local database
-    processSavedNotifications : function(lastNotifies) {
+    processSavedNotifications : function() {
 
 	// Decide whether will we renew the notifications
-	if (lastNotifies.timeSaved) {
-	    var shouldWeFetchAgain = this.toWait + lastNotifies.timeSaved < Date
+	if (this.lastSaved) {
+	    var shouldWeFetchAgain = this.toWait + this.lastSaved < Date
 		    .now();
 
 	    if (shouldWeFetchAgain)
 		return this.fetchNotifications();
 	} else {
-	    this.fetchNotifications();
+	    return this.fetchNotifications();
 	}
+	
+	// Check for another identities / delete disconnected ones
+	this.syncIdentities();
 
 	// Print saved values ..
-	$.each(lastNotifies.responses, function(i, response) {
+	$.each(this.responses, function(i, response) {
 	    __notif.processNotificationsFetched(response);
 	});
     },
@@ -76,22 +82,11 @@ var __notif = {
 
 	this.responses[cat_username] = response;
 
-	this.saveResponses();
-    },
-    // This function will save all the responses fetched
-    saveResponses : function() {
-
 	// have we fetched all the institutions ?
 	if (Object.keys(this.responses).length == this.itemsToFetch) {
 
-	    var lastNotifies = {};
-
-	    lastNotifies.responses = __notif.responses;
-	    lastNotifies.timeSaved = Date.now();
-
-	    localforage.setItem('notifies', lastNotifies, function(err, val) {
-		__notif.printErr(err, val);
-	    });
+	    // This one is called only after fresh notifications were fetched
+	    this.saveLastNotifies(); 
 	}
     },
     // This function will render the html passed to it ..
@@ -137,10 +132,66 @@ var __notif = {
 		    'label-primary').addClass('label-danger');
 	}
     },
+    // Check for (dis)connected identities
+    syncIdentities : function() {
+	// Keys of responses are actually cat_usernames
+	var tmpIdentities = Object.keys(this.responses);
+	
+	$('[data-identity].notification').each(function() {
+	    var cat_username = $(this).attr('data-identity');
+	    
+	    var i = tmpIdentities.indexOf(cat_username.replace(/\./,"\\."));
+	    
+	    if (i > -1) {
+		// We found this identity in the storage
+		tmpIdentities.splice(i, 1);
+	    } else {
+		// New identity connected
+		
+		// Update the itemsToFetch int as we may need it on "invoked refresh"
+		++__notif.itemsToFetch;
+		
+		// Fetch notificatios for new cat_username
+		__notif.fetchNotificationsForCatUsername(cat_username);
+	    }
+	});
+	
+	if (tmpIdentities.length > 0) {
+	    // Some identities were disconnected
+	    
+	    // Update the itemsToFetch int as we may need it on "invoked refresh"
+	    __notif.itemsToFetch -= tmpIdentities.length;
+	    
+	    // Remove those disconnected identites from storage
+	    __notif.clearIdentities(tmpIdentities);
+	}
+    },
     // Clears provided identity's stored notification
     // Useful e.g. while disconnecting an account ..
-    clearIdentity : function(cat_username) {
-
+    clearIdentities : function(cat_usernames) {
+	var responsesTmp = {};
+	
+	Object.keys(this.responses).forEach(function(key) {
+	    if (cat_usernames.indexOf(key) == -1)
+		responsesTmp[key] = __notif.responses[key];
+	});
+	
+	this.responses = responsesTmp;
+	
+	// This one is called only if we have young enough notifications
+	this.saveLastNotifies();
+	
+    },
+    // Do not call this function twice - as it'd result in an error
+    saveLastNotifies : function() {
+	var lastNotifies = {
+		responses: this.responses,
+		timeSaved: Date.now()
+	};
+	
+	localforage.setItem('notifies', lastNotifies, function(err, val) {
+	    __notif.printErr(err, val);
+	});
     },
     // Error printing function
     printErr : function(err, val) {
