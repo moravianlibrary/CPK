@@ -34,7 +34,7 @@
       	</div>
       	<div class='col-md-9'>
             <? $formats = $similarRecordDriver->getFormats(); ?>
-            <i class="fa fa-x<? if (count($formats) > 0): ?> fa-<?=preg_replace('/[^a-z0-9]/', '', strtolower($formats[0]))?>" title="<?=$formats[0] ?><? endif; ?>"></i>
+            <i class="fa fa-x<? if (count($formats) > 0): ?> fa-<?=preg_replace('/[^a-z0-9]/', '', strtolower($formats[0]))?>" title="<?=$this->translate($formats[0]) ?><? endif; ?>"></i>
             <a href="<?=$this->recordLink()->getUrl($similarRecordDriver)?>">
               <?=$this->escapeHtml($similarRecordDriver->getTitle())?>
             </a>
