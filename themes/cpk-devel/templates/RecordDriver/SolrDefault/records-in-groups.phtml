@@ -40,6 +40,29 @@
 
 		<ul class="dropdown-menu" aria-labelledby="records-in-groups-nav">
 			<?
+    			// put caslin at the end and cnb before caslin, when available
+                $tempCnbs = [];
+                $tempCaslins = [];
+                foreach ($dedupedRecords as $key => $record) {
+                    if ($record['source'] === 'source_cnb') {
+                        $tempCnbs[] = $record;
+                        unset($dedupedRecords[$key]);
+                    }
+                    
+                    if ($record['source'] === 'source_caslin') {
+                        $tempCaslins[] = $record;
+                        unset($dedupedRecords[$key]);
+                    }
+                }
+                sort($dedupedRecords);
+                foreach ($tempCnbs as $key => $record) {
+                    $dedupedRecords[] = $record;
+                }
+                foreach ($tempCaslins as $key => $record) {
+                    $dedupedRecords[] = $record;
+                }
+    			//
+			
 		  		foreach ($dedupedRecords as $record) {
 	  				$link = $record['id'];
 	  				$source = $record['source'];
