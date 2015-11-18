@@ -132,7 +132,7 @@ function updateHoldingId(id, value, setDangerLabel) {
     var divLink = tableRow.find('[data-type=link]')[0];
 
     var dueDate = value.due_date;
-    if (typeof dueDate !== 'undefined') {
+    if (typeof dueDate !== 'undefined' && dueDate) {
 
 	// We have some due date here ..
 	var dueDateColumn = $(tableRow.children('[data-type=due_date]')[0]);

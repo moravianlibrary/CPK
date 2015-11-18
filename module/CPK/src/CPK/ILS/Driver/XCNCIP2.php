@@ -780,6 +780,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $status = $this->getFirstXPathMatchAsString($bibInfo,
                     'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus');
 
+                if ($status == 'On Loan') {
+                    $dueDate = $this->getFirstXPathMatchAsString($bibInfo,
+                        'HoldingsSet/ItemInformation/ItemOptionalFields/DateDue');
+                } else {
+                    $dueDate = false;
+                }
+
                 $itemCallNo = $this->getFirstXPathMatchAsString($bibInfo,
                     'HoldingsSet/ItemInformation/ItemOptionalFields/ItemDescription/CallNumber');
 
@@ -844,7 +851,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'item_id' => empty($id) ? "" : $id,
                     'label' => $label,
                     'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
-                    'restrictions' => $restrictions
+                    'restrictions' => $restrictions,
+                    'due_date' => $dueDate
                 );
             }
         }
