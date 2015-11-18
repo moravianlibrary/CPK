@@ -5,12 +5,19 @@
 
 	$count = count($records);
 	
-	// put caslin at the end, when available
+	// put caslin at the end and cnb before caslin, when available
+	if (isset($records['cnb'])) {
+	    $cnb = $records['cnb'];
+	    unset($records['cnb']);
+	    $records['cnb'] = $cnb;
+	}
+	
 	if (isset($records['caslin'])) {
 	    $caslin = $records['caslin'];
 	    unset($records['caslin']);
 	    $records['caslin'] = $caslin;
 	}
+	//
 	
 	if ($count <= 2) {
 		$maxInstitutionsShown = 2;
