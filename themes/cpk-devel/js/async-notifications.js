@@ -36,50 +36,7 @@ var __notif = {
 	    counter.show();
 	}
     },
-    // What must be instanceof Element
-    addNotification : function(data_identity, element) {
-	if (typeof element == "object" && element instanceof Element) {
 
-	    var isInstitutionOnly;
-	    if (typeof data_identity != "undefined") {
-		isInstitutionOnly = data_identity.indexOf('.') == -1;
-	    } else {
-		console.error("data_identity cannot be null");
-		return false;
-	    }
-
-	    var ul = document.createElement('ul');
-
-	    ul.setAttribute('class', 'notification');
-	    ul.appendChild(element);
-
-	    var identifier;
-	    if (isInstitutionOnly) {
-		// We recieved only institution so we will pick institution
-		// notification area by regex, so match only beginning of the
-		// data-identity attr
-		identifier = '^' + data_identity;
-	    } else {
-		identifier = data_identity;
-	    }
-
-	    var identityNotifications = this.getIdentityElement(identifier,
-		    isInstitutionOnly);
-
-	    if (identityNotifications != null) {
-
-		identityNotifications.append(ul);
-	    } else {
-		return false;
-	    }
-	} else {
-	    var message = "While using __notif.addNotification(data_identity, element) element must be instanceof Element !";
-	    console.error(message);
-	    return false;
-	}
-
-	return true;
-    },
     // Error printing function
     printErr : function(err, val) {
 	if (this.development && err) {
@@ -91,45 +48,54 @@ var __notif = {
     },
 }
 
-__notif.getIdentityElement = function(data_identity, isRegex) {
+__notif.addNotification = function(data_identity, element) {
+    if (typeof element == "object" && element instanceof Element) {
 
-    if (typeof isRegex == "undefined")
-	isRegex = false;
+	var isInstitutionOnly;
+	if (typeof data_identity != "undefined") {
+	    isInstitutionOnly = data_identity.indexOf('.') == -1;
 
-    var matches = null;
+	    if (isInstitutionOnly) {
+		// Make sure we have escaped the dot ..
+		data_identity = data_identity.replace(/([^\\])\./, '$1\\.');
+	    }
 
-    if (!isRegex) {
-
-	var jquerySelector = '[data-identity=' + data_identity
-		+ '].identity-notifications';
-
-	matches = $(jquerySelector);
-
-	if (!matches.length) {
-	    console.error("jQuery selector '" + jquerySelector
-		    + "' returned zero matches !");
-	    return null;
+	} else {
+	    console.error("data_identity cannot be null");
+	    return false;
 	}
 
+	var ul = document.createElement('ul');
+
+	ul.setAttribute('class', 'notification');
+	ul.appendChild(element);
+
+	var identifier;
+	if (isInstitutionOnly) {
+	    // We recieved only institution so we will pick institution
+	    // notification area by regex, so match only beginning of the
+	    // data-identity attr
+	    identifier = '^' + data_identity;
+	} else {
+	    identifier = data_identity;
+	}
+
+	var identityNotifications = this.getIdentityElement(identifier,
+		isInstitutionOnly);
+
+	if (identityNotifications != null) {
+
+	    identityNotifications.append(ul);
+	} else {
+	    return false;
+	}
     } else {
-	// Query all the [data-identity="REGEX_HERE"]
-
-	var jquerySelector = '[data-identity].identity-notifications';
-
-	matches = $(jquerySelector).filter(
-		function() {
-		    return this.getAttribute('data-identity').match(
-			    new RegExp(data_identity));
-		});
-
-	if (!matches.length) {
-	    console.error("jQuery selector '" + jquerySelector
-		    + "' filtered with regex '" + data_identity
-		    + "' returned zero matches !");
-	    return null;
-	}
+	var message = "While using __notif.addNotification(data_identity, element) element must be instanceof Element !";
+	console.error(message);
+	return false;
     }
-    return matches;
+
+    return true;
 };
 
 __notif.blocks = {
@@ -302,4 +268,47 @@ __notif.blocks = {
 	});
     },
 
+};
+
+
+
+__notif.getIdentityElement = function(data_identity, isRegex) {
+
+    if (typeof isRegex == "undefined")
+	isRegex = false;
+
+    var matches = null;
+
+    if (!isRegex) {
+
+	var jquerySelector = '[data-identity=' + data_identity
+		+ '].identity-notifications';
+
+	matches = $(jquerySelector);
+
+	if (!matches.length) {
+	    console.error("jQuery selector '" + jquerySelector
+		    + "' returned zero matches !");
+	    return null;
+	}
+
+    } else {
+	// Query all the [data-identity="REGEX_HERE"]
+
+	var jquerySelector = '[data-identity].identity-notifications';
+
+	matches = $(jquerySelector).filter(
+		function() {
+		    return this.getAttribute('data-identity').match(
+			    new RegExp(data_identity));
+		});
+
+	if (!matches.length) {
+	    console.error("jQuery selector '" + jquerySelector
+		    + "' filtered with regex '" + data_identity
+		    + "' returned zero matches !");
+	    return null;
+	}
+    }
+    return matches;
 };
