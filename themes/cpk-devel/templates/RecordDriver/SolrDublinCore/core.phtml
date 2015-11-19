@@ -7,7 +7,6 @@
 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
 
 <? endif; ?>
-<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
 
 <div class="well">
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
