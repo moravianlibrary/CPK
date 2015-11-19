@@ -29,6 +29,7 @@
 namespace CPK\View\Helper\CPK;
 
 use Zend\Config\Config;
+use VuFind\View\Helper\Root\TransEsc;
 
 /**
  * Global Notifications view Helper
@@ -54,6 +55,13 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
      * @var string
      */
     protected $lang;
+
+    /**
+     * Translation helper
+     *
+     * @var TransEsc
+     */
+    protected $translator;
     
     /**
      * If we have anything to notify
@@ -89,16 +97,17 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
      * @param
      *            \Zend\Config\Config VuFind configuration
      */
-    public function __construct(Config $config, $lang) {
+    public function __construct(Config $config, $lang, TransEsc $translator) {
         $this->config = $config;
+        $this->translator = $translator;
+        
+        $this->lang = explode( '-', $lang )[0];
         
         if ($this->config['Global']['enabled'] !== null) {
             $this->enabled = $this->config['Global']['enabled'];
         } else {
             $this->enabled = false;
         }
-        
-        $this->lang = explode( '-', $lang )[0];
         
         if ($this->config['Global']['elements'] !== null) {
             $this->globalElements = $this->config['Global']['elements']->toArray();
@@ -130,7 +139,7 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
             
             if ($this->messagesVariableName === false) {
                 $errMsg = 'Could not load the notifications.ini properly.';
-                return $this->printErrorMessage( $errMsg );
+                return $this->getQuickNotification( $errMsg, 'label label-danger' );
             }
             
             foreach ( $this->globalElements as $globalElement ) {
@@ -138,6 +147,9 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
             }
             
             return $html;
+        } else {
+            $message = $this->translator->__invoke('without_notifications');
+            return $this->getQuickNotification( $message, 'label label-success' );
         }
         return '';
     }
@@ -154,7 +166,8 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
                 foreach ( $elementDefinition[$this->messagesVariableName] as $message ) {
                     
                     if ($elementDefinition['tag'] == null) {
-                        return '';
+                        $message = 'No tag defined! Section [' . $globalElement . ']';
+                        return $this->getQuickNotification( $message, 'label label-danger' );
                     }
                     
                     $element = "<" . $elementDefinition['tag'];
@@ -182,8 +195,7 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
         return '';
     }
 
-    protected function printErrorMessage($errMsg) {
-        return '<ul class="notification"><span class="label label-danger">' .
-                 htmlspecialchars( $errMsg ) . '</span></ul>';
+    protected function getQuickNotification($message, $class) {
+        return '<ul class="notification"><span class="' . $class . '">' . htmlspecialchars( $message ) . '</span></ul>';
     }
 }

@@ -75,7 +75,7 @@ class Factory
         ? $sm->getServiceLocator()->get('VuFind\Translator')->getLocale()
         : 'en';
         
-        return new GlobalNotifications($config, $lang);
+        return new GlobalNotifications($config, $lang, $sm->get('transesc'));
     }
 
 }
