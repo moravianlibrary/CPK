@@ -39,12 +39,46 @@ var __notif = {
     // What must be instanceof Element
     addNotification : function(data_identity, element) {
 	if (typeof element == "object" && element instanceof Element) {
-	    // TODO: Show the notification
 
+	    var isInstitutionOnly;
+	    if (typeof data_identity != "undefined") {
+		isInstitutionOnly = data_identity.indexOf('.') == -1;
+	    } else {
+		console.error("data_identity cannot be null");
+		return false;
+	    }
+
+	    var ul = document.createElement('ul');
+
+	    ul.setAttribute('class', 'notification');
+	    ul.appendChild(element);
+
+	    var identifier;
+	    if (isInstitutionOnly) {
+		// We recieved only institution so we will pick institution
+		// notification area by regex, so match only beginning of the
+		// data-identity attr
+		identifier = '^' + data_identity;
+	    } else {
+		identifier = data_identity;
+	    }
+
+	    var identityNotifications = this.getIdentityElement(identifier,
+		    isInstitutionOnly);
+
+	    if (identityNotifications != null) {
+
+		identityNotifications.append(ul);
+	    } else {
+		return false;
+	    }
 	} else {
 	    var message = "While using __notif.addNotification(data_identity, element) element must be instanceof Element !";
 	    console.error(message);
+	    return false;
 	}
+
+	return true;
     },
     // Error printing function
     printErr : function(err, val) {
