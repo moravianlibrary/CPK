@@ -21,7 +21,7 @@ var __notif = {
     development : true,
 
     getAllIdentityElements : function() {
-	return $('[data-identity].notification');
+	return $('[data-identity].identity-notifications');
     },
 
     addToCounter : function(count) {
@@ -37,11 +37,12 @@ var __notif = {
 	}
     },
     // What must be instanceof Element
-    addNotification : function(cat_username, element) {
+    addNotification : function(data_identity, element) {
 	if (typeof element == "object" && element instanceof Element) {
 	    // TODO: Show the notification
+
 	} else {
-	    var message = "While using __notif.addNotification(cat_username, element) element must be instanceof Element !";
+	    var message = "While using __notif.addNotification(data_identity, element) element must be instanceof Element !";
 	    console.error(message);
 	}
     },
@@ -55,6 +56,47 @@ var __notif = {
 	}
     },
 }
+
+__notif.getIdentityElement = function(data_identity, isRegex) {
+
+    if (typeof isRegex == "undefined")
+	isRegex = false;
+
+    var matches = null;
+
+    if (!isRegex) {
+
+	var jquerySelector = '[data-identity=' + data_identity
+		+ '].identity-notifications';
+
+	matches = $(jquerySelector);
+
+	if (!matches.length) {
+	    console.error("jQuery selector '" + jquerySelector
+		    + "' returned zero matches !");
+	    return null;
+	}
+
+    } else {
+	// Query all the [data-identity="REGEX_HERE"]
+
+	var jquerySelector = '[data-identity].identity-notifications';
+
+	matches = $(jquerySelector).filter(
+		function() {
+		    return this.getAttribute('data-identity').match(
+			    new RegExp(data_identity));
+		});
+
+	if (!matches.length) {
+	    console.error("jQuery selector '" + jquerySelector
+		    + "' filtered with regex '" + data_identity
+		    + "' returned zero matches !");
+	    return null;
+	}
+    }
+    return matches;
+};
 
 __notif.blocks = {
     // Time to wait until next refresh of the blocks in milisecs
@@ -140,33 +182,24 @@ __notif.blocks = {
 
 	var cat_username = data.cat_username, html = data.html, count = data.count;
 
-	var jquerySelector = '[data-identity=' + cat_username
-		+ '].notification';
-
-	var div = $(jquerySelector);
-
-	if (!div.length) {
-	    console.error("jQuery selector '" + jquerySelector
-		    + "' returned zero matches !");
-	    return null;
-	}
+	var element = __notif.getIdentityElement(cat_username);
 
 	if (status == 'OK') {
 	    // Overwrite current div with the new one from renderer
 	    // FIXME do not remove the data-identity because of possible
 	    // need of appending another notifications !
-	    div[0].outerHTML = html;
+	    element[0].innerHTML = html;
 
 	    __notif.addToCounter(count);
 
 	} else { // We have recieved an error
-	    div.children('i').remove();
+	    element.children('i').remove();
 
 	    var message = data.message;
 	    if (typeof message == "undefined")
 		message = "Unknown error occured";
 
-	    div.children('span.label').text(message).removeClass(
+	    element.children('span.label').text(message).removeClass(
 		    'label-primary').addClass('label-danger');
 	}
     },
