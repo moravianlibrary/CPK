@@ -55,7 +55,7 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
      * @var string
      */
     protected $lang;
-
+    
     /**
      * Translation helper
      *
@@ -148,8 +148,8 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
             
             return $html;
         } else {
-            $message = $this->translator->__invoke('without_notifications');
-            return $this->getQuickNotification( $message, 'label label-success' );
+            $message = $this->translator->__invoke( 'without_notifications' );
+            return $this->getQuickNotification( $message, 'label label-success', false );
         }
         return '';
     }
@@ -195,7 +195,8 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
         return '';
     }
 
-    protected function getQuickNotification($message, $class) {
-        return '<ul class="notification"><span class="' . $class . '">' . htmlspecialchars( $message ) . '</span></ul>';
-    }
+    protected function getQuickNotification($message, $class, $shouldIncrementTheCounter = true) {
+        return '<ul class="notification' . ($shouldIncrementTheCounter ? '' : ' counter-ignore') . '"><span class="' . $class . '">' . htmlspecialchars( 
+                $message ) . '</span></ul>';
+}
 }

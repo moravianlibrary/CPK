@@ -1,8 +1,18 @@
 // TODO: Let the "MyResearch/Profile" fetch the notifications regardless they expired .. using it's getMyProfile method of course ..
 // TODO: Prepare the notifications for being also on not logged in pages (in order to let user notify about anything ..)
 $(function() { // Onload DOM ..
+    // We need to actualize the counter from the synchronous global
+    // notifications
+    var mainIdentity = __notif.getIdentityElement(__notif.mainIdentity);
+    if (mainIdentity != null) {
+
+	var initialCount = mainIdentity
+		.children('ul.notification:not(.counter-ignore)').length;
+
+	__notif.addToCounter(initialCount);
+    }
+
     // Get the notifies object if any
-    // FIXME: Detect user is logged in ..
     localforage.getItem('notifies', function(err, lastNotifies) {
 	__notif.printErr(err, lastNotifies);
 
