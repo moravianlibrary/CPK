@@ -19,7 +19,9 @@
        });
 
        if (isset($exploded[0]) && isset($exploded[1]))
-           $filters[$exploded[0]] = $exploded[1];
+           $part = [];
+           $part[$exploded[0]] = $exploded[1];
+           $filters[] = $part;
    }
 
    // Leave only the domain ..
@@ -34,8 +36,8 @@
         <option value="<?=$this->escapeHtmlAttr($limitVal)?>"<?=$limitData['selected']?' selected="selected"':''?>><?=$this->escapeHtml($limitData['desc'])?></option>
       <? endforeach; ?>
     </select>
-    <? foreach ($filters as $name => $value): ?>
-      <input type="hidden" name="<?=$name ?>" value="<?=$value ?>" />
+    <? foreach ($filters as $filter): ?>
+      <input type="hidden" name="<?=key($filter) ?>" value="<?=current($filter) ?>" />
     <? endforeach; ?>
     <noscript><input type="submit" value="<?=$this->transEsc("Set")?>" /></noscript>
   </form>
