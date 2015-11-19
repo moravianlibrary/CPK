@@ -66,5 +66,16 @@ class Factory
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
         return new Logos($config);
     }
+    
+    public static function getGlobalNotifications(ServiceManager $sm)
+    {
+        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('notifications');
+        
+        $lang = $sm->getServiceLocator()->has('VuFind\Translator')
+        ? $sm->getServiceLocator()->get('VuFind\Translator')->getLocale()
+        : 'en';
+        
+        return new GlobalNotifications($config, $lang);
+    }
 
 }

@@ -110,20 +110,20 @@
         $user = $authManager->isLoggedIn();
 
         $libraryCards = [];
-
+        
         $notificationsEnabled = false;
 
-        if ($user) {
-            // FIXME: We are surely getting library cards more than once - implement some cache
-            $libraryCards = $user->getLibraryCards(false);
-
-            if ($authManager instanceof \CPK\Auth\Manager) {
-                $notificationsEnabled = $authManager->isNotificationSystemEnabled();
-            }
+        if ($authManager instanceof \CPK\Auth\Manager) {
+            $notificationsEnabled = $authManager->isNotificationSystemEnabled();     
 
             if ($notificationsEnabled) {
                 $this->headScript()->appendFile("async-notifications.js");
             }
+        }
+        
+        if ($user) {
+            // FIXME: We are surely getting library cards more than once - implement some cache
+            $libraryCards = $user->getLibraryCards(false);       
         }
 
         $headerParams = [

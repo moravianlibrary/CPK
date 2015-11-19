@@ -1,6 +1,6 @@
 <?php
 /**
- * Authentication view helper
+ * Logos view helper
  *
  * PHP version 5
  *
@@ -21,7 +21,7 @@
  *
  * @category VuFind2
  * @package  View_Helpers
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Jiří Kozlovský <mail@jkozlovsky.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
@@ -30,11 +30,11 @@ namespace CPK\View\Helper\CPK;
 use Zend\Config\Config;
 
 /**
- * Authentication view helper
+ * Logos view helper
  *
  * @category VuFind2
  * @package View_Helpers
- * @author Demian Katz <demian.katz@villanova.edu>
+ * @author   Jiří Kozlovský <mail@jkozlovsky.cz>
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link http://vufind.org/wiki/vufind2:developer_manual Wiki
  */

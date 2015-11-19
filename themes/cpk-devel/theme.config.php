@@ -32,6 +32,7 @@ return array(
             'record' => 'CPK\View\Helper\CPK\Factory::getRecord',
             'flashmessages' => 'CPK\View\Helper\CPK\Factory::getFlashmessages',
             'logos' => 'CPK\View\Helper\CPK\Factory::getLogos',
+            'globalNotifications' => 'CPK\View\Helper\CPK\Factory::getGlobalNotifications',
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
             'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik'
         ),
