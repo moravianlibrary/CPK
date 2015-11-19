@@ -20,8 +20,12 @@ var __notif = {
 
     development : true,
 
+    mainClass : 'identity-notifications',
+
+    mainIdentity : 'cpk',
+
     getAllIdentityElements : function() {
-	return $('[data-identity].identity-notifications');
+	return $('[data-identity].' + this.mainClass);
     },
 
     addToCounter : function(count) {
@@ -111,11 +115,15 @@ __notif.blocks = {
     fetchBlocks : function() {
 
 	__notif.getAllIdentityElements().each(function() {
-	    ++__notif.blocks.institutionsToFetch;
-
 	    var cat_username = $(this).attr('data-identity');
 
-	    __notif.blocks.fetchBlocksForCatUsername(cat_username);
+	    // User mainIdentity actually cannot have any blocks
+	    if (cat_username != __notif.mainIdentity) {
+		++__notif.blocks.institutionsToFetch;
+
+		__notif.blocks.fetchBlocksForCatUsername(cat_username);
+
+	    }
 	});
     },
     // Create a query to fetch notifications about one institution
@@ -208,25 +216,30 @@ __notif.blocks = {
 	// Keys of responses are actually cat_usernames
 	var tmpIdentities = Object.keys(this.responses);
 
-	__notif.getAllIdentityElements().each(function() {
-	    var cat_username = $(this).attr('data-identity');
+	__notif.getAllIdentityElements().each(
+		function() {
+		    var cat_username = $(this).attr('data-identity');
 
-	    var i = tmpIdentities.indexOf(cat_username.replace(/\./, "\\."));
+		    if (cat_username != __notif.mainIdentity) {
+			var i = tmpIdentities.indexOf(cat_username.replace(
+				/\./, "\\."));
 
-	    if (i > -1) {
-		// We found this identity in the storage
-		tmpIdentities.splice(i, 1);
-	    } else {
-		// New identity connected
+			if (i > -1) {
+			    // We found this identity in the storage
+			    tmpIdentities.splice(i, 1);
+			} else {
+			    // New identity connected
 
-		// Update the institutionsToFetch int as we may
-		// need it on "invoked refresh"
-		++__notif.blocks.institutionsToFetch;
+			    // Update the institutionsToFetch int as we may
+			    // need it on "invoked refresh"
+			    ++__notif.blocks.institutionsToFetch;
 
-		// Fetch notificatios for new cat_username
-		__notif.blocks.fetchBlocksForCatUsername(cat_username);
-	    }
-	});
+			    // Fetch notificatios for new cat_username
+			    __notif.blocks
+				    .fetchBlocksForCatUsername(cat_username);
+			}
+		    }
+		});
 
 	if (tmpIdentities.length > 0) {
 	    // Some identities were disconnected
@@ -270,8 +283,6 @@ __notif.blocks = {
 
 };
 
-
-
 __notif.getIdentityElement = function(data_identity, isRegex) {
 
     if (typeof isRegex == "undefined")
@@ -281,8 +292,8 @@ __notif.getIdentityElement = function(data_identity, isRegex) {
 
     if (!isRegex) {
 
-	var jquerySelector = '[data-identity=' + data_identity
-		+ '].identity-notifications';
+	var jquerySelector = '[data-identity=' + data_identity + '].'
+		+ this.mainClass;
 
 	matches = $(jquerySelector);
 
@@ -295,7 +306,7 @@ __notif.getIdentityElement = function(data_identity, isRegex) {
     } else {
 	// Query all the [data-identity="REGEX_HERE"]
 
-	var jquerySelector = '[data-identity].identity-notifications';
+	var jquerySelector = '[data-identity].' + this.mainClass;
 
 	matches = $(jquerySelector).filter(
 		function() {
