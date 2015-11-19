@@ -39,9 +39,9 @@
 <? endif; ?>
 
 <div class="row">
-  <div>
-    <div class="record recordId source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" id="record">
-      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" id="record_id" />
+  <div class="<?=$this->layoutClass('mainbody')?>">
+    <div class="record source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>">
+      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
       <?=$this->flashmessages()?>
       
@@ -141,3 +141,4 @@
     </div>
   </div>
 </div>
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET') ?>

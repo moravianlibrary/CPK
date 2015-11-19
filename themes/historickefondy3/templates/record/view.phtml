@@ -35,12 +35,12 @@
 <? endif; ?>
 
 <div class="record-outer <?=$this->layoutClass('mainbody')?>">
-  <div class="record recordId source<?=$this->escapeHtml($this->driver->getResourceSource())?>" id="record">
-    <input type="hidden" value="<?=$this->escapeHtml($this->driver->getUniqueId())?>" class="hiddenId" id="record_id" />
-    <input type="hidden" value="<?=$this->escapeHtml($this->driver->getResourceSource()) ?>" class="hiddenSource" />
-    <?=$this->flashmessages()?>
-    <?=$this->record($this->driver)->getCoreMetadata()?>
-  </div>
+    <div class="record source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>">
+      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
+      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
+      <?=$this->flashmessages()?>
+      <?=$this->record($this->driver)->getCoreMetadata()?>
+    </div>
 
   <div class="nav-tabs-outer">
     <? if (count($this->tabs) > 0): ?>
@@ -84,3 +84,5 @@
   <? foreach ($this->related()->getList($this->driver) as $current): ?>
     <?=$this->related()->render($current)?>
   <? endforeach; ?>
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET') ?>
+

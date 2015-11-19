@@ -83,3 +83,4 @@
     <?=$this->related()->render($current)?>
   <? endforeach; ?>
 </div>
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET') ?>

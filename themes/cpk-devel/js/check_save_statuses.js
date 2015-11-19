@@ -27,7 +27,7 @@ function checkSaveStatuses() {
             var $icon = $('#result'+result.record_number).find('.fa-star-o');
 
             if ($container.length == 0) { // Record view
-              $container = $('#savedLists');
+              $container = $('.savedLists');
             }
             var $ul = $container.children('ul:first');
             if ($ul.length == 0) {

@@ -30,7 +30,7 @@
 
       // Deal with cart stuff:
       if (!isset($this->renderingError)) {
-        $cart = $this->cart();
+        // Add translation strings
         $this->jsTranslations()->addStrings(
           array(
             'bulk_email_success' => 'bulk_email_success',
@@ -42,6 +42,19 @@
             'number_thousands_separator' => ['number_thousands_separator', null, ',']
           )
         );
+        // Add libphonenumber.js strings
+        $this->jsTranslations()->addStrings(
+          array(
+            "'Phone number invalid'" => 'libphonenumber_invalid',
+            "'Invalid country calling code'" => 'libphonenumber_invalidcountry',
+            "'Invalid region code'" => 'libphonenumber_invalidregion',
+            "'The string supplied did not seem to be a phone number'" => 'libphonenumber_notanumber',
+            "'The string supplied is too long to be a phone number'" => 'libphonenumber_toolong',
+            "'The string supplied is too short to be a phone number'" => 'libphonenumber_tooshort',
+            "'Phone number too short after IDD'" => 'libphonenumber_tooshortidd'
+          )
+        );
+        $cart = $this->cart();
         if ($cart->isActive()) {
           $this->headScript()->appendFile("vendor/cookies.js");
           $this->headScript()->appendFile("cart.js");
