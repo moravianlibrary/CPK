@@ -100,6 +100,8 @@ __notif.addNotification = function(data_identity, element) {
 	if (identityNotifications != null) {
 
 	    identityNotifications.append(ul);
+
+            this.addToCounter(1);
 	} else {
 	    return false;
 	}
