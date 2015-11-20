@@ -42,6 +42,20 @@ class User extends BaseUser
 {
 
     const COLUMN_MAJOR_GLUE = ';';
+    
+    /**
+     * Holds all User's libCards.
+     *
+     * @var \Zend\Db\ResultSet\AbstractResultSet
+     */
+    protected $allLibCards;
+    
+    /**
+     * Holds all User's nonDummy libCards.
+     * 
+     * @var \Zend\Db\ResultSet\AbstractResultSet
+     */
+    protected $nonDummyLibCards;
 
     /**
      * Activates best library card.
