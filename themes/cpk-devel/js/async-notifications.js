@@ -128,6 +128,8 @@ __notif.addNotification = function(message, msgclass, institution,
 
     // Append it
     identityNotificationsElement.append(notif);
+    
+    identityNotificationsElement.children('[data-type=loader]').remove();
 
     return true;
 };
