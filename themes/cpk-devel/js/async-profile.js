@@ -61,6 +61,13 @@ function updateProfileTable(response) {
 			    var errorMessage = $("<div>").addClass('alert alert-danger').text(blockMessage).prepend(logo);
 			    
 			    heading.after(errorMessage);
+			    
+			    // Update notifications not to let those fetch the blocks again ;)
+			    if (typeof __notif != "undefined") {
+				var institution = cat_username.split('.')[0];
+				__notif.addNotification(blockMessage, 'warning', institution);
+				// FIXME Implement updating the browser localforage ..
+			    }
 			})
 		    }
 		}
