@@ -252,7 +252,7 @@ __notif.blocks = {
 	var tmpIdentities = Object.keys(this.responses);
 
 	__notif.getAllIdentityElements().each(function() {
-	    var institution = $(this)[0].id;
+	    var institution = $(this)[0].id.replace(/^notif-/, '');
 
 	    if (institution != __notif.mainId) {
 		var i = tmpIdentities.indexOf(institution);
