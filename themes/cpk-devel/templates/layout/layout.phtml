@@ -122,8 +122,7 @@
         }
         
         if ($user) {
-            // FIXME: We are surely getting library cards more than once - implement some cache
-            $libraryCards = $user->getLibraryCards(false);       
+            $libraryCards = $user->getLibraryCards(false);
         }
 
         $headerParams = [

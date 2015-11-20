@@ -281,20 +281,29 @@ class User extends BaseUser
      */
     public function getLibraryCards($includingDummyCards = false)
     {
-        if (! $this->libraryCardsEnabled()) {
+        if (!$this->libraryCardsEnabled()) {
             return new \Zend\Db\ResultSet\ResultSet();
         }
-        $userCard = $this->getDbTable('UserCard');
-        if ($includingDummyCards)
-            return $userCard->select(
-                [
-                    'user_id' => $this->id
-                ]);
-        return $userCard->select(
-            [
-                'user_id' => $this->id,
-                'home_library != ?' => 'Dummy'
-            ]);
+        
+        if ($includingDummyCards) {
+            
+            if ($this->allLibCards == null) {
+                $this->allLibCards = $this->getDbTable( 'UserCard' )->select( 
+                        [
+                            'user_id' => $this->id
+                        ] );
+            }
+            
+            return $this->allLibCards;
+        } elseif ($this->nonDummyLibCards == null) {
+            
+            $this->nonDummyLibCards = $this->getDbTable( 'UserCard' )->select( 
+                    [
+                        'user_id' => $this->id,'home_library != ?' => 'Dummy'
+                    ] );
+        }
+        
+        return $this->nonDummyLibCards;
     }
 
     /**
