@@ -106,25 +106,30 @@
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="notif_icon">
             <i style="font-size: 20px; color: #222;" class="fa fa-fw books"></i>
-            <span id="notification-counter" class="label label-danger overIcon">0</span>
+            <span id="notif-counter" class="label label-danger overIcon">0</span>
 	      </a>
 		  <ul class="dropdown-menu" style="width: 300px;">
 		  	<li>
-			   <li data-identity="cpk" class="identity-notifications">
+		  	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
+		  	    <img height="20" class="pull-right" alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>"/>
+		  	  </div>
+			  <div id="notif-cpk" class="identity-notifications">
 			       <?=$this->globalNotifications()->renderAll() ?>
-			   </li>
+			  </div>
 			</li>
 		  <? if ($user): foreach ($libraryCards as $libraryCard):
 			   $source = explode('.', $libraryCard['cat_username'])[0];
 		  ?>
 			<li>
-			   <h4 class="well row"> <?=$this->translate('source_' . $source, null, $source)?>
+			   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 			     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
-			   </h4>
-			   <li data-identity="<?=$libraryCard['cat_username'] ?>" class="identity-notifications">
-			     <i class="fa fa-spinner fa-spin"></i>
-			     <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
-			   </li>
+			   </div>
+			   <div id="notif-<?=$source?>" data-notif-identity="<?=$libraryCard['cat_username'] ?>" class="identity-notifications">
+			     <div class="notif-default">
+			       <i class="fa fa-spinner fa-spin"></i>
+			       <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+			     </div>
+			   </div>
 			</li>
 	      <? endforeach; endif;?>
 		  </ul>

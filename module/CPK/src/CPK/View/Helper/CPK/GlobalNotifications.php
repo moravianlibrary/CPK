@@ -75,7 +75,7 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
      *
      * @var array
      */
-    protected $globalElements;
+    protected $classes;
     
     /**
      * Associative array holding supported languages
@@ -109,10 +109,10 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
             $this->enabled = false;
         }
         
-        if ($this->config['Global']['elements'] !== null) {
-            $this->globalElements = $this->config['Global']['elements']->toArray();
+        if ($this->config['Global']['classes'] !== null) {
+            $this->classes = $this->config['Global']['classes']->toArray();
         } else {
-            $this->globalElements = [];
+            $this->classes = [];
         }
         
         if ($this->config['Global']['messagesLangDefinition'] !== null) {
@@ -135,68 +135,45 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
      */
     public function renderAll() {
         if ($this->enabled) {
-            $html = "";
+            $html = '';
             
             if ($this->messagesVariableName === false) {
-                $errMsg = 'Could not load the notifications.ini properly.';
-                return $this->getQuickNotification( $errMsg, 'label label-danger' );
+                $errMsg = "Could not load the notifications.ini properly. (Couldn't find definition of ${$this->lang} language's messages)";
+                return $this->createNotification( $errMsg, 'danger' );
             }
             
-            foreach ( $this->globalElements as $globalElement ) {
-                $html .= $this->parseMessages( $globalElement );
+            foreach ( $this->classes as $class ) {
+                $html .= $this->parseMessages( $class );
             }
             
             return $html;
         } else {
             $message = $this->translator->__invoke( 'without_notifications' );
-            return $this->getQuickNotification( $message, 'label label-success', false );
+            return $this->createNotification( $message, 'success', false );
         }
         return '';
     }
 
-    protected function parseMessages($globalElement) {
-        if ($this->config[$globalElement] != null) {
+    protected function parseMessages($class) {
+        if ($this->config[$class][$this->messagesVariableName] !== null) {
             
-            $elementDefinition = $this->config[$globalElement]->toArray();
+            $messages = $this->config[$class][$this->messagesVariableName];
             
-            if ($elementDefinition[$this->messagesVariableName] !== null) {
+            $html = '';
+            
+            foreach ( $messages as $message ) {
                 
-                $html = '';
-                
-                foreach ( $elementDefinition[$this->messagesVariableName] as $message ) {
-                    
-                    if ($elementDefinition['tag'] == null) {
-                        $message = 'No tag defined! Section [' . $globalElement . ']';
-                        return $this->getQuickNotification( $message, 'label label-danger' );
-                    }
-                    
-                    $element = "<" . $elementDefinition['tag'];
-                    
-                    if ($elementDefinition['class'] !== null) {
-                        $element .= ' class="' . $elementDefinition['class'] . '"';
-                    }
-                    
-                    $element .= ">";
-                    
-                    $element .= htmlspecialchars( $message );
-                    
-                    $element .= "</" . $elementDefinition['tag'] . ">";
-                    
-                    $ul = '<ul class="notification">';
-                    $ul .= $element;
-                    $ul .= '</ul>';
-                    
-                    $html .= $ul;
-                }
-                return $html;
+                $html .= $this->createNotification( $message, $class );
             }
+            
+            return $html;
         }
         
         return '';
     }
 
-    protected function getQuickNotification($message, $class, $shouldIncrementTheCounter = true) {
-        return '<ul class="notification' . ($shouldIncrementTheCounter ? '' : ' counter-ignore') . '"><span class="' . $class . '">' . htmlspecialchars( 
-                $message ) . '</span></ul>';
-}
+    protected function createNotification($message, $class = 'default', $shouldIncrementTheCounter = true) {
+        return '<div class="notif-' . $class . ($shouldIncrementTheCounter ?: ' counter-ignore') . '">' . htmlspecialchars( 
+                $message ) . '</div>';
+    }
 }

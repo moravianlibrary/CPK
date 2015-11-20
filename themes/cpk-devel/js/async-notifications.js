@@ -3,14 +3,14 @@
 $(function() { // Onload DOM ..
     // We need to actualize the counter from the synchronous global
     // notifications
-    var mainIdentity = __notif.getIdentityElement(__notif.mainIdentity);
-    if (mainIdentity != null) {
-
-	var initialCount = mainIdentity
-		.children('ul.notification:not(.counter-ignore)').length;
-
-	__notif.addToCounter(initialCount);
+    var mainId = $('#' + __notif.mainId);
+    if (!mainId.length) {
+	__notif.printErr("'#" + __notif.mainId + "' has no match");
     }
+
+    var initialCount = mainId.children('div:not(.counter-ignore)').length;
+
+    __notif.addToCounter(initialCount);
 
     // Get the notifies object if any
     localforage.getItem('notifies', function(err, lastNotifies) {
@@ -30,86 +30,99 @@ var __notif = {
 
     development : true,
 
-    mainClass : 'identity-notifications',
+    groupClass : 'identity-notifications',
 
-    mainIdentity : 'cpk',
+    mainId : 'notif-cpk',
+
+    allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
 
     getAllIdentityElements : function() {
-	return $('[data-identity].' + this.mainClass);
+	return $('[data-notif-identity].' + this.groupClass);
     },
 
     addToCounter : function(count) {
-	if (count != 0) {
+	if (typeof count == "number" && count != 0) {
 
-	    var counter = $('#notification-counter'), currentCount = parseInt(counter
+	    var counter = $('#notif-counter'), currentCount = parseInt(counter
 		    .text());
-	    currentCount += count;
 
+	    currentCount += count;
 	    counter.text(currentCount);
 
-	    counter.show();
+	    // Show || hide :)
+	    (currentCount != 0) ? counter.show() : counter.hide();
+
 	}
     },
 
     // Error printing function
     printErr : function(err, val) {
 	if (this.development && err) {
-	    console.error("localforage produced an error: " + err);
+	    console.error("notifications.js produced an error: " + err);
 	    if (val) {
 		console.error("value having problem with is '" + val + "'");
 	    }
 	}
+	return false;
     },
+    getIdentityNotificationsElement : function(identifier) {
+	if (typeof identifier == "undefined") {
+	    // Set default identity
+	    identifier = this.mainId;
+	} else if (identifier.indexOf("notif-") != 0) {
+	    // Prepend notif- to the identity source we probably recieved
+	    // without "notif-"
+	    identifier = 'notif-' + identifier;
+	}
+
+	var identityNotificationsElement = $('#' + identifier);
+
+	// Did we find the identity?
+	if (!identityNotificationsElement.length) {
+	    return this.printErr("'#" + identifier + "' has no match");
+	}
+
+	return identityNotificationsElement;
+    }
 }
 
-__notif.addNotification = function(data_identity, element) {
-    if (typeof element == "object" && element instanceof Element) {
-
-	var isInstitutionOnly;
-	if (typeof data_identity != "undefined") {
-	    isInstitutionOnly = data_identity.indexOf('.') == -1;
-
-	    if (isInstitutionOnly) {
-		// Make sure we have escaped the dot ..
-		data_identity = data_identity.replace(/([^\\])\./, '$1\\.');
-	    }
-
-	} else {
-	    console.error("data_identity cannot be null");
-	    return false;
-	}
-
-	var ul = document.createElement('ul');
-
-	ul.setAttribute('class', 'notification');
-	ul.appendChild(element);
-
-	var identifier;
-	if (isInstitutionOnly) {
-	    // We recieved only institution so we will pick institution
-	    // notification area by regex, so match only beginning of the
-	    // data-identity attr
-	    identifier = '^' + data_identity;
-	} else {
-	    identifier = data_identity;
-	}
-
-	var identityNotifications = this.getIdentityElement(identifier,
-		isInstitutionOnly);
-
-	if (identityNotifications != null) {
-
-	    identityNotifications.append(ul);
-
-            this.addToCounter(1);
-	} else {
-	    return false;
-	}
-    } else {
-	var message = "While using __notif.addNotification(data_identity, element) element must be instanceof Element !";
-	console.error(message);
-	return false;
+__notif.addNotification = function(message, msgclass, institution,
+	incrementCounter) {
+    if (typeof message == "undefined") {
+	return this.printErr("Please provide message to notify about.");
     }
+
+    var identityNotificationsElement = this
+	    .getIdentityNotificationsElement(institution);
+
+    if (identityNotificationsElement == false)
+	return false;
+
+    // Create the notification Element
+    var notif = document.createElement('div');
+
+    if (typeof msgclass == "undefined"
+	    || this.allowedClasses.indexOf(msgclass) == -1) {
+	msgclass = 'default';
+    }
+
+    if (typeof incrementCounter == "undefined") {
+	incrementCounter = true;
+    }
+
+    var clazz = 'notif-' + msgclass;
+
+    if (!incrementCounter) {
+	clazz += ' counter-ignore';
+    } else {
+	this.addToCounter(1);
+    }
+
+    notif.setAttribute('class', clazz);
+    notif.textContent = message;
+
+    // Append it
+    identityNotificationsElement.append(notif);
 
     return true;
 };
@@ -127,19 +140,25 @@ __notif.blocks = {
     fetchBlocks : function() {
 
 	__notif.getAllIdentityElements().each(function() {
-	    var cat_username = $(this).attr('data-identity');
+	    var institution = $(this)[0].id;
 
-	    // User mainIdentity actually cannot have any blocks
-	    if (cat_username != __notif.mainIdentity) {
-		++__notif.blocks.institutionsToFetch;
-
+	    // User mainId actually cannot have any blocks
+	    // it serves for global notifications ..
+	    if (institution != __notif.mainId) {
+		var cat_username = $(this).attr('data-notif-identity');
 		__notif.blocks.fetchBlocksForCatUsername(cat_username);
-
 	    }
 	});
     },
     // Create a query to fetch notifications about one institution
     fetchBlocksForCatUsername : function(cat_username) {
+
+	if (typeof cat_username == "undefined") {
+	    return __notif
+		    .printErr("Cannot fetch blocks for unknown username!");
+	}
+
+	++this.institutionsToFetch;
 
 	$.ajax({
 	    type : 'POST',
@@ -183,12 +202,12 @@ __notif.blocks = {
     // Updates saved notifications
     updateNotifies : function(response) {
 
-	var cat_username = response.data.cat_username;
+	var institution = response.data.source;
 
-	this.responses[cat_username] = response;
+	this.responses[institution] = response;
 
 	// have we fetched all the institutions ?
-	if (Object.keys(this.responses).length == this.institutionsToFetch) {
+	if (Object.keys(this.responses).length >= this.institutionsToFetch) {
 
 	    // This one is called only after fresh notifications were
 	    // fetched
@@ -200,15 +219,19 @@ __notif.blocks = {
 
 	var data = response.data, status = response.status;
 
-	var cat_username = data.cat_username, html = data.html, count = data.count;
+	var institution = data.source, html = data.html, count = data.count;
 
-	var element = __notif.getIdentityElement(cat_username);
+	var identityNotificationsElement = __notif
+		.getIdentityNotificationsElement(institution);
+
+	if (identityNotificationsElement == false)
+	    return false;
 
 	if (status == 'OK') {
-	    // Overwrite current div with the new one from renderer
-	    // FIXME do not remove the data-identity because of possible
-	    // need of appending another notifications !
-	    element[0].innerHTML = html;
+	    // FIXME: how about returning JSON without html, but all the info
+	    // needed to build the html as we already have the "addNotification"
+	    // method?
+	    identityNotificationsElement[0].innerHTML = html;
 
 	    __notif.addToCounter(count);
 
@@ -228,30 +251,26 @@ __notif.blocks = {
 	// Keys of responses are actually cat_usernames
 	var tmpIdentities = Object.keys(this.responses);
 
-	__notif.getAllIdentityElements().each(
-		function() {
-		    var cat_username = $(this).attr('data-identity');
+	__notif.getAllIdentityElements().each(function() {
+	    var institution = $(this)[0].id;
 
-		    if (cat_username != __notif.mainIdentity) {
-			var i = tmpIdentities.indexOf(cat_username.replace(
-				/\./, "\\."));
+	    if (institution != __notif.mainId) {
+		var i = tmpIdentities.indexOf(institution);
 
-			if (i > -1) {
-			    // We found this identity in the storage
-			    tmpIdentities.splice(i, 1);
-			} else {
-			    // New identity connected
+		if (i > -1) {
+		    // We found this identity in the storage
+		    tmpIdentities.splice(i, 1);
+		} else {
+		    // New identity connected
 
-			    // Update the institutionsToFetch int as we may
-			    // need it on "invoked refresh"
-			    ++__notif.blocks.institutionsToFetch;
+		    // Fetch notificatios for new cat_username
+		    var cat_username = $(this).attr('data-notif-identity');
 
-			    // Fetch notificatios for new cat_username
-			    __notif.blocks
-				    .fetchBlocksForCatUsername(cat_username);
-			}
-		    }
-		});
+		    __notif.blocks.fetchBlocksForCatUsername(cat_username);
+
+		}
+	    }
+	});
 
 	if (tmpIdentities.length > 0) {
 	    // Some identities were disconnected
@@ -259,19 +278,19 @@ __notif.blocks = {
 	    // Update the institutionsToFetch int as we may need it on
 	    // "invoked
 	    // refresh"
-	    __notif.blocks.institutionsToFetch -= tmpIdentities.length;
+	    this.institutionsToFetch -= tmpIdentities.length;
 
 	    // Remove those disconnected identites from storage
-	    __notif.blocks.clearIdentities(tmpIdentities);
+	    this.clearIdentities(tmpIdentities);
 	}
     },
     // Clears provided identity's stored notification
     // Useful e.g. while disconnecting an account ..
-    clearIdentities : function(cat_usernames) {
+    clearIdentities : function(institutions) {
 	var responsesTmp = {};
 
 	Object.keys(this.responses).forEach(function(key) {
-	    if (cat_usernames.indexOf(key) == -1)
+	    if (institutions.indexOf(key) == -1)
 		responsesTmp[key] = __notif.blocks.responses[key];
 	});
 
@@ -293,45 +312,4 @@ __notif.blocks = {
 	});
     },
 
-};
-
-__notif.getIdentityElement = function(data_identity, isRegex) {
-
-    if (typeof isRegex == "undefined")
-	isRegex = false;
-
-    var matches = null;
-
-    if (!isRegex) {
-
-	var jquerySelector = '[data-identity=' + data_identity + '].'
-		+ this.mainClass;
-
-	matches = $(jquerySelector);
-
-	if (!matches.length) {
-	    console.error("jQuery selector '" + jquerySelector
-		    + "' returned zero matches !");
-	    return null;
-	}
-
-    } else {
-	// Query all the [data-identity="REGEX_HERE"]
-
-	var jquerySelector = '[data-identity].' + this.mainClass;
-
-	matches = $(jquerySelector).filter(
-		function() {
-		    return this.getAttribute('data-identity').match(
-			    new RegExp(data_identity));
-		});
-
-	if (!matches.length) {
-	    console.error("jQuery selector '" + jquerySelector
-		    + "' filtered with regex '" + data_identity
-		    + "' returned zero matches !");
-	    return null;
-	}
-    }
-    return matches;
 };

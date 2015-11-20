@@ -173,9 +173,11 @@ class AjaxController extends AjaxControllerBase
 
                 $html = $renderer->render('notifications.phtml', ['blocks' => $blocks]);
 
+                $source = explode('.', $cat_username)[0];
+                
                 $data = [
                     'html' => $html,
-                    'cat_username' => str_replace('.', '\.', $cat_username),
+                    'source' => $source,
                     'count' => count($blocks)
                 ];
 
@@ -867,11 +869,15 @@ class AjaxController extends AjaxControllerBase
 
         if ($cat_username == null) {
             $cat_username = 'unknown';
+            $source = $cat_username;
+        } else {
+            $source = explode('.', $cat_username)[0];
         }
 
         $data = [
             'message' => $message,
-            'cat_username' => $cat_username
+            'cat_username' => $cat_username,
+            'source' => $source
         ];
 
         if ($e instanceof VuFind\Exception\ILS) {
