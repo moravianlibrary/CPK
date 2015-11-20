@@ -1,8 +1,0 @@
-<? $haveBlocks = is_array($blocks) && count($blocks) > 0;
-if ($haveBlocks): ?>
-  <? foreach($blocks as $key => $block): ?>
-    <div class="notif-warning"><?=$block ?></div>
-  <? endforeach; ?>
-<? else: // No blocks were found ?>
-  <div class="notif-info"><?=$this->transEsc('no_blocks_found')?></div>
-<? endif; ?>

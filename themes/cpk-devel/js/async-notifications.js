@@ -12,18 +12,23 @@ $(function() { // Onload DOM ..
 
     __notif.addToCounter(initialCount);
 
-    // Get the notifies object if any
-    localforage.getItem('notifies', function(err, lastNotifies) {
-	__notif.printErr(err, lastNotifies);
+    var shouldBePassive = document.location.pathname
+	    .match(/^\/[a-zA-Z]+\/Profile$/);
 
-	if (!lastNotifies) {
-	    __notif.blocks.fetchBlocks();
-	} else {
-	    __notif.blocks.lastSaved = lastNotifies.timeSaved;
-	    __notif.blocks.responses = lastNotifies.responses;
-	    __notif.blocks.processSavedBlocks();
-	}
-    });
+    if (!shouldBePassive)
+
+	// Get the notifies object if any
+	localforage.getItem('notifies', function(err, lastNotifies) {
+	    __notif.printErr(err, lastNotifies);
+
+	    if (!lastNotifies) {
+		__notif.blocks.fetchBlocks();
+	    } else {
+		__notif.blocks.lastSaved = lastNotifies.timeSaved;
+		__notif.blocks.responses = lastNotifies.responses;
+		__notif.blocks.processSavedBlocks();
+	    }
+	});
 });
 
 var __notif = {
@@ -219,21 +224,17 @@ __notif.blocks = {
 
 	var data = response.data, status = response.status;
 
-	var institution = data.source, html = data.html, count = data.count;
-
-	var identityNotificationsElement = __notif
-		.getIdentityNotificationsElement(institution);
-
-	if (identityNotificationsElement == false)
-	    return false;
+	var institution = data.source, blocks = data.blocks, count = data.count, message = data.message;
 
 	if (status == 'OK') {
-	    // FIXME: how about returning JSON without html, but all the info
-	    // needed to build the html as we already have the "addNotification"
-	    // method?
-	    identityNotificationsElement[0].innerHTML = html;
 
-	    __notif.addToCounter(count);
+	    if (count == 0)
+		__notif.addNotification(message, 'info', institution, false);
+	    else {
+		Object.keys(blocks).forEach(function(key) {
+		    __notif.addNotification(blocks[key], 'warning', institution);
+		});
+	    }
 
 	} else { // We have recieved an error
 	    element.children('i').remove();

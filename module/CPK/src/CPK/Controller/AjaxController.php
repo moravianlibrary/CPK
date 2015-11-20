@@ -171,17 +171,20 @@ class AjaxController extends AjaxControllerBase
                     $blocks = $profile['blocks'];
                 }
 
-                $html = $renderer->render('notifications.phtml', ['blocks' => $blocks]);
-
                 $source = explode('.', $cat_username)[0];
                 
                 $data = [
-                    'html' => $html,
                     'source' => $source,
-                    'count' => count($blocks)
+                    'count' => count($blocks),
+                    'blocks' => $blocks
                 ];
 
-                // TODO: Obtain all the blocks & pass it to some phtml ...
+                $haveBlocks = is_array($blocks) && count($blocks) > 0;
+                if (! $haveBlocks) {
+                    $message = $renderer->transEsc( 'no_blocks_found' );
+                    $data['message'] = $message;
+                }
+
             } catch (\VuFind\Exception\ILS $e) {
                 return $this->outputException($e, $cat_username);
             }
