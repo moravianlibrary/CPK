@@ -173,7 +173,7 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
     }
 
     protected function createNotification($message, $class = 'default', $shouldIncrementTheCounter = true) {
-        return '<div class="notif-' . $class . ($shouldIncrementTheCounter ?: ' counter-ignore') . '">' . htmlspecialchars( 
+        return '<div class="notif-' . $class . ($shouldIncrementTheCounter ? '' : ' counter-ignore') . '">' . htmlspecialchars( 
                 $message ) . '</div>';
     }
 }
