@@ -1,0 +1,123 @@
+<h1>Nápověda k vyhledávání</h1>
+
+<ul class="HelpMenu">
+  <li><a href="#Wildcard Searches">Dotazy s hvězdičkou</a></li>
+  <li><a href="#Fuzzy Searches">Přibližné vyhledávání</a></li>
+  <li><a href="#Proximity Searches">Vyhledávání blízkých slov u sebe</a></li>
+  <li><a href="#Range Searches">Dotazy s rozsahem</a></li>
+  <li><a href="#Boosting a Term">Posílení výrazu</a></li>
+  <li><a href="#Boolean operators">Booleovské operátory</a>
+    <ul>
+      <li><a href="#OR">OR</a></li>
+      <li><a href="#AND">AND</a></li>
+      <li><a href="#+">+</a></li>
+      <li><a href="#NOT">NOT</a></li>
+      <li><a href="#-">-</a></li>
+    </ul>
+  </li>
+</ul>
+
+<dl class="Content">
+  <dt><a name="Wildcard Searches"></a>Zástupné vyhledávání</dt>
+  <dd>
+    <p>Pro zastoupení jednoho znaku použíjte symbol <strong>?</strong>.</p>
+    <p>Např. chcete li hledat "text" či "test" použijte dotaz:</p>
+    <pre class="code">te?t</pre>
+    <p>Pro zastoupení 0 čí více znaků použijte symbol <strong>*</strong>.</p>
+    <p>Např. při hledávání výrazů test, testy nebo tester použijte: </p>
+    <pre class="code">test*</pre>
+    <p>Zástupné vyhledávání můžete také použít uprostřed výrazu.</p>
+    <pre class="code">te*t</pre>
+    <p>Poznámka: Symbol * or ? nemůžete použít jako první znak v hledaném termínu.</p>
+  </dd>
+  
+  <dt><a name="Fuzzy Searches"></a>Přibližné vyhledávání</dt>
+  <dd>
+    <p>Použijte symbol tilda <strong>~</strong> na konci <strong>jednoho</strong> slovního výrazu. Příklad: chcete li hledat výraz pravopisně podobnému slovu "roam" použijte příbližné vyhledávání: </p>
+    <pre class="code">roam~</pre>
+    <p>Tento dotaz najde výsledky, které obsahují termíny foam a roams.</p>
+    <p>Nepovinným parametrem můžete určit požadovanou míru podobnosti. Hodnota je mezi 0 a 1, hodnoty blízké 1 najdou termíny s vysokou mírou podobností. Např.:</p>
+    <pre class="code">roam~0.8</pre>
+    <p>Pokud míra podobností není dána, použije se hodnota 0.5.</p>
+  </dd>
+  
+  <dt><a name="Proximity Searches"></a>Vyhledávání založené na blízkosti slov</dt>
+  <dd>
+    <p>
+      Použijte znak tildu <strong>~</strong> na konci výrazu <strong>složeného</strong> z několika slov.
+      Např. chcete li hledat slova ekonomie a Keynes které jsou maximálně vzdálena deset slov od sebe, použijte:
+    </p>
+    <pre class="code">"ekonomie Keynes"~10</pre>
+  </dd>
+  
+  
+  <dt><a name="Range Searches"></a>Rozsahové dotazy</dt>
+  <dd>
+    <p>
+      Pro rozsahové dotazy použijte znaky <strong>{ }</strong>.
+      Chcete-li např. hledat výrazy, které začínají na znak A, B, či C použijte:
+    </p>
+    <pre class="code">{A TO C}</pre>
+    <p>
+      Totéž platí pro číselné pole, jako je například rok:
+    </p>
+    <pre class="code">[2002 TO 2003]</pre>
+  </dd>
+  
+  
+  <dt><a name="Boosting a Term"></a>Preference výrazů</dt>
+  <dd>
+    <p>
+      Pro posílení preference výrazu můžete použít znak <strong>^</strong>.
+      Následující dotaz:
+    </p>
+    <pre class="code">economics Keynes^5</pre>
+    <p>Dá větší hodnotu preference výrazu "Keynes"</p>
+  </dd>
+  
+  <dt><a name="Boolean operators"></a>Boolovské operátory</dt>
+  <dd>
+    <p>
+      Booleovské operátory umí kombinovat výrazy s logickými operátory.
+      Následující operátory jsou povoleny: <strong>AND</strong>, <strong>+</strong>, <strong>OR</strong>, <strong>NOT</strong> and <strong>-</strong>.
+    </p>
+    <p>Poznámka: Booleovské operátory musí být psány VELKÝMI PÍSMENY.</p>
+    <dl>
+      <dt><a name="OR"></a>OR</dt>
+      <dd>
+        <p>Operátor <strong>OR</strong> je implicitní spojovací operátor. To znamená, že pokud není mezi výrazy žádný operátor, použije se tento operátor. Operátor OR vzájemně spojuje dva výrazy a najde záznamy, které obsahuji alespoň jeden z výrazů.</p>
+        <p>Pro nalezení dokumentů které obsahují frázi "ekonomika Keynes" nebo jen "Keynes" použijte dotaz:</p>
+        <pre class="code">"ekonomika Keynes" Keynes</pre>
+        <p>nebo</p>
+        <pre class="code">"ekonomika Keynes" OR Keynes</pre>
+      </dd>
+      
+      <dt><a name="AND"></a>AND</dt>
+      <dd>
+        <p>Operátor AND nalezne všechny záznamy které obsahují oba výrazy v daném poli záznamu.</p>
+        <p>Pro nalezení dokumentů které obsahují frázi "ekonomika" a zároveň "Keynes" použijte dotaz:</p>
+        <pre class="code">"ekonomika" AND "Keynes"</pre>
+      </dd>
+      <dt><a name="+"></a>+</dt>
+      <dd>
+        <p>Operátor "+" or požadovaný operátor vyžaduje že výraz po symbolu "+" existuje někde v poli záznamu.</p>
+        <p>Pro nalezení dokumentů které obsahují frázi "ekonomika" a mohou, ale nemusí obsahovat "Keynes" použijte dotaz:</p>
+        <pre class="code">+ekonomika Keynes</pre>
+      </dd>
+      <dt><a name="NOT"></a>NOT</dt>
+      <dd>
+        <p>Operátor NOT vyloučí záznamy které obsahují výraz uvedený po operátoru NOT.</p>
+        <p>Pro nalezení dokumentů které obsahují frázi "ekonomika" přičemž neobsahují slovo "Keynes" použijte dotaz:</p>
+        <pre class="code">"economics" NOT "Keynes"</pre>
+        <p>Poznámka: operátor NOT nemůže být použit pouze s jedním výrazem. Např. následující dotaz nevrátí žádné výsledky:</p>
+        <pre class="code">NOT "ekonomika"</pre>
+      </dd>
+      <dt><a name="-"></a>-</dt>
+      <dd>
+        <p>Operátor <Strong>-</strong> (zakazující operátor) vyloučí dokumenty, které obsahují výraz uvedený za symbolem "-".</p>
+        <p>Pro nalezení dokumentů které obsahují frázi "ekonomika" a neobsahují slovo "Keynes" použijte dotaz </p>
+        <pre class="code">"economics" -"Keynes"</pre>
+      </dd>
+    </dl>
+  </dd>
+</dl>
