@@ -32,6 +32,9 @@ $i = '?';
 $removeFilterUrl = '/Search/Results';
 foreach ($queryParams as $key => $value) {
 
+    if (is_array($value)) {
+        $value = $value[0];
+    }
     $removeFilterUrl .= $i . $key . '=' . urlencode($value);
 
     if ($i === '?')
