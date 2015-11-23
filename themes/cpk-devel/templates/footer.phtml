@@ -4,6 +4,20 @@
     <p><strong><?=$this->transEsc('Search Options')?></strong></p>
     <ul>
       <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
+      <? 
+      $redirectUrl = $_SERVER['REDIRECT_URL'];
+      $redirectUrlArray = explode("/", $redirectUrl);
+      $controller = $redirectUrlArray[1];
+      $action = $redirectUrlArray[2];
+      ?>
+      <? if (($controller == 'Search') && ($action == 'Results')) : ?>
+      <li>
+      	<i class="icon-rss"></i>
+      		<a href="<?=$_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME'].$_SERVER['REDIRECT_URL']."?".addslashes($_SERVER['QUERY_STRING'])."&view=rss"?>">
+      			<?=$this->transEsc('Get RSS Feed')?>
+      		</a>
+      	</li>
+      <? endif; ?>
     </ul>
   </div>
   <div class="col-sm-4">
