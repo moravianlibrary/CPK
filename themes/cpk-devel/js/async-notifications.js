@@ -1,5 +1,6 @@
-// FIXME: Reduce selector as much as possible as it'll speed up loading a lot - on mobile devices especially
+// FIXME: Reduce selectors as much as possible as it'll speed up loading a lot - on mobile devices especially
 $(function() { // Onload DOM ..
+    
     // We need to actualize the counter from the synchronous global
     // notifications
     var mainId = $('#' + __notif.mainId);
@@ -91,6 +92,18 @@ var __notif = {
     }
 }
 
+/**
+ * Appends a notification message.
+ * 
+ * Syntax is:
+ * __notif.addNotification( message [, msgclass , institution ] )
+ * 
+ * msgclass can be one of __notif.allowedClasses
+ * 
+ * institution can be any string defining the source the MultiBackend uses to
+ * recognize an institution
+ * 
+ */
 __notif.addNotification = function(message, msgclass, institution,
 	incrementCounter) {
     if (typeof message == "undefined") {
