@@ -1,4 +1,3 @@
-// FIXME: Reduce selectors as much as possible as it'll speed up loading a lot - on mobile devices especially
 $(function() { // Onload DOM ..
 
     // Initialize the notifications' pointers
@@ -42,7 +41,7 @@ var __notif = {
     allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
 
     addToCounter : function(count) {
-	if (typeof count == "number" && count != 0) {
+	if (typeof count === 'number' && count !== 0) {
 
 	    var currentCount = parseInt(__notif.pointers.counter.text());
 
@@ -69,7 +68,7 @@ var __notif = {
 	return false;
     },
     getIdentityNotificationsElement : function(source) {
-	if (typeof source == "undefined") {
+	if (source === undefined) {
 	    // Set default identity
 	    return __notif.pointers.global;
 	}
@@ -82,8 +81,11 @@ var __notif = {
 
 	    var message = "Pointer for '" + source
 		    + "' wasn't properly initialized."
-		    + " An attempt to resolve it failed";
+		    + ' An attempt to resolve it failed';
 
+	    this.printErr(message);
+
+	    message = 'Are you sure you are trying to access existing institution notifications?';
 	    return this.printErr(message);
 	}
 
@@ -105,19 +107,19 @@ var __notif = {
 __notif.addNotification = function(message, msgclass, institution,
 	incrementCounter) {
     if (message === undefined) {
-	return this.printErr("Please provide message to notify about.");
+	return this.printErr('Please provide message to notify about.');
     }
 
     var identityNotificationsElement = this
 	    .getIdentityNotificationsElement(institution);
 
-    if (identityNotificationsElement == false)
+    if (identityNotificationsElement === false)
 	return false;
 
     // Create the notification Element
     var notif = document.createElement('div');
 
-    if (msgclass === undefined || this.allowedClasses.indexOf(msgclass) == -1) {
+    if (msgclass === undefined || this.allowedClasses.indexOf(msgclass) === -1) {
 	msgclass = 'default';
     }
 
@@ -159,7 +161,7 @@ __notif.blocks = {
 	Object.keys(__notif.pointers.institutions).forEach(function(source) {
 	    var institution = __notif.pointers.institutions[source];
 
-	    var cat_username = institution.attr('data-notif-identity');
+	    var cat_username = institution.attr('data-id');
 	    __notif.blocks.fetchBlocksForCatUsername(cat_username);
 
 	});
@@ -168,8 +170,7 @@ __notif.blocks = {
     fetchBlocksForCatUsername : function(cat_username) {
 
 	if (cat_username === undefined) {
-	    return __notif
-		    .printErr("Cannot fetch blocks for unknown username!");
+	    return __notif.printErr('No cat_username provided !');
 	}
 
 	++this.institutionsToFetch;
@@ -220,7 +221,7 @@ __notif.blocks = {
 
 	this.responses[institution] = response;
 
-	// have we fetched all the institutions ? 
+	// have we fetched all the institutions ?
 	// FIXME possible unexpected behavior?
 	if (Object.keys(this.responses).length >= this.institutionsToFetch) {
 
@@ -229,18 +230,19 @@ __notif.blocks = {
 	    this.saveLastNotifies();
 	}
     },
-    // This function will render the html passed to it ..
+    // This function will render the blocks passed to it ...
     processNotificationsFetched : function(response) {
 
 	var data = response.data, status = response.status;
 
 	var institution = data.source, blocks = data.blocks, count = data.count, message = data.message;
 
-	if (status == 'OK') {
+	if (status === 'OK') {
 
-	    if (count == 0)
+	    if (count === 0) {
+		// Don't increment the counter as there is no block returned
 		__notif.addNotification(message, 'info', institution, false);
-	    else {
+	    } else {
 		Object.keys(blocks).forEach(
 			function(key) {
 			    __notif.addNotification(blocks[key], 'warning',
@@ -249,6 +251,7 @@ __notif.blocks = {
 	    }
 
 	} else { // We have recieved an error
+	    // FIXME: Where is the element defined ??
 	    element.children('i').remove();
 
 	    var message = data.message;
@@ -282,7 +285,7 @@ __notif.blocks = {
 		// New identity connected
 
 		// Fetch notificatios for new cat_username
-		var cat_username = institution.attr('data-notif-identity');
+		var cat_username = institution.attr('data-id');
 
 		__notif.blocks.fetchBlocksForCatUsername(cat_username);
 
@@ -293,8 +296,7 @@ __notif.blocks = {
 	    // Some identities were disconnected
 
 	    // Update the institutionsToFetch int as we may need it on
-	    // "invoked
-	    // refresh"
+	    // an "invoked refresh"
 	    this.institutionsToFetch -= tmpIdentities.length;
 
 	    // Remove those disconnected identites from storage
@@ -307,7 +309,7 @@ __notif.blocks = {
 	var responsesTmp = {};
 
 	Object.keys(this.responses).forEach(function(key) {
-	    if (institutions.indexOf(key) == -1)
+	    if (institutions.indexOf(key) === -1)
 		responsesTmp[key] = __notif.blocks.responses[key];
 	});
 

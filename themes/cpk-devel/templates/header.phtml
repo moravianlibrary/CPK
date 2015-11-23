@@ -124,7 +124,7 @@
 			   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 			     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
 			   </div>
-			   <div data-type="institution" data-source="<?=$source?>" data-notif-identity="<?=$libraryCard['cat_username'] ?>" class="identity-notifications">
+			   <div data-type="institution" data-source="<?=$source?>" data-id="<?=$libraryCard['cat_username'] ?>" class="identity-notifications">
 			     <div class="notif-default" data-type="loader">
 			       <i class="fa fa-spinner fa-spin"></i>
 			       <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
