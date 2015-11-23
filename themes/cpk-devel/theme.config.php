@@ -17,10 +17,10 @@ return array(
         'vendor/bootstrap-accessibility.min.js',
         'vendor/typeahead.js',
         'vendor/rc4.js',
+        'vendor/localforage.min.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
-        'localforage.min.js',
     ),
     'less' => array(
         'active' => false,
