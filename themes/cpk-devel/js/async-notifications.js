@@ -1,18 +1,19 @@
 // FIXME: Reduce selectors as much as possible as it'll speed up loading a lot - on mobile devices especially
 $(function() { // Onload DOM ..
-    
-    // We need to actualize the counter from the synchronous global
-    // notifications
-    var mainId = $('#' + __notif.mainId);
-    if (!mainId.length) {
-	__notif.printErr("'#" + __notif.mainId + "' has no match");
-    }
 
-    var initialCount = mainId.children('div:not(.counter-ignore)').length;
+    // Initialize the notifications' pointers
+    __notif.init();
 
-    __notif.addToCounter(initialCount);
+    // We need to acknowledge user about global notifications
+    __notif.global.fetch();
 
-    // Dont' be passive unless on Profile page ..  
+    // Now fetch all blocks from institutions user is in
+    // __notif.blocks.fetch();
+
+    // Now fetch all transactions from institutions user is in
+    // __notif.transactions.fetch();
+
+    // Dont' be passive unless on Profile page ..
     var shouldBePassive = document.location.pathname
 	    .match(/^\/[a-zA-Z]+\/Profile$/);
 
@@ -38,25 +39,21 @@ var __notif = {
 
     groupClass : 'identity-notifications',
 
-    mainId : 'notif-cpk',
-
     allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
-
-    getAllIdentityElements : function() {
-	return $('[data-notif-identity].' + this.groupClass);
-    },
 
     addToCounter : function(count) {
 	if (typeof count == "number" && count != 0) {
 
-	    var counter = $('#notif-counter'), currentCount = parseInt(counter
-		    .text());
+	    var currentCount = parseInt(__notif.pointers.counter.text());
 
 	    currentCount += count;
-	    counter.text(currentCount);
+	    __notif.pointers.counter.text(currentCount);
 
-	    // Show || hide :)
-	    (currentCount != 0) ? counter.show() : counter.hide();
+	    if (currentCount !== 0) {
+		__notif.pointers.counter.show();
+	    } else {
+		__notif.pointers.counter.hide();
+	    }
 
 	}
     },
@@ -71,21 +68,23 @@ var __notif = {
 	}
 	return false;
     },
-    getIdentityNotificationsElement : function(identifier) {
-	if (typeof identifier == "undefined") {
+    getIdentityNotificationsElement : function(source) {
+	if (typeof source == "undefined") {
 	    // Set default identity
-	    identifier = this.mainId;
-	} else if (identifier.indexOf("notif-") != 0) {
-	    // Prepend notif- to the identity source we probably recieved
-	    // without "notif-"
-	    identifier = 'notif-' + identifier;
+	    return __notif.pointers.global;
 	}
 
-	var identityNotificationsElement = $('#' + identifier);
+	var identityNotificationsElement = __notif.pointers.institutions[source];
 
 	// Did we find the identity?
-	if (!identityNotificationsElement.length) {
-	    return this.printErr("'#" + identifier + "' has no match");
+	if (identityNotificationsElement === undefined
+		|| !identityNotificationsElement.length) {
+
+	    var message = "Pointer for '" + source
+		    + "' wasn't properly initialized."
+		    + " An attempt to resolve it failed";
+
+	    return this.printErr(message);
 	}
 
 	return identityNotificationsElement;
@@ -95,8 +94,7 @@ var __notif = {
 /**
  * Appends a notification message.
  * 
- * Syntax is:
- * __notif.addNotification( message [, msgclass , institution ] )
+ * Syntax is: __notif.addNotification( message [, msgclass , institution ] )
  * 
  * msgclass can be one of __notif.allowedClasses
  * 
@@ -106,7 +104,7 @@ var __notif = {
  */
 __notif.addNotification = function(message, msgclass, institution,
 	incrementCounter) {
-    if (typeof message == "undefined") {
+    if (message === undefined) {
 	return this.printErr("Please provide message to notify about.");
     }
 
@@ -119,12 +117,11 @@ __notif.addNotification = function(message, msgclass, institution,
     // Create the notification Element
     var notif = document.createElement('div');
 
-    if (typeof msgclass == "undefined"
-	    || this.allowedClasses.indexOf(msgclass) == -1) {
+    if (msgclass === undefined || this.allowedClasses.indexOf(msgclass) == -1) {
 	msgclass = 'default';
     }
 
-    if (typeof incrementCounter == "undefined") {
+    if (incrementCounter === undefined) {
 	incrementCounter = true;
     }
 
@@ -141,7 +138,7 @@ __notif.addNotification = function(message, msgclass, institution,
 
     // Append it
     identityNotificationsElement.append(notif);
-    
+
     identityNotificationsElement.children('[data-type=loader]').remove();
 
     return true;
@@ -159,21 +156,18 @@ __notif.blocks = {
     // Async notifications loader
     fetchBlocks : function() {
 
-	__notif.getAllIdentityElements().each(function() {
-	    var institution = $(this)[0].id;
+	Object.keys(__notif.pointers.institutions).forEach(function(source) {
+	    var institution = __notif.pointers.institutions[source];
 
-	    // User mainId actually cannot have any blocks
-	    // it serves for global notifications ..
-	    if (institution != __notif.mainId) {
-		var cat_username = $(this).attr('data-notif-identity');
-		__notif.blocks.fetchBlocksForCatUsername(cat_username);
-	    }
+	    var cat_username = institution.attr('data-notif-identity');
+	    __notif.blocks.fetchBlocksForCatUsername(cat_username);
+
 	});
     },
     // Create a query to fetch notifications about one institution
     fetchBlocksForCatUsername : function(cat_username) {
 
-	if (typeof cat_username == "undefined") {
+	if (cat_username === undefined) {
 	    return __notif
 		    .printErr("Cannot fetch blocks for unknown username!");
 	}
@@ -226,7 +220,8 @@ __notif.blocks = {
 
 	this.responses[institution] = response;
 
-	// have we fetched all the institutions ?
+	// have we fetched all the institutions ? 
+	// FIXME possible unexpected behavior?
 	if (Object.keys(this.responses).length >= this.institutionsToFetch) {
 
 	    // This one is called only after fresh notifications were
@@ -246,17 +241,19 @@ __notif.blocks = {
 	    if (count == 0)
 		__notif.addNotification(message, 'info', institution, false);
 	    else {
-		Object.keys(blocks).forEach(function(key) {
-		    __notif.addNotification(blocks[key], 'warning', institution);
-		});
+		Object.keys(blocks).forEach(
+			function(key) {
+			    __notif.addNotification(blocks[key], 'warning',
+				    institution);
+			});
 	    }
 
 	} else { // We have recieved an error
 	    element.children('i').remove();
 
 	    var message = data.message;
-	    if (typeof message == "undefined")
-		message = "Unknown error occured";
+	    if (message === undefined)
+		message = 'Unknown error occured';
 
 	    element.children('span.label').text(message).removeClass(
 		    'label-primary').addClass('label-danger');
@@ -267,24 +264,28 @@ __notif.blocks = {
 	// Keys of responses are actually cat_usernames
 	var tmpIdentities = Object.keys(this.responses);
 
-	__notif.getAllIdentityElements().each(function() {
-	    var institution = $(this)[0].id.replace(/^notif-/, '');
+	// Iterate over all institutions
+	Object.keys(__notif.pointers.institutions).forEach(function(source) {
 
-	    if (institution != __notif.mainId) {
-		var i = tmpIdentities.indexOf(institution);
+	    // Get the jQuery pointer to institution div
+	    var institution = __notif.pointers.institutions[source];
 
-		if (i > -1) {
-		    // We found this identity in the storage
-		    tmpIdentities.splice(i, 1);
-		} else {
-		    // New identity connected
+	    // Did we have this identity already ?
+	    var i = tmpIdentities.indexOf(source);
 
-		    // Fetch notificatios for new cat_username
-		    var cat_username = $(this).attr('data-notif-identity');
+	    if (i > -1) {
+		// Yes, this identity we know
+		tmpIdentities.splice(i, 1);
+	    } else {
 
-		    __notif.blocks.fetchBlocksForCatUsername(cat_username);
+		// No, we don't know anything about this identity ->
+		// New identity connected
 
-		}
+		// Fetch notificatios for new cat_username
+		var cat_username = institution.attr('data-notif-identity');
+
+		__notif.blocks.fetchBlocksForCatUsername(cat_username);
+
 	    }
 	});
 
@@ -328,4 +329,77 @@ __notif.blocks = {
 	});
     },
 
+};
+
+// Pointers point to various sections after init() is called
+// Only parent pointer resolves whole notifications section
+__notif.pointers = {
+    parent : undefined,
+    global : undefined, // Global notifications usually loaded synchronously
+    counter : undefined, // Span holding the count of notifications
+
+    institutions : {}
+};
+
+__notif.global = {
+    // TODO: think about global notifications being parsed asynchronously ..
+    fetch : function() {
+	var initialCount = __notif.pointers.global
+		.children('div:not(.counter-ignore)').length;
+
+	__notif.addToCounter(initialCount);
+    }
+};
+
+__notif.init = function() {
+    // This function essentially stores all the pointers needed
+    // to prevent doing multiple selects while they're slow
+
+    var notifList = $('div#header-collapse nav ul li ul#notificationsList');
+
+    __notif.pointers.parent = notifList;
+
+    // Get all divs with any data-type
+    var sections = notifList.children('li').children('div[data-type]');
+
+    // Iterate over these & decide which one is global & which is an
+    // institution div
+    sections.each(function(i, section) {
+
+	var type = section.getAttribute('data-type');
+
+	if (type === 'global') {
+
+	    __notif.pointers.global = $(section);
+	} else if (type === 'institution') {
+
+	    var source = section.getAttribute('data-source');
+
+	    __notif.pointers.institutions[source] = $(section);
+	}
+
+    });
+
+    if (__notif.pointers.global === undefined
+	    || !__notif.pointers.global.length) {
+	var message = 'Could not resolve notifications global pointer !\n'
+		+ 'Please consider adding div[data-type=global] inside any <li>'
+		+ "__notif.addNotification() won't work correctly until fixed";
+
+	__notif.printErr(message);
+    }
+
+    // Resolve the counter span
+    var counterSpan = notifList.siblings('a#notif_icon').children(
+	    'span#notif-counter');
+
+    if (counterSpan.length) {
+	__notif.pointers.counter = counterSpan;
+    } else {
+	var message = 'Could not resolve counter span pointer !\n'
+		+ "User won't see any number showed up when "
+		+ 'notifications are added until fixed';
+
+	__notif.printErr(message);
+    }
 };
