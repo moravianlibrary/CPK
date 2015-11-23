@@ -1,5 +1,4 @@
-// TODO: Let the "MyResearch/Profile" fetch the notifications regardless they expired .. using it's getMyProfile method of course ..
-// TODO: Prepare the notifications for being also on not logged in pages (in order to let user notify about anything ..)
+// FIXME: Reduce selector as much as possible as it'll speed up loading a lot - on mobile devices especially
 $(function() { // Onload DOM ..
     // We need to actualize the counter from the synchronous global
     // notifications
@@ -12,6 +11,7 @@ $(function() { // Onload DOM ..
 
     __notif.addToCounter(initialCount);
 
+    // Dont' be passive unless on Profile page ..  
     var shouldBePassive = document.location.pathname
 	    .match(/^\/[a-zA-Z]+\/Profile$/);
 
