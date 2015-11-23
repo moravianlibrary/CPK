@@ -24,20 +24,20 @@
     	}
 
 	}
-	
-	if ($caslinFoundInFilters == 0) {
-	    if (isset($records['caslin'])) {
-	        $caslin = $records['caslin'];
-	        unset($records['caslin']);
-	        $records['caslin'] = $caslin;
-	    }
-	}
 	 
 	if ($cnbFoundInFilters == 0) {
 	    if (isset($records['cnb'])) {
 	        $cnb = $records['cnb'];
 	        unset($records['cnb']);
 	        $records['cnb'] = $cnb;
+	    }
+	}
+	
+	if ($caslinFoundInFilters == 0) {
+	    if (isset($records['caslin'])) {
+	        $caslin = $records['caslin'];
+	        unset($records['caslin']);
+	        $records['caslin'] = $caslin;
 	    }
 	}
 	
