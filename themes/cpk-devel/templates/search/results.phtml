@@ -91,8 +91,8 @@
       <? endforeach; ?>
     <? else: ?>
       <form class="form-inline" method="post" name="bulkActionForm" action="<?=$this->url('cart-home')?>">
-          <div class="searchtools hidden-print">
-            <strong><?=$this->transEsc('Search Tools')?>:</strong>
+          <div class="searchtools hidden-print" style='padding-top: 2px; padding-bottom: 8px;'>
+            <strong><?=$this->transEsc('Search Tools')?>:</strong>&nbsp;
             <i class="icon-poslat-emailem"></i> <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><?=$this->transEsc('Email this Search')?></a>
             <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
               &mdash;
