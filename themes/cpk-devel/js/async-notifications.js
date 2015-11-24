@@ -1,3 +1,5 @@
+// TODO: Set "you have no blocks in this institution" if on page Profile or Fines & there are no blocks or fines fetched at all
+// TODO: Also update async-profile.js
 $(function() { // Onload DOM ..
 
     // Initialize the notifications' pointers
