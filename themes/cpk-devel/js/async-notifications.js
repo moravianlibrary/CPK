@@ -15,14 +15,13 @@ $(function() { // Onload DOM ..
 
 var __notif = {
 
-    development : true,
-
-    groupClass : 'identity-notifications',
-
-    allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
-
     options : {
+
+	development : true,
+
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
+
+	allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
     },
 
     addToCounter : function(count) {
@@ -44,7 +43,7 @@ var __notif = {
 
     // Error printing function
     printErr : function(err, val) {
-	if (this.development && err !== null) {
+	if (this.options.development && err !== null) {
 	    console.error("notifications.js produced an error: " + err);
 	    if (val !== null) {
 		console.error("value having problem with is '" + val + "'");
@@ -481,7 +480,7 @@ __notif.pointers = {
  * 
  * Syntax is: __notif.addNotification( message [, msgclass , institution ] )
  * 
- * msgclass can be one of __notif.allowedClasses
+ * msgclass can be one of __notif.options.allowedClasses
  * 
  * institution can be any string defining the source the MultiBackend uses to
  * recognize an institution
@@ -505,11 +504,11 @@ __notif.addNotification = function(message, msgclass, institution,
     // Remove it if not already done
     if (loader.length)
 	loader.remove();
-    
+
     // Create the notification Element
     var notif = document.createElement('div');
 
-    if (msgclass === undefined || this.allowedClasses.indexOf(msgclass) === -1) {
+    if (msgclass === undefined || this.options.allowedClasses.indexOf(msgclass) === -1) {
 	msgclass = 'default';
     }
 
