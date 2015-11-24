@@ -86,7 +86,7 @@ __notif.blocks = {
     fetch : function() {
 	// Dont' be passive unless on Profile page ..
 	var shouldBePassive = document.location.pathname
-		.match(/^\/[a-zA-Z]+\/Profile$/);
+		.match(/^\/[a-zA-Z]+\/Profile/);
 
 	if (!shouldBePassive)
 
@@ -289,7 +289,7 @@ __notif.fines = {
     fetch : function() {
 	// Dont' be passive unless on Profile page ..
 	var shouldBePassive = document.location.pathname
-		.match(/^\/[a-zA-Z]+\/Fines$/);
+		.match(/^\/[a-zA-Z]+\/Fines/);
 
 	if (!shouldBePassive)
 
@@ -508,7 +508,8 @@ __notif.addNotification = function(message, msgclass, institution,
     // Create the notification Element
     var notif = document.createElement('div');
 
-    if (msgclass === undefined || this.options.allowedClasses.indexOf(msgclass) === -1) {
+    if (msgclass === undefined
+	    || this.options.allowedClasses.indexOf(msgclass) === -1) {
 	msgclass = 'default';
     }
 
