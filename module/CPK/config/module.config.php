@@ -115,7 +115,8 @@ $config = array(
     'service_manager' => array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
-            'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator'
+            'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator',
+            'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager'
         ), // Exceptions throwing system
 
         'invokables' => array(

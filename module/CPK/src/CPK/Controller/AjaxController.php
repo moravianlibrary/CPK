@@ -925,4 +925,20 @@ class AjaxController extends AjaxControllerBase
 
         return $retVal;
     }
+    
+    /**
+     * Get Autocomplete suggestions.
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function getACSuggestionsAjax()
+    {
+        $this->writeSession();  // avoid session write timing bug
+        $query = $this->getRequest()->getQuery();
+        $autocompleteManager = $this->getServiceLocator()
+        ->get('CPK\AutocompletePluginManager');
+        return $this->output(
+            $autocompleteManager->getSuggestions($query), self::STATUS_OK
+        );
+    }
 }
