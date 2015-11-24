@@ -148,8 +148,8 @@ __notif.blocks = {
     processSaved : function() {
 
 	// Decide whether will we renew the notifications
-	if (this.lastSaved) {
-	    var shouldWeFetchAgain = __notif.options.toWait + this.lastSaved < Date
+	if (this.timeSaved) {
+	    var shouldWeFetchAgain = __notif.options.toWait + this.timeSaved < Date
 		    .now();
 
 	    if (shouldWeFetchAgain)
@@ -350,8 +350,8 @@ __notif.fines = {
     processSaved : function() {
 
 	// Decide whether will we renew the notifications
-	if (this.lastSaved) {
-	    var shouldWeFetchAgain = __notif.options.toWait + this.lastSaved < Date
+	if (this.timeSaved) {
+	    var shouldWeFetchAgain = __notif.options.toWait + this.timeSaved < Date
 		    .now();
 
 	    if (shouldWeFetchAgain)
