@@ -7,29 +7,10 @@ $(function() { // Onload DOM ..
     __notif.global.fetch();
 
     // Now fetch all blocks from institutions user is in
-    // __notif.blocks.fetch();
+    __notif.blocks.fetch();
 
     // Now fetch all transactions from institutions user is in
-    // __notif.transactions.fetch();
-
-    // Dont' be passive unless on Profile page ..
-    var shouldBePassive = document.location.pathname
-	    .match(/^\/[a-zA-Z]+\/Profile$/);
-
-    if (!shouldBePassive)
-
-	// Get the notifies object if any
-	localforage.getItem('notifies', function(err, lastNotifies) {
-	    __notif.printErr(err, lastNotifies);
-
-	    if (!lastNotifies) {
-		__notif.blocks.fetchBlocks();
-	    } else {
-		__notif.blocks.lastSaved = lastNotifies.timeSaved;
-		__notif.blocks.responses = lastNotifies.responses;
-		__notif.blocks.processSavedBlocks();
-	    }
-	});
+    __notif.fines.fetch();
 });
 
 var __notif = {
@@ -39,6 +20,10 @@ var __notif = {
     groupClass : 'identity-notifications',
 
     allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
+
+    options : {
+	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
+    },
 
     addToCounter : function(count) {
 	if (typeof count === 'number' && count !== 0) {
@@ -59,14 +44,15 @@ var __notif = {
 
     // Error printing function
     printErr : function(err, val) {
-	if (this.development && err) {
+	if (this.development && err !== null) {
 	    console.error("notifications.js produced an error: " + err);
-	    if (val) {
+	    if (val !== null) {
 		console.error("value having problem with is '" + val + "'");
 	    }
 	}
 	return false;
     },
+
     getIdentityNotificationsElement : function(source) {
 	if (source === undefined) {
 	    // Set default identity
@@ -93,100 +79,65 @@ var __notif = {
     }
 }
 
-/**
- * Appends a notification message.
- * 
- * Syntax is: __notif.addNotification( message [, msgclass , institution ] )
- * 
- * msgclass can be one of __notif.allowedClasses
- * 
- * institution can be any string defining the source the MultiBackend uses to
- * recognize an institution
- * 
- */
-__notif.addNotification = function(message, msgclass, institution,
-	incrementCounter) {
-    if (message === undefined) {
-	return this.printErr('Please provide message to notify about.');
-    }
-
-    var identityNotificationsElement = this
-	    .getIdentityNotificationsElement(institution);
-
-    if (identityNotificationsElement === false)
-	return false;
-
-    // Create the notification Element
-    var notif = document.createElement('div');
-
-    if (msgclass === undefined || this.allowedClasses.indexOf(msgclass) === -1) {
-	msgclass = 'default';
-    }
-
-    if (incrementCounter === undefined) {
-	incrementCounter = true;
-    }
-
-    var clazz = 'notif-' + msgclass;
-
-    if (!incrementCounter) {
-	clazz += ' counter-ignore';
-    } else {
-	this.addToCounter(1);
-    }
-
-    notif.setAttribute('class', clazz);
-    notif.textContent = message;
-
-    // Append it
-    identityNotificationsElement.append(notif);
-
-    identityNotificationsElement.children('[data-type=loader]').remove();
-
-    return true;
-};
-
 __notif.blocks = {
-    // Time to wait until next refresh of the blocks in milisecs
-    toWait : 60 * 60 * 1000,
-    // We want only to save the fetched items after all institutions are
-    // fetched
-    institutionsToFetch : 0, // it'll get incremented as we'll iterate
     // institutions
     responses : {},
-    lastSaved : 0,
-    // Async notifications loader
-    fetchBlocks : function() {
+    timeSaved : 0,
 
+    fetch : function() {
+	// Dont' be passive unless on Profile page ..
+	var shouldBePassive = document.location.pathname
+		.match(/^\/[a-zA-Z]+\/Profile$/);
+
+	if (!shouldBePassive)
+
+	    // Get the notifies object if any
+	    localforage.getItem('blocks', function(err, blocks) {
+
+		__notif.printErr(err, blocks);
+
+		// localforage returns null if not found
+		if (blocks === null) {
+
+		    __notif.blocks.downloadAll();
+		} else {
+
+		    __notif.blocks.responses = blocks.responses;
+		    __notif.blocks.timeSaved = blocks.timeSaved;
+
+		    __notif.blocks.processSaved();
+		}
+	    });
+    },
+
+    // Async notifications loader
+    downloadAll : function() {
 	Object.keys(__notif.pointers.institutions).forEach(function(source) {
 	    var institution = __notif.pointers.institutions[source];
 
 	    var cat_username = institution.attr('data-id');
-	    __notif.blocks.fetchBlocksForCatUsername(cat_username);
-
+	    __notif.blocks.downloadFor(cat_username);
 	});
     },
+
     // Create a query to fetch notifications about one institution
-    fetchBlocksForCatUsername : function(cat_username) {
+    downloadFor : function(cat_username) {
 
 	if (cat_username === undefined) {
 	    return __notif.printErr('No cat_username provided !');
 	}
 
-	++this.institutionsToFetch;
-
 	$.ajax({
 	    type : 'POST',
-	    url : '/AJAX/JSON?method=fetchBlocks',
+	    url : '/AJAX/JSON?method=getMyBlocks',
 	    dataType : 'json',
 	    async : true,
-	    // json object to sent to the authentication url
 	    data : {
 		cat_username : cat_username
 	    },
 	    success : function(response) {
-		__notif.blocks.updateNotifies(response);
-		__notif.blocks.processNotificationsFetched(response);
+		__notif.blocks.saveResponse(response);
+		__notif.blocks.processResponse(response);
 	    },
 	    error : function(err) {
 		__notif.printErr(err);
@@ -194,44 +145,46 @@ __notif.blocks = {
 	});
     },
     // Recovers saved notifications from the local database
-    processSavedBlocks : function() {
+    processSaved : function() {
 
 	// Decide whether will we renew the notifications
 	if (this.lastSaved) {
-	    var shouldWeFetchAgain = this.toWait + this.lastSaved < Date.now();
+	    var shouldWeFetchAgain = __notif.options.toWait + this.lastSaved < Date
+		    .now();
 
 	    if (shouldWeFetchAgain)
-		return this.fetchBlocks();
+		return this.downloadAll();
 	} else {
-	    return this.fetchBlocks();
+	    return this.downloadAll();
 	}
 
 	// Check for another identities / delete disconnected ones
-	this.syncIdentities();
+	this.syncInstitutions();
 
 	// Print saved values ..
 	$.each(this.responses, function(i, response) {
-	    __notif.blocks.processNotificationsFetched(response);
+	    __notif.blocks.processResponse(response);
 	});
     },
     // Updates saved notifications
-    updateNotifies : function(response) {
+    saveResponse : function(response) {
 
 	var institution = response.data.source;
 
 	this.responses[institution] = response;
 
+	var institutionsCount = Object.keys(__notif.pointers.institutions).length;
 	// have we fetched all the institutions ?
 	// FIXME possible unexpected behavior?
-	if (Object.keys(this.responses).length >= this.institutionsToFetch) {
+	if (Object.keys(this.responses).length >= institutionsCount) {
 
 	    // This one is called only after fresh notifications were
 	    // fetched
-	    this.saveLastNotifies();
+	    this.save();
 	}
     },
     // This function will render the blocks passed to it ...
-    processNotificationsFetched : function(response) {
+    processResponse : function(response) {
 
 	var data = response.data, status = response.status;
 
@@ -263,7 +216,7 @@ __notif.blocks = {
 	}
     },
     // Check for (dis)connected identities
-    syncIdentities : function() {
+    syncInstitutions : function() {
 	// Keys of responses are actually cat_usernames
 	var tmpIdentities = Object.keys(this.responses);
 
@@ -287,7 +240,7 @@ __notif.blocks = {
 		// Fetch notificatios for new cat_username
 		var cat_username = institution.attr('data-id');
 
-		__notif.blocks.fetchBlocksForCatUsername(cat_username);
+		__notif.blocks.downloadFor(cat_username);
 
 	    }
 	});
@@ -295,17 +248,13 @@ __notif.blocks = {
 	if (tmpIdentities.length > 0) {
 	    // Some identities were disconnected
 
-	    // Update the institutionsToFetch int as we may need it on
-	    // an "invoked refresh"
-	    this.institutionsToFetch -= tmpIdentities.length;
-
 	    // Remove those disconnected identites from storage
-	    this.clearIdentities(tmpIdentities);
+	    this.clearInstitutions(tmpIdentities);
 	}
     },
     // Clears provided identity's stored notification
     // Useful e.g. while disconnecting an account ..
-    clearIdentities : function(institutions) {
+    clearInstitutions : function(institutions) {
 	var responsesTmp = {};
 
 	Object.keys(this.responses).forEach(function(key) {
@@ -316,21 +265,205 @@ __notif.blocks = {
 	this.responses = responsesTmp;
 
 	// This one is called only if we have young enough notifications
-	this.saveLastNotifies();
+	this.save();
 
     },
     // Do not call this function twice - as it'd probably result in an error
-    saveLastNotifies : function() {
-	var lastNotifies = {
+    save : function() {
+	var blocks = {
 	    responses : this.responses,
 	    timeSaved : Date.now()
 	};
 
-	localforage.setItem('notifies', lastNotifies, function(err, val) {
+	localforage.setItem('blocks', blocks, function(err, val) {
 	    __notif.printErr(err, val);
 	});
     },
 
+};
+
+__notif.fines = {
+    // institutions
+    responses : {},
+    timeSaved : 0,
+
+    fetch : function() {
+	// Dont' be passive unless on Profile page ..
+	var shouldBePassive = document.location.pathname
+		.match(/^\/[a-zA-Z]+\/Fines$/);
+
+	if (!shouldBePassive)
+
+	    // Get the notifies object if any
+	    localforage.getItem('fines', function(err, fines) {
+		__notif.printErr(err, fines);
+
+		// localforage returns null if not found
+		if (fines === null) {
+
+		    __notif.fines.downloadAll();
+		} else {
+
+		    __notif.fines.responses = fines.responses;
+		    __notif.fines.timeSaved = fines.timeSaved;
+
+		    __notif.fines.processSaved();
+		}
+	    });
+    },
+
+    // Async notifications loader
+    downloadAll : function() {
+	Object.keys(__notif.pointers.institutions).forEach(function(source) {
+	    var institution = __notif.pointers.institutions[source];
+
+	    var cat_username = institution.attr('data-id');
+	    __notif.fines.downloadFor(cat_username);
+	});
+    },
+
+    // Create a query to fetch notifications about one institution
+    downloadFor : function(cat_username) {
+
+	if (cat_username === undefined) {
+	    return __notif.printErr('No cat_username provided !');
+	}
+
+	$.ajax({
+	    type : 'POST',
+	    url : '/AJAX/JSON?method=getMyFines',
+	    dataType : 'json',
+	    async : true,
+	    data : {
+		cat_username : cat_username
+	    },
+	    success : function(response) {
+		__notif.fines.saveResponse(response);
+		__notif.fines.processResponse(response);
+	    },
+	    error : function(err) {
+		__notif.printErr(err);
+	    }
+	});
+    },
+    // Recovers saved notifications from the local database
+    processSaved : function() {
+
+	// Decide whether will we renew the notifications
+	if (this.lastSaved) {
+	    var shouldWeFetchAgain = __notif.options.toWait + this.lastSaved < Date
+		    .now();
+
+	    if (shouldWeFetchAgain)
+		return this.downloadAll();
+	} else {
+	    return this.downloadAll();
+	}
+
+	// Check for another identities / delete disconnected ones
+	this.syncInstitutions();
+
+	// Print saved values ..
+	$.each(this.responses, function(i, response) {
+	    __notif.fines.processResponse(response);
+	});
+    },
+    // Updates saved notifications
+    saveResponse : function(response) {
+
+	var institution = response.data.source;
+
+	this.responses[institution] = response;
+
+	var institutionsCount = Object.keys(__notif.pointers.institutions).length;
+	// have we fetched all the institutions ?
+	// FIXME possible unexpected behavior?
+	if (Object.keys(this.responses).length >= institutionsCount) {
+
+	    // This one is called only after fresh notifications were
+	    // fetched
+	    this.saveLastNotifies();
+	}
+    },
+    // This function will render the fines passed to it ...
+    processResponse : function(response) {
+	// TODO
+	return false;
+    },
+    // Check for (dis)connected identities
+    syncInstitutions : function() {
+	// Keys of responses are actually cat_usernames
+	var tmpIdentities = Object.keys(this.responses);
+
+	// Iterate over all institutions
+	Object.keys(__notif.pointers.institutions).forEach(function(source) {
+
+	    // Get the jQuery pointer to institution div
+	    var institution = __notif.pointers.institutions[source];
+
+	    // Did we have this identity already ?
+	    var i = tmpIdentities.indexOf(source);
+
+	    if (i > -1) {
+		// Yes, this identity we know
+		tmpIdentities.splice(i, 1);
+	    } else {
+
+		// No, we don't know anything about this identity ->
+		// New identity connected
+
+		// Fetch notificatios for new cat_username
+		var cat_username = institution.attr('data-id');
+
+		__notif.fines.downloadFor(cat_username);
+
+	    }
+	});
+
+	if (tmpIdentities.length > 0) {
+	    // Some identities were disconnected
+
+	    // Remove those disconnected identites from storage
+	    this.clearInstitutions(tmpIdentities);
+	}
+    },
+    // Clears provided identity's stored notification
+    // Useful e.g. while disconnecting an account ..
+    clearInstitutions : function(institutions) {
+	var responsesTmp = {};
+
+	Object.keys(this.responses).forEach(function(key) {
+	    if (institutions.indexOf(key) === -1)
+		responsesTmp[key] = __notif.fines.responses[key];
+	});
+
+	this.responses = responsesTmp;
+
+	// This one is called only if we have young enough notifications
+	this.save();
+    },
+    // Do not call this function twice - as it'd probably result in an error
+    save : function() {
+	var fines = {
+	    responses : this.responses,
+	    timeSaved : Date.now()
+	};
+
+	localforage.setItem('fines', fines, function(err, val) {
+	    __notif.printErr(err, val);
+	});
+    },
+
+};
+
+__notif.global = {
+    // TODO: think about global notifications being parsed asynchronously ..
+    fetch : function() {
+	var initialCount = __notif.pointers.global
+		.children('div:not(.counter-ignore)').length;
+
+	__notif.addToCounter(initialCount);
+    }
 };
 
 // Pointers point to various sections after init() is called
@@ -343,14 +476,62 @@ __notif.pointers = {
     institutions : {}
 };
 
-__notif.global = {
-    // TODO: think about global notifications being parsed asynchronously ..
-    fetch : function() {
-	var initialCount = __notif.pointers.global
-		.children('div:not(.counter-ignore)').length;
-
-	__notif.addToCounter(initialCount);
+/**
+ * Appends a notification message.
+ * 
+ * Syntax is: __notif.addNotification( message [, msgclass , institution ] )
+ * 
+ * msgclass can be one of __notif.allowedClasses
+ * 
+ * institution can be any string defining the source the MultiBackend uses to
+ * recognize an institution
+ * 
+ */
+__notif.addNotification = function(message, msgclass, institution,
+	incrementCounter) {
+    if (message === undefined) {
+	return this.printErr('Please provide message to notify about.');
     }
+
+    var identityNotificationsElement = this
+	    .getIdentityNotificationsElement(institution);
+
+    if (identityNotificationsElement === false)
+	return false;
+
+    // Get the loading div if any
+    var loader = identityNotificationsElement.children('[data-type=loader]');
+
+    // Remove it if not already done
+    if (loader.length)
+	loader.remove();
+    
+    // Create the notification Element
+    var notif = document.createElement('div');
+
+    if (msgclass === undefined || this.allowedClasses.indexOf(msgclass) === -1) {
+	msgclass = 'default';
+    }
+
+    if (incrementCounter === undefined) {
+	incrementCounter = true;
+    }
+
+    var clazz = 'notif-' + msgclass;
+
+    if (!incrementCounter) {
+	clazz += ' counter-ignore';
+    } else {
+	this.addToCounter(1);
+    }
+
+    notif.setAttribute('class', clazz);
+    notif.textContent = message;
+
+    // Append the notification
+    identityNotificationsElement.append(notif);
+
+    return true;
 };
 
 __notif.init = function() {
@@ -378,6 +559,9 @@ __notif.init = function() {
 	    var source = section.getAttribute('data-source');
 
 	    __notif.pointers.institutions[source] = $(section);
+	} else {
+	    var msg = 'Unknown data-type encoutered within notifications';
+	    __notif.printErr(msg);
 	}
 
     });
