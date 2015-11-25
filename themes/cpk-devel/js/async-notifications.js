@@ -33,8 +33,16 @@ __notif.blocks = {
     // institutions
     responses : {},
     timeSaved : 0,
+
     ajaxMethod : 'getMyBlocks',
     localforageItemName : 'blocks',
+
+    // Define eventListeners
+    eventListeners : {
+	click : function() {
+	    window.location = '/MyResearch/Profile';
+	},
+    },
 
     fetch : function() {
 	// Dont' be passive unless on Profile page ..
@@ -57,7 +65,7 @@ __notif.blocks = {
 		Object.keys(blocks).forEach(
 			function(key) {
 			    __notif.addNotification(blocks[key], 'warning',
-				    institution);
+				    institution, true, __notif.blocks.on);
 			});
 	    }
 
@@ -79,8 +87,16 @@ __notif.fines = {
     // institutions
     responses : {},
     timeSaved : 0,
+
     ajaxMethod : 'getMyFines',
     localforageItemName : 'fines',
+
+    // Define eventListeners
+    eventListeners : {
+	click : function() {
+	    window.location = '/MyResearch/Fines';
+	},
+    },
 
     fetch : function() {
 	// Dont' be passive unless on Profile page ..
@@ -121,7 +137,7 @@ __notif.global = {
  * 
  */
 __notif.addNotification = function(message, msgclass, institution,
-	showWarningIcon) {
+	showWarningIcon, eventListeners) {
 
     if (message === undefined) {
 	return this.printErr('Please provide message to notify about.');
@@ -162,6 +178,15 @@ __notif.addNotification = function(message, msgclass, institution,
 
     notif.setAttribute('class', clazz);
     notif.textContent = message;
+
+    // Append eventListeners to the notification
+    if (typeof eventListeners === 'object'
+	    && !(eventListeners instanceof Array)) {
+	Object.keys(eventListeners).forEach(function(key) {
+	    if (typeof eventListeners[key] === 'function')
+		notif.addEventListener(key, eventListeners[key]);
+	});
+    }
 
     // Append the notification
     identityNotificationsElement.append(notif);
