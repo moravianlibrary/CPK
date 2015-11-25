@@ -23,7 +23,9 @@ function htmlEncode(value) {
 }
 function extractClassParams(str) {
   str = $(str).attr('class');
-  if (typeof str === "undefined") return [];
+  if (typeof str === "undefined") {
+    return [];
+  }
   var params = {};
   var classes = str.split(/\s+/);
   for(var i = 0; i < classes.length; i++) {
@@ -43,7 +45,7 @@ function deparam(url) {
   var pairs = url.substring(url.indexOf('?') + 1).split('&');
   for (var i = 0; i < pairs.length; i++) {
     var pair = pairs[i].split('=');
-    var name = decodeURIComponent(pair[0]);
+    var name = decodeURIComponent(pair[0].replace(/\+/g, ' '));
     if(name.length == 0) {
       continue;
     }
@@ -52,9 +54,9 @@ function deparam(url) {
       if(!request[name]) {
         request[name] = [];
       }
-      request[name].push(decodeURIComponent(pair[1]));
+      request[name].push(decodeURIComponent(pair[1].replace(/\+/g, ' ')));
     } else {
-      request[name] = decodeURIComponent(pair[1]);
+      request[name] = decodeURIComponent(pair[1].replace(/\+/g, ' '));
     }
   }
   return request;
@@ -263,7 +265,6 @@ function setupOffcanvas() {
 }
 
 function setupBacklinks() {
-
   // Highlight previous links, grey out following
   $('.backlink')
     .mouseover(function() {
@@ -294,7 +295,9 @@ function setupBacklinks() {
         t = t.next();
       } while(t.length > 0);
     });
+}
 
+function setupAutocomplete() {
   // Search autocomplete
   $('.autocomplete').each(function(i, op) {
     $(op).autocomplete({
@@ -390,16 +393,7 @@ $(document).ready(function() {
 
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
-    elm = $(this).closest('form').find('.checkbox-select-item');
-    newVal = $(this).prop('checked');
-    console.log("newVal: " + newVal);
-    $(elm).each(function() {
-      oldVal = $(this).prop('checked');
-      if (newVal != oldVal) {
-        $(this).prop('checked', newVal);
-        $(this).change();
-      }
-    });
+    $(this).closest('form').find('.checkbox-select-item').prop('checked', this.checked);
   });
   
   //disable AJAX on click on cart
@@ -407,9 +401,9 @@ $(document).ready(function() {
       $(window).load(function() {
       	$('#cartItems').off("click");
       });
-      $(this).closest('form').find('.checkbox-select-item').each(function() {
-        this.checked = false;
-      });
+  });
+  $('.checkbox-select-item').change(function() {
+    $(this).closest('form').find('.checkbox-select-all').prop('checked', false);
   });
 
   // handle QR code links
@@ -419,6 +413,7 @@ $(document).ready(function() {
     } else {
       $(this).html(VuFind.translate('qrcode_hide')).addClass("active");
     }
+
     var holder = $(this).next('.qrcode');
     if (holder.find('img').length == 0) {
       // We need to insert the QRCode image
@@ -445,25 +440,16 @@ $(document).ready(function() {
     $(this).closest('.collapse').html('<div class="list-group-item">'+VuFind.translate('loading')+'...</div>');
     window.location.assign($(this).attr('href'));
   });
-});
 
-function updateCart(item) {
-  value = $(item).attr('value');
-  values = value.split('|');
-  source = values[0];
-  id = values[1];
-  if ($(item).prop("checked")) {
-    addItemToCart(id, source);
-  } else {
-    removeItemFromCart(id, source);
-  }
-}
-
-function refreshCartItems() {
-  items = getFullCartItems();
-  $('.checkbox-select-all').closest('form').find('.checkbox-select-item').each(function (index) {
-    if (items.indexOf($(this).attr('value')) >= 0) {
-      $(this).attr('checked', true);
-    }
+  $('[name=bulkActionForm]').submit(function() {
+    return bulkActionSubmit($(this));
   });
-}
+  $('[name=bulkActionForm]').find("[type=submit]").click(function() {
+    // Abort requests triggered by the lightbox
+    $('#modal .fa-spinner').remove();
+    // Remove other clicks
+    $(this).closest('form').find('[type="submit"][clicked=true]').attr('clicked', false);
+    // Add useful information
+    $(this).attr("clicked", "true");
+  });
+});
