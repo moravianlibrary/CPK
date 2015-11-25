@@ -39,13 +39,12 @@
 <? endif; ?>
 
 <div class="row">
-  <div class="<?=$this->layoutClass('mainbody')?>">
+  <div class="col-sm-9">
     <div class="record source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>">
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
       <?=$this->flashmessages()?>
       
-		<div class='col-sm-9'>
 			<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
 			<div class="well">
@@ -80,8 +79,7 @@
             
                 <?=$this->driver->supportsCoinsOpenURL()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenURL()).'"></span>':''?>
             </div>
-            </div>
-
+         
             <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
             <script>
             
@@ -134,11 +132,12 @@
             </script>
 		</div>
     
-    	<div class='col-sm-3'>
-    		<?= $this->render('RecordDriver/SolrDefault/record-sidebar.phtml'); ?>
-        </div> 
+
 
     </div>
-  </div>
+    <div class='col-sm-3'>
+      <?= $this->render('RecordDriver/SolrDefault/record-sidebar.phtml'); ?>
+    </div>
+</div>
 </div>
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET'); ?>
