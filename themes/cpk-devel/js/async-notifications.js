@@ -65,7 +65,7 @@ __notif.blocks = {
 		Object.keys(blocks).forEach(
 			function(key) {
 			    __notif.addNotification(blocks[key], 'warning',
-				    institution, true, __notif.blocks.on);
+				    institution, true, __notif.blocks.eventListeners);
 			});
 	    }
 
