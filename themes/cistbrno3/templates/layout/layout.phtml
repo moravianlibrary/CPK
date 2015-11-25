@@ -25,10 +25,6 @@
     <?=$this->headLink()?>
     <?=$this->headStyle()?>
     <?
-      // Set global path for Javascript code:
-      $this->headScript()->prependScript("path = '" . rtrim($this->url('home'), '/') . "';");
-
-      // Deal with cart stuff:
       if (!isset($this->renderingError)) {
         // Add translation strings
         $this->jsTranslations()->addStrings(
@@ -53,6 +49,7 @@
             "'Phone number too short after IDD'" => 'libphonenumber_tooshortidd'
           )
         );
+        // Deal with cart stuff:
         $cart = $this->cart();
         if ($cart->isActive()) {
           $this->headScript()->appendFile("vendor/cookies.js");
@@ -81,9 +78,9 @@
             )
           );
         }
-        $this->headScript()->appendScript($this->jsTranslations()->getScript());
-            if ($this->recaptcha()->active()) {
-                $this->headScript()->appendFile("recaptcha_ajax.js");
+        $this->headScript()->appendScript(
+          'var userIsLoggedIn = ' . ($this->auth()->isLoggedIn() ? 'true' : 'false') . ';'
+        );
       }
 
       // Session keep-alive
@@ -95,6 +92,12 @@
     }
     ?>
     <?=$this->headScript()?>
+    <script>
+      var VuFind = new VuFindNamespace(
+        '<?=rtrim($this->url('home'), '/') ?>',
+        <?=$this->jsTranslations()->getJSON() ?>
+      );
+    </script>
   </head>
  <body class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?>">
     <div id="header" class="clearfix hidden-print">
