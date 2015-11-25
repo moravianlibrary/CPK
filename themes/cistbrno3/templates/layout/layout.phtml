@@ -81,7 +81,6 @@
         $this->headScript()->appendScript(
           'var userIsLoggedIn = ' . ($this->auth()->isLoggedIn() ? 'true' : 'false') . ';'
         );
-      }
 
       // Session keep-alive
       if ($this->KeepAlive()) {
