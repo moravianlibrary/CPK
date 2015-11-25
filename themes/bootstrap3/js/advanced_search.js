@@ -13,12 +13,12 @@ function addSearch(group, fieldValues)
   $newSearch.attr('id', 'search'+inputID);
   $newSearch.find('input.form-control')
     .attr('id', 'search_lookfor'+inputID)
-    .attr('value', '')
-    .attr('name', 'lookfor'+group+'[]');
+    .attr('name', 'lookfor'+group+'[]')
+    .attr('value', '');
+  $newSearch.find('select.type option:first-child').attr('selected', 1);
   $newSearch.find('select.type')
     .attr('id', 'search_type'+inputID)
     .attr('name', 'type'+group+'[]');
-  $newSearch.find('select.type option:first-child').attr("selected", "selected");
   $newSearch.find('.close a')
     .attr('onClick', 'deleteSearch('+group+','+groupLength[group]+')');
   // Preset Values

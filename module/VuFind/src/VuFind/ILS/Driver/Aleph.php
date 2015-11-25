@@ -688,10 +688,11 @@ class AlephWebServices {
         $url = $this->appendQueryString($url, $params);
         if ($auth) {
             $url = $this->appendQueryString(
-                $url, array(
+                $url,
+                [
                     'user_name' => $this->wwwuser,
                     'user_password' => $this->wwwpasswd
-                )
+                ]
             );
         }
         $result = $this->doHTTPRequest($url);
