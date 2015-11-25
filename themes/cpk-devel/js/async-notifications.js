@@ -217,6 +217,12 @@ __notif.helper = {
 
 	var localforageVersionName = '__notif.version';
 
+	var setCurrVersion = function() {
+	    // Set the version to the current version
+	    localforage
+		    .setItem(localforageVersionName, __notif.options.version);
+	}
+
 	var getVersionCallback = function(err, val) {
 	    __notif.helper.printErr(err, val);
 
@@ -228,12 +234,14 @@ __notif.helper = {
 		// recognize the notifications' object within storage
 		localforage.clear();
 
+		// Set the version to the current version
+		setCurrVersion();
+
 	    } else if (val !== __notif.options.version) {
 		__notif.helper.clearTheCrumbs();
 
 		// Set the version to the current version
-		localforage.setItem(localforageVersionName,
-			__notif.options.version);
+		setCurrVersion();
 	    }
 
 	};
