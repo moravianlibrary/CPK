@@ -1,10 +1,10 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="notif_icon">
     <i style="font-size: 20px; color: #fff;" class="fa fa-fw fa-bell"></i>
-    <span id="notif-counter" class="label label-danger overIcon">0</span>
+    <i class="fa fa-warning notificationWarning" id="notif-warning"></i>
   </a>
   <ul id='notificationsList' class="dropdown-menu">
-  	<li>
+  	<li <?=$this->globalNotifications()->isEnabled() ? '' : 'hidden="hidden"' ?>>
   	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
   	    <img height="20" class="pull-right" alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>"/>
   	  </div>

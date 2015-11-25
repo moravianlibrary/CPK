@@ -127,6 +127,10 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
             $this->messagesVariableName = false;
         }
     }
+    
+    public function isEnabled() {
+        return $this->enabled;
+    }
 
     /**
      * Returns URL of the institution's logo specified by the source.

@@ -27,23 +27,6 @@ var __notif = {
 
 	allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
     },
-
-    addToCounter : function(count) {
-	if (typeof count === 'number' && count !== 0) {
-
-	    var currentCount = parseInt(__notif.helper.pointers.counter.text());
-
-	    currentCount += count;
-	    __notif.helper.pointers.counter.text(currentCount);
-
-	    if (currentCount !== 0) {
-		__notif.helper.pointers.counter.show();
-	    } else {
-		__notif.helper.pointers.counter.hide();
-	    }
-
-	}
-    },
 }
 
 __notif.blocks = {
@@ -122,7 +105,8 @@ __notif.global = {
 	var initialCount = __notif.helper.pointers.global
 		.children('div:not(.counter-ignore)').length;
 
-	__notif.addToCounter(initialCount);
+	if (initialCount > 0)
+	    __notif.helper.warning.show();
     }
 };
 
@@ -138,7 +122,7 @@ __notif.global = {
  * 
  */
 __notif.addNotification = function(message, msgclass, institution,
-	incrementCounter) {
+	showWarningIcon) {
 
     if (message === undefined) {
 	return this.printErr('Please provide message to notify about.');
@@ -165,16 +149,16 @@ __notif.addNotification = function(message, msgclass, institution,
 	msgclass = 'default';
     }
 
-    if (incrementCounter === undefined) {
-	incrementCounter = true;
+    if (showWarningIcon === undefined) {
+	showWarningIcon = true;
     }
 
     var clazz = 'notif-' + msgclass;
 
-    if (!incrementCounter) {
+    if (!showWarningIcon) {
 	clazz += ' counter-ignore';
     } else {
-	this.addToCounter(1);
+	__notif.helper.warning.show();
     }
 
     notif.setAttribute('class', clazz);
@@ -196,16 +180,38 @@ __notif.helper = {
     pointers : {
 	parent : undefined,
 	global : undefined, // Global notifications usually loaded synchronously
-	counter : undefined, // Span holding the count of notifications
+	warningIcon : undefined, // Warning icon user should pay attention to
 
 	institutions : {}
     },
 
     /**
      * Variable determining whether is syncing the institutions in process
-     * alredy FIXME rework syncing so it synchronizes all handlers at once
+     * alredy
+     * 
+     * FIXME rework syncing so it synchronizes all handlers at once
      */
     syncingInstitutionsAlready : false,
+
+    /**
+     * Decide based on number of notifications fetched, whether to show
+     * translated message 'without_notifications' or show nothing at all in
+     * global notifications section.
+     * 
+     * There can be shown three states:
+     * 
+     * 1) We are loading newest notifications right now, please wait
+     * 
+     * 2) Custom global messages defined in notifications.ini when the're
+     * enabled
+     * 
+     * 3) Showing translated 'without_notifications' as told if there is nothing
+     * to notify about
+     */
+    allNotificationsFetched : function() {
+	// TODO call this function after are fetched all possible notifications
+	// from all the institutions user has valid account in
+    },
 
     /**
      * Check User's last version of this app used in order to delete
@@ -431,19 +437,20 @@ __notif.helper = {
 	}
 
 	// Resolve the counter span
-	var counterSpan = notifList.siblings('a#notif_icon').children(
-		'span#notif-counter');
+	var warningIcon = notifList.siblings('a#notif_icon').children(
+		'i#notif-warning');
 
-	if (counterSpan.length) {
-	    __notif.helper.pointers.counter = counterSpan;
+	if (warningIcon.length) {
+	    __notif.helper.pointers.warningIcon = warningIcon;
 	} else {
-	    var message = 'Could not resolve counter span pointer !\n'
-		    + "User won't see any number showed up when "
+	    var message = 'Could not resolve warning icon pointer !\n'
+		    + "User won't see any warning showed up when "
 		    + 'notifications are added until fixed';
 
 	    __notif.helper.printErr(message);
 	}
 
+	// Now check user already updated his storage data
 	__notif.helper.checkVersion();
     },
 
@@ -614,6 +621,28 @@ __notif.helper = {
 
 	    // Remove those disconnected identites from storage
 	    __notif.helper.clearInstitutions(currIdentities);
+	}
+    },
+
+    /**
+     * Object holding two methods show() & hide() to show or hide notifications'
+     * warning easily
+     */
+    warning : {
+	showedAlready : false,
+
+	show : function() {
+	    if (!this.showedAlready) {
+		this.showedAlready = true;
+		__notif.helper.pointers.warningIcon.show();
+	    }
+	},
+
+	hide : function() {
+	    if (this.showedAlready) {
+		this.showedAlready = false;
+		__notif.helper.pointers.warningIcon.hide();
+	    }
 	}
     },
 };
