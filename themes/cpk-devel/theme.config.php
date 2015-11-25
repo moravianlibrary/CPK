@@ -15,7 +15,6 @@ return array(
         'vendor/jquery.min.js',
         'vendor/bootstrap.min.js',
         'vendor/bootstrap-accessibility.min.js',
-        'vendor/typeahead.js',
         'vendor/rc4.js',
         'vendor/localforage.min.js',
         'common.js',
