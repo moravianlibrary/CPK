@@ -4,13 +4,17 @@
     <i class="fa fa-warning notificationWarning" id="notif-warning" style="display: none"></i>
   </a>
   <ul id='notificationsList' class="dropdown-menu">
-  	<li <?=$this->globalNotifications()->isEnabled() ? '' : 'hidden="hidden"' ?>>
+  	<li>
   	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
   	    <img height="20" class="pull-right" alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>"/>
   	  </div>
-	  <div data-type="global" class="identity-notifications">
-	       <?=$this->globalNotifications()->renderAll() ?>
+	  <div data-type="global" class="identity-notifications" <?=$this->globalNotifications()->isEnabled() ? '' : 'hidden="hidden"' ?>>
+	    <?=$this->globalNotifications()->renderAll() ?>
 	  </div>
+      <div class="notif-default" data-type="loader">
+	    <i class="fa fa-spinner fa-spin"></i>
+	    <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+      </div>
 	</li>
   <? if ($user): foreach ($libraryCards as $libraryCard):
 	   $source = explode('.', $libraryCard['cat_username'])[0];
@@ -19,12 +23,7 @@
 	   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
 	   </div>
-	   <div data-type="institution" data-source="<?=$source?>" data-id="<?=$libraryCard['cat_username'] ?>" class="identity-notifications">
-	     <div class="notif-default" data-type="loader">
-	       <i class="fa fa-spinner fa-spin"></i>
-	       <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
-	     </div>
-	   </div>
+	   <div data-type="institution" data-source="<?=$source?>" data-id="<?=$libraryCard['cat_username'] ?>" class="identity-notifications"></div>
 	</li>
      <? endforeach; endif;?>
   </ul>

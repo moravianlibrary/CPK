@@ -211,6 +211,44 @@ __notif.helper = {
     allNotificationsFetched : function() {
 	// TODO call this function after are fetched all possible notifications
 	// from all the institutions user has valid account in
+
+	// Remove the loader
+	__notif.helper.pointers.global.siblings('[data-type=loader]').remove();
+
+	// Detect we have recieved any showable notifications
+	var haveAnythingToShow = false;
+
+	var institutionsKeys = Object
+		.keys(__notif.helper.pointers.institutions);
+
+	var institutionsKeysLength = institutionsKeys.length;
+
+	for (var i = 0; i < institutionsKeysLength; ++i) {
+	    var institution = __notif.helper.pointers.institutions[institutionsKeys[i]];
+
+	    var notificationsCount = institution
+		    .children('div:not(.counter-ignore)').length;
+
+	    if (notificationsCount !== 0) {
+		haveAnythingToShow = true;
+		break;
+	    }
+	}
+
+	// Show the translated message 'without_notifications' if we have no
+	// notifications to show
+	if (!haveAnythingToShow) {
+	    __notif.helper.pointers.global.show();
+	} else {
+	    // Now hide the global notifications as we have nothing to show
+	    // there .. (unless there are notifyable global notifications)
+
+	    var globalNotificationsCount = __notif.helper.pointers.global
+		    .children('div:not(.counter-ignore)').length;
+
+	    if (globalNotificationsCount === 0)
+		__notif.helper.pointers.global.parent().hide();
+	}
     },
 
     /**
@@ -420,7 +458,7 @@ __notif.helper = {
 		var source = section.getAttribute('data-source');
 
 		__notif.helper.pointers.institutions[source] = $(section);
-	    } else {
+	    } else if (type !== 'loader') {
 		var msg = 'Unknown data-type encoutered within notifications';
 		__notif.helper.printErr(msg);
 	    }
