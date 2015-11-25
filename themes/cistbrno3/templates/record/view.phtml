@@ -76,10 +76,8 @@
   </div>
 
     <?=$this->driver->supportsCoinsOpenURL()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenURL()).'"></span>':''?>
-  </div>
 
-  <?=$this->driver->supportsCoinsOpenURL()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenURL()).'"></span>':''?>
-  
+
 </div>
 <div class="<?=$this->layoutClass('sidebar')?> pull-right">
   <?=$this->record($this->driver)->getToolbar()?>
