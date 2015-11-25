@@ -21,7 +21,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.0.0',
+	version : '1.0.1',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -71,10 +71,7 @@ __notif.blocks = {
 
 	if (status === 'OK') {
 
-	    if (count === 0) {
-		// Don't increment the counter as there is no block returned
-		__notif.addNotification(message, 'info', institution, false);
-	    } else {
+	    if (count !== 0) {
 		Object.keys(blocks).forEach(
 			function(key) {
 			    __notif.addNotification(blocks[key], 'warning',
@@ -142,6 +139,7 @@ __notif.global = {
  */
 __notif.addNotification = function(message, msgclass, institution,
 	incrementCounter) {
+
     if (message === undefined) {
 	return this.printErr('Please provide message to notify about.');
     }
@@ -184,6 +182,7 @@ __notif.addNotification = function(message, msgclass, institution,
 
     // Append the notification
     identityNotificationsElement.append(notif);
+    identityNotificationsElement.parent('li').show();
 
     return true;
 };
