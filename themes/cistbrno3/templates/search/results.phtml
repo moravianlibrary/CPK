@@ -116,41 +116,10 @@
           <i class="fa fa-plus-circle"></i> <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search')?></a>
         <? endif; ?>
       <? endif; ?>
-      <? foreach (($top = $this->results->getRecommendations('top')) as $current): ?>
-        <?=$this->recommend($current)?>
-      <? endforeach; ?>
-      <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
-        <? if (!in_array($current, $top)): ?>
-          <?=$this->recommend($current)?>
-        <? endif; ?>
-      <? endforeach; ?>
-    <? else: ?>
-      <form class="form-inline" method="post" name="bulkActionForm" action="<?=$this->url('cart-home')?>">
-        <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
-        <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
-        <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => 'bottom_'))?>
-        <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results, 'options' => isset($this->paginationOptions) ? $this->paginationOptions : []))?>
-      </form>
-
-      <div class="searchtools hidden-print">
-        <strong><?=$this->transEsc('Search Tools')?>:</strong>
-        <a href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>"><i class="fa fa-bell"></i> <?=$this->transEsc('Get RSS Feed')?></a>
-        &mdash;
-        <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><i class="fa fa-envelope"></i> <?=$this->transEsc('Email this Search')?></a>
-        <? if ($this->accountCapabilities()->getSavedSearchSetting() === 'enabled'): ?>
-          &mdash;
-          <? if (is_numeric($this->results->getSearchId())): ?>
-            <? if ($this->results->isSavedSearch()): ?>
-              <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><i class="fa fa-remove"></i> <?=$this->transEsc('save_search_remove')?></a>
-            <? else: ?>
-              <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><i class="fa fa-save"></i> <?=$this->transEsc('save_search')?></a>
-            <? endif; ?>
-          <? endif; ?>
-        <? endif; ?>
-      </div>
-    <? endif; ?>
-  </div>
-  <? /* End Main Listing */ ?>
+    </div>
+  <? endif; ?>
+</div>
+<? /* End Main Listing */ ?>
 
 <? /* Narrow Search Options */ ?>
 <div class="<?=$this->layoutClass('sidebar')?>">
