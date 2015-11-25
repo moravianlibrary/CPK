@@ -182,8 +182,17 @@ __notif.helper = {
 	global : undefined, // Global notifications usually loaded synchronously
 	warningIcon : undefined, // Warning icon user should pay attention to
 
-	institutions : {}
+	institutions : {},
     },
+
+    institutionsCount : 0,
+
+    /**
+     * This one holds the handlers which are now in state of fetching the data
+     * from the institutions in order to be able of calling
+     * allNotificationsFetched() after all of them are done.
+     */
+    handlersFetching : {},
 
     /**
      * Variable determining whether is syncing the institutions in process
@@ -371,7 +380,7 @@ __notif.helper = {
 
 		__notif.helper.saveResponse(handler, response);
 
-		handler.processResponse(response);
+		__notif.helper.processResponse(handler, response);
 	    },
 	    error : function(err) {
 		__notif.helper.printErr(err);
@@ -385,6 +394,10 @@ __notif.helper = {
      * @param handler
      */
     fetch : function(handler) {
+
+	// Set the fetching count to determine when we are done
+	__notif.helper.handlersFetching[handler.localforageItemName] = __notif.helper.institutionsCount;
+
 	// Get the notifies object from storage
 	localforage.getItem('__notif.' + handler.localforageItemName, function(
 		err, savedResponses) {
@@ -428,6 +441,26 @@ __notif.helper = {
     },
 
     /**
+     * This method is called after a handler finishes fetching of all the
+     * institutions needed.
+     * 
+     * It serves to call the allNotificationsFetched() method after all handlers
+     * are done.
+     * 
+     * @param handler
+     */
+    handlerDoneFetching : function(handler) {
+	
+	delete __notif.helper.handlersFetching[handler.localforageItemName];
+	
+	var handlersFetchingCount = Object.keys(__notif.helper.handlersFetching).length;
+	
+	if (handlersFetchingCount === 0)
+	    __notif.helper.allNotificationsFetched();
+	
+    },
+
+    /**
      * This function essentially stores all the pointers needed to prevent doing
      * multiple selects while they're slow.
      * 
@@ -454,6 +487,8 @@ __notif.helper = {
 
 		__notif.helper.pointers.global = $(section);
 	    } else if (type === 'institution') {
+
+		++__notif.helper.institutionsCount;
 
 		var source = section.getAttribute('data-source');
 
@@ -510,6 +545,26 @@ __notif.helper = {
     },
 
     /**
+     * Serves to send the response to handler's own processResponse() method &
+     * to determine, if the handler is done fetching all the notifications from
+     * all the institutions in order to trigget
+     * __notif.helper.handlerDoneFetching() method
+     * 
+     * @param handler
+     * @param response
+     */
+    processResponse : function(handler, response) {
+
+	// Decide if the handler is done fetching
+	if (--__notif.helper.handlersFetching[handler.localforageItemName] === 0) {
+	    __notif.helper.handlerDoneFetching(handler);
+	}
+
+	// Let the handler handle the response itself
+	handler.processResponse(response);
+    },
+
+    /**
      * Manages saving the responses used with provided handler & calls the
      * handler.processResponse() method in order to have customizable behavior
      * for each handler
@@ -548,7 +603,7 @@ __notif.helper = {
 
 	    // Print saved values ..
 	    $.each(savedResponses.responses, function(i, response) {
-		handler.processResponse(response);
+		__notif.helper.processResponse(handler, response);
 	    });
 	}
     },
