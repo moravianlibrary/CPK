@@ -21,6 +21,8 @@ var __notif = {
 
 	development : true,
 
+	version : '1.0.0',
+
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
 	allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
@@ -188,8 +190,10 @@ __notif.addNotification = function(message, msgclass, institution,
 
 __notif.helper = {
 
-    // Pointers point to various sections after init() is called
-    // Only parent pointer resolves whole notifications section
+    /**
+     * Pointers point to various sections after init() is called Only parent
+     * pointer resolves whole notifications section
+     */
     pointers : {
 	parent : undefined,
 	global : undefined, // Global notifications usually loaded synchronously
@@ -198,10 +202,52 @@ __notif.helper = {
 	institutions : {}
     },
 
+    /**
+     * Variable determining whether is syncing the institutions in process
+     * alredy FIXME rework syncing so it synchronizes all handlers at once
+     */
     syncingInstitutionsAlready : false,
 
-    // Clears provided identity's stored notification
-    // Useful e.g. while disconnecting an account ..
+    /**
+     * Check User's last version of this app used in order to delete
+     * incompatible variables stored in localforage
+     * 
+     */
+    checkVersion : function() {
+
+	var localforageVersionName = '__notif.version';
+
+	var getVersionCallback = function(err, val) {
+	    __notif.helper.printErr(err, val);
+
+	    if (val === null) {
+		// FIXME remove this global localforage removal as it would wipe
+		// out other saved object not desired to be wiped out later
+
+		// it is here mainly because in the earliest version we cannot
+		// recognize the notifications' object within storage
+		localforage.clear();
+
+	    } else if (val !== __notif.options.version) {
+		__notif.helper.clearTheCrumbs();
+
+		// Set the version to the current version
+		localforage.setItem(localforageVersionName,
+			__notif.options.version);
+	    }
+
+	};
+
+	localforage.getItem(localforageVersionName, getVersionCallback);
+    },
+
+    /**
+     * Clears provided identity's stored notification Useful e.g. while
+     * disconnecting an account ..
+     * 
+     * @param handler
+     * @param institutions
+     */
     clearInstitutions : function(handler, institutions) {
 	var responsesTmp = {};
 
@@ -217,7 +263,25 @@ __notif.helper = {
 
     },
 
-    // Downloads all possible notifications within a handler
+    /**
+     * Clears all the notifications' object from the localforage storage :)
+     */
+    clearTheCrumbs : function() {
+
+	localforage.iterate(function(value, key, iterationNumber) {
+
+	    if (key.match(/^notif\./) !== null)
+		localforage.removeItem(key);
+
+	});
+
+    },
+
+    /**
+     * Downloads all possible notifications within a handler
+     * 
+     * @param handler
+     */
     downloadAll : function(handler) {
 
 	var downloadCallback = function(source) {
@@ -231,7 +295,13 @@ __notif.helper = {
 		downloadCallback);
     },
 
-    // Create a query to fetch notifications about one institution
+    /**
+     * Create a query to fetch notifications about one institution
+     * 
+     * @param handler
+     * @param cat_username
+     * @returns
+     */
     downloadFor : function(handler, cat_username) {
 
 	if (cat_username === undefined) {
@@ -258,10 +328,15 @@ __notif.helper = {
 	});
     },
 
+    /**
+     * Perform the fetching for all identites using provided handler
+     * 
+     * @param handler
+     */
     fetch : function(handler) {
 	// Get the notifies object from storage
-	localforage.getItem(handler.localforageItemName, function(err,
-		savedResponses) {
+	localforage.getItem('__notif.' + handler.localforageItemName, function(
+		err, savedResponses) {
 
 	    __notif.helper.printErr(err, savedResponses);
 
@@ -269,6 +344,13 @@ __notif.helper = {
 	});
     },
 
+    /**
+     * Retrieves pointer to an element holding all the notifications used within
+     * that institution.
+     * 
+     * @param source
+     * @returns
+     */
     getIdentityNotificationsElement : function(source) {
 	if (source === undefined) {
 	    // Set default identity
@@ -294,9 +376,15 @@ __notif.helper = {
 	return identityNotificationsElement;
     },
 
+    /**
+     * This function essentially stores all the pointers needed to prevent doing
+     * multiple selects while they're slow.
+     * 
+     * It also checks for last version of notifications implementations in order
+     * to clear the localforage to prevent bugs caused by version
+     * incompatibility.
+     */
     init : function() {
-	// This function essentially stores all the pointers needed
-	// to prevent doing multiple selects while they're slow
 
 	var notifList = $('div#header-collapse nav ul li ul#notificationsList');
 
@@ -348,9 +436,17 @@ __notif.helper = {
 
 	    __notif.helper.printErr(message);
 	}
+
+	__notif.helper.checkVersion();
     },
 
-    // Error printing function
+    /**
+     * Error printing function
+     * 
+     * @param err
+     * @param val
+     * @returns {Boolean}
+     */
     printErr : function(err, val) {
 	if (__notif.options.development && err !== null) {
 	    console.error("notifications.js produced an error: " + err);
@@ -361,6 +457,15 @@ __notif.helper = {
 	return false;
     },
 
+    /**
+     * Manages saving the responses used with provided handler & calls the
+     * handler.processResponse() method in order to have customizable behavior
+     * for each handler
+     * 
+     * @param handler
+     * @param savedResponses
+     * @returns
+     */
     processSavedResponses : function(handler, savedResponses) {
 
 	// localforage returns null if not found
@@ -396,7 +501,13 @@ __notif.helper = {
 	}
     },
 
-    // Do not call this function twice - as it'd probably result in an error
+    /**
+     * Do not call this function twice - as it'd probably result in an error.
+     * 
+     * It handles saving handler's state using localforage library.
+     * 
+     * @param handler
+     */
     save : function(handler) {
 
 	var localforageItem = {
@@ -404,13 +515,18 @@ __notif.helper = {
 	    timeSaved : Date.now()
 	};
 
-	localforage.setItem(handler.localforageItemName, localforageItem,
-		function(err, val) {
+	localforage.setItem('__notif.' + handler.localforageItemName,
+		localforageItem, function(err, val) {
 		    __notif.helper.printErr(err, val);
 		});
     },
 
-    // Updates saved notifications
+    /**
+     * Updates saved notifications used by provided handler
+     * 
+     * @param handler
+     * @param response
+     */
     saveResponse : function(handler, response) {
 
 	var institution = response.data.source;
@@ -429,6 +545,13 @@ __notif.helper = {
 	}
     },
 
+    /**
+     * Decies if it is the time now to fetch notifications again using provided
+     * handler.
+     * 
+     * @param handler
+     * @returns {Boolean}
+     */
     shouldWeFetchAgain : function(handler) {
 	if (handler.timeSaved === undefined
 		|| typeof handler.timeSaved !== 'number'
@@ -443,7 +566,14 @@ __notif.helper = {
 	}
     },
 
-    // Check for (dis)connected identities
+    /**
+     * Checks for (dis)connected identities
+     * 
+     * TODO: Make the sync process handler-independent.
+     * 
+     * @param handler
+     * @param currIdentities
+     */
     syncInstitutions : function(handler, currIdentities) {
 
 	var filterCallback = function(source) {
