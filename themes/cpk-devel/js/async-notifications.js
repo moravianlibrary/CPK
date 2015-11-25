@@ -21,7 +21,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.0.1',
+	version : '1.0.2',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -38,8 +38,7 @@ __notif.blocks = {
 
     fetch : function() {
 	// Dont' be passive unless on Profile page ..
-	var shouldBePassive = document.location.pathname
-		.match(/^\/[a-zA-Z]+\/Profile/);
+	var shouldBePassive = $('body').children('div.template-name-profile').length !== 0;
 
 	if (!shouldBePassive)
 	    __notif.helper.fetch(this);
@@ -450,14 +449,15 @@ __notif.helper = {
      * @param handler
      */
     handlerDoneFetching : function(handler) {
-	
+
 	delete __notif.helper.handlersFetching[handler.localforageItemName];
-	
-	var handlersFetchingCount = Object.keys(__notif.helper.handlersFetching).length;
-	
+
+	var handlersFetchingCount = Object
+		.keys(__notif.helper.handlersFetching).length;
+
 	if (handlersFetchingCount === 0)
 	    __notif.helper.allNotificationsFetched();
-	
+
     },
 
     /**
@@ -555,13 +555,17 @@ __notif.helper = {
      */
     processResponse : function(handler, response) {
 
-	// Decide if the handler is done fetching
-	if (--__notif.helper.handlersFetching[handler.localforageItemName] === 0) {
-	    __notif.helper.handlerDoneFetching(handler);
-	}
-
 	// Let the handler handle the response itself
 	handler.processResponse(response);
+
+	// Decide if the handler is done fetching
+	if (--__notif.helper.handlersFetching[handler.localforageItemName] < 1) {
+	    // Wait 500 ms until all the other handlers actualize the
+	    // __notif.helper.handlersFetching
+	    setTimeout(function() {
+		__notif.helper.handlerDoneFetching(handler);
+	    }, 500);
+	}
     },
 
     /**
