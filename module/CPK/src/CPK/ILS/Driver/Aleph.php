@@ -159,16 +159,23 @@ class Aleph extends AlephBase
 
         if (isset($profile['blocks']))
             foreach ($profile['blocks'] as $block) {
-                if (isset($this->availabilitySource))
+                if (isset($this->availabilitySource)) {
                     $translatedBlock = $this->translator->getTranslator()->translate(
-                        $this->availabilitySource . " " . "Block" . " " .
-                             (string) $block);
-                else
+                        $this->availabilitySource . " " . "Block" . " " . (string) $block);
+
+                    /* Skip blocks which are not translated. */
+                    if ($translatedBlock === $this->availabilitySource . " " . "Block" . " " .
+                        (string) $block) continue;
+                }
+                else {
                     $translatedBlock = $this->translator->getTranslator()->translate(
                         "Block " . (string) $block);
+                    if ($translatedBlock === "Block " . (string) $block) continue;
+                }
 
                 if (! empty($this->logo)) {
-                    $blocks[$this->logo] = $translatedBlock;
+                    if (! empty($blocks[$this->logo])) $blocks[$this->logo] .= ", " . $translatedBlock;
+                    else $blocks[$this->logo] = $translatedBlock;
                 } else
                     $blocks[] = $translatedBlock;
             }
