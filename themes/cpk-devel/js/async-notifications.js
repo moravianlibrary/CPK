@@ -1,5 +1,7 @@
 // TODO: Set "you have no blocks in this institution" if on page Profile or Fines & there are no blocks or fines fetched at all
-// TODO: Also update async-profile.js
+// TODO: Also update async-profile.js - line 69
+// TODO: Process the fines
+
 $(function() { // Onload DOM ..
 
     var handlers = [ __notif.global, __notif.blocks, __notif.fines ];
@@ -14,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.0.2',
+	version : '1.0.3',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -251,15 +253,14 @@ __notif.helper = {
     /**
      * Variable determining whether is syncing the institutions in process
      * alredy
-     * 
-     * FIXME rework syncing so it synchronizes all handlers at once
      */
     syncingInstitutionsAlready : false,
 
     // Defining functions/methods here
 
     /**
-     * Appends notification to an institution section & adds to it eventListeners defined within a handler
+     * Appends notification to an institution section & adds to it
+     * eventListeners defined within a handler
      */
     appendNotification : function(notificationElement, institution, handler) {
 
@@ -336,22 +337,27 @@ __notif.helper = {
      * Clears provided identity's stored notification Useful e.g. while
      * disconnecting an account ..
      * 
-     * @param handler
      * @param institutions
      */
-    clearInstitutions : function(handler, institutions) {
-	var responsesTmp = {};
+    clearInstitutions : function(institutions) {
 
-	Object.keys(handler.responses).forEach(function(key) {
-	    if (institutions.indexOf(key) === -1)
-		responsesTmp[key] = handler.responses[key];
-	});
+	for (var i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
 
-	handler.responses = responsesTmp;
+	    var responsesTmp = {};
+	    var handler = __notif.helper.initializedHandlers[i];
 
-	// This one is called only if we have young enough notifications
-	__notif.helper.save(handler);
+	    Object.keys(handler.responses).forEach(function(key) {
 
+		if (institutions.indexOf(key) === -1)
+		    responsesTmp[key] = handler.responses[key];
+
+	    });
+
+	    handler.responses = responsesTmp;
+
+	    // This one is called only if we have young enough notifications
+	    __notif.helper.save(handler);
+	}
     },
 
     /**
@@ -378,7 +384,7 @@ __notif.helper = {
 	    var institution = __notif.helper.pointers.institutions[source];
 
 	    var cat_username = institution.attr('data-id');
-	    __notif.helper.downloadFor(handler, cat_username);
+	    __notif.helper.download(handler, cat_username);
 	};
 
 	Object.keys(__notif.helper.pointers.institutions).forEach(
@@ -391,8 +397,8 @@ __notif.helper = {
      * It basically calls __notif.helper.download(handler) for each one.
      */
     downloadForAllHandlers : function() {
-	for (var i = 0; i < _notif.helper.initializedHandlersLength; ++i) {
-	    var handler = _notif.helper.initializedHandlers[i];
+	for (var i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
+	    var handler = __notif.helper.initializedHandlers[i];
 
 	    __notif.helper.download(handler);
 	}
@@ -405,7 +411,7 @@ __notif.helper = {
      * @param cat_username
      * @returns
      */
-    downloadFor : function(handler, cat_username) {
+    download : function(handler, cat_username) {
 
 	if (cat_username === undefined) {
 	    return __notif.helper.printErr('No cat_username provided !');
@@ -491,7 +497,8 @@ __notif.helper = {
 	if (__notif.options.development && err !== null) {
 	    console.error("notifications.js produced an error: " + err);
 	    if (val !== null) {
-		console.error("value having problem with is '" + val + "'");
+		console.error("value having problem with is '" + val.toSource()
+			+ "'");
 	    }
 	}
 	return false;
@@ -621,9 +628,6 @@ __notif.helper = {
     /**
      * Checks for (dis)connected identities
      * 
-     * TODO: Make the sync process handler-independent.
-     * 
-     * @param handler
      * @param currIdentities
      */
     syncInstitutions : function(currIdentities) {
@@ -673,86 +677,86 @@ __notif.helper = {
  */
 __notif.helper.init = function(handlers) {
 
-	var notifList = $('div#header-collapse nav ul li ul#notificationsList');
+    var notifList = $('div#header-collapse nav ul li ul#notificationsList');
 
-	__notif.helper.pointers.parent = notifList;
+    __notif.helper.pointers.parent = notifList;
 
-	// Get all divs with any data-type
-	var sections = notifList.children('li').children('div[data-type]');
+    // Get all divs with any data-type
+    var sections = notifList.children('li').children('div[data-type]');
 
-	// Iterate over these & decide which one is global & which is an
-	// institution div
-	sections.each(function(i, section) {
+    // Iterate over these & decide which one is global & which is an
+    // institution div
+    sections.each(function(i, section) {
 
-	    var type = section.getAttribute('data-type');
+	var type = section.getAttribute('data-type');
 
-	    if (type === 'global') {
+	if (type === 'global') {
 
-		__notif.helper.pointers.global = $(section);
-	    } else if (type === 'institution') {
+	    __notif.helper.pointers.global = $(section);
+	} else if (type === 'institution') {
 
-		++__notif.helper.institutionsCount;
+	    ++__notif.helper.institutionsCount;
 
-		var source = section.getAttribute('data-source');
+	    var source = section.getAttribute('data-source');
 
-		__notif.helper.pointers.institutions[source] = $(section);
-	    } else if (type !== 'loader') {
-		var msg = 'Unknown data-type encountered within notifications';
-		__notif.helper.printErr(msg);
-	    }
-
-	});
-
-	if (__notif.helper.pointers.global === undefined
-		|| !__notif.helper.pointers.global.length) {
-	    var message = 'Could not resolve notifications global pointer !\n'
-		    + 'Please consider adding div[data-type=global] inside any <li>'
-		    + "__notif.addNotification() won't work correctly until fixed";
-
-	    __notif.helper.printErr(message);
+	    __notif.helper.pointers.institutions[source] = $(section);
+	} else if (type !== 'loader') {
+	    var msg = 'Unknown data-type encountered within notifications';
+	    __notif.helper.printErr(msg);
 	}
 
-	// Resolve the warning icon
-	var warningIcon = notifList.siblings('a#notif_icon').children(
-		'i#notif-warning');
+    });
 
-	if (warningIcon.length) {
-	    __notif.helper.pointers.warningIcon = warningIcon;
-	} else {
-	    var message = 'Could not resolve warning icon pointer !\n'
-		    + "User won't see any warning showed up when "
-		    + 'notifications are added until fixed';
+    if (__notif.helper.pointers.global === undefined
+	    || !__notif.helper.pointers.global.length) {
+	var message = 'Could not resolve notifications global pointer !\n'
+		+ 'Please consider adding div[data-type=global] inside any <li>'
+		+ "__notif.addNotification() won't work correctly until fixed";
 
-	    __notif.helper.printErr(message);
+	__notif.helper.printErr(message);
+    }
+
+    // Resolve the warning icon
+    var warningIcon = notifList.siblings('a#notif_icon').children(
+	    'i#notif-warning');
+
+    if (warningIcon.length) {
+	__notif.helper.pointers.warningIcon = warningIcon;
+    } else {
+	var message = 'Could not resolve warning icon pointer !\n'
+		+ "User won't see any warning showed up when "
+		+ 'notifications are added until fixed';
+
+	__notif.helper.printErr(message);
+    }
+
+    // Now check user already updated his storage data
+    __notif.helper.checkVersion();
+
+    if (typeof handlers === 'object' && handlers instanceof Array) {
+	// Prepare for effective array iteration over handlers
+	__notif.helper.initializedHandlersLength = handlers.length;
+	var i = 0;
+
+	// Initialize all the handlers into the
+	// __notif.helper.initializedHandlers to be capaable of effective
+	// identities synchronization
+	for (; i < __notif.helper.initializedHandlersLength; ++i) {
+	    var handler = handlers[i];
+
+	    if (handler.isIdentityInclusive)
+		__notif.helper.initializedHandlers.push(handler);
 	}
 
-	// Now check user already updated his storage data
-	__notif.helper.checkVersion();
-
-	if (typeof handlers === 'object' && handlers instanceof Array) {
-	    // Prepare for effective array iteration over handlers
-	    __notif.helper.initializedHandlersLength = handlers.length;
-	    var i = 0;
-
-	    // Initialize all the handlers into the
-	    // __notif.helper.initializedHandlers to be capaable of effective
-	    // identities synchronization
-	    for (; i < __notif.helper.initializedHandlersLength; ++i) {
-		var handler = handlers[i];
-
-		if (handler.isIdentityInclusive)
-		    __notif.helper.initializedHandlers.push(handler);
-	    }
-
-	    // Now fetch all the handlers
-	    for (i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
-		handlers[i].fetch();
-	    }
-	} else {
-	    var message = 'No handlers were specified to fetch !'
-		    + 'consider adding at least __notif.global handler'
-		    + 'as it\'s already synchronously implemented within VuFind';
-
-	    __notif.helper.printErr(message);
+	// Now fetch all the handlers
+	for (i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
+	    handlers[i].fetch();
 	}
+    } else {
+	var message = 'No handlers were specified to fetch !'
+		+ 'consider adding at least __notif.global handler'
+		+ 'as it\'s already synchronously implemented within VuFind';
+
+	__notif.helper.printErr(message);
+    }
 };
