@@ -153,7 +153,7 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
             return $html;
         } else {
             $message = $this->translator->__invoke( 'without_notifications' );
-            return $this->createNotification( $message, 'success', false );
+            return $this->createNotification( $message, 'success without-notifs', false );
         }
         return '';
     }

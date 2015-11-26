@@ -2,17 +2,10 @@
 // TODO: Also update async-profile.js
 $(function() { // Onload DOM ..
 
+    var handlers = [ __notif.global, __notif.blocks, __notif.fines ];
+
     // Initialize the notifications' pointers
-    __notif.helper.init();
-
-    // We need to acknowledge user about global notifications
-    __notif.global.fetch();
-
-    // Now fetch all blocks from institutions user is in
-    __notif.blocks.fetch();
-
-    // Now fetch all transactions from institutions user is in
-    __notif.fines.fetch();
+    __notif.helper.init(handlers);
 });
 
 var __notif = {
@@ -37,9 +30,12 @@ __notif.blocks = {
     ajaxMethod : 'getMyBlocks',
     localforageItemName : 'blocks',
 
+    isIdentityInclusive : true,
+
     // Define eventListeners
     eventListeners : {
 	click : function() {
+	    __notif.warning.hide();
 	    window.location = '/MyResearch/Profile';
 	},
     },
@@ -65,7 +61,8 @@ __notif.blocks = {
 		Object.keys(blocks).forEach(
 			function(key) {
 			    __notif.addNotification(blocks[key], 'warning',
-				    institution, true, __notif.blocks.eventListeners);
+				    institution, true,
+				    __notif.blocks.eventListeners);
 			});
 	    }
 
@@ -91,6 +88,8 @@ __notif.fines = {
     ajaxMethod : 'getMyFines',
     localforageItemName : 'fines',
 
+    isIdentityInclusive : true,
+
     // Define eventListeners
     eventListeners : {
 	click : function() {
@@ -115,13 +114,35 @@ __notif.fines = {
 };
 
 __notif.global = {
+
+    hidden : false,
+
+    withoutNotifications : false,
+
+    isIdentityInclusive : false,
+
     // TODO: think about global notifications being parsed asynchronously ..
     fetch : function() {
 	var initialCount = __notif.helper.pointers.global
 		.children('div:not(.counter-ignore)').length;
 
 	if (initialCount > 0)
-	    __notif.helper.warning.show();
+	    __notif.warning.show();
+
+	// Is the message 'without_notifications' shown as the only one notif?
+	__notif.global.withoutNotifications = __notif.helper.pointers.global
+		.children('div:not(.without-notifs').length === 0;
+    },
+
+    notificationAdded : function() {
+	// Hide the global section if we have added another notification
+	// only if the global notification is about 'without_notifications'
+
+	if (!__notif.global.hidden && __notif.global.withoutNotifications) {
+	    __notif.global.hidden = true;
+
+	    __notif.helper.pointers.global.parent('li').hide();
+	}
     }
 };
 
@@ -137,65 +158,83 @@ __notif.global = {
  * 
  */
 __notif.addNotification = function(message, msgclass, institution,
-	showWarningIcon, eventListeners) {
+	showWarningIcon, handler) {
 
     if (message === undefined) {
 	return this.printErr('Please provide message to notify about.');
     }
 
-    var identityNotificationsElement = __notif.helper
-	    .getIdentityNotificationsElement(institution);
-
-    if (identityNotificationsElement === false)
-	return false;
-
-    // Get the loading div if any
-    var loader = identityNotificationsElement.children('[data-type=loader]');
-
-    // Remove it if not already done
-    if (loader.length)
-	loader.remove();
-
     // Create the notification Element
     var notif = document.createElement('div');
 
+    // Set the default
     if (msgclass === undefined
 	    || this.options.allowedClasses.indexOf(msgclass) === -1) {
 	msgclass = 'default';
     }
 
+    // Show warning Icon by default
     if (showWarningIcon === undefined) {
 	showWarningIcon = true;
     }
 
+    // This is notif-default by default
     var clazz = 'notif-' + msgclass;
 
     if (!showWarningIcon) {
 	clazz += ' counter-ignore';
     } else {
-	__notif.helper.warning.show();
+	__notif.warning.show();
     }
 
     notif.setAttribute('class', clazz);
     notif.textContent = message;
 
-    // Append eventListeners to the notification
-    if (typeof eventListeners === 'object'
-	    && !(eventListeners instanceof Array)) {
-	Object.keys(eventListeners).forEach(function(key) {
-	    if (typeof eventListeners[key] === 'function')
-		notif.addEventListener(key, eventListeners[key]);
-	});
-    }
-
-    // Append the notification
-    identityNotificationsElement.append(notif);
-    identityNotificationsElement.parent('li').show();
+    __notif.helper.createNotification(notif, institution, showWarningIcon,
+	    handler);
 
     return true;
 };
 
+/**
+ * Object holding two methods show() & hide() to show or hide notifications'
+ * warning easily
+ */
+__notif.warning = {
+    showedAlready : false,
+
+    show : function() {
+	if (!this.showedAlready) {
+	    this.showedAlready = true;
+	    __notif.helper.pointers.warningIcon.show();
+	}
+    },
+
+    /**
+     * Should we hide it permanently based on what user clicked?
+     */
+    hide : function() {
+	if (this.showedAlready) {
+	    this.showedAlready = false;
+	    __notif.helper.pointers.warningIcon.hide();
+	}
+    }
+};
+
 __notif.helper = {
+
+    // Defining helper ariables here
+
+    /**
+     * An array holding all the handlers that were initialized
+     */
+    initializedHandlers : [],
+    initializedHandlersLength : 0,
+
+    /**
+     * Count of User's institutions (libraryCards within VuFind)
+     */
+    institutionsCount : 0,
 
     /**
      * Pointers point to various sections after init() is called Only parent
@@ -209,15 +248,6 @@ __notif.helper = {
 	institutions : {},
     },
 
-    institutionsCount : 0,
-
-    /**
-     * This one holds the handlers which are now in state of fetching the data
-     * from the institutions in order to be able of calling
-     * allNotificationsFetched() after all of them are done.
-     */
-    handlersFetching : {},
-
     /**
      * Variable determining whether is syncing the institutions in process
      * alredy
@@ -226,62 +256,36 @@ __notif.helper = {
      */
     syncingInstitutionsAlready : false,
 
-    /**
-     * Decide based on number of notifications fetched, whether to show
-     * translated message 'without_notifications' or show nothing at all in
-     * global notifications section.
-     * 
-     * There can be shown three states:
-     * 
-     * 1) We are loading newest notifications right now, please wait
-     * 
-     * 2) Custom global messages defined in notifications.ini when the're
-     * enabled
-     * 
-     * 3) Showing translated 'without_notifications' as told if there is nothing
-     * to notify about
-     */
-    allNotificationsFetched : function() {
-	// TODO call this function after are fetched all possible notifications
-	// from all the institutions user has valid account in
+    // Defining functions/methods here
 
-	// Remove the loader
-	__notif.helper.pointers.global.siblings('[data-type=loader]').remove();
+    createNotification : function(notificationElement, institution, handler) {
 
-	// Detect we have recieved any showable notifications
-	var haveAnythingToShow = false;
+	// Get the section of desired institution
+	var identityNotificationsElement = __notif.helper
+		.getIdentityNotificationsElement(institution);
 
-	var institutionsKeys = Object
-		.keys(__notif.helper.pointers.institutions);
+	if (identityNotificationsElement === false)
+	    return false;
 
-	var institutionsKeysLength = institutionsKeys.length;
+	// Append eventListeners to the notification
+	if (typeof handler.eventListeners === 'object'
+		&& !(handler.eventListeners instanceof Array)) {
 
-	for (var i = 0; i < institutionsKeysLength; ++i) {
-	    var institution = __notif.helper.pointers.institutions[institutionsKeys[i]];
+	    Object.keys(handler.eventListeners).forEach(function(key) {
+		if (typeof handler.eventListeners[key] === 'function')
+		    notif.addEventListener(key, handler.eventListeners[key]);
+	    });
 
-	    var notificationsCount = institution
-		    .children('div:not(.counter-ignore)').length;
-
-	    if (notificationsCount !== 0) {
-		haveAnythingToShow = true;
-		break;
-	    }
 	}
+	// Append the notification
+	identityNotificationsElement.append(notificationElement);
 
-	// Show the translated message 'without_notifications' if we have no
-	// notifications to show
-	if (!haveAnythingToShow) {
-	    __notif.helper.pointers.global.show();
-	} else {
-	    // Now hide the global notifications as we have nothing to show
-	    // there .. (unless there are notifyable global notifications)
+	// Unhide the section of desired institution if hidden
+	identityNotificationsElement.parent('li').show();
 
-	    var globalNotificationsCount = __notif.helper.pointers.global
-		    .children('div:not(.counter-ignore)').length;
-
-	    if (globalNotificationsCount === 0)
-		__notif.helper.pointers.global.parent().hide();
-	}
+	// Trigger the global's notificationAdded as it's interested into any
+	// notifications being added
+	__notif.global.notificationAdded();
     },
 
     /**
@@ -380,6 +384,19 @@ __notif.helper = {
     },
 
     /**
+     * Downloads all possible notifications within all the handlers initialized.
+     * 
+     * It basically calls __notif.helper.downloadAll(handler) for each one.
+     */
+    downloadForAllHandlers : function() {
+	for (var i = 0; i < _notif.helper.initializedHandlersLength; ++i) {
+	    var handler = _notif.helper.initializedHandlers[i];
+
+	    __notif.helper.downloadAll(handler);
+	}
+    },
+
+    /**
      * Create a query to fetch notifications about one institution
      * 
      * @param handler
@@ -418,9 +435,6 @@ __notif.helper = {
      * @param handler
      */
     fetch : function(handler) {
-
-	// Set the fetching count to determine when we are done
-	__notif.helper.handlersFetching[handler.localforageItemName] = __notif.helper.institutionsCount;
 
 	// Get the notifies object from storage
 	localforage.getItem('__notif.' + handler.localforageItemName, function(
@@ -465,27 +479,6 @@ __notif.helper = {
     },
 
     /**
-     * This method is called after a handler finishes fetching of all the
-     * institutions needed.
-     * 
-     * It serves to call the allNotificationsFetched() method after all handlers
-     * are done.
-     * 
-     * @param handler
-     */
-    handlerDoneFetching : function(handler) {
-
-	delete __notif.helper.handlersFetching[handler.localforageItemName];
-
-	var handlersFetchingCount = Object
-		.keys(__notif.helper.handlersFetching).length;
-
-	if (handlersFetchingCount === 0)
-	    __notif.helper.allNotificationsFetched();
-
-    },
-
-    /**
      * This function essentially stores all the pointers needed to prevent doing
      * multiple selects while they're slow.
      * 
@@ -493,7 +486,7 @@ __notif.helper = {
      * to clear the localforage to prevent bugs caused by version
      * incompatibility.
      */
-    init : function() {
+    init : function(handlers) {
 
 	var notifList = $('div#header-collapse nav ul li ul#notificationsList');
 
@@ -519,7 +512,7 @@ __notif.helper = {
 
 		__notif.helper.pointers.institutions[source] = $(section);
 	    } else if (type !== 'loader') {
-		var msg = 'Unknown data-type encoutered within notifications';
+		var msg = 'Unknown data-type encountered within notifications';
 		__notif.helper.printErr(msg);
 	    }
 
@@ -534,7 +527,7 @@ __notif.helper = {
 	    __notif.helper.printErr(message);
 	}
 
-	// Resolve the counter span
+	// Resolve the warning icon
 	var warningIcon = notifList.siblings('a#notif_icon').children(
 		'i#notif-warning');
 
@@ -550,6 +543,33 @@ __notif.helper = {
 
 	// Now check user already updated his storage data
 	__notif.helper.checkVersion();
+
+	if (typeof handlers === 'object' && handlers instanceof Array) {
+	    // Prepare for effective array iteration over handlers
+	    __notif.helper.initializedHandlersLength = handlers.length;
+	    var i = 0;
+
+	    // Initialize all the handlers into the
+	    // __notif.helper.initializedHandlers to be capaable of effective
+	    // identities synchronization
+	    for (; i < __notif.helper.initializedHandlersLength; ++i) {
+		var handler = handlers[i];
+
+		if (handler.isIdentityInclusive)
+		    __notif.helper.initializedHandlers.push(handler);
+	    }
+
+	    // Now fetch all the handlers
+	    for (i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
+		handlers[i].fetch();
+	    }
+	} else {
+	    var message = 'No handlers were specified to fetch !'
+		    + 'consider adding at least __notif.global handler'
+		    + 'as it\'s already synchronously implemented within VuFind';
+
+	    __notif.helper.printErr(message);
+	}
     },
 
     /**
@@ -570,10 +590,7 @@ __notif.helper = {
     },
 
     /**
-     * Serves to send the response to handler's own processResponse() method &
-     * to determine, if the handler is done fetching all the notifications from
-     * all the institutions in order to trigget
-     * __notif.helper.handlerDoneFetching() method
+     * Serves to send the response to handler's own processResponse() method
      * 
      * @param handler
      * @param response
@@ -582,15 +599,6 @@ __notif.helper = {
 
 	// Let the handler handle the response itself
 	handler.processResponse(response);
-
-	// Decide if the handler is done fetching
-	if (--__notif.helper.handlersFetching[handler.localforageItemName] < 1) {
-	    // Wait 500 ms until all the other handlers actualize the
-	    // __notif.helper.handlersFetching
-	    setTimeout(function() {
-		__notif.helper.handlerDoneFetching(handler);
-	    }, 500);
-	}
     },
 
     /**
@@ -607,7 +615,7 @@ __notif.helper = {
 	// localforage returns null if not found
 	if (savedResponses === null) {
 
-	    // Download then all
+	    // Download all then (probably never fetched anything before)
 	    __notif.helper.downloadAll(handler);
 	} else {
 	    // Found some responses for handler provided
@@ -627,7 +635,7 @@ __notif.helper = {
 
 		// Check for another identities / delete disconnected ones
 		var currIdentities = Object.keys(savedResponses.responses);
-		__notif.helper.syncInstitutions(handler, currIdentities);
+		__notif.helper.syncInstitutions(currIdentities);
 	    }
 
 	    // Print saved values ..
@@ -710,7 +718,7 @@ __notif.helper = {
      * @param handler
      * @param currIdentities
      */
-    syncInstitutions : function(handler, currIdentities) {
+    syncInstitutions : function(currIdentities) {
 
 	var filterCallback = function(source) {
 
@@ -730,7 +738,8 @@ __notif.helper = {
 		var cat_username = __notif.helper.pointers.institutions[source]
 			.attr('data-id');
 
-		__notif.helper.downloadFor(handler, cat_username);
+		// Redownload new identity for all the handlers initialized
+		__notif.helper.downloadForAllHandlers(cat_username);
 	    }
 	};
 
@@ -743,28 +752,6 @@ __notif.helper = {
 
 	    // Remove those disconnected identites from storage
 	    __notif.helper.clearInstitutions(currIdentities);
-	}
-    },
-
-    /**
-     * Object holding two methods show() & hide() to show or hide notifications'
-     * warning easily
-     */
-    warning : {
-	showedAlready : false,
-
-	show : function() {
-	    if (!this.showedAlready) {
-		this.showedAlready = true;
-		__notif.helper.pointers.warningIcon.show();
-	    }
-	},
-
-	hide : function() {
-	    if (this.showedAlready) {
-		this.showedAlready = false;
-		__notif.helper.pointers.warningIcon.hide();
-	    }
 	}
     },
 };
