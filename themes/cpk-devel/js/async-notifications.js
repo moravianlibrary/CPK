@@ -190,7 +190,7 @@ __notif.addNotification = function(message, msgclass, institution,
     notif.setAttribute('class', clazz);
     notif.textContent = message;
 
-    __notif.helper.createNotification(notif, institution, showWarningIcon,
+    __notif.helper.appendNotification(notif, institution, showWarningIcon,
 	    handler);
 
     return true;
@@ -258,7 +258,10 @@ __notif.helper = {
 
     // Defining functions/methods here
 
-    createNotification : function(notificationElement, institution, handler) {
+    /**
+     * Appends notification to an institution section & adds to it eventListeners defined within a handler
+     */
+    appendNotification : function(notificationElement, institution, handler) {
 
 	// Get the section of desired institution
 	var identityNotificationsElement = __notif.helper
@@ -268,7 +271,7 @@ __notif.helper = {
 	    return false;
 
 	// Append eventListeners to the notification
-	if (typeof handler.eventListeners === 'object'
+	if (handler !== undefined && typeof handler.eventListeners === 'object'
 		&& !(handler.eventListeners instanceof Array)) {
 
 	    Object.keys(handler.eventListeners).forEach(function(key) {
@@ -369,7 +372,7 @@ __notif.helper = {
      * 
      * @param handler
      */
-    downloadAll : function(handler) {
+    download : function(handler) {
 
 	var downloadCallback = function(source) {
 	    var institution = __notif.helper.pointers.institutions[source];
@@ -385,13 +388,13 @@ __notif.helper = {
     /**
      * Downloads all possible notifications within all the handlers initialized.
      * 
-     * It basically calls __notif.helper.downloadAll(handler) for each one.
+     * It basically calls __notif.helper.download(handler) for each one.
      */
     downloadForAllHandlers : function() {
 	for (var i = 0; i < _notif.helper.initializedHandlersLength; ++i) {
 	    var handler = _notif.helper.initializedHandlers[i];
 
-	    __notif.helper.downloadAll(handler);
+	    __notif.helper.download(handler);
 	}
     },
 
@@ -521,7 +524,7 @@ __notif.helper = {
 	if (savedResponses === null) {
 
 	    // Download all then (probably never fetched anything before)
-	    __notif.helper.downloadAll(handler);
+	    __notif.helper.download(handler);
 	} else {
 	    // Found some responses for handler provided
 
@@ -531,7 +534,7 @@ __notif.helper = {
 
 	    // Decide whether will we renew the notifications
 	    if (__notif.helper.shouldWeFetchAgain(handler)) {
-		return __notif.helper.downloadAll(handler);
+		return __notif.helper.download(handler);
 	    }
 
 	    if (!__notif.helper.syncingInstitutionsAlready) {
