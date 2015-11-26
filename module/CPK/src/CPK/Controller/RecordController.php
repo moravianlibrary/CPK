@@ -185,33 +185,21 @@ class RecordController extends RecordControllerBase
     public function getCitation()
     {
         $recordID = $this->driver->getUniqueID();
-        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-        $recordDriver = $recordLoader->load($recordID);
     
-        $parentRecordID = $recordDriver->getParentRecordID();
-        $parentRecordDriver = $recordLoader->load($parentRecordID);
-    
-        $citationServerUrl = "http://www.citacepro.com/api/cpk/citace/"
-                             .$parentRecordID;
+        $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
+                             .$recordID;
     
         $soap = curl_init();
         curl_setopt($soap, CURLOPT_URL, $citationServerUrl);
         curl_setopt($soap, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($soap, CURLOPT_TIMEOUT, 10);
         curl_setopt($soap, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($soap, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($soap, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($soap, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($soap, CURLOPT_SSL_VERIFYHOST, 0);
     
         $citation = curl_exec($soap);
         curl_close($soap);
-        
-        $headers = get_headers($citationServerUrl);
-        if ($headers !== 'HTTP/1.1 200 OK')
-            return false;
-    
-        if ($citation === false)
-            return false;
-    
+
         return $citation;
     }
     
