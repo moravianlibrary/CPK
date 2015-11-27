@@ -301,7 +301,7 @@ function setupAutocomplete() {
   // Search autocomplete
   $('.autocomplete').each(function(i, op) {
     $(op).autocomplete({
-      maxResults: 10,
+      maxResults: 6,
       loadingString: VuFind.translate('loading')+'...',
       handler: function(query, cb) {
         var searcher = extractClassParams(op);
@@ -315,12 +315,13 @@ function setupAutocomplete() {
           },
           dataType:'json',
           success: function(json) {
-            if (json.status == 'OK' && json.data.length > 0) {
-              var datums = [];
-              for (var i=0;i<json.data.length;i++) {
-                datums.push(json.data[i]);
-              }
-              cb(datums);
+            if (json.status == 'OK' 
+            	&& (json.data.byAuthor.length > 0 
+            		|| json.data.byTitle.length > 0 
+            		|| json.data.bySubject.length > 0
+            	)
+            ) {
+              cb(json.data);
             } else {
               cb([]);
             }
