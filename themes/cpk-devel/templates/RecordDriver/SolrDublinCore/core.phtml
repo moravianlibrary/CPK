@@ -255,7 +255,7 @@
         <td>
           <? foreach ($subjects as $field): ?>
           <? $subject = $field ?>
-          <? $subfield = $field ?>
+          <? $subfield = str_replace("--", " -> ", $field); ?>
           <div class="subjectLine" property="keywords">
             <a class="backlink" title="<?=$this->escapeHtmlAttr($field)?>" href="<?=$this->record($this->driver)->getLink('subject', $subject)?>"><?=trim($this->escapeHtml($subfield))?></a>
           </div>
