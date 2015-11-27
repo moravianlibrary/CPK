@@ -515,6 +515,17 @@
       </td>
     </tr>
   <? endif; ?>
+  
+  		<? if ($this->citation): ?>
+            <tr>
+              <th><?=$this->transEsc('Citation')?>: </th>
+              <td>
+                <iframe src="https://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>"
+                		frameborder="0" width="100%" height="90">
+                </iframe>
+              </td>
+            </tr>
+          <? endif; ?>
 
       <? $recordLinks = $this->driver->getAllRecordLinks(); ?>
       <? if(!empty($recordLinks)): ?>
