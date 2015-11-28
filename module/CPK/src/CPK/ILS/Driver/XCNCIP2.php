@@ -727,6 +727,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // FIXME: Add link logic
             $link = false;
 
+            $label = $this->determineLabel($status);
+
             return array(
                 'id' => empty($id) ? "" : $id,
                 'availability' => empty($available) ? false : $available ? true : false,
@@ -737,6 +739,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
                 'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
                 'item_id' => empty($id) ? "" : $id,
+                'label' => $label,
                 'holdOverride' => "",
                 'addStorageRetrievalRequestLink' => "",
                 'addILLRequestLink' => ""
@@ -832,14 +835,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                         }
                 }
 
-                $available = $status === 'Available On Shelf';
+                $available = $status === 'Available On Shelf'; // Is this useful?
 
-                $label = 'label-danger';
-                if ($status === 'Available On Shelf')
-                    $label = 'label-success';
-                else
-                    if ($status === 'On Loan')
-                        $label = 'label-warning';
+                $label = $this->determineLabel($status);
 
                 $retVal[] = array(
                     'id' => empty($id) ? "" : $id,
@@ -857,6 +855,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
         }
         return $retVal;
+    }
+
+    /**
+     * Determines the color of item status' frame.
+     *  */
+    protected function determineLabel($status) {
+        $label = 'label-danger';
+        if ($status === 'Available On Shelf')
+            $label = 'label-success';
+        else
+            if ($status === 'On Loan')
+                $label = 'label-warning';
+        return $label;
     }
 
     /**
@@ -1029,8 +1040,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $additResponse = $this->sendRequest($additRequest);
             $isbn = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
-            $bib_id = $this->useXPath($additResponse,
-                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
+            $bib_id = $this->getFirstXPathMatchAsString($additResponse,
+                    'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
             $author = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
             $title = $this->useXPath($additResponse,
@@ -1045,7 +1056,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $retVal[] = array(
                 'cat_username' => $patron['cat_username'],
                 'duedate' => empty($dateDue) ? '' : $dateDue,
-                'id' => $item_id,
+                'id' => $bib_id,
                 'barcode' => '', // TODO
                                  // 'renew' => '',
                                  // 'renewLimit' => '',
