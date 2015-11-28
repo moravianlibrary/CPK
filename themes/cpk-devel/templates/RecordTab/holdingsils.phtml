@@ -140,14 +140,14 @@ $this->headTitle(
             $attributes .= 'id="' . $uniqueRowId . '" ';
         }
 
-        if ($filters !== false) {
+        if ((! empty($filters)) && ($filters !== false)) {
 
             if (isset($row['year'])) {
                 // There is a year of publication available ..
                 $attributes .= 'data-year="' . $row['year'] . '" ';
 
                 // Should we hide this row as it's not selected??
-                if ($firstYearFilter !== $row['year'])
+                if ((! empty($firstYearFilter)) && ($firstYearFilter !== $row['year']))
                     $attributes .= 'hidden="hidden" ';
 
                 // Note that if a row is hidden, then it is waiting to be showed up using any filter ..
