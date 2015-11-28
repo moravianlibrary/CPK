@@ -862,7 +862,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *  */
     protected function determineLabel($status) {
         $label = 'label-danger';
-        if ($status === 'Available On Shelf')
+        if (($status === 'Available On Shelf') || ($status === 'Available For Pickup'))
             $label = 'label-success';
         else
             if ($status === 'On Loan')
