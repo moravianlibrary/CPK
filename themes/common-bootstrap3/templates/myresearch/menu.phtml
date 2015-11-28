@@ -22,7 +22,7 @@ if ($user && isset($user->lastname)) {
     <? if ($this->ils()->checkCapability('getMyHistory')): ?>
       <a href="<?=$this->url('myresearch-checkedouthistory')?>" class="list-group-item<?=$this->active == 'checkedouthistory' ? ' active' : ''?>">
         <?=$this->transEsc('Checked Out History')?>
-        <span class="pull-right flip"><i class="fa fa-fw fa-book"></i></span>
+        <span class="pull-right flip"><i class="fa fa-fw fa-history"></i></span>
       </a>
     <? endif; ?>
     <? if ($this->ils()->checkCapability('getMyHolds')): ?>
@@ -34,7 +34,7 @@ if ($user && isset($user->lastname)) {
     <? if ($this->ils()->checkCapability('getMyShortLoanRequests')): ?>
       <a href="<?=$this->url('myresearch-shortloans')?>" class="list-group-item<?=$this->active == 'bookings' ? ' active' : ''?>">
         <?=$this->transEsc('Bookings')?>
-        <span class="pull-right flip"><i class="fa fa-fw fa-flag"></i></span>
+        <span class="pull-right flip"><i class="fa fa-fw fa-calendar"></i></span>
       </a>
     <? endif; ?>
     <? if ($this->ils()->checkFunction('StorageRetrievalRequests')): ?>
