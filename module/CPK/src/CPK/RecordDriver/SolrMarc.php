@@ -21,7 +21,7 @@ class SolrMarc extends ParentSolrMarc
         list ($source, $localId) = explode('.', $this->getUniqueID());
         return $localId;
     }
-    
+
     public function getChildrenIds()
     {
         return isset($this->fields['local_ids_str_mv']) ? $this->fields['local_ids_str_mv'] : [];
@@ -535,7 +535,12 @@ class SolrMarc extends ParentSolrMarc
             'multi' => '[' . $isbnJson . ']'
         ));
 
-        $response = $client->send();
+        try {
+            $response = $client->send();
+        } catch (TimeoutException $ex) {
+            return null; // TODO what to do when server is not responding
+        }
+
 
         $responseBody = $response->getBody();
 
@@ -614,7 +619,7 @@ class SolrMarc extends ParentSolrMarc
     {
         return $this->getTitle();
     }
-    
+
     public function getRecordType()
     {
         return isset($this->fields['recordtype']) ? $this->fields['recordtype'] : '';
