@@ -2,6 +2,7 @@
 namespace CPK\RecordDriver;
 
 use MZKCommon\RecordDriver\SolrMarc as ParentSolrMarc;
+use Zend\Http\Client\Adapter\Exception\TimeoutException as TimeoutException;
 
 class SolrMarc extends ParentSolrMarc
 {
@@ -211,6 +212,8 @@ class SolrMarc extends ParentSolrMarc
         $holdings = [];
         foreach ($fields as $currentField) {
             if (! $this->shouldBeRestricted($currentField, $restrictions)) {
+                unset($holding);
+                $holding = array();
 
                 foreach ($mappingsFor996 as $variableName => $current996Mapping) {
                     // Here it omits unset values & values, which are desired to be ignored by their presence in ignoredVals MultiBackend.ini's array

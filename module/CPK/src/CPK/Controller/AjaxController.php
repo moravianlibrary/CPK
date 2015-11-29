@@ -164,7 +164,8 @@ class AjaxController extends AjaxControllerBase
 
         $viewRend = $this->getViewRenderer();
 
-        if (null === $ids)
+        $ids = array_filter($ids);
+        if (empty($ids))
             return $this->output(
                 [
                     'status' => $this->getTranslatedUnknownStatus($viewRend)
@@ -271,19 +272,19 @@ class AjaxController extends AjaxControllerBase
     {
         // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
-    
+
         $hasPermissions = $this->hasPermissions($cat_username);
-    
+
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
-    
+
             $renderer = $this->getViewRenderer();
-    
+
             // Do we have this feature enabled ??
             $config = $this->getConfig();
             $isThisEnabled = $config->Site['notificationsEnabled'] !== null &&
             $config->Site['notificationsEnabled'];
-    
+
             if (! $isThisEnabled) {
                 return $this->output(
                         [
@@ -291,44 +292,44 @@ class AjaxController extends AjaxControllerBase
                             'message' => 'Notifications are disabled by the system administrator'
                         ], self::STATUS_ERROR);
             }
-    
+
             $ilsDriver = $this->getILS()->getDriver();
-    
+
             if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
-    
+
                 $patron = [
                     'cat_username' => $cat_username,
                     'id' => $cat_username
                 ];
-    
+
                 try {
                     // Try to get the profile ..
                     $profile = $ilsDriver->getMyProfile($patron);
-    
+
                     $blocks = [];
-    
+
                     if ($profile['blocks'] !== null) {
                         $blocks = $profile['blocks'];
                     }
-    
+
                     $source = explode('.', $cat_username)[0];
-    
+
                     $data = [
                         'source' => $source,
                         'count' => count($blocks),
                         'blocks' => $blocks
                     ];
-    
+
                     $haveBlocks = is_array($blocks) && count($blocks) > 0;
                     if (! $haveBlocks) {
                         $message = $renderer->transEsc( 'no_blocks_found' );
                         $data['message'] = $message;
                     }
-    
+
                 } catch (\VuFind\Exception\ILS $e) {
                     return $this->outputException($e, $cat_username);
                 }
-    
+
                 return $this->output($data, self::STATUS_OK);
             } else
                 return $this->output(
@@ -337,7 +338,7 @@ class AjaxController extends AjaxControllerBase
                             'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                         ], self::STATUS_ERROR);
     }
-    
+
     public function getMyProfileAjax()
     {
             // Get the cat_username being requested
@@ -925,7 +926,7 @@ class AjaxController extends AjaxControllerBase
 
         return $retVal;
     }
-    
+
     /**
      * Get Autocomplete suggestions.
      *

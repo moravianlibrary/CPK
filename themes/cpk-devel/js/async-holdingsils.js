@@ -5,7 +5,7 @@ function getHoldingStatuses(ids) {
 
 	if (typeof ids !== 'object')
 		ids = getHoldingsIds();
-
+	
 	if (ids.length != 0) {
 		$
 				.ajax({
@@ -75,6 +75,11 @@ function processGetHoldingStatusesResponse(r) {
 
 		if (data.remaining) {
 			getHoldingStatuses(data.remaining);
+		}
+		else {
+			getAllNotLoadedHoldings(true).each(function() {
+				updateHoldingId(this, data, true);
+			});
 		}
 	} else {
 

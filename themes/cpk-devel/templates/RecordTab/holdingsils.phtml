@@ -136,8 +136,13 @@ $this->headTitle(
 
         $attributes = 'class="' . $trClass . '" ';
 
+        $itemStatusLabel = 'label-primary';
+
         if ($uniqueRowId !== false) {
             $attributes .= 'id="' . $uniqueRowId . '" ';
+        }
+        else {
+            $itemStatusLabel = false;
         }
 
         if ((! empty($filters)) && ($filters !== false)) {
@@ -168,8 +173,12 @@ $this->headTitle(
 
 				<div title="<?=$this->transEsc('Item Status')?>"
 					data-type="item-status">
-					<i class="fa fa-spinner fa-spin"></i> <span
-						class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+					<? if (! $itemStatusLabel): ?>
+					   <span class="label label-unknown"><?=$this->transEsc('unknown status')?></span>
+					<? else: ?>
+					   <i class="fa fa-spinner fa-spin"></i>
+					   <span class="label <?=$itemStatusLabel?>"><?=$this->transEsc('Loading')?> ...</span>
+					<? endif; ?>
 				</div>
 
       <? if (!empty($row['link']) && $row['link']): ?>
