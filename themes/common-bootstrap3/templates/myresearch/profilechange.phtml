@@ -15,12 +15,12 @@
   <form class="form-horizontal edit-list-form" method="post" name="test" action="">
 
     <?if ($this->op == 'email'):?>
-      <div class="control-group">
+      <div>
         <label class="control-label" for="email">
           <?=$this->transEsc('email')?>
         </label>
         <div class="controls">
-          <input type="text" name="email" id="email" value="<?=isset($this->email)?$this->email:''?>"/>
+          <input class="form-control" type="text" name="email" id="email" value="<?=isset($this->email)?$this->email:''?>"/>
         </div>
       </div>
     <?elseif ($this->op == 'nickname'):?>
@@ -29,7 +29,7 @@
           <?=$this->transEsc('nickname')?>
         </label>
         <div class="controls">
-          <input type="text" name="nickname" id="nickname" value="<?=isset($this->nickname)?$this->nickname:''?>"/>
+          <input class="form-control" type="text" name="nickname" id="nickname" value="<?=isset($this->nickname)?$this->nickname:''?>"/>
         </div>
       </div>
     <?elseif ($this->op == 'password'):?>
@@ -38,7 +38,7 @@
           <?=$this->transEsc('old_password')?>
         </label>
         <div class="controls">
-          <input type="password" name="old_password" id="old_password" value=""/>
+          <input class="form-control" type="password" name="old_password" id="old_password" value=""/>
         </div>
       </div>
       <div class="control-group">
@@ -46,7 +46,7 @@
           <?=$this->transEsc('new_password')?>
         </label>
         <div class="controls">
-          <input type="password" name="new_password" id="new_password" value=""/>
+          <input class="form-control" type="password" name="new_password" id="new_password" value=""/>
         </div>
       </div>
       <div class="control-group">
@@ -54,7 +54,7 @@
           <?=$this->transEsc('new_password_repeat')?>
         </label>
         <div class="controls">
-          <input type="password" name="new_password_repeat" id="new_password_repeat" value=""/>
+          <input class="form-control" type="password" name="new_password_repeat" id="new_password_repeat" value=""/>
         </div>
       </div>
     <?endif;?>
