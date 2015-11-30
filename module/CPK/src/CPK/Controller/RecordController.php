@@ -188,21 +188,22 @@ class RecordController extends RecordControllerBase
     
         $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
                              .$recordID;
-    
-        $soap = curl_init();
-        curl_setopt($soap, CURLOPT_URL, $citationServerUrl);
-        curl_setopt($soap, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($soap, CURLOPT_TIMEOUT, 10);
-        curl_setopt($soap, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($soap, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($soap, CURLOPT_SSL_VERIFYHOST, 0);
-    
-        $citation = curl_exec($soap);
-        curl_close($soap);
         
         $statusCode = get_headers($citationServerUrl)[0];
-        if($statusCode !== 'HTTP/1.1 200 OK') {
+        
+        if ($statusCode !== 'HTTP/1.1 200 OK') {
             $citation = false;
+        } else {
+            $soap = curl_init();
+            curl_setopt($soap, CURLOPT_URL, $citationServerUrl);
+            curl_setopt($soap, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($soap, CURLOPT_TIMEOUT, 10);
+            curl_setopt($soap, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($soap, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($soap, CURLOPT_SSL_VERIFYHOST, 0);
+            
+            $citation = curl_exec($soap);
+            curl_close($soap);
         }
 
         return $citation;
