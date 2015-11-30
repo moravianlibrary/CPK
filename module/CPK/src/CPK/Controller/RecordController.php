@@ -199,6 +199,11 @@ class RecordController extends RecordControllerBase
     
         $citation = curl_exec($soap);
         curl_close($soap);
+        
+        $statusCode = get_headers($citationServerUrl)[0];
+        if($statusCode !== 'HTTP/1.1 200 OK') {
+            $citation = false;
+        }
 
         return $citation;
     }
