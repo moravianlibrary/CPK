@@ -11,7 +11,7 @@ class AjaxController extends ParentAjaxController
      */
     protected function processFacetValues($fields, $results)
     {
-        $facets = $results->getFullFieldFacets(array_keys($fields));
+        $facets = $results->getFullFieldFacets(array_keys($fields),true,-1, 'index');
         $retVal = [];
         $currentYear = date("Y");
         $minRelevantYear = 1800;
