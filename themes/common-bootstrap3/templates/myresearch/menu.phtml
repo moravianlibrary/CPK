@@ -81,16 +81,23 @@ if ($user && isset($user->lastname)) {
     </a>
   <? endif; ?>
 </div>
-<? if ($this->auth()->isLoggedIn() && $this->auth()->getManager()->supportsPasswordChange()): ?>
-  <h4><?=$this->transEsc('Preferences')?></h4>
+<? if ($this->auth()->isLoggedIn() && (isset($this->profileChange) && $this->profileChange)): ?>
+  <h4><?=$this->transEsc('profile_change_menu_label')?></h4>
   <div class="list-group">
-    <a href="<?=$this->url('myresearch-changepassword') ?>" class="list-group-item<?=$this->active == 'newpassword' ? ' active' : ''?>">
-      <?=$this->transEsc('Change Password') ?>
+    <a href="<?=$this->url('myresearch-profilechange') ?>?op=nickname" class="list-group-item<?=$this->op == 'nickname' ? ' active' : ''?>">
+      <?=$this->transEsc('change_nickname') ?>
+      <span class="pull-right flip"><i class="fa fa-fw fa-user"></i></span>
+    </a>
+    <a href="<?=$this->url('myresearch-profilechange') ?>?op=password" class="list-group-item<?=$this->op == 'password' ? ' active' : ''?>">
+      <?=$this->transEsc('change_password') ?>
       <span class="pull-right flip"><i class="fa fa-fw fa-lock"></i></span>
     </a>
+    <a href="<?=$this->url('myresearch-profilechange') ?>?op=email" class="list-group-item<?=$this->op == 'email' ? ' active' : ''?>">
+      <?=$this->transEsc('change_email') ?>
+      <span class="pull-right flip"><i class="fa fa-fw fa-envelope"></i></span>
+    </a>
   </div>
-<? endif; ?>
-<? if ($this->userlist()->getMode() !== 'disabled' && $user = $this->auth()->isLoggedIn()): ?>
+<? elseif ($this->userlist()->getMode() !== 'disabled' && $user = $this->auth()->isLoggedIn()): ?>
   <h4><?=$this->transEsc('Your Lists')?></h4>
   <div class="list-group">
     <a href="<?=$this->url('myresearch-favorites')?>" class="list-group-item<?=$this->active == 'favorites' ? ' active' : ''?>">
