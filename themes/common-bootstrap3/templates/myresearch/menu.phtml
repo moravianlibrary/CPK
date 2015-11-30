@@ -111,9 +111,5 @@ if ($user && isset($user->lastname)) {
           <span class="badge"><?=$list->cnt?></span>
         </a>
     <? endforeach; ?>
-    <a href="<?=$this->url('editList', array('id'=>'NEW'))?>" title="<?=$this->transEsc('Create a List') ?>" class="list-group-item">
-      <?=$this->transEsc('Create a List') ?>
-      <span class="pull-right flip"><i class="fa fa-fw fa-plus"></i></span>
-    </a>
   </div>
 <? endif ?>
