@@ -116,11 +116,6 @@ class RecordController extends RecordControllerBase
                 $view->$varName = $field7xx;
             }
         }
-        
-        // getCitation
-        $citation = $this->getCitation();
-        if ($citation !== false)
-            $view->citation = $citation;
 
         //
         $view->config = $this->getConfig();
@@ -145,7 +140,6 @@ class RecordController extends RecordControllerBase
         $links = $recordDriver->get856Links();
         return $links;
     }
-
 
     /**
      * Returns data from SOLR representing links and metadata to access SFX
@@ -181,34 +175,7 @@ class RecordController extends RecordControllerBase
                 $this->defaultTab = 'EVersion';
         }
     }
-    
-    public function getCitation()
-    {
-        $recordID = $this->driver->getUniqueID();
-    
-        $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
-                             .$recordID;
-        
-        $statusCode = get_headers($citationServerUrl)[0];
-        
-        if ($statusCode !== 'HTTP/1.1 200 OK') {
-            $citation = false;
-        } else {
-            $soap = curl_init();
-            curl_setopt($soap, CURLOPT_URL, $citationServerUrl);
-            curl_setopt($soap, CURLOPT_CONNECTTIMEOUT, 10);
-            curl_setopt($soap, CURLOPT_TIMEOUT, 10);
-            curl_setopt($soap, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($soap, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($soap, CURLOPT_SSL_VERIFYHOST, 0);
-            
-            $citation = curl_exec($soap);
-            curl_close($soap);
-        }
 
-        return $citation;
-    }
-    
     protected function getXml()
     {
         $recordID = $this->driver->getUniqueID();

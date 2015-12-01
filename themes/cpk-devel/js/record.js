@@ -392,3 +392,45 @@ function recordDocReady() {
     Lightbox.confirm(VuFind.translate('add_tag_success'));
   });
 }
+
+/**
+ * Is citation available
+ * 
+ * @author	Martin Kravec <martin.kravec@mzk.cz>
+ * 
+ * @param	{string}	recordId
+ * @param	{function}	callback
+ * @return	{undefined}
+ */
+function isCitationAvailable( recordId, callback ) {
+	jQuery.ajax({
+		dataType: 'json',
+		async: true,
+		type: 'POST',
+		url: '/AJAX/JSON?method=isCitationAvailable',
+		data: { recordId: recordId },
+		success: function( result ) {
+			if( result.status !== 'OK' ) {
+				// display the error message on each of the ajax status place holder
+				$( "#ajax-error-info" ).empty().append( response.data );
+				
+			} else {
+				callback();	
+			}
+		},
+		fail: function( jqXHR, textStatus ) {
+			console.log( "Request failed: " + textStatus );
+		}
+	});
+};
+
+/**
+ * Dispay citation
+ * 
+ * @author	Martin Kravec <martin.kravec@mzk.cz>
+ * 
+ * @return	{undefined}
+ */
+function displayCitation() {
+	jQuery( '#citace-pro' ).removeClass( 'hidden' );
+}

@@ -942,4 +942,24 @@ class AjaxController extends AjaxControllerBase
             $autocompleteManager->getSuggestions($query), self::STATUS_OK
         );
     }
+    
+    /**
+     * Is citation available
+     *
+     * @return \Zend\Http\Response
+     */
+    public function isCitationAvailableAjax()
+    {
+        $recordId = $this->params()->fromPost('recordId');
+        
+        $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
+            .$recordId;
+    
+        $statusCode = get_headers($citationServerUrl)[0];
+
+        if ($statusCode === 'HTTP/1.1 200 OK')
+            return $this->output($statusCode, self::STATUS_OK);
+        
+        return $this->output($statusCode, self::STATUS_ERROR);
+    }
 }

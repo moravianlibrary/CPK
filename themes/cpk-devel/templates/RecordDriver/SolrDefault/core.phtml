@@ -460,8 +460,7 @@
             </tr>
           <? endif; ?>
           
-          <? if ($this->citation): ?>
-            <tr>
+            <tr class='hidden' id='citace-pro'>
               <th><?=$this->transEsc('Citation')?>: </th>
               <td>
                 <iframe src="https://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>"
@@ -469,7 +468,6 @@
                 </iframe>
               </td>
             </tr>
-          <? endif; ?>
         
               <? $recordLinks = $this->driver->getAllRecordLinks(); ?>
               <? if(!empty($recordLinks)): ?>
@@ -494,3 +492,8 @@
             <?/* End Main Details */?>
           </div>
         </div>
+        <script>
+        	jQuery( document ).ready(function( $ ){
+        		isCitationAvailable( '<?=$this->driver->getUniqueID()?>', displayCitation );
+        	})
+        </script>
