@@ -46,6 +46,24 @@
 	    }
 	}
 	
+	// Institutes in filters will be on top of the list
+	$institutionsMappings = [];
+	foreach ($this->institutionsMappings as $key => $value) {
+	    $institutionsMappings[md5($value)] = $key;
+	}
+	
+	foreach ($institutionsInFilters as $institution) {
+	    if (isset($institutionsMappings[md5($institution)])) {
+	        if (array_key_exists($institutionsMappings[md5($institution)], $records)) {
+	            $tempValue = $records[$institutionsMappings[md5($institution)]];
+	            $tempKey = $institutionsMappings[md5($institution)];
+	            $tempArray[$tempKey] = $tempValue;
+	            unset($records[$institutionsMappings[md5($institution)]]);
+	            $records = $tempArray + $records;
+	            unset($tempArray);
+	        }
+	    }
+	}
 	//
 	
 	if ($count <= 2) {
