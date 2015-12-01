@@ -57,6 +57,10 @@ class SearchController extends SearchControllerBase
 
 		$view->myLibs = $this->getUsersHomeLibraries();
 		$view->config = $this->getConfig();
+		
+		$facetConfig = $this->getConfig('facets');
+		$institutionsMappings = $facetConfig->InstitutionsMappings->toArray();
+		$view->institutionsMappings = $institutionsMappings;
 
 		return $view;
 	}
