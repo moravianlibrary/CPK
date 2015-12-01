@@ -30,7 +30,7 @@
     	    
     	}
 	}
-		 
+	
 	if ($cnbFoundInFilters == 0) {
 	    if (isset($records['cnb'])) {
 	        $cnb = $records['cnb'];
@@ -65,6 +65,34 @@
 	        }
 	    }
 	}
+	
+	// When selected town, select all intitutes in that town a put theme in 
+	// the front of the list
+	$institutionsInTowns = [];
+	foreach ($institutionsInFilters as $institution) {
+	    $parts = explode("/", $institution);
+	    if(empty($parts[3])) {
+	        if(! empty($parts[2])) {
+	            foreach ($this->institutionsMappings as $key => $value) {
+	                if(strpos($value, $parts[1]."/".$parts[2]) !== false) {
+	                    $institutionsInTowns[] = $value;
+	                }
+	            }
+	        }
+	    }
+	}
+	
+	foreach ($institutionsInTowns as $value) {
+	    $recordKey = $institutionsMappings[md5($value)];
+	    if (isset($records[$recordKey])) {
+	        $tempKey = $institutionsMappings[md5($value)];
+	        $tempValue = $records[$tempKey];
+	        $tempArray[$tempKey] = $tempValue;
+	        unset($records[$tempKey]);
+	        $records = $tempArray + $records;
+	    }
+	}
+	
 	//
 	
 	if ($count <= 2) {
