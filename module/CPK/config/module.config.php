@@ -104,7 +104,8 @@ $config = array(
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
-            'ajax' => 'CPK\Controller\AjaxController'
+            'ajax' => 'CPK\Controller\AjaxController',
+            'status' => 'CPK\Controller\StatusController'
         ), /* invokables */
     ), /* controllers */
     'controller_plugins' => [
