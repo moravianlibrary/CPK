@@ -164,12 +164,13 @@ class AjaxController extends AjaxControllerBase
 
         $viewRend = $this->getViewRenderer();
 
-        $ids = array_filter($ids);
-        if (empty($ids))
+        if ($ids === null || ! is_array($ids) || empty($ids))
             return $this->output(
                 [
                     'status' => $this->getTranslatedUnknownStatus($viewRend)
                 ], self::STATUS_ERROR);
+        
+        $ids = array_filter($ids);
 
         $ilsDriver = $this->getILS()->getDriver();
 
