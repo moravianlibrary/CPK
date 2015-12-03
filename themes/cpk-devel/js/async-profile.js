@@ -23,6 +23,12 @@ function fetchProfile(cat_username) {
 }
 
 function updateProfileTable(response) {
+
+    // Update notifications not to let those fetch the blocks again ;)
+    if (__notif !== undefined && __notif.blocks !== undefined) {
+	__notif.helper.processResponse(__notif.blocks, response);
+    }
+    
     var patron = response.data, status = response.status;
 
     var cat_username = patron.cat_username, parentTable = {};
@@ -61,13 +67,6 @@ function updateProfileTable(response) {
 			    var errorMessage = $("<div>").addClass('alert alert-danger').text(blockMessage).prepend(logo);
 			    
 			    heading.after(errorMessage);
-			    
-			    // Update notifications not to let those fetch the blocks again ;)
-			    if (typeof __notif != "undefined") {
-				var institution = cat_username.split('.')[0];
-				__notif.addNotification(blockMessage, 'warning', institution);
-				// FIXME Implement updating the browser localforage ..
-			    }
 			})
 		    }
 		}

@@ -23,6 +23,12 @@ function fetchFines(cat_username) {
 }
 
 function updateFinesTable(response) {
+
+    // Update notifications not to let those fetch the blocks again ;)
+    if (__notif !== undefined && __notif.fines !== undefined) {
+	__notif.helper.processResponse(__notif.fines, response);
+    }
+    
     var data = response.data, status = response.status;
 
     var cat_username = data.cat_username, parentTable = {};

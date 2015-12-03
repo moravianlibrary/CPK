@@ -1,6 +1,4 @@
-// TODO: Set "you have no blocks in this institution" if on page Profile or Fines & there are no blocks or fines fetched at all
 // TODO: Also update async-profile.js - line 69
-// TODO: Process the fines
 
 $(function() { // Onload DOM ..
 
@@ -56,7 +54,12 @@ __notif.blocks = {
 	    __notif.helper.fetch(this);
     },
 
-    // This function will render the blocks passed to it ...
+    /**
+     * This function will render the blocks passed to it ...
+     * 
+     * @param response
+     * @return countOfNotificationsApplied *
+     */
     processResponse : function(response) {
 
 	var data = response.data, status = response.status;
@@ -74,16 +77,13 @@ __notif.blocks = {
 			});
 	    }
 
+	    return count;
+
 	} else { // We have recieved an error
-	    // FIXME: Where is the element defined ??
-	    element.children('i').remove();
+	    // TODO: Implement showing the error
+	    count = 0;
 
-	    var message = data.message;
-	    if (message === undefined)
-		message = 'Unknown error occured';
-
-	    element.children('span.label').text(message).removeClass(
-		    'label-primary').addClass('label-danger');
+	    return count;
 	}
     },
 };
@@ -117,7 +117,7 @@ __notif.fines = {
     // This function will render the fines passed to it ...
     processResponse : function(response) {
 	// TODO
-	return false;
+	return 0;
     },
 };
 
@@ -129,8 +129,18 @@ __notif.global = {
 
     isAsync : false,
 
-    informAboutNothingRecieved : function(handler) {
+    nothingRecievedCount : 0,
 
+    informAboutNothingRecieved : function() {
+	if (++this.nothingRecievedCount === __notif.helper.handlersCount) {
+
+	    // Remove the loader
+	    __notif.helper.pointers.global.siblings('div.notif-default')
+		    .remove();
+
+	    // Show the default message
+	    __notif.helper.pointers.global.show();
+	}
     },
 
     // TODO: think about global notifications being parsed asynchronously ..
@@ -140,10 +150,13 @@ __notif.global = {
 
 	if (initialCount > 0)
 	    __notif.warning.show();
+	else
+	    this.informAboutNothingRecieved();
 
 	// Is the message 'without_notifications' shown as the only one notif?
 	__notif.global.withoutNotifications = __notif.helper.pointers.global
 		.children('div:not(.without-notifs').length === 0;
+
     },
 
     notificationAdded : function() {
@@ -257,6 +270,11 @@ __notif.helper = {
      * Count of User's institutions (libraryCards within VuFind)
      */
     institutionsCount : 0,
+
+    /**
+     * Total count of all handlers initialized
+     */
+    handlersCount : 0,
 
     /**
      * Pointers point to various sections after init() is called Only parent
@@ -551,7 +569,24 @@ __notif.helper = {
     processResponse : function(handler, response) {
 
 	// Let the handler handle the response itself
-	handler.processResponse(response);
+	var countOfNotificationsAdded = handler.processResponse(response);
+
+	if (countOfNotificationsAdded === undefined) {
+	    var msg = 'Every handler must return number of processed '
+		    + '̈́notifications from processResponse method!';
+
+	    __notif.helper.printErr(msg);
+	    return false;
+	}
+
+	if (countOfNotificationsAdded === 0) {
+	    for (var i = 0; i < __notif.helper.handlersToInformAboutNothingRecievedLength; ++i) {
+		__notif.helper.handlersToInformAboutNothingRecieved[i]
+			.informAboutNothingRecieved(handler);
+	    }
+	}
+
+	return countOfNotificationsAdded;
     },
 
     /**
@@ -784,9 +819,9 @@ __notif.helper.init = function(handlers) {
     // Finally, initialize each handler
     if (typeof handlers === 'object' && handlers instanceof Array) {
 	// Prepare for effective array iteration over handlers
-	var handlersCount = handlers.length;
+	__notif.helper.handlersCount = handlers.length;
 
-	for (var i = 0; i < handlersCount; ++i) {
+	for (var i = 0; i < __notif.helper.handlersCount; ++i) {
 	    var handler = handlers[i];
 
 	    /*
@@ -810,7 +845,6 @@ __notif.helper.init = function(handlers) {
 		__notif.helper.handlersToInformAboutNothingRecieved
 			.push(handler);
 	    }
-
 	}
 
 	/*
@@ -822,7 +856,7 @@ __notif.helper.init = function(handlers) {
 	__notif.helper.handlersToInformAboutNothingRecievedLength = __notif.helper.handlersToInformAboutNothingRecieved.length;
 
 	// Now fetch all the handlers
-	for (i = 0; i < handlersCount; ++i) {
+	for (i = 0; i < __notif.helper.handlersCount; ++i) {
 	    handlers[i].fetch();
 	}
 
