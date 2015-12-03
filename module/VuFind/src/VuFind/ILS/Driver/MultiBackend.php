@@ -386,6 +386,7 @@ class MultiBackend extends AbstractBase
         if ($driver) {
             $profile = $driver
                 ->getMyProfile($this->stripIdPrefixes($patron, $source));
+            $profile['source'] = $source;
             return $this->addIdPrefixes($profile, $source);
         }
         return [];
@@ -506,6 +507,7 @@ class MultiBackend extends AbstractBase
         $driver = $this->getDriver($source);
         if ($driver) {
             $fines = $driver->getMyFines($this->stripIdPrefixes($patron, $source));
+            $fines['source'] = $source;
             return $this->addIdPrefixes($fines, $source);
         }
         throw new ILSException('No suitable backend driver found');

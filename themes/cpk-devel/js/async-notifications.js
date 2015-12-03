@@ -1,5 +1,3 @@
-// TODO: Also update async-profile.js - line 69
-
 $(function() { // Onload DOM ..
 
     /*
@@ -17,7 +15,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.1.0',
+	version : '1.1.1',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -64,10 +62,12 @@ __notif.blocks = {
 
 	var data = response.data, status = response.status;
 
-	var institution = data.source, blocks = data.blocks, count = data.count, message = data.message;
+	var institution = data.source, blocks = data.blocks, message = data.message;
+	
+	var count = data.blocks instanceof Array ? data.blocks.length : 0;
 
 	if (status === 'OK') {
-
+	    
 	    if (count !== 0) {
 		Object.keys(blocks).forEach(
 			function(key) {
@@ -76,7 +76,7 @@ __notif.blocks = {
 				    __notif.blocks.eventListeners);
 			});
 	    }
-
+	    
 	    return count;
 
 	} else { // We have recieved an error
@@ -473,8 +473,6 @@ __notif.helper = {
 	    },
 	    success : function(response) {
 
-		__notif.helper.saveResponse(handler, response);
-
 		__notif.helper.processResponse(handler, response);
 	    },
 	    error : function(err) {
@@ -565,8 +563,13 @@ __notif.helper = {
      * 
      * @param handler
      * @param response
+     * @param saveIt
      */
-    processResponse : function(handler, response) {
+    processResponse : function(handler, response, saveIt) {
+
+	if (saveIt === undefined || saveIt) {
+	    __notif.helper.saveResponse(handler, response);
+	}
 
 	// Let the handler handle the response itself
 	var countOfNotificationsAdded = handler.processResponse(response);
@@ -628,7 +631,7 @@ __notif.helper = {
 
 	    // Print saved values ..
 	    $.each(savedResponses.responses, function(i, response) {
-		__notif.helper.processResponse(handler, response);
+		__notif.helper.processResponse(handler, response, false);
 	    });
 	}
     },
@@ -646,6 +649,8 @@ __notif.helper = {
 	    responses : handler.responses,
 	    timeSaved : Date.now()
 	};
+	
+	handler.timeSaved = localforageItem.timeSaved;
 
 	localforage.setItem('__notif.' + handler.localforageItemName,
 		localforageItem, function(err, val) {

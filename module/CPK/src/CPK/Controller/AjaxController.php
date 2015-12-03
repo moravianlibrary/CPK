@@ -313,11 +313,7 @@ class AjaxController extends AjaxControllerBase
                         $blocks = $profile['blocks'];
                     }
 
-                    $source = explode('.', $cat_username)[0];
-
                     $data = [
-                        'source' => $source,
-                        'count' => count($blocks),
                         'blocks' => $blocks
                     ];
 
@@ -515,6 +511,8 @@ class AjaxController extends AjaxControllerBase
 
                 $data['cat_username'] = $cat_username;
                 $data['fines'] = $fines;
+                $data['source'] = $fines['source'];
+                
             } catch (\VuFind\Exception\ILS $e) {
                 return $this->outputException($e, $cat_username);
             }
