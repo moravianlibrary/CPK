@@ -233,7 +233,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if ($problem = $this->getProblem($response)) {
             // TODO chcek problem type
 
-            $message = 'Problem recieved in XCNCIP2 Driver .. Content:' .
+            $message = 'Problem recieved in XCNCIP2 Driver. Content:' .
                  str_replace('\n', '<br/>', $problem);
 
             $this->addEnviromentalException($message);
@@ -586,11 +586,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     {
         $patron = $holdDetails['patron'];
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $status = true;
+        $message = '';
         $request = $this->requests->requestItem($patron, $holdDetails);
-        $response = $this->sendRequest($request);
+        try {
+            $response = $this->sendRequest($request);
+        } catch (ILSException $ex) {
+            $status = false;
+            $message = 'hold_error_fail';
+        }
         return array(
-            'success' => true,
-            'sysMessage' => ''
+            'success' => $status,
+            'sysMessage' => $message,
+            'source' => $patron['agency'],
         );
     }
 

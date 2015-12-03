@@ -38,6 +38,9 @@ namespace CPK\View\Helper\CPK;
  */
 class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
 {
+
+    private $idpLogos = null;
+
     /**
      * Generate flash message <div>'s with appropriate classes based on message type.
      *
@@ -55,8 +58,7 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
             foreach (array_unique($messages, SORT_REGULAR) as $msg) {
 
                 if(is_array($msg)) {
-                    $logoInstitution = key($msg);
-                    $msg = $msg[$logoInstitution];
+                    $logoInstitution = $this->getLogo($msg['source']);
                 } else
                     $logoInstitution = null;
 
@@ -95,5 +97,27 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
             $this->fm->clearCurrentMessages();
             }
             return $html;
+        }
+
+        public function __construct($fm, $config) {
+
+            parent::__construct($fm);
+
+            $this->config = $config;
+
+            if ($this->config['IdPLogos'] !== null) {
+                $this->idpLogos = $this->config['IdPLogos']->toArray();
+            } else {
+                $this->idpLogos = [];
+            }
+        }
+
+        public function getLogo($source)
+        {
+            if ($this->idpLogos[$source] !== null) {
+                return $this->idpLogos[$source];
+            }
+
+            return '';
         }
 }
