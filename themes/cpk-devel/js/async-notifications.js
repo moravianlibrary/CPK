@@ -4,6 +4,10 @@
 
 $(function() { // Onload DOM ..
 
+    /*
+     * Provide identity exclusive handlers before identity inclusive as they may
+     * depend on each other
+     */
     var handlers = [ __notif.global, __notif.blocks, __notif.fines ];
 
     // Initialize the notifications' pointers
@@ -24,6 +28,9 @@ var __notif = {
     },
 }
 
+/**
+ * Blocks handler
+ */
 __notif.blocks = {
     // institutions
     responses : {},
@@ -228,10 +235,14 @@ __notif.helper = {
     // Defining helper ariables here
 
     /**
-     * An array holding all the handlers that were initialized
+     * Arrays each holding the identity inclusive/exclusive handlers that were
+     * initialized
      */
-    initializedHandlers : [],
-    initializedHandlersLength : 0,
+    initializedIdentityInclusiveHandlers : [],
+    initializedIdentityExclusiveHandlers : [],
+
+    initializedIdentityInclusiveHandlersLength : 0,
+    initializedIdentityExclusiveHandlersLength : 0,
 
     /**
      * Count of User's institutions (libraryCards within VuFind)
@@ -341,10 +352,10 @@ __notif.helper = {
      */
     clearInstitutions : function(institutions) {
 
-	for (var i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
+	for (var i = 0; i < __notif.helper.initializedIdentityInclusiveHandlersLength; ++i) {
 
 	    var responsesTmp = {};
-	    var handler = __notif.helper.initializedHandlers[i];
+	    var handler = __notif.helper.initializedIdentityInclusiveHandlers[i];
 
 	    Object.keys(handler.responses).forEach(function(key) {
 
@@ -384,7 +395,7 @@ __notif.helper = {
 	    var institution = __notif.helper.pointers.institutions[source];
 
 	    var cat_username = institution.attr('data-id');
-	    __notif.helper.download(handler, cat_username);
+	    __notif.helper.downloadUsingCatUsername(handler, cat_username);
 	};
 
 	Object.keys(__notif.helper.pointers.institutions).forEach(
@@ -392,15 +403,30 @@ __notif.helper = {
     },
 
     /**
-     * Downloads all possible notifications within all the handlers initialized.
+     * Downloads all possible notifications within all the initialized identity
+     * inclusive handlers
      * 
      * It basically calls __notif.helper.download(handler) for each one.
      */
     downloadForAllHandlers : function() {
-	for (var i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
-	    var handler = __notif.helper.initializedHandlers[i];
+	for (var i = 0; i < __notif.helper.initializedIdentityInclusiveHandlersLength; ++i) {
+	    var handler = __notif.helper.initializedIdentityInclusiveHandlers[i];
 
 	    __notif.helper.download(handler);
+	}
+    },
+
+    /**
+     * Downloads notifications for provided cat_username within all the
+     * initialized identity inclusive handlers
+     * 
+     * @param cat_username
+     */
+    downloadForAllHandlersUsingCatUsername : function(cat_username) {
+	for (var i = 0; i < __notif.helper.initializedIdentityInclusiveHandlersLength; ++i) {
+	    var handler = __notif.helper.initializedIdentityInclusiveHandlers[i];
+
+	    __notif.helper.downloadUsingCatUsername(handler, cat_username);
 	}
     },
 
@@ -411,7 +437,11 @@ __notif.helper = {
      * @param cat_username
      * @returns
      */
-    download : function(handler, cat_username) {
+    downloadUsingCatUsername : function(handler, cat_username) {
+
+	if (handler === undefined) {
+	    return __notif.helper.printErr('No handler provided !');
+	}
 
 	if (cat_username === undefined) {
 	    return __notif.helper.printErr('No cat_username provided !');
@@ -438,20 +468,30 @@ __notif.helper = {
     },
 
     /**
-     * Perform the fetching for all identites using provided handler
+     * Perform the fetching for all identites using provided handler.
      * 
      * @param handler
      */
     fetch : function(handler) {
 
-	// Get the notifies object from storage
-	localforage.getItem('__notif.' + handler.localforageItemName, function(
-		err, savedResponses) {
+	if (handler.isIdentityInclusive) {
 
-	    __notif.helper.printErr(err, savedResponses);
+	    // Get the notifies object from storage
+	    localforage.getItem('__notif.' + handler.localforageItemName,
+		    function(err, savedResponses) {
 
-	    __notif.helper.processSavedResponses(handler, savedResponses);
-	});
+			__notif.helper.printErr(err, savedResponses);
+
+			__notif.helper.processSavedResponses(handler,
+				savedResponses);
+		    });
+	} else {
+	    /*
+	     * The handler does not care about storing any information as it is
+	     * identity exclusive .. So we don't need to store responses
+	     */
+	    handler.fetch();
+	}
     },
 
     /**
@@ -494,9 +534,9 @@ __notif.helper = {
      * @returns {Boolean}
      */
     printErr : function(err, val) {
-	if (__notif.options.development && err !== null) {
+	if (__notif.options.development && err !== undefined && err !== null) {
 	    console.error("notifications.js produced an error: " + err);
-	    if (val !== null) {
+	    if (val !== undefined && val != null) {
 		console.error("value having problem with is '" + val.toSource()
 			+ "'");
 	    }
@@ -517,9 +557,9 @@ __notif.helper = {
     },
 
     /**
-     * Manages saving the responses used with provided handler & calls the
-     * handler.processResponse() method in order to have customizable behavior
-     * for each handler
+     * Manages saving the responses used with provided identity inclusive
+     * handler & calls the handler.processResponse() method in order to have
+     * customizable behavior for each identity inclusive handler
      * 
      * @param handler
      * @param savedResponses
@@ -563,7 +603,8 @@ __notif.helper = {
     /**
      * Do not call this function twice - as it'd probably result in an error.
      * 
-     * It handles saving handler's state using localforage library.
+     * It handles saving identity inclusive handler's responses using
+     * localforage library.
      * 
      * @param handler
      */
@@ -581,7 +622,8 @@ __notif.helper = {
     },
 
     /**
-     * Updates saved notifications used by provided handler
+     * Updates saved notifications used by the provided identity inclusive
+     * handler
      * 
      * @param handler
      * @param response
@@ -594,12 +636,16 @@ __notif.helper = {
 
 	var institutionsCount = Object
 		.keys(__notif.helper.pointers.institutions).length;
-	// have we fetched all the institutions ?
-	// FIXME possible unexpected behavior?
+
+	/*
+	 * Have we fetched all the institutions within this identity inclusive
+	 * handler?
+	 */
 	if (Object.keys(handler.responses).length >= institutionsCount) {
 
-	    // This one is called only after fresh notifications were
-	    // fetched
+	    /*
+	     * This one is called only after fresh notifications were fetched
+	     */
 	    __notif.helper.save(handler);
 	}
     },
@@ -642,16 +688,21 @@ __notif.helper = {
 		currIdentities.splice(i, 1);
 	    } else {
 
-		// No, we don't know anything about this
-		// identity ->
-		// New identity connected
+		/*
+		 * No, we don't know anything about this identity -> New
+		 * identity connected
+		 */
 
 		// Fetch notificatios for new cat_username
 		var cat_username = __notif.helper.pointers.institutions[source]
 			.attr('data-id');
 
-		// Redownload new identity for all the handlers initialized
-		__notif.helper.downloadForAllHandlers(cat_username);
+		/*
+		 * Redownload new identity for all the initialized identity
+		 * inclusive handlers
+		 */
+		__notif.helper
+			.downloadForAllHandlersUsingCatUsername(cat_username);
 	    }
 	};
 
@@ -684,8 +735,10 @@ __notif.helper.init = function(handlers) {
     // Get all divs with any data-type
     var sections = notifList.children('li').children('div[data-type]');
 
-    // Iterate over these & decide which one is global & which is an
-    // institution div
+    /*
+     * Iterate over these & decide which one is global & which is an institution
+     * div
+     */
     sections.each(function(i, section) {
 
 	var type = section.getAttribute('data-type');
@@ -735,23 +788,36 @@ __notif.helper.init = function(handlers) {
 
     if (typeof handlers === 'object' && handlers instanceof Array) {
 	// Prepare for effective array iteration over handlers
-	__notif.helper.initializedHandlersLength = handlers.length;
-	var i = 0;
+	var handlersCount = handlers.length;
 
-	// Initialize all the handlers into the
-	// __notif.helper.initializedHandlers to be capaable of effective
-	// identities synchronization
-	for (; i < __notif.helper.initializedHandlersLength; ++i) {
+	/*
+	 * Initialize all the handlers into the
+	 * __notif.helper.initializedIdentityInclusiveHandlers to be capable of
+	 * effective identities synchronization
+	 */
+	for (var i = 0; i < handlersCount; ++i) {
 	    var handler = handlers[i];
 
-	    if (handler.isIdentityInclusive)
-		__notif.helper.initializedHandlers.push(handler);
+	    if (handler.isIdentityInclusive) {
+		__notif.helper.initializedIdentityInclusiveHandlers
+			.push(handler);
+	    } else {
+		__notif.helper.initializedIdentityExclusiveHandlers
+			.push(handler);
+	    }
 	}
 
+	// Set the length of initializied identity inclusive handlers length
+	__notif.helper.initializedIdentityInclusiveHandlersLength = __notif.helper.initializedIdentityInclusiveHandlers.length;
+
+	// Set the length of initializied identity exclusive handlers length
+	__notif.helper.initializedIdentityExclusiveHandlersLength = __notif.helper.initializedIdentityExclusiveHandlers.length;
+
 	// Now fetch all the handlers
-	for (i = 0; i < __notif.helper.initializedHandlersLength; ++i) {
+	for (i = 0; i < handlersCount; ++i) {
 	    handlers[i].fetch();
 	}
+
     } else {
 	var message = 'No handlers were specified to fetch !'
 		+ 'consider adding at least __notif.global handler'
