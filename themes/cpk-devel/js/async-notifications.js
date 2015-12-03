@@ -49,7 +49,7 @@ __notif.blocks = {
 	var shouldBePassive = $('body').children('div.template-name-profile').length !== 0;
 
 	if (!shouldBePassive)
-	    __notif.helper.fetch(this);
+	    __notif.helper.fetch(__notif.blocks);
     },
 
     /**
@@ -63,20 +63,25 @@ __notif.blocks = {
 	var data = response.data, status = response.status;
 
 	var institution = data.source, blocks = data.blocks, message = data.message;
-	
-	var count = data.blocks instanceof Array ? data.blocks.length : 0;
+
+	var count = 0;
+
+	if (blocks instanceof Array) {
+	    count = blocks.length;
+	} else if (blocks instanceof Object) {
+	    count = Object.keys(blocks).length;
+	}
 
 	if (status === 'OK') {
-	    
+
 	    if (count !== 0) {
 		Object.keys(blocks).forEach(
 			function(key) {
 			    __notif.addNotification(blocks[key], 'warning',
-				    institution, true,
-				    __notif.blocks.eventListeners);
+				    institution, true, __notif.blocks);
 			});
 	    }
-	    
+
 	    return count;
 
 	} else { // We have recieved an error
@@ -111,7 +116,7 @@ __notif.fines = {
 		.match(/^\/[a-zA-Z]+\/Fines/);
 
 	if (!shouldBePassive)
-	    __notif.helper.fetch(this);
+	    __notif.helper.fetch(__notif.fines);
     },
 
     // This function will render the fines passed to it ...
@@ -132,7 +137,7 @@ __notif.global = {
     nothingRecievedCount : 0,
 
     informAboutNothingRecieved : function() {
-	if (++this.nothingRecievedCount === __notif.helper.handlersCount) {
+	if (++__notif.global.nothingRecievedCount === __notif.helper.handlersCount) {
 
 	    // Remove the loader
 	    __notif.helper.pointers.global.siblings('div.notif-default')
@@ -151,7 +156,7 @@ __notif.global = {
 	if (initialCount > 0)
 	    __notif.warning.show();
 	else
-	    this.informAboutNothingRecieved();
+	    __notif.global.informAboutNothingRecieved();
 
 	// Is the message 'without_notifications' shown as the only one notif?
 	__notif.global.withoutNotifications = __notif.helper.pointers.global
@@ -182,11 +187,13 @@ __notif.global = {
  * recognize an institution
  * 
  */
+
 __notif.addNotification = function(message, msgclass, institution,
 	showWarningIcon, handler) {
 
     if (message === undefined) {
-	return this.printErr('Please provide message to notify about.');
+	return __notif.helper
+		.printErr('Please provide message to notify about.');
     }
 
     // Create the notification Element
@@ -194,7 +201,7 @@ __notif.addNotification = function(message, msgclass, institution,
 
     // Set the default
     if (msgclass === undefined
-	    || this.options.allowedClasses.indexOf(msgclass) === -1) {
+	    || __notif.options.allowedClasses.indexOf(msgclass) === -1) {
 	msgclass = 'default';
     }
 
@@ -215,8 +222,7 @@ __notif.addNotification = function(message, msgclass, institution,
     notif.setAttribute('class', clazz);
     notif.textContent = message;
 
-    __notif.helper.appendNotification(notif, institution, showWarningIcon,
-	    handler);
+    __notif.helper.appendNotification(notif, institution, handler);
 
     return true;
 };
@@ -229,8 +235,8 @@ __notif.warning = {
     showedAlready : false,
 
     show : function() {
-	if (!this.showedAlready) {
-	    this.showedAlready = true;
+	if (!__notif.warning.showedAlready) {
+	    __notif.warning.showedAlready = true;
 	    __notif.helper.pointers.warningIcon.show();
 	}
     },
@@ -239,8 +245,8 @@ __notif.warning = {
      * Should we hide it permanently based on what user clicked?
      */
     hide : function() {
-	if (this.showedAlready) {
-	    this.showedAlready = false;
+	if (__notif.warning.showedAlready) {
+	    __notif.warning.showedAlready = false;
 	    __notif.helper.pointers.warningIcon.hide();
 	}
     }
@@ -315,7 +321,7 @@ __notif.helper = {
 
 	    Object.keys(handler.eventListeners).forEach(function(key) {
 		if (typeof handler.eventListeners[key] === 'function')
-		    notif.addEventListener(key, handler.eventListeners[key]);
+		    identityNotificationsElement.on(key, handler.eventListeners[key]);
 	    });
 
 	}
@@ -531,10 +537,10 @@ __notif.helper = {
 		    + "' wasn't properly initialized."
 		    + ' An attempt to resolve it failed';
 
-	    this.printErr(message);
+	    __notif.helper.printErr(message);
 
 	    message = 'Are you sure you are trying to access existing institution notifications?';
-	    return this.printErr(message);
+	    return __notif.helper.printErr(message);
 	}
 
 	return identityNotificationsElement;
@@ -649,7 +655,7 @@ __notif.helper = {
 	    responses : handler.responses,
 	    timeSaved : Date.now()
 	};
-	
+
 	handler.timeSaved = localforageItem.timeSaved;
 
 	localforage.setItem('__notif.' + handler.localforageItemName,
