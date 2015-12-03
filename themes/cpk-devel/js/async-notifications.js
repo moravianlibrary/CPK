@@ -5,8 +5,7 @@
 $(function() { // Onload DOM ..
 
     /*
-     * Provide identity exclusive handlers before identity inclusive as they may
-     * depend on each other
+     * Provide sync handlers before async as they may depend on each other
      */
     var handlers = [ __notif.global, __notif.blocks, __notif.fines ];
 
@@ -20,7 +19,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.0.3',
+	version : '1.1.0',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -39,7 +38,7 @@ __notif.blocks = {
     ajaxMethod : 'getMyBlocks',
     localforageItemName : 'blocks',
 
-    isIdentityInclusive : true,
+    isAsync : true,
 
     // Define eventListeners
     eventListeners : {
@@ -97,7 +96,7 @@ __notif.fines = {
     ajaxMethod : 'getMyFines',
     localforageItemName : 'fines',
 
-    isIdentityInclusive : true,
+    isAsync : true,
 
     // Define eventListeners
     eventListeners : {
@@ -128,7 +127,11 @@ __notif.global = {
 
     withoutNotifications : false,
 
-    isIdentityInclusive : false,
+    isAsync : false,
+
+    informAboutNothingRecieved : function(handler) {
+
+    },
 
     // TODO: think about global notifications being parsed asynchronously ..
     fetch : function() {
@@ -235,14 +238,20 @@ __notif.helper = {
     // Defining helper ariables here
 
     /**
-     * Arrays each holding the identity inclusive/exclusive handlers that were
-     * initialized
+     * Array holding the handlers which has implemented method called
+     * 'informAboutNothingRecieved'
      */
-    initializedIdentityInclusiveHandlers : [],
-    initializedIdentityExclusiveHandlers : [],
+    handlersToInformAboutNothingRecieved : [],
+    handlersToInformAboutNothingRecievedLength : 0,
 
-    initializedIdentityInclusiveHandlersLength : 0,
-    initializedIdentityExclusiveHandlersLength : 0,
+    /**
+     * Arrays each holding the sync/async handlers that were initialized
+     */
+    initializedAsyncHandlers : [],
+    initializedSyncHandlers : [],
+
+    initializedAsyncHandlersLength : 0,
+    initializedSyncHandlersLength : 0,
 
     /**
      * Count of User's institutions (libraryCards within VuFind)
@@ -321,18 +330,7 @@ __notif.helper = {
 	var getVersionCallback = function(err, val) {
 	    __notif.helper.printErr(err, val);
 
-	    if (val === null) {
-		// FIXME remove this global localforage removal as it would wipe
-		// out other saved object not desired to be wiped out later
-
-		// it is here mainly because in the earliest version we cannot
-		// recognize the notifications' object within storage
-		localforage.clear();
-
-		// Set the version to the current version
-		setCurrVersion();
-
-	    } else if (val !== __notif.options.version) {
+	    if (val !== __notif.options.version) {
 		__notif.helper.clearTheCrumbs();
 
 		// Set the version to the current version
@@ -352,10 +350,10 @@ __notif.helper = {
      */
     clearInstitutions : function(institutions) {
 
-	for (var i = 0; i < __notif.helper.initializedIdentityInclusiveHandlersLength; ++i) {
+	for (var i = 0; i < __notif.helper.initializedAsyncHandlersLength; ++i) {
 
 	    var responsesTmp = {};
-	    var handler = __notif.helper.initializedIdentityInclusiveHandlers[i];
+	    var handler = __notif.helper.initializedAsyncHandlers[i];
 
 	    Object.keys(handler.responses).forEach(function(key) {
 
@@ -403,14 +401,14 @@ __notif.helper = {
     },
 
     /**
-     * Downloads all possible notifications within all the initialized identity
-     * inclusive handlers
+     * Downloads all possible notifications within all the initialized async
+     * handlers
      * 
      * It basically calls __notif.helper.download(handler) for each one.
      */
     downloadForAllHandlers : function() {
-	for (var i = 0; i < __notif.helper.initializedIdentityInclusiveHandlersLength; ++i) {
-	    var handler = __notif.helper.initializedIdentityInclusiveHandlers[i];
+	for (var i = 0; i < __notif.helper.initializedAsyncHandlersLength; ++i) {
+	    var handler = __notif.helper.initializedAsyncHandlers[i];
 
 	    __notif.helper.download(handler);
 	}
@@ -418,13 +416,13 @@ __notif.helper = {
 
     /**
      * Downloads notifications for provided cat_username within all the
-     * initialized identity inclusive handlers
+     * initialized async handlers
      * 
      * @param cat_username
      */
     downloadForAllHandlersUsingCatUsername : function(cat_username) {
-	for (var i = 0; i < __notif.helper.initializedIdentityInclusiveHandlersLength; ++i) {
-	    var handler = __notif.helper.initializedIdentityInclusiveHandlers[i];
+	for (var i = 0; i < __notif.helper.initializedAsyncHandlersLength; ++i) {
+	    var handler = __notif.helper.initializedAsyncHandlers[i];
 
 	    __notif.helper.downloadUsingCatUsername(handler, cat_username);
 	}
@@ -474,7 +472,7 @@ __notif.helper = {
      */
     fetch : function(handler) {
 
-	if (handler.isIdentityInclusive) {
+	if (handler.isAsync) {
 
 	    // Get the notifies object from storage
 	    localforage.getItem('__notif.' + handler.localforageItemName,
@@ -488,7 +486,7 @@ __notif.helper = {
 	} else {
 	    /*
 	     * The handler does not care about storing any information as it is
-	     * identity exclusive .. So we don't need to store responses
+	     * sync .. So we don't need to store responses
 	     */
 	    handler.fetch();
 	}
@@ -557,9 +555,9 @@ __notif.helper = {
     },
 
     /**
-     * Manages saving the responses used with provided identity inclusive
-     * handler & calls the handler.processResponse() method in order to have
-     * customizable behavior for each identity inclusive handler
+     * Manages saving the responses used with provided async handler & calls the
+     * handler.processResponse() method in order to have customizable behavior
+     * for each async handler
      * 
      * @param handler
      * @param savedResponses
@@ -603,8 +601,7 @@ __notif.helper = {
     /**
      * Do not call this function twice - as it'd probably result in an error.
      * 
-     * It handles saving identity inclusive handler's responses using
-     * localforage library.
+     * It handles saving async handler's responses using localforage library.
      * 
      * @param handler
      */
@@ -622,8 +619,7 @@ __notif.helper = {
     },
 
     /**
-     * Updates saved notifications used by the provided identity inclusive
-     * handler
+     * Updates saved notifications used by the provided async handler
      * 
      * @param handler
      * @param response
@@ -638,8 +634,7 @@ __notif.helper = {
 		.keys(__notif.helper.pointers.institutions).length;
 
 	/*
-	 * Have we fetched all the institutions within this identity inclusive
-	 * handler?
+	 * Have we fetched all the institutions within this async handler?
 	 */
 	if (Object.keys(handler.responses).length >= institutionsCount) {
 
@@ -698,8 +693,8 @@ __notif.helper = {
 			.attr('data-id');
 
 		/*
-		 * Redownload new identity for all the initialized identity
-		 * inclusive handlers
+		 * Redownload new identity for all the initialized async
+		 * handlers
 		 */
 		__notif.helper
 			.downloadForAllHandlersUsingCatUsername(cat_username);
@@ -786,32 +781,45 @@ __notif.helper.init = function(handlers) {
     // Now check user already updated his storage data
     __notif.helper.checkVersion();
 
+    // Finally, initialize each handler
     if (typeof handlers === 'object' && handlers instanceof Array) {
 	// Prepare for effective array iteration over handlers
 	var handlersCount = handlers.length;
 
-	/*
-	 * Initialize all the handlers into the
-	 * __notif.helper.initializedIdentityInclusiveHandlers to be capable of
-	 * effective identities synchronization
-	 */
 	for (var i = 0; i < handlersCount; ++i) {
 	    var handler = handlers[i];
 
-	    if (handler.isIdentityInclusive) {
-		__notif.helper.initializedIdentityInclusiveHandlers
-			.push(handler);
+	    /*
+	     * Initialize all the handlers into the
+	     * __notif.helper.initializedAsyncHandlers to be capable of
+	     * effective identities synchronization
+	     */
+	    if (handler.isAsync) {
+		__notif.helper.initializedAsyncHandlers.push(handler);
 	    } else {
-		__notif.helper.initializedIdentityExclusiveHandlers
+		__notif.helper.initializedSyncHandlers.push(handler);
+	    }
+
+	    /*
+	     * Process methods informAboutNothingRecieved of each handler that
+	     * desires to be informed everytime some handler did not recieve
+	     * anything notifyable
+	     */
+	    if (handler.hasOwnProperty('informAboutNothingRecieved')
+		    && typeof handler.informAboutNothingRecieved === 'function') {
+		__notif.helper.handlersToInformAboutNothingRecieved
 			.push(handler);
 	    }
+
 	}
 
-	// Set the length of initializied identity inclusive handlers length
-	__notif.helper.initializedIdentityInclusiveHandlersLength = __notif.helper.initializedIdentityInclusiveHandlers.length;
-
-	// Set the length of initializied identity exclusive handlers length
-	__notif.helper.initializedIdentityExclusiveHandlersLength = __notif.helper.initializedIdentityExclusiveHandlers.length;
+	/*
+	 * Set the lengths of all the handlers we have somehow splitted into
+	 * custom arrays for effective parsing
+	 */
+	__notif.helper.initializedAsyncHandlersLength = __notif.helper.initializedAsyncHandlers.length;
+	__notif.helper.initializedSyncHandlersLength = __notif.helper.initializedSyncHandlers.length;
+	__notif.helper.handlersToInformAboutNothingRecievedLength = __notif.helper.handlersToInformAboutNothingRecieved.length;
 
 	// Now fetch all the handlers
 	for (i = 0; i < handlersCount; ++i) {
