@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.1.1',
+	version : '1.2.0',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -135,7 +135,7 @@ __notif.fines = {
  */
 __notif.overdues = {
 
-    ajaxMethod : 'getMyTransactions',
+    ajaxMethod : 'haveAnyOverdue',
     localforageItemName : 'overdues',
 
     isAsync : true,

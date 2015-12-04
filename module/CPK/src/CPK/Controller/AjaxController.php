@@ -543,7 +543,7 @@ class AjaxController extends AjaxControllerBase
                     'AJAX' => true
                 ]);
             
-            $splitted_cat_username = split('\.', $cat_username);
+            $splitted_cat_username = explode('.', $cat_username);
 
             $toRet = [
                 'html' => $html,
@@ -562,6 +562,60 @@ class AjaxController extends AjaxControllerBase
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                 ],
                 self::STATUS_ERROR);
+    }
+    
+    public function haveAnyOverdueAjax()
+    {
+            // Get the cat_username being requested
+        $cat_username = $this->params()->fromPost( 'cat_username' );
+        
+        $hasPermissions = $this->hasPermissions( $cat_username );
+        
+        if ($hasPermissions instanceof \Zend\Http\Response)
+            return $hasPermissions;
+                
+        $ilsDriver = $this->getILS()->getDriver();
+        
+        if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
+            
+            $patron = [
+                'cat_username' => $cat_username,
+                'id' => $cat_username
+            ];
+            
+            try {
+                // Try to get the profile ..
+                $result = $ilsDriver->getMyTransactions( $patron );
+            } catch ( \VuFind\Exception\ILS $e ) {
+                return $this->outputException( $e, $cat_username );
+            }
+            
+            $showOverdueMessage = false;
+            
+            foreach ( $result as $current ) {
+                
+                $ilsDetails = $this->getDriverForILSRecord( $current )->getExtraDetail( 'ils_details' );
+                
+                if (isset( $ilsDetails['dueStatus'] ) && $ilsDetails['dueStatus'] == "overdue") {
+                    $showOverdueMessage = true;
+                }
+            }
+            
+            $source = explode( '.', $cat_username )[0];
+            
+            $toRet = [
+                'overdue' => $showOverdueMessage,
+                'source' => $source
+            ];
+            
+            return $this->output( $toRet, self::STATUS_OK );
+        } else
+            return $this->output( 
+                    [
+                        'source' => $source,
+                        'cat_username' => $cat_username,
+                        'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
+                    ], self::STATUS_ERROR );
     }
 
     /**
