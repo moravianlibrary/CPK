@@ -433,6 +433,16 @@
       </td>
     </tr>
   <? endif; ?>
+  
+  <? $nonStandardISBN = $this->driver->getNonStandardISBN(); if (! empty($nonStandardISBN)): ?>
+    <? $contentDisplayed = true; ?>
+    <tr>
+      <th><?=$this->transEsc('Non-standard ISBN')?>: </th>
+      <td>
+          <?=$this->escapeHtml($nonStandardISBN[0])?>
+      </td>
+    </tr>
+  <? endif; ?>
 
   <? $issns = $this->driver->getISSNs(); if (!empty($issns)): ?>
     <? $contentDisplayed = true; ?>

@@ -627,4 +627,9 @@ class SolrMarc extends ParentSolrMarc
     {
         return isset($this->fields['recordtype']) ? $this->fields['recordtype'] : '';
     }
+    
+    public function getNonStandardISBN()
+    {
+        return $this->getFieldArray('902');
+    }
 }
