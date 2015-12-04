@@ -7,10 +7,7 @@
  * Copyright (C) UB/FU Berlin
  *
  * last update: 7.11.2007
- * tested with X-Server Aleph 18.1.
- *
- * TODO: login, course information, getNewItems, duedate in holdings,
- * https connection to x-server, ...
+ * tested with X-Server Aleph 22
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -35,8 +32,6 @@ namespace CPK\ILS\Driver;
 
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
 use VuFind\ILS\Driver\SolrIdResolver as SolrIdResolverBase;
-use VuFind\ILS\Driver\AlephRestfulException;
-
 class Aleph extends AlephBase
 {
 
