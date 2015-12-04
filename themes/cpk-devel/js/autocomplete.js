@@ -177,6 +177,7 @@
       input.keydown(function(event) {
         var element = $(this).data('element');
         var position = $(this).data('selected');
+        var linescount = $('div.autocomplete-results > div.item').length;
         switch (event.which) {
           // arrow keys through items
           case 38: {
@@ -187,18 +188,26 @@
               element.find('.item:eq('+position+')').addClass('selected');
               $(this).data('selected', position);
             } else {
-              $(this).data('selected', -1);
+              position = linescount - 1;
+              element.find('.item:eq('+position+')').addClass('selected');
+              $(this).data('selected', position);
             }
             break;
           }
           case 40: {
             show(element);
             event.preventDefault();
-            if (position < options.maxResults) {
+            if (position < linescount -1) {
               position++;
               element.find('.item.selected').removeClass('selected');
               element.find('.item:eq('+position+')').addClass('selected');
               $(this).data('selected', position);
+            }
+            else {
+            	position = 0;
+                element.find('.item.selected').removeClass('selected');
+                element.find('.item:eq('+position+')').addClass('selected');
+                $(this).data('selected', position);
             }
             break;
           }
@@ -216,6 +225,10 @@
               }
             }
             break;
+          }
+          case 27: {
+        	  element.addClass('autocomplete-results hidden');
+              break;
           }
         }
       });
