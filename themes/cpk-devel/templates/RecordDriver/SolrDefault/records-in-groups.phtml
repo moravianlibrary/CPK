@@ -12,11 +12,11 @@
 
 
 	<? if (count($dedupedRecords) !== 1) :?>
-	<div class='dropdown btn btn-default' style='width: 100%;'>
-		<span class='ropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' id='records-in-groups-nav'>
+	<div class="dropdown">
+		<div class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' style='width: 100%;' id='records-in-groups-nav'>
 	<? else : ?>
-	<div class='dropdown'>
-		<span>
+	<div>
+		<div class='single-institution' style='width: 100%;'>
 	<? endif;?>
 			<h3 style="margin-top: 5px; margin-bottom: 5px;">
 			<? if ($logoUrl) : ?>
@@ -32,8 +32,7 @@
 			</span>
 			</h3>
 
-		</span>
-
+		</div>
 		<ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
 			<?
     			// put caslin at the end and cnb before caslin, when available
@@ -57,8 +56,6 @@
                 foreach ($tempCaslins as $key => $record) {
                     $dedupedRecords[] = $record;
                 }
-    			//
-			
 		  		foreach ($dedupedRecords as $record) {
 	  				$link = $record['id'];
 	  				$source = $record['source'];
@@ -77,5 +74,4 @@
 		  	?>
 		</ul>
 	</div>
-
-  </div>
+</div>
