@@ -31,7 +31,7 @@ __notif.blocks = {
     responses : {},
     timeSaved : 0,
 
-    ajaxMethod : 'getMyBlocks',
+    ajaxMethod : 'getMyProfile',
     localforageItemName : 'blocks',
 
     isAsync : true,
@@ -39,7 +39,6 @@ __notif.blocks = {
     // Define eventListeners
     eventListeners : {
 	click : function() {
-	    __notif.warning.hide();
 	    window.location = '/MyResearch/Profile';
 	},
     },
@@ -60,36 +59,26 @@ __notif.blocks = {
      */
     processResponse : function(response) {
 
-	var data = response.data, status = response.status;
+	var data = response.data, status = response.status, institution = data.source;
 
-	var institution = data.source, blocks = data.blocks, message = data.message;
+	var blocks = data.blocks, blocksCount = Object.keys(blocks).length;
 
-	var count = 0;
-
-	if (blocks instanceof Array) {
-	    count = blocks.length;
-	} else if (blocks instanceof Object) {
-	    count = Object.keys(blocks).length;
-	}
+	var hasBlocks = (blocksCount > 0) ? true : false;
 
 	if (status === 'OK') {
 
-	    if (count !== 0) {
-		Object.keys(blocks).forEach(
-			function(key) {
-			    __notif.addNotification(blocks[key], 'warning',
-				    institution, true, __notif.blocks);
-			});
+	    if (hasBlocks) {
+
+		__notif.addNotification(VuFind.translate('you_have_blocks'),
+			'warning', institution, true, __notif.blocks);
 	    }
 
-	    return count;
-
 	} else { // We have recieved an error
-	    // TODO: Implement showing the error
-	    count = 0;
 
-	    return count;
+	    __notif.helper.printErr("Status recieved is not 'OK' !", response);
 	}
+
+	return hasBlocks;
     },
 };
 
@@ -121,8 +110,52 @@ __notif.fines = {
 
     // This function will render the fines passed to it ...
     processResponse : function(response) {
-	// TODO
-	return 0;
+
+	var data = response.data, status = response.status, institution = data.source;
+
+	var fines = data.fines, finesKeys = Object.keys(fines), finesKeysLength = finesKeys.length;
+
+	var hasDebt = false, credit = 0;
+
+	// Sum up all the fines to find out if user has debt or credit ..
+	for (var i = 0; i < finesKeysLength; ++i) {
+
+	    var fine = fines[finesKeys[i]];
+
+	    if (typeof fine !== 'Object') {
+		// this is not a fine -> continue (fine is always an object)
+		continue;
+	    }
+
+	    var amount = fine.amount;
+	    if (amount === undefined) {
+
+		hasDebt = true;
+		break;
+	    }
+
+	    credit += amount;
+	}
+
+	// If not decided yet, check the user's credit
+	if (hasDebt === false) {
+	    hasDebt = (credit < 0) ? true : false;
+	}
+
+	if (status === 'OK') {
+
+	    if (hasDebt) {
+
+		__notif.addNotification(VuFind.translate('you_have_fines'),
+			'warning', institution, true, __notif.fines);
+	    }
+
+	} else { // We have recieved an error
+
+	    __notif.helper.printErr("Status recieved is not 'OK' !", response);
+	}
+
+	return hasDebt;
     },
 };
 
@@ -254,7 +287,7 @@ __notif.warning = {
 
 __notif.helper = {
 
-    // Defining helper ariables here
+    // Defining helper variables here
 
     /**
      * Array holding the handlers which has implemented method called
@@ -319,10 +352,12 @@ __notif.helper = {
 	if (handler !== undefined && typeof handler.eventListeners === 'object'
 		&& !(handler.eventListeners instanceof Array)) {
 
-	    Object.keys(handler.eventListeners).forEach(function(key) {
-		if (typeof handler.eventListeners[key] === 'function')
-		    identityNotificationsElement.on(key, handler.eventListeners[key]);
-	    });
+	    Object.keys(handler.eventListeners).forEach(
+		    function(key) {
+			if (typeof handler.eventListeners[key] === 'function')
+			    notificationElement.addEventListener(key,
+				    handler.eventListeners[key]);
+		    });
 
 	}
 	// Append the notification
@@ -578,24 +613,25 @@ __notif.helper = {
 	}
 
 	// Let the handler handle the response itself
-	var countOfNotificationsAdded = handler.processResponse(response);
+	var notificationAdded = handler.processResponse(response);
 
-	if (countOfNotificationsAdded === undefined) {
-	    var msg = 'Every handler must return number of processed '
-		    + '̈́notifications from processResponse method!';
+	if (notificationAdded === undefined
+		|| typeof notificationAdded !== 'boolean') {
+
+	    var msg = 'Every handler must return true/false if an notification was added!';
 
 	    __notif.helper.printErr(msg);
 	    return false;
 	}
 
-	if (countOfNotificationsAdded === 0) {
+	if (notificationAdded === false) {
 	    for (var i = 0; i < __notif.helper.handlersToInformAboutNothingRecievedLength; ++i) {
 		__notif.helper.handlersToInformAboutNothingRecieved[i]
 			.informAboutNothingRecieved(handler);
 	    }
 	}
 
-	return countOfNotificationsAdded;
+	return notificationAdded;
     },
 
     /**
