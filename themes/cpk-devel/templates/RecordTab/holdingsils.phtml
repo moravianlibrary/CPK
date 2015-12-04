@@ -125,8 +125,9 @@ $this->headTitle(
 
         // Create link for reserve
         if (! empty($row['item_id']) && $canReserveThisInstitution) {
+            $explodedItemId = explode(':', $row['item_id']);
             $row['link'] = '/Record/' . $row['id'] . '/Hold?id=' . $row['id'] .
-                 '&item_id=' . end(explode(':', $row['item_id']));
+                 '&item_id=' . end($explodedItemId);
 
             if (! empty($row['agency_id']))
                 $row['link'] .= '&agency_id=' . $row['agency_id'];
