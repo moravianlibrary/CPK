@@ -3,7 +3,7 @@ $(function() { // Onload DOM ..
     /*
      * Provide sync handlers before async as they may depend on each other
      */
-    var handlers = [ __notif.global, __notif.blocks, __notif.fines ];
+    var handlers = [ __notif.global, __notif.blocks, __notif.fines, __notif.overdues ];
 
     // Initialize the notifications' pointers
     __notif.helper.init(handlers);
@@ -156,6 +156,61 @@ __notif.fines = {
 	}
 
 	return hasDebt;
+    },
+};
+
+
+__notif.overdues = {
+    // institutions
+    responses : {},
+    timeSaved : 0,
+
+    ajaxMethod : 'getMyTransactions',
+    localforageItemName : 'overdues',
+
+    isAsync : true,
+
+    // Define eventListeners
+    eventListeners : {
+	click : function() {
+	    window.location = '/MyResearch/CheckedOut';
+	},
+    },
+
+    fetch : function() {
+	// Dont' be passive unless on Profile page ..
+	var shouldBePassive = document.location.pathname
+		.match(/^\/[a-zA-Z]+\/CheckedOut/);
+
+	if (!shouldBePassive)
+	    __notif.helper.fetch(__notif.overdues);
+    },
+
+    // This function will render the fines passed to it ...
+    processResponse : function(response) {
+
+	var data = response.data, status = response.status, institution = data.source;
+
+	var hasOverdues = data.overdue;
+	
+	if (hasOverdues === undefined) {
+	    hasOverdues = false;
+	}
+
+	if (status === 'OK') {
+
+	    if (hasOverdues) {
+
+		__notif.addNotification(VuFind.translate('you_have_overdues'),
+			'warning', institution, true, __notif.overdues);
+	    }
+
+	} else { // We have recieved an error
+
+	    __notif.helper.printErr("Status recieved is not 'OK' !", response);
+	}
+
+	return hasOverdues;
     },
 };
 

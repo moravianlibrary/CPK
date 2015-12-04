@@ -472,8 +472,10 @@ class AjaxController extends AjaxControllerBase
             return $hasPermissions;
 
         $renderer = $this->getViewRenderer();
+        
+        $catalog = $this->getILS();
 
-        $ilsDriver = $this->getILS()->getDriver();
+        $ilsDriver = $catalog->getDriver();
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
@@ -488,6 +490,8 @@ class AjaxController extends AjaxControllerBase
             } catch (\VuFind\Exception\ILS $e) {
                 return $this->outputException($e, $cat_username);
             }
+            
+            $renewStatus = $catalog->checkFunction('Renewals', compact('patron'));
 
             $obalky = $transactions = [];
 
@@ -538,13 +542,16 @@ class AjaxController extends AjaxControllerBase
                     'libraryIdentity' => compact('transactions'),
                     'AJAX' => true
                 ]);
+            
+            $splitted_cat_username = split('\.', $cat_username);
 
             $toRet = [
                 'html' => $html,
                 'obalky' => $obalky,
                 'canRenew' => $canRenew,
                 'overdue' => $showOverdueMessage,
-                'cat_username' => str_replace('.', '\.', $cat_username)
+                'cat_username' => join('\.', $splitted_cat_username),
+                'source' => $splitted_cat_username[0]
             ];
 
             return $this->output($toRet, self::STATUS_OK);

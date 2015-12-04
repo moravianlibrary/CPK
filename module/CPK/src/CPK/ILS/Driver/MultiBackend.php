@@ -158,6 +158,7 @@ class MultiBackend extends MultiBackendBase
                     $transaction['loan_id'] = $source . '.' . $transaction['loan_id'];
                 }
             }
+            
             return $this->addIdPrefixes($transactions, $source);
         }
         throw new ILSException('No suitable backend driver found');
