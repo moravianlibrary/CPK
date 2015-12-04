@@ -54,7 +54,8 @@ trait HoldsTrait
             return $patron;
         }
 
-        $source = reset(explode('.', $uniqueId));
+        $explodedUniqueId = explode('.', $uniqueId);
+        $source = reset($explodedUniqueId);
 
         $user = $this->getUser();
 
