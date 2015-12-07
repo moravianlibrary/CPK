@@ -1128,4 +1128,45 @@ class PiwikStatistics implements PiwikStatisticsInterface
 	
 		return $referrerTypes;
 	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getFacetAccessCount($period, $date, $facetValue, $type = "all")
+	{
+	    $params = array(
+            'method'  => 'VisitsSummary.getVisits',
+            'format'  => 'json',
+            'segment' => 'pageUrl=@'.urlencode($facetValue),
+	    );
+	
+	    if ($type == "anonyme")
+	        $params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1==';
+	
+        if ($type == "authenticated")
+            $params['segment'] .= ';customVariablePageName1==UserLibcard;customVariablePageValue1!=';
+
+        $dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+        $count = $dataArray['value'];
+
+        return $count;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function getFacetAccessCountForLibrary($period, $date, $facetValue, $userLibCard)
+	{
+	    $params = array(
+            'method'  => 'VisitsSummary.getVisits',
+            'format'  => 'json',
+            'segment' => 'pageUrl=@'.urlencode($facetValue)
+            .';customVariablePageName1==UserLibcard;customVariablePageValue1=='.$userLibCard,
+	    );
+	
+	    $dataArray = $this->getResultDataAsArrayFromRequest($period, $date, $params);
+	    $count = $dataArray['value'];
+	
+	    return $count;
+	}
 }

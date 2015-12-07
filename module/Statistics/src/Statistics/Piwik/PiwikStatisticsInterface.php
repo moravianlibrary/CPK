@@ -465,4 +465,28 @@ interface PiwikStatisticsInterface
 	 * @return	array
 	 */
 	public function getReferredVisitsForLibrary($period, $date, $userLibCard);
+	
+	/**
+	 * Returns number of catalog accesses
+	 *
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param   string  $facetValue    Url contains string e.g.: institution="2/Library/Praha/NKP/"
+	 * @param	string	$type	all|anonyme|authenticated
+	 * @return	int
+	 */
+	public function getCatalogAccessCount($period, $date, $facetValue, $type = "all");
+	
+	/**
+	 * Returns number of catalog accesses with users logged in to the specific library
+	 *
+	 * @param	string	$period	day|week|month|year|range
+	 * @param	string	$date	YYYY-MM-DD|today|yesterday|lastX|previousX|
+	 * 							YYYY-MM-DD,YYYY-MM-DD|YYYY-MM-DD,today|YYYY-MM-DD,yesterday
+	 * @param   string  $facetValue    Url contains string e.g.: institution="2/Library/Praha/NKP/"
+	 * @param	string	$userLibCard
+	 * @return	int
+	 */
+	public function getCatalogAccessCountForLibrary($period, $date, $facetValue, $userLibCard);
 }
