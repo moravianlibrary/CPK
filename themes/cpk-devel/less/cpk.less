@@ -1,22 +1,36 @@
 @import "bootstrap";
 
 //import colors definitions
-@import "parts/_bootstrap-material-design-colors";
+@import "vendor/_bootstrap-material-design-colors";
 
 //import variables definitions
 @import "variables";
 
-@import "parts/alerts";
-@import "parts/well";
+//import element specific less files
+////////////////////////////////////
+@import "elements/alerts";
+@import "elements/well";
+@import "elements/cpk-icons";
+@import "elements/responsive-table";
+
+//import part specific less files
+/////////////////////////////////
+//contain styling for facets
 @import "parts/facets";
-@import "parts/header-searchbox";
+//contain styling for eu-cookies and header
+@import "parts/header";
+//contain styling for searchbox and autocomplete
+@import "parts/searchbox";
+//contain styling for footer
 @import "parts/footer";
+//contain styling for search results page
 @import "parts/search-results";
-@import "parts/cpk-icons";
-
-@import "parts/responsive-table";
-
-@import "statistics";
+//contain styling for notifications
+@import "parts/notifications";
+//contain styling for statistics module
+@import "parts/statistics";
+//contain styling for record page
+@import "parts/record";
 
 @brand-unknown: #9E9E9E;
 
@@ -26,111 +40,8 @@
   .label-variant(@label-unknown-bg);
 }
 
-header{
-  margin-bottom: 20px;
-}
-
 a {
   cursor: pointer;
-}
-
-#notificationsList {
-  padding-bottom: 0;
-  width:400px;
-}
-
-.notification-institution {
-  margin: 5px 15px 0 15px;
-}
-
-.notif-default, .notif-info, .notif-danger, .notif-warning, .notif-success, .notif-header{
-  border-bottom: 1px solid;
-  border-bottom-color: lightgrey;
-  min-height: 30px;
-}
-
-.notif-header{
-  font-weight: bold;
-  margin-top: 10px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.notif-default, .notif-info, .notif-danger, .notif-warning, .notif-success {
-  padding-left: 7px;
-  cursor: pointer;
-  padding-top: 3px;
-}
-
-.notif-default:hover, .notif-info:hover, .notif-danger:hover, .notif-warning:hover, .notif-success:hover {
-  background-color: #e3e3e3;
-}
-
-.notif-default:before, .notif-info:before, .notif-danger:before, .notif-warning:before, .notif-success:before {
-  display: inline-block;
-  font: normal normal normal 14px/1 FontAwesome;
-  font-size: inherit;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  padding-right: 5px;
-}
-
-.notif-default:before {
-  content: "\f111";
-}
-.notif-default {
-
-}
-
-.notif-info:before {
-  content: "\f05a";
-}
-.notif-info {
-
-}
-
-.notif-danger:before {
-  content: "\f071";
-}
-.notif-danger {
-
-}
-
-.notif-warning:before {
-  content: "\f071";
-}
-.notif-warning {
-
- }
-
-.notif-success:before {
-  content: "\f00c";
-}
-.notif-success {
-
-}
-
-.notificationWarning {
-    position: absolute;
-    right: 15px;
-    top: 9px;
-    color: red;
-}
-
-//search controls margin bottom
-.search-controls {
-  margin-bottom: 10px;
-}
-
-//search controls on one line
-.search-controls .text-right {
-  margin-top:-6px;
-}
-
-//record view
-.template-dir-record > .container {
-  padding: 0px;
 }
 
 .form-control {
@@ -146,55 +57,8 @@ a {
    margin: 0 !important;
 }
 
-.dedupInformation {
-   margin-top: 10px;
-}
-
-.show-next-institutions {
-   cursor: pointer;
-}
-
 .margin-bottom {
    margin-bottom: 20px;
 }
 
-//record view
-.record-export {
-	position: relative;
-}
-.record-toolbar li {
-	padding-left: 0px !important;
-}
-.record-export li a {
-	padding-left: 10px !important;
-	padding-right: 10px !important;
-}
 
-.autocomplete-results .autocomplete-results-category {
-    background-color: #333;
-    color: #eee;
-    font-weight: bold;
-    padding: 2px 0px 2px 8px;
-}
-.autocomplete-results .item {
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
-.single-institution{
-  color: #333;
-  background-color: #FFF;
-  display: inline-block;
-  margin-bottom: 0px;
-  font-weight: normal;
-  text-align: center;
-  vertical-align: middle;
-  border: 1px solid transparent;
-  font-size: 14px;
-  line-height: 1.42857;
-  border-radius: 0px;
-}
-
-.btn-default#records-in-groups-nav{
-  white-space: normal;
-}

@@ -1,4 +1,11 @@
+/* This file contains:
+    -bootstrap-material-design .list-group styling
+    -cpk specific facet styling
+*/
+
+
 //part copied from bootstrap-material-design
+////////////////////////////////////////////
 .list-group {
   border-radius: 0;
   .list-group-item {
@@ -104,6 +111,7 @@
 }
 
 //part with cpk custom changes
+//////////////////////////////
 .sidebar .facet a {
   //color: #8a8a8a;
   color: #333;
@@ -111,8 +119,6 @@
     text-decoration: underline;
 
   }
-
-
 }
 .sidebar .facet .badge {
   font-weight: normal;
@@ -152,4 +158,13 @@ li.jstree-facet ul {
   margin-left: -18px;
   font-size: 20px;
   margin-top: -5px;
+}
+
+//date visualization
+////////////////////
+#dateVisColorSettings {
+  background-color: #FFF;
+  fill: #eaeaea;
+  outline-color: lighten(@brand-primary, 20%);
+  stroke: #333;
 }
