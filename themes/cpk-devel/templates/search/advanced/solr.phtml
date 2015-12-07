@@ -16,9 +16,9 @@
                   <? $display = str_pad('', 4 * $value['level'] * 6, '&nbsp;', STR_PAD_LEFT) . $this->escapeHtml($value['displayText']); ?>
                   <? if ($field === 'institution'): $parent = str_replace("/", "", $value['parent']); $group = str_replace("/", "", $value['value']); ?>             
                       
-					<option class='<?=$field?>-option level_<?=$value['level']?><? if ($value['level'] > 0) echo ' hidden'; ?> group_<?=$group?> parent_<?=$parent?>'
+					<option class='<?=$field?>-option level_<?=$value['level']?><? if ($value['level'] > 0) echo ' hidden'; ?> group_<?=str_replace(" ", "-", $group)?> parent_<?=str_replace(" ", "-", $parent)?>'
 						level='<?=$value['level']?>' 
-						group='<?=$group?>'
+						group='<?=str_replace(" ", "-", $group)?>'
 						value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>><?=$display?>
 					</option>                 
                       
