@@ -193,6 +193,17 @@ class RecordController extends RecordControllerBase
         session_regenerate_id();
         $sessionId = session_id();
         
+        $hasControlfield002 = strpos($recordXml, 'controlfield tag="002"');
+        if ($hasControlfield002 === false) { // there is no controlfield 002
+            $afterTag = '</leader>';
+            $pos = strpos($recordXml, $afterTag);
+            $formats = $recordDriver->getFormats();
+            $formatMappings = $this->getConfig('facets')->FormatMappings;
+            $format = $formatMappings[preg_replace("/[^a-zA-Z]/", "", $formats[0])];
+            $newElement = "\n  <controlfield tag=\"002\">".$format."</controlfield>";
+            $recordXml = substr_replace($recordXml, $newElement, $pos+strlen($afterTag), 0);
+        }
+        
         $xml = '<?xml version = "1.0" encoding = "UTF-8"?>
 <publish-avail>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
