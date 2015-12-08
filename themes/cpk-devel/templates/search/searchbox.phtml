@@ -32,8 +32,21 @@
 <? else: ?>
   <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
     <?= $this->render('search/searchTabs'); ?>
+      <script>
+          $(document).ready(function(){
+              $("#searchForm_lookfor").keyup(function(){
+                  $("#searchclear").toggle(Boolean($(this).val()));
+              });
+              $("#searchclear").toggle(Boolean($("#searchForm_lookfor").val()));
+              $("#searchclear").click(function(){
+                  $("#searchForm_lookfor").val('').focus();
+                  $(this).hide();
+              });
+          });
+      </script>
     <div class="col-xs-12 col-sm-6 search-form-container">
       <input class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>" autofocus/>
+      <i class="fa fa-times" id="searchclear"></i>
     </div>
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
     <button type="submit" class="btn btn-primary find-button"><i class="icon-hledani"></i> <?=$this->transEsc("Find")?></button>

@@ -35,6 +35,24 @@
   margin-right: -5px;
 }
 
+//styling of cross for clearing search
+#searchclear {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  bottom: 0;
+  height: 14px;
+  margin: auto;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ccc;
+}
+
+//IE only
+//do not show default IE button for clearing search form - prevent duplication
+#searchForm_lookfor::-ms-clear {
+  display: none;
+}
 
 //autocomplete
 //////////////
