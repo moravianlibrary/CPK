@@ -113,13 +113,15 @@
 
 <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>" <?=(++$i > $maxInstitutionsShown) ? 'hidden="hidden"' : '' ?>>
     <div class="row root-title">
-        <div class="col-sm-1 nopadding text-center">
-            <? if($logoUrl): ?>
-                <img height='16px' src='<?=$logoUrl?>' />
-            <? endif; ?>
-        </div>
-        <div class="col-sm-8 nav-tabs">
+        <div class="col-sm-10 nav-tabs">
             <span class="<?=$recordInLibraryOwnershipClass?>"><?=$anchor?></span>
+        </div>
+        <div class="col-sm-2 nav-tabs nopadding text-right">
+            <? if($logoUrl): ?>
+                <img height='16px' src='<?=$logoUrl?>' style='padding-bottom: 2px; padding-right: 4px;' />
+            <? else: ?>
+            	&nbsp;
+            <? endif; ?>
         </div>
     </div>
 </a>
