@@ -946,6 +946,20 @@ class AjaxController extends AjaxControllerBase
     {
         $recordId = $this->params()->fromPost('recordId');
         
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordId);
+        
+        $parentRecordId = $recordDriver->getParentRecordId();
+        $parentRecordDriver = $recordLoader->load($parentRecordId);
+        
+        $format = $parentRecordDriver->getRecordType();
+        if ($format === 'marc')
+            $format .= '21';
+        $recordXml = $parentRecordDriver->getXml($format);
+        
+        if (strpos($recordXml, "datafield") === false)
+            return $this->output($statusCode, self::STATUS_ERROR);
+        
         $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
             .$recordId;
     
