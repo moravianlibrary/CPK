@@ -57,9 +57,29 @@
           <h2><?=$this->transEsc('nohit_heading')?></h2>
         <? endif; ?>
       </div>
+      
+      <div class="col-sm-3 text-center">
+      	<div class="hidden-print">
+            
+            <i class="icon-poslat-emailem"></i> 
+            <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>">
+            <?=$this->transEsc('Send results')?>
+            </a>
+            <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
+              |
+              <? if (is_numeric($this->results->getSearchId())): ?>
+                <? if ($this->results->isSavedSearch()): ?>
+                  <i class="fa fa-minus-square"></i> <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search_remove')?></a>
+                <? else: ?>
+                  <i class="icon-ulozit-vyhledavani"></i> <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search')?></a>
+                <? endif; ?>
+              <? endif; ?>
+            <? endif; ?>
+          </div>
+      </div>
 
       <? if ($recordTotal > 0): ?>
-        <div class="col-sm-9 text-right">
+        <div class="col-sm-6 text-right">
           <?=$this->render('search/controls/limit.phtml')?>
           <?=$this->render('search/controls/sort.phtml')?>
         </div>
@@ -91,20 +111,6 @@
       <? endforeach; ?>
     <? else: ?>
       <form class="form-inline" method="post" name="bulkActionForm" action="<?=$this->url('cart-home')?>">
-          <div class="searchtools hidden-print" style='padding-top: 2px; padding-bottom: 8px;'>
-            <strong><?=$this->transEsc('Search Tools')?>:</strong>&nbsp;
-            <i class="icon-poslat-emailem"></i> <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><?=$this->transEsc('Email this Search')?></a>
-            <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
-              &mdash;
-              <? if (is_numeric($this->results->getSearchId())): ?>
-                <? if ($this->results->isSavedSearch()): ?>
-                  <i class="fa fa-minus-square"></i> <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search_remove')?></a>
-                <? else: ?>
-                  <i class="icon-ulozit-vyhledavani"></i> <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search')?></a>
-                <? endif; ?>
-              <? endif; ?>
-            <? endif; ?>
-          </div>
         <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
         <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
         <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => 'bottom_'))?>
