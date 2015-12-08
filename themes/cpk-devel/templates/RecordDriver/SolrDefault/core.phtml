@@ -472,7 +472,7 @@
           
             <tr class='hidden' id='citace-pro'>
               <td colspan="2">
-                <iframe src="https://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>"
+                <iframe src="https://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>?server=<?=$_SERVER['SERVER_NAME']?>"
                 		frameborder="0" width="100%" height="90">
                 </iframe>
               </td>
