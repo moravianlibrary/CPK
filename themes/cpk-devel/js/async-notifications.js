@@ -1175,6 +1175,10 @@ __notif.helper = {
  */
 __notif.helper.init = function(handlers) {
 
+    if (Cookies.getJSON('loggedOut') === 1) {
+	__notif.helper.clearTheCrumbs();
+    }
+
     /*
      * Initialize all sourcesRead to be able to decide about "unread" flag with
      * all the new notifications ASAP
