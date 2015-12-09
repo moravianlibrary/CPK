@@ -6,8 +6,8 @@
   <ul id='notificationsList' class="dropdown-menu">
   	<li>
   	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
-  	    <img height="20" class="pull-right" alt="knihovny.cz" src="<?=$this->imageLink('knihovny-logo.png') ?>"/>
-  	  </div>
+	    <i class="pull-right icon-logo-komplet notif-knihovny-logo"></i>
+	  </div>
 	  <div data-type="global" class="identity-notifications" <?=$this->globalNotifications()->isEnabled() || ! $user ? '' : 'hidden="hidden"' ?>>
 	    <?=$this->globalNotifications()->renderAll() ?>
 	  </div>
