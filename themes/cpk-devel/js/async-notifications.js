@@ -1020,6 +1020,18 @@ __notif.helper = {
     },
 
     /**
+     * Calls the method processResponse asynchronously.
+     * 
+     * @param handler
+     * @param response
+     */
+    processResponseAsynchronously : function(handler, response, saveIt) {
+	setTimeout(function() {
+	    __notif.helper.processResponse(handler, response, saveIt);
+	}, 0);
+    },
+
+    /**
      * Manages saving the responses used with provided async handler & calls the
      * handler.processResponse() method in order to have customizable behavior
      * for each async handler

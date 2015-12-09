@@ -26,7 +26,7 @@ function updateProfileTable(response) {
 
     // Update notifications not to let those fetch the blocks again ;)
     if (__notif !== undefined && __notif.blocks !== undefined) {
-	__notif.helper.processResponse(__notif.blocks, response);
+	__notif.helper.processResponseAsynchronously(__notif.blocks, response);
     }
     
     var patron = response.data, status = response.status;
