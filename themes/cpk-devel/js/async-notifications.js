@@ -803,16 +803,22 @@ __notif.helper = {
      */
     clearTheCrumbs : function(callback) {
 
-	localforage.iterate(function(value, key, iterationNumber) {
+	var iterationCallback = function(value, key, iterationNumber) {
 
 	    if (key.match(/^__notif\./) !== null)
 		localforage.removeItem(key);
+	};
+
+	var iterationDoneCallback = function(err, result) {
+	    __notif.helper.printErr(err, result);
 
 	    if (callback instanceof Function) {
 		callback.call();
 	    }
+	};
 
-	});
+	// See http://mozilla.github.io/localForage/#iterate
+	localforage.iterate(iterationCallback, iterationDoneCallback);
     },
 
     /**
