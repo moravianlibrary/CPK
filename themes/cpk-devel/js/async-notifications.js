@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.2.3',
+	version : '1.2.4',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -378,7 +378,44 @@ __notif.warning = {
 
 __notif.sourcesRead = {
 
+    /**
+     * This array should be filled with all the callbacks which should be called
+     * after the full initialization is done.
+     */
+    callbacksAfterFullInitialization : [],
+
+    /**
+     * Holds Boolean if we have already fully initialized all the sourcesRead
+     * array so that new notifications can have read / unread classes with
+     * certainty.
+     */
+    fullyInitialized : false,
+
+    /**
+     * All the values that were already read by the User.
+     */
     values : [],
+
+    /**
+     * Adds a function to be called after __notif.sourcesRead gets fully
+     * initialized, thus after localforage returns any response to
+     * __notif.sourcesRead.init()
+     * 
+     * @param callback
+     */
+    addCallbackAfterFullInitialization : function(callback) {
+
+	if (callback instanceof Function) {
+	    __notif.callbacksAfterFullInitialization.push(callback);
+	} else {
+
+	    var msg = 'Please provide a callback (instanceof Function) to '
+		    + '__notif.sourcesRead.'
+		    + 'addCallbackAfterFullInitialization(callback)';
+
+	    __notif.helper.printErr(msg, arguments);
+	}
+    },
 
     /**
      * Creates String containing the source & handler's name to identify their
@@ -422,6 +459,18 @@ __notif.sourcesRead = {
 
 	    if (sourcesRead instanceof Array)
 		__notif.sourcesRead.values = sourcesRead;
+
+	    __notif.sourcesRead.fullyInitialized = true;
+
+	    /*
+	     * Call all the callbacks needed to call after we have fetched the
+	     * sourcesRead from localforage *
+	     */
+	    var initCallbacksLength = __notif.callbacksAfterFullInitialization.length;
+
+	    for (var i = 0; i < initCallbacksLength; ++i) {
+		__notif.callbacksAfterFullInitialization[i].call();
+	    }
 	};
 
 	localforage.getItem('__notif.sourcesRead.values',
