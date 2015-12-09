@@ -47,14 +47,27 @@
 
 //similar items in sidebar
 
-.similar-item {
-  -webkit-box-shadow:inset 0px 0px 0px 2px #eee;
-  -moz-box-shadow:inset 0px 0px 0px 2px #eee;
-  box-shadow:inset 0px 0px 0px 2px #eee;
+body .well.similar-item {
+  -webkit-box-shadow: inset 0px 0px 0px 2px #eee;
+  -moz-box-shadow: inset 0px 0px 0px 2px #eee;
+  box-shadow: inset 0px 0px 0px 2px #eee;
+
+  margin: 0px 0px 2px 0px;
+  padding: 10px;
+  color: #333333;
+
+  i {
+    font-size: 50px;
+    color: #cccccc;
+    cursor: pointer;
+  }
+
+  &:hover,
+  &:focus {
+    -webkit-box-shadow: inset 0px 0px 0px 2px #2196f3;
+    -moz-box-shadow: inset 0px 0px 0px 2px #2196f3;
+    box-shadow: inset 0px 0px 0px 2px #2196f3;
+  }
 }
-.similar-item:hover {
-  -webkit-box-shadow:inset 0px 0px 0px 2px #2196f3;
-  -moz-box-shadow:inset 0px 0px 0px 2px #2196f3;
-  box-shadow:inset 0px 0px 0px 2px #2196f3;
-}
+
 

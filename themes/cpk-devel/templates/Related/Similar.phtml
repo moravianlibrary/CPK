@@ -11,7 +11,7 @@
           }
         ?>
     	<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
-          <div class="row well similar-item" style='margin: 0px 0px 2px 0px; padding: 10px;' tabindex='-1'>
+          <div class="row well similar-item" tabindex='-1'>
           	<div class='col-md-3  #cover' id='cover'>
           		<? $recordId =  preg_replace("/\./", "", $recordId)?>
                 <? $recordId =  preg_replace("/:/", "", $recordId)?>
@@ -23,7 +23,7 @@
                     <? endif;?>
                     
                     <? if (! empty($formats)): ?>
-                        <div class="iconlabel"><i style="font-size: 50px; color: #cccccc;" class="fa fa-fw <?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
+                        <div class="iconlabel"><i class="fa fa-fw <?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
                     <? elseif ($summThumb = $this->record($similarRecordDriver)->getThumbnail('small')): ?>
                         <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
                     <? else: ?>
@@ -33,7 +33,7 @@
                 </div>
           	</div>
           	
-          	<div class='col-md-9' style='color: #333;'>
+          	<div class='col-md-9'>
                 <strong><?=$this->escapeHtml($similarRecordDriver->getTitle())?></strong>
                 
                 <? $pubDates = $similarRecordDriver->getPublicationDates(); if (!empty($pubDates)): ?>
