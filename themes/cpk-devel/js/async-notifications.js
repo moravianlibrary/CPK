@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.2.2',
+	version : '1.2.3',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -93,6 +93,11 @@ __notif.blocks = {
     // Define eventListeners
     eventListeners : {
 	click : function() {
+
+	    var source = this.parentElement.getAttribute('data-source');
+
+	    __notif.sourcesRead.markAsRead(source, __notif.blocks);
+
 	    window.location = '/MyResearch/Profile';
 	},
     },
@@ -123,6 +128,11 @@ __notif.fines = {
     // Define eventListeners
     eventListeners : {
 	click : function() {
+
+	    var source = this.parentElement.getAttribute('data-source');
+
+	    __notif.sourcesRead.markAsRead(source, __notif.fines);
+
 	    window.location = '/MyResearch/Fines';
 	},
     },
@@ -154,6 +164,11 @@ __notif.overdues = {
     // Define eventListeners
     eventListeners : {
 	click : function() {
+
+	    var source = this.parentElement.getAttribute('data-source');
+
+	    __notif.sourcesRead.markAsRead(source, __notif.overdues);
+
 	    window.location = '/MyResearch/CheckedOut';
 	},
     },
@@ -448,15 +463,14 @@ __notif.sourcesRead = {
      */
     markAsRead : function(source, handler) {
 
-	var handlerOk = __notif.helper.checkHandlerIsValid(handler);
+	if (__notif.sourcesRead.isMarkedAsUnread(source, handler)) {
 
-	if (handlerOk === false)
-	    return handlerOk;
+	    var toPush = __notif.sourcesRead.craftSourceReadValue(source,
+		    handler);
 
-	var toPush = __notif.sourcesRead.craftSourceReadValue(source, handler);
-
-	__notif.sourcesRead.values.push(toPush);
-	__notif.sourcesRead.save();
+	    __notif.sourcesRead.values.push(toPush);
+	    __notif.sourcesRead.save();
+	}
     },
 
     /**
@@ -470,23 +484,28 @@ __notif.sourcesRead = {
      */
     markAsUnread : function(source, handler) {
 
-	var sourceReadIndex = __notif.sourcesRead.getSourceReadIndex(source,
+	var handlerOk = __notif.helper.checkHandlerIsValid(handler);
+
+	if (handlerOk === false)
+	    return handlerOk;
+
+	// Prepare for iteration over all the current values
+	var sourcesReadLength = __notif.sourcesRead.values.length, newSourcesReadValues = [];
+
+	var toSearchFor = __notif.sourcesRead.craftSourceReadValue(source,
 		handler);
 
-	if (sourceReadIndex === -1) {
+	// We need to purge any occurrence, so loop through it
+	for (var i = 0; i < sourcesReadLength; ++i) {
+	    var currVal = __notif.sourcesRead.values[i];
 
-	    var msg = 'The source you want to mark as unread does not exist!';
-
-	    __notif.helper.printErr(msg, arguments);
-
-	} else {
-
-	    // We found it -> delete it
-	    delete __notif.helper.sourcesRead.values[sourceReadIndex];
-
-	    // & save it :)
-	    __notif.sourcesRead.save();
+	    if (currVal !== toSearchFor)
+		newSourcesReadValues.push(currVal);
 	}
+
+	// Replace current values with the new ones
+	__notif.sourcesRead.values = newSourcesReadValues;
+	__notif.sourcesRead.save();
     },
 
     /**
