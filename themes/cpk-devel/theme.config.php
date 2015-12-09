@@ -17,6 +17,7 @@ return array(
         'vendor/bootstrap-accessibility.min.js',
         'vendor/rc4.js',
         'vendor/localforage.min.js',
+        'vendor/js.cookie.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
