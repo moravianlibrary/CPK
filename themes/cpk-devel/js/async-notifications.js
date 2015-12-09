@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.2.4',
+	version : '1.2.5',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -340,10 +340,18 @@ __notif.addNotification = function(message, msgclass, institution,
     if (!showWarningIcon) {
 	clazz += ' counter-ignore';
     } else {
-	__notif.warning.show();
+	__notif.sourcesRead.handleShowingWarningIcon(institution, handler,
+		notif);
+    }
+
+    // The sourcesRead might have already added a class - but we can't be sure
+    var precedingClass = notif.getAttribute('class');
+    if (precedingClass !== null) {
+	clazz += " " + precedingClass;
     }
 
     notif.setAttribute('class', clazz);
+
     notif.textContent = message;
 
     __notif.helper.appendNotification(notif, institution, handler);
@@ -450,6 +458,51 @@ __notif.sourcesRead = {
     },
 
     /**
+     * Determines whether we should show warning icon or not based on it's
+     * status read / unread.
+     * 
+     * It also appends CSS class notif-unread to the provided element if the
+     * notifications really is unread.
+     * 
+     * @param source
+     * @param handler
+     */
+    handleShowingWarningIcon : function(source, handler, element) {
+
+	// Define what to do
+	var closure = function() {
+
+	    var isUnread = __notif.sourcesRead
+		    .isMarkedAsUnread(source, handler);
+
+	    if (isUnread) {
+		// Show the warning icon
+		__notif.warning.show();
+
+		// Append the unread CSS class
+		var currClass = element.getAttribute('class'), newClass = 'notif-unread';
+
+		// Also add the class which was there before (we're appending,
+		// not replacing)
+		if (currClass !== null)
+		    newClass += " " + currClass;
+
+		element.setAttribute('class', newClass);
+	    }
+	}
+
+	if (__notif.sourcesRead.fullyInitialized) {
+
+	    // We can do the logic immediately
+	    closure.call();
+	} else {
+
+	    // Lets add the closure to the initialization queue
+	    __notif.sourcesRead.addCallbackAfterFullInitialization(closure);
+	}
+    },
+
+    /**
      * Initialize all sources which were read within any handler.
      */
     init : function() {
@@ -466,7 +519,7 @@ __notif.sourcesRead = {
 	     * Call all the callbacks needed to call after we have fetched the
 	     * sourcesRead from localforage *
 	     */
-	    var initCallbacksLength = __notif.callbacksAfterFullInitialization.length;
+	    var initCallbacksLength = __notif.sourcesRead.callbacksAfterFullInitialization.length;
 
 	    for (var i = 0; i < initCallbacksLength; ++i) {
 		__notif.callbacksAfterFullInitialization[i].call();
@@ -742,7 +795,7 @@ __notif.helper = {
 
 	localforage.iterate(function(value, key, iterationNumber) {
 
-	    if (key.match(/^notif\./) !== null)
+	    if (key.match(/^__notif\./) !== null)
 		localforage.removeItem(key);
 
 	});
