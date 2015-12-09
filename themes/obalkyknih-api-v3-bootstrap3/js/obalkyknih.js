@@ -46,6 +46,23 @@ obalky.fetchImage = obalky.fetchImage || function (element, bibinfo, query, type
 	    img.src = obalky.coverUrl + "?multi=" + multi + "&type=" + type  + "&keywords=" + encodeURIComponent(query);
 }
 
+obalky.fetchImage = obalky.fetchImageWithoutLinks || function (element, bibinfo, query, type) {
+    var img = new Image();
+
+    var multi = encodeURIComponent(JSON.stringify(bibinfo));
+    img.onload = function() {
+      if (obalky.imageIsLoaded(img)) {
+        var href = obalky.coverTargetUrl(bibinfo);
+        var dim = "height='80' width='63'";
+        if (type == "thumbnail") {
+            dim = "height='36' width='27'";
+        }
+        $(element).html("<img src='" + img.src + "' alt='" + obalky.coverText + "' " + dim + "></img>");
+      }
+    }
+    img.src = obalky.coverUrl + "?multi=" + multi + "&type=" + type  + "&keywords=" + encodeURIComponent(query);
+}
+
 obalky.display_thumbnail = obalky.display_thumbnail || function (element, bibinfo, query, type) {
   type = type || "icon";
   
@@ -54,6 +71,15 @@ obalky.display_thumbnail = obalky.display_thumbnail || function (element, bibinf
   );
   
 }
+
+obalky.display_thumbnail_without_links = obalky.display_thumbnail || function (element, bibinfo, query, type) {
+	  type = type || "icon";
+	  
+	  $(document).ready(
+		  obalky.fetchImageWithoutLinks(element, bibinfo, query, type)
+	  );
+	  
+	}
 
 obalky.display_cover = obalky.display_cover || function (element, bibinfo, query) {
   var multi = encodeURIComponent(JSON.stringify(bibinfo));

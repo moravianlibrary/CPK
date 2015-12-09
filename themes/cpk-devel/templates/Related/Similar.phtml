@@ -18,7 +18,7 @@
           		<div class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
                     <? if ($bibinfo = $this->record($similarRecordDriver)->getObalkyKnihJSONV3()): ?>
                         <script type="text/javascript">
-                            obalky.display_thumbnail(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                            obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
                         </script>
                     <? endif;?>
                     
