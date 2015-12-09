@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.2.5',
+	version : '1.2.6',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -633,6 +633,11 @@ __notif.helper = {
     handlersToInformAboutNothingRecievedLength : 0,
 
     /**
+     * Have we already callbacked the init function?
+     */
+    initCallbacked : false,
+
+    /**
      * Arrays each holding the sync/async handlers that were initialized
      */
     initializedAsyncHandlers : [],
@@ -790,13 +795,22 @@ __notif.helper = {
 
     /**
      * Clears all the notifications' object from the localforage storage :)
+     * 
+     * It accepts a callback to call after the clearing is done
+     * 
+     * @param callback
+     *                {Function}
      */
-    clearTheCrumbs : function() {
+    clearTheCrumbs : function(callback) {
 
 	localforage.iterate(function(value, key, iterationNumber) {
 
 	    if (key.match(/^__notif\./) !== null)
 		localforage.removeItem(key);
+
+	    if (callback instanceof Function) {
+		callback.call();
+	    }
 
 	});
     },
@@ -1175,8 +1189,15 @@ __notif.helper = {
  */
 __notif.helper.init = function(handlers) {
 
-    if (Cookies.getJSON('loggedOut') === 1) {
-	__notif.helper.clearTheCrumbs();
+    if (Cookies.getJSON('loggedOut') === 1
+	    && __notif.helper.initCallbacked === false) {
+	// We want this to be synchronous, so we'll call the init again after
+	// it's done
+
+	return __notif.helper.clearTheCrumbs(function() {
+	    __notif.helper.initCallbacked = true;
+	    __notif.helper.init(handlers);
+	});
     }
 
     /*
