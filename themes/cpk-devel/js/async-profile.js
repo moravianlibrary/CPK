@@ -56,17 +56,13 @@ function updateProfileTable(response) {
 		    }
 		} else {
 		    if (key == 'blocks' && typeof val == 'object') {
-			var heading = $('h2');
-			
+
 			$.each(val, function(logoUrl, blockMessage) {
 			    
-			    // Create logo image
-			    var logo = $("<img>").attr('height', '32').attr('src', logoUrl);
-			    
 			    // Create division to put the logo & the message into
-			    var errorMessage = $("<div>").addClass('alert alert-danger').text(blockMessage).prepend(logo);
+			    var errorMessage = $("<div>").addClass('block-alert').text(blockMessage);
 			    
-			    heading.after(errorMessage);
+			    parentTable.before(errorMessage);
 			})
 		    }
 		}
