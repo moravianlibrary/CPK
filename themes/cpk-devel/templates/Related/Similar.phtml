@@ -10,8 +10,7 @@
               $lookfor = $this->record($similarRecordDriver)->getObalkyKnihAdvert('record');
           }
         ?>
-    	<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
-          <div class="row well similar-item" tabindex='-1'>
+    	<a class="row well similar-item" href='<?=$this->recordLink()->getUrl($similarRecordDriver)?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
           	<div class='col-md-3  #cover' id='cover'>
           		<? $recordId =  preg_replace("/\./", "", $recordId)?>
                 <? $recordId =  preg_replace("/:/", "", $recordId)?>
@@ -44,7 +43,6 @@
                   <br/><?=$this->escapeHtml($author);?>
                 <? endif; ?>
             </div>
-          </div>
       </a>
     <? endforeach; ?>
 <? else: ?>
