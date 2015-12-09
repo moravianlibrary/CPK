@@ -414,7 +414,7 @@ __notif.sourcesRead = {
     addCallbackAfterFullInitialization : function(callback) {
 
 	if (callback instanceof Function) {
-	    __notif.callbacksAfterFullInitialization.push(callback);
+	    __notif.sourcesRead.callbacksAfterFullInitialization.push(callback);
 	} else {
 
 	    var msg = 'Please provide a callback (instanceof Function) to '
