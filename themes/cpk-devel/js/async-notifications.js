@@ -522,7 +522,7 @@ __notif.sourcesRead = {
 	    var initCallbacksLength = __notif.sourcesRead.callbacksAfterFullInitialization.length;
 
 	    for (var i = 0; i < initCallbacksLength; ++i) {
-		__notif.callbacksAfterFullInitialization[i].call();
+		__notif.sourcesRead.callbacksAfterFullInitialization[i].call();
 	    }
 	};
 
