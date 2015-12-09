@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.2.0',
+	version : '1.2.2',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -49,7 +49,6 @@ __notif.global = {
 	}
     },
 
-    // TODO: think about global notifications being parsed asynchronously ..
     fetch : function() {
 	var initialCount = __notif.helper.pointers.global
 		.children('div:not(.counter-ignore)').length;
@@ -83,6 +82,10 @@ __notif.global = {
 __notif.blocks = {
 
     ajaxMethod : 'getMyProfile',
+
+    /**
+     * It must be unique across all async handlers!
+     */
     localforageItemName : 'blocks',
 
     isAsync : true,
@@ -109,6 +112,10 @@ __notif.blocks = {
 __notif.fines = {
 
     ajaxMethod : 'getMyFines',
+
+    /**
+     * It must be unique across all async handlers!
+     */
     localforageItemName : 'fines',
 
     isAsync : true,
@@ -136,6 +143,10 @@ __notif.fines = {
 __notif.overdues = {
 
     ajaxMethod : 'haveAnyOverdue',
+
+    /**
+     * It must be unique across all async handlers!
+     */
     localforageItemName : 'overdues',
 
     isAsync : true,
@@ -350,6 +361,145 @@ __notif.warning = {
     }
 };
 
+__notif.sourcesRead = {
+
+    values : [],
+
+    /**
+     * Creates String containing the source & handler's name to identify their
+     * combinations within the values array.
+     * 
+     * @param source
+     * @param handler
+     * @returns {String}
+     */
+    craftSourceReadValue : function(source, handler) {
+	return source + '.' + handler.localforageItemName;
+    },
+
+    /**
+     * Returns index of provided source associated to a handler
+     * 
+     * @param source
+     * @param handler
+     * @returns {Number}
+     */
+    getSourceReadIndex : function(source, handler) {
+
+	var handlerOk = __notif.helper.checkHandlerIsValid(handler);
+
+	if (handlerOk === false)
+	    return -1;
+
+	var toSearchFor = __notif.sourcesRead.craftSourceReadValue(source,
+		handler);
+
+	return __notif.sourcesRead.values.indexOf(toSearchFor);
+    },
+
+    /**
+     * Initialize all sources which were read within any handler.
+     */
+    init : function() {
+
+	var getSourcesReadCallback = function(err, sourcesRead) {
+	    __notif.helper.printErr(err, sourcesRead);
+
+	    if (sourcesRead instanceof Array)
+		__notif.sourcesRead.values = sourcesRead;
+	};
+
+	localforage.getItem('__notif.sourcesRead.values',
+		getSourcesReadCallback);
+    },
+
+    /**
+     * Checks if a source within handler is marked as read already.
+     * 
+     * @param source
+     * @param handler
+     * @returns {Boolean}
+     */
+    isMarkedAsRead : function(source, handler) {
+
+	return __notif.sourcesRead.getSourceReadIndex(source, handler) !== -1;
+    },
+
+    /**
+     * Checks if a source within handler is not marked as unread yet.
+     * 
+     * @param source
+     * @param handler
+     * @returns {Boolean}
+     */
+    isMarkedAsUnread : function(source, handler) {
+
+	return __notif.sourcesRead.getSourceReadIndex(source, handler) === -1;
+    },
+
+    /**
+     * Marks a source within handler as read already.
+     * 
+     * TODO: Is the localforage capable of saving the object before user changes
+     * window location??
+     * 
+     * @param source
+     * @param handler
+     */
+    markAsRead : function(source, handler) {
+
+	var handlerOk = __notif.helper.checkHandlerIsValid(handler);
+
+	if (handlerOk === false)
+	    return handlerOk;
+
+	var toPush = __notif.sourcesRead.craftSourceReadValue(source, handler);
+
+	__notif.sourcesRead.values.push(toPush);
+	__notif.sourcesRead.save();
+    },
+
+    /**
+     * Marks a source within handler as unread yet.
+     * 
+     * TODO: When should we call this? Appaerantely after an notifications no
+     * longer exists .. so that next one gets the user's focus
+     * 
+     * @param source
+     * @param handler
+     */
+    markAsUnread : function(source, handler) {
+
+	var sourceReadIndex = __notif.sourcesRead.getSourceReadIndex(source,
+		handler);
+
+	if (sourceReadIndex === -1) {
+
+	    var msg = 'The source you want to mark as unread does not exist!';
+
+	    __notif.helper.printErr(msg, arguments);
+
+	} else {
+
+	    // We found it -> delete it
+	    delete __notif.helper.sourcesRead.values[sourceReadIndex];
+
+	    // & save it :)
+	    __notif.sourcesRead.save();
+	}
+    },
+
+    /**
+     * Source read saving function (saves the values using localforage)
+     */
+    save : function() {
+
+	// Push it to local storage
+	localforage.setItem('__notif.sourcesRead.values',
+		__notif.sourcesRead.values, __notif.helper.printErrCallback);
+    }
+};
+
 __notif.helper = {
 
     // Defining helper variables here
@@ -393,6 +543,12 @@ __notif.helper = {
     },
 
     /**
+     * Object containing handlers associated with source which were read
+     * already.
+     */
+    sourcesRead : [],
+
+    /**
      * Variable determining whether is syncing the institutions in process
      * alredy
      */
@@ -423,8 +579,8 @@ __notif.helper = {
 			    notificationElement.addEventListener(key,
 				    handler.eventListeners[key]);
 		    });
-
 	}
+
 	// Append the notification
 	identityNotificationsElement.append(notificationElement);
 
@@ -434,6 +590,24 @@ __notif.helper = {
 	// Trigger the global's notificationAdded as it's interested into any
 	// notifications being added
 	__notif.global.notificationAdded();
+    },
+
+    /**
+     * Checks if a handler provided has at least valid localforageItemName.
+     * 
+     * It else prints an console error message
+     * 
+     * @param handler
+     * @returns {Boolean}
+     */
+    checkHandlerIsValid : function(handler) {
+	if (handler === undefined || handler.localforageItemName === undefined) {
+	    var msg = 'Did not provide valid handler !';
+
+	    return __notif.helper.printErr(msg, handler);
+	}
+
+	return true;
     },
 
     /**
@@ -665,6 +839,17 @@ __notif.helper = {
     },
 
     /**
+     * Closure for default callback passed to localforage's methods only if we
+     * are curious about errors
+     * 
+     * @param err
+     * @param val
+     */
+    printErrCallback : function(err, val) {
+	__notif.helper.printErr(err, val);
+    },
+
+    /**
      * Serves to send the response to handler's own processResponse() method
      * 
      * @param handler
@@ -744,7 +929,8 @@ __notif.helper = {
     },
 
     /**
-     * Do not call this function twice - as it'd probably result in an error.
+     * Do not call this function twice for one handler - as it'd probably result
+     * in an error.
      * 
      * It handles saving async handler's responses using localforage library.
      * 
@@ -760,9 +946,7 @@ __notif.helper = {
 	handler.timeSaved = localforageItem.timeSaved;
 
 	localforage.setItem('__notif.' + handler.localforageItemName,
-		localforageItem, function(err, val) {
-		    __notif.helper.printErr(err, val);
-		});
+		localforageItem, __notif.helper.printErrCallback);
     },
 
     /**
@@ -869,6 +1053,12 @@ __notif.helper = {
  * clear the localforage to prevent bugs caused by version incompatibility.
  */
 __notif.helper.init = function(handlers) {
+
+    /*
+     * Initialize all sourcesRead to be able to decide about "unread" flag with
+     * all the new notifications ASAP
+     */
+    __notif.sourcesRead.init();
 
     var notifList = $('div#header-collapse nav ul li ul#notificationsList');
 
