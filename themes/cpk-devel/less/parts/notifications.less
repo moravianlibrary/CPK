@@ -39,10 +39,18 @@ a#notif_icon > i {
   padding-left: 7px;
   cursor: pointer;
   padding-top: 3px;
-}
 
-.notif-default:hover, .notif-info:hover, .notif-danger:hover, .notif-warning:hover, .notif-success:hover {
-  background-color: #e3e3e3;
+  &:hover {
+    background-color: #eeeeee;
+  }
+
+  &.notif-unread{
+    background-color: #dddddd;
+    &:hover {
+      background-color: #eeeeee;
+    }
+  }
+
 }
 
 .notif-default:before, .notif-info:before, .notif-danger:before, .notif-warning:before, .notif-success:before {
