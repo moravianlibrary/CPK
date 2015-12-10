@@ -4,7 +4,15 @@ $(function() { // Onload DOM ..
 
 	fetchTransactions(cat_username);
     })
+    goToAnchorIfAny();
 });
+
+function goToAnchorIfAny() {
+    var hasAnchor = window.location.href.match(/CheckedOut[/]?#[a-z]+$/);
+    if (hasAnchor !== null) {
+	window.location = window.location.href;
+    }
+}
 
 function fetchTransactions(cat_username) {
     $.ajax({
@@ -18,6 +26,7 @@ function fetchTransactions(cat_username) {
 	},
 	success : function(response) {
 	    updateTransactions(response);
+	    goToAnchorIfAny();
 	}
     })
 }

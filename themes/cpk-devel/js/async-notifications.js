@@ -98,7 +98,7 @@ __notif.blocks = {
 
 	    __notif.sourcesRead.markAsRead(source, __notif.blocks);
 
-	    window.location = '/MyResearch/Profile';
+	    window.location = '/MyResearch/Profile#' + source;
 	},
     },
 
@@ -133,7 +133,7 @@ __notif.fines = {
 
 	    __notif.sourcesRead.markAsRead(source, __notif.fines);
 
-	    window.location = '/MyResearch/Fines';
+	    window.location = '/MyResearch/Fines#' + source;
 	},
     },
 
@@ -169,7 +169,7 @@ __notif.overdues = {
 
 	    __notif.sourcesRead.markAsRead(source, __notif.overdues);
 
-	    window.location = '/MyResearch/CheckedOut';
+	    window.location = '/MyResearch/CheckedOut#' + source;
 	},
     },
 

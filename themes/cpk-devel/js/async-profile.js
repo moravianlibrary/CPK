@@ -4,7 +4,16 @@ $(function() { // Onload DOM ..
 
 	fetchProfile(cat_username);
     })
+    
+    goToAnchorIfAny();
 });
+
+function goToAnchorIfAny() {
+    var hasAnchor = window.location.href.match(/Profile[/]?#[a-z]+$/);
+    if (hasAnchor !== null) {
+	window.location = window.location.href;
+    }
+}
 
 function fetchProfile(cat_username) {
     $.ajax({
@@ -18,6 +27,7 @@ function fetchProfile(cat_username) {
 	},
 	success : function(response) {
 	    updateProfileTable(response);
+	    goToAnchorIfAny();
 	}
     })
 }

@@ -4,7 +4,16 @@ $(function() { // Onload DOM ..
 
 	fetchHolds(cat_username);
     })
+    
+    goToAnchorIfAny();
 });
+
+function goToAnchorIfAny() {
+    var hasAnchor = window.location.href.match(/Holds[/]?#[a-z]+$/);
+    if (hasAnchor !== null) {
+	window.location = window.location.href;
+    }
+}
 
 function fetchHolds(cat_username) {
     $.ajax({
@@ -18,6 +27,7 @@ function fetchHolds(cat_username) {
 	},
 	success : function(response) {
 	    updateHolds(response);
+	    goToAnchorIfAny();
 	}
     })
 }
