@@ -1846,7 +1846,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $checkout = (string) $z31->{'z31-date'};
             $adm_id = (string) $z30->{'z30-doc-number'};
             $id = (string) $z13->{'z13-doc-number'};
-            $mult = ($transactiontype == "Credit") ? 100 : 
+            $mult = ($transactiontype == "Credit") ? 100 : -100;
             $amount
                 = (float)(preg_replace("/[\(\)]/", "", (string) $z31->{'z31-sum'}))
                 * $mult;
@@ -2300,7 +2300,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $body = 'post_xml=' . $body->asXML();
         try {
-            $this->doRestDLFRequest(
+            $this->alephWebService->doRestDLFRequest(
                 [
                     'patron', $patronId, 'record', $recordId, 'items', $itemId,
                     'hold'
