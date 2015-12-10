@@ -91,6 +91,8 @@ class Manager extends BaseManager
             error_log($e);
             throw new AuthException('authentication_error_technical');
         }
+        
+        $_ENV['justLoggedIn'] = true;
 
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);

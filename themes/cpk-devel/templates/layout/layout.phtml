@@ -148,6 +148,21 @@
                             'you_have_overdues' => 'notif_you_have_overdues'
                         )
                         );
+                
+                /* Also check if the user have just logged in - in order to let 
+                 * the __notif.sourcesRead know about it's state before last logout
+                 */
+
+                if(isSeT($_ENV['justLoggedIn'])) {
+                
+                    if ($_ENV['justLoggedIn'] === true) {
+                        $this->headScript()->appendScript('$(function(){'
+                                . '__notif.sourcesRead.init('
+                                . $user->read_notifications . ') })');
+                    }
+                
+                    unSeT($_ENV['justLoggedIn']);
+                }
             }
         }
         
