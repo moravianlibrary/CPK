@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.3.0',
+	version : '1.3.1',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -726,6 +726,42 @@ __notif.helper = {
 
     // Defining functions/methods here
 
+    addEasterEggs : function() {
+
+	var bellClickCallback = function() {
+	    var clickount = this.getAttribute('data-clickount');
+	    var clicktime = this.getAttribute('data-clicktime');
+
+	    if (clickount === null || clicktime === null) {
+		this.setAttribute('data-clickount', 1);
+		this.setAttribute('data-clicktime', (new Date().getTime()));
+	    } else {
+		clickount = parseInt(clickount);
+		clicktime = parseInt(clicktime);
+
+		if ((new Date()).getTime() - 3e3 <= clicktime) {
+
+		    (++clickount === 7) ? getTheEgg() :
+
+		    this.setAttribute('data-clickount', clickount);
+
+		} else {
+		    this.setAttribute('data-clickount', 0);
+		    this.setAttribute('data-clicktime', 0);
+		}
+
+	    }
+	};
+
+	var getTheEgg = function() {
+	    __notif.helper.clearTheCrumbs();
+	    __notif.helper.flagAllUnread();
+	}
+
+	__notif.helper.pointers.warningIcon.parent().on('click',
+		bellClickCallback);
+    },
+
     /**
      * Appends notification to an institution section & adds to it
      * eventListeners defined within a handler
@@ -876,7 +912,8 @@ __notif.helper = {
      * @param dataToSend
      * @param successCallback
      */
-    doPOST : function(async, ajaxMethod, dataToSend, successCallback, errCallback) {
+    doPOST : function(async, ajaxMethod, dataToSend, successCallback,
+	    errCallback) {
 
 	// Print all errors to console.error by default ..
 	if (errCallback === undefined || typeof errCallback !== "function")
@@ -995,6 +1032,22 @@ __notif.helper = {
 	     */
 	    handler.fetch();
 	}
+    },
+
+    /**
+     * Flags all notifications within any institution unread.
+     */
+    flagAllUnread : function() {
+
+	var institutionKeys = Object.keys(__notif.helper.pointers.institutions);
+
+	for (var i = 0; i < __notif.helper.institutionsCount; ++i) {
+	    var institutionKey = institutionKeys[i];
+	    __notif.helper.pointers.institutions[institutionKey].children()
+		    .addClass('notif-unread');
+	}
+	
+	__notif.warning.show();
     },
 
     /**
@@ -1403,6 +1456,8 @@ __notif.helper.init = function(handlers) {
 	    handlers[i].timeSaved = 0;
 	    handlers[i].fetch();
 	}
+
+	__notif.helper.addEasterEggs();
 
     } else {
 	var message = 'No handlers were specified to fetch !'
