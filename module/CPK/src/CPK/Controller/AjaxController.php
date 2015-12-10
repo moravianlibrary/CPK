@@ -618,6 +618,29 @@ class AjaxController extends AjaxControllerBase
                         'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                     ], self::STATUS_ERROR );
     }
+    
+    public function updateNotificationsReadAjax()
+    {
+            // Check user is logged in ..
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            return $this->output( 'You are not logged in.', self::STATUS_ERROR );
+        }
+        
+        $currentNotificationsRead = $this->params()->fromPost( 'curr_notifies_read' );
+        
+        $encodedReadNotifications = json_encode( $currentNotificationsRead );
+        
+        if (strlen( $encodedReadNotifications ) > 512) {
+            return $this->output( 
+                    $this->translate( 'JSON you want to store is longer than 512 chars!!' ), self::STATUS_ERROR );
+        }
+        
+        // Just overwrite with current read notifications
+        $user->read_notifications = $encodedReadNotifications;
+        $user->save();
+        
+        return $this->output( "OK", self::STATUS_OK );
+    }
 
     /**
      * Comment on a record.
@@ -809,7 +832,7 @@ class AjaxController extends AjaxControllerBase
                 self::STATUS_ERROR);
         }
 
-        return true;
+        return $user;
     }
 
     /**
