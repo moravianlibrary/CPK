@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.2.6',
+	version : '1.2.7',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -232,7 +232,7 @@ __notif.fines.processResponse = function(response) {
 
 	var fine = fines[finesKeys[i]];
 
-	if (typeof fine !== 'Object') {
+	if (typeof fine !== 'object') {
 	    // this is not a fine -> continue (fine is always an object)
 	    continue;
 	}
@@ -578,7 +578,7 @@ __notif.sourcesRead = {
     /**
      * Marks a source within handler as unread yet.
      * 
-     * TODO: When should we call this? Appaerantely after an notifications no
+     * TODO: When should we call this? Apparently after an notifications no
      * longer exists .. so that next one gets the user's focus
      * 
      * @param source
