@@ -447,6 +447,25 @@ __notif.sourcesRead = {
     },
 
     /**
+     * Flags all notifications within any institution unread. (Not only in the
+     * variables' world :)
+     */
+    flagAllUnread : function() {
+
+	var institutionKeys = Object.keys(__notif.helper.pointers.institutions);
+
+	for (var i = 0; i < __notif.helper.institutionsCount; ++i) {
+	    var institutionKey = institutionKeys[i];
+	    __notif.helper.pointers.institutions[institutionKey].children()
+		    .addClass('notif-unread');
+	}
+
+	__notif.sourcesRead.values = [];
+
+	__notif.warning.show();
+    },
+
+    /**
      * Returns index of provided source associated to a handler
      * 
      * @param source
@@ -607,6 +626,8 @@ __notif.sourcesRead = {
 	    };
 
 	    // Also let the server know about it ..
+	    // Note that we NEED THIS TO BE SYNCHRONOUS
+	    // in order to be sure we have let the server know before redirect
 	    __notif.helper.doPOST(false, 'updateNotificationsRead', {
 		curr_notifies_read : __notif.sourcesRead.values
 	    }, callback, function(err) {
@@ -728,6 +749,7 @@ __notif.helper = {
 
     addEasterEggs : function() {
 
+	// Add "easter egg" bellClick
 	var bellClickCallback = function() {
 	    var clickount = this.getAttribute('data-clickount');
 	    var clicktime = this.getAttribute('data-clicktime');
@@ -739,6 +761,10 @@ __notif.helper = {
 		clickount = parseInt(clickount);
 		clicktime = parseInt(clicktime);
 
+		/*
+		 * As you can see, the goal is to click at least 10 times the
+		 * bell icon in 3 seconds.
+		 */
 		if ((new Date()).getTime() - 3e3 <= clicktime) {
 
 		    (++clickount === 7) ? getTheEgg() :
@@ -753,9 +779,17 @@ __notif.helper = {
 	    }
 	};
 
+	// "Manually" flag all the notifications unread
 	var getTheEgg = function() {
 	    __notif.helper.clearTheCrumbs();
-	    __notif.helper.flagAllUnread();
+
+	    __notif.sourcesRead.flagAllUnread();
+
+	    // Also let the server know about it ..
+	    __notif.helper.doPOST(true, 'updateNotificationsRead', {
+		curr_notifies_read : __notif.sourcesRead.values
+	    }, function() {
+	    });
 	}
 
 	__notif.helper.pointers.warningIcon.parent().on('click',
@@ -1032,22 +1066,6 @@ __notif.helper = {
 	     */
 	    handler.fetch();
 	}
-    },
-
-    /**
-     * Flags all notifications within any institution unread.
-     */
-    flagAllUnread : function() {
-
-	var institutionKeys = Object.keys(__notif.helper.pointers.institutions);
-
-	for (var i = 0; i < __notif.helper.institutionsCount; ++i) {
-	    var institutionKey = institutionKeys[i];
-	    __notif.helper.pointers.institutions[institutionKey].children()
-		    .addClass('notif-unread');
-	}
-	
-	__notif.warning.show();
     },
 
     /**
