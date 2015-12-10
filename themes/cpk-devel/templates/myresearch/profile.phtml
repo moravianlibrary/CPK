@@ -22,7 +22,7 @@
     <?=$this->flashmessages();?>
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
         $source = explode('.', $libraryIdentity->profile['cat_username'])[0];?>
-    <div class="well">
+    <div class="well" id="<?=$source?>">
     <h3>
     <?=$this->transEsc("source_$source", null, $source) ?>
     <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
