@@ -99,6 +99,9 @@ __notif.blocks = {
 	    __notif.sourcesRead.markAsRead(source, __notif.blocks);
 
 	    window.location = '/MyResearch/Profile#' + source;
+
+	    // Purge the class unread just in case user was on this page
+	    this.classList.remove('notif-unread');
 	},
     },
 
@@ -134,6 +137,9 @@ __notif.fines = {
 	    __notif.sourcesRead.markAsRead(source, __notif.fines);
 
 	    window.location = '/MyResearch/Fines#' + source;
+
+	    // Purge the class unread just in case user was on this page
+	    this.classList.remove('notif-unread');
 	},
     },
 
@@ -170,6 +176,9 @@ __notif.overdues = {
 	    __notif.sourcesRead.markAsRead(source, __notif.overdues);
 
 	    window.location = '/MyResearch/CheckedOut#' + source;
+
+	    // Purge the class unread just in case user was on this page
+	    this.classList.remove('notif-unread');
 	},
     },
 
