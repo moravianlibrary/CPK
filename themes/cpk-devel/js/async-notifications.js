@@ -16,7 +16,7 @@ var __notif = {
 
 	development : true,
 
-	version : '1.2.7',
+	version : '1.3.0',
 
 	toWait : 60 * 60 * 1000, // Wait 60 minutes until next download
 
@@ -607,7 +607,7 @@ __notif.sourcesRead = {
 	    };
 
 	    // Also let the server know about it ..
-	    __notif.helper.doAsyncPOST('updateNotificationsRead', {
+	    __notif.helper.doPOST(false, 'updateNotificationsRead', {
 		curr_notifies_read : __notif.sourcesRead.values
 	    }, callback, function(err) {
 		/*
@@ -876,7 +876,7 @@ __notif.helper = {
      * @param dataToSend
      * @param successCallback
      */
-    doAsyncPOST : function(ajaxMethod, dataToSend, successCallback, errCallback) {
+    doPOST : function(async, ajaxMethod, dataToSend, successCallback, errCallback) {
 
 	// Print all errors to console.error by default ..
 	if (errCallback === undefined || typeof errCallback !== "function")
@@ -888,7 +888,7 @@ __notif.helper = {
 	    type : 'POST',
 	    url : '/AJAX/JSON?method=' + ajaxMethod,
 	    dataType : 'json',
-	    async : true,
+	    async : async,
 	    data : dataToSend,
 	    success : successCallback,
 	    error : errCallback
@@ -967,7 +967,7 @@ __notif.helper = {
 	    __notif.helper.processResponse(handler, response);
 	};
 
-	__notif.helper.doAsyncPOST(handler.ajaxMethod, data, successCallback);
+	__notif.helper.doPOST(true, handler.ajaxMethod, data, successCallback);
     },
 
     /**
