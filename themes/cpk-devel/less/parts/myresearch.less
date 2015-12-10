@@ -20,3 +20,21 @@
   background-color: @brand-primary;
   color: white;
 }
+
+// Define blickable target
+body h3.blickable:target,
+body div.blickable:target {
+  
+  animation-name: blick; 
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  
+}
+
+// Define the blick animation
+@keyframes blick {
+  0% 	{ box-shadow: inset 0px 0px 0px 0px @brand-primary; }
+  25% 	{ box-shadow: inset 0px 0px 0px 2px @brand-primary; }
+  75% 	{ box-shadow: inset 0px 0px 0px 2px @brand-primary; }
+  100% 	{ box-shadow: inset 0px 0px 0px 0px @brand-primary; } 
+}
