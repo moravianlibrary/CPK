@@ -513,14 +513,17 @@ __notif.sourcesRead = {
 
     /**
      * Initialize all sources which were read within any handler.
+     * 
+     * It basically reads sourcesRead from local storage unless those are
+     * provided directly into this init function.
      */
-    init : function() {
+    init : function(sourcesRead) {
 
-	var getSourcesReadCallback = function(err, sourcesRead) {
-	    __notif.helper.printErr(err, sourcesRead);
-
-	    if (sourcesRead instanceof Array)
-		__notif.sourcesRead.values = sourcesRead;
+	/*
+	 * Define what to do after initialization is done first so that we can
+	 * call it later
+	 */
+	var tasksAfterInitialization = function() {
 
 	    __notif.sourcesRead.fullyInitialized = true;
 
@@ -533,6 +536,26 @@ __notif.sourcesRead = {
 	    for (var i = 0; i < initCallbacksLength; ++i) {
 		__notif.sourcesRead.callbacksAfterFullInitialization[i].call();
 	    }
+	}
+
+	// Did we recieve the array defining sourcesRead ?
+	if (sourcesRead !== undefined && sourcesRead instanceof Array) {
+
+	    // SourcesRead were provided - probably just logged in ?
+	    __notif.sourcesRead.values = sourcesRead;
+	    __notif.sourcesRead.save();
+
+	    return tasksAfterInitialization();
+	}
+
+	// No sourcesRead provided - ask local storage ..
+	var getSourcesReadCallback = function(err, sourcesRead) {
+	    __notif.helper.printErr(err, sourcesRead);
+
+	    if (sourcesRead instanceof Array)
+		__notif.sourcesRead.values = sourcesRead;
+
+	    tasksAfterInitialization();
 	};
 
 	localforage.getItem('__notif.sourcesRead.values',
@@ -566,9 +589,6 @@ __notif.sourcesRead = {
     /**
      * Marks a source within handler as read already.
      * 
-     * TODO: Is the localforage capable of saving the object before user changes
-     * window location??
-     * 
      * @param source
      * @param handler
      */
@@ -581,6 +601,21 @@ __notif.sourcesRead = {
 
 	    __notif.sourcesRead.values.push(toPush);
 	    __notif.sourcesRead.save();
+
+	    var callback = function(response) {
+		console.log(response);
+	    };
+
+	    // Also let the server know about it ..
+	    __notif.helper.doAsyncPOST('updateNotificationsRead', {
+		curr_notifies_read : __notif.sourcesRead.values
+	    }, callback, function(err) {
+		/*
+		 * We want to ignore errors as the AJAX call is probably going
+		 * to be killed very soon (this AJAX call serves only to inform
+		 * the server)
+		 */
+	    });
 	}
     },
 
@@ -831,6 +866,36 @@ __notif.helper = {
     },
 
     /**
+     * Performs an asynchronous call to AJAX/JSON?method=ajaxMethod with
+     * dataToSend provided.
+     * 
+     * Be sure to also provide function successCallback(response) to call after
+     * successfully obtained the response
+     * 
+     * @param ajaxMethod
+     * @param dataToSend
+     * @param successCallback
+     */
+    doAsyncPOST : function(ajaxMethod, dataToSend, successCallback, errCallback) {
+
+	// Print all errors to console.error by default ..
+	if (errCallback === undefined || typeof errCallback !== "function")
+	    errCallback = function(err) {
+		__notif.helper.printErr(err);
+	    };
+
+	$.ajax({
+	    type : 'POST',
+	    url : '/AJAX/JSON?method=' + ajaxMethod,
+	    dataType : 'json',
+	    async : true,
+	    data : dataToSend,
+	    success : successCallback,
+	    error : errCallback
+	});
+    },
+
+    /**
      * Downloads all possible notifications within a handler
      * 
      * @param handler
@@ -893,22 +958,16 @@ __notif.helper = {
 	    return __notif.helper.printErr('No cat_username provided !');
 	}
 
-	$.ajax({
-	    type : 'POST',
-	    url : '/AJAX/JSON?method=' + handler.ajaxMethod,
-	    dataType : 'json',
-	    async : true,
-	    data : {
-		cat_username : cat_username
-	    },
-	    success : function(response) {
+	var data = {
+	    cat_username : cat_username
+	};
 
-		__notif.helper.processResponse(handler, response);
-	    },
-	    error : function(err) {
-		__notif.helper.printErr(err);
-	    }
-	});
+	var successCallback = function(response) {
+
+	    __notif.helper.processResponse(handler, response);
+	};
+
+	__notif.helper.doAsyncPOST(handler.ajaxMethod, data, successCallback);
     },
 
     /**
@@ -979,7 +1038,12 @@ __notif.helper = {
      */
     printErr : function(err, val) {
 	if (__notif.options.development && err !== undefined && err !== null) {
+
+	    if (typeof err === "object")
+		err = err.toSource();
+
 	    console.error("notifications.js produced an error: " + err);
+
 	    if (val !== undefined && val != null) {
 		console.error("value having problem with is '" + val.toSource()
 			+ "'");
@@ -1231,7 +1295,10 @@ __notif.helper.init = function(handlers) {
      * Initialize all sourcesRead to be able to decide about "unread" flag with
      * all the new notifications ASAP
      */
-    __notif.sourcesRead.init();
+    if (__notif.sourcesRead.fullyInitialized === false) {
+	// There is a chance we have called it already (in case of logging in)
+	__notif.sourcesRead.init();
+    }
 
     var notifList = $('div#header-collapse nav ul li ul#notificationsList');
 
