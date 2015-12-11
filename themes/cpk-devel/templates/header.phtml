@@ -30,7 +30,25 @@
 			</li>
         <? endif; ?>
         <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
-          <li class="dropdown<? if(!$user): ?> hidden<? endif ?>">
+			<? if($user): ?>
+			<li id="logoutOptions">
+              <a href="<?=$this->url('myresearch-logout')?>"
+                class="modal-link" title="<?=$this->transEsc("Log Out")?>">
+                <i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
+			<? else: ?> 
+			<li id="loginOptions">
+              <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
+                <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i
+				  class="icon-prihlasit"></i> <?=$this->transEsc("Institutional Login")?></a>
+              <? else: ?>
+                <a href="<?=$this->url('myresearch-userlogin')?>"
+                  class="modal-link" title="<?=$this->transEsc("Login")?>"><i
+                  class="icon-prihlasit"></i> <?=$this->transEsc("Login")?></a>
+              <? endif; ?>
+            <? endif; ?>
+            </li>
+		  <? if($user): ?>
+            <li class="dropdown">
             <? if (!empty($user->firstname) || !empty($user->lastname)) {
                 $fullname = $user->firstname . ' ' . $user->lastname;
             } else {
@@ -39,34 +57,32 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$fullname?> <b
 					class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li class="logoutOptions"><a
+					<li class="myAccountOptions"><a
 						href="<?=$this->url('myresearch-home', array(), array('query' => array('redirect' => 0)))?>"
 						class="modal-link" title="<?=$this->transEsc("Your Account")?>"><i
 							class="fa fa-home"></i> <?=$this->transEsc("Your Account")?></a>
 					</li>
 					<li
-						class="logoutOptions<? if(!$isActiveShibbolethIdentityManager): ?> hidden<? endif ?>">
+						class="myAccountOptions<? if(!$isActiveShibbolethIdentityManager): ?> hidden<? endif ?>">
 						<a href="<?=$this->url('myresearch-userconnect')?>"
 						class="modal-link"
 						title="<?=$this->transEsc("Connect another account")?>"><i
-							class="fa fa-home"></i> <?=$this->transEsc("Connect another account")?></a>
+						class="fa fa-home"></i> <?=$this->transEsc("Connect another account")?></a>
 					</li>
-					<li class="logoutOptions"><a
-						href="<?=$this->url('myresearch-logout')?>" class="modal-link"
-						title="<?=$this->transEsc("Log Out")?>"><i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
+					<li class="myAccountOptions">
+					  <a href="<?=$this->url('myresearch-favorites')?>"
+		                class="modal-link" title="<?=$this->transEsc('Your Favorites')?>"><i 
+		                class="icon-oblibene"></i> <?=$this->transEsc('Your Favorites')?></a>
 					</li>
 				</ul>
 			</li>
-			<li id="loginOptions" <? if($user): ?> class="hidden" <? endif ?>>
-            <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
-              <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i
-					class="icon-prihlasit"></i> <?=$this->transEsc("Institutional Login")?></a>
-            <? else: ?>
-              <a href="<?=$this->url('myresearch-userlogin')?>"
-				class="modal-link" title="<?=$this->transEsc("Login")?>"><i
-					class="icon-prihlasit"></i> <?=$this->transEsc("Login")?></a>
-            <? endif; ?>
-          </li>
+		  <? else: ?>
+		    <li>
+		      <a href="<?=$this->url('myresearch-favorites')?>"
+		        class="modal-link" title="<?=$this->transEsc('Your Favorites')?>"><i 
+		        class="icon-oblibene"></i> <?=$this->transEsc('Your Favorites')?></a>
+		    </li>
+		  <? endif ?>
         <? endif; ?>
 
         <? if (isset($this->layout()->themeOptions) && count($this->layout()->themeOptions) > 1): ?>
