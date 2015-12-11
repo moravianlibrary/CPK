@@ -715,8 +715,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $itemRestriction = (string) $this->useXPath($response,
                 'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType')[0];
 
-            $available = $status === 'Available On Shelf';
-
             // TODO Exists any clean way to get the due date without additional request?
 
             if (! empty($locationInBuilding))
@@ -739,7 +737,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             return array(
                 'id' => empty($id) ? "" : $id,
-                'availability' => empty($available) ? false : $available ? true : false,
+                'availability' => empty($itemRestriction) ? "" : $itemRestriction,
                 'status' => empty($status) ? "" : $status,
                 'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
                 'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
@@ -842,8 +840,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                                 $locationNameInstance, '//LocationNameValue');
                         }
                 }
-
-                $available = $status === 'Available On Shelf'; // Is this useful?
 
                 $label = $this->determineLabel($status);
 
