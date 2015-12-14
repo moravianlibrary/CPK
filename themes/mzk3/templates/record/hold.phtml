@@ -134,7 +134,7 @@
             <? endif; ?>
             <? foreach ($this->pickup as $lib): ?>
               <option value="<?=$this->escapeHtmlAttr($lib['locationID'])?>"<?=($selected == $lib['locationID']) ? ' selected="selected"' : ''?>>
-                <?=$this->transEsc($lib['locationDisplay'])?>
+                <?=$this->transEsc("Sublibrary " . $lib['locationDisplay'])?>
               </option>
             <? endforeach; ?>
             </select>
