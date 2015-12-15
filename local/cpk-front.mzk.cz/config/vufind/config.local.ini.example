@@ -30,6 +30,20 @@ notificationsEnabled = true
 ;Anchor is build from subfields t and g. Anchor in field 773 is build from all subfields.
 ;It is better than ;marc_links so use this instead of ;marc_link
 fields_in_core = "773,770,772,777,780,785"
+; Default citation style, when not set in DB table user_preference.
+; Possible values:
+; "38673" for ČSN ISO 690
+; "3" for Harvard
+; "4" for NISO/ANSI Z39.29 (2005)
+; "5" for MLA (7th edition)
+; "6" for Turabian (7th edition)
+; "7" for Chicago (16th edition)
+; "8" for IEEE
+; "9" for CSE
+; "10" for CSE NY
+; "11" for APA
+; "12" for ISO 690
+default_citation_style = "38673"
 
 [Catalog]
 library_cards = true
