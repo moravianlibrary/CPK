@@ -643,7 +643,7 @@ placeOfPublication:
 
 counrtyOfPublication:
   QueryFields:
-    country_txt:
+    country_str:
       - [onephrase, 100] 
       - [and, 50]
       - [or, ~]
