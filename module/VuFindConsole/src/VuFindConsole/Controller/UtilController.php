@@ -616,6 +616,20 @@ class UtilController extends AbstractBase
     }
 
     /**
+     * Check Obalky knih servers availability.
+     *
+     * @return \Zend\Console\Response
+     */
+    public function obalkyKnihAction()
+    {
+        $argv = $this->consoleOpts->getRemainingArgs();
+        $failover = new \ObalkyKnihV3\Failover(true);
+        $failover->check($argv);
+        return $this->getSuccessResponse();
+    }
+
+
+    /**
      * Abstract delete method.
      *
      * @param string $table         Table to operate on.

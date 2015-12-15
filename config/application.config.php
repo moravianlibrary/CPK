@@ -6,6 +6,7 @@ $modules = array(
 );
 if (PHP_SAPI == 'cli' && !defined('VUFIND_PHPUNIT_RUNNING')) {
     $modules[] = 'VuFindConsole';
+    $modules[] = 'ObalkyKnihV3';
 }
 if (APPLICATION_ENV == 'development') {
     $modules[] = 'VuFindDevTools';
