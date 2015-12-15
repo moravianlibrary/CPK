@@ -34,3 +34,20 @@ INSERT INTO `vufind`.`citation_style` (`id`, `description`, `value`)
          (NULL, 'APA', '11'), 
          (NULL, 'ISO 690', '12');
 
+
+/* Create table for users preferences */
+CREATE TABLE IF NOT EXISTS `user_preference` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `citation_style` int(8)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+ALTER TABLE `user_preference`
+  ADD PRIMARY KEY (`id`), ADD KEY `user_id` (`user_id`);
+
+ALTER TABLE `user_preference`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+
+ALTER TABLE `user_preference`
+  ADD CONSTRAINT `user_preference_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_preference_ibfk_2` FOREIGN KEY (`citation_style`) REFERENCES `citation_style` (`id`) ON DELETE CASCADE;
