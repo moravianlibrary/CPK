@@ -53,7 +53,7 @@
             data[i] = {val: data[i]};
           }
           var content = data[i].val;
-          data[i].href = 'Search/Results?lookfor=' 
+          data[i].href = '/Search/Results?lookfor=' 
         	  			+ encodeURIComponent(content).replace("/\+/g", "%20") 
         	  			+ '&type=AllFields&limit=10&sort=relevance';
           if (options.highlight) {
