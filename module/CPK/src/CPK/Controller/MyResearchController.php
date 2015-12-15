@@ -560,4 +560,28 @@ class MyResearchController extends MyResearchControllerBase
             ->setNamespace('success')
             ->addMessage($msg);
     }
+    
+    /**
+     * Settings view view
+     *
+     * @return Zend\View\Model\ViewModel
+     */
+    public function settingsAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+    
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver($user)) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+    
+
+        $view = $this->createViewModel();
+        $this->flashExceptions($this->flashMessenger());
+        return $view;
+    }
 }

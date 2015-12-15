@@ -24,6 +24,10 @@
 	      <?=$this->transEsc('Profile')?>
 	      <span class="pull-right flip"><i class="icon-profil"></i></span>
 	    </a>
+	    <a href="<?=$this->url('myresearch-settings')?>" class="list-group-item<?=$this->active == 'settings' ? ' active' : ''?>">
+	      <?=$this->transEsc('Settings')?>
+	      <span class="pull-right flip"><i class="fa fa-gear"></i></span>
+	    </a>
 
 	    <? if (! empty($user['major'])): ?>
 	      <a href="<?=$this->url('statistics-dashboard')?>" class="list-group-item<?=$this->active == 'statistics' ? ' active' : ''?>">
