@@ -476,7 +476,7 @@ interface PiwikStatisticsInterface
 	 * @param	string	$type	all|anonyme|authenticated
 	 * @return	int
 	 */
-	public function getCatalogAccessCount($period, $date, $facetValue, $type = "all");
+	public function getFacetAccessCount($period, $date, $facetValue, $type = "all");
 	
 	/**
 	 * Returns number of catalog accesses with users logged in to the specific library
@@ -488,5 +488,5 @@ interface PiwikStatisticsInterface
 	 * @param	string	$userLibCard
 	 * @return	int
 	 */
-	public function getCatalogAccessCountForLibrary($period, $date, $facetValue, $userLibCard);
+	public function getFacetAccessCountForLibrary($period, $date, $facetValue, $userLibCard);
 }
