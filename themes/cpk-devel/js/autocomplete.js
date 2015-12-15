@@ -204,6 +204,7 @@
       input.keydown(function(event) {
         var element = $.fn.autocomplete.element;
         var position = $(this).data('selected');
+        var linescount = $('.autocomplete-results .item').length;
         switch (event.which) {
           // arrow keys through items
           case 38: {
@@ -214,7 +215,9 @@
               element.find('.item:eq('+position+')').addClass('selected');
               $(this).data('selected', position);
             } else {
-              $(this).data('selected', -1);
+            	position = linescount - 1;
+            	element.find('.item:eq('+position+')').addClass('selected');
+            	$(this).data('selected', position);
             }
             break;
           }
@@ -222,16 +225,21 @@
             event.preventDefault();
             if ($.fn.autocomplete.element.hasClass(options.hidingClass)) {
               search(input, element);
-            } else if (position < input.data('length')-1) {
+            } else if (position < linescount -1) {
               position++;
               element.find('.item.selected').removeClass('selected');
               element.find('.item:eq('+position+')').addClass('selected');
               $(this).data('selected', position);
+            } else {
+            	position = 0;
+            	element.find('.item.selected').removeClass('selected');
+            	element.find('.item:eq('+position+')').addClass('selected');
+            	$(this).data('selected', position);
             }
             break;
           }
           // enter to nav or populate
-          case 9:
+          case 9: 
           case 13: {
             var selected = element.find('.item.selected');
             if (selected.length > 0) {
@@ -250,6 +258,7 @@
           case 27: {
             hide();
             $(this).data('selected', -1);
+            element.addClass('autocomplete-results hidden');
             break;
           }
         }
