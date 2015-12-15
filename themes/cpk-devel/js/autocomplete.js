@@ -36,6 +36,7 @@
       input.val(value);
       hide();
       input.trigger('autocomplete:select', {value: value, eventType: eventType});
+      $( '.searchForm' ).submit();
     }
     
     function createListFrom(shell, input, data, category) {
@@ -52,6 +53,9 @@
             data[i] = {val: data[i]};
           }
           var content = data[i].val;
+          data[i].href = 'Search/Results?lookfor=' 
+        	  			+ encodeURIComponent(content).replace("/\+/g", "%20") 
+        	  			+ '&type=AllFields&limit=10&sort=relevance';
           if (options.highlight) {
             // escape term for regex
             // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
