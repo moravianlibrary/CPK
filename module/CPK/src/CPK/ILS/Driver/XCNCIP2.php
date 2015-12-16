@@ -212,7 +212,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         }
 
         if (! $result->isSuccess()) {
-            $message = 'HTTP error: ' . $result->getContent();
+            $message = 'HTTP error: ' . $result->getStatusCode();
 
             $this->addEnviromentalException($message);
             throw new ILSException($message);
