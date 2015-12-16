@@ -648,13 +648,6 @@ counrtyOfPublication:
       - [and, 50]
       - [or, ~]
 
-cityInstitution:
-  QueryFields:
-    city_institution_cs_search_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
 adv_search_title_series:
   QueryFields:
     titleSeries_search_txt_mv:
