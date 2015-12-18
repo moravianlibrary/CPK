@@ -1061,9 +1061,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'cat_username' => $patron['cat_username'],
                 'duedate' => empty($dateDue) ? '' : $dateDue,
                 'id' => $bib_id,
-                'barcode' => '', // TODO
-                                 // 'renew' => '',
-                                 // 'renewLimit' => '',
+                'barcode' => $item_id,
+                                 // 'renew' => '', // TODO
+                                 // 'renewLimit' => '', // TODO
                 'request' => empty($request) ? '' : (string) $request[0],
                 'volume' => '',
                 'author' => empty($author) ? '' : (string) $author[0],

@@ -31,7 +31,7 @@
 namespace CPK\ILS\Driver;
 
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
-use VuFind\ILS\Driver\SolrIdResolver as SolrIdResolverBase;
+
 class Aleph extends AlephBase
 {
 
@@ -470,32 +470,5 @@ class AlephItem
     public function toAssocArray()
     {
         return $this->data;
-    }
-}
-
-/**
- * SolrIdResolver - resolve bibliographic base against solr.
- */
-class SolrIdResolver extends SolrIdResolverBase
-{
-
-    public function resolveIds(&$recordsToResolve)
-    {
-        $idsToResolve = array();
-        foreach ($recordsToResolve as $record) {
-            $identifier = $record[$this->itemIdentifier];
-            if (isset($identifier) && ! empty($identifier)) {
-                $idsToResolve[] = $record[$this->itemIdentifier];
-            }
-        }
-        $resolved = $this->convertToIDUsingSolr($idsToResolve);
-        foreach ($recordsToResolve as &$record) {
-            if (isset($record[$this->itemIdentifier])) {
-                $id = $record[$this->itemIdentifier];
-                if (isset($resolved[$id])) {
-                    $record['id'] = explode(".", $resolved[$id])[1];
-                }
-            }
-        }
     }
 }

@@ -28,7 +28,8 @@
  */
 namespace CPK\ILS\Driver;
 
-use VuFind\Exception\ILS as ILSException, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\ILS\Driver\MultiBackend as MultiBackendBase;
+use CPK;
+use VuFind\Exception\ILS as ILSException, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver;
 
 /**
  * Multiple Backend Driver.
@@ -45,6 +46,32 @@ use VuFind\Exception\ILS as ILSException, Zend\ServiceManager\ServiceLocatorAwar
 class MultiBackend extends MultiBackendBase
 {
 
+    /**
+     * Search service (used for lookups by barcode number)
+     *
+     */
+    protected $searchService = null;
+    
+    /**
+     * Resolver for translation of bibliographic ids, used in a case
+     * of more bibliographic bases
+     *
+     * @var \VuFind\ILS\Driver\IdResolver
+     */
+    protected $idResolver = null;
+    
+    public function __construct($configLoader, $ilsAuth, \VuFindSearch\Service $searchService = null) {
+        parent::__construct($configLoader, $ilsAuth);
+        
+        $this->searchService = $searchService; 
+    }
+    
+    public function init() {
+        parent::init();
+
+        $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
+    }
+    
     /**
      * Cancel Holds
      *
@@ -151,8 +178,11 @@ class MultiBackend extends MultiBackendBase
             $transactions = $driver->getMyTransactions(
                 $this->stripIdPrefixes($patron, $source)
             );
-
+            
             foreach($transactions as &$transaction) {
+                
+                $this->idResolver->resolveIds( $transactions, $source , $this->getDriverConfig($source));
+                
                 if (isset($transaction['loan_id']) && strpos($transaction['loan_id'], '.') === false) {
                     // Prepend source to loan_id if not there already ..
                     $transaction['loan_id'] = $source . '.' . $transaction['loan_id'];
