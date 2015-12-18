@@ -1182,6 +1182,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'position' => empty($position) ? '' : (string) $position[0],
                 'available' => false, // true means item is ready for check out
                 'item_id' => empty($item_id) ? '' : (string) $item_id[0],
+                'barcode' => empty($item_id) ? '' : (string) $item_id[0],
                 'volume' => '',
                 'publication_year' => '',
                 'title' => empty($title) ? '' : (string) $title[0],

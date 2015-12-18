@@ -51,7 +51,7 @@ class MultiBackend extends MultiBackendBase
      *
      */
     protected $searchService = null;
-    
+
     /**
      * Resolver for translation of bibliographic ids, used in a case
      * of more bibliographic bases
@@ -59,19 +59,19 @@ class MultiBackend extends MultiBackendBase
      * @var \VuFind\ILS\Driver\IdResolver
      */
     protected $idResolver = null;
-    
+
     public function __construct($configLoader, $ilsAuth, \VuFindSearch\Service $searchService = null) {
         parent::__construct($configLoader, $ilsAuth);
-        
-        $this->searchService = $searchService; 
+
+        $this->searchService = $searchService;
     }
-    
+
     public function init() {
         parent::init();
 
         $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
     }
-    
+
     /**
      * Cancel Holds
      *
@@ -161,6 +161,31 @@ class MultiBackend extends MultiBackendBase
     }
 
     /**
+     * Get Patron Holds
+     *
+     * This is responsible for retrieving all holds by a specific patron.
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @return mixed      Array of the patron's holds
+     */
+    public function getMyHolds($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            $holds = $driver->getMyHolds($this->stripIdPrefixes($patron, $source));
+
+            $this->idResolver->resolveIds( $holds, $source , $this->getDriverConfig($source));
+
+            return $this->addIdPrefixes(
+                    $holds, $source, ['id', 'item_id', 'cat_username']
+            );
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
      * Get Patron Transactions
      *
      * This is responsible for retrieving all transactions (i.e. checked out items)
@@ -178,17 +203,17 @@ class MultiBackend extends MultiBackendBase
             $transactions = $driver->getMyTransactions(
                 $this->stripIdPrefixes($patron, $source)
             );
-            
+
+            $this->idResolver->resolveIds( $transactions, $source , $this->getDriverConfig($source));
+
             foreach($transactions as &$transaction) {
-                
-                $this->idResolver->resolveIds( $transactions, $source , $this->getDriverConfig($source));
-                
+
                 if (isset($transaction['loan_id']) && strpos($transaction['loan_id'], '.') === false) {
                     // Prepend source to loan_id if not there already ..
                     $transaction['loan_id'] = $source . '.' . $transaction['loan_id'];
                 }
             }
-            
+
             return $this->addIdPrefixes($transactions, $source);
         }
         throw new ILSException('No suitable backend driver found');
