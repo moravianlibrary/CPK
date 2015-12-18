@@ -265,11 +265,15 @@ class MultiBackend extends MultiBackendBase
             return $this->getEmptyStatuses($ids);
 
         if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
+            
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
             }
 
-            $statuses = $driver->getStatuses($ids);
+            $patron = $this->ilsAuth->storedCatalogLogin();            
+            $patron = $this->stripIdPrefixes($patron, $source);            
+
+            $statuses = $driver->getStatuses($ids, $patron);
             return $this->addIdPrefixes($statuses, $source);
         } else
             return parent::getStatuses($ids);

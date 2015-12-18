@@ -203,7 +203,7 @@ class Aleph extends AlephBase
      * @return mixed On success, an associative array with the following keys:
      *         id, availability (boolean), status, location, reserve, callnumber.
      */
-    public function getStatuses($ids)
+    public function getStatuses($ids, $patron = [])
     {
         $statuses = array();
 
@@ -212,6 +212,13 @@ class Aleph extends AlephBase
         $additionalAttributes = [
             'view' => 'full',
         ];
+
+        if (!empty($patron['id'])) {
+            $additionalAttributes['patron'] = $patron['id'];
+        } else if (isset($this->defaultPatronId)) {
+            $additionalAttributes['patron'] = $this->defaultPatronId;
+        }
+        
         if ($this->maxItemsParsed === - 1 || $idsCount <= $this->maxItemsParsed) {
             // Query all items at once ..
 

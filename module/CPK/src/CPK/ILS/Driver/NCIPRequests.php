@@ -128,7 +128,7 @@ class NCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
-    public function LUISItemId($itemList, $nextItemToken = null, XCNCIP2 $mainClass = null) {
+    public function LUISItemId($itemList, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
         $body = "<ns1:LookupItemSet>";
         foreach ($itemList as $id) {
             if ($mainClass !== null)
@@ -145,11 +145,19 @@ class NCIPRequests {
             $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
             "</ns1:NextItemToken>";
         }
+        
+        // Append the Ext element containing the UserId
+        if (! empty($patron)) {
+            $body .= '<ns1:Ext>';
+            $body .= $this->patronInformation($patron);
+            $body .= '</ns1:Ext>';
+        }
+        
         $body .= "</ns1:LookupItemSet>";
         return $this->header() . $body . $this->footer();
     }
 
-    public function LUISBibItem($bibItemList, $nextItemToken = null, XCNCIP2 $mainClass = null) {
+    public function LUISBibItem($bibItemList, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
         $body = "<ns1:LookupItemSet>";
         foreach ($bibItemList as $id) {
             if ($mainClass !== null)
@@ -166,6 +174,14 @@ class NCIPRequests {
             $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
             "</ns1:NextItemToken>";
         }
+        
+        // Append the Ext element containing the UserId
+        if (! empty($patron)) {
+            $body .= '<ns1:Ext>';
+            $body .= $this->patronInformation($patron);
+            $body .= '</ns1:Ext>';
+        }
+        
         $body .= "</ns1:LookupItemSet>";
         return $this->header() . $body . $this->footer();
     }
@@ -180,7 +196,7 @@ class NCIPRequests {
         return "</ns1:NCIPMessage>";
     }
 
-    protected function patronInformation($patron, $extras) {
+    protected function patronInformation($patron, $extras = '') {
         $body =
         "<ns1:LookupUser>" .
         $this->insertInitiationHeader($patron['agency']) .

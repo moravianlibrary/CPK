@@ -764,7 +764,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @throws ILSException
      * @return array Array of return values from getStatus.
      */
-    public function getStatuses($ids)
+    public function getStatuses($ids, $patron = [])
     {
         $retVal = [];
 
@@ -772,7 +772,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids));
         else {
-            $request = $this->requests->LUISItemId($ids, null, $this);
+            $request = $this->requests->LUISItemId($ids, null, $this, $patron);
             $response = $this->sendRequest($request);
 
             if ($response === null)
@@ -903,12 +903,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $request = $this->requests->LUISBibItem(
                     array(
                         $id
-                    ), (string) $nextItemToken[0], $this);
+                    ), (string) $nextItemToken[0], $this, $patron);
             else {
                 $request = $this->requests->LUISBibItem(
                     array(
                         $id
-                    ), null, $this);
+                    ), null, $this, $patron);
                 $all_iteminfo = [];
             }
 
