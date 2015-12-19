@@ -46,18 +46,19 @@ var holdingsILSfilters = {
 	    }
 	});
 
-	var selector = 'tr:hidden';
+	var selector = 'tr.hidden';
 
 	if (value !== 'ALL') {
 
 	    // Hide rows not matching the filter selection
-	    holdingsILSfilters.selectors.tbody.children('tr:not(:hidden)').hide();
+	    // Note that we have to use class hidden due to mobile compatibility
+	    holdingsILSfilters.selectors.tbody.children('tr:not(.hidden)').addClass('hidden');
 
 	    selector += '[data-' + filter + '=' + value + ']';
 	}
 
 	// Now unhide rows matching selected filters
-	holdingsILSfilters.selectors.tbody.children(selector).show();
+	holdingsILSfilters.selectors.tbody.children(selector).removeClass('hidden');
 
 	// And now query the status of the unhidden
 	getHoldingStatuses();

@@ -133,9 +133,9 @@ $this->headTitle(
                 $row['link'] .= '&agency_id=' . $row['agency_id'];
         }
 
-        $trClass = ($rowNo % 2) == 0 ? 'oddrow' : 'evenrow';
+        $class = ($rowNo % 2) == 0 ? 'oddrow' : 'evenrow';
 
-        $attributes = 'class="' . $trClass . '" ';
+        $attributes = '';
 
         $itemStatusLabel = 'label-primary';
 
@@ -154,7 +154,7 @@ $this->headTitle(
 
                 // Should we hide this row as it's not selected??
                 if ((! empty($firstYearFilter)) && ($firstYearFilter !== $row['year']))
-                    $attributes .= 'hidden="hidden" ';
+                    $class .= ' hidden';
 
                 // Note that if a row is hidden, then it is waiting to be showed up using any filter ..
             }
@@ -163,6 +163,8 @@ $this->headTitle(
                 $attributes .= 'data-volume="' . $row['volume'] . '" ';
             }
         }
+        
+        $attributes .= 'class="' . $class . '" ';
 
         ?>
   <tr <?=$attributes?> data-type="holding">

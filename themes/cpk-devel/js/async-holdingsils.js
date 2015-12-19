@@ -51,9 +51,9 @@ function getAllNotLoadedHoldings(includingBeingLoaded) {
     var selector;
 
     if (includingBeingLoaded) {
-	selector = 'tr[data-type=holding]:not(.loaded):not([hidden=hidden])';
+	selector = 'tr[data-type=holding]:not(.loaded, .hidden)';
     } else {
-	selector = 'tr[data-type=holding]:not(.loading, .loaded):not([hidden=hidden])';
+	selector = 'tr[data-type=holding]:not(.loading, .loaded, .hidden)';
     }
 
     return $(selector);
