@@ -161,15 +161,22 @@ class AjaxController extends AjaxControllerBase
     {
         $request = $this->getRequest();
         $ids = $this->params()->fromPost('ids');
+        $bibId = $this->params()->fromPost('bibId');
         $filter = $this->params()->fromPost('activeFilter');
 
         $viewRend = $this->getViewRenderer();
 
-        if ($ids === null || ! is_array($ids) || empty($ids))
+        if ($ids === null || ! is_array($ids) || empty($ids)) {
             return $this->output(
                 [
                     'status' => $this->getTranslatedUnknownStatus($viewRend)
                 ], self::STATUS_ERROR);
+        } elseif ($bibId === null) {
+            return $this->output([
+                'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                'msg' => 'No bibId provided !'
+            ], self::STATUS_ERROR);
+        }
         
         $ids = array_filter($ids);
 
@@ -180,17 +187,18 @@ class AjaxController extends AjaxControllerBase
             try {
                 $statuses = $ilsDriver->getStatuses($ids, $filter);
             } catch (\Exception $e) {
-                return $this->output(
-                    [
-                        'status' => $this->getTranslatedUnknownStatus($viewRend),
-                        'message' => $e->getMessage(),
-                        'code' => $e->getCode()
-                    ], self::STATUS_ERROR);
+                return $this->output([
+                    'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                    'msg' => $e->getMessage(),
+                    'code' => $e->getCode()
+                ], self::STATUS_ERROR);
             }
 
             if (null === $statuses || empty($statuses))
-                return $this->output('$ilsDriver->getStatuses returned nothing',
-                    self::STATUS_ERROR);
+                return $this->output([
+                    'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                    'msg' => '$ilsDriver->getStatuses returned nothing'
+                ], self::STATUS_ERROR);
 
             $itemsStatuses = [];
 
@@ -204,7 +212,7 @@ class AjaxController extends AjaxControllerBase
                         'status_' . $status['status'], null, $status['status']);
                 else {
                     // The status is empty - set label to 'label-danger'
-                    $itemsStatuses[$id]['label'] = 'label-danger';
+                    $itemsStatuses[$id]['label'] = 'label-unknown';
 
                     // And set the status to unknown status
                     $itemsStatuses[$id]['status'] = $this->getTranslatedUnknownStatus(
@@ -239,9 +247,10 @@ class AjaxController extends AjaxControllerBase
             $retVal['statuses'] = $itemsStatuses;
             return $this->output($retVal, self::STATUS_OK);
         } else
-            return $this->output(
-                "ILS Driver isn't instanceof MultiBackend - ending job now.",
-                self::STATUS_ERROR);
+            return $this->output([
+                'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                'msg' => "ILS Driver isn't instanceof MultiBackend - ending job now."
+            ], self::STATUS_ERROR);
     }
 
     /**
@@ -786,6 +795,17 @@ class AjaxController extends AjaxControllerBase
                 'driver' => $driver
             ]);
         return $this->output($html, self::STATUS_OK);
+    }
+    
+    protected function getTranslatedUnknownStatuses($ids, $viewRend) {
+        $statuses = [];
+        foreach($ids as $id) {
+            $statuses[$id] = [
+                'status' => $this->getTranslatedUnknownStatus($viewRend),
+                'label' => 'label-unknown'
+            ];
+        }
+        return $statuses;
     }
 
     protected function getTranslatedUnknownStatus($viewRend)
