@@ -56,9 +56,6 @@ class CitationStyle extends Gateway
     public function __construct(\Zend\Config\Config $config)
     {
         $this->config = $config;
-       // $this->table = ;
-        //$this->rowTable = ';
-        //parent::__construct($this->table, $this->rowTable);
         parent::__construct('citation_style', 'CPK\Db\Row\CitationStyle');
     }
     

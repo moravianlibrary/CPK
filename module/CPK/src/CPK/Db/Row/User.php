@@ -627,14 +627,4 @@ class User extends BaseUser
             }
         }
     }
-    
-    /**
-     * Return users Id
-     * 
-     * @return int
-     */
-    protected function getUserId()
-    {
-        return $this->data['id'];
-    }
 }
