@@ -251,29 +251,33 @@ class MultiBackend extends MultiBackendBase
      *
      * @param array $ids
      *            The array of record ids to retrieve the status for
-     *
+     *            
      * @throws ILSException
      * @return array An array of getStatus() return values on success.
      */
-    public function getStatuses($ids, $filter = [])
+    public function getStatuses($ids, $bibId = null, $filter = [])
     {
-        // We assume all the ids passed here are being processed by only one ILS/Driver
-        $source = $this->getSource(reset($ids));
+            // We assume all the ids passed here are being processed by only one ILS/Driver
+        if ($bibId === null)
+            return $this->getEmptyStatuses($ids);
+        
+        $source = $this->getSource($bibId);
         $driver = $this->getDriver($source);
-
+        
         if ($driver === null)
             return $this->getEmptyStatuses($ids);
-
+        
         if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
             
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
             }
-
-            $patron = $this->ilsAuth->storedCatalogLogin();            
-            $patron = $this->stripIdPrefixes($patron, $source);            
-
-            $statuses = $driver->getStatuses($ids, $patron, $filter);
+            
+            $patron = $this->ilsAuth->storedCatalogLogin();
+            $patron = $this->stripIdPrefixes($patron, $source);
+            $bibId = $this->stripIdPrefixes($bibId, $source);
+            
+            $statuses = $driver->getStatuses($ids, $patron, $filter, $bibId);
             return $this->addIdPrefixes($statuses, $source);
         } else
             return parent::getStatuses($ids);

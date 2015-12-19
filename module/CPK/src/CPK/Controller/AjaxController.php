@@ -173,7 +173,7 @@ class AjaxController extends AjaxControllerBase
                 ], self::STATUS_ERROR);
         } elseif ($bibId === null) {
             return $this->output([
-                'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
                 'msg' => 'No bibId provided !'
             ], self::STATUS_ERROR);
         }
@@ -185,10 +185,10 @@ class AjaxController extends AjaxControllerBase
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
             try {
-                $statuses = $ilsDriver->getStatuses($ids, $filter);
+                $statuses = $ilsDriver->getStatuses($ids, $bibId, $filter);
             } catch (\Exception $e) {
                 return $this->output([
-                    'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                    'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
                     'msg' => $e->getMessage(),
                     'code' => $e->getCode()
                 ], self::STATUS_ERROR);
@@ -196,14 +196,14 @@ class AjaxController extends AjaxControllerBase
 
             if (null === $statuses || empty($statuses))
                 return $this->output([
-                    'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                    'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
                     'msg' => '$ilsDriver->getStatuses returned nothing'
                 ], self::STATUS_ERROR);
 
             $itemsStatuses = [];
 
             foreach ($statuses as $status) {
-                $id = $status['id'];
+                $id = $status['item_id'];
 
                 $itemsStatuses[$id] = [];
 
@@ -248,7 +248,7 @@ class AjaxController extends AjaxControllerBase
             return $this->output($retVal, self::STATUS_OK);
         } else
             return $this->output([
-                'statuses' => getTranslatedUnknownStatuses($ids, $viewRend),
+                'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
                 'msg' => "ILS Driver isn't instanceof MultiBackend - ending job now."
             ], self::STATUS_ERROR);
     }

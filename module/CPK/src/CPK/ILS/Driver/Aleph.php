@@ -202,7 +202,7 @@ class Aleph extends AlephBase
      *         id, availability (boolean), status, location, reserve,
      *         callnumber.
      */
-    public function getStatuses ($ids, $patron = [], $filter = [])
+    public function getStatuses ($ids, $patron = [], $filter = [], $bibId = null)
     {
         $statuses = array();
         
@@ -224,10 +224,6 @@ class Aleph extends AlephBase
         if ($this->maxItemsParsed === - 1 || $idsCount <= $this->maxItemsParsed) {
             // Query all items at once ..
             
-            // Get bibId from this e.g. [ MZK01-000910444:MZK50000910444000270,
-            // ... ]
-            list ($bibId) = explode(':', reset($ids));
-            
             $path_elements = array(
                     'record',
                     str_replace('-', '', $bibId),
@@ -246,19 +242,14 @@ class Aleph extends AlephBase
                 $item_id = $item->attributes()->href;
                 $item_id = substr($item_id, strrpos($item_id, '/') + 1);
                 
-                // Build the id into initial state so that jQuery knows which
-                // row has to be updated
-                $id = $bibId . ':' . $item_id;
-                
                 // do not process ids which are not in desired $ids array
-                if (array_search($id, $ids) === false)
+                if (array_search($item_id, $ids) === false)
                     continue;
                 
-                $statuses[] = $this->parseItem($id, $item, $patron);
+                $statuses[] = $this->parseItem($bibId, $item, $patron);
             }
         } else // Query one by one item
             foreach ($ids as $id) {
-                list ($resource, $itemId) = explode(':', $id);
                 
                 if (isSeT($additionalAttributes['patron']))
                     // We can search for patron specific bib info
@@ -268,16 +259,16 @@ class Aleph extends AlephBase
                             'patron',
                             $additionalAttributes['patron'],
                             'record',
-                            str_replace('-', '', $resource),
+                            str_replace('-', '', $bibId),
                             'items',
-                            $itemId
+                            $id
                     );
                 else
                     $path_elements = array(
                             'record',
-                            str_replace('-', '', $resource),
+                            str_replace('-', '', $bibId),
                             'items',
-                            $itemId
+                            $id
                     );
                 
                 $xml = $this->alephWebService->doRestDLFRequest($path_elements, 
@@ -289,7 +280,7 @@ class Aleph extends AlephBase
                 
                 $item = $xml->{'item'};
                 
-                $statuses[] = $this->parseItem($id, $item, $patron);
+                $statuses[] = $this->parseItem($bibId, $item, $patron);
                 
                 // Returns parsed items to show it to user
                 if (count($statuses) === $this->maxItemsParsed)
@@ -307,7 +298,7 @@ class Aleph extends AlephBase
      * @param \SimpleXMLElement $item            
      * @return AlephItem $alephItem
      */
-    protected function parseItem ($id, \SimpleXMLElement $item, $patron)
+    protected function parseItem ($bibId, \SimpleXMLElement $item, $patron)
     {
         $item_status = $this->alephTranslator->tab15Translate($item);
         if ($item_status['opac'] != 'Y') {
@@ -398,7 +389,7 @@ class Aleph extends AlephBase
         }
         
         return [
-                'id' => $id,
+                'id' => $bibId,
                 'item_id' => $item_id,
                 'availability' => $availability,
                 'status' => $status,
