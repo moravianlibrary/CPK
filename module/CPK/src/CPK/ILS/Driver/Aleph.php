@@ -30,6 +30,7 @@
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 namespace CPK\ILS\Driver;
+
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
 
 class Aleph extends AlephBase
@@ -43,13 +44,12 @@ class Aleph extends AlephBase
 
     protected $maxItemsParsed;
 
-    public function init ()
+    public function init()
     {
         parent::init();
         
         if (isset($this->config['Catalog']['available_statuses'])) {
-            $this->available_statuses = explode(self::CONFIG_ARRAY_DELIMITER, 
-                    $this->config['Catalog']['available_statuses']);
+            $this->available_statuses = explode(self::CONFIG_ARRAY_DELIMITER, $this->config['Catalog']['available_statuses']);
         }
         
         if (isset($this->config['Catalog']['logo'])) {
@@ -57,8 +57,7 @@ class Aleph extends AlephBase
         }
         
         if (isset($this->config['Availability']['maxItemsParsed'])) {
-            $this->maxItemsParsed = intval(
-                    $this->config['Availability']['maxItemsParsed']);
+            $this->maxItemsParsed = intval($this->config['Availability']['maxItemsParsed']);
         }
         
         if (! isset($this->maxItemsParsed) || $this->maxItemsParsed < 2) {
@@ -66,8 +65,7 @@ class Aleph extends AlephBase
         }
         
         if ($this->idResolver instanceof \VuFind\ILS\Driver\SolrIdResolver) {
-            $this->idResolver = new SolrIdResolver($this->searchService, 
-                    $this->config);
+            $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
         }
     }
 
@@ -85,7 +83,7 @@ class Aleph extends AlephBase
      *         whether or not it was successful and a system message (if
      *         available)
      */
-    public function cancelHolds ($details)
+    public function cancelHolds($details)
     {
         $patron = $details['patron'];
         $patronId = $patron['id'];
@@ -97,20 +95,19 @@ class Aleph extends AlephBase
         foreach ($details['details'] as $id) {
             
             try {
-                $result = $this->alephWebService->doRestDLFRequest(
-                        array(
-                                'patron',
-                                $patronId,
-                                'circulationActions',
-                                'requests',
-                                'holds',
-                                $id
-                        ), null, "DELETE");
+                $result = $this->alephWebService->doRestDLFRequest(array(
+                    'patron',
+                    $patronId,
+                    'circulationActions',
+                    'requests',
+                    'holds',
+                    $id
+                ), null, "DELETE");
             } catch (\Exception $ex) {
                 $statuses[$id] = array(
-                        'success' => false,
-                        'status' => 'cancel_hold_failed',
-                        'sysMessage' => $ex->getMessage()
+                    'success' => false,
+                    'status' => 'cancel_hold_failed',
+                    'sysMessage' => $ex->getMessage()
                 );
                 continue;
             }
@@ -122,15 +119,15 @@ class Aleph extends AlephBase
                     $message = $result->{'reply-text'};
                 }
                 $statuses[$id] = array(
-                        'success' => false,
-                        'status' => 'cancel_hold_failed',
-                        'sysMessage' => (string) $message
+                    'success' => false,
+                    'status' => 'cancel_hold_failed',
+                    'sysMessage' => (string) $message
                 );
             } else {
                 $count ++;
                 $statuses[$id] = array(
-                        'success' => true,
-                        'status' => 'cancel_hold_ok'
+                    'success' => true,
+                    'status' => 'cancel_hold_ok'
                 );
             }
         }
@@ -138,7 +135,7 @@ class Aleph extends AlephBase
         return $statuses;
     }
 
-    public function getMyProfile ($user)
+    public function getMyProfile($user)
     {
         $profile = parent::getMyProfile($user);
         
@@ -148,17 +145,13 @@ class Aleph extends AlephBase
         if (isset($profile['blocks']))
             foreach ($profile['blocks'] as $block) {
                 if (isset($this->availabilitySource)) {
-                    $translatedBlock = $this->translator->getTranslator()->translate(
-                            $this->availabilitySource . " " . "Block" . " " .
-                                     (string) $block);
+                    $translatedBlock = $this->translator->getTranslator()->translate($this->availabilitySource . " " . "Block" . " " . (string) $block);
                     
                     /* Skip blocks which are not translated. */
-                    if ($translatedBlock === $this->availabilitySource . " " .
-                             "Block" . " " . (string) $block)
+                    if ($translatedBlock === $this->availabilitySource . " " . "Block" . " " . (string) $block)
                         continue;
                 } else {
-                    $translatedBlock = $this->translator->getTranslator()->translate(
-                            "Block " . (string) $block);
+                    $translatedBlock = $this->translator->getTranslator()->translate("Block " . (string) $block);
                     if ($translatedBlock === "Block " . (string) $block)
                         continue;
                 }
@@ -177,7 +170,7 @@ class Aleph extends AlephBase
         return $profile;
     }
 
-    public function getMyTransactions ($user, $history = false, $limit = 0)
+    public function getMyTransactions($user, $history = false, $limit = 0)
     {
         $transactions = parent::getMyTransactions($user, $history, $limit);
         
@@ -194,7 +187,7 @@ class Aleph extends AlephBase
      * This is responsible for retrieving the status information of a certain
      * record.
      *
-     * @param string $id
+     * @param string $item_id
      *            The record id to retrieve the holdings for
      *            
      * @throws ILSException
@@ -202,14 +195,14 @@ class Aleph extends AlephBase
      *         id, availability (boolean), status, location, reserve,
      *         callnumber.
      */
-    public function getStatuses ($ids, $patron = [], $filter = [], $bibId = null)
+    public function getStatuses($ids, $patron = [], $filter = [], $bibId = null)
     {
         $statuses = array();
         
         $idsCount = count($ids);
         
         $additionalAttributes = [
-                'view' => 'full'
+            'view' => 'full'
         ];
         
         if ($filter !== null)
@@ -225,13 +218,12 @@ class Aleph extends AlephBase
             // Query all items at once ..
             
             $path_elements = array(
-                    'record',
-                    str_replace('-', '', $bibId),
-                    'items'
+                'record',
+                str_replace('-', '', $bibId),
+                'items'
             );
             
-            $xml = $this->alephWebService->doRestDLFRequest($path_elements, 
-                    $additionalAttributes);
+            $xml = $this->alephWebService->doRestDLFRequest($path_elements, $additionalAttributes);
             
             if (! isset($xml->{'items'})) {
                 return $statuses;
@@ -246,33 +238,32 @@ class Aleph extends AlephBase
                 if (array_search($item_id, $ids) === false)
                     continue;
                 
-                $statuses[] = $this->parseItem($bibId, $item, $patron);
+                $statuses[] = $this->parseItem($bibId, $item_id, $item, $patron);
             }
         } else // Query one by one item
-            foreach ($ids as $id) {
+            foreach ($ids as $item_id) {
                 
                 if (isSeT($additionalAttributes['patron']))
                     // We can search for patron specific bib info
                     // Example URL:
                     // patron/700/record/MZK01000244261/items/MZK50000244261006690
                     $path_elements = array(
-                            'patron',
-                            $additionalAttributes['patron'],
-                            'record',
-                            str_replace('-', '', $bibId),
-                            'items',
-                            $id
+                        'patron',
+                        $additionalAttributes['patron'],
+                        'record',
+                        str_replace('-', '', $bibId),
+                        'items',
+                        $item_id
                     );
                 else
                     $path_elements = array(
-                            'record',
-                            str_replace('-', '', $bibId),
-                            'items',
-                            $id
+                        'record',
+                        str_replace('-', '', $bibId),
+                        'items',
+                        $item_id
                     );
                 
-                $xml = $this->alephWebService->doRestDLFRequest($path_elements, 
-                        $additionalAttributes);
+                $xml = $this->alephWebService->doRestDLFRequest($path_elements, $additionalAttributes);
                 
                 if (! isset($xml->{'item'})) {
                     continue;
@@ -280,7 +271,7 @@ class Aleph extends AlephBase
                 
                 $item = $xml->{'item'};
                 
-                $statuses[] = $this->parseItem($bibId, $item, $patron);
+                $statuses[] = $this->parseItem($bibId, $item_id, $item, $patron);
                 
                 // Returns parsed items to show it to user
                 if (count($statuses) === $this->maxItemsParsed)
@@ -298,7 +289,7 @@ class Aleph extends AlephBase
      * @param \SimpleXMLElement $item            
      * @return AlephItem $alephItem
      */
-    protected function parseItem ($bibId, \SimpleXMLElement $item, $patron)
+    protected function parseItem($bibId, $item_id, \SimpleXMLElement $item, $patron)
     {
         $item_status = $this->alephTranslator->tab15Translate($item);
         if ($item_status['opac'] != 'Y') {
@@ -310,7 +301,7 @@ class Aleph extends AlephBase
         $z30 = $item->z30;
         $collection = (string) $z30->{'z30-collection'};
         $collection_desc = array(
-                'desc' => $collection
+            'desc' => $collection
         );
         $collection_desc = $this->alephTranslator->tab40Translate($item);
         $sub_library_code = (string) $item->{'z30-sub-library-code'};
@@ -333,8 +324,7 @@ class Aleph extends AlephBase
             // To here
         }
         $matches = [];
-        if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*);([a-zA-Z ]*)/", $status, 
-                $matches)) {
+        if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*);([a-zA-Z ]*)/", $status, $matches)) {
             $duedate = $this->parseDate($matches[1]);
             $requested = (trim($matches[2]) == "Requested");
         } else 
@@ -354,8 +344,7 @@ class Aleph extends AlephBase
             if (! $available && ($status == "On Hold" || $status == "Requested")) {
                 $duedate_status = "requested";
             }
-        $item_id = $item->attributes()->href;
-        $item_id = substr($item_id, strrpos($item_id, '/') + 1);
+        
         $note = (string) $z30->{'z30-note-opac'};
         
         $availability = (string) $z30->{'z30-item-status'};
@@ -389,33 +378,33 @@ class Aleph extends AlephBase
         }
         
         return [
-                'id' => $bibId,
-                'item_id' => $item_id,
-                'availability' => $availability,
-                'status' => $status,
-                'location' => $sub_library_code,
-                'reserve' => 'N',
-                'callnumber' => (string) $z30->{'z30-call-no'},
-                'duedate' => $duedate,
-                'number' => (string) $z30->{'z30-inventory-number'},
-                'barcode' => (string) $z30->{'z30-barcode'},
-                'description' => (string) $z30->{'z30-description'},
-                'notes' => ($note == null) ? null : array(
-                        $note
-                ),
-                'is_holdable' => true,
-                'addLink' => $addLink,
-                'holdtype' => $holdType,
+            'id' => $bibId,
+            'item_id' => $item_id,
+            'availability' => $availability,
+            'status' => $status,
+            'location' => $sub_library_code,
+            'reserve' => 'N',
+            'callnumber' => (string) $z30->{'z30-call-no'},
+            'duedate' => $duedate,
+            'number' => (string) $z30->{'z30-inventory-number'},
+            'barcode' => (string) $z30->{'z30-barcode'},
+            'description' => (string) $z30->{'z30-description'},
+            'notes' => ($note == null) ? null : array(
+                $note
+            ),
+            'is_holdable' => true,
+            'addLink' => $addLink,
+            'holdtype' => $holdType,
                 /* below are optional attributes*/
                 'duedate_status' => $status,
-                'collection' => (string) $collection,
-                'collection_desc' => (string) $collection_desc['desc'],
-                'callnumber_second' => (string) $z30->{'z30-call-no-2'},
-                'sub_lib_desc' => (string) $item_status['sub_lib_desc'],
-                'no_of_loans' => (string) $z30->{'$no_of_loans'},
-                'requested' => (string) $requested,
-                // Customized from here
-                'label' => $label
+            'collection' => (string) $collection,
+            'collection_desc' => (string) $collection_desc['desc'],
+            'callnumber_second' => (string) $z30->{'z30-call-no-2'},
+            'sub_lib_desc' => (string) $item_status['sub_lib_desc'],
+            'no_of_loans' => (string) $z30->{'$no_of_loans'},
+            'requested' => (string) $requested,
+            // Customized from here
+            'label' => $label
         ];
     }
 
@@ -428,20 +417,19 @@ class Aleph extends AlephBase
      * @throws ILSException
      * @return array Array of the patron's profile data on success.
      */
-    public function getMyProfileX ($user)
+    public function getMyProfileX($user)
     {
         $recordList = array();
         if (! isset($user['college'])) {
             $user['college'] = $this->useradm;
         }
-        $xml = $this->alephWebService->doXRequest("bor-info", 
-                array(
-                        'loans' => 'N',
-                        'cash' => 'N',
-                        'hold' => 'N',
-                        'library' => $user['college'],
-                        'bor_id' => $user['id']
-                ), true);
+        $xml = $this->alephWebService->doXRequest("bor-info", array(
+            'loans' => 'N',
+            'cash' => 'N',
+            'hold' => 'N',
+            'library' => $user['college'],
+            'bor_id' => $user['id']
+        ), true);
         $id = (string) $xml->z303->{'z303-id'};
         $address1 = (string) $xml->z304->{'z304-address-2'};
         $address2 = (string) $xml->z304->{'z304-address-3'};
@@ -484,9 +472,9 @@ class Aleph extends AlephBase
         // deliquencies
         $blocks = array();
         foreach (array(
-                'z303-delinq-1',
-                'z303-delinq-2',
-                'z303-delinq-3'
+            'z303-delinq-1',
+            'z303-delinq-2',
+            'z303-delinq-3'
         ) as $elementName) {
             $block = (string) $xml->z303->{$elementName};
             if (! empty($block) && $block != '00') {
@@ -494,9 +482,9 @@ class Aleph extends AlephBase
             }
         }
         foreach (array(
-                'z305-delinq-1',
-                'z305-delinq-2',
-                'z305-delinq-3'
+            'z305-delinq-1',
+            'z305-delinq-2',
+            'z305-delinq-3'
         ) as $elementName) {
             $block = (string) $xml->z305->{$elementName};
             if (! empty($block) && $block != '00') {

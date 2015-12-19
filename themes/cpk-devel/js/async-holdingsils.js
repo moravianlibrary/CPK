@@ -166,7 +166,7 @@ var holdingsILS = {
 	if (typeof dueDate !== 'undefined' && dueDate) {
 
 	    // We have some due date here ..
-	    var dueDateColumn = tableRow.find('td[data-type=due_date]').first();
+	    var dueDateColumn = tableRow.children('td[data-type=due_date]').first();
 	    dueDateColumn.text(dueDate);
 
 	    label.removeClass('label-primary').addClass('label-warning');
