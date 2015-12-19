@@ -68,4 +68,18 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\Config')->get('config')
         );
     }
+    
+    /**
+     * Construct the user_settings table.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return UserSettings
+     */
+    public static function getUserSettings(ServiceManager $sm)
+    {
+        return new UserSettings(
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
+        );
+    }
 }

@@ -36,7 +36,8 @@ $config = array(
             'db_table' => [
                 'factories' => [
                     'user' => 'CPK\Db\Table\Factory::getUser',
-                    'citationstyle' => 'CPK\Db\Table\Factory::getCitationStyle'
+                    'citationstyle' => 'CPK\Db\Table\Factory::getCitationStyle',
+                    'usersettings' => 'CPK\Db\Table\Factory::getUserSettings'                                
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'

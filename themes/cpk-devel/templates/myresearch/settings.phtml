@@ -14,7 +14,7 @@
         <legend><?=$this->translate('Citations style') ?></legend>
         <select name='citation_style'>
         <? foreach ($this->availableCitationStyles as $style): ?>
-        <option id='<?=$style['id']?>'><?=$style['description']?></option>
+        <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected' : '' ?> id='<?=$style['id']?>'><?=$style['description']?></option>
         <? endforeach; ?>
         </select>
       </fieldset>

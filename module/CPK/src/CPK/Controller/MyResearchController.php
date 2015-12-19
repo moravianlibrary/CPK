@@ -589,15 +589,15 @@ class MyResearchController extends MyResearchControllerBase
             }
         }
         
-        /*
-        //$userSettings = $sm->get("userSettings");
+        
+        $userSettings = $this->getTable("usersettings");
         $userPreferences = $userSettings->getSettings($user);
         $preferedCitationsStyle = $userPreferences['citation_style'];
         $selectedCitationStyle  = (! empty($preferedCitationsStyle)) 
             ? $preferedCitationsStyle 
             : $defaultCitationStyle;
         
-        $viewVars['selectedCitationStyle']   = $selectedCitationStyle;*/
+        $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
         $viewVars['availableCitationStyles'] = $availableCitationStyles;
         
         $view = $this->createViewModel($viewVars);
