@@ -13,17 +13,9 @@
       <fieldset>
         <legend><?=$this->translate('Citations style') ?></legend>
         <select name='citation_style'>
-          <option value='asd'>ČSN ISO 690</option>
-          <option value='asd'>Harvard</option>
-          <option value='asd'>NISO/ANSI Z39.29 (2005)</option>
-          <option value='asd'>MLA (7th edition)</option>
-          <option value='asd'>Turabian (7th edition)</option>
-          <option value='asd'>Chicago (16th edition)</option>
-          <option value='asd'>IEEE</option>
-          <option value='asd'>CSE</option>
-          <option value='asd'>CSE NY</option>
-          <option value='asd'>APA</option>
-          <option value='asd'>ISO 690</option>
+        <? foreach ($this->availableCitationStyles as $style): ?>
+        <option id='<?=$style['id']?>'><?=$style['description']?></option>
+        <? endforeach; ?>
         </select>
       </fieldset>
     </div>

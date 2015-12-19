@@ -65,7 +65,7 @@ class Factory
     public static function getCitationStyle(ServiceManager $sm)
     {
         return new CitationStyle(
-            $sm->get('VuFind\Config')->get('config')
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
         );
     }
 }

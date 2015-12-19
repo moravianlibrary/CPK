@@ -38,8 +38,7 @@ use VuFind\Db\Row\RowGateway;
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link http://vufind.org Main Site
  */
-class CitationStyle extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface,
-    \ZfcRbac\Identity\IdentityInterface
+class CitationStyle extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface
 {
     use \VuFind\Db\Table\DbTableAwareTrait;
 
@@ -51,5 +50,17 @@ class CitationStyle extends RowGateway implements \VuFind\Db\Table\DbTableAwareI
     public function __construct($adapter)
     {
         parent::__construct('id', 'citation_style', $adapter);
+    }
+    
+    /**
+     * Configuration setter
+     *
+     * @param \Zend\Config\Config $config VuFind configuration
+     *
+     * @return void
+     */
+    public function setConfig(\Zend\Config\Config $config)
+    {
+        $this->config = $config;
     }
 }

@@ -578,11 +578,11 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forwardTo('MyResearch', 'Home');
         }
         
-        $citationStyle = $this->getServiceLocator()->get('CPK\Db\Table\CitationStyle');
-        //$availableCitationStyles = $citationStyle->getAllStyles();
-        /*
-        $defaultCitationStyle = $this->getConfig()->Record->default_citation_style;
+        $citationStyle = $this->getTable('citationstyle');
+        $availableCitationStyles = $citationStyle->getAllStyles();
         
+        $defaultCitationStyle = $this->getConfig()->Record->default_citation_style;
+        /*
         //$userSettings = $sm->get("userSettings");
         $userPreferences = $userSettings->getSettings($user);
         $preferedCitationsStyle = $userPreferences['citation_style'];
@@ -590,10 +590,10 @@ class MyResearchController extends MyResearchControllerBase
             ? $preferedCitationsStyle 
             : $userPreferences;
         
-        $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
+        $viewVars['selectedCitationStyle']   = $selectedCitationStyle;*/
         $viewVars['availableCitationStyles'] = $availableCitationStyles;
-        */
-        $view = $this->createViewModel();
+        
+        $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;
     }

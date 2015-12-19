@@ -87,7 +87,7 @@ class CitationStyle extends Gateway
         
         return $result;*/
         
-        return $this->select()->current();
+        return $this->select()->toArray();
     }
     
     /**
@@ -112,4 +112,17 @@ class CitationStyle extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($select);
         return $statement->execute();
     }
+    
+    /**
+     * Configuration setter
+     *
+     * @param \Zend\Config\Config $config VuFind configuration
+     *
+     * @return void
+     */
+    public function setConfig(\Zend\Config\Config $config)
+    {
+        $this->config = $config;
+    }
+    
 }

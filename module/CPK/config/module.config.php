@@ -36,7 +36,7 @@ $config = array(
             'db_table' => [
                 'factories' => [
                     'user' => 'CPK\Db\Table\Factory::getUser',
-                    'citationStyle' => 'CPK\Db\Table\Factory::getCitationStyle'
+                    'citationstyle' => 'CPK\Db\Table\Factory::getCitationStyle'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'
@@ -118,8 +118,7 @@ $config = array(
         'factories' => array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
             'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator',
-            'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager',
-            'CPK\DbTableCitationStyle' => 'CPK\Db\Table\Factory::getCitationStyle'
+            'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager'
         ), // Exceptions throwing system
 
         'invokables' => array(
