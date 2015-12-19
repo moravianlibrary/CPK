@@ -6,21 +6,37 @@ function getHoldingStatuses(ids) {
     if (typeof ids !== 'object')
 	ids = getHoldingsIds();
 
+    var activeFilter;
+    // If we have active filter, append it to the query
+    if (typeof holdingsILSfilters !== 'undefined') {
+	
+	holdingsILSfilters.init();
+	
+	activeFilter = holdingsILSfilters.activeFilter;
+    }
+
     if (ids.length != 0) {
+
+	var data = {
+	    ids : ids
+	};
+
+	// Append the filter if any
+	if (typeof activeFilter !== 'undefined')
+	    data['activeFilter'] = activeFilter;
+
 	$.ajax({
 	    type : 'POST',
 	    url : '/AJAX/JSON?method=getHoldingsStatuses',
 	    dataType : 'json',
 	    async : true,
 	    // json object to sent to the authentication url
-	    data : {
-		ids : ids
-	    },
+	    data : data,
 	    success : function(response) {
 		processGetHoldingStatusesResponse(response);
 	    },
 	    error : function(msg) {
-		console.error("async-holdingsils.js produced an error while doing AJAX:\n" + msg);
+		console.error("async-holdingsils.js produced an error while doing AJAX:\n" + msg.toSource());
 	    }
 	})
     }

@@ -764,7 +764,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @throws ILSException
      * @return array Array of return values from getStatus.
      */
-    public function getStatuses($ids, $patron = [])
+    public function getStatuses($ids, $patron = [], $filter = [])
     {
         $retVal = [];
 

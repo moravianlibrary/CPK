@@ -203,7 +203,7 @@ class Aleph extends AlephBase
      * @return mixed On success, an associative array with the following keys:
      *         id, availability (boolean), status, location, reserve, callnumber.
      */
-    public function getStatuses($ids, $patron = [])
+    public function getStatuses($ids, $patron = [], $filter = [])
     {
         $statuses = array();
 
@@ -212,6 +212,10 @@ class Aleph extends AlephBase
         $additionalAttributes = [
             'view' => 'full',
         ];
+        
+        foreach ($filter as $name => $value) {
+            $additionalAttributes[$name] = $value;
+        }
 
         if (!empty($patron['id'])) {
             $additionalAttributes['patron'] = $patron['id'];
@@ -223,8 +227,7 @@ class Aleph extends AlephBase
             // Query all items at once ..
 
             // Get bibId from this e.g. [ MZK01-000910444:MZK50000910444000270, ... ]
-            $explodedBibId = explode(':', reset($ids));
-            $bibId = reset($explodedBibId);
+            list ($bibId) = explode(':', reset($ids));
 
             $path_elements = array(
                 'record',

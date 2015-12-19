@@ -161,6 +161,7 @@ class AjaxController extends AjaxControllerBase
     {
         $request = $this->getRequest();
         $ids = $this->params()->fromPost('ids');
+        $filter = $this->params()->fromPost('activeFilter');
 
         $viewRend = $this->getViewRenderer();
 
@@ -177,7 +178,7 @@ class AjaxController extends AjaxControllerBase
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
             try {
-                $statuses = $ilsDriver->getStatuses($ids);
+                $statuses = $ilsDriver->getStatuses($ids, $filter);
             } catch (\Exception $e) {
                 return $this->output(
                     [
