@@ -58,18 +58,6 @@ class CitationStyle extends Gateway
         $this->config = $config;
         parent::__construct('citation_style', 'CPK\Db\Row\CitationStyle');
     }
-    
-    /**
-     * Construct the prototype for rows.
-     *
-     * @return object
-     */
-    protected function initializeRowPrototype()
-    {
-        $prototype = parent::initializeRowPrototype();
-        $prototype->setConfig($this->config);
-        return $prototype;
-    }
 
     /**
      * Returns array of settings from citation_style table
@@ -78,23 +66,7 @@ class CitationStyle extends Gateway
      */
     public function getAllStyles()
     {       
-       /* $select = new Select($this->table);
-
-        $result = $this->executeAnyZendSQLSelect($select)->current();
-        
-        return $result;*/
-        
         return $this->select()->toArray();
-    }
-    
-    /**
-     * Returns database connection
-     *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
-     */
-    protected function getDbConnection()
-    {
-        return $this->getAdapter()->driver->getConnection();
     }
     
     /**
@@ -109,17 +81,4 @@ class CitationStyle extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($select);
         return $statement->execute();
     }
-    
-    /**
-     * Configuration setter
-     *
-     * @param \Zend\Config\Config $config VuFind configuration
-     *
-     * @return void
-     */
-    public function setConfig(\Zend\Config\Config $config)
-    {
-        $this->config = $config;
-    }
-    
 }

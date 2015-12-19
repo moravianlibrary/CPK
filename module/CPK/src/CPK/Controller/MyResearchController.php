@@ -581,14 +581,21 @@ class MyResearchController extends MyResearchControllerBase
         $citationStyle = $this->getTable('citationstyle');
         $availableCitationStyles = $citationStyle->getAllStyles();
         
-        $defaultCitationStyle = $this->getConfig()->Record->default_citation_style;
+        $defaultCitationStyleValue = $this->getConfig()->Record->default_citation_style;
+        
+        foreach ($availableCitationStyles as $style) {
+            if ($style['value'] === $defaultCitationStyleValue) {
+                $defaultCitationStyle = $style['id'];
+            }
+        }
+        
         /*
         //$userSettings = $sm->get("userSettings");
         $userPreferences = $userSettings->getSettings($user);
         $preferedCitationsStyle = $userPreferences['citation_style'];
         $selectedCitationStyle  = (! empty($preferedCitationsStyle)) 
             ? $preferedCitationsStyle 
-            : $userPreferences;
+            : $defaultCitationStyle;
         
         $viewVars['selectedCitationStyle']   = $selectedCitationStyle;*/
         $viewVars['availableCitationStyles'] = $availableCitationStyles;
