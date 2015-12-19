@@ -9,9 +9,9 @@ function getHoldingStatuses(ids) {
     var activeFilter;
     // If we have active filter, append it to the query
     if (typeof holdingsILSfilters !== 'undefined') {
-	
+
 	holdingsILSfilters.init();
-	
+
 	activeFilter = holdingsILSfilters.activeFilter;
     }
 
@@ -148,7 +148,7 @@ function updateHoldingId(id, value, setUnknownLabel) {
 
     var divLink = tableRow.find('[data-type=link]')[0];
 
-    var dueDate = value.due_date;
+    var dueDate = value.duedate;
     if (typeof dueDate !== 'undefined' && dueDate) {
 
 	// We have some due date here ..
@@ -157,37 +157,33 @@ function updateHoldingId(id, value, setUnknownLabel) {
 
 	label.removeClass('label-primary').addClass('label-warning');
 
+    }
+
+    if (setUnknownLabel) {
+	label.removeClass('label-primary').addClass('label-unknown');
+
 	if (typeof divLink !== 'undefined')
 	    divLink.remove();
 
-    } else {
+    } else if (value.addLink) {
+	var labelType = typeof value.label === 'undefined' ? 'label-success' : value.label;
 
-	if (setUnknownLabel) {
-	    label.removeClass('label-primary').addClass('label-unknown');
+	label.removeClass('label-primary').addClass(labelType);
 
-	    if (typeof divLink !== 'undefined')
+	toBeBroken: if (typeof divLink !== 'undefined') {
+	    // Show hidden link
+	    var linkSpan = divLink.children[0].children[0], holdType = value.hold_type;
+
+	    if (typeof holdType === 'undefined') {
+		holdType = 'Reserve';
+	    } else if (holdType === 'false') {
 		divLink.remove();
-
-	} else {
-	    var labelType = typeof value.label === 'undefined' ? 'label-success' : value.label;
-
-	    label.removeClass('label-primary').addClass(labelType);
-
-	    toBeBroken: if (typeof divLink !== 'undefined') {
-		// Show hidden link
-		var linkSpan = divLink.children[0].children[0], holdType = value.hold_type;
-
-		if (typeof holdType === 'undefined') {
-		    holdType = 'Reserve';
-		} else if (holdType === 'false') {
-		    divLink.remove();
-		    break toBeBroken;
-		}
-
-		linkSpan.innerHTML = holdType;
-
-		$(divLink).removeAttr('hidden');
+		break toBeBroken;
 	    }
+
+	    linkSpan.innerHTML = holdType;
+
+	    $(divLink).removeAttr('hidden');
 	}
     }
 

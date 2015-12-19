@@ -211,16 +211,19 @@ class AjaxController extends AjaxControllerBase
                         $viewRend);
                 }
 
-                if (! empty($status['due_date']))
-                    $itemsStatuses[$id]['due_date'] = $status['due_date'];
+                if (! empty($status['duedate']))
+                    $itemsStatuses[$id]['duedate'] = $status['duedate'];
 
-                if (! empty($status['hold_type']))
-                    $itemsStatuses[$id]['hold_type'] = $viewRend->transEsc(
-                        $status['hold_type']);
+                if (! empty($status['holdtype']))
+                    $itemsStatuses[$id]['holdtype'] = $viewRend->transEsc(
+                        $status['holdtype']);
 
                 if (! empty($status['label']))
                     $itemsStatuses[$id]['label'] = $status['label'];
-
+                
+                if (! empty($status['addLink']))
+                    $itemsStatuses[$id]['addLink'] = $status['addLink'];
+                    
                 if (! empty($status['availability']))
                     $itemsStatuses[$id]['availability'] = $status['availability'];
 
