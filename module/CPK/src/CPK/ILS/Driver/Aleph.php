@@ -219,10 +219,7 @@ class Aleph extends AlephBase
         
         if (! empty($patron['id'])) {
             $additionalAttributes['patron'] = $patron['id'];
-        } else 
-            if (isset($this->defaultPatronId)) {
-                $additionalAttributes['patron'] = $this->defaultPatronId;
-            }
+        }
         
         if ($this->maxItemsParsed === - 1 || $idsCount <= $this->maxItemsParsed) {
             // Query all items at once ..
@@ -257,18 +254,31 @@ class Aleph extends AlephBase
                 if (array_search($id, $ids) === false)
                     continue;
                 
-                $statuses[] = $this->parseItem($id, $item);
+                $statuses[] = $this->parseItem($id, $item, $patron);
             }
         } else // Query one by one item
             foreach ($ids as $id) {
                 list ($resource, $itemId) = explode(':', $id);
                 
-                $path_elements = array(
-                        'record',
-                        str_replace('-', '', $resource),
-                        'items',
-                        $itemId
-                );
+                if (isSeT($additionalAttributes['patron']))
+                    // We can search for patron specific bib info
+                    // Example URL:
+                    // patron/700/record/MZK01000244261/items/MZK50000244261006690
+                    $path_elements = array(
+                            'patron',
+                            $additionalAttributes['patron'],
+                            'record',
+                            str_replace('-', '', $resource),
+                            'items',
+                            $itemId
+                    );
+                else
+                    $path_elements = array(
+                            'record',
+                            str_replace('-', '', $resource),
+                            'items',
+                            $itemId
+                    );
                 
                 $xml = $this->alephWebService->doRestDLFRequest($path_elements, 
                         $additionalAttributes);
@@ -279,7 +289,7 @@ class Aleph extends AlephBase
                 
                 $item = $xml->{'item'};
                 
-                $statuses[] = $this->parseItem($id, $item);
+                $statuses[] = $this->parseItem($id, $item, $patron);
                 
                 // Returns parsed items to show it to user
                 if (count($statuses) === $this->maxItemsParsed)
@@ -297,7 +307,7 @@ class Aleph extends AlephBase
      * @param \SimpleXMLElement $item            
      * @return AlephItem $alephItem
      */
-    protected function parseItem ($id, \SimpleXMLElement $item)
+    protected function parseItem ($id, \SimpleXMLElement $item, $patron)
     {
         $item_status = $this->alephTranslator->tab15Translate($item);
         if ($item_status['opac'] != 'Y') {
@@ -324,9 +334,11 @@ class Aleph extends AlephBase
             $addLink = true;
         }
         // Customized from here
-        if (! empty($patron) || isset($this->defaultPatronId)) {
+        if (! empty($patron)) {
             $hold_request = $item->xpath('info[@type="HoldRequest"]/@allowed');
-            $addLink = ($hold_request[0] == 'Y');
+            
+            if (! empty($hold_request))
+                $addLink = ($hold_request[0] == 'Y');
             // To here
         }
         $matches = [];
@@ -357,7 +369,7 @@ class Aleph extends AlephBase
         
         $availability = (string) $z30->{'z30-item-status'};
         
-        // here we start customizing the Aleph's getHolding's forcycle part
+        // Customized from here
         $isDueDate = preg_match('/^[0-9]+\/.+\/[0-9]+/', $status);
         
         $holdType = 'Recall This';
