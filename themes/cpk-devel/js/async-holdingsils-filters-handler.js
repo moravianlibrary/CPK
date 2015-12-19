@@ -4,40 +4,65 @@
  * To make this JS work, you have to include async-holdingsils.js too ...
  * 
  */
-var filterTypes = [ 'year', 'volume' ];
+var holdingsILSfilters = {
 
-$(function() { // Append these eventListeners after DOM loaded ..
-    filterTypes.forEach(function(filterType) {
-	$("#" + filterType + "_filter").on('change', function() {
-	    filterSelected(filterType, this.value);
+    filterTypes : [ 'year', 'volume' ],
+
+    selectors : {
+	filters : {},
+	tbody : null
+    },
+
+    init : function() {
+
+	// Initialize table body selector for faster row resolving
+	var tbodySelector = 'div#holdings-tab table tbody';
+	holdingsILSfilters.selectors.tbody = $(tbodySelector);
+
+	holdingsILSfilters.filterTypes.forEach(function(filterType) {
+
+	    // Initialize the selector for current filter
+	    holdingsILSfilters.selectors.filters[filterType] = holdingsILSfilters.selectors.tbody.siblings('caption').find("select#" + filterType + "_filter");
+
+	    // Append onChange eventListener to all filter selects
+	    function onChangeEvent() {
+		holdingsILSfilters.filterSelected(filterType, this.value);
+	    }
+
+	    holdingsILSfilters.selectors.filters[filterType].on('change', onChangeEvent);
 	});
-    });
-});
+    },
 
-function filterSelected(filter, value) {
+    filterSelected : function(filter, value) {
 
-    // This cycle basically selects the first option within all remaining
-    // (nonselected) selects
-    filterTypes.forEach(function(filterType) {
-	if (filterType !== filter) {
-	    $('select#' + filterType + '_filter').children().first().prop(
-		    'selected', true);
+	// This cycle basically selects the first option within all
+	// remaining
+	// (nonselected) selects
+	holdingsILSfilters.filterTypes.forEach(function(filterType) {
+	    if (filterType !== filter) {
+
+		var firstOption = holdingsILSfilters.selectors.filters[filterType].children().first();
+		firstOption.prop('selected', true);
+	    }
+	});
+
+	var selector = 'tr:hidden';
+
+	if (value !== 'ALL') {
+
+	    // Hide rows not matching the filter selection
+	    holdingsILSfilters.selectors.tbody.children('tr:not(:hidden)').hide();
+
+	    selector += '[data-' + filter + '=' + value + ']';
 	}
-    });
 
-    var selector = 'tr[data-type=holding][hidden=hidden]';
+	// Now unhide rows matching selected filters
+	holdingsILSfilters.selectors.tbody.children(selector).show();
 
-    if (value !== 'ALL') {
+	// And now query the status of the unhidden
+	getHoldingStatuses();
+    },
+};
 
-	// Hide rows not matching the filter selection
-	$('tr[data-type=holding]:not([hidden=hidden]').attr('hidden', 'hidden');
-
-	selector += '[data-' + filter + '=' + value + ']';
-    }
-
-    // Now unhide rows matching selected filters
-    $(selector).removeAttr('hidden');
-
-    // And now query the status of the unhidden
-    getHoldingStatuses();
-}
+// Call init on DOM load
+$(holdingsILSfilters.init);
