@@ -1,8 +1,6 @@
 <?
 // Set page title.
-$this->headTitle(
-    $this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
-
+$this->headTitle($this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
 $this->headScript()->appendFile('async-holdingsils.js');
 
 // Set up convenience variables:
@@ -16,15 +14,13 @@ if ($filters !== false)
 $authManager = $this->auth()->getManager();
 $user = $authManager->isLoggedIn();
 
-$canReserveThisInstitution = $authManager->canReserveWithinInstitution($holdings,
-    $user);
+$canReserveThisInstitution = $authManager->canReserveWithinInstitution($holdings, $user);
 
 $offlineMode = $this->ils()->getOfflineMode();
 // Account for replace_other_urls setting
 
 // Set page title.
-$this->headTitle(
-    $this->driver->getBreadcrumb());
+$this->headTitle($this->driver->getBreadcrumb());
 ?>
 <? if ($offlineMode == "ils-offline"): ?>
 <div class="alert alert-warning">
@@ -52,7 +48,7 @@ $this->headTitle(
 <table class="table table-view" id="no-more-tables">
     <? if ($filters !== false): ?>
       <caption>
-        <div class="col-md-2"></div>
+		<div class="col-md-2"></div>
 		<div class="col-md-4">
 		  <? if (! empty($filters['year'])): ?>
 
@@ -60,15 +56,15 @@ $this->headTitle(
 				name="year" id="year_filter">
 				<option value="ALL"><?=$this->transEsc('All')?></option>
 				<?
-
+            
             $isFirst = true;
             foreach ($filters['year'] as $yearFilter) {
                 $yearFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $yearFilter);
-
+                
                 if ($isFirst) { // Select first year available ..
                     echo "<option value='$yearFilterEscaped' selected>$yearFilter</option>";
                     $firstYearFilter = $yearFilter;
-
+                    
                     $isFirst = false;
                 } else
                     echo "<option value='$yearFilter'>$yearFilter</option>";
@@ -79,11 +75,11 @@ $this->headTitle(
 		</div>
 		<div class="col-md-4">
 		  <? if (! empty($filters['volume'])): ?>
-			<label for="volume"><?=$this->transEsc('Volume filter')?>: </label>
-			<select name="volume" id="volume_filter">
+			<label for="volume"><?=$this->transEsc('Volume filter')?>: </label> <select
+				name="volume" id="volume_filter">
 				<option value="ALL"><?=$this->transEsc('All')?></option>
 				<?
-
+            
             foreach ($filters['volume'] as $volumeFilter) {
                 $volumeFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $volumeFilter);
                 echo "<option value='$volumeFilterEscaped'>$volumeFilter</option>\n";
@@ -111,7 +107,7 @@ $this->headTitle(
 <? foreach ($holdings as $row): ?>
   <?
         $rowNo ++;
-
+        
         // Build holding ID to query ILS for status
         if (isset($row['agency_id']) && isset($row['item_id']))
             $itemId = $row['agency_id'] . ':' . $row['item_id'];
@@ -119,55 +115,50 @@ $this->headTitle(
             $itemId = $row['item_id'];
         else
             $itemId = false;
-
-        $uniqueRowId = (isset($row['source']) && $itemId !== false) ? $row['source'] .
-             '.' . $itemId : false;
-
-        // Create link for reserve
+            
+            // Create link for reserve
         if (! empty($row['item_id']) && $canReserveThisInstitution) {
             $explodedItemId = explode(':', $row['item_id']);
-            $row['link'] = '/Record/' . $row['id'] . '/Hold?id=' . $row['id'] .
-                 '&item_id=' . end($explodedItemId);
-
+            $row['link'] = '/Record/' . $row['id'] . '/Hold?id=' . $row['id'] . '&item_id=' . end($explodedItemId);
+            
             if (! empty($row['agency_id']))
                 $row['link'] .= '&agency_id=' . $row['agency_id'];
         }
-
+        
         $class = ($rowNo % 2) == 0 ? 'oddrow' : 'evenrow';
-
+        
         $attributes = '';
-
+        
         $itemStatusLabel = 'label-primary';
-
-        if ($uniqueRowId !== false) {
-            $attributes .= 'id="' . $uniqueRowId . '" ';
-        }
-        else {
+        
+        if ($itemId !== false) {
+            $attributes .= 'id="' . $itemId . '" ';
+        } else {
             $itemStatusLabel = false;
         }
-
+        
         if ((! empty($filters)) && ($filters !== false)) {
-
+            
             if (isset($row['year'])) {
                 // There is a year of publication available ..
                 $attributes .= 'data-year="' . $row['year'] . '" ';
-
+                
                 // Should we hide this row as it's not selected??
                 if ((! empty($firstYearFilter)) && ($firstYearFilter !== $row['year']))
                     $class .= ' hidden';
-
+                
                 // Note that if a row is hidden, then it is waiting to be showed up using any filter ..
             }
-
+            
             if (isset($row['volume'])) {
                 $attributes .= 'data-volume="' . $row['volume'] . '" ';
             }
         }
         
         $attributes .= 'class="' . $class . '" ';
-
+        
         ?>
-  <tr <?=$attributes?> data-type="holding">
+  <tr <?=$attributes?>>
 
 			<td data-title="<?=$this->transEsc("Status")?>">
 				<div class="jt" title="<?=$this->transEsc('Description Status')?>">
@@ -179,8 +170,8 @@ $this->headTitle(
 					<? if (! $itemStatusLabel): ?>
 					   <span class="label label-unknown"><?=$this->transEsc('unknown status')?></span>
 					<? else: ?>
-					   <i class="fa fa-spinner fa-spin"></i>
-					   <span class="label <?=$itemStatusLabel?>"><?=$this->transEsc('Loading')?> ...</span>
+					   <i class="fa fa-spinner fa-spin"></i> <span
+						class="label <?=$itemStatusLabel?>"><?=$this->transEsc('Loading')?> ...</span>
 					<? endif; ?>
 				</div>
 
@@ -193,7 +184,8 @@ $this->headTitle(
       <? endif; ?>
 
     </td>
-			<td data-title="<?=$this->transEsc("Due Date")?>" data-type="due_date">
+			<td data-title="<?=$this->transEsc("Due Date")?>"
+				data-type="due_date">
       <?if (!empty($row['duedate']) && $row['duedate']) : ?>
         <?=$this->transEsc($row['duedate'])?>
       <? elseif (!empty($row['duedate_status']) && $row['duedate_status'] != $row['status']):?>

@@ -79,7 +79,7 @@ var holdingsILSfilters = {
 	holdingsILSfilters.selectors.tbody.children(selector).removeClass('hidden');
 
 	// And now query the status of the unhidden
-	getHoldingStatuses();
+	holdingsILS.getHoldingStatuses();
     },
 
     /**

@@ -243,11 +243,7 @@ class SolrMarc extends ParentSolrMarc
 
                         $holding['item_id'] = $holding['agency_id'] . $holding['item_id'] . $holding['sequence_no'];
 
-                        // instead of agency_id set bibId so that aleph driver knows what bibId he has to build the query on
-
-                        $explodedId = explode('.', $id);
-                        $bibId = array_pop($explodedId);
-                        $holding['agency_id'] = $bibId;
+                        unset($holding['agency_id']);
                     } else {
                         // We actually cannot process Aleph holdings without complete item id ..
                         unset($holding['item_id']);
