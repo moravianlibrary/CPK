@@ -386,4 +386,27 @@ class User extends BaseUser
         if ($mergedSomething)
             $into->save();
     }
+    
+    /**
+     * Returns array of settings from user_preference table
+     *
+     * @param  int   $userId
+     * @return array
+     */
+    public function getSettings($userId)
+    {
+            $select = new Select('user');
+            $select->columns([
+                            'username'
+            ]);
+            $select->order('created DESC');
+            $select->limit(1);
+    
+            $predicate = new \Zend\Db\Sql\Predicate\Expression("username RLIKE '$username;[0-9]+'");
+            $select->where($predicate);
+    
+            $result = $this->executeAnyZendSQLSelect($select)->current();
+    
+            return $result;
+    }
 }

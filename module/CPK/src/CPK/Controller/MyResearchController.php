@@ -573,13 +573,26 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
-    
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
             return $this->forwardTo('MyResearch', 'Home');
         }
-    
-
+        
+        $citationStyle = $this->getServiceLocator()->get('CPK\Db\Table\CitationStyle');
+        //$availableCitationStyles = $citationStyle->getAllStyles();
+        /*
+        $defaultCitationStyle = $this->getConfig()->Record->default_citation_style;
+        
+        //$userSettings = $sm->get("userSettings");
+        $userPreferences = $userSettings->getSettings($user);
+        $preferedCitationsStyle = $userPreferences['citation_style'];
+        $selectedCitationStyle  = (! empty($preferedCitationsStyle)) 
+            ? $preferedCitationsStyle 
+            : $userPreferences;
+        
+        $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
+        $viewVars['availableCitationStyles'] = $availableCitationStyles;
+        */
         $view = $this->createViewModel();
         $this->flashExceptions($this->flashMessenger());
         return $view;

@@ -54,4 +54,18 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\Config')->get('config')
         );
     }
+    
+    /**
+     * Construct the Citation style table.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return CitationStyle
+     */
+    public static function getCitationStyle(ServiceManager $sm)
+    {
+        return new CitationStyle(
+            $sm->get('VuFind\Config')->get('config')
+        );
+    }
 }
