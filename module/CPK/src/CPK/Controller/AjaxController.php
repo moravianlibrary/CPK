@@ -1059,4 +1059,25 @@ class AjaxController extends AjaxControllerBase
     
         return $this->output([], self::STATUS_OK);
     }
+    
+    /**
+     * Set preferred sorting for user to user_settings table
+     *
+     * @return \Zend\Http\Response
+     */
+    public function setPreferredSortingAjax()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+    
+        $preferredSorting = $this->params()->fromPost('preferredSorting');
+    
+        $userSettingsTable = $this->getTable("usersettings");
+        $userSettingsTable->setPreferredSorting($user, $preferredSorting);
+    
+        return $this->output([], self::STATUS_OK);
+    }
 }

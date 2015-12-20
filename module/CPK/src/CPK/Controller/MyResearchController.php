@@ -610,6 +610,18 @@ class MyResearchController extends MyResearchControllerBase
         $viewVars['recordsPerPageOptions'] = $recordsPerPageOptions;
         $viewVars['selectedRecordsPerPageOption'] = $selectedRecordsPerPageOption;
         
+        /* Sorting fieldset */
+        $sortingOptions = $searchesConfig->Sorting->toArray();
+        $defaultSorting = $searchesConfig->General->default_sort;
+        $preferredSorting = $userSettingsTable->getSorting($user);
+        
+        $selectedSorting = (! empty($preferredSorting))
+        ? $preferredSorting
+        : $defaultSorting;
+        
+        $viewVars['sortingOptions'] = $sortingOptions;
+        $viewVars['selectedSorting'] = $selectedSorting;
+        
         //
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());

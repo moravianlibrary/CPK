@@ -27,4 +27,18 @@ jQuery( document ).ready( function( $ ) {
 			}
 		});
 	});
+	$( 'select[name="preferred-sorting"]' ).on( 'change', function() {
+		$.ajax({
+			type: 'POST',
+			url: '/AJAX/JSON?method=setPreferredSorting',
+			dataType: 'json',
+			async: true,
+			data: {
+			    preferredSorting: $( this ).val()
+			},
+			success: function( response ) {
+			    alert( VuFind.translate( 'default_sorting_set_permanently' ) );
+			}
+		});
+	});
 });

@@ -28,6 +28,14 @@
         <? endforeach; ?>
         </select>
       </fieldset>
+      <fieldset>
+        <legend><?=$this->translate('Default sorting') ?></legend>
+        <select name='preferred-sorting'>
+        <? foreach ($this->sortingOptions as $key => $option): ?>
+        <option<?= ($this->selectedSorting == $key) ? ' selected' : '' ?> value='<?=$key?>'><?=$this->transEsc($option)?></option>
+        <? endforeach; ?>
+        </select>
+      </fieldset>
     </div>
   </div>
 

@@ -57,3 +57,6 @@ ALTER TABLE `user_settings`
 /* Create column record_per_page in user_settings table */
 ALTER TABLE `user_settings` ADD `records_per_page` TINYINT NULL ;
 
+/* Create column record_per_page in user_settings table */
+ALTER TABLE `user_settings` ADD `sorting` VARCHAR(40) NULL ;
+

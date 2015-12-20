@@ -61,6 +61,42 @@ class UserSettings extends Gateway
         $this->config = $config;
         parent::__construct('user_settings', 'CPK\Db\Row\UserSettings');
     }
+    
+    /**
+     * Executes any Select
+     *
+     * @param Zend\Db\Sql\Select $select
+     *
+     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     */
+    protected function executeAnyZendSQLSelect(Select $select)
+    {
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        return $statement->execute();
+    }
+    
+    /**
+     * Executes any Update
+     *
+     * @param Zend\Db\Sql\Update $update
+     *
+     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     */
+    protected function executeAnyZendSQLUpdate(Update $update)
+    {
+        $statement = $this->sql->prepareStatementForSqlObject($update);
+        return $statement->execute();
+    }
+    
+    /**
+     * Returns database connection
+     *
+     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
+     */
+    protected function getDbConnection()
+    {
+        return $this->getAdapter()->driver->getConnection();
+    }
 
     /**
      * Returns array of user settings from user_settings table
@@ -73,7 +109,9 @@ class UserSettings extends Gateway
     }
     
     /**
-     * Returns array of user settings from user_settings table
+     * Returns citation style for user from user_settings table
+     *
+     * @param VuFind\Db\Row\User $user
      *
      * @return string
      */
@@ -135,7 +173,7 @@ class UserSettings extends Gateway
     }
     
     /**
-     * Set preferred amount of records per page user_settings table
+     * Set preferred amount of records per page for user into user_settings table
      *
      * @param VuFind\Db\Row\User $user
      * @param tinyInt $recordsPerPage
@@ -176,7 +214,9 @@ class UserSettings extends Gateway
     }
     
     /**
-     * Returns array of user settings from user_settings table
+     * Returns records per page for user from user_settings table
+     *
+     * @param VuFind\Db\Row\User $user
      *
      * @return tinyInt
      */
@@ -197,38 +237,66 @@ class UserSettings extends Gateway
     }
     
     /**
-     * Executes any Select
+     * Returns array of user settings from user_settings table
      *
-     * @param Zend\Db\Sql\Select $select
+     * @param VuFind\Db\Row\User $user
      *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     * @return string
      */
-    protected function executeAnyZendSQLSelect(Select $select)
+    public function getSorting(User $user)
     {
-        $statement = $this->sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
+        $select = new Select($this->table);
+        $select->columns([
+            'sorting'
+        ]);
+        $select->limit(1);
+    
+        $condition = 'user_id="'.$user['id'].'" AND sorting IS NOT NULL';
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+    
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        return $result['sorting'];
     }
     
     /**
-     * Executes any Update
+     * Set preferred sorting for user into user_settings table
      *
-     * @param Zend\Db\Sql\Update $update
+     * @param VuFind\Db\Row\User $user
+     * @param string $preferredSorting
      *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     * @return void
      */
-    protected function executeAnyZendSQLUpdate(Update $update)
+    public function setPreferredSorting(User $user, $preferredSorting)
     {
-        $statement = $this->sql->prepareStatementForSqlObject($update);
-        return $statement->execute();
-    }
+        $setPreferredSorting = $this->getSorting($user);    
     
-    /**
-     * Returns database connection
-     *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
-     */
-    protected function getDbConnection()
-    {
-        return $this->getAdapter()->driver->getConnection();
+        // insert new setting if not already set
+        if ($setPreferredSorting === false) {
+    
+            $this->getDbConnection()->beginTransaction();
+            $this->getDbTable($this->table)->insert([
+                'user_id' => $user->id,
+                'sorting' => $preferredSorting
+            ]);
+            $this->getDbConnection()->commit();
+    
+        } else { // update setting if already set
+    
+            if ($setPreferredSorting === $preferredSorting)
+                return; // do not update the same value
+    
+            $update = new Update($this->table);
+            $update->set([
+                'sorting' => $preferredSorting
+            ]);
+            $update->where([
+                'user_id' => $user->id
+            ]);
+
+            $this->getDbConnection()->beginTransaction();
+            $this->sql->prepareStatementForSqlObject($update)->execute();
+            $this->getDbConnection()->commit();
+        }
     }
 }
