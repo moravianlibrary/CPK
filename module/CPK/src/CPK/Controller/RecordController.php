@@ -117,6 +117,15 @@ class RecordController extends RecordControllerBase
             }
         }
 
+        // Set preferred citation style
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $view->preferredCitationStyle = $this->getConfig()
+                ->Record->default_citation_style;
+        } else {
+            $userSettingsTable = $this->getTable("usersettings");
+            $view->preferredCitationStyle = $userSettingsTable->getUserCitationStyle($user);
+        }
+        
         //
         $view->config = $this->getConfig();
 
