@@ -82,12 +82,13 @@ class Failover
     {
         $this->logMessage("Testuji server: " . $server);
         $client = new \Zend\Http\Client($server);
+        $start = microtime(true);
         try {
             $response = $client->send();
         } catch (TimeoutException $ex) {
             return null; // TODO what to do when server is not responding
         }
-
+        $this->logMessage("Response time: " . (microtime(true) - $start) . " sec");
         //check response Status code
         $responseStatusCode = $response->getStatusCode();
         $this->logMessage("Status code: " . $responseStatusCode);
