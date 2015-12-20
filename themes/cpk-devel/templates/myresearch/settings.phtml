@@ -4,6 +4,8 @@
 
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Settings') . '</li>';
+    
+    $this->headScript()->appendFile("user-settings.js");
 ?>
 
 <div class="row">
@@ -14,7 +16,7 @@
         <legend><?=$this->translate('Citations style') ?></legend>
         <select name='citation_style'>
         <? foreach ($this->availableCitationStyles as $style): ?>
-        <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected' : '' ?> id='<?=$style['id']?>'><?=$style['description']?></option>
+        <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected' : '' ?> value='<?=$style['id']?>'><?=$style['description']?></option>
         <? endforeach; ?>
         </select>
       </fieldset>

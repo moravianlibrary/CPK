@@ -1017,4 +1017,25 @@ class AjaxController extends AjaxControllerBase
         
         return $this->output($statusCode, self::STATUS_ERROR);
     }
+    
+    /**
+     * Set preferred citation style into user_settings table
+     *
+     * @return \Zend\Http\Response
+     */
+    public function setCitationStyleAjax()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+        
+        $citationStyleValue = $this->params()->fromPost('citationStyleValue');
+        
+        $userSettingsTable = $this->getTable("usersettings");
+        $userSettingsTable->setCitationStyle($user, $citationStyleValue);
+
+        return $this->output([], self::STATUS_OK);
+    }
 }

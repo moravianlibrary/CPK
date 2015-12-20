@@ -28,8 +28,10 @@
 namespace CPK\Db\Table;
 
 use VuFind\Db\Table\Gateway,
-    CPK\Db\Row\User,
-    Zend\Config\Config;
+    VuFind\Db\Row\User,
+    Zend\Config\Config,
+    Zend\Db\Sql\Update,
+    Zend\Db\Sql\Select;
 
 /**
  * Table Definition for UserSettings
@@ -67,7 +69,100 @@ class UserSettings extends Gateway
      */
     public function getSettings(User $user)
     {       
-        $results = $this->select(['user_id' => $user['id']])->toArray();
-        return (isset($results[0]) ? $results[0] : []);
+        return $this->select(['user_id' => $user['id']])->toArray();
+    }
+    
+    /**
+     * Returns array of user settings from user_settings table
+     *
+     * @return string|null
+     */
+    public function getUserCitationStyle(User $user)
+    {
+        $select = new Select($this->table);
+        $select->limit(1);
+        
+        $predicate = new \Zend\Db\Sql\Predicate\Expression('user_id="'.$user['id'].'" AND citation_style IS NOT NULL');
+        $select->where($predicate);
+        
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        return $result;
+    }
+    
+    /**
+     * Set preferred citation style into user_settings table
+     * 
+     * @param VuFind\Db\Row\User $user
+     * @param string $citationStyleValue
+     *
+     * @return void
+     */
+    public function setCitationStyle(User $user, $citationStyleValue)
+    {
+        $preferredCitationStyle = $this->getUserCitationStyle($user);
+        
+        // insert new setting if not already set
+        if ($preferredCitationStyle === false) {
+            
+            $this->getDbConnection()->beginTransaction();
+            $this->getDbTable($this->table)->insert([
+                'user_id' => $user->id,
+                'citation_style' => $citationStyleValue
+            ]);
+            $this->getDbConnection()->commit();
+            
+        } else { // update setting if already set
+            
+            if ($citationStyleValue === $preferredCitationStyle['value'])
+                return; // do not update the same value
+        
+            $update = new Update($this->table);
+            $update->set([
+                'citation_style' => $citationStyleValue
+            ]);
+            $update->where([
+                'user_id' => $user->id
+            ]);
+            
+            $this->getDbConnection()->beginTransaction();
+            $this->sql->prepareStatementForSqlObject($update)->execute();
+            $this->getDbConnection()->commit();
+        }
+    }
+    
+    /**
+     * Executes any Select
+     *
+     * @param Zend\Db\Sql\Select $select
+     *
+     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     */
+    protected function executeAnyZendSQLSelect(Select $select)
+    {
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        return $statement->execute();
+    }
+    
+    /**
+     * Executes any Update
+     *
+     * @param Zend\Db\Sql\Update $update
+     *
+     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     */
+    protected function executeAnyZendSQLUpdate(Update $update)
+    {
+        $statement = $this->sql->prepareStatementForSqlObject($update);
+        return $statement->execute();
+    }
+    
+    /**
+     * Returns database connection
+     *
+     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
+     */
+    protected function getDbConnection()
+    {
+        return $this->getAdapter()->driver->getConnection();
     }
 }

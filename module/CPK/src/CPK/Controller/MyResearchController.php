@@ -573,10 +573,6 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
-        // Forwarding for Dummy connector to Home page ..
-        if ($this->isLoggedInWithDummyDriver($user)) {
-            return $this->forwardTo('MyResearch', 'Home');
-        }
         
         $citationStyleTable = $this->getTable('citationstyle');
         $availableCitationStyles = $citationStyleTable->getAllStyles();
@@ -586,18 +582,15 @@ class MyResearchController extends MyResearchControllerBase
         foreach ($availableCitationStyles as $style) {
             if ($style['value'] === $defaultCitationStyleValue) {
                 $defaultCitationStyle = $style['id'];
+                break;
             }
         }
         
         $userSettingsTable = $this->getTable("usersettings");
-        $userSettings = $userSettingsTable->getSettings($user);
+        $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
         
-        $preferedCitationsStyle = isset($userSettings['citation_style']) 
-            ? $userSettings['citation_style'] 
-            : '';
-        
-        $selectedCitationStyle  = (! empty($preferedCitationsStyle)) 
-            ? $preferedCitationsStyle 
+        $selectedCitationStyle  = (! empty($preferedCitationStyle['citation_style'])) 
+            ? $preferedCitationStyle['citation_style'] 
             : $defaultCitationStyle;
         
         $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
