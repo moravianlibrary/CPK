@@ -82,7 +82,8 @@ class UserSettings extends Gateway
         $select = new Select($this->table);
         $select->limit(1);
         
-        $predicate = new \Zend\Db\Sql\Predicate\Expression('user_id="'.$user['id'].'" AND citation_style IS NOT NULL');
+        $condition = 'user_id="'.$user['id'].'" AND citation_style IS NOT NULL';
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
         
         $result = $this->executeAnyZendSQLSelect($select)->current();
