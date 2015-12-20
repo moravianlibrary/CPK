@@ -75,11 +75,14 @@ class UserSettings extends Gateway
     /**
      * Returns array of user settings from user_settings table
      *
-     * @return string|null
+     * @return string
      */
     public function getUserCitationStyle(User $user)
     {
         $select = new Select($this->table);
+        $select->columns([
+            'citation_style'
+        ]);
         $select->limit(1);
         
         $condition = 'user_id="'.$user['id'].'" AND citation_style IS NOT NULL';
@@ -87,7 +90,7 @@ class UserSettings extends Gateway
         $select->where($predicate);
         
         $result = $this->executeAnyZendSQLSelect($select)->current();
-        return $result;
+        return $result['citation_style'];
     }
     
     /**
@@ -129,6 +132,68 @@ class UserSettings extends Gateway
             $this->sql->prepareStatementForSqlObject($update)->execute();
             $this->getDbConnection()->commit();
         }
+    }
+    
+    /**
+     * Set preferred amount of records per page user_settings table
+     *
+     * @param VuFind\Db\Row\User $user
+     * @param tinyInt $recordsPerPage
+     *
+     * @return void
+     */
+    public function setRecordsPerPage(User $user, $recordsPerPage)
+    {
+        $preferredRecordsPerPage = $this->getRecordsPerPage($user);
+    
+        // insert new setting if not already set
+        if ($preferredRecordsPerPage === false) {
+    
+            $this->getDbConnection()->beginTransaction();
+            $this->getDbTable($this->table)->insert([
+                'user_id' => $user->id,
+                'records_per_page' => $recordsPerPage
+            ]);
+            $this->getDbConnection()->commit();
+    
+        } else { // update setting if already set
+    
+            if ($preferredRecordsPerPage === $recordsPerPage)
+                return; // do not update the same value
+    
+            $update = new Update($this->table);
+            $update->set([
+                'records_per_page' => $recordsPerPage
+            ]);
+            $update->where([
+                'user_id' => $user->id
+            ]);
+
+            $this->getDbConnection()->beginTransaction();
+            $this->sql->prepareStatementForSqlObject($update)->execute();
+            $this->getDbConnection()->commit();
+        }
+    }
+    
+    /**
+     * Returns array of user settings from user_settings table
+     *
+     * @return tinyInt
+     */
+    public function getRecordsPerPage(User $user)
+    {
+        $select = new Select($this->table);
+        $select->columns([
+            'records_per_page'
+        ]);
+        $select->limit(1);
+    
+        $condition = 'user_id="'.$user['id'].'" AND records_per_page IS NOT NULL';
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+    
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        return $result['records_per_page'];
     }
     
     /**

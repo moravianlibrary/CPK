@@ -574,6 +574,7 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forceLogin();
         }
         
+        /* Citation style fieldset */
         $citationStyleTable = $this->getTable('citationstyle');
         $availableCitationStyles = $citationStyleTable->getAllStyles();
         
@@ -589,13 +590,27 @@ class MyResearchController extends MyResearchControllerBase
         $userSettingsTable = $this->getTable("usersettings");
         $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
         
-        $selectedCitationStyle  = (! empty($preferedCitationStyle['citation_style'])) 
-            ? $preferedCitationStyle['citation_style'] 
+        $selectedCitationStyle = (! empty($preferedCitationStyle)) 
+            ? $preferedCitationStyle 
             : $defaultCitationStyle;
         
         $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
         $viewVars['availableCitationStyles'] = $availableCitationStyles;
         
+        /* Records per page fieldset */
+        $searchesConfig = $this->getConfig('searches');
+        $recordsPerPageOptions = explode(",", $searchesConfig->General->limit_options);
+        $recordsPerPageDefaultValue = $searchesConfig->General->default_limit;
+        $preferredRecordsPerPageValue = $userSettingsTable->getRecordsPerPage($user);
+        
+        $selectedRecordsPerPageOption = (! empty($preferredRecordsPerPageValue))
+        ? $preferredRecordsPerPageValue
+        : $recordsPerPageDefaultValue;
+        
+        $viewVars['recordsPerPageOptions'] = $recordsPerPageOptions;
+        $viewVars['selectedRecordsPerPageOption'] = $selectedRecordsPerPageOption;
+        
+        //
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;

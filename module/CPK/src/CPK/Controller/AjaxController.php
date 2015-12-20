@@ -1038,4 +1038,25 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output([], self::STATUS_OK);
     }
+    
+    /**
+     * Set preferred amount of records per page user_settings table
+     *
+     * @return \Zend\Http\Response
+     */
+    public function setRecordsPerPageAjax()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+    
+        $recordsPerPage = $this->params()->fromPost('recordsPerPage');
+    
+        $userSettingsTable = $this->getTable("usersettings");
+        $userSettingsTable->setRecordsPerPage($user, $recordsPerPage);
+    
+        return $this->output([], self::STATUS_OK);
+    }
 }

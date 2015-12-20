@@ -39,7 +39,7 @@ INSERT INTO `vufind`.`citation_style` (`id`, `description`, `value`)
 CREATE TABLE IF NOT EXISTS `user_settings` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `citation_style` int(8)
+  `citation_style` int(8) NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 ALTER TABLE `user_settings`
@@ -53,3 +53,7 @@ ALTER TABLE `user_settings`
   
 ALTER TABLE `user_settings`
   ADD FOREIGN KEY (citation_style) REFERENCES citation_style(id);
+
+/* Create column record_per_page in user_settings table */
+ALTER TABLE `user_settings` ADD `records_per_page` TINYINT NULL ;
+

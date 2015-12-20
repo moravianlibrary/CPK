@@ -14,9 +14,17 @@
     <div class='well'>
       <fieldset>
         <legend><?=$this->translate('Citations style') ?></legend>
-        <select name='citation_style'>
+        <select name='citation-style'>
         <? foreach ($this->availableCitationStyles as $style): ?>
         <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected' : '' ?> value='<?=$style['id']?>'><?=$style['description']?></option>
+        <? endforeach; ?>
+        </select>
+      </fieldset>
+      <fieldset>
+        <legend><?=$this->translate('Records per page') ?></legend>
+        <select name='records-per-page'>
+        <? foreach ($this->recordsPerPageOptions as $option): ?>
+        <option<?= ($this->selectedRecordsPerPageOption == $option) ? ' selected' : '' ?> value='<?=$option?>'><?=$option?></option>
         <? endforeach; ?>
         </select>
       </fieldset>
