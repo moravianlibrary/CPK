@@ -132,6 +132,29 @@ class UserSettings extends Gateway
     }
     
     /**
+     * Returns whether user has a row in user_settings table
+     *
+     * @param VuFind\Db\Row\User $user
+     *
+     * @return bool
+     */
+    public function hasUserSettings(User $user)
+    {
+        $select = new Select($this->table);
+        $select->limit(1);
+    
+        $condition = 'user_id="'.$user['id'].'"';
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+    
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        if (! empty($result))
+            return true;
+        
+        return false;
+    }
+    
+    /**
      * Set preferred citation style into user_settings table
      * 
      * @param VuFind\Db\Row\User $user
@@ -141,10 +164,10 @@ class UserSettings extends Gateway
      */
     public function setCitationStyle(User $user, $citationStyleValue)
     {
-        $preferredCitationStyle = $this->getUserCitationStyle($user);
+        $hasUserSettingsAlready = $this->hasUserSettings($user);
         
         // insert new setting if not already set
-        if ($preferredCitationStyle === false) {
+        if (! $hasUserSettingsAlready) {
             
             $this->getDbConnection()->beginTransaction();
             $this->getDbTable($this->table)->insert([
@@ -155,9 +178,6 @@ class UserSettings extends Gateway
             
         } else { // update setting if already set
             
-            if ($citationStyleValue === $preferredCitationStyle['value'])
-                return; // do not update the same value
-        
             $update = new Update($this->table);
             $update->set([
                 'citation_style' => $citationStyleValue
@@ -182,10 +202,10 @@ class UserSettings extends Gateway
      */
     public function setRecordsPerPage(User $user, $recordsPerPage)
     {
-        $preferredRecordsPerPage = $this->getRecordsPerPage($user);
+        $hasUserSettingsAlready = $this->hasUserSettings($user);
     
         // insert new setting if not already set
-        if ($preferredRecordsPerPage === false) {
+        if (! $hasUserSettingsAlready) {
     
             $this->getDbConnection()->beginTransaction();
             $this->getDbTable($this->table)->insert([
@@ -195,9 +215,6 @@ class UserSettings extends Gateway
             $this->getDbConnection()->commit();
     
         } else { // update setting if already set
-    
-            if ($preferredRecordsPerPage === $recordsPerPage)
-                return; // do not update the same value
     
             $update = new Update($this->table);
             $update->set([
@@ -269,10 +286,10 @@ class UserSettings extends Gateway
      */
     public function setPreferredSorting(User $user, $preferredSorting)
     {
-        $setPreferredSorting = $this->getSorting($user);    
+        $hasUserSettingsAlready = $this->hasUserSettings($user);
     
         // insert new setting if not already set
-        if ($setPreferredSorting === false) {
+        if (! $hasUserSettingsAlready) {
     
             $this->getDbConnection()->beginTransaction();
             $this->getDbTable($this->table)->insert([
@@ -282,9 +299,6 @@ class UserSettings extends Gateway
             $this->getDbConnection()->commit();
     
         } else { // update setting if already set
-    
-            if ($setPreferredSorting === $preferredSorting)
-                return; // do not update the same value
     
             $update = new Update($this->table);
             $update->set([

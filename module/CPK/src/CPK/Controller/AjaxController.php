@@ -1033,8 +1033,12 @@ class AjaxController extends AjaxControllerBase
         
         $citationStyleValue = $this->params()->fromPost('citationStyleValue');
         
-        $userSettingsTable = $this->getTable("usersettings");
-        $userSettingsTable->setCitationStyle($user, $citationStyleValue);
+        try {
+            $userSettingsTable = $this->getTable("usersettings");
+            $userSettingsTable->setCitationStyle($user, $citationStyleValue);
+        } catch (\Exception $e) {
+            return $this->outputException($e);
+        }
 
         return $this->output([], self::STATUS_OK);
     }
@@ -1054,8 +1058,12 @@ class AjaxController extends AjaxControllerBase
     
         $recordsPerPage = $this->params()->fromPost('recordsPerPage');
     
-        $userSettingsTable = $this->getTable("usersettings");
-        $userSettingsTable->setRecordsPerPage($user, $recordsPerPage);
+        try {
+            $userSettingsTable = $this->getTable("usersettings");
+            $userSettingsTable->setRecordsPerPage($user, $recordsPerPage);
+        } catch (\Exception $e) {
+            return $this->outputException($e);
+        }
     
         return $this->output([], self::STATUS_OK);
     }
@@ -1075,8 +1083,12 @@ class AjaxController extends AjaxControllerBase
     
         $preferredSorting = $this->params()->fromPost('preferredSorting');
     
-        $userSettingsTable = $this->getTable("usersettings");
-        $userSettingsTable->setPreferredSorting($user, $preferredSorting);
+        try {
+            $userSettingsTable = $this->getTable("usersettings");
+            $userSettingsTable->setPreferredSorting($user, $preferredSorting);
+        } catch (\Exception $e) {
+            return $this->outputException($e);
+        }
     
         return $this->output([], self::STATUS_OK);
     }
