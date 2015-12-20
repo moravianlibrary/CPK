@@ -562,7 +562,7 @@ class MyResearchController extends MyResearchControllerBase
     }
     
     /**
-     * Settings view view
+     * Settings view
      *
      * @return Zend\View\Model\ViewModel
      */
@@ -578,8 +578,8 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forwardTo('MyResearch', 'Home');
         }
         
-        $citationStyle = $this->getTable('citationstyle');
-        $availableCitationStyles = $citationStyle->getAllStyles();
+        $citationStyleTable = $this->getTable('citationstyle');
+        $availableCitationStyles = $citationStyleTable->getAllStyles();
         
         $defaultCitationStyleValue = $this->getConfig()->Record->default_citation_style;
         
@@ -589,10 +589,13 @@ class MyResearchController extends MyResearchControllerBase
             }
         }
         
+        $userSettingsTable = $this->getTable("usersettings");
+        $userSettings = $userSettingsTable->getSettings($user);
         
-        $userSettings = $this->getTable("usersettings");
-        $userPreferences = $userSettings->getSettings($user);
-        $preferedCitationsStyle = $userPreferences['citation_style'];
+        $preferedCitationsStyle = isset($userSettings['citation_style']) 
+            ? $userSettings['citation_style'] 
+            : '';
+        
         $selectedCitationStyle  = (! empty($preferedCitationsStyle)) 
             ? $preferedCitationsStyle 
             : $defaultCitationStyle;

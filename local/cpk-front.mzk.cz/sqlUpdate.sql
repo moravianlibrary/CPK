@@ -35,21 +35,21 @@ INSERT INTO `vufind`.`citation_style` (`id`, `description`, `value`)
          (NULL, 'ISO 690', '12');
 
 
-/* Create table for users preferences */
-CREATE TABLE IF NOT EXISTS `user_preference` (
+/* Create table for users settings */
+CREATE TABLE IF NOT EXISTS `user_settings` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `citation_style` int(8)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-ALTER TABLE `user_preference`
+ALTER TABLE `user_settings`
   ADD PRIMARY KEY (`id`), ADD KEY `user_id` (`user_id`);
 
-ALTER TABLE `user_preference`
+ALTER TABLE `user_settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 
-ALTER TABLE `user_preference`
+ALTER TABLE `user_settings`
   ADD FOREIGN KEY (user_id) REFERENCES user(id);
   
-ALTER TABLE `user_preference`
+ALTER TABLE `user_settings`
   ADD FOREIGN KEY (citation_style) REFERENCES citation_style(id);

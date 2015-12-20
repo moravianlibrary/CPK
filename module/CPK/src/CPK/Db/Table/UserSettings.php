@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) Moravian Library 2015.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,24 +22,23 @@
  * @category VuFind2
  * @package  Db_Table
  * @author   Martin Kravec <martin.kravec@mzk.cz>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
 namespace CPK\Db\Table;
 
-use Zend\Db\Sql\Select, 
-    Zend\Db\Sql\Update, 
-    Zend\Db\Adapter\Driver\Mysqli\Result,
-    VuFind\Db\Table\Gateway;
+use VuFind\Db\Table\Gateway,
+    CPK\Db\Row\User,
+    Zend\Config\Config;
 
 /**
  * Table Definition for UserSettings
  *
  * @category VuFind2
- * @package Db_Table
- * @author Martin Kravec <martin.kravec@mzk.cz>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link http://vufind.org Main Site
+ * @package  Db_Table
+ * @author   Martin Kravec <martin.kravec@mzk.cz>
+ * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
+ * @link     http://vufind.org Main Site
  */
 class UserSettings extends Gateway
 {
@@ -52,33 +51,23 @@ class UserSettings extends Gateway
      * Constructor
      *
      * @param \Zend\Config\Config $config VuFind configuration
+     * 
+     * @return void 
      */
-    public function __construct(\Zend\Config\Config $config)
+    public function __construct(Config $config)
     {
         $this->config = $config;
-        parent::__construct('user_preference', 'CPK\Db\Row\UserSettings');
+        parent::__construct('user_settings', 'CPK\Db\Row\UserSettings');
     }
 
     /**
-     * Returns array of settings from citation_style table
+     * Returns array of user settings from user_settings table
      *
      * @return array
      */
-    public function getSettings(\CPK\Db\Row\User $user)
+    public function getSettings(User $user)
     {       
-        return $this->select(['user_id' => $user['id']])->toArray()[0];
-    }
-    
-    /**
-     * Executes any Select
-     *
-     * @param Select $select
-     *
-     * @return Result $result
-     */
-    protected function executeAnyZendSQLSelect(Select $select)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
+        $results = $this->select(['user_id' => $user['id']])->toArray();
+        return (isset($results[0]) ? $results[0] : []);
     }
 }

@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) Moravian Library 2015.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,32 +22,36 @@
  * @category VuFind2
  * @package  Db_Row
  * @author   Martin Kravec <martin.kravec@mzk.cz>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
 namespace CPK\Db\Row;
 
-use VuFind\Db\Row\RowGateway;
+use VuFind\Db\Row\RowGateway,
+    VuFind\Db\Table\DbTableAwareInterface,
+    VuFind\Db\Table\DbTableAwareTrait;
 
 /**
  * Row Definition for citation style
  *
  * @category VuFind2
- * @package Db_Row
- * @author Martin Kravec <martin.kravec@mzk.cz>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link http://vufind.org Main Site
+ * @package  Db_Row
+ * @author   Martin Kravec <martin.kravec@mzk.cz>
+ * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
+ * @link     http://vufind.org Main Site
  */
-class CitationStyle extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface
+class CitationStyle extends RowGateway implements DbTableAwareInterface
 {
-    use \VuFind\Db\Table\DbTableAwareTrait;
+    use DbTableAwareTrait;
 
     /**
      * Constructor
      *
      * @param \Zend\Db\Adapter\Adapter $adapter Database adapter
+     * 
+     * @return void
      */
-    public function __construct($adapter)
+    public function __construct(\Zend\Db\Adapter\Adapter $adapter)
     {
         parent::__construct('id', 'citation_style', $adapter);
     }

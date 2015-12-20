@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) Moravian Library 2015.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,24 +22,22 @@
  * @category VuFind2
  * @package  Db_Table
  * @author   Martin Kravec <martin.kravec@mzk.cz>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
 namespace CPK\Db\Table;
 
-use Zend\Db\Sql\Select, 
-    Zend\Db\Sql\Update, 
-    Zend\Db\Adapter\Driver\Mysqli\Result,
-    VuFind\Db\Table\Gateway;
+use VuFind\Db\Table\Gateway,
+    Zend\Config\Config;
 
 /**
- * Table Definition for citation style
+ * Table Definition for CitationStyle
  *
  * @category VuFind2
- * @package Db_Table
- * @author Martin Kravec <martin.kravec@mzk.cz>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link http://vufind.org Main Site
+ * @package  Db_Table
+ * @author   Martin Kravec <martin.kravec@mzk.cz>
+ * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
+ * @link     http://vufind.org Main Site
  */
 class CitationStyle extends Gateway
 {
@@ -52,33 +50,22 @@ class CitationStyle extends Gateway
      * Constructor
      *
      * @param \Zend\Config\Config $config VuFind configuration
+     * 
+     * @return void
      */
-    public function __construct(\Zend\Config\Config $config)
+    public function __construct(Config $config)
     {
         $this->config = $config;
         parent::__construct('citation_style', 'CPK\Db\Row\CitationStyle');
     }
 
     /**
-     * Returns array of settings from citation_style table
+     * Returns rows from citation_style table
      *
      * @return array
      */
     public function getAllStyles()
     {       
         return $this->select()->toArray();
-    }
-    
-    /**
-     * Executes any Select
-     *
-     * @param Select $select
-     *
-     * @return Result $result
-     */
-    protected function executeAnyZendSQLSelect(Select $select)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
     }
 }
