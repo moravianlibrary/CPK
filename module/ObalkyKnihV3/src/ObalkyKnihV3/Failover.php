@@ -21,7 +21,7 @@
  *
  * @category VuFind2
  * @package  Theme
- * @author   Jakub Šesták <sestak@mzk.cz>
+ * @author   Jakub Sestak <sestak@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
@@ -33,7 +33,7 @@ use Zend\Console\Console;
  *
  * @category VuFind2
  * @package  Theme
- * @author   Jakub Šesták <sestak@mzk.cz>
+ * @author   Jakub Sestak <sestak@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
