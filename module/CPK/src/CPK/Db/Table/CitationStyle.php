@@ -57,7 +57,9 @@ class CitationStyle extends Gateway
     public function __construct(Config $config)
     {
         $this->config = $config;
-        parent::__construct('citation_style', 'CPK\Db\Row\CitationStyle');
+        $this->table = 'citation_style';
+        $this->rowClass = 'CPK\Db\Row\CitationStyle';
+        parent::__construct($this->table, $this->rowClass);
     }
     
     /**
@@ -103,7 +105,15 @@ class CitationStyle extends Gateway
      */
     public function getAllStyles()
     {       
-        return $this->select()->toArray();
+        $select = new Select($this->table);
+        $select->order('description');
+        
+        $results= $this->executeAnyZendSQLSelect($select);
+        
+        $resultSet = new \Zend\Db\ResultSet\ResultSet();
+        $resultSet->initialize($results);
+        
+        return $resultSet->toArray();
     }
     
     /**
