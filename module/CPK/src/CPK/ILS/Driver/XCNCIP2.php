@@ -1103,6 +1103,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         $list = $this->useXPath($response,
             'LookupUserResponse/UserFiscalAccount/AccountDetails');
+        $monetaryValue = $this->useXPath($response,
+            'LookupUserResponse/UserFiscalAccount/AccountBalance/MonetaryValue');
 
         $fines = array();
         foreach ($list as $current) {
@@ -1128,6 +1130,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'id' => (string) $type[0]
             );
         }
+        if (empty($fines) && ! empty($monetaryValue)) $fines[] = array(
+                'amount' => (string) $monetaryValue[0],
+                'balance' => (string) $monetaryValue[0]
+            );
         return $fines;
     }
 
