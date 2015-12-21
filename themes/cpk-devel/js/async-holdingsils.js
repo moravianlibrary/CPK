@@ -166,7 +166,7 @@ var holdingsILS = {
 	if (typeof dueDate !== 'undefined' && dueDate) {
 
 	    // We have some due date here ..
-	    var dueDateColumn = tableRow.children('td[data-type=due_date]').first();
+	    var dueDateColumn = tableRow.children('td[data-type=duedate]').first();
 	    dueDateColumn.text(dueDate);
 
 	    label.removeClass('label-primary').addClass('label-warning');
@@ -177,7 +177,7 @@ var holdingsILS = {
 
 	    toBeBroken: if (typeof divLink !== 'undefined') {
 		// Show hidden link
-		var linkSpan = divLink.find('a span'), holdType = value.hold_type;
+		var linkSpan = divLink.find('a span'), holdType = value.holdtype;
 
 		if (typeof holdType === 'undefined') {
 		    holdType = 'Reserve';
