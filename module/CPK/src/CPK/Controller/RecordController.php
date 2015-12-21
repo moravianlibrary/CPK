@@ -123,7 +123,9 @@ class RecordController extends RecordControllerBase
                 ->Record->default_citation_style;
         } else {
             $userSettingsTable = $this->getTable("usersettings");
-            $view->preferredCitationStyle = $userSettingsTable->getUserCitationStyle($user);
+            $citationStyleTable = $this->getTable("citationstyle");
+            $preferredCitationStyleId = $userSettingsTable->getUserCitationStyle($user);
+            $view->preferredCitationStyle = $citationStyleTable->getCitationValueById($preferredCitationStyleId);
         }
         
         //
