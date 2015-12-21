@@ -1,5 +1,6 @@
 jQuery( document ).ready( function( $ ) {
 	$( 'select[name="citation-style"]' ).on( 'change', function() {
+		$( '.citation-style-status' ).html( "<i class='fa fa-spinner fa-spin'></i>" );
 		$.ajax({
 			type: 'POST',
 			url: '/AJAX/JSON?method=setCitationStyle',
@@ -9,11 +10,12 @@ jQuery( document ).ready( function( $ ) {
 			    citationStyleValue: $( this ).val()
 			},
 			success: function( response ) {
-			    alert( VuFind.translate( 'citation_set_permanently' ) );
+			    $( '.citation-style-status i' ).removeClass('fa-spinner fa-spin').addClass('fa-thumbs-o-up');
 			}
 		});
 	});
 	$( 'select[name="records-per-page"]' ).on( 'change', function() {
+		$( '.records-per-page-status' ).html( "<i class='fa fa-spinner fa-spin'></i>" );
 		$.ajax({
 			type: 'POST',
 			url: '/AJAX/JSON?method=setRecordsPerPage',
@@ -23,11 +25,12 @@ jQuery( document ).ready( function( $ ) {
 			    recordsPerPage: $( this ).val()
 			},
 			success: function( response ) {
-			    alert( VuFind.translate( 'records_per_page_set_permanently' ) );
+				$( '.records-per-page-status i' ).removeClass('fa-spinner fa-spin').addClass('fa-thumbs-o-up');
 			}
 		});
 	});
 	$( 'select[name="preferred-sorting"]' ).on( 'change', function() {
+		$( '.preferred-sorting-status' ).html( "<i class='fa fa-spinner fa-spin'></i>" );
 		$.ajax({
 			type: 'POST',
 			url: '/AJAX/JSON?method=setPreferredSorting',
@@ -37,7 +40,7 @@ jQuery( document ).ready( function( $ ) {
 			    preferredSorting: $( this ).val()
 			},
 			success: function( response ) {
-			    alert( VuFind.translate( 'default_sorting_set_permanently' ) );
+				$( '.preferred-sorting-status i' ).removeClass('fa-spinner fa-spin').addClass('fa-thumbs-o-up');
 			}
 		});
 	});

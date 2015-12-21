@@ -19,6 +19,7 @@
         <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected="selected"' : '' ?> value='<?=$style['id']?>'><?=$style['description']?></option>
         <? endforeach; ?>
         </select>
+        <span class='citation-style-status'></span>
       </fieldset>
       <fieldset>
         <legend><?=$this->translate('Records per page') ?></legend>
@@ -27,6 +28,7 @@
         <option<?= ($this->selectedRecordsPerPageOption == $option) ? ' selected="selected"' : '' ?> value='<?=$option?>'><?=$option?></option>
         <? endforeach; ?>
         </select>
+        <span class='records-per-page-status'></span>
       </fieldset>
       <fieldset>
         <legend><?=$this->translate('Default sorting') ?></legend>
@@ -35,6 +37,7 @@
         <option<?= ($this->selectedSorting == $key) ? ' selected="selected"' : '' ?> value='<?=$key?>'><?=$this->transEsc($option)?></option>
         <? endforeach; ?>
         </select>
+        <span class='preferred-sorting-status'></span>
       </fieldset>
     </div>
   </div>
