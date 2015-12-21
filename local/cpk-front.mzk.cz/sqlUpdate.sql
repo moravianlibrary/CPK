@@ -12,7 +12,7 @@ ALTER TABLE user ADD read_notifications VARCHAR(512) NULL DEFAULT NULL;
 CREATE TABLE IF NOT EXISTS `citation_style` (
   `id` int(11) NOT NULL,
   `description` VARCHAR(32),
-  `value` VARCHAR(8)
+  `value` VARCHAR(8) UNIQUE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 ALTER TABLE `citation_style`
