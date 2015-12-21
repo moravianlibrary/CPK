@@ -1273,15 +1273,20 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         if (empty($name) && empty($surname)) {
             $name = $this->useXPath($response,
-                    'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/UnstructuredPersonalUserName');
+                'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/UnstructuredPersonalUserName');
         }
         if (empty($address1)) {
             $address1 = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line1');
+                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line1');
         }
         if (empty($city)) {
             $city = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line2');
+                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line2');
+        }
+        if (empty($address1)) {
+            $address1 = $this->useXPath($response,
+                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/' .
+                'UnstructuredAddress/UnstructuredAddressData');
         }
 
         $patron = array(
