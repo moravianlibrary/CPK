@@ -1263,7 +1263,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         foreach ($blocksParsed as $block) {
             if (! empty($logo)) {
-                $blocks[$logo] = (string) $block;
+                if (! empty($blocks[$logo]))
+                    $blocks[$logo] .= ", " . (string) $block;
+                else
+                    $blocks[$logo] = (string) $block;
             } else
                 $blocks[] = (string) $block;
         }
