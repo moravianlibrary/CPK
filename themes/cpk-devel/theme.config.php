@@ -18,6 +18,8 @@ return array(
         'vendor/rc4.js',
         'vendor/localforage.min.js',
         'vendor/js.cookie.js',
+        'vendor/bootstrap-datepicker.js',
+        'vendor/bootstrap-datepicker.cs.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
