@@ -16,7 +16,7 @@
         <legend><?=$this->translate('Citations style') ?></legend>
         <select name='citation-style'>
         <? foreach ($this->availableCitationStyles as $style): ?>
-        <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected' : '' ?> value='<?=$style['id']?>'><?=$style['description']?></option>
+        <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected="selected"' : '' ?> value='<?=$style['id']?>'><?=$style['description']?></option>
         <? endforeach; ?>
         </select>
       </fieldset>
@@ -24,7 +24,7 @@
         <legend><?=$this->translate('Records per page') ?></legend>
         <select name='records-per-page'>
         <? foreach ($this->recordsPerPageOptions as $option): ?>
-        <option<?= ($this->selectedRecordsPerPageOption == $option) ? ' selected' : '' ?> value='<?=$option?>'><?=$option?></option>
+        <option<?= ($this->selectedRecordsPerPageOption == $option) ? ' selected="selected"' : '' ?> value='<?=$option?>'><?=$option?></option>
         <? endforeach; ?>
         </select>
       </fieldset>
@@ -32,7 +32,7 @@
         <legend><?=$this->translate('Default sorting') ?></legend>
         <select name='preferred-sorting'>
         <? foreach ($this->sortingOptions as $key => $option): ?>
-        <option<?= ($this->selectedSorting == $key) ? ' selected' : '' ?> value='<?=$key?>'><?=$this->transEsc($option)?></option>
+        <option<?= ($this->selectedSorting == $key) ? ' selected="selected"' : '' ?> value='<?=$key?>'><?=$this->transEsc($option)?></option>
         <? endforeach; ?>
         </select>
       </fieldset>
