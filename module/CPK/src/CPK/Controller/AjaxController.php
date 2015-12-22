@@ -1061,6 +1061,8 @@ class AjaxController extends AjaxControllerBase
         try {
             $userSettingsTable = $this->getTable("usersettings");
             $userSettingsTable->setRecordsPerPage($user, $recordsPerPage);
+            // @FIXME Make following line object oriented
+            $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $recordsPerPage;
         } catch (\Exception $e) {
             return $this->outputException($e);
         }
@@ -1086,6 +1088,8 @@ class AjaxController extends AjaxControllerBase
         try {
             $userSettingsTable = $this->getTable("usersettings");
             $userSettingsTable->setPreferredSorting($user, $preferredSorting);
+            // @FIXME Make following line object oriented
+            $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $preferredSorting;
         } catch (\Exception $e) {
             return $this->outputException($e);
         }
