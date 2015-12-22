@@ -288,6 +288,8 @@ class AbstractSearch extends AbstractBase
             if (! empty($preferredRecordsPerPage)) {
                 if (! isset($request['limit'])) {
                     $request['limit'] = $preferredRecordsPerPage;
+                } else if (isset($_SESSION['VuFind\Search\Solr\Options']['lastLimit'])) {
+                    $request['limit'] = $_SESSION['VuFind\Search\Solr\Options']['lastLimit'];
                 }
             }
             
@@ -295,6 +297,8 @@ class AbstractSearch extends AbstractBase
             if (! empty($preferredSorting)) {
                 if (! isset($request['sort'])) {
                     $request['sort'] = $preferredSorting;
+                } else if (isset($_SESSION['VuFind\Search\Solr\Options']['lastSort'])) {
+                    $request['sort'] = $_SESSION['VuFind\Search\Solr\Options']['lastSort'];
                 }
             }
         }
