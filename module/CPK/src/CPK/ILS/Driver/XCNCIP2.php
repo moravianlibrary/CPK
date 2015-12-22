@@ -1040,6 +1040,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $dateDue = $this->useXPath($current, 'DateDue');
             $parsedDate = strtotime((string) $dateDue[0]);
+            $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
+            $renewable = empty($renewalNotPermitted)? true : false;
             $additRequest = $this->requests->lookupItem($item_id, $patron['agency']);
             $additResponse = $this->sendRequest($additRequest);
             $isbn = $this->useXPath($additResponse,
@@ -1068,7 +1070,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'volume' => '',
                 'author' => empty($author) ? '' : (string) $author[0],
                 'publication_year' => '', // TODO
-                'renewable' => empty($request) ? false : true,
+                'renewable' => $renewable,
                 'message' => '',
                 'title' => empty($title) ? '' : (string) $title[0],
                 'item_id' => $item_id,
