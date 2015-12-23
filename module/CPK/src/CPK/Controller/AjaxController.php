@@ -690,7 +690,7 @@ class AjaxController extends AjaxControllerBase
         $client->setParameterGet(
             array(
                 'book_id' => $bookid,
-                'id' => $id
+                'id' => $id  //required parameter, later can be used for editing and deleting
             ));
         $client->setParameterPost(
             array(
