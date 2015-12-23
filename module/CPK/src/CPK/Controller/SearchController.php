@@ -549,19 +549,6 @@ class SearchController extends AbstractSearch
 	    $institutionsMappings = $facetConfig->InstitutionsMappings->toArray();
 	    $view->institutionsMappings = $institutionsMappings;
 	
-	    // Has user preferred user settings?
-	    if ($user = $this->getAuthManager()->isLoggedIn()) {
-	        $userSettingsTable = $this->getTable("usersettings");
-	         
-	        $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
-	        if (! empty($preferredRecordsPerPage))
-	            $view->preferredRecordsPerPage = $preferredRecordsPerPage;
-	             
-	            $preferredSorting = $userSettingsTable->getSorting($user);
-	            if (! empty($preferredSorting))
-	                $view->preferredSorting = $preferredSorting;
-	    }
-	
 	    return $view;
 	}
 	

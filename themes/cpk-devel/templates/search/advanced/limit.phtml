@@ -4,11 +4,15 @@
 
     // If a previous limit was used, make that the default; otherwise, use the "default default"
     $lastLimit = $this->options->getLastLimit();
-    $defaultLimit = (! empty($lastLimit)) 
-        ? $lastLimit 
-        : isset($this->preferredRecordsPerPage) 
-            ? $this->preferredRecordsPerPage 
-            : $this->options->getDefaultLimit();
+    if (! empty($lastLimit)) { 
+        $defaultLimit = $lastLimit;
+    } else {
+        if (! empty($this->preferredRecordsPerPage)) { 
+            $defaultLimit = $this->preferredRecordsPerPage;
+        } else {
+            $defaultLimit = $this->options->getDefaultLimit();
+        }
+    }
 ?>
 <? if (count($limitList) > 1): ?>
   <fieldset class="col-sm-4">
