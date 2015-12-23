@@ -70,9 +70,12 @@ class Factory
         $sessionManager = $sm->get('VuFind\SessionManager');
         $pm = $sm->get('VuFind\AuthPluginManager');
         $cookieManager = $sm->get('VuFind\CookieManager');
+        $userSettingsTable = $sm->get('VuFind\DbTablePluginManager')
+            ->get('usersettings');
 
         // Build the object:
-        return new Manager($config, $userTable, $sessionManager, $pm, $cookieManager);
+        return new Manager($config, $userTable, $sessionManager, $pm,
+            $cookieManager, $userSettingsTable);
     }
 
     /**

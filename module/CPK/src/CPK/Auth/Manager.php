@@ -27,7 +27,16 @@
  */
 namespace CPK\Auth;
 
-use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFind\Auth\PluginManager as PluginManager, Zend\Config\Config as Config, Zend\Session\SessionManager as SessionManager, VuFind\Cookie\CookieManager, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\Exception\Auth as AuthException;
+use VuFind\Auth\Manager as BaseManager,
+    VuFind\Db\Table\User as UserTable,
+    CPK\Db\Table\UserSettings,
+    VuFind\Auth\PluginManager as PluginManager,
+    Zend\Config\Config as Config,
+    Zend\Session\SessionManager as SessionManager,
+    VuFind\Cookie\CookieManager,
+    Zend\ServiceManager\ServiceLocatorAwareInterface,
+    Zend\ServiceManager\ServiceLocatorInterface,
+    VuFind\Exception\Auth as AuthException;
 
 /**
  * Wrapper class for handling logged-in user in session.
@@ -40,7 +49,12 @@ use VuFind\Auth\Manager as BaseManager, VuFind\Db\Table\User as UserTable, VuFin
  */
 class Manager extends BaseManager
 {
-
+    /**
+     * UserSettings Table
+     * @var CPK\Db\Table\UserSettings
+     */
+    protected $userSettingsTable;
+    
     /**
      * Constructor
      *
@@ -49,10 +63,11 @@ class Manager extends BaseManager
      */
     public function __construct(Config $config, UserTable $userTable,
         SessionManager $sessionManager, PluginManager $pm,
-        CookieManager $cookieManager)
+        CookieManager $cookieManager, UserSettings $userSettingsTable)
     {
         parent::__construct($config, $userTable, $sessionManager, $pm,
             $cookieManager);
+        $this->userSettingsTable = $userSettingsTable;
     }
 
     /**
@@ -96,6 +111,15 @@ class Manager extends BaseManager
 
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
+        
+        // Set preferred settings right after log in, once
+        $limit = $this->userSettingsTable->getRecordsPerPage($user);
+        $sort = $this->userSettingsTable->getSorting($user);
+
+        // @FIXME: use session manager
+        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $limit;
+        $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $sort;
+        
         return $user;
     }
 
