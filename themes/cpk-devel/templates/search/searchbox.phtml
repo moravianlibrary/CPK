@@ -26,6 +26,9 @@
         <a href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtmlAttr($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a> |
         <a href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
         <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
+        <? if (isset($_GET['fromAdvancedSearchId'])): ?>
+          	| <a class='btn btn-link' rel="nofollow" href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtmlAttr(htmlspecialchars($_GET['fromAdvancedSearchId']))?>"><?=$this->transEsc("Edit this Advanced Search")?></a>
+    	<? endif; ?>
       </p>
     <? if (!empty($tabs)): ?></div><? endif; ?>
   </div>
@@ -50,10 +53,14 @@
     </div>
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
     <button type="submit" class="btn btn-primary find-button"><i class="icon-hledani"></i> <?=$this->transEsc("Find")?></button>
-    <? if ($advSearch): ?>
-      <a href="<?=$this->url($advSearch) . ((isset($this->searchId) && $this->searchId) ? '?edit=' . $this->escapeHtmlAttr($this->searchId) : '') ?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
-    <? endif; ?>
-
+    <span class="adv_search_links">
+        <? if ($advSearch): ?>
+          <a href="<?=$this->url($advSearch) . ((isset($this->searchId) && $this->searchId) ? '?edit=' . $this->escapeHtmlAttr($this->searchId) : '') ?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
+        <? endif; ?>
+    	<? if (isset($_GET['fromAdvancedSearchId'])): ?>
+          | <a class='btn btn-link' rel="nofollow" href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtmlAttr(htmlspecialchars($_GET['fromAdvancedSearchId']))?>"><?=$this->transEsc("Edit this Advanced Search")?></a>
+        <? endif; ?>
+    </span>
     <? $shards = $options->getShards(); if ($options->showShardCheckboxes() && !empty($shards)): ?>
       <?
       $selectedShards = isset($this->selectedShards)

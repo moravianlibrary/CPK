@@ -13,7 +13,11 @@
         <div class="col-sm-2 col-xs-3 left">
             <? $recordId =  preg_replace("/\./", "", $recordId)?>
             <? $recordId =  preg_replace("/:/", "", $recordId)?>
+            <? if ($this->params->getSearchType() == 'advanced'): ?>
+            <a href='<?=$this->recordLink()->getUrl($this->driver)?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <? else: ?>
             <a href='<?=$this->recordLink()->getUrl($this->driver)?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <? endif;?>
             	<div class="coverThumbnail cover_<?=$recordId?>">
             	
                     <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
@@ -35,7 +39,11 @@
         </div>
     <div class="col-sm-10 col-xs-9 middle">
       <div class="root-title">
+        <? if ($this->params->getSearchType() == 'advanced'): ?>
+        <a href="<?=$this->recordLink()->getUrl($this->driver)?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>" class="title">
+        <? else: ?>
         <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
+        <? endif;?>
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
           $summTitle = $this->driver->getTitle();
