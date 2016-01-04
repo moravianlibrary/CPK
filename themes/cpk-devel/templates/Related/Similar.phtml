@@ -9,8 +9,12 @@
           if (empty($lookfor)) {
               $lookfor = $this->record($similarRecordDriver)->getObalkyKnihAdvert('record');
           }
+          
+          $fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
+          ? '?fromAdvancedSearchId='.htmlspecialchars($_GET['fromAdvancedSearchId'])
+          : '';
         ?>
-    	<a class="row well similar-item" href='<?=$this->recordLink()->getUrl($similarRecordDriver)?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
+    	<a class="row well similar-item" href='<?=$this->recordLink()->getUrl($similarRecordDriver)?><?=$fromAdvancedSearchIdParam?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
           	<div class='col-md-3  #cover' id='cover'>
           		<? $recordId =  preg_replace("/\./", "", $recordId)?>
                 <? $recordId =  preg_replace("/:/", "", $recordId)?>
