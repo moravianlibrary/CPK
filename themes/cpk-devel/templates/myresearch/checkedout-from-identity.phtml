@@ -13,7 +13,7 @@ foreach ($libraryIdentity['transactions'] as $resource):
 
     <div class="col-md-2 text-center">
       <?
-        $recordId = $resource->getUniqueId();
+        $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
         $backLink = $this->serverUrl($this->recordLink()->getUrl($resource));
         $formats = $resource->getFormats();
       ?>

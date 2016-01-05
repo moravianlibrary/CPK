@@ -510,7 +510,11 @@ class AjaxController extends AjaxControllerBase
 
             $canRenew = $showOverdueMessage = false;
 
+            $i = 0;
+
             foreach ($result as $current) {
+
+                $i++;
 
                 $current = $this->renewals()->addRenewDetails($catalog, $current,
                     $renewStatus);
@@ -524,7 +528,7 @@ class AjaxController extends AjaxControllerBase
                 $resource = $this->getDriverForILSRecord($current);
 
                 // We need to let JS know what to opt for ...
-                $recordId = $resource->getUniqueId();
+                $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
                 $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
 
                 if ($bibInfo) {
