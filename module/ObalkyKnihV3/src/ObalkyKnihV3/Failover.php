@@ -60,23 +60,47 @@ class Failover
 
     public function check()
     {
-        $server1 = "http://cache.obalkyknih.cz/api/runtime/alive";
-        $server2 = "http://cache2.obalkyknih.cz/api/runtime/alive";
+        $server1base = "http://cache.obalkyknih.cz/api/runtime/alive";
+        $server2base = "http://cache2.obalkyknih.cz/api/runtime/alive";
 
-        $status1 = $this->testServer($server1);
-        $status2 = $this->testServer($server2);
+        $aliveSuffix = "/runtime/alive";
 
-        if($status2)
+        $server1alive = $server1base . $aliveSuffix;
+        $server2alive = $server2base . $aliveSuffix;
+
+        $status1 = $this->testServer($server1alive);
+        $status2 = $this->testServer($server2alive);
+
+        $config = new \Zend\Config\Config(array(), true);
+        $config->ObalkyKnih = array();
+
+        if($status1)
         {
-            $this->logMessage("Server to use: " . $server2);
+            $this->logMessage("Server to use: " . $server1base);
+            $config->ObalkyKnih->server = $server1base;
         }
-        else if($status1)
+        else if($status2)
         {
-            $this->logMessage("Server to use: " . $server1);
+            $this->logMessage("Server to use: " . $server2base);
+            $config->ObalkyKnih->server = $server2base;
         }
+        else
+        {
+            $result = "not available";
+            $this->logMessage("Server to use: " . $result);
+            $config->ObalkyKnih->server = $result;
+        }
+
+        $writer = new \Zend\Config\Writer\Ini();
+        $writer->toFile("config/vufind/ObalkyKnih.ini",$config);
 
 
     }
+
+//    protected function getCurrentSetting(){
+//        $configLoader = $this->getServiceLocator()->get('VuFind\Config');
+//        $url = $configLoader->get('config')->Site->url;
+//    }
 
     protected function testServer($server)
     {
