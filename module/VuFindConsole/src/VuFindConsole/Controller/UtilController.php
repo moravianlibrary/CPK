@@ -624,7 +624,7 @@ class UtilController extends AbstractBase
     {
         $argv = $this->consoleOpts->getRemainingArgs();
         $failover = new \ObalkyKnihV3\Failover(true);
-        $failover->check($argv);
+        $failover->checkAvailability($argv);
         return $this->getSuccessResponse();
     }
 

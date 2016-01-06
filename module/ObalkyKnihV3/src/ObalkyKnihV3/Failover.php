@@ -58,12 +58,15 @@ class Failover
     }
 
 
-    public function check()
+    /**
+     * saves server to use to config
+     */
+    public function checkAvailability()
     {
-        $server1base = "http://cache.obalkyknih.cz/api";
-        $server2base = "http://cache2.obalkyknih.cz/api";
+        $server1base = "https://cache.obalkyknih.cz";
+        $server2base = "https://cache2.obalkyknih.cz";
 
-        $aliveSuffix = "/runtime/alive";
+        $aliveSuffix = "/api/runtime/alive";
 
         $server1alive = $server1base . $aliveSuffix;
         $server2alive = $server2base . $aliveSuffix;
@@ -102,6 +105,10 @@ class Failover
 //        $url = $configLoader->get('config')->Site->url;
 //    }
 
+    /**
+     * @param $server - url address of testing page
+     * @return bool - true if server responded correctly in timeout
+     */
     protected function testServer($server)
     {
         $this->logMessage("Testuji server: " . $server);
@@ -110,7 +117,7 @@ class Failover
         try {
             $response = $client->send();
         } catch (TimeoutException $ex) {
-            return null; // TODO what to do when server is not responding
+            return false;
         }
         $this->logMessage("Response time: " . (microtime(true) - $start) . " sec");
         //check response Status code
