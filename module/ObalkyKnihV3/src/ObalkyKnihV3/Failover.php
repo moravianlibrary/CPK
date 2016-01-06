@@ -60,8 +60,8 @@ class Failover
 
     public function check()
     {
-        $server1base = "http://cache.obalkyknih.cz/api/runtime/alive";
-        $server2base = "http://cache2.obalkyknih.cz/api/runtime/alive";
+        $server1base = "http://cache.obalkyknih.cz/api";
+        $server2base = "http://cache2.obalkyknih.cz/api";
 
         $aliveSuffix = "/runtime/alive";
 
