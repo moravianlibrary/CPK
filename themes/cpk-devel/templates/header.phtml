@@ -1,3 +1,9 @@
+<? 
+    foreach ($this->layout()->allLangs as $langCode => $langName) {
+	   if ($this->layout()->userLang == $langCode)
+	       $selectedLanguage = $this->displayLanguageOption($langName);
+    } 
+?>
 <div class="navbar-header">
 	<button type="button" class="navbar-toggle" data-toggle="collapse"
 		data-target="#header-collapse">
@@ -105,8 +111,9 @@
           <li class="dropdown">
 				<form method="post" name="langForm" id="langForm">
 					<input type="hidden" name="mylang" />
-				</form> <a href="#" class="dropdown-toggle" data-toggle="dropdown"
-				id='selectLanguageButton'><?=$this->transEsc("Language")?> <b
+				</form>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown"
+				id='selectLanguageButton'><?=$selectedLanguage?> <b
 					class="caret"></b></a>
 				<ul class="dropdown-menu" id='availableLanguages'>
               <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
