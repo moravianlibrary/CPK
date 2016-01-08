@@ -103,7 +103,7 @@
                         <div id="search<?=$group.'_'.$search ?>" class="search">
                           <div class="row">
                             <div class="col-sm-7 left">
-                              <input name="lookfor<?=$group ?>[]" id="search_lookfor<?=$group.'_'.$search ?>" class="form-control" type="text"<?if(isset($setQueries[$group][$search])):?> value="<?=$this->escapeHtml($setQueries[$group][$search]->getString())?>"<?endif;?>>
+                              <input name="lookfor<?=$group ?>[]" id="search_lookfor<?=$group.'_'.$search ?>" class="form-control" placeholder="<?=$this->translate('enter-search-query')?>" type="text"<?if(isset($setQueries[$group][$search])):?> value="<?=$this->escapeHtml($setQueries[$group][$search]->getString())?>"<?endif;?>>
                             </div>
                             <div class="col-sm-4 middle">
                               <select class="type form-control" name="type<?=$group ?>[]">
