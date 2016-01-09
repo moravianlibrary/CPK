@@ -469,15 +469,7 @@
               </td>
             </tr>
           <? endif; ?>
-          
-            <tr class='hidden' id='citace-pro'>
-              <td colspan="2">
-                <iframe src="https://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>?server=<?=$_SERVER['SERVER_NAME']?>&citacniStyl=<?=$preferredCitationStyle?>"
-                		frameborder="0" width="100%" height="110">
-                </iframe>
-              </td>
-            </tr>
-        
+            
               <? $recordLinks = $this->driver->getAllRecordLinks(); ?>
               <? if(!empty($recordLinks)): ?>
                 <tr>

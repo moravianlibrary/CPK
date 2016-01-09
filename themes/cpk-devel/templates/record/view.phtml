@@ -6,6 +6,7 @@
   // Set up standard record scripts:
   $this->headScript()->appendFile("record.js");
   $this->headScript()->appendFile("check_save_statuses.js");
+  
   // Activate Syndetics Plus if necessary:
   if ($this->syndeticsPlus()->isActive()) {
     echo $this->headScript()->appendFile($this->syndeticsPlus()->getScript());
@@ -49,6 +50,27 @@
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
       <?=$this->flashmessages()?>
       
+    <!-- Modal -->
+    <div class="modal fade" id="citationsModal" tabindex="-1" role="dialog" aria-labelledby="citationsLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="citationsLabel"><?=$this->translate('Citations')?></h4>
+          </div>
+          <div class="modal-body">
+            <div class='citations-iframe-holder' style='background:url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-modal/2.2.6/img/ajax-loader.gif") center center no-repeat;'>
+            	<iframe src="https://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>?server=<?=$_SERVER['SERVER_NAME']?>&citacniStyl=<?=$preferredCitationStyle?>"
+        		frameborder="0" width="100%" height="110">
+        		</iframe>
+        	</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
+          </div>
+        </div>
+      </div>
+    </div>
 			<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
 			<div class="well">
@@ -143,5 +165,7 @@
       <?= $this->render('RecordDriver/SolrDefault/record-sidebar.phtml'); ?>
     </div>
 </div>
+
 </div>
+
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET'); ?>
