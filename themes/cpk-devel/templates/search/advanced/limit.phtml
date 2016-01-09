@@ -15,12 +15,12 @@
     }
 ?>
 <? if (count($limitList) > 1): ?>
-  <fieldset class="col-sm-4">
-    <legend><?=$this->transEsc('Results per page')?></legend>
+    <legend><?=$this->transEsc('Number of results per page')?></legend>
+    <div class="col-sm-2">
     <select id="limit" name="limit" class="form-control">
       <? foreach ($limitList as $limitVal): ?>
         <option value="<?=$this->escapeHtmlAttr($limitVal)?>"<?=($limitVal == $defaultLimit) ? 'selected="selected"' : ''?>><?=$this->escapeHtml($limitVal)?></option>
       <? endforeach; ?>
     </select>
-  </fieldset>
+  </div>
 <? endif; ?>
