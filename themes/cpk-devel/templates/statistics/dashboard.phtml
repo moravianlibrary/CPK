@@ -3,14 +3,15 @@
     $this->headTitle($this->translate('Statistics'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->translate('Your Account').'</a></li>' 
+    $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> '.
+    '<li><a href="'.$this->url('myresearch-home').'">'.$this->translate('Your Account').'</a></li>' 
     							  .'<li class="active">' . $this->translate('Statistics') . '</li>';
     
     echo $this->render('statistics/menu.phtml');
     
     echo $this->render('statistics/calendar.phtml');
 ?>
-
+<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row">
 	<div class="<?=$this->layoutClass('mainbody')?>">
 	
