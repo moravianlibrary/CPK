@@ -213,13 +213,7 @@ class RecordController extends RecordControllerBase
         if ($hasControlfield002 === false) { // there is no controlfield 002
             $afterTag = '</leader>';
             $pos = strpos($recordXml, $afterTag);
-            $formats = $recordDriver->getFormats();
-            $formatMappings = $this->getConfig('facets')->FormatMappings;
-            $format = $formatMappings[preg_replace(
-                "/[^a-zA-Z]/",
-                "",
-                $formats[0]
-            )];
+            $format = $parentRecordDriver->getCitationRecordType();
             $newElement = "\n  <controlfield tag=\"002\">"
                 .$format
                 ."</controlfield>";
