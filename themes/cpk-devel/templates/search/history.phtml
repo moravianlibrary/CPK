@@ -8,7 +8,7 @@
 
   $saveSupported = $this->accountCapabilities()->getSavedSearchSetting() === 'enabled';
 ?>
-
+<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row">
   <? if ($this->auth()->isLoggedIn()): ?>
     <div class="<?=$this->layoutClass('mainbody')?>">

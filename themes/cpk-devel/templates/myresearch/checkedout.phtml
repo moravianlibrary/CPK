@@ -3,7 +3,8 @@
     $this->headTitle($this->translate('Checked Out Items'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> <span class="divider">&gt;</span></li>'
+    $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> '.
+    '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a> <span class="divider">&gt;</span></li>'
         . '<li class="active">' . $this->transEsc('Checked Out Items') . '</li>';
 
     $isSynchronous = $this->isSynchronous;
@@ -14,7 +15,7 @@
     // We will hide the renewal form if we have asynchronous mode ..
     $formAttributes = $isSynchronous ? '' : 'hidden="hidden"';
 ?>
-
+<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="<?=$this->layoutClass('mainbody')?>">
 
 

@@ -3,7 +3,8 @@
     $this->headTitle($this->translate('Fines and Charges'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a>' . '</li>'
+    $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> '.
+    '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a>' . '</li>'
         . '<li class="active">' . $this->transEsc('Fines') . '</li>';
 
     $isSynchronous = $this->isSynchronous;
@@ -11,6 +12,7 @@
     if (! $isSynchronous)
         $this->headScript()->appendFile("async-fines.js");
 ?>
+<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row">
 <div class="<?=$this->layoutClass('mainbody')?>">
   <h2><?=$this->transEsc('Your Fines')?></h2>
