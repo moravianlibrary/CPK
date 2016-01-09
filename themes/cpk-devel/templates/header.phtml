@@ -35,24 +35,12 @@
 				href="<?=$this->url('cart-home')?>"><i class="fa fa-suitcase"></i> <strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
 			</li>
         <? endif; ?>
+        
+        <? if ($notificationsEnabled): ?>
+          <?=$this->render('notifications.phtml', [ 'user' => $user, 'libraryCards' => $libraryCards])?>
+        <? endif; ?>
+        
         <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
-			<? if($user): ?>
-			<li id="logoutOptions">
-              <a href="<?=$this->url('myresearch-logout')?>"
-                class="modal-link" title="<?=$this->transEsc("Log Out")?>">
-                <i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
-			<? else: ?> 
-			<li id="loginOptions">
-              <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
-                <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i
-				  class="icon-prihlasit"></i> <?=$this->transEsc("Institutional Login")?></a>
-              <? else: ?>
-                <a href="<?=$this->url('myresearch-userlogin')?>"
-                  class="modal-link" title="<?=$this->transEsc("Login")?>"><i
-                  class="icon-prihlasit"></i> <?=$this->transEsc("Login")?></a>
-              <? endif; ?>
-            <? endif; ?>
-            </li>
 		  <? if($user): ?>
             <li class="dropdown">
             <? if (!empty($user->firstname) || !empty($user->lastname)) {
@@ -118,9 +106,26 @@
             </ul>
 			</li>
         <? endif; ?>
-        <? if ($notificationsEnabled): ?>
-          <?=$this->render('notifications.phtml', [ 'user' => $user, 'libraryCards' => $libraryCards])?>
-        <? endif; ?>
+        
+        <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
+        <? if($user): ?>
+			<li id="logoutOptions">
+              <a href="<?=$this->url('myresearch-logout')?>"
+                class="modal-link" title="<?=$this->transEsc("Log Out")?>">
+                <i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
+			<? else: ?> 
+			<li id="loginOptions">
+              <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
+                <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i
+				  class="icon-prihlasit"></i> <?=$this->transEsc("Institutional Login")?></a>
+              <? else: ?>
+                <a href="<?=$this->url('myresearch-userlogin')?>"
+                  class="modal-link" title="<?=$this->transEsc("Login")?>"><i
+                  class="icon-prihlasit"></i> <?=$this->transEsc("Login")?></a>
+              <? endif; ?>
+            <? endif; ?>
+            </li>
+		<? endif; ?>
       </ul>
 	</nav>
 </div>
