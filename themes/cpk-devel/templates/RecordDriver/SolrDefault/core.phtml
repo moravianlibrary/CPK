@@ -22,7 +22,7 @@
                     <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
                 <? endif; ?>
                 <script type="text/javascript">
-                    obalky.display_cover("#cover", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert("record"))?>);
+                    obalky.display_cover_without_links("#cover", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert("record"))?>);
                 </script>
                 <? /* Display qrcode if appropriate: */ ?>
               <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
