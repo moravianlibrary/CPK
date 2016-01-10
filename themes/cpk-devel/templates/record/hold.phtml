@@ -11,25 +11,38 @@
 <? if ($this->helpText): ?>
 <p class="helptext"><?=$this->helpText?></p>
 <? endif; ?>
-
 <?=$this->flashmessages()?>
 <div class="hold-form">
   <form class="form-horizontal" method="post" name="placeHold">
+      <div class="form-group">
+        <label class="col-sm-3 control-label"><?=$this->translate('Subject')?>: </label>
+        <div class="col-sm-9">
+           <input disabled type='text' class='form-control' value='<?=$this->driver->getTitle()?>'>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="col-sm-3 control-label"><?=$this->translate('Institution')?>: </label>
+        <div class="col-sm-9">
+           <input disabled type='text' class='form-control' value=''>
+        </div>
+      </div>
+  
+    <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
+      <div class="form-group">
+        <label class="col-sm-3 control-label"><?=$this->transEsc("hold_required_by")?>: *</label>
+        <div class="col-sm-9">
+          <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
+          (<?=$this->dateTime()->getDisplayDateFormat()?>)
+        </div>
+      </div>
+    <? endif; ?>
+    
     <? if (in_array("comments", $this->extraHoldFields)): ?>
       <div class="form-group">
         <label class="col-sm-3 control-label"><?=$this->transEsc("Note")?>:</label>
         <div class="col-sm-9">
           <textarea rows="3" cols="20" name="gatheredDetails[comment]" class="form-control"><?=isset($this->gatheredDetails['comment']) ? $this->escapeHtml($this->gatheredDetails['comment']) : ''?></textarea>
-        </div>
-      </div>
-    <? endif; ?>
-
-    <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
-      <div class="form-group">
-        <label class="col-sm-3 control-label"><?=$this->transEsc("hold_required_by")?>:</label>
-        <div class="col-sm-9">
-          <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
-          (<?=$this->dateTime()->getDisplayDateFormat()?>)
         </div>
       </div>
     <? endif; ?>
