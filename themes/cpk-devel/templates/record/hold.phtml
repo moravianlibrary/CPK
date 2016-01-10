@@ -6,6 +6,9 @@
     $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '</li> ')
         . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> '
         . '<li class="active">' . $this->transEsc('request_place_text') . '</li>';
+    
+    $id = $this->driver->getUniqueID();
+    $source = explode(".", $id)[0];
 ?>
 <h2><?=$this->transEsc('request_place_text')?></h2>
 <? if ($this->helpText): ?>
@@ -24,14 +27,14 @@
       <div class="form-group">
         <label class="col-sm-3 control-label"><?=$this->translate('Institution')?>: </label>
         <div class="col-sm-9">
-           <input disabled type='text' class='form-control' value=''>
+           <input disabled type='text' class='form-control' value='<?= (! empty($source)) ? $this->translate('source_'.$source) : ''?> <?= isset($this->pickup[0]['locationDisplay']) ? ', '.$this->pickup[0]['locationDisplay'] : ''?>'>
         </div>
       </div>
   
     <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
       <div class="form-group">
         <label class="col-sm-3 control-label"><?=$this->transEsc("hold_required_by")?>: *</label>
-        <div class="col-sm-9">
+        <div class="col-sm-2">
           <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
           (<?=$this->dateTime()->getDisplayDateFormat()?>)
         </div>
