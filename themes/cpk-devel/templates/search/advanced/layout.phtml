@@ -68,20 +68,29 @@
         <input type="hidden" name="sort" value="relevance">
         <div class="clearfix">
           <div class='row'>
-              <h2 class="col-sm-9 pull-left flip"><?=$this->transEsc('Find')?></h2>
-              <h2 class="col-sm-3 pull-right flip"><?=$this->transEsc('Help')?></h2>
+          	<div class='col-sm-9 pull-left'>
+          	  <div class='row'>
+          	    <div class='col-sm-6 pull-left'>
+                  <h2 class="flip"><?=$this->transEsc('Find')?></h2>
+                </div>
+                <div class='col-sm-6 pull-right'>
+                  <div id="groupJoin" class="form-inline pull-right flip">
+                    <label for="groupJoinOptions"><?=$this->transEsc("search_match")?>:</label>
+                    <select id="groupJoinOptions" name="join" class="form-control">
+                      <option value="AND"<? if($searchDetails && $searchDetails->getOperator()=='ALL'):?> selected<?endif?>><?= $this->transEsc('group_AND') ?></option>
+                      <option value="OR"<? if($searchDetails && $searchDetails->getOperator()=='OR'):?> selected<?endif?>><?= $this->transEsc('group_OR') ?></option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class='col-sm-3 pull-right'>
+              <h2 class="flip"><?=$this->transEsc('Help')?></h2>
+            </div>
           </div>
-          
         </div>
         <div class='row'>
             <div class='col-sm-9 pull-left'>
-                <div id="groupJoin" class="form-inline pull-right flip">
-                  <label for="groupJoinOptions"><?=$this->transEsc("search_match")?>:</label>
-                  <select id="groupJoinOptions" name="join" class="form-control">
-                    <option value="AND"<? if($searchDetails && $searchDetails->getOperator()=='ALL'):?> selected<?endif?>><?= $this->transEsc('group_AND') ?></option>
-                    <option value="OR"<? if($searchDetails && $searchDetails->getOperator()=='OR'):?> selected<?endif?>><?= $this->transEsc('group_OR') ?></option>
-                  </select>
-                </div>
                 <? /* An empty div. This is the target for the javascript that builds this screen */ ?>
                 <span id="groupPlaceHolder" class="hidden">
                   <a href="#" onClick="addGroup()"><i class="fa fa-plus-circle"></i> <?= $this->transEsc('add_search_group') ?></a>
@@ -93,7 +102,7 @@
                     <?=$this->formOverride ?>
                   <? else: ?>
           
-                	  <? for($group=0 ; $group<1 || $group<=$setGroupCount ; $group++): ?>
+                	  <? for ($group=0; (($group<1) || ($group<=$setGroupCount)); $group++): ?>
                 
                       <? if($group == 0): ?>
                         <div id="new_group_template">
@@ -110,9 +119,10 @@
                                 <option value="OR"<? if(isset($setSearchGroups[$group]) && 'OR' == $setSearchGroups[$group]):?> selected<?endif;?>><?=$this->transEsc("search_OR")?></option>
                                 <option value="NOT"<? if(isset($setSearchGroups[$group]) && 'NOT' == $setSearchGroups[$group]):?> selected<?endif;?>><?=$this->transEsc("search_NOT")?></option>
                               </select>
+                              
                             </div>
                             <div class="col-sm-10">
-                              <? for($search=0 ; $search<1 || (isset($setQueries[$group]) && $search<count($setQueries[$group])) ; $search++): ?>
+                              <? for($search=0; (($search<1) || (isset($setQueries[$group]) && ($search<count($setQueries[$group])))); $search++): ?>
                                 <? if($group == 0 && $search == 0): ?>
                                   <div id="new_search_template">
                                 <? endif; ?>
