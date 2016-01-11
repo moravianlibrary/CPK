@@ -4,14 +4,15 @@
   $this->headTitle($this->translate($pageTitle));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> '.
+  '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'
     . '<li><a href="' . $this->url('librarycards-home') . '">' . $this->transEsc('Library Cards') . '</a></li>'
     . '<li>' . $this->transEsc($pageTitle) . '</li>';
 
 ?>
 
 <?=$this->flashmessages()?>
-
+<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <h2><?=$this->transEsc($pageTitle); ?></h2>
 
 <form class="form-horizontal edit-card-form" method="post" name="editCardForm">

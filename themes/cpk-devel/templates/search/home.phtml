@@ -17,7 +17,6 @@
 
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ';
 ?>
-<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="searchHomeContent">
   <? if ($this->ils()->getOfflineMode() == "ils-offline"): ?>
     <div class="alert alert-warning">
