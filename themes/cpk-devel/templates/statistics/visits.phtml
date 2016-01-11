@@ -3,7 +3,8 @@
     $this->headTitle($this->translate('Statistics'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="'.$this->url('myresearch-home').'">'.$this->translate('Your Account').'</a></li>' 
+    $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> '/
+    '<li><a href="'.$this->url('myresearch-home').'">'.$this->translate('Your Account').'</a></li>' 
     							  .'<li><a href="'.$this->url('statistics-dashboard').'">' . $this->translate('Statistics') . '</a></li>'
     							  .'<li class="active">' . $this->translate('Visits') . '</li>';
     
