@@ -21,7 +21,7 @@ email           = vufind@mzk.cz
 theme		= cpk-devel-green
 defaultCurrency	= CZK
 browserDetectLanguage = false
-defaultLoggedInModule = CheckedOut
+defaultAccountPage = CheckedOut
 
 notificationsEnabled = true
 
