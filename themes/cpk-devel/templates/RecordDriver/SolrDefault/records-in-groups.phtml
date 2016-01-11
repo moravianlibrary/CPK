@@ -14,11 +14,13 @@
 	<? if (count($dedupedRecords) !== 1) :?>
 	<div class="dropdown">
 		<div class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' style='width: 100%;' id='records-in-groups-nav'>
+		<h3 style="margin-top: 5px; margin-bottom: 5px; padding: 0px 0px 20px 0px">
 	<? else : ?>
 	<div>
 		<div class='single-institution' style='width: 100%;'>
+		<h3 style="margin-top: 5px; margin-bottom: 5px; padding: 10px 10px 30px 10px;">
 	<? endif;?>
-			<h3 style="margin-top: 5px; margin-bottom: 5px;">
+			
 			<? if ($logoUrl) : ?>
 				<img class='hidden-xs' height='20' src='<?=$logoUrl?>' align='right'>
 			<? endif;?>
