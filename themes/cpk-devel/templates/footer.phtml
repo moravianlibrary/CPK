@@ -9,7 +9,7 @@
           $redirectUrl = $_SERVER['REDIRECT_URL'];
           $redirectUrlArray = explode("/", $redirectUrl);
           $controller = $redirectUrlArray[1];
-          $action = $redirectUrlArray[2];
+          $action = (isset($redirectUrlArray[2])) ? $redirectUrlArray[2] : '';
       
       ?>
           <? if (($controller == 'Search') && ($action == 'Results')) : ?>
