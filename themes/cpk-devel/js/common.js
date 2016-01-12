@@ -457,4 +457,8 @@ $(document).ready(function() {
     language: "cs"
   });
   
+  $(window).on("scroll touchmove", function () {
+	    $('.top-header').toggleClass('hidden', $(document).scrollTop() <= 50);
+	});
+
 });

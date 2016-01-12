@@ -204,6 +204,11 @@
         $this->layout()->searchbox = $this->render('search/searchbox.phtml');
       }
     ?>
+    <div class="container navbar navbar-inverse tiny top-header navbar-fixed-top hidden">
+        <div class="red-box">
+            <?=$this->render('header.phtml', $headerParams)?>
+        </div>
+    </div>
     <header class="hidden-print">
 		<div class="container navbar navbar-inverse">
 			<div class="red-box">
