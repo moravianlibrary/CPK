@@ -32,6 +32,7 @@ header{
 .navbar{
   margin-bottom: 0px;
   border: none;
+  transition: width 500ms, background 500ms;
 }
 .navbar-brand {
   margin-top: 8px;
@@ -54,13 +55,13 @@ header{
   padding-bottom: 13px;
 }
 
-.tiny {
-  //font-size: 10px;
-  position: fixed;
-  right: 0px;
-  left: 0px;
-  z-index: 1030;
-  transition: height 500ms, background 500ms;
+.full-width.navbar {
+  width:100%;
+  padding:0px;
+}
+
+.top-header {
+  
   > .navbar {
     width: 100%;
     padding: 0px;
@@ -88,5 +89,7 @@ header{
     padding-top: 13px;
 	padding-bottom: 12px;
   }
+
 }
+
 

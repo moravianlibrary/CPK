@@ -458,7 +458,9 @@ $(document).ready(function() {
   });
   
   $(window).on("scroll touchmove", function () {
-	    $('.top-header').toggleClass('hidden', $(document).scrollTop() <= 50);
-	});
+//	    $('.top-header').toggleClass('hidden', $(document).scrollTop() <= 50).toggleClass('tiny', $(document).scrollTop() > 50);
+	    $('.top-header').toggleClass('full-width', $(document).scrollTop() > 88);
+	
+  });
 
 });
