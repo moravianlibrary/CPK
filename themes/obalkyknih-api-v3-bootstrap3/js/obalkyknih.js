@@ -112,17 +112,20 @@ obalky.display_cover_without_links = function (element, bibinfo, query) {
 	    img.onload = function() {
 	      if (obalky.imageIsLoaded(img)) {
 	        var href = obalky.coverTargetUrl(bibinfo);
-	        $(element).html("<div class='cover_thumbnail'><img align='left' src='" + img.src + "' alt='" + obalky.coverText + "'></img></div><div class='obalky-knih-logo'><a href='" + href + "' class='title'><img src='https://obalkyknih.cz/skin/img/logo_obalkyknih.cz.png' alt='Obálky knih' width='170'  align='left'></a></div>");
+	        $(element).html("<div class='cover_thumbnail'><img align='left' src='" + img.src + "' alt='" + obalky.coverText + "'></img></div>");	  	  
 	      }
 	    }
 	    img.src = obalky.coverUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
 	  });
+	  
 	  $(document).ready(function() {
 	    var img = new Image();
 	    img.onload = function() {
 	      if (obalky.imageIsLoaded(img)) {
 	        var href = obalky.pdfTargetUrl(bibinfo);
-	        $(element).append("<div class='toc_thumbnail'><a href='" + href + "' class='title'><img align='left' src='" + img.src + "' alt='" + obalky.tocText + "'></img></a></div>");
+	        var obalkaHref = obalky.coverTargetUrl(bibinfo);
+	        $(element).append("<div class='toc_thumbnail'><a href='" + href + "' class='title'><img align='left' src='" + img.src + "' alt='" + obalky.tocText + "'></img></a></div>"+
+	        "<div align='left' style='padding-left: 0px; width:170px; text-align:center;' class='obalky-knih-link'>"+VuFind.translate('Source')+": <a href='"+ obalkaHref +"' class='title' target='_blank'>Obálky knih</a></div>");
 	      }
 	    }
 	    img.src = obalky.tocUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
