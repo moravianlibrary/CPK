@@ -68,8 +68,8 @@
             <?=$this->transEsc('Send results')?>
             </a>
             <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
-              |
               <? if (is_numeric($this->results->getSearchId())): ?>
+              |
                 <? if ($this->results->isSavedSearch()): ?>
                   <i class="fa fa-minus-square"></i> <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><?=$this->transEsc('save_search_remove')?></a>
                 <? else: ?>
