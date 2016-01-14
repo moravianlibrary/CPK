@@ -152,3 +152,9 @@
 .icon-poslat-emailem:before {
 	content: "\e62a";
 }
+.link {
+	color: #2196f3 !important;
+}
+.link:hover {
+    text-decoration: underline !important;
+}
