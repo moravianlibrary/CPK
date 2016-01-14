@@ -49,8 +49,10 @@
 	
 	// Institutes in filters will be on top of the list
 	$institutionsMappings = [];
-	foreach ($this->institutionsMappings as $key => $value) {
-	    $institutionsMappings[md5($value)] = $key;
+	if ($this->institutionsMappings) {
+    	foreach ($this->institutionsMappings as $key => $value) {
+    	    $institutionsMappings[md5($value)] = $key;
+    	}
 	}
 	
 	foreach ($institutionsInFilters as $institution) {
