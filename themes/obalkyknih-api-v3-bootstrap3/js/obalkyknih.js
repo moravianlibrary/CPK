@@ -121,11 +121,13 @@ obalky.display_cover_without_links = function (element, bibinfo, query) {
 	  $(document).ready(function() {
 	    var img = new Image();
 	    img.onload = function() {
+	    var obalkaHref = obalky.coverTargetUrl(bibinfo);
 	      if (obalky.imageIsLoaded(img)) {
 	        var href = obalky.pdfTargetUrl(bibinfo);
-	        var obalkaHref = obalky.coverTargetUrl(bibinfo);
 	        $(element).append("<div class='toc_thumbnail'><a href='" + href + "' class='title'><img align='left' src='" + img.src + "' alt='" + obalky.tocText + "'></img></a></div>"+
 	        "<div align='left' style='padding-left: 0px; width:170px; text-align:center;' class='obalky-knih-link'>"+VuFind.translate('Source')+": <a href='"+ obalkaHref +"' class='title' target='_blank'>Obálky knih</a></div>");
+	      } else {
+	    	  $(element).append("<div align='left' style='padding-left: 0px; width:170px; text-align:center;' class='obalky-knih-link'>"+VuFind.translate('Source')+": <a href='"+ obalkaHref +"' class='title' target='_blank'>Obálky knih</a></div>");
 	      }
 	    }
 	    img.src = obalky.tocUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
