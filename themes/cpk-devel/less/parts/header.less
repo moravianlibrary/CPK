@@ -8,6 +8,12 @@
   background-color: #666;
   color: white;
   padding: 4px;
+
+  //cookies are shown on bottom of browser window to avoid collision with header
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  z-index: 1030;
   & > a {
     color: white;
     text-decoration: underline;
@@ -61,7 +67,7 @@ header{
 }
 
 .top-header {
-  
+
   > .navbar {
     width: 100%;
     padding: 0px;
@@ -91,5 +97,3 @@ header{
   }
 
 }
-
-
