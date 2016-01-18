@@ -22,7 +22,7 @@
             	
                     <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
                         <script type="text/javascript">
-                            obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                            obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
                         </script>
                     <? endif;?>
                     <? if (! empty($formats)): ?>
