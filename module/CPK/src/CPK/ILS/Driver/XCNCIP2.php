@@ -1057,6 +1057,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $mediumType = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
+            if ($this->agency === 'TAG001') { // add item prefix for vkta
+                $item_id = '317100' . $item_id;
+            }
+
             $dateDue = date('j. n. Y', $parsedDate);
 
             $retVal[] = array(
@@ -1175,6 +1179,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (empty($title)) $title = $this->useXPath($current, 'Ext/BibliographicDescription/Title');
 
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
+            if ($this->agency === 'LIA001') { // change record prefix for kvkl
+                $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
+            }
             $parsedDate = empty($create) ? '' : strtotime($create[0]);
             $create = date('j. n. Y', $parsedDate);
             $parsedDate = empty($expire) ? '' : strtotime($expire[0]);
