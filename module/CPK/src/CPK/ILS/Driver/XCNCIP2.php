@@ -1174,6 +1174,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'Ext/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
             if (empty($title)) $title = $this->useXPath($current, 'Ext/BibliographicDescription/Title');
 
+            // Deal with Liberec.
+            if (empty($position)) $position = $this->useXPath($current,
+                    'Ext/HoldQueueLength');
+
+            if (! empty($position)) if ((string) $position[0] === '0') $position = null; // hide queue position
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
             if ($this->agency === 'LIA001') { // change record prefix for kvkl
                 $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
@@ -1193,7 +1198,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'reqnum' => empty($reqnum) ? '' : (string) $reqnum[0],
                 'expire' => empty($expire) ? '' : $expire,
                 'create' => empty($create) ? '' : $create,
-                'position' => empty($position) ? '' : (string) $position[0],
+                'position' => empty($position) ? null : (string) $position[0],
                 'available' => false, // true means item is ready for check out
                 'item_id' => empty($item_id) ? '' : (string) $item_id[0],
                 'barcode' => empty($item_id) ? '' : (string) $item_id[0],
