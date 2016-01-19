@@ -748,7 +748,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'label' => $label,
                 'holdOverride' => "",
                 'addStorageRetrievalRequestLink' => "",
-                'addILLRequestLink' => ""
+                'addILLRequestLink' => "",
+                'addLink' => true // TODO
             );
         }
     }

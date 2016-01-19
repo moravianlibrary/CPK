@@ -145,14 +145,14 @@ class NCIPRequests {
             $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
             "</ns1:NextItemToken>";
         }
-        
+
         // Append the Ext element containing the UserId
         if (! empty($patron)) {
             $body .= '<ns1:Ext>';
             $body .= $this->patronInformation($patron);
             $body .= '</ns1:Ext>';
         }
-        
+
         $body .= "</ns1:LookupItemSet>";
         return $this->header() . $body . $this->footer();
     }
@@ -174,14 +174,14 @@ class NCIPRequests {
             $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
             "</ns1:NextItemToken>";
         }
-        
+
         // Append the Ext element containing the UserId
         if (! empty($patron)) {
             $body .= '<ns1:Ext>';
             $body .= $this->patronInformation($patron);
             $body .= '</ns1:Ext>';
         }
-        
+
         $body .= "</ns1:LookupItemSet>";
         return $this->header() . $body . $this->footer();
     }
@@ -289,7 +289,7 @@ class NCIPRequests {
     /* Allowed values are: Accession Number, Barcode. */
     protected function insertItemIdentifierType() {
         $itemIdentifierType = "Accession Number";
-        // TODO if (library.equals("Liberec")) itemIdentifierType = "Barcode";
+        if ($this->sigla == "LIA001") $itemIdentifierType = "Barcode";
         return ($this->noScheme ?
                 "<ns1:ItemIdentifierType>" :
                 "<ns1:ItemIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
