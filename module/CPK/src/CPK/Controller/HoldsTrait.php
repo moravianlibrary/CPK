@@ -199,6 +199,9 @@ trait HoldsTrait
              ! empty($requestGroups) && (empty($gatheredDetails['level']) ||
              $gatheredDetails['level'] != 'copy');
 
+        if (! empty($pickup))
+            $extraHoldFields[] = 'pickUpLocation';
+
         $view = $this->createViewModel(
             [
                 'gatheredDetails' => $gatheredDetails,

@@ -6,7 +6,7 @@
     $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '</li> ')
         . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> '
         . '<li class="active">' . $this->transEsc('request_place_text') . '</li>';
-    
+
     $id = $this->driver->getUniqueID();
     $source = explode(".", $id)[0];
 ?>
@@ -23,14 +23,14 @@
            <input disabled type='text' class='form-control' value='<?=$this->driver->getTitle()?>'>
         </div>
       </div>
-      
+
       <div class="form-group">
         <label class="col-sm-3 control-label"><?=$this->translate('Institution')?>: </label>
         <div class="col-sm-9">
            <input disabled type='text' class='form-control' value='<?= (! empty($source)) ? $this->translate('source_'.$source) : ''?> <?= isset($this->pickup[0]['locationDisplay']) ? ', '.$this->pickup[0]['locationDisplay'] : ''?>'>
         </div>
       </div>
-  
+
     <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
       <div class="form-group">
         <label class="col-sm-3 control-label"><?=$this->transEsc("hold_required_by")?>: *</label>
@@ -40,7 +40,7 @@
         </div>
       </div>
     <? endif; ?>
-    
+
     <? if (in_array("comments", $this->extraHoldFields)): ?>
       <div class="form-group">
         <label class="col-sm-3 control-label"><?=$this->transEsc("Note")?>:</label>
@@ -124,7 +124,21 @@
               </option>
             <? endforeach; ?>
             </select>
+            <div id="pickUpLocation" class="hidden">
+              <? foreach ($this->pickup as $lib): ?>
+                <div id="<?=$this->escapeHtmlAttr($lib['locationID'])?>">
+                  <div id="address"><?=$this->escapeHtml($lib['locationAddress'])?></div>
+                  <div id="opening"><?=$this->escapeHtml($lib['openingHours'])?></div>
           </div>
+              <? endforeach; ?>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_address")?>:</label>
+          <div id="showaddress" class="col-sm-3"></div>
+          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_opening")?>:</label>
+          <div id="showopening" class="col-sm-3"></div>
         </div>
       <? else: ?>
         <input type="hidden" name="gatheredDetails[pickUpLocation]" value="<?=$this->escapeHtmlAttr($this->defaultPickup)?>" />
@@ -150,6 +164,16 @@
                 setUpHoldRequestForm("{$this->escapeHtml($this->driver->getUniqueId())}");
             });
         }
+JS;
+
+    echo $this->inlineScript()->appendScript($js);
+
+    $js = <<<JS
+        $( '#pickUpLocation' ).change(function () {
+          var id = $(this).val();
+          $('div#showaddress').text( $( '#' + id + ' div#address' ).text() );
+          $('div#showopening').text( $( '#' + id + ' div#opening' ).text() );
+        }).change();
 JS;
 
     echo $this->inlineScript()->appendScript($js);
