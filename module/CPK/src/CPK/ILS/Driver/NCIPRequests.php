@@ -122,8 +122,8 @@ class NCIPRequests {
         $this->insertInitiationHeader($patron['agency']) .
         $this->insertUserIdTag($patron) .
         $this->insertItemIdTag($itemId, $patron['agency']) .
-        $this->allItemElementType() .
-        $this->allUserElementType() .
+        //$this->allItemElementType() .
+        //$this->allUserElementType() .
         "</ns1:RenewItem>";
         return $this->header() . $body . $this->footer();
     }

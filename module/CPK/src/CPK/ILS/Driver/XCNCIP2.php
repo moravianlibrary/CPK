@@ -236,7 +236,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $message = 'Problem recieved in XCNCIP2 Driver. Content:' .
                  str_replace('\n', '<br/>', $problem);
 
-            $this->addEnviromentalException($message);
+            //$this->addEnviromentalException($message); TODO must be moved to particular method
 
             throw new ILSException($message);
         }
@@ -362,16 +362,23 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
         $result = array();
         foreach ($renewDetails['details'] as $item) {
-            $request = $this->requests->renewItem($patron, $item);
-            $response = $this->sendRequest($request);
-            $date = $this->useXPath($response, 'RenewItemResponse/DateForReturn');
-            $result[$item] = array(
-                'success' => true,
-                'new_date' => (string) $date[0],
-                'new_time' => (string) $date[0], // used the same like previous
-                'item_id' => $item,
-                'sysMessage' => ''
-            );
+            try {
+                $request = $this->requests->renewItem($patron, $item);
+                $response = $this->sendRequest($request);
+                $date = $this->useXPath($response, 'RenewItemResponse/DateForReturn');
+                $result[$item] = array(
+                    'success' => true,
+                    'new_date' => (string) $date[0],
+                    'new_time' => (string) $date[0], // used the same like previous
+                    'item_id' => $item,
+                    'sysMessage' => ''
+                );
+            } catch (ILSException $e) {
+                $result[$item] = array(
+                    'success' => false,
+                    'sysMessage' => 'renew_fail'
+                );
+            }
         }
         return array(
             'blocks' => false,
