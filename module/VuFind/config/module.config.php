@@ -164,6 +164,7 @@ $config = [
             'VuFind\ProxyConfig' => 'VuFind\Service\Factory::getProxyConfig',
             'VuFind\Recaptcha' => 'VuFind\Service\Factory::getRecaptcha',
             'VuFind\RecommendPluginManager' => 'VuFind\Service\Factory::getRecommendPluginManager',
+            'VuFind\RecordCache' => 'VuFind\Service\Factory::getRecordCache',
             'VuFind\RecordDriverPluginManager' => 'VuFind\Service\Factory::getRecordDriverPluginManager',
             'VuFind\RecordLoader' => 'VuFind\Service\Factory::getRecordLoader',
             'VuFind\RecordRouter' => 'VuFind\Service\Factory::getRecordRouter',
@@ -179,6 +180,7 @@ $config = [
             'VuFind\SearchRunner' => 'VuFind\Service\Factory::getSearchRunner',
             'VuFind\SearchSpecsReader' => 'VuFind\Service\Factory::getSearchSpecsReader',
             'VuFind\SearchStats' => 'VuFind\Service\Factory::getSearchStats',
+            'VuFind\SearchTabsHelper' => 'VuFind\Service\Factory::getSearchTabsHelper',
             'VuFind\SessionManager' => 'VuFind\Service\Factory::getSessionManager',
             'VuFind\SessionPluginManager' => 'VuFind\Service\Factory::getSessionPluginManager',
             'VuFind\SMS' => 'VuFind\SMS\Factory',
@@ -227,6 +229,7 @@ $config = [
         'pgsql_seq_mapping'  => [
             'comments'       => ['id', 'comments_id_seq'],
             'oai_resumption' => ['id', 'oai_resumption_id_seq'],
+            'record'         => ['id', 'record_id_seq'],
             'resource'       => ['id', 'resource_id_seq'],
             'resource_tags'  => ['id', 'resource_tags_id_seq'],
             'search'         => ['id', 'search_id_seq'],
@@ -234,7 +237,7 @@ $config = [
             'tags'           => ['id', 'tags_id_seq'],
             'user'           => ['id', 'user_id_seq'],
             'user_list'      => ['id', 'user_list_id_seq'],
-            'user_resource'  => ['id', 'user_resource_id_seq']
+            'user_resource'  => ['id', 'user_resource_id_seq'],
         ],
         // This section contains service manager configurations for all VuFind
         // pluggable components:
@@ -342,6 +345,7 @@ $config = [
                     'changetracker' => 'VuFind\Db\Table\ChangeTracker',
                     'comments' => 'VuFind\Db\Table\Comments',
                     'oairesumption' => 'VuFind\Db\Table\OaiResumption',
+                    'record' => 'VuFind\Db\Table\Record',
                     'resourcetags' => 'VuFind\Db\Table\ResourceTags',
                     'search' => 'VuFind\Db\Table\Search',
                     'session' => 'VuFind\Db\Table\Session',
@@ -450,6 +454,7 @@ $config = [
                     'summondatabasesdeferred' => 'VuFind\Recommend\SummonDatabasesDeferred',
                     'summonresultsdeferred' => 'VuFind\Recommend\SummonResultsDeferred',
                     'switchtype' => 'VuFind\Recommend\SwitchType',
+                    'worldcatterms' => 'VuFind\Recommend\Deprecated',
                 ],
             ],
             'recorddriver' => [
@@ -502,10 +507,12 @@ $config = [
             'related' => [
                 'abstract_factories' => ['VuFind\Related\PluginFactory'],
                 'factories' => [
-                    'editions' => 'VuFind\Related\Factory::getEditions',
                     'similar' => 'VuFind\Related\Factory::getSimilar',
-                    'worldcateditions' => 'VuFind\Related\Factory::getWorldCatEditions',
                     'worldcatsimilar' => 'VuFind\Related\Factory::getWorldCatSimilar',
+                ],
+                'invokables' => [
+                    'editions' => 'VuFind\Related\Deprecated',
+                    'worldcateditions' => 'VuFind\Related\Deprecated',
                 ],
             ],
             'resolver_driver' => [
@@ -725,7 +732,10 @@ $recordRoutes = [
     'primorecord' => 'PrimoRecord',
     'solrauthrecord' => 'Authority',
     'summonrecord' => 'SummonRecord',
-    'worldcatrecord' => 'WorldcatRecord'
+    'worldcatrecord' => 'WorldcatRecord',
+
+    // For legacy (1.x/2.x) compatibility:
+    'vufindrecord' => 'Record',
 ];
 
 // Define dynamic routes -- controller => [route name => action]

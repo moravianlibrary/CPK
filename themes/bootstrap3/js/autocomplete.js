@@ -1,6 +1,6 @@
 /*global console*/
 /**
- * vufind.typeahead.js 0.8
+ * vufind.typeahead.js 0.10
  * ~ @crhallberg
  */
 (function ( $ ) {
@@ -11,16 +11,13 @@
     var options = $.extend( {}, $.fn.autocomplete.options, settings );
 
     function align(input, element) {
-      var offset = input[0].getBoundingClientRect();
-      var scrollTop = document.documentElement
-        ? document.documentElement.scrollTop
-        : document.body.scrollTop;
+      var position = input.offset();
       element.css({
         position: 'absolute',
-        top: offset.top + offset.height + scrollTop,
-        left: offset.left,
-        minWidth: offset.width,
-        maxWidth: input.closest('form').width(),
+        top: position.top + input.outerHeight(),
+        left: position.left,
+        minWidth: input.width(),
+        maxWidth: Math.max(input.width(), input.closest('form').width()),
         zIndex: 50
       });
     }
@@ -116,10 +113,7 @@
           .addClass('autocomplete-results hidden')
           .html('<i class="item loading">'+options.loadingString+'</i>');
         align(input, element);
-        $('body').append(element);
-        $(window).resize(function() {
-          align(input, element);
-        });
+        $(document.body).append(element);
       }
 
       input.data('selected', -1);
@@ -182,7 +176,7 @@
         var position = $(this).data('selected');
         switch (event.which) {
           // arrow keys through items
-          case 38: {
+          case 38:
             event.preventDefault();
             element.find('.item.selected').removeClass('selected');
             if (position > 0) {
@@ -193,8 +187,7 @@
               $(this).data('selected', -1);
             }
             break;
-          }
-          case 40: {
+          case 40:
             event.preventDefault();
             if ($.fn.autocomplete.element.hasClass(options.hidingClass)) {
               search(input, element);
@@ -205,10 +198,9 @@
               $(this).data('selected', position);
             }
             break;
-          }
           // enter to nav or populate
           case 9:
-          case 13: {
+          case 13:
             var selected = element.find('.item.selected');
             if (selected.length > 0) {
               event.preventDefault();
@@ -221,13 +213,11 @@
               }
             }
             break;
-          }
           // hide on escape
-          case 27: {
+          case 27:
             hide();
             $(this).data('selected', -1);
             break;
-          }
         }
       });
 
@@ -239,6 +229,8 @@
       ) {
         return input;
       }
+
+      window.addEventListener("resize", hide, false);
 
       return element;
     }

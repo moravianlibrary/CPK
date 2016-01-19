@@ -5,6 +5,8 @@ ChangeLog
 .\#*
 TAGS
 *~
+vendor
+composer.lock
 import/solrmarc.log
 vendor/.git
 .project

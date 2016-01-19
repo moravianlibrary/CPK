@@ -416,6 +416,7 @@ class AjaxController extends AbstractBase
                 && $info['use_unknown_message'] == true
             ) {
                 $use_unknown_status = true;
+                $locations[$info['location']]['status_unknown'] = true;
             }
             // Store call number/location info:
             $locations[$info['location']]['callnumbers'][] = $info['callnumber'];
@@ -437,7 +438,9 @@ class AjaxController extends AbstractBase
                     ENT_COMPAT, 'UTF-8'
                 ),
                 'callnumbers' =>
-                    htmlentities($locationCallnumbers, ENT_COMPAT, 'UTF-8')
+                    htmlentities($locationCallnumbers, ENT_COMPAT, 'UTF-8'),
+                'status_unknown' => isset($details['status_unknown'])
+                    ? $details['status_unknown'] : false
             ];
             $locationList[] = $locationInfo;
         }
@@ -776,7 +779,7 @@ class AjaxController extends AbstractBase
         $params = $results->getParams();
         $params->initFromRequest($this->getRequest()->getQuery());
         foreach ($this->params()->fromQuery('hf', []) as $hf) {
-            $params->getOptions()->addHiddenFilter($hf);
+            $params->addHiddenFilter($hf);
         }
         $params->getOptions()->disableHighlighting();
         $params->getOptions()->spellcheckEnabled(false);
