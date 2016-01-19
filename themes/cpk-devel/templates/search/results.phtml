@@ -60,6 +60,7 @@
         <? endif; ?>
       </div>
       
+      <? if ($recordTotal > 0): ?>
       <div class="col-sm-3 text-center">
       	<div class="hidden-print">
             
@@ -79,7 +80,8 @@
             <? endif; ?>
           </div>
       </div>
-
+	  <? endif; ?>
+	  
       <? if ($recordTotal > 0): ?>
         <div class="col-sm-6 text-right">
           <?=$this->render('search/controls/limit.phtml')?>
