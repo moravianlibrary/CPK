@@ -21,7 +21,7 @@
         left: offset.left,
         minWidth: offset.width,
         maxWidth: input.closest('form').width(),
-        zIndex: 50
+        zIndex: 5000
       });
     }
 
@@ -38,14 +38,14 @@
       input.trigger('autocomplete:select', {value: value, eventType: eventType});
       $( '.searchForm' ).submit();
     }
-    
+
     function createListFrom(shell, input, data, category) {
-    	
+
     	shell.append($('<div/>')
         		.addClass('autocomplete-results-category')
                 .html(category)
         );
-    	
+
     	var length = Math.min(options.maxResults, data.length);
         input.data('length', length);
         for (var i=0; i<length; i++) {
@@ -53,8 +53,8 @@
             data[i] = {val: data[i]};
           }
           var content = data[i].val;
-          data[i].href = '/Search/Results?lookfor=' 
-        	  			+ encodeURIComponent(content).replace("/\+/g", "%20") 
+          data[i].href = '/Search/Results?lookfor='
+        	  			+ encodeURIComponent(content).replace("/\+/g", "%20")
         	  			+ '&type=AllFields&limit=10&sort=relevance';
           if (options.highlight) {
             // escape term for regex
@@ -84,7 +84,7 @@
 
     function createList(data, input) {
       var shell = $('<div/>');
-      
+
       if(data.byTitle.length > 0) {
     	  createListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'));
       }
@@ -94,7 +94,7 @@
       if(data.bySubject.length > 0) {
     	  createListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'));
       }
-      
+
       $.fn.autocomplete.element.html(shell);
       $.fn.autocomplete.element.find('.item').mousedown(function() {
         populate($(this).attr('data-value'), input, {mouse: true});
@@ -239,7 +239,7 @@
             break;
           }
           // enter to nav or populate
-          case 9: 
+          case 9:
           case 13: {
             var selected = element.find('.item.selected');
             if (selected.length > 0) {
