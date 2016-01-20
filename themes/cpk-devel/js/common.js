@@ -318,9 +318,9 @@ function setupAutocomplete() {
           },
           dataType:'json',
           success: function(json) {
-            if (json.status == 'OK' 
-            	&& (json.data.byAuthor.length > 0 
-            		|| json.data.byTitle.length > 0 
+            if (json.status == 'OK'
+            	&& (json.data.byAuthor.length > 0
+            		|| json.data.byTitle.length > 0
             		|| json.data.bySubject.length > 0
             	)
             ) {
@@ -456,11 +456,11 @@ $(document).ready(function() {
     weekStart: 1,
     language: "cs"
   });
-  
+
   $(window).on("scroll touchmove", function () {
 //	    $('.top-header').toggleClass('hidden', $(document).scrollTop() <= 50).toggleClass('tiny', $(document).scrollTop() > 50);
-	    $('.top-header').toggleClass('full-width', $(document).scrollTop() > 88);
-	
+//	    $('.top-header').toggleClass('full-width', $(document).scrollTop() > 88);
+
   });
 
 });
