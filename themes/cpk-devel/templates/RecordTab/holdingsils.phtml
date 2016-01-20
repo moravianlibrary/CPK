@@ -161,8 +161,8 @@ $this->headTitle($this->driver->getBreadcrumb());
   <tr <?=$attributes?>>
 
 			<td data-title="<?=$this->transEsc("Status")?>">
-				<div class="jt" title="<?=$this->transEsc('Description Status')?>">
-					<span data-type="availability" class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
+				<div data-type="availability" class="jt" title="<?=$this->transEsc('Description Status')?>">
+					<span class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
 				</div>
 
 				<div title="<?=$this->transEsc('Item Status')?>"

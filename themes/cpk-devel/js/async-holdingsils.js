@@ -154,7 +154,7 @@ var holdingsILS = {
 	var availability = value.availability;
 
 	if (typeof availability !== 'undefined') {
-	    var availabilitySpan = statusDiv.children('span[data-type=availability]');
+	    var availabilitySpan = statusDiv.siblings('div[data-type=availability]').children('span');
 
 	    availabilitySpan.text(availability);
 	}
