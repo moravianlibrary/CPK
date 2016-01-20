@@ -494,4 +494,58 @@ class Aleph extends AlephBase
         $recordList['blocks'] = array_unique($blocks);
         return $recordList;
     }
+    
+    protected function extractHoldingInfoForItem($xml)
+    {
+        $locations = array();
+        $part = $xml->xpath('//pickup-locations');
+        if ($part) {
+            foreach ($part[0]->children() as $node) {
+                $arr = $node->attributes();
+                $code = (string) $arr['code'];
+                $loc_name = (string) $node;
+                $locations[$code] = $loc_name;
+            }
+        } else {
+            throw new ILSException('No pickup locations');
+        }
+    
+        $dueDate = null;
+        $status = (string) $xml->xpath('//status/text()')[0];
+        if (!in_array($status, $this->available_statuses)) {
+            $availability = false;
+            $matches = array();
+            if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*);([a-zA-Z ]*)/", $status, $matches)) {
+                $dueDate = $this->parseDate($matches[1]);
+            } else if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches)) {
+                $dueDate = $this->parseDate($matches[1]);
+            } else {
+                $dueDate = null;
+            }
+        }
+
+        $itemProcessStatusCode =  $xml->xpath('//z30-item-process-status-code/text()');
+        if (count($itemProcessStatusCode)) {
+            $status = (string) $itemProcessStatusCode[0];
+        }
+    
+        $requests = 0;
+        $str = $xml->xpath('//item/queue/text()');
+        $matches = array();
+        $pattern = "/(\d) request\(s\) of (\d) items/";
+        if ($str != null && preg_match($pattern, $str[0], $matches)) {
+            $requests = $matches[1];
+        }
+        $date = $xml->xpath('//last-interest-date/text()');
+        $date = $date[0];
+        $date = "" . substr($date, 6, 2) . "." . substr($date, 4, 2) . "."
+            . substr($date, 0, 4);
+            return array(
+                            'pickup-locations' => $locations,
+                            'last-interest-date' => $date,
+                            'order' => $requests + 1,
+                            'due-date' => $dueDate,
+                            'status' => $status
+            );
+    }
 }
