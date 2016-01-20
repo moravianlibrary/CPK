@@ -25,7 +25,7 @@ class Record extends ParentRecord
         );
     }
 
-    
+
     /**
      * Render an HTML checkbox control for the current record.
      *
@@ -78,6 +78,7 @@ class Record extends ParentRecord
                 $bibinfo['year'] = $year[0];
             }
         }
+        if (empty($bibinfo)) return false;
         return json_encode($bibinfo, JSON_HEX_QUOT | JSON_HEX_TAG);
     }
 
