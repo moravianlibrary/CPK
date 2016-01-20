@@ -3,15 +3,14 @@
     <span class="sr-only">Toggle navigation</span>
     <i class="fa fa-bars"></i>
   </button>
-  <a class="navbar-brand lang-<?=$this->layout()->userLang ?>"
-		href="<?=$this->url('home')?>"> <img alt="knihovny.cz"
-		src="<?=$this->imageLink('knihovny-logo.png') ?>">
-		<div class="pull-right beta-logo"
+  <a class="navbar-brand lang-<?=$this->layout()->userLang ?>" href="<?=$this->url('home')?>" style="padding: 0px;">
+    <div href="#" style="height: 50px;"><i style="color: rgb(255, 255, 255); cursor: pointer;" class="fa knihovny-logo"></i></div>
+    <div class="pull-right beta-logo"
 			onclick='window.open("<?=$this->translate('beta_changelog_link')?>");'
 			data-toggle="tooltip" data-placement="top"
 			title="<?=$this->translate('Changelog')?>">
       	<?=$this->translate('beta_tag')?>
-      </div>
+    </div>
 	</a>
 </div>
 <? if (!isset($this->layout()->renderingError)): ?>
