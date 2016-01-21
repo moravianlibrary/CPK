@@ -151,7 +151,7 @@ class NCIPRequests {
         // Append the Ext element containing the UserId
         if (! empty($patron)) {
             $body .= '<ns1:Ext>';
-            $body .= $this->patronInformation($patron);
+            $body .= $this->insertUserIdTag($patron);
             $body .= '</ns1:Ext>';
         }
 
@@ -180,7 +180,7 @@ class NCIPRequests {
         // Append the Ext element containing the UserId
         if (! empty($patron)) {
             $body .= '<ns1:Ext>';
-            $body .= $this->patronInformation($patron);
+            $body .= $this->insertUserIdTag($patron);
             $body .= '</ns1:Ext>';
         }
 
