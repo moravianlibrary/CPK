@@ -105,13 +105,15 @@ class NCIPRequests {
     }
 
     public function cancelRequestItemUsingRequestId($patron, $requestId) {
+        $requestType = "Estimate";
+        if ($this->sigla == "TAG001") $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron['agency']) .
         $this->insertUserIdTag($patron) .
         $this->insertRequestIdTag($requestId, $patron) .
-        $this->insertRequestType("Estimate") .
-        $this->insertRequestScopeType("Item") .
+        $this->insertRequestType($requestType) .
+        $this->insertRequestScopeType("Bibliographic Item") .
         "</ns1:CancelRequestItem>";
         return $this->header() . $body . $this->footer();
     }
@@ -270,7 +272,7 @@ class NCIPRequests {
                 "IDX" . "</ns1:RequestIdentifierType>" .
         "<ns1:RequestIdentifierValue>" . htmlspecialchars($requestId) . "</ns1:RequestIdentifierValue>" .
         "</ns1:RequestId>";
-        return body;
+        return $body;
     }
 
     protected function insertBibliographicItemIdTag($itemId) {

@@ -450,7 +450,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getCancelHoldDetails($holdDetails)
     {
-        return $holdDetails['item_id'];
+        return empty($holdDetails['item_id']) ? $holdDetails['id'] : $holdDetails['item_id'];
     }
 
     /**
@@ -1120,6 +1120,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         foreach ($list as $current) {
             $amount = $this->useXPath($current,
                 'FiscalTransactionInformation/Amount/MonetaryValue');
+            $action = $this->useXPath($current,
+                    'FiscalTransactionInformation/FiscalActionType');
             $type = $this->useXPath($current,
                 'FiscalTransactionInformation/FiscalTransactionType');
             $date = $this->useXPath($current, 'AccrualDate');
@@ -1129,6 +1131,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $date = date('j. n. Y', $parsedDate);
             $amount_int = (int) $amount[0] * (- 1);
             $sum += $amount_int;
+
+            if ($this->agency == 'ZLG001') $desc = $action;
+            if (empty($desc)) $desc = $type;
 
             $fines[] = array(
                 'amount' => (string) $amount_int,
