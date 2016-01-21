@@ -37,54 +37,10 @@
  */
 namespace VuFind\ILS\Driver;
 use VuFind\Exception\ILS as ILSException;
-use Zend\Log\LoggerInterface;
-use VuFindHttp\HttpServiceInterface;
-use DateTime;
 use VuFind\Exception\Date as DateException;
 
 /**
- * Aleph Translator class
- *
- *
- */
-interface AlephTranslator
-{
-
-    public function tab15Translate($item);
-
-    public function tab40Translate($item);
-
-}
-
-/**
- *
- *
- *
- */
-class AlephFixedTranslator implements AlephTranslator
-{
-
-    public function tab15Translate($item) {
-        $z30 = $item->z30;
-        return array(
-            'opac'         => 'Y',
-            'request'      => 'C',
-            'desc'         => (string) $z30->{'z30-item-status'},
-            'sub_lib_desc' => (string) $z30->{'z30-sub-library'}
-        );
-    }
-
-    public function tab40Translate($item) {
-        $z30 = $item->z30;
-        $collection = (string) $z30->{'z30-collection'};
-        $collection_desc = array('desc' => $collection);
-        return $collection_desc;
-    }
-
-}
-
-/**
- * Aleph Translator Class that uses configuration from Aleph tab*.lng files.
+ * Aleph Translator Class
  *
  * @category VuFind
  * @package  ILS_Drivers
@@ -92,7 +48,7 @@ class AlephFixedTranslator implements AlephTranslator
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class AlephFileTranslator implements AlephTranslator
+class AlephTranslator
 {
     /**
      * Constructor
@@ -117,30 +73,36 @@ class AlephFileTranslator implements AlephTranslator
     }
 
     /**
-     * Get a tab15 item status
+     * Parse a table
      *
-     * @param string $slc  Sub-library
-     * @param string $isc  Item status code
-     * @param string $ipsc Item process status code
+     * @param string $file     Input file
+     * @param string $callback Callback routine for parsing
      *
      * @return string
      */
-    public function tab15Translate($item)
+    public function parsetable($file, $callback)
     {
-        $item_status_code    = (string) $item->{'z30-item-status-code'};
-        $item_process_status = (string) $item->{'z30-item-process-status-code'};
-        $sub_library_code    = (string) $item->{'z30-sub-library-code'};
-        $tab15 = $this->tabSubLibraryTranslate($sub_library_code);
-        if ($tab15 == null) {
-            throw new ILSException("tab15 is not defined for sub_library_code=" + $sub_library_code);
+        $result = [];
+        $file_handle = fopen($file, "r, ccs=UTF-8");
+        $rgxp = "";
+        while (!feof($file_handle)) {
+            $line = fgets($file_handle);
+            $line = chop($line);
+            if (preg_match("/!!/", $line)) {
+                $line = chop($line);
+                $rgxp = AlephTranslator::regexp($line);
+            } if (preg_match("/!.*/", $line) || $rgxp == "" || $line == "") {
+            } else {
+                $line = str_pad($line, 80);
+                $matches = "";
+                if (preg_match($rgxp, $line, $matches)) {
+                    call_user_func_array(
+                        $callback, [$matches, &$result, $this->charset]
+                    );
+                }
+            }
         }
-        $findme = $tab15["tab15"] . "|" . $item_status_code . "|" . $item_process_status;
-        $result = $this->table15[$findme];
-        if ($result == null) {
-            $findme = $tab15["tab15"] . "||" . $item_process_status;
-            $result = $this->table15[$findme];
-        }
-        $result["sub_lib_desc"] = $tab15["desc"];
+        fclose($file_handle);
         return $result;
     }
 
@@ -152,17 +114,15 @@ class AlephFileTranslator implements AlephTranslator
      *
      * @return string
      */
-    public function tab40Translate($item)
+    public function tab40Translate($collection, $sublib)
     {
-        $collection_code  = (string) $item->{'z30-collection-code'};
-        $sub_library_code = (string) $item->{'z30-sub-library-code'};
-        $findme = $collection_code . "|" . $sub_library_code;
-        $result = $this->table40[$findme];
-        if ($result != null) {
-            $findme = $collection_code . "|";
-            return $this->table40[$findme];
+        $findme = $collection . "|" . $sublib;
+        $desc = $this->table40[$findme];
+        if ($desc == null) {
+            $findme = $collection . "|";
+            $desc = $this->table40[$findme];
         }
-        return $result;
+        return $desc;
     }
 
     /**
@@ -172,42 +132,33 @@ class AlephFileTranslator implements AlephTranslator
      *
      * @return string
      */
-    protected function tabSubLibraryTranslate($sl)
+    public function tabSubLibraryTranslate($sl)
     {
         return $this->table_sub_library[$sl];
     }
 
     /**
-     * Parse a table
+     * Get a tab15 item status
      *
-     * @param string $file     Input file
-     * @param string $callback Callback routine for parsing
+     * @param string $slc  Sub-library
+     * @param string $isc  Item status code
+     * @param string $ipsc Item process status code
      *
      * @return string
      */
-    public function parsetable($file, $callback)
+    public function tab15Translate($slc, $isc, $ipsc)
     {
-        $result = array();
-        $file_handle = fopen($file, "r, ccs=UTF-8");
-        $rgxp = "";
-        while (!feof($file_handle) ) {
-            $line = fgets($file_handle);
-            $line = chop($line);
-            if (preg_match("/!!/", $line)) {
-                $line = chop($line);
-                $rgxp = AlephFileTranslator::regexp($line);
-            } if (preg_match("/!.*/", $line) || $rgxp == "" || $line == "") {
-            } else {
-                $line = str_pad($line, 80);
-                $matches = "";
-                if (preg_match($rgxp, $line, $matches)) {
-                    call_user_func_array(
-                        $callback, array($matches, &$result, $this->charset)
-                    );
-                }
-            }
+        $tab15 = $this->tabSubLibraryTranslate($slc);
+        if ($tab15 == null) {
+            print "tab15 is null!<br>";
         }
-        fclose($file_handle);
+        $findme = $tab15["tab15"] . "|" . $isc . "|" . $ipsc;
+        $result = $this->table15[$findme];
+        if ($result == null) {
+            $findme = $tab15["tab15"] . "||" . $ipsc;
+            $result = $this->table15[$findme];
+        }
+        $result["sub_lib_desc"] = $tab15["desc"];
         return $result;
     }
 
@@ -294,108 +245,6 @@ class AlephFileTranslator implements AlephTranslator
 }
 
 /**
- *
- * Aleph Restful API does not include bibliographic base in its response, so you
- * have to resolve it when you have two or more bibliographic bases.
- *
- */
-interface IdResolver {
-
-    /**
-     * Resolve ids (add Solr id to items)
-     *
-     * @param array $items   items to resolve
-     */
-    public function resolveIds(&$items);
-
-}
-
-/**
- *
- * FixedIdResolver - used when you have only one bibliographic base, so ID
- * in solr is not prefixed with bibliographic base so you can keep the returned id
- * as is.
- *
- */
-class FixedIdResolver implements IdResolver {
-
-    public function resolveIds(&$items) {
-        return $items;
-    }
-
-}
-
-/**
- * Resolve identifiers against XServer using find function.
- *
- */
-class XServerIdResolver implements IdResolver {
-
-    /**
-     *
-     * @var AlephWebServices
-     */
-    protected $alephWebService;
-
-    /**
-     *
-     * @var array
-     */
-    protected $bib;
-
-    /**
-     *
-     * @param AlephWebServices $service
-     * @param array $config
-     */
-    public function __construct(AlephWebServices $service, $config)
-    {
-        $this->alephWebService = $service;
-        $this->bib = explode(',', $config['Catalog']['bib']);
-    }
-
-    public function resolveIds(&$recordsToResolve)
-    {
-        foreach ($recordsToResolve as &$record) {
-            $id = $this->barcodeToID($record['barcode']);
-            if ($id != null) {
-                $record['id'] = $id;
-            }
-        }
-    }
-
-    protected function barcodeToID($bar)
-    {
-        if (!$this->alephWebService->isXServerEnabled()) {
-            return null;
-        }
-        foreach ($this->bib as $base) {
-            try {
-                $xml = $this->alephWebService->doXRequest(
-                    "find", array("base" => $base, "request" => "BAR=$bar"), false
-                );
-                $docs = (int) $xml->{"no_records"};
-                if ($docs == 1) {
-                    $set = (string) $xml->{"set_number"};
-                    $result = $this->alephWebService->doXRequest(
-                        "present", array("set_number" => $set, "set_entry" => "1"),
-                        false
-                    );
-                    $id = $result->xpath('//doc_number/text()');
-                    if (count($this->bib)==1) {
-                        return (string) $id[0];
-                    } else {
-                        return $base . "-" . $id[0];
-                    }
-                }
-            } catch (\Exception $ex) { // not found
-            }
-        }
-        return null;
-    }
-}
-
-/**
  * ILS Exception
  *
  * @category VuFind
@@ -437,135 +286,141 @@ class AlephRestfulException extends ILSException
 }
 
 /**
- * Auxiliary class for calling Aleph web services (both XServer and REST DLF API).
+ * Aleph ILS driver
  *
+ * @category VuFind
+ * @package  ILS_Drivers
+ * @author   Christoph Krempe <vufind-tech@lists.sourceforge.net>
+ * @author   Alan Rykhus <vufind-tech@lists.sourceforge.net>
+ * @author   Jason L. Cooper <vufind-tech@lists.sourceforge.net>
+ * @author   Kun Lin <vufind-tech@lists.sourceforge.net>
+ * @author   Vaclav Rosecky <vufind-tech@lists.sourceforge.net>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class AlephWebServices {
-
-    static protected $languages = [
-        'cs' => 'cze',
-        'en' => 'eng'
-    ];
-
-    /**
-     * Aleph server host name
-     *
-     * @var string
-     */
-    protected $host;
+class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
+    \VuFindHttp\HttpServiceAwareInterface
+{
+    use \VuFind\Log\LoggerAwareTrait;
+    use \VuFindHttp\HttpServiceAwareTrait;
 
     /**
-     * Username for Xserver calls
+     * Duedate configuration
      *
-     * @var string
+     * @var array
      */
-    protected $wwwuser;
+    protected $duedates = false;
 
     /**
-     * Username for Xserver calls
+     * Translator object
      *
-     * @var string
+     * @var AlephTranslator
      */
-    protected $wwwpasswd;
+    protected $translator = false;
 
     /**
-     * Port number on which REST DLF API is running
+     * Cache manager
      *
+     * @var \VuFind\Cache\Manager
      */
-    protected $dlfport;
+    protected $cacheManager;
 
     /**
-     * Is XServer API enabled?
+     * Date converter object
      *
+     * @var \VuFind\Date\Converter
      */
-    protected $xserver_enabled;
+    protected $dateConverter = null;
 
     /**
-     * HTTP service
+     * Constructor
      *
-     * @var \VuFindHttp\HttpServiceInterface
+     * @param \VuFind\Date\Converter $dateConverter Date converter
+     * @param \VuFind\Cache\Manager  $cacheManager  Cache manager (optional)
      */
-    protected $httpService = null;
-
-    /**
-     * Timeout in seconds
-     *
-     * @var int
-     */
-    protected $timeout = 30;
-
-    /**
-     * Logger object for debug info (or false for no debugging).
-     *
-     * @var LoggerInterface|bool
-     */
-    protected $logger = false;
-
-    /**
-     * Logger object for debug info (or false for no debugging).
-     *
-     * @var LoggerInterface|bool
-     */
-    protected $language = false;
-
-    /**
-     *
-     * @param array $config
-     */
-    public function __construct()
-    {
+    public function __construct(\VuFind\Date\Converter $dateConverter,
+        \VuFind\Cache\Manager $cacheManager = null
+    ) {
+        $this->dateConverter = $dateConverter;
+        $this->cacheManager = $cacheManager;
     }
 
-    public function init($config, $lang)
+    /**
+     * Initialize the driver.
+     *
+     * Validate configuration and perform all resource-intensive tasks needed to
+     * make the driver active.
+     *
+     * @throws ILSException
+     * @return void
+     */
+    public function init()
     {
-        $this->host = $config['host'];
-        $this->xserver_enabled = false;
-        if (isset($config['wwwuser']) && isset($config['wwwpasswd'])) {
-            $this->wwwuser = $config['wwwuser'];
-            $this->wwwpasswd = $config['wwwpasswd'];
+        // Validate config
+        $required = [
+            'host', 'bib', 'useradm', 'admlib', 'dlfport', 'available_statuses'
+        ];
+        foreach ($required as $current) {
+            if (!isset($this->config['Catalog'][$current])) {
+                throw new ILSException("Missing Catalog/{$current} config setting.");
+            }
+        }
+        if (!isset($this->config['sublibadm'])) {
+            throw new ILSException('Missing sublibadm config setting.');
+        }
+
+        // Process config
+        $this->host = $this->config['Catalog']['host'];
+        $this->bib = explode(',', $this->config['Catalog']['bib']);
+        $this->useradm = $this->config['Catalog']['useradm'];
+        $this->admlib = $this->config['Catalog']['admlib'];
+        if (isset($this->config['Catalog']['wwwuser'])
+            && isset($this->config['Catalog']['wwwpasswd'])
+        ) {
+            $this->wwwuser = $this->config['Catalog']['wwwuser'];
+            $this->wwwpasswd = $this->config['Catalog']['wwwpasswd'];
             $this->xserver_enabled = true;
+        } else {
+            $this->xserver_enabled = false;
         }
-        $this->debug_enabled = false;
-        if (isset($config['debug']) && $config['debug']) {
-            $this->debug_enabled = true;
+        $this->dlfport = $this->config['Catalog']['dlfport'];
+        $this->sublibadm = $this->config['sublibadm'];
+        if (isset($this->config['duedates'])) {
+            $this->duedates = $this->config['duedates'];
         }
-        if (isset($config['timeout'])) {
-            $this->timeout = $config['timeout'];
+        $this->available_statuses
+            = explode(',', $this->config['Catalog']['available_statuses']);
+        $this->quick_availability
+            = isset($this->config['Catalog']['quick_availability'])
+            ? $this->config['Catalog']['quick_availability'] : false;
+        $this->debug_enabled = isset($this->config['Catalog']['debug'])
+            ? $this->config['Catalog']['debug'] : false;
+        if (isset($this->config['util']['tab40'])
+            && isset($this->config['util']['tab15'])
+            && isset($this->config['util']['tab_sub_library'])
+        ) {
+            if (isset($this->config['Cache']['type'])
+                && null !== $this->cacheManager
+            ) {
+                $cache = $this->cacheManager
+                    ->getCache($this->config['Cache']['type']);
+                $this->translator = $cache->getItem('alephTranslator');
+            }
+            if ($this->translator == false) {
+                $this->translator = new AlephTranslator($this->config);
+                if (isset($cache)) {
+                    $cache->setItem('alephTranslator', $this->translator);
+                }
+            }
         }
-        if (isset($config['send_language']) && $config['send_language']) {
-            $tags = explode("-", $lang);
-            $this->language = AlephWebServices::$languages[$tags[0]];
+        if (isset($this->config['Catalog']['preferred_pick_up_locations'])) {
+            $this->preferredPickUpLocations = explode(
+                ',', $this->config['Catalog']['preferred_pick_up_locations']
+            );
         }
-        $this->dlfport = $config['dlfport'];
-    }
-
-    /**
-     * Set the HTTP service to be used for HTTP requests.
-     *
-     * @param HttpServiceInterface $service HTTP service
-     *
-     * @return void
-     */
-    public function setHttpService(HttpServiceInterface $service)
-    {
-        $this->httpService = $service;
-    }
-
-    /**
-     * Set the logger
-     *
-     * @param LoggerInterface $logger Logger to use.
-     *
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    public function isXServerEnabled()
-    {
-        return $this->xserver_enabled;
+        if (isset($this->config['Catalog']['default_patron_id'])) {
+            $this->defaultPatronId = $this->config['Catalog']['default_patron_id'];
+        }
     }
 
     /**
@@ -577,7 +432,7 @@ class AlephWebServices {
      *
      * @return SimpleXMLElement
      */
-    public function doXRequest($op, $params, $auth=false)
+    protected function doXRequest($op, $params, $auth = false)
     {
         if (!$this->xserver_enabled) {
             throw new \Exception(
@@ -607,64 +462,34 @@ class AlephWebServices {
         return $result;
     }
 
-    public function doXRequestUsingPost($op, $params, $auth=true)
-    {
-        $url = "http://$this->host/X?";
-        $body = '';
-        $sep = '';
-        $params['op'] = $op;
-        if ($auth) {
-            $params['user_name'] = $this->wwwuser;
-            $params['user_password'] = $this->wwwpasswd;
-        }
-        foreach ($params as $key => $value) {
-            $body .= $sep . $key . '=' . urlencode($value);
-            $sep = '&';
-        }
-        $result = $this->doHTTPRequest($url, null, 'POST', $body);
-        if ($result->error) {
-            if ($op == 'update-doc' && preg_match('/Document: [0-9]+ was updated successfully\\./', trim($result->error)) === 1) {
-                return $result;
-            }
-            if ($this->debug_enabled) {
-                $this->debug("XServer error, URL is $url, error message: $result->error.");
-            }
-            throw new Exception("XServer error: $result->error.");
-        }
-        return $result;
-    }
-
     /**
      * Perform a RESTful DLF request.
      *
      * @param array  $path_elements URL path elements
      * @param array  $params        GET parameters (null for none)
      * @param string $method        HTTP method
-     * @param string $body          HTTP body (for PUT or POST HTTP method)
+     * @param string $body          HTTP body
      *
      * @return SimpleXMLElement
      */
-    public function doRestDLFRequest($path_elements, $params = null,
-        $method='GET', $body = null
+    protected function doRestDLFRequest($path_elements, $params = null,
+        $method = 'GET', $body = null
     ) {
         $path = '';
         foreach ($path_elements as $path_element) {
             $path .= $path_element . "/";
         }
         $url = "http://$this->host:$this->dlfport/rest-dlf/" . $path;
-        $headers = ["accept" => "application/xml"];
-        if ($this->language) {
-            $params['lang'] = $this->language;
-        }
-        $result = $this->doHTTPRequest($url, $params, $method, $body, $headers);
+        $url = $this->appendQueryString($url, $params);
+        $result = $this->doHTTPRequest($url, $method, $body);
         $replyCode = (string) $result->{'reply-code'};
         if ($replyCode != "0000") {
             $replyText = (string) $result->{'reply-text'};
-            $this->logger->err(
-                "DLF request failed", array(
+            $this->logError(
+                "DLF request failed", [
                     'url' => $url, 'reply-code' => $replyCode,
                     'reply-message' => $replyText
-                )
+                ]
             );
             $ex = new AlephRestfulException($replyText, $replyCode);
             $ex->setXmlResponse($result);
@@ -681,15 +506,14 @@ class AlephWebServices {
      *
      * @return string
      */
-    public function appendQueryString($url, $params)
+    protected function appendQueryString($url, $params)
     {
-        if ($params == null) {
-            return $url; // nothing to append
-        }
-        $sep = (strpos($url, "?") === false)?'?':'&';
-        foreach ($params as $key => $value) {
-            $url.= $sep . $key . "=" . urlencode($value);
-            $sep = "&";
+        $sep = (strpos($url, "?") === false) ? '?' : '&';
+        if ($params != null) {
+            foreach ($params as $key => $value) {
+                $url .= $sep . $key . "=" . urlencode($value);
+                $sep = "&";
+            }
         }
         return $url;
     }
@@ -698,38 +522,25 @@ class AlephWebServices {
      * Perform an HTTP request.
      *
      * @param string $url    URL of request
-     * @param array  $param  query parameters to add to URL
      * @param string $method HTTP method
      * @param string $body   HTTP body (null for none)
      *
      * @return SimpleXMLElement
      */
-    public function doHTTPRequest($url, $params=null, $method='GET', $body = null, $headers = array())
+    protected function doHTTPRequest($url, $method = 'GET', $body = null)
     {
         if ($this->debug_enabled) {
-            $fullUrl = $this->appendQueryString($url, $params);
-            $this->debug("URL: '$fullUrl'");
-        }
-
-        if ($params == null) {
-            $params = array();
+            $this->debug("URL: '$url'");
         }
 
         $result = null;
         try {
-            if ($method == 'GET') {
-                $result = $this->httpService->get($url, $params, $this->timeout, $headers);
-            } else if ($method == 'POST') {
-                $url = $this->appendQueryString($url, $params);
-                $result = $this->httpService->post($url, $body, 'application/octet-stream', $this->timeout);
-            } else {
-                $url = $this->appendQueryString($url, $params);
-                $client = $this->httpService->createClient($url, $method, $this->timeout);
-                if ($body != null) {
-                    $client->setRawBody($body);
-                }
-                $result = $client->send();
+            $client = $this->httpService->createClient($url);
+            $client->setMethod($method);
+            if ($body != null) {
+                $client->setRawBody($body);
             }
+            $result = $client->send();
         } catch (\Exception $e) {
             throw new ILSException($e->getMessage());
         }
@@ -754,253 +565,6 @@ class AlephWebServices {
     }
 
     /**
-     * Show a debug message.
-     *
-     * @param string $msg Debug message.
-     *
-     * @return void
-     */
-    protected function debug($msg)
-    {
-        if ($this->logger) {
-            $this->logger->debug($msg);
-        }
-    }
-
-}
-
-/**
- * Aleph ILS driver
- *
- * @category VuFind
- * @package  ILS_Drivers
- * @author   Christoph Krempe <vufind-tech@lists.sourceforge.net>
- * @author   Alan Rykhus <vufind-tech@lists.sourceforge.net>
- * @author   Jason L. Cooper <vufind-tech@lists.sourceforge.net>
- * @author   Kun Lin <vufind-tech@lists.sourceforge.net>
- * @author   Vaclav Rosecky <vufind-tech@lists.sourceforge.net>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
- */
-class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
-    \VuFindHttp\HttpServiceAwareInterface, \VuFind\I18n\Translator\TranslatorAwareInterface
-{
-
-    const RECORD_ID_BASE_SEPARATOR = '-';
-
-    /**
-     * Duedate configuration
-     *
-     * @var array
-     */
-    protected $duedates = false;
-
-    /**
-     * Cache manager
-     *
-     * @var \VuFind\Cache\Manager
-     */
-    protected $cacheManager;
-
-    /**
-     * Logger object for debug info (or false for no debugging).
-     *
-     * @var LoggerInterface|bool
-     */
-    protected $logger = false;
-
-    /**
-     * Date converter object
-     *
-     * @var \VuFind\Date\Converter
-     */
-    protected $dateConverter = null;
-
-    /**
-     * Search service (used for lookups by barcode number)
-     *
-     */
-    protected $searchService = null;
-
-    /**
-     * Resolver for translation of bibliographic ids, used in a case
-     * of more bibliographic bases
-     *
-     * @var \VuFind\ILS\Driver\IdResolver
-     */
-    protected $idResolver = null;
-
-    /**
-     * Aleph web services
-     *
-     * @var \VuFind\ILS\Driver\AlephWebServices
-     */
-    protected $alephWebService = null;
-
-    /**
-     * Translation of statuses (used for hiding items and translation of statuses)
-     *
-     * @var \VuFind\ILS\Driver\AlephTranslator
-     */
-    protected $alephTranslator = false;
-
-    /**
-     * Translation of statuses (used for hiding items and translation of statuses)
-     *
-     * @var \Zend\Mvc\I18n\Translator
-     */
-    protected $translator = false;
-
-    /**
-     * Constructor
-     *
-     * @param \VuFind\Date\Converter $dateConverter Date converter
-     * @param \VuFind\Cache\Manager  $cacheManager  Cache manager (optional)
-     */
-    public function __construct(\VuFind\Date\Converter $dateConverter,
-        \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null
-    ) {
-        $this->dateConverter = $dateConverter;
-        $this->cacheManager = $cacheManager;
-        $this->searchService = $searchService;
-        $this->alephWebService = new AlephWebServices();
-    }
-
-    /**
-     * Set the HTTP service to be used for HTTP requests.
-     *
-     * @param HttpServiceInterface $service HTTP service
-     *
-     * @return void
-     */
-    public function setHttpService(HttpServiceInterface $service)
-    {
-        $this->httpService = $service;
-        $this->alephWebService->setHttpService($service);
-    }
-
-    /**
-     * Set the logger
-     *
-     * @param LoggerInterface $logger Logger to use.
-     *
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-        $this->alephWebService->setLogger($logger);
-    }
-
-    /**
-     * Set the logger
-     *
-     * @param LoggerInterface $logger Logger to use.
-     *
-     * @return void
-     */
-    public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
-    }
-
-    /**
-     * Initialize the driver.
-     *
-     * Validate configuration and perform all resource-intensive tasks needed to
-     * make the driver active.
-     *
-     * @throws ILSException
-     * @return void
-     */
-    public function init()
-    {
-        // Validate config
-        $required = array(
-            'host', 'bib', 'useradm', 'admlib', 'dlfport', 'available_statuses'
-        );
-        foreach ($required as $current) {
-            if (!isset($this->config['Catalog'][$current])) {
-                throw new ILSException("Missing Catalog/{$current} config setting.");
-            }
-        }
-        if (!isset($this->config['sublibadm'])) {
-            throw new ILSException('Missing sublibadm config setting.');
-        }
-        $lang = $this->translator->getTranslator()->getLocale();
-        $this->alephWebService->init($this->config['Catalog'], $lang);
-        $this->bib = explode(',', $this->config['Catalog']['bib']);
-        $this->useradm = $this->config['Catalog']['useradm'];
-        $this->admlib = $this->config['Catalog']['admlib'];
-        $this->sublibadm = $this->config['sublibadm'];
-        if (isset($this->config['duedates'])) {
-            $this->duedates = $this->config['duedates'];
-        }
-        $this->available_statuses
-            = explode(',', $this->config['Catalog']['available_statuses']);
-        $this->quick_availability
-            = isset($this->config['Catalog']['quick_availability'])
-            ? $this->config['Catalog']['quick_availability'] : false;
-        if (isset($this->config['util']['tab40'])
-            && isset($this->config['util']['tab15'])
-            && isset($this->config['util']['tab_sub_library'])
-        ) {
-            if (isset($this->config['Cache']['type'])
-                && null !== $this->cacheManager
-            ) {
-                $cache = $this->cacheManager
-                    ->getCache($this->config['Cache']['type']);
-                $this->alephTranslator = $cache->getItem('alephTranslator');
-            }
-            if ($this->alephTranslator == false) {
-                $this->alephTranslator = new AlephFileTranslator($this->config);
-                if (isset($cache)) {
-                    $cache->setItem('alephTranslator', $this->alephTranslator);
-                }
-            }
-        } else {
-            $this->alephTranslator = new AlephFixedTranslator();
-        }
-        if (isset($this->config['Catalog']['preferred_pick_up_locations'])) {
-            $this->preferredPickUpLocations = explode(
-                ',', $this->config['Catalog']['preferred_pick_up_locations']
-            );
-        }
-        if (isset($this->config['Catalog']['default_patron'])) {
-            $this->defaultPatronId = $this->config['Catalog']['default_patron'];
-        }
-        $idResolverType = 'fixed';
-        if (isset($this->config['IdResolver']['type'])) {
-            $idResolverType = $this->config['IdResolver']['type'];
-        }
-        if ($idResolverType == 'fixed') {
-            $this->idResolver = new FixedIdResolver();
-        } else if ($idResolverType == 'solr') {
-            $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
-        } else if ($idResolverType == 'xserver') {
-            $this->idResolver = new XServerIdResolver($this->alephWebService, $this->config);
-        } else {
-            throw new ILSException('Unsupported Catalog[IdResolver][type]:' .
-                 $idResolverType .', valid values are fixed, solr and xserver.');
-        }
-
-        if (isset($this->config['ILL']['hidden_statuses'])) {
-            $this->IllHiddenStatuses = explode(',', $this->config['ILL']['hidden_statuses']);
-        }
-        if (isset($this->config['ILL']['default_ill_unit'])) {
-            $this->defaultIllUnit = $this->config['ILL']['default_ill_unit'];
-        }
-        if (isset($this->config['ILL']['default_pickup_location'])) {
-            $this->defaultIllPickupPlocation = $this->config['ILL']['default_pickup_location'];
-        }
-        if (isset($this->config['holdings']['default_required_date'])) {
-            $this->defaultRequiredDate = $this->config['holdings']['default_required_date'];
-        } else {
-            $this->defaultRequiredDate = "0:1:0";
-        }
-    }
-
-    /**
      * Convert an ID string into an array of library and ID within the library.
      *
      * @param string $id ID to parse.
@@ -1009,10 +573,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     protected function parseId($id)
     {
-        if (strpos($id, self::RECORD_ID_BASE_SEPARATOR) !== FALSE) {
-            return explode(self::RECORD_ID_BASE_SEPARATOR, $id);
+        if (count($this->bib) == 1) {
+            return [$this->bib[0], $id];
         } else {
-            return array($this->bib[0], $id);
+            return explode('-', $id);
         }
     }
 
@@ -1072,8 +636,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $doc_nums .= $sep . $id;
             $sep = ",";
         }
-        $xml = $this->alephWebService->doXRequest(
-            "publish_avail", array('library' => $bib, 'doc_num' => $doc_nums), false
+        $xml = $this->doXRequest(
+            "publish_avail", ['library' => $bib, 'doc_num' => $doc_nums], false
         );
         $holding = [];
         foreach ($xml->xpath('/publish-avail/OAI-PMH') as $rec) {
@@ -1116,7 +680,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function getStatuses($idList)
     {
-        if (!$this->alephWebService->isXServerEnabled()) {
+        if (!$this->xserver_enabled) {
             if (!$this->quick_availability) {
                 return [];
             }
@@ -1157,45 +721,51 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * keys: id, availability (boolean), status, location, reserve, callnumber,
      * duedate, number, barcode.
      */
-    public function getHolding($id, array $patron = null, $filters = array())
+    public function getHolding($id, array $patron = null)
     {
-        $holding = array();
+        $holding = [];
         list($bib, $sys_no) = $this->parseId($id);
         $resource = $bib . $sys_no;
-        $params = array();
-        if (!empty($filters)) {
-            foreach ($filters as $key => $value) {
-                if ($key == 'hide_loans' && $value='true') {
-                    $params['loaned'] = 'NO';
-                } else {
-                    $params[$key] = $value;
-                }
-            }
-        }
-        $params['view'] = 'full';
+        $params = ['view' => 'full'];
         if (!empty($patron['id'])) {
             $params['patron'] = $patron['id'];
         } else if (isset($this->defaultPatronId)) {
             $params['patron'] = $this->defaultPatronId;
         }
-        $xml = $this->alephWebService->doRestDLFRequest(array('record', $resource, 'items'), $params);
-        if (!isset($xml->{'items'})) {
-            return $holding;
-        }
+        $xml = $this->doRestDLFRequest(['record', $resource, 'items'], $params);
         foreach ($xml->{'items'}->{'item'} as $item) {
-            $item_status = $this->alephTranslator->tab15Translate($item);
+            $item_status         = (string) $item->{'z30-item-status-code'}; // $isc
+            // $ipsc:
+            $item_process_status = (string) $item->{'z30-item-process-status-code'};
+            $sub_library_code    = (string) $item->{'z30-sub-library-code'}; // $slc
+            $z30 = $item->z30;
+            if ($this->translator) {
+                $item_status = $this->translator->tab15Translate(
+                    $sub_library_code, $item_status, $item_process_status
+                );
+            } else {
+                $item_status = [
+                    'opac'         => 'Y',
+                    'request'      => 'C',
+                    'desc'         => (string) $z30->{'z30-item-status'},
+                    'sub_lib_desc' => (string) $z30->{'z30-sub-library'}
+                ];
+            }
             if ($item_status['opac'] != 'Y') {
                 continue;
             }
             $availability = false;
-            $reserve = ($item_status['request'] == 'C')?'N':'Y';
-            $z30 = $item->z30;
+            //$reserve = ($item_status['request'] == 'C')?'N':'Y';
             $collection = (string) $z30->{'z30-collection'};
-            $collection_desc = array('desc' => $collection);
-            $collection_desc = $this->alephTranslator->tab40Translate($item);
-            $sub_library_code = (string) $item->{'z30-sub-library-code'};
+            $collection_desc = ['desc' => $collection];
+            if ($this->translator) {
+                $collection_code = (string) $item->{'z30-collection-code'};
+                $collection_desc = $this->translator->tab40Translate(
+                    $collection_code, $sub_library_code
+                );
+            }
             $requested = false;
-            $duedate = null;
+            $duedate = '';
             $addLink = false;
             $status = (string) $item->{'status'};
             if (in_array($status, $this->available_statuses)) {
@@ -1204,15 +774,8 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             if ($item_status['request'] == 'Y' && $availability == false) {
                 $addLink = true;
             }
-            $holdType = 'hold';
-            if (!empty($patron) || isset($this->defaultPatronId)) {
+            if (!empty($patron)) {
                 $hold_request = $item->xpath('info[@type="HoldRequest"]/@allowed');
-                if ($hold_request[0] == 'N') {
-                    $hold_request = $item->xpath('info[@type="ShortLoan"]/@allowed');
-                    if ($hold_request[0] == 'Y') {
-                        $holdType = 'shortloan';
-                    }
-                }
                 $addLink = ($hold_request[0] == 'Y');
             }
             $matches = [];
@@ -1225,18 +788,25 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 "/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches
             )) {
                 $duedate = $this->parseDate($matches[1]);
+            } else {
+                $duedate = null;
             }
-            // process duedate_status
-            $duedate_status = $item_status['desc'];
-            if ($availability && $this->duedates) {
-                foreach ($this->duedates as $key => $value) {
-                    if (preg_match($value, $item_status['desc'])) {
-                        $duedate_status = $key;
-                        break;
+            // process duedate
+            if ($availability) {
+                if ($this->duedates) {
+                    foreach ($this->duedates as $key => $value) {
+                        if (preg_match($value, $item_status['desc'])) {
+                            $duedate = $key;
+                            break;
+                        }
                     }
+                } else {
+                    $duedate = $item_status['desc'];
                 }
-            } else if (!$availability && ($status == "On Hold" || $status == "Requested")) {
-                $duedate_status = "requested";
+            } else {
+                if ($status == "On Hold" || $status == "Requested") {
+                    $duedate = "requested";
+                }
             }
             $item_id = $item->attributes()->href;
             $item_id = substr($item_id, strrpos($item_id, '/') + 1);
@@ -1253,12 +823,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'number'            => (string) $z30->{'z30-inventory-number'},
                 'barcode'           => (string) $z30->{'z30-barcode'},
                 'description'       => (string) $z30->{'z30-description'},
-                'notes'             => ($note == null) ? null : array($note),
+                'notes'             => ($note == null) ? null : [$note],
                 'is_holdable'       => true,
                 'addLink'           => $addLink,
-                'holdtype'          => $holdType,
+                'holdtype'          => 'hold',
                 /* below are optional attributes*/
-                'duedate_status'    => $status,
                 'collection'        => (string) $collection,
                 'collection_desc'   => (string) $collection_desc['desc'],
                 'callnumber_second' => (string) $z30->{'z30-call-no-2'},
@@ -1270,31 +839,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         return $holding;
     }
 
-    public function getHoldingFilters($bibId) {
-        list($bib, $sys_no) = $this->parseId($bibId);
-        $resource = $bib . $sys_no;
-        $years = array();
-        $volumes = array();
-        try {
-            $xml = $this->alephWebService->doRestDLFRequest(array('record', $resource, 'filters'));
-        } catch (Exception $ex) {
-            return array();
-        }
-        if (isset($xml->{'record-filters'})) {
-            if (isset($xml->{'record-filters'}->{'years'})) {
-                foreach ($xml->{'record-filters'}->{'years'}->{'year'} as $year) {
-                    $years[] = (string) $year;
-                }
-            }
-            if (isset($xml->{'record-filters'}->{'volumes'})) {
-                foreach ($xml->{'record-filters'}->{'volumes'}->{'volume'} as $volume) {
-                    $volumes[] = (string) $volume;
-                }
-            }
-        }
-        return array('year' => $years, 'volume' => $volumes, 'hide_loans' => array(true, false));
-    }
-
     /**
      * Get Patron Transaction History
      *
@@ -1304,9 +848,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException
      * @return array      Array of the patron's transactions on success.
      */
-    public function getMyHistory($user, $limit = 0)
+    public function getMyHistory($user)
     {
-        return $this->getMyTransactions($user, true, $limit);
+        return $this->getMyTransactions($user, true);
     }
 
     /**
@@ -1323,19 +867,16 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException
      * @return array        Array of the patron's transactions on success.
      */
-    public function getMyTransactions($user, $history=false, $limit = 0)
+    public function getMyTransactions($user, $history = false)
     {
         $userId = $user['id'];
         $transList = [];
         $params = ["view" => "full"];
         if ($history) {
             $params["type"] = "history";
-            if ($limit > 0) {
-                $params["no_loans"] = $limit;
-            }
         }
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $userId, 'circulationActions', 'loans'), $params
+        $xml = $this->doRestDLFRequest(
+            ['patron', $userId, 'circulationActions', 'loans'], $params
         );
         foreach ($xml->xpath('//loan') as $item) {
             $z36 = $item->z36;
@@ -1343,14 +884,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $z30 = $item->z30;
             $group = $item->xpath('@href');
             $group = substr(strrchr($group[0], "/"), 1);
-            if (strpos($group, '?') !== false) {
-                $group = substr($group, 0, strpos($group, '?'));
-            }
-            $renew = $item->xpath('@renew');
-            $renewable = ($renew[0] == 'Y');
-            $docno = (string) $z36->{'z36-doc-number'};
-            $itemseq = (string) $z36->{'z36-item-sequence'};
-            $seq = (string) $z36->{'z36-sequence'};
+            //$renew = $item->xpath('@renew');
+            //$docno = (string) $z36->{'z36-doc-number'};
+            //$itemseq = (string) $z36->{'z36-item-sequence'};
+            //$seq = (string) $z36->{'z36-sequence'};
             $location = (string) $z36->{'z36_pickup_location'};
             $reqnum = (string) $z36->{'z36-doc-number'}
                 . (string) $z36->{'z36-item-sequence'}
@@ -1362,58 +899,28 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             } else {
                 $due = (string) $z36->{'z36-due-date'};
             }
-            $loaned = (string) $z36->{'z36-loan-date'};
+            //$loaned = (string) $z36->{'z36-loan-date'};
             $title = (string) $z13->{'z13-title'};
             $author = (string) $z13->{'z13-author'};
             $isbn = (string) $z13->{'z13-isbn-issn'};
             $barcode = (string) $z30->{'z30-barcode'};
-            $adm_id = (string) $z30->{'z30-doc-number'};
-            $id = (string) $z13->{'z13-doc-number'};
-            /* Check if item is loaned after due date */
-            $currentDate = strtotime(date('d.m.Y'));
-            $dueDate = strtotime(
-                $this->dateConverter->convertFromDisplayDate(
-                "d.m.Y", $this->parseDate($due)));
-            $returnInDays = ($dueDate - $currentDate) / (60*60*24);
-            $fine = (string) $item->{'fine'};
-            $sublibrary = null;
-            if ($history) {
-                $sublibrary = (string) $item->z36h->{'z36h-sub-library'};
-            } else {
-                $sublibrary = (string) $z36->{'z36-sub-library'};
-            }
-            $z36ItemId = $this->admlib . $z36->{'z36-doc-number'} . $z36->{'z36-item-sequence'};
-            $item = array(
-                'id'          => $id,
-                'adm_id'      => $adm_id,
-                'item_id'     => $group,
-                'location'    => $location,
-                'title'       => $title,
-                'author'      => $author,
-                'isbn'        => array($isbn),
-                'reqnum'      => $reqnum,
-                'barcode'     => $barcode,
-                'loandate'    => $this->parseDate($loaned),
-                'duedate'     => $this->parseDate($due),
-                'returned'    => $this->parseDate($returned),
-                'renewable'   => $renewable,
-                'fine'        => $fine,
-                'sublibrary'  => $sublibrary,
-                'z36_item_id' => $z36ItemId,
-            );
-            if ($returnInDays < 0 && !$history) {
-                $item['dueStatus'] = 'overdue';
-            }
-            $transList[] = $item;
-        }
-        $this->idResolver->resolveIds($transList);
-        if ($history) {
-            $self = $this;
-            usort($transList, function($first, $second) use ($self) {
-                $a = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $first['returned']);
-                $b = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $second['returned']);
-                return ($b - $a);
-            });
+            $transList[] = [
+                //'type' => $type,
+                'id' => ($history) ? null : $this->barcodeToID($barcode),
+                'item_id' => $group,
+                'location' => $location,
+                'title' => $title,
+                'author' => $author,
+                'isbn' => [$isbn],
+                'reqnum' => $reqnum,
+                'barcode' => $barcode,
+                'duedate' => $this->parseDate($due),
+                'returned' => $this->parseDate($returned),
+                //'holddate' => $holddate,
+                //'delete' => $delete,
+                'renewable' => true,
+                //'create' => $this->parseDate($create)
+            ];
         }
         return $transList;
     }
@@ -1452,20 +959,20 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $result = [];
         foreach ($details['details'] as $id) {
             try {
-                $this->alephWebService->doRestDLFRequest(
-                    array(
+                $this->doRestDLFRequest(
+                    [
                         'patron', $patron['id'], 'circulationActions', 'loans', $id
-                    ),
+                    ],
                     null, 'POST', null
                 );
-                $result[$id] = array('success' => true);
+                $result[$id] = ['success' => true];
             } catch (AlephRestfulException $ex) {
-                $result[$id] = array(
+                $result[$id] = [
                     'success' => false, 'sysMessage' => $ex->getMessage()
-                );
+                ];
             }
         }
-        return array('blocks' => false, 'details' => $result);
+        return ['blocks' => false, 'details' => $result];
     }
 
     /**
@@ -1482,10 +989,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     public function getMyHolds($user)
     {
         $userId = $user['id'];
-        $holdList = array();
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $userId, 'circulationActions', 'requests', 'holds'),
-            array('view' => 'full')
+        $holdList = [];
+        $xml = $this->doRestDLFRequest(
+            ['patron', $userId, 'circulationActions', 'requests', 'holds'],
+            ['view' => 'full']
         );
         foreach ($xml->xpath('//hold-request') as $item) {
             $z37 = $item->z37;
@@ -1496,11 +1003,9 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $item_id = substr($href[0], strrpos($href[0], '/') + 1);
             if ((string) $z37->{'z37-request-type'} == "Hold Request" || true) {
                 $type = "hold";
-                $seq = null;
-                $item_status = preg_replace("/\s[\s]+/", " ", (string) $item->{'status'});
-                if (preg_match("/Waiting in position ([0-9]+) in queue; current due date ([0-9]+\/[a-z|A-Z]+\/[0-9])+/", $item_status, $matches)) {
-                    $seq = $matches[1];
-                }
+                //$docno = (string) $z37->{'z37-doc-number'};
+                //$itemseq = (string) $z37->{'z37-item-sequence'};
+                $seq = (string) $z37->{'z37-sequence'};
                 $location = (string) $z37->{'z37-pickup-location'};
                 $reqnum = (string) $z37->{'z37-doc-number'}
                     . (string) $z37->{'z37-item-sequence'}
@@ -1513,101 +1018,32 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $isbn = (string) $z13->{'z13-isbn-issn'};
                 $barcode = (string) $z30->{'z30-barcode'};
                 $status = (string) $z37->{'z37-status'};
-                $onHoldUntil = (string) $z37->{'z37-end-hold-date'};
-                $onHoldUntil = ($onHoldUntil == "00000000") ? null : $this->parseDate($onHoldUntil);
                 if ($holddate == "00000000") {
                     $holddate = null;
                 } else {
                     $holddate = $this->parseDate($holddate);
                 }
                 $delete = ($delete[0] == "Y");
-                $id = (string) $z13->{'z13-doc-number'};
-                $adm_id = (string) $z30->{'z30-doc-number'};
-                $holdList[] = array(
-                    'id'       => $id,
-                    'adm_id'   => $adm_id,
-                    'type'     => $type,
-                    'item_id'  => $item_id,
+                $holdList[] = [
+                    'type' => $type,
+                    'item_id' => $item_id,
                     'location' => $location,
-                    'title'    => $title,
-                    'author'   => $author,
-                    'isbn'     => array($isbn),
-                    'reqnum'   => $reqnum,
-                    'barcode'  => $barcode,
-                    'expire'   => $this->parseDate($expire),
+                    'title' => $title,
+                    'author' => $author,
+                    'isbn' => [$isbn],
+                    'reqnum' => $reqnum,
+                    'barcode' => $barcode,
+                    'id' => $this->barcodeToID($barcode),
+                    'expire' => $this->parseDate($expire),
                     'holddate' => $holddate,
-                    'delete'   => $delete,
-                    'create'   => $this->parseDate($create),
-                    'status'   => $status,
-                    'position' => $seq,
-                    'on_hold_until' => $onHoldUntil,
-                );
+                    'delete' => $delete,
+                    'create' => $this->parseDate($create),
+                    'status' => $status,
+                    'position' => ltrim($seq, '0')
+                ];
             }
         }
-        $this->idResolver->resolveIds($holdList);
-        $ready = array();
-        $waiting = array();
-        foreach ($holdList as $hold) {
-            if ($hold['status'] == 'S') {
-                $ready[] = $hold;
-            } else {
-                $waiting[] = $hold;
-            }
-        }
-        $holdList = array_merge($ready, $waiting);
         return $holdList;
-    }
-
-    public function getMyShortLoanRequests($patron)
-    {
-        $xml = $this->alephWebService->doRestDLFRequest(array('patron', $patron['id'], 'circulationActions',
-            'requests', 'bookings'), array("view" => "full"));
-        $results = array();
-        foreach ($xml->xpath('//booking-request') as $item) {
-            $delete = $item->xpath('@delete');
-            $href = $item->xpath('@href');
-            $item_id = substr($href[0], strrpos($href[0], '/') + 1);
-            $z13 = $item->z13;
-            $z37 = $item->z37;
-            $z30 = $item->z30;
-            $barcode = (string) $z30->{'z30-barcode'};
-            $startDate = $z37->{'z37-booking-start-date'};
-            $startTime = $z37->{'z37-booking-start-hour'};
-            $endDate = $z37->{'z37-booking-end-date'};
-            $endTime = $z37->{'z37-booking-end-hour'};
-            $callnumber = $z30->{'z30-call-no'};
-            $start = substr($startDate[0], 6, 2) . '. ' . substr($startDate[0], 4, 2) . '. ' . substr($startDate[0], 0, 4)
-            . ' ' . substr($startTime[0], 0, 2) . ':' .  substr($startTime[0], 2, 2);
-            $end = substr($endDate[0], 6, 2) . '. ' . substr($endDate[0], 4, 2) . '. ' . substr($endDate[0], 0, 4)
-            . ' ' . substr($endTime[0], 0, 2) . ':' .  substr($endTime[0], 2, 2);
-            $delete = ($delete[0] == "Y");
-            $id = (string) $z13->{'z13-doc-number'};
-            $adm_id = (string) $z30->{'z30-doc-number'};
-            $sortKey = (string) $startDate[0] . $item_id;
-            $results[$sortKey] = array(
-                'id'         => $id, //$this->barcodeToID($barcode),
-                'adm_id'     => $adm_id,
-                'start'      => $start,
-                'end'        => $end,
-                'delete'     => $delete,
-                'item_id'    => $item_id,
-                'barcode'    => $barcode,
-                'callnumber' => $callnumber
-            );
-        }
-        ksort($results);
-        $results = array_values($results);
-        $this->idResolver->resolveIds($results);
-        return $results;
-    }
-
-    public function getCancelShortLoanRequestDetails($details)
-    {
-        if ($details['delete']) {
-            return $details['item_id'];
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -1624,11 +1060,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         } else {
             return null;
         }
-    }
-
-    public function getCancelBookingDetails($bookingsDetails)
-    {
-        return $this->getCancelHoldDetails($bookingsDetails);
     }
 
     /**
@@ -1649,11 +1080,11 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $count = 0;
         $statuses = [];
         foreach ($details['details'] as $id) {
-            $result = $this->alephWebService->doRestDLFRequest(
-                array(
+            $result = $this->doRestDLFRequest(
+                [
                     'patron', $patronId, 'circulationActions', 'requests', 'holds',
                     $id
-                ), null, "DELETE"
+                ], null, "DELETE"
             );
             $reply_code = $result->{'reply-code'};
             if ($reply_code != "0000") {
@@ -1675,42 +1106,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         return $statuses;
     }
 
-    public function cancelShortLoanRequest($details)
-    {
-        $patron = $details['patron'];
-        $patronId = $patron['id'];
-        $count = 0;
-        $statuses = array();
-        foreach ($details['details'] as $id) {
-            try {
-                $result = $this->alephWebService->doRestDLFRequest(array('patron', $patronId, 'circulationActions',
-                    'requests', 'bookings', $id), null, "DELETE");
-            } catch (Exception $ex) {
-                $statuses[$id] = array('success' => false, 'status' => 'cancel_hold_failed', 'sysMessage' => (string) $ex->getMessage());
-            }
-            $count++;
-            $statuses[$id] = array('success' => true, 'status' => 'cancel_hold_ok');
-        }
-        $statuses['count'] = $count;
-        return $statuses;
-    }
-
-    public function getAccruedOverdue($user)
-    {
-        $sum = 0;
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $user['id'], 'circulationActions'), null
-        );
-        foreach ($xml->circulationActions->institution as $institution) {
-            $cashNote = (string) $institution->note;
-            $matches = array();
-            if (preg_match("/Please note that there is an additional accrued overdue items fine of: (\d+\.?\d*)\./", $cashNote, $matches) === 1) {
-                $sum = $matches[1];
-            }
-        }
-        return $sum;
-    }
-
     /**
      * Get Patron Fines
      *
@@ -1727,48 +1122,44 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $finesList = [];
         $finesListSort = [];
 
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $user['id'], 'circulationActions', 'cash'),
-            array("view" => "full")
+        $xml = $this->doRestDLFRequest(
+            ['patron', $user['id'], 'circulationActions', 'cash'],
+            ["view" => "full"]
         );
 
         foreach ($xml->xpath('//cash') as $item) {
             $z31 = $item->z31;
             $z13 = $item->z13;
             $z30 = $item->z30;
-            $delete = $item->xpath('@delete');
+            //$delete = $item->xpath('@delete');
             $title = (string) $z13->{'z13-title'};
-            $description = (string) $z31->{'z31-description'};
             $transactiondate = date('d-m-Y', strtotime((string) $z31->{'z31-date'}));
             $transactiontype = (string) $z31->{'z31-credit-debit'};
             $id = (string) $z13->{'z13-doc-number'};
             $barcode = (string) $z30->{'z30-barcode'};
             $checkout = (string) $z31->{'z31-date'};
-            $adm_id = (string) $z30->{'z30-doc-number'};
-            $id = (string) $z13->{'z13-doc-number'};
+            $id = $this->barcodeToID($barcode);
             $mult = ($transactiontype == "Credit") ? 100 : -100;
             $amount
                 = (float)(preg_replace("/[\(\)]/", "", (string) $z31->{'z31-sum'}))
                 * $mult;
             $cashref = (string) $z31->{'z31-sequence'};
-            $cashdate = date('d-m-Y', strtotime((string) $z31->{'z31-date'}));
+            //$cashdate = date('d-m-Y', strtotime((string) $z31->{'z31-date'}));
             $balance = 0;
 
-            $finesListSort[$cashref]  = array(
-                    "title"    => $title,
-                    "barcode"  => $barcode,
-                    "amount"   => $amount,
-                    "fine"     => $description,
+            $finesListSort["$cashref"]  = [
+                    "title"   => $title,
+                    "barcode" => $barcode,
+                    "amount" => $amount,
                     "transactiondate" => $transactiondate,
                     "transactiontype" => $transactiontype,
                     "checkout" => $this->parseDate($checkout),
                     "balance"  => $balance,
-                    "id"       => $id,
-                    "adm_id"   => $adm_id
-            );
+                    "id"  => $id
+            ];
         }
         ksort($finesListSort);
-        foreach ($finesListSort as $key => $value) {
+        foreach (array_keys($finesListSort) as $key) {
             $title = $finesListSort[$key]["title"];
             $barcode = $finesListSort[$key]["barcode"];
             $amount = $finesListSort[$key]["amount"];
@@ -1776,23 +1167,19 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $transactiondate = $finesListSort[$key]["transactiondate"];
             $transactiontype = $finesListSort[$key]["transactiontype"];
             $balance += $finesListSort[$key]["amount"];
-            $adm_id = $finesListSort[$key]["adm_id"];
             $id = $finesListSort[$key]["id"];
-            $fine = $finesListSort[$key]["fine"];
-            $finesList[] = array(
-                "title"     => $title,
-                "barcode"   => $barcode,
-                "amount"    => $amount,
-                "fine"      => $fine,
+            $finesList[] = [
+                "title"   => $title,
+                "barcode"  => $barcode,
+                "amount"   => $amount,
                 "transactiondate" => $transactiondate,
                 "transactiontype" => $transactiontype,
-                "balance"   => $balance,
-                "checkout"  => $checkout,
-                "id"        => $id,
-                "adm_id"    => $adm_id,
-            );
+                "balance"  => $balance,
+                "checkout" => $checkout,
+                "id"  => $id,
+                "printLink" => "test",
+            ];
         }
-        $this->idResolver->resolveIds($finesList);
         return $finesList;
     }
 
@@ -1808,7 +1195,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function getMyProfile($user)
     {
-        if ($this->alephWebService->isXServerEnabled()) {
+        if ($this->xserver_enabled) {
             return $this->getMyProfileX($user);
         } else {
             return $this->getMyProfileDLF($user);
@@ -1829,7 +1216,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         if (!isset($user['college'])) {
             $user['college'] = $this->useradm;
         }
-        $xml = $this->alephWebService->doXRequest(
+        $xml = $this->doXRequest(
             "bor-info",
             [
                 'loans' => 'N', 'cash' => 'N', 'hold' => 'N',
@@ -1858,7 +1245,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $recordList['firstname'] = $firstname;
         $recordList['lastname'] = $lastname;
-        $recordList['cat_username'] = $user['id'];
         if (isset($user['email'])) {
             $recordList['email'] = $user['email'];
         }
@@ -1873,21 +1259,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $recordList['credit_sum'] = $credit_sum;
         $recordList['credit_sign'] = $credit_sign;
         $recordList['id'] = $id;
-        // deliquencies
-        $blocks = array();
-        foreach (array('z303-delinq-1', 'z303-delinq-2', 'z303-delinq-3') as $elementName) {
-            $block = (string) $xml->z303->{$elementName};
-            if (!empty($block) && $block != '00') {
-                $blocks[] = $block;
-            }
-        }
-        foreach (array('z305-delinq-1', 'z305-delinq-2', 'z305-delinq-3') as $elementName) {
-            $block = (string) $xml->z305->{$elementName};
-            if (!empty($block) && $block != '00') {
-                $blocks[] = $block;
-            }
-        }
-        $recordList['blocks'] = array_unique($blocks);
         return $recordList;
     }
 
@@ -1901,19 +1272,21 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function getMyProfileDLF($user)
     {
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $user['id'], 'patronInformation', 'address')
+        $xml = $this->doRestDLFRequest(
+            ['patron', $user['id'], 'patronInformation', 'address']
         );
-        $address = $xml->{'address-information'};
-        $address1 = (string) $address->{'z304-address-1'};
-        $address2 = (string) $address->{'z304-address-2'};
-        $address3 = (string) $address->{'z304-address-3'};
-        $address4 = (string) $address->{'z304-address-4'};
-        $zip = (string) $address->{'z304-zip'};
-        $phone = (string) $address->{'z304-telephone-1'};
-        $email = (string) $address->{'z304-email-address'};
-        $dateFrom = (string) $address->{'z304-date-from'};
-        $dateTo = (string) $address->{'z304-date-to'};
+        $address = $xml->xpath('//address-information');
+        $address = $address[0];
+        $address1 = (string)$address->{'z304-address-1'};
+        $address2 = (string)$address->{'z304-address-2'};
+        $address3 = (string)$address->{'z304-address-3'};
+        //$address4 = (string)$address->{'z304-address-4'};
+        //$address5 = (string)$address->{'z304-address-5'};
+        $zip = (string)$address->{'z304-zip'};
+        $phone = (string)$address->{'z304-telephone-1'};
+        $email = (string)$address->{'z404-email-address'};
+        $dateFrom = (string)$address->{'z304-date-from'};
+        $dateTo = (string)$address->{'z304-date-to'};
         if (strpos($address2, ",") === false) {
             $recordList['lastname'] = $address2;
             $recordList['firstname'] = "";
@@ -1921,24 +1294,22 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             list($recordList['lastname'], $recordList['firstname'])
                 = explode(",", $address2);
         }
-        $recordList['address1'] = $address3;
-        $recordList['address2'] = $address4;
+        $recordList['address1'] = $address2;
+        $recordList['address2'] = $address3;
         $recordList['barcode'] = $address1;
         $recordList['zip'] = $zip;
         $recordList['phone'] = $phone;
         $recordList['email'] = $email;
-        $recordList['addressValidFrom'] = $this->parseDate($dateFrom);
-        $recordList['addressValidTo'] = $this->parseDate($dateTo);
+        $recordList['dateFrom'] = $dateFrom;
+        $recordList['dateTo'] = $dateTo;
         $recordList['id'] = $user['id'];
-        $recordList['cat_username'] = $user['id'];
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $user['id'], 'patronStatus', 'registration')
+        $xml = $this->doRestDLFRequest(
+            ['patron', $user['id'], 'patronStatus', 'registration']
         );
-        $institution = $xml->{'registration'}->{'institution'};
-        $status = (string) $institution->{'z305-bor-status'};
-        $expiry = (string) $institution->{'z305-expiry-date'};
-        $recordList['expire'] = $this->parseDate($expiry);
-        $recordList['group'] = $status;
+        $status = $xml->xpath("//institution/z305-bor-status");
+        $expiry = $xml->xpath("//institution/z305-expiry-date");
+        $recordList['expire'] = $this->parseDate($expiry[0]);
+        $recordList['group'] = $status[0];
         return $recordList;
     }
 
@@ -1962,7 +1333,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             return $this->getMyProfile($temp);
         }
         try {
-            $xml = $this->alephWebService->doXRequest(
+            $xml = $this->doXRequest(
                 'bor-auth',
                 [
                     'library' => $this->useradm, 'bor_id' => $user,
@@ -2015,24 +1386,10 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     {
         list($bib, $sys_no) = $this->parseId($id);
         $resource = $bib . $sys_no;
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $patronId, 'record', $resource, 'items', $group)
+        $xml = $this->doRestDLFRequest(
+            ['patron', $patronId, 'record', $resource, 'items', $group]
         );
-        $holdRequestAllowed = $xml->xpath("//item/info[@type='HoldRequest']/@allowed");
-        $holdRequestAllowed = $holdRequestAllowed[0] == 'Y';
-        if ($holdRequestAllowed) {
-            return $this->extractHoldingInfoForItem($xml);
-        }
-        $shortLoanAllowed = $xml->xpath("//item/info[@type='ShortLoan']/@allowed");
-        $shortLoanAllowed = $shortLoanAllowed[0] == 'Y';
-        if ($shortLoanAllowed) {
-            return $this->extractShortLoanInfoForItem($xml);
-        }
-    }
-
-    protected function extractHoldingInfoForItem($xml)
-    {
-        $locations = array();
+        $locations = [];
         $part = $xml->xpath('//pickup-locations');
         if ($part) {
             foreach ($part[0]->children() as $node) {
@@ -2044,78 +1401,19 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         } else {
             throw new ILSException('No pickup locations');
         }
-
-        $dueDate = null;
-        $status = (string) $xml->xpath('//status/text()')[0];
-        if (!in_array($status, $this->available_statuses)) {
-            $availability = false;
-            $matches = array();
-            if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*);([a-zA-Z ]*)/", $status, $matches)) {
-                $dueDate = $this->parseDate($matches[1]);
-            } else if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches)) {
-                $dueDate = $this->parseDate($matches[1]);
-            } else {
-                $dueDate = null;
-            }
-        }
-
-        $status = (string) $xml->xpath('//z30-item-process-status-code/text()')[0];
-
         $requests = 0;
         $str = $xml->xpath('//item/queue/text()');
-        $matches = array();
-        $pattern = "/(\d) request\(s\) of (\d) items/";
-        if ($str != null && preg_match($pattern, $str[0], $matches)) {
-            $requests = $matches[1];
+        if ($str != null) {
+            list($requests) = explode(' ', trim($str[0]));
         }
         $date = $xml->xpath('//last-interest-date/text()');
         $date = $date[0];
         $date = "" . substr($date, 6, 2) . "." . substr($date, 4, 2) . "."
             . substr($date, 0, 4);
-        return array(
-            'pickup-locations' => $locations,
-            'last-interest-date' => $date,
-            'order' => $requests + 1,
-            'due-date' => $dueDate,
-            'status' => $status
-        );
-    }
-
-    protected function extractShortLoanInfoForItem($xml)
-    {
-        $shortLoanInfo = $xml->xpath("//item/info[@type='ShortLoan']");
-        $callNo = (string) $xml->{'item'}->{'z30'}->{'z30-call-no'};
-        $slots = array();
-        foreach ($shortLoanInfo[0]->{'short-loan'}->{'slot'} as $slot) {
-            $numOfItems = (int) $slot->{'num-of-items'};
-            $numOfOccupied = (int) $slot->{'num-of-occupied'};
-            $available = $numOfItems - $numOfOccupied;
-            if ($available <= 0) {
-                continue;
-            }
-            $start_date = $slot->{'start'}->{'date'};
-            $start_time = $slot->{'start'}->{'hour'};
-            $end_date = $slot->{'end'}->{'date'};
-            $end_time = $slot->{'end'}->{'hour'};
-            $time = substr($start_date, 6, 2) . "." . substr($start_date, 4, 2) . "."
-                . substr($start_date, 0, 4) . " " . substr($start_time, 0, 2) . ":"
-                . substr($start_time, 2, 2) . " - " . substr($end_time, 0, 2) . ":"
-                . substr($start_time, 2, 2);
-            $id = $slot->attributes()->id;
-            $id = (string) $id[0];
-            $slots[$id] = array(
-                'start_date' => (string) $start_date[0],
-                'start_time' => (string) $start_time[0],
-                'end_date'   => (string) $end_date[0],
-                'end_time'   => (string) $end_time[0],
-            );
-        }
-        $result = array(
-            'type'       => 'short',
-            'callnumber' => $callNo,
-            'slots'      => $slots,
-        );
-        return $result;
+        return [
+            'pickup-locations' => $locations, 'last-interest-date' => $date,
+            'order' => $requests + 1
+        ];
     }
 
     /**
@@ -2200,7 +1498,7 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         $body = 'post_xml=' . $body->asXML();
         try {
-            $this->alephWebService->doRestDLFRequest(
+            $this->doRestDLFRequest(
                 [
                     'patron', $patronId, 'record', $recordId, 'items', $itemId,
                     'hold'
@@ -2219,27 +1517,41 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         return ['success' => true];
     }
 
-    public function placeShortLoanRequest($details)
+    /**
+     * Convert a barcode to an item ID.
+     *
+     * @param string $bar Barcode
+     *
+     * @return string
+     */
+    public function barcodeToID($bar)
     {
-        list($bib, $sys_no) = $this->parseId($details['id']);
-        $recordId = $bib . $sys_no;
-        $slot = $details['slot'];
-        $itemId = $details['item_id'];
-        $patron = $details['patron'];
-        $patronId = $patron['id'];
-        $body = new \SimpleXMLElement(
-            '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<short-loan-parameters></short-loan-parameters>'
-        );
-        $body->addChild('request-slot', $slot);
-        $data = 'post_xml=' . $body->asXML();
-        try {
-            $result = $this->alephWebService->doRestDLFRequest(array('patron', $patronId, 'record', $recordId,
-                'items', $itemId, 'shortLoan'), null, "PUT", $data);
-            } catch (Exception $ex) {
-                return array('success' => false, 'sysMessage' => $ex->getMessage());
+        if (!$this->xserver_enabled) {
+            return null;
+        }
+        foreach ($this->bib as $base) {
+            try {
+                $xml = $this->doXRequest(
+                    "find", ["base" => $base, "request" => "BAR=$bar"], false
+                );
+                $docs = (int) $xml->{"no_records"};
+                if ($docs == 1) {
+                    $set = (string) $xml->{"set_number"};
+                    $result = $this->doXRequest(
+                        "present", ["set_number" => $set, "set_entry" => "1"],
+                        false
+                    );
+                    $id = $result->xpath('//doc_number/text()');
+                    if (count($this->bib) == 1) {
+                        return $id[0];
+                    } else {
+                        return $base . "-" . $id[0];
+                    }
+                }
+            } catch (\Exception $ex) {
             }
-        return array('success' => true);
+        }
+        throw new ILSException('barcode not found');
     }
 
     /**
@@ -2270,27 +1582,24 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * Public Function which retrieves renew, hold and cancel settings from the
      * driver ini file.
      *
-     * @param string $func The name of the feature to be checked
+     * @param string $func   The name of the feature to be checked
+     * @param array  $params Optional feature-specific parameters (array)
      *
      * @return array An array with key-value pairs.
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getConfig($func)
+    public function getConfig($func, $params = null)
     {
         if ($func == "Holds") {
             if (isset($this->config['Holds'])) {
                 return $this->config['Holds'];
             }
-            return array(
+            return [
                 "HMACKeys" => "id:item_id",
                 "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
-                "defaultRequiredDate" => $this->defaultRequiredDate
-            );
-        } if ($func == "ILLRequests") {
-            return array(
-                "HMACKeys" => "id:item_id",
-            );
+                "defaultRequiredDate" => "0:1:0"
+            ];
         } else {
             return [];
         }
@@ -2370,123 +1679,6 @@ class Aleph extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'Missing Catalog/preferredPickUpLocations config setting.'
             );
         }
-    }
-
-    public function getMyILLRequests($user) {
-        $userId = $user['id'];
-        $loans = array();
-        $params = array("view" => "full");
-        $count = 0;
-        $xml = $this->alephWebService->doRestDLFRequest(array('patron', $userId, 'circulationActions', 'requests', 'ill'), $params);
-        foreach ($xml->xpath('//ill-request') as $item) {
-            $loan = array();
-            $z13 = $item->z13;
-            $status = (string) $item->z410->{'z410-status'};
-            if (!in_array($status, $this->IllHiddenStatuses)) {
-                $loan['docno'] = (string) $z13->{'z13-doc-number'};
-                $loan['author'] = (string) $z13->{'z13-author'};
-                $loan['title'] = (string) $z13->{'z13-title'};
-                $loan['imprint'] = (string) $z13->{'z13-imprint'};
-                $loan['article_title'] = (string) $item->{'title-of-article'};
-                $loan['article_author'] = (string) $item->{'author-of-article'};
-                $loan['price'] = (string) $item->{'z13u-additional-bib-info-1'};
-                $loan['pickup_location'] = (string) $item->z410->{'z410-pickup-location'};
-                $loan['media'] = (string) $item->z410->{'z410-media'};
-                $loan['create'] = $this->parseDate((string) $item->z410->{'z410-open-date'});
-                $loan['expire'] = $this->parseDate((string) $item->z410->{'z410-last-interest-date'});
-                $loans[] = $loan;
-            }
-        }
-        return $loans;
-    }
-
-    public function placeILLRequest($user, $attrs)
-    {
-        $payment = $attrs['payment'];
-        unset($attrs['payment']);
-        $new = $attrs['new'];
-        unset($attrs['new']);
-        $additional_authors = $attrs['additional_authors'];
-        unset($attrs['additional_authors']);
-        $source = $attrs['source'];
-        $publisher = $attrs['publisher'];
-        unset($attrs['source']);
-        if (!isset($attrs['ill-unit'])) {
-            $attrs['ill-unit'] = $this->defaultIllUnit;
-        }
-        if (!isset($attrs['pickup-location'])) {
-            $attrs['pickup-location'] = $this->defaultIllPickupPlocation;
-        }
-        try {
-            $attrs['last-interest-date'] = $this->dateConverter->convertFromDisplayDate('Ymd', $attrs['last-interest-date']);
-        } catch (DateException $de) {
-            return array(
-                'success'    => false,
-                'sysMessage' => 'hold_date_invalid'
-            );
-        }
-        $attrs['allowed-media'] = $attrs['media'];
-        $attrs['send-directly'] = 'N';
-        $attrs['delivery-method'] = 'S';
-        if ($new == 'serial') {
-            $new = 'SE';
-        } else if ($new == 'monography') {
-            $new = 'MN';
-        }
-        $patronId = $user['id'];
-        $illDom = new \DOMDocument('1.0', 'UTF-8');
-        $illRoot = $illDom->createElement('ill-parameters');
-        $illRootNode = $illDom->appendChild($illRoot);
-        foreach ($attrs as $key => $value) {
-            $element = $illDom->createElement($key);
-            $element->appendChild($illDom->createTextNode($value));
-            $illRootNode->appendChild($element);
-        }
-        $xml = $illDom->saveXML();
-        try {
-            $path = array('patron', $patronId, 'record', $new, 'ill');
-            $result = $this->alephWebService->doRestDLFRequest($path, null,
-                'PUT', 'post_xml=' . $xml);
-        } catch (\Exception $ex) {
-            return array('success' => false, 'sysMessage' => $ex->getMessage());
-        }
-        $baseAndDocNumber = $result->{'create-ill'}->{'request-number'};
-        $base = substr($baseAndDocNumber, 0, 5);
-        $docNum = substr($baseAndDocNumber, 5);
-        $findDocParams = array('base' => $base, 'doc_num' => $docNum);
-        $document = $this->alephWebService->doXRequest('find-doc', $findDocParams, true);
-        // create varfield for ILL request type
-        $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
-        $varfield->addAttribute('id', 'PNZ');
-        $varfield->addAttribute('i1', ' ');
-        $varfield->addAttribute('i2', ' ');
-        $subfield = $varfield->addChild('subfield', $payment);
-        $subfield->addAttribute('label', 'a');
-        if (!empty($additional_authors)) {
-            $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
-            $varfield->addAttribute('id', '700');
-            $varfield->addAttribute('i1', '1');
-            $varfield->addAttribute('i2', ' ');
-            $subfield = $varfield->addChild('subfield', $additional_authors);
-            $subfield->addAttribute('label', 'a');
-        }
-        if (!empty($source)) {
-            $varfield = $document->{'record'}->{'metadata'}->{'oai_marc'}->addChild('varfield');
-            $varfield->addAttribute('id', '590');
-            $varfield->addAttribute('i1', ' ');
-            $varfield->addAttribute('i2', ' ');
-            $subfield = $varfield->addChild('subfield', htmlspecialchars($source));
-            $subfield->addAttribute('label', 'a');
-        }
-        $updateDocParams = array('library' => $base, 'doc_num' => $docNum);
-        $updateDocParams['xml_full_req'] = $document->asXml();
-        $updateDocParams['doc_action'] = 'UPDATE';
-        try {
-            $update = $this->alephWebService->doXRequestUsingPost('update-doc', $updateDocParams, true);
-        } catch (\Exception $ex) {
-            return array('success' => false, 'sysMessage' => $ex->getMessage());
-        }
-        return array('success' => true, 'id' => $docNum);
     }
 
     /**

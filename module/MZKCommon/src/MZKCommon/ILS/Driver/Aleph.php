@@ -37,7 +37,7 @@ use Zend\Log\LoggerInterface;
 use VuFindHttp\HttpServiceInterface;
 use DateTime;
 use VuFind\Exception\Date as DateException;
-use VuFind\ILS\Driver\Aleph as AlephBase;
+use MZKCommon\ILS\Driver\AlephMZK as AlephBase;
 
 class Aleph extends AlephBase
 {
