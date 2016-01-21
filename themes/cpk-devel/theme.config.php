@@ -16,7 +16,7 @@ return array(
         'vendor/bootstrap.min.js',
         'vendor/bootstrap-accessibility.min.js',
         'vendor/rc4.js',
-        'vendor/localforage.js',
+        'vendor/localforage-bundle.min.js',
         'vendor/js.cookie.js',
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
