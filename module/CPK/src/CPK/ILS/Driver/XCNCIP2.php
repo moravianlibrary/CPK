@@ -1172,6 +1172,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         foreach ($list as $current) {
             $type = $this->useXPath($current, 'RequestType');
+            $requestStatusType = $this->useXPath($current, 'RequestStatusType');
             $id = $this->useXPath($current,
                 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
             $location = $this->useXPath($current, 'PickupLocation');
@@ -1191,6 +1192,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (empty($position)) $position = $this->useXPath($current,
                     'Ext/HoldQueueLength');
 
+            $cannotCancel = false;
+
+            // Deal with Tabor.
+            if ($this->agency === 'TAG001') {
+                // $type == 'Hold' => rezervace; $type == 'Stack Retrieval' => objednavka
+                if (empty($expire)) $expire = $this->useXPath($current,
+                        'Ext/NeedBeforeDate');
+                if ((! empty($type)) && ((string) $type[0] == 'Stack Retrieval')) {
+                    $cannotCancel = true;
+                    $position = null; // hide queue position
+                }
+                if ((! empty($requestStatusType)) &&
+                        ((string) $requestStatusType[0] == 'Available For Pickup')) $cannotCancel = true;
+            }
+
             if (! empty($position)) if ((string) $position[0] === '0') $position = null; // hide queue position
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
             if ($this->agency === 'LIA001') { // change record prefix for kvkl
@@ -1204,6 +1220,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $parsedDate = empty($expire) ? '' : strtotime($expire[0]);
             $expire = date('j. n. Y', $parsedDate);
 
+            $available = false;
+            if ((! empty($requestStatusType)) &&
+                        ((string) $requestStatusType[0] == 'Available For Pickup')) $available = true;
+
             $retVal[] = array(
                 'type' => empty($type) ? '' : (string) $type[0],
                 'id' => empty($bib_id) ? '' : $bib_id,
@@ -1212,7 +1232,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'expire' => empty($expire) ? '' : $expire,
                 'create' => empty($create) ? '' : $create,
                 'position' => empty($position) ? null : (string) $position[0],
-                'available' => false, // true means item is ready for check out
+                'available' => $available, // true means item is ready for check out
                 'item_id' => empty($item_id) ? '' : (string) $item_id[0],
                 'barcode' => empty($item_id) ? '' : (string) $item_id[0],
                 'volume' => '',
@@ -1221,7 +1241,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'isbn' => '',
                 'issn' => '',
                 'oclc' => '',
-                'upc' => ''
+                'upc' => '',
+                'cannotcancel' => $cannotCancel
             );
         }
         return $retVal;
