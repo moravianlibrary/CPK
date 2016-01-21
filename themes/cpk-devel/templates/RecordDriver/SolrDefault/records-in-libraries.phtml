@@ -113,7 +113,7 @@
 		if ($this->params->getSearchType() == 'advanced') {
 		    $recordUrl = $this->recordLink()->getUrl($record).'?fromAdvancedSearchId='.$this->results->getSearchId();
 		} else {
-		    $recordUrl = $this->recordLink()->getUrl($record);
+		    $recordUrl = $this->recordLink()->getUrl($record).'?fromSearchId='.$this->results->getSearchId();
 		}
 		
 		$anchor = $this->transEsc('source_' . $source, null, $source);

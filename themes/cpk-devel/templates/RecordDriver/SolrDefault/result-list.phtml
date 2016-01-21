@@ -16,7 +16,7 @@
             <? if ($this->params->getSearchType() == 'advanced'): ?>
             <a href='<?=$this->recordLink()->getUrl($this->driver)?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
-            <a href='<?=$this->recordLink()->getUrl($this->driver)?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <a href='<?=$this->recordLink()->getUrl($this->driver)?>?fromSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? endif;?>
             	<div class="coverThumbnail cover_<?=$recordId?>">
             	
@@ -42,7 +42,7 @@
         <? if ($this->params->getSearchType() == 'advanced'): ?>
         <a href="<?=$this->recordLink()->getUrl($this->driver)?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>" class="title">
         <? else: ?>
-        <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
+        <a href="<?=$this->recordLink()->getUrl($this->driver)?>?fromSearchId=<?=$this->results->getSearchId()?>" class="title">
         <? endif;?>
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();

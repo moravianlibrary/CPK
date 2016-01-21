@@ -19,7 +19,7 @@
 
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
-    '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '</li> ') .
+    '<li><a href="/Search/Results?saved='.htmlspecialchars($_GET['fromSearchId']).'">'.$this->transEsc('Search').'</a></li> ' .
     '<li class="active">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
   $this->layout()->title = $this->driver->getShortTitle();
   
