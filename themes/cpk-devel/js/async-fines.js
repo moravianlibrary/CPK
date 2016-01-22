@@ -35,7 +35,8 @@ function fetchFines(cat_username) {
 function updateFinesTable(response) {
 
     // Update notifications not to let those fetch the blocks again ;)
-    if (__notif !== undefined && __notif.fines !== undefined) {
+    var nofifIsNotDefined = __notif === undefined || __notif.fines === undefined;
+    if (! nofifIsNotDefined) {
 	__notif.helper.processResponseAsynchronously(__notif.fines, response);
     }
     
@@ -118,6 +119,8 @@ function updateFinesTable(response) {
 	    // Purge <tbody>
 	    tableBody.remove();
 	}
+    } else {
+	console.error("cat_username from the response was not found on this page .. cannot update the fines table!", response.toSource());
     }
 }
 

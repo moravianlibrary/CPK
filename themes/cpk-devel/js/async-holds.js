@@ -37,8 +37,15 @@ function updateHolds(response) {
 
     var cat_username = data.cat_username, html = data.html;
 
+    var pointer = $('div#' + cat_username);
+    
+    if (! pointer.length) {
+	console.error("cat_username from the response was not found on this page .. cannot update holds!", response.toSource());
+	return;
+    }
+    
     // Overwrite current div with the new one from renderer
-    $('div#' + cat_username)[0].outerHTML = html;
+    pointer[0].outerHTML = html;
     
     // Decide if there will be cancel buttons or not ..    
     if (data.canCancel) {

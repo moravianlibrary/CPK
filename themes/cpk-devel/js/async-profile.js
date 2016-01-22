@@ -35,7 +35,8 @@ function fetchProfile(cat_username) {
 function updateProfileTable(response) {
 
     // Update notifications not to let those fetch the blocks again ;)
-    if (__notif !== undefined && __notif.blocks !== undefined) {
+    $nofifIsNotDefined = __notif === undefined || __notif.blocks === undefined;
+    if (! $notifIsNotDefined) {
 	__notif.helper.processResponseAsynchronously(__notif.blocks, response);
     }
     
@@ -98,5 +99,7 @@ function updateProfileTable(response) {
 	    }
 	    
 	}
+    } else {
+	console.error("cat_username from the response was not found on this page .. cannot update the profile table!", response.toSource());
     }
 }

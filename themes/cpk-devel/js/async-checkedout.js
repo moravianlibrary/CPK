@@ -34,7 +34,8 @@ function fetchTransactions(cat_username) {
 function updateTransactions(response) {
 
     // Update notifications not to let those fetch the blocks again ;)
-    if (__notif !== undefined && __notif.overdues !== undefined) {
+    var nofifIsNotDefined = __notif === undefined || __notif.overdues === undefined;
+    if (! nofifIsNotDefined) {
 	__notif.helper.processResponseAsynchronously(__notif.overdues, response);
     }
     
@@ -43,8 +44,15 @@ function updateTransactions(response) {
     var cat_username = data.cat_username, html = data.html, overdue = data.overdue;
     // TODO process overdue somehow ..
 
+    var pointer = $('div#' + cat_username);
+    
+    if (! pointer.length) {
+	console.error("cat_username from the response was not found on this page .. cannot update checked out items!", response.toSource());
+	return;
+    }
+    
     // Overwrite current div with the new one from renderer
-    $('div#' + cat_username)[0].outerHTML = html;
+    pointer[0].outerHTML = html;
     
     // Decide if there will be cancel buttons or not ..    
     if (data.canRenew) {
