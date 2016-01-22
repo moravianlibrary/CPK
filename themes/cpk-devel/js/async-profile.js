@@ -35,8 +35,8 @@ function fetchProfile(cat_username) {
 function updateProfileTable(response) {
 
     // Update notifications not to let those fetch the blocks again ;)
-    $nofifIsNotDefined = __notif === undefined || __notif.blocks === undefined;
-    if (! $notifIsNotDefined) {
+    var nofifIsNotDefined = __notif === undefined || __notif.blocks === undefined;
+    if (! notifIsNotDefined) {
 	__notif.helper.processResponseAsynchronously(__notif.blocks, response);
     }
     
