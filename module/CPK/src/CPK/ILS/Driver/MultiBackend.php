@@ -265,7 +265,7 @@ class MultiBackend extends MultiBackendBase
         $driver = $this->getDriver($source);
         
         if ($driver === null)
-            return $this->getEmptyStatuses($ids);
+            throw new ILSException("Driver is undefined!");
         
         if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
             
