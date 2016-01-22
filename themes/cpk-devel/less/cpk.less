@@ -44,9 +44,14 @@
   .label-variant(@label-unknown-bg);
 }
 
-a {
+a, .btn-link {
   cursor: pointer;
+  color: @brand-primary;
 }
+a:hover {
+  color: @brand-primary;
+}
+
 
 .form-control {
   &:focus {
