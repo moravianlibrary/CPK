@@ -70,7 +70,7 @@
                 : $this->escapeHtml($summAuthor);
           ?></a>
           <? endif; ?>
-		<span style='font-size: 110%;'>
+		<span class='summDate'>
           <? $journalTitle = $this->driver->getContainerTitle(); $summDate = $this->driver->getPublicationDates(); ?>
           <? if (!empty($journalTitle)): ?>
             <?=!empty($summAuthor) ? '<br />' : ''?>
