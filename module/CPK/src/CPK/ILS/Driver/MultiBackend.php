@@ -29,7 +29,7 @@
 namespace CPK\ILS\Driver;
 
 use CPK;
-use VuFind\Exception\ILS as ILSException, Zend\ServiceManager\ServiceLocatorAwareInterface, Zend\ServiceManager\ServiceLocatorInterface, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver;
+use VuFind\Exception\ILS as ILSException, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver;
 
 /**
  * Multiple Backend Driver.

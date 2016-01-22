@@ -190,7 +190,6 @@
       $setupJS = "var VuFind = new VuFindNamespace('{$root}', {$translations}, '{$dsb}');";
       $this->headScript()->appendScript($setupJS);
     ?>
-    <?=$this->headScript()?>
     <?=$this->headScript()->appendFile("geolocation.js");?>
   </head>
   <body class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?>">
