@@ -1,0 +1,46 @@
+<? if ($this->pageCount): ?>
+<div class='col-md-12'>
+    <div class='row'>
+      <ul class="pagination col-md-2" style='float: left;'>
+        <? if (isset($this->previous)): ?>
+          <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->previous)?>">&laquo; <?=$this->transEsc('Prev')?></a></li>
+        <? endif; ?>
+      </ul>
+      
+      <ul class="pagination col-md-8" align='center'>
+        <? if (isset($this->previous)): ?>
+          <? if (!isset($this->options['disableFirst']) || !$this->options['disableFirst']): ?>
+            <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage(1)?>">1</a></li>
+          <? endif; ?>
+        <? endif; ?>
+        
+        <? if (count($this->pagesInRange) > 1):
+            $arrayKeys = array_keys($this->pagesInRange);
+            $lastArrayKey = array_pop($arrayKeys); 
+          ?>
+          <? foreach ($this->pagesInRange as $key => $page): ?>
+            <? if ($page == 1) continue; ?>
+            <? if ($key == $lastArrayKey) break; ?>
+            <? if ($page != $this->current): ?>
+              <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($page)?>"><?=$page?></a></li>
+            <? else: ?>
+              <li class="active"><span><?=$page?></span></li>
+            <? endif; ?>
+          <? endforeach; ?>
+        <? endif; ?>
+        
+        <? if (isset($this->next)): ?>
+          <? if (!isset($this->options['disableLast']) || !$this->options['disableLast']): ?>
+            <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->pageCount)?>"><?=$this->pageCount?></a></li>
+          <? endif; ?>
+        <? endif; ?>
+      </ul>
+      
+      <ul class="pagination col-md-2" style='float: right; text-align: right;' align='right'>
+        <? if (isset($this->next)): ?>
+          <li style='float: right;'><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->next)?>"><?=$this->transEsc('Next');?> &raquo;</a></li>
+        <? endif; ?>
+      </ul>
+    </div>
+</div>
+<? endif; ?>
