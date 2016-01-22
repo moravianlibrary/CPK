@@ -158,7 +158,7 @@
 .link:hover {
     text-decoration: underline !important;
 }
-.highlight, mark {
-    background-color: #fff !important;
-    font-weight: bold;
+body {
+    font-family: 'Open Sans', sans-serif !important;
+    color: #444;
 }
