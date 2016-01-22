@@ -167,4 +167,18 @@ obalky.display_cover_without_links = function (element, bibinfo, query) {
 			  } 
 		  }, 2000);
 	  });
-	}
+}
+
+obalky.display_thumbnail_cover_without_links = function (element, bibinfo, query) {
+	  var multi = encodeURIComponent(JSON.stringify(bibinfo));
+	  $(document).ready(function() {
+	    var img = new Image();
+	    img.onload = function() {
+	      if (obalky.imageIsLoaded(img)) {
+	        var href = obalky.coverTargetUrl(bibinfo);
+	        $(element).html("<div class='cover_thumbnail'><img align='center' width='100' src='" + img.src + "' alt='" + obalky.coverText + "'></img></div>");	  	  
+	      }
+	    }
+	    img.src = obalky.coverUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
+	  });
+}
