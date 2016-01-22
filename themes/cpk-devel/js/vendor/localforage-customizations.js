@@ -3,37 +3,53 @@
  * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  * 
- * TODO: Should migrate this "Factory" to an AngularJS module
  */
 (function() {
     'use strict';
 
-    var localforageCustomizationBuffer = [];
+    if (typeof localforage === "object" && typeof localforage._config === "object") {
+	
+	/**
+	 * sessionStorage driver taken from:
+	 * https://github.com/thgreasi/localForage-sessionStorageWrapper
+	 */
+	(function() {
 
-    var addsessionStorageWrapper = function() {
-	// Add the https://github.com/thgreasi/localForage-sessionStorageWrapper
-	// sessionStorage project designed as a driver for localForage
-	var sessionStorageWrapper = window.sessionStorageWrapper;
-	localforage.defineDriver(sessionStorageWrapper).then(function() {
+	    var sessionStorageWrapper = window.sessionStorageWrapper;
+	    localforage.defineDriver(sessionStorageWrapper).then(function() {
 
-	});
-    }
+	    });
+	})();
 
-    var setLocalforageConfig = function() {
-	localforage.config({
-	    name : 'Knihovny.cz'
-	});
-    }
+	/**
+	 * Configure the localforage
+	 */
+	(function() {
+	    localforage.config({
+		name : 'Knihovny.cz'
+	    });
 
-    localforageCustomizationBuffer.push(addsessionStorageWrapper);
-    
-    localforageCustomizationBuffer.push(setLocalforageConfig);
-    
-    if (typeof localforage === "object")
-	localforageCustomizationBuffer.forEach(function(toCall) {
-	    toCall.call();
-	});
-    else
+	    localforage.SESSIONSTORAGE = "sessionStorageWrapper";
+	    
+	    // Let's override the setDriver method so that it remembers lastDriver used
+	    localforage._setDriver = localforage.setDriver;
+	    localforage._lastDriver = localforage.driver(); 
+	    
+	    localforage.setDriver = function(driver) {
+		
+		localforage._lastDriver = localforage.driver();
+		localforage._setDriver(driver);
+	    }
+	    
+	    
+	    localforage.setLastDriver = function() {
+		
+		localforage.setDriver(localforage._lastDriver);
+	    }
+	})();
+	
+    } else {
 	console.error("Customizing localforage before it is loaded by a script is not allowed !!");
+    }
 
 }).call(typeof window !== 'undefined' ? window : self);
