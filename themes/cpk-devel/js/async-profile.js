@@ -36,7 +36,7 @@ function updateProfileTable(response) {
 
     // Update notifications not to let those fetch the blocks again ;)
     var nofifIsNotDefined = __notif === undefined || __notif.blocks === undefined;
-    if (! notifIsNotDefined) {
+    if (! nofifIsNotDefined) {
 	__notif.helper.processResponseAsynchronously(__notif.blocks, response);
     }
     

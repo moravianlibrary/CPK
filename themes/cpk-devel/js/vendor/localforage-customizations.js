@@ -1,5 +1,7 @@
 /**
- * An customization of
+ * An customization of localforage project hosted by Mozilla.
+ * 
+ * See http://mozilla.github.io/localForage/#data-api
  * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  * 
