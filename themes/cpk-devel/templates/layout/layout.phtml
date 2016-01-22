@@ -207,40 +207,43 @@
     ?>
     <header class="hidden-print">
 		<!--<div class="container navbar navbar-inverse top-header">-->
-		<div class="container navbar navbar-inverse navbar-fixed-top top-header">
-			<div class="red-box">
-				<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
-          <?=$this->render('header.phtml', $headerParams)?>
-        </div>
+		<div class="navbar navbar-inverse navbar-fixed-top top-header">
+			<div class='container'>
+    			<div class="header-box">
+    				<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
+              	<?=$this->render('header.phtml', $headerParams)?>
+            	</div>
+            </div>
 		</div>
-		<div class="container" style="margin-top: 50px;">
+		<div style="margin-top: 50px;">
           <? if ($this->layout()->searchbox !== false): ?>
           <div class="well clearfix">
-          <?=$this->layout()->searchbox ?>
-
-                <?
-                /*
-                * This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
-                * This part creates button to show/hide division containing messages, which is created later
-                */
-                if($assertionExportEnabled): ?>
-                    <button id="shibAssertionHandler"
-					class="btn btn-link" style="float: right"
-					onclick="handleShibAssertion()">Show Shib Assertions</button>
-				<script type="text/javascript">
-                    function handleShibAssertion() {
-                         var __display = document.getElementById('shibAssertionExport').style.display;
-                         if (__display == 'block') {
-                            document.getElementById("shibAssertionHandler").innerHTML = "Show Shib Assertions";
-                            document.getElementById('shibAssertionExport').style.display = 'none';
-                         } else {
-                            document.getElementById("shibAssertionHandler").innerHTML = "Hide Shib Assertions";
-                            document.getElementById('shibAssertionExport').style.display = 'block';
-                         }
-                    }
-                    </script>
-                <? endif; ?>
-
+          	<div class='container'>
+              <?=$this->layout()->searchbox ?>
+    
+                    <?
+                    /*
+                    * This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
+                    * This part creates button to show/hide division containing messages, which is created later
+                    */
+                    if($assertionExportEnabled): ?>
+                        <button id="shibAssertionHandler"
+    					class="btn btn-link" style="float: right"
+    					onclick="handleShibAssertion()">Show Shib Assertions</button>
+    				<script type="text/javascript">
+                        function handleShibAssertion() {
+                             var __display = document.getElementById('shibAssertionExport').style.display;
+                             if (__display == 'block') {
+                                document.getElementById("shibAssertionHandler").innerHTML = "Show Shib Assertions";
+                                document.getElementById('shibAssertionExport').style.display = 'none';
+                             } else {
+                                document.getElementById("shibAssertionHandler").innerHTML = "Hide Shib Assertions";
+                                document.getElementById('shibAssertionExport').style.display = 'block';
+                             }
+                        }
+                        </script>
+                    <? endif; ?>
+			</div>
           </div>
           <? endif; ?>
       </div>
