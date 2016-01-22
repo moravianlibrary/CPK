@@ -35,7 +35,7 @@ function fetchFines(cat_username) {
 function updateFinesTable(response) {
 
     // Update notifications not to let those fetch the blocks again ;)
-    var nofifIsNotDefined = __notif === undefined || __notif.fines === undefined;
+    var nofifIsNotDefined = typeof __notif !== "undefined" && typeof __notif.fines !== "undefined";
     if (! nofifIsNotDefined) {
 	__notif.helper.processResponseAsynchronously(__notif.fines, response);
     }
