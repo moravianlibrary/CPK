@@ -100,6 +100,10 @@ function updateProfileTable(response) {
 	    
 	}
     } else {
-	console.error("cat_username from the response was not found on this page .. cannot update the profile table!", response.toSource());
+
+	if (typeof response === "object" && typeof response.toSource !== "undefined") // Only Mozilla can convert object to source string ..
+	    response = response.toSource();
+
+	console.error("cat_username from the response was not found on this page .. cannot update the profile table! " + response, arguments);
     }
 }

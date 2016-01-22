@@ -3,8 +3,7 @@ $(function() { // Onload DOM ..
     /*
      * Provide sync handlers before async as they may depend on each other
      */
-    var handlers = [ __notif.global, __notif.blocks, __notif.fines,
-	    __notif.overdues ];
+    var handlers = [ __notif.global, __notif.blocks, __notif.fines, __notif.overdues ];
 
     // Initialize the notifications' pointers
     __notif.helper.init(handlers);
@@ -41,8 +40,7 @@ __notif.global = {
 	if (++__notif.global.nothingRecievedCount === __notif.helper.handlersCount) {
 
 	    // Remove the loader
-	    __notif.helper.pointers.global.siblings('div.notif-default')
-		    .remove();
+	    __notif.helper.pointers.global.siblings('div.notif-default').remove();
 
 	    // Show the default message
 	    __notif.helper.pointers.global.show();
@@ -50,8 +48,7 @@ __notif.global = {
     },
 
     fetch : function() {
-	var initialCount = __notif.helper.pointers.global
-		.children('div:not(.counter-ignore)').length;
+	var initialCount = __notif.helper.pointers.global.children('div:not(.counter-ignore)').length;
 
 	if (initialCount > 0)
 	    __notif.warning.show();
@@ -59,8 +56,7 @@ __notif.global = {
 	    __notif.global.informAboutNothingRecieved();
 
 	// Is the message 'without_notifications' shown as the only one notif?
-	__notif.global.withoutNotifications = __notif.helper.pointers.global
-		.children('div:not(.without-notifs').length === 0;
+	__notif.global.withoutNotifications = __notif.helper.pointers.global.children('div:not(.without-notifs').length === 0;
 
     },
 
@@ -145,8 +141,7 @@ __notif.fines = {
 
     fetch : function() {
 	// Dont' be passive unless on Profile page ..
-	var shouldBePassive = document.location.pathname
-		.match(/^\/[a-zA-Z]+\/Fines/);
+	var shouldBePassive = document.location.pathname.match(/^\/[a-zA-Z]+\/Fines/);
 
 	if (!shouldBePassive)
 	    __notif.helper.fetch(__notif.fines);
@@ -184,8 +179,7 @@ __notif.overdues = {
 
     fetch : function() {
 	// Dont' be passive unless on Profile page ..
-	var shouldBePassive = document.location.pathname
-		.match(/^\/[a-zA-Z]+\/CheckedOut/);
+	var shouldBePassive = document.location.pathname.match(/^\/[a-zA-Z]+\/CheckedOut/);
 
 	if (!shouldBePassive)
 	    __notif.helper.fetch(__notif.overdues);
@@ -202,21 +196,23 @@ __notif.blocks.processResponse = function(response) {
 
     var data = response.data, status = response.status, institution = data.source;
 
-    var blocks = data.blocks, blocksCount = Object.keys(blocks).length;
-
-    var hasBlocks = (blocksCount > 0) ? true : false;
+    var hasBlocks = false;
 
     if (status === 'OK') {
 
+	var blocks = data.blocks, blocksCount = Object.keys(blocks).length;
+
+	if (blocksCount > 0)
+	    hasBlocks = true;
+
 	if (hasBlocks) {
 
-	    __notif.addNotification(VuFind.translate('you_have_blocks'),
-		    'warning', institution, true, __notif.blocks);
+	    __notif.addNotification(VuFind.translate('you_have_blocks'), 'warning', institution, true, __notif.blocks);
 	}
 
     } else { // We have recieved an error
 
-	__notif.helper.printErr("Status recieved is not 'OK' !", response);
+	__notif.helper.printErr("Institution " + institution + " returned ERROR!", response);
     }
 
     return hasBlocks;
@@ -232,46 +228,47 @@ __notif.fines.processResponse = function(response) {
 
     var data = response.data, status = response.status, institution = data.source;
 
-    var fines = data.fines, finesKeys = Object.keys(fines), finesKeysLength = finesKeys.length;
-
-    var hasDebt = false, credit = 0;
-
-    // Sum up all the fines to find out if user has debt or credit ..
-    for (var i = 0; i < finesKeysLength; ++i) {
-
-	var fine = fines[finesKeys[i]];
-
-	if (typeof fine !== 'object') {
-	    // this is not a fine -> continue (fine is always an object)
-	    continue;
-	}
-
-	var amount = fine.amount;
-	if (amount === undefined) {
-
-	    hasDebt = true;
-	    break;
-	}
-
-	credit += amount;
-    }
-
-    // If not decided yet, check the user's credit
-    if (hasDebt === false) {
-	hasDebt = (credit < 0) ? true : false;
-    }
+    var hasDebt = false;
 
     if (status === 'OK') {
 
+	var fines = data.fines, finesKeys = Object.keys(fines), finesKeysLength = finesKeys.length;
+
+	var credit = 0;
+
+	// Sum up all the fines to find out if user has debt or credit ..
+	for (var i = 0; i < finesKeysLength; ++i) {
+
+	    var fine = fines[finesKeys[i]];
+
+	    if (typeof fine !== 'object') {
+		// this is not a fine -> continue (fine is always an object)
+		continue;
+	    }
+
+	    var amount = fine.amount;
+	    if (typeof amount === "undefined") {
+
+		hasDebt = true;
+		break;
+	    }
+
+	    credit += amount;
+	}
+
+	// If not decided yet, check the user's credit
+	if (hasDebt === false) {
+	    hasDebt = (credit < 0) ? true : false;
+	}
+
 	if (hasDebt) {
 
-	    __notif.addNotification(VuFind.translate('you_have_fines'),
-		    'warning', institution, true, __notif.fines);
+	    __notif.addNotification(VuFind.translate('you_have_fines'), 'warning', institution, true, __notif.fines);
 	}
 
     } else { // We have recieved an error
 
-	__notif.helper.printErr("Status recieved is not 'OK' !", response);
+	__notif.helper.printErr("Institution " + institution + " returned ERROR!", response);
     }
 
     return hasDebt;
@@ -287,23 +284,22 @@ __notif.overdues.processResponse = function(response) {
 
     var data = response.data, status = response.status, institution = data.source;
 
-    var hasOverdues = data.overdue;
-
-    if (hasOverdues === undefined) {
-	hasOverdues = false;
-    }
+    var hasOverdues = false;
 
     if (status === 'OK') {
 
-	if (hasOverdues) {
+	var hasOverdues = data.overdue;
 
-	    __notif.addNotification(VuFind.translate('you_have_overdues'),
-		    'warning', institution, true, __notif.overdues);
+	if (typeof data.overdue !== "undefined") {
+
+	    hasOverdues = data.overdue;
+
+	    __notif.addNotification(VuFind.translate('you_have_overdues'), 'warning', institution, true, __notif.overdues);
 	}
 
     } else { // We have recieved an error
 
-	__notif.helper.printErr("Status recieved is not 'OK' !", response);
+	__notif.helper.printErr("Institution " + institution + " returned ERROR!", response);
     }
 
     return hasOverdues;
@@ -321,25 +317,22 @@ __notif.overdues.processResponse = function(response) {
  * 
  */
 
-__notif.addNotification = function(message, msgclass, institution,
-	showWarningIcon, handler) {
+__notif.addNotification = function(message, msgclass, institution, showWarningIcon, handler) {
 
-    if (message === undefined) {
-	return __notif.helper
-		.printErr('Please provide message to notify about.');
+    if (typeof message === "undefined") {
+	return __notif.helper.printErr('Please provide message to notify about.');
     }
 
     // Create the notification Element
     var notif = document.createElement('div');
 
     // Set the default
-    if (msgclass === undefined
-	    || __notif.options.allowedClasses.indexOf(msgclass) === -1) {
+    if (typeof msgclass === "undefined" || __notif.options.allowedClasses.indexOf(msgclass) === -1) {
 	msgclass = 'default';
     }
 
     // Show warning Icon by default
-    if (showWarningIcon === undefined) {
+    if (typeof showWarningIcon === "undefined") {
 	showWarningIcon = true;
     }
 
@@ -349,8 +342,7 @@ __notif.addNotification = function(message, msgclass, institution,
     if (!showWarningIcon) {
 	clazz += ' counter-ignore';
     } else {
-	__notif.sourcesRead.handleShowingWarningIcon(institution, handler,
-		notif);
+	__notif.sourcesRead.handleShowingWarningIcon(institution, handler, notif);
     }
 
     // The sourcesRead might have already added a class - but we can't be sure
@@ -426,9 +418,7 @@ __notif.sourcesRead = {
 	    __notif.sourcesRead.callbacksAfterFullInitialization.push(callback);
 	} else {
 
-	    var msg = 'Please provide a callback (instanceof Function) to '
-		    + '__notif.sourcesRead.'
-		    + 'addCallbackAfterFullInitialization(callback)';
+	    var msg = 'Please provide a callback (instanceof Function) to ' + '__notif.sourcesRead.' + 'addCallbackAfterFullInitialization(callback)';
 
 	    __notif.helper.printErr(msg, arguments);
 	}
@@ -456,8 +446,7 @@ __notif.sourcesRead = {
 
 	for (var i = 0; i < __notif.helper.institutionsCount; ++i) {
 	    var institutionKey = institutionKeys[i];
-	    __notif.helper.pointers.institutions[institutionKey].children()
-		    .addClass('notif-unread');
+	    __notif.helper.pointers.institutions[institutionKey].children().addClass('notif-unread');
 	}
 
 	__notif.sourcesRead.values = [];
@@ -479,8 +468,7 @@ __notif.sourcesRead = {
 	if (handlerOk === false)
 	    return -1;
 
-	var toSearchFor = __notif.sourcesRead.craftSourceReadValue(source,
-		handler);
+	var toSearchFor = __notif.sourcesRead.craftSourceReadValue(source, handler);
 
 	return __notif.sourcesRead.values.indexOf(toSearchFor);
     },
@@ -500,8 +488,7 @@ __notif.sourcesRead = {
 	// Define what to do
 	var closure = function() {
 
-	    var isUnread = __notif.sourcesRead
-		    .isMarkedAsUnread(source, handler);
+	    var isUnread = __notif.sourcesRead.isMarkedAsUnread(source, handler);
 
 	    if (isUnread) {
 		// Show the warning icon
@@ -558,7 +545,7 @@ __notif.sourcesRead = {
 	}
 
 	// Did we recieve the array defining sourcesRead ?
-	if (sourcesRead !== undefined && sourcesRead instanceof Array) {
+	if (typeof sourcesRead !== "undefined" && sourcesRead instanceof Array) {
 
 	    // SourcesRead were provided - probably just logged in ?
 	    __notif.sourcesRead.values = sourcesRead;
@@ -577,8 +564,7 @@ __notif.sourcesRead = {
 	    tasksAfterInitialization();
 	};
 
-	localforage.getItem('__notif.sourcesRead.values',
-		getSourcesReadCallback);
+	localforage.getItem('__notif.sourcesRead.values', getSourcesReadCallback);
     },
 
     /**
@@ -615,8 +601,7 @@ __notif.sourcesRead = {
 
 	if (__notif.sourcesRead.isMarkedAsUnread(source, handler)) {
 
-	    var toPush = __notif.sourcesRead.craftSourceReadValue(source,
-		    handler);
+	    var toPush = __notif.sourcesRead.craftSourceReadValue(source, handler);
 
 	    __notif.sourcesRead.values.push(toPush);
 	    __notif.sourcesRead.save();
@@ -659,8 +644,7 @@ __notif.sourcesRead = {
 	// Prepare for iteration over all the current values
 	var sourcesReadLength = __notif.sourcesRead.values.length, newSourcesReadValues = [];
 
-	var toSearchFor = __notif.sourcesRead.craftSourceReadValue(source,
-		handler);
+	var toSearchFor = __notif.sourcesRead.craftSourceReadValue(source, handler);
 
 	// We need to purge any occurrence, so loop through it
 	for (var i = 0; i < sourcesReadLength; ++i) {
@@ -681,8 +665,7 @@ __notif.sourcesRead = {
     save : function() {
 
 	// Push it to local storage
-	localforage.setItem('__notif.sourcesRead.values',
-		__notif.sourcesRead.values, __notif.helper.printErrCallback);
+	localforage.setItem('__notif.sourcesRead.values', __notif.sourcesRead.values, __notif.helper.printErrCallback);
     }
 };
 
@@ -792,8 +775,7 @@ __notif.helper = {
 	    });
 	}
 
-	__notif.helper.pointers.warningIcon.parent().on('click',
-		bellClickCallback);
+	__notif.helper.pointers.warningIcon.parent().on('click', bellClickCallback);
     },
 
     /**
@@ -803,22 +785,18 @@ __notif.helper = {
     appendNotification : function(notificationElement, institution, handler) {
 
 	// Get the section of desired institution
-	var identityNotificationsElement = __notif.helper
-		.getIdentityNotificationsElement(institution);
+	var identityNotificationsElement = __notif.helper.getIdentityNotificationsElement(institution);
 
 	if (identityNotificationsElement === false)
 	    return false;
 
 	// Append eventListeners to the notification
-	if (handler !== undefined && typeof handler.eventListeners === 'object'
-		&& !(handler.eventListeners instanceof Array)) {
+	if (typeof handler !== "undefined" && typeof handler.eventListeners === 'object' && !(handler.eventListeners instanceof Array)) {
 
-	    Object.keys(handler.eventListeners).forEach(
-		    function(key) {
-			if (typeof handler.eventListeners[key] === 'function')
-			    notificationElement.addEventListener(key,
-				    handler.eventListeners[key]);
-		    });
+	    Object.keys(handler.eventListeners).forEach(function(key) {
+		if (typeof handler.eventListeners[key] === 'function')
+		    notificationElement.addEventListener(key, handler.eventListeners[key]);
+	    });
 	}
 
 	// Append the notification
@@ -841,7 +819,7 @@ __notif.helper = {
      * @returns {Boolean}
      */
     checkHandlerIsValid : function(handler) {
-	if (handler === undefined || handler.localforageItemName === undefined) {
+	if (typeof handler === "undefined" || typeof handler.localforageItemName === "undefined") {
 	    var msg = 'Did not provide valid handler !';
 
 	    return __notif.helper.printErr(msg, handler);
@@ -861,8 +839,7 @@ __notif.helper = {
 
 	var setCurrVersion = function() {
 	    // Set the version to the current version
-	    localforage
-		    .setItem(localforageVersionName, __notif.options.version);
+	    localforage.setItem(localforageVersionName, __notif.options.version);
 	}
 
 	var getVersionCallback = function(err, val) {
@@ -946,11 +923,10 @@ __notif.helper = {
      * @param dataToSend
      * @param successCallback
      */
-    doPOST : function(async, ajaxMethod, dataToSend, successCallback,
-	    errCallback) {
+    doPOST : function(async, ajaxMethod, dataToSend, successCallback, errCallback) {
 
 	// Print all errors to console.error by default ..
-	if (errCallback === undefined || typeof errCallback !== "function")
+	if (typeof errCallback === "undefined" || typeof errCallback !== "function")
 	    errCallback = function(err) {
 		__notif.helper.printErr(err);
 	    };
@@ -980,8 +956,7 @@ __notif.helper = {
 	    __notif.helper.downloadUsingCatUsername(handler, cat_username);
 	};
 
-	Object.keys(__notif.helper.pointers.institutions).forEach(
-		downloadCallback);
+	Object.keys(__notif.helper.pointers.institutions).forEach(downloadCallback);
     },
 
     /**
@@ -1021,11 +996,11 @@ __notif.helper = {
      */
     downloadUsingCatUsername : function(handler, cat_username) {
 
-	if (handler === undefined) {
+	if (typeof handler === "undefined") {
 	    return __notif.helper.printErr('No handler provided !');
 	}
 
-	if (cat_username === undefined) {
+	if (typeof cat_username === "undefined") {
 	    return __notif.helper.printErr('No cat_username provided !');
 	}
 
@@ -1051,14 +1026,12 @@ __notif.helper = {
 	if (handler.isAsync) {
 
 	    // Get the notifies object from storage
-	    localforage.getItem('__notif.' + handler.localforageItemName,
-		    function(err, savedResponses) {
+	    localforage.getItem('__notif.' + handler.localforageItemName, function(err, savedResponses) {
 
-			__notif.helper.printErr(err, savedResponses);
+		__notif.helper.printErr(err, savedResponses);
 
-			__notif.helper.processSavedResponses(handler,
-				savedResponses);
-		    });
+		__notif.helper.processSavedResponses(handler, savedResponses);
+	    });
 	} else {
 	    /*
 	     * The handler does not care about storing any information as it is
@@ -1076,7 +1049,7 @@ __notif.helper = {
      * @returns
      */
     getIdentityNotificationsElement : function(source) {
-	if (source === undefined) {
+	if (typeof source === "undefined") {
 	    // Set default identity
 	    return __notif.helper.pointers.global;
 	}
@@ -1084,12 +1057,9 @@ __notif.helper = {
 	var identityNotificationsElement = __notif.helper.pointers.institutions[source];
 
 	// Did we find the identity?
-	if (identityNotificationsElement === undefined
-		|| !identityNotificationsElement.length) {
+	if (typeof identityNotificationsElement === "undefined" || !identityNotificationsElement.length) {
 
-	    var message = "Pointer for '" + source
-		    + "' wasn't properly initialized."
-		    + ' An attempt to resolve it failed';
+	    var message = "Pointer for '" + source + "' wasn't properly initialized." + ' An attempt to resolve it failed';
 
 	    __notif.helper.printErr(message);
 
@@ -1108,16 +1078,16 @@ __notif.helper = {
      * @returns {Boolean}
      */
     printErr : function(err, val) {
-	if (__notif.options.development && err !== undefined && err !== null) {
+	if (__notif.options.development && typeof err !== "undefined" && err !== null) {
 
-	    if (typeof err === "object")
+	    if (typeof err === "object" && typeof err.toSource !== "undefined")
 		err = err.toSource();
 
 	    console.error("notifications.js produced an error: " + err);
 
-	    if (val !== undefined && val != null) {
-		console.error("value having problem with is '" + val.toSource()
-			+ "'");
+	    if (typeof val !== "undefined" && val != null && typeof val.toSource !== "undefined") {
+
+		console.error("value having problem with is '" + val.toSource() + "'");
 	    }
 	}
 	return false;
@@ -1143,15 +1113,14 @@ __notif.helper = {
      */
     processResponse : function(handler, response, saveIt) {
 
-	if (saveIt === undefined || saveIt) {
+	if (typeof saveIt === "undefined" || saveIt) {
 	    __notif.helper.saveResponse(handler, response);
 	}
 
 	// Let the handler handle the response itself
 	var notificationAdded = handler.processResponse(response);
 
-	if (notificationAdded === undefined
-		|| typeof notificationAdded !== 'boolean') {
+	if (typeof notificationAdded === "undefined" || typeof notificationAdded !== 'boolean') {
 
 	    var msg = 'Every handler must return true/false if an notification was added!';
 
@@ -1161,8 +1130,7 @@ __notif.helper = {
 
 	if (notificationAdded === false) {
 	    for (var i = 0; i < __notif.helper.handlersToInformAboutNothingRecievedLength; ++i) {
-		__notif.helper.handlersToInformAboutNothingRecieved[i]
-			.informAboutNothingRecieved(handler);
+		__notif.helper.handlersToInformAboutNothingRecieved[i].informAboutNothingRecieved(handler);
 	    }
 	}
 
@@ -1242,8 +1210,7 @@ __notif.helper = {
 
 	handler.timeSaved = localforageItem.timeSaved;
 
-	localforage.setItem('__notif.' + handler.localforageItemName,
-		localforageItem, __notif.helper.printErrCallback);
+	localforage.setItem('__notif.' + handler.localforageItemName, localforageItem, __notif.helper.printErrCallback);
     },
 
     /**
@@ -1258,8 +1225,7 @@ __notif.helper = {
 
 	handler.responses[institution] = response;
 
-	var institutionsCount = Object
-		.keys(__notif.helper.pointers.institutions).length;
+	var institutionsCount = Object.keys(__notif.helper.pointers.institutions).length;
 
 	/*
 	 * Have we fetched all the institutions within this async handler?
@@ -1281,12 +1247,9 @@ __notif.helper = {
      * @returns {Boolean}
      */
     shouldWeFetchAgain : function(handler) {
-	if (handler.timeSaved === undefined
-		|| typeof handler.timeSaved !== 'number'
-		|| handler.timeSaved !== 0) {
+	if (typeof handler.timeSaved === "undefined" || typeof handler.timeSaved !== 'number' || handler.timeSaved !== 0) {
 
-	    var shouldWeFetchAgain = __notif.options.toWait + handler.timeSaved < Date
-		    .now();
+	    var shouldWeFetchAgain = __notif.options.toWait + handler.timeSaved < Date.now();
 
 	    return shouldWeFetchAgain;
 	} else {
@@ -1317,21 +1280,18 @@ __notif.helper = {
 		 */
 
 		// Fetch notificatios for new cat_username
-		var cat_username = __notif.helper.pointers.institutions[source]
-			.attr('data-id');
+		var cat_username = __notif.helper.pointers.institutions[source].attr('data-id');
 
 		/*
 		 * Redownload new identity for all the initialized async
 		 * handlers
 		 */
-		__notif.helper
-			.downloadForAllHandlersUsingCatUsername(cat_username);
+		__notif.helper.downloadForAllHandlersUsingCatUsername(cat_username);
 	    }
 	};
 
 	// Perform the callback on all institutions
-	Object.keys(__notif.helper.pointers.institutions).forEach(
-		filterCallback);
+	Object.keys(__notif.helper.pointers.institutions).forEach(filterCallback);
 
 	if (currIdentities.length > 0) {
 	    // Some identities were disconnected
@@ -1351,8 +1311,7 @@ __notif.helper = {
  */
 __notif.helper.init = function(handlers) {
 
-    if (Cookies.getJSON('loggedOut') === 1
-	    && __notif.helper.initCallbacked === false) {
+    if (Cookies.getJSON('loggedOut') === 1 && __notif.helper.initCallbacked === false) {
 	// We want this to be synchronous, so we'll call the init again after
 	// it's done
 
@@ -1403,25 +1362,20 @@ __notif.helper.init = function(handlers) {
 
     });
 
-    if (__notif.helper.pointers.global === undefined
-	    || !__notif.helper.pointers.global.length) {
-	var message = 'Could not resolve notifications global pointer !\n'
-		+ 'Please consider adding div[data-type=global] inside any <li>'
+    if (typeof __notif.helper.pointers.global === "undefined" || !__notif.helper.pointers.global.length) {
+	var message = 'Could not resolve notifications global pointer !\n' + 'Please consider adding div[data-type=global] inside any <li>'
 		+ "__notif.addNotification() won't work correctly until fixed";
 
 	__notif.helper.printErr(message);
     }
 
     // Resolve the warning icon
-    var warningIcon = notifList.siblings('a#notif_icon').children(
-	    'i#notif-warning');
+    var warningIcon = notifList.siblings('a#notif_icon').children('i#notif-warning');
 
     if (warningIcon.length) {
 	__notif.helper.pointers.warningIcon = warningIcon;
     } else {
-	var message = 'Could not resolve warning icon pointer !\n'
-		+ "User won't see any warning showed up when "
-		+ 'notifications are added until fixed';
+	var message = 'Could not resolve warning icon pointer !\n' + "User won't see any warning showed up when " + 'notifications are added until fixed';
 
 	__notif.helper.printErr(message);
     }
@@ -1453,10 +1407,8 @@ __notif.helper.init = function(handlers) {
 	     * desires to be informed everytime some handler did not recieve
 	     * anything notifyable
 	     */
-	    if (handler.hasOwnProperty('informAboutNothingRecieved')
-		    && typeof handler.informAboutNothingRecieved === 'function') {
-		__notif.helper.handlersToInformAboutNothingRecieved
-			.push(handler);
+	    if (handler.hasOwnProperty('informAboutNothingRecieved') && typeof handler.informAboutNothingRecieved === 'function') {
+		__notif.helper.handlersToInformAboutNothingRecieved.push(handler);
 	    }
 	}
 
@@ -1478,8 +1430,7 @@ __notif.helper.init = function(handlers) {
 	__notif.helper.addEasterEggs();
 
     } else {
-	var message = 'No handlers were specified to fetch !'
-		+ 'consider adding at least __notif.global handler'
+	var message = 'No handlers were specified to fetch !' + 'consider adding at least __notif.global handler'
 		+ 'as it\'s already synchronously implemented within VuFind';
 
 	__notif.helper.printErr(message);

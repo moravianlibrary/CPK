@@ -52,7 +52,11 @@ var holdingsILS = {
 		    holdingsILS.processGetHoldingStatusesResponse(response);
 		},
 		error : function(msg) {
-		    console.error("async-holdingsils.js produced an error while doing AJAX:\n" + msg.toSource());
+		    
+		    if (typeof msg === "object" && typeof msg.toSource !== "undefined") // Only Mozilla can convert object to source string ..
+			msg = msg.toSource();
+		    
+		    console.error("async-holdingsils.js produced an error while doing AJAX:\n" + msg, arguments);
 		}
 	    })
 	}

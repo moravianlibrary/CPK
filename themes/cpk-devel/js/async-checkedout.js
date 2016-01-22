@@ -47,7 +47,11 @@ function updateTransactions(response) {
     var pointer = $('div#' + cat_username);
     
     if (! pointer.length) {
-	console.error("cat_username from the response was not found on this page .. cannot update checked out items!", response.toSource());
+
+	if (typeof response === "object" && typeof response.toSource !== "undefined") // Only Mozilla can convert object to source string ..
+	    response = response.toSource();
+	
+	console.error("cat_username from the response was not found on this page .. cannot update checked out items! " + response, arguments);
 	return;
     }
     
