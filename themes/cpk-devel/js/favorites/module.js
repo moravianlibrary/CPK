@@ -60,6 +60,10 @@
  * date, let's say 1 month? User'll then recieve some temporary tokenized URL.
  * TODO: is there some better solution ?
  * 
+ * Note that the Favorites app is being written with respect to Angular Style
+ * Guide you can look at here:
+ * https://github.com/johnpapa/angular-styleguide#angular-style-guide
+ * 
  * Deeper explanation of this AngularJS MVC implementation:
  * 
  * TODO
@@ -67,46 +71,5 @@
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {
-    var app = angular.module('favorites', []);
-
-    
-    app.controller('FavoritesFormController', function() {
-
-    });
-
-    app.controller('MainController', function() {
-
-	this.pagesInterval = {
-	    "from" : undefined,
-	    "to" : undefined
-	};
-
-	this.pagesTotal = undefined;
-
-	this.listId = 999;
-
-	this.listTitle = "Your Favorites"; // TODO change it to real title or
-	// at least translate
-
-	this.description = "";
-
-	this.editModeActive = true;
-
-	this.listEmpty = false;
-
-	this.editList = function(id) {
-	    alert("editing list " + id)
-	};
-
-	this.deleteList = function(id) {
-	    alert("deleting list " + id)
-	};
-
-	this.submitBulk = function() {
-	};
-    });
-
-    app.controller('', function() {
-
-    });
+    angular.module('favorites', []);
 })();
