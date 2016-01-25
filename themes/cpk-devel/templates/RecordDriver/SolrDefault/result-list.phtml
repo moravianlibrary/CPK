@@ -37,7 +37,7 @@
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
         </div>
-    <div class="col-sm-10 col-xs-9 middle">
+    <div class="col-sm-7 col-xs-7 middle search-result-container">
       <div class="root-title">
         <? if ($this->params->getSearchType() == 'advanced'): ?>
         <a href="<?=$this->recordLink()->getUrl($this->driver)?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>" class="title">
@@ -146,6 +146,15 @@
         <?=$this->record($this->driver)->getFormatList()?>
       </div>
     </div>
+    <div class="col-sm-3 col-xs-2 middle">
+    <?
+     /* Display information on duplicate records if available */
+     $dedupData = $this->driver->getDedupData();
+     if ($dedupData)
+         echo $this->context($this)->renderInContext('RecordDriver/SolrDefault/records-in-libraries.phtml', array('records' => $dedupData, 'config' => $this->config));
+
+     ?>
+    </div>
     <div class="col-xs-3 right hidden-print">
       <? /* Display qrcode if appropriate: */ ?>
       <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
@@ -176,16 +185,6 @@
 
       <?=$this->driver->supportsCoinsOpenUrl()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenUrl()).'"></span>':''?>
     </div>
-  </div>
-  <hr class='records-in-libraries-divider'>
-  <div class="col-sm-12">
-         <?
-         /* Display information on duplicate records if available */
-         $dedupData = $this->driver->getDedupData();
-         if ($dedupData)
-             echo $this->context($this)->renderInContext('RecordDriver/SolrDefault/records-in-libraries.phtml', array('records' => $dedupData, 'config' => $this->config));
-
-         ?>
   </div>
   </div>
 
