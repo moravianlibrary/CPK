@@ -24,6 +24,10 @@ browserDetectLanguage = false
 defaultAccountPage = CheckedOut
 
 notificationsEnabled = true
+;notificationsEnabled = false
+
+offlineFavoritesEnabled = true
+;offlineFavoritesEnabled = false
 
 [Record]
 ;This will build links from 7xx fiedls. Link is build from subfields x or z for searching by ISN, 

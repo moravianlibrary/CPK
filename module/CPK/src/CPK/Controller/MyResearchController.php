@@ -363,6 +363,42 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    /**
+     * Send user's saved favorites from a particular list to the view
+     *
+     * @return mixed
+     */
+    public function mylistAction()
+    {
+            // Fail if lists are disabled:
+        if (! $this->listsEnabled()) {
+            throw new \Exception('Lists disabled');
+        }
+        
+        $config = $this->getConfig();
+        
+        // Are "offline favorites" enabled ?
+        $offlineFavoritesEnabled = false;
+        
+        if ($config->Site['offlineFavoritesEnabled'] !== null) {
+            $offlineFavoritesEnabled = (bool) $config->Site['offlineFavoritesEnabled'];
+        }
+        
+        // And is user not logged in ?
+        $userNotLoggedIn = $this->getUser() === false;
+        
+        if ($offlineFavoritesEnabled && $userNotLoggedIn) {
+            // Well then, render the favorites for not logged in user & let JS handle it ..
+            
+            return $this->createViewModel([
+                'loggedIn' => false
+            ]);
+        } else {
+            // Nope, let's behave the old-style :)
+            parent::mylistAction();
+        }
+    }
+
     public function userConnectAction()
     {
         // This eid serves only to warn user he wants to connect the same instituion account
