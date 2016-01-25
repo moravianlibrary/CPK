@@ -10,16 +10,7 @@
           $redirectUrlArray = explode("/", $redirectUrl);
           $controller = $redirectUrlArray[1];
           $action = (isset($redirectUrlArray[2])) ? $redirectUrlArray[2] : '';
-      
       ?>
-          <? if (($controller == 'Search') && ($action == 'Results')) : ?>
-          <li>
-          	<i class="icon-rss"></i>
-          		<a href="<?=$_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME'].$_SERVER['REDIRECT_URL']."?".addslashes($_SERVER['QUERY_STRING'])."&view=rss"?>">
-          			<?=$this->transEsc('Get RSS Feed')?>
-          		</a>
-          	</li>
-          <? endif; ?>
       <? endif; ?>
     </ul>
   </div>
