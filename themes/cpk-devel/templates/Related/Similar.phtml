@@ -47,7 +47,8 @@
                 <? endif; ?>
                 
                 <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
-                  <br/><?=$this->escapeHtml($author);?>
+                  <br/>
+                  <?= $this->record($this->driver)->flipNameAndSurname($this->escapeHtml($author)); ?>
                 <? endif; ?>
             </div>
       </a>

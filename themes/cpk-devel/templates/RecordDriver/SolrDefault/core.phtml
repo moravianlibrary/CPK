@@ -106,7 +106,7 @@
               <? if (isset($authors['main']) && !empty($authors['main'])): ?>
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Main Author')?>: </th>
-                <td property="author"><a href="<?=$this->record($this->driver)->getLink('author', $authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a></td>
+                <td property="author"><a href="<?=$this->record($this->driver)->getLink('author', $authors['main'])?>"><?= $this->record($this->driver)->flipNameAndSurname($this->escapeHtml($authors['main'])); ?></a></td>
               </tr>
               <? endif; ?>
         
@@ -121,7 +121,7 @@
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Other Authors')?>: </th>
                 <td>
-                  <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="<?=$this->record($this->driver)->getLink('author', $field)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
+                  <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="<?=$this->record($this->driver)->getLink('author', $field)?>"><?= $this->record($this->driver)->flipNameAndSurname($this->escapeHtml($field)); ?></a></span><? endforeach; ?>
                 </td>
               </tr>
               <? endif; ?>

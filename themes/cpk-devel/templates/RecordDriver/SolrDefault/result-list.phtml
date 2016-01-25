@@ -65,10 +65,12 @@
           <? $summAuthor = $this->driver->getPrimaryAuthor(); if (!empty($summAuthor)): ?>
           <a class='author-info' href="<?=$this->record($this->driver)->getLink('author', $summAuthor)?>"><?
             $summHighlightedAuthor = $this->driver->getHighlightedAuthor();
-            echo !empty($summHighlightedAuthor)
+            $author = !empty($summHighlightedAuthor)
                 ? $this->highlight($summHighlightedAuthor)
                 : $this->escapeHtml($summAuthor);
-          ?></a>
+          ?>
+          <?= $this->record($this->driver)->flipNameAndSurname($author) ?>
+          </a>
           <? endif; ?>
 		<span class='summDate'>
           <? $journalTitle = $this->driver->getContainerTitle(); $summDate = $this->driver->getPublicationDates(); ?>
