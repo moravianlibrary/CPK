@@ -1,4 +1,9 @@
 <?
+if ($this->loggedIn === false) {
+    // Load mylist-notlogged.phtml if not logged in ..
+    print $this->render("myresearch/mylist-notlogged.phtml");
+} else {
+    
   // Grab list object from search results (if applicable):
   $list = $this->results->getListObject();
 
@@ -7,8 +12,7 @@
 
   // Set up breadcrumbs:
   $currPage = isset($list) ? 'List' : 'Favorites';
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> '.
-  '<li><a href="' .  $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
+  $this->layout()->breadcrumbs = '<li><a href="' .  $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
 
   // Load Javascript dependencies into header:
   $this->headScript()->appendFile("check_item_statuses.js");
@@ -75,3 +79,4 @@
     <? endforeach; ?>
   </div>
 </div>
+<? } ?>
