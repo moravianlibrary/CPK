@@ -17,21 +17,15 @@
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
 ?>
-<? $searchTabs = $this->searchtabs($this->searchClassId, $this->lookfor, $this->searchIndex, $this->searchType); ?>
-<? if (count($searchTabs) > 0): ?>
-  <ul class="nav nav-tabs">
-  <? foreach ($searchTabs as $tab): ?>
-    <li<?=$tab['selected'] ? ' class="active"' : ''?>>
-      <a href="<?=$tab['selected'] ? '' : $this->escapeHtml($tab['url'])?>"><?=$this->transEsc($tab['label']); ?></a>
-    </li>
-  <? endforeach; ?>
-  </ul>
-<? endif; ?>
-  <? if ($this->searchType == 'advanced'): ?>
-    <span class="span6">
-      <a href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtml($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a> |
-      <a href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
-      <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
+<? if ($this->searchType == 'advanced'): ?>
+  <div class="searchForm navbar-form navbar-left flip">
+    <? $tabs = $this->context($this)->renderInContext('search/searchTabs', ['hiddenFilters' => $hiddenFilters]); ?>
+    <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>
+      <p class="adv_search_terms"><?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"</p>
+      <p class="adv_search_links">
+        <a href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtmlAttr($this->searchId)?>"><?=$this->transEsc("Edit this Advanced Search")?></a> |
+        <a href="<?=$this->url($advSearch) . $hiddenFilterParams?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
+        <a href="<?=$this->url($searchHome) . $hiddenFilterParams?>"><?=$this->transEsc("Start a new Basic Search")?></a>
       <script>
       var parser = document.createElement('a');
       parser.href = document.referrer;
@@ -48,37 +42,36 @@
         }, false);
       }
       </script>
-    </span>
-    <div class="clearfix"></div>
-    <span class="span6 offset1">
-      <?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"
-    </span>
-  <? else: ?>
-    <form class="form-inline navbar-form block container" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
-      <div class="row">
+      </p>
+    <? if (!empty($tabs)): ?></div><? endif; ?>
+  </div>
+<? else: ?>
+  <form class="form-inline navbar-form block container" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
+    <?= $this->context($this)->renderInContext('search/searchTabs', ['hiddenFilters' => $hiddenFilters]); ?>
+  <div class="row">
         <span class="<?=($this->layout()->frontpage == true)?'col-md-8 col-xs-12':'col-xs-7'?>">
           <input class="form-control<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtml($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" <?=($this->layout()->frontpage == true)?'autofocus':''?> value="<?=$this->escapeHtml($this->lookfor)?>"/>
         </span>
-        <? if ($handlerCount > 1): ?>
+      <? if ($handlerCount > 1): ?>
           <span class="<?=($this->layout()->frontpage == true)?'col-md-2 col-xs-6':'col-xs-3'?>">
             <select id="searchForm_type" name="type" data-native-menu="false" class="form-control">
-              <? foreach ($handlers as $handler): ?>
-                <option value="<?=$this->escapeHtml($handler['value'])?>"<?=$handler['selected'] ? ' selected="selected"' : ''?>><?=$handler['indent'] ? '-- ' : ''?><?=$this->transEsc($handler['label'])?></option>
-              <? endforeach; ?>
-            </select>
+        <? foreach ($handlers as $handler): ?>
+          <option value="<?=$this->escapeHtmlAttr($handler['value'])?>"<?=$handler['selected'] ? ' selected="selected"' : ''?>><?=$handler['indent'] ? '-- ' : ''?><?=$this->transEsc($handler['label'])?></option>
+        <? endforeach; ?>
+      </select>
           </span>
-        <? elseif ($handlerCount == 1): ?>
-          <input type="hidden" name="type" value="<?=$this->escapeHtml($handlers[0]['value'])?>" />
-        <? endif; ?>
+    <? elseif ($handlerCount == 1): ?>
+      <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
+    <? endif; ?>
         <span class="col-md-2 col-xs-6">
-          <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="icon-search"></i> <?=$this->transEsc("Find")?></button>
+    <button type="submit" name="submit" class="search-query" value="<?=$this->transEsc("Find")?>"><i class="icon-search"></i> <?=$this->transEsc("Find")?></button>
         </span>
       </div>
 
       <div class="search-query-options">
-        <? if ($advSearch): ?>
-          <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' offset1':''?>"><?=$this->transEsc("Advanced")?></a>
-        <? endif; ?>
+    <? if ($advSearch): ?>
+      <a href="<?=$this->url($advSearch)?>" class="advanced<?=($this->layout()->frontpage == true)?' offset1':''?>"><?=$this->transEsc("Advanced")?></a>
+    <? endif; ?>
         <? if ($this->layout()->frontpage == true):?>
           &nbsp;&nbsp;
           <a href='<?=$this->url('search-results') . "?filter[]=bbox_geo%3A\"Intersects(11.5%2048.3%2019.1%2051.1)\"" ?>'>
@@ -100,24 +93,24 @@
         }
         ?>
 
-        <? $shards = $options->getShards(); if ($options->showShardCheckboxes() && !empty($shards)): ?>
-          <?
-          $selectedShards = isset($this->selectedShards)
-              ? $this->selectedShards : $options->getDefaultSelectedShards();
-          ?>
-          <br />
-          <? foreach ($shards as $shard => $val): ?>
-            <? $isSelected = empty($selectedShards) || in_array($shard, $selectedShards); ?>
-            <input type="checkbox" <?=$isSelected ? 'checked="checked" ' : ''?>name="shard[]" value='<?=$this->escapeHtml($shard)?>' /> <?=$this->transEsc($shard)?>
-          <? endforeach; ?>
-        <? endif; ?>
+    <? $shards = $options->getShards(); if ($options->showShardCheckboxes() && !empty($shards)): ?>
+      <?
+      $selectedShards = isset($this->selectedShards)
+          ? $this->selectedShards : $options->getDefaultSelectedShards();
+      ?>
+      <br />
+      <? foreach ($shards as $shard => $val): ?>
+        <? $isSelected = empty($selectedShards) || in_array($shard, $selectedShards); ?>
+          <input type="checkbox" <?=$isSelected ? 'checked="checked" ' : ''?>name="shard[]" value='<?=$this->escapeHtmlAttr($shard)?>' /> <?=$this->transEsc($shard)?>
+      <? endforeach; ?>
+    <? endif; ?>
         <? if ((isset($this->filterList) && is_array($this->filterList) && count($this->filterList) > 0) || $hasCheckboxFilters): ?>
-          <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
-          <label class="checkbox">
-            <input onChange="$('.applied-filter').click()" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
-            <?=$this->transEsc("basic_search_keep_filters")?>
-          </label>
-          <div class="hidden">
+      <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
+        <label class="checkbox">
+          <input onChange="$('.applied-filter').click()" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
+          <?=$this->transEsc("basic_search_keep_filters")?>
+        </label>
+      <div class="hidden">
             <? if (isset($this->filterList) && is_array($this->filterList)): ?>
               <? $i = 0; foreach ($this->filterList as $field => $data): ?>
                 <? foreach ($data as $value): ?>
@@ -139,17 +132,17 @@
               <? endforeach; ?>
             <? endif; ?>
           </div>
-        <? endif; ?>
+     <? endif; ?>
         <?
-        /* Load hidden limit preference from Session */
-        if (!empty($lastLimit)) {
-          echo '<input type="hidden" name="limit" value="' . $this->escapeHtml($lastLimit) . '" />';
-        }
-        if (!empty($lastSort)) {
-          echo '<input type="hidden" name="sort" value="' . $this->escapeHtml($lastSort) . '" />';
-        }
-        ?>
+      /* Load hidden limit preference from Session */
+      if (!empty($lastLimit)) {
+        echo '<input type="hidden" name="limit" value="' . $this->escapeHtmlAttr($lastLimit) . '" />';
+      }
+      if (!empty($lastSort)) {
+        echo '<input type="hidden" name="sort" value="' . $this->escapeHtmlAttr($lastSort) . '" />';
+      }
+    ?>
       </div>
-    </form>
+  </form>
   <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
-  <? endif; ?>
+<? endif; ?>
