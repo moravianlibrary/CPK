@@ -23,6 +23,12 @@
     '<li class="active">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
   $this->layout()->title = $this->driver->getShortTitle();
   
+  $fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
+    ? '?fromAdvancedSearchId='.htmlspecialchars($_GET['fromAdvancedSearchId'])
+    : '';
+  $fromSearchIdParam = (isset($_GET['fromSearchId']))
+    ? '?fromSearchId='.htmlspecialchars($_GET['fromSearchId'])
+    : '';
 ?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
@@ -79,6 +85,7 @@
             <? if (count($this->tabs) > 0): ?>
               <a name="tabnav"></a>
               <ul class="recordTabs nav nav-tabs">
+              
                 <? foreach ($this->tabs as $tab => $obj): ?>
                 <? // add current tab to breadcrumbs if applicable:
                   $desc = $obj->getDescription();
@@ -93,7 +100,7 @@
                   if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
                 ?>
                 <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
-                  <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?>#tabnav"><?=$this->transEsc($desc)?></a>
+                  <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?=$fromSearchIdParam?><?=$fromAdvancedSearchIdParam?>#tabnav"><?=$this->transEsc($desc)?></a>
                 </li>
                 <? endforeach; ?>
               </ul>
