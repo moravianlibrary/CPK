@@ -59,7 +59,7 @@ class Record extends ParentRecord
         
         $arr = explode(",", $str);
         $count = count($arr);
-        $last = ', '.$arr[0];
+        $last = ' '.$arr[0];
         $flippedString = '';
         for ($i = 1; $i < $count; $i++) {
             if (preg_match("/\\d/", $arr[$i]) > 0) {
