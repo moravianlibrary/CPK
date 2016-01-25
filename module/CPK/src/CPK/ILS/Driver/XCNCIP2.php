@@ -1117,6 +1117,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'LookupUserResponse/UserFiscalAccount/AccountBalance/MonetaryValue');
 
         $fines = array();
+        $sum = 0;
         foreach ($list as $current) {
             $amount = $this->useXPath($current,
                 'FiscalTransactionInformation/Amount/MonetaryValue');
@@ -1127,6 +1128,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $date = $this->useXPath($current, 'AccrualDate');
             $desc = $this->useXPath($current,
                 'FiscalTransactionInformation/FiscalTransactionDescription');
+            $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
             $parsedDate = strtotime((string) $date[0]);
             $date = date('j. n. Y', $parsedDate);
             $amount_int = (int) $amount[0] * (- 1);
@@ -1171,6 +1173,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $list = $this->useXPath($response, 'LookupUserResponse/RequestedItem');
 
         foreach ($list as $current) {
+            $cannotCancel = false;
             $type = $this->useXPath($current, 'RequestType');
             $requestStatusType = $this->useXPath($current, 'RequestStatusType');
             $id = $this->useXPath($current,
@@ -1182,17 +1185,23 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $position = $this->useXPath($current, 'HoldQueuePosition');
             $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
             $title = $this->useXPath($current, 'Title');
+            $extTitle = $this->useXPath($current, 'Ext/BibliographicDescription/Title');
 
             // Deal with Zlin.
             if (empty($id)) $id = $this->useXPath($current,
                     'Ext/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-            if (empty($title)) $title = $this->useXPath($current, 'Ext/BibliographicDescription/Title');
+            if (empty($title)) $title = $extTitle;
+            if ($this->agency === 'ZLG001') {
+                // $type == 'Hold' => rezervace; $type == 'Loan' => objednavka
+            }
 
             // Deal with Liberec.
             if (empty($position)) $position = $this->useXPath($current,
                     'Ext/HoldQueueLength');
-
-            $cannotCancel = false;
+            if ($this->agency === 'LIA001') {
+                $title = $extTitle; // TODO temporary solution for periodics
+                if ((! empty($type)) && ((string) $type[0] == 'w')) $cannotCancel = true;
+            }
 
             // Deal with Tabor.
             if ($this->agency === 'TAG001') {
@@ -1203,8 +1212,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     $cannotCancel = true;
                     $position = null; // hide queue position
                 }
-                if ((! empty($requestStatusType)) &&
-                        ((string) $requestStatusType[0] == 'Available For Pickup')) $cannotCancel = true;
             }
 
             if (! empty($position)) if ((string) $position[0] === '0') $position = null; // hide queue position
@@ -1222,7 +1229,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $available = false;
             if ((! empty($requestStatusType)) &&
-                        ((string) $requestStatusType[0] == 'Available For Pickup')) $available = true;
+                        ((string) $requestStatusType[0] == 'Available For Pickup')) {
+                $available = true;
+                $cannotCancel = true;
+            }
 
             $retVal[] = array(
                 'type' => empty($type) ? '' : (string) $type[0],
