@@ -5,37 +5,41 @@
  */
 (function() {
 
-    angular.module('favorites').controller('EditorController', EditorController);
-    
-    function EditorController() {
+    angular.module('favorites').controller('ListController', ListController);
 
-	this.pagesInterval = {
-	    "from" : undefined,
-	    "to" : undefined
-	};
+    ListController.$inject = [ '$log', 'storage', 'FavoritesFactory' ];
 
-	this.pagesTotal = undefined;
+    function ListController($log, storage, FavoritesFactory) {
 
-	this.listId = 999;
+	var vm = this;
 
-	this.listTitle = "Your Favorites"; // TODO change it to real title or
-	// at least translate
+	vm.paginationStart = 0;
+	vm.paginationLength = 0;
 
-	this.description = "";
+	vm.listId = undefined;
+	vm.listDescription = undefined;
+	vm.listTitle = "Your Favorites";	
+	vm.listLength = 0;
 
-	this.editModeActive = true;
+	vm.editList = editList;
+	vm.deleteList = deleteList;
+	vm.submitBulk = submitBulk;
+	
+	vm.deleteFavorite = storage.deleteFavorite;
+	
+	////////////////////////////
 
-	this.listEmpty = false;
-
-	this.editList = function(id) {
+	function editList(id) {
 	    alert("editing list " + id)
-	};
+	}
 
-	this.deleteList = function(id) {
+	function deleteList(id) {
 	    alert("deleting list " + id)
-	};
+	}
 
-	this.submitBulk = function() {
-	};
+	function submitBulk() {
+	    
+	}
+	
     }
 })();
