@@ -26,7 +26,7 @@
  * the favorites as soon, as the browser closes. This can be done using
  * sessionStorage. We are going to use this nice localForage driver:
  * https://github.com/thgreasi/localForage-sessionStorageWrapper .. see also
- * dricetory js/vendor/localforage-bundle.min.js
+ * directory js/vendor/ with "localforage-*.js" wildcard match
  * 
  * 2) Transferring favorites from not logged in user to logged in user:
  * 
@@ -41,19 +41,24 @@
  * javascript solution (assigning handlers & controllers from this app to them
  * instead of the links).
  * 
- * 4) Deleting favorites
+ * 4) Editing favorites
+ * 
+ * User should be capable of editing the favorites by the means of having
+ * customizable description.
+ * 
+ * 5) Deleting favorites
  * 
  * This is an easy task - there'll be a simple delete button as is now, but is
  * about to be handled by JS, not PHP.
  * 
- * 5) Notifying user about having favorites & not being logged in yet
+ * 6) Notifying user about having favorites & not being logged in yet
  * 
  * User should know the risks of having his favorites within an "offline"
  * account, I mean to let him know about the fact that he could lose those
  * favorites very easily, so he should log in in order to retain his favorites
  * on the server, not the browser.
  * 
- * 6) Sharing favorites
+ * 7) Sharing favorites
  * 
  * Sharing favorites from not logged in user could be done by creating favorites
  * physically in the server's DB under an "anonymous" account with an expiration
