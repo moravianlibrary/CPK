@@ -395,7 +395,7 @@ class MyResearchController extends MyResearchControllerBase
             ]);
         } else {
             // Nope, let's behave the old-style :)
-            parent::mylistAction();
+            return parent::mylistAction();
         }
     }
 
