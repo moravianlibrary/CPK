@@ -632,8 +632,27 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     public function getPickUpLocations($patron = null, $holdInformation = null)
     {
-        // FIXME
-        return array();
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $request = $this->requests->lookupAgency($patron);
+        $response = $this->sendRequest($request);
+
+        $retVal = array();
+        $locations = $this->useXPath($response, 'LookupAgencyResponse/Ext/LocationName/LocationNameInstance');
+
+        foreach ($locations as $location) {
+            $id = $this->useXPath($location, 'LocationNameLevel');
+            $name = $this->useXPath($location, 'LocationNameValue');
+            $address = $this->useXPath($location,
+                    'Ext/PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
+            if (empty($id)) continue;
+
+            $retVal[] = array(
+                'locationID' => empty($id) ? '' : (string) $id[0],
+                'locationDisplay' => empty($name) ? '' : (string) $name[0],
+                'locationAddress' => empty($address) ? '' : (string) $address[0]
+            );
+        }
+        return $retVal;
     }
 
     public function getDefaultPickUpLocation($patron = null, $holdInformation = null)

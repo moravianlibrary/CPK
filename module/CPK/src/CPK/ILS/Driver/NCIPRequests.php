@@ -86,6 +86,7 @@ class NCIPRequests {
         $this->insertUserIdTag($patron) .
         $this->insertItemIdTag($holdDetails['item_id'], $patron['agency']) .
         $this->insertRequestType("Hold") .
+        //$this->insertRequestType("Loan") .
         $this->insertRequestScopeType($requestScopeType);
         if (! empty($holdDetails['pickUpLocation'])) $body .= "<ns1:PickupLocation>" . htmlspecialchars($holdDetails['pickUpLocation']) . "</ns1:PickupLocation>";
         $body .= "</ns1:RequestItem>";
@@ -185,6 +186,21 @@ class NCIPRequests {
         }
 
         $body .= "</ns1:LookupItemSet>";
+        return $this->header() . $body . $this->footer();
+    }
+
+    public function lookupAgency($patron) {
+        $body =
+        "<ns1:LookupAgency>" .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertAgencyIdTag($patron['agency']) .
+        $this->insertAgencyElementType("Agency Address Information") .
+        $this->insertAgencyElementType("Agency User Privilege Type") .
+        $this->insertAgencyElementType("Application Profile Supported Type") .
+        $this->insertAgencyElementType("Authentication Prompt") .
+        $this->insertAgencyElementType("Consortium Agreement") .
+        $this->insertAgencyElementType("Organization Name Information") .
+        "</ns1:LookupAgency>";
         return $this->header() . $body . $this->footer();
     }
 
@@ -337,6 +353,7 @@ class NCIPRequests {
         $this->insertUserElementType("Previous User Id");
         if ($this->sigla == "LIA001") {
             $body =
+            $this->insertUserElementType("Block Or Trap") .
             $this->insertUserElementType("Name Information") .
             $this->insertUserElementType("User Address Information");
         }
@@ -389,5 +406,13 @@ class NCIPRequests {
     protected function userAuthenticationInputType() {
         //if (library.equals("Zlin")) return "Username"; // TODO
         return "User Id";
+    }
+
+    protected function insertAgencyElementType($value) {
+        return ($this->noScheme ?
+                "<ns1:AgencyElementType>" :
+                "<ns1:AgencyElementType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyelementtype/" .
+                "agencyelementtype.scm\">") .
+                $value . "</ns1:AgencyElementType>";
     }
 }

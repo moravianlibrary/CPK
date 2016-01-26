@@ -128,7 +128,6 @@
               <? foreach ($this->pickup as $lib): ?>
                 <div id="<?=$this->escapeHtmlAttr($lib['locationID'])?>">
                   <div id="address"><?=$this->escapeHtml($lib['locationAddress'])?></div>
-                  <div id="opening"><?=$this->escapeHtml($lib['openingHours'])?></div>
           </div>
               <? endforeach; ?>
             </div>
@@ -137,8 +136,6 @@
         <div class="form-group">
           <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_address")?>:</label>
           <div id="showaddress" class="col-sm-3"></div>
-          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_opening")?>:</label>
-          <div id="showopening" class="col-sm-3"></div>
         </div>
       <? else: ?>
         <input type="hidden" name="gatheredDetails[pickUpLocation]" value="<?=$this->escapeHtmlAttr($this->defaultPickup)?>" />
@@ -172,7 +169,6 @@ JS;
         $( '#pickUpLocation' ).change(function () {
           var id = $(this).val();
           $('div#showaddress').text( $( '#' + id + ' div#address' ).text() );
-          $('div#showopening').text( $( '#' + id + ' div#opening' ).text() );
         }).change();
 JS;
 
