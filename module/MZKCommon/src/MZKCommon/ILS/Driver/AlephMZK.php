@@ -1341,6 +1341,7 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
             $z36 = $item->z36;
             $z13 = $item->z13;
             $z30 = $item->z30;
+            $z36_sub_library_code = (string) $item->{'z36-sub-library-code'};
             $group = $item->xpath('@href');
             $group = substr(strrchr($group[0], "/"), 1);
             if (strpos($group, '?') !== false) {
@@ -1400,6 +1401,7 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
                 'fine'        => $fine,
                 'sublibrary'  => $sublibrary,
                 'z36_item_id' => $z36ItemId,
+                'z36_sub_library_code' => $z36_sub_library_code,
             );
             if ($returnInDays < 0 && !$history) {
                 $item['dueStatus'] = 'overdue';
