@@ -9,6 +9,28 @@
   $controllerClass = 'controller:' . $this->record($this->driver)->getController();
   $cart = $this->cart();
   $cartId = $this->driver->getResourceSource() . '|' . $id;
+  
+  $handleOfflineFavorites = false;
+  
+  if (! $this->isLoggedIn && $this->offlineFavoritesEnabled) {
+      $handleOfflineFavorites = true;
+
+      // TODO: We should remove this JS dependency injection by compiling the app ..
+      $appName = "favorites";
+      
+      $dependencies = [
+          'module.js',
+          'favorite.class.js',
+          'favorites.factory.js',
+          'storage.service.js',
+          'add.controller.js'
+      ];
+      
+      // Load Javascript dependencies into header:
+      foreach($dependencies as $dependency) {
+          $this->headScript()->appendFile($appName . '/' . $dependency);
+      }
+  }
 ?>
 <ul class="list-group record-toolbar">
   <li class="list-group-item"><a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow"><i class="fa fa-fw fa-envelope"></i> <?=$this->transEsc('Email this')?></a></li>
@@ -26,7 +48,16 @@
   <? endif; ?>
 
   <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-    <li class="list-group-item"><a id="save-record" class="modal-link <?=$controllerClass?>" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-fw fa-star"></i> <?=$this->transEsc('Add to favorites')?></a></li>
+    <li class="list-group-item" <? if ($handleOfflineFavorites): ?>ng-app="favorites"<? endif; ?>>
+    	<a id="save-record" class="modal-link <?=$controllerClass?>"
+    	 
+  	     <? if ($handleOfflineFavorites) : ?>
+        	href="#" ng-controller="AddController as adder" ng-click="adder.addFavorite()"
+    	 <? else: ?>
+        	href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
+         <? endif; ?>
+        
+    title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-fw fa-star"></i> <?=$this->transEsc('Add to favorites')?></a></li>
   <? endif; ?>
   <li class="list-group-item hidden" id='citace-pro'><a class="modal-link citations-link" title="<?=$this->transEsc('Show citations')?>" ><i class="fa fa-fw fa-quote-right"></i> <?=$this->transEsc('Show citations')?></a></li>
   <? if (!empty($addThis)): ?>
