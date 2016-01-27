@@ -60,3 +60,18 @@ ALTER TABLE `user_settings` ADD `records_per_page` TINYINT NULL ;
 /* Create column record_per_page in user_settings table */
 ALTER TABLE `user_settings` ADD `sorting` VARCHAR(40) NULL ;
 
+/* Create table system for checking DB version */
+CREATE TABLE IF NOT EXISTS `system` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` varchar(32) NOT NULL,
+  `value` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `key_2` (`key`),
+  UNIQUE KEY `id` (`id`),
+  KEY `key` (`key`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+/* Increment this column on every sqlUpdate.sql update  */
+INSERT INTO `system` (`id`, `key`, `value`) VALUES
+(1, 'DB_VERSION', '1');
+
