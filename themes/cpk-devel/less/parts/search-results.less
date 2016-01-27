@@ -160,10 +160,25 @@
     font-size: 120%;
 }
 
+.pagination {
+    font-size: 120%;
+}
+
 .pagination > li > a, .pagination > li > span {
     color: #e5004b;
     border: none;
     background: inherit;
+}
+.pagination > li.disabled > span {
+    background: inherit;
+}
+.pagination > li > a:hover {
+    color: #e5004b;
+    text-decoration: underline;
+}
+.pagination > li.disabled > span:hover {
+    background: inherit;
+    cursor: default;
 }
 
 .result-list-toolbar {
