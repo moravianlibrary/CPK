@@ -10,7 +10,7 @@
     'use strict';
 
     if (typeof localforage === "object" && typeof localforage._config === "object") {
-	
+
 	/**
 	 * sessionStorage driver taken from:
 	 * https://github.com/thgreasi/localForage-sessionStorageWrapper
@@ -32,24 +32,137 @@
 	    });
 
 	    localforage.SESSIONSTORAGE = "sessionStorageWrapper";
-	    
-	    // Let's override the setDriver method so that it remembers lastDriver used
+
+	    // Private var
+	    var locked = false, buffer = [];
+
+	    // Let's override the setDriver method so that it remembers
+	    // lastDriver used
 	    localforage._setDriver = localforage.setDriver;
-	    localforage._lastDriver = localforage.driver(); 
-	    
+	    localforage._lastDriver = localforage.driver();
+
 	    localforage.setDriver = function(driver) {
-		
+
+		/*
+		 * lock the localforage to prevent use of session storage under
+		 * inconvinient circumstances
+		 */
+		if (driver === localforage.SESSIONSTORAGE)
+		    locked = true;
+
 		localforage._lastDriver = localforage.driver();
 		localforage._setDriver(driver);
 	    }
-	    
-	    
+
 	    localforage.setLastDriver = function() {
-		
-		localforage.setDriver(localforage._lastDriver);
+
+		// unlock it & execute the buffer collected
+		if (localforage._driver === localforage.SESSIONSTORAGE) {
+		    locked = false;
+
+		    buffer.forEach(function(func) {
+			func.call();
+		    });
+
+		    buffer = [];
+		    
+		    localforage.setDriver(localforage._lastDriver);
+		    
+		    locked = false;
+		} else {
+
+		    localforage.setDriver(localforage._lastDriver);
+		    
+		}
 	    }
+
+	    // lock implementation
+	    localforage.setSessionItem = setSessionItem;
+	    localforage.getSessionItem = getSessionItem;
+	    
+	    function setSessionItem(key, value, successCallback) {
+		return new Promise(function(resolve, reject) {
+		    
+		    localforage.setDriver(localforage.SESSIONSTORAGE);
+		    
+		    localforage.setItem(key, value, successCallback).then(function(val) {
+			
+			localforage.setLastDriver();
+			
+			resolve(val);
+			
+		    }).catch(function(reason) {
+
+			localforage.setLastDriver();
+			
+			reject(reason);
+		    });
+		});
+	    }
+	    
+	    function getSessionItem(key, successCallback) {
+		return new Promise(function(resolve, reject) {
+		    
+		    localforage.setDriver(localforage.SESSIONSTORAGE);
+		    
+		    localforage.getItem(key, successCallback).then(function(val) {
+			
+			localforage.setLastDriver();
+			
+			resolve(val);
+			
+		    }).catch(function(reason) {
+
+			localforage.setLastDriver();
+			
+			reject(reason);
+		    });
+		});
+	    }
+	    
+	    localforage._setItem = localforage.setItem;
+	    localforage._getItem = localforage.getItem;
+	    
+	    localforage.setItem = function(key, value, successCallback) {
+		return new Promise(function(resolve, reject) {
+		    
+		    var theJob = function() {
+			localforage._setItem(key, value, successCallback).then(function(val) {
+			    resolve(val);
+			}).catch(function(reason) {
+			    reject(reason);
+			});
+		    };
+		    
+		    if (locked) {			
+			buffer.push(theJob);
+		    } else {
+			theJob.call();
+		    }
+		});
+	    }
+	    
+	    localforage.getItem = function(key, successCallback) {
+		return new Promise(function(resolve, reject) {
+		    
+		    var theJob = function() {
+			localforage._getItem(key, successCallback).then(function(val) {
+			    resolve(val);
+			}).catch(function(reason) {
+			    reject(reason);
+			});
+		    };
+		    
+		    if (locked) {			
+			buffer.push(theJob);
+		    } else {
+			theJob.call();
+		    }
+		});
+	    }
+
 	})();
-	
+
     } else {
 	console.error("Customizing localforage before it is loaded by a script is not allowed !!");
     }
