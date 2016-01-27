@@ -75,3 +75,16 @@ CREATE TABLE IF NOT EXISTS `system` (
 INSERT INTO `system` (`id`, `key`, `value`) VALUES
 (1, 'DB_VERSION', '1');
 
+/* Create table for storing content of Portal pages */
+CREATE TABLE IF NOT EXISTS `portal_pages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(128) NOT NULL,
+  `content` text NOT NULL,
+  `language_code` varchar(8) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `language_code` (`language_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+UPDATE `system` SET `value`='2' WHERE `key`='DB_VERSION';
+
