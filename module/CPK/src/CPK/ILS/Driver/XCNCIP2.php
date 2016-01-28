@@ -274,24 +274,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
                     $request = $this->requests->cancelRequestItemUsingItemId($patron,
                         $recent);
-                    $response = $this->sendRequest($request);
-
-                    $problem = $this->useXPath($response,
-                        'NCIPMessage/CancelRequestItemResponse/Problem');
-
-                    if ($problem !== false && is_array($problem) &&
-                         count($problem) > 0) {
-                        $problemValue = $this->getFirstXPathMatchAsString(
-                            $problem[0], 'ProblemValue');
-                        $problemDetail = $this->getFirstXPathMatchAsString(
-                            $problem[0], 'ProblemDetail');
-
+                    try {
+                        $response = $this->sendRequest($request);
+                    } catch (ILSException $e) {
                         $problemOccurred = true;
+                        $problemValue = $e->getMessage();
                     }
 
-                    // $rawResponse = $response->asXML();
-
                     break;
+
                 } else
                     if ($hold['id'] == $recent) { // Biblio-leveled cancel request
 
@@ -308,22 +299,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
                         $request = $this->requests->cancelRequestItemUsingRequestId(
                             $patron, $request_id);
-                        $response = $this->sendRequest($request);
-
-                        $problem = $this->useXPath($response,
-                            'NCIPMessage/CancelRequestItemResponse/Problem');
-
-                        if ($problem !== false && is_array($problem) &&
-                             count($problem) > 0) {
-                            $problemValue = $this->getFirstXPathMatchAsString(
-                                $problem[0], 'ProblemValue');
-                            $problemDetail = $this->getFirstXPathMatchAsString(
-                                $problem[0], 'ProblemDetail');
-
+                        try {
+                            $response = $this->sendRequest($request);
+                        } catch (ILSException $e) {
                             $problemOccurred = true;
+                            $problemValue = $e->getMessage();
                         }
 
-                        // $rawResponse = $response->asXML();
                         break;
                     }
             }
@@ -333,7 +315,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $items[$recent] = array(
                 'success' => $didWeTheJob,
                 'status' => '',
-                'sysMessage' => isset($problemValue) ?  : ''
+                'sysMessage' => isset($problemValue) ? $problemValue : ''
             );
         }
 
