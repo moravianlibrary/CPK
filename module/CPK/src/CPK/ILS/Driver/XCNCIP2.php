@@ -722,6 +722,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $itemRestriction = (string) $this->useXPath($response,
                 'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType')[0];
+            $dateDue = $this->useXPath($response,
+                    'LookupItemResponse/ItemOptionalFields/DateDue');
+            $parsedDate = empty($dateDue) ? '' : strtotime($dateDue[0]);
+            $formatedDateDue = date('j. n. Y', $parsedDate);
 
             // TODO Exists any clean way to get the due date without additional request?
 
@@ -757,7 +761,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'holdOverride' => "",
                 'addStorageRetrievalRequestLink' => "",
                 'addILLRequestLink' => "",
-                'addLink' => true // TODO
+                'addLink' => true, // TODO
+                'duedate' => empty($formatedDateDue) ? '' : $formatedDateDue
             );
         }
     }
@@ -863,7 +868,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'label' => $label,
                     'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                     'restrictions' => $restrictions,
-                    'due_date' => $dueDate
+                    'duedate' => $dueDate
                 );
             }
         }
