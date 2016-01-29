@@ -11,21 +11,13 @@
 
     localforage.ready().then(function() {
 
-	if (typeof localforage === "object" && typeof localforage.config === "function") {
+	/**
+	 * Configure the localforage
+	 */
+	localforage.config({
+	    name : 'Knihovny.cz'
+	});
 
-	    /**
-	     * Configure the localforage
-	     */
-	    (function() {
-		localforage.config({
-		    name : 'Knihovny.cz'
-		});
-
-		// Other configuration / customization stuff goes here ..
-	    })();
-
-	} else {
-	    console.error("Customizing localforage before it is loaded by a script is not allowed !!");
-	}
+	// Other configuration / customization stuff goes here ..
     });
-}).call(typeof window !== 'undefined' ? window : self);
+})();
