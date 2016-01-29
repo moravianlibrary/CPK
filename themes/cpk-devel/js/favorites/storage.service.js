@@ -4,6 +4,12 @@
  * @author Jiří Kozlovský
  */
 (function() {
+    
+    if (! (sessionStorage && ('setItem' in sessionStorage))) {
+        console.error('This browser does not support sessionStorage, no favorites for not logged user can be provided!');
+        return;
+    }
+    
     angular.module('favorites').factory('storage', storageService);
 
     storageService.$inject = [ '$log', 'Favorite' ];
@@ -12,20 +18,21 @@
 
 	var storage = {
 	    addFavorite : addFavorite,
-	    deleteFavorite : deleteFavorite,
+	    removeFavorite : removeFavorite,
+	    hasFavorite : hasFavorite,
 	    getFavorite : getFavorite,
 	    getFavorites : getFavorites,
-	    name : '_fav'
+	    name : '_favs'
 	};
 
 	var favorites = [];
 	
-	var initialize = {
+	var initializer = {
 		done : false,
 		buffer : []
 	};
 
-	initialize();
+	init();
 
 	return storage;
 
@@ -35,33 +42,72 @@
 	    return new Promise(function(resolve, reject) {
 
 		if (favorite instanceof Favorite) {
+
+		    var theJob = function() {
+			saveFavorite(favorite).then(resolve).catch(reject);
+		    }
 		    
-		    saveFavorite(favorite).then(resolve).catch(reject);
-		    
+		    call(theJob);
+
 		} else {
-		    reject('storage.addFavorite(Favorite favorite) - instanceof Favorite must be provided !');
+		    reject('storage.addFavorite(favorite) needs favorite instanceof Favorite !');
 		}
 	    });
 	}
 
-	function deleteFavorite(id) {
+	function removeFavorite(recordId) {
+	    return new Promise(function(resolve, reject) {
+
+		var theJob = function() {
+
+		    var regexp = new RegExp("\/" + recordId.replace(/\./,"\\."));
+		    
+		    var count = favorites.length, tmp = [], removed = false;
+		    
+		    // Let's slice out those whose title link doesn't match regexp
+		    for (var i = 0; i < count; ++i) {
+			if (favorites[i].title.link.match(regexp)) {
+			    removed = true;
+			} else {
+			    tmp.push(favorites[i]);
+			}
+		    }
+		    
+		    if (removed === false) {
+			reject('Invalid recordId provided');
+		    }
+		    
+		    favorites = tmp;
+			
+		    // Save those Favorites
+		    saveFavorites().then(resolve).catch(reject);
+		}
+
+		call(theJob);
+
+	    });
+	}
+	
+	function hasFavorite(recordId) {
 	    return new Promise(function(resolve, reject) {
 		
-		if (typeof id === "number" && id >= 0) {
+		var theJob = function() {
 		    
-		    if (typeof favorites[id] === "undefined") {
-			reject('Favorite does not exist with this ID');
+		    var regexp = new RegExp("\/" + recordId.replace(/\./,"\\."));
+		    
+		    var found = favorites.find(function(fav) {
+			
+			return !!fav.title.link.match(regexp);
+		    });
+		    
+		    if (typeof found === "undefined") {
+			reject();
 		    } else {
-			
-			// Remove that Favorite
-			favorites.splice(id, 1);
-			
-			// Save those Favorites
-			saveFavorites().then(resolve).catch(reject);
-		    };
-		} else {
-		    reject('Wrong id provided to delete an Favorite from sessionStorage');
-		}
+			resolve(new Favorite().fromObject(found));
+		    }
+		};
+		
+		call(theJob);
 	    });
 	}
 	
@@ -71,14 +117,17 @@
 		if (typeof id === "number" && id >= 0) {
 		    
 		    var theJob = function() {
-			resolve(favorite(id));
+			
+			var favObj = favorite[id];
+			
+			resolve(new Favorite().fromObject(favObj));
 		    };
 
-		    executeAfterInitialized(theJob);
+		    call(theJob);
 		    
 		} else {
-		    reject('Cannoct get favorite not having an index');
-		};
+		    reject('Cannot get favorite without an index');
+		}
 	    });
 	}
 
@@ -86,10 +135,13 @@
 	    return new Promise(function(resolve, reject) {
 		
 		var theJob = function() {
-		    resolve(favorites);
+		    
+		    resolve(favorites.map(function(fav) {
+			return new Favorite().fromObject(fav);
+		    }));
 		};
 		
-		executeAfterInitialized(theJob);
+		call(theJob);
 	    });
 	}
 
@@ -97,53 +149,61 @@
 
 	function saveFavorite(favorite) {
 	    return new Promise(function(resolve, reject) {
-		
-		    favorites.push(favorite);
-		    
-		    saveFavorites().then(resolve).catch(reject);
+
+		favorites.push(favorite.toObject());
+
+		saveFavorites().then(resolve).catch(reject);
 	    });
 	}
-	
+
 	function saveFavorites() {
 	    return new Promise(function(resolve, reject) {
-		
+
 		var theJob = function() {
-		    localforage.setItem(storage.name, favorites).then(resolve).catch(reject);
+		    var retVal = sessionStorage.setItem(storage.name, JSON.stringify(favorites));
+
+		    resolve(retVal);
 		};
-		
-		executeAfterInitialized(theJob);
+
+		// Create an async call
+		setTimeout(theJob, 0);
 	    });
 	}
 	
-	function executeAfterInitialized(func) {
+	function call(func) {
 	    if (typeof func === "function")
-		if (initialize.done) {
+		if (initializer.done) {
 		    func.call();
-		
+
 		} else {
 		    // Execute after an initialization
-	    	    initialize.buffer.push(func);
-		}
+	    	    initializer.buffer.push(func);
+		}	    
 	}
 
-	function initialize() {
+	/**
+	 * Retrieve the favorites from sessionStorage. Then call all functions
+	 * within a buffer (it is possible they were called)
+	 */
+	function init() {
+	    
+	    var theJob = function() {
+		
+		var favs = sessionStorage.getItem(storage.name);
 
-	    localforage.getSessionItem(storage.name).then(function(val) {
+		if (favs !== null)
+		    favorites = JSON.parse(favs);
 		
-		if (val)
-		    favorites = val;
+		initializer.done = true;
 		
-		initialize.done = true;
-		
-		initialize.buffer.forEach(function(func) {
+		initializer.buffer.forEach(function(func) {
 		    func.call();
 		});
-		
-	    }).catch(function(reason) {
-		
-		$log.error(reason);
-	    });
-	};
 
+	    }
+	    
+	    // Don't wait for it to finish ..
+	    setTimeout(theJob, 0);
+	};
     };
 })();

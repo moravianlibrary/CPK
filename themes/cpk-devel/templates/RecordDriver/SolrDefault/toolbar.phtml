@@ -23,7 +23,7 @@
           'favorite.class.js',
           'favorites.factory.js',
           'storage.service.js',
-          'add.controller.js'
+          'record.controller.js'
       ];
       
       // Load Javascript dependencies into header:
@@ -52,12 +52,12 @@
     	<a id="save-record" class="modal-link <?=$controllerClass?>"
     	 
   	     <? if ($handleOfflineFavorites) : ?>
-        	href="#" ng-controller="AddController as adder" ng-click="adder.addFavorite()"
+        	href="#" ng-controller="RecordFavController as recFavCtrl" ng-click="recFavCtrl.addOrRemoveFavorite()"
     	 <? else: ?>
         	href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
          <? endif; ?>
         
-    title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-fw fa-star"></i> <?=$this->transEsc('Add to favorites')?></a></li>
+    title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-fw fa-star"></i><span add-remove="add"><?=$this->transEsc('Add to favorites')?></span><span add-remove="rem"><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
   <? endif; ?>
   <li class="list-group-item hidden" id='citace-pro'><a class="modal-link citations-link" title="<?=$this->transEsc('Show citations')?>" ><i class="fa fa-fw fa-quote-right"></i> <?=$this->transEsc('Show citations')?></a></li>
   <? if (!empty($addThis)): ?>

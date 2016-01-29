@@ -124,7 +124,22 @@
 		    $log.error('Parsing record image\'s parent division failed!');
 	    }
 	}
-	
+
+	vm.fromObject = function(obj) {
+
+	    if (typeof obj !== "object") {
+		$log.error('Trying to create Favorite from object, but no object passed');
+		
+	    } else if (! 'created' in obj) {
+		$log.error('Missing timestamp of the object!');
+		
+	    } else {
+		vars = obj;
+	    }
+
+	    return vm;
+	}
+
 	vm.toObject = function() {
 	    return vars;
 	}
@@ -143,6 +158,7 @@
 		return vars.title.link;
 	    } else {
 		vars.title.link = titleLink;
+		return vm;
 	    }
 	}
 
@@ -152,6 +168,7 @@
 		return vars.title.value;
 	    } else {
 		vars.title.value = title;
+		return vm;
 	    }
 	}
 
@@ -161,6 +178,7 @@
 		return vars.author.link;
 	    } else {
 		vars.author.link = authorLink;
+		return vm;
 	    }
 	}
 
@@ -170,6 +188,7 @@
 		return vars.author.value;
 	    } else {
 		vars.author.value = author;
+		return vm;
 	    }
 	}
 
@@ -179,6 +198,7 @@
 		return vars.published;
 	    } else {
 		vars.published = published;
+		return vm;
 	    }
 	}
 
@@ -188,6 +208,7 @@
 		return vars.format.iconClass;
 	    } else {
 		vars.format.iconClass = formatIconClass;
+		return vm;
 	    }
 	}
 
@@ -197,6 +218,7 @@
 		return vars.format.value;
 	    } else {
 		vars.format.value = format;
+		return vm;
 	    }
 	}
 
@@ -206,6 +228,7 @@
 		return vars.image;
 	    } else {
 		vars.image = image;
+		return vm;
 	    }
 	}
 
