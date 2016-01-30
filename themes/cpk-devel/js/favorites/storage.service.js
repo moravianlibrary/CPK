@@ -160,7 +160,14 @@
 	    return new Promise(function(resolve, reject) {
 
 		var theJob = function() {
-		    var retVal = sessionStorage.setItem(storage.name, JSON.stringify(favorites));
+		    
+		    var retVal = undefined;
+		    
+		    // Delete the object from memory if empty
+		    if (favorites.length)
+			retVal = sessionStorage.setItem(storage.name, JSON.stringify(favorites));
+		    else
+			sessionStorage.removeItem(storage.name);
 
 		    resolve(retVal);
 		};

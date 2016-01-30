@@ -1,6 +1,9 @@
 /**
  * Class Favorite for favorites AngularJS app.
  * 
+ * Because this Favorite class is implemented as an value, we cannot inject
+ * anything, thus it will be logging using native console.error() if any occurs ..
+ * 
  * @author Jiří Kozlovský
  */
 (function() {
@@ -76,8 +79,8 @@
 
 		if (typeof author === "string")
 		    return author;
-		else
-		    console.error('Parsing author\'s name failed!');
+
+		console.error('Parsing author\'s name failed!');
 	    }
 
 	    function parseFormatIconClass() {
@@ -85,8 +88,8 @@
 
 		if (expectedIcon.length)
 		    return expectedIcon.attr('class');
-		else
-		    console.error('Parsing format icon class failed!');
+
+		console.error('Parsing format icon class failed!');
 	    }
 
 	    function parseFormat() {
@@ -94,8 +97,8 @@
 
 		if (expectedSpan.length)
 		    return expectedSpan.text();
-		else
-		    console.error('Parsing record format failed!');
+
+		console.error('Parsing record format failed!');
 	    }
 
 	    function parsePublished() {
@@ -103,8 +106,8 @@
 
 		if (expectedSpan.length)
 		    return expectedSpan.text();
-		else
-		    console.error('Parsing publication year failed!');
+
+		console.error('Parsing publication year failed!');
 	    }
 
 	    function parseImage() {
@@ -115,8 +118,8 @@
 
 		    if (expectedImg.length)
 			return expectedImg.attr('src');
-		    else
-			console.error('Parsing record image source failed!');
+
+		    console.error('Parsing record image source failed!');
 		} else
 		    // I think this might be appreciated in the future ..
 		    console.error('Parsing record image\'s parent division failed!');
@@ -127,10 +130,10 @@
 
 	    if (typeof obj !== "object") {
 		console.error('Trying to create Favorite from object, but no object passed');
-		
-	    } else if (! 'created' in obj) {
+
+	    } else if (!'created' in obj) {
 		console.error('Missing timestamp of the object!');
-		
+
 	    } else {
 		vars = obj;
 	    }
@@ -154,80 +157,80 @@
 
 	    if (typeof titleLink === "undefined") {
 		return vars.title.link;
-	    } else {
-		vars.title.link = titleLink;
-		return vm;
 	    }
+
+	    vars.title.link = titleLink;
+	    return vm;
 	}
 
 	vm.title = function(title) {
 
 	    if (typeof title === "undefined") {
 		return vars.title.value;
-	    } else {
-		vars.title.value = title;
-		return vm;
 	    }
+
+	    vars.title.value = title;
+	    return vm;
 	}
 
 	vm.authorLink = function(authorLink) {
 
 	    if (typeof authorLink === "undefined") {
 		return vars.author.link;
-	    } else {
-		vars.author.link = authorLink;
-		return vm;
 	    }
+
+	    vars.author.link = authorLink;
+	    return vm;
 	}
 
 	vm.author = function(author) {
 
 	    if (typeof author === "undefined") {
 		return vars.author.value;
-	    } else {
-		vars.author.value = author;
-		return vm;
 	    }
+
+	    vars.author.value = author;
+	    return vm;
 	}
 
 	vm.published = function(published) {
 
 	    if (typeof published === "undefined") {
 		return vars.published;
-	    } else {
-		vars.published = published;
-		return vm;
 	    }
+
+	    vars.published = published;
+	    return vm;
 	}
 
 	vm.formatIconClass = function(formatIconClass) {
 
 	    if (typeof formatIconClass === "undefined") {
 		return vars.format.iconClass;
-	    } else {
-		vars.format.iconClass = formatIconClass;
-		return vm;
 	    }
+
+	    vars.format.iconClass = formatIconClass;
+	    return vm;
 	}
 
 	vm.format = function(format) {
 
 	    if (typeof format === "undefined") {
 		return vars.format.value;
-	    } else {
-		vars.format.value = format;
-		return vm;
 	    }
+
+	    vars.format.value = format;
+	    return vm;
 	}
 
 	vm.image = function(image) {
 
 	    if (typeof image === "undefined") {
 		return vars.image;
-	    } else {
-		vars.image = image;
-		return vm;
 	    }
+
+	    vars.image = image;
+	    return vm;
 	}
 
 	vm.created = function() {
