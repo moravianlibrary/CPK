@@ -109,7 +109,7 @@
 	};
 	
 	/**
-	 * Self explanatory ..
+	 * Gets the record id of current record page
 	 */
 	function getRecordId() {
 	    return location.pathname.split('/')[2];

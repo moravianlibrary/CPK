@@ -15,7 +15,7 @@
   if (! $this->isLoggedIn && $this->offlineFavoritesEnabled) {
       $handleOfflineFavorites = true;
 
-      // TODO: We should remove this JS dependency injection by compiling the app ..
+      // TODO: We should remove this JS dependency injection by compiling the app on production ..
       $appName = "favorites";
       
       $dependencies = [

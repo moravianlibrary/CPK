@@ -5,29 +5,36 @@
  */
 (function() {
 
-    angular.module('favorites').controller('ListController', ListController);
+    angular.module('favorites').controller('ListController', ListController).directive('favoritesListItem', favoritesListDirective);
 
-    ListController.$inject = [ '$log', 'storage', 'FavoritesFactory' ];
+    ListController.$inject = [ '$q', '$log', 'storage' ];
 
-    function ListController($log, storage, FavoritesFactory) {
+    function ListController($q, $log, storage) {
 
 	var vm = this;
 
 	vm.paginationStart = 0;
 	vm.paginationLength = 0;
 
-	vm.listId = undefined;
-	vm.listDescription = undefined;
-	vm.listTitle = "Your Favorites";	
 	vm.listLength = 0;
 
 	vm.editList = editList;
 	vm.deleteList = deleteList;
-	vm.submitBulk = submitBulk;
 	
-	vm.deleteFavorite = storage.deleteFavorite;
+	vm.editModeActive = false;
 	
-	////////////////////////////
+	vm.favorites = [];
+
+	$q.resolve(storage.getFavorites()).then(function(favs) {
+	    
+	    vm.favorites = favs;
+	    
+	}).catch(function(reason) {
+	    
+	    $log.error(reason);
+	});
+	
+	// //////////////////////////
 
 	function editList(id) {
 	    alert("editing list " + id)
@@ -36,10 +43,13 @@
 	function deleteList(id) {
 	    alert("deleting list " + id)
 	}
-
-	function submitBulk() {
-	    
-	}
-	
     }
+    
+    function favoritesListDirective() {
+	return {
+	    restrict : 'A',
+	    templateUrl : '/themes/cpk-devel/js/favorites/list-item.html'
+	};
+    }
+    
 })();
