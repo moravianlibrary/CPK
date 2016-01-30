@@ -50,7 +50,9 @@ class PortalController extends AbstractBase
 	       'page' => $page,
 	    ]);
 	    
-	    $view->setTemplate('portal/page');
+	    (! $page) ? $view->setTemplate('error/404')
+	       : $view->setTemplate('portal/page');
+	    
 	    return $view;
 	}
 }
