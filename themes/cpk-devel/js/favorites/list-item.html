@@ -1,0 +1,65 @@
+<div class="row well result ajaxItem">
+	<div class="col-xs-2 left">
+
+		<label class="pull-left flip">
+			<span class="pull-left noprint">
+				<input class="checkbox-select-item" name="ids[]"
+				value="VuFind|anl.001553996" onchange="updateCart(this);"
+				type="checkbox">
+			</span>
+		</label>
+		<div class="coverThumbnail">
+			<img src="{{}}">
+		</div>
+	</div>
+	<div class="col-xs-6 middle">
+		<div class="resultItemLine1">
+			<a class="title" href="/Record/anl.001553996"> Překvapivá
+				souvislost - degenerace oční sítnice a pre-mRNA sestřih / </a>
+		</div>
+
+		<div class="resultItemLine2">
+			Hlavní autor <a
+				href="/Author/Home?author=Stan%C4%9Bk%2C+David&amp;limit=20&amp;sort=saved DESC">Staněk,
+				David</a>
+
+		</div>
+
+		<div class="last">
+
+			<strong>Tagy:</strong> <a
+				href="/MyResearch/Favorites?filter%5B%5D=tags%3A%22asdf%22">asdf</a>
+			<br> <strong>Poznámky:</strong> asdf<br> <strong>Uloženo
+				v:</strong> <a href="/MyResearch/MyList/37">asdg</a> <br> <a
+				href="http://abicko.avcr.cz/2009/09" class="fulltext" target="new"><i
+				class="fa fa-external-link"></i> Plný text</a> <br>
+			<div class="iconlabel">
+				<i class="fa fa-fw articles"></i><span class="format-text">Články</span>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="col-xs-2 right">
+		<i class="fa fa-fw fa-edit"></i> <a
+			href="/MyResearch/Edit?id=anl.001553996&amp;source=VuFind"
+			class="edit tool">Upravit</a><br>
+		<div class="dropdown">
+			<i class="fa fa-fw fa-trash-o"></i> <a class="dropdown-toggle"
+				id="delete-label-anl-001553996" role="button" data-toggle="dropdown"
+				data-target="#"
+				href="/MyResearch/Favorites?delete=anl.001553996&amp;source=VuFind">
+				Odstranit </a>
+			<ul class="dropdown-menu" role="menu"
+				aria-labelledby="delete-label-anl-001553996">
+				<li><a
+					onclick="$.post('/MyResearch/Favorites', {'delete':'anl.001553996','source':'VuFind','confirm':true},function(){location.reload(true)})"
+					title="Smazat položku?">Ano</a></li>
+				<li><a>Ne</a></li>
+			</ul>
+		</div>
+
+		<span class="Z3988"
+			title="url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;ctx_enc=info%3Aofi%2Fenc%3AUTF-8&amp;rfr_id=info%3Asid%2Fvufind.svn.sourceforge.net%3Agenerator&amp;rft.title=P%C5%99ekvapiv%C3%A1+souvislost+-+degenerace+o%C4%8Dn%C3%AD+s%C3%ADtnice+a+pre-mRNA+sest%C5%99ih+%2F&amp;rft.date=&amp;rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Adc&amp;rft.creator=Stan%C4%9Bk%2C+David&amp;rft.format=0%2FARTICLES%2F"></span>
+	</div>
+</div>
