@@ -46,4 +46,17 @@ class Factory
         );
     }
 
+    /**
+     * Construct the PortalController.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return PortalController
+     */
+    public static function getPortalController(ServiceManager $sm)
+    {
+        return new PortalController(
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
+        );
+    }
 }

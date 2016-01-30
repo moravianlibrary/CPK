@@ -76,15 +76,31 @@ INSERT INTO `system` (`id`, `key`, `value`) VALUES
 (1, 'DB_VERSION', '1');
 
 /* Create table for storing content of Portal pages */
+DROP TABLE IF EXISTS `portal_pages`;
 CREATE TABLE IF NOT EXISTS `portal_pages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(128) NOT NULL,
-  `content` text NOT NULL,
-  `language_code` varchar(8) NOT NULL,
+  `title` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `pretty_url` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `content` text COLLATE utf8_unicode_ci NOT NULL,
+  `language_code` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
+  `published` tinyint(1) NOT NULL,
+  `view` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `placement` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `order_priority` tinyint(4) NOT NULL,
+  `last_modified_timestamp` datetime NOT NULL,
+  `last_modified_user_id` int(11) NOT NULL,
+  `group` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  KEY `language_code` (`language_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+  UNIQUE KEY `title` (`title`),
+  UNIQUE KEY `pretty_url` (`pretty_url`),
+  KEY `language_code` (`language_code`),
+  KEY `pretty_url_2` (`pretty_url`),
+  KEY `group` (`group`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+UPDATE `system` SET `value`='3' WHERE `key`='DB_VERSION';
 
-UPDATE `system` SET `value`='2' WHERE `key`='DB_VERSION';
+
+INSERT INTO `vufind`.`portal_pages` (`id`, `title`, `pretty_url`, `content`, `language_code`, `published`, `view`, `placement`, `order_priority`, `last_modified_timestamp`, `last_modified_user_id`, `group`) VALUES (NULL, 'O portálu', 'o-portalu', 'Content
+', 'en-cpk', '0', 'footer', 'right', '1', '2016-01-30 00:00:00', '1', '1');
 

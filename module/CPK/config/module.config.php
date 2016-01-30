@@ -2,6 +2,26 @@
 namespace CPK\Module\Configuration;
 
 $config = array(
+    'router' => [
+        'routes' => [
+            'default' => [
+                'type'    => 'Zend\Mvc\Router\Http\Segment',
+                'options' => [
+                    'route'    => '/[:controller[/[:action[/[:page]]]]]',
+                    'constraints' => [
+                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'page'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                     ],
+                    'defaults' => [
+                        'controller' => 'index',
+                        'action'     => 'Home',
+                        'page'       => '404',
+                    ],
+                ],
+            ],
+        ],
+    ],
     'vufind' => array(
         'plugin_managers' => array(
             'recorddriver' => array(
@@ -37,7 +57,8 @@ $config = array(
                 'factories' => [
                     'user' => 'CPK\Db\Table\Factory::getUser',
                     'citationstyle' => 'CPK\Db\Table\Factory::getCitationStyle',
-                    'usersettings' => 'CPK\Db\Table\Factory::getUserSettings'                                
+                    'usersettings' => 'CPK\Db\Table\Factory::getUserSettings',
+                    'portalpages' => 'CPK\Db\Table\Factory::getPortalPages'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'
@@ -100,7 +121,8 @@ $config = array(
     ), /* vufind */
     'controllers' => array(
         'factories' => array(
-            'record' => 'CPK\Controller\Factory::getRecordController'
+            'record' => 'CPK\Controller\Factory::getRecordController',
+            'portal' => 'CPK\Controller\Factory::getPortalController'
         ),
         'invokables' => array(
             'my-research' => 'CPK\Controller\MyResearchController',
