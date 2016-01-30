@@ -7,9 +7,7 @@
 
     angular.module('favorites').value('Favorite', Favorite);
 
-    Favorite.$inject = [ '$log' ];
-
-    function Favorite($log) {
+    function Favorite() {
 
 	// Private
 	var vars = {
@@ -61,7 +59,7 @@
 		if (expectedSiblingHeader.length)
 		    return expectedSiblingHeader.text();
 		else
-		    $log.error('Parsing record title failed!');
+		    console.error('Parsing record title failed!');
 	    }
 
 	    function parseAuthorLink() {
@@ -70,7 +68,7 @@
 		if (typeof link === "string")
 		    return link;
 		else
-		    $log.error('Parsing author\'s link failed!');
+		    console.error('Parsing author\'s link failed!');
 	    }
 
 	    function parseAuthor() {
@@ -79,7 +77,7 @@
 		if (typeof author === "string")
 		    return author;
 		else
-		    $log.error('Parsing author\'s name failed!');
+		    console.error('Parsing author\'s name failed!');
 	    }
 
 	    function parseFormatIconClass() {
@@ -88,7 +86,7 @@
 		if (expectedIcon.length)
 		    return expectedIcon.attr('class');
 		else
-		    $log.error('Parsing format icon class failed!');
+		    console.error('Parsing format icon class failed!');
 	    }
 
 	    function parseFormat() {
@@ -97,7 +95,7 @@
 		if (expectedSpan.length)
 		    return expectedSpan.text();
 		else
-		    $log.error('Parsing record format failed!');
+		    console.error('Parsing record format failed!');
 	    }
 
 	    function parsePublished() {
@@ -106,7 +104,7 @@
 		if (expectedSpan.length)
 		    return expectedSpan.text();
 		else
-		    $log.error('Parsing publication year failed!');
+		    console.error('Parsing publication year failed!');
 	    }
 
 	    function parseImage() {
@@ -118,20 +116,20 @@
 		    if (expectedImg.length)
 			return expectedImg.attr('src');
 		    else
-			$log.error('Parsing record image source failed!');
+			console.error('Parsing record image source failed!');
 		} else
 		    // I think this might be appreciated in the future ..
-		    $log.error('Parsing record image\'s parent division failed!');
+		    console.error('Parsing record image\'s parent division failed!');
 	    }
 	}
 
 	vm.fromObject = function(obj) {
 
 	    if (typeof obj !== "object") {
-		$log.error('Trying to create Favorite from object, but no object passed');
+		console.error('Trying to create Favorite from object, but no object passed');
 		
 	    } else if (! 'created' in obj) {
-		$log.error('Missing timestamp of the object!');
+		console.error('Missing timestamp of the object!');
 		
 	    } else {
 		vars = obj;
