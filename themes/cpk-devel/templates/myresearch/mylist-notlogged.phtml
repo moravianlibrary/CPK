@@ -27,73 +27,80 @@
 
 <?=$this->flashmessages()?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-<div class="row" ng-app="<?=$appName?>" ng-controller="EditorController as editorCtrl">
+<div class="row" ng-app="<?=$appName?>" ng-controller="ListController as listCtrl">
   <div class="<?=$this->layoutClass('mainbody')?>">
     <div class="clearfix hidden-print">
-      <h2 class="pull-left flip">{{editorCtrl.listTitle}}</h2>
+      <h2 class="pull-left flip">{{listCtrl.listTitle}}</h2>
       <div class="pull-right flip">
-        <div ng-show="{{editorCtrl.editModeActive}}">
-            <a href="#" ng-click="editorCtrl.editList(ctrl.listId)" class="btn btn-link" title="<?=$this->transEsc("edit_list")?>"><i class="fa fa-edit"></i> <?=$this->transEsc("edit_list")?></a>
+        <div ng-show="{{listCtrl.editModeActive}}">
+            <a href="#" ng-click="listCtrl.editList(ctrl.listId)" class="btn btn-link" title="<?=$this->transEsc("edit_list")?>"><i class="fa fa-edit"></i> <?=$this->transEsc("edit_list")?></a>
             <div class="btn-group">
               <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="fa fa-trash-o"></i> <?=$this->transEsc("delete_list")?>
               </a>
               <ul class="dropdown-menu">
-                <li><a href="#" ng-click="editorCtrl.deleteList(ctrl.listId)"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
+                <li><a href="#" ng-click="listCtrl.deleteList(listCtrl.listId)"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
                 <li><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
               </ul>
             </div>
         </div>
-        <div ng-hide="{{editorCtrl.editModeActive}}">
-          <?=$this->transEsc("Showing")?>
-          <strong>{{editorCtrl.pagesInterval.from}}</strong> - <strong>{{editorCtrl.pagesInterval.to}}</strong>
-          <?=$this->transEsc('of')?> <strong>{{editorCtrl.pagesTotal}}</strong>
+        <?=$this->transEsc("Showing")?>
+        <strong>{{ listCtrl.paginationStart }}</strong> - <strong>{{ listCtrl.paginationLength + listCtrl.paginationStart - 1 }}</strong>
+        <?=$this->transEsc('of')?> <strong>{{ listCtrl.listLength }}</strong>
         </div>
-      </div>
     </div>
-    <p>{{editorCtrl.description}}</p>
-    <div ng-hide="{{editorCtrl.listEmpty}}">
-      <div class="resulthead">
-        <div class="pull-right flip">
-          Zde přehled sortace .. <b>TODO !!</b>
-        </div>
-      </div>
-      <form class="form-inline" method="post" name="bulkActionForm" action="#" ng-submit="editorCtrl.submitBulk()">
-        
-  <div class="checkbox">
+    <p>{{listCtrl.description}}</p>
+
+		<div ng-hide="listCtrl.listEmpty">
+			<div class="resulthead">
+				<div class="pull-right flip">
+					<select name="sort" class="jumpMenu form-control">
+						<option ng-show="listCtrl.canSort('alphabetical')"
+							value='alphabetical'><?=$this->transEsc('By Alphabetical')?></option>
+						<option ng-show="listCtrl.canSort('author')" value='author'><?=$this->transEsc('By Author')?></option>
+						<option ng-show="listCtrl.canSort('callNo')" value='callNo'><?=$this->transEsc('By Call Number')?></option>
+						<option ng-show="listCtrl.canSort('course')" value='course'><?=$this->transEsc('By Course')?></option>
+						<option ng-show="listCtrl.canSort('department')"
+							value='department'><?=$this->transEsc('By Department')?></option>
+						<option ng-show="listCtrl.canSort('era')" value='era'><?=$this->transEsc('By Era')?></option>
+						<option ng-show="listCtrl.canSort('genre')" value='genre'><?=$this->transEsc('By Genre')?></option>
+						<option ng-show="listCtrl.canSort('instructor')"
+							value='instructor'><?=$this->transEsc('By Instructor')?></option>
+						<option ng-show="listCtrl.canSort('popularity')"
+							value='popularity'><?=$this->transEsc('By Popularity')?></option>
+						<option ng-show="listCtrl.canSort('recent')" value='recent'><?=$this->transEsc('By Recent')?></option>
+						<option ng-show="listCtrl.canSort('region')" value='region'><?=$this->transEsc('By Region')?></option>
+						<option ng-show="listCtrl.canSort('title')" value='title'><?=$this->transEsc('By Title')?></option>
+						<option ng-show="listCtrl.canSort('topic')" value='topic'><?=$this->transEsc('By Topic')?></option>
+					</select>
+				</div>
+			</div>
+		</div>
+
+<form class="form-inline" method="post" action="#">
+
     <label>
       <input type="checkbox" name="selectAll" class="checkbox-select-all"/>
       <?=$this->transEsc('select_page')?> | <?=$this->transEsc('with_selected')?>:
     </label>
-  </div>
-  <div class="btn-group">
+
     <input class="btn btn-default" type="submit" name="email" value="<?=$this->transEsc('Email')?>" title="<?=$this->transEsc('email_selected')?>"/>
-  
-    <input class="btn btn-default" id="delete_list_items_{{editorCtrl.listId}}" type="submit" name="delete" value="<?=$this->transEsc('Delete')?>" title="<?=$this->transEsc('delete_selected')?>"/>
+
+    <input class="btn btn-default" type="submit" name="delete" value="<?=$this->transEsc('Delete')?>" title="<?=$this->transEsc('delete_selected')?>"/>
     <input class="btn btn-default" type="submit" name="export" value="<?=$this->transEsc('Export')?>" title="<?=$this->transEsc('export_selected')?>"/>
     <input class="btn btn-default" type="submit" name="print" value="<?=$this->transEsc('Print')?>" title="<?=$this->transEsc('print_selected')?>"/>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <h1>Prozatím nefunkční ukázka</h1>
+
+  	<div ng-repeat="favorite in listCtrl.favorites">
+    	<div favorites-list-item>
+    	</div>
+    </div>
     
   </div>
-
-
-      </form>
-      
-      Zde paginace .. <b>TODO !!</b>
-    </div>
-    <div ng-show="{{editorCtrl.listEmpty}}">
+</form>
+    <div ng-show="listCtrl.listEmpty">
       <p><?=$this->transEsc('You do not have any saved resources')?></p>
     </div>
+    </div>
+
   </div>
 </div>
-<img src="http://docs.devel.mzk.cz/shib/Sn%edmek%20obrazovky%20-%2026.1.2016%20-%2013:33:54.png" title="Pro srovnání ..." alt="Pro srovnání ..." style="border:3px black solid" />
