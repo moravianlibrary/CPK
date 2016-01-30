@@ -160,13 +160,11 @@ class NCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
-    public function LUISBibItem($bibItemList, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
+    public function LUISBibItem($bibId, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
         $body = "<ns1:LookupItemSet>";
-        foreach ($bibItemList as $id) {
-            if ($mainClass !== null)
-                list ($id, $agency) = $mainClass->splitAgencyId($id);
-            $body .= $this->insertBibliographicItemIdTag($id);
-        }
+        if ($mainClass !== null)
+            list ($bibId, $agency) = $mainClass->splitAgencyId($bibId);
+        $body .= $this->insertBibliographicItemIdTag($bibId);
         $body .= $this->allItemElementType();
         if (! empty($mainClass->getMaximumItemsCount())) {
             $body .= "<ns1:MaximumItemsCount>" .

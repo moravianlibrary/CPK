@@ -264,6 +264,7 @@ class MultiBackend extends MultiBackendBase
         $source = $this->getSource($bibId);
         $driver = $this->getDriver($source);
 
+        $profile = null;
         if ($user != null) {
             $identities = $user->getLibraryCards();
             foreach ($identities as $identity) {
@@ -273,6 +274,7 @@ class MultiBackend extends MultiBackendBase
                     $profile = $this->stripIdPrefixes($profile, $source);
                     break;
                 }
+                else $profile = null;
             }
         }
 

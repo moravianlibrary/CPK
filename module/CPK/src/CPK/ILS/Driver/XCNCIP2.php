@@ -311,6 +311,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
 
             $didWeTheJob = $desiredRequestFound && ! $problemOccurred;
+            if (! $didWeTheJob) $this->addEnviromentalException("Item has not been canceled.");
 
             $items[$recent] = array(
                 'success' => $didWeTheJob,
@@ -778,14 +779,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @throws ILSException
      * @return array Array of return values from getStatus.
      */
-    public function getStatuses($ids, $patron = [], $filter = [])
+    public function getStatuses($ids, $patron = [], $filter = [], $bibId = [])
     {
         $retVal = [];
 
+        $this->cannotUseLUIS = false;
         if ($this->cannotUseLUIS)
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids));
         else {
+            if ($this->agency === 'TAG001') {
+                $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
+                $response = $this->sendRequest($request);
+                return $this->handleStutuses($response);
+            }
+
             $request = $this->requests->LUISItemId($ids, null, $this, $patron);
             $response = $this->sendRequest($request);
 
@@ -871,6 +879,54 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'duedate' => $dueDate
                 );
             }
+        }
+        return $retVal;
+    }
+
+    private function handleStutuses($response)
+    {
+        $retVal = array();
+
+        $bib_id = $this->useXPath($response,
+                'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+
+        $holdingSets = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet');
+        foreach ($holdingSets as $holdingSet) {
+
+            $item_id = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemId/ItemIdentifierValue');
+
+            $status = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemOptionalFields/CirculationStatus');
+
+            if ($status == 'On Loan') {
+                $dueDate = $this->useXPath($holdingSet,
+                        'ItemInformation/ItemOptionalFields/DateDue');
+            } else {
+                $dueDate = false;
+            }
+
+            $holdQueue = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemOptionalFields/HoldQueueLength');
+
+            $itemRestrictions = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
+
+            $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
+
+            $retVal[] = array(
+                'id' => empty($bib_id) ? "" : (string) $bib_id[0],
+                'status' => empty($status) ? "" : (string) $status[0],
+                'location' => '',
+                'sub_lib_desc' => '',
+                'department' => '',
+                'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],
+                'item_id' => empty($item_id) ? "" : (string) $item_id[0],
+                'label' => $label,
+                'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
+                'restrictions' => '',
+                'duedate' => empty($dueDate) ? false : (string) $dueDate[0]
+            );
         }
         return $retVal;
     }
