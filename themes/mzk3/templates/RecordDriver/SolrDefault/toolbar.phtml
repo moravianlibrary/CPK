@@ -44,18 +44,12 @@
   
   <? if ($cart->isActive()): ?>
     <li id="bookbag-menu" class="list-group-item">
-      <input id="cartId" type="hidden" name="ids[]" value="<?=$this->escapeHtml($cartId)?>" />
-      <span id="cart-add" class="<? if(!$cart->contains($cartId)): ?>correct <? endif ?>hidden"">
-        <i class="fa fa-x fa-plus-circle"></i>
-        <a href="#"><?=$this->transEsc('Add to Book Bag') ?></a>
-      </span>
-      <span id="cart-remove" class="<? if($cart->contains($cartId)): ?>correct <? endif ?>hidden"">
-        <i class="fa fa-x fa-minus-circle"></i>
-        <a href="#"><?=$this->transEsc('Remove from Book Bag') ?></a>
-      </span>
+      <input class="cartId" type="hidden" name="ids[]" value="<?=$this->escapeHtmlAttr($cartId)?>" />
+      <a class="cart-add hidden<? if(!$cart->contains($cartId)): ?> correct<? endif ?>" href="#"><i class="fa fa-plus"></i> <?=$this->transEsc('Add to Book Bag') ?></a>
+      <a class="cart-remove hidden<? if($cart->contains($cartId)): ?> correct<? endif ?>"href="#"><i class="fa fa-minus-circle"></i> <?=$this->transEsc('Remove from Book Bag') ?></a>
       <noscript>
         <form method="post" name="addForm" action="<?=$this->url('cart-home')?>">
-          <input type="hidden" name="ids[]" value="<?=$this->escapeHtml($cartId)?>" />
+          <input type="hidden" name="ids[]" value="<?=$this->escapeHtmlAttr($cartId)?>" />
           <? if ($cart->contains($cartId)): ?>
             <input class="btn btn-default" type="submit" name="delete" value="<?=$this->transEsc('Remove from Book Bag')?>"/>
           <? else: ?>
