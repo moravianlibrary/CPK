@@ -783,7 +783,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     {
         $retVal = [];
 
-        $this->cannotUseLUIS = false;
+        if (empty($bibId)) $this->cannotUseLUIS = true;
         if ($this->cannotUseLUIS)
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids));
@@ -792,6 +792,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
+            }
+
+            if ($this->agency === 'ZLG001') {
+                $bibId = str_replace('oai:', '', $bibId);
+                $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
+                $response = $this->sendRequest($request);
+                return $this->handleStutusesZlg($response);
             }
 
             $request = $this->requests->LUISItemId($ids, null, $this, $patron);
@@ -911,6 +918,54 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $itemRestrictions = $this->useXPath($holdingSet,
                     'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
+
+            $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
+
+            $retVal[] = array(
+                'id' => empty($bib_id) ? "" : (string) $bib_id[0],
+                'status' => empty($status) ? "" : (string) $status[0],
+                'location' => '',
+                'sub_lib_desc' => '',
+                'department' => '',
+                'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],
+                'item_id' => empty($item_id) ? "" : (string) $item_id[0],
+                'label' => $label,
+                'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
+                'restrictions' => '',
+                'duedate' => empty($dueDate) ? false : (string) $dueDate[0]
+            );
+        }
+        return $retVal;
+    }
+
+    private function handleStutusesZlg($response)
+    {
+        $retVal = array();
+
+        $bib_id = $this->useXPath($response,
+                'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+
+        $items = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
+        foreach ($items as $itemInformation) {
+
+            $item_id = $this->useXPath($itemInformation,
+                    'ItemId/ItemIdentifierValue');
+
+            $status = $this->useXPath($itemInformation,
+                    'ItemOptionalFields/CirculationStatus');
+
+            if ($status == 'On Loan') {
+                $dueDate = $this->useXPath($itemInformation,
+                        'ItemOptionalFields/DateDue');
+            } else {
+                $dueDate = false;
+            }
+
+            $holdQueue = $this->useXPath($itemInformation,
+                    'ItemOptionalFields/HoldQueueLength');
+
+            $itemRestrictions = $this->useXPath($itemInformation,
+                    'ItemOptionalFields/ItemUseRestrictionType');
 
             $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
 
