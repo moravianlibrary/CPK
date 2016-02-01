@@ -42,13 +42,12 @@
 		<div class="dropdown">
 			<i class="fa fa-fw fa-trash-o"></i> <a class="dropdown-toggle" role="button" data-toggle="dropdown"
 				data-target="#"
-				href="#">
-				Odstranit </a>
+				href="#">{{ 'delete' | translate }}</a>
 			<ul class="dropdown-menu" role="menu">
 				<li><a
 					ng-click="listCtrl.removeFavorite(fav.created())"
-					title="Smazat položku?">Ano</a></li>
-				<li><a>Ne</a></li>
+					title="{{ confirmDelete }}">{{ 'yes' | translate }}</a></li>
+				<li><a>{{ 'no' | translate }}</a></li>
 			</ul>
 		</div>
 
