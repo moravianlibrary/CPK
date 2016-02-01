@@ -55,18 +55,21 @@
 	    });
 	}
 
-	function removeFavorite(recordId) {
+	function removeFavorite(id) {
 	    return new Promise(function(resolve, reject) {
+		
+		if (typeof id !== "number") {
+		    reject('Invalid ID provided');
+		    return;
+		}
 
 		var theJob = function() {
-
-		    var regexp = new RegExp("\/" + recordId.replace(/\./,"\\."));
 		    
 		    var count = favorites.length, tmp = [], removed = false;
 		    
-		    // Let's slice out those whose title link doesn't match regexp
+		    // Let's slice out those whose title link doesn't match
 		    for (var i = 0; i < count; ++i) {
-			if (favorites[i].title.link.match(regexp)) {
+			if (favorites[i].created === id) {
 			    removed = true;
 			} else {
 			    tmp.push(favorites[i]);
@@ -74,7 +77,8 @@
 		    }
 		    
 		    if (removed === false) {
-			reject('Invalid recordId provided');
+			reject('Invalid ID provided');
+			return;
 		    }
 		    
 		    favorites = tmp;
