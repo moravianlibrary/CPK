@@ -111,11 +111,12 @@
       <?=$this->transEsc('select_page')?> | <?=$this->transEsc('with_selected')?>:
     </label>
 
+	<div class="btn-group" title="<?=$this->transEsc('login_to_use_this')?>">
     <input class="btn btn-default" type="submit" ng-click="listCtrl.deleteList()" value="<?=$this->transEsc('Delete')?>" title="<?=$this->transEsc('delete_selected')?>"/>
     <input class="btn btn-default" type="submit" value="<?=$this->transEsc('email_selected')?>" title="<?=$this->transEsc('login_to_use_this')?>" disabled/>
     <input class="btn btn-default" type="submit" value="<?=$this->transEsc('export_selected')?>" title="<?=$this->transEsc('login_to_use_this')?>" disabled/>
     <input class="btn btn-default" type="submit" value="<?=$this->transEsc('print_selected')?>" title="<?=$this->transEsc('login_to_use_this')?>" disabled/>
-    
+    </div>
   	<div ng-repeat="fav in listCtrl.favorites">
     	<div favorites-list-item>
     	</div>
