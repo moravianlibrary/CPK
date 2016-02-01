@@ -24,14 +24,14 @@
      * to the RecordController ..
      */
     var pubElements = {
-	    recordIsFav : false,
 	    remFavBtn : undefined,
 	    addFavBtn : undefined
     };
 
     function RecordController($log, storage, favoritesFactory) {
 
-	var fav = undefined;
+	var fav = undefined,
+	recordIsFav = false;
 	
 	var vm = this;
 
@@ -51,7 +51,7 @@
 	 * Dispatches the user's click based on the logic implemented ..
 	 */
 	function addOrRemoveFavorite() {
-	    if (! pubElements.recordIsFav) {
+	    if (! recordIsFav) {
 		addFavorite();
 	    } else {
 		removeFavorite();
@@ -132,7 +132,7 @@
 	    pubElements.addFavBtn.hidden = ! pubElements.addFavBtn.hidden;
 	    
 	    // record is favorite boolean is now being inverted ..
-	    pubElements.recordIsFav = ! pubElements.recordIsFav;
+	    recordIsFav = ! recordIsFav;
 	};
     };
     

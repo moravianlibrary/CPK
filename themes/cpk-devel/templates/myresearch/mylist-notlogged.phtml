@@ -76,59 +76,40 @@
 <?=$this->flashmessages()?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row" ng-app="<?=$appName?>" ng-controller="ListController as listCtrl">
-  <div class="<?=$this->layoutClass('mainbody')?>">
+  <div class="<?=$this->layoutClass('mainbody')?>" ng-hide="listCtrl.listEmpty">
     <div class="clearfix hidden-print">
-      <h2 class="pull-left flip">{{listCtrl.listTitle}}</h2>
+  	<h2 class="pull-left flip"><?=$this->transEsc('Favorites')?></h2>
       <div class="pull-right flip">
-        <div ng-show="{{listCtrl.editModeActive}}">
-            <a href="#" ng-click="listCtrl.editList(ctrl.listId)" class="btn btn-link" title="<?=$this->transEsc("edit_list")?>"><i class="fa fa-edit"></i> <?=$this->transEsc("edit_list")?></a>
-            <div class="btn-group">
-              <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-trash-o"></i> <?=$this->transEsc("delete_list")?>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="#" ng-click="listCtrl.deleteList(listCtrl.listId)"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
-                <li><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
-              </ul>
-            </div>
-        </div>
         <?=$this->transEsc("Showing")?>
         <strong>{{ listCtrl.paginationStart }}</strong> - <strong>{{ listCtrl.paginationStart + !listCtrl.paginationLength ? listCtrl.paginationLength : listCtrl.paginationLength - 1 }}</strong>
         <?=$this->transEsc('of')?> <strong>{{ listCtrl.listLength }}</strong>
         </div>
     </div>
-    <p>{{listCtrl.description}}</p>
-
-		<div ng-hide="listCtrl.listEmpty">
-			<div class="resulthead">
-				<div class="pull-right flip">
-					<select name="sort" class="form-control">
-						<option ng-show="listCtrl.canSort('alphabetical')"
-							value='alphabetical'><?=$this->transEsc('By Alphabetical')?></option>
-						<option ng-show="listCtrl.canSort('author')" value='author'><?=$this->transEsc('By Author')?></option>
-						<option ng-show="listCtrl.canSort('callNo')" value='callNo'><?=$this->transEsc('By Call Number')?></option>
-						<option ng-show="listCtrl.canSort('course')" value='course'><?=$this->transEsc('By Course')?></option>
-						<option ng-show="listCtrl.canSort('department')"
-							value='department'><?=$this->transEsc('By Department')?></option>
-						<option ng-show="listCtrl.canSort('era')" value='era'><?=$this->transEsc('By Era')?></option>
-						<option ng-show="listCtrl.canSort('genre')" value='genre'><?=$this->transEsc('By Genre')?></option>
-						<option ng-show="listCtrl.canSort('instructor')"
-							value='instructor'><?=$this->transEsc('By Instructor')?></option>
-						<option ng-show="listCtrl.canSort('popularity')"
-							value='popularity'><?=$this->transEsc('By Popularity')?></option>
-						<option ng-show="listCtrl.canSort('recent')" value='recent'><?=$this->transEsc('By Recent')?></option>
-						<option ng-show="listCtrl.canSort('region')" value='region'><?=$this->transEsc('By Region')?></option>
-						<option ng-show="listCtrl.canSort('title')" value='title'><?=$this->transEsc('By Title')?></option>
-						<option ng-show="listCtrl.canSort('topic')" value='topic'><?=$this->transEsc('By Topic')?></option>
-					</select>
-				</div>
+		<div class="resulthead">
+			<div class="pull-right flip">
+				<select name="sort" class="form-control">
+					<option ng-show="listCtrl.canSort('alphabetical')"
+						value='alphabetical'><?=$this->transEsc('By Alphabetical')?></option>
+					<option ng-show="listCtrl.canSort('author')" value='author'><?=$this->transEsc('By Author')?></option>
+					<option ng-show="listCtrl.canSort('callNo')" value='callNo'><?=$this->transEsc('By Call Number')?></option>
+					<option ng-show="listCtrl.canSort('course')" value='course'><?=$this->transEsc('By Course')?></option>
+					<option ng-show="listCtrl.canSort('department')" value='department'><?=$this->transEsc('By Department')?></option>
+					<option ng-show="listCtrl.canSort('era')" value='era'><?=$this->transEsc('By Era')?></option>
+					<option ng-show="listCtrl.canSort('genre')" value='genre'><?=$this->transEsc('By Genre')?></option>
+					<option ng-show="listCtrl.canSort('instructor')" value='instructor'><?=$this->transEsc('By Instructor')?></option>
+					<option ng-show="listCtrl.canSort('popularity')" value='popularity'><?=$this->transEsc('By Popularity')?></option>
+					<option ng-show="listCtrl.canSort('recent')" value='recent'><?=$this->transEsc('By Recent')?></option>
+					<option ng-show="listCtrl.canSort('region')" value='region'><?=$this->transEsc('By Region')?></option>
+					<option ng-show="listCtrl.canSort('title')" value='title'><?=$this->transEsc('By Title')?></option>
+					<option ng-show="listCtrl.canSort('topic')" value='topic'><?=$this->transEsc('By Topic')?></option>
+				</select>
 			</div>
 		</div>
-
-<form class="form-inline" method="post" action="#">
+	<div>
+	<form class="form-inline" method="post" action="#">
 
     <label>
-      <input type="checkbox" name="selectAll" class="checkbox-select-all"/>
+      <input type="checkbox"/>
       <?=$this->transEsc('select_page')?> | <?=$this->transEsc('with_selected')?>:
     </label>
 
@@ -143,12 +124,12 @@
     	</div>
     </div>
     
-  </div>
-</form>
-    <div ng-show="listCtrl.listEmpty">
-      <p><?=$this->transEsc('You do not have any saved resources')?></p>
-    </div>
-    </div>
+	</form>
+	</div>
 
   </div>
+
+	<div ng-show="listCtrl.listEmpty" class="<?=$this->layoutClass('mainbody')?>">
+		<p><?=$this->transEsc('You do not have any saved resources')?></p>
+	</div>
 </div>

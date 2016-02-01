@@ -15,6 +15,8 @@
 
 	var vm = this;
 	
+	vm.favSelected = {};
+	
 	var maxPaginationLength = 10;
 
 	vm.paginationStart = 0;
@@ -34,7 +36,9 @@
 	    $log.error(reason);
 	});
 	
-	// //////////////////////////
+	return vm;
+	
+	//
 	
 	function onGetFavorites(favs) {
 	    vm.favorites = favs;
@@ -56,15 +60,16 @@
 	    return true; // TODO ..
 	}
 	
-	function listEmpty() {
-	    return 
-	}
-
 	function removeFavorite(id) {
 	    
 	    storage.removeFavorite(id).then(function() {
 		
 		divsAsFavs[id].remove();
+		delete divsAsFavs[id];
+		
+		if (Object.keys(divsAsFavs).length === 0)
+		    vm.listEmpty = true;
+		
 	    }).catch(function(reason) {
 		
 		$log.error(reason);

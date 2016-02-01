@@ -3,8 +3,8 @@
 
 		<label class="pull-left flip">
 			<span class="pull-left noprint">
-				<input class="checkbox-select-item" name="ids[]"
-				value="{{}}" onchange="updateCart(this);"
+				<input
+				ng-model="listCtrl.favSelected[fav.created()]"
 				type="checkbox">
 			</span>
 		</label>
