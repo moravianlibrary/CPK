@@ -13,23 +13,22 @@
 
     function ListController($q, $log, storage) {
 
+	var maxPaginationLength = 10;
+	
 	var vm = this;
 	
-	vm.favSelected = {};
-	
-	var maxPaginationLength = 10;
+	vm.favsSelected = {};
+	vm.favorites = [];
 
 	vm.paginationStart = 0;
 	vm.paginationLength = 0;
-
 	vm.listLength = 0;
+	vm.listEmpty = true;
 	
 	vm.canSort = canSort;
-
 	vm.removeFavorite = removeFavorite;
 	
-	vm.favorites = [];
-	vm.listEmpty = true;
+	vm.deleteList = deleteList;
 
 	$q.resolve(storage.getFavorites()).then(onGetFavorites).catch(function(reason) {
 	    
@@ -74,6 +73,10 @@
 		
 		$log.error(reason);
 	    });
+	}
+	
+	function deleteList() {
+	    alert('deleting all favorites !');
 	}
     }
     
