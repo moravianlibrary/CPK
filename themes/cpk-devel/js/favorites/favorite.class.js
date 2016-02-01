@@ -96,7 +96,7 @@
 		var expectedSpan = formatPointer.children('span');
 
 		if (expectedSpan.length)
-		    return expectedSpan.text();
+		    return expectedSpan.attr('data-orig');
 
 		console.error('Parsing record format failed!');
 	    }
