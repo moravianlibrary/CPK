@@ -3,33 +3,44 @@
  * 
  * @author Jiří Kozlovský
  */
+var hack;
 (function() {
 
-    angular.module('favorites').controller('ListController', ListController).directive('favoritesListItem', favoritesListDirective);
+    angular.module('favorites').controller('ListController', ListController)
+    	.directive('favoritesListItem', favoritesListDirective)
+    	.directive('listNotEmpty', listNotEmptyDirective);
 
-    ListController.$inject = [ '$q', '$log', 'storage' ];
+    ListController.$inject = [ '$q', '$log', '$scope', 'storage' ];
     
-    var divsAsFavs = {};
+    // helper private variables
+    var divsAsFavs = {};    
+    var listEmptyDiv = undefined;    
+    var listNotEmptyDiv = undefined;
 
-    function ListController($q, $log, storage) {
+    function ListController($q, $log, $scope, storage) {
 
-	var maxPaginationLength = 10;
-	
+	var listEmpty = true;
+
 	var vm = this;
 	
-	vm.favsSelected = {};
+	hack = this;
+	vm.scope = $scope;
+
+	vm.favSelected = {};
 	vm.favorites = [];
 
-	vm.paginationStart = 0;
-	vm.paginationLength = 0;
-	vm.listLength = 0;
-	vm.listEmpty = true;
+	vm.allSelected = false;
+
+	vm.listStart = 1;
+	vm.listLength = 1;
+
+	vm.selectAll = selectAll;
 	
 	vm.canSort = canSort;
 	vm.removeFavorite = removeFavorite;
 	
-	vm.deleteList = deleteList;
-
+	vm.removeSelected = removeSelected;
+	
 	$q.resolve(storage.getFavorites()).then(onGetFavorites).catch(function(reason) {
 	    
 	    $log.error(reason);
@@ -45,13 +56,9 @@
 	    var length = favs.length;
 
 	    if (length) {
-		vm.listEmpty = false;
+		changeVisibleDiv();
 			
-		vm.listLength = length;
-			
-		vm.paginationStart = 1;
-		vm.paginationLength = maxPaginationLength < length ? maxPaginationLength : length;
-			
+		vm.listLength = length;			
 	    }
 	}
 	
@@ -61,22 +68,50 @@
 	
 	function removeFavorite(id) {
 	    
-	    storage.removeFavorite(id).then(function() {
+	    // We need to refresh the view with async job .. use Promise
+	    new Promise(function(resolve, reject) {
+	    
+		storage.removeFavorite(id).then(function() {
 		
-		divsAsFavs[id].remove();
-		delete divsAsFavs[id];
+		    divsAsFavs[id].remove();
+		    delete divsAsFavs[id];
 		
-		if (Object.keys(divsAsFavs).length === 0)
-		    vm.listEmpty = true;
+		    --vm.listLength;
 		
-	    }).catch(function(reason) {
+		    if (Object.keys(divsAsFavs).length === 0)
+			changeVisibleDiv();
 		
-		$log.error(reason);
+		}).catch(function(reason) {
+		
+		    $log.error(reason);
+		});
+		
+		resolve();
+	    
+		// Then refresh the scope
+	    }).then($scope.$applyAsync);
+	}
+	
+	function removeSelected() {
+	    Object.keys(vm.favSelected).forEach(function(key) {
+		if (vm.favSelected[key] === true) {
+
+		    removeFavorite(parseInt(key));
+
+		    delete vm.favSelected[key];
+		}
 	    });
 	}
 	
-	function deleteList() {
-	    alert('deleting all favorites !');
+	function selectAll() {
+	    vm.favorites.forEach(function(favorite) {
+		vm.favSelected[favorite.created()] = vm.allSelected;
+	    });
+	}
+	
+	function changeVisibleDiv() {
+	    listEmptyDiv.hidden = ! listEmptyDiv.hidden;
+	    listNotEmptyDiv.hidden = ! listNotEmptyDiv.hidden;
 	}
     }
     
@@ -90,6 +125,25 @@
 	function linker(scope, elements, attrs) {
 	    // Assing the divs to an object with fav ID
 	    divsAsFavs[scope.fav.created()] = elements.context;
+	}
+    }
+    
+    function listNotEmptyDirective() {
+	return {
+	    restrict : 'A',
+	    link : linker
+	};
+	
+	function linker(scope, elements, attrs) {
+	    if (attrs.listNotEmpty === "true") {
+		
+		listNotEmptyDiv = elements.context;
+		listNotEmptyDiv.hidden = true;
+	    } else if (attrs.listNotEmpty === "false") {
+		
+		listEmptyDiv = elements.context;
+		listEmptyDiv.hidden = false;
+	    }
 	}
     }
     

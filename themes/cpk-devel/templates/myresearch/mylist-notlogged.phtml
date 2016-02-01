@@ -76,12 +76,12 @@
 <?=$this->flashmessages()?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row" ng-app="<?=$appName?>" ng-controller="ListController as listCtrl">
-  <div class="<?=$this->layoutClass('mainbody')?>" ng-hide="listCtrl.listEmpty">
+  <div class="<?=$this->layoutClass('mainbody')?>" list-not-empty="true">
     <div class="clearfix hidden-print">
   	<h2 class="pull-left flip"><?=$this->transEsc('Favorites')?></h2>
       <div class="pull-right flip">
         <?=$this->transEsc("Showing")?>
-        <strong>{{ listCtrl.paginationStart }}</strong> - <strong>{{ listCtrl.paginationStart + !listCtrl.paginationLength ? listCtrl.paginationLength : listCtrl.paginationLength - 1 }}</strong>
+        <strong>1</strong> - <strong>{{ listCtrl.listLength }}</strong>
         <?=$this->transEsc('of')?> <strong>{{ listCtrl.listLength }}</strong>
         </div>
     </div>
@@ -107,12 +107,12 @@
 		</div>
 	<div>
     <label>
-      <input type="checkbox"/>
+      <input ng-model="listCtrl.allSelected" ng-change="listCtrl.selectAll()" type="checkbox"/>
       <?=$this->transEsc('select_page')?> | <?=$this->transEsc('with_selected')?>:
     </label>
 
 	<div class="btn-group" title="<?=$this->transEsc('login_to_use_this')?>">
-    <input class="btn btn-default" type="submit" ng-click="listCtrl.deleteList()" value="<?=$this->transEsc('Delete')?>" title="<?=$this->transEsc('delete_selected')?>"/>
+    <input class="btn btn-default" type="submit" ng-click="listCtrl.removeSelected()" value="<?=$this->transEsc('Delete')?>" title="<?=$this->transEsc('delete_selected')?>"/>
     <input class="btn btn-default" type="submit" value="<?=$this->transEsc('email_selected')?>" title="<?=$this->transEsc('login_to_use_this')?>" disabled/>
     <input class="btn btn-default" type="submit" value="<?=$this->transEsc('export_selected')?>" title="<?=$this->transEsc('login_to_use_this')?>" disabled/>
     <input class="btn btn-default" type="submit" value="<?=$this->transEsc('print_selected')?>" title="<?=$this->transEsc('login_to_use_this')?>" disabled/>
@@ -125,7 +125,7 @@
 
   </div>
 
-	<div ng-show="listCtrl.listEmpty" class="<?=$this->layoutClass('mainbody')?>">
+	<div list-not-empty="false" class="<?=$this->layoutClass('mainbody')?>">
 		<p><?=$this->transEsc('You do not have any saved resources')?></p>
 	</div>
 </div>
