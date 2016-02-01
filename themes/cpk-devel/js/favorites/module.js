@@ -41,37 +41,35 @@
  * javascript solution (assigning handlers & controllers from this app to them
  * instead of the links).
  * 
- * 4) Editing favorites
- * 
- * User should be capable of editing the favorites by the means of having
- * customizable description.
- * 
- * 5) Deleting favorites
+ * 4) Deleting favorites
  * 
  * This is an easy task - there'll be a simple delete button as is now, but is
  * about to be handled by JS, not PHP.
  * 
- * 6) Notifying user about having favorites & not being logged in yet
+ * 5) Notifying user about having favorites & not being logged in yet
  * 
  * User should know the risks of having his favorites within an "offline"
  * account, I mean to let him know about the fact that he could lose those
  * favorites very easily, so he should log in in order to retain his favorites
  * on the server, not the browser.
  * 
- * 7) Sharing favorites
- * 
- * Sharing favorites from not logged in user could be done by creating favorites
- * physically in the server's DB under an "anonymous" account with an expiration
- * date, let's say 1 month? User'll then recieve some temporary tokenized URL.
- * TODO: is there some better solution ?
- * 
  * Note that the Favorites app is being written with respect to Angular Style
  * Guide you can look at here:
  * https://github.com/johnpapa/angular-styleguide#angular-style-guide
  * 
- * Deeper explanation of this AngularJS MVC implementation:
+ * 6) All other functionalities should be for logged in users only
  * 
- * TODO
+ * TODO list:
+ * 
+ * Implement transferring favorites from user's sessionStorage to the server
+ * after login.
+ * 
+ * Also implement broadcasting of any favorites change across all tabs so that
+ * every other tab knows about that change (even tab without location at
+ * favorites ! .. but fo not logged in it should be enough)
+ * 
+ * Also implement notifying not logged in user about having unsaved
+ * notifications !
  * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */

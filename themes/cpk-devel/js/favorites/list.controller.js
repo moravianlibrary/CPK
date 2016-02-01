@@ -13,13 +13,11 @@ var hack;
     ListController.$inject = [ '$q', '$log', '$scope', 'storage' ];
     
     // helper private variables
-    var divsAsFavs = {};    
+    var divsAsFavs = {};
     var listEmptyDiv = undefined;    
     var listNotEmptyDiv = undefined;
 
     function ListController($q, $log, $scope, storage) {
-
-	var listEmpty = true;
 
 	var vm = this;
 	
