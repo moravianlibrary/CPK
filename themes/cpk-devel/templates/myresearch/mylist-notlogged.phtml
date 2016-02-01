@@ -11,6 +11,7 @@
       'favorite.class.js',
       'favorites.factory.js',
       'storage.service.js',
+      'translate.filter.js',
       'list.controller.js'
   ];
 
@@ -18,6 +19,15 @@
   foreach($dependencies as $dependency) {
     $this->headScript()->appendFile($appName . '/' . $dependency);
   }
+  
+  // Also add required translations
+  $this->jsTranslations()->addStrings(
+      array(
+          'mainAuthor' => $this->translate('Main Author'),
+          'published' => $this->translate('Published'),
+          'onlineResources' => $this->translate('online_resources')
+      )
+      );
 
   // Set up breadcrumbs:
   $currPage = isset($list) ? 'List' : 'Favorites';
@@ -45,7 +55,7 @@
             </div>
         </div>
         <?=$this->transEsc("Showing")?>
-        <strong>{{ listCtrl.paginationStart }}</strong> - <strong>{{ listCtrl.paginationLength + listCtrl.paginationStart - 1 }}</strong>
+        <strong>{{ listCtrl.paginationStart }}</strong> - <strong>{{ listCtrl.paginationStart + !listCtrl.paginationLength ? listCtrl.paginationLength : listCtrl.paginationLength - 1 }}</strong>
         <?=$this->transEsc('of')?> <strong>{{ listCtrl.listLength }}</strong>
         </div>
     </div>
@@ -54,7 +64,7 @@
 		<div ng-hide="listCtrl.listEmpty">
 			<div class="resulthead">
 				<div class="pull-right flip">
-					<select name="sort" class="jumpMenu form-control">
+					<select name="sort" class="form-control">
 						<option ng-show="listCtrl.canSort('alphabetical')"
 							value='alphabetical'><?=$this->transEsc('By Alphabetical')?></option>
 						<option ng-show="listCtrl.canSort('author')" value='author'><?=$this->transEsc('By Author')?></option>
@@ -90,7 +100,7 @@
     <input class="btn btn-default" type="submit" name="export" value="<?=$this->transEsc('Export')?>" title="<?=$this->transEsc('export_selected')?>"/>
     <input class="btn btn-default" type="submit" name="print" value="<?=$this->transEsc('Print')?>" title="<?=$this->transEsc('print_selected')?>"/>
 
-  	<div ng-repeat="favorite in listCtrl.favorites">
+  	<div ng-repeat="fav in listCtrl.favorites">
     	<div favorites-list-item>
     	</div>
     </div>
