@@ -31,12 +31,16 @@
 
     function RecordController($log, storage, favoritesFactory) {
 
+	var fav = undefined;
+	
 	var vm = this;
 
 	vm.addOrRemoveFavorite = addOrRemoveFavorite;
 	vm.isFavorite = isFavorite;
 	
-	isFavorite().then(function(fav) {
+	isFavorite().then(function(favorite) {
+	    fav = favorite;
+	    
 	    switchAddRemoveSpanVisibility();
 	});
 
@@ -59,9 +63,9 @@
 	 */
 	function addFavorite() {
 
-	    var favorite = favoritesFactory.createFromCurrentRecord();
+	    fav = favoritesFactory.createFromCurrentRecord();
 	    
-	    storage.addFavorite(favorite).then(function() {
+	    storage.addFavorite(fav).then(function() {
 		
 		switchAddRemoveSpanVisibility();
 		
@@ -76,9 +80,9 @@
 	 */
 	function removeFavorite() {
 	    
-	    var recordId = getRecordId();
+	    var id = fav.created();
 	    
-	    storage.removeFavorite(recordId).then(function() {
+	    storage.removeFavorite(id).then(function() {
 		
 		switchAddRemoveSpanVisibility();
 		
