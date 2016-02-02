@@ -5,7 +5,8 @@
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
       '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li class="active"><a href="/Admin/PortalPages">'.$this->transEsc('Portal pages').'</a></li>';
+      '<li class="active">'.$this->transEsc('Portal pages').'</li>';
+  
   $this->layout()->title = $this->translate('Portal pages');
 ?>
 <script>
@@ -15,6 +16,8 @@
 		}).mouseout(function() {
 			$( this ).find( '.portal-pages-actions .admin-icon' ).addClass( 'hidden' );
 		});
+
+		$('[data-toggle="tooltip"]').tooltip();
 	});
 </script>
 <div class="row clearfix">
@@ -35,10 +38,10 @@
         <table class='table table-hover table-responsive'>
           <thead>
             <tr>
-              <th width='60%'><?=$this->translate('Page title')?></th>
+              <th width='55%'><?=$this->translate('Page title')?></th>
               <th width='15%'><?=$this->translate('Language')?></th>
               <th width='20%'><?=$this->translate('Last modified')?></th>
-              <th width='5%'></th>
+              <th width='10%'></th>
             </tr>
           </thead>
           <tbody>
@@ -51,7 +54,9 @@
               <td ><?=$this->translate($page['language_code'])?></td>
               <td><?=date("d. M. Y", strtotime($page['last_modified_timestamp']))?></td>
               <td class='portal-pages-actions'>
-                <a href='/Admin/PortalPages/Edit?id=<?= $page['id'] ?>'><i class='fa fa-edit admin-icon hidden'></i>
+                <a data-toggle="tooltip" title="<?=$this->translate('Edit')?>" href='/Admin/PortalPages/Edit?pageId=<?= $page['id'] ?>'><i class='fa fa-edit admin-icon hidden'></i></a>
+                &nbsp;
+                <a target='_blank' data-toggle="tooltip" title="<?=$this->translate('Preview')?>" href='/Portal/Page/<?= $page['pretty_url'] ?>'><i class='fa fa-tv admin-icon hidden'></i></a>
               </td>
             </tr>
             <? endforeach; ?>
