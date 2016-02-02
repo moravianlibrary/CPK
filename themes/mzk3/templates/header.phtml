@@ -44,8 +44,8 @@
     <? endif; ?>
     <nav>
     <ul class="nav navbar-nav navbar-right flip">
-      
-      
+
+
       <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
         <li>
           <div class="loginbox">
@@ -64,17 +64,13 @@
           <? if ($this->layout()->frontpage == false): ?>
             <? $cart = $this->cart(); if ($cart->isActive()): ?>
               <span id="cartSummary">
-                <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>">
-                  <?=$this->transEsc('Number of items in book bag')?>:
-                  <strong><?=count($cart->getItems())?></strong>
-                  <?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?>
-                </a>
+                <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>"><i class="fa fa-suitcase"></i> <strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
               </span>
             <? endif; ?>
           <? endif; ?>
         </li>
       <? endif; ?>
-      
+
     </ul>
     </nav>
 
