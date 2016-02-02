@@ -100,7 +100,3 @@ CREATE TABLE IF NOT EXISTS `portal_pages` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 UPDATE `system` SET `value`='3' WHERE `key`='DB_VERSION';
 
-
-INSERT INTO `vufind`.`portal_pages` (`id`, `title`, `pretty_url`, `content`, `language_code`, `published`, `view`, `placement`, `order_priority`, `last_modified_timestamp`, `last_modified_user_id`, `group`) VALUES (NULL, 'O portálu', 'o-portalu', 'Content
-', 'en-cpk', '0', 'footer', 'right', '1', '2016-01-30 00:00:00', '1', '1');
-
