@@ -129,7 +129,8 @@ $config = array(
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
             'ajax' => 'CPK\Controller\AjaxController',
-            'status' => 'CPK\Controller\StatusController'
+            'status' => 'CPK\Controller\StatusController',
+            'admin' => 'CPK\Controller\AdminController'
         ), /* invokables */
     ), /* controllers */
     'controller_plugins' => [
