@@ -1,0 +1,64 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('Portal pages | Administration'));
+  
+  // Set up breadcrumbs:
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
+      '<li class="active"><a href="/Admin/PortalPages">'.$this->transEsc('Portal pages').'</a></li>';
+  $this->layout()->title = $this->translate('Portal pages');
+?>
+<script>
+	jQuery( document ).ready( function( $ ) {
+		$( '.portal-page-row' ).mouseover(function() {
+			$( this ).find( '.portal-pages-actions .admin-icon' ).removeClass( 'hidden' );
+		}).mouseout(function() {
+			$( this ).find( '.portal-pages-actions .admin-icon' ).addClass( 'hidden' );
+		});
+	});
+</script>
+<div class="row clearfix">
+  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+  
+  <div class="col-sm-3">
+    <?=$this->render("admin/menu.phtml")?>
+  </div>
+  
+  <div class="col-sm-9">
+    <h2><?=$this->translate('Portal pages')?></h2>
+    <div class='well'>
+      <div class='admin-toolbox'>
+        <button class='btn btn-lg btn-primary'><?=$this->translate('New page')?></button>
+      </div>
+      <div>
+        <? if (count($this->pages)): ?>
+        <table class='table table-hover table-responsive'>
+          <thead>
+            <tr>
+              <th width='60%'><?=$this->translate('Page title')?></th>
+              <th width='15%'><?=$this->translate('Language')?></th>
+              <th width='20%'><?=$this->translate('Last modified')?></th>
+              <th width='5%'></th>
+            </tr>
+          </thead>
+          <tbody>
+            <? foreach($this->pages as $page): ?>
+            <tr class='portal-page-row'>
+              <td>
+                <?= htmlspecialchars($page['title']) ?>
+                <span class="label label-warning pull-right"><?=$this->translate('Not published')?></span>
+              </td>
+              <td ><?=$this->translate($page['language_code'])?></td>
+              <td><?=date("d. M. Y", strtotime($page['last_modified_timestamp']))?></td>
+              <td class='portal-pages-actions'>
+                <a href='/Admin/PortalPages/Edit?id=<?= $page['id'] ?>'><i class='fa fa-edit admin-icon hidden'></i>
+              </td>
+            </tr>
+            <? endforeach; ?>
+          </tbody>
+        </table>
+        <? endif; ?>
+      </div>
+    </div>
+  </div>
+</div>

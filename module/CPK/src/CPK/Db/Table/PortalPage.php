@@ -106,16 +106,27 @@ class PortalPage extends Gateway
      *
      * @return array
      */
-    public function getAllPages($languageCode, $publishedOnly = true)
+    public function getAllPages($languageCode = '*', $publishedOnly = true)
     {       
         $select = new Select($this->table);
         
-        $condition = "language_code='$languageCode'";
-        if ($publishedOnly) {
-            $condition .= ' AND published="1"';
+        $condition = '';
+        if ($languageCode != '*') {
+            $condition = "language_code='$languageCode'";
         }
-        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
-        $select->where($predicate);
+        
+        if ($publishedOnly) {
+            if (! empty($condition)) {
+                $condition .= ' AND published="1"';
+            } else {
+                $condition = 'published="1"';
+            }
+            
+        }
+        if (! empty($condition)) {
+            $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+            $select->where($predicate);
+        }
         
         $results= $this->executeAnyZendSQLSelect($select);
         

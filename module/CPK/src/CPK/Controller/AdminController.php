@@ -61,5 +61,28 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $this->layout()->searchbox = false;
         return $this->createViewModel(['user' => $user]);
     }
+    
+    public function portalPagesAction()
+    {
+        // Log in first!
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+    
+        if (empty($user['major'])) {
+            return $this->forceLogin('Wrong permissions');
+        }
+        // Logged In successfull
+        
+        $portalPagesTable = $this->getTable("portalpages");
+	    $allPages = $portalPagesTable->getAllPages('*', false);
+        
+        $this->layout()->searchbox = false;
+        return $this->createViewModel([
+            'pages' => $allPages,
+            'user' => $user,
+        ]);
+    }
 }
 
