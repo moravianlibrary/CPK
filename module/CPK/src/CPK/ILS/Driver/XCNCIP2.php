@@ -725,8 +725,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType')[0];
             $dateDue = $this->useXPath($response,
                     'LookupItemResponse/ItemOptionalFields/DateDue');
-            $parsedDate = empty($dateDue) ? '' : strtotime($dateDue[0]);
-            $formatedDateDue = date('j. n. Y', $parsedDate);
+            $dateDue = $this->parseDate($dateDue);
 
             // TODO Exists any clean way to get the due date without additional request?
 
@@ -763,7 +762,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'addStorageRetrievalRequestLink' => "",
                 'addILLRequestLink' => "",
                 'addLink' => true, // TODO
-                'duedate' => empty($formatedDateDue) ? '' : $formatedDateDue
+                'duedate' => empty($dateDue) ? '' : $dateDue
             );
         }
     }
@@ -796,6 +795,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             if ($this->agency === 'ZLG001') {
                 $bibId = str_replace('oai:', '', $bibId);
+                $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
+                $response = $this->sendRequest($request);
+                return $this->handleStutusesZlg($response);
+            }
+
+            if ($this->agency === 'LIA001') {
+                $bibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
                 $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutusesZlg($response);
@@ -906,7 +912,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $status = $this->useXPath($holdingSet,
                     'ItemInformation/ItemOptionalFields/CirculationStatus');
 
-            if ($status == 'On Loan') {
+            if (! empty($status) && (string) $status[0] == 'On Loan') {
                 $dueDate = $this->useXPath($holdingSet,
                         'ItemInformation/ItemOptionalFields/DateDue');
             } else {
@@ -950,11 +956,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $item_id = $this->useXPath($itemInformation,
                     'ItemId/ItemIdentifierValue');
+            if (empty($item_id)) { // this is for LIA
+                $item_id = $this->useXPath($itemInformation,
+                        'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
+            }
 
             $status = $this->useXPath($itemInformation,
                     'ItemOptionalFields/CirculationStatus');
 
-            if ($status == 'On Loan') {
+            if (! empty($status) && (string) $status[0] == 'On Loan') {
                 $dueDate = $this->useXPath($itemInformation,
                         'ItemOptionalFields/DateDue');
             } else {
@@ -1159,12 +1169,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $item_id = $this->getFirstXPathMatchAsString($current,
                 'ItemId/ItemIdentifierValue');
 
-            if (! $item_id)
-                throw new ILSException(
-                    "ItemIdentifierValue within ItemId is empty - cannot continue");
+            if (! $item_id) {
+                // MKP, in house loans (present loans) has no item_id
+                continue;
+            }
 
             $dateDue = $this->useXPath($current, 'DateDue');
-            $parsedDate = strtotime((string) $dateDue[0]);
+            $dateDue = $this->parseDate($dateDue);
             $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
             $renewable = empty($renewalNotPermitted)? true : false;
             $additRequest = $this->requests->lookupItem($item_id, $patron['agency']);
@@ -1181,8 +1192,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $title = $this->useXPath($current, 'Title');
             $mediumType = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
-
-            $dateDue = date('j. n. Y', $parsedDate);
 
             $retVal[] = array(
                 'cat_username' => $patron['cat_username'],
@@ -1246,8 +1255,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $desc = $this->useXPath($current,
                 'FiscalTransactionInformation/FiscalTransactionDescription');
             $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
-            $parsedDate = strtotime((string) $date[0]);
-            $date = date('j. n. Y', $parsedDate);
+            $date = $this->parseDate($date);
             $amount_int = (int) $amount[0] * (- 1);
             $sum += $amount_int;
 
@@ -1339,10 +1347,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if ($this->agency === 'ZLG001') { // add record prefix for kfbz
                 $bib_id = 'oai:' . $bib_id;
             }
-            $parsedDate = empty($create) ? '' : strtotime($create[0]);
-            $create = date('j. n. Y', $parsedDate);
-            $parsedDate = empty($expire) ? '' : strtotime($expire[0]);
-            $expire = date('j. n. Y', $parsedDate);
+            $create = $this->parseDate($create);
+            $expire = $this->parseDate($expire);
 
             $available = false;
             if ((! empty($requestStatusType)) &&
@@ -1427,8 +1433,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $rawExpire = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
 
-        $expireDate = empty($rawExpire) ? '' : date('j. n. Y',
-            strtotime((string) $rawExpire[0]));
+        $expireDate = $this->parseDate($rawExpire);
 
         $blocksParsed = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
@@ -1796,5 +1801,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             return $agencyId . static::AGENCY_ID_DELIMITER . $id;
         else
             return $id;
+    }
+
+    protected function parseDate($date)
+    {
+        $parsedDate = empty($date) ? '' : strtotime($date[0]);
+        $formattedDate = date('j. n. Y', $parsedDate);
+        return $formattedDate;
     }
 }

@@ -133,6 +133,7 @@ class NCIPRequests {
 
     public function LUISItemId($itemList, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
         $body = "<ns1:LookupItemSet>";
+        $body .= $this->insertInitiationHeader($patron['agency']);
         foreach ($itemList as $id) {
             if ($mainClass !== null)
                 list ($id, $agency) = $mainClass->splitAgencyId($id);
@@ -162,6 +163,7 @@ class NCIPRequests {
 
     public function LUISBibItem($bibId, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
         $body = "<ns1:LookupItemSet>";
+        $body .= $this->insertInitiationHeader($patron['agency']);
         if ($mainClass !== null)
             list ($bibId, $agency) = $mainClass->splitAgencyId($bibId);
         $body .= $this->insertBibliographicItemIdTag($bibId);
