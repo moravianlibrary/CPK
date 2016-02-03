@@ -1,0 +1,86 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('Portal pages | Administration'));
+  
+  // Set up breadcrumbs:
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
+      '<li><a href="/Admin/PortalPages">'.$this->transEsc('Portal pages').'</a></li>'.
+      '<li class="active">'.$this->translate('Edit').': '.htmlspecialchars($this->page['title']).'</li>';
+  
+  $this->layout()->title = $this->translate('Portal pages');
+?>
+<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+<script>
+	jQuery( document ).ready( function( $ ) {
+		tinymce.init({ 
+			selector:'.editor', 
+			toolbar: [
+			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright'
+			] 
+		});
+	});
+</script>
+<div class="row clearfix">
+  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+  
+  <div class="col-sm-3">
+    <?=$this->render("admin/menu.phtml")?>
+  </div>
+  
+  <div class="col-sm-9">
+    <h2><?=$this->translate('Edit').': '.htmlspecialchars($this->page['title'])?></h2>
+    <div class='well'>
+      <div>
+        <? if (! empty($this->page)): ?>
+        <form action='/Admin/PortalPages/Save' method='post'>
+          <div class='admin-toolbox'>
+            <input type='submit' class='btn btn-lg btn-primary' value='<?=$this->translate('Save')?>'>
+            <a target='_blank' href='/Portal/Page/<?= $this->page['pretty_url'] ?>'>
+              <i class='fa fa-tv fa-2x .admin-icon' data-toggle="tooltip" title="<?=$this->translate('Preview')?>"></i>
+            </a>
+          </div>
+          <input type='hidden' name='pageId' value='<?=$this->page['id']?>'>
+          <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
+          <fieldset class="form-group">
+            <label><?=$this->translate('Site title')?></label>
+            <input class='form-control' name='title' type='text' value='<?=htmlspecialchars($this->page['title'])?>'>
+          </fieldset>
+          <fieldset class="form-group">
+            <label><?=$this->translate('Language')?></label>
+            <input class='form-control' disabled type='text' value='<?=$this->translate($this->page['language_code'])?>'>
+          </fieldset>
+          <fieldset class="form-group">
+            <label><?=$this->translate('Placement')?></label>
+            <select id='view' class='form-control' name='placement'>
+              <? foreach($this->placements as $placement): ?>
+              <option value='<?=$placement?>'<?= ($this->page['placement'] == $placement) ? " selected='selected'" : ""?>><?=$this->translate($placement)?></option>
+              <? endforeach; ?>
+            </select>
+          </fieldset>
+          <fieldset class="form-group">
+            <label><?=$this->translate('Position')?></label>
+            <select id='view' class='form-control' name='position'>
+              <? foreach($this->positions as $position): ?>
+              <option value='<?=$position?>'<?= ($this->page['position'] == $position) ? " selected='selected'" : ""?>><?=$this->translate($position)?></option>
+              <? endforeach; ?>
+            </select>
+          </fieldset>
+          <fieldset class="form-group">
+            <label><?=$this->translate('Published')?></label>
+            <input type='checkbox' class='form-control' name='published' value='<?=$this->page['published']?>'>
+          </fieldset>
+          <fieldset class="form-group">
+            <label><?=$this->translate('Order priority')?></label>
+            <input type='number' class='form-control' name='orderPriority' value='<?=$this->page['order_priority']?>'>
+          </fieldset>
+          <fieldset class="form-group">
+            <label><?=$this->translate('Content')?></label>
+            <textarea class='form-control editor' name='content'><?=$this->page['content']?></textarea>
+          </fieldset>
+        </form>
+        <? endif; ?>
+      </div>
+    </div>
+  </div>
+</div>

@@ -29,7 +29,8 @@ namespace CPK\Db\Table;
 
 use VuFind\Db\Table\Gateway,
     Zend\Config\Config,
-    Zend\Db\Sql\Select;
+    Zend\Db\Sql\Select,
+    Zend\Db\Sql\Update;
 
 /**
  * Table Definition for PortalPage
@@ -158,5 +159,71 @@ class PortalPage extends Gateway
         
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result;
+    }
+    
+    /**
+     * Return row from table by id
+     *
+     * @param int $pageId
+     *
+     * @return array
+     */
+    public function getPageById($pageId)
+    {
+        $select = new Select($this->table);
+    
+        $subSelect = "SELECT `group` FROM `portal_pages` ";;
+    
+        $condition = "`id`='$pageId'";
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        return $result;
+    }
+    
+    /**
+     * Save edited row to table by id
+     *
+     * @param array $page
+     *
+     * @return array
+     */
+    public function save(array $page)
+    {
+        $update = new Update($this->table);
+        
+        $update->set([
+            'title' => $page['title'],
+            'pretty_url' => $this->generateCleanUrl($page['title']),
+            'content' => $page['content'],
+            'published' => isset($page['published']) ? $page['published'] : '0',
+            'placement' => $page['placement'],
+            'position' => $page['position'],
+            'order_priority' => $page['orderPriority'],
+            'last_modified_timestamp' => date("Y-m-d H:i:s"),
+            'last_modified_user_id' => $page['userId']
+        ]);
+        $update->where([
+            'id' => $page['pageId']
+        ]);
+    
+        $this->executeAnyZendSQLUpdate($update);
+    }
+    
+    /**
+     * Generate clean url from title
+     * 
+     * @param string $title
+     */
+    protected function generateCleanUrl($title)
+    {
+        setlocale(LC_ALL, 'en_US.UTF8');
+        $cleanUrl = iconv('UTF-8', 'ASCII//TRANSLIT', $title);
+	    $cleanUrl = preg_replace("/[^a-zA-Z0-9\/_| -]/", '', $cleanUrl);
+	    $cleanUrl = strtolower(trim($cleanUrl, '-'));
+	    $cleanUrl = preg_replace("/[\/_| -]+/", '-', $cleanUrl);
+
+	    return $cleanUrl;
     }
 }

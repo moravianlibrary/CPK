@@ -75,14 +75,35 @@ class AdminController extends \VuFind\Controller\AbstractBase
         }
         // Logged In successfull
         
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('user', $user);
+        
         $portalPagesTable = $this->getTable("portalpages");
-	    $allPages = $portalPagesTable->getAllPages('*', false);
+        
+        $routeParam = $this->params()->fromRoute('page');
+        if ($routeParam == 'Edit') { // is edit in route?
+            $pageId = (int) $this->params()->fromQuery('pageId');
+            $page = $portalPagesTable->getPageById($pageId);
+            $viewModel->setVariable('page', $page);
+            
+            $positions = ['left', 'middle', 'right'];
+            $viewModel->setVariable('positions', $positions);
+            
+            $placements = ['footer'];
+            $viewModel->setVariable('placements', $placements);
+            
+            $viewModel->setTemplate('admin/edit-portal-page');
+        } else if ($routeParam == 'Save') {
+            $post = $this->params()->fromPost();
+            $portalPagesTable->save($post);
+            return $this->forwardTo('Admin', 'PortalPages');
+        } else { // normal view
+    	    $allPages = $portalPagesTable->getAllPages('*', false);
+    	    $viewModel->setVariable('pages', $allPages);
+        }
         
         $this->layout()->searchbox = false;
-        return $this->createViewModel([
-            'pages' => $allPages,
-            'user' => $user,
-        ]);
+        return $viewModel;
     }
 }
 
