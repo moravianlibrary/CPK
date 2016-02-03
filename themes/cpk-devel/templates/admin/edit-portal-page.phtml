@@ -13,6 +13,13 @@
 <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 <script>
 	jQuery( document ).ready( function( $ ) {
+		tinymce.init({ 
+			selector:'.editor', 
+			toolbar: [
+			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright'
+			] 
+		});
+		
 		$( '#deletePage' ).on( 'click', function( event ) {
 			event.preventDefault();
 			var url = $ ( this ).attr( 'href' );
@@ -43,8 +50,8 @@
               </span>
               <ul class="dropdown-menu" aria-labelledby="actions">
                 <li>
-                  <i class='fa fa-tv'></i>
                   <a target='_blank' href='/Portal/Page/<?= $this->page['pretty_url'] ?>?displayToken=94752eedb5baaf2896e35b4a76d9575c'>
+                    <i class='fa fa-tv'></i>
                     <?=$this->translate('Show preview')?>
                   </a>
                 </li>
@@ -69,28 +76,36 @@
             <input class='form-control' disabled type='text' value='<?=$this->translate($this->page['language_code'])?>'>
           </fieldset>
           <fieldset class="form-group">
-            <label><?=$this->translate('Placement')?></label>
-            <select id='view' class='form-control' name='placement'>
-              <? foreach($this->placements as $placement): ?>
-              <option value='<?=$placement?>'<?= ($this->page['placement'] == $placement) ? " selected='selected'" : ""?>><?=$this->translate($placement)?></option>
-              <? endforeach; ?>
-            </select>
+            <div class="col-xs-3">
+              <label><?=$this->translate('Placement')?></label>
+              <select id='view' class='form-control' name='placement'>
+                <? foreach($this->placements as $placement): ?>
+                <option value='<?=$placement?>'<?= ($this->page['placement'] == $placement) ? " selected='selected'" : ""?>><?=$this->translate($placement)?></option>
+                <? endforeach; ?>
+              </select>
+            </div>
           </fieldset>
           <fieldset class="form-group">
-            <label><?=$this->translate('Position')?></label>
-            <select id='view' class='form-control' name='position'>
-              <? foreach($this->positions as $position): ?>
-              <option value='<?=$position?>'<?= ($this->page['position'] == $position) ? " selected='selected'" : ""?>><?=$this->translate($position)?></option>
-              <? endforeach; ?>
-            </select>
+            <div class="col-xs-3">
+              <label><?=$this->translate('Position')?></label>
+              <select id='view' class='form-control' name='position'>
+                <? foreach($this->positions as $position): ?>
+                <option value='<?=$position?>'<?= ($this->page['position'] == $position) ? " selected='selected'" : ""?>><?=$this->translate($position)?></option>
+                <? endforeach; ?>
+              </select>
+            </div>
           </fieldset>
           <fieldset class="form-group">
-            <label><?=$this->translate('Published')?></label>
-            <input type='checkbox' class='form-control' name='published' value='<?=$this->page['published']?>'>
+            <div class="col-xs-1">
+              <label><?=$this->translate('Published')?></label>
+              <input type='checkbox' class='form-control' name='published' value='1' <?=($this->page['published'] == 1) ? 'checked': ''?>>
+            </div>
           </fieldset>
           <fieldset class="form-group">
-            <label><?=$this->translate('Order priority')?></label>
-            <input type='number' class='form-control' name='orderPriority' value='<?=$this->page['order_priority']?>'>
+            <div class="col-xs-3">
+              <label><?=$this->translate('Order priority')?></label>
+              <input type='number' class='form-control' name='orderPriority' value='<?=$this->page['order_priority']?>'>
+            </div>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Content')?></label>

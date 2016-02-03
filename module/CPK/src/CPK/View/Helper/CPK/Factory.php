@@ -26,7 +26,8 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace CPK\View\Helper\CPK;
-use Zend\ServiceManager\ServiceManager;
+use Zend\ServiceManager\ServiceManager,
+    CPK\Db\Table\PortalPage as PortalPageTable;
 
 /**
  * Factory for Bootstrap view helpers.
@@ -78,5 +79,17 @@ class Factory
 
         return new GlobalNotifications($config, $lang, $sm->get('transesc'));
     }
-
+    
+    public static function getPortalPages(ServiceManager $sm)
+    {
+        $portalPageTable = $sm->getServiceLocator()
+            ->get('VuFind\DbTablePluginManager')
+            ->get("portalpages");
+    
+        $languageCode = $sm->getServiceLocator()->has('VuFind\Translator')
+        ? $sm->getServiceLocator()->get('VuFind\Translator')->getLocale()
+        : 'en';
+    
+        return new PortalPages($portalPageTable, $languageCode);
+    }
 }

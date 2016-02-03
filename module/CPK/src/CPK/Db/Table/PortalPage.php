@@ -143,6 +143,8 @@ class PortalPage extends Gateway
             $select->where($predicate);
         }
         
+        $select->order('order_priority');
+        
         $results= $this->executeAnyZendSQLSelect($select);
         
         $resultSet = new \Zend\Db\ResultSet\ResultSet();
@@ -211,7 +213,7 @@ class PortalPage extends Gateway
             'title' => $page['title'],
             'pretty_url' => $this->generateCleanUrl($page['title']),
             'content' => $page['content'],
-            'published' => isset($page['published']) ? $page['published'] : '0',
+            'published' => isset($page['published']) ? 1 : 0,
             'placement' => $page['placement'],
             'position' => $page['position'],
             'order_priority' => $page['orderPriority'],
