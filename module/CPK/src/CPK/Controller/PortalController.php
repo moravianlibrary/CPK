@@ -50,8 +50,22 @@ class PortalController extends AbstractBase
 	       'page' => $page,
 	    ]);
 	    
-	    (! $page) ? $view->setTemplate('error/404')
-	       : $view->setTemplate('portal/page');
+	    $view->setTemplate('portal/page');
+	    
+	    if (! $page) $view->setTemplate('error/404');
+	   
+	    if ($page['published'] != '1') {
+	        $view->setTemplate('error/404');
+	        $displayToken = $this->params()->fromQuery('displayToken');
+	        if (! empty($displayToken)) {
+	            /* @todo Rewrite next line with permissions control,
+	            when method permissionsManagerAction will be finished */
+    	        $randomToken = '94752eedb5baaf2896e35b4a76d9575c';
+        	    if ($displayToken === $randomToken) {
+        	        $view->setTemplate('portal/page');
+        	    }
+	        }
+	    }
 	    
 	    return $view;
 	}
