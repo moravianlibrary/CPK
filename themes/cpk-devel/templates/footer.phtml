@@ -18,7 +18,7 @@
      <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>/<?=$this->layout()->userLang?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
@@ -32,7 +32,7 @@
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'middle'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>/<?=$this->layout()->userLang?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
@@ -47,7 +47,7 @@
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'right'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>/<?=$this->layout()->userLang?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>

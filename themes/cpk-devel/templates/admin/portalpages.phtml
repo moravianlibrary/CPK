@@ -58,7 +58,7 @@
               <td class='portal-pages-actions'>
                 <a data-toggle="tooltip" title="<?=$this->translate('Edit')?>" href='/Admin/PortalPages/Edit/<?= $page['id'] ?>'><i class='fa fa-edit admin-icon hidden'></i></a>
                 &nbsp;
-                <a target='_blank' data-toggle="tooltip" title="<?=$this->translate('Preview')?>" href='/Portal/Page/<?= $page['pretty_url'] ?>?displayToken=94752eedb5baaf2896e35b4a76d9575c'><i class='fa fa-tv admin-icon hidden'></i></a>
+                <a target='_blank' data-toggle="tooltip" title="<?=$this->translate('Preview')?>" href='/Portal/Page/<?= $page['pretty_url'] ?>/<?=$page['language_code']?>?displayToken=94752eedb5baaf2896e35b4a76d9575c'><i class='fa fa-tv admin-icon hidden'></i></a>
               </td>
             </tr>
             <? endforeach; ?>

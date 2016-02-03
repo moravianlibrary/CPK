@@ -179,11 +179,8 @@ class PortalPage extends Gateway
     {
         $select = new Select($this->table);
         
-        $subSelect = "SELECT `group` FROM `portal_pages` "
-            ."WHERE `pretty_url`='$prettyUrl'";
-        
-        $condition = "`language_code`='$languageCode' "
-            ."AND `group` IN ($subSelect)";
+        $condition = "`pretty_url`='$prettyUrl'".
+            " AND `language_code`='$languageCode'";
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
         
@@ -202,7 +199,7 @@ class PortalPage extends Gateway
     {
         $select = new Select($this->table);
     
-        $subSelect = "SELECT `group` FROM `portal_pages` ";;
+        $subSelect = "SELECT `group` FROM `portal_pages` ";
     
         $condition = "`id`='$pageId'";
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
