@@ -31,7 +31,8 @@ use VuFind\Db\Table\Gateway,
     Zend\Config\Config,
     Zend\Db\Sql\Select,
     Zend\Db\Sql\Update,
-    Zend\Db\Sql\Delete;
+    Zend\Db\Sql\Delete,
+    Zend\Db\Sql\Insert;
 
 /**
  * Table Definition for PortalPage
@@ -82,7 +83,7 @@ class PortalPage extends Gateway
      *
      * @param Zend\Db\Sql\Update $update
      *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     * @return Zend\Db\Adapter\Driver\StatementInterface
      */
     protected function executeAnyZendSQLUpdate(Update $update)
     {
@@ -91,11 +92,24 @@ class PortalPage extends Gateway
     }
     
     /**
+     * Executes any Insert
+     *
+     * @param Zend\Db\Sql\Insert $insert
+     *
+     * @return Zend\Db\Adapter\Driver\StatementInterface
+     */
+    protected function executeAnyZendSQLInsert(Insert $insert)
+    {
+        $statement = $this->sql->prepareStatementForSqlObject($insert);
+        return $statement->execute();
+    }
+    
+    /**
      * Executes any Delete
      *
      * @param Zend\Db\Sql\Delete $delete
      *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     * @return Zend\Db\Adapter\Driver\StatementInterface
      */
     protected function executeAnyZendSQLDelete(Delete $delete)
     {
@@ -202,8 +216,8 @@ class PortalPage extends Gateway
      * Save edited row to table by id
      *
      * @param array $page
-     *
-     * @return array
+     * 
+     * @return void
      */
     public function save(array $page)
     {
@@ -225,6 +239,33 @@ class PortalPage extends Gateway
         ]);
     
         $this->executeAnyZendSQLUpdate($update);
+    }
+    
+    /**
+     * Insert a new row to table
+     *
+     * @param array $page
+     * 
+     * @return void
+     */
+    public function insertNewPage(array $page)
+    {
+        $insert = new Insert($this->table);
+    
+        $insert->values([
+            'title' => $page['title'],
+            'pretty_url' => $this->generateCleanUrl($page['title']),
+            'language_code' => $page['language'],
+            'content' => $page['content'],
+            'published' => isset($page['published']) ? 1 : 0,
+            'placement' => $page['placement'],
+            'position' => $page['position'],
+            'order_priority' => $page['orderPriority'],
+            'last_modified_timestamp' => date("Y-m-d H:i:s"),
+            'last_modified_user_id' => $page['userId']
+        ]);
+    
+        $this->executeAnyZendSQLInsert($insert);
     }
     
     /**

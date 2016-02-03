@@ -80,16 +80,16 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $portalPagesTable = $this->getTable("portalpages");
         
+        $positions = ['left', 'middle', 'right'];
+        $placements = ['footer'];
+        
         $subAction = $this->params()->fromRoute('subaction');
         if ($subAction == 'Edit') { // is edit in route?
             $pageId = (int) $this->params()->fromRoute('param');
             $page = $portalPagesTable->getPageById($pageId);
             $viewModel->setVariable('page', $page);
             
-            $positions = ['left', 'middle', 'right'];
             $viewModel->setVariable('positions', $positions);
-            
-            $placements = ['footer'];
             $viewModel->setVariable('placements', $placements);
             
             $viewModel->setTemplate('admin/edit-portal-page');
@@ -97,12 +97,20 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $post = $this->params()->fromPost();
             $portalPagesTable->save($post);
             return $this->forwardTo('Admin', 'PortalPages');
+        } else if ($subAction == 'Insert') {
+            $post = $this->params()->fromPost();
+            $portalPagesTable->insertNewPage($post);
+            return $this->forwardTo('Admin', 'PortalPages');
         } else if ($subAction == 'Delete') {
             $pageId = $this->params()->fromRoute('param');
             if (! empty($pageId)) {
                 $portalPagesTable->delete($pageId);
             }
             return $this->forwardTo('Admin', 'PortalPages');
+        } else if ($subAction == 'Create') {
+            $viewModel->setVariable('positions', $positions);
+            $viewModel->setVariable('placements', $placements);
+            $viewModel->setTemplate('admin/create-portal-page');
         } else { // normal view
     	    $allPages = $portalPagesTable->getAllPages('*', false);
     	    $viewModel->setVariable('pages', $allPages);
