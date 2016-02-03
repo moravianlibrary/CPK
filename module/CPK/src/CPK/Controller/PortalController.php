@@ -41,7 +41,7 @@ class PortalController extends AbstractBase
 	 */
 	public function pageAction()
 	{
-	    $pretty_url = $this->params()->fromRoute('page');
+	    $pretty_url = $this->params()->fromRoute('subaction');
 	    
 	    $portalPagesTable = $this->getTable("portalpages");
 	    $page = $portalPagesTable->getPage($pretty_url, 'en-cpk');

@@ -30,7 +30,8 @@ namespace CPK\Db\Table;
 use VuFind\Db\Table\Gateway,
     Zend\Config\Config,
     Zend\Db\Sql\Select,
-    Zend\Db\Sql\Update;
+    Zend\Db\Sql\Update,
+    Zend\Db\Sql\Delete;
 
 /**
  * Table Definition for PortalPage
@@ -86,6 +87,19 @@ class PortalPage extends Gateway
     protected function executeAnyZendSQLUpdate(Update $update)
     {
         $statement = $this->sql->prepareStatementForSqlObject($update);
+        return $statement->execute();
+    }
+    
+    /**
+     * Executes any Delete
+     *
+     * @param Zend\Db\Sql\Delete $delete
+     *
+     * @return Zend\Db\Adapter\Driver\ResultInterface $result
+     */
+    protected function executeAnyZendSQLDelete(Delete $delete)
+    {
+        $statement = $this->sql->prepareStatementForSqlObject($delete);
         return $statement->execute();
     }
     
@@ -209,6 +223,24 @@ class PortalPage extends Gateway
         ]);
     
         $this->executeAnyZendSQLUpdate($update);
+    }
+    
+    /**
+     * Remove row from table by id
+     *
+     * @param int $pageId
+     *
+     * @return array
+     */
+    public function delete($pageId)
+    {
+        $update = new Delete($this->table);
+    
+        $update->where([
+            'id' => $pageId
+        ]);
+    
+        $this->executeAnyZendSQLDelete($update);
     }
     
     /**

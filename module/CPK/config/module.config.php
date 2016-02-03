@@ -7,7 +7,7 @@ $config = array(
             'default' => [
                 'type'    => 'Zend\Mvc\Router\Http\Segment',
                 'options' => [
-                    'route'    => '/[:controller[/[:action[/[:page]]]]]',
+                    'route'    => '/[:controller[/[:action[/[:subaction[/[:param]]]]]]]',
                     'constraints' => [
                         'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
@@ -16,7 +16,8 @@ $config = array(
                     'defaults' => [
                         'controller' => 'index',
                         'action'     => 'Home',
-                        'page'       => '404',
+                        'subaction'  => 'default',
+                        'param'      => 'default',
                     ],
                 ],
             ],

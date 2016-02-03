@@ -13,11 +13,12 @@
 <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 <script>
 	jQuery( document ).ready( function( $ ) {
-		tinymce.init({ 
-			selector:'.editor', 
-			toolbar: [
-			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright'
-			] 
+		$( '#deletePage' ).on( 'click', function( event ) {
+			event.preventDefault();
+			var url = $ ( this ).attr( 'href' );
+			if (confirm("<?=$this->translate('Do you really want to delete this page?')?>") == true) {
+				window.location.href = url;
+		    }
 		});
 	});
 </script>
@@ -36,9 +37,26 @@
         <form action='/Admin/PortalPages/Save' method='post'>
           <div class='admin-toolbox'>
             <input type='submit' class='btn btn-lg btn-primary' value='<?=$this->translate('Save')?>'>
-            <a target='_blank' href='/Portal/Page/<?= $this->page['pretty_url'] ?>?displayToken=94752eedb5baaf2896e35b4a76d9575c'>
-              <i class='fa fa-tv fa-2x .admin-icon' data-toggle="tooltip" title="<?=$this->translate('Preview')?>"></i>
-            </a>
+            <div class="dropdown pull-right">
+              <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <i class='fa fa-ellipsis-v fa-2x dropdown-toggle pointer'></i>
+              </span>
+              <ul class="dropdown-menu" aria-labelledby="actions">
+                <li>
+                  <i class='fa fa-tv'></i>
+                  <a target='_blank' href='/Portal/Page/<?= $this->page['pretty_url'] ?>?displayToken=94752eedb5baaf2896e35b4a76d9575c'>
+                    <?=$this->translate('Show preview')?>
+                  </a>
+                </li>
+                <li role="separator" class="divider"></li>
+                <li>
+                  <a href='/Admin/PortalPages/Delete/<?= $this->page['id'] ?>' id='deletePage'>
+                    <i class='fa fa-remove'></i>
+                    <?=$this->translate('Delete page')?>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
           <input type='hidden' name='pageId' value='<?=$this->page['id']?>'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>

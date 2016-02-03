@@ -80,9 +80,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $portalPagesTable = $this->getTable("portalpages");
         
-        $routeParam = $this->params()->fromRoute('page');
-        if ($routeParam == 'Edit') { // is edit in route?
-            $pageId = (int) $this->params()->fromQuery('pageId');
+        $subAction = $this->params()->fromRoute('subaction');
+        if ($subAction == 'Edit') { // is edit in route?
+            $pageId = (int) $this->params()->fromRoute('param');
             $page = $portalPagesTable->getPageById($pageId);
             $viewModel->setVariable('page', $page);
             
@@ -93,9 +93,15 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $viewModel->setVariable('placements', $placements);
             
             $viewModel->setTemplate('admin/edit-portal-page');
-        } else if ($routeParam == 'Save') {
+        } else if ($subAction == 'Save') {
             $post = $this->params()->fromPost();
             $portalPagesTable->save($post);
+            return $this->forwardTo('Admin', 'PortalPages');
+        } else if ($subAction == 'Delete') {
+            $pageId = $this->params()->fromRoute('param');
+            if (! empty($pageId)) {
+                $portalPagesTable->delete($pageId);
+            }
             return $this->forwardTo('Admin', 'PortalPages');
         } else { // normal view
     	    $allPages = $portalPagesTable->getAllPages('*', false);
