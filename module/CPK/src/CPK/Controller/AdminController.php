@@ -73,6 +73,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
         if (empty($user['major'])) {
             return $this->forceLogin('Wrong permissions');
         }
+        
+        if (! in_array($user['major'], ['cpk', 'CPK'])) {
+            return $this->forceLogin('Wrong permissions');
+        }
         // Logged In successfull
         
         $viewModel = $this->createViewModel();
@@ -118,6 +122,5 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $this->layout()->searchbox = false;
         return $viewModel;
-    }
+    }    
 }
-
