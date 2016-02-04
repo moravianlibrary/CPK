@@ -14,9 +14,9 @@
  * @author Jiří Kozlovský
  */
 (function() {
-    
+
     var veryVerbose = true;
-    
+
     angular.module('favorites').factory('broadcaster', broadcaster);
 
     broadcaster.$inject = [ '$log', 'storage', 'Favorite' ];
@@ -59,7 +59,7 @@
 	function broadcast(key, value) {
 	    localStorage.setItem(key, value);
 	    localStorage.removeItem(key);
-	    
+
 	    if (veryVerbose)
 		$log.debug('Emitted broadcast with key & value', key, value);
 	}
@@ -86,7 +86,7 @@
 
 		function onGotFavorites(event) {
 		    if (parseInt(event.key) === tabId) {
-			
+
 			if (event.newValue === 'null') {
 			    sessionStorage.setItem(storage.name, '[]');
 			    return;
@@ -97,6 +97,20 @@
 
 			// Set the sessionStorage
 			sessionStorage.setItem(storage.name, event.newValue);
+
+			// Let the controller know ..
+			if (typeof window.__isFavCallback === 'function') {
+
+			    favs = JSON.parse(event.newValue);
+
+			    var favorites = favs.map(function(fav) {
+				return new Favorite().fromObject(fav);
+			    });
+
+			    favorites.forEach(function(favorite) {
+				window.__isFavCallback(true, favorite);
+			    });
+			}
 
 			// Don't listen with this func anymore ..
 			window.removeEventListener('storage', onGotFavorites);
@@ -110,10 +124,10 @@
 
 		    // Stop waiting for data ..
 		    window.removeEventListener('storage', onGotFavorites);
-		    
+
 		    // Create empty array
 		    sessionStorage.setItem(storage.name, '[]');
-		    
+
 		    becomeMaster(true);
 
 		}, 1500);
@@ -124,18 +138,19 @@
 
 	    // Listen for master changes in order if this tab was chosen ..
 	    window.addEventListener('storage', function(event) {
-		
+
 		if (veryVerbose)
 		    $log.debug('Recieved an broadcast: ', event);
 
 		// New master ? .. this tab ?
-		if (event.key === 'favoritesMasterTab' && ( parseInt(event.newValue) === tabId || event.newValue === 'rand' )) {
+		if (event.key === 'favoritesMasterTab' && (parseInt(event.newValue) === tabId || event.newValue === 'rand')) {
 		    // yes !
-		    
+
 		    becomeMaster();
 
-		} else if (event.key === 'favAdded' && event.newValue) { // Favorite added
-		    
+		} else if (event.key === 'favAdded' && event.newValue) { // Favorite
+									    // added
+
 		    // Parse it
 		    var favObj = JSON.parse(event.newValue);
 
@@ -144,17 +159,18 @@
 
 		    // Add it to the storage
 		    storage.addFavorite(newFav);
-		    
+
 		    // Tell the controllers ..
 		    if (typeof window.__isFavCallback === 'function') {
-			
+
 			if (veryVerbose)
 			    $log.debug('Calling window.__isFavCallback with ', newFav);
-			
+
 			window.__isFavCallback(true, newFav);
 		    }
 
-		} else if (event.key === 'favRemoved' && event.newValue) { // Favorite removed
+		} else if (event.key === 'favRemoved' && event.newValue) { // Favorite
+									    // removed
 
 		    // Parse it
 		    var favObj = JSON.parse(event.newValue);
@@ -167,10 +183,10 @@
 
 		    // Tell the controllers ..
 		    if (typeof window.__isFavCallback === 'function') {
-			
+
 			if (veryVerbose)
 			    $log.debug('Calling window.__isFavCallback with ', oldFav);
-			
+
 			window.__isFavCallback(false, oldFav);
 		    }
 		}
@@ -192,12 +208,12 @@
 	    function becomeMaster(active) {
 
 		if (typeof active !== 'undefined') {
-		    
+
 		    if (veryVerbose)
 			$log.debug('Actively becoming mastertab!');
 
 		    localStorage.setItem('favoritesMasterTab', tabId);
-		    
+
 		} else if (veryVerbose)
 		    $log.debug('Passively becoming mastertab!');
 
