@@ -223,6 +223,7 @@ class PortalPage extends Gateway
         $update->set([
             'title' => $page['title'],
             'pretty_url' => $this->generateCleanUrl($page['title']),
+            'language_code' => $page['language'],
             'content' => $page['content'],
             'published' => isset($page['published']) ? 1 : 0,
             'placement' => $page['placement'],

@@ -75,7 +75,11 @@
           <fieldset class="form-group">
             <div class="col-xs-3">
               <label><?=$this->translate('Language')?></label>
-              <input class='form-control' disabled type='text' value='<?=$this->translate($this->page['language_code'])?>'>
+              <select class='form-control' name='language'>
+                <? foreach($this->layout()->allLangs as $langCode => $langName): ?>
+                <option value='<?=$langCode?>'<?=($langCode == $page['language_code']) ? 'selected="selected"' : ''?>><?=$this->translate($langName)?></option>
+                <? endforeach; ?>
+              </select>
             </div>
           </fieldset>
           <fieldset class="form-group">
