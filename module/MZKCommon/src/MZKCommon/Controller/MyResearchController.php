@@ -313,8 +313,8 @@ class MyResearchController extends MyResearchControllerBase
                 'last-interest-date' => array('label' => 'ill_last_interest_date', 'type' => 'date', 'required' => true),
                 'media' => array('label' => 'ill_request_type', 'type' => 'select',  'required' => false,
                     'options' => array(
-                        'L-PRINTED' => 'ill_loan',
-                        'C-PRINTED' => 'ill_photocopy',
+                        'C-COPY' => 'ill_photocopy',
+                        'L-COPY' => 'ill_loan',
                     ),
                 ),
             ),
