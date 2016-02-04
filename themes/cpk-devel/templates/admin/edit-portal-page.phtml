@@ -43,7 +43,6 @@
         <? if (! empty($this->page)): ?>
         <form action='/Admin/PortalPages/Save' method='post'>
           <div class='admin-toolbox'>
-            <input type='submit' class='btn btn-lg btn-primary' value='<?=$this->translate('Save')?>'>
             <div class="dropdown pull-right">
               <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 <i class='fa fa-ellipsis-v fa-2x dropdown-toggle pointer'></i>
@@ -68,8 +67,10 @@
           <input type='hidden' name='pageId' value='<?=$this->page['id']?>'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
           <fieldset class="form-group">
-            <label><?=$this->translate('Site title')?></label>
-            <input class='form-control' name='title' type='text' value='<?=htmlspecialchars($this->page['title'])?>'>
+            <div class="col-xs-8">
+              <label><?=$this->translate('Site title')?></label>
+              <input class='form-control' name='title' type='text' value='<?=htmlspecialchars($this->page['title'])?>'>
+            </div>
           </fieldset>
           <fieldset class="form-group">
             <div class="col-xs-3">
@@ -106,12 +107,15 @@
           <fieldset class="form-group">
             <div class="col-xs-3">
               <label><?=$this->translate('Order priority')?></label>
-              <input type='number' class='form-control' name='orderPriority' value='<?=$this->page['order_priority']?>'>
+              <input type='number' class='form-control' name='orderPriority' value='<?=$this->page['order_priority']?>' placeholder='<?=$this->translate('Enter number')?>'>
             </div>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Content')?></label>
             <textarea class='form-control editor' name='content'><?=$this->page['content']?></textarea>
+          </fieldset>
+          <fieldset class="form-group">
+            <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>
         <? endif; ?>
