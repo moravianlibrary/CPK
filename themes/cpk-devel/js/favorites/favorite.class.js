@@ -131,7 +131,7 @@
 	    if (typeof obj !== "object") {
 		console.error('Trying to create Favorite from object, but no object passed');
 
-	    } else if (!'created' in obj) {
+	    } else if (! obj.hasOwnProperty('created')) {
 		console.error('Missing timestamp of the object!');
 
 	    } else {

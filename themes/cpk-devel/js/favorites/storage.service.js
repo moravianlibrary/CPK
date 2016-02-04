@@ -99,6 +99,11 @@
 		    
 		    var regexp = new RegExp("\/" + recordId.replace(/\./,"\\."));
 		    
+		    if (!favorites) {
+			reject();
+			return;
+		    }
+		    
 		    var found = favorites.find(function(fav) {
 			
 			return !!fav.title.link.match(regexp);

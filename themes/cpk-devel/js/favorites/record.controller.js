@@ -17,7 +17,7 @@
 
     angular.module('favorites').controller('RecordFavController', RecordController).directive('addRemove', RecordDirective);
 
-    RecordController.$inject = [ '$log', 'storage', 'favoritesFactory' ];
+    RecordController.$inject = [ '$log', 'storage', 'favoritesFactory', 'Favorite', 'broadcaster' ];
 
     /**
      * Private variables to let the addRemove directive handle desired elements
@@ -28,7 +28,7 @@
 	    addFavBtn : undefined
     };
 
-    function RecordController($log, storage, favoritesFactory) {
+    function RecordController($log, storage, favoritesFactory, Favorite, broadcaster) {
 
 	var fav = undefined,
 	recordIsFav = false;
@@ -43,6 +43,29 @@
 	    
 	    switchAddRemoveSpanVisibility();
 	});
+	
+	// Public method __isFavCallback
+	window.__isFavCallback = function(tf, newFav) {
+	    
+	    if (newFav instanceof Favorite)
+
+		if (tf === true && recordIsFav === false && getRecordId(newFav.titleLink()) === getRecordId()) {
+			
+			/*
+			 * Was created new & this ctrl doesnt know it & we are
+			 * talking about current rec
+			 */
+		    
+		    switchAddRemoveSpanVisibility();
+		} else if (tf === false && recordIsFav === true && newFav.created() === fav.created()) {
+
+		    	/*
+			 * Was removed old & this ctrl doesnt know it & we are
+			 * talking about current rec
+			 */
+		    switchAddRemoveSpanVisibility();		
+		}
+	}
 
 	return;
 	//
@@ -69,6 +92,9 @@
 		
 		switchAddRemoveSpanVisibility();
 		
+		// Broadcast this event across all tabs
+		broadcaster.broadcastAdded(fav);
+		
 	    }).catch(function(reason) {
 		
 		$log.error(reason);
@@ -85,6 +111,9 @@
 	    storage.removeFavorite(id).then(function() {
 		
 		switchAddRemoveSpanVisibility();
+		
+		// Broadcast this event across all tabs
+		broadcaster.broadcastRemoved(id);
 		
 	    }).catch(function(reason) {
 		
@@ -115,8 +144,11 @@
 	/**
 	 * Gets the record id of current record page
 	 */
-	function getRecordId() {
-	    return location.pathname.split('/')[2];
+	function getRecordId(fromThis) {
+	    
+	    var fromWhat = (typeof fromThis === "undefined") ? location.pathname : fromThis;
+	    
+	    return fromWhat.split('/')[2];
 	}
 	
 	/**
