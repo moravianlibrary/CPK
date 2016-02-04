@@ -10,17 +10,16 @@ var hack;
     	.directive('favoritesListItem', favoritesListDirective)
     	.directive('listNotEmpty', listNotEmptyDirective);
 
-    ListController.$inject = [ '$q', '$log', '$scope', 'storage' ];
+    ListController.$inject = [ '$q', '$log', '$scope', 'storage', 'broadcaster', 'Favorite' ];
     
     // helper private variables
     var divsAsFavs = {};
     var listEmptyDiv = undefined;    
     var listNotEmptyDiv = undefined;
 
-    function ListController($q, $log, $scope, storage) {
+    function ListController($q, $log, $scope, storage, broadcaster, Favorite) {
 
 	var vm = this;
-	
 	hack = this;
 	vm.scope = $scope;
 
@@ -43,6 +42,39 @@ var hack;
 	    
 	    $log.error(reason);
 	});
+	
+	window.__isFavCallback = function(tf, favorite) {
+	    
+	    if (favorite instanceof Favorite)
+		
+		if (tf === true) { // being added ..
+		    
+		    addFavorite(favorite);
+		
+		} else if (tf === false) { // being deleted ..
+		    
+		    // We need to refresh the view with async job .. use Promise
+		    new Promise(function(resolve, reject) {
+			var id = favorite.created();
+			    
+			divsAsFavs[id].remove();
+			delete divsAsFavs[id];
+			
+			--vm.listLength;
+			
+			if (Object.keys(divsAsFavs).length === 0)
+			    changeVisibleDiv();
+			    
+			// Delete it from the vm.favorites list ..
+			vm.favorites = vm.favorites.filter(function(fav) {
+			    return fav.created() !== favorite.created();
+			});
+			
+			resolve();
+			
+		    }).then($scope.$applyAsync);
+		}
+	}; 
 	
 	return vm;
 	
@@ -78,6 +110,21 @@ var hack;
 		
 		    if (Object.keys(divsAsFavs).length === 0)
 			changeVisibleDiv();
+		    
+		    var idAsInt = parseInt(id);
+		    
+		    // Delete it from the vm.favorites list ..
+		    vm.favorites = vm.favorites.filter(function(favorite) {
+			
+			if (favorite.created() !== idAsInt)
+			    return true;
+			
+			
+			// And also broadcast it's removal
+			broadcaster.broadcastRemoved(favorite);
+			
+			return false;
+		    });
 		
 		}).catch(function(reason) {
 		
@@ -105,6 +152,31 @@ var hack;
 	    vm.favorites.forEach(function(favorite) {
 		vm.favSelected[favorite.created()] = vm.allSelected;
 	    });
+	}
+	
+	// Private
+	
+	function addFavorite(favorite) {
+	    
+	    // We need to refresh the view with async job .. use Promise
+	    new Promise(function(resolve, reject) {
+		
+		if (! favorite instanceof Favorite) {
+		    reject();
+		    return;
+		}
+		
+		vm.favorites.push(favorite);
+		
+		if (vm.favorites.length === 1) {
+		    changeVisibleDiv();
+		    
+		    vm.listLength = 1;
+		}
+		
+		resolve();
+		
+	    }).then($scope.$applyAsync);
 	}
 	
 	function changeVisibleDiv() {

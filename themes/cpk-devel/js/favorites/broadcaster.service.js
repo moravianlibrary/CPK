@@ -82,7 +82,7 @@
 
 	    var tabId = Date.now();
 
-	    if (favs === null) {
+	    if (favs === null || favs === '[]') {
 
 		function onGotFavorites(event) {
 		    if (parseInt(event.key) === tabId) {
@@ -149,7 +149,7 @@
 		    becomeMaster();
 
 		} else if (event.key === 'favAdded' && event.newValue) { // Favorite
-									    // added
+		    // added
 
 		    // Parse it
 		    var favObj = JSON.parse(event.newValue);
@@ -170,7 +170,7 @@
 		    }
 
 		} else if (event.key === 'favRemoved' && event.newValue) { // Favorite
-									    // removed
+		    // removed
 
 		    // Parse it
 		    var favObj = JSON.parse(event.newValue);
@@ -180,7 +180,7 @@
 
 		    // Remove it from the storage
 		    storage.removeFavorite(oldFav.created());
-
+		    
 		    // Tell the controllers ..
 		    if (typeof window.__isFavCallback === 'function') {
 
@@ -188,7 +188,9 @@
 			    $log.debug('Calling window.__isFavCallback with ', oldFav);
 
 			window.__isFavCallback(false, oldFav);
-		    }
+		    } 
+
+		    
 		}
 	    });
 
