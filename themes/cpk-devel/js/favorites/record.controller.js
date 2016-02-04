@@ -43,8 +43,11 @@
 	    
 	    switchAddRemoveSpanVisibility();
 	});
-	
-	// Public method __isFavCallback
+
+	/**
+	 * Public function about to be called from the broadcaster when an event
+	 * happens (meaning adding / removal of the favorite)
+	 */
 	window.__isFavCallback = function(tf, newFav) {
 	    
 	    if (newFav instanceof Favorite)

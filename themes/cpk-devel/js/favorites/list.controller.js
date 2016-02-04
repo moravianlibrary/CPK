@@ -3,7 +3,6 @@
  * 
  * @author Jiří Kozlovský
  */
-var hack;
 (function() {
 
     angular.module('favorites').controller('ListController', ListController)
@@ -20,8 +19,6 @@ var hack;
     function ListController($q, $log, $scope, storage, broadcaster, Favorite) {
 
 	var vm = this;
-	hack = this;
-	vm.scope = $scope;
 
 	vm.favSelected = {};
 	vm.favorites = [];
@@ -43,6 +40,10 @@ var hack;
 	    $log.error(reason);
 	});
 	
+	/**
+	 * Public function about to be called from the broadcaster when an event
+	 * happens (meaning adding / removal of the favorite)
+	 */
 	window.__isFavCallback = function(tf, favorite) {
 	    
 	    if (favorite instanceof Favorite)
