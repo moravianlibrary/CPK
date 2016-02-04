@@ -55,7 +55,7 @@
 			 * Was created new & this ctrl doesnt know it & we are
 			 * talking about current rec
 			 */
-		    
+		    fav = newFav;
 		    switchAddRemoveSpanVisibility();
 		} else if (tf === false && recordIsFav === true && newFav.created() === fav.created()) {
 
@@ -63,6 +63,7 @@
 			 * Was removed old & this ctrl doesnt know it & we are
 			 * talking about current rec
 			 */
+		    fav = newFav;
 		    switchAddRemoveSpanVisibility();		
 		}
 	}
@@ -113,7 +114,7 @@
 		switchAddRemoveSpanVisibility();
 		
 		// Broadcast this event across all tabs
-		broadcaster.broadcastRemoved(id);
+		broadcaster.broadcastRemoved(fav);
 		
 	    }).catch(function(reason) {
 		
