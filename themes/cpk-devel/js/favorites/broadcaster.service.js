@@ -131,9 +131,6 @@
 		// New master ? .. this tab ?
 		if (event.key === 'favoritesMasterTab' && ( parseInt(event.newValue) === tabId || event.newValue === 'rand' )) {
 		    // yes !
-
-		    if (veryVerbose)
-			$log.debug('Recieved an order to become a master .. yeah!', event);
 		    
 		    becomeMaster();
 
@@ -200,7 +197,9 @@
 			$log.debug('Actively becoming mastertab!');
 
 		    localStorage.setItem('favoritesMasterTab', tabId);
-		}
+		    
+		} else if (veryVerbose)
+		    $log.debug('Passively becoming mastertab!');
 
 		/**
 		 * Give up mastership on tab close
@@ -224,7 +223,7 @@
 		    var newMaster = lastKnownTabId ? lastKnownTabId : 'rand';
 
 		    // Create persistent info
-		    localStorage.setItem('favoritesMastertab', newMaster);
+		    localStorage.setItem('favoritesMasterTab', newMaster);
 		}
 
 		/**
