@@ -48,26 +48,31 @@
 	 * Public function about to be called from the broadcaster when an event
 	 * happens (meaning adding / removal of the favorite)
 	 */
-	window.__isFavCallback = function(tf, newFav) {
+	window.__isFavCallback = function(isNew, newFav) {
 	    
 	    if (newFav instanceof Favorite)
 
-		if (tf === true && recordIsFav === false && getRecordId(newFav.titleLink()) === getRecordId()) {
+		if (isNew === true) {
 			
 			/*
-			 * Was created new & this ctrl doesnt know it & we are
-			 * talking about current rec
+			 * This ctrl doesnt know it & we are talking about
+			 * current rec
 			 */
-		    fav = newFav;
-		    switchAddRemoveSpanVisibility();
-		} else if (tf === false && recordIsFav === true && newFav.created() === fav.created()) {
+		    if (recordIsFav === false && getRecordId(newFav.titleLink()) === getRecordId()) {
+			fav = newFav;
+		    	switchAddRemoveSpanVisibility();
+		    }
+		    
+		} else if (isNew === false) {
 
 		    	/*
 			 * Was removed old & this ctrl doesnt know it & we are
 			 * talking about current rec
 			 */
-		    fav = newFav;
-		    switchAddRemoveSpanVisibility();		
+		    if (recordIsFav === true && newFav.created() === fav.created()) {
+			fav = newFav;
+		    	switchAddRemoveSpanVisibility();
+		    }
 		}
 	}
 

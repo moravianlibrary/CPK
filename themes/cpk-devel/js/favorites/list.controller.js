@@ -44,15 +44,15 @@
 	 * Public function about to be called from the broadcaster when an event
 	 * happens (meaning adding / removal of the favorite)
 	 */
-	window.__isFavCallback = function(tf, favorite) {
+	window.__isFavCallback = function(isNew, favorite) {
 	    
 	    if (favorite instanceof Favorite)
 		
-		if (tf === true) { // being added ..
+		if (isNew === true) { // being added ..
 		    
 		    addFavorite(favorite);
 		
-		} else if (tf === false) { // being deleted ..
+		} else if (isNew === false) { // being deleted ..
 		    
 		    // We need to refresh the view with async job .. use Promise
 		    new Promise(function(resolve, reject) {
@@ -77,7 +77,7 @@
 		}
 	}; 
 	
-	return vm;
+	return;
 	
 	//
 	
