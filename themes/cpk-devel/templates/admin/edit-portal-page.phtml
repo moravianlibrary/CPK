@@ -16,8 +16,10 @@
 		tinymce.init({ 
 			selector:'.editor', 
 			toolbar: [
-			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright'
-			] 
+			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright | bullist numlist | image | link | preview'
+			],
+			plugins: "image imagetools link preview",
+			menubar: "edit insert view format",
 		});
 		
 		$( '#deletePage' ).on( 'click', function( event ) {
@@ -116,7 +118,7 @@
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Content')?></label>
-            <textarea class='form-control editor' name='content'><?=$this->page['content']?></textarea>
+            <textarea rows='15' class='form-control editor' name='content'><?=$this->page['content']?></textarea>
           </fieldset>
           <fieldset class="form-group">
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
