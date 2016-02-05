@@ -163,6 +163,7 @@ class AjaxController extends AjaxControllerBase
         $ids = $this->params()->fromPost('ids');
         $bibId = $this->params()->fromPost('bibId');
         $filter = $this->params()->fromPost('activeFilter');
+        $nit = $this->params()->fromPost('next_item_token');
 
         $viewRend = $this->getViewRenderer();
 
@@ -186,7 +187,7 @@ class AjaxController extends AjaxControllerBase
 
             try {
                 $user = $this->getAuthManager()->isLoggedIn();
-                $statuses = $ilsDriver->getStatuses($ids, $bibId, $filter, $user);
+                $statuses = $ilsDriver->getStatuses($ids, $bibId, $filter, $nit, $user);
             } catch (\Exception $e) {
                 return $this->output([
                     'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
@@ -202,6 +203,9 @@ class AjaxController extends AjaxControllerBase
                 ], self::STATUS_ERROR);
 
             $itemsStatuses = [];
+
+            if (! empty($statuses)) $nextItemToken = $statuses[0]['next_item_token'];
+            else $nextItemToken = null;
 
             foreach ($statuses as $status) {
                 $id = $status['item_id'];
@@ -242,8 +246,10 @@ class AjaxController extends AjaxControllerBase
                     unset($ids[$key]);
             }
 
-            if (isset($ids) && count($ids) > 0)
+            if (isset($ids) && count($ids) > 0) {
                 $retVal['remaining'] = $ids;
+                $retVal['next_item_token'] = $nextItemToken;
+            }
 
             $retVal['statuses'] = $itemsStatuses;
             return $this->output($retVal, self::STATUS_OK);

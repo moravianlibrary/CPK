@@ -16,10 +16,12 @@ var holdingsILS = {
     },
 
     // Async holdings loader
-    getHoldingStatuses : function(ids) {
+    getHoldingStatuses : function(ids, nit) {
 
 	if (typeof ids !== 'object')
 	    ids = holdingsILS.getHoldingsIds();
+	
+	if (typeof nit === 'undefined') { nit = null; }
 
 	var activeFilter;
 	// If we have active filter, append it to the query
@@ -34,7 +36,8 @@ var holdingsILS = {
 
 	    var data = {
 		ids : ids,
-		bibId : holdingsILS.bibId
+		bibId : holdingsILS.bibId,
+		next_item_token : nit
 	    };
 
 	    // Append the filter if any
@@ -107,7 +110,7 @@ var holdingsILS = {
 	    });
 
 	    if (data.remaining) {
-		holdingsILS.getHoldingStatuses(data.remaining);
+		holdingsILS.getHoldingStatuses(data.remaining, data.next_item_token);
 	    } else {
 		holdingsILS.getAllNotLoadedHoldings(true).each(function() {
 		    holdingsILS.updateHoldingId(this, data, true);

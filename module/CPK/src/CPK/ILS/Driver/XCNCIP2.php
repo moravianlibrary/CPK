@@ -778,7 +778,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @throws ILSException
      * @return array Array of return values from getStatus.
      */
-    public function getStatuses($ids, $patron = [], $filter = [], $bibId = [])
+    public function getStatuses($ids, $patron = [], $filter = [], $bibId = [], $nextItemToken = null)
     {
         $retVal = [];
 
@@ -788,21 +788,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $retVal[] = $this->getStatus(reset($ids));
         else {
             if ($this->agency === 'TAG001') {
-                $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
+                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
             }
 
             if ($this->agency === 'ZLG001') {
                 $bibId = str_replace('oai:', '', $bibId);
-                $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
+                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutusesZlg($response);
             }
 
             if ($this->agency === 'LIA001') {
                 $bibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
-                $request = $this->requests->LUISBibItem($bibId, null, $this, $patron);
+                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutusesZlg($response);
             }
@@ -953,6 +953,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $bib_id = $this->useXPath($response,
                 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
 
+        $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
+
         $items = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
         foreach ($items as $itemInformation) {
 
@@ -993,7 +995,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
-                'duedate' => empty($dueDate) ? '' : $dueDate
+                'duedate' => empty($dueDate) ? '' : $dueDate,
+                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0]
             );
         }
         return $retVal;
