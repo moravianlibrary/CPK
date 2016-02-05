@@ -723,9 +723,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $itemRestriction = (string) $this->useXPath($response,
                 'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType')[0];
-            $dateDue = $this->useXPath($response,
+            $dueDate = $this->useXPath($response,
                     'LookupItemResponse/ItemOptionalFields/DateDue');
-            $dateDue = $this->parseDate($dateDue);
+            $dueDate = $this->parseDate($dueDate);
 
             // TODO Exists any clean way to get the due date without additional request?
 
@@ -762,7 +762,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'addStorageRetrievalRequestLink' => "",
                 'addILLRequestLink' => "",
                 'addLink' => true, // TODO
-                'duedate' => empty($dateDue) ? '' : $dateDue
+                'duedate' => empty($dueDate) ? '' : $dueDate
             );
         }
     }
@@ -827,6 +827,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 if ($status == 'On Loan') {
                     $dueDate = $this->getFirstXPathMatchAsString($bibInfo,
                         'HoldingsSet/ItemInformation/ItemOptionalFields/DateDue');
+                    $dueDate = $this->parseDate($dueDate);
                 } else {
                     $dueDate = false;
                 }
@@ -889,7 +890,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'label' => $label,
                     'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                     'restrictions' => $restrictions,
-                    'duedate' => $dueDate
+                    'duedate' => empty($dueDate) ? '' : $dueDate
                 );
             }
         }
@@ -915,6 +916,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (! empty($status) && (string) $status[0] == 'On Loan') {
                 $dueDate = $this->useXPath($holdingSet,
                         'ItemInformation/ItemOptionalFields/DateDue');
+                $dueDate = $this->parseDate($dueDate);
             } else {
                 $dueDate = false;
             }
@@ -938,7 +940,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
-                'duedate' => empty($dueDate) ? false : (string) $dueDate[0]
+                'duedate' => empty($dueDate) ? '' : $dueDate
             );
         }
         return $retVal;
@@ -967,6 +969,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (! empty($status) && (string) $status[0] == 'On Loan') {
                 $dueDate = $this->useXPath($itemInformation,
                         'ItemOptionalFields/DateDue');
+                $dueDate = $this->parseDate($dueDate);
             } else {
                 $dueDate = false;
             }
@@ -990,7 +993,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
-                'duedate' => empty($dueDate) ? false : (string) $dueDate[0]
+                'duedate' => empty($dueDate) ? '' : $dueDate
             );
         }
         return $retVal;
