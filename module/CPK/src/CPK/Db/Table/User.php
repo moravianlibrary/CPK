@@ -386,4 +386,32 @@ class User extends BaseUser
         if ($mergedSomething)
             $into->save();
     }
+    
+    /**
+     * Returns rows from user and user_card tables, where user.major is not empty.
+     * 
+     * @return array
+     */
+    public function getUsersWithPermissions()
+    {
+        $select = new Select();
+        $select->from(['u' => 'user']);
+        $select->columns(['id', 'major']);
+        $select->where("major IS NOT NULL AND major <> ''");
+        $select->join(
+            ['c' => 'user_card'],
+            'c.user_id = u.id',
+            ['eppn'],
+            'LEFT'
+        );
+        
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        $results = $statement->execute();
+
+        $resultSet = new \Zend\Db\ResultSet\ResultSet();
+        $resultSet->initialize($results);
+        $resultsArray = $resultSet->toArray();
+        
+        return $resultsArray;
+    }
 }

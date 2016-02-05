@@ -123,4 +123,38 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $this->layout()->searchbox = false;
         return $viewModel;
     }    
+    
+    /**
+     * Permissions manager
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function permissionsManagerAction()
+    {
+        // Log in first!
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+    
+        if (empty($user['major'])) {
+            return $this->forceLogin('Wrong permissions');
+        }
+    
+        if (! in_array($user['major'], ['cpk', 'CPK'])) {
+            return $this->forceLogin('Wrong permissions');
+        }
+        // Logged In successfull
+        
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('user', $user);
+        
+        $userTable = $this->getTable('user');
+        $usersWithPermissions = $userTable->getUsersWithPermissions();
+        $viewModel->setVariable('usersWithPermissions', $usersWithPermissions);
+    
+        $viewModel->setTemplate('admin/permissions-manager');
+        $this->layout()->searchbox = false;
+        return $viewModel;
+    }
 }
