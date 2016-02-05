@@ -615,7 +615,7 @@ publisher:
 
 id001:
   QueryFields:
-    id001_search_str:
+    id001_search:
       - [onephrase, 100] 
       - [and, 50]
       - [or, ~]
@@ -713,7 +713,7 @@ adv_search_place_of_publication:
 
 adv_search_001:
   QueryFields:
-    id001_search_str:
+    id001_search:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
