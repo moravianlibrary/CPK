@@ -45,35 +45,4 @@ class Record extends ParentRecord
             'RecordDriver/SolrDefault/fieldsOf7xx.phtml', array()
         );
     }
-    
-    /**
-     * Flip name and surname
-     *
-     * @param string $str   String to flip
-     *
-     * @return string
-     */
-    public function flipNameAndSurname($str)
-    {
-        if (empty($str)) return false;
-        
-        $arr = explode(",", $str);
-        $count = count($arr);
-        $last = ' '.$arr[0];
-        $flippedString = '';
-        for ($i = 1; $i < $count; $i++) {
-            if (preg_match("/\\d/", $arr[$i]) > 0) {
-                $last .= ', '.$arr[$i];
-            } else {
-                if (! empty($flippedString)) {
-                    $flippedString .= ', '.$arr[$i];
-                } else {
-                    $flippedString .= $arr[$i];
-                }
-                
-            }
-        }
-        $flippedString .= $last;
-        return trim($flippedString, ", ");
-    }
 }
