@@ -171,16 +171,14 @@ class PortalPage extends Gateway
      * Return row from table
      *
      * @param string $prettyUrl
-     * @param string    $languageCode, e.g. "en-cpk"
      *
      * @return array
      */
-    public function getPage($prettyUrl, $languageCode)
+    public function getPage($prettyUrl)
     {
         $select = new Select($this->table);
         
-        $condition = "`pretty_url`='$prettyUrl'".
-            " AND `language_code`='$languageCode'";
+        $condition = "`pretty_url`='$prettyUrl'";
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
         

@@ -45,7 +45,7 @@ class PortalController extends AbstractBase
 	    $language = $this->params()->fromRoute('param');
 	    
 	    $portalPagesTable = $this->getTable("portalpages");
-	    $page = $portalPagesTable->getPage($prettyUrl, $language);
+	    $page = $portalPagesTable->getPage($prettyUrl);
 	    
 	    $view = $this->createViewModel([
 	       'page' => $page,

@@ -88,15 +88,13 @@ CREATE TABLE IF NOT EXISTS `portal_pages` (
   `position` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
   `order_priority` tinyint(4) NOT NULL,
   `last_modified_timestamp` datetime NOT NULL,
-  `last_modified_user_id` int(11) NOT NULL,
-  `group` int(11) NOT NULL,
+  `last_modified_user_id` int(11) NOT NULL
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `title` (`title`),
   UNIQUE KEY `pretty_url` (`pretty_url`),
   KEY `language_code` (`language_code`),
-  KEY `pretty_url_2` (`pretty_url`),
-  KEY `group` (`group`)
+  KEY `pretty_url_2` (`pretty_url`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 UPDATE `system` SET `value`='3' WHERE `key`='DB_VERSION';
 
