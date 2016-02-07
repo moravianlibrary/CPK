@@ -31,6 +31,8 @@
     <?=$this->transEsc('hold_request_item_on_loan_text')?> <br>
     <?=$this->transEsc('hold_request_item_on_loan_order')?>: <?=$this->escapeHtml($this->order)?> <br>
   </div>
+<? else: ?>
+  <p class="helptext"><?=$this->transEsc("hold-help-text")?> <strong><?=$this->transEsc("hold-help-text-bold")?></strong></p>
 <? endif;?>
 
 <div class="hold-form">
