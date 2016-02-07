@@ -10,6 +10,14 @@
 <script>
 jQuery( document ).ready( function( $ ) {
 	$('[data-toggle="tooltip"]').tooltip();
+
+	$( '.remove-permissions' ).on( 'click', function( event ) {
+		event.preventDefault();
+		var url = '/Admin/PermissionsManager/RemovePermissions/' + $ ( this ).attr( 'href' );
+		if (confirm("<?=$this->translate('Do you really want to remove permissions to this user?')?>") == true) {
+			window.location.href = url;
+	    }
+	});
 });
 </script>
 <div class="row clearfix">
@@ -19,8 +27,8 @@ jQuery( document ).ready( function( $ ) {
     <?=$this->render("admin/menu.phtml")?>
   </div>
   
+  <h2><?=$this->transEsc('Permissions manager')?></h2>
   <div class="col-sm-9 well">
-    <h2><?=$this->transEsc('Permissions manager')?></h2>
       <div class='admin-toolbox'>
         <a href='/Admin/PermissionsManager/AddUser'><button class='btn btn-lg btn-primary'><?=$this->translate('Add user')?></button></a>
       </div>
@@ -45,9 +53,15 @@ jQuery( document ).ready( function( $ ) {
                   </span>
                   <ul class="dropdown-menu" aria-labelledby="actions">
                     <li>
-                      <a id='editUser' href='/Admin/PermissionsManager/EditUser/<?= $userWithPermission['eppn'] ?>/<?= $userWithPermission['major'] ?>'>
+                      <a href='/Admin/PermissionsManager/EditUser/<?= $userWithPermission['eppn'] ?>/<?= $userWithPermission['major'] ?>'>
                         <i class='fa fa-edit'></i>
                         <?=$this->translate('Edit')?>
+                      </a>
+                    </li>
+                    <li>
+                      <a class='remove-permissions' id='<?= $userWithPermission['eppn'] ?>'>
+                        <i class='fa fa-remove'></i>
+                        <?=$this->translate('Remove permissions')?>
                       </a>
                     </li>
                   </ul>
