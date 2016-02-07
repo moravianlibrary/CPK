@@ -45,7 +45,7 @@ jQuery( document ).ready( function( $ ) {
                   </span>
                   <ul class="dropdown-menu" aria-labelledby="actions">
                     <li>
-                      <a href='/Admin/PermissionsManager/EditUser/<?= $userWithPermission['id'] ?>'>
+                      <a id='editUser' href='/Admin/PermissionsManager/EditUser/<?= $userWithPermission['eppn'] ?>/<?= $userWithPermission['major'] ?>'>
                         <i class='fa fa-edit'></i>
                         <?=$this->translate('Edit')?>
                       </a>
