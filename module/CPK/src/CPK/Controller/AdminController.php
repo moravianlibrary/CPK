@@ -150,10 +150,23 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $viewModel->setVariable('user', $user);
         
         $userTable = $this->getTable('user');
-        $usersWithPermissions = $userTable->getUsersWithPermissions();
-        $viewModel->setVariable('usersWithPermissions', $usersWithPermissions);
+        
+        $subAction = $this->params()->fromRoute('subaction');
+        if ($subAction == 'Save') {
+            $post = $this->params()->fromPost();
+            $userTable->saveUserWithPermissions($post);
+            return $this->forwardTo('Admin', 'PermissionsManager');
+        } else if ( $subAction == 'AddUser') {
+            $viewModel->setTemplate('admin/add-user-with-permissions');
+        } else { // normal view
+            $usersWithPermissions = $userTable->getUsersWithPermissions();
+            $viewModel->setVariable(
+                'usersWithPermissions',
+                $usersWithPermissions
+            );
+            $viewModel->setTemplate('admin/permissions-manager');
+        }
     
-        $viewModel->setTemplate('admin/permissions-manager');
         $this->layout()->searchbox = false;
         return $viewModel;
     }

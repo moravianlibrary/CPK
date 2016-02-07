@@ -414,4 +414,27 @@ class User extends BaseUser
         
         return $resultsArray;
     }
+    
+    /**
+     * Sets permissions to user
+     * 
+     * @param array $post Value from form submit
+     */
+    public function saveUserWithPermissions(array $post)
+    {
+        $update = new Update('user');
+        
+        $subselect = new Select('user_card');
+        $subselect->columns(['user_id']);
+        $subselect->where(['eppn' => $post['eppn']]);
+        
+        $update->set([
+            'major' => $post['major']
+        ]);
+        $update->where([
+            'id' => $subselect
+        ]);
+        
+        return $this->executeAnyZendSQLUpdate($update);
+    }
 }
