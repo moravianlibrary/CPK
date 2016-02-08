@@ -238,7 +238,7 @@ class MyResearchController extends MyResearchControllerBase
 
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
-            return $this->forwardTo('MyResearch', 'Home');
+            return $this->forwardTo('LibraryCards', 'Home');
         }
 
         $identities = $user->getLibraryCards();
