@@ -26,7 +26,8 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\ExceptionsTrait;
+use MZKCommon\Controller\ExceptionsTrait,
+    CPK\Db\Row\User;
 
 /**
  * Class controls VuFind administration.
@@ -47,16 +48,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     public function homeAction()
     {
-        // Log in first!
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
-            $this->flashExceptions($this->flashMessenger());
-            return $this->forceLogin();
+        if (! ($user = $this->getLoggedInUser()) instanceof User){
+            return $user; // Not logged in, returns redirection
         }
-
-        if (empty($user['major'])) {
-            return $this->forceLogin('Wrong permissions');
-        }
-        // Logged In successfull
         
         $this->layout()->searchbox = false;
         return $this->createViewModel(['user' => $user]);
@@ -65,13 +59,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
     public function portalPagesAction()
     {
         // Log in first!
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
-            $this->flashExceptions($this->flashMessenger());
-            return $this->forceLogin();
-        }
-    
-        if (empty($user['major'])) {
-            return $this->forceLogin('Wrong permissions');
+        if (! ($user = $this->getLoggedInUser()) instanceof User){
+            return $user; // Not logged in, returns redirection
         }
         
         if (! in_array($user['major'], ['cpk', 'CPK'])) {
@@ -132,13 +121,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
     public function permissionsManagerAction()
     {
         // Log in first!
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
-            $this->flashExceptions($this->flashMessenger());
-            return $this->forceLogin();
-        }
-    
-        if (empty($user['major'])) {
-            return $this->forceLogin('Wrong permissions');
+        if (! ($user = $this->getLoggedInUser()) instanceof User){
+            return $user; // Not logged in, returns redirection
         }
     
         if (! in_array($user['major'], ['cpk', 'CPK'])) {
@@ -182,5 +166,26 @@ class AdminController extends \VuFind\Controller\AbstractBase
     
         $this->layout()->searchbox = false;
         return $viewModel;
+    }
+    
+    /**
+     * Get logged in user
+     * 
+     * @return \CPK\Db\Row\User|Array
+     */
+    protected function getLoggedInUser()
+    {
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+        
+        if (empty($user['major'])) {
+            $this->flashMessenger()->addErrorMessage('Wrong permissions');
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+        
+        return $user;
     }
 }
