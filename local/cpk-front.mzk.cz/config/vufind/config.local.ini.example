@@ -46,7 +46,7 @@ engine          = Solr
 ;default_core    = biblio
 url		= http://cpk-front.mzk.cz:8080/solr
 ;default_core   = index
-default_core    = dedup1
+default_core    = beta
 
 [Authentication]
 ;method		= PerunShibboleth
@@ -162,6 +162,7 @@ itam.cas.cz = https://jiftach.cas.cz/loga/logo-itam-44.png
 fzu.cas.cz = https://jiftach.cas.cz/loga/logo-fzu-40.png
 ibp.cas.cz = https://jiftach.cas.cz/loga/logo-ibp-44.png
 osu.cz = https://idptoo.osu.cz/simplesaml/logo_ou.png
+vkol.cz = https://shibo.vkol.cz/logo_90.png
 digiknihovna.cz = https://shibboleth.digiknihovna.cz/logo.png
 vkta.knihovny.cz = https://vkta.knihovny.cz/logo.png
 kfbz.knihovny.cz = http://kfbz.cz/sites/all/themes/kzlin/images/logo2.png
