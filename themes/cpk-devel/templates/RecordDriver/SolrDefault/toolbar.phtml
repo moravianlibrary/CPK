@@ -10,28 +10,8 @@
   $cart = $this->cart();
   $cartId = $this->driver->getResourceSource() . '|' . $id;
   
-  $handleOfflineFavorites = false;
-  
-  if (! $this->isLoggedIn && $this->offlineFavoritesEnabled) {
-      $handleOfflineFavorites = true;
+  $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled;
 
-      // TODO: We should remove this JS dependency injection by compiling the app on production ..
-      $appName = "favorites";
-      
-      $dependencies = [
-          'module.js',
-          'favorite.class.js',
-          'favorites.factory.js',
-          'storage.service.js',
-          'broadcaster.service.js',
-          'record.controller.js'
-      ];
-      
-      // Load Javascript dependencies into header:
-      foreach($dependencies as $dependency) {
-          $this->headScript()->appendFile($appName . '/' . $dependency);
-      }
-  }
 ?>
 <ul class="list-group record-toolbar">
   <li class="list-group-item"><a id="mail-record" class="modal-link <?=$controllerClass?>" href="<?=$this->url('record-email', array('id'=>$id)) ?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow"><i class="fa fa-fw fa-envelope"></i> <?=$this->transEsc('Email this')?></a></li>
@@ -49,7 +29,7 @@
   <? endif; ?>
 
   <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-    <li class="list-group-item" <? if ($handleOfflineFavorites): ?>ng-app="favorites"<? endif; ?>>
+    <li class="list-group-item">
     	<a id="save-record" class="modal-link <?=$controllerClass?>"
     	 
   	     <? if ($handleOfflineFavorites) : ?>

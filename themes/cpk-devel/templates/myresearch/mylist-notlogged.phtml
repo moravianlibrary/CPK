@@ -3,24 +3,6 @@
   // Set up page title:
   $this->headTitle(isset($list) ? $list->title : $this->translate('Favorites'));
 
-  // TODO: We should remove this JS dependency injection by compiling the app ..
-  $appName = "favorites";
-
-  $dependencies = [
-      'module.js',
-      'favorite.class.js',
-      'favorites.factory.js',
-      'storage.service.js',
-      'broadcaster.service.js',
-      'translate.filter.js',
-      'list.controller.js'
-  ];
-
-  // Load Javascript dependencies into header:
-  foreach($dependencies as $dependency) {
-    $this->headScript()->appendFile($appName . '/' . $dependency);
-  }
-  
   // Also add required translations
   $this->jsTranslations()->addStrings(
       array(
@@ -76,7 +58,7 @@
 
 <?=$this->flashmessages()?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-<div class="row" ng-app="<?=$appName?>" ng-controller="ListController as listCtrl">
+<div class="row" ng-controller="ListController as listCtrl">
   <div class="<?=$this->layoutClass('mainbody')?>" list-not-empty="true">
     <div class="clearfix hidden-print">
   	<h2 class="pull-left flip"><?=$this->transEsc('Favorites')?></h2>
