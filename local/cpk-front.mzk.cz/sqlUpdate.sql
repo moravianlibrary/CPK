@@ -98,3 +98,7 @@ CREATE TABLE IF NOT EXISTS `portal_pages` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
 UPDATE `system` SET `value`='3' WHERE `key`='DB_VERSION';
 
+ALTER TABLE `user_card`
+  ADD `major` VARCHAR(100) NULL,
+  ADD INDEX ( `major` );
+UPDATE `system` SET `value`='4' WHERE `key`='DB_VERSION';

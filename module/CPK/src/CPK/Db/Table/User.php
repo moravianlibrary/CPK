@@ -394,16 +394,9 @@ class User extends BaseUser
      */
     public function getUsersWithPermissions()
     {
-        $select = new Select();
-        $select->from(['u' => 'user']);
-        $select->columns(['id', 'major']);
-        $select->where("major IS NOT NULL AND major <> ''");
-        $select->join(
-            ['c' => 'user_card'],
-            'c.user_id = u.id',
-            ['eppn'],
-            'LEFT'
-        );
+        $select = new Select('user_card');
+        $select->columns(['eppn', 'major']);
+        $select->where("`major` IS NOT NULL AND `major` <> ''");
         
         $statement = $this->sql->prepareStatementForSqlObject($select);
         $results = $statement->execute();
@@ -418,23 +411,17 @@ class User extends BaseUser
     /**
      * Sets permissions to user
      * 
-     * @param array $post Value from form submit
+     * @param string $eppn EduPersonPrincipalName
+     * @param string $major Major permissions
      */
-    public function saveUserWithPermissions(array $post)
+    public function saveUserWithPermissions($eppn, $major)
     {
-        $update = new Update('user');
-        
-        $subselect = new Select('user_card');
-        $subselect->columns(['user_id']);
-        $subselect->where(['eppn' => $post['eppn']]);
-        
+        $update = new Update('user_card');
         $update->set([
-            'major' => $post['major']
+            'major' => $major
         ]);
-        $update->where([
-            'id' => $subselect
-        ]);
-        
+        $update->where(['eppn' => $eppn]);
+
         return $this->executeAnyZendSQLUpdate($update);
     }
 }

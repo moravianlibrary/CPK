@@ -13,7 +13,7 @@ jQuery( document ).ready( function( $ ) {
 
 	$( '.remove-permissions' ).on( 'click', function( event ) {
 		event.preventDefault();
-		var url = '/Admin/PermissionsManager/RemovePermissions/' + $ ( this ).attr( 'href' );
+		var url = '/Admin/PermissionsManager/RemovePermissions/' + $ ( this ).attr( 'id' );
 		if (confirm("<?=$this->translate('Do you really want to remove permissions to this user?')?>") == true) {
 			window.location.href = url;
 	    }
