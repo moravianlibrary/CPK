@@ -34,6 +34,18 @@ __notif.global = {
 
     isAsync : false,
 
+    // Define eventListeners
+    eventListeners : {
+	click : function() {
+
+	    /*
+	     * Purge the class unread - don't remove the warning icon because
+	     * user could be not logged in !	     * 
+	     */
+	    this.classList.remove('notif-unread');
+	},
+    },
+
     nothingRecievedCount : 0,
 
     informAboutNothingRecieved : function() {
@@ -61,12 +73,12 @@ __notif.global = {
     },
 
     notificationAdded : function(handler) {
-	
-	if (typeof handler === 'undefined') {
-	    
+
+	if (handler === __notif.global) {
+
 	    // Not without global notifications anymore ..
 	    __notif.global.withoutNotifications = false;
-	    
+
 	    // Hide the "without notifs" div as there is now new notification ..
 	    __notif.helper.pointers.global.children('div.without-notifs').hide();
 	    return;
@@ -329,6 +341,10 @@ __notif.overdues.processResponse = function(response) {
 
 __notif.addNotification = function(message, msgclass, institution, showWarningIcon, handler) {
 
+    if (typeof handler === "undefined") {
+	handler = __notif.global;
+    }
+
     if (typeof message === "undefined") {
 	return __notif.helper.printErr('Please provide message to notify about.');
     }
@@ -494,10 +510,6 @@ __notif.sourcesRead = {
      * @param handler
      */
     handleShowingWarningIcon : function(source, handler, element) {
-	
-	if (typeof handler === 'undefined') {
-	    handler = __notif.global;
-	}
 
 	// Define what to do
 	var closure = function() {
@@ -821,7 +833,7 @@ __notif.helper = {
 
 	// Trigger the global's notificationAdded as it's interested into any
 	// notifications being added
-	__notif.global.notificationAdded();
+	__notif.global.notificationAdded(handler);
     },
 
     /**
