@@ -984,9 +984,6 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
                  $idResolverType .', valid values are fixed, solr and xserver.');
         }
 
-        if (isset($this->config['ILL']['hidden_statuses'])) {
-            $this->IllHiddenStatuses = explode(',', $this->config['ILL']['hidden_statuses']);
-        }
         if (isset($this->config['ILL']['default_ill_unit'])) {
             $this->defaultIllUnit = $this->config['ILL']['default_ill_unit'];
         }
@@ -2377,27 +2374,24 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
     public function getMyILLRequests($user) {
         $userId = $user['id'];
         $loans = array();
-        $params = array("view" => "full");
+        $params = array("view" => "full", type => "active");
         $count = 0;
         $xml = $this->alephWebService->doRestDLFRequest(array('patron', $userId, 'circulationActions', 'requests', 'ill'), $params);
         foreach ($xml->xpath('//ill-request') as $item) {
             $loan = array();
             $z13 = $item->z13;
-            $status = (string) $item->z410->{'z410-status'};
-            if (!in_array($status, $this->IllHiddenStatuses)) {
-                $loan['docno'] = (string) $z13->{'z13-doc-number'};
-                $loan['author'] = (string) $z13->{'z13-author'};
-                $loan['title'] = (string) $z13->{'z13-title'};
-                $loan['imprint'] = (string) $z13->{'z13-imprint'};
-                $loan['article_title'] = (string) $item->{'title-of-article'};
-                $loan['article_author'] = (string) $item->{'author-of-article'};
-                $loan['price'] = (string) $item->{'z13u-additional-bib-info-1'};
-                $loan['pickup_location'] = (string) $item->z410->{'z410-pickup-location'};
-                $loan['media'] = (string) $item->z410->{'z410-media'};
-                $loan['create'] = $this->parseDate((string) $item->z410->{'z410-open-date'});
-                $loan['expire'] = $this->parseDate((string) $item->z410->{'z410-last-interest-date'});
-                $loans[] = $loan;
-            }
+            $loan['docno'] = (string) $z13->{'z13-doc-number'};
+            $loan['author'] = (string) $z13->{'z13-author'};
+            $loan['title'] = (string) $z13->{'z13-title'};
+            $loan['imprint'] = (string) $z13->{'z13-imprint'};
+            $loan['article_title'] = (string) $item->{'title-of-article'};
+            $loan['article_author'] = (string) $item->{'author-of-article'};
+            $loan['price'] = (string) $item->{'z13u-additional-bib-info-1'};
+            $loan['pickup_location'] = (string) $item->z410->{'z410-pickup-location'};
+            $loan['media'] = (string) $item->z410->{'z410-media'};
+            $loan['create'] = $this->parseDate((string) $item->z410->{'z410-open-date'});
+            $loan['expire'] = $this->parseDate((string) $item->z410->{'z410-last-interest-date'});
+            $loans[] = $loan;
         }
         return $loans;
     }
