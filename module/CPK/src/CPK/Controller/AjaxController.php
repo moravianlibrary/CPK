@@ -322,7 +322,7 @@ class AjaxController extends AjaxControllerBase
                                  explode('.', $cat_username)[0] . '.ini"'
                         ], self::STATUS_ERROR);
                 }
-            } catch (\VuFind\Exception\ILS $e) {
+            } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
 
@@ -362,8 +362,8 @@ class AjaxController extends AjaxControllerBase
             try {
                 // Try to get the profile ..
                 $holds = $catalog->getMyHolds($patron);
-            } catch (\VuFind\Exception\ILS $e) {
-               return $this->outputException($e, str_replace('.', '\.', $cat_username));
+            } catch (\Exception $e) {
+               return $this->outputException($e, $cat_username);
             }
 
             $recordList = $obalky = [];
@@ -466,7 +466,7 @@ class AjaxController extends AjaxControllerBase
                 $data['fines'] = $fines;
                 $data['source'] = $fines['source'];
 
-            } catch (\VuFind\Exception\ILS $e) {
+            } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
 
@@ -507,7 +507,7 @@ class AjaxController extends AjaxControllerBase
             try {
                 // Try to get the profile ..
                 $result = $ilsDriver->getMyTransactions($patron);
-            } catch (\VuFind\Exception\ILS $e) {
+            } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
 
@@ -610,7 +610,7 @@ class AjaxController extends AjaxControllerBase
             try {
                 // Try to get the profile ..
                 $result = $ilsDriver->getMyTransactions( $patron );
-            } catch ( \VuFind\Exception\ILS $e ) {
+            } catch (\Exception $e ) {
                 return $this->outputException( $e, $cat_username );
             }
 
@@ -927,7 +927,11 @@ class AjaxController extends AjaxControllerBase
             $cat_username = 'unknown';
             $source = $cat_username;
         } else {
-            $source = explode('.', $cat_username)[0];
+            $splittedCatUsername = explode('.', $cat_username);
+            
+            $source = $splittedCatUsername[0];
+            
+            $cat_username = join('\.', $splittedCatUsername);
         }
 
         $data = [
@@ -937,7 +941,7 @@ class AjaxController extends AjaxControllerBase
         ];
 
         if ($e instanceof VuFind\Exception\ILS) {
-            $data['consideration'] = 'There is a chance you have missing configuration file called "' . explode('.', $cat_username)[0] . '.ini"';
+            $data['consideration'] = 'There is a chance you have missing configuration file called "' . §source . '.ini"';
         }
 
         return $this->output($data, self::STATUS_ERROR);

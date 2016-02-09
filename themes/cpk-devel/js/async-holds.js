@@ -1,6 +1,6 @@
 $(function() { // Onload DOM ..
     $('div[data-type=loadingDiv]').each(function() {
-	var cat_username = $(this).attr('id');
+	var cat_username = this.getAttribute('id');
 
 	fetchHolds(cat_username);
     })
@@ -50,7 +50,14 @@ function updateHolds(response) {
     }
     
     // Overwrite current div with the new one from renderer
-    pointer[0].outerHTML = html;
+    if (status !== 'ERROR') 
+	pointer[0].outerHTML = html;
+    else {
+	// FIXME ! rework to angular app with an html directive ..
+	pointer[0].outerHTML = '<div class="row well" style="margin-bottom: 2px;">\
+	    <div class="label label-danger">' + data.message + '</div>\
+	  </div>';
+    }
     
     // Decide if there will be cancel buttons or not ..    
     if (data.canCancel) {
