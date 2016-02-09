@@ -40,7 +40,7 @@ __notif.global = {
 
 	    /*
 	     * Purge the class unread - don't remove the warning icon because
-	     * user could be not logged in !	     * 
+	     * user could be not logged in ! *
 	     */
 	    this.classList.remove('notif-unread');
 	},
@@ -341,26 +341,28 @@ __notif.overdues.processResponse = function(response) {
 
 __notif.addNotification = function(message, msgclass, institution, showWarningIcon, handler) {
 
-    if (typeof handler === "undefined") {
-	handler = __notif.global;
+    if (typeof message === 'undefined') {
+	return __notif.helper.printErr('Please provide message to notify about.');
     }
 
-    if (typeof message === "undefined") {
-	return __notif.helper.printErr('Please provide message to notify about.');
+    // Set the defaults
+    if (typeof msgclass === "undefined") {
+	msgclass = 'default';
+    } else if (__notif.options.allowedClasses.indexOf(msgclass) === -1) {
+	// Append default class as this is unknown class
+	msgclass += ' notif-default';
+    }
+
+    if (typeof showWarningIcon === 'undefined') {
+	showWarningIcon = true;
+    }
+
+    if (typeof handler === 'undefined') {
+	handler = __notif.global;
     }
 
     // Create the notification Element
     var notif = document.createElement('div');
-
-    // Set the default
-    if (typeof msgclass === "undefined" || __notif.options.allowedClasses.indexOf(msgclass) === -1) {
-	msgclass = 'default';
-    }
-
-    // Show warning Icon by default
-    if (typeof showWarningIcon === "undefined") {
-	showWarningIcon = true;
-    }
 
     // This is notif-default by default
     var clazz = 'notif-' + msgclass;
@@ -430,6 +432,11 @@ __notif.sourcesRead = {
      * All the values that were already read by the User.
      */
     values : [],
+    
+    /**
+     * Count of unread notifications.
+     */
+    unreadCount : 0,
 
     /**
      * Adds a function to be called after __notif.sourcesRead gets fully
