@@ -12,9 +12,9 @@
     
     angular.module('favorites').factory('storage', storageService);
 
-    storageService.$inject = [ '$log', 'Favorite' ];
+    storageService.$inject = [ '$log', 'Favorite', 'notifications' ];
 
-    function storageService($log, Favorite) {
+    function storageService($log, Favorite, notifications) {
 
 	var storage = {
 	    addFavorite : addFavorite,
@@ -48,6 +48,8 @@
 		    }
 		    
 		    call(theJob);
+		    
+		    notifications.favAdded();
 
 		} else {
 		    reject('storage.addFavorite(favorite) needs favorite instanceof Favorite !');
@@ -85,6 +87,10 @@
 			
 		    // Save those Favorites
 		    saveFavorites().then(resolve).catch(reject);
+		    
+		    if (favorites.length === 0) {
+			notifications.allFavsRemoved();
+		    }
 		}
 
 		call(theJob);

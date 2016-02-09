@@ -96,6 +96,13 @@
           'var userIsLoggedIn = ' . ($this->auth()->isLoggedIn() ? 'true' : 'false') . ';'
         );
       }
+      
+      // ng-app translations ..
+      $this->jsTranslations()->addStrings(
+          array(
+              'you_have_unsaved_favorites' => 'you_have_unsaved_favorites'
+          )
+      );
 
       // Session keep-alive
       if ($this->KeepAlive()) {

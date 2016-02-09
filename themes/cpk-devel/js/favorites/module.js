@@ -64,13 +64,6 @@
  * Implement transferring favorites from user's sessionStorage to the server
  * after login.
  * 
- * Also implement broadcasting of any favorites change across all tabs so that
- * every other tab knows about that change (even tab without location at
- * favorites ! .. but fo not logged in it should be enough)
- * 
- * Also implement notifying not logged in user about having unsaved
- * notifications !
- * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {
