@@ -18,9 +18,11 @@
   }
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
-    '<li><a href="/Search/Results?saved='.htmlspecialchars($_GET['fromSearchId']).'">'.$this->transEsc('Search').'</a></li> ' .
-    '<li class="active">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ';
+  if (isset($_GET['fromSearchId'])) {
+      $this->layout()->breadcrumbs .= '<li><a href="/Search/Results?saved='.htmlspecialchars($_GET['fromSearchId']).'">'.$this->transEsc('Search').'</a></li> ';
+  }
+  $this->layout()->breadcrumbs .= '<li class="active">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
   $this->layout()->title = $this->driver->getShortTitle();
   
   $fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
