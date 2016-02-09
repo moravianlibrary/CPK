@@ -43,6 +43,8 @@ __notif.global = {
 	     * user could be not logged in ! *
 	     */
 	    this.classList.remove('notif-unread');
+	    
+	    --__notif.sourcesRead.unreadCount;
 	},
     },
 
@@ -478,6 +480,7 @@ __notif.sourcesRead = {
 	var institutionKeys = Object.keys(__notif.helper.pointers.institutions);
 
 	for (var i = 0; i < __notif.helper.institutionsCount; ++i) {
+	    ++__notif.sourcesRead.unreadCount;
 	    var institutionKey = institutionKeys[i];
 	    __notif.helper.pointers.institutions[institutionKey].children().addClass('notif-unread');
 	}
@@ -524,6 +527,8 @@ __notif.sourcesRead = {
 	    var isUnread = __notif.sourcesRead.isMarkedAsUnread(source, handler);
 
 	    if (isUnread) {
+		++__notif.sourcesRead.unreadCount;
+		
 		// Show the warning icon
 		__notif.warning.show();
 
@@ -633,6 +638,8 @@ __notif.sourcesRead = {
     markAsRead : function(source, handler) {
 
 	if (__notif.sourcesRead.isMarkedAsUnread(source, handler)) {
+	    
+	    --__notif.sourcesRead.unreadCount;
 
 	    var toPush = __notif.sourcesRead.craftSourceReadValue(source, handler);
 
