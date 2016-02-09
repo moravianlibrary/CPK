@@ -60,10 +60,20 @@ __notif.global = {
 
     },
 
-    notificationAdded : function() {
+    notificationAdded : function(handler) {
+	
+	if (typeof handler === 'undefined') {
+	    
+	    // Not without global notifications anymore ..
+	    __notif.global.withoutNotifications = false;
+	    
+	    // Hide the "without notifs" div as there is now new notification ..
+	    __notif.helper.pointers.global.children('div.without-notifs').hide();
+	    return;
+	}
+
 	// Hide the global section if we have added another notification
 	// only if the global notification is about 'without_notifications'
-
 	if (!__notif.global.hidden && __notif.global.withoutNotifications) {
 	    __notif.global.hidden = true;
 
@@ -484,6 +494,10 @@ __notif.sourcesRead = {
      * @param handler
      */
     handleShowingWarningIcon : function(source, handler, element) {
+	
+	if (typeof handler === 'undefined') {
+	    handler = __notif.global;
+	}
 
 	// Define what to do
 	var closure = function() {
@@ -819,7 +833,7 @@ __notif.helper = {
      * @returns {Boolean}
      */
     checkHandlerIsValid : function(handler) {
-	if (typeof handler === "undefined" || typeof handler.localforageItemName === "undefined") {
+	if (typeof handler === "undefined" || typeof handler.isAsync === "undefined") {
 	    var msg = 'Did not provide valid handler !';
 
 	    return __notif.helper.printErr(msg, handler);
