@@ -416,7 +416,7 @@ function isCitationAvailable( recordId, callback ) {
 		success: function( result ) {
 			if( result.status !== 'OK' ) {
 				// display the error message on each of the ajax status place holder
-				$( "#ajax-error-info" ).empty().append( response.data );
+				$( "#ajax-error-info" ).empty().append( result.data );
 				
 			} else {
 				callback();	
