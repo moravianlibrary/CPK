@@ -214,20 +214,18 @@
     ?>
     <header class="hidden-print">
 		<!--<div class="container navbar navbar-inverse top-header">-->
-		<div class="navbar navbar-inverse navbar-fixed-top top-header">
-			<div class='container'>
-    			<div class="header-box">
+		<div class="header-container navbar navbar-inverse">
+					<div class="header-box">
     				<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
               	<?=$this->render('header.phtml', $headerParams)?>
-            	</div>
-            </div>
-		</div>
-		<div style="margin-top: 50px;">
+        	</div>
+    </div>
+		<div class="container">
           <? if ($this->layout()->searchbox !== false): ?>
-          <div class="well clearfix">
+          <div class="<?=($this->layout()->frontpage == true)?'well header-container':''?> clearfix">
           	<div class='container'>
               <?=$this->layout()->searchbox ?>
-    
+
                     <?
                     /*
                     * This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes

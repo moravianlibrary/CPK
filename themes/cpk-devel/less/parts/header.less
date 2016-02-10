@@ -22,6 +22,49 @@
 
 //header
 ////////
+
+.header-container {
+  .container-fixed();
+
+  @media (min-width: @screen-sm-min) {
+    width: @container-sm;
+  }
+  @media (min-width: @screen-md-min) {
+    width: @container-md;
+  }
+  @media (min-width: @screen-lg-min) {
+    width: 1440px;
+  }
+}
+
+
+.header-box {
+    background-color: #fff;
+    color: @brand-primary;
+
+    .navbar-brand {
+      margin-top: 0px;
+      padding-top: 7px;
+    }
+    .navbar-right {
+      margin-top: 0px;
+    }
+    .red-box {
+      padding-bottom: 0px;
+    }
+    #notif_icon {
+      padding-top: 14px;
+  	padding-bottom: 13px;
+    }
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color: @brand-primary;
+}
+
+.top-header {
+    background-color: #fff;
+}
 header{
   margin-bottom: 20px;
 }
@@ -64,36 +107,4 @@ header{
 .full-width.navbar {
   width:100%;
   padding:0px;
-}
-
-.top-header {
-
-  > .navbar {
-    width: 100%;
-    padding: 0px;
-    }
-  img {
-      max-width: 50%;
-  }
-  .well {
-  visibility: collapse;
-  }
-  .beta-logo {
-  visibility: collapse;
-  }
-  .navbar-brand {
-    margin-top: 0px;
-    padding-top: 7px;
-  }
-  .navbar-right {
-    margin-top: 0px;
-  }
-  .red-box {
-    padding-bottom: 0px;
-  }
-  #notif_icon {
-    padding-top: 14px;
-	padding-bottom: 13px;
-  }
-
 }
