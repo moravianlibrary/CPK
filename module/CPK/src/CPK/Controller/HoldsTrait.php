@@ -149,7 +149,9 @@ trait HoldsTrait
                 if (isset($results['success']) && $results['success'] == true) {
                     $msg = [
                         'html' => true,
-                        'source' => $results['source'],
+                        'source' => (isset($results['source'])) 
+                            ? $results['source'] 
+                            : null,
                         'msg' => 'hold_place_success_html',
                         'tokens' => [
                             '%%url%%' => $this->url()->fromRoute('myresearch-holds')

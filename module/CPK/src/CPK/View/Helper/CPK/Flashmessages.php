@@ -114,7 +114,9 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
 
         public function getLogo($source)
         {
-            if ($this->idpLogos[$source] !== null) {
+            if (isset($this->idpLogos[$source]) 
+                && $this->idpLogos[$source] !== null
+            ) {
                 return $this->idpLogos[$source];
             }
 
