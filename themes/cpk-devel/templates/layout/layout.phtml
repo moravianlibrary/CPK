@@ -96,7 +96,7 @@
           'var userIsLoggedIn = ' . ($this->auth()->isLoggedIn() ? 'true' : 'false') . ';'
         );
       }
-      
+
       // ng-app translations ..
       $this->jsTranslations()->addStrings(
           array(
@@ -212,15 +212,12 @@
         $this->layout()->searchbox = $this->render('search/searchbox.phtml');
       }
     ?>
-    <header class="hidden-print">
-		<!--<div class="container navbar navbar-inverse top-header">-->
-		<div class="header-container navbar navbar-inverse">
-					<div class="header-box">
-    				<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
-              	<?=$this->render('header.phtml', $headerParams)?>
-        	</div>
-    </div>
-		<div class="container">
+    <header class="hidden-print header-container">
+      <div class="container navbar">
+	<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
+        <?=$this->render('header.phtml', $headerParams)?>
+      </div>
+      <div class="container">
           <? if ($this->layout()->searchbox !== false): ?>
           <div class="<?=($this->layout()->frontpage == true)?'well header-container':''?> clearfix">
           	<div class='container'>

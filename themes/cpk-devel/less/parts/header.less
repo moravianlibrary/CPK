@@ -38,24 +38,30 @@
 }
 
 
-.header-box {
-    background-color: #fff;
+header {
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 2px 2px #ccc;
+  & > .navbar {
     color: @brand-primary;
-
+    padding-top: 30px;
+    padding-bottom: 30px;
+    .navbar-header{
+      border-right: 1px solid rgb(204, 204, 204);
+      padding-right: 15px;
+    }
     .navbar-brand {
-      margin-top: 0px;
+      margin-top: 0;
       padding-top: 7px;
     }
-    .navbar-right {
-      margin-top: 0px;
-    }
     .red-box {
-      padding-bottom: 0px;
+      padding-bottom: 0;
     }
     #notif_icon {
       padding-top: 14px;
-  	padding-bottom: 13px;
+      padding-bottom: 13px;
     }
+  }
 }
 
 .navbar-inverse .navbar-nav > li > a {
@@ -65,26 +71,13 @@
 .top-header {
     background-color: #fff;
 }
-header{
-  margin-bottom: 20px;
-}
-.navbar-inverse {
-  background-color: transparent;
-  border-color: transparent;
-}
-.navbar-nav > li > a {
-  font-weight: bold;
-}
-.navbar-right {
-  margin-top: 25px;
-}
+
 .navbar{
   margin-bottom: 0px;
   border: none;
   transition: width 500ms, background 500ms;
 }
 .navbar-brand {
-  margin-top: 8px;
   height: auto;
 }
 .beta-logo {
