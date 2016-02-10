@@ -4,6 +4,7 @@
 
   // Disable top search box -- this page has a special layout.
   $this->layout()->searchbox = false;
+  $this->layout()->frontpage = true;
 
   // Set default value if necessary:
   if (!isset($this->searchClassId)) {
@@ -27,7 +28,20 @@
       <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
     </div>
   <? endif; ?>
-  <div class="well well-lg clearfix" role="search">
-    <?=$this->render("search/searchbox.phtml")?>
+  <div class="col-sm-4">
+    <h2>Nejpůčovanější knihy 2015</h2>
+    <div class="well">
+
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <h2>Chystané akce</h2>
+    <div class="well">
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <h2>Novinky</h2>
+    <div class="well">
+    </div>
   </div>
 </div>

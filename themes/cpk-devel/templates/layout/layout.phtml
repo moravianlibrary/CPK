@@ -194,20 +194,32 @@
         <?=$this->render('header.phtml', $headerParams)?>
       </div>
       <div class="container">
-          <? if ($this->layout()->searchbox !== false): ?>
-          <div class="<?=($this->layout()->frontpage == true)?'well header-container':''?> clearfix">
-          	<div class='container'>
-              <?=$this->layout()->searchbox ?>
-              <?=$this->render('shib-assertion.phtml')?>
-
-			</div>
+          <? if ($this->layout()->frontpage == true): ?>
+          <h1><?=$this->transEsc("frontpage-header-text")?></h1>
+          <h4><?=$this->transEsc("frontpage-text")?></h4>
+          <div class="clearfix">
+        	   <div class='container'>
+               <?=$this->render('search/searchbox.phtml'); ?>
+               <?=$this->render('shib-assertion.phtml')?>
+	           </div>
           </div>
           <? endif; ?>
       </div>
 
-      
+
 
     </header>
+    <div class="container">
+        <? if ($this->layout()->searchbox !== false): ?>
+        <div class="clearfix">
+           <div class='container'>
+             <?=$this->layout()->searchbox ?>
+             <?=$this->render('shib-assertion.phtml')?>
+           </div>
+        </div>
+        <? endif; ?>
+    </div>
+
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
       <div class="container">
         <?=$this->layout()->content ?>
