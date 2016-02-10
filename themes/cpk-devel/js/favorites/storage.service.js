@@ -135,6 +135,9 @@
 			
 			var favObj = favorite[id];
 			
+			// It is basically added by this ..
+			notifications.favAdded();
+			
 			resolve(new Favorite().fromObject(favObj));
 		    };
 
@@ -152,6 +155,10 @@
 		var theJob = function() {
 		    
 		    resolve(favorites.map(function(fav) {
+			
+			// It is basically added by this ..
+			notifications.favAdded();
+			
 			return new Favorite().fromObject(fav);
 		    }));
 		};
