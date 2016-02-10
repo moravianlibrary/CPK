@@ -2058,7 +2058,12 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
             }
         }
 
-        $status = (string) $xml->xpath('//z30-item-process-status-code/text()')[0];
+        $itemProcessStatusCode =  $xml->xpath(
+            '//z30-item-process-status-code/text()'
+        );
+        if (count($itemProcessStatusCode)) {
+            $status = (string) $itemProcessStatusCode[0];
+        }
 
         $requests = 0;
         $str = $xml->xpath('//item/queue/text()');
