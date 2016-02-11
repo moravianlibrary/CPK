@@ -41,12 +41,14 @@
 @import "parts/portal";
 
 
-//////////////////////////////////////////////////////////////////////////
-// Avoid showing horizontal scroolbar, when header and footer overflows
-body {
-  overflow-x: hidden;
-  margin-left: -500px;
-  margin-right: -500px;
+///////////////////////////////////////////////////////////////////////////////////////////
+// Avoid showing horizontal scroolbar, when header and footer overflows on smaller desktops
+@media (min-width: @screen-lg-min) {
+  body {
+    overflow-x: hidden;
+    margin-left: -500px;
+    margin-right: -500px;
+  }
 }
 
 @brand-unknown: #9E9E9E;
