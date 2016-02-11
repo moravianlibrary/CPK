@@ -21,6 +21,12 @@ var __notif = {
 
 	allowedClasses : [ 'default', 'info', 'warning', 'danger', 'success' ],
     },
+
+    /**
+     * This array should be filled with all the callbacks which should be called
+     * after the full initialization is done.
+     */
+    callbacksAfterFullInitialization : [],
 }
 
 /**
@@ -43,7 +49,7 @@ __notif.global = {
 	     * user could be not logged in ! *
 	     */
 	    this.classList.remove('notif-unread');
-	    
+
 	    --__notif.sourcesRead.unreadCount;
 	},
     },
@@ -343,51 +349,64 @@ __notif.overdues.processResponse = function(response) {
 
 __notif.addNotification = function(message, msgclass, institution, showWarningIcon, handler) {
 
-    if (typeof message === 'undefined') {
-	return __notif.helper.printErr('Please provide message to notify about.');
-    }
+    // We need to wait for initialization if not done yet ..
+    return new Promise(function(resolve, reject) {
 
-    // Set the defaults
-    if (typeof msgclass === "undefined") {
-	msgclass = 'default';
-    } else if (__notif.options.allowedClasses.indexOf(msgclass) === -1) {
-	// Append default class as this is unknown class
-	msgclass += ' notif-default';
-    }
+	// The job to be called after __notif have initialized
+	var theJob = function() {
 
-    if (typeof showWarningIcon === 'undefined') {
-	showWarningIcon = true;
-    }
+	    if (typeof message === 'undefined') {
+		reject(__notif.helper.printErr('Please provide message to notify about.'));
+	    }
 
-    if (typeof handler === 'undefined') {
-	handler = __notif.global;
-    }
+	    // Set the defaults
+	    if (typeof msgclass === "undefined") {
+		msgclass = 'default';
+	    } else if (__notif.options.allowedClasses.indexOf(msgclass) === -1) {
+		// Append default class as this is unknown class
+		msgclass += ' notif-default';
+	    }
 
-    // Create the notification Element
-    var notif = document.createElement('div');
+	    if (typeof showWarningIcon === 'undefined') {
+		showWarningIcon = true;
+	    }
 
-    // This is notif-default by default
-    var clazz = 'notif-' + msgclass;
+	    if (typeof handler === 'undefined') {
+		handler = __notif.global;
+	    }
 
-    if (!showWarningIcon) {
-	clazz += ' counter-ignore';
-    } else {
-	__notif.sourcesRead.handleShowingWarningIcon(institution, handler, notif);
-    }
+	    // Create the notification Element
+	    var notif = document.createElement('div');
 
-    // The sourcesRead might have already added a class - but we can't be sure
-    var precedingClass = notif.getAttribute('class');
-    if (precedingClass !== null) {
-	clazz += " " + precedingClass;
-    }
+	    // This is notif-default by default
+	    var clazz = 'notif-' + msgclass;
 
-    notif.setAttribute('class', clazz);
+	    if (!showWarningIcon) {
+		clazz += ' counter-ignore';
+	    } else {
+		__notif.sourcesRead.handleShowingWarningIcon(institution, handler, notif);
+	    }
 
-    notif.textContent = message;
+	    // The sourcesRead might have already added a class - but we can't
+	    // be sure
+	    var precedingClass = notif.getAttribute('class');
+	    if (precedingClass !== null) {
+		clazz += " " + precedingClass;
+	    }
 
-    __notif.helper.appendNotification(notif, institution, handler);
+	    notif.setAttribute('class', clazz);
 
-    return true;
+	    notif.textContent = message;
+
+	    __notif.helper.appendNotification(notif, institution, handler);
+
+	    resolve();
+	}
+
+	if (__notif.sourcesRead.fullyInitialized === false) {
+	    __notif.callbacksAfterFullInitialization.push(theJob);
+	}
+    });
 };
 
 /**
@@ -418,12 +437,6 @@ __notif.warning = {
 __notif.sourcesRead = {
 
     /**
-     * This array should be filled with all the callbacks which should be called
-     * after the full initialization is done.
-     */
-    callbacksAfterFullInitialization : [],
-
-    /**
      * Holds Boolean if we have already fully initialized all the sourcesRead
      * array so that new notifications can have read / unread classes with
      * certainty.
@@ -434,7 +447,7 @@ __notif.sourcesRead = {
      * All the values that were already read by the User.
      */
     values : [],
-    
+
     /**
      * Count of unread notifications.
      */
@@ -450,7 +463,7 @@ __notif.sourcesRead = {
     addCallbackAfterFullInitialization : function(callback) {
 
 	if (callback instanceof Function) {
-	    __notif.sourcesRead.callbacksAfterFullInitialization.push(callback);
+	    __notif.callbacksAfterFullInitialization.push(callback);
 	} else {
 
 	    var msg = 'Please provide a callback (instanceof Function) to ' + '__notif.sourcesRead.' + 'addCallbackAfterFullInitialization(callback)';
@@ -528,7 +541,7 @@ __notif.sourcesRead = {
 
 	    if (isUnread) {
 		++__notif.sourcesRead.unreadCount;
-		
+
 		// Show the warning icon
 		__notif.warning.show();
 
@@ -572,13 +585,12 @@ __notif.sourcesRead = {
 	    __notif.sourcesRead.fullyInitialized = true;
 
 	    /*
-	     * Call all the callbacks needed to call after we have fetched the
-	     * sourcesRead from localforage *
+	     * Call all the callbacks buffered already ..
 	     */
-	    var initCallbacksLength = __notif.sourcesRead.callbacksAfterFullInitialization.length;
+	    var initCallbacksLength = __notif.callbacksAfterFullInitialization.length;
 
 	    for (var i = 0; i < initCallbacksLength; ++i) {
-		__notif.sourcesRead.callbacksAfterFullInitialization[i].call();
+		__notif.callbacksAfterFullInitialization[i].call();
 	    }
 	}
 
@@ -638,7 +650,7 @@ __notif.sourcesRead = {
     markAsRead : function(source, handler) {
 
 	if (__notif.sourcesRead.isMarkedAsUnread(source, handler)) {
-	    
+
 	    --__notif.sourcesRead.unreadCount;
 
 	    var toPush = __notif.sourcesRead.craftSourceReadValue(source, handler);
@@ -845,7 +857,9 @@ __notif.helper = {
 	// Unhide the section of desired institution if hidden
 	identityNotificationsElement.parent('li').show();
 
-	// Trigger the global's notificationAdded as it's interested into any
+	// Trigger the global's notificationAdded as it's interested
+	// into
+	// any
 	// notifications being added
 	__notif.global.notificationAdded(handler);
     },
