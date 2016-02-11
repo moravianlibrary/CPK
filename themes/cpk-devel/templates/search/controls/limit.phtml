@@ -30,12 +30,11 @@
 ?>
 <? if (count($limitList) > 1): ?>
   <form class="form-inline" action="<?=$currentURL?>" method="get">
-    <label for="limit"><?=$this->transEsc('Results per page')?></label>
     <select id="limit" name="limit" class="jumpMenu form-control">
       <? foreach ($limitList as $limitVal => $limitData): 
              $limitData['selected'] = ($limitVal == $this->limit) ? true : false;
       ?>
-        <option value="<?=$this->escapeHtmlAttr($limitVal)?>"<?=$limitData['selected']?' selected="selected"':''?>><?=$this->escapeHtml($limitData['desc'])?></option>
+        <option value="<?=$this->escapeHtmlAttr($limitVal)?>"<?=$limitData['selected']?' selected="selected"':''?>><?=$this->escapeHtml($limitData['desc'].' '.$this->translate('records-in-genitive'))?></option>
       <? endforeach; ?>
     </select>
     <? foreach ($filters as $filter): ?>
