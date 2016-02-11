@@ -114,9 +114,9 @@
             <? $recordId =  preg_replace("/\./", "", $recordId)?>
             <? $recordId =  preg_replace("/:/", "", $recordId)?>
             <? if ($this->params->getSearchType() == 'advanced'): ?>
-            <a href='Record/<?=$firstRecordInInstitutions['id']?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
-            <a href='Record/<?=$firstRecordInInstitutions['id']?>?fromSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?fromSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? endif;?>
             	<div class="coverThumbnail cover_<?=$recordId?>">
             	
@@ -140,9 +140,9 @@
     <div class="col-sm-7 col-xs-7 middle search-result-container">
       <div class="root-title">
         <? if ($this->params->getSearchType() == 'advanced'): ?>
-        <a href="Record/<?=$firstRecordInInstitutions['id']?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>" class="title">
+        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>" class="title">
         <? else: ?>
-        <a href="Record/<?=$firstRecordInInstitutions['id']?>?fromSearchId=<?=$this->results->getSearchId()?>" class="title">
+        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?fromSearchId=<?=$this->results->getSearchId()?>" class="title">
         <? endif;?>
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
