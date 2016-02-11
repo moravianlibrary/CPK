@@ -12,9 +12,9 @@
     
     angular.module('favorites').factory('storage', storageService);
 
-    storageService.$inject = [ '$log', 'Favorite', 'notifications' ];
+    storageService.$inject = [ '$log', 'Favorite', 'favsNotifications' ];
 
-    function storageService($log, Favorite, notifications) {
+    function storageService($log, Favorite, favsNotifications) {
 
 	var storage = {
 	    addFavorite : addFavorite,
@@ -49,7 +49,7 @@
 		    
 		    call(theJob);
 		    
-		    notifications.favAdded();
+		    favsNotifications.favAdded();
 
 		} else {
 		    reject('storage.addFavorite(favorite) needs favorite instanceof Favorite !');
@@ -89,7 +89,7 @@
 		    saveFavorites().then(resolve).catch(reject);
 		    
 		    if (favorites.length === 0) {
-			notifications.allFavsRemoved();
+			favsNotifications.allFavsRemoved();
 		    }
 		}
 
@@ -136,7 +136,7 @@
 			var favObj = favorite[id];
 			
 			// It is basically added by this ..
-			notifications.favAdded();
+			favsNotifications.favAdded();
 			
 			resolve(new Favorite().fromObject(favObj));
 		    };
@@ -157,7 +157,7 @@
 		    resolve(favorites.map(function(fav) {
 			
 			// It is basically added by this ..
-			notifications.favAdded();
+			favsNotifications.favAdded();
 			
 			return new Favorite().fromObject(fav);
 		    }));

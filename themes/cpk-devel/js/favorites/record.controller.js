@@ -17,7 +17,7 @@
 
     angular.module('favorites').controller('RecordFavController', RecordController).directive('addRemove', RecordDirective);
 
-    RecordController.$inject = [ '$log', 'storage', 'favoritesFactory', 'Favorite', 'broadcaster' ];
+    RecordController.$inject = [ '$log', 'storage', 'favoritesFactory', 'Favorite', 'favsBroadcaster' ];
 
     /**
      * Private variables to let the addRemove directive handle desired elements
@@ -28,7 +28,7 @@
 	    addFavBtn : undefined
     };
 
-    function RecordController($log, storage, favoritesFactory, Favorite, broadcaster) {
+    function RecordController($log, storage, favoritesFactory, Favorite, favsBroadcaster) {
 
 	var fav = undefined,
 	recordIsFav = false;
@@ -45,7 +45,7 @@
 	});
 
 	/**
-	 * Public function about to be called from the broadcaster when an event
+	 * Public function about to be called from the favsBroadcaster when an event
 	 * happens (meaning adding / removal of the favorite)
 	 */
 	window.__isFavCallback = function(isNew, newFav) {
@@ -102,7 +102,7 @@
 		switchAddRemoveSpanVisibility();
 		
 		// Broadcast this event across all tabs
-		broadcaster.broadcastAdded(fav);
+		favsBroadcaster.broadcastAdded(fav);
 		
 	    }).catch(function(reason) {
 		
@@ -122,7 +122,7 @@
 		switchAddRemoveSpanVisibility();
 		
 		// Broadcast this event across all tabs
-		broadcaster.broadcastRemoved(fav);
+		favsBroadcaster.broadcastRemoved(fav);
 		
 	    }).catch(function(reason) {
 		

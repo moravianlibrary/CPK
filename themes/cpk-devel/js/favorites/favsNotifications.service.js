@@ -2,11 +2,11 @@
  * 
  */
 (function() {
-    angular.module('favorites').factory('notifications', notificationsService);
+    angular.module('favorites').factory('favsNotifications', favsNotificationsService);
 
-    notificationsService.$inject = [ 'translateFilter' ];
+    favsNotificationsService.$inject = [ 'translateFilter' ];
 
-    function notificationsService(translate) {
+    function favsNotificationsService(translate) {
 
 	// Public object
 	var notifications = {

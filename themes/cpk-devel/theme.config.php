@@ -23,7 +23,7 @@ return array(
         'vendor/bootstrap-datepicker.cs.js',
         'favorites/module.js',
         'favorites/translate.filter.js',
-        'favorites/notifications.service.js',
+        'favorites/favsNotifications.service.js',
         'favorites/favorite.class.js',
         'favorites/favorites.factory.js',
         'favorites/storage.service.js',

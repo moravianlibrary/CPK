@@ -17,11 +17,11 @@
 
     var veryVerbose = true;
 
-    angular.module('favorites').factory('broadcaster', broadcaster);
+    angular.module('favorites').factory('favsBroadcaster', favsBroadcaster);
 
-    broadcaster.$inject = [ '$log', 'storage', 'Favorite', 'notifications' ];
+    favsBroadcaster.$inject = [ '$log', 'storage', 'Favorite', 'favsNotifications' ];
 
-    function broadcaster($log, storage, Favorite, notifications) {
+    function favsBroadcaster($log, storage, Favorite, favsNotifications) {
 
 	var service = {
 	    broadcastAdded : broadcastAdded,
@@ -203,7 +203,7 @@
 			});
 
 			if (favs.length) {
-			    notifications.favAdded();
+			    favsNotifications.favAdded();
 			}
 		    }
 

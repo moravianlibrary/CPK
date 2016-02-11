@@ -9,14 +9,14 @@
     	.directive('favoritesListItem', favoritesListDirective)
     	.directive('listNotEmpty', listNotEmptyDirective);
 
-    ListController.$inject = [ '$q', '$log', '$scope', 'storage', 'broadcaster', 'Favorite' ];
+    ListController.$inject = [ '$q', '$log', '$scope', 'storage', 'favsBroadcaster', 'Favorite' ];
     
     // helper private variables
     var divsAsFavs = {};
     var listEmptyDiv = undefined;    
     var listNotEmptyDiv = undefined;
 
-    function ListController($q, $log, $scope, storage, broadcaster, Favorite) {
+    function ListController($q, $log, $scope, storage, favsBroadcaster, Favorite) {
 
 	var vm = this;
 
@@ -41,7 +41,7 @@
 	});
 	
 	/**
-	 * Public function about to be called from the broadcaster when an event
+	 * Public function about to be called from the favsBroadcaster when an event
 	 * happens (meaning adding / removal of the favorite)
 	 */
 	window.__isFavCallback = function(isNew, favorite) {
@@ -122,7 +122,7 @@
 			
 			
 			// And also broadcast it's removal
-			broadcaster.broadcastRemoved(favorite);
+			favsBroadcaster.broadcastRemoved(favorite);
 			
 			return false;
 		    });

@@ -7,13 +7,13 @@
 (function() {
     angular.module('cpk', [ 'favorites' ]).controller('MainController', MainController);
 
-    MainController.$inject = [ 'broadcaster' ];
+    MainController.$inject = [ 'favsBroadcaster' ];
 
-    function MainController(broadcaster) {
+    function MainController(favsBroadcaster) {
 
 	var vm = this;
 
-	// We need to initialize broadcaster on every page ..
+	// We need to initialize injected services on every page ..
 
 	return vm;
     }
