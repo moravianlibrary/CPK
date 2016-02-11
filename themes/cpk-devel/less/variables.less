@@ -88,9 +88,8 @@
 // Bootstrap variables
 @body-bg: #EEEEEE;
 
-//== Container sizes
-//
-//## Define the maximum width of `.container` for different screen sizes.
+// Define the maximum width of `.container` for "large desktop" screen size
+@container-large-desktop:      (1220px + @grid-gutter-width);
 
-// @container-large-desktop:      1360px; //previous width
-@container-large-desktop:      (1250px + @grid-gutter-width);
+//minimum screen size for showing "large desktop" content
+@screen-lg-min:              1240px;
