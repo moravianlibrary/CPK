@@ -88,8 +88,6 @@
 	 */
 	function init() {
 
-	    var favs = sessionStorage.getItem(storage.name);
-
 	    if (isNewTab()) {
 
 		handleNewTab();
@@ -100,6 +98,8 @@
 
 	    // Listen for master changes in order if this tab was chosen ..
 	    window.addEventListener('storage', handleStorageEvent);
+
+	    sendFavsIfNeccessarry();
 	}
 
 	function handleStorageEvent(event) {
@@ -122,6 +122,9 @@
 	    } else if (event.key === 'favRemoved' && event.newValue) {
 
 		handleFavRemoved(event);
+	    } else if (event.key === 'purgeAllTabs' && event.newValue) {
+
+		storage.removeAllFavorites();
 	    }
 	}
 
@@ -168,7 +171,7 @@
 	}
 
 	/**
-	 * Returns boolean whether is this tab a new tab or not
+	 * Returns boolean whether is this tab a new tab or not.
 	 */
 	function isNewTab() {
 	    return typeof sessionStorage.tabId === 'undefined';
@@ -322,6 +325,46 @@
 		    broadcast(event.newValue, sessionStorage.getItem(storage.name));
 		}
 	    }
+	}
+
+	/**
+	 * If VuFind detected user have just logged in, it'll create
+	 * 'sendMeFavs' function returning true.
+	 * 
+	 * The point is to send sessionStorage's contents into the PHP app so
+	 * that it stores the data in more persistent way.
+	 * 
+	 * The broadcaster also broadcasts an event to clear favorites stored
+	 * within all tabs inside sessionStorage to prevent them being present
+	 * after logout.
+	 */
+	function sendFavsIfNeccessarry() {
+	    if (typeof sendMeFavs === 'function' && sendMeFavs() === true) {
+
+		storage.getFavorites().then(function(favs) {
+
+		    var data = {
+			favs : favs.map(function(fav) {
+			    return fav.toObject();
+			})
+		    };
+
+		    if (veryVerbose)
+			$log.debug('Pushing favorites on prompt ..', data);
+
+		    $.post('/AJAX/JSON?method=pushFavorites', data).always(purgeAllTabs);
+		});
+	    }
+	}
+
+	/**
+	 * Sends an broadcast to purge all favorites
+	 */
+	function purgeAllTabs() {
+
+	    broadcast('purgeAllTabs');
+
+	    storage.removeAllFavorites();
 	}
     }
 })();

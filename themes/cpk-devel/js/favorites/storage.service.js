@@ -19,6 +19,7 @@
 	var storage = {
 	    addFavorite : addFavorite,
 	    removeFavorite : removeFavorite,
+	    removeAllFavorites : removeAllFavorites,
 	    hasFavorite : hasFavorite,
 	    getFavorite : getFavorite,
 	    getFavorites : getFavorites,
@@ -95,6 +96,18 @@
 
 		call(theJob);
 
+	    });
+	}
+	
+	function removeAllFavorites() {
+	    
+	    return new Promise(function(resolve, reject) {
+
+		    favorites = [];
+		    
+		    favsNotifications.allFavsRemoved();
+		    
+		    saveFavorites().then(resolve).catch(reject);
 	    });
 	}
 	

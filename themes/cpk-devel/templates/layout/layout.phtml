@@ -103,6 +103,11 @@
               'you_have_unsaved_favorites' => 'you_have_unsaved_favorites'
           )
       );
+      
+      // Prompt 'offline' favorites to push to the server
+      if(isSeT($_ENV['justLoggedIn'])) {
+          $this->headScript()->appendScript('function sendMeFavs(){return true;}');
+      }
 
       // Session keep-alive
       if ($this->KeepAlive()) {
@@ -149,8 +154,6 @@
                                 . '__notif.sourcesRead.init('
                                 . $user->read_notifications . ') })');
                     }
-
-                    unSeT($_ENV['justLoggedIn']);
                 }
             }
         }
