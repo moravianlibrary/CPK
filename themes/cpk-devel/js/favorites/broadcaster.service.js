@@ -343,6 +343,11 @@
 
 		storage.getFavorites().then(function(favs) {
 
+		    // Do not send empty favorites ..
+		    if (favs.length === 0) {
+			return;
+		    }
+
 		    var data = {
 			favs : favs.map(function(fav) {
 			    return fav.toObject();
