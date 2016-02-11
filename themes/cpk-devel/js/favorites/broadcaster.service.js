@@ -262,7 +262,7 @@
 		becomeMaster(true);
 
 	    } else if (veryVerbose)
-		$log.debug('Still a slaveTab :/');
+		$log.debug('Being a slaveTab is nice!');
 
 	}
 
