@@ -1,7 +1,10 @@
 <span class='records-in-libraries-title'>
 	<?=$this->translate('Found in') ?>
     <?=$this->countRecords?>
-    <?=$this->translate('institutions-in-locale') ?>
+    <?= ($countRecords > 1) 
+        ? $this->translate('institutions-in-locale') 
+        : $this->translate('institution-in-locale') 
+    ?>
 </span>
 
 <div class="col-sm-12 dedupInformation">
