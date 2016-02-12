@@ -16,7 +16,7 @@
 	      <select class="col-sm-12 form-control" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
             <? if (is_array($this->hierarchicalFacets) && in_array($field, $this->hierarchicalFacets)): ?>
                 <? foreach ($list['list'] as $value): ?>
-                  <? $display = str_pad('', 4 * $value['level'] * 6, '&nbsp;', STR_PAD_LEFT) . $this->escapeHtml($value['displayText']); ?>
+                  <? $display = str_pad('', 4 * $value['level'] * 6, '&nbsp;', STR_PAD_LEFT) . $this->transEsc($value['displayText']); ?>
                   <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>><?=$display?></option>
                 <? endforeach; ?>
               	<? else: ?>
@@ -27,7 +27,7 @@
                     $sorted = array();
                     foreach ($list['list'] as $i => $value) {
                       if (!empty($value['displayText'])) {
-                        $sorted[$i] = $value['displayText'];
+                        $sorted[$i] = $this->transEsc($value['displayText']);
                       }
                     }
                     asort($sorted, SORT_LOCALE_STRING);
@@ -43,7 +43,7 @@
                 ?>
                 <? foreach ($priors as $i => $value): ?>
                   <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
-                    <?=$this->escapeHtml($value['displayText'])?>
+                    <?=$this->transEsc($value['displayText'])?>
                   </option>
                 <? endforeach; ?>
                 <? if (!empty($top) && count($priors) != count($sorted)):?>
