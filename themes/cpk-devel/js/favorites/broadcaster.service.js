@@ -357,7 +357,17 @@
 		    if (veryVerbose)
 			$log.debug('Pushing favorites on prompt ..', data);
 
-		    $.post('/AJAX/JSON?method=pushFavorites', data).always(purgeAllTabs);
+		    $.post('/AJAX/JSON?method=pushFavorites', data).always(function() {
+			
+			// Broadcast all tabs removal
+			purgeAllTabs();
+			
+			// Reload the page to see newly created favorites list
+			location.reload();
+			
+			// TODO do not reload whole page, but only the menu with angular ..
+		    });
+		    		    
 		});
 	    }
 	}
