@@ -56,15 +56,15 @@ $this->headTitle($this->driver->getBreadcrumb());
 				name="year" id="year_filter">
 				<option value="ALL"><?=$this->transEsc('All')?></option>
 				<?
-            
+
             $isFirst = true;
             foreach ($filters['year'] as $yearFilter) {
                 $yearFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $yearFilter);
-                
+
                 if ($isFirst) { // Select first year available ..
                     echo "<option value='$yearFilterEscaped' selected>$yearFilter</option>";
                     $firstYearFilter = $yearFilter;
-                    
+
                     $isFirst = false;
                 } else
                     echo "<option value='$yearFilter'>$yearFilter</option>";
@@ -79,7 +79,7 @@ $this->headTitle($this->driver->getBreadcrumb());
 				name="volume" id="volume_filter">
 				<option value="ALL"><?=$this->transEsc('All')?></option>
 				<?
-            
+
             foreach ($filters['volume'] as $volumeFilter) {
                 $volumeFilterEscaped = preg_replace('/([.:])/', '\\\${1}', $volumeFilter);
                 echo "<option value='$volumeFilterEscaped'>$volumeFilter</option>\n";
@@ -107,7 +107,7 @@ $this->headTitle($this->driver->getBreadcrumb());
 <? foreach ($holdings as $row): ?>
   <?
         $rowNo ++;
-        
+
         // Build holding ID to query ILS for status
         if (isset($row['agency_id']) && isset($row['item_id']))
             $itemId = $row['agency_id'] . ':' . $row['item_id'];
@@ -115,48 +115,48 @@ $this->headTitle($this->driver->getBreadcrumb());
             $itemId = $row['item_id'];
         else
             $itemId = false;
-            
+
             // Create link for reserve
         if (! empty($row['item_id']) && $canReserveThisInstitution) {
             $explodedItemId = explode(':', $row['item_id']);
             $row['link'] = '/Record/' . $row['id'] . '/Hold?id=' . $row['id'] . '&item_id=' . end($explodedItemId);
-            
+
             if (! empty($row['agency_id']))
                 $row['link'] .= '&agency_id=' . $row['agency_id'];
         }
-        
+
         $class = ($rowNo % 2) == 0 ? 'oddrow' : 'evenrow';
-        
+
         $attributes = '';
-        
+
         $itemStatusLabel = 'label-primary';
-        
+
         if ($itemId !== false) {
             $attributes .= 'id="' . $itemId . '" ';
         } else {
             $itemStatusLabel = false;
         }
-        
+
         if ((! empty($filters)) && ($filters !== false)) {
-            
+
             if (isset($row['year'])) {
                 // There is a year of publication available ..
                 $attributes .= 'data-year="' . $row['year'] . '" ';
-                
+
                 // Should we hide this row as it's not selected??
                 if ((! empty($firstYearFilter)) && ($firstYearFilter !== $row['year']))
                     $class .= ' hidden';
-                
+
                 // Note that if a row is hidden, then it is waiting to be showed up using any filter ..
             }
-            
+
             if (isset($row['volume'])) {
                 $attributes .= 'data-volume="' . $row['volume'] . '" ';
             }
         }
-        
+
         $attributes .= 'class="' . $class . '" ';
-        
+
         ?>
   <tr <?=$attributes?>>
 
@@ -192,14 +192,16 @@ $this->headTitle($this->driver->getBreadcrumb());
         <?=$this->transEsc($row['duedate_status'])?>
       <?endif;?>
     </td>
-			<td data-title="<?=$this->transEsc("Department")?>">
+			<td data-title="<?=$this->transEsc("Department")?>"
+			    data-type="department">
 				<div>
         <? if(!empty($row['department'])):?>
           <?=$row['department']?>
         <? endif; ?>
       </div>
 			</td>
-			<td data-title="<?=$this->transEsc("Collection")?>">
+			<td data-title="<?=$this->transEsc("Collection")?>"
+			    data-type="collection">
 				<div>
         <? if(!empty($row['collection_desc'])):?>
           <?=$row['collection_desc']?>

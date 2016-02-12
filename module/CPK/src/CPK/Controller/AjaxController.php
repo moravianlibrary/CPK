@@ -240,6 +240,12 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['availability']))
                     $itemsStatuses[$id]['availability'] = $status['availability'];
 
+                if (! empty($status['collection']))
+                    $itemsStatuses[$id]['collection'] = $status['collection'];
+
+                if (! empty($status['department']))
+                    $itemsStatuses[$id]['department'] = $status['department'];
+
                 $key = array_search($id, $ids);
 
                 if ($key !== false)
@@ -928,9 +934,9 @@ class AjaxController extends AjaxControllerBase
             $source = $cat_username;
         } else {
             $splittedCatUsername = explode('.', $cat_username);
-            
+
             $source = $splittedCatUsername[0];
-            
+
             $cat_username = join('\.', $splittedCatUsername);
         }
 

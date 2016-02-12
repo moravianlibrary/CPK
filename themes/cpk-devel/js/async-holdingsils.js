@@ -211,6 +211,18 @@ var holdingsILS = {
 
 	    label.removeClass('label-primary').addClass(labelType);
 	}
+	
+	var collection = value.collection;
+	if (typeof collection !== 'undefined' && collection) {
+	    var collectionColumn = tableRow.children('td[data-type=collection]').first();
+	    collectionColumn.text(collection);
+	}
+	
+	var department = value.department;
+	if (typeof department !== 'undefined' && department) {
+	    var departmentColumn = tableRow.children('td[data-type=department]').first();
+	    departmentColumn.text(department);
+	}
 
 	tableRow.removeClass('loading').addClass('loaded');
 
