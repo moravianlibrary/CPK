@@ -690,29 +690,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $status = (string) $this->useXPath($response,
                 'LookupItemResponse/ItemOptionalFields/CirculationStatus')[0];
 
-            // Pick out the permanent location (TODO: better smarts for dealing with
-            // temporary locations and multi-level location names):
-
-            $locationNameInstance = $this->useXPath($response,
-                'LookupItemResponse/ItemOptionalFields/Location/LocationName/LocationNameInstance');
-
-            foreach ($locationNameInstance as $recent) {
-                // FIXME: Create config to map location abbreviations of each institute into human readable values
-
-                $locationLevel = (string) $this->useXPath($recent,
-                    'LocationNameLevel')[0];
-
-                if ($locationLevel == 4) {
-                    $department = (string) $this->useXPath($recent,
-                        'LocationNameValue')[0];
-                } else
-                    if ($locationLevel == 3) {
-                        $sublibrary = (string) $this->useXPath($recent,
-                            'LocationNameValue')[0];
-                    } else {
-                        $locationInBuilding = (string) $this->useXPath($recent,
-                            'LocationNameValue')[0];
-                    }
+            $locations = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/Location');
+            foreach ($locations as $locElement) {
+                $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
+                $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
+                if (! empty($level)) {
+                    if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
+                    if ((string) $level[0] == '2') if (! empty($locationName)) $collection = (string) $locationName[0];
+                }
             }
 
             $numberOfPieces = (string) $this->useXPath($response,
@@ -727,33 +712,16 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'LookupItemResponse/ItemOptionalFields/DateDue');
             $dueDate = $this->parseDate($dueDate);
 
-            // TODO Exists any clean way to get the due date without additional request?
-
-            if (! empty($locationInBuilding))
-                $onStock = substr($locationInBuilding, 0, 5) == 'Stock';
-            else
-                $onStock = false;
-
-            $onStock = true;
-
-            $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
-
-            $monthLoanPeriod = ($itemRestriction ==
-                 'Limited Circulation, Normal Loan Period') || empty(
-                    $itemRestriction);
-
-            // FIXME: Add link logic
-            $link = false;
-
             $label = $this->determineLabel($status);
 
             return array(
                 'id' => empty($id) ? "" : $id,
                 'availability' => empty($itemRestriction) ? "" : $itemRestriction,
                 'status' => empty($status) ? "" : $status,
-                'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
-                'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
-                'department' => empty($department) ? '' : $department,
+                'location' => '',
+                'sub_lib_desc' => '',
+                'collection' => isset($collection) ? $collection : '',
+                'department' => isset($department) ? $department : '',
                 'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
                 'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
                 'item_id' => empty($id) ? "" : $id,
