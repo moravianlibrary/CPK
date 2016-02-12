@@ -625,6 +625,8 @@ class SolrMarc extends ParentSolrMarc
                 isset($params['mytags']) ? $params['mytags'] : [],
                 isset($params['notes']) ? $params['notes'] : ''
         );
+        
+        return ['listId' => $list->id];
     }
 
     /**

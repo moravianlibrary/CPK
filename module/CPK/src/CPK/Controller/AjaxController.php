@@ -40,6 +40,7 @@ use MZKCommon\Controller\AjaxController as AjaxControllerBase, VuFind\Exception\
  */
 class AjaxController extends AjaxControllerBase
 {
+    use \VuFind\Db\Table\DbTableAwareTrait;
 
     /**
      * Downloads SFX JIB content for current record.
@@ -592,6 +593,65 @@ class AjaxController extends AjaxControllerBase
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                 ],
                 self::STATUS_ERROR);
+    }
+    
+    /**
+     * Creates new list into which it saves sent favorites.
+     *
+     * @return \Zend\Http\Response
+     */
+    public function pushFavoritesAjax() {
+        
+        $favorites = $this->params()->fromPost('favs');
+        
+        // Check user is logged in ..
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            return $this->output('You are not logged in.', self::STATUS_ERROR);
+        }
+        
+        // Set DbTableManager ..
+        $this->setDbTableManager(
+            $this->getServiceLocator()->get('VuFind\DbTablePluginManager')
+        );
+        
+        $table = $this->getDbTable('UserList');
+        
+        $list = $table->getNew($user);
+        $list->title = $this->translate('transferred_favs');
+        $list->save($user);
+        
+        $params = [
+            'list' => $list->id
+        ];
+        
+        $recLoader = $this->getRecordLoader();
+        
+        $results = [];
+        
+        foreach ($favorites as $favorite) {
+            
+            if (! isset($favorite['title']['link'])) {
+                return $this->output('Favorite client sent to server has not title link.', self::STATUS_ERROR);
+            }
+            
+            $titleLink = $favorite['title']['link'];
+            
+            preg_match('/\/([^\/]+$)/', $titleLink, $matches);
+            
+            if (count($matches) === 0) {
+                return $this->output('Invalid title link provided.', self::STATUS_ERROR);
+            }
+            
+            $recId = $matches[1];
+            
+            $record = $recLoader->load($recId, 'Solr', false);
+            
+            $result = $record->saveToFavorites($params, $user);
+            
+            array_push($results, $result);
+        }
+        
+        return $this->output($results, self::STATUS_OK);
     }
 
     public function haveAnyOverdueAjax()
