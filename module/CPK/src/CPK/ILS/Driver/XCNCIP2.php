@@ -1181,6 +1181,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
 
             $dateDue = $this->useXPath($current, 'DateDue');
+            $dueStatus =$this->hasOverdue($dateDue);
             $dateDue = $this->parseDate($dateDue);
             $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
             $renewable = empty($renewalNotPermitted)? true : false;
@@ -1220,7 +1221,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'oclc' => '',
                 'upc' => '',
                 'borrowingLocation' => '',
-                'loan_id' => $item_id
+                'loan_id' => $item_id,
+                'dueStatus' => $dueStatus
             );
         }
         return $retVal;
@@ -1814,5 +1816,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $parsedDate = empty($date) ? '' : strtotime($date[0]);
         $formattedDate = date('j. n. Y', $parsedDate);
         return $formattedDate;
+    }
+
+    protected function hasOverdue($dateDue)
+    {
+        $parsedDate = empty($dateDue) ? '' : strtotime($dateDue[0]);
+        $today_time = strtotime(date("Y-m-d"));
+        $expire_time = strtotime(date('Y-m-d', $parsedDate));
+        return ($expire_time < $today_time) ? 'overdue' : false;
     }
 }
