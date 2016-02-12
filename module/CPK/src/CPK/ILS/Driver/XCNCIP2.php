@@ -874,6 +874,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         $holdingSets = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet');
         foreach ($holdingSets as $holdingSet) {
+            $department = '';
 
             $item_id = $this->useXPath($holdingSet,
                     'ItemInformation/ItemId/ItemIdentifierValue');
@@ -883,7 +884,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             if (! empty($status) && (string) $status[0] == 'On Loan') {
                 $dueDate = $this->useXPath($holdingSet,
-                        'ItemInformation/ItemOptionalFields/DateDue');
+                        'ItemInformation/DateDue');
                 $dueDate = $this->parseDate($dueDate);
             } else {
                 $dueDate = false;
@@ -897,12 +898,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
 
+            $locations = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/Location');
+            foreach ($locations as $locElement) {
+                $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
+                $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
+                if (! empty($level)) {
+                    if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
+                }
+            }
+
             $retVal[] = array(
                 'id' => empty($bib_id) ? "" : (string) $bib_id[0],
                 'status' => empty($status) ? "" : (string) $status[0],
                 'location' => '',
                 'sub_lib_desc' => '',
-                'department' => '',
+                'department' => $department,
                 'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],
                 'item_id' => empty($item_id) ? "" : (string) $item_id[0],
                 'label' => $label,
