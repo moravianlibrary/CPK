@@ -131,7 +131,9 @@ obalky.display_cover_without_links = function (element, bibinfo, query) {
 	  
 	  $(document).ready(function() {
 		if ($(element).length > 0) {
-		  $(element).append("<div align='left' style='padding-left: 0px; width:170px; text-align:center;' class='obalky-knih-link'>"+VuFind.translate('Source')+": <a href='"+ obalky.coverTargetUrl(bibinfo) +"' class='title' target='_blank'>Obálky knih</a></div>");
+			if (!$(element+' div:first-child').hasClass("iconlabel")) {
+		    $(element).append("<div align='left' style='padding-left: 0px; width:170px; text-align:center;' class='obalky-knih-link'>"+VuFind.translate('Source')+": <a href='"+ obalky.coverTargetUrl(bibinfo) +"' class='title' target='_blank'>Obálky knih</a></div>");
+		  }
 		}
 	  });
 }
@@ -163,7 +165,9 @@ obalky.display_cover_without_links = function (element, bibinfo, query) {
 	  $(document).ready(function() {
 		  setTimeout(function() { 
 			  if ($(element).length > 0) {
-			    $(element).append("<div align='left' style='padding-left: 0px; width:170px; text-align:center;' class='obalky-knih-link'>"+VuFind.translate('Source')+": <a href='"+ obalky.coverTargetUrl(bibinfo) +"' class='title' target='_blank'>Obálky knih</a></div>");
+				if (!$(element+' div:first-child').hasClass("iconlabel")) {
+			      $(element).append("<div align='left' style='padding-left: 0px; width:170px; text-align:center;' class='obalky-knih-link'>"+VuFind.translate('Source')+": <a href='"+ obalky.coverTargetUrl(bibinfo) +"' class='title' target='_blank'>Obálky knih</a></div>");
+				}
 			  } 
 		  }, 2000);
 	  });
