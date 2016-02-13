@@ -46,23 +46,8 @@ header {
     text-align: center;
   }
   & > .navbar {
-    color: @brand-primary;
     padding-top: 30px;
     padding-bottom: 30px;
-    .navbar-header{
-      border-right: 1px solid rgb(204, 204, 204);
-      padding-right: 15px;
-    }
-    .navbar-brand {
-      margin-top: 0;
-      padding-top: 7px;
-      //logo is in square, we have to set no overflow, to avoid overflowing
-      //outside the header
-      overflow: hidden;
-    }
-    .red-box {
-      padding-bottom: 0;
-    }
     #notif_icon {
       padding-top: 14px;
       padding-bottom: 13px;
@@ -74,12 +59,30 @@ header {
   }
 }
 
-.navbar-inverse .navbar-nav > li > a {
-    color: @brand-primary;
+//styling of knihovny.cz logo
+.navbar-brand {
+  padding: 0px;
+  //logo is in square, we have to set no overflow, to avoid overflowing
+  //outside the header
+  overflow: hidden;
+  div {
+    height: 50px;
+    i {
+      cursor: pointer;
+      color: inherit;
+    }
+  }
 }
 
-.top-header {
-    background-color: #fff;
+//vertical line after knihovny.cz logo
+.navbar-header{
+  border-right: 1px solid rgb(204, 204, 204);
+  padding-right: 15px;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+  outline: none;
+  background-color: #fff;
 }
 
 .navbar{
