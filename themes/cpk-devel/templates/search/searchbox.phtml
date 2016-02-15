@@ -52,7 +52,7 @@
       <i class="fa fa-times" id="searchclear"></i>
     </div>
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
-    <button type="submit" class="btn btn-primary find-button"><i class="icon-hledani"></i> <?=$this->transEsc("Find")?></button>
+    <button type="submit" class="btn btn-primary find-button"><i class="icon-hledani"></i><span> <?=$this->transEsc("Find")?></span></button>
     <span class="adv_search_links">
         <? if ($advSearch): ?>
           <a href="<?=$this->url($advSearch) . ((isset($this->searchId) && $this->searchId) ? '?edit=' . $this->escapeHtmlAttr($this->searchId) : '') ?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>

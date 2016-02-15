@@ -36,6 +36,12 @@
   border-color: @brand-primary;
   border-radius: 0px 50px 50px 0px;
   border: 2px solid #B71B4B;
+  padding-right: 20px;
+  @media (max-width: 767px) {
+    & > span {
+      display: none;
+    }
+  }
   &:hover, &:focus {
     color: #fff;
     background-color: #b2003a;
