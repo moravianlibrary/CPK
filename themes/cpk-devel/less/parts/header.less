@@ -43,9 +43,12 @@ header {
   margin-bottom: 20px;
   background-color: #fff;
   box-shadow: 2px 2px #ccc;
-  &.frontpage {
-    background-image: url("/themes/cpk-devel/images/book-colage.png");
-    height: 492px;
+  @media (min-width: @screen-lg-min) {
+    &.frontpage {
+      background-image: url("/themes/cpk-devel/images/book-colage.png");
+      // background-position: center;
+      height: 492px;
+    }
   }
   h1,h2,h3,h4 {
     text-align: center;
