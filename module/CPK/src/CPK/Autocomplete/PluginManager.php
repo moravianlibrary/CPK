@@ -92,9 +92,12 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
             $config->Autocomplete_Types->toArray() : [];
 
         // Figure out which handler to use:
-        $titleModule    = "SolrEdgeFaceted:title_autocomplete:title_str";
-        $authorModule   = "SolrEdgeFaceted:author_autocomplete:authorStr";
-        $subjectModule  = "Solr:Subject:topic,genre,geographic,era";
+        // Handler
+        // solr field with "text_autocomplete" type
+        // solr field with "string" type that is exactly equal to previous one
+        $titleModule   = "SolrEdgeFaceted:title_autocomplete:title_str";
+        $authorModule  = "SolrEdgeFaceted:author_autocomplete:author_str_mv";
+        $subjectModule = "SolrEdgeFaceted:subject_autocomplete:subject_str_mv";
 
         // Get suggestions:
         if ($titleModule) {
