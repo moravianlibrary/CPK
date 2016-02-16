@@ -239,7 +239,8 @@ class AjaxController extends AjaxControllerBase
                     $itemsStatuses[$id]['addLink'] = $status['addLink'];
 
                 if (! empty($status['availability']))
-                    $itemsStatuses[$id]['availability'] = $status['availability'];
+                    $itemsStatuses[$id]['availability'] = $viewRend->transEsc(
+                            'availability_' . $status['availability'], null, $status['availability']);
 
                 if (! empty($status['collection']))
                     $itemsStatuses[$id]['collection'] = $status['collection'];
@@ -594,63 +595,63 @@ class AjaxController extends AjaxControllerBase
                 ],
                 self::STATUS_ERROR);
     }
-    
+
     /**
      * Creates new list into which it saves sent favorites.
      *
      * @return \Zend\Http\Response
      */
     public function pushFavoritesAjax() {
-        
+
         $favorites = $this->params()->fromPost('favs');
-        
+
         // Check user is logged in ..
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
-        
+
         // Set DbTableManager ..
         $this->setDbTableManager(
             $this->getServiceLocator()->get('VuFind\DbTablePluginManager')
         );
-        
+
         $table = $this->getDbTable('UserList');
-        
+
         $list = $table->getNew($user);
         $list->title = $this->translate('transferred_favs');
         $list->save($user);
-        
+
         $params = [
             'list' => $list->id
         ];
-        
+
         $recLoader = $this->getRecordLoader();
-        
+
         $results = [];
-        
+
         foreach ($favorites as $favorite) {
-            
+
             if (! isset($favorite['title']['link'])) {
                 return $this->output('Favorite client sent to server has not title link.', self::STATUS_ERROR);
             }
-            
+
             $titleLink = $favorite['title']['link'];
-            
+
             preg_match('/\/([^\/]+$)/', $titleLink, $matches);
-            
+
             if (count($matches) === 0) {
                 return $this->output('Invalid title link provided.', self::STATUS_ERROR);
             }
-            
+
             $recId = $matches[1];
-            
+
             $record = $recLoader->load($recId, 'Solr', false);
-            
+
             $result = $record->saveToFavorites($params, $user);
-            
+
             array_push($results, $result);
         }
-        
+
         return $this->output($results, self::STATUS_OK);
     }
 
@@ -1099,7 +1100,7 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output($statusCode, self::STATUS_ERROR);
     }
-    
+
     /**
      * Get citation
      *
@@ -1109,18 +1110,18 @@ class AjaxController extends AjaxControllerBase
     {
         $recordId = $this->params()->fromPost('recordId');
         $changedCitationValue = $this->params()->fromPost('citationValue');
-        
+
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         $recordDriver = $recordLoader->load($recordId);
-    
+
         $parentRecordId = $recordDriver->getParentRecordId();
         $parentRecordDriver = $recordLoader->load($parentRecordId);
-    
+
         $format = $parentRecordDriver->getRecordType();
         if ($format === 'marc')
             $format .= '21';
             $recordXml = $parentRecordDriver->getXml($format);
-    
+
         if (strpos($recordXml, "datafield") === false)
             return $this->output($statusCode, self::STATUS_ERROR);
 
@@ -1149,13 +1150,13 @@ class AjaxController extends AjaxControllerBase
         $statusCode = get_headers($citationServerUrl)[0];
 
         if ($statusCode === 'HTTP/1.1 200 OK') {
-            
+
             $ch = curl_init($citationServerUrl);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
             $html = curl_exec($ch);
             curl_close($ch);
-            
+
             $doc = new \DOMDocument();
             $doc->loadHTML($html);
 
@@ -1168,9 +1169,9 @@ class AjaxController extends AjaxControllerBase
 
                 return $this->output($citation, self::STATUS_OK);
             }
-            
+
         }
-        
+
         return $this->output('false', self::STATUS_ERROR);
     }
 

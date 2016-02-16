@@ -212,6 +212,12 @@ var holdingsILS = {
 	    label.removeClass('label-primary').addClass(labelType);
 	}
 	
+	var availability = value.availability;
+	if (typeof availability !== 'undefined' && availability) {
+	    var availabilityColumn = tableRow.children('td[data-type=availability]').first();
+	    availabilityColumn.text(availability);
+	}
+	
 	var collection = value.collection;
 	if (typeof collection !== 'undefined' && collection) {
 	    var collectionColumn = tableRow.children('td[data-type=collection]').first();

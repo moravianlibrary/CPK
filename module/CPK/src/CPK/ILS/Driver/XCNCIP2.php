@@ -893,7 +893,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $holdQueue = $this->useXPath($holdingSet,
                     'ItemInformation/ItemOptionalFields/HoldQueueLength');
 
-            $itemRestrictions = $this->useXPath($holdingSet,
+            $itemRestriction = $this->useXPath($holdingSet,
                     'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
 
             $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
@@ -959,7 +959,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $holdQueue = $this->useXPath($itemInformation,
                     'ItemOptionalFields/HoldQueueLength');
 
-            $itemRestrictions = $this->useXPath($itemInformation,
+            $itemRestriction = $this->useXPath($itemInformation,
                     'ItemOptionalFields/ItemUseRestrictionType');
 
             $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
@@ -976,6 +976,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $retVal[] = array(
                 'id' => empty($bib_id) ? "" : (string) $bib_id[0],
+                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
                 'status' => empty($status) ? "" : (string) $status[0],
                 'location' => '',
                 'collection' => $collection,
