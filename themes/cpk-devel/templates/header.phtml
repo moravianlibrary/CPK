@@ -6,6 +6,11 @@
   <a class="navbar-brand lang-<?=$this->layout()->userLang ?>" href="<?=$this->url('home')?>" style="padding: 0px;">
     <div href="#"><i class="fa knihovny-logo"></i></div>
 	</a>
+  <a class="beta-logo" title="<?=$this->translate('Changelog')?>"
+    data-toggle="tooltip" data-placement="top"
+    href="<?=$this->translate('beta_changelog_link')?>">
+    <?=$this->translate('beta_tag')?>
+  </a>
 </div>
 <? if (!isset($this->layout()->renderingError)): ?>
   <div class="collapse navbar-collapse" id="header-collapse">
