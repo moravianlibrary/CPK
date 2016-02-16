@@ -103,11 +103,11 @@
 			<li id="loginOptions">
               <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
                 <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i
-				  class="icon-prihlasit"></i> <?=$this->transEsc("Institutional Login")?></a>
+				  class="pr-user-passwordlock"></i> <?=$this->transEsc("Institutional Login")?></a>
               <? else: ?>
                 <a href="<?=$this->url('myresearch-userlogin')?>"
                   class="modal-link" title="<?=$this->transEsc("Login")?>"><i
-                  class="icon-prihlasit"></i> <?=$this->transEsc("Login")?></a>
+                  class="pr-user-passwordlock"></i> <?=$this->transEsc("Login")?></a>
               <? endif; ?>
             <? endif; ?>
             </li>
