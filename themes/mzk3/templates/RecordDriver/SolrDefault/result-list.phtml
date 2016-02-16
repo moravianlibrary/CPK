@@ -89,7 +89,7 @@
          <? endif; ?>
         <br/>
       <? endif; ?>
-      
+
       <div>
         <? if ($this->driver->supportsAjaxStatus()): ?>
           <?=$this->transEsc('Availability')?> :
@@ -120,12 +120,12 @@
           <? endforeach; ?>
         <? endif; ?>
       <? endif; ?>
-      
+
       <?=$this->record($this->driver)->getPreviews()?>
     </div>
   </div>
 
-  <div class="span2 right noprint">
+  <div class="col-sm-2 right hidden-print">
     <? /* Display qrcode if appropriate: */ ?>
     <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
       <?
@@ -137,7 +137,7 @@
         <img alt="<?=$this->transEsc('QR Code')?>" class="img-thumbnail" src="<?=$this->escapeHtml($QRCode);?>"/>
       </div><br/>
     <? endif; ?>
-    
+
     <? /* Add to favorites */ ?>
     <i class="fa fa-fw fa-star"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" data-id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
 
