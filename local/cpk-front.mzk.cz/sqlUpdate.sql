@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS `portal_pages` (
   `position` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
   `order_priority` tinyint(4) NOT NULL,
   `last_modified_timestamp` datetime NOT NULL,
-  `last_modified_user_id` int(11) NOT NULL
+  `last_modified_user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `title` (`title`),
