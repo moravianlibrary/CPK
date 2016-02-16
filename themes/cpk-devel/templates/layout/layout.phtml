@@ -103,7 +103,7 @@
               'you_have_unsaved_favorites' => 'you_have_unsaved_favorites'
           )
       );
-      
+
       // Prompt 'offline' favorites to push to the server
       if(isSeT($_ENV['justLoggedIn'])) {
           $this->headScript()->appendScript('function sendMeFavs(){return true;}');
@@ -191,7 +191,7 @@
         $this->layout()->searchbox = $this->render('search/searchbox.phtml');
       }
     ?>
-    <header class="hidden-print header-container">
+    <header class="hidden-print header-container <?=($this->layout()->frontpage == true)?'frontpage':''?>">
       <div class="container navbar">
 	<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
         <?=$this->render('header.phtml', $headerParams)?>
