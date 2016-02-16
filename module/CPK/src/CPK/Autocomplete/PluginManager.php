@@ -90,7 +90,7 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
             ->get($options->getSearchIni());
         $types = isset($config->Autocomplete_Types) ?
             $config->Autocomplete_Types->toArray() : [];
-
+            
         // Figure out which handler to use:
         // Handler
         // solr field with "text_autocomplete" type
@@ -127,7 +127,7 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
                 $subjectModule .= ':'; // force colon to avoid warning in explode below
             }
             list($subjectName, $subjectParams) = explode(':', $subjectModule, 2);
-            $subjectHandler = $this->get($subjectName);
+            $subjectHandler = clone $this->get($subjectName);
             $subjectHandler->setConfig($subjectParams);
         }
         

@@ -314,7 +314,7 @@
       hidingClass: 'hidden',
       highlight: true,
       loadingString: 'Loading...',
-      maxResults: 20,
+      maxResults: 15,
       minLength: 3
     };
     $.fn.autocomplete.ajax = function(ops) {

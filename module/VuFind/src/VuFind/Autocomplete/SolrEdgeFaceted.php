@@ -76,13 +76,18 @@ class SolrEdgeFaceted implements AutocompleteInterface
 
         $results = array();
         try {
+            $this->searchObject->getParams()->setBasicSearch(
+                $this->mungeQuery($query), $this->facetField
+            );
             $params = $this->searchObject->getParams();
             $options = $this->searchObject->getOptions();
-            $rawQuery = $this->autocompleteField . ':(' . $this->mungeQuery($query) . ')';
-            $options->addHiddenFilter($rawQuery);
+            /*$rawQuery = $this->autocompleteField . ':(' . $this->mungeQuery($query) . ')';
+            $options->addHiddenFilter($rawQuery);*/
             $params->addFacet($this->facetField);
             $params->setLimit(0);
-            $params->setFacetLimit(10);
+            $params->setFacetLimit(25);
+            $this->searchObject->getParams()->setSort($this->facetField);
+            $results = $this->searchObject->getResults();
             $facets = $this->searchObject->getFacetList();
             if (isset($facets[$this->facetField]['list'])) {
                 foreach ($facets[$this->facetField]['list'] as $filter) {
