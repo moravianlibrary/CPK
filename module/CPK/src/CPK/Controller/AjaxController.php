@@ -254,9 +254,16 @@ class AjaxController extends AjaxControllerBase
                     unset($ids[$key]);
             }
 
-            if (isset($ids) && count($ids) > 0) {
+            if ($nextItemToken) {
                 $retVal['remaining'] = $ids;
                 $retVal['next_item_token'] = $nextItemToken;
+            }
+            else {
+               foreach ($ids as $id) {
+                   $itemsStatuses[$id]['availability'] = $viewRend->transEsc('availability_Not For Loan');
+                   $itemsStatuses[$id]['status'] = $viewRend->transEsc('status_Unknown Status');
+                   $itemsStatuses[$id]['label'] = 'label-unknown';
+               }
             }
 
             $retVal['statuses'] = $itemsStatuses;
