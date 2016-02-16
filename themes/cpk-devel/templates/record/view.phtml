@@ -32,6 +32,13 @@
     ? '?fromSearchId='.htmlspecialchars($_GET['fromSearchId'])
     : '';
 ?>
+
+<script>
+	jQuery( document ).ready(function( $ ){
+		getCitation( '<?=$this->driver->getUniqueID()?>', false, insertCitation );
+	})
+</script>
+
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
   <ul class="pager hidden-print">
@@ -69,12 +76,23 @@
             <h4 class="modal-title" id="citationsLabel"><?=$this->translate('Citations')?></h4>
           </div>
           <div class="modal-body">
-            <div class='citations-iframe-holder' style='background:url("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-modal/2.2.6/img/ajax-loader.gif") center center no-repeat;'>
-            	<iframe src="https://www.citacepro.com/api/cpk/citace/<?=$this->driver->getUniqueID()?>?server=<?=$_SERVER['SERVER_NAME']?>&citacniStyl=<?=$preferredCitationStyle?>"
-        		frameborder="0" width="100%" height="110">
-        		</iframe>
-        	</div>
-          </div>
+              <div class='citation-loader row'>
+                <div class='col-sm-12 text-center'>
+              	  <i class="fa fa-2x fa-spinner fa-spin"></i>
+              	</div>
+              </div>
+			  <div id='citation-placeholder'></div>
+			  <div id='citation-style-selector'>
+			    <select class='style' id='record_<?=$id?>'>
+			      <? foreach($this->availableCitationStyles as $style): ?>
+			      <option value='<?=$style['value']?>'<?= ($style['value'] === $this->selectedCitationStyle) ? 'selected="selected"' : '' ?>><?=$style['description']?></option>
+			      <? endforeach; ?>
+			    </select>
+			    <a href="http://www.citacepro.com/nacist-dokument-sysno/<?=$id?>?katalog=cpk" target="_blank">
+			      <img src="http://www.citacepro.com/logoCitacePROkatalog.png" alt="Citace PRO">
+			    </a>
+			  </div>      
+		  </div>    	
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
           </div>
@@ -169,8 +187,6 @@
             </script>
 		</div>
     
-
-
     </div>
     <div class='col-sm-3'>
       <?= $this->render('RecordDriver/SolrDefault/record-sidebar.phtml'); ?>

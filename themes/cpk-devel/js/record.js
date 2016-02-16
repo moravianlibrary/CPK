@@ -398,7 +398,20 @@ function recordDocReady() {
 }
 
 /**
- * Is citation available
+ * Dispay citation
+ * 
+ * @author	Martin Kravec <martin.kravec@mzk.cz>
+ * 
+ * @return	{undefined}
+ */
+function displayCitationLink() {
+	jQuery( '#citace-pro > a' ).addClass( 'citations-link' );
+	jQuery( '#citace-pro > a' ).removeClass( 'disabled-link' );
+	jQuery( '#citation-link-spinner' ).addClass( 'hidden' );
+}
+
+/**
+ * Get citation
  * 
  * @author	Martin Kravec <martin.kravec@mzk.cz>
  * 
@@ -406,20 +419,25 @@ function recordDocReady() {
  * @param	{function}	callback
  * @return	{undefined}
  */
-function isCitationAvailable( recordId, callback ) {
-	jQuery.ajax({
+function getCitation( recordId, citationValue = false , callback ) {
+	$( '.citation-loader' ).removeClass( 'hidden' );
+	$( '#citation-style-selector' ).addClass( 'hidden' );
+	$( '#citation-placeholder' ).addClass( 'hidden' );
+	$.ajax({
 		dataType: 'json',
 		async: true,
 		type: 'POST',
-		url: '/AJAX/JSON?method=isCitationAvailable',
-		data: { recordId: recordId },
+		url: '/AJAX/JSON?method=getCitation',
+		data: { recordId: recordId, citationValue: citationValue },
 		success: function( result ) {
 			if( result.status !== 'OK' ) {
-				// display the error message on each of the ajax status place holder
 				$( "#ajax-error-info" ).empty().append( result.data );
 				
 			} else {
-				callback();	
+				callback( result.data );
+				displayCitationLink();
+				$( '.citation-loader' ).addClass( 'hidden' );
+				$( '#citation-placeholder' ).removeClass( 'hidden' );
 			}
 		},
 		fail: function( jqXHR, textStatus ) {
@@ -429,12 +447,20 @@ function isCitationAvailable( recordId, callback ) {
 };
 
 /**
- * Dispay citation
+ * Insert citation
  * 
  * @author	Martin Kravec <martin.kravec@mzk.cz>
  * 
  * @return	{undefined}
  */
-function displayCitation() {
-	jQuery( '#citace-pro' ).removeClass( 'hidden' );
+function insertCitation( citation ) {
+	jQuery( '#citation-placeholder' ).html( citation );
+	$( '#citation-style-selector' ).removeClass( 'hidden' );
 }
+
+jQuery( document ).ready( function( $ ) {
+	$( '.style' ).on( 'change', function() {
+		var recordId = $( this ).attr( 'id' ).replace( 'record_', '' );
+		getCitation( recordId, $( this ).val(), insertCitation);
+	});
+});

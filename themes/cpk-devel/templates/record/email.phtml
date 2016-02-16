@@ -7,13 +7,13 @@
     . '<li class="active">' . $this->transEsc('Email Record') . '</li>';
 ?>
 <?=$this->flashmessages()?>
-<form class="form-horizontal" method="post" name="emailRecord">
+<form action='' class="form-horizontal" method="post" name="emailRecord">
   <input type="hidden" name="id" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" />
   <input type="hidden" name="source" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" />
   <div class="control-group">
-    <label class="control-label" for="email_to"><?=$this->transEsc('Email to')?>:</label>
+    <label class="control-label" for="email_to"><?=$this->transEsc('Email to')?>:*</label>
     <div class="controls">
-      <input type="email" id="email_to" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="to" value="<?=isset($this->to) ? $this->to : ''?>"/>
+      <input type="email" id="email_to" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="to" value="<?=isset($this->to) ? $this->to : ''?>" required/>
     </div>
   </div>
   <? if (!$this->disableFrom): ?>

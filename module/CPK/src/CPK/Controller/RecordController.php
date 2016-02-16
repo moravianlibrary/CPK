@@ -117,19 +117,8 @@ class RecordController extends RecordControllerBase
                 $view->$varName = $field7xx;
             }
         }
-
-        // Set preferred citation style
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
-            $view->preferredCitationStyle = $this->getConfig()
-                ->Record->default_citation_style;
-        } else {
-            $userSettingsTable = $this->getTable("usersettings");
-            $citationStyleTable = $this->getTable("citationstyle");
-            $preferredCitationStyleId = $userSettingsTable
-                ->getUserCitationStyle($user);
-            $view->preferredCitationStyle = $citationStyleTable
-                ->getCitationValueById($preferredCitationStyleId);
-        }
+        
+        $user = $this->getAuthManager()->isLoggedIn();
         
         $view->isLoggedIn = $user;
         $view->offlineFavoritesEnabled = false;
@@ -138,7 +127,34 @@ class RecordController extends RecordControllerBase
             $view->offlineFavoritesEnabled = (bool) $this->getConfig()->Site['offlineFavoritesEnabled'];
         }
         
+        /* Citation style fieldset */
+        $citationStyleTable = $this->getTable('citationstyle');
+        $availableCitationStyles = $citationStyleTable->getAllStyles();
+        
+        $defaultCitationStyleValue = $this->getConfig()->Record->default_citation_style;
+        
+        foreach ($availableCitationStyles as $style) {
+            if ($style['value'] === $defaultCitationStyleValue) {
+                $defaultCitationStyle = $style['value'];
+                break;
+            }
+        }
+        
+        $userSettingsTable = $this->getTable("usersettings");
+        
+        if ($user = $this->getAuthManager()->isLoggedIn()) {
+            $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
+        }
+        
+        $selectedCitationStyle = (! empty($preferedCitationStyle))
+        ? $preferedCitationStyle
+        : $defaultCitationStyle;
+        
+        $view->selectedCitationStyle = $selectedCitationStyle;
+
+        $view->availableCitationStyles = $availableCitationStyles;
         //
+        
         $view->config = $this->getConfig();
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');

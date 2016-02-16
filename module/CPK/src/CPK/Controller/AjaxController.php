@@ -1093,10 +1093,85 @@ class AjaxController extends AjaxControllerBase
 
         $statusCode = get_headers($citationServerUrl)[0];
 
-        if ($statusCode === 'HTTP/1.1 200 OK')
+        if ($statusCode === 'HTTP/1.1 200 OK') {
             return $this->output($statusCode, self::STATUS_OK);
+        }
 
         return $this->output($statusCode, self::STATUS_ERROR);
+    }
+    
+    /**
+     * Get citation
+     *
+     * @return string
+     */
+    public function getCitationAjax()
+    {
+        $recordId = $this->params()->fromPost('recordId');
+        $changedCitationValue = $this->params()->fromPost('citationValue');
+        
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordId);
+    
+        $parentRecordId = $recordDriver->getParentRecordId();
+        $parentRecordDriver = $recordLoader->load($parentRecordId);
+    
+        $format = $parentRecordDriver->getRecordType();
+        if ($format === 'marc')
+            $format .= '21';
+            $recordXml = $parentRecordDriver->getXml($format);
+    
+        if (strpos($recordXml, "datafield") === false)
+            return $this->output($statusCode, self::STATUS_ERROR);
+
+        // Set preferred citation style
+        if ($changedCitationValue == 'false') {
+            if (! $user = $this->getAuthManager()->isLoggedIn()) {
+                $preferredCitationStyle = $this->getConfig()
+                ->Record->default_citation_style;
+            } else {
+                $userSettingsTable = $this->getTable("usersettings");
+                $citationStyleTable = $this->getTable("citationstyle");
+                $preferredCitationStyleId = $userSettingsTable
+                ->getUserCitationStyle($user);
+                $preferredCitationStyle = $citationStyleTable
+                ->getCitationValueById($preferredCitationStyleId);
+            }
+        } else {
+            $preferredCitationStyle = $changedCitationValue;
+        }
+
+        $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
+            .$recordId
+            ."?server=".$_SERVER['SERVER_NAME']
+            ."&citacniStyl=".$preferredCitationStyle;
+
+        $statusCode = get_headers($citationServerUrl)[0];
+
+        if ($statusCode === 'HTTP/1.1 200 OK') {
+            
+            $ch = curl_init($citationServerUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+            $html = curl_exec($ch);
+            curl_close($ch);
+            
+            $doc = new \DOMDocument();
+            $doc->loadHTML($html);
+
+            $xpath = new \DOMXPath($doc);
+
+            $results = $xpath->query('//*[@id="citace"]');
+
+            if (! empty($results)) {
+                $citation = $results->item(0)->nodeValue;
+
+                return $this->output($citation, self::STATUS_OK);
+            }
+            
+        }
+        
+        return $this->output('false', self::STATUS_ERROR);
     }
 
     /**
