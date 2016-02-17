@@ -306,12 +306,13 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
             if ($this->formWasSubmitted('submit', $view->useRecaptcha)) {
                 // Attempt to send the email and show an appropriate flash message:
                 try {
+                    $subject = $driver->getTitle();
                     $cc = $this->params()->fromPost('ccself') && $view->from != $view->to
                     ? $view->from : null;
                     $mailer->sendRecord(
                         $view->to, $view->from, $view->message, $driver,
                         $this->getViewRenderer(),
-                        $this->driver['title_display'],
+                        $subject,
                         $cc, 
                         $this->translate('Central Library Portal')
                     );
