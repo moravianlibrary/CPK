@@ -144,7 +144,8 @@ class SearchController extends AbstractSearch
 	                ? $view->from : null;
 	                $mailer->sendLink(
 	                    $view->to, $view->from, $view->message,
-	                    $view->url, $this->getViewRenderer(), $view->subject, $cc
+	                    $view->url, $this->getViewRenderer(), $view->subject, $cc,
+	                    $this->translate('Central Library Portal')
 	                    );
 	                $this->flashMessenger()->addMessage('email_success', 'success');
 	                return $this->redirect()->toUrl($view->url);
