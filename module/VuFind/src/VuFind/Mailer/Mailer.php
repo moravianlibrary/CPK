@@ -189,16 +189,12 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
             $message = $this->getNewMessage()
                 ->addTo($to)
                 ->setBody($body)
-                ->setSubject($subject);
-            if ($this->from == null) {
-                if($fromName != null) {
-                    $message->addFrom($from, $fromName);
-                } else {
-                    $message->addFrom($from);
-                }
+                ->setSubject($subject)
+                ->setReplyTo($from);
+            if($fromName != null) {
+                $message->addFrom($from, $fromName);
             } else {
-                $message->setReplyTo($from);
-                $message->addFrom($this->from, $this->translate('Central Library Portal'));
+                $message->addFrom($from);
             }
             if ($cc !== null) {
                 $message->addCc($cc);
@@ -268,7 +264,7 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
      * @return void
      */
     public function sendRecord($to, $from, $msg, $record, $view, $subject = null,
-        $cc = null, $fromName
+        $cc = null, $fromName = null
     ) {
         if (null === $subject) {
             $subject = $this->getDefaultRecordSubject($record);
