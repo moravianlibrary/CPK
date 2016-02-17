@@ -26,7 +26,9 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:autosuggesters Wiki
  */
-namespace VuFind\Autocomplete;
+namespace CPK\Autocomplete;
+
+use \VuFind\Autocomplete\SolrEdgeFaceted as ParentSolrEdgeFaceted;
 
 /**
  * Solr Edge Faceted Autocomplete Module
@@ -39,25 +41,8 @@ namespace VuFind\Autocomplete;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:autosuggesters Wiki
  */
-class SolrEdgeFaceted implements AutocompleteInterface
+class SolrEdgeFaceted extends ParentSolrEdgeFaceted
 {
-
-    protected $searchClassId = 'Solr';
-
-    protected $autocompleteField;
-
-    protected $facetField;
-
-    /**
-     * Constructor
-     *
-     * @param \VuFind\Search\Results\PluginManager $results Results plugin manager
-     */
-    public function __construct(\VuFind\Search\Results\PluginManager $results)
-    {
-        $this->resultsManager = $results;
-    }
-
     /**
      * getSuggestions
      *
@@ -76,13 +61,18 @@ class SolrEdgeFaceted implements AutocompleteInterface
 
         $results = array();
         try {
+            $this->searchObject->getParams()->setBasicSearch(
+                $this->mungeQuery($query), $this->facetField
+            );
             $params = $this->searchObject->getParams();
             $options = $this->searchObject->getOptions();
-            $rawQuery = $this->autocompleteField . ':(' . $this->mungeQuery($query) . ')';
-            $options->addHiddenFilter($rawQuery);
+            /*$rawQuery = $this->autocompleteField . ':(' . $this->mungeQuery($query) . ')';
+            $options->addHiddenFilter($rawQuery);*/
             $params->addFacet($this->facetField);
             $params->setLimit(0);
-            $params->setFacetLimit(10);
+            $params->setFacetLimit(25);
+            $this->searchObject->getParams()->setSort($this->facetField);
+            $results = $this->searchObject->getResults();
             $facets = $this->searchObject->getFacetList();
             if (isset($facets[$this->facetField]['list'])) {
                 foreach ($facets[$this->facetField]['list'] as $filter) {
@@ -94,41 +84,4 @@ class SolrEdgeFaceted implements AutocompleteInterface
         }
         return array_unique($results);
     }
-
-    protected function mungeQuery($query) {
-        $forbidden = array(':', '(', ')', '*', '+', '"');
-        return str_replace($forbidden, " ", $query);
-    }
-
-    /**
-     * setConfig
-     *
-     * Set parameters that affect the behavior of the autocomplete handler.
-     * These values normally come from the search configuration file.
-     *
-     * @param string $params Parameters to set
-     *
-     * @return void
-     */
-    public function setConfig($params)
-    {
-        list($this->autocompleteField, $this->facetField) = explode(':', $params, 2);
-        $this->initSearchObject();
-    }
-
-    /**
-     * initSearchObject
-     *
-     * Initialize the search object used for finding recommendations.
-     *
-     * @return void
-     */
-    protected function initSearchObject()
-    {
-        // Build a new search object:
-        $this->searchObject = $this->resultsManager->get($this->searchClassId);
-        $this->searchObject->getOptions()->spellcheckEnabled(false);
-        $this->searchObject->getOptions()->disableHighlighting();
-    }
-
 }

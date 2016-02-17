@@ -76,6 +76,11 @@ $config = array(
                     'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
                 ), /* factories */
             ], /* ils_driver */
+                'autocomplete' => [
+                    'factories' => [
+                        'solredgefaceted' => 'CPK\Autocomplete\Factory::getSolrEdgeFaceted'
+                    ],
+            ],
         ), /* plugin_managers */
 
         // This section controls which tabs are used for which record driver classes.
