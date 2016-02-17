@@ -112,7 +112,7 @@ class Search extends Gateway
     {
         $row = $this->select(['id' => $id])->current();
         if (empty($row) && $exceptionIfMissing) {
-            throw new \Exception('Cannot find id ' . htmlspecialchars($id));
+            throw new \Exception('Cannot find id ' . $id);
         }
         return $row;
     }
