@@ -217,12 +217,13 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
      * email templates)
      * @param string                          $subject Subject for email (optional)
      * @param string                          $cc      CC recipient (null for none)
+     * @param string                          $fromName   From name
      *
      * @throws MailException
      * @return void
      */
     public function sendLink($to, $from, $msg, $url, $view, $subject = null,
-        $cc = null
+        $cc = null, $fromName = null
     ) {
         if (null === $subject) {
             $subject = $this->getDefaultLinkSubject();
@@ -233,7 +234,7 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
                 'msgUrl' => $url, 'to' => $to, 'from' => $from, 'message' => $msg
             ]
         );
-        return $this->send($to, $from, $subject, $body, $cc);
+        return $this->send($to, $from, $subject, $body, $cc, $fromName);
     }
 
     /**
