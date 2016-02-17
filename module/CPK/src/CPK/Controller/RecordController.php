@@ -310,7 +310,9 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
                     ? $view->from : null;
                     $mailer->sendRecord(
                         $view->to, $view->from, $view->message, $driver,
-                        $this->getViewRenderer(), $view->subject, $cc, 
+                        $this->getViewRenderer(),
+                        $this->driver['title_display'],
+                        $cc, 
                         $this->translate('Central Library Portal')
                     );
                     $this->flashMessenger()->addMessage('email_success', 'success');
