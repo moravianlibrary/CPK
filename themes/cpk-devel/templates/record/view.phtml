@@ -99,8 +99,8 @@
         </div>
       </div>
     </div>
-			<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
+			<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
 			<div class="well">
             <? if (count($this->tabs) > 0): ?>
               <a name="tabnav"></a>
