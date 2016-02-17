@@ -69,7 +69,10 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
      *
      * @param \Zend\Mail\Transport\TransportInterface $transport Mail transport
      */
-    public function __construct(\Zend\Mail\Transport\TransportInterface $transport, \Zend\Config\Config $config)
+    public function __construct(
+        \Zend\Mail\Transport\TransportInterface $transport,
+        \Zend\Config\Config $config
+    )
     {
         $this->setTransport($transport);
         if (isset($config->Mail->from)) {
@@ -140,16 +143,24 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
     /**
      * Send an email message.
      *
-     * @param string $to      Recipient email address (or delimited list)
-     * @param string $from    Sender email address
-     * @param string $subject Subject line for message
-     * @param string $body    Message body
-     * @param string $cc      CC recipient (null for none)
+     * @param string $to        Recipient email address (or delimited list)
+     * @param string $from      Sender email address
+     * @param string $subject   Subject line for message
+     * @param string $body      Message body
+     * @param string $cc        CC recipient (null for none)
+     * @param string $fromName  From name
      *
      * @throws MailException
      * @return void
      */
-    public function send($to, $from, $subject, $body, $cc = null)
+    public function send(
+        $to,
+        $from,
+        $subject,
+        $body,
+        $cc = null,
+        $fromName = null
+    )
     {
         $recipients = $this->stringToAddressList($to);
 
@@ -180,10 +191,14 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
                 ->setBody($body)
                 ->setSubject($subject);
             if ($this->from == null) {
-                $message->addFrom($from);
+                if($fromName != null) {
+                    $message->addFrom($from, $fromName);
+                } else {
+                    $message->addFrom($from);
+                }
             } else {
                 $message->setReplyTo($from);
-                $message->addFrom($this->from);
+                $message->addFrom($this->from, $this->translate('Central Library Portal'));
             }
             if ($cc !== null) {
                 $message->addCc($cc);
@@ -247,12 +262,13 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
      * email templates)
      * @param string                            $subject Subject for email (optional)
      * @param string                            $cc      CC recipient (null for none)
+     * @param string                            $fromName   From name
      *
      * @throws MailException
      * @return void
      */
     public function sendRecord($to, $from, $msg, $record, $view, $subject = null,
-        $cc = null
+        $cc = null, $fromName
     ) {
         if (null === $subject) {
             $subject = $this->getDefaultRecordSubject($record);
@@ -263,7 +279,7 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
                 'driver' => $record, 'to' => $to, 'from' => $from, 'message' => $msg
             ]
         );
-        return $this->send($to, $from, $subject, $body, $cc);
+        return $this->send($to, $from, $subject, $body, $cc, $fromName);
     }
 
     /**
