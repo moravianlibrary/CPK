@@ -730,7 +730,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'addStorageRetrievalRequestLink' => "",
                 'addILLRequestLink' => "",
                 'addLink' => true, // TODO
-                'duedate' => empty($dueDate) ? '' : $dueDate
+                'duedate' => empty($dueDate) ? '' : $dueDate,
+                'usedGetStatus' => true
             );
         }
     }
@@ -872,6 +873,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $bib_id = $this->useXPath($response,
                 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
 
+        $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
+
         $holdingSets = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet');
         foreach ($holdingSets as $holdingSet) {
             $department = '';
@@ -918,7 +921,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
-                'duedate' => empty($dueDate) ? '' : $dueDate
+                'duedate' => empty($dueDate) ? '' : $dueDate,
+                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0],
+                'addLink' => true, // TODO
             );
         }
         return $retVal;
@@ -988,7 +993,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0]
+                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0],
+                'addLink' => true, // TODO
             );
         }
         return $retVal;

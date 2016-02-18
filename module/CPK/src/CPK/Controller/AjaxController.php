@@ -207,6 +207,8 @@ class AjaxController extends AjaxControllerBase
 
             if (! empty($statuses)) $nextItemToken = $statuses[0]['next_item_token'];
             else $nextItemToken = null;
+            if (! empty($statuses)) $usedGetStatus = $statuses[0]['usedGetStatus'];
+            else $usedGetStatus = null;
 
             foreach ($statuses as $status) {
                 $id = $status['item_id'];
@@ -228,9 +230,9 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['duedate']))
                     $itemsStatuses[$id]['duedate'] = $status['duedate'];
 
-                if (! empty($status['holdtype']))
+                if (! empty($status['hold_type']))
                     $itemsStatuses[$id]['holdtype'] = $viewRend->transEsc(
-                        $status['holdtype']);
+                        $status['hold_type']);
 
                 if (! empty($status['label']))
                     $itemsStatuses[$id]['label'] = $status['label'];
@@ -254,7 +256,7 @@ class AjaxController extends AjaxControllerBase
                     unset($ids[$key]);
             }
 
-            if ($nextItemToken) {
+            if ($nextItemToken || $usedGetStatus) {
                 $retVal['remaining'] = $ids;
                 $retVal['next_item_token'] = $nextItemToken;
             }
@@ -1119,7 +1121,7 @@ class AjaxController extends AjaxControllerBase
             $preferredCitationStyle = $this->getConfig()
                 ->Record->default_citation_style;
         }
-        
+
         $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
             .$recordId
             ."?server=".$_SERVER['SERVER_NAME']
