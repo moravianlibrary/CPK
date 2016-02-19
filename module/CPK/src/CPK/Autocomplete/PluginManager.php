@@ -73,9 +73,9 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
         // Process incoming parameters:
         $type = $request->get($typeParam, '');
         $query = $request->get($queryParam, '');
-        $filter = $request->get($filterParam, '');
+        $facetFilters = $request->get($filterParam, '');
         $searcher = $request->get('searcher', 'Solr');
-
+        
         // If we're using a combined search box, we need to override the searcher
         // and type settings.
         if (substr($type, 0, 7) == 'VuFind:') {
@@ -132,13 +132,13 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
         }
         
         $titleSuggestions = (isset($titleHandler) && is_object($titleHandler))
-            ? array_values($titleHandler->getSuggestions($query)) : [];
+            ? array_values($titleHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
         
         $authorSuggestions = (isset($authorHandler) && is_object($authorHandler))
-        ? array_values($authorHandler->getSuggestions($query)) : [];
+            ? array_values($authorHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
         
         $subjectSuggestions = (isset($subjectHandler) && is_object($subjectHandler))
-        ? array_values($subjectHandler->getSuggestions($query)) : [];
+            ? array_values($subjectHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
         
         $suggestions['byTitle'] = $titleSuggestions;
         $suggestions['byAuthor'] = $authorSuggestions;

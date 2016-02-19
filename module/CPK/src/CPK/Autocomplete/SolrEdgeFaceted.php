@@ -50,6 +50,7 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
      * display in the autocomplete box.
      *
      * @param string $query The user query
+     * @param array  $facetFilters User defined facets
      *
      * @return array        The suggestions for the provided query
      */
@@ -66,7 +67,9 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
                 );
             $params = $this->searchObject->getParams();
             $options = $this->searchObject->getOptions();
-
+            foreach ($facetFilters as $facetFilter) {
+                $this->searchObject->getParams()->addHiddenFilter($facetFilter);
+            }
             $params->addFacet($this->facetField);
             $params->setLimit(0);
             $params->setFacetLimit(25);
