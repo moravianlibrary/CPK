@@ -53,21 +53,66 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
      *
      * @return array        The suggestions for the provided query
      */
-    public function getSuggestions($query)
+    public function getSuggestionsWithFilters($query)
     {
         if (!is_object($this->searchObject)) {
             throw new \Exception('Please set configuration first.');
         }
-
+    
         $results = array();
         try {
             $this->searchObject->getParams()->setBasicSearch(
                 $this->mungeQuery($query), $this->facetField
-            );
+                );
             $params = $this->searchObject->getParams();
             $options = $this->searchObject->getOptions();
-            /*$rawQuery = $this->autocompleteField . ':(' . $this->mungeQuery($query) . ')';
-            $options->addHiddenFilter($rawQuery);*/
+
+            $params->addFacet($this->facetField);
+            $params->setLimit(0);
+            $params->setFacetLimit(25);
+            $this->searchObject->getParams()->setSort($this->facetField);
+            $results = $this->searchObject->getResults();
+            $facets = $this->searchObject->getFacetList();
+            if (isset($facets[$this->facetField]['list'])) {
+                foreach ($facets[$this->facetField]['list'] as $filter) {
+                    if (stripos($filter['value'], $query) !== false) {
+                        array_push($results, $filter['value']);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore errors -- just return empty results if we must.
+        }
+        return array_unique($results);
+    }
+    
+    /**
+     * Experimental autocomplete that returns also asociative results.
+     *
+     * This method returns an array of strings matching the user's query for
+     * display in the autocomplete box.
+     *
+     * @param string $query The user query
+     * @param array  $facetFilters User defined facets
+     *
+     * @return array        The suggestions for the provided query
+     */
+    public function getSomeSuggestionsWithFilters($query, array $facetFilters)
+    {
+        if (!is_object($this->searchObject)) {
+            throw new \Exception('Please set configuration first.');
+        }
+    
+        $results = array();
+        try {
+            $this->searchObject->getParams()->setBasicSearch(
+                $this->mungeQuery($query), $this->facetField
+                );
+            $params = $this->searchObject->getParams();
+            $options = $this->searchObject->getOptions();
+            foreach ($facetFilters as $facetFilter) {
+                $this->searchObject->getParams()->addHiddenFilter($facetFilter);
+            }
             $params->addFacet($this->facetField);
             $params->setLimit(0);
             $params->setFacetLimit(25);
