@@ -59,7 +59,7 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
      * type
      * @param string                  $queryParam Request parameter containing query
      * string
-     * @param string                  $filterParam Request parameter containing filters
+     * @param array                   $facetFilters
      *
      * @return array
      */
@@ -67,15 +67,13 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
         $request, 
         $typeParam = 'type', 
         $queryParam = 'q',
-        $filterParam = 'filter'
+        $facetFilters = []
     ) 
     {
         // Process incoming parameters:
         $type = $request->get($typeParam, '');
         $query = $request->get($queryParam, '');
-        $facetFilters = $request->get($filterParam, '');
         $searcher = $request->get('searcher', 'Solr');
-        
         // If we're using a combined search box, we need to override the searcher
         // and type settings.
         if (substr($type, 0, 7) == 'VuFind:') {

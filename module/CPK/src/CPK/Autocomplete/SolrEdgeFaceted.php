@@ -42,7 +42,7 @@ use \VuFind\Autocomplete\SolrEdgeFaceted as ParentSolrEdgeFaceted;
  * @link     http://vufind.org/wiki/vufind2:autosuggesters Wiki
  */
 class SolrEdgeFaceted extends ParentSolrEdgeFaceted
-{
+{   
     /**
      * getSuggestions
      *
@@ -54,21 +54,30 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
      *
      * @return array        The suggestions for the provided query
      */
-    public function getSuggestionsWithFilters($query)
+    public function getSuggestionsWithFilters($query, $facetFilters = null)
     {
         if (!is_object($this->searchObject)) {
             throw new \Exception('Please set configuration first.');
         }
-    
         $results = array();
         try {
             $this->searchObject->getParams()->setBasicSearch(
                 $this->mungeQuery($query), $this->facetField
-                );
+            );
             $params = $this->searchObject->getParams();
             $options = $this->searchObject->getOptions();
-            foreach ($facetFilters as $facetFilter) {
-                $this->searchObject->getParams()->addHiddenFilter($facetFilter);
+            if ($facetFilters != 'null') {
+                if (is_array($facetFilters)) {
+                    foreach ($facetFilters as $facetFilter) {
+                        $this->searchObject->getParams()->addFilter(
+                            urldecode($facetFilter)
+                        );
+                    }
+                } else {
+                    $this->searchObject->getParams()->addFilter(
+                        urldecode($facetFilters)
+                    );
+                }
             }
             $params->addFacet($this->facetField);
             $params->setLimit(0);
@@ -113,8 +122,18 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
                 );
             $params = $this->searchObject->getParams();
             $options = $this->searchObject->getOptions();
-            foreach ($facetFilters as $facetFilter) {
-                $this->searchObject->getParams()->addHiddenFilter($facetFilter);
+            if ($facetFilters != 'null') {
+                if (is_array($facetFilters)) {
+                    foreach ($facetFilters as $facetFilter) {
+                        $this->searchObject->getParams()->addFilter(
+                            urldecode($facetFilter)
+                        );
+                    }
+                } else {
+                    $this->searchObject->getParams()->addFilter(
+                        urldecode($facetFilters)
+                    );
+                }
             }
             $params->addFacet($this->facetField);
             $params->setLimit(0);

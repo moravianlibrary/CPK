@@ -1070,8 +1070,12 @@ class AjaxController extends AjaxControllerBase
         $query = $this->getRequest()->getQuery();
         $autocompleteManager = $this->getServiceLocator()
         ->get('CPK\AutocompletePluginManager');
+        $facetFilters = $this->params()->fromQuery('filters');
         return $this->output(
-            $autocompleteManager->getSuggestions($query), self::STATUS_OK
+            $autocompleteManager->getSuggestions(
+                $query, 'type', 'q', $facetFilters
+            ),
+            self::STATUS_OK
         );
     }
 
