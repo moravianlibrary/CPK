@@ -28,6 +28,12 @@
     </li>
   <? endif; ?>
 
+  <li class="list-group-item" id='permalinkItem'>
+    <a class="modal-link" id='permalinkAnchor' title="<?=$this->translate('Permalink')?>" >
+      <i class="fa fa-fw fa-link"></i> <?=$this->translate('Permalink')?>
+    </a>
+  </li>
+
   <? if ($this->userlist()->getMode() !== 'disabled'): ?>
     <li class="list-group-item">
     	<a id="save-record" class="modal-link <?=$controllerClass?>"
@@ -69,6 +75,9 @@
 jQuery( document ).ready(function( $ ) {
 	$( '#citace-pro' ).on('click', '.citations-link', function(){
 		$( '#citationsModal' ).modal( 'show' );
+	});
+	$( '#permalinkItem' ).on('click', '#permalinkAnchor', function(){
+		$( '#permalinkModal' ).modal( 'show' );
 	});
 });
 </script>
