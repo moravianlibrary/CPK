@@ -193,7 +193,7 @@ var holdingsILS = {
 		    break toBeBroken;
 		}
 
-		linkSpan.text(holdType);
+		linkSpan.text(VuFind.translate(holdType));
 
 		divLink.removeAttr('hidden');
 	    }

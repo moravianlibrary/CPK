@@ -176,7 +176,7 @@ $this->headTitle($this->driver->getBreadcrumb());
 				</div>
 
       <? if (!empty($row['link']) && $row['link']): ?>
-      <div title="<?=$this->transEsc('Reserve Link')?>" data-type="link"
+      <div title="<?=$this->transEsc('Place a Hold')?>" data-type="link"
 					hidden="hidden">
 					<a class="holdPlace"
 						href="<?=$this->recordLink()->getRequestUrl($row['link'])?>"><span></span></a>
