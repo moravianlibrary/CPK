@@ -64,7 +64,7 @@
               <? if (is_numeric($this->results->getSearchId())): ?>
                 <? if ($this->results->isSavedSearch()): ?>
                   <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Delete saved search')?>'>
-                    <i class="fa fa-minus-square fa-2x"></i>
+                    <i class="fa fa-minus-square"></i>
                   </a>
                 <? else: ?>
                   <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Save search')?>'>
