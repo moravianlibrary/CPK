@@ -69,14 +69,10 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             if ($facetFilters != 'null') {
                 if (is_array($facetFilters)) {
                     foreach ($facetFilters as $facetFilter) {
-                        $this->searchObject->getParams()->addFilter(
-                            urldecode($facetFilter)
-                        );
+                        $this->searchObject->getParams()->addFilter($facetFilter);
                     }
                 } else {
-                    $this->searchObject->getParams()->addFilter(
-                        urldecode($facetFilters)
-                    );
+                    $this->searchObject->getParams()->addFilter($facetFilters);
                 }
             }
             $params->addFacet($this->facetField);
@@ -125,14 +121,10 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             if ($facetFilters != 'null') {
                 if (is_array($facetFilters)) {
                     foreach ($facetFilters as $facetFilter) {
-                        $this->searchObject->getParams()->addFilter(
-                            urldecode($facetFilter)
-                        );
+                        $this->searchObject->getParams()->addFilter($facetFilter);
                     }
                 } else {
-                    $this->searchObject->getParams()->addFilter(
-                        urldecode($facetFilters)
-                    );
+                    $this->searchObject->getParams()->addFilter($facetFilters);
                 }
             }
             $params->addFacet($this->facetField);
