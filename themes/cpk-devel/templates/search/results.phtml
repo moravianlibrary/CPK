@@ -78,7 +78,9 @@
     <?=$this->flashmessages()?>
     <div class="hidden-print search-controls row">
       <div class="col-sm-3">
+      <? if ($recordTotal > 0): ?>
       <?=$this->render('search/controls/limit.phtml')?>
+      <? endif; ?>
       </div>
 	  <div class='col-sm-6 text-center'>
 	    <? if ($recordTotal > 0): ?>
