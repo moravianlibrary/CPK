@@ -142,8 +142,12 @@ class SearchController extends AbstractSearch
 	                // If we got this far, we're ready to send the email:
 	                $cc = $this->params()->fromPost('ccself') && $view->from != $view->to
 	                ? $view->from : null;
+	                $sender = new \Zend\Mail\Address(
+	                    $view->from,
+	                    $this->translate('Central Library Portal')
+	                );
 	                $mailer->sendLink(
-	                    $view->to, $view->from, $view->message,
+	                    $view->to, $sender, $view->message,
 	                    $view->url, $this->getViewRenderer(), $view->subject, $cc,
 	                    $this->translate('Central Library Portal')
 	                    );

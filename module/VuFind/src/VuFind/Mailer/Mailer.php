@@ -230,10 +230,15 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
         if (null === $subject) {
             $subject = $this->getDefaultLinkSubject();
         }
+        
+        $fromEmail = ($from instanceof \Zend\Mail\Address)
+        ? $from->getEmail()
+        : $from;
+        
         $body = $view->partial(
             'Email/share-link.phtml',
             [
-                'msgUrl' => $url, 'to' => $to, 'from' => $from, 'message' => $msg
+                'msgUrl' => $url, 'to' => $to, 'from' => $fromEmail, 'message' => $msg
             ]
         );
         return $this->send($to, $from, $subject, $body, $cc);
@@ -253,7 +258,7 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
      * Send an email message representing a record.
      *
      * @param string                            $to      Recipient email address
-     * @param string                            $from    Sender email address
+     * @param string|\Zend\Mail\Address         $from    Sender email address
      * @param string                            $msg     User notes to include in
      * message
      * @param \VuFind\RecordDriver\AbstractBase $record  Record being emailed
@@ -261,24 +266,28 @@ class Mailer implements \VuFind\I18n\Translator\TranslatorAwareInterface
      * email templates)
      * @param string                            $subject Subject for email (optional)
      * @param string                            $cc      CC recipient (null for none)
-     * @param string                            $fromName   From name
      *
      * @throws MailException
      * @return void
      */
     public function sendRecord($to, $from, $msg, $record, $view, $subject = null,
-        $cc = null, $fromName = null
+        $cc = null
     ) {
         if (null === $subject) {
             $subject = $this->getDefaultRecordSubject($record);
         }
+        
+        $fromEmail = ($from instanceof \Zend\Mail\Address) 
+            ? $from->getEmail() 
+            : $from;
+        
         $body = $view->partial(
             'Email/record.phtml',
             [
-                'driver' => $record, 'to' => $to, 'from' => $from, 'message' => $msg
+                'driver' => $record, 'to' => $to, 'from' => $fromEmail, 'message' => $msg
             ]
         );
-        return $this->send($to, $from, $subject, $body, $cc, $fromName);
+        return $this->send($to, $from, $subject, $body, $cc);
     }
 
     /**
