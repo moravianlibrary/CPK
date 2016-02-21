@@ -176,7 +176,7 @@
               </tr>
               <? endif; ?>
         
-              <?= $this->record($this->driver)->displayFieldsOf7xx(); ?>
+              <?= $this->record($this->driver)->displayFieldsOf7xx(true); ?>
         
               <? $edition = $this->driver->getEdition(); if (!empty($edition)): ?>
               <tr>

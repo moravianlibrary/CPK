@@ -5,7 +5,9 @@ $fieldsOf7xx = [];
 foreach ($enabled7xxFields as $enabledField) {
     $varName = 'field' . $enabledField;
     $translated[$varName] = $this->translate($varName); // e.g. field785
-    $fieldsOf7xx[$enabledField] = $this->$varName;
+    $fieldsOf7xx[$enabledField] = ($this->$varName != null) 
+        ? $this->$varName 
+        : $this->driver->get7xxField($enabledField, ['t', 'd', 'x', 'g', 'q', '9']);
 }
 
 foreach ($fieldsOf7xx as $number => $activeField) {
@@ -19,8 +21,13 @@ foreach ($fieldsOf7xx as $number => $activeField) {
         
         if (count($activeField)) {
             ++ $i;
-            if ($i === 1)
-                echo "<tr><th>" . $this->transEsc('field' . $number) . "</th><td>";
+            if ($i === 1) {
+                echo "<tr>";
+                if ($this->showDescription) {
+                    echo "<th>" . $this->transEsc('field' . $number) . "</th>";
+                }
+                echo "<td>";
+            }
         }
         
         if (! empty($field['t']) || ! empty($field['g'])) {
@@ -29,10 +36,24 @@ foreach ($fieldsOf7xx as $number => $activeField) {
                 $anchor = join(" ", $field);
             } else {
                 $anchor = '';
-                if (! empty($field['t'])) 
+                if (! empty($field['t'])) {
                     $anchor .= $field['t'];
-                if (! empty($field['g']))
-                    $anchor .= " " . $field['g'];
+                }
+                if (! empty($field['x'])) {
+                    $isn = $field['x'];
+                    if (substr($isn, 0, 1) === 'M') {
+                        $isnPrefix = "ISMN";
+                    } elseif ((strlen($isn) === 8) or (strlen($isn) === 9)) {
+                        $isnPrefix = "ISSN";
+                    } else { // (strlen($isn) === 10) OR (strlen($isn) === 13)
+                        $isnPrefix = "ISBN";
+                    }
+                    
+                    $anchor .= '. -- '.$isnPrefix.' '.$field['x'];
+                }
+                if (! empty($field['g'])) {
+                    $anchor .= '. -- '.$field['g'];
+                }
             }
             
             if (! empty($field['x']) || ! empty($field['z']) || ! empty($field['t'])) {
