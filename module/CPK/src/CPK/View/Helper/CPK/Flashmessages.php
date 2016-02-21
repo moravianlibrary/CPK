@@ -57,7 +57,7 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
             );
             foreach (array_unique($messages, SORT_REGULAR) as $msg) {
 
-                if(is_array($msg)) {
+                if(is_array($msg) && isset($msg['source'])) {
                     $logoInstitution = $this->getLogo($msg['source']);
                 } else
                     $logoInstitution = null;
