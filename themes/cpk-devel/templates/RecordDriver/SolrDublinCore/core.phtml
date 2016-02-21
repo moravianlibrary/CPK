@@ -216,6 +216,8 @@
         </td>
       </tr>
       <? endif; ?>
+      
+      <?= $this->record($this->driver)->displayFieldsOf7xx(); ?>
 
       <? $edition = $this->driver->getEdition(); if (!empty($edition)): ?>
       <tr>
