@@ -2,6 +2,7 @@
     // Get source of the record to print it to h3 header
     $id = $this->driver->getUniqueID();
     $source = explode(".", $id)[0];
+    $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 ?>
 
 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
@@ -210,11 +211,11 @@
               </tr>
               <? endif; ?>
         
-              <? $subjects = $this->driver->getAllSubjectHeadings(); if (!empty($subjects)): ?>
-              <tr>
+              <? $subjects = $this->driver->getAllSubjectHeadings(); if (!empty($subjects)): $iteration = 0;?>
+              <tr id='subjects-tr'>
                 <th><?=$this->transEsc('Subjects')?>: </th>
                 <td>
-                  <? foreach ($subjects as $field): ?>
+                  <? foreach ($subjects as $field): $iteration++; ?>
                   <div class="subjectLine" property="keywords">
                     <? $subject = ''; ?>
                     <? if(count($field) == 1) $field = explode('--', $field[0]); ?>
@@ -224,11 +225,17 @@
                       <a title="<?=$this->escapeHtmlAttr($subject)?>" href="<?=$this->record($this->driver)->getLink('subject', $subject)?>"><?=trim($this->escapeHtml($subfield))?></a>
                     <? endforeach; ?>
                   </div>
+                    <? if ($iteration == $maxSubjectsInCore): ?>
+                      <a class="modal-link" id='show-all-subjects' title="<?=$this->translate('Show all subjects')?>" >
+                        <?=$this->translate('Show all subjects')?>
+                      </a>
+                      <? break; ?>
+                    <? endif; ?>
                   <? endforeach; ?>
                 </td>
               </tr>
               <? endif; ?>
-        
+
               <? $childRecordCount = $this->driver->tryMethod('getChildRecordCount'); if ($childRecordCount): ?>
               <tr>
                 <th><?=$this->transEsc('child_records')?>: </th>
