@@ -204,9 +204,11 @@ class AjaxController extends AjaxControllerBase
 
             $itemsStatuses = [];
 
-            if (! empty($statuses)) $nextItemToken = $statuses[0]['next_item_token'];
+            if (! empty($statuses) && array_key_exists('next_item_token', $statuses[0]))
+                $nextItemToken = $statuses[0]['next_item_token'];
             else $nextItemToken = null;
-            if (! empty($statuses)) $usedGetStatus = $statuses[0]['usedGetStatus'];
+            if (! empty($statuses) && array_key_exists('usedGetStatus', $statuses[0]))
+                $usedGetStatus = $statuses[0]['usedGetStatus'];
             else $usedGetStatus = null;
 
             foreach ($statuses as $status) {

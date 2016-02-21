@@ -700,14 +700,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 }
             }
 
-            $numberOfPieces = (string) $this->useXPath($response,
-                'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
+            $numberOfPieces = $this->useXPath($response,
+                'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces');
 
             $holdQueue = (string) $this->useXPath($response,
                 'LookupItemResponse/ItemOptionalFields/HoldQueueLength')[0];
 
-            $itemRestriction = (string) $this->useXPath($response,
-                'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType')[0];
+            $itemRestriction = $this->useXPath($response,
+                'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType');
             $dueDate = $this->useXPath($response,
                     'LookupItemResponse/ItemOptionalFields/DateDue');
             $dueDate = $this->parseDate($dueDate);
@@ -716,13 +716,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             return array(
                 'id' => empty($id) ? "" : $id,
-                'availability' => empty($itemRestriction) ? "" : $itemRestriction,
+                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
                 'status' => empty($status) ? "" : $status,
                 'location' => '',
                 'sub_lib_desc' => '',
                 'collection' => isset($collection) ? $collection : '',
                 'department' => isset($department) ? $department : '',
-                'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
+                'number' => empty($numberOfPieces) ? '' : (string) $numberOfPieces[0],
                 'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
                 'item_id' => empty($id) ? "" : $id,
                 'label' => $label,
@@ -1811,7 +1811,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     protected function parseDate($date)
     {
-        $parsedDate = empty($date) ? '' : strtotime($date[0]);
+        $parsedDate = empty($date) ? null : strtotime($date[0]);
         $formattedDate = date('j. n. Y', $parsedDate);
         return $formattedDate;
     }
