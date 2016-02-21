@@ -24,11 +24,17 @@
       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
         <script type="text/javascript">
           $(document).ready(function() {
-            obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert('record'))?>);
+            obalky.display_thumbnail_cover_without_links("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert('record'))?>);
           });
         </script>
       <? endif;?>
-      <img src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+      <? if (! empty($formats)): ?>
+        <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="fa fa-fw <?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
+      <? elseif ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
+        <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+      <? else: ?>
+        <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+      <? endif; ?>
     </div>
   </div>
   <div class="col-xs-6 middle">
