@@ -93,12 +93,11 @@ class AjaxController extends AjaxControllerBase
 
         if (substr($isn, 0, 1) === 'M') {
             $isnKey = "rft.ismn";
-        } else
-            if ((strlen($isn) === 8) or (strlen($isn) === 9)) {
-                $isnKey = "rft.issn";
-            } else { // (strlen($isn) === 10) OR (strlen($isn) === 13)
-                $isnKey = "rft.isbn";
-            }
+        } elseif ((strlen($isn) === 8) or (strlen($isn) === 9)) {
+            $isnKey = "rft.issn";
+        } else { // (strlen($isn) === 10) OR (strlen($isn) === 13)
+            $isnKey = "rft.isbn";
+        }
 
         $params = array(
             'ctx_ver' => 'Z39.88-2004',
