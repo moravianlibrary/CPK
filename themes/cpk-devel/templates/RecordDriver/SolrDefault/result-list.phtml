@@ -203,6 +203,8 @@
         <? endforeach;?>
       </div>
       
+      <table><?= $this->record($this->driver)->displayFieldsOf7xx(false); ?></table>
+      
       <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
           <? foreach ($summ as $field): ?>
             <p><?=substr($this->escapeHtml($field), 0, 200)?>...</p>
