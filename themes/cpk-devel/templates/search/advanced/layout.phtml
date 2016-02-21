@@ -165,6 +165,12 @@
             </div>
           
             <div class="col-sm-3 pull-right">
+                <div class="sidegroup">
+                  <div class="list-group">
+                    <div class="list-group-item" style='padding: 10px 10px 5px 10px;'><i class='fa fa-info'></i> <a class="help-link" href="<?=$this->url('help-home')?>?topic=advsearch" title="<?=$this->transEsc('Help with Advanced Search')?>"><?=$this->transEsc("Help with Advanced Search")?></a></div>
+                    <div class="list-group-item" style='padding: 5px 10px 10px 10px;'><i class='fa fa-info'></i> <a class="help-link" href="<?=$this->url('help-home')?>?topic=search" title="<?=$this->transEsc('Help with Search Operators')?>"><?=$this->transEsc("Help with Search Operators")?></a></div>
+                  </div>
+                </div>
                 <? if ($hasDefaultsApplied): ?>
                   <input type="hidden" name="dfApplied" value="1" />
                 <? endif ?>
@@ -185,12 +191,6 @@
                     </div>
                   <? endforeach; ?>
                 <? endif; ?>
-                <div class="sidegroup">
-                  <div class="list-group">
-                    <div class="list-group-item" style='padding: 10px 10px 5px 10px;'><i class='fa fa-info'></i> <a class="help-link" href="<?=$this->url('help-home')?>?topic=advsearch" title="<?=$this->transEsc('Help with Advanced Search')?>"><?=$this->transEsc("Help with Advanced Search")?></a></div>
-                    <div class="list-group-item" style='padding: 5px 10px 10px 10px;'><i class='fa fa-info'></i> <a class="help-link" href="<?=$this->url('help-home')?>?topic=search" title="<?=$this->transEsc('Help with Search Operators')?>"><?=$this->transEsc("Help with Search Operators")?></a></div>
-                  </div>
-                </div>
             </div>
 		</div>
       </div>
