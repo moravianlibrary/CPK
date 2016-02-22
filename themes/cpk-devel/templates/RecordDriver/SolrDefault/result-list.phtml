@@ -203,7 +203,7 @@
         <? endforeach;?>
       </div>
       
-      <table><?= $this->record($this->driver)->displayFieldsOf7xx(false); ?></table>
+      <table><?= $this->record($this->driver)->displayField773(); ?></table>
       
       <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
           <? foreach ($summ as $field): ?>

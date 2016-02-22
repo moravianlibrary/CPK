@@ -87,6 +87,14 @@ class SolrMarc extends ParentSolrMarc
     	return $resultArray;
     }
 
+    /**
+     * Get field of 7xx
+     * 
+     * @param string $field     The MARC field number to read
+     * @param array  $subfields The MARC subfield codes to read
+     * 
+     * @return boolean|array
+     */
     public function get7xxField($field, array $subfields = null) {
     	$array = [];
     	$notFalseSubfields = 0;

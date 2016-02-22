@@ -47,4 +47,17 @@ class Record extends ParentRecord
             'RecordDriver/SolrDefault/fieldsOf7xx.phtml', array('showDescription' => $showDescription)
         );
     }
+    
+    /**
+     * Display field 773
+     *
+     * @return string
+     */
+    public function displayField773()
+    {
+        return $this->contextHelper->renderInContext(
+            'RecordDriver/SolrDefault/field773.phtml',
+            []
+        );
+    }
 }

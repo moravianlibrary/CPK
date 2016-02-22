@@ -1,0 +1,52 @@
+<?php
+    $id = $this->driver->getUniqueID();
+
+    $field = $this->driver->get7xxField('773', ['t', 'd', 'x', 'g', 'q', '9'])[0];
+
+    if (! empty($field['t']) || ! empty($field['g']) || ! empty($field['x'])) {
+        
+        $anchor = '';
+        if (! empty($field['t'])) {
+            $anchor .= $field['t'];
+        }
+        if (! empty($field['x'])) {
+            $isn = $field['x'];
+            if (substr($isn, 0, 1) === 'M') {
+                $isnPrefix = "ISMN";
+            } elseif ((strlen($isn) === 8) or (strlen($isn) === 9)) {
+                $isnPrefix = "ISSN";
+            } else { // (strlen($isn) === 10) OR (strlen($isn) === 13)
+                $isnPrefix = "ISBN";
+            }
+            
+            $anchor .= '. -- '.$isnPrefix.' '.$field['x'];
+        }
+        if (! empty($field['g'])) {
+            $anchor .= '. -- '.$field['g'];
+        }
+        
+        if (! empty($field['x']) || ! empty($field['z']) || ! empty($field['t'])) {
+            
+            if (! empty($field['x'])) {
+                $link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="' .
+                     $field['x'] . '"&type0[]=isn&bool1[]=NOT&lookfor1[]="' . $id .
+                     '"&type1[]=id&sort=title&view=list';
+            } else 
+                if (! empty($field['z'])) {
+                    $link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="' .
+                         $field['z'] . '"&type0[]=isn&bool1[]=NOT&lookfor1[]="' .
+                         $id . '"&type1[]=id&sort=title&view=list';
+                } else 
+                    if (! empty($field['t'])) {
+                        $link = '/Search/Results?join=AND&bool0[]=AND&lookfor0[]="' .
+                             $field['t'] .
+                             '"&type0[]=AllFields&bool1[]=NOT&lookfor1[]="' . $id .
+                             '"&type1[]=id&sort=title&view=list';
+                    }
+            
+            echo $this->translate('In').': '."<a href='" . $link . "' title='" . $anchor . "'>" . $anchor .
+                 "</a>\n";
+        } else {
+            echo $this->translate('In').': '.$anchor . "\n";
+        }
+    }
