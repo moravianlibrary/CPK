@@ -93,7 +93,7 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
         // Handler
         // solr field with "text_autocomplete" type
         // solr field with "string" type that is exactly equal to previous one
-        $titleModule   = "SolrEdgeFaceted:title_autocomplete:title_str";
+        $titleModule   = "SolrEdgeFaceted:title_autocomplete:title_auto_str";
         $authorModule  = "SolrEdgeFaceted:author_autocomplete:author_str_mv";
         $subjectModule = "SolrEdgeFaceted:subject_autocomplete:subject_str_mv";
 
