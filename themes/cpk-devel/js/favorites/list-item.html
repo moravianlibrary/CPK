@@ -7,7 +7,8 @@
 			</span>
 		</label>
 		<div class="coverThumbnail">
-			<img src="" ng-src="{{ fav.image() }}" alt="cover" height="80" width="63"/>
+			<img ng-show="angular.isString(fav.image())" src="" ng-src="{{ fav.image() }}" alt="cover" height="80" width="63"/>
+			<i ng-hide="angular.isString(fav.image())" class="{{ fav.image().iconClass }}" style="{{ fav.image().iconStyle }}" />
 		</div>
 	</div>
 	<div class="col-xs-6 middle">

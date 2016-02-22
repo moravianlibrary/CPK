@@ -124,6 +124,16 @@
 
 		    if (expectedImg.length)
 			return expectedImg.attr('src');
+		    
+		    // Probably not an image ..
+		    var expectedIcon = expectedParentSiblingSmallDivision.find('i[class][style]');
+
+		    if (expectedIcon.length) {
+			return {
+			    iconClass : expectedIcon.attr('class'),
+			    iconStyle : expectedIcon.attr('style')
+			};
+		    }
 
 		    console.error('Parsing record image source failed!');
 		} else
