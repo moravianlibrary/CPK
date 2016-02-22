@@ -211,7 +211,7 @@
               </tr>
               <? endif; ?>
         
-              <? $subjects = $this->driver->getAllSubjectHeadings(); if (!empty($subjects)): $iteration = 0;?>
+              <? $subjects = $this->driver->getAllSubjectHeadings(); if (!empty($subjects)): $iteration = 0; $subjectsCount = count($subjects);?>
               <tr id='subjects-tr'>
                 <th><?=$this->transEsc('Subjects')?>: </th>
                 <td>
@@ -225,9 +225,9 @@
                       <a title="<?=$this->escapeHtmlAttr($subject)?>" href="<?=$this->record($this->driver)->getLink('subject', $subject)?>"><?=trim($this->escapeHtml($subfield))?></a>
                     <? endforeach; ?>
                   </div>
-                    <? if ($iteration == $maxSubjectsInCore): ?>
+                    <? if (($iteration == $maxSubjectsInCore) && ($maxSubjectsInCore < $subjectsCount)): ?>
                       <a class="modal-link" id='show-all-subjects' title="<?=$this->translate('Show all subjects')?>" >
-                        <?=$this->translate('Show all subjects')?>
+                        <b><?=$this->translate('Show all subjects')?></b>&nbsp;<i class='fa fa-caret-down'></i>
                       </a>
                       <? break; ?>
                     <? endif; ?>
