@@ -38,6 +38,12 @@
 
 	    var tablePointer = $('table[summary]');
 	    var authorPointer = tablePointer.find('tbody tr td[property=author] a');
+	    
+	    if (authorPointer.length === 0) {
+		// Could also be a creator property
+		authorPointer = tablePointer.find('tbody tr td[property=creator] a');
+	    }
+	    
 	    var formatPointer = tablePointer.find('tbody tr td div.iconlabel');
 
 	    // Current pathname should be the right link
