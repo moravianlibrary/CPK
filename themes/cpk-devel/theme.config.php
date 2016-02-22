@@ -1,6 +1,6 @@
 <?php
 return array(
-    'extends' => 'common-bootstrap3', 
+    'extends' => 'common-bootstrap3',
     'css' => array(
         //'vendor/bootstrap.min.css',
         //'vendor/bootstrap-accessibility.css',
@@ -9,7 +9,6 @@ return array(
         'vendor/font-awesome.min.css',
         'vendor/bootstrap-slider.css',
         'print.css:print',
-        'style.css'
     ),
     'js' => array(
         'vendor/jquery.min.js',
