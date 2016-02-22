@@ -419,7 +419,7 @@ function displayCitationLink() {
  * @param	{function}	callback
  * @return	{undefined}
  */
-function getCitation( recordId, citationValue = 'false' , callback ) {
+function getCitation( recordId, citationValue , callback ) {
 	$( '.citation-loader' ).removeClass( 'hidden' );
 	$( '#citation-style-selector' ).addClass( 'hidden' );
 	$( '#citation-placeholder' ).addClass( 'hidden' );
