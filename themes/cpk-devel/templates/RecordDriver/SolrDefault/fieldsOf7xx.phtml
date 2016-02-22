@@ -30,7 +30,7 @@ foreach ($fieldsOf7xx as $number => $activeField) {
             }
         }
         
-        if (! empty($field['t']) || ! empty($field['g'])) {
+        if (! empty($field['t']) || ! empty($field['g']) || ! empty($field['x'])) {
             
             if ($activeField === $this->field733) {
                 $anchor = join(" ", $field);
