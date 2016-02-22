@@ -71,20 +71,19 @@
 		<div class="resulthead">
 			<div class="pull-right flip">
 				<select name="sort" class="form-control">
-					<option ng-show="listCtrl.canSort('alphabetical')"
-						value='alphabetical'><?=$this->transEsc('By Alphabetical')?></option>
+					<option ng-show="listCtrl.canSort('alphabetical')" value='alphabetical'><?=$this->transEsc('sort_title')?></option>
 					<option ng-show="listCtrl.canSort('author')" value='author'><?=$this->transEsc('By Author')?></option>
-					<option ng-show="listCtrl.canSort('callNo')" value='callNo'><?=$this->transEsc('By Call Number')?></option>
+					<option ng-show="listCtrl.canSort('recent')" value='recent'><?=$this->transEsc('By Recent')?></option>
+					<!--<option ng-show="listCtrl.canSort('callNo')" value='callNo'><?=$this->transEsc('By Call Number')?></option>
 					<option ng-show="listCtrl.canSort('course')" value='course'><?=$this->transEsc('By Course')?></option>
 					<option ng-show="listCtrl.canSort('department')" value='department'><?=$this->transEsc('By Department')?></option>
 					<option ng-show="listCtrl.canSort('era')" value='era'><?=$this->transEsc('By Era')?></option>
 					<option ng-show="listCtrl.canSort('genre')" value='genre'><?=$this->transEsc('By Genre')?></option>
 					<option ng-show="listCtrl.canSort('instructor')" value='instructor'><?=$this->transEsc('By Instructor')?></option>
 					<option ng-show="listCtrl.canSort('popularity')" value='popularity'><?=$this->transEsc('By Popularity')?></option>
-					<option ng-show="listCtrl.canSort('recent')" value='recent'><?=$this->transEsc('By Recent')?></option>
 					<option ng-show="listCtrl.canSort('region')" value='region'><?=$this->transEsc('By Region')?></option>
 					<option ng-show="listCtrl.canSort('title')" value='title'><?=$this->transEsc('By Title')?></option>
-					<option ng-show="listCtrl.canSort('topic')" value='topic'><?=$this->transEsc('By Topic')?></option>
+					<option ng-show="listCtrl.canSort('topic')" value='topic'><?=$this->transEsc('By Topic')?></option>-->
 				</select>
 			</div>
 		</div>
