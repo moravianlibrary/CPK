@@ -752,6 +752,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $retVal = [];
 
         if (empty($bibId)) $this->cannotUseLUIS = true;
+        if (! empty($filter)) $this->cannotUseLUIS = true;
         if ($this->cannotUseLUIS)
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids));
@@ -1812,8 +1813,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     protected function parseDate($date)
     {
         $parsedDate = empty($date) ? null : strtotime($date[0]);
-        $formattedDate = date('j. n. Y', $parsedDate);
-        return $formattedDate;
+        return ($parsedDate == null) ? '' : date('j. n. Y', $parsedDate);
     }
 
     protected function hasOverdue($dateDue)
