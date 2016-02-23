@@ -891,6 +891,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                         'ItemInformation/DateDue');
                 $dueDate = $this->parseDate($dueDate);
             } else {
+                /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet.*/
+                if (! empty($status) && (string) $status[0] == 'On Order') $status[0] = 'On Loan';
                 $dueDate = false;
             }
 
