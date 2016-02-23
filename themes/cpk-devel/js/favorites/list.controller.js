@@ -80,9 +80,7 @@
 		}
 	}; 
 	
-	return;
-	
-	//
+	return; //
 	
 	function onGetFavorites(favs) {
 	    vm.favorites = favs;
@@ -198,14 +196,14 @@
 	    // We need to refresh the view with async job .. use Promise
 	    new Promise(function(resolve, reject) {
 		
-		activeSorting = val;
+		var validSorting = true;
 		
 		switch(val) {
 		
 		case 'alphabetical':
 		    
 		    vm.favorites.sort(function(a, b) {
-			return a.title() > b.title()
+			return a.title() > b.title();
 		    });
 		    break;
 		    
@@ -224,8 +222,12 @@
 		    break;
 		    
 		default:
+		    validSorting = false;
 		    $log.error('Invalid sorting provided');
 		}
+		
+		if (validSorting)
+		    activeSorting = val;
 		
 	    }).then($scope.$applyAsync);
 	    

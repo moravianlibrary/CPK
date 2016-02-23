@@ -28,6 +28,10 @@
 		value : undefined
 	    },
 	    image : undefined,
+	    icon : {
+		value : undefined,
+		style : undefined
+	    },
 	    created : (new Date()).getTime()
 	};
 
@@ -38,12 +42,17 @@
 
 	    var tablePointer = $('table[summary]');
 	    var authorPointer = tablePointer.find('tbody tr td[property=author] a');
-	    
+
 	    if (authorPointer.length === 0) {
 		// Could also be a creator property
 		authorPointer = tablePointer.find('tbody tr td[property=creator] a');
+
+		if (authorPointer.length === 0) {
+		    // Could also be an contributor
+		    authorPointer = tablePointer.find('tbody tr td span[property=contributor] a');
+		}
 	    }
-	    
+
 	    var formatPointer = tablePointer.find('tbody tr td div.iconlabel');
 
 	    // Current pathname should be the right link
@@ -124,18 +133,22 @@
 
 		    if (expectedImg.length)
 			return expectedImg.attr('src');
-		    
-		    // Probably not an image ..
+
+		    // Parsing image has failed .. so try to parse an icon
 		    var expectedIcon = expectedParentSiblingSmallDivision.find('i[class][style]');
 
 		    if (expectedIcon.length) {
-			return {
-			    iconClass : expectedIcon.attr('class'),
-			    iconStyle : expectedIcon.attr('style')
-			};
-		    }
-
-		    console.error('Parsing record image source failed!');
+			
+			// Set at least the icon to the object
+			vm.icon(expectedIcon.attr('class'));
+			vm.iconStyle(expectedIcon.attr('style'));
+			
+			// And image is undefined ..
+			return undefined;
+		    }		    
+		    
+		    console.error('Parsing record image source or icon failed!');
+		    
 		} else
 		    // I think this might be appreciated in the future ..
 		    console.error('Parsing record image\'s parent division failed!');
@@ -147,7 +160,7 @@
 	    if (typeof obj !== "object") {
 		console.error('Trying to create Favorite from object, but no object passed');
 
-	    } else if (! obj.hasOwnProperty('created')) {
+	    } else if (!obj.hasOwnProperty('created')) {
 		console.error('Missing timestamp of the object!');
 
 	    } else {
@@ -246,6 +259,26 @@
 	    }
 
 	    vars.image = image;
+	    return vm;
+	}
+	
+	vm.icon = function(icon) {
+
+	    if (typeof icon === "undefined") {
+		return vars.icon.value;
+	    }
+
+	    vars.icon.value = icon;
+	    return vm;
+	}
+	
+	vm.iconStyle = function(iconStyle) {
+
+	    if (typeof iconStyle === "undefined") {
+		return vars.icon.style;
+	    }
+
+	    vars.icon.style = iconStyle;
 	    return vm;
 	}
 
