@@ -67,7 +67,7 @@ $this->headTitle($this->driver->getBreadcrumb());
 
                     $isFirst = false;
                 } else
-                    echo "<option value='$yearFilter'>$yearFilter</option>";
+                    echo "<option value='$yearFilterEscaped'>$yearFilter</option>";
             }
             ?>
 			</select>

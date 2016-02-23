@@ -69,7 +69,7 @@ var holdingsILSfilters = {
 	    // Note that we have to use class hidden due to mobile compatibility
 	    holdingsILSfilters.selectors.tbody.children('tr:not(.hidden)').addClass('hidden');
 
-	    selector += '[data-' + filter + '=' + value + ']';
+	    selector += '[data-' + filter + '="' + value + '"]';
 	} else {
 	    // no filter selected now ..
 	    holdingsILSfilters.activeFilter = undefined;
