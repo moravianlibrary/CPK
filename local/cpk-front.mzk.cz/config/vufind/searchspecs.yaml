@@ -141,6 +141,7 @@ Author:
     - author_fuller^50
     - author2
     - author_additional
+    - author_find
   DismaxParams:
     - [bq, "relevancy_str:default^2"]
   QueryFields:
@@ -161,6 +162,10 @@ Author:
       - [and, 50]
       - [or, ~]
     author_additional:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+    author_find:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
