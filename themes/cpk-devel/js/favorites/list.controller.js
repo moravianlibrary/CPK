@@ -179,6 +179,9 @@
 		
 		vm.favorites.push(favorite);
 		
+		// Apply current sorting
+		setSorting(getSorting());
+		
 		if (vm.favorites.length === 1) {
 		    changeVisibleDiv();
 		    
