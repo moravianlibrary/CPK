@@ -15,9 +15,9 @@
 <? if (!isset($this->layout()->renderingError)): ?>
   <div class="collapse navbar-collapse" id="header-collapse">
     <ul class="nav navbar-nav">
-        <li class="active"><a href="<?=$this->url('home')?>">Katalog<span class="sr-only">(current)</span></a></li>
-        <li><a href="http://info.knihovny.cz/libraries">Knihovny</a></li>
-        <li><a href="http://info.knihovny.cz/events">Akce</a></li>
+        <li class="active"><a href="<?=$this->url('home')?>"><?=$this->translate('Catalog')?><span class="sr-only">(current)</span></a></li>
+        <li><a href="http://info.knihovny.cz/libraries"><?=$this->translate('Libraries')?></a></li>
+        <li><a href="http://info.knihovny.cz/events"><?=$this->translate('Events')?></a></li>
       </ul>
     <nav>
       <ul class="nav navbar-nav navbar-right flip">
