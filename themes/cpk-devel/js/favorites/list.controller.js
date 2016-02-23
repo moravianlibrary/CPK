@@ -17,20 +17,23 @@
     var listNotEmptyDiv = undefined;
 
     function ListController($q, $log, $scope, storage, favsBroadcaster, Favorite) {
+	
+	var activeSorting = 'recent';
 
 	var vm = this;
 
 	vm.favSelected = {};
 	vm.favorites = [];
 
+	vm.sortVal = sortVal;
+	
 	vm.allSelected = false;
 
 	vm.listStart = 1;
 	vm.listLength = 1;
 
 	vm.selectAll = selectAll;
-	
-	vm.canSort = canSort;
+
 	vm.removeFavorite = removeFavorite;
 	
 	vm.removeSelected = removeSelected;
@@ -41,8 +44,8 @@
 	});
 	
 	/**
-	 * Public function about to be called from the favsBroadcaster when an event
-	 * happens (meaning adding / removal of the favorite)
+	 * Public function about to be called from the favsBroadcaster when an
+	 * event happens (meaning adding / removal of the favorite)
 	 */
 	window.__favChanged = function(isNew, favorite) {
 	    
@@ -91,10 +94,6 @@
 			
 		vm.listLength = length;			
 	    }
-	}
-	
-	function canSort(type) {
-	    return true; // TODO ..
 	}
 	
 	function removeFavorite(id) {
@@ -155,6 +154,15 @@
 	    });
 	}
 	
+	/**
+	 * Returns current sorting if no argument supplied.
+	 * 
+	 * Else sets the sorting provided & updates the view.
+	 */
+	function sortVal(val) {
+	    return arguments.length ? setSorting(val) : getSorting(); 
+	}
+	
 	// Private
 	
 	function addFavorite(favorite) {
@@ -183,6 +191,48 @@
 	function changeVisibleDiv() {
 	    listEmptyDiv.hidden = ! listEmptyDiv.hidden;
 	    listNotEmptyDiv.hidden = ! listNotEmptyDiv.hidden;
+	}
+	
+	function setSorting(val) {
+	    
+	    // We need to refresh the view with async job .. use Promise
+	    new Promise(function(resolve, reject) {
+		
+		activeSorting = val;
+		
+		switch(val) {
+		
+		case 'alphabetical':
+		    
+		    vm.favorites.sort(function(a, b) {
+			return a.title() > b.title()
+		    });
+		    break;
+		    
+		case 'author':
+		    
+		    vm.favorites.sort(function(a, b) {
+			return a.author() > b.author();
+		    });
+		    break;
+		    
+		case 'recent':
+		    
+		    vm.favorites.sort(function(a, b) {
+			return a.created() > b.created();
+		    });
+		    break;
+		    
+		default:
+		    $log.error('Invalid sorting provided');
+		}
+		
+	    }).then($scope.$applyAsync);
+	    
+	}
+	
+	function getSorting() {
+	    return activeSorting;
 	}
     }
     
