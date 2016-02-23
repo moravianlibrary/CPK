@@ -204,12 +204,15 @@ class AjaxController extends AjaxControllerBase
 
             $itemsStatuses = [];
 
-            if (! empty($statuses) && array_key_exists('next_item_token', $statuses[0]))
-                $nextItemToken = $statuses[0]['next_item_token'];
-            else $nextItemToken = null;
-            if (! empty($statuses) && array_key_exists('usedGetStatus', $statuses[0]))
-                $usedGetStatus = $statuses[0]['usedGetStatus'];
-            else $usedGetStatus = null;
+            if (! empty($statuses)) {
+                if (array_key_exists('next_item_token', $statuses[0])) $nextItemToken = $statuses[0]['next_item_token'];
+                else $nextItemToken = null;
+                if (array_key_exists('usedGetStatus', $statuses[0])) $usedGetStatus = $statuses[0]['usedGetStatus'];
+                else $usedGetStatus = null;
+                if (array_key_exists('usedAleph', $statuses[0])) $usedAleph = $statuses[0]['usedAleph'];
+                else $usedAleph = null;
+            }
+            else $nextItemToken = $usedGetStatus = $usedAleph = null;
 
             foreach ($statuses as $status) {
                 $id = $status['item_id'];
@@ -257,7 +260,7 @@ class AjaxController extends AjaxControllerBase
                     unset($ids[$key]);
             }
 
-            if ($nextItemToken || $usedGetStatus) {
+            if ($nextItemToken || $usedGetStatus || $usedAleph) {
                 $retVal['remaining'] = $ids;
                 $retVal['next_item_token'] = $nextItemToken;
             }

@@ -290,6 +290,7 @@ class MultiBackend extends MultiBackendBase
             $bibId = $this->stripIdPrefixes($bibId, $source);
 
             $statuses = $driver->getStatuses($ids, $profile, $filter, $bibId, $nextItemToken);
+            if (($driver instanceof Aleph) && (! empty($statuses))) $statuses[0]['usedAleph'] = true;
             return $this->addIdPrefixes($statuses, $source);
         } else
             return parent::getStatuses($ids);
