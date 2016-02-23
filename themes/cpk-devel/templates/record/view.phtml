@@ -184,6 +184,24 @@
                     </div>
                   </div>
                 </div>
+                
+             <!-- Modal -->
+                <div class="modal fade" id="mailRecordModal" tabindex="-1" role="dialog" aria-labelledby="mailRecordLabel">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="mailRecordLabel"><?=$this->translate('Email this Search')?></h4>
+                      </div>
+                      <div class="modal-body">
+                        <?=$this->context($this)->renderInContext('record/email.phtml', [])?>
+            		  </div>    	
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
          
             <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
             <script>

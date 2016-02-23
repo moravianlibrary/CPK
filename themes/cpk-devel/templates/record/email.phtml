@@ -7,7 +7,7 @@
     . '<li class="active">' . $this->transEsc('Email Record') . '</li>';
 ?>
 <?=$this->flashmessages()?>
-<form action='' class="form-horizontal" method="post" name="emailRecord">
+<form action='/Record/<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>/Email' class="form-horizontal" method="post" name="emailRecord">
   <input type="hidden" name="id" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" />
   <input type="hidden" name="source" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" />
   <div class="control-group">
@@ -60,7 +60,7 @@
       </div>
     </div>
   <? endif ?>
-  <?=$this->recaptcha()->html($this->useRecaptcha) ?>
+  <?=$this->recaptcha()->html(true) ?>
   <div class="control-group">
     <div class="controls">
       <input class="btn btn-primary" type="submit" name="submit" value="<?=$this->transEsc('Send Email')?>"/>
