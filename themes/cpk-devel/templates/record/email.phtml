@@ -13,14 +13,14 @@
   <div class="control-group">
     <label class="control-label" for="email_to"><?=$this->transEsc('Email to')?>:*</label>
     <div class="controls">
-      <input type="email" id="email_to" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="to" value="<?=isset($this->to) ? $this->to : ''?>" required placeholder='<?=$this->translate('Enter email')?>'>
+      <input type="email" id="email_to" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="to" value="<?=isset($this->to) ? $this->to : ''?>" placeholder='<?=$this->translate('Enter email')?>' required>
     </div>
   </div>
   <? if (!$this->disableFrom): ?>
     <div class="control-group">
       <label class="control-label" for="email_from"><?=$this->transEsc('From')?>:*</label>
       <div class="controls">
-        <input type="email" id="email_from" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="from" value="<?=isset($this->from) ? $this->from : ''?>" size="40" placeholder='<?=$this->translate('Enter email')?>'>
+        <input type="email" id="email_from" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="from" value="<?=isset($this->from) ? $this->from : ''?>" size="40" placeholder='<?=$this->translate('Enter email')?>' required>
       </div>
     </div>
     <div class="control-group">
