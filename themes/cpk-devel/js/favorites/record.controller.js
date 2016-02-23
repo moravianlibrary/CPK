@@ -48,7 +48,7 @@
 	 * Public function about to be called from the favsBroadcaster when an event
 	 * happens (meaning adding / removal of the favorite)
 	 */
-	window.__isFavCallback = function(isNew, newFav) {
+	window.__favChanged = function(isNew, newFav) {
 	    
 	    if (newFav instanceof Favorite)
 

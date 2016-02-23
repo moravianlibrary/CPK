@@ -140,12 +140,12 @@
 	    storage.addFavorite(newFav);
 
 	    // Tell the controllers ..
-	    if (typeof window.__isFavCallback === 'function') {
+	    if (typeof window.__favChanged === 'function') {
 
 		if (veryVerbose)
-		    $log.debug('Calling window.__isFavCallback with ', newFav);
+		    $log.debug('Calling window.__favChanged with ', newFav);
 
-		window.__isFavCallback(true, newFav);
+		window.__favChanged(true, newFav);
 	    }
 	}
 
@@ -161,12 +161,12 @@
 	    storage.removeFavorite(oldFav.created());
 
 	    // Tell the controllers ..
-	    if (typeof window.__isFavCallback === 'function') {
+	    if (typeof window.__favChanged === 'function') {
 
 		if (veryVerbose)
-		    $log.debug('Calling window.__isFavCallback with ', oldFav);
+		    $log.debug('Calling window.__favChanged with ', oldFav);
 
-		window.__isFavCallback(false, oldFav);
+		window.__favChanged(false, oldFav);
 	    }
 	}
 
@@ -207,7 +207,7 @@
 		    sessionStorage.setItem(storage.name, event.newValue);
 
 		    // Let the controller know ..
-		    if (typeof window.__isFavCallback === 'function') {
+		    if (typeof window.__favChanged === 'function') {
 
 			var favs = JSON.parse(event.newValue);
 
@@ -216,7 +216,7 @@
 			});
 
 			favorites.forEach(function(favorite) {
-			    window.__isFavCallback(true, favorite);
+			    window.__favChanged(true, favorite);
 			});
 
 			if (favs.length) {

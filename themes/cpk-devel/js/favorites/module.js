@@ -59,11 +59,6 @@
  * 
  * 6) All other functionalities should be for logged in users only
  * 
- * TODO list:
- * 
- * Implement transferring favorites from user's sessionStorage to the server
- * after login.
- * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {
