@@ -57,7 +57,7 @@
       <i class="fa fa-times" id="searchclear"></i>
     </div>
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
-    <a href='' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'><i class="pr-interface-search"></i><span> <?=$this->transEsc("Find")?></span></a>
+    <a href='/Search/Results?lookfor=&type=AllFields' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'><i class="pr-interface-search"></i><span> <?=$this->transEsc("Find")?></span></a>
     <span class="adv_search_links">
         <? if ($advSearch): ?>
           <a href="<?=$this->url($advSearch) . ((isset($this->searchId) && $this->searchId) ? '?edit=' . $this->escapeHtmlAttr($this->searchId) : '') ?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
