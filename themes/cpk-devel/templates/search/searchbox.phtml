@@ -36,7 +36,7 @@
   <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
     <?= $this->render('search/searchTabs'); ?>
       <script>
-          $(document).ready(function(){
+          jQuery(document).ready(function($){
               $("#searchForm_lookfor").keyup(function(){
                   $("#searchclear").toggle(Boolean($(this).val()));
               });
@@ -45,6 +45,11 @@
                   $("#searchForm_lookfor").val('').focus();
                   $(this).hide();
               });
+
+              	$( ".search-query" ).on( 'change', function( event ) {
+                  	var query = $( this ).val();
+            		$( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + query + "&type=AllFields");
+           		});
           });
       </script>
     <div class="col-xs-12 col-sm-6 search-form-container">
@@ -52,7 +57,7 @@
       <i class="fa fa-times" id="searchclear"></i>
     </div>
       <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
-    <button type="submit" class="btn btn-primary find-button"><i class="pr-interface-search"></i><span> <?=$this->transEsc("Find")?></span></button>
+    <a href='' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'><i class="pr-interface-search"></i><span> <?=$this->transEsc("Find")?></span></a>
     <span class="adv_search_links">
         <? if ($advSearch): ?>
           <a href="<?=$this->url($advSearch) . ((isset($this->searchId) && $this->searchId) ? '?edit=' . $this->escapeHtmlAttr($this->searchId) : '') ?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
