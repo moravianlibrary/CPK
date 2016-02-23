@@ -83,6 +83,10 @@
 	return; //
 	
 	function onGetFavorites(favs) {
+	    
+	    // Default sorting is by most recent, so flip the order ..
+	    favs = favs.reverse();
+	    
 	    vm.favorites = favs;
 	    
 	    var length = favs.length;
@@ -217,7 +221,7 @@
 		case 'recent':
 		    
 		    vm.favorites.sort(function(a, b) {
-			return a.created() > b.created();
+			return a.created() < b.created();
 		    });
 		    break;
 		    
