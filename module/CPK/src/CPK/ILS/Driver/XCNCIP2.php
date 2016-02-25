@@ -29,23 +29,6 @@ namespace CPK\ILS\Driver;
 
 use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
 
-/*
- * TODO List
- *
- * Check all functionalities of these services:
- * LookupItem
- * LookupItemSet
- * LookupUser
- * LookupAgency
- * LookupRequest
- * RequestItem
- * - placeHold()
- * CancelRequestItem
- * - cancelHolds()
- * RenewItem
- * - renewMyItems()
- *
- */
 /**
  * XC NCIP Toolkit (v2) ILS Driver
  *
@@ -369,29 +352,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         );
     }
 
-    public function getAccruedOverdue($user)
-    {
-        // TODO testing purposes
-        return 12340;
-        $sum = 0;
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array(
-                'patron',
-                $user['id'],
-                'circulationActions'
-            ), null);
-        foreach ($xml->circulationActions->institution as $institution) {
-            $cashNote = (string) $institution->note;
-            $matches = array();
-            if (preg_match(
-                "/Please note that there is an additional accrued overdue items fine of: (\d+\.?\d*)\./",
-                $cashNote, $matches) === 1) {
-                $sum = $matches[1];
-            }
-        }
-        return $sum;
-    }
-
     public function getPaymentURL()
     {
         if (isset($this->config['paymentUrl']))
@@ -558,20 +518,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         );
     }
 
-    /*
-     * public function getHoldLink ($item_id)
-     * {
-     * // TODO testing purposes
-     * $itemIdParts = explode("-", $item_id);
-     *
-     * $id = substr($itemIdParts[0], 0, 5) . "-" . substr($itemIdParts[0], 5);
-     * $link .= $id . '/Hold?id=' . $id . '&item_id=';
-     * $link .= $itemIdParts[1];
-     * $link .= '#tabnav';
-     * return 'odlisenie/Hold?id=MZK01-001422752&item_id=MZK50001457754000010#tabnav';
-     * return $link;
-     * }
-     */
     public function placeHold($holdDetails)
     {
         $patron = $holdDetails['patron'];
@@ -687,8 +633,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $id = $this->joinAgencyId($id, $agencyId);
 
             // Extract details from the XML:
-            $status = (string) $this->useXPath($response,
-                'LookupItemResponse/ItemOptionalFields/CirculationStatus')[0];
+            $status = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/CirculationStatus');
 
             $locations = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/Location');
             foreach ($locations as $locElement) {
@@ -708,16 +653,20 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $itemRestriction = $this->useXPath($response,
                 'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType');
-            $dueDate = $this->useXPath($response,
-                    'LookupItemResponse/ItemOptionalFields/DateDue');
-            $dueDate = $this->parseDate($dueDate);
+            if (! empty($status) && (string) $status[0] == 'On Loan') {
+                $dueDate = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/DateDue');
+                $dueDate = $this->parseDate($dueDate);
+            } else {
+                if (! empty($status) && (string) $status[0] == 'On Order') $status[0] = 'On Loan';
+                $dueDate = false;
+            }
 
-            $label = $this->determineLabel($status);
+            $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
 
             return array(
                 'id' => empty($id) ? "" : $id,
                 'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-                'status' => empty($status) ? "" : $status,
+                'status' => empty($status) ? '' : (string) $status[0],
                 'location' => '',
                 'sub_lib_desc' => '',
                 'collection' => isset($collection) ? $collection : '',
@@ -1524,6 +1473,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         }
 
         return $blocks;
+    }
+
+    public function getAccruedOverdue($user) {
+        // TODO
+        return array();
     }
 
     /**
