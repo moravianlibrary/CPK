@@ -26,8 +26,6 @@
   <div class="col-sm-4">
     <h2 id='aboutPortalHeader'><?=$this->transEsc('About portal knihovny.cz')?></h2>
     <ul>
-      <li><a target="_blank" href="https://docs.google.com/document/d/1wNd2DvPoIEkeP268rj66Z-79bdGn470R-KzkQQvUvUs/edit?usp=sharing"><?=$this->transEsc('About portal')?></a></li>
-      <li><a target="_blank" href="https://docs.google.com/a/mzk.cz/document/d/1rdZKw-7sCDuoJE-CZtHLAEzIIV91p7Kijhv_5rk9dzc/edit?usp=sharing"><?=$this->transEsc('Participating libraries and sources')?></a></li>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'middle'): ?>
@@ -41,7 +39,6 @@
     <h2><?=$this->transEsc('Need Help?')?></h2>
     <ul>
       <li><a target="_blank" href="https://docs.google.com/a/mzk.cz/document/d/1pc1F4tQkkV1-SmnxuBztdfcVAINIfv7TMrkTOIEP5QI/edit?usp=sharing"><?=$this->transEsc('Hint')?></a></li>
-      <li><a target="_blank" href="https://docs.google.com/a/mzk.cz/document/d/1ZGzWlLjVsmw9Z4TGLwTglFYnk5JuR2kHct0DpfNF9Tg/edit?usp=sharing"><?=$this->transEsc('Feedback')?></a></li>
       <li><a href="http://www.ptejteseknihovny.cz/"><?=$this->transEsc('Ask a Librarian')?></a></li>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
