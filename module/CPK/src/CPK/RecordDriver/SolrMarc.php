@@ -577,7 +577,10 @@ class SolrMarc extends ParentSolrMarc
             if ($phpResponse[0]['annotation']['html'] == null)
                 return null;
 
-            $anot = $phpResponse[0]['annotation']['html'];
+            $anothtml = $phpResponse[0]['annotation']['html'];
+            //obalky knih sends annotation html escaped, we have convert it to string, to be able to escape it
+            $anot = htmlspecialchars_decode($anothtml);
+
             $source = $phpResponse[0]['annotation']['source'];
 
             return $anot . " - " . $source;
