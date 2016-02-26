@@ -33,12 +33,6 @@ function fetchTransactions(cat_username) {
 }
 
 function updateTransactions(response) {
-
-    // Update notifications not to let those fetch the blocks again ;)
-    var nofifIsNotDefined = typeof __notif !== "undefined" && typeof __notif.overdues !== "undefined";
-    if (! nofifIsNotDefined) {
-	__notif.helper.processResponseAsynchronously(__notif.overdues, response);
-    }
     
     var data = response.data, status = response.status;
 

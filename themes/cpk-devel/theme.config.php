@@ -17,9 +17,11 @@ return array(
         'vendor/rc4.js',
         'vendor/localforage-bundle.min.js',
         'vendor/js.cookie.js',
-        'vendor/angular.min.js',
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
+        
+        'vendor/angular.min.js',
+        
         'favorites/module.js',
         'favorites/translate.filter.js',
         'favorites/favsNotifications.service.js',
@@ -29,7 +31,12 @@ return array(
         'favorites/broadcaster.service.js',
         'favorites/list.controller.js',
         'favorites/record.controller.js',
+        
+        'notifications/module.js',
+        'notifications/notif.controller.js',
+        
         'cpk.ng-app.js',
+        
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
