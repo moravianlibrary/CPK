@@ -1201,6 +1201,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $fines = array();
         $sum = 0;
         foreach ($list as $current) {
+            $excluded = false;
             $amount = $this->useXPath($current,
                 'FiscalTransactionInformation/Amount/MonetaryValue');
             $action = $this->useXPath($current,
@@ -1211,10 +1212,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $desc = $this->useXPath($current,
                 'FiscalTransactionInformation/FiscalTransactionDescription');
             $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
-            if ($this->isAncientFee($date)) continue; // exclude old fees
+            if ($this->isAncientFee($date)) $excluded = true; // exclude old fees
             $date = $this->parseDate($date);
             $amount_int = (int) $amount[0] * (- 1);
-            if ($amount_int == 0) continue; // exclude zero fees
+            if ($amount_int == 0) continue; // remove zero fees
             $sum += $amount_int;
 
             if ($this->agency == 'ZLG001') $desc = $action;
@@ -1227,7 +1228,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'balance' => (string) $sum,
                 'createdate' => '',
                 'duedate' => '',
-                'id' => (string) $type[0]
+                'id' => (string) $type[0],
+                'excluded' => $excluded
             );
         }
         if (empty($fines) && ! empty($monetaryValue)) $fines[] = array(

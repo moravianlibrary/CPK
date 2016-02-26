@@ -97,6 +97,18 @@ function updateFinesTable(response) {
 		// Purge <tbody>
 		tableBody.remove();
 	    }
+	    
+	    tableBody.append( '<a id="' + cat_username + '" class="toggler">Show others</a>' );
+	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
+	    	$(this).toggleClass('more');
+	        if ($(this).is(".more")){
+	        	$(this).text('Hide others');
+	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).removeClass('hidden');
+	        } else {
+	        	$(this).text('Show others');
+	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).addClass('hidden');
+	        }
+	    });
 
 	} else {
 	    var message = response.data.message;
@@ -142,6 +154,7 @@ function updateFinesTable(response) {
  */
 function getTableRowFromFine(tableBody, fine, counter) {
     var tr = $('<tr>');
+    if (fine.excluded == true) tr.addClass('excluded hidden');
 
     var ths = tableBody.children().first().children();
     var moneyFormat = tableBody.attr('data-money-format');

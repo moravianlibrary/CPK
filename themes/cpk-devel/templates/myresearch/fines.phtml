@@ -50,7 +50,6 @@
               <th><?=$this->transEsc('Due Date')?></th>
               <th><?=$this->transEsc('Fine description')?></th>
               <th><?=$this->transEsc('Fee')?></th>
-              <th><?=$this->transEsc('Balance')?></th>
             </tr>
             <? $totalDue = 0; ?>
 
@@ -69,7 +68,6 @@
                     <td><?=isset($record['duedate']) ? $this->escapeHtml($record['duedate']) : ''?></td>
                     <td><?=isset($record['fine']) ? $this->escapeHtml($record['fine']) : ''?></td>
                     <td><?=isset($record['amount']) ? $this->safeMoneyFormat($record['amount']/100.00) : ''?></td>
-                    <td><?=isset($record['balance']) ? $this->safeMoneyFormat($record['balance']/100.00) : ''?></td>
                   </tr>
                   <? $totalDue += $record['amount']; ?>
                 <? endforeach; ?>
@@ -94,9 +92,8 @@
               <th data-key='duedate'><?=$this->transEsc('Due Date')?></th>
               <th data-key='fine'><?=$this->transEsc('Fine description')?></th>
               <th data-key='amount'><?=$this->transEsc('Fee')?></th>
-              <th data-key='balance'><?=$this->transEsc('Balance')?></th>
             </tr>
-            <tr style="font-weight:bold"><td colspan="5"><?=$this->transEsc('Total Balance Due')?></td><td data-type="sum"></td></tr>
+            <tr style="font-weight:bold"><td colspan="4"><?=$this->transEsc('Total Balance Due')?></td><td data-type="sum"></td></tr>
         </tbody>
       </table>
     <? endif; ?>
