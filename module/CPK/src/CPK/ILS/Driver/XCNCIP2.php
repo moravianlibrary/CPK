@@ -657,7 +657,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $dueDate = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/DateDue');
                 $dueDate = $this->parseDate($dueDate);
             } else {
-                if (! empty($status) && (string) $status[0] == 'On Order') $status[0] = 'On Loan';
                 $dueDate = false;
             }
 
@@ -841,7 +840,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $dueDate = $this->parseDate($dueDate);
             } else {
                 /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet.*/
-                if (! empty($status) && (string) $status[0] == 'On Order') $status[0] = 'On Loan';
                 $dueDate = false;
             }
 
@@ -960,7 +958,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (($status === 'Available On Shelf') || ($status === 'Available For Pickup'))
             $label = 'label-success';
         else
-            if ($status === 'On Loan')
+            if (($status === 'On Loan') || ($status === 'On Order'))
                 $label = 'label-warning';
         return $label;
     }
@@ -1213,8 +1211,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $desc = $this->useXPath($current,
                 'FiscalTransactionInformation/FiscalTransactionDescription');
             $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
+            if ($this->isAncientFee($date)) continue; // exclude old fees
             $date = $this->parseDate($date);
             $amount_int = (int) $amount[0] * (- 1);
+            if ($amount_int == 0) continue; // exclude zero fees
             $sum += $amount_int;
 
             if ($this->agency == 'ZLG001') $desc = $action;
@@ -1778,5 +1778,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $today_time = strtotime(date("Y-m-d"));
         $expire_time = strtotime(date('Y-m-d', $parsedDate));
         return ($expire_time < $today_time) ? 'overdue' : false;
+    }
+
+    protected function isAncientFee($date)
+    {
+        $parsedDate = empty($date) ? '' : strtotime($date[0]);
+        $fee_time = strtotime(date('Y-m-d', $parsedDate));
+        $filter_time = strtotime(date("Y-m-d") . ' -1 year');
+        return ($fee_time < $filter_time) ? true : false;
     }
 }

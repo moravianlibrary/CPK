@@ -254,7 +254,7 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['department']))
                     $itemsStatuses[$id]['department'] = $status['department'];
 
-                $key = array_search($id, $ids);
+                $key = array_search(trim($id), $ids);
 
                 if ($key !== false)
                     unset($ids[$key]);
