@@ -160,6 +160,47 @@ li.jstree-facet ul {
   margin-top: -5px;
 }
 
+.facet {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+.jstree-ocl::before {
+    color: #e5004b !important;
+    // content: "»" !important;
+}
+
+.sidebar .list-group:not(.filters) .title::after {
+    content: none;
+    color: #e5004b !important;
+}
+
+.sidebar .list-group:not(.filters) .title::before {
+    content: "⇱ ";
+    color: #e5004b !important;
+}
+
+.sidebar .list-group:not(.filters) .title.collapsed::after {
+    color: #e5004b !important;
+    content: none;
+}
+
+.sidebar .list-group:not(.filters) .title.collapsed::before {
+    content: "⇲ ";
+}
+
+.list-group, .tt-dropdown-menu {
+    background-color: inherit !important;
+}
+
+.list-group-item {
+    background-color: inherit !important;
+}
+
+.list-group-item.title {
+    font-size: 120%;
+    font-weight: normal;
+}
+
 //date visualization
 ////////////////////
 #dateVisColorSettings {
