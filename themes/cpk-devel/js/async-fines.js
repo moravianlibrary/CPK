@@ -33,12 +33,6 @@ function fetchFines(cat_username) {
 }
 
 function updateFinesTable(response) {
-
-    // Update notifications not to let those fetch the blocks again ;)
-    var nofifIsNotDefined = typeof __notif !== "undefined" && typeof __notif.fines !== "undefined";
-    if (! nofifIsNotDefined) {
-	__notif.helper.processResponseAsynchronously(__notif.fines, response);
-    }
     
     var data = response.data, status = response.status;
 
@@ -107,6 +101,7 @@ function updateFinesTable(response) {
 	        } else {
 	        	$(this).text('Show others');
 	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).addClass('hidden');
+	        	window.location = '/MyResearch/Fines#' + parentTable.parent().attr('id');;
 	        }
 	    });
 
