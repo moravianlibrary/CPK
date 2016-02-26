@@ -92,7 +92,10 @@ function updateFinesTable(response) {
 		tableBody.remove();
 	    }
 	    
-	    tableBody.append( '<a id="' + cat_username + '" class="toggler">Show others</a>' );
+	    var count = $( 'table[id="' + cat_username + '"] tr.excluded' ).size();
+	    if (count > 0) {
+	    	tableBody.append( '<a id="' + cat_username + '" class="toggler">Show others</a>' );
+	    }
 	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
 	    	$(this).toggleClass('more');
 	        if ($(this).is(".more")){
@@ -101,7 +104,7 @@ function updateFinesTable(response) {
 	        } else {
 	        	$(this).text('Show others');
 	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).addClass('hidden');
-	        	window.location = '/MyResearch/Fines#' + parentTable.parent().attr('id');;
+	        	window.location = '/MyResearch/Fines#' + parentTable.parent().attr('id');
 	        }
 	    });
 
