@@ -33,12 +33,6 @@ function fetchFines(cat_username) {
 }
 
 function updateFinesTable(response) {
-
-    // Update notifications not to let those fetch the blocks again ;)
-    var nofifIsNotDefined = typeof __notif !== "undefined" && typeof __notif.fines !== "undefined";
-    if (! nofifIsNotDefined) {
-	__notif.helper.processResponseAsynchronously(__notif.fines, response);
-    }
     
     var data = response.data, status = response.status;
 
@@ -97,6 +91,22 @@ function updateFinesTable(response) {
 		// Purge <tbody>
 		tableBody.remove();
 	    }
+	    
+	    var count = $( 'table[id="' + cat_username + '"] tr.excluded' ).size();
+	    if (count > 0) {
+	    	tableBody.append( '<a id="' + cat_username + '" class="toggler">' + VuFind.translate('show_others') + '</a>' );
+	    }
+	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
+	    	$(this).toggleClass('more');
+	        if ($(this).is(".more")){
+	        	$(this).text(VuFind.translate('hide_others'));
+	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).removeClass('hidden');
+	        } else {
+	        	$(this).text(VuFind.translate('show_others'));
+	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).addClass('hidden');
+	        	window.location = '/MyResearch/Fines#' + parentTable.parent().attr('id');
+	        }
+	    });
 
 	} else {
 	    var message = response.data.message;
@@ -142,6 +152,7 @@ function updateFinesTable(response) {
  */
 function getTableRowFromFine(tableBody, fine, counter) {
     var tr = $('<tr>');
+    if (fine.excluded == true) tr.addClass('excluded hidden');
 
     var ths = tableBody.children().first().children();
     var moneyFormat = tableBody.attr('data-money-format');

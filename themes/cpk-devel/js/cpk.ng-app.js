@@ -5,7 +5,7 @@
  * @author Jiří Kozlovský
  */
 (function() {
-    angular.module('cpk', [ 'favorites' ]).controller('MainController', MainController);
+    angular.module('cpk', [ 'favorites', 'notifications' ]).controller('MainController', MainController);
 
     MainController.$inject = [ 'favsBroadcaster' ];
 

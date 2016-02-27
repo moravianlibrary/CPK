@@ -1,3 +1,6 @@
+/**
+ * @deprecated Now we are using AngularJS notifications app
+ */
 $(function() { // Onload DOM ..
 
     /*

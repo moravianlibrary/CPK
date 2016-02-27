@@ -151,9 +151,6 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
             }
             
             return $html;
-        } else {
-            $message = $this->translator->__invoke( 'without_notifications' );
-            return $this->createNotification( $message, 'success without-notifs', false );
         }
         return '';
     }
@@ -176,8 +173,8 @@ class GlobalNotifications extends \Zend\View\Helper\AbstractHelper {
         return '';
     }
 
-    protected function createNotification($message, $class = 'default', $shouldIncrementTheCounter = true) {
-        return '<div class="notif-' . $class . ($shouldIncrementTheCounter ? '' : ' counter-ignore') . '">' . htmlspecialchars( 
+    protected function createNotification($message, $class = 'default') {
+        return '<div class="notif-' . $class . '">' . htmlspecialchars( 
                 $message ) . '</div>';
     }
 }

@@ -254,7 +254,7 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['department']))
                     $itemsStatuses[$id]['department'] = $status['department'];
 
-                $key = array_search($id, $ids);
+                $key = array_search(trim($id), $ids);
 
                 if ($key !== false)
                     unset($ids[$key]);
@@ -506,7 +506,6 @@ class AjaxController extends AjaxControllerBase
         // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
 
-
         $hasPermissions = $this->hasPermissions($cat_username);
 
         if ($hasPermissions instanceof \Zend\Http\Response)
@@ -610,6 +609,148 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
+     * Fetches recent notifications.
+     *
+     * TODO: Create an 'notifications cache' in local DB in order to prevent too much load from going from one page to another - It should also be stored which notification user have already read
+     *
+     * @return \Zend\Http\Response
+     */
+    public function getMyNotificationsAjax()
+    {
+        $cat_username = $this->params()->fromPost('cat_username');
+        
+        $hasPermissions = $this->hasPermissions($cat_username);
+        
+        if ($hasPermissions instanceof \Zend\Http\Response)
+            return $hasPermissions;
+        
+        $renderer = $this->getViewRenderer();
+        
+        $catalog = $this->getILS();
+        
+        $ilsDriver = $catalog->getDriver();
+        
+        $errors = [];
+        
+        $notifications = [];
+        
+        if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
+            
+            $source = substr($cat_username, 0, strpos($cat_username, '.'));
+            
+            $patron = [
+                'cat_username' => $cat_username,
+                'id' => $cat_username,
+                'source' => $source
+            ];
+            
+            $newNotificationsCssClass = 'warning';
+            
+            /*
+             * Get the profile
+             */
+            
+            try {
+                
+                $profile = $ilsDriver->getMyProfile($patron);
+                
+                if (is_array($profile) && count($profile) === 0)
+                    
+                    array_push($errors, 'Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
+                
+                else 
+                    if (count($profile['blocks'])) {
+                        
+                        $notification = [
+                            'clazz' => $newNotificationsCssClass,
+                            'message' => $this->translate('notif_you_have_blocks'),
+                            'href' => '/MyResearch/Profile#' . $source
+                        ];
+                        
+                        array_push($notifications, $notification);
+                    }
+            } catch (\Exception $e) {
+                array_push($errors, 'Error fetching blocks in "' . $source . '": ' . $e->getMessage());
+            }
+            
+            /*
+             * Get the fines
+             */
+            try {
+                
+                $fines = $ilsDriver->getMyFines($patron);
+                
+                unset($fines['source']);
+                
+                if (count($fines)) {
+                    
+                    $notification = [
+                        'clazz' => $newNotificationsCssClass,
+                        'message' => $this->translate('notif_you_have_fines'),
+                        'href' => '/MyResearch/Fines#' . $source
+                    ];
+                    
+                    array_push($notifications, $notification);
+                }
+            } catch (\Exception $e) {
+                array_push($errors, 'Error fetching fines in "' . $source . '": ' . $e->getMessage());
+            }
+            
+            /*
+             * Get the overdues
+             */
+            try {
+                
+                $result = $ilsDriver->getMyTransactions($patron);
+                
+                foreach ($result as $current) {
+                    
+                    $ilsDetails = $this->getDriverForILSRecord($current)->getExtraDetail('ils_details');
+                    
+                    if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue") {
+                        
+                        // We found an overdue .. show warning
+                        
+                        $notification = [
+                            'clazz' => $newNotificationsCssClass,
+                            'message' => $this->translate('notif_you_have_overdues'),
+                            'href' => '/MyResearch/CheckedOut#' . $source
+                        ];
+                        
+                        array_push($notifications, $notification);
+                        
+                        break;
+                    }
+                }
+            } catch (\Exception $e) {
+                array_push($errors, 'Error fetching overdues in "' . $source . '": ' . $e->getMessage());
+            }
+            
+            if (count($notifications)) {
+                
+                $data['notifications'] = $notifications;
+            } else {
+                
+                $data['notifications'] = array(
+                    [
+                        'clazz' => 'default',
+                        'message' => $this->translate('without_notifications')
+                    ]
+                );
+            }
+            
+            if (count($errors))
+                $data['errors'] = $errors;
+            
+            return $this->output($data, self::STATUS_OK);
+        } else
+            return $this->output([
+                'cat_username' => $cat_username,
+                'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
+            ], self::STATUS_ERROR);
+    }
+
+    /**
      * Creates new list into which it saves sent favorites.
      *
      * @return \Zend\Http\Response
@@ -668,61 +809,13 @@ class AjaxController extends AjaxControllerBase
         return $this->output($results, self::STATUS_OK);
     }
 
-    public function haveAnyOverdueAjax()
-    {
-            // Get the cat_username being requested
-        $cat_username = $this->params()->fromPost( 'cat_username' );
-
-        $hasPermissions = $this->hasPermissions( $cat_username );
-
-        if ($hasPermissions instanceof \Zend\Http\Response)
-            return $hasPermissions;
-
-        $ilsDriver = $this->getILS()->getDriver();
-
-        if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
-
-            $patron = [
-                'cat_username' => $cat_username,
-                'id' => $cat_username
-            ];
-
-            try {
-                // Try to get the profile ..
-                $result = $ilsDriver->getMyTransactions( $patron );
-            } catch (\Exception $e ) {
-                return $this->outputException( $e, $cat_username );
-            }
-
-            $showOverdueMessage = false;
-
-            foreach ( $result as $current ) {
-
-                $ilsDetails = $this->getDriverForILSRecord( $current )->getExtraDetail( 'ils_details' );
-
-                if (isset( $ilsDetails['dueStatus'] ) && $ilsDetails['dueStatus'] == "overdue") {
-                    $showOverdueMessage = true;
-                    break;
-                }
-            }
-
-            $source = explode( '.', $cat_username )[0];
-
-            $toRet = [
-                'overdue' => $showOverdueMessage,
-                'source' => $source
-            ];
-
-            return $this->output( $toRet, self::STATUS_OK );
-        } else
-            return $this->output(
-                    [
-                        'source' => $source,
-                        'cat_username' => $cat_username,
-                        'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
-                    ], self::STATUS_ERROR );
-    }
-
+    /**
+     * Updates read notifications related to user's identity
+     * 
+     * FIXME move 'read_notifications' to new table handling all cached notifications
+     * 
+     * @return \Zend\Http\Response
+     */
     public function updateNotificationsReadAjax()
     {
             // Check user is logged in ..

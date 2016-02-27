@@ -52,7 +52,9 @@
             'records_per_page_set_permanently' => 'records_per_page_set_permanently',
             'default_sorting_set_permanently' => 'default_sorting_set_permanently',
             'Source' => 'Source',
-            'Reserve' => 'Reserve'
+            'Reserve' => 'Reserve',
+            'show_others' => 'show_others',
+            'hide_others' => 'hide_others'
           )
         );
         // Add libphonenumber.js strings
@@ -130,33 +132,6 @@
 
         if ($authManager instanceof \CPK\Auth\Manager) {
             $notificationsEnabled = $authManager->isNotificationSystemEnabled();
-
-            if ($notificationsEnabled) {
-
-                $this->headScript()->appendFile("async-notifications.js");
-
-                // Add notifications translations
-                $this->jsTranslations()->addStrings(
-                        array(
-                            'you_have_blocks' => 'notif_you_have_blocks',
-                            'you_have_fines' => 'notif_you_have_fines',
-                            'you_have_overdues' => 'notif_you_have_overdues'
-                        )
-                        );
-
-                /* Also check if the user have just logged in - in order to let
-                 * the __notif.sourcesRead know about it's state before last logout
-                 */
-
-                if(isSeT($_ENV['justLoggedIn'])) {
-
-                    if ($_ENV['justLoggedIn'] === true) {
-                        $this->headScript()->appendScript('$(function(){'
-                                . '__notif.sourcesRead.init('
-                                . $user->read_notifications . ') })');
-                    }
-                }
-            }
         }
 
         if ($user) {
