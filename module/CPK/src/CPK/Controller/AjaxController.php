@@ -644,15 +644,6 @@ class AjaxController extends AjaxControllerBase
                 'source' => $source
             ];
             
-            /**
-             * Simply adds an error message to $errors array when passed an exception to it
-             *
-             * @var callable $exceptionCatcher
-             */
-            $exceptionCatcher = function ($e, $source = 'unknown', $whatFetching = 'something') {
-                array_push($errors, 'Error fetching ' . $whatFetching . ' in "' . $source . '": ' . $e->getMessage());
-            };
-            
             /*
              * These try-catchs are constructed separately in order to try fetching different service after one fails ..
              */
@@ -663,8 +654,13 @@ class AjaxController extends AjaxControllerBase
             try {
                 
                 $myBlocks = $notifHandler->getMyBlocks($ilsDriver, $patron);
+                
             } catch (\Exception $e) {
-                call_user_func('exceptionCatcher', $e, $source, 'blocks');
+                
+                array_push($errors, 'Error fetching blocks in "' . $source . '": ' . $e->getMessage());
+                
+                $myBlocks['notifications'] = [];
+                $myBlocks['errors'] = [];
             }
             
             /*
@@ -673,8 +669,13 @@ class AjaxController extends AjaxControllerBase
             try {
                 
                 $myFines = $notifHandler->getMyFines($ilsDriver, $patron);
+                
             } catch (\Exception $e) {
-                call_user_func('exceptionCatcher', $e, $source, 'fines');
+                
+                array_push($errors, 'Error fetching fines in "' . $source . '": ' . $e->getMessage());
+                
+                $myFines['notifications'] = [];
+                $myFines['errors'] = [];
             }
             
             /*
@@ -683,8 +684,14 @@ class AjaxController extends AjaxControllerBase
             try {
                 
                 $myOverdues = $notifHandler->getMyOverdues($ilsDriver, $patron);
+                
             } catch (\Exception $e) {
-                call_user_func('exceptionCatcher', $e, $source, 'overdues');
+                
+                array_push($errors, 'Error fetching overdues in "' . $source . '": ' . $e->getMessage());
+                
+                $myOverdues['notifications'] = [];
+                $myOverdues['errors'] = [];                
+                
             }
             
             // Merge all notifications
