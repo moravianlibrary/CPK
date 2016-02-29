@@ -84,7 +84,7 @@
 			  <div id='citation-style-selector'>
 			    <select class='style' id='record_<?=$id?>'>
 			      <? foreach($this->availableCitationStyles as $style): ?>
-			      <option value='<?=$style['value']?>'<?= ($style['value'] == $this->selectedCitationStyle) ? 'selected="selected"' : '' ?>><?=$style['description']?></option>
+			      <option value='<?=$style['value']?>'<?= ($style['id'] == $this->selectedCitationStyle) ? 'selected="selected"' : '' ?>><?=$style['description']?></option>
 			      <? endforeach; ?>
 			    </select>
 			    <a href="http://www.citacepro.com/nacist-dokument-sysno/<?=$id?>?katalog=cpk" target="_blank">
