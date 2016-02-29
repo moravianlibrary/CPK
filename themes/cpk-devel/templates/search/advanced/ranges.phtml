@@ -5,7 +5,9 @@
       <input type="hidden" name="<?=$this->escapeHtmlAttr($current['type'])?>range[]" value="<?=$escField?>"/>
       <div class="row">
         <div class='col-md-3'>
-      	  <legend><?=$this->transEsc($params->getFacetLabel($current['field']))?></legend>
+      	  <legend class='legend'>
+      	    <?=$this->transEsc($params->getFacetLabel($current['field']))?>
+      	  </legend>
       	</div>
         <div class='col-md-3'>
           <input type="number" name="<?=$escField?>from" id="<?=$escField?>from" value="<?=isset($current['values'][0])?$this->escapeHtmlAttr($current['values'][0]):''?>" class="form-control" <?=$extraInputAttribs?> placeholder='<?=$this->transEsc('date_from')?>'/>

@@ -79,7 +79,7 @@
                 <? endif; ?>
           	  	</div>
           	    <div class='col-sm-6 pull-left'>
-                  <h2 class="flip"><?=$this->transEsc('Advanced Search')?></h2>
+                  <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
                 </div>
                 <div class='col-sm-3 pull-right'>
                   <div id="groupJoin" class="form-inline pull-right flip">
@@ -175,7 +175,7 @@
         <? if (!empty($this->facetList) || !empty($this->checkboxFacets)): ?>
           <div class="row">
             <fieldset class="col-sm-12">
-              <legend><?=$this->transEsc('Filters')?></legend>
+              <legend class='legend'><?=$this->transEsc('Filters')?></legend>
               <? if (!empty($this->checkboxFacets)): ?>
                 <?=$this->render('search/advanced/checkbox-filters.phtml')?>
               <? endif; ?>
@@ -288,7 +288,7 @@
         <div class="row">
           <? if (isset($this->illustratedLimit)): ?>
             <fieldset class="col-sm-4">
-              <legend><?=$this->transEsc("Illustrated")?>:</legend>
+              <legend class='legend'><?=$this->transEsc("Illustrated")?>:</legend>
               <? foreach ($this->illustratedLimit as $current): ?>
                 <input id="illustrated_<?=$this->escapeHtmlAttr($current['value'])?>" type="radio" name="illustration" value="<?=$this->escapeHtmlAttr($current['value'])?>"<?=$current['selected']?' checked="checked"':''?>/>
                 <label for="illustrated_<?=$this->escapeHtmlAttr($current['value'])?>"><?=$this->transEsc($current['text'])?></label><br/>
