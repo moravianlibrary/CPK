@@ -69,10 +69,19 @@
           <div class='row'>
           	<div class='col-sm-12 pull-left'>
           	  <div class='row'>
+          	  	<div class='col-sm-3 pull-right advanced-search-cms-menu text-right'>
+          	  	<? $portalPages = $this->portalPages()->getAllPages(); if (count($portalPages)): ?>
+                  <? foreach ($portalPages as $page): ?>
+                    <? if ($page['placement'] === 'advanced-search'): ?>
+                      <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a>&nbsp;
+                    <? endif; ?>
+                  <? endforeach; ?>
+                <? endif; ?>
+          	  	</div>
           	    <div class='col-sm-6 pull-left'>
-                  <h2 class="flip"><?=$this->transEsc('Find')?></h2>
+                  <h2 class="flip"><?=$this->transEsc('Advanced Search')?></h2>
                 </div>
-                <div class='col-sm-6 pull-right'>
+                <div class='col-sm-3 pull-right'>
                   <div id="groupJoin" class="form-inline pull-right flip">
                     <label for="groupJoinOptions"><?=$this->transEsc("search_match")?>:</label>
                     <select id="groupJoinOptions" name="join" class="form-control">
@@ -160,7 +169,100 @@
                 </div>
             </div>
           
-            <div>
+		</div>
+      </div>
+
+        <? if (!empty($this->facetList) || !empty($this->checkboxFacets)): ?>
+          <div class="row">
+            <fieldset class="col-sm-12">
+              <legend><?=$this->transEsc('Filters')?></legend>
+              <? if (!empty($this->checkboxFacets)): ?>
+                <?=$this->render('search/advanced/checkbox-filters.phtml')?>
+              <? endif; ?>
+              <div class="row">
+                <? foreach ($this->facetList as $field => $list): ?>
+                  <div class="col-sm-<?=floor(12/count($this->facetList)) ?>">
+                  <label for="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
+                  <?
+                    $selectId = 'limit_' . $this->escapeHtmlAttr(str_replace(' ', '', $field));
+                    $onClick = "$('#" . $selectId . "').val('');";
+                  ?>  
+        	      <select class="col-sm-12 form-control" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
+                    <? if (is_array($this->hierarchicalFacets) && in_array($field, $this->hierarchicalFacets)): ?>
+                    	<?
+                    	
+                            $top = isset($this->preferredFacets[$field])? $this->preferredFacets[$field] : array();
+                            $priors = array();
+                            foreach ($list['list'] as $i => $value) {
+                                $key = $value['value'];
+                                if (isset($top[$key])) {
+                                    $priors[$top[$key]] = $value;
+                                }
+                            }
+                            ksort($priors);
+                        ?>
+                        <? foreach ($priors as $i => $value): ?>
+                          <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                            <?=$this->transEsc($value['displayText'])?>
+                          </option>
+                        <? endforeach; ?>
+                        
+                        <? foreach ($list['list'] as $value): ?>
+                          <? if (!isset($top[$value['value']])): ?>
+                            <? $display = str_pad('', 4 * $value['level'] * 6, '&nbsp;', STR_PAD_LEFT) . $this->transEsc($value['displayText']); ?>
+                            <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>><?=$display?></option>
+                          <? endif; ?>
+                        <? endforeach; ?>
+                        
+                      	<? else: ?>
+                            <?
+                            // Sort the current facet list alphabetically; we'll use this data
+                            // along with the foreach below to display facet options in the
+                            // correct order.
+                            $sorted = array();
+                            foreach ($list['list'] as $i => $value) {
+                              if (!empty($value['displayText'])) {
+                                $sorted[$i] = $this->transEsc($value['displayText']);
+                              }
+                            }
+                            asort($sorted, SORT_LOCALE_STRING);
+                            $top = isset($this->preferredFacets[$field])? $this->preferredFacets[$field] : array();
+                            $priors = array();
+                            foreach ($list['list'] as $i => $value) {
+                              $key = $value['value'];
+                              if (isset($top[$key])) {
+                                $priors[$top[$key]] = $value;
+                              }
+                            }
+                            ksort($priors);
+                        ?>
+                        <? foreach ($priors as $i => $value): ?>
+                          <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                            <?=$this->transEsc($value['displayText'])?>
+                          </option>
+                        <? endforeach; ?>
+                        <? if (!empty($top) && count($priors) != count($sorted)):?>
+                          <option disabled="disabled">=================</option>
+                        <? endif;?>
+                        <? foreach ($sorted as $i => $display): ?>
+                      <? $value = $list['list'][$i]; if (!isset($top[$value['value']])):?>
+                        <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                          <?=$this->escapeHtml($display)?>
+                        </option>
+                      <? endif;?>
+                    <? endforeach; ?>
+                    <? endif; ?>
+                    
+                  </select>
+        
+                  </div>
+                <? endforeach; ?>
+              </div>
+            </fieldset>
+          </div>
+        <? endif; ?>
+        
+        <div>
                 <? if ($hasDefaultsApplied): ?>
                   <input type="hidden" name="dfApplied" value="1" />
                 <? endif ?>
@@ -182,19 +284,30 @@
                   <? endforeach; ?>
                 <? endif; ?>
             </div>
-		</div>
-      </div>
-
-        <? if (isset($this->extraAdvancedControls)): ?>
-          <?=$this->extraAdvancedControls ?>
-          <br>
-        <? endif; ?>
-          <div class="clearfix">
-            <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" type="submit" value="<?= $this->transEsc('Find')?>">
-            <input class="btn btn-lg pull-right reset-button" type="reset" value="<?= $this->transEsc('Clear form')?>">
+        
+        <div class="row">
+          <? if (isset($this->illustratedLimit)): ?>
+            <fieldset class="col-sm-4">
+              <legend><?=$this->transEsc("Illustrated")?>:</legend>
+              <? foreach ($this->illustratedLimit as $current): ?>
+                <input id="illustrated_<?=$this->escapeHtmlAttr($current['value'])?>" type="radio" name="illustration" value="<?=$this->escapeHtmlAttr($current['value'])?>"<?=$current['selected']?' checked="checked"':''?>/>
+                <label for="illustrated_<?=$this->escapeHtmlAttr($current['value'])?>"><?=$this->transEsc($current['text'])?></label><br/>
+              <? endforeach; ?>
+            </fieldset>
+          <? endif; ?>
           </div>
           <br>
-        
+          <div class='row'>
+            <div class='col-md-6'>
+              <?=$this->render('search/advanced/ranges.phtml')?>
+            </div>
+            <div class='col-md-6'>
+              <div class="clearfix">
+                <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" type="submit" value="<?= $this->transEsc('Find')?>">
+                <input class="btn btn-lg pull-right reset-button" type="reset" value="<?= $this->transEsc('Clear form')?>">
+              </div>
+            </div>
+        </div>
     </div>
 
 </div>
