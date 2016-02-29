@@ -32,6 +32,18 @@
 				window.location.href = url;
 		    }
 		});
+
+		if ($( '#view' ).val() == 'advanced-search') {
+			$( '.position-placeholder' ).addClass( 'hidden' );
+		}
+		$( '#view' ).on( 'change', function() {
+			if( $( this ).val() == 'advanced-search' ) {
+				$( '.position-placeholder' ).addClass( 'hidden' );
+			} else {
+				$( '.position-placeholder' ).removeClass( 'hidden' );
+			}
+		});
+		
 	});
 </script>
 <div class="row clearfix">
@@ -97,7 +109,7 @@
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class="form-group position-placeholder">
             <div class="col-xs-3">
               <label><?=$this->translate('Position')?></label>
               <select id='view' class='form-control' name='position'>

@@ -74,7 +74,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $portalPagesTable = $this->getTable("portalpages");
         
         $positions = ['left', 'middle', 'right'];
-        $placements = ['footer'];
+        $placements = ['footer', 'advanced-search'];
         
         $subAction = $this->params()->fromRoute('subaction');
         if ($subAction == 'Edit') { // is edit in route?
