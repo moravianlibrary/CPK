@@ -39,6 +39,12 @@
       ['options' => $this->options, 'searchDetails' => $searchDetails]
     )
   );
+  
+  $this->headScript()->appendFile('vendor/prism.js');
+  $this->headScript()->appendFile('vendor/chosen.jquery.js');
+  
+  $this->headLink()->appendStylesheet('vendor/prism.css');
+  $this->headLink()->appendStylesheet('vendor/chosen.css');
 
   // Collect previous search queries
   $setSearchGroups = [];
@@ -164,17 +170,14 @@
                       <? endif; ?>
                       <? endfor; ?>
                   <? endif; ?>
-          
-          
                 </div>
             </div>
-          
 		</div>
       </div>
 
         <? if (!empty($this->facetList) || !empty($this->checkboxFacets)): ?>
           <div class="row">
-            <fieldset class="col-sm-12">
+            <fieldset class="col-sm-12 advanced-filters">
               <legend class='legend'><?=$this->transEsc('Filters')?></legend>
               <? if (!empty($this->checkboxFacets)): ?>
                 <?=$this->render('search/advanced/checkbox-filters.phtml')?>
@@ -187,7 +190,7 @@
                     $selectId = 'limit_' . $this->escapeHtmlAttr(str_replace(' ', '', $field));
                     $onClick = "$('#" . $selectId . "').val('');";
                   ?>  
-        	      <select class="col-sm-12 form-control" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
+        	      <select class="col-sm-12 form-control chosen-select" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
                     <? if (is_array($this->hierarchicalFacets) && in_array($field, $this->hierarchicalFacets)): ?>
                     	<?
                     	
@@ -297,7 +300,7 @@
           <? endif; ?>
           </div>
           <br>
-          <div class='row'>
+          <div class='row advanced-timeline'>
             <div class='col-md-6'>
               <?=$this->render('search/advanced/ranges.phtml')?>
             </div>
@@ -313,3 +316,8 @@
 </div>
   </form>
 </div>
+<script type="text/javascript">
+	jQuery( document ).ready( function( $ ){
+		$( '.chosen-select' ).chosen();
+	});
+</script>
