@@ -21,7 +21,7 @@
  *
  * @category VuFind2
  * @package  Controller
- * @author   Chris Hallberg <challber@villanova.edu>
+ * @author   Martin Kravec <Martin.Kravec@mzk.cz>; Jiří Kozlovský <Jiri.Kozlovsky@mzk.cz>; Matúš Šabík <Matus.Sabik@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_a_controller Wiki
  */
@@ -29,15 +29,6 @@ namespace CPK\Controller;
 
 use MZKCommon\Controller\AjaxController as AjaxControllerBase, VuFind\Exception\ILS as ILSException;
 
-/**
- * This controller handles global AJAX functionality
- *
- * @category VuFind2
- * @package Controller
- * @author Martin Kravec <Martin.Kravec@mzk.cz>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link http://vufind.org/wiki/vufind2:building_a_controller Wiki
- */
 class AjaxController extends AjaxControllerBase
 {
     use \VuFind\Db\Table\DbTableAwareTrait;
@@ -611,19 +602,30 @@ class AjaxController extends AjaxControllerBase
     /**
      * Fetches recent notifications.
      *
-     * TODO: Create an 'notifications cache' in local DB in order to prevent too much load from going from one page to another - It should also be stored which notification user have already read
-     *
      * @return \Zend\Http\Response
      */
     public function getMyNotificationsAjax()
     {
         $cat_username = $this->params()->fromPost('cat_username');
         
+        // Check user's permissions
         $hasPermissions = $this->hasPermissions($cat_username);
         
+        // Redirect if not authorized
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
         
+        $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
+        
+        // Check we have correct notifications handler
+        if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
+            return $this->output([
+                'cat_username' => $cat_username,
+                'message' => 'Did not found expected Notifications handler.'
+            ], self::STATUS_ERROR);
+        }
+        
+        // Initialize needed stuff
         $renderer = $this->getViewRenderer();
         
         $catalog = $this->getILS();
@@ -631,8 +633,6 @@ class AjaxController extends AjaxControllerBase
         $ilsDriver = $catalog->getDriver();
         
         $errors = [];
-        
-        $notifications = [];
         
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
             
@@ -644,33 +644,27 @@ class AjaxController extends AjaxControllerBase
                 'source' => $source
             ];
             
-            $newNotificationsCssClass = 'warning';
+            /**
+             * Simply adds an error message to $errors array when passed an exception to it
+             *
+             * @var callable $exceptionCatcher
+             */
+            $exceptionCatcher = function ($e, $source = 'unknown', $whatFetching = 'something') {
+                array_push($errors, 'Error fetching ' . $whatFetching . ' in "' . $source . '": ' . $e->getMessage());
+            };
             
             /*
-             * Get the profile
+             * These try-catchs are constructed separately in order to try fetching different service after one fails ..
              */
             
+            /*
+             * Get the blocks
+             */
             try {
                 
-                $profile = $ilsDriver->getMyProfile($patron);
-                
-                if (is_array($profile) && count($profile) === 0)
-                    
-                    array_push($errors, 'Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
-                
-                else 
-                    if (count($profile['blocks'])) {
-                        
-                        $notification = [
-                            'clazz' => $newNotificationsCssClass,
-                            'message' => $this->translate('notif_you_have_blocks'),
-                            'href' => '/MyResearch/Profile#' . $source
-                        ];
-                        
-                        array_push($notifications, $notification);
-                    }
+                $myBlocks = $notifHandler->getMyBlocks($ilsDriver, $patron);
             } catch (\Exception $e) {
-                array_push($errors, 'Error fetching blocks in "' . $source . '": ' . $e->getMessage());
+                call_user_func('exceptionCatcher', $e, $source, 'blocks');
             }
             
             /*
@@ -678,22 +672,9 @@ class AjaxController extends AjaxControllerBase
              */
             try {
                 
-                $fines = $ilsDriver->getMyFines($patron);
-                
-                unset($fines['source']);
-                
-                if (count($fines)) {
-                    
-                    $notification = [
-                        'clazz' => $newNotificationsCssClass,
-                        'message' => $this->translate('notif_you_have_fines'),
-                        'href' => '/MyResearch/Fines#' . $source
-                    ];
-                    
-                    array_push($notifications, $notification);
-                }
+                $myFines = $notifHandler->getMyFines($ilsDriver, $patron);
             } catch (\Exception $e) {
-                array_push($errors, 'Error fetching fines in "' . $source . '": ' . $e->getMessage());
+                call_user_func('exceptionCatcher', $e, $source, 'fines');
             }
             
             /*
@@ -701,35 +682,20 @@ class AjaxController extends AjaxControllerBase
              */
             try {
                 
-                $result = $ilsDriver->getMyTransactions($patron);
-                
-                foreach ($result as $current) {
-                    
-                    $ilsDetails = $this->getDriverForILSRecord($current)->getExtraDetail('ils_details');
-                    
-                    if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue") {
-                        
-                        // We found an overdue .. show warning
-                        
-                        $notification = [
-                            'clazz' => $newNotificationsCssClass,
-                            'message' => $this->translate('notif_you_have_overdues'),
-                            'href' => '/MyResearch/CheckedOut#' . $source
-                        ];
-                        
-                        array_push($notifications, $notification);
-                        
-                        break;
-                    }
-                }
+                $myOverdues = $notifHandler->getMyOverdues($ilsDriver, $patron);
             } catch (\Exception $e) {
-                array_push($errors, 'Error fetching overdues in "' . $source . '": ' . $e->getMessage());
+                call_user_func('exceptionCatcher', $e, $source, 'overdues');
             }
+            
+            // Merge all notifications
+            $notifications = array_merge($myBlocks['notifications'], $myFines['notifications'], $myOverdues['notifications']);
             
             if (count($notifications)) {
                 
                 $data['notifications'] = $notifications;
             } else {
+                
+                // No notifications found withing this institution ...
                 
                 $data['notifications'] = array(
                     [
@@ -738,6 +704,9 @@ class AjaxController extends AjaxControllerBase
                     ]
                 );
             }
+            
+            // Merge all errors
+            $errors = array_merge($errors, $myBlocks['errors'], $myFines['errors'], $myOverdues['errors']);
             
             if (count($errors))
                 $data['errors'] = $errors;
