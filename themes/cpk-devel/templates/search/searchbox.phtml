@@ -60,7 +60,7 @@
     <a href='/Search/Results?lookfor=&type=AllFields' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'><i class="pr-interface-search"></i><span> <?=$this->transEsc("Find")?></span></a>
     <span class="adv_search_links">
         <? if ($advSearch): ?>
-          <a href="<?=$this->url($advSearch) . ((isset($this->searchId) && $this->searchId) ? '?edit=' . $this->escapeHtmlAttr($this->searchId) : '') ?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
+          <a href="<?=$this->url($advSearch)?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
         <? endif; ?>
     	<? if (isset($_GET['fromAdvancedSearchId'])): ?>
           | <a class='btn btn-link' rel="nofollow" href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtmlAttr(htmlspecialchars($_GET['fromAdvancedSearchId']))?>"><?=$this->transEsc("Edit this Advanced Search")?></a>
