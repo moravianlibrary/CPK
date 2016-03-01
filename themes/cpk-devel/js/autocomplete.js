@@ -110,7 +110,7 @@
         align(input, $.fn.autocomplete.element);
         var term = input.val();
         var cid = input.data('cache-id');
-        if (options.cache && typeof $.fn.autocomplete.cache[cid][term] !== "undefined") {
+        if (options.cache && typeof $.fn.autocomplete.cache[cid][term] !== "undefined" && ($.fn.autocomplete.cache['facetsEnabled'] == $( '.searchFormKeepFilters' ).is(':checked'))) {
           if ($.fn.autocomplete.cache[cid][term].length === 0) {
             hide();
           } else {
@@ -119,6 +119,7 @@
         } else if (typeof options.handler !== "undefined") {
           options.handler(input.val(), function(data) {
             $.fn.autocomplete.cache[cid][term] = data;
+            $.fn.autocomplete.cache['facetsEnabled'] = $( '.searchFormKeepFilters' ).is(':checked');
             if (data.length === 0) {
               hide();
             } else {

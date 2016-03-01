@@ -336,8 +336,10 @@ function setupAutocomplete() {
       handler: function(query, cb) {
         var searcher = extractClassParams(op);
         var currentUrl = decodeURIComponent($(location).attr('search'));
-        console.log('CurrentUrl: '+currentUrl);
-        var filters = getURLParam('filter[]', currentUrl);
+        //console.log('CurrentUrl: '+currentUrl);
+        var filters = $( '.searchFormKeepFilters' ).is(':checked') 
+        	? getURLParam('filter[]', currentUrl) 
+        	: 'null';
         $.fn.autocomplete.ajax({
           url: VuFind.getPath() + '/AJAX/JSON',
           data: {
