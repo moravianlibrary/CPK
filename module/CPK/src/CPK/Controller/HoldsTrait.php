@@ -204,8 +204,14 @@ trait HoldsTrait
         if (! empty($pickup))
             $extraHoldFields[] = 'pickUpLocation';
 
-        $status = $catalog->getStatus($source . "." . $gatheredDetails['item_id']);
-        $holdQueue = (! empty($status) && array_key_exists('requests_placed', $status)) ? $status['requests_placed'] : null;
+        $statuses = $catalog->getStatuses(array($gatheredDetails['item_id']), $gatheredDetails['id']);
+        $holdQueue = null;
+        foreach ($statuses as $status) {
+            if ($status['item_id'] == $gatheredDetails['item_id']) {
+                if (array_key_exists('requests_placed', $status)) $holdQueue = $status['requests_placed'];
+                break;
+            }
+        }
 
         $view = $this->createViewModel(
             [
