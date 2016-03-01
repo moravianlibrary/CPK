@@ -1148,6 +1148,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $mediumType = $this->useXPath($additResponse,
                 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
+            if ($this->agency === 'UOG505') { // add record prefix for tre
+                $bib_id = 'UOG505:' . $bib_id;
+            }
+
             $retVal[] = array(
                 'cat_username' => $patron['cat_username'],
                 'duedate' => empty($dateDue) ? '' : $dateDue,
