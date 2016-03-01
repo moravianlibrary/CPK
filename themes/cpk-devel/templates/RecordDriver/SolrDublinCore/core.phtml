@@ -259,7 +259,7 @@
           <? foreach ($subjects as $field): $iteration++; ?>
           <div class="subjectLine" property="keywords">
             <? $subject = ''; ?>
-            <? if(count($field) == 1) $field = explode('--', $field[0]); ?>
+            <? if(count($field) == 1) $field = explode('--', is_array($field[0]) ? $field[0] : $field); ?>
             <? $i = 0; foreach ($field as $subfield): ?>
               <?=($i++ == 0) ? '' : ' &gt; '?>
               <? $subject = trim($subfield); ?>
