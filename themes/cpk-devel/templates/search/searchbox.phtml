@@ -46,10 +46,39 @@
                   $(this).hide();
               });
 
-              	$( ".search-query" ).on( 'change', function( event ) {
-                  	var query = $( this ).val();
-            		$( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + query + "&type=AllFields");
-           		});
+              /* Set autocomplete On page load */
+              var query = $( ".search-query" ).val();
+
+              var enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
+
+              var filters = '';
+              
+              if (enabledKeepFacets) {
+				filters = '';
+				$( '.applied-filter' ).each(function(){
+				  filters += '&filter[]=' + encodeURIComponent( $( this ).val() );
+				});
+              } else {
+                filters = '';
+              }
+              $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields" + filters);
+
+              /* Update autocomplete On some change */
+              $( ".search-query" ).on( 'change', function( event ) {
+               	query = $( this ).val();
+
+               	enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
+               	
+               	if (enabledKeepFacets) {
+    			  filters = '';
+    			  $( '.applied-filter' ).each(function(){
+    				  filters += '&filter[]=' + encodeURIComponent( $( this ).val() );
+    			  });
+                } else {
+                    filters = '';
+                }
+            	$( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields" + filters);
+           	  });
           });
       </script>
     <div class="col-xs-12 col-sm-6 search-form-container">
@@ -87,7 +116,7 @@
       <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
       <div class="checkbox">
         <label>
-          <input onChange="$('.applied-filter').click()" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
+          <input onChange="$('.applied-filter').click(); $( '.search-query' ).trigger( 'change' );" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
           <?=$this->transEsc("basic_search_keep_filters")?>
         </label>
       </div>
