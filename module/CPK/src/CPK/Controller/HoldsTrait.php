@@ -149,8 +149,8 @@ trait HoldsTrait
                 if (isset($results['success']) && $results['success'] == true) {
                     $msg = [
                         'html' => true,
-                        'source' => (isset($results['source'])) 
-                            ? $results['source'] 
+                        'source' => (isset($results['source']))
+                            ? $results['source']
                             : null,
                         'msg' => 'hold_place_success_html',
                         'tokens' => [
@@ -204,6 +204,9 @@ trait HoldsTrait
         if (! empty($pickup))
             $extraHoldFields[] = 'pickUpLocation';
 
+        $status = $catalog->getStatus($source . "." . $gatheredDetails['item_id']);
+        $holdQueue = (! empty($status) && array_key_exists('requests_placed', $status)) ? $status['requests_placed'] : null;
+
         $view = $this->createViewModel(
             [
                 'gatheredDetails' => $gatheredDetails,
@@ -215,6 +218,7 @@ trait HoldsTrait
                 'requestGroups' => $requestGroups,
                 'defaultRequestGroup' => $defaultRequestGroup,
                 'requestGroupNeeded' => $requestGroupNeeded,
+                'holdQueue' => $holdQueue,
                 'helpText' => isset($checkHolds['helpText']) ? $checkHolds['helpText'] : null
             ]);
         $view->setTemplate('record/hold');
