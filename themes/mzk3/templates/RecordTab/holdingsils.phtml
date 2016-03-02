@@ -5,7 +5,7 @@
     $selectedFilters = $this->tab->getSelectedFilters();
     $availableFilters = $this->tab->getAvailableFilters();
     $user = $account->isLoggedIn();
-    $holdings = $this->driver->getRealTimeHoldings();
+    $holdings = $this->tab->getRealTimeHoldings();
     $openUrl = $this->openUrl($this->driver, 'holdings');
     $openUrlActive = $openUrl->isActive();
     // Account for replace_other_urls setting
