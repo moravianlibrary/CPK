@@ -81,24 +81,6 @@
       </div>
     <? endif; ?>
 
-    <? if (! empty($holdQueue)): ?>
-        <div class="form-group">
-          <label class="col-sm-3 control-label"><?=$this->transEsc("hold_queue")?>:</label>
-          <div class="col-sm-9">
-            <input disabled type='text' class='form-control' value='<?=$holdQueue . "."?>'>
-          </div>
-        </div>
-    <? endif; ?>
-    
-    <? if ($this->holdDueDate): ?>
-        <div class="form-group">
-          <label class="col-sm-3 control-label"></label>
-          <div class="col-sm-9">
-            <?=$this->translate('Document is lend').'.'?>
-          </div>
-        </div>
-    <? endif; ?>
-
     <? if (in_array("pickUpLocation", $this->extraHoldFields)): ?>
       <?
         if (isset($this->gatheredDetails['pickUpLocation']) && $this->gatheredDetails['pickUpLocation'] !== "") {
@@ -161,6 +143,25 @@
         <input type="hidden" name="gatheredDetails[pickUpLocation]" value="<?=$this->escapeHtmlAttr($this->defaultPickup)?>" />
       <? endif; ?>
     <? endif; ?>
+    
+    <? if ($this->holdDueDate): ?>
+        <div class="form-group">
+          <label class="col-sm-3 control-label"></label>
+          <div class="col-sm-9">
+            <?=$this->translate('Document is lend').'.'?>
+          </div>
+        </div>
+    <? endif; ?>
+    
+    <? if (! empty($holdQueue)): ?>
+        <div class="form-group">
+          <label class="col-sm-3 control-label"><?=$this->transEsc("hold_queue")?>:</label>
+          <div class="col-sm-9">
+            <input disabled type='text' class='form-control' value='<?=$holdQueue . "."?>'>
+          </div>
+        </div>
+    <? endif; ?>
+    
     <div class="form-group">
       <div class="col-sm-9 col-sm-offset-3">
         <input class="btn btn-primary" type="submit" name="placeHold" value="<?=$this->transEsc('request_submit_text')?>"/>
