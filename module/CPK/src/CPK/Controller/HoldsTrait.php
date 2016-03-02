@@ -191,8 +191,9 @@ trait HoldsTrait
             $defaultPickup = false;
         }
         try {
-            $defaultRequestGroup = empty($requestGroups) ? false : $catalog->getDefaultRequestGroup(
-                $patron, $gatheredDetails);
+            $defaultRequestGroup = empty($requestGroups) 
+                ? false 
+                : $catalog->getDefaultRequestGroup($patron, $gatheredDetails);
         } catch (\Exception $e) {
             $defaultRequestGroup = false;
         }
@@ -204,11 +205,22 @@ trait HoldsTrait
         if (! empty($pickup))
             $extraHoldFields[] = 'pickUpLocation';
 
-        $statuses = $catalog->getStatuses(array($gatheredDetails['item_id']), $gatheredDetails['id']);
+        $statuses = $catalog->getStatuses(
+            array($gatheredDetails['item_id']), $gatheredDetails['id']
+        );
+        
         $holdQueue = null;
+        $holdDueDate = null;
         foreach ($statuses as $status) {
             if ($status['item_id'] == $gatheredDetails['item_id']) {
-                if (array_key_exists('requests_placed', $status)) $holdQueue = $status['requests_placed'];
+                if (isset($status['requests_placed'])) {
+                    $holdQueue = $status['requests_placed'];
+                }
+                
+                if (isset($status['duedate'])) {
+                    $holdDueDate = $status['duedate'];
+                }
+                
                 break;
             }
         }
@@ -225,6 +237,7 @@ trait HoldsTrait
                 'defaultRequestGroup' => $defaultRequestGroup,
                 'requestGroupNeeded' => $requestGroupNeeded,
                 'holdQueue' => $holdQueue,
+                'holdDueDate' => $holdDueDate,
                 'helpText' => isset($checkHolds['helpText']) ? $checkHolds['helpText'] : null
             ]);
         $view->setTemplate('record/hold');

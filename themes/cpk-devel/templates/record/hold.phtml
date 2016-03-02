@@ -89,6 +89,15 @@
           </div>
         </div>
     <? endif; ?>
+    
+    <? if ($this->holdDueDate): ?>
+        <div class="form-group">
+          <label class="col-sm-3 control-label"></label>
+          <div class="col-sm-9">
+            <?=$this->translate('Document is lend').'.'?>
+          </div>
+        </div>
+    <? endif; ?>
 
     <? if (in_array("pickUpLocation", $this->extraHoldFields)): ?>
       <?
