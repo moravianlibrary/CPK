@@ -17,29 +17,74 @@
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
 ?>
-<? if ($this->searchType == 'advanced'): ?>
-  <div class="searchForm navbar-form navbar-left flip">
-    <? $tabs = $this->render('search/searchTabs'); ?>
-    <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>
-      <p class="adv_search_terms"><?=$this->transEsc("Your search terms")?> : "<strong><?=$this->escapeHtml($this->lookfor)?></strong>"</p>      
-    
-      
-      
-      
-      
-      
-      
-      
-      
-      
-
-      <p class="adv_search_links">
-        <a href="<?=$this->url($advSearch)?>"><?=$this->transEsc("Start a new Advanced Search")?></a> |
-        <a href="<?=$this->url($searchHome)?>"><?=$this->transEsc("Start a new Basic Search")?></a>
-        <? if (isset($_GET['fromAdvancedSearchId'])): ?>
-          	| <a class='btn btn-link' rel="nofollow" href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtmlAttr(htmlspecialchars($_GET['fromAdvancedSearchId']))?>"><?=$this->transEsc("Edit this Advanced Search")?></a>
-    	<? endif; ?>
+<? if ($this->searchType == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = 0;?>
+  <div class="searchForm">
+  
+    <!-- Display advanced search form with queries -->
+    <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
+    <form id='editable-advanced-search-form'>
+      <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); ++$groups; $queries = 0;?>
+      <div class='row group' id='group_<?=$groups?>'>
+        <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
+        <div class='col-md-2'>
+          <select class="form-control">
+            <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
+            <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
+            <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
+          </select>
+        </div>
+        <div class='col-md-9'>
+          <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); ++$queries;?>
+          <div class='row queries' id='query_<?=$queries?>'>
+            <div class='col-md-4 text-right'>
+              <select class='form-control' name='type<?=$groups?>[]'>
+                <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
+                <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
+                  <?=$this->transEsc($description)?>
+                </option>
+                <? endforeach; ?>
+              </select>
+            </div>
+            <div class='col-md-7'>
+              <input name='lookfor<?=$groups?>[]' type='text' class='form-control' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
+            </div>
+            <div class="col-md-1">
+              <a href="#" class='close remove-advanced-search-query'>&times;</a>
+            </div>
+          </div>
+          <? endforeach; ?>
+          <p>
+            <a href="#" class="add-search-query">
+              <i class="fa fa-plus-circle"></i> <?=$this->transEsc("add_search")?>
+            </a>
+          </p>
+        </div>
+        <div class="col-md-1 close">
+          <a class="help-block remove-advanced-search-group" href="#">&times;</a>
+        </div>
+      </div>
+      <? endforeach; ?>
+      <p>
+        <a href="#" class="add-search-group">
+          <i class="fa fa-plus-circle"></i> <?= $this->transEsc('add_search_group') ?>
+        </a>
       </p>
+      <div class='row'>
+        <div class='col-sm-12 text-right' style='margin-top: 20px;'>
+          <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" value="<?= $this->transEsc('Find')?>" id='submit-edited-advanced-search'>
+          <a href='/Search/Advanced' title='<?= $this->transEsc('Start a new Advanced Search')?>'>
+            <?= $this->transEsc('Start a new Advanced Search')?>
+          </a>
+          <a href='/Search/Home' title='<?= $this->transEsc('Start a new Basic Search')?>'>
+            <?= $this->transEsc('Start a new Basic Search')?>
+          </a>
+        </div>
+      </div>
+    </form>
+    <!-- End of advanced search form -->
+    
+    <? $tabs = $this->render('search/searchTabs'); ?>
+    <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>    
     <? if (!empty($tabs)): ?></div><? endif; ?>
   </div>
 <? else: ?>

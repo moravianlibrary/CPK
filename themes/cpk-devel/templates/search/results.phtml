@@ -10,6 +10,8 @@
       $this->headTitle($this->translate('Search Results') . (empty($lookfor) ? '' : " - {$lookfor}"));
   }
 
+  $this->headScript()->appendFile("search-results.js");
+  
   // Set up search box:
   $this->layout()->searchbox = $this->context($this)->renderInContext(
       'search/searchbox.phtml',
