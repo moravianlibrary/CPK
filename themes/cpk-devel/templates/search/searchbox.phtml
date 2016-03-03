@@ -22,6 +22,15 @@
   
     <!-- Display advanced search form with queries -->
     <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
+    <div class='row'>
+      <div class='col-md-12'></div>
+        <select id='group-join-type' name="join" class="form-control">
+          <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
+          <option value="OR"<?= ($allGroupsOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
+          <option value="NOT"<?= ($allGroupsOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
+        </select>
+      </div>
+    </div>
     <form id='editable-advanced-search-form'>
       <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); ++$groups; $queries = 0;?>
       <div class='row group' id='group_<?=$groups?>'>
