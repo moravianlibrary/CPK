@@ -191,8 +191,8 @@ trait HoldsTrait
             $defaultPickup = false;
         }
         try {
-            $defaultRequestGroup = empty($requestGroups) 
-                ? false 
+            $defaultRequestGroup = empty($requestGroups)
+                ? false
                 : $catalog->getDefaultRequestGroup($patron, $gatheredDetails);
         } catch (\Exception $e) {
             $defaultRequestGroup = false;
@@ -205,24 +205,16 @@ trait HoldsTrait
         if (! empty($pickup))
             $extraHoldFields[] = 'pickUpLocation';
 
-        $statuses = $catalog->getStatuses(
-            array($gatheredDetails['item_id']), $gatheredDetails['id']
-        );
-        
+        $status = $catalog->getItemStatus($gatheredDetails['item_id'], $gatheredDetails['id']);
+
         $holdQueue = null;
         $holdDueDate = null;
-        foreach ($statuses as $status) {
-            if ($status['item_id'] == $gatheredDetails['item_id']) {
-                if (isset($status['requests_placed'])) {
-                    $holdQueue = $status['requests_placed'];
-                }
-                
-                if (isset($status['duedate'])) {
-                    $holdDueDate = $status['duedate'];
-                }
-                
-                break;
-            }
+        if (isset($status['requests_placed'])) {
+            $holdQueue = $status['requests_placed'];
+        }
+
+        if (isset($status['duedate'])) {
+            $holdDueDate = $status['duedate'];
         }
 
         $view = $this->createViewModel(

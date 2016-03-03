@@ -369,4 +369,22 @@ class MultiBackend extends MultiBackendBase
 
         return $detailsForCurrentSource;
     }
+
+    public function getItemStatus($id, $bibId = null)
+    {
+        if ($bibId === null)
+            return $this->getEmptyStatuses($ids);
+
+        $source = $this->getSource($bibId);
+        $driver = $this->getDriver($source);
+
+        if ($driver === null)
+            throw new ILSException("Driver is undefined!");
+
+        $id = $this->stripIdPrefixes($id, $source);
+        $bibId = $this->stripIdPrefixes($bibId, $source);
+
+        $status = $driver->getItemStatus($id, $bibId);
+        return $status;
+    }
 }

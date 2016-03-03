@@ -610,78 +610,70 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getStatus($id)
     {
-        if (! $this->cannotUseLUIS) {
-            // TODO
-            // For now, we'll just use getHolding, since getStatus should return a
-            // subset of the same fields, and the extra values will be ignored.
-            $holding = $this->getHolding($id);
+        // id may have the form of "patronId:agencyId"
+        list ($id, $agencyId) = $this->splitAgencyId($id);
 
-            foreach ($holding as $recent) {
-                $tmp[] = array_slice($recent, 0, 6);
+        $request = $this->requests->lookupItem($id, $agencyId);
+        $response = $this->sendRequest($request);
+        if ($response == null)
+            return null;
+
+            // Merge it back if the agency was specified before ..
+        $id = $this->joinAgencyId($id, $agencyId);
+
+        // Extract details from the XML:
+        $status = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/CirculationStatus');
+
+        $locations = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/Location');
+        foreach ($locations as $locElement) {
+            $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
+            $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
+            if (! empty($level)) {
+                if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
+                if ((string) $level[0] == '2') if (! empty($locationName)) $collection = (string) $locationName[0];
             }
-            return $tmp;
-        } else {
-            // id may have the form of "patronId:agencyId"
-            list ($id, $agencyId) = $this->splitAgencyId($id);
-
-            $request = $this->requests->lookupItem($id, $agencyId);
-            $response = $this->sendRequest($request);
-            if ($response == null)
-                return null;
-
-                // Merge it back if the agency was specified before ..
-            $id = $this->joinAgencyId($id, $agencyId);
-
-            // Extract details from the XML:
-            $status = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/CirculationStatus');
-
-            $locations = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/Location');
-            foreach ($locations as $locElement) {
-                $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
-                $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-                if (! empty($level)) {
-                    if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
-                    if ((string) $level[0] == '2') if (! empty($locationName)) $collection = (string) $locationName[0];
-                }
-            }
-
-            $numberOfPieces = $this->useXPath($response,
-                'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces');
-
-            $holdQueue = (string) $this->useXPath($response,
-                'LookupItemResponse/ItemOptionalFields/HoldQueueLength')[0];
-
-            $itemRestriction = $this->useXPath($response,
-                'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType');
-            if (! empty($status) && (string) $status[0] == 'On Loan') {
-                $dueDate = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/DateDue');
-                $dueDate = $this->parseDate($dueDate);
-            } else {
-                $dueDate = false;
-            }
-
-            $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
-
-            return array(
-                'id' => empty($id) ? "" : $id,
-                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-                'status' => empty($status) ? '' : (string) $status[0],
-                'location' => '',
-                'sub_lib_desc' => '',
-                'collection' => isset($collection) ? $collection : '',
-                'department' => isset($department) ? $department : '',
-                'number' => empty($numberOfPieces) ? '' : (string) $numberOfPieces[0],
-                'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
-                'item_id' => empty($id) ? "" : $id,
-                'label' => $label,
-                'holdOverride' => "",
-                'addStorageRetrievalRequestLink' => "",
-                'addILLRequestLink' => "",
-                'addLink' => true, // TODO
-                'duedate' => empty($dueDate) ? '' : $dueDate,
-                'usedGetStatus' => true
-            );
         }
+
+        $numberOfPieces = $this->useXPath($response,
+            'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces');
+
+        $holdQueue = (string) $this->useXPath($response,
+            'LookupItemResponse/ItemOptionalFields/HoldQueueLength')[0];
+
+        $itemRestriction = $this->useXPath($response,
+            'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType');
+        if (! empty($status) && (string) $status[0] == 'On Loan') {
+            $dueDate = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/DateDue');
+            $dueDate = $this->parseDate($dueDate);
+        } else {
+            $dueDate = false;
+        }
+
+        $label = $this->determineLabel(empty($status) ? '' : (string) $status[0]);
+
+        return array(
+            'id' => empty($id) ? "" : $id,
+            'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
+            'status' => empty($status) ? '' : (string) $status[0],
+            'location' => '',
+            'sub_lib_desc' => '',
+            'collection' => isset($collection) ? $collection : '',
+            'department' => isset($department) ? $department : '',
+            'number' => empty($numberOfPieces) ? '' : (string) $numberOfPieces[0],
+            'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
+            'item_id' => empty($id) ? "" : $id,
+            'label' => $label,
+            'holdOverride' => "",
+            'addStorageRetrievalRequestLink' => "",
+            'addILLRequestLink' => "",
+            'addLink' => true, // TODO
+            'duedate' => empty($dueDate) ? '' : $dueDate,
+            'usedGetStatus' => true
+        );
+    }
+
+    public function getItemStatus($id, $bibId) {
+        return $this->getStatus($id);
     }
 
     /**
