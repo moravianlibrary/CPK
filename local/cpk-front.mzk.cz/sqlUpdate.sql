@@ -77,7 +77,7 @@ INSERT INTO `system` (`id`, `key`, `value`) VALUES
 
 /* Create table for storing content of Portal pages */
 DROP TABLE IF EXISTS `portal_pages`;
-CREATE TABLE IF NOT EXISTS `portal_pages` (
+CREATE TABLE `portal_pages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
   `pretty_url` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
@@ -102,3 +102,20 @@ ALTER TABLE `user_card`
   ADD `major` VARCHAR(100) NULL,
   ADD INDEX ( `major` );
 UPDATE `system` SET `value`='4' WHERE `key`='DB_VERSION';
+
+/* Notifications */
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` int(11) NOT NULL,
+  `has_blocks` tinyint(1) NOT NULL,
+  `has_fines` tinyint(1) NOT NULL,
+  `has_overdues` tinyint(1) NOT NULL,
+  `last_fetched` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `notifications`
+ ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `notifications`
+ADD CONSTRAINT `user_card_id` FOREIGN KEY (`id`) REFERENCES `user_card` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+UPDATE `system` SET `value`='5' WHERE `key`='DB_VERSION';

@@ -60,7 +60,8 @@ $config = array(
                     'user' => 'CPK\Db\Table\Factory::getUser',
                     'citationstyle' => 'CPK\Db\Table\Factory::getCitationStyle',
                     'usersettings' => 'CPK\Db\Table\Factory::getUserSettings',
-                    'portalpages' => 'CPK\Db\Table\Factory::getPortalPages'
+                    'portalpages' => 'CPK\Db\Table\Factory::getPortalPages',
+                    'notifications' => 'CPK\Db\Table\Factory::getNotifications',
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'

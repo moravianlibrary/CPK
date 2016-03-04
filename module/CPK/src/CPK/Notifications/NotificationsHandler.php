@@ -28,6 +28,8 @@
  */
 namespace CPK\Notifications;
 
+use CPK\Db\Table\Notifications;
+
 class NotificationsHandler
 {
 
@@ -50,9 +52,10 @@ class NotificationsHandler
      *
      * @param \Zend\View\Renderer\RendererInterface $viewModel            
      */
-    public function __construct(\Zend\View\Renderer\RendererInterface $viewModel)
+    public function __construct(\Zend\View\Renderer\RendererInterface $viewModel, Notifications $notificationsTable)
     {
         $this->viewModel = $viewModel;
+        $this->notificationsTable = $notificationsTable;
     }
 
     /**

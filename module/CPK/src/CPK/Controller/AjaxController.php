@@ -659,8 +659,7 @@ class AjaxController extends AjaxControllerBase
                 
                 array_push($errors, 'Error fetching blocks in "' . $source . '": ' . $e->getMessage());
                 
-                $myBlocks['notifications'] = [];
-                $myBlocks['errors'] = [];
+                $myBlocks['notifications'] = $myBlocks['errors'] =[];
             }
             
             /*
@@ -674,8 +673,7 @@ class AjaxController extends AjaxControllerBase
                 
                 array_push($errors, 'Error fetching fines in "' . $source . '": ' . $e->getMessage());
                 
-                $myFines['notifications'] = [];
-                $myFines['errors'] = [];
+                $myFines['notifications'] = $myFines['errors'] = [];
             }
             
             /*
@@ -689,8 +687,7 @@ class AjaxController extends AjaxControllerBase
                 
                 array_push($errors, 'Error fetching overdues in "' . $source . '": ' . $e->getMessage());
                 
-                $myOverdues['notifications'] = [];
-                $myOverdues['errors'] = [];                
+                $myOverdues['notifications'] = $myOverdues['errors'] = [];
                 
             }
             

@@ -26,74 +26,95 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace CPK\Db\Table;
+
 use Zend\ServiceManager\ServiceManager;
 
 /**
  * Factory for DB tables.
  *
  * @category VuFind2
- * @package  Db_Table
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
- *
- * @codeCoverageIgnore
+ * @package Db_Table
+ * @author Demian Katz <demian.katz@villanova.edu>
+ * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link http://vufind.org/wiki/vufind2:developer_manual Wiki
+ *      
+ *       @codeCoverageIgnore
  */
 class Factory
 {
+
     /**
      * Construct the User table.
      *
-     * @param ServiceManager $sm Service manager.
-     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
      * @return User
      */
     public static function getUser(ServiceManager $sm)
     {
-        return new User(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
+        return new User($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
     }
-    
+
     /**
      * Construct the Citation style table.
      *
-     * @param ServiceManager $sm Service manager.
-     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
      * @return CitationStyle
      */
     public static function getCitationStyle(ServiceManager $sm)
     {
-        return new CitationStyle(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
+        return new CitationStyle($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
     }
-    
+
     /**
      * Construct the user_settings table.
      *
-     * @param ServiceManager $sm Service manager.
-     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
      * @return UserSettings
      */
     public static function getUserSettings(ServiceManager $sm)
     {
-        return new UserSettings(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
+        return new UserSettings($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
     }
-    
+
     /**
      * Construct the portal_pages table.
      *
-     * @param ServiceManager $sm Service manager.
-     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
      * @return PortalPages
      */
     public static function getPortalPages(ServiceManager $sm)
     {
-        return new PortalPage(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
+        return new PortalPage($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
+     * Construct the notifications table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
+     * @return Notifications
+     */
+    public static function getNotifications(ServiceManager $sm)
+    {
+        return new Notifications($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
     }
 }

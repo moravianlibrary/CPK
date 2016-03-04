@@ -40,7 +40,8 @@ class Factory
     public static function getNotificationsHandler(ServiceManager $sm)
     {
         return new NotificationsHandler(
-                $sm->get('viewmanager')->getRenderer() // View model for translations
+                $sm->get('viewmanager')->getRenderer(), // View model for translations
+                $sm->get('VuFind\DbTablePluginManager')->get('notifications')
             );
     }
 
