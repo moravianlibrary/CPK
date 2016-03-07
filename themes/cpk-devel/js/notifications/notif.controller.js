@@ -58,8 +58,25 @@
 	 */
 	function notifClicked(href) {
 	    
-	    if (typeof href !== 'undefined')
-		window.location = href;
+	    if (typeof href !== 'undefined') {
+		
+		function followLocation() {
+		    
+		    window.location = href;
+		}
+			
+		var data = {
+			notificationType : href.split('/').pop()
+		};
+			
+		var options = {
+			headers: {
+			    'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		};
+		    
+		$http.post('/AJAX/JSON?method=notificationRead', $.param(data), options).then(followLocation);
+	    }
 	}
 	
 	// Private
@@ -112,7 +129,8 @@
 	function hideLoader() {
 	    globalNotifHolder.loader.setAttribute('hidden', 'hidden');
 	    
-	    // If there is no global notification, show 'no notifications notification' :D
+	    // If there is no global notification, show 'no notifications
+	    // notification' :D
 	    if (globalNotifHolder.synchronousNotifications.children.length === 0) {
 		
 		hideWithoutNotifications();
@@ -122,7 +140,8 @@
 	function showLoader() {
 	    globalNotifHolder.loader.removeAttribute('hidden');
 	    
-	    // If there is any global notification, hide 'no notifications notification' :)
+	    // If there is any global notification, hide 'no notifications
+	    // notification' :)
 	    if (globalNotifHolder.synchronousNotifications.children.length !== 0) {
 		
 		showWithoutNotifications();

@@ -113,8 +113,14 @@ class NotificationsHandler
         
         if ($this->notificationsRow->has_blocks) {
             
+            $clazz = $this->newNotifClass;
+            
+            if (! $this->notificationsRow->blocks_read) {
+                $clazz .= ' notif-unread';
+            }
+            
             $notification = [
-                'clazz' => $this->newNotifClass,
+                'clazz' => $clazz,
                 'message' => $this->translate('notif_you_have_blocks'),
                 'href' => '/MyResearch/Profile#' . $source
             ];
@@ -124,8 +130,14 @@ class NotificationsHandler
         
         if ($this->notificationsRow->has_fines) {
             
+            $clazz = $this->newNotifClass;
+            
+            if (! $this->notificationsRow->fines_read) {
+                $clazz .= ' notif-unread';
+            }
+            
             $notification = [
-                'clazz' => $this->newNotifClass,
+                'clazz' => $clazz,
                 'message' => $this->translate('notif_you_have_fines'),
                 'href' => '/MyResearch/Fines#' . $source
             ];
@@ -135,8 +147,14 @@ class NotificationsHandler
         
         if ($this->notificationsRow->has_overdues) {
             
+            $clazz = $this->newNotifClass;
+            
+            if (! $this->notificationsRow->overdues_read) {
+                $clazz .= ' notif-unread';
+            }
+            
             $notification = [
-                'clazz' => $this->newNotifClass,
+                'clazz' => $clazz,
                 'message' => $this->translate('notif_you_have_overdues'),
                 'href' => '/MyResearch/CheckedOut#' . $source
             ];
@@ -155,6 +173,44 @@ class NotificationsHandler
         }
         
         return $data;
+    }
+
+    /**
+     * Sets an notification type as read for specific user
+     *
+     * @param \CPK\Db\Row\User $user            
+     * @param string $notificationType            
+     */
+    public function setUserNotificationRead(\CPK\Db\Row\User $user, $notificationType)
+    {
+        list ($notificationType, $source) = explode('#', $notificationType);
+        
+        foreach ($user->getLibraryCards() as $libCard) {
+            if ($libCard->home_library === $source) {
+                $this->notificationsRow = $this->notificationsTable->getNotificationsRow($libCard->id, true);
+                break;
+            }
+        }
+        
+        if (isset($this->notificationsRow)) {
+            
+            switch ($notificationType) {
+                
+                case 'Fines':
+                    $this->notificationsRow->fines_read = true;
+                    break;
+                
+                case 'Profile':
+                    $this->notificationsRow->blocks_read = true;
+                    break;
+                
+                case 'CheckedOut':
+                    $this->notificationsRow->overdues_read = true;
+                    break;
+            }
+            
+            $this->notificationsRow->save();
+        }
     }
 
     /**
@@ -177,6 +233,8 @@ class NotificationsHandler
     /**
      * Retrieves new Notifications for a user.
      *
+     * It also sets particular notifications as unread only if there was an notification active before & now it's not active anymore ..
+     *
      * @param string $cat_username            
      * @param string $source            
      */
@@ -187,6 +245,18 @@ class NotificationsHandler
         $hasFines = $this->fetchHasFines($cat_username, $source);
         
         $hasOverdues = $this->fetchHasOverdues($cat_username, $source);
+        
+        if ($this->notificationsRow->has_blocks && $hasBlocks === false) {
+            $this->notificationsRow->blocks_read = false;
+        }
+        
+        if ($this->notificationsRow->has_fines && $hasFines === false) {
+            $this->notificationsRow->fines_read = false;
+        }
+        
+        if ($this->notificationsRow->has_overdues && $hasOverdues === false) {
+            $this->notificationsRow->overdues_read = false;
+        }
         
         $this->notificationsRow->has_blocks = $hasBlocks;
         $this->notificationsRow->has_fines = $hasFines;

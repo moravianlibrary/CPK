@@ -29,7 +29,7 @@
 	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
 	   </div>
 	   <div ng-repeat='notification in notifCtrl.notifications["<?=$libraryCard['cat_username'] ?>"]'>
-	     <div class="notif-{{ notification.clazz }}" ng-click="notifCtrl.notifClicked(notification.href)">
+	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href)'>
 	       {{ notification.message }}
 	     </div>
 	   </div>

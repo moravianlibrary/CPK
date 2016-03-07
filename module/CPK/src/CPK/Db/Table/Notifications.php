@@ -56,12 +56,12 @@ class Notifications extends Gateway
 
     /**
      * Creates new Notifications Row
-     * 
-     * @param string $cat_username
-     * @param boolean $hasBlocks
-     * @param boolean $hasFines
-     * @param boolean $hasOverdues
-     * 
+     *
+     * @param string $cat_username            
+     * @param boolean $hasBlocks            
+     * @param boolean $hasFines            
+     * @param boolean $hasOverdues            
+     *
      * @return Notifications
      */
     public function createNotificationsRow($cat_username, $hasBlocks, $hasFines, $hasOverdues)
@@ -88,12 +88,17 @@ class Notifications extends Gateway
      *
      * @return Notifications
      */
-    public function getNotificationsRow($cat_username)
+    public function getNotificationsRow($cat_username, $itIsId = false)
     {
-        return $this->select([
-            'id' => $this->getUserCardId($cat_username)
-        ])
-            ->current();
+        if ($itIsId === false)
+            return $this->select([
+                'id' => $this->getUserCardId($cat_username)
+            ])
+                ->current();
+        else
+            return $this->select([
+                'id' => $cat_username
+            ])->current();
     }
 
     /**

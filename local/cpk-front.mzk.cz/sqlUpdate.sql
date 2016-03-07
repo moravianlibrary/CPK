@@ -119,3 +119,7 @@ ALTER TABLE `notifications`
 ADD CONSTRAINT `user_card_id` FOREIGN KEY (`id`) REFERENCES `user_card` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `system` SET `value`='5' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `notifications` ADD `blocks_read` BOOLEAN NOT NULL AFTER `has_overdues`, ADD `fines_read` BOOLEAN NOT NULL AFTER `blocks_read`, ADD `overdues_read` BOOLEAN NOT NULL AFTER `fines_read`;
+
+UPDATE `system` SET `value`='6' WHERE `key`='DB_VERSION';

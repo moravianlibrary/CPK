@@ -706,31 +706,44 @@ class AjaxController extends AjaxControllerBase
     /**
      * Updates read notifications related to user's identity
      * 
-     * FIXME move 'read_notifications' to new table handling all cached notifications
-     * 
      * @return \Zend\Http\Response
      */
-    public function updateNotificationsReadAjax()
+    public function notificationReadAjax()
     {
             // Check user is logged in ..
         if (!$user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output( 'You are not logged in.', self::STATUS_ERROR );
         }
 
-        $currentNotificationsRead = $this->params()->fromPost( 'curr_notifies_read' );
+        $notificationType = $this->params()->fromPost( 'notificationType' );
 
-        $encodedReadNotifications = json_encode( $currentNotificationsRead );
-
-        if (strlen( $encodedReadNotifications ) > 512) {
-            return $this->output(
-                    $this->translate( 'JSON you want to store is longer than 512 chars!!' ), self::STATUS_ERROR );
+        $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
+        
+        // Check we have correct notifications handler
+        if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
+        
+            return $this->output([
+                'errors' => [
+                    'Did not found expected Notifications handler'
+                ],
+                'notifications' => []
+            ], self::STATUS_ERROR);
         }
-
-        // Just overwrite with current read notifications
-        $user->read_notifications = $encodedReadNotifications;
-        $user->save();
-
-        return $this->output( "OK", self::STATUS_OK );
+        
+        try {
+        
+            $notifHandler->setUserNotificationRead($user, $notificationType);
+        } catch (\Exception $e) {
+        
+            $userNotifications = [
+                'errors' => [
+                    $e->getMessage()
+                ],
+                'notifications' => []
+            ];
+        }
+        
+        return $this->output(null, self::STATUS_OK);
     }
 
     /**
