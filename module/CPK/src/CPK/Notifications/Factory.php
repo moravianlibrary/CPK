@@ -41,7 +41,8 @@ class Factory
     {
         return new NotificationsHandler(
                 $sm->get('viewmanager')->getRenderer(), // View model for translations
-                $sm->get('VuFind\DbTablePluginManager')->get('notifications')
+                $sm->get('VuFind\DbTablePluginManager')->get('notifications'),
+                $sm->get('VuFind\ILSConnection')
             );
     }
 

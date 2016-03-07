@@ -619,108 +619,29 @@ class AjaxController extends AjaxControllerBase
         
         // Check we have correct notifications handler
         if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
+            
             return $this->output([
-                'cat_username' => $cat_username,
-                'message' => 'Did not found expected Notifications handler.'
+                'errors' => [
+                    'Did not found expected Notifications handler'
+                ],
+                'notifications' => []
             ], self::STATUS_ERROR);
         }
         
-        // Initialize needed stuff
-        $renderer = $this->getViewRenderer();
-        
-        $catalog = $this->getILS();
-        
-        $ilsDriver = $catalog->getDriver();
-        
-        $errors = [];
-        
-        if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
+        try {
             
-            $source = substr($cat_username, 0, strpos($cat_username, '.'));
+            $userNotifications = $notifHandler->getUserNotifications($cat_username);
+        } catch (\Exception $e) {
             
-            $patron = [
-                'cat_username' => $cat_username,
-                'id' => $cat_username,
-                'source' => $source
+            $userNotifications = [
+                'errors' => [
+                    $e->getMessage()
+                ],
+                'notifications' => []
             ];
-            
-            /*
-             * These try-catchs are constructed separately in order to try fetching different service after one fails ..
-             */
-            
-            /*
-             * Get the blocks
-             */
-            try {
-                
-                $myBlocks = $notifHandler->getMyBlocks($ilsDriver, $patron);
-                
-            } catch (\Exception $e) {
-                
-                array_push($errors, 'Error fetching blocks in "' . $source . '": ' . $e->getMessage());
-                
-                $myBlocks['notifications'] = $myBlocks['errors'] =[];
-            }
-            
-            /*
-             * Get the fines
-             */
-            try {
-                
-                $myFines = $notifHandler->getMyFines($ilsDriver, $patron);
-                
-            } catch (\Exception $e) {
-                
-                array_push($errors, 'Error fetching fines in "' . $source . '": ' . $e->getMessage());
-                
-                $myFines['notifications'] = $myFines['errors'] = [];
-            }
-            
-            /*
-             * Get the overdues
-             */
-            try {
-                
-                $myOverdues = $notifHandler->getMyOverdues($ilsDriver, $patron);
-                
-            } catch (\Exception $e) {
-                
-                array_push($errors, 'Error fetching overdues in "' . $source . '": ' . $e->getMessage());
-                
-                $myOverdues['notifications'] = $myOverdues['errors'] = [];
-                
-            }
-            
-            // Merge all notifications
-            $notifications = array_merge($myBlocks['notifications'], $myFines['notifications'], $myOverdues['notifications']);
-            
-            if (count($notifications)) {
-                
-                $data['notifications'] = $notifications;
-            } else {
-                
-                // No notifications found withing this institution ...
-                
-                $data['notifications'] = array(
-                    [
-                        'clazz' => 'default',
-                        'message' => $this->translate('without_notifications')
-                    ]
-                );
-            }
-            
-            // Merge all errors
-            $errors = array_merge($errors, $myBlocks['errors'], $myFines['errors'], $myOverdues['errors']);
-            
-            if (count($errors))
-                $data['errors'] = $errors;
-            
-            return $this->output($data, self::STATUS_OK);
-        } else
-            return $this->output([
-                'cat_username' => $cat_username,
-                'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
-            ], self::STATUS_ERROR);
+        }
+        
+        return $this->output($userNotifications, self::STATUS_OK);
     }
 
     /**

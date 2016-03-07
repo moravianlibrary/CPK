@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select, CPK\Db\Row\Notifications;
+use VuFind\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
 
 class Notifications extends Gateway
 {
@@ -55,34 +55,72 @@ class Notifications extends Gateway
     }
 
     /**
+     * Creates new Notifications Row
+     * 
+     * @param string $cat_username
+     * @param boolean $hasBlocks
+     * @param boolean $hasFines
+     * @param boolean $hasOverdues
+     * 
+     * @return Notifications
+     */
+    public function createNotificationsRow($cat_username, $hasBlocks, $hasFines, $hasOverdues)
+    {
+        $row = $this->createRow();
+        
+        $row->id = $this->getUserCardId($cat_username);
+        
+        $row->has_blocks = $hasBlocks;
+        $row->has_fines = $hasFines;
+        $row->has_overdues = $hasOverdues;
+        
+        $row->last_fetched = date('Y-m-d H:i:s');
+        
+        $row->save();
+        
+        return $row;
+    }
+
+    /**
      * Retrieves Notifications for a user.
      *
      * @param string $cat_username            
      *
      * @return Notifications
      */
-    public function getNotifications($cat_username)
+    public function getNotificationsRow($cat_username)
+    {
+        return $this->select([
+            'id' => $this->getUserCardId($cat_username)
+        ])
+            ->current();
+    }
+
+    /**
+     * Retrieves an id of UserCard row where the provided cat_username matches
+     *
+     * @param string $cat_username            
+     */
+    protected function getUserCardId($cat_username)
     {
         $select = new Select();
         $select->columns([
             'id'
-        ]);
-        $select->from('user_card');
-        $select->where([
+        ])
+            ->from('user_card')
+            ->where([
             'cat_username' => $cat_username
         ]);
         
         $userCard = $this->executeAnyZendSQLSelect($select)->current();
         
-        return $this->select([
-            'id' => $userCard['id']
-        ])->current();
+        return $userCard['id'];
     }
 
     /**
      * Executes any Select
      *
-     * @param Select $select
+     * @param Select $select            
      *
      * @return Result $result
      */

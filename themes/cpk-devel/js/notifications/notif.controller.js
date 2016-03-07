@@ -89,7 +89,7 @@
 		    response = response.data.data;
 		    
 		    // Print errors if any
-		    if (typeof response.errors !== 'undefined') {
+		    if (typeof response.errors === 'object') {
 			
 			response.errors.forEach(function(err) {
 			    $log.error(err);

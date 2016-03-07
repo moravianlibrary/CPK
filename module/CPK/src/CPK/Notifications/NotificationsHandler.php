@@ -28,7 +28,7 @@
  */
 namespace CPK\Notifications;
 
-use CPK\Db\Table\Notifications;
+use CPK\Db\Table\Notifications, VuFind\Exception\ILS as ILSException;
 
 class NotificationsHandler
 {
@@ -41,6 +41,20 @@ class NotificationsHandler
     protected $viewModel;
 
     /**
+     * DB access
+     *
+     * @var Notifications
+     */
+    protected $notificationsTable;
+
+    /**
+     * ILS Connection
+     *
+     * @var \VuFind\ILS\Connection
+     */
+    protected $ils;
+
+    /**
      * Default css class for new notifications
      *
      * @var string
@@ -48,72 +62,67 @@ class NotificationsHandler
     protected $newNotifClass = 'warning';
 
     /**
+     * Temporary Notifications Row
+     *
+     * @var \CPK\Db\Row\Notifications
+     */
+    protected $notificationsRow;
+
+    /**
+     * Interval to wait before querying the ILS for notifications again, measured in seconds
+     *
+     * @var int
+     */
+    const REFETCH_INTERVAL_SECS = 60 * 15;
+
+    /**
      * C'tor
      *
      * @param \Zend\View\Renderer\RendererInterface $viewModel            
      */
-    public function __construct(\Zend\View\Renderer\RendererInterface $viewModel, Notifications $notificationsTable)
+    public function __construct(\Zend\View\Renderer\RendererInterface $viewModel, Notifications $notificationsTable, \VuFind\ILS\Connection $ils)
     {
         $this->viewModel = $viewModel;
         $this->notificationsTable = $notificationsTable;
+        $this->ils = $ils;
     }
 
-    /**
-     * Returns notifications of user's blocks.
-     *
-     * TODO: Make use of DB's notifications cache
-     *
-     * @param \CPK\ILS\Driver\MultiBackend $ilsDriver            
-     * @param array $patron            
-     */
-    public function getMyBlocks(\CPK\ILS\Driver\MultiBackend $ilsDriver, $patron)
+    public function getUserNotifications($cat_username)
     {
-        $source = $patron['source'];
+        $source = explode('.', $cat_username)[0];
         
-        $profile = $ilsDriver->getMyProfile($patron);
+        $this->notificationsRow = $this->notificationsTable->getNotificationsRow($cat_username);
         
-        $errors = $notifications = [];
-        
-        if (is_array($profile) && count($profile) === 0) {
+        if ($this->notificationsRow === false) {
             
-            array_push($errors, 'Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
-        } else 
-            if (count($profile['blocks'])) {
-                
-                $notification = [
-                    'clazz' => $this->newNotifClass,
-                    'message' => $this->translate('notif_you_have_blocks'),
-                    'href' => '/MyResearch/Profile#' . $source
-                ];
-                
-                array_push($notifications, $notification);
+            // Notifications have never been fetched before
+            $this->createNewUserNotifications($cat_username, $source);
+        } else {
+            
+            // They have been fetched some time ago, check if it was more than REFETCH_INTERVAL_SECS
+            $lastFetched = strtotime($this->notificationsRow->last_fetched);
+            
+            $shouldFetchAgain = $lastFetched + self::REFETCH_INTERVAL_SECS <= time();
+            
+            if ($shouldFetchAgain) {
+                $this->actualizeUserNotifications($cat_username, $source);
             }
+        }
         
-        return [
-            'errors' => $errors,
-            'notifications' => $notifications
-        ];
-    }
-
-    /**
-     * Returns notifications of user's fines.
-     *
-     * TODO: Make use of DB's notifications cache
-     *
-     * @param \CPK\ILS\Driver\MultiBackend $ilsDriver            
-     * @param array $patron            
-     */
-    public function getMyFines(\CPK\ILS\Driver\MultiBackend $ilsDriver, $patron)
-    {
-        $source = $patron['source'];
+        $data['notifications'] = [];
         
-        $fines = $ilsDriver->getMyFines($patron);
+        if ($this->notificationsRow->has_blocks) {
+            
+            $notification = [
+                'clazz' => $this->newNotifClass,
+                'message' => $this->translate('notif_you_have_blocks'),
+                'href' => '/MyResearch/Profile#' . $source
+            ];
+            
+            array_push($data['notifications'], $notification);
+        }
         
-        unset($fines['source']);
-        
-        $errors = $notifications = [];
-        
-        if (count($fines)) {
+        if ($this->notificationsRow->has_fines) {
             
             $notification = [
                 'clazz' => $this->newNotifClass,
@@ -121,53 +130,137 @@ class NotificationsHandler
                 'href' => '/MyResearch/Fines#' . $source
             ];
             
-            array_push($notifications, $notification);
+            array_push($data['notifications'], $notification);
         }
         
-        return [
-            'errors' => $errors,
-            'notifications' => $notifications
-        ];
+        if ($this->notificationsRow->has_overdues) {
+            
+            $notification = [
+                'clazz' => $this->newNotifClass,
+                'message' => $this->translate('notif_you_have_overdues'),
+                'href' => '/MyResearch/CheckedOut#' . $source
+            ];
+            
+            array_push($data['notifications'], $notification);
+        }
+        
+        if (count($data['notifications']) === 0) {
+            // No notifications added ..
+            $data['notifications'] = array(
+                [
+                    'clazz' => 'default',
+                    'message' => $this->translate('without_notifications')
+                ]
+            );
+        }
+        
+        return $data;
+    }
+
+    /**
+     * Creates new Notifications Row in DB
+     *
+     * @param string $cat_username            
+     * @param string $source            
+     */
+    protected function createNewUserNotifications($cat_username, $source)
+    {
+        $hasBlocks = $this->fetchHasBlocks($cat_username, $source);
+        
+        $hasFines = $this->fetchHasFines($cat_username, $source);
+        
+        $hasOverdues = $this->fetchHasOverdues($cat_username, $source);
+        
+        $this->notificationsRow = $this->notificationsTable->createNotificationsRow($cat_username, $hasBlocks, $hasFines, $hasOverdues);
+    }
+
+    /**
+     * Retrieves new Notifications for a user.
+     *
+     * @param string $cat_username            
+     * @param string $source            
+     */
+    protected function actualizeUserNotifications($cat_username, $source)
+    {
+        $hasBlocks = $this->fetchHasBlocks($cat_username, $source);
+        
+        $hasFines = $this->fetchHasFines($cat_username, $source);
+        
+        $hasOverdues = $this->fetchHasOverdues($cat_username, $source);
+        
+        $this->notificationsRow->has_blocks = $hasBlocks;
+        $this->notificationsRow->has_fines = $hasFines;
+        $this->notificationsRow->has_overdues = $hasOverdues;
+        
+        $this->notificationsRow->last_fetched = date('Y-m-d H:i:s');
+        
+        $this->notificationsRow->save();
+    }
+
+    /**
+     * Returns notifications of user's blocks.
+     *
+     * @param string $cat_username            
+     * @param string $source            
+     */
+    protected function fetchHasBlocks($cat_username, $source)
+    {
+        $profile = $this->ils->getMyProfile([
+            'cat_username' => $cat_username,
+            'id' => $cat_username
+        ]);
+        
+        if (is_array($profile) && count($profile) === 0) {
+            
+            throw new ILSException('Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
+        } else 
+            if (count($profile['blocks']))
+                return true;
+        
+        return false;
+    }
+
+    /**
+     * Returns notifications of user's fines.
+     *
+     * @param string $cat_username            
+     * @param string $source            
+     */
+    protected function fetchHasFines($cat_username, $source)
+    {
+        $fines = $this->ils->getMyFines([
+            'cat_username' => $cat_username,
+            'id' => $cat_username
+        ]);
+        
+        unset($fines['source']);
+        
+        if (count($fines))
+            return true;
+        
+        return false;
     }
 
     /**
      * Returns notifications of user's overdues.
      *
-     * TODO: Make use of DB's notifications cache
-     *
-     * @param \CPK\ILS\Driver\MultiBackend $ilsDriver            
-     * @param array $patron            
+     * @param string $cat_username            
+     * @param string $source            
      */
-    public function getMyOverdues(\CPK\ILS\Driver\MultiBackend $ilsDriver, $patron)
+    protected function fetchHasOverdues($cat_username, $source)
     {
-        $source = $patron['source'];
-        
-        $result = $ilsDriver->getMyTransactions($patron);
-        
-        $errors = $notifications = [];
+        $result = $this->ils->getMyTransactions([
+            'cat_username' => $cat_username,
+            'id' => $cat_username
+        ]);
         
         foreach ($result as $current) {
             
-            if (isset($current['dueStatus']) && $current['dueStatus'] === "overdue") {
-                
-                // We found an overdue .. show warning
-                
-                $notification = [
-                    'clazz' => $this->newNotifClass,
-                    'message' => $this->translate('notif_you_have_overdues'),
-                    'href' => '/MyResearch/CheckedOut#' . $source
-                ];
-                
-                array_push($notifications, $notification);
-                
-                break;
-            }
+            if (isset($current['dueStatus']) && $current['dueStatus'] === "overdue")
+                return true;
         }
         
-        return [
-            'errors' => $errors,
-            'notifications' => $notifications
-        ];
+        return false;
     }
 
     /**

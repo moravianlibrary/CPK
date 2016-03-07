@@ -105,7 +105,7 @@ UPDATE `system` SET `value`='4' WHERE `key`='DB_VERSION';
 
 /* Notifications */
 CREATE TABLE IF NOT EXISTS `notifications` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL, /* Even though this is user_id, it has to be called id because of Zend's incompatibility */
   `has_blocks` tinyint(1) NOT NULL,
   `has_fines` tinyint(1) NOT NULL,
   `has_overdues` tinyint(1) NOT NULL,
