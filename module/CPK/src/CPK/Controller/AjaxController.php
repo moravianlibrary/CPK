@@ -637,7 +637,12 @@ class AjaxController extends AjaxControllerBase
                 'errors' => [
                     $e->getMessage()
                 ],
-                'notifications' => []
+                'notifications' => [
+                    [
+                        'clazz' => 'warning',
+                        'message' => $e->getMessage()
+                    ]
+                ]
             ];
         }
         
