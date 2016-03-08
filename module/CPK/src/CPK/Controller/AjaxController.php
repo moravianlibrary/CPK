@@ -206,7 +206,8 @@ class AjaxController extends AjaxControllerBase
             else $nextItemToken = $usedGetStatus = $usedAleph = null;
 
             foreach ($statuses as $status) {
-                $id = $status['item_id'];
+                $unescId = $status['item_id'];
+                $id = str_replace(':', '\:', $status['item_id']);
 
                 $itemsStatuses[$id] = [];
 
@@ -245,7 +246,7 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['department']))
                     $itemsStatuses[$id]['department'] = $status['department'];
 
-                $key = array_search(trim($id), $ids);
+                $key = array_search(trim($unescId), $ids);
 
                 if ($key !== false)
                     unset($ids[$key]);
@@ -434,6 +435,8 @@ class AjaxController extends AjaxControllerBase
                     'AJAX' => true
                 ]);
 
+            $cat_username = str_replace(':', '\:', $cat_username);
+
             $toRet = [
                 'html' => $html,
                 'obalky' => $obalky,
@@ -578,6 +581,7 @@ class AjaxController extends AjaxControllerBase
                     'AJAX' => true
                 ]);
 
+            $cat_username = str_replace(':', '\:', $cat_username);
             $splitted_cat_username = explode('.', $cat_username);
 
             $toRet = [
@@ -607,19 +611,19 @@ class AjaxController extends AjaxControllerBase
     public function getMyNotificationsAjax()
     {
         $cat_username = $this->params()->fromPost('cat_username');
-        
+
         // Check user's permissions
         $hasPermissions = $this->hasPermissions($cat_username);
-        
+
         // Redirect if not authorized
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
-        
+
         $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
-        
+
         // Check we have correct notifications handler
         if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
-            
+
             return $this->output([
                 'errors' => [
                     'Did not found expected Notifications handler'
@@ -627,12 +631,12 @@ class AjaxController extends AjaxControllerBase
                 'notifications' => []
             ], self::STATUS_ERROR);
         }
-        
+
         try {
-            
+
             $userNotifications = $notifHandler->getUserNotifications($cat_username);
         } catch (\Exception $e) {
-            
+
             $userNotifications = [
                 'errors' => [
                     $e->getMessage()
@@ -645,7 +649,7 @@ class AjaxController extends AjaxControllerBase
                 ]
             ];
         }
-        
+
         return $this->output($userNotifications, self::STATUS_OK);
     }
 
@@ -710,7 +714,7 @@ class AjaxController extends AjaxControllerBase
 
     /**
      * Updates read notifications related to user's identity
-     * 
+     *
      * @return \Zend\Http\Response
      */
     public function notificationReadAjax()
@@ -723,10 +727,10 @@ class AjaxController extends AjaxControllerBase
         $notificationType = $this->params()->fromPost( 'notificationType' );
 
         $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
-        
+
         // Check we have correct notifications handler
         if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
-        
+
             return $this->output([
                 'errors' => [
                     'Did not found expected Notifications handler'
@@ -734,12 +738,12 @@ class AjaxController extends AjaxControllerBase
                 'notifications' => []
             ], self::STATUS_ERROR);
         }
-        
+
         try {
-        
+
             $notifHandler->setUserNotificationRead($user, $notificationType);
         } catch (\Exception $e) {
-        
+
             $userNotifications = [
                 'errors' => [
                     $e->getMessage()
@@ -747,7 +751,7 @@ class AjaxController extends AjaxControllerBase
                 'notifications' => []
             ];
         }
-        
+
         return $this->output(null, self::STATUS_OK);
     }
 
