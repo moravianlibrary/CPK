@@ -370,7 +370,7 @@ class MultiBackend extends MultiBackendBase
         return $detailsForCurrentSource;
     }
 
-    public function getItemStatus($id, $bibId = null)
+    public function getItemStatus($id, $bibId, $patronId)
     {
         if ($bibId === null)
             return $this->getEmptyStatuses($ids);
@@ -383,8 +383,10 @@ class MultiBackend extends MultiBackendBase
 
         $id = $this->stripIdPrefixes($id, $source);
         $bibId = $this->stripIdPrefixes($bibId, $source);
+        $patronId = $this->stripIdPrefixes($patronId, $source);
 
-        $status = $driver->getItemStatus($id, $bibId);
+        $status = $driver->getItemStatus($id, $bibId, $patronId);
         return $status;
     }
+
 }

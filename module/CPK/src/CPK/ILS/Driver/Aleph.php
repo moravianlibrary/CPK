@@ -495,98 +495,52 @@ class Aleph extends AlephBase
         return $recordList;
     }
 
-    public function getItemStatus($id, $bibId) {
+    /**
+     * Support method for placeHold -- get holding info for an item.
+     *
+     * @param string $id          Item ID
+     * @param string $bibId       Bib ID
+     * @param string $patronId    Patron ID
+     *
+     * @return array
+     */
+    public function getItemStatus($id, $bibId, $patronId) {
         $holding = array();
         $bibId = str_replace("-", "", $bibId);
         $params = array();
         $params['view'] = 'full';
-        $params['patron'] = $this->defaultPatronId;
-        $xml = $this->alephWebService->doRestDLFRequest(array('record', $bibId, 'items', $id), $params);
+        $params['patron'] = $patronId;
+        $xml = $this->alephWebService->doRestDLFRequest(array('patron', $patronId, 'record', $bibId, 'items', $id), $params);
         if (!isset($xml->{'item'})) {
             return $holding;
         }
         $item = $xml->{'item'};
-        $item_status = $this->alephTranslator->tab15Translate($item);
-        if ($item_status['opac'] != 'Y') {
-            continue;
-        }
-        $availability = false;
-        $reserve = ($item_status['request'] == 'C')?'N':'Y';
-        $z30 = $item->z30;
-        $collection = (string) $z30->{'z30-collection'};
-        $collection_desc = array('desc' => $collection);
-        $collection_desc = $this->alephTranslator->tab40Translate($item);
-        $sub_library_code = (string) $item->{'z30-sub-library-code'};
-        $requested = false;
         $duedate = null;
-        $addLink = false;
         $status = (string) $item->{'status'};
-        if (in_array($status, $this->available_statuses)) {
-            $availability = true;
-        }
-        if ($item_status['request'] == 'Y' && $availability == false) {
-            $addLink = true;
-        }
-        $holdType = 'hold';
-        if (!empty($patron) || isset($this->defaultPatronId)) {
-            $hold_request = $item->xpath('info[@type="HoldRequest"]/@allowed');
-            if ($hold_request[0] == 'N') {
-                $hold_request = $item->xpath('info[@type="ShortLoan"]/@allowed');
-                if ($hold_request[0] == 'Y') {
-                    $holdType = 'shortloan';
-                }
-            }
-            $addLink = ($hold_request[0] == 'Y');
-        }
         $matches = [];
         if (preg_match(
                 "/([0-9]*\\/[a-zA-Z0-9]*\\/[0-9]*);([a-zA-Z ]*)/", $status, $matches
         )) {
             $duedate = $this->parseDate($matches[1]);
-            $requested = (trim($matches[2]) == "Requested");
         } else if (preg_match(
                 "/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches
         )) {
             $duedate = $this->parseDate($matches[1]);
         }
-        // process duedate_status
-        $duedate_status = $item_status['desc'];
-        if ($availability && $this->duedates) {
-            foreach ($this->duedates as $key => $value) {
-                if (preg_match($value, $item_status['desc'])) {
-                    $duedate_status = $key;
-                    break;
-                }
-            }
-        } else if (!$availability && ($status == "On Hold" || $status == "Requested")) {
-            $duedate_status = "requested";
+        $requests = 0;
+        $str = $xml->xpath('//item/queue/text()');
+        $matches = [];
+        if ($str != null && preg_match("/(\d) .+ (\d) [\w]+/", $str[0], $matches)) {
+            $requests = $matches[1];
+            $requests++;
         }
-        $note    = (string) $z30->{'z30-note-opac'};
         $holding = [
             'id'                => $bibId,
             'item_id'           => $id,
-            'availability'      => $availability,
-            'status'            => (string) $item_status['desc'],
-            'location'          => $sub_library_code,
-            'reserve'           => 'N',
-            'callnumber'        => (string) $z30->{'z30-call-no'},
             'duedate'           => (string) $duedate,
-            'number'            => (string) $z30->{'z30-inventory-number'},
-            'barcode'           => (string) $z30->{'z30-barcode'},
-            'description'       => (string) $z30->{'z30-description'},
-            'notes'             => ($note == null) ? null : array($note),
-            'is_holdable'       => true,
-            'addLink'           => $addLink,
-            'holdtype'          => $holdType,
-            /* below are optional attributes*/
-        'duedate_status'    => $status,
-        'collection'        => (string) $collection,
-        'collection_desc'   => (string) $collection_desc['desc'],
-        'callnumber_second' => (string) $z30->{'z30-call-no-2'},
-        'sub_lib_desc'      => (string) $item_status['sub_lib_desc'],
-        'no_of_loans'       => (string) $z30->{'$no_of_loans'},
-        'requested'         => (string) $requested
+            'requests_placed'   => $requests
         ];
         return $holding;
     }
+
 }
