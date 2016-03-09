@@ -57,9 +57,9 @@ $toRet = array(
  *
  * @var boolean
  */
-const USE_COMPILED_ANGULAR = true;
+$useCompiledAngular = true;
 
-if (USE_COMPILED_ANGULAR) {
+if ($useCompiledAngular) {
     
     // Add compiled angular apps
     array_push($toRet['js'], 'ng-apps.min.js');
