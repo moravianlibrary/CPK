@@ -672,7 +672,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         );
     }
 
-    public function getItemStatus($id, $bibId) {
+    public function getItemStatus($id, $bibId, $patronId) {
         return $this->getStatus($id);
     }
 
