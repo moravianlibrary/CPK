@@ -32,6 +32,9 @@ return array(
         'favorites/list.controller.js',
         'favorites/record.controller.js',
         
+        'federative-login/module.js',
+        'federative-login/login.controller.js',
+        
         'notifications/module.js',
         'notifications/notif.controller.js',
         

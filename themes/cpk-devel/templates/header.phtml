@@ -13,7 +13,7 @@
   </a>
 </div>
 <? if (!isset($this->layout()->renderingError)): ?>
-  <div class="collapse navbar-collapse" id="header-collapse">
+  <div class="collapse navbar-collapse" id="header-collapse" ng-controller='LoginController as loginCtrl'>
     <ul class="nav navbar-nav">
         <li class="active"><a href="<?=$this->url('home')?>"><?=$this->translate('Catalog')?><span class="sr-only">(current)</span></a></li>
         <li><a href="http://info.knihovny.cz/libraries"><?=$this->translate('Libraries')?></a></li>
@@ -102,10 +102,10 @@
 			<? else: ?>
 			<li id="loginOptions">
               <? if ($sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
-                <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><i
+                <a href="#" ng-click='loginCtrl.login("<?=$this->escapeHtmlAttr($sessionInitiator)?>")'><i
 				  class="pr-user-passwordlock"></i> <?=$this->transEsc("Institutional Login")?></a>
               <? else: ?>
-                <a href="<?=$this->url('myresearch-userlogin')?>"
+                <a href="#" ng-click='loginCtrl.login("<?=$this->url('myresearch-userlogin')?>")'
                   class="modal-link" title="<?=$this->transEsc("Login")?>"><i
                   class="pr-user-passwordlock"></i> <?=$this->transEsc("Login")?></a>
               <? endif; ?>
@@ -114,5 +114,9 @@
 		<? endif; ?>
       </ul>
     </nav>
+  
+    <!-- Modal for login -->
+    <div ng-login='modal'>
+    </div>
   </div>
 <? endif; ?>
