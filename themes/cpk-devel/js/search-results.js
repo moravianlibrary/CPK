@@ -19,6 +19,85 @@ jQuery( document ).ready( function( $ ) {
 			} else {
 				$( groupSelector ).find( '.remove-advanced-search-query' ).parent().removeClass( 'hidden' );
 			}
+		},
+		
+		/**
+		 * Return and display new seaerch results
+		 * 
+		 * @param {JSON} originalQueryJson 
+		 */
+		updateSearchResults: function( originalQueryJson ) {
+			
+			var data = {};
+			
+			var filters = [];
+			$( '.hidden-filter' ).each( function( index, element ) {
+				filters.push( $( element ).val() );
+			});
+			data['filter'] = filters;
+			
+			$( '.query-type, .query-string, .group-operator' ).each( function( index, element ) {
+				var key = $( element ).attr( 'name' ).slice( 0, -2 );
+				if (! data.hasOwnProperty( key )) {
+					data[key] = [];
+				}
+				data[key].push( $( element ).val() );
+			});
+			
+			var allGroupsOperator = $( 'input[name="join"]' ).val();
+			data['join'] = allGroupsOperator;
+			
+			/**************** Start modifications control ****************/
+			/*
+			var warnings = 0;
+			TODO: If the form input fields were modified, ask to reflect 
+			a new search queries or to use original ones
+			Is jQuery.each.lookFor[] == object.foreach.lookFor[] ? ++warnigns;
+			*/
+			/**************** End of modifications control ****************/
+				
+			$.ajax({
+	        	type: 'POST',
+	        	//dataType: 'json',
+	        	url: VuFind.getPath() + '/Search/ResultsAjax',
+	        	data: data,
+	        	beforeSend: function() {
+	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-refresh fa-spin'></i></div>";
+	        		$( '#search-result-list' ).replaceWith( loader );
+	        	},
+	        	success: function( response ) {
+	        		/*if (response.status == 'OK') {
+	        			console.log( 'Search results:' );
+	        			console.log( response.data );
+	        		} else {
+	        			console.error(response.data);
+	        		}*/
+	        		var replacement =  $( response ).find( '#search-result-list' ).html();
+	        		$( '#search-results-loader' ).replaceWith( replacement );
+	         	}
+	        });
+		},
+			
+		addOrRemoveFacetFilter: function( value ) {
+			var actionPerformed = 0;
+			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
+				if( $( element ).val() == value) {
+					$( this ).remove();
+					++actionPerformed;
+					return false; // javascript equivalent to php's break;
+				}
+			});
+			
+			if (actionPerformed == 0) { /* This filter not applied yet, apply it now */
+				var html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + value + "'>";
+				$( '#hiddenFacetFilters' ).append(html);
+			}
+			
+			/*
+			 * @TODO: UPDATE URL async here!
+			 */
+			
+			ADVSEARCH.updateSearchResults();
 		}
 	}
 	
@@ -85,10 +164,19 @@ jQuery( document ).ready( function( $ ) {
 		});
 	});
 	
+	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
+		event.preventDefault();
+		if ( $( this ).hasClass( 'institution-facet-filter-button' ) ) {
+			$( 'institution-facet-filter.facet-filter-checked' ).each( function ( index, element ) {
+				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'href' ) );
+			});
+		} else {
+			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'href' ) );
+		}
+	});
+	
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
-		/* @TODO: Async form submit with facets */
-		
-		/* @TODO: Async results preview */
+		ADVSEARCH.updateSearchResults();
 	});
 });

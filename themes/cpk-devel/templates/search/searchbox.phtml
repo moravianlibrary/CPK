@@ -17,11 +17,30 @@
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
 ?>
-<? if ($this->searchType == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = 0;?>
+<? if ($this->searchType == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = -1;?>
+
+	<?  //create JSON from query to pass it later as a param into ajax submit
+        $queryArray = [];
+        $queryArray['groupsCount'] = count($query->getQueries());
+        $queryArray['groupsOperator'] = $allGroupsOperator;
+        foreach ($query->getQueries() as $key => $queryGroup) {
+            $queryArray['groupsData'][$key]['groupOperator'] = $allGroupsOperator;
+            $queryArray['groupsData'][$key]['groupQueriesCount'] = count($queryGroup->getQueries());
+            foreach ($queryGroup->getQueries() as $index => $searchQuery) {
+                $queryArray['groupsData'][$key]['groupQueries'][$index]['type'][]    = $searchQuery->getHandler();
+                $queryArray['groupsData'][$key]['groupQueries'][$index]['lookFor'][] = $searchQuery->getString();
+            }
+        }
+        
+        $originalQueryJson = json_encode($queryArray);
+    ?>
   <div class="searchForm">
   
     <!-- Display advanced search form with queries -->
     <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
+    <script>
+		var originalQueryJson = '<?=$originalQueryJson?>';
+    </script>
     <div class='row'>
       <div class='col-md-12'></div>
         <select id='group-join-type' name="join" class="form-control">
@@ -31,22 +50,22 @@
         </select>
       </div>
     </div>
-    <form id='editable-advanced-search-form'>
-      <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); ++$groups; $queries = 0;?>
+    <form id='editable-advanced-search-form' name='searchForm'>
+      <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); $groups++; $queries = -1; /* @FIXME: This foreach can be done on $queryArray */?>
       <div class='row group' id='group_<?=$groups?>'>
         <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
         <div class='col-md-2'>
-          <select class="form-control">
+          <select class="form-control group-operator" name='bool<?=$groups?>[]'>
             <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
             <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
             <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
           </select>
         </div>
         <div class='col-md-9'>
-          <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); ++$queries;?>
+          <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); $queries++;?>
           <div class='row queries' id='query_<?=$queries?>'>
             <div class='col-md-4 text-right'>
-              <select class='form-control' name='type<?=$groups?>[]'>
+              <select class='form-control query-type' name='type<?=$queries?>[]'>
                 <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
                 <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
                   <?=$this->transEsc($description)?>
@@ -55,7 +74,7 @@
               </select>
             </div>
             <div class='col-md-7'>
-              <input name='lookfor<?=$groups?>[]' type='text' class='form-control' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
+              <input name='lookfor<?=$queries?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
             </div>
             <div class="col-md-1">
               <a href="#" class='close remove-advanced-search-query'>&times;</a>
@@ -80,7 +99,7 @@
       </p>
       <div class='row'>
         <div class='col-sm-12 text-right' style='margin-top: 20px;'>
-          <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" value="<?= $this->transEsc('Find')?>" id='submit-edited-advanced-search'>
+          <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" value="<?= $this->transEsc('Find')?>" id='submit-edited-advanced-search' type='submit'>
           <a href='/Search/Advanced' title='<?= $this->transEsc('Start a new Advanced Search')?>'>
             <?= $this->transEsc('Start a new Advanced Search')?>
           </a>
@@ -89,6 +108,17 @@
           </a>
         </div>
       </div>
+      
+      <!-- Facets -->
+      <div class='hidden' id='hiddenFacetFilters'>
+      <? foreach ($filterList as $field => $data): ?>
+          <? foreach ($data as $value): ?>
+            <input type='hidden' class='hidden-filter' name='filter[]' value='<?=$this->escapeHtmlAttr($field)?>:"<?=$this->escapeHtmlAttr($value)?>"'>
+          <? endforeach; ?>
+      <? endforeach; ?>
+      </div>
+      <!-- End of facets -->
+      
     </form>
     <!-- End of advanced search form -->
     

@@ -1,16 +1,8 @@
-<? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
-<? endif; ?>
-
-<?
+<? 
+  $recordTotal = $this->results->getResultTotal();
+  
   // Set up page title:
   $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
-  if (isset($this->overrideTitle)) {
-      $this->headTitle($this->overrideTitle);
-  } else {
-      $this->headTitle($this->translate('Search Results') . (empty($lookfor) ? '' : " - {$lookfor}"));
-  }
-
-  $this->headScript()->appendFile("search-results.js");
   
   // Set up search box:
   $this->layout()->searchbox = $this->context($this)->renderInContext(
@@ -27,27 +19,9 @@
         'selectedShards' => $this->params->getSelectedShards()
       )
   );
-
-  // Set up breadcrumbs:
-  
-  $this->layout()->breadcrumbs .= '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ';
-  if (isset($this->overrideTitle)) {
-    $this->layout()->breadcrumbs .= '<li class="active">' . $this->escapeHtml($this->overrideTitle) . '</li>';
-  } else {
-    $this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc('Search') . ': ' . $this->escapeHtml($lookfor) . '</li>';
-  }
-
-  // Enable cart if appropriate:
-  $this->showCartControls = $this->params->getOptions()->supportsCart() && $this->cart()->isActive();
-  // Enable bulk options if appropriate:
-  $this->showBulkOptions = $this->params->getOptions()->supportsCart() && $this->showBulkOptions;
-
-  // Load Javascript dependencies into header:
-  //$this->headScript()->appendFile("check_item_statuses.js");
-  $this->headScript()->appendFile("check_save_statuses.js");
 ?>
 <div id='search-result-list'>
-    <div class='row' id='search-result-list'>
+    <div class='row'>
       <div class='col-sm-9 pull-left'>
       </div>
       <div class='col-sm-3 pull-right'>
