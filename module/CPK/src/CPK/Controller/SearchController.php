@@ -26,7 +26,6 @@ namespace CPK\Controller;
 
 use VuFind\Controller\SearchController as SearchControllerBase;
 use VuFind\Exception\Mail as MailException;
-use Zend\View\Renderer\PhpRenderer;
 
 /**
  * SearchController
@@ -36,10 +35,6 @@ use Zend\View\Renderer\PhpRenderer;
  */
 class SearchController extends AbstractSearch 
 {
-    // define some status constants
-    const STATUS_OK = 'OK';                  // good
-    const STATUS_ERROR = 'ERROR';            // bad
-    const STATUS_NEED_AUTH = 'NEED_AUTH';    // must login first
     
 	/**
 	 * Handle an advanced search
