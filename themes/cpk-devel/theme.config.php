@@ -1,48 +1,27 @@
 <?php
-return array(
+$toRet = array(
     'extends' => 'common-bootstrap3',
     'css' => array(
-        //'vendor/bootstrap.min.css',
-        //'vendor/bootstrap-accessibility.css',
-        //'bootstrap-custom.css',
+        // 'vendor/bootstrap.min.css',
+        // 'vendor/bootstrap-accessibility.css',
+        // 'bootstrap-custom.css',
         'compiled.css',
         'vendor/font-awesome.min.css',
         'vendor/bootstrap-slider.css',
-        'print.css:print',
+        'print.css:print'
     ),
     'js' => array(
         'vendor/jquery.min.js',
         'vendor/bootstrap.min.js',
         'vendor/bootstrap-accessibility.min.js',
         'vendor/rc4.js',
-        'vendor/localforage-bundle.min.js',
         'vendor/js.cookie.js',
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
-        
         'vendor/angular.min.js',
-        
-        'favorites/module.js',
-        'favorites/translate.filter.js',
-        'favorites/favsNotifications.service.js',
-        'favorites/favorite.class.js',
-        'favorites/favorites.factory.js',
-        'favorites/storage.service.js',
-        'favorites/broadcaster.service.js',
-        'favorites/list.controller.js',
-        'favorites/record.controller.js',
-        
-        'federative-login/module.js',
-        'federative-login/login.controller.js',
-        
-        'notifications/module.js',
-        'notifications/notif.controller.js',
-        
-        'cpk.ng-app.js',
-        
         'common.js',
         'lightbox.js',
-        'eu-cookies.js',
+        'eu-cookies.js'
     ),
     'less' => array(
         'active' => false,
@@ -69,3 +48,44 @@ return array(
         )
     )
 );
+
+/**
+ * Implementation of easy switching between ng-apps minified & not minified
+ *
+ * Don't forget to run the cpk-devel/js/compile-ng-apps.sh script after an change is made to non-compiled code if minified version is desired.
+ * <b>But don't also forget to update cpk-devel/js/compile-ng-apps.sh's list of files to compile!</b>
+ *
+ * @var boolean
+ */
+const USE_COMPILED_ANGULAR = true;
+
+if (USE_COMPILED_ANGULAR) {
+    
+    // Add compiled angular apps
+    array_push($toRet['js'], 'ng-apps.min.js');
+} else {
+    
+    $jsToInclude = [
+        'favorites/module.js',
+        'favorites/translate.filter.js',
+        'favorites/favsNotifications.service.js',
+        'favorites/favorite.class.js',
+        'favorites/favorites.factory.js',
+        'favorites/storage.service.js',
+        'favorites/broadcaster.service.js',
+        'favorites/list.controller.js',
+        'favorites/record.controller.js',
+        
+        'federative-login/module.js',
+        'federative-login/login.controller.js',
+        
+        'notifications/module.js',
+        'notifications/notif.controller.js',
+        
+        'cpk.ng-app.js'
+    ];
+    
+    $toRet['js'] = array_merge($toRet['js'], $jsToInclude);
+}
+
+return $toRet;
