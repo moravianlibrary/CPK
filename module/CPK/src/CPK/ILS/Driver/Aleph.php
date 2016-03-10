@@ -523,7 +523,7 @@ class Aleph extends AlephBase
         )) {
             $duedate = $this->parseDate($matches[1]);
         } else if (preg_match(
-                "/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches
+                "/([0-9]*\\/[a-zA-Z0-9]*\\/[0-9]*)/", $status, $matches
         )) {
             $duedate = $this->parseDate($matches[1]);
         }
