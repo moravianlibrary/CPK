@@ -30,9 +30,9 @@ namespace CPK\Controller;
 use MZKCommon\Controller\AjaxController as AjaxControllerBase, VuFind\Exception\ILS as ILSException;
 
 class AjaxController extends AjaxControllerBase
-{
+{   
     use \VuFind\Db\Table\DbTableAwareTrait;
-
+    
     /**
      * Downloads SFX JIB content for current record.
      *
@@ -1247,5 +1247,19 @@ class AjaxController extends AjaxControllerBase
         }
 
         return $this->output([], self::STATUS_OK);
+    }
+    
+    /**
+     * Return search results
+     *
+     * @return \Zend\Http\Response
+     */
+    public function updateSearchResultsAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $searchController = $this->getServiceLocator()->get('searchController');
+        $viewData = $searchController->ajaxResultsAction($postParams);
+
+        return $this->output($viewData, self::STATUS_OK);
     }
 }

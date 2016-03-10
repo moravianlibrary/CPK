@@ -29,7 +29,6 @@ namespace CPK\Controller;
 use VuFind\Search\RecommendListener, VuFind\Solr\Utils as SolrUtils;
 use Zend\Stdlib\Parameters;
 use VuFind\Controller\AbstractBase;
-use Zend\View\Model\JsonModel;
 
 /**
  * VuFind Search Controller
@@ -393,119 +392,6 @@ class AbstractSearch extends AbstractBase
         return $view;
     }
     
-    /**
-     * Send search results to results view
-     *
-     * @return \Zend\View\Model\JsonModel
-     */
-    public function resultsAjaxAction()
-    {
-        $view = $this->createViewModel();
-        $view->setTemplate('search/results-ajax');
-    
-        $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
-        
-        // Send both GET and POST variables to search class:
-        $request = $this->getRequest()->getQuery()->toArray()
-        + $this->getRequest()->getPost()->toArray();
-        
-        /* Set limit and sort */
-        $searchesConfig = $this->getConfig('searches');
-        $view->limit = (! empty($request['limit']))
-        ? $request['limit']
-        : $searchesConfig->General->default_limit;
-        $view->sort  = (! empty($request['sort']))
-        ? $request['sort']
-        : $searchesConfig->General->default_sort;
-        
-        if (! empty($request['limit'])) {
-            $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $request['limit'];
-        }
-        
-        if (! empty($request['sort'])) {
-            $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $request['sort'];
-        }
-        
-        // If user have preferred limit and sort settings
-        if ($user = $this->getAuthManager()->isLoggedIn()) {
-            $userSettingsTable = $this->getTable("usersettings");
-             
-            if (isset($_SESSION['VuFind\Search\Solr\Options']['lastLimit'])) {
-                $request['limit'] = $_SESSION['VuFind\Search\Solr\Options']['lastLimit'];
-            } else {
-                if (! empty($preferredRecordsPerPage)) {
-                    $request['limit'] = $userSettingsTable->getRecordsPerPage($user);
-                } else {
-                    $request['limit'] = $searchesConfig->General->default_limit;
-                }
-            }
-            $view->limit = $request['limit'];
-
-            if (isset($_SESSION['VuFind\Search\Solr\Options']['lastSort'])) {
-                $request['sort'] = $_SESSION['VuFind\Search\Solr\Options']['lastSort'];
-            } else {
-                if (! empty($preferredSorting)) {
-                    $request['sort'] = $userSettingsTable->getSorting($user);
-                } else {
-                    $request['sort'] = $searchesConfig->General->default_sort;
-                }
-            }
-            $view->sort = $request['sort'];
-
-        }
-
-        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $view->limit;
-        $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $view->sort;
-        /**/
-
-        $view->results = $results = $runner->run(
-            $request, $this->searchClassId, $this->getSearchSetupCallback()
-            );
-        $view->params = $results->getParams();
-
-        // If we received an EmptySet back, that indicates that the real search
-        // failed due to some kind of syntax error, and we should display a
-        // warning to the user; otherwise, we should proceed with normal post-search
-        // processing.
-        if ($results instanceof \VuFind\Search\EmptySet\Results) {
-            $view->parseError = true;
-        } else {
-            // If a "jumpto" parameter is set, deal with that now:
-            if ($jump = $this->processJumpTo($results)) {
-                return $jump;
-            }
-
-            // Remember the current URL as the last search.
-            $this->rememberSearch($results);
-
-            // Add to search history:
-            if ($this->saveToHistory) {
-                $user = $this->getUser();
-                $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')
-                ->getId();
-                $history = $this->getTable('Search');
-                $history->saveSearch(
-                    $this->getResultsManager(), $results, $sessId,
-                    $history->getSearches(
-                        $sessId, isset($user->id) ? $user->id : null
-                        )
-                    );
-            }
-
-            // Set up results scroller:
-            if ($this->resultScrollerActive()) {
-                $this->resultScroller()->init($results);
-            }
-        }
-
-        // Search toolbar
-        $config = $this->getServiceLocator()->get('VuFind\Config')->get('config');
-        $view->showBulkOptions = isset($config->Site->showBulkOptions)
-        && $config->Site->showBulkOptions;
-
-        return $view;
-    }
-
     /**
      * Process the jumpto parameter -- either redirect to a specific record and
      * return view model, or ignore the parameter and return false.

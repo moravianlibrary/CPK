@@ -155,7 +155,8 @@ $config = array(
         ), // Exceptions throwing system
 
         'invokables' => array(
-            'wantitfactory' => 'CPK\WantIt\Factory'
+            'wantitfactory' => 'CPK\WantIt\Factory',
+            'searchController' => 'CPK\Controller\SearchController',
         )
     )
 );

@@ -58,23 +58,24 @@ jQuery( document ).ready( function( $ ) {
 				
 			$.ajax({
 	        	type: 'POST',
-	        	//dataType: 'json',
-	        	url: VuFind.getPath() + '/Search/ResultsAjax',
+	        	dataType: 'json',
+	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
 	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-refresh fa-spin'></i></div>";
 	        		$( '#search-result-list' ).replaceWith( loader );
 	        	},
 	        	success: function( response ) {
-	        		/*if (response.status == 'OK') {
-	        			console.log( 'Search results:' );
-	        			console.log( response.data );
+	        		if (response.status == 'OK') {
+	        			var replacement =  $( response ).find( '#search-result-list' ).html();
+		        		$( '#search-results-loader' ).replaceWith( replacement );
 	        		} else {
 	        			console.error(response.data);
-	        		}*/
-	        		var replacement =  $( response ).find( '#search-result-list' ).html();
-	        		$( '#search-results-loader' ).replaceWith( replacement );
-	         	}
+	        		}
+	         	},
+	            error: function (request, status, error) {
+	            	console.error(request.responseText);
+	            }
 	        });
 		},
 			
