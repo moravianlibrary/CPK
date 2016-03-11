@@ -63,12 +63,13 @@ jQuery( document ).ready( function( $ ) {
 	        	data: data,
 	        	beforeSend: function() {
 	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-refresh fa-spin'></i></div>";
-	        		$( '#search-result-list' ).replaceWith( loader );
+	        		$( '#result-list-placeholder' ).html( loader );
 	        	},
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
-	        			var replacement =  $( response ).find( '#search-result-list' ).html();
-		        		$( '#search-results-loader' ).replaceWith( replacement );
+	        			$( '#result-list-placeholder' ).addClass( 'hidden' );
+	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
+		        		$( '#result-list-placeholder' ).removeClass( 'hidden' );
 	        		} else {
 	        			console.error(response.data);
 	        		}

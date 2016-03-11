@@ -853,6 +853,34 @@ class SearchController extends AbstractSearch
 	    $institutionsMappings = $facetConfig->InstitutionsMappings->toArray();
 	    $viewData['institutionsMappings'] = $institutionsMappings;
 	    
-	    return $viewData;
+	    $resultsHtml = $this->returnResultListHtml($viewData);
+	    
+	    $data = [
+            'viewData' => $viewData,
+	        'resultsHtml' => $resultsHtml
+	    ];
+	    
+	    return $data;
+    }
+    
+    /**
+     * Send search results to results view
+     * 
+     * @param array $viewData
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function returnResultListHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/list-list');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
     }
 }
