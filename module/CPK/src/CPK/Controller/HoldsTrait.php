@@ -212,10 +212,10 @@ trait HoldsTrait
         if (isset($status['requests_placed'])) {
             $holdQueue = $status['requests_placed'];
         }
-
         if (isset($status['duedate'])) {
             $holdDueDate = $status['duedate'];
         }
+        if (empty($holdQueue) && ! empty($holdDueDate)) $holdQueue = 1;
 
         $view = $this->createViewModel(
             [
