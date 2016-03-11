@@ -62,14 +62,17 @@ jQuery( document ).ready( function( $ ) {
 	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
-	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-refresh fa-spin'></i></div>";
-	        		$( '#result-list-placeholder' ).html( loader );
+	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
+	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
+	        			$( '#result-list-placeholder' ).before( loader );
+	        		});
 	        	},
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
-	        			$( '#result-list-placeholder' ).addClass( 'hidden' );
+	        			$( '#search-results-loader' ).remove();
+	        			$( '#result-list-placeholder' ).css( 'display', 'none' );
 	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
-		        		$( '#result-list-placeholder' ).removeClass( 'hidden' );
+		        		$( '#result-list-placeholder' ).show( 'blind', {}, 500 );
 	        		} else {
 	        			console.error(response.data);
 	        		}
