@@ -108,7 +108,7 @@ jQuery( document ).ready( function( $ ) {
 	
 	/* Update DOM state on page load */
 	ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
-	$( '#advSearchForm group' ).each( function(){
+	$( '#editable-advanced-search-form .group' ).each( function(){
 		ADVSEARCH.updateQueriesDOMState( '#' + $( this ).attr( 'id' ) );
 	});
 	
