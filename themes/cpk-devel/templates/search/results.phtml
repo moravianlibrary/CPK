@@ -10,7 +10,11 @@
       $this->headTitle($this->translate('Search Results') . (empty($lookfor) ? '' : " - {$lookfor}"));
   }
 
-  $this->headScript()->appendFile("search-results.js");
+  // Load Javascript dependencies into header:
+  //$this->headScript()->appendFile("check_item_statuses.js");
+  $this->headScript()->appendFile("check_save_statuses.js");
+  $this->headScript()->appendFile("jquery-ui.min.js");
+  $this->headScript()->appendFile("search-results.js");     
   
   // Set up search box:
   $this->layout()->searchbox = $this->context($this)->renderInContext(
@@ -41,11 +45,6 @@
   $this->showCartControls = $this->params->getOptions()->supportsCart() && $this->cart()->isActive();
   // Enable bulk options if appropriate:
   $this->showBulkOptions = $this->params->getOptions()->supportsCart() && $this->showBulkOptions;
-
-  // Load Javascript dependencies into header:
-  //$this->headScript()->appendFile("check_item_statuses.js");
-  $this->headScript()->appendFile("check_save_statuses.js");
-  $this->headScript()->appendFile("jquery-ui.min.js");
 ?>
 <div id='search-result-list'>
     <div class='row' id='search-result-list'>

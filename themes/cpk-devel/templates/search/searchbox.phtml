@@ -55,11 +55,13 @@
       <div class='row group' id='group_<?=$groups?>'>
         <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
         <div class='col-md-2'>
-          <select class="form-control group-operator" name='bool<?=$groups?>[]'>
-            <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
-            <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
-            <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
-          </select>
+          <label class='dropdown-select-label'>
+            <select class="group-operator dropdown-select" name='bool<?=$groups?>[]'>
+              <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
+              <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
+              <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
+            </select>
+          </label>
         </div>
         <div class='col-md-9'>
           <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); $queries++;?>
