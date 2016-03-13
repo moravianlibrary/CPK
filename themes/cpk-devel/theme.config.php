@@ -57,7 +57,7 @@ $toRet = array(
  *
  * @var boolean
  */
-$useCompiledAngular = true;
+$useCompiledAngular = false;
 
 if ($useCompiledAngular) {
     
