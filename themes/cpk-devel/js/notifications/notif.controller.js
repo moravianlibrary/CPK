@@ -9,14 +9,22 @@
 
     NotificationsController.$inject = [ '$q', '$log', '$http' ];
     
+    globalNotifDirective.$inject = [ '$log' ];
+    
     /**
      * Holds DOM elements of global notifications section
      */
     var globalNotifHolder = {
 	    loader : undefined,
 	    withoutNotifications : undefined,
-	    synchronousNotifications : undefined
+	    synchronousNotifications : undefined,
+	    warningIcon : undefined
     };
+    
+    /**
+     * Is called after linker has done it's job
+     */
+    var onLinkerDone = function() {};
 
     function NotificationsController($q, $log, $http) {
 
@@ -27,6 +35,14 @@
 	vm.initNotifications = initNotifications;
 	
 	vm.notifClicked = notifClicked;
+	
+	onLinkerDone = function() {
+	    if (! hasGlobalNotifications()) {
+		showWithoutNotifications();
+	    } else {
+		showWarningIcon();
+	    }
+	}
 
 	return vm;
 	
@@ -35,6 +51,7 @@
 	 * successfully bind data to this Controller
 	 */
 	function initNotifications(username) {
+	    showLoader();
 	    
 	    vm.notifications[username] = [];
 	    
@@ -43,6 +60,10 @@
 		if (notifications instanceof Array) {
 		    
 		    vm.notifications[username] = notifications;
+		    
+		    if (notifications.length !== 0 || hasGlobalNotifications()) {
+			showWarningIcon();
+		    }
 		    
 		    hideLoader();
 		}
@@ -131,9 +152,9 @@
 	    
 	    // If there is no global notification, show 'no notifications
 	    // notification' :D
-	    if (globalNotifHolder.synchronousNotifications.children.length === 0) {
+	    if (! hasGlobalNotifications()) {
 		
-		hideWithoutNotifications();
+		showWithoutNotifications();
 	    }
 	}
 	
@@ -142,26 +163,41 @@
 	    
 	    // If there is any global notification, hide 'no notifications
 	    // notification' :)
-	    if (globalNotifHolder.synchronousNotifications.children.length !== 0) {
-		
-		showWithoutNotifications();
+	    if (hasGlobalNotifications()) {
+
+		hideWithoutNotifications();
 	    }
 	}
 	
-	function hideWithoutNotifications() {
-	    globalNotifHolder.withoutNotifications.removeAttribute('hidden');
+	function showWarningIcon() {
+	    globalNotifHolder.warningIcon.style = "";
+	}
+	
+	function hideWarningIcon() {
+	    // We need to override the ".fa" class
+	    globalNotifHolder.warningIcon.style = "display: none;";
 	}
 	
 	function showWithoutNotifications() {
+	    globalNotifHolder.withoutNotifications.removeAttribute('hidden');
+	}
+	
+	function hideWithoutNotifications() {
 	    globalNotifHolder.withoutNotifications.setAttribute('hidden', 'hidden');
+	}
+	
+	function hasGlobalNotifications() {
+	    return globalNotifHolder.synchronousNotifications.children.length !== 0;
 	}
     }
     
-    function globalNotifDirective() {
+    function globalNotifDirective($log) {
 	return {
 	    restrict : 'A',
 	    link : linker
 	};
+	
+	var buf = undefined;
 	
 	function linker(scope, elements, attrs) {
 	    // Assing the loader to the 'local' variable
@@ -181,8 +217,33 @@
 	    	    globalNotifHolder.synchronousNotifications = elements.context;
 	    	    break;
 	    	    
+	    	case 'warningIcon':
+	    	    
+	    	    globalNotifHolder.warningIcon = elements.context;
+	    	    break;
+	    	    
 	    	default:
 	    	    console.error('Linker for notifications controller failed to link global notifications element');
+	    }
+	    
+	    if (typeof buf === 'undefined') {
+		buf = {};
+		buf['globalNotifHolderKeys'] = Object.keys(globalNotifHolder);
+		buf['globalNotifHolderKeysLength'] = buf['globalNotifHolderKeys'].length;
+	    }
+	    
+	    // Are we done linking ?
+	    for (var i = 0; i < buf['globalNotifHolderKeysLength'];) {
+		
+		if (typeof globalNotifHolder[buf['globalNotifHolderKeys'][i]] === 'undefined')
+		    break;
+		
+		if (++i === buf['globalNotifHolderKeysLength']) {
+		    if (typeof onLinkerDone === 'function')
+			onLinkerDone();
+		    else
+			$log.error('onLinkerDone must be a function');
+		}
 	    }
 	}
     }
