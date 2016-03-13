@@ -5,7 +5,7 @@
  */
 (function() {
 
-    angular.module('notifications').controller('NotificationsController', NotificationsController).directive('globalNotif', globalNotifDirective);
+    angular.module('notifications').controller('NotificationsController', NotificationsController).directive('globalNotif', globalNotifDirective).directive('institutionNotif', institutionNotif);
 
     NotificationsController.$inject = [ '$q', '$log', '$http' ];
     
@@ -20,6 +20,8 @@
 	    synchronousNotifications : undefined,
 	    warningIcon : undefined
     };
+    
+    var institutionNotifWarningIconHolder = {};
     
     /**
      * Is called after linker has done it's job
@@ -50,8 +52,7 @@
 	 * Initializes an empty array for an username provided in order to
 	 * successfully bind data to this Controller
 	 */
-	function initNotifications(username) {
-	    showLoader();
+	function initNotifications(source, username) {
 	    
 	    vm.notifications[username] = [];
 	    
@@ -65,7 +66,7 @@
 			showWarningIcon();
 		    }
 		    
-		    hideLoader();
+		    hideLoader(source);
 		}
 		
 	    }).catch(function(reason) {
@@ -147,8 +148,13 @@
 	    });
 	}
 	
-	function hideLoader() {
-	    globalNotifHolder.loader.setAttribute('hidden', 'hidden');
+	function hideLoader(source) {
+	    
+	    if (typeof source === 'undefined') {
+		globalNotifHolder.loader.setAttribute('hidden', 'hidden');
+	    } else {
+		institutionNotifWarningIconHolder[source].setAttribute('hidden', 'hidden');
+	    }
 	    
 	    // If there is no global notification, show 'no notifications
 	    // notification' :D
@@ -158,8 +164,13 @@
 	    }
 	}
 	
-	function showLoader() {
-	    globalNotifHolder.loader.removeAttribute('hidden');
+	function showLoader(source) {
+	    
+	    if (typeof source === 'undefined') {
+		globalNotifHolder.loader.removeAttribute('hidden');
+	    } else {
+		institutionNotifWarningIconHolder[source].removeAttribute('hidden');
+	    }
 	    
 	    // If there is any global notification, hide 'no notifications
 	    // notification' :)
@@ -245,6 +256,20 @@
 			$log.error('onLinkerDone must be a function');
 		}
 	    }
+	}
+    }
+    
+    function institutionNotif() {
+	return {
+	    restrict : 'A',
+	    link : linker
+	};
+	
+	function linker(scope, elements, attrs) {
+	    
+	    var source = attrs.institutionNotif;
+	    
+	    institutionNotifWarningIconHolder[source] = elements.context;
 	}
     }
 })();

@@ -22,9 +22,13 @@
   <? if ($user): foreach ($libraryCards as $libraryCard):
 	   $source = explode('.', $libraryCard['cat_username'])[0];
   ?>
-	<li ng-init='notifCtrl.initNotifications("<?=$libraryCard['cat_username'] ?>")'>
+	<li ng-init='notifCtrl.initNotifications("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
 	   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
+	     <div institution-notif='<?=$source?>' class="notif-default">
+	       <i class="fa fa-spinner fa-spin"></i>
+	       <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+         </div>
 	   </div>
 	   <div ng-repeat='notification in notifCtrl.notifications["<?=$libraryCard['cat_username'] ?>"]'>
 	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href)'>
