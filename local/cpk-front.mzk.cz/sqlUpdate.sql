@@ -122,17 +122,17 @@ ALTER TABLE `notifications` ADD `blocks_read` BOOLEAN NOT NULL AFTER `has_overdu
 UPDATE `system` SET `value`='6' WHERE `key`='DB_VERSION';
 
 CREATE TABLE IF NOT EXISTS `institutions` (
-`id` int(11) unsigned NOT NULL,
-  `source` varchar(12) NOT NULL,
-  `ip` varchar(46) NOT NULL,
-  `port` int(6) NOT NULL,
+  `id` int(11) unsigned NOT NULL,
+  `source` varchar(100) NOT NULL DEFAULT '',
+  `url` mediumtext NOT NULL,
+  `type` enum('Aleph','NCIP') NULL,
+  `timeout` int(3) unsigned DEFAULT 10 NOT NULL,
   `bot_username` varchar(64) DEFAULT NULL,
   `bot_password` varchar(64) DEFAULT NULL,
-  `type` enum('Aleph','NCIP') NOT NULL,
   `logo_url` mediumtext NOT NULL,
   `name_cs` mediumtext NOT NULL,
   `name_en` mediumtext NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 ALTER TABLE `institutions`
  ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `source` (`source`);
@@ -140,4 +140,27 @@ ALTER TABLE `institutions`
 ALTER TABLE `institutions`
 MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
 
+-- There will not work constraint addition into user_card & user tables if there are users in institutions which are not inserted here
+INSERT INTO `institutions` (`source`) VALUES
+('mzk'),
+('tre'),
+('svkhk'),
+('vkta'),
+('ntk'),
+('slk'),
+('vkol'),
+('kfbz'),
+('kpsys'),
+('kvkl'),
+('nkp'),
+('Dummy'),
+('mkp'),
+('nlk');
+
 UPDATE `system` SET `value`='7' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `user_card` ADD CONSTRAINT `home_library_link_1` FOREIGN KEY (`home_library`) REFERENCES `vufind`.`institutions`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `user` ADD CONSTRAINT `home_library_link_2` FOREIGN KEY (`home_library`) REFERENCES `vufind`.`institutions`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+UPDATE `system` SET `value`='8' WHERE `key`='DB_VERSION';
