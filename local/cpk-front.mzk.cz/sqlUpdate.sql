@@ -120,3 +120,24 @@ UPDATE `system` SET `value`='5' WHERE `key`='DB_VERSION';
 ALTER TABLE `notifications` ADD `blocks_read` BOOLEAN NOT NULL AFTER `has_overdues`, ADD `fines_read` BOOLEAN NOT NULL AFTER `blocks_read`, ADD `overdues_read` BOOLEAN NOT NULL AFTER `fines_read`;
 
 UPDATE `system` SET `value`='6' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `institutions` (
+`id` int(11) unsigned NOT NULL,
+  `source` varchar(12) NOT NULL,
+  `ip` varchar(46) NOT NULL,
+  `port` int(6) NOT NULL,
+  `bot_username` varchar(64) DEFAULT NULL,
+  `bot_password` varchar(64) DEFAULT NULL,
+  `type` enum('Aleph','NCIP') NOT NULL,
+  `logo_url` mediumtext NOT NULL,
+  `name_cs` mediumtext NOT NULL,
+  `name_en` mediumtext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+ALTER TABLE `institutions`
+ ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `source` (`source`);
+
+ALTER TABLE `institutions`
+MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
+
+UPDATE `system` SET `value`='7' WHERE `key`='DB_VERSION';
