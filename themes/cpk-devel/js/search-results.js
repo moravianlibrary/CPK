@@ -26,26 +26,33 @@ jQuery( document ).ready( function( $ ) {
 		 * 
 		 * @param {JSON} originalQueryJson 
 		 */
-		updateSearchResults: function( originalQueryJson ) {
+		updateSearchResults: function( dataFromWindowHistory ) {
 			
 			var data = {};
-			
-			var filters = [];
-			$( '.hidden-filter' ).each( function( index, element ) {
-				filters.push( $( element ).val() );
-			});
-			data['filter'] = filters;
-			
-			$( '.query-type, .query-string, .group-operator' ).each( function( index, element ) {
-				var key = $( element ).attr( 'name' ).slice( 0, -2 );
-				if (! data.hasOwnProperty( key )) {
-					data[key] = [];
-				}
-				data[key].push( $( element ).val() );
-			});
-			
-			var allGroupsOperator = $( 'input[name="join"]' ).val();
-			data['join'] = allGroupsOperator;
+			if ( dataFromWindowHistory !== undefined) { // history.back or forward action was porformed
+				
+				data = dataFromWindowHistory;
+				
+			} else { // harvest form's fields and form's hidden facetFilters
+				
+				var filters = [];
+				$( '.hidden-filter' ).each( function( index, element ) {
+					filters.push( $( element ).val() );
+				});
+				data['filter'] = filters;
+				
+				$( '.query-type, .query-string, .group-operator' ).each( function( index, element ) {
+					var key = $( element ).attr( 'name' ).slice( 0, -2 );
+					if (! data.hasOwnProperty( key )) {
+						data[key] = [];
+					}
+					data[key].push( $( element ).val() );
+				});
+				
+				var allGroupsOperator = $( 'input[name="join"]' ).val();
+				data['join'] = allGroupsOperator;
+				
+			}
 			
 			/**************** Start modifications control ****************/
 			/*
@@ -73,6 +80,7 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#result-list-placeholder' ).css( 'display', 'none' );
 	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
 		        		$( '#result-list-placeholder' ).show( 'blind', {}, 500 );
+		        		ADVSEARCH.updateUrl( data );
 	        		} else {
 	        			console.error(response.data);
 	        		}
@@ -103,8 +111,23 @@ jQuery( document ).ready( function( $ ) {
 			 */
 			
 			ADVSEARCH.updateSearchResults();
-		}
+		},
+		
+		updateUrl: function( data ) {
+			var stateObject = data;
+			var title = 'New search query';
+			var url = '/Search/Results/?' + jQuery.param( data )
+			window.history.replaceState( stateObject, title, url );
+		},
 	}
+	
+	/**
+	 * Load correct content on history back or forward
+	 */
+	$( window ).bind( 'popstate', function() {
+		var currentState = history.state;
+		ADVSEARCH.updateSearchResults( currentState );
+	});
 	
 	/* Update DOM state on page load */
 	ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
