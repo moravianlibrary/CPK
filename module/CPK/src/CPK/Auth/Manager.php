@@ -271,6 +271,27 @@ class Manager extends BaseManager
     }
 
     /**
+     * Get the URL to establish a session (needed when the internal VuFind login
+     * form is inadequate).
+     * Returns false when no session initiator is needed.
+     *
+     * @param string $target
+     *            Full URL where external authentication method should
+     *            send user to after login (some drivers may override this).
+     *
+     * @param string $entityId
+     *            
+     * @return mixed bool|string
+     */
+    public function getSessionInitiatorForEntityId($target, $entityId) {
+        if ($this->getAuth() instanceof ShibbolethIdentityManager) {
+            return $this->getAuth()->getSessionInitiatorForEntityId($target, $entityId);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Checks if the activeAuth matches $authToCheckFor, else
      * throws AuthException with desired $errorMessage.
      *

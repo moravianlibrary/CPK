@@ -1,0 +1,17 @@
+<table>
+<tbody>
+<? $idps = $this->identityProviders()->getLibraries();
+ foreach($idps as $idp): ?>
+  <tr>
+    <td>
+      <?if($idp['logo']):?>
+        <img height='30' src="<?=$idp['logo']?>">
+      <? endif; ?>
+    </td>
+    <td>
+      <a href="<?=$idp['href']?>"><?=$idp['name']?></a>
+    </td>
+  </tr>
+<? endforeach; ?>
+</tbody>
+</table>

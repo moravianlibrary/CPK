@@ -26,70 +26,95 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace CPK\View\Helper\CPK;
-use Zend\ServiceManager\ServiceManager,
-    CPK\Db\Table\PortalPage as PortalPageTable;
+
+use Zend\ServiceManager\ServiceManager, CPK\Db\Table\PortalPage as PortalPageTable;
 
 /**
  * Factory for Bootstrap view helpers.
  *
  * @category VuFind2
- * @package  View_Helpers
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
- * @codeCoverageIgnore
+ * @package View_Helpers
+ * @author Demian Katz <demian.katz@villanova.edu>
+ * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link http://vufind.org/wiki/vufind2:developer_manual Wiki
+ *       @codeCoverageIgnore
  */
 class Factory
 {
 
     public static function getRecord(ServiceManager $sm)
     {
-        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config');
         return new Record($config);
     }
 
     /**
      * Construct the Flashmessages helper.
      *
-     * @param ServiceManager $sm Service manager.
-     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
      * @return Flashmessages
      */
     public static function getFlashmessages(ServiceManager $sm)
     {
-        $messenger = $sm->getServiceLocator()->get('ControllerPluginManager')
+        $messenger = $sm->getServiceLocator()
+            ->get('ControllerPluginManager')
             ->get('FlashMessenger');
-        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config');
         return new Flashmessages($messenger, $config);
     }
 
     public static function getLogos(ServiceManager $sm)
     {
-        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config');
         return new Logos($config);
     }
 
     public static function getGlobalNotifications(ServiceManager $sm)
     {
-        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('notifications');
-
-        $lang = $sm->getServiceLocator()->has('VuFind\Translator')
-        ? $sm->getServiceLocator()->get('VuFind\Translator')->getLocale()
-        : 'en';
-
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('notifications');
+        
+        $lang = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
+            ->get('VuFind\Translator')
+            ->getLocale() : 'en';
+        
         return new GlobalNotifications($config, $lang, $sm->get('transesc'));
     }
-    
+
     public static function getPortalPages(ServiceManager $sm)
     {
         $portalPageTable = $sm->getServiceLocator()
             ->get('VuFind\DbTablePluginManager')
             ->get("portalpages");
-    
-        $languageCode = $sm->getServiceLocator()->has('VuFind\Translator')
-        ? $sm->getServiceLocator()->get('VuFind\Translator')->getLocale()
-        : 'en';
-    
+        
+        $languageCode = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
+            ->get('VuFind\Translator')
+            ->getLocale() : 'en';
+        
         return new PortalPages($portalPageTable, $languageCode);
+    }
+
+    public static function getIdentityProviders(ServiceManager $sm)
+    {
+        $authManager = $sm->getServiceLocator()->get('VuFind\AuthManager');
+        
+        $institutionsTable = $sm->getServiceLocator()
+            ->get('VuFind\DbTablePluginManager')
+            ->get('institutions');
+        
+        $lang = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
+            ->get('VuFind\Translator')
+            ->getLocale() : 'en';
+        
+        return new IdentityProviders($authManager, $institutionsTable, $lang);
     }
 }

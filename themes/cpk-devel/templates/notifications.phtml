@@ -1,7 +1,7 @@
 <li class="dropdown" ng-controller="NotificationsController as notifCtrl">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="notif_icon">
-    <i style="font-size: 20px;" class="fa fa-fw fa-bell"></i>
-    <i class="fa fa-warning notificationWarning" id="notif-warning" style="display: none"></i>
+    <i style="font-size: 20px;" class="pr-communication-bellnotification2"></i>
+    <i global-notif="warningIcon" class="fa fa-warning notificationWarning" id="notif-warning" style="display: none;"></i>
   </a>
   <ul id='notificationsList' class="dropdown-menu">
   	<li>
@@ -11,12 +11,10 @@
 	  <div global-notif='synchronousNotifications' <?=$this->globalNotifications()->isEnabled() || ! $user ? '' : 'hidden="hidden"' ?>>
 	    <?=$this->globalNotifications()->renderAll() ?>
 	  </div>
-	  <? if ($user): ?>
-      <div global-notif='loader' class="notif-default">
+      <div global-notif='loader' class="notif-default" hidden="hidden">
 	    <i class="fa fa-spinner fa-spin"></i>
 	    <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
-      <? endif; ?>
       <div hidden='hidden' global-notif='withoutNotifications' class="notif-default">
 	    <?=$this->translate('without_notifications') ?>
       </div>
@@ -24,9 +22,13 @@
   <? if ($user): foreach ($libraryCards as $libraryCard):
 	   $source = explode('.', $libraryCard['cat_username'])[0];
   ?>
-	<li ng-init='notifCtrl.initNotifications("<?=$libraryCard['cat_username'] ?>")'>
+	<li ng-init='notifCtrl.initNotifications("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
 	   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
+	     <div institution-notif='<?=$source?>' class="notif-default">
+	       <i class="fa fa-spinner fa-spin"></i>
+	       <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+         </div>
 	   </div>
 	   <div ng-repeat='notification in notifCtrl.notifications["<?=$libraryCard['cat_username'] ?>"]'>
 	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href)'>

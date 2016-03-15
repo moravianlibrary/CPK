@@ -209,13 +209,14 @@ trait HoldsTrait
 
         $holdQueue = null;
         $holdDueDate = null;
-        if (isset($status['requests_placed'])) {
-            $holdQueue = $status['requests_placed'];
+        if (isset($status['requests_placed']) && ! empty($status['requests_placed'])) {
+            $holdQueue = $status['requests_placed'] + 1;
         }
-
         if (isset($status['duedate'])) {
             $holdDueDate = $status['duedate'];
         }
+        if (empty($holdDueDate) && ($status['status'] == 'On Loan' || $status['status'] == 'On Order')) $holdDueDate = true;
+        if (empty($holdQueue) && ! empty($holdDueDate)) $holdQueue = 1;
 
         $view = $this->createViewModel(
             [

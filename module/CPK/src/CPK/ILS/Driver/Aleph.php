@@ -523,7 +523,7 @@ class Aleph extends AlephBase
         )) {
             $duedate = $this->parseDate($matches[1]);
         } else if (preg_match(
-                "/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches
+                "/([0-9]*\\/[a-zA-Z0-9]*\\/[0-9]*)/", $status, $matches
         )) {
             $duedate = $this->parseDate($matches[1]);
         }
@@ -532,7 +532,6 @@ class Aleph extends AlephBase
         $matches = [];
         if ($str != null && preg_match("/(\d) .+ (\d) [\w]+/", $str[0], $matches)) {
             $requests = $matches[1];
-            $requests++;
         }
         $holding = [
             'id'                => $bibId,
@@ -541,6 +540,35 @@ class Aleph extends AlephBase
             'requests_placed'   => $requests
         ];
         return $holding;
+    }
+
+    /**
+     * Parse a date.
+     *
+     * @param string $date Date to parse
+     *
+     * @return string
+     */
+    public function parseDate($date)
+    {
+        if ($date == null || $date == "") {
+            return "";
+        } elseif (preg_match("/^[0-9]{8}$/", $date) === 1) {
+            // 20120725
+            return $this->dateConverter->convertToDisplayDate('Ynd', $date);
+        } elseif (preg_match("/^[0-9]+\/[A-Za-z]{3}\/[0-9]{4}$/", $date) === 1) {
+            // 13/jan/2012
+            return $this->dateConverter->convertToDisplayDate('d/M/Y', $date);
+        } elseif (preg_match("/^[0-9]+\/[0-9]+\/[0-9]{4}$/", $date) === 1) {
+            // 13/7/2012
+            return $this->dateConverter->convertToDisplayDate('d/m/Y', $date);
+        } elseif (preg_match("/^[0-9]+\/[0-9]+\/[0-9]{2}$/", $date) === 1) {
+            // 13/7/12 - ntk uses this format
+            $date = substr_replace($date, '20', -2, 0);
+            return $this->dateConverter->convertToDisplayDate('d/m/Y', $date);
+        } else {
+            throw new \Exception("Invalid date: $date");
+        }
     }
 
 }

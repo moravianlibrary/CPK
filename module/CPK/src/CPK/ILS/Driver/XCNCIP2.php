@@ -717,6 +717,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 return $this->handleStutusesZlg($response);
             }
 
+            if ($this->agency === 'ABA008') { // NLK
+                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
+                $response = $this->sendRequest($request);
+                return $this->handleStutuses($response);
+            }
+
             $request = $this->requests->LUISItemId($ids, null, $this, $patron);
             $response = $this->sendRequest($request);
 
@@ -728,7 +734,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             foreach ($bibInfos as $bibInfo) {
 
-                $id = $this->getFirstXPathMatchAsString($bibInfo,
+                $bib_id = $this->getFirstXPathMatchAsString($bibInfo, 'HoldingsSet/ItemInformation/' .
+                        'ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+
+                $item_id = $this->getFirstXPathMatchAsString($bibInfo,
                     'BibliographicId/BibliographicRecordId/BibliographicRecordIdentifier');
 
                 $status = $this->getFirstXPathMatchAsString($bibInfo,
@@ -790,17 +799,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $label = $this->determineLabel($status);
 
                 $retVal[] = array(
-                    'id' => empty($id) ? "" : $id,
+                    'id' => empty($bib_id) ? "" : $bib_id,
+                    'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
                     'status' => empty($status) ? "" : $status,
                     'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
+                    'collection' => '',
                     'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
                     'department' => empty($department) ? '' : $department,
                     'requests_placed' => ! isset($holdQueue) ? "" : $holdQueue,
-                    'item_id' => empty($id) ? "" : $id,
+                    'item_id' => empty($item_id) ? "" : $item_id,
                     'label' => $label,
                     'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                     'restrictions' => $restrictions,
-                    'duedate' => empty($dueDate) ? '' : $dueDate
+                    'duedate' => empty($dueDate) ? '' : $dueDate,
+                    'next_item_token' => '',
+                    'addLink' => true, // TODO
                 );
             }
         }
@@ -854,8 +867,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $retVal[] = array(
                 'id' => empty($bib_id) ? "" : (string) $bib_id[0],
+                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
                 'status' => empty($status) ? "" : (string) $status[0],
                 'location' => '',
+                'collection' => '',
                 'sub_lib_desc' => '',
                 'department' => $department,
                 'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],

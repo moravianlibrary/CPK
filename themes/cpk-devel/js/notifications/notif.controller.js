@@ -1,13 +1,17 @@
 /**
- * Main notifications controller
+ * Main notifications controller with two directives:
+ * 
+ * globalNotif & institutionNotif - check their comments
  * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {
 
-    angular.module('notifications').controller('NotificationsController', NotificationsController).directive('globalNotif', globalNotifDirective);
+    angular.module('notifications').controller('NotificationsController', NotificationsController).directive('globalNotif', globalNotifDirective).directive('institutionNotif', institutionNotif);
 
     NotificationsController.$inject = [ '$q', '$log', '$http' ];
+    
+    globalNotifDirective.$inject = [ '$log' ];
     
     /**
      * Holds DOM elements of global notifications section
@@ -15,8 +19,21 @@
     var globalNotifHolder = {
 	    loader : undefined,
 	    withoutNotifications : undefined,
-	    synchronousNotifications : undefined
+	    synchronousNotifications : undefined,
+	    warningIcon : undefined
     };
+    
+    /**
+     * Holds DOM elements of "Loading ..." for each institution user is
+     * connected with.
+     */
+    var institutionNotifLoaderHolder = {};
+    
+    /**
+     * Is called after linker has done it's job which is defined as done right
+     * after all globalNotifHolder's object keys are filled with values
+     */
+    var onLinkerDone = function() {};
 
     function NotificationsController($q, $log, $http) {
 
@@ -27,6 +44,14 @@
 	vm.initNotifications = initNotifications;
 	
 	vm.notifClicked = notifClicked;
+	
+	onLinkerDone = function() {
+	    if (! hasGlobalNotifications()) {
+		showWithoutNotifications();
+	    } else {
+		showWarningIcon();
+	    }
+	}
 
 	return vm;
 	
@@ -34,23 +59,34 @@
 	 * Initializes an empty array for an username provided in order to
 	 * successfully bind data to this Controller
 	 */
-	function initNotifications(username) {
+	function initNotifications(source, username) {
 	    
 	    vm.notifications[username] = [];
 	    
 	    $q.resolve(fetchNotifications(username)).then(function(notifications) {
 		
-		if (notifications instanceof Array) {
-		    
-		    vm.notifications[username] = notifications;
-		    
-		    hideLoader();
-		}
+		onGotNotifications(notifications, source, username);
 		
 	    }).catch(function(reason) {
 		
 		$log.error(reason);
 	    });
+	}
+	
+	/**
+	 * What to do with notifications after we got them?
+	 */
+	function onGotNotifications(notifications, source, username) {
+	    if (notifications instanceof Array) {
+		
+		vm.notifications[username] = notifications;
+		    
+		if (notifications.length !== 0 || hasGlobalNotifications()) {
+		    showWarningIcon();
+		}
+		    
+		hideLoader(source);
+	    }
 	}
 	
 	/**
@@ -85,6 +121,8 @@
 	 * Fetches notifications for provided username asynchronously.
 	 * 
 	 * Returns an Promise.
+	 * 
+	 * @param username
 	 */
 	function fetchNotifications(username) {
 	    return new Promise(function(resolve, reject) {
@@ -126,42 +164,105 @@
 	    });
 	}
 	
-	function hideLoader() {
-	    globalNotifHolder.loader.setAttribute('hidden', 'hidden');
+	/**
+	 * Hides a loader for an institution.
+	 * 
+	 * It hides a loader associated with portal notifications if no source
+	 * provided.
+	 * 
+	 * @param source
+	 */
+	function hideLoader(source) {
 	    
-	    // If there is no global notification, show 'no notifications
-	    // notification' :D
-	    if (globalNotifHolder.synchronousNotifications.children.length === 0) {
-		
-		hideWithoutNotifications();
+	    if (typeof source === 'undefined') {
+		globalNotifHolder.loader.setAttribute('hidden', 'hidden');
+	    } else {
+		institutionNotifLoaderHolder[source].setAttribute('hidden', 'hidden');
 	    }
-	}
-	
-	function showLoader() {
-	    globalNotifHolder.loader.removeAttribute('hidden');
 	    
-	    // If there is any global notification, hide 'no notifications
-	    // notification' :)
-	    if (globalNotifHolder.synchronousNotifications.children.length !== 0) {
+	    if (! hasGlobalNotifications()) {
 		
 		showWithoutNotifications();
 	    }
 	}
 	
-	function hideWithoutNotifications() {
+	/**
+	 * Shows up a previously hidden loader for an institution.
+	 * 
+	 * It shows up a loader associated with portal notifications if no
+	 * source provided.
+	 * 
+	 * @param source
+	 */
+	function showLoader(source) {
+	    
+	    if (typeof source === 'undefined') {
+		globalNotifHolder.loader.removeAttribute('hidden');
+	    } else {
+		institutionNotifLoaderHolder[source].removeAttribute('hidden');
+	    }
+	    
+	    if (hasGlobalNotifications()) {
+
+		hideWithoutNotifications();
+	    }
+	}
+
+	/**
+	 * Shows warning icon by setting DOM element's style to nothing. This is
+	 * because how "hideWarningIcon" function works
+	 */
+	function showWarningIcon() {
+	    globalNotifHolder.warningIcon.style = "";
+	}
+	
+	/**
+	 * Hides warning icon.
+	 * 
+	 * Overrides the ".fa" class by setting explicit style as setting
+	 * attribute hidden would have failed hiding it.
+	 */
+	function hideWarningIcon() {
+	    globalNotifHolder.warningIcon.style = "display: none;";
+	}
+	
+	/**
+	 * Shows up the div called "withoutNotifications" whose purpose is to
+	 * inform user about having no notifications or messages within an
+	 * institution identity.
+	 */
+	function showWithoutNotifications() {
 	    globalNotifHolder.withoutNotifications.removeAttribute('hidden');
 	}
 	
-	function showWithoutNotifications() {
+	/**
+	 * Hides that div
+	 */
+	function hideWithoutNotifications() {
 	    globalNotifHolder.withoutNotifications.setAttribute('hidden', 'hidden');
+	}
+	
+	/**
+	 * Simply checks whether there currently are any global notifications.
+	 * 
+	 * @returns {Boolean}
+	 */
+	function hasGlobalNotifications() {
+	    return globalNotifHolder.synchronousNotifications.children.length !== 0;
 	}
     }
     
-    function globalNotifDirective() {
+    /**
+     * Hooks DOM elements to an variable associated with notifications linked
+     * with the portal, not the institutions within it.
+     */
+    function globalNotifDirective($log) {
 	return {
 	    restrict : 'A',
 	    link : linker
 	};
+	
+	var buf = undefined;
 	
 	function linker(scope, elements, attrs) {
 	    // Assing the loader to the 'local' variable
@@ -181,9 +282,62 @@
 	    	    globalNotifHolder.synchronousNotifications = elements.context;
 	    	    break;
 	    	    
+	    	case 'warningIcon':
+	    	    
+	    	    globalNotifHolder.warningIcon = elements.context;
+	    	    break;
+	    	    
 	    	default:
 	    	    console.error('Linker for notifications controller failed to link global notifications element');
 	    }
+	    
+	    checkLinkerIsDone();
+	}
+    }
+    
+    /**
+     * Checks if the linker is done linking by checking variables within a
+     * "globalNotifHolder" variable are all set to some value.
+     * 
+     * it calls "onLinkerDone" function if it is done.
+     */
+    function checkLinkerIsDone() {
+	if (typeof buf === 'undefined') {
+	    buf = {};
+	    buf['globalNotifHolderKeys'] = Object.keys(globalNotifHolder);
+	    buf['globalNotifHolderKeysLength'] = buf['globalNotifHolderKeys'].length;
+	}
+	
+	for (var i = 0; i < buf['globalNotifHolderKeysLength'];) {
+		
+	    if (typeof globalNotifHolder[buf['globalNotifHolderKeys'][i]] === 'undefined')
+		break;
+		
+	    if (++i === buf['globalNotifHolderKeysLength']) {
+		if (typeof onLinkerDone === 'function')
+		    onLinkerDone();
+		else
+		    $log.error('onLinkerDone must be a function');
+	    }
+	}
+    }
+    
+    /**
+     * Hooks DOM elements to an variable associated with particular institution
+     * identity.
+     */
+    function institutionNotif() {
+	return {
+	    restrict : 'A',
+	    link : linker
+	};
+	
+	function linker(scope, elements, attrs) {
+	    
+	    var source = attrs.institutionNotif;
+	    
+	    // Now we really need to hook only the warning icons to each
+	    institutionNotifLoaderHolder[source] = elements.context;
 	}
     }
 })();

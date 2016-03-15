@@ -15,7 +15,12 @@
  */
 (function() {
 
-    var veryVerbose = true;
+    /**
+     * Need to have very verbose console output while debugging?
+     * 
+     * @boolean veryVerbose
+     */
+    var veryVerbose = false;
 
     angular.module('favorites').factory('favsBroadcaster', favsBroadcaster);
 

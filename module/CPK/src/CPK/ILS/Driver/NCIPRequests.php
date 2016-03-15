@@ -179,11 +179,13 @@ class NCIPRequests {
         }
 
         // Append the Ext element containing the UserId
-        /*if (! empty($patron)) { // DO NOT USE, causes bad circulation status
-            $body .= '<ns1:Ext>';
-            $body .= $this->insertUserIdTag($patron);
-            $body .= '</ns1:Ext>';
-        }*/
+        if ($this->sigla == "ZLG001") {
+            if (! empty($patron)) {
+                $body .= '<ns1:Ext>';
+                $body .= $this->insertUserIdTag($patron);
+                $body .= '</ns1:Ext>';
+            }
+        }
 
         $body .= "</ns1:LookupItemSet>";
         return $this->header() . $body . $this->footer();
