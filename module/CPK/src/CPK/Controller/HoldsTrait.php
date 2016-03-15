@@ -215,6 +215,7 @@ trait HoldsTrait
         if (isset($status['duedate'])) {
             $holdDueDate = $status['duedate'];
         }
+        if (empty($holdDueDate) && ($status['status'] == 'On Loan' || $status['status'] == 'On Order')) $holdDueDate = true;
         if (empty($holdQueue) && ! empty($holdDueDate)) $holdQueue = 1;
 
         $view = $this->createViewModel(
