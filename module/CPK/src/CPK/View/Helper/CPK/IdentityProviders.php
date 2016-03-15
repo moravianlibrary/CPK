@@ -62,10 +62,22 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
         $this->lang = substr($lang, 0, 2);
     }
 
-    public function getAll()
+    public function getLibraries()
     {
-        $institutions = $this->institutionsTable->getAll();
+        $rows = $this->institutionsTable->getLibraries();
         
+        return $this->produceListForTemplate($rows);
+    }
+
+    public function getOthers()
+    {
+        $rows = $this->institutionsTable->getOthers();
+        
+        return $this->produceListForTemplate($rows);
+    }
+
+    protected function produceListForTemplate($institutions)
+    {
         $idps = [];
         
         foreach ($institutions as $institution) {

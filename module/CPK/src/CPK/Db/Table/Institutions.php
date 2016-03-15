@@ -53,21 +53,21 @@ class Institutions extends Gateway
         $this->rowClass = 'CPK\Db\Row\Institutions';
         parent::__construct($this->table, $this->rowClass);
     }
-    
+
     /**
      * Creates institutions Row
-     * 
-     * @param unknown $type
-     * @param unknown $source
-     * @param unknown $entity_id
-     * @param unknown $name_cs
-     * @param unknown $name_en
-     * @param unknown $url
-     * @param unknown $timeout
-     * @param unknown $bot_username
-     * @param unknown $bot_password
-     * @param unknown $logo_url
-     * 
+     *
+     * @param unknown $type            
+     * @param unknown $source            
+     * @param unknown $entity_id            
+     * @param unknown $name_cs            
+     * @param unknown $name_en            
+     * @param unknown $url            
+     * @param unknown $timeout            
+     * @param unknown $bot_username            
+     * @param unknown $bot_password            
+     * @param unknown $logo_url            
+     *
      * @throws \Exception
      * @return \CPK\Db\Row\Institutions
      */
@@ -144,14 +144,29 @@ class Institutions extends Gateway
     }
 
     /**
-     * Retrieves Notifications for a user.
+     * Retrieves Institutions which are libraries capable of login to.
      *
-     * @param string $cat_username            
-     *
-     * @return Notifications
+     * @return array
      */
-    public function getAll()
+    public function getLibraries()
     {
-        return $this->select()->toArray();
+        return $this->select([
+            'type' => [
+                'NCIP',
+                'Aleph'
+            ]
+        ])->toArray();
+    }
+
+    /**
+     * Retrieves Institutions which are third party non-library.
+     *
+     * @return array
+     */
+    public function getOthers()
+    {
+        return $this->select([
+            'type' => 'IdP'
+        ])->toArray();
     }
 }

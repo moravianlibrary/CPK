@@ -168,3 +168,7 @@ UPDATE `system` SET `value`='8' WHERE `key`='DB_VERSION';
 ALTER TABLE `institutions` ADD `entity_id` MEDIUMTEXT NOT NULL AFTER `url`;
 
 UPDATE `system` SET `value`='9' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `institutions` CHANGE `type` `type` ENUM('Aleph','NCIP','IdP') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+UPDATE `system` SET `value`='9' WHERE `key`='DB_VERSION';
