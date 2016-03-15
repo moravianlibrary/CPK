@@ -143,7 +143,7 @@ Author:
     - author_additional
     - author_find
   DismaxParams:
-    - [bq, "relevancy_str:default^2"]
+    - [bq, "inspiration:top_results^1"]
   QueryFields:
     author_search:
       - [onephrase, 350]
@@ -175,7 +175,7 @@ ISN:
     - isbn
     - issn
   DismaxParams:
-    - [bq, "relevancy_str:default^2"]
+    - [bq, "inspiration:top_results^1"]
   QueryFields:
     issn:
       - [and, 100]
@@ -192,7 +192,7 @@ Subject:
     - genre^50
     - era
   DismaxParams:
-    - [bq, "relevancy_str:default^2"]
+    - [bq, "inspiration:top_results^1"]
   QueryFields:
     topic_unstemmed:
       - [onephrase, 350]
@@ -268,7 +268,7 @@ Title:
     - title_new^100
     - title_old
   DismaxParams:
-    - [bq, "relevancy_str:default^2"]
+    - [bq, "inspiration:top_results^1"]
   QueryFields:
     title_short:
       - [onephrase, 500]
@@ -326,9 +326,7 @@ AllFields:
     - isbn
     - issn
   DismaxParams:
-    - [bq, "cpk_detected_format_facet_str_mv:0/BOOKS/^1000"]
-#  DismaxParams:
-#    - [bq, "relevancy_str:default^50000"]
+    - [bq, "inspiration:top_results^1"]
   QueryFields:
     0:
       0:
@@ -409,249 +407,6 @@ AllFields:
 #      issn:
 #        - [onephrase, ~]
 
-# These are advanced searches that never use Dismax:
-id:
-  QueryFields:
-    id:
-      - [onephrase, ~]
-
-# Fields for exact matches originating from alphabetic browse
-ids:
-  QueryFields:
-    id:
-      - [or, ~]
-
-TopicBrowse:
-  QueryFields:
-    topic_browse:
-      - [onephrase, ~]
-
-AuthorBrowse:
-  QueryFields:
-    author_browse:
-      - [onephrase, ~]
-
-TitleBrowse:
-  QueryFields:
-    title_full:
-      - [onephrase, ~]
-
-DeweyBrowse:
-  QueryFields:
-    dewey-raw:
-      - [onephrase, ~]
-
-LccBrowse:
-  QueryFields:
-    callnumber-a:
-      - [onephrase, ~]
-
-Callnumber:
-  # We use two similar munges here -- one for exact matches, which will get
-  # a very high boost factor, and one for left-anchored wildcard searches,
-  # which will return a larger number of hits at a lower boost.
-  CustomMunge:
-    location_fuzzy:
-      - [uppercase]
-      - [preg_replace, '/[\s]+/m', ""]
-      - [preg_replace, '/\*/m', ""]
-      #- [preg_replace, '/[\"]/m', ""]
-      #- [preg_replace, "/^(.*)\$/", '\"\$1']
-      #- [append, "*\""]
-      - [append, "* "]
-  QueryFields:
-    callnumber:
-      - [onephrase, 1000]
-      - [location_fuzzy, ~]
-
-publisher:
-  DismaxFields:
-    - publisher^100
-  QueryFields:
-    publisher:
-      - [and, 100]
-      - [or, ~]
-
-year:
-  DismaxFields:
-    - publishDate^100
-  QueryFields:
-    publishDate:
-      - [and, 100]
-      - [or, ~]
-  
-language:
-  QueryFields:
-    language:
-      - [and, ~]
-
-toc:
-  DismaxFields:
-    - contents^100
-  QueryFields:
-    contents:
-      - [and, 100]
-      - [or, ~]
-
-topic:
-  QueryFields:
-    topic:
-      - [and, 50]
-    topic_facet:
-      - [and, ~]
-
-geographic:
-  QueryFields:
-    geographic:
-      - [and, 50]
-    geographic_facet:
-      - [and ~]
-
-genre:
-  QueryFields:
-    genre:
-      - [and, 50]
-    genre_facet:
-      - [and, ~]
-
-era:
-  QueryFields:
-    era:
-      - [and, ~]
-
-oclc_num:
-  CustomMunge:
-    oclc_num:
-      - [preg_replace, "/[^0-9]/", ""]
-      # trim leading zeroes:
-      - [preg_replace, "/^0*/", ""]
-  QueryFields:
-    oclc_num:
-      - [oclc_num, ~]
-
-UDC:
-  CustomMunge:
-    escape:
-      - [preg_replace, "/:/", "\\:"]
-      - [preg_replace, "/\\[/", "\\["]
-      - [preg_replace, "/\\]/", "\\]"]
-      - [preg_replace, "/\\(/", "\\("]
-      - [preg_replace, "/\\)/", "\\)"]
-      - [preg_replace, '/\\"/', "\\\""]
-      - [preg_replace, '/$/m', "\""]
-      - [preg_replace, '/^/m', "\""]
-  QueryFields:
-    udc_str_mv:
-      - [escape, ~]
-
-# We use two similar munges here -- one for exact matches, which will get
-# a very high boost factor, and one for left-anchored wildcard searches,
-# which will return a larger number of hits at a lower boost.
-Location:
-  CustomMunge:
-    location_fuzzy:
-      - [uppercase]
-      - [preg_replace, '/[\s]+/m', "|"]
-      - [preg_replace, '/\(/m', "\("]
-      - [preg_replace, '/\)/m', "\)"]
-      - [preg_replace, '/:/m', "\:"]
-      - [preg_replace, '/\*/m', ""]
-      - [preg_replace, '/\*/m', ""]
-      - [append, "* "]
-  QueryFields:
-    callnumber_second_str_mv:
-      - [onephrase, 1000]
-      - [location_fuzzy, ~]
-
-sysno:
-  QueryFields:
-    sysno_str:
-      - [and, ~]
-
-
-titleSeries:
-  QueryFields:
-    titleSeries_search_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-authorCorporation:
-  QueryFields:
-    authorCorporation_search_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-subjectKeywords:
-  QueryFields:
-    subjectKeywords_search_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-ISBNISSNISMN:
-  QueryFields:
-    issnIsbnIsmn_search_str_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-sourceTitle:
-  QueryFields:
-    sourceTitle_search_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-callNumber:
-  QueryFields:
-    callNumber_search_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-publisher:
-  QueryFields:
-    publisher_search_str_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-id001:
-  QueryFields:
-    id001_search:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-cnb:
-  QueryFields:
-    cnb_search_str:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-yearOfPublication:
-  QueryFields:
-    publishDate:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-placeOfPublication:
-  QueryFields:
-    placeOfPublication_txt_mv:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
-
-counrtyOfPublication:
-  QueryFields:
-    country_str:
-      - [onephrase, 100] 
-      - [and, 50]
-      - [or, ~]
 
 adv_search_title_series:
   QueryFields:
