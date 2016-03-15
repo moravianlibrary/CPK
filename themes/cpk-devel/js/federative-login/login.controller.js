@@ -75,11 +75,15 @@
 	function initializeLastIdps() {
 	    lastIdps = localStorage.getItem(lastIdpsTag);
 
-	    try {
-		lastIdps = JSON.parse(lastIdps);
-	    } catch (e) {
-		$log.error('Could not parse lastIdps from localStorage', e);
+	    if (lastIdps === null) {
 		lastIdps = [];
+	    } else {
+		try {
+		    lastIdps = JSON.parse(lastIdps);
+		} catch (e) {
+		    $log.error('Could not parse lastIdps from localStorage', e);
+		    lastIdps = [];
+		}
 	    }
 
 	    // Setup default language
