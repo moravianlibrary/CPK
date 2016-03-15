@@ -532,7 +532,6 @@ class Aleph extends AlephBase
         $matches = [];
         if ($str != null && preg_match("/(\d) .+ (\d) [\w]+/", $str[0], $matches)) {
             $requests = $matches[1];
-            $requests++;
         }
         $holding = [
             'id'                => $bibId,
