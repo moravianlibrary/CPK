@@ -119,6 +119,11 @@
           <? endforeach; ?>
       <? endforeach; ?>
       </div>
+      <div class='hidden'>
+        <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : '10') ?>">
+        <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : 'relevance') ?>">
+		<input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
+      </div>
       <!-- End of facets -->
       
     </form>

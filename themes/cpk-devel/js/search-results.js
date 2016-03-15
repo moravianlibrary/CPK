@@ -1,3 +1,16 @@
+var timeOut;
+/**
+ * TODO: Rewrite to smooth scroll to #result-list-placeholder
+ **/
+function scrollToTop() {
+	if ( document.body.scrollTop != 0 || document.documentElement.scrollTop != 0 ){
+		window.scrollBy( 0, -50 );
+		timeOut=setTimeout( 'scrollToTop()', 10 );
+	} else {
+		clearTimeout( timeOut );
+	}
+}
+
 jQuery( document ).ready( function( $ ) {
 	
 	ADVSEARCH = {
@@ -52,6 +65,9 @@ jQuery( document ).ready( function( $ ) {
 				var allGroupsOperator = $( 'input[name="join"]' ).val();
 				data['join'] = allGroupsOperator;
 				
+				var page = $( "#editable-advanced-search-form input[name='page']" ).val();
+				console.log('saving page: '+page);
+				data['page'] = page;
 			}
 			
 			/**************** Start modifications control ****************/
@@ -84,6 +100,7 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#pagination-placeholder' ).html( response.data.paginationHtml );
 		        		$( '#result-list-placeholder, #pagination-placeholder' ).show( 'blind', {}, 500 );
 		        		ADVSEARCH.updateUrl( data );
+		        		scrollToTop();
 	        		} else {
 	        			console.error(response.data);
 	        		}
@@ -210,8 +227,45 @@ jQuery( document ).ready( function( $ ) {
 		}
 	});
 	
+	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
+		event.preventDefault();
+		var page = $( this ).attr( 'href' );
+		console.log('Clicking on: '+page);
+		$( "#editable-advanced-search-form input[name='page']" ).val( page );
+		ADVSEARCH.updateSearchResults();
+	});
+	
+	$( 'body' ).on( 'change', '.ajax-update-sort, .ajax-update-limit', function( event ) {
+		event.preventDefault();
+		ADVSEARCH.updateSearchResults();
+	});
+	
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
 		ADVSEARCH.updateSearchResults();
 	});
+	
+	/**
+	 * Get param from url
+	 * 
+	 * This function doesn't handle parameters that aren't followed by equals sign
+	 * This function also doesn't handle multi-valued keys
+	 * 
+	 * @param	{string}	name	Param name
+	 * @param	{string}	url		Url
+	 * 
+	 * @return	{string}
+	 */
+	var getParameterByName = function( name, url ) {
+	    var url = url.toLowerCase(); // avoid case sensitiveness  
+	    var name = name.replace( /[\[\]]/g, "\\$&" ).toLowerCase(); // avoid case sensitiveness
+	    
+	    var regex = new RegExp( "[?&]" + name + "(=([^&#]*)|&|#|$)" ),
+	        results = regex.exec( url );
+	    
+	    if ( ! results ) return null;
+	    if ( ! results[2] ) return '';
+	    
+	    return decodeURIComponent( results[2].replace( /\+/g, " " ) );
+	};
 });
