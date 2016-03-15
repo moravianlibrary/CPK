@@ -63,7 +63,11 @@
 	    
 	    vm.notifications[username] = [];
 	    
-	    $q.resolve(fetchNotifications(username)).then(onGotNotifications).catch(function(reason) {
+	    $q.resolve(fetchNotifications(username)).then(function(notifications) {
+		
+		onGotNotifications(notifications, source, username);
+		
+	    }).catch(function(reason) {
 		
 		$log.error(reason);
 	    });
@@ -72,7 +76,7 @@
 	/**
 	 * What to do with notifications after we got them?
 	 */
-	function onGotNotifications(notifications) {
+	function onGotNotifications(notifications, source, username) {
 	    if (notifications instanceof Array) {
 		
 		vm.notifications[username] = notifications;
@@ -333,7 +337,7 @@
 	    var source = attrs.institutionNotif;
 	    
 	    // Now we really need to hook only the warning icons to each
-	    institutionNotifWarningIconHolder[source] = elements.context;
+	    institutionNotifLoaderHolder[source] = elements.context;
 	}
     }
 })();
