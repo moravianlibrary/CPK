@@ -62,6 +62,7 @@ $config = array(
                     'usersettings' => 'CPK\Db\Table\Factory::getUserSettings',
                     'portalpages' => 'CPK\Db\Table\Factory::getPortalPages',
                     'notifications' => 'CPK\Db\Table\Factory::getNotifications',
+                    'institutions' => 'CPK\Db\Table\Factory::getInstitutions',
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'

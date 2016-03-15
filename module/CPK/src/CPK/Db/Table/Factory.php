@@ -117,4 +117,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the institutions table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
+     * @return Notifications
+     */
+    public static function getInstitutions(ServiceManager $sm)
+    {
+        return new Institutions($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }
