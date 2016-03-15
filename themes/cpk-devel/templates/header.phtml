@@ -118,19 +118,30 @@
     <!-- Modal for login -->
     <div class="modal fade" id="loginModal" role="dialog">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content" ng-controller="FederativeLoginController as fedLoginCtrl">
+          <div class="modal-header" ng-show='fedLoginCtrl.hasLastIdps()'>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><?=$this->translate('login_last_used')?></h4>
+          </div>
+          <div class="modal-body" ng-last-used ng-show='fedLoginCtrl.hasLastIdps()'>
+		  </div>
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title"><?=$this->translate('login_with')?></h4>
           </div>
           <div class="modal-body">
-          	<?=$this->render('login/connected-libraries.phtml') ?>
+          	<?=$this->render('login/identity-providers.phtml', [
+          	    'idps' => $this->identityProviders()->getLibraries()
+          	]) ?>
 		  </div>
           <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title"><?=$this->translate('login_other')?></h4>
           </div>
           <div class="modal-body">
-          	<?=$this->render('login/other-providers.phtml') ?>
+          	<?=$this->render('login/identity-providers.phtml', [
+          	    'idps' => $this->identityProviders()->getOthers()
+          	]) ?>
 		  </div>    	
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
