@@ -66,8 +66,13 @@ jQuery( document ).ready( function( $ ) {
 				data['join'] = allGroupsOperator;
 				
 				var page = $( "#editable-advanced-search-form input[name='page']" ).val();
-				console.log('saving page: '+page);
 				data['page'] = page;
+				
+				var limit = $( "#editable-advanced-search-form input[name='limit']" ).val();
+				data['limit'] = limit;
+				
+				var sort = $( "#editable-advanced-search-form input[name='sort']" ).val();
+				data['sort'] = sort;
 			}
 			
 			/**************** Start modifications control ****************/
@@ -230,13 +235,21 @@ jQuery( document ).ready( function( $ ) {
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
 		event.preventDefault();
 		var page = $( this ).attr( 'href' );
-		console.log('Clicking on: '+page);
 		$( "#editable-advanced-search-form input[name='page']" ).val( page );
 		ADVSEARCH.updateSearchResults();
 	});
 	
-	$( 'body' ).on( 'change', '.ajax-update-sort, .ajax-update-limit', function( event ) {
+	$( 'body' ).on( 'change', '.ajax-update-sort', function( event ) {
 		event.preventDefault();
+		var sort = $( this ).val();
+		$( "#editable-advanced-search-form input[name='sort']" ).val( sort );
+		ADVSEARCH.updateSearchResults();
+	});
+	
+	$( 'body' ).on( 'change', '.ajax-update-limit', function( event ) {
+		event.preventDefault();
+		var limit = $( this ).val();
+		$( "#editable-advanced-search-form input[name='limit']" ).val( limit );
 		ADVSEARCH.updateSearchResults();
 	});
 	
