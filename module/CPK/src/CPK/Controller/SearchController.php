@@ -855,25 +855,49 @@ class SearchController extends AbstractSearch
 	    
 	    $resultsHtml = $this->returnResultListHtml($viewData);
 	    
+	    $paginationHtml = $this->returnPaginationHtml($viewData);
+	    
 	    $data = [
             'viewData' => $viewData,
-	        'resultsHtml' => $resultsHtml
+	        'resultsHtml' => $resultsHtml,
+            'paginationHtml' => $paginationHtml,
 	    ];
 	    
 	    return $data;
     }
     
     /**
-     * Send search results to results view
+     * Get search results list
      * 
      * @param array $viewData
      *
-     * @return \Zend\View\Model\ViewModel
+     * @return string
      */
     public function returnResultListHtml(array $viewData)
     {
         $viewModel = $this->createViewModel();
         $viewModel->setTemplate('search/list-list');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
+    }
+    
+    /**
+     * Get pagination
+     *
+     * @param array $viewData
+     *
+     * @return string
+     */
+    public function returnPaginationHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/ajax/pagination');
     
         foreach($viewData as $key => $data) {
             $viewModel->$key = $data;

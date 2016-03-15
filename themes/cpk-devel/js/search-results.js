@@ -73,13 +73,16 @@ jQuery( document ).ready( function( $ ) {
 	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
 	        			$( '#result-list-placeholder' ).before( loader );
 	        		});
+	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
+	        		
 	        	},
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
 	        			$( '#search-results-loader' ).remove();
-	        			$( '#result-list-placeholder' ).css( 'display', 'none' );
+	        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
 	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
-		        		$( '#result-list-placeholder' ).show( 'blind', {}, 500 );
+	        			$( '#pagination-placeholder' ).html( response.data.paginationHtml );
+		        		$( '#result-list-placeholder, #pagination-placeholder' ).show( 'blind', {}, 500 );
 		        		ADVSEARCH.updateUrl( data );
 	        		} else {
 	        			console.error(response.data);
