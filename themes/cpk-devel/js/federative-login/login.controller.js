@@ -47,6 +47,10 @@
 
 	    // Set as first
 	    lastIdps.unshift(idp);
+	    
+	    // Maximally we will have 3 institutions
+	    if (lastIdps.length > 3)
+		lastIdps.pop();
 
 	    var source = JSON.stringify(lastIdps);
 
