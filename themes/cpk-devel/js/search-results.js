@@ -100,13 +100,24 @@ jQuery( document ).ready( function( $ ) {
 	        	},
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
+	        			
+	        			/* Ux content replacement */
 	        			$( '#search-results-loader' ).remove();
 	        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
 	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
 	        			$( '#pagination-placeholder' ).html( response.data.paginationHtml );
 	        			$( '#results-amount-info-placeholder' ).html( response.data.resultsAmountInfoHtml );
 		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
+		        		
+		        		/* Async update url */
 		        		ADVSEARCH.updateUrl( data );
+		        		
+		        		/* Update search identificators */
+		        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
+		        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + response.data.searchId );
+		        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + response.data.searchId );
+		        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + response.data.searchId );
+		        		
 	        		} else {
 	        			console.error(response.data);
 	        		}

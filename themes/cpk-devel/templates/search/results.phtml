@@ -53,22 +53,22 @@
       <div class='col-sm-3 pull-right'>
         <? if ($recordTotal > 0): ?>
           	<div class="result-list-toolbar hidden-print" style='font-size: 150%;'>
-                <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>">
+                <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link mail-record-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>">
                 	<i class="icon-poslat-emailem"></i> 
                 </a>
                 &nbsp;
-                <a href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
+                <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
                 	<i class="fa fa-feed pointer"></i>
                 </a>
                 <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
                 &nbsp;
                   <? if (is_numeric($this->results->getSearchId())): ?>
                     <? if ($this->results->isSavedSearch()): ?>
-                      <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Delete saved search')?>'>
+                      <a id='add-to-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Delete saved search')?>'>
                         <i class="fa fa-minus-square pointer"></i>
                       </a>
                     <? else: ?>
-                      <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Save search')?>'>
+                      <a id='remove-from-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Save search')?>'>
                         <i class="icon-ulozit-vyhledavani"></i>
                       </a>
                     <? endif; ?>

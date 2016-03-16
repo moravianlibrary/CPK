@@ -813,27 +813,28 @@ class SearchController extends AbstractSearch
             if ($jump = $this->processJumpTo($results)) {
                 return $jump;
             }
-/*
+
             // Remember the current URL as the last search.
             try {
                 $this->rememberSearch($results);
-            } catch (Zend\Mvc\Exception\DomainException $e) {
-                // ignore this exception
+            } catch (\Exception $e) {
+                // ignore this Zend\Mvc\Exception\DomainException exception
             }
-*/
+
             // Add to search history:
-            if ($this->saveToHistory) {
-                $user = $this->getUser();
-                $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')
-                ->getId();
-                $history = $this->getTable('Search');
-                $history->saveSearch(
-                    $this->getResultsManager(), $results, $sessId,
-                    $history->getSearches(
-                        $sessId, isset($user->id) ? $user->id : null
-                        )
-                    );
-            }
+            $user = $this->getUser();
+            $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')
+            ->getId();
+            $history = $this->getTable('Search');
+            $history->saveSearch(
+                $this->getResultsManager(), $results, $sessId,
+                $history->getSearches(
+                    $sessId, isset($user->id) ? $user->id : null
+                    )
+                );
+            
+            $searchId = $history->getLastInsertValue();
+            
 
             // Set up results scroller:
             if ($this->resultScrollerActive()) {
@@ -864,6 +865,7 @@ class SearchController extends AbstractSearch
 	        'resultsHtml' => $resultsHtml,
             'paginationHtml' => $paginationHtml,
             'resultsAmountInfoHtml' => $resultsAmountInfoHtml,
+            'searchId' => $searchId,
 	    ];
 	    
 	    return $data;
