@@ -87,7 +87,7 @@
           <?=$this->render('search/controls/limit.phtml')?>
           <? endif; ?>
           </div>
-    	  <div class='col-sm-6 text-center'>
+    	  <div class='col-sm-6 text-center' id='results-amount-info-placeholder'>
     	    <? if ($recordTotal > 0): ?>
               <strong><?=$this->localizedNumber($this->results->getStartRecord())?></strong> - <strong><?=$this->localizedNumber($this->results->getEndRecord())?></strong>
               <? if (!isset($this->skipTotalCount)): ?>

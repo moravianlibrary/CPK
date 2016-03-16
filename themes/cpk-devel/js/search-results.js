@@ -90,11 +90,12 @@ jQuery( document ).ready( function( $ ) {
 	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
+	        		scrollToTop();
 	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
 	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
 	        			$( '#result-list-placeholder' ).before( loader );
 	        		});
-	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
+	        		$( '#pagination-placeholder, #results-amount-info-placeholder' ).hide( 'blind', {}, 200 );
 	        		
 	        	},
 	        	success: function( response ) {
@@ -103,9 +104,9 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
 	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
 	        			$( '#pagination-placeholder' ).html( response.data.paginationHtml );
-		        		$( '#result-list-placeholder, #pagination-placeholder' ).show( 'blind', {}, 500 );
+	        			$( '#results-amount-info-placeholder' ).html( response.data.resultsAmountInfoHtml );
+		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
 		        		ADVSEARCH.updateUrl( data );
-		        		scrollToTop();
 	        		} else {
 	        			console.error(response.data);
 	        		}

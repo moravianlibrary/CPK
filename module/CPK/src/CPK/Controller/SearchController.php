@@ -853,14 +853,17 @@ class SearchController extends AbstractSearch
 	    $institutionsMappings = $facetConfig->InstitutionsMappings->toArray();
 	    $viewData['institutionsMappings'] = $institutionsMappings;
 	    
-	    $resultsHtml = $this->returnResultListHtml($viewData);
+	    $resultsHtml = $this->getResultListHtml($viewData);
 	    
-	    $paginationHtml = $this->returnPaginationHtml($viewData);
+	    $paginationHtml = $this->getPaginationHtml($viewData);
+	    
+	    $resultsAmountInfoHtml = $this->getResultsAmountInfoHtml($viewData);
 	    
 	    $data = [
             'viewData' => $viewData,
 	        'resultsHtml' => $resultsHtml,
             'paginationHtml' => $paginationHtml,
+            'resultsAmountInfoHtml' => $resultsAmountInfoHtml,
 	    ];
 	    
 	    return $data;
@@ -873,7 +876,7 @@ class SearchController extends AbstractSearch
      *
      * @return string
      */
-    public function returnResultListHtml(array $viewData)
+    public function getResultListHtml(array $viewData)
     {
         $viewModel = $this->createViewModel();
         $viewModel->setTemplate('search/list-list');
@@ -894,10 +897,31 @@ class SearchController extends AbstractSearch
      *
      * @return string
      */
-    public function returnPaginationHtml(array $viewData)
+    public function getPaginationHtml(array $viewData)
     {
         $viewModel = $this->createViewModel();
         $viewModel->setTemplate('search/ajax/pagination');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
+    }
+    
+    /**
+     * Get results amount info
+     *
+     * @param array $viewData
+     *
+     * @return string
+     */
+    public function getResultsAmountInfoHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/ajax/resultsAmountInfo');
     
         foreach($viewData as $key => $data) {
             $viewModel->$key = $data;

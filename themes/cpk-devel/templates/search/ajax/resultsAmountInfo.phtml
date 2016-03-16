@@ -1,0 +1,9 @@
+<? $recordTotal = $this->results->getResultTotal() ?>
+<? if ($recordTotal > 0): ?>
+  <strong><?=$this->localizedNumber($this->results->getStartRecord())?></strong> - <strong><?=$this->localizedNumber($this->results->getEndRecord())?></strong>
+  <? if (!isset($this->skipTotalCount)): ?>
+    <?=$this->transEsc('of')?> <strong><?=$this->localizedNumber($recordTotal)?></strong>
+  <? endif; ?>
+<? else: ?>
+  <h2><?=$this->transEsc('nohit_heading')?></h2>
+<? endif; ?>
