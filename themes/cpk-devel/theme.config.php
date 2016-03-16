@@ -8,6 +8,7 @@ $toRet = array(
         'compiled.css',
         'vendor/font-awesome.min.css',
         'vendor/bootstrap-slider.css',
+        'vendor/bootstrap-select.min.css',
         'print.css:print'
     ),
     'js' => array(
@@ -19,6 +20,7 @@ $toRet = array(
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
         'vendor/angular.min.js',
+        'vendor/bootstrap-select.min.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js'
