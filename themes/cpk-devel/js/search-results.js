@@ -95,7 +95,8 @@ jQuery( document ).ready( function( $ ) {
 	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
 	        			$( '#result-list-placeholder' ).before( loader );
 	        		});
-	        		$( '#pagination-placeholder, #results-amount-info-placeholder' ).hide( 'blind', {}, 200 );
+	        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
+	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
 	        		
 	        	},
 	        	success: function( response ) {
