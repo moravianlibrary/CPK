@@ -1,0 +1,12 @@
+<table>
+<tbody>
+  <tr class="link" ng-repeat="idp in fedLoginCtrl.getLastIdps() track by $index" ng-click="fedLoginCtrl.login(idp)">
+    <td class="col-sm-4">
+      <img height='30' ng-src="{{ idp.logo }}">
+    </td>
+    <td>
+      <a href="#">{{ idp.name }}</a>
+    </td>
+  </tr>
+</tbody>
+</table>

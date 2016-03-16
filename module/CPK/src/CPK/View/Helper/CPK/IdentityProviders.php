@@ -85,6 +85,8 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
             $idp = [
                 'href' => $this->authManager->getSessionInitiatorForEntityId(null, $institution['entity_id']),
                 'name' => $this->lang === 'en' ? $institution['name_en'] : $institution['name_cs'],
+                'name_cs' => $institution['name_cs'],
+                'name_en' => $institution['name_en'],
                 'logo' => $institution['logo_url']
             ];
             
