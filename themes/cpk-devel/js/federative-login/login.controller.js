@@ -4,7 +4,8 @@
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {
-    angular.module('federativeLogin').controller('FederativeLoginController', FederativeLoginController).directive('ngLastUsed', lastUsed);
+    angular.module('federativeLogin').controller('FederativeLoginController', FederativeLoginController).directive('ngLastUsed', lastUsed).directive(
+	    'ngHelpContent', helpContent);
 
     FederativeLoginController.$inject = [ '$log' ];
 
@@ -16,6 +17,8 @@
 
 	var lastIdpsTag = '__luidps', lastIdps = [], initializedLastIdps = false;
 
+	var helperHidden = true;
+
 	var vm = this;
 
 	vm.login = login;
@@ -23,6 +26,8 @@
 	vm.hasLastIdps = hasLastIdps;
 
 	vm.getLastIdps = getLastIdps;
+
+	vm.showHelpContent = showHelpContent;
 
 	return vm;
 
@@ -47,7 +52,7 @@
 
 	    // Set as first
 	    lastIdps.unshift(idp);
-	    
+
 	    // Maximally we will have 3 institutions
 	    if (lastIdps.length > 3)
 		lastIdps.pop();
@@ -72,6 +77,15 @@
 	    }
 
 	    return lastIdps;
+	}
+
+	function showHelpContent() {
+	    if (helperHidden) {
+		DOMholder.helpContent.removeAttribute('hidden');
+	    } else {
+		DOMholder.helpContent.setAttribute('hidden', 'hidden');
+	    }
+	    helperHidden = !helperHidden;
 	}
 
 	// Private
@@ -104,13 +118,19 @@
     function lastUsed() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/federative-login/last-used.html',
+	    templateUrl : '/themes/cpk-devel/js/federative-login/last-used.html'
+	};
+    }
+
+    function helpContent() {
+	return {
+	    restrict : 'A',
 	    link : linker
 	};
 
 	function linker(scope, elements, attrs) {
 
-	    DOMholder.lastUsed = elements.context;
+	    DOMholder.helpContent = elements.context;
 	}
     }
 })();

@@ -55,6 +55,16 @@ class PortalPages extends \Zend\View\Helper\AbstractHelper
     }
     
     /**
+     * Get the specified page
+     * 
+     * @param unknown $prettyUrl
+     */
+    public function getPage($prettyUrl)
+    {
+        return $this->portalPageTable->getPage($prettyUrl);
+    }
+    
+    /**
      * Get all pages
      */
     public function getAllPages()
