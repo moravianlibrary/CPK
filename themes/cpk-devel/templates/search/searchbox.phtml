@@ -119,11 +119,6 @@
           <? endforeach; ?>
       <? endforeach; ?>
       </div>
-      <div class='hidden'>
-        <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : $limit) ?>">
-        <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : $sort) ?>">
-		<input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
-      </div>
       <!-- End of facets -->
       
     </form>
@@ -133,7 +128,7 @@
     <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>    
     <? if (!empty($tabs)): ?></div><? endif; ?>
   </div>
-<? else: ?>
+<? else: ?> <!-- Autocomplete -->
   <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
     <?= $this->render('search/searchTabs'); ?>
       <script>
@@ -263,3 +258,12 @@
   </form>
   <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
 <? endif; ?>
+
+<div class='hidden'>
+  <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : $lastLimit) ?>">
+  <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : $lastSort) ?>">
+  <input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
+  <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
+  <input type="hidden" name="last_searched_lookfor0" value="<?= (! empty($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
+  <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
+</div>

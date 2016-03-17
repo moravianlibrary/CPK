@@ -32,6 +32,7 @@ jQuery( document ).ready( function( $ ) {
 		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete ) {
 			
 			var data = {};
+			
 			if ( dataFromWindowHistory !== undefined) { // history.back or forward action was porformed
 				
 				data = dataFromWindowHistory;
@@ -49,14 +50,6 @@ jQuery( document ).ready( function( $ ) {
 					data['type0'] = data.type;
 					delete data.type;
 				}
-				
-				data['bool0'] = [];
-				data['bool0'].push( 'OR' );
-				data['join'] = 'OR';
-				data['page'] = '1';
-				
-				console.log( 'dataFromAutocomplete: ' );
-				console.log( data );
 				
 			} else { // harvest form's fields and form's hidden facetFilters
 				
@@ -76,14 +69,43 @@ jQuery( document ).ready( function( $ ) {
 				
 				var allGroupsOperator = $( 'input[name="join"]' ).val();
 				data['join'] = allGroupsOperator;
-				
-				var page = $( "#editable-advanced-search-form input[name='page']" ).val();
+			}
+			
+			/* Set default values if not provided before (for basic search) */
+			if (! data.hasOwnProperty( 'bool0' )) {
+				data['bool0'] = [];
+				data['bool0'].push( 'OR' );
+			}
+			
+			if ( (! data.hasOwnProperty( 'join' ) ) || ( ! data.join ) ) {
+				data['join'] = 'OR';
+			}
+			
+			if (! data.hasOwnProperty( 'page' )) {
+				var page = $( "input[name='page']" ).val();
 				data['page'] = page;
-				
-				var limit = $( "#editable-advanced-search-form input[name='limit']" ).val();
+			}
+			
+			/* Set search term and type from Autocomplete when provding async results loading in basic search */
+			if (! data.hasOwnProperty( 'lookfor0' )) {
+				var lookfor0 = $( "input[name='last_searched_lookfor0']" ).val();
+				data['lookfor0'] = [];
+				data['lookfor0'].push( lookfor0 );
+			}
+			
+			if (! data.hasOwnProperty( 'type0' )) {
+				var type = $( "input[name='last_searched_type0']" ).val();
+				data['type0'] = [];
+				data['type0'].push( type );
+			}
+			
+			if (! data.hasOwnProperty( 'limit' )) {
+				var limit = $( "input[name='limit']" ).val();
 				data['limit'] = limit;
-				
-				var sort = $( "#editable-advanced-search-form input[name='sort']" ).val();
+			}
+			
+			if (! data.hasOwnProperty( 'sort' )) {
+				var sort = $( "input[name='sort']" ).val();
 				data['sort'] = sort;
 			}
 			
@@ -95,13 +117,25 @@ jQuery( document ).ready( function( $ ) {
 			Is jQuery.each.lookFor[] == object.foreach.lookFor[] ? ++warnigns;
 			*/
 			/**************** End of modifications control ****************/
-				
+			
+			/* Set last search */
+			var lastSearchedLookFor0 = data['lookfor0'][0];
+			$( "input[name='last_searched_lookfor0']" ).val( lastSearchedLookFor0 );
+			
+			var lastSearchedType0 = data['type0'][0];
+			$( "input[name='last_searched_type0']" ).val( lastSearchedType0 );
+			
+    		/* Search */	
 			$.ajax({
 	        	type: 'POST',
 	        	dataType: 'json',
 	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
+	        		
+	        		/* Live update url */
+	        		ADVSEARCH.updateUrl( data );
+	        		
 	        		smoothScrollToElement( '#result-list-placeholder' );
 	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
 	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
@@ -122,9 +156,6 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#results-amount-info-placeholder' ).html( response.data.resultsAmountInfoHtml );
 		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
 		        		
-		        		/* Async update url */
-		        		ADVSEARCH.updateUrl( data );
-		        		
 		        		/* Update search identificators */
 		        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
 		        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + response.data.searchId );
@@ -132,7 +163,7 @@ jQuery( document ).ready( function( $ ) {
 		        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + response.data.searchId );
 		        		
 	        		} else {
-	        			console.error(response.data);
+	        			console.error(response);
 	        		}
 	         	},
 	            error: function (request, status, error) {
@@ -260,21 +291,21 @@ jQuery( document ).ready( function( $ ) {
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
 		event.preventDefault();
 		var page = $( this ).attr( 'href' );
-		$( "#editable-advanced-search-form input[name='page']" ).val( page );
+		$( "input[name='page']" ).val( page );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'change', '.ajax-update-sort', function( event ) {
 		event.preventDefault();
 		var sort = $( this ).val();
-		$( "#editable-advanced-search-form input[name='sort']" ).val( sort );
+		$( "input[name='sort']" ).val( sort );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'change', '.ajax-update-limit', function( event ) {
 		event.preventDefault();
 		var limit = $( this ).val();
-		$( "#editable-advanced-search-form input[name='limit']" ).val( limit );
+		$( "input[name='limit']" ).val( limit );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
