@@ -14,7 +14,6 @@ $toRet = array(
     'js' => array(
         'vendor/jquery.min.js',
         'vendor/bootstrap.min.js',
-        'vendor/bootstrap-accessibility.min.js',
         'vendor/rc4.js',
         'vendor/js.cookie.js',
         'vendor/bootstrap-datepicker.js',
@@ -63,11 +62,11 @@ $toRet = array(
 $useCompiledAngular = false;
 
 if ($useCompiledAngular) {
-    
+
     // Add compiled angular apps
     array_push($toRet['js'], 'ng-apps.min.js');
 } else {
-    
+
     $jsToInclude = [
         'favorites/module.js',
         'favorites/translate.filter.js',
@@ -78,16 +77,16 @@ if ($useCompiledAngular) {
         'favorites/broadcaster.service.js',
         'favorites/list.controller.js',
         'favorites/record.controller.js',
-        
+
         'federative-login/module.js',
         'federative-login/login.controller.js',
-        
+
         'notifications/module.js',
         'notifications/notif.controller.js',
-        
+
         'cpk.ng-app.js'
     ];
-    
+
     $toRet['js'] = array_merge($toRet['js'], $jsToInclude);
 }
 
