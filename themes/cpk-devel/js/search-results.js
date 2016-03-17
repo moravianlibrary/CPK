@@ -1,16 +1,3 @@
-var timeOut;
-/**
- * TODO: Rewrite to smooth scroll to #result-list-placeholder
- **/
-function scrollToTop() {
-	if ( document.body.scrollTop != 0 || document.documentElement.scrollTop != 0 ){
-		window.scrollBy( 0, -50 );
-		timeOut=setTimeout( 'scrollToTop()', 10 );
-	} else {
-		clearTimeout( timeOut );
-	}
-}
-
 jQuery( document ).ready( function( $ ) {
 	
 	ADVSEARCH = {
@@ -90,7 +77,7 @@ jQuery( document ).ready( function( $ ) {
 	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
-	        		scrollToTop();
+	        		smoothScrollToElement( '#result-list-placeholder' );
 	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
 	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
 	        			$( '#result-list-placeholder' ).before( loader );
@@ -294,4 +281,41 @@ jQuery( document ).ready( function( $ ) {
 	    
 	    return decodeURIComponent( results[2].replace( /\+/g, " " ) );
 	};
+	
+	/**
+	 * Smooth scroll to the top of the element
+	 * 
+	 * @param	{string}	elementId
+	 * @return	{undefined}
+	 */
+	var smoothScrollToElement = function( elementId ) {
+		$( 'body' ).animate( {
+	        scrollTop: $( elementId ).offset().top
+	    }, 1000);
+	};
+	
+	/**
+  	 * Returns JSON from query string
+  	 * Function supports multi-valued keys
+  	 * 
+  	 * @param	{string}	queryString	?param=value&param2=value2
+  	 * @return	{JSON}
+  	 */
+  	var queryStringToJson = function ( queryString ) {            
+  	    var pairs = queryString.slice( 1 ).split( '&' );
+  	    
+  	    var results = {};
+  	    pairs.forEach( function( pair ) {
+  	        var pair = pair.split('=');
+  	        var key = pair[0];
+  	        var value = decodeURIComponent(pair[1] || '');
+  	        
+  	        if (! results.hasOwnProperty( key )) {
+  	        	results[key] = [];
+  			}
+  	        results[key].push( value );
+  	    });
+
+  	    return JSON.parse( JSON.stringify( results ) );
+  	};
 });
