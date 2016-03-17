@@ -180,6 +180,20 @@
                 }
             	$( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields" + filters);
            	  });
+
+              $( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
+            	event.preventDefault();
+
+           		// if autocomplete used in Search/Results, load results async 
+  			    if ( ! $( 'header' ).hasClass( 'frontpage' ) ) {
+  			      var href = $( '#run-autocomplete' ).attr( 'href' );
+  			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]});
+  			      return false;
+  				}
+  				
+  				// if autocomplete used on frontpage, load results statically via PHP
+  				$( '.searchForm' ).submit();
+              });
           });
       </script>
     <div class="col-xs-12 col-sm-6 search-form-container">

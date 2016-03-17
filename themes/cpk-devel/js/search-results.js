@@ -25,13 +25,38 @@ jQuery( document ).ready( function( $ ) {
 		 * Return and display new seaerch results
 		 * 
 		 * @param {JSON} originalQueryJson 
+		 * @param {JSON} dataFromAutocomplete
+		 * 
+		 * @return {undefined}
 		 */
-		updateSearchResults: function( dataFromWindowHistory ) {
+		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete ) {
 			
 			var data = {};
 			if ( dataFromWindowHistory !== undefined) { // history.back or forward action was porformed
 				
 				data = dataFromWindowHistory;
+				
+			} else if ( dataFromAutocomplete ) {
+				
+				data = queryStringToJson( dataFromAutocomplete.queryString );
+				
+				if ( data.lookfor ) {
+					data['lookfor0'] = data.lookfor;
+					delete data.lookfor;
+				}
+				
+				if ( data.type ) {
+					data['type0'] = data.type;
+					delete data.type;
+				}
+				
+				data['bool0'] = [];
+				data['bool0'].push( 'OR' );
+				data['join'] = 'OR';
+				data['page'] = '1';
+				
+				console.log( 'dataFromAutocomplete: ' );
+				console.log( data );
 				
 			} else { // harvest form's fields and form's hidden facetFilters
 				
@@ -135,7 +160,7 @@ jQuery( document ).ready( function( $ ) {
 			 * @TODO: UPDATE URL async here!
 			 */
 			
-			ADVSEARCH.updateSearchResults();
+			ADVSEARCH.updateSearchResults( undefined, undefined );
 		},
 		
 		updateUrl: function( data ) {
@@ -151,7 +176,7 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( window ).bind( 'popstate', function() {
 		var currentState = history.state;
-		ADVSEARCH.updateSearchResults( currentState );
+		ADVSEARCH.updateSearchResults( currentState, undefined );
 	});
 	
 	/* Update DOM state on page load */
@@ -236,26 +261,26 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		var page = $( this ).attr( 'href' );
 		$( "#editable-advanced-search-form input[name='page']" ).val( page );
-		ADVSEARCH.updateSearchResults();
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'change', '.ajax-update-sort', function( event ) {
 		event.preventDefault();
 		var sort = $( this ).val();
 		$( "#editable-advanced-search-form input[name='sort']" ).val( sort );
-		ADVSEARCH.updateSearchResults();
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'change', '.ajax-update-limit', function( event ) {
 		event.preventDefault();
 		var limit = $( this ).val();
 		$( "#editable-advanced-search-form input[name='limit']" ).val( limit );
-		ADVSEARCH.updateSearchResults();
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
-		ADVSEARCH.updateSearchResults();
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	/**
