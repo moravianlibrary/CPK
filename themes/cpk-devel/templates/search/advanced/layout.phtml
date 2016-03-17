@@ -39,10 +39,10 @@
       ['options' => $this->options, 'searchDetails' => $searchDetails]
     )
   );
-  
+
   $this->headScript()->appendFile('vendor/prism.js');
   $this->headScript()->appendFile('vendor/chosen.jquery.js');
-  
+
   $this->headLink()->appendStylesheet('vendor/prism.css');
   $this->headLink()->appendStylesheet('vendor/chosen.css');
 
@@ -90,7 +90,7 @@
                 <div class='col-sm-3 pull-right'>
                   <div id="groupJoin" class="form-inline pull-right flip">
                     <label for="groupJoinOptions"><?=$this->transEsc("search_match")?>:</label>
-                    <select id="groupJoinOptions" name="join" class="form-control">
+                    <select id="groupJoinOptions" name="join" class="form-control selectpicker">
                       <option value="AND"<? if($searchDetails && $searchDetails->getOperator()=='ALL'):?> selected<?endif?>><?= $this->transEsc('group_AND') ?></option>
                       <option value="OR"<? if($searchDetails && $searchDetails->getOperator()=='OR'):?> selected<?endif?>><?= $this->transEsc('group_OR') ?></option>
                     </select>
@@ -108,29 +108,29 @@
                 </span>
             	<? /* fallback to a fixed set of search groups/fields if JavaScript is turned off */ ?>
             	<div class="no-js">
-        
+
                   <? if(!empty($this->formOverride)): ?>
                     <?=$this->formOverride ?>
                   <? else: ?>
-          
+
                 	  <? for ($group=0; (($group<1) || ($group<=$setGroupCount)); $group++): ?>
-                
+
                       <? if($group == 0): ?>
                         <div id="new_group_template">
                       <? endif; ?>
                   	  <div id="group<?=$group ?>" class="row">
                         <div class='group col-sm-12'>
-    
+
                           <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
-    
+
                           <div class="row">
                             <div class="col-sm-2 match">
-                              <select name="bool<?=$group ?>[]" id="search_bool<?=$group ?>" class="form-control">
+                              <select name="bool<?=$group ?>[]" id="search_bool<?=$group ?>" class="form-control selectpicker">
                                 <option value="AND"<? if(isset($setSearchGroups[$group]) && 'AND' == $setSearchGroups[$group]):?> selected<?endif;?>><?=$this->transEsc("search_AND")?></option>
                                 <option value="OR"<? if(isset($setSearchGroups[$group]) && 'OR' == $setSearchGroups[$group]):?> selected<?endif;?>><?=$this->transEsc("search_OR")?></option>
                                 <option value="NOT"<? if(isset($setSearchGroups[$group]) && 'NOT' == $setSearchGroups[$group]):?> selected<?endif;?>><?=$this->transEsc("search_NOT")?></option>
                               </select>
-                              
+
                             </div>
                             <div class="col-sm-10">
                               <? for($search=0; (($search<1) || (isset($setQueries[$group]) && ($search<count($setQueries[$group])))); $search++): ?>
@@ -140,7 +140,7 @@
                                 <div id="search<?=$group.'_'.$search ?>" class="search">
                                   <div class="row">
                                     <div class="col-sm-4 middle">
-                                      <select class="type form-control" name="type<?=$group ?>[]">
+                                      <select class="type form-control selectpicker" name="type<?=$group ?>[]">
                                         <? foreach ($this->options->getAdvancedHandlers() as $searchVal => $searchDesc): ?>
                                           <option value="<?=$this->escapeHtml($searchVal)?>"<?if(isset($setQueries[$group][$search]) && $searchVal == $setQueries[$group][$search]->getHandler()):?> selected<?endif;?>><?=$this->transEsc($searchDesc)?></option>
                                         <? endforeach; ?>
@@ -164,7 +164,7 @@
                           </div>
                         </div>
                       </div>
-    
+
                       <? if($group == 0): ?>
                         </div>
                       <? endif; ?>
@@ -189,11 +189,11 @@
                   <?
                     $selectId = 'limit_' . $this->escapeHtmlAttr(str_replace(' ', '', $field));
                     $onClick = "$('#" . $selectId . "').val('');";
-                  ?>  
+                  ?>
         	      <select class="col-sm-12 form-control chosen-select" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
                     <? if (is_array($this->hierarchicalFacets) && in_array($field, $this->hierarchicalFacets)): ?>
                     	<?
-                    	
+
                             $top = isset($this->preferredFacets[$field])? $this->preferredFacets[$field] : array();
                             $priors = array();
                             foreach ($list['list'] as $i => $value) {
@@ -209,14 +209,14 @@
                             <?=$this->transEsc($value['displayText'])?>
                           </option>
                         <? endforeach; ?>
-                        
+
                         <? foreach ($list['list'] as $value): ?>
                           <? if (!isset($top[$value['value']])): ?>
                             <? $display = str_pad('', 4 * $value['level'] * 6, '&nbsp;', STR_PAD_LEFT) . $this->transEsc($value['displayText']); ?>
                             <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>><?=$display?></option>
                           <? endif; ?>
                         <? endforeach; ?>
-                        
+
                       	<? else: ?>
                             <?
                             // Sort the current facet list alphabetically; we'll use this data
@@ -255,16 +255,16 @@
                       <? endif;?>
                     <? endforeach; ?>
                     <? endif; ?>
-                    
+
                   </select>
-        
+
                   </div>
                 <? endforeach; ?>
               </div>
             </fieldset>
           </div>
         <? endif; ?>
-        
+
         <div>
                 <? if ($hasDefaultsApplied): ?>
                   <input type="hidden" name="dfApplied" value="1" />
@@ -287,7 +287,7 @@
                   <? endforeach; ?>
                 <? endif; ?>
             </div>
-        
+
         <div class="row">
           <? if (isset($this->illustratedLimit)): ?>
             <fieldset class="col-sm-4">
