@@ -1,3 +1,7 @@
+/**
+ * Async search-results.js v 0.1
+ * @Author Martin Kravec <martin.kravec@mzk.cz>
+ */
 jQuery( document ).ready( function( $ ) {
 	
 	ADVSEARCH = {
@@ -281,10 +285,10 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		if ( $( this ).hasClass( 'institution-facet-filter-button' ) ) {
 			$( 'institution-facet-filter.facet-filter-checked' ).each( function ( index, element ) {
-				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'href' ) );
+				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'data-facet' ) );
 			});
 		} else {
-			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'href' ) );
+			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ) );
 		}
 	});
 	
