@@ -204,11 +204,6 @@ ADD CONSTRAINT `institution_link` FOREIGN KEY (`source`) REFERENCES `institution
 
 UPDATE `system` SET `value`='11' WHERE `key`='DB_VERSION';
 
-ALTER TABLE `aleph_configs` CHANGE `wwwuser` `password` MEDIUMTEXT NULL;
-ALTER TABLE `aleph_configs` CHANGE `wwwpasswd` `password` MEDIUMTEXT NULL;
-
-UPDATE `system` SET `value`='12' WHERE `key`='DB_VERSION';
-
 CREATE TABLE IF NOT EXISTS `xcncip2_configs` (
   `id` int(11) NOT NULL,
   `source` varchar(100) NOT NULL DEFAULT '',
@@ -228,13 +223,13 @@ ALTER TABLE `xcncip2_configs`
 ALTER TABLE `xcncip2_configs`
 ADD CONSTRAINT `institution_link_2` FOREIGN KEY (`source`) REFERENCES `institutions` (`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-UPDATE `system` SET `value`='13' WHERE `key`='DB_VERSION';
+UPDATE `system` SET `value`='12' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `institutions`
   DROP `bot_username`,
   DROP `bot_password`;
 
-UPDATE `system` SET `value`='14' WHERE `key`='DB_VERSION';
+UPDATE `system` SET `value`='13' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `vufind`.`institutions` CHANGE `logo_url` `logo` MEDIUMTEXT NOT NULL;
 
