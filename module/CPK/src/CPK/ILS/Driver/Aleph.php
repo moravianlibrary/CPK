@@ -341,7 +341,7 @@ class Aleph extends AlephBase
                 }
             }
         } else
-            if (! $available && ($status == "On Hold" || $status == "Requested")) {
+            if (! $available && ($status == "On Hold" || $status == "Requested" || $status == "Požadováno")) {
                 $duedate_status = "requested";
             }
 
@@ -533,11 +533,16 @@ class Aleph extends AlephBase
         if ($str != null && preg_match("/(\d) .+ (\d) [\w]+/", $str[0], $matches)) {
             $requests = $matches[1];
         }
+        $retStatus = null;
+        if (preg_match("/(Requested|Požadováno)/", $status, $matches)) {
+            $retStatus = 'On Order';
+        }
         $holding = [
             'id'                => $bibId,
             'item_id'           => $id,
             'duedate'           => (string) $duedate,
-            'requests_placed'   => $requests
+            'requests_placed'   => $requests,
+            'status'            => $retStatus
         ];
         return $holding;
     }
