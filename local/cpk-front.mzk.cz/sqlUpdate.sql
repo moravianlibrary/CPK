@@ -172,3 +172,34 @@ UPDATE `system` SET `value`='9' WHERE `key`='DB_VERSION';
 ALTER TABLE `institutions` CHANGE `type` `type` ENUM('Aleph','NCIP','IdP') CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
 
 UPDATE `system` SET `value`='10' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `aleph_configs` (
+`id` int(10) unsigned NOT NULL,
+  `source` varchar(100) NOT NULL DEFAULT '',
+  `host` mediumtext NOT NULL,
+  `dlfport` int(6) NOT NULL,
+  `wwwuser` mediumtext NOT NULL,
+  `wwwpasswd` mediumtext NOT NULL,
+  `maxItemsParsed` int(2) NOT NULL,
+  `default_patron` mediumtext NOT NULL,
+  `hmac_key` mediumtext NOT NULL,
+  `bib` mediumtext NOT NULL,
+  `useradm` mediumtext NOT NULL,
+  `admlib` mediumtext NOT NULL,
+  `available_statuses` mediumtext NOT NULL,
+  `dont_show_link` mediumtext NOT NULL,
+  `default_required_date` varchar(8) NOT NULL,
+  `send_language` tinyint(1) NOT NULL,
+  `debug` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `aleph_configs`
+ ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `source` (`source`);
+
+ALTER TABLE `aleph_configs`
+MODIFY `id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `aleph_configs`
+ADD CONSTRAINT `institution_link` FOREIGN KEY (`source`) REFERENCES `institutions` (`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+UPDATE `system` SET `value`='11' WHERE `key`='DB_VERSION';
