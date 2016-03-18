@@ -238,4 +238,6 @@ UPDATE `system` SET `value`='14' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `vufind`.`institutions` CHANGE `logo_url` `logo` MEDIUMTEXT NOT NULL;
 
+ALTER TABLE `xcncip2_configs` ADD `paymentUrl` MEDIUMTEXT NULL AFTER `url`;
+
 UPDATE `system` SET `value`='14' WHERE `key`='DB_VERSION';
