@@ -178,7 +178,7 @@ jQuery( document ).ready( function( $ ) {
 			
 		addOrRemoveFacetFilter: function( value ) {
 			var actionPerformed = 0;
-			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
+			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
 					$( this ).remove();
 					++actionPerformed;
@@ -188,7 +188,7 @@ jQuery( document ).ready( function( $ ) {
 			
 			if (actionPerformed == 0) { /* This filter not applied yet, apply it now */
 				var html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + value + "'>";
-				$( '#hiddenFacetFilters' ).append(html);
+				$( '#hiddenFacetFilters, #hiddenFacetFiltersForBasicSearch' ).append( html );
 			}
 			
 			/*

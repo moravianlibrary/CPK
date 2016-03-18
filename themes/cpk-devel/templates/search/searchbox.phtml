@@ -255,6 +255,15 @@
         echo '<input type="hidden" name="sort" value="' . $this->escapeHtmlAttr($lastSort) . '" />';
       }
     ?>
+    <!-- Facets for basic search -->
+      <div class='hidden' id='hiddenFacetFiltersForBasicSearch'>
+      <? foreach ($filterList as $field => $data): ?>
+          <? foreach ($data as $value): ?>
+            <input type='hidden' class='hidden-filter' name='filter[]' value='<?=$this->escapeHtmlAttr($field)?>:"<?=$this->escapeHtmlAttr($value)?>"'>
+          <? endforeach; ?>
+      <? endforeach; ?>
+      </div>
+      <!-- End of facets -->
   </form>
   <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
 <? endif; ?>
