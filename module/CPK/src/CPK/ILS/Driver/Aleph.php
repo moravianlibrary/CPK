@@ -371,7 +371,12 @@ class Aleph extends AlephBase
                 $status = 'available';
                 $holdType = 'Place a Hold';
                 $label = 'label-success';
-            } else {
+            }
+            elseif ($duedate_status = "requested") {
+                $label = 'label-warning';
+                $status = 'On Order';
+            }
+            else {
                 $label = 'label-danger';
                 $status = 'unavailable';
             }
