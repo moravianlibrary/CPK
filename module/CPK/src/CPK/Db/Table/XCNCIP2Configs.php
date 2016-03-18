@@ -28,6 +28,7 @@
 namespace CPK\Db\Table;
 
 use VuFind\Db\Table\Gateway, Zend\Config\Config;
+use Zend\Db\Sql\Select;
 
 class XCNCIP2Configs extends Gateway
 {
@@ -48,7 +49,8 @@ class XCNCIP2Configs extends Gateway
             'agency',
             'cannotUseLUIS',
             'maximumItemsCount',
-            'timeout'
+            'timeout',
+            'logo'
         ]
     ];
 
@@ -75,11 +77,14 @@ class XCNCIP2Configs extends Gateway
      */
     public function getConfig($source)
     {
-        $rawConf = $this->select([
-            'source' => $source
-        ])
-            ->current()
-            ->toArray();
+        $ncipConfig = $this->getXCNCIP2Config($source);
+        
+        if (! $ncipConfig)
+            return $ncipConfig;
+        
+        $commonConfig = $this->getCommonConfig($source);
+        
+        $dbConfig = array_merge($commonConfig, $ncipConfig);
         
         $config = [];
         
@@ -89,12 +94,42 @@ class XCNCIP2Configs extends Gateway
             
             foreach ($sectionElements as $sectionElement) {
                 
-                if (isset($rawConf[$sectionElement])) {
-                    $config[$section][$sectionElement] = $rawConf[$sectionElement];
+                if (isset($dbConfig[$sectionElement])) {
+                    $config[$section][$sectionElement] = $dbConfig[$sectionElement];
                 }
             }
         }
         
         return $config;
+    }
+
+    protected function getXCNCIP2Config($source)
+    {
+        $ncipConf = $this->select([
+            'source' => $source
+        ])->current();
+        
+        if (! $ncipConf)
+            return [];
+        
+        return $ncipConf->toArray();
+    }
+
+    /**
+     * Retrieves a column from institutions table
+     *
+     * @param string $source            
+     */
+    protected function getCommonConfig($source)
+    {
+        $select = new Select('institutions');
+        
+        $select->where([
+            'source' => $source
+        ]);
+        
+        return $this->sql->prepareStatementForSqlObject($select)
+            ->execute()
+            ->current();
     }
 }

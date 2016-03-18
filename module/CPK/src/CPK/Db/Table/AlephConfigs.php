@@ -52,7 +52,8 @@ class AlephConfigs extends Gateway
             'wwwuser',
             'wwwpasswd',
             'available_statuses',
-            'dont_show_link'
+            'dont_show_link',
+            'logo'
         ],
         'duedates' => [
             'on_site_loan',

@@ -235,3 +235,7 @@ ALTER TABLE `institutions`
   DROP `bot_password`;
 
 UPDATE `system` SET `value`='14' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `vufind`.`institutions` CHANGE `logo_url` `logo` MEDIUMTEXT NOT NULL;
+
+UPDATE `system` SET `value`='14' WHERE `key`='DB_VERSION';
