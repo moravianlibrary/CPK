@@ -1,16 +1,18 @@
 /**
  * Federative Login controller.
  * 
+ * Uses localstorage to store information about last used identity providers.
+ * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {
-    angular.module('federativeLogin').controller('FederativeLoginController', FederativeLoginController).directive('ngLastUsed', lastUsed).directive(
-	    'ngHelpContent', helpContent);
+    angular.module('federativeLogin').controller('FederativeLoginController', FederativeLoginController).directive('ngLastUsed', lastUsedDirective).directive(
+	    'ngHelpContent', helpContentDirective);
 
     FederativeLoginController.$inject = [ '$log' ];
 
     var DOMholder = {
-	'lastUsed' : undefined
+	lastUsed : undefined
     }
 
     function FederativeLoginController($log) {
@@ -102,27 +104,27 @@
 		    $log.error('Could not parse lastIdps from localStorage', e);
 		    lastIdps = [];
 		}
+
+		// Setup default language
+		var lang = document.body.parentNode.getAttribute('lang');
+
+		lastIdps.forEach(function(lastIdp) {
+		    lastIdp.name = lastIdp['name_' + lang];
+		});
 	    }
-
-	    // Setup default language
-	    var lang = document.body.parentNode.getAttribute('lang');
-
-	    lastIdps.forEach(function(lastIdp) {
-		lastIdp.name = lastIdp['name_' + lang];
-	    });
 
 	    initializedLastIdps = true;
 	}
     }
 
-    function lastUsed() {
+    function lastUsedDirective() {
 	return {
 	    restrict : 'A',
 	    templateUrl : '/themes/cpk-devel/js/federative-login/last-used.html'
 	};
     }
 
-    function helpContent() {
+    function helpContentDirective() {
 	return {
 	    restrict : 'A',
 	    link : linker
