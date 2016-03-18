@@ -469,10 +469,11 @@ class MultiBackend extends MultiBackendBase
             
             $config = null;
             
-            if ($driver instanceof Aleph)
+            if ($driver === 'Aleph') {
                 $config = $this->alephConfigsTable->getConfig($source);
-            else if ($driver instanceof XCNCIP2)
+            } else if ($driver === 'XCNCIP2') {
                 $config = $this->xcncip2ConfigsTable->getConfig($source);
+            }
             
             if (! $config) {
                 // Fall back to old-style file based configuration as the DB configuration was not found ..
