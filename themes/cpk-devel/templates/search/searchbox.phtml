@@ -42,7 +42,7 @@
 		var originalQueryJson = '<?=$originalQueryJson?>';
     </script>
     <div class='row'>
-      <div class='col-md-12'></div>
+      <div class='col-md-12'>
         <select id='group-join-type' name="join" class="form-control select">
           <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
           <option value="OR"<?= ($allGroupsOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
@@ -177,13 +177,13 @@
               $( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
             	event.preventDefault();
 
-           		// if autocomplete used in Search/Results, load results async 
+           		// if autocomplete used in Search/Results, load results async
   			    if ( ! $( 'header' ).hasClass( 'frontpage' ) ) {
   			      var href = $( '#run-autocomplete' ).attr( 'href' );
   			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]});
   			      return false;
   				}
-  				
+
   				// if autocomplete used on frontpage, load results statically via PHP
   				$( '.searchForm' ).submit();
               });
