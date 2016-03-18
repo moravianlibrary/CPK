@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway, Zend\Config\Config;
+use VuFind\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
 
 class AlephConfigs extends Gateway
 {
@@ -94,11 +94,14 @@ class AlephConfigs extends Gateway
      */
     public function getConfig($source)
     {
-        $rawConf = $this->select([
-            'source' => $source
-        ])
-            ->current()
-            ->toArray();
+        $alephConf = $this->getAlephConfig($source);
+        
+        if (! $alephConf)
+            return $alephConf;
+        
+        $commonConfig = $this->getCommonConfig($source);
+        
+        $dbConfig = array_merge($commonConfig, $alephConf);
         
         $config = [];
         
@@ -108,12 +111,42 @@ class AlephConfigs extends Gateway
             
             foreach ($sectionElements as $sectionElement) {
                 
-                if (isset($rawConf[$sectionElement])) {
-                    $config[$section][$sectionElement] = $rawConf[$sectionElement];
+                if (isset($dbConfig[$sectionElement])) {
+                    $config[$section][$sectionElement] = $dbConfig[$sectionElement];
                 }
             }
         }
         
         return $config;
+    }
+
+    protected function getAlephConfig($source)
+    {
+        $alephConf = $this->select([
+            'source' => $source
+        ])->current();
+        
+        if (! $alephConf)
+            return [];
+        
+        return $alephConf->toArray();
+    }
+
+    /**
+     * Retrieves a column from institutions table
+     *
+     * @param string $source            
+     */
+    protected function getCommonConfig($source)
+    {
+        $select = new Select('institutions');
+        
+        $select->where([
+            'source' => $source
+        ]);
+        
+        return $this->sql->prepareStatementForSqlObject($select)
+            ->execute()
+            ->current();
     }
 }

@@ -27,8 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway, Zend\Config\Config;
-use Zend\Db\Sql\Select;
+use VuFind\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
 
 class XCNCIP2Configs extends Gateway
 {
