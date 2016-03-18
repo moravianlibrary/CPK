@@ -121,7 +121,7 @@
                   	  <div id="group<?=$group ?>" class="row">
                         <div class='group col-sm-12'>
 
-                          <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
+                          <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>"><i class="pr-interface-crosscancel2"></i></a>
 
                           <div class="row">
                             <div class="col-sm-2 match">
@@ -150,7 +150,7 @@
                                       <input name="lookfor<?=$group ?>[]" id="search_lookfor<?=$group.'_'.$search ?>" class="form-control" placeholder="<?=$this->translate('enter-search-query')?>" type="text"<?if(isset($setQueries[$group][$search])):?> value="<?=$this->escapeHtml($setQueries[$group][$search]->getString())?>"<?endif;?>>
                                     </div>
                                     <div class="col-sm-1 close hidden">
-                                      <a class="help-block" href="#">&times;</a>
+                                      <a class="help-block" href="#"><i class="pr-interface-crosscancel2"></i></a>
                                     </div>
                                   </div>
                                 </div>
