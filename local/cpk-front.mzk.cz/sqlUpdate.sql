@@ -203,3 +203,8 @@ ALTER TABLE `aleph_configs`
 ADD CONSTRAINT `institution_link` FOREIGN KEY (`source`) REFERENCES `institutions` (`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 UPDATE `system` SET `value`='11' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `aleph_configs` CHANGE `wwwuser` `password` MEDIUMTEXT NULL;
+ALTER TABLE `aleph_configs` CHANGE `wwwpasswd` `password` MEDIUMTEXT NULL;
+
+UPDATE `system` SET `value`='12' WHERE `key`='DB_VERSION';
