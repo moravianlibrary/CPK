@@ -205,7 +205,7 @@ ADD CONSTRAINT `institution_link` FOREIGN KEY (`source`) REFERENCES `institution
 UPDATE `system` SET `value`='11' WHERE `key`='DB_VERSION';
 
 CREATE TABLE IF NOT EXISTS `xcncip2_configs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
   `source` varchar(100) NOT NULL DEFAULT '',
   `url` mediumtext NOT NULL,
   `username` mediumtext,
