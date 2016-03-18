@@ -40,34 +40,16 @@ class XCNCIP2Configs extends Gateway
 
     protected $configMappings = [
         'Catalog' => [
-            'host',
-            'dlfport',
-            'debug',
-            'default_patron',
-            'send_language',
-            'hmac_key',
-            'bib',
-            'useradm',
-            'admlib',
-            'wwwuser',
-            'wwwpasswd',
-            'available_statuses',
-            'dont_show_link'
-        ],
-        'duedates' => [
-            'on_site_loan',
-            'reference_library',
-            'in_processing',
-            'absent_loan'
-        ],
-        'Availability' => [
-            'source',
-            'maxItemsParsed'
-        ],
-        'holdings' => [
-            'default_required_date'
-        ],
-        'sublibadm' => []
+            'url',
+            'hasUntrustedSSL',
+            'cacert',
+            'logo',
+            'paymentUrl',
+            'agency',
+            'cannotUseLUIS',
+            'maximumItemsCount',
+            'timeout'
+        ]
     ];
 
     /**

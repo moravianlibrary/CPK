@@ -38,6 +38,38 @@ class AlephConfigs extends Gateway
      */
     protected $config;
 
+    protected $configMappings = [
+        'Catalog' => [
+            'host',
+            'dlfport',
+            'debug',
+            'default_patron',
+            'send_language',
+            'hmac_key',
+            'bib',
+            'useradm',
+            'admlib',
+            'wwwuser',
+            'wwwpasswd',
+            'available_statuses',
+            'dont_show_link'
+        ],
+        'duedates' => [
+            'on_site_loan',
+            'reference_library',
+            'in_processing',
+            'absent_loan'
+        ],
+        'Availability' => [
+            'source',
+            'maxItemsParsed'
+        ],
+        'holdings' => [
+            'default_required_date'
+        ],
+        'sublibadm' => []
+    ];
+
     /**
      * Constructor
      *
@@ -61,8 +93,26 @@ class AlephConfigs extends Gateway
      */
     public function getConfig($source)
     {
-        return $this->select([
+        $rawConf = $this->select([
             'source' => $source
-        ])->current();
+        ])
+            ->current()
+            ->toArray();
+        
+        $config = [];
+        
+        foreach ($this->configMappings as $section => $sectionElements) {
+            
+            $config[$section] = [];
+            
+            foreach ($sectionElements as $sectionElement) {
+                
+                if (isset($rawConf[$sectionElement])) {
+                    $config[$section][$sectionElement] = $rawConf[$sectionElement];
+                }
+            }
+        }
+        
+        return $config;
     }
 }
