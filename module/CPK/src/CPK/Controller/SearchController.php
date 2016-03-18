@@ -860,12 +860,15 @@ class SearchController extends AbstractSearch
 	    
 	    $resultsAmountInfoHtml = $this->getResultsAmountInfoHtml($viewData);
 	    
+	    $sideFacets = $this->getSideFacetsHtml($viewData);
+	    
 	    $data = [
             'viewData' => $viewData,
 	        'resultsHtml' => $resultsHtml,
             'paginationHtml' => $paginationHtml,
             'resultsAmountInfoHtml' => $resultsAmountInfoHtml,
             'searchId' => $searchId,
+	        'sideFacets' => $sideFacets,
 	    ];
 	    
 	    return $data;
@@ -924,6 +927,27 @@ class SearchController extends AbstractSearch
     {
         $viewModel = $this->createViewModel();
         $viewModel->setTemplate('search/ajax/resultsAmountInfo');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
+    }
+    
+    /**
+     * Get side facets
+     *
+     * @param array $viewData
+     *
+     * @return string
+     */
+    public function getSideFacetsHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/ajax/facets');
     
         foreach($viewData as $key => $data) {
             $viewModel->$key = $data;

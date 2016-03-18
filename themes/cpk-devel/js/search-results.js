@@ -146,6 +146,7 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#result-list-placeholder' ).before( loader );
 	        		});
 	        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
+	        		$( '#side-facets-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
 	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
 	        		
 	        	},
@@ -158,6 +159,7 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
 	        			$( '#pagination-placeholder' ).html( response.data.paginationHtml );
 	        			$( '#results-amount-info-placeholder' ).html( response.data.resultsAmountInfoHtml );
+	        			$( '#side-facets-placeholder' ).html( response.data.sideFacets );
 		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
 		        		
 		        		/* Update search identificators */

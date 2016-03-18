@@ -141,7 +141,7 @@
       <? /* End Main Listing */ ?>
     
       <? /* Narrow Search Options */ ?>
-      <div class="<?=$this->layoutClass('sidebar')?>">
+      <div class="<?=$this->layoutClass('sidebar')?>" id='side-facets-placeholder'>
         <? foreach ($this->results->getRecommendations('side') as $current): ?>
           <?=$this->recommend($current)?>
         <? endforeach; ?>
