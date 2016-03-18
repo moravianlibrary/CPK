@@ -40,7 +40,7 @@ use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
-    \VuFindHttp\HttpServiceAwareInterface
+    \VuFindHttp\HttpServiceAwareInterface, \VuFind\I18n\Translator\TranslatorAwareInterface
 {
 
     const AGENCY_ID_DELIMITER = ':';
@@ -67,6 +67,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     protected $logo = null;
 
     protected $agency = '';
+
+    protected $translator = false;
 
     /**
      * Set the HTTP service to be used for HTTP requests.
@@ -127,6 +129,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $this->agency = $this->config['Catalog']['agency'];
 
         $this->requests = new NCIPRequests($this->agency);
+    }
+
+    public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
     }
 
     /**
@@ -1415,13 +1422,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $logo = $this->logo;
 
         foreach ($blocksParsed as $block) {
+            $block = $this->translator->getTranslator()->translate((string) $block);
             if (! empty($logo)) {
                 if (! empty($blocks[$logo]))
-                    $blocks[$logo] .= ", " . (string) $block;
+                    $blocks[$logo] .= ", " . $block;
                 else
-                    $blocks[$logo] = (string) $block;
+                    $blocks[$logo] = $block;
             } else
-                $blocks[] = (string) $block;
+                $blocks[] = $block;
         }
 
         if (empty($name) && empty($surname)) {
