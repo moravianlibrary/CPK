@@ -9,13 +9,13 @@ jQuery( document ).ready( function( $ ) {
 			var groupsCount = $( formSelector ).find( '.group' ).length;
 			if ( groupsCount == 1 ) {
 				$( '.remove-advanced-search-group' ).parent().addClass( 'hidden' );
-				$( '#group-join-type' ).parent().parent().addClass( 'hidden' );
+				$( '#group-join-type-row' ).addClass( 'hidden' );
 			} else {
 				$( '.remove-advanced-search-group' ).parent().removeClass( 'hidden' );
-				$( '#group-join-type' ).parent().parent().removeClass( 'hidden' );
+				$( '#group-join-type-row' ).removeClass( 'hidden' );
 			}
 		},
-		
+
 		updateQueriesDOMState: function( groupSelector ) {
 			var queriesCount = $( groupSelector + ' .queries').length;
 			if ( queriesCount == 1 ) {

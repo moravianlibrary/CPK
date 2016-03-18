@@ -41,9 +41,9 @@
     <script>
 		var originalQueryJson = '<?=$originalQueryJson?>';
     </script>
-    <div class='row'>
+    <div class='row' id='group-join-type-row'>
       <div class='col-md-12'>
-        <select id='group-join-type' name="join" class="form-control select">
+        <select id='group-join-type' name="join" class="form-control select selectpicker">
           <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
           <option value="OR"<?= ($allGroupsOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
           <option value="NOT"<?= ($allGroupsOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
