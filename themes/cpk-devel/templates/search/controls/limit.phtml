@@ -30,13 +30,15 @@
 ?>
 <? if (count($limitList) > 1): ?>
   <form class="form-inline" action="<?=$currentURL?>" method="get">
-    <select id="limit" name="limit" class="jumpMenu form-control">
-      <? foreach ($limitList as $limitVal => $limitData): 
-             $limitData['selected'] = ($limitVal == $this->limit) ? true : false;
-      ?>
-        <option value="<?=$this->escapeHtmlAttr($limitVal)?>"<?=$limitData['selected']?' selected="selected"':''?>><?=$this->escapeHtml($limitData['desc'].' '.$this->translate('records-in-genitive'))?></option>
-      <? endforeach; ?>
-    </select>
+    <label class='dropdown-select-label'>
+      <select id="limit" name="limit" class="jumpMenu form-control dropdown-select ajax-update-limit" style='margin-right: -12px;'>
+        <? foreach ($limitList as $limitVal => $limitData): 
+               $limitData['selected'] = ($limitVal == $this->limit) ? true : false;
+        ?>
+          <option value="<?=$this->escapeHtmlAttr($limitVal)?>"<?=$limitData['selected']?' selected="selected"':''?>><?=$this->escapeHtml($limitData['desc'].' '.$this->translate('records-in-genitive'))?></option>
+        <? endforeach; ?>
+      </select>
+    </label>
     <? foreach ($filters as $filter): ?>
       <input type="hidden" name="<?=key($filter) ?>" value="<?=current($filter) ?>" />
     <? endforeach; ?>

@@ -7,13 +7,13 @@
     $first_key = current(array_keys($this->pagesInRange));
 ?>
 
-<div class='col-md-12'>
+<div class='col-md-12' id='pagination-placeholder'>
     <div class='row'>
     
       <div class='col-md-2'>
           <ul class="pagination" style='float: left;'>
             <? if (isset($this->previous)): ?>
-              <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->previous)?>"><i class="fa fa-long-arrow-left fa-2x"></i>
+              <li><a class='ajax-update-page' href="<?=$this->previous?>"><i class="fa fa-long-arrow-left fa-2x"></i>
      <?=$this->transEsc('Prev')?></a></li>
             <? endif; ?>
           </ul>
@@ -24,7 +24,7 @@
             <? if (isset($this->previous)): ?>
               <? if (!isset($this->options['disableFirst']) || !$this->options['disableFirst']): ?>
                 <? if (! isset($this->pagesInRange[1])): ?>
-                  <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage(1)?>">1</a></li>
+                  <li><a class='ajax-update-page' href="1">1</a></li>
                 <? endif; ?>
               <? endif; ?>
             <? endif; ?>
@@ -38,7 +38,7 @@
                 <? endif; ?>
                 
                 <? if ($page != $this->current): ?>
-                  <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($page)?>"><?=$page?></a></li>
+                  <li><a class='ajax-update-page' href="<?=$page?>"><?=$page?></a></li>
                 <? else: ?>
                   <li class="active"><span><?=$page?></span></li>
                 <? endif; ?>
@@ -54,7 +54,7 @@
             <? if (isset($this->next)): ?>
               <? if (!isset($this->options['disableLast']) || !$this->options['disableLast']): ?>
                 <? if (! isset($this->pagesInRange[$this->pageCount])): ?>
-                  <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->pageCount)?>"><?=$this->pageCount?></a></li>
+                  <li><a class='ajax-update-page' href="<?=$this->pageCount?>"><?=$this->pageCount?></a></li>
                 <? endif; ?>
               <? endif; ?>
             <? endif; ?>
@@ -64,7 +64,7 @@
       <div class='col-md-2'>
           <ul class="pagination" style='float: right'>
             <? if (isset($this->next)): ?>
-              <li style='float: right;'><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->next)?>"><?=$this->transEsc('Next');?> <i class="fa fa-long-arrow-right fa-2x"></i>
+              <li style='float: right;'><a class='ajax-update-page' href="<?=$this->next?>"><?=$this->transEsc('Next');?> <i class="fa fa-long-arrow-right fa-2x"></i>
     </a></li>
             <? endif; ?>
           </ul>

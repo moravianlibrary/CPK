@@ -813,27 +813,28 @@ class SearchController extends AbstractSearch
             if ($jump = $this->processJumpTo($results)) {
                 return $jump;
             }
-/*
+
             // Remember the current URL as the last search.
             try {
                 $this->rememberSearch($results);
-            } catch (Zend\Mvc\Exception\DomainException $e) {
-                // ignore this exception
+            } catch (\Exception $e) {
+                // ignore this Zend\Mvc\Exception\DomainException exception
             }
-*/
+
             // Add to search history:
-            if ($this->saveToHistory) {
-                $user = $this->getUser();
-                $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')
-                ->getId();
-                $history = $this->getTable('Search');
-                $history->saveSearch(
-                    $this->getResultsManager(), $results, $sessId,
-                    $history->getSearches(
-                        $sessId, isset($user->id) ? $user->id : null
-                        )
-                    );
-            }
+            $user = $this->getUser();
+            $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')
+            ->getId();
+            $history = $this->getTable('Search');
+            $history->saveSearch(
+                $this->getResultsManager(), $results, $sessId,
+                $history->getSearches(
+                    $sessId, isset($user->id) ? $user->id : null
+                    )
+                );
+            
+            $searchId = $history->getLastInsertValue();
+            
 
             // Set up results scroller:
             if ($this->resultScrollerActive()) {
@@ -853,6 +854,107 @@ class SearchController extends AbstractSearch
 	    $institutionsMappings = $facetConfig->InstitutionsMappings->toArray();
 	    $viewData['institutionsMappings'] = $institutionsMappings;
 	    
-	    return $viewData;
+	    $resultsHtml = $this->getResultListHtml($viewData);
+	    
+	    $paginationHtml = $this->getPaginationHtml($viewData);
+	    
+	    $resultsAmountInfoHtml = $this->getResultsAmountInfoHtml($viewData);
+	    
+	    $sideFacets = $this->getSideFacetsHtml($viewData);
+	    
+	    $data = [
+            'viewData' => $viewData,
+	        'resultsHtml' => $resultsHtml,
+            'paginationHtml' => $paginationHtml,
+            'resultsAmountInfoHtml' => $resultsAmountInfoHtml,
+            'searchId' => $searchId,
+	        'sideFacets' => $sideFacets,
+	    ];
+	    
+	    return $data;
+    }
+    
+    /**
+     * Get search results list
+     * 
+     * @param array $viewData
+     *
+     * @return string
+     */
+    public function getResultListHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/list-list');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
+    }
+    
+    /**
+     * Get pagination
+     *
+     * @param array $viewData
+     *
+     * @return string
+     */
+    public function getPaginationHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/ajax/pagination');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
+    }
+    
+    /**
+     * Get results amount info
+     *
+     * @param array $viewData
+     *
+     * @return string
+     */
+    public function getResultsAmountInfoHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/ajax/resultsAmountInfo');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
+    }
+    
+    /**
+     * Get side facets
+     *
+     * @param array $viewData
+     *
+     * @return string
+     */
+    public function getSideFacetsHtml(array $viewData)
+    {
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/ajax/facets');
+    
+        foreach($viewData as $key => $data) {
+            $viewModel->$key = $data;
+        }
+    
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+        return $html;
     }
 }

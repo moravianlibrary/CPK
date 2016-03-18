@@ -55,7 +55,7 @@
       <div class='row group' id='group_<?=$groups?>'>
         <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>"><i class="pr-interface-crosscancel2"></i></a>
         <div class='col-md-2'>
-          <select class="form-control group-operator selectpicker" name='bool<?=$groups?>[]'>
+          <select class="form-control group-operator selectpicker dropdown-select" name='bool<?=$groups?>[]'>
             <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
             <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
             <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
@@ -126,7 +126,7 @@
     <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>
     <? if (!empty($tabs)): ?></div><? endif; ?>
   </div>
-<? else: ?>
+<? else: ?> <!-- Autocomplete -->
   <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
     <?= $this->render('search/searchTabs'); ?>
       <script>
@@ -173,6 +173,20 @@
                 }
             	$( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields" + filters);
            	  });
+
+              $( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
+            	event.preventDefault();
+
+           		// if autocomplete used in Search/Results, load results async 
+  			    if ( ! $( 'header' ).hasClass( 'frontpage' ) ) {
+  			      var href = $( '#run-autocomplete' ).attr( 'href' );
+  			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]});
+  			      return false;
+  				}
+  				
+  				// if autocomplete used on frontpage, load results statically via PHP
+  				$( '.searchForm' ).submit();
+              });
           });
       </script>
     <div class="col-xs-12 col-sm-6 search-form-container">
@@ -239,6 +253,24 @@
         echo '<input type="hidden" name="sort" value="' . $this->escapeHtmlAttr($lastSort) . '" />';
       }
     ?>
+    <!-- Facets for basic search -->
+      <div class='hidden' id='hiddenFacetFiltersForBasicSearch'>
+      <? foreach ($filterList as $field => $data): ?>
+          <? foreach ($data as $value): ?>
+            <input type='hidden' class='hidden-filter' name='filter[]' value='<?=$this->escapeHtmlAttr($field)?>:"<?=$this->escapeHtmlAttr($value)?>"'>
+          <? endforeach; ?>
+      <? endforeach; ?>
+      </div>
+      <!-- End of facets -->
   </form>
   <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
 <? endif; ?>
+
+<div class='hidden'>
+  <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : $lastLimit) ?>">
+  <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : $lastSort) ?>">
+  <input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
+  <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
+  <input type="hidden" name="last_searched_lookfor0" value="<?= (! empty($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
+  <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
+</div>

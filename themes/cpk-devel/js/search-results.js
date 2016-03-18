@@ -1,3 +1,7 @@
+/**
+ * Async search-results.js v 0.1
+ * @Author Martin Kravec <martin.kravec@mzk.cz>
+ */
 jQuery( document ).ready( function( $ ) {
 	
 	ADVSEARCH = {
@@ -25,27 +29,89 @@ jQuery( document ).ready( function( $ ) {
 		 * Return and display new seaerch results
 		 * 
 		 * @param {JSON} originalQueryJson 
+		 * @param {JSON} dataFromAutocomplete
+		 * 
+		 * @return {undefined}
 		 */
-		updateSearchResults: function( originalQueryJson ) {
+		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete ) {
 			
 			var data = {};
 			
-			var filters = [];
-			$( '.hidden-filter' ).each( function( index, element ) {
-				filters.push( $( element ).val() );
-			});
-			data['filter'] = filters;
-			
-			$( '.query-type, .query-string, .group-operator' ).each( function( index, element ) {
-				var key = $( element ).attr( 'name' ).slice( 0, -2 );
-				if (! data.hasOwnProperty( key )) {
-					data[key] = [];
+			if ( dataFromWindowHistory !== undefined) { // history.back or forward action was porformed
+				
+				data = dataFromWindowHistory;
+				
+			} else if ( dataFromAutocomplete ) {
+				
+				data = queryStringToJson( dataFromAutocomplete.queryString );
+				
+				if ( data.lookfor ) {
+					data['lookfor0'] = data.lookfor;
+					delete data.lookfor;
 				}
-				data[key].push( $( element ).val() );
-			});
+				
+				if ( data.type ) {
+					data['type0'] = data.type;
+					delete data.type;
+				}
+				
+			} else { // harvest form's fields and form's hidden facetFilters
+				
+				var filters = [];
+				$( '.hidden-filter' ).each( function( index, element ) {
+					filters.push( $( element ).val() );
+				});
+				data['filter'] = filters;
+				
+				$( '.query-type, .query-string, .group-operator' ).each( function( index, element ) {
+					var key = $( element ).attr( 'name' ).slice( 0, -2 );
+					if (! data.hasOwnProperty( key )) {
+						data[key] = [];
+					}
+					data[key].push( $( element ).val() );
+				});
+				
+				var allGroupsOperator = $( 'input[name="join"]' ).val();
+				data['join'] = allGroupsOperator;
+			}
 			
-			var allGroupsOperator = $( 'input[name="join"]' ).val();
-			data['join'] = allGroupsOperator;
+			/* Set default values if not provided before (for basic search) */
+			if (! data.hasOwnProperty( 'bool0' )) {
+				data['bool0'] = [];
+				data['bool0'].push( 'OR' );
+			}
+			
+			if ( (! data.hasOwnProperty( 'join' ) ) || ( ! data.join ) ) {
+				data['join'] = 'OR';
+			}
+			
+			if (! data.hasOwnProperty( 'page' )) {
+				var page = $( "input[name='page']" ).val();
+				data['page'] = page;
+			}
+			
+			/* Set search term and type from Autocomplete when provding async results loading in basic search */
+			if (! data.hasOwnProperty( 'lookfor0' )) {
+				var lookfor0 = $( "input[name='last_searched_lookfor0']" ).val();
+				data['lookfor0'] = [];
+				data['lookfor0'].push( lookfor0 );
+			}
+			
+			if (! data.hasOwnProperty( 'type0' )) {
+				var type = $( "input[name='last_searched_type0']" ).val();
+				data['type0'] = [];
+				data['type0'].push( type );
+			}
+			
+			if (! data.hasOwnProperty( 'limit' )) {
+				var limit = $( "input[name='limit']" ).val();
+				data['limit'] = limit;
+			}
+			
+			if (! data.hasOwnProperty( 'sort' )) {
+				var sort = $( "input[name='sort']" ).val();
+				data['sort'] = sort;
+			}
 			
 			/**************** Start modifications control ****************/
 			/*
@@ -55,22 +121,55 @@ jQuery( document ).ready( function( $ ) {
 			Is jQuery.each.lookFor[] == object.foreach.lookFor[] ? ++warnigns;
 			*/
 			/**************** End of modifications control ****************/
-				
+			
+			/* Set last search */
+			var lastSearchedLookFor0 = data['lookfor0'][0];
+			$( "input[name='last_searched_lookfor0']" ).val( lastSearchedLookFor0 );
+			
+			var lastSearchedType0 = data['type0'][0];
+			$( "input[name='last_searched_type0']" ).val( lastSearchedType0 );
+			
+    		/* Search */	
 			$.ajax({
 	        	type: 'POST',
 	        	dataType: 'json',
 	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
-	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-refresh fa-spin'></i></div>";
-	        		$( '#search-result-list' ).replaceWith( loader );
+	        		
+	        		/* Live update url */
+	        		ADVSEARCH.updateUrl( data );
+	        		
+	        		smoothScrollToElement( '#result-list-placeholder' );
+	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
+	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
+	        			$( '#result-list-placeholder' ).before( loader );
+	        		});
+	        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
+	        		$( '#side-facets-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
+	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
+	        		
 	        	},
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
-	        			var replacement =  $( response ).find( '#search-result-list' ).html();
-		        		$( '#search-results-loader' ).replaceWith( replacement );
+	        			
+	        			/* Ux content replacement */
+	        			$( '#search-results-loader' ).remove();
+	        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
+	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
+	        			$( '#pagination-placeholder' ).html( response.data.paginationHtml );
+	        			$( '#results-amount-info-placeholder' ).html( response.data.resultsAmountInfoHtml );
+	        			$( '#side-facets-placeholder' ).html( response.data.sideFacets );
+		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
+		        		
+		        		/* Update search identificators */
+		        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
+		        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + response.data.searchId );
+		        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + response.data.searchId );
+		        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + response.data.searchId );
+		        		
 	        		} else {
-	        			console.error(response.data);
+	        			console.error(response);
 	        		}
 	         	},
 	            error: function (request, status, error) {
@@ -81,7 +180,7 @@ jQuery( document ).ready( function( $ ) {
 			
 		addOrRemoveFacetFilter: function( value ) {
 			var actionPerformed = 0;
-			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
+			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
 					$( this ).remove();
 					++actionPerformed;
@@ -91,20 +190,35 @@ jQuery( document ).ready( function( $ ) {
 			
 			if (actionPerformed == 0) { /* This filter not applied yet, apply it now */
 				var html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + value + "'>";
-				$( '#hiddenFacetFilters' ).append(html);
+				$( '#hiddenFacetFilters, #hiddenFacetFiltersForBasicSearch' ).append( html );
 			}
 			
 			/*
 			 * @TODO: UPDATE URL async here!
 			 */
 			
-			ADVSEARCH.updateSearchResults();
-		}
+			ADVSEARCH.updateSearchResults( undefined, undefined );
+		},
+		
+		updateUrl: function( data ) {
+			var stateObject = data;
+			var title = 'New search query';
+			var url = '/Search/Results/?' + jQuery.param( data )
+			window.history.replaceState( stateObject, title, url );
+		},
 	}
+	
+	/**
+	 * Load correct content on history back or forward
+	 */
+	$( window ).bind( 'popstate', function() {
+		var currentState = history.state;
+		ADVSEARCH.updateSearchResults( currentState, undefined );
+	});
 	
 	/* Update DOM state on page load */
 	ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
-	$( '#advSearchForm group' ).each( function(){
+	$( '#editable-advanced-search-form .group' ).each( function(){
 		ADVSEARCH.updateQueriesDOMState( '#' + $( this ).attr( 'id' ) );
 	});
 	
@@ -121,9 +235,11 @@ jQuery( document ).ready( function( $ ) {
 		clone.find( 'input:text' ).val( '' );
 		clone.find( 'input:text' ).attr( 'name', 'lookfor' + nextGroupNumber + '[]' );
 		clone.find( '.remove-advanced-search-query' ).addClass( 'hidden' );
-		last.after( clone.hide().fadeIn( 'fast', function() {
+		clone.css( 'display', 'none' )
+		last.after( clone );
+		clone.show( 'blind', {}, 400, function() {
 			ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
-		}));
+		})
 	});
 	
 	$( '#editable-advanced-search-form' ).on( 'click', '.add-search-query', function( event ) {
@@ -139,16 +255,18 @@ jQuery( document ).ready( function( $ ) {
 		clone.find( 'select' ).attr( 'name', 'type' + thisGroupNumber + '[]' );
 		clone.find( 'input:text' ).val( '' );
 		clone.find( 'input:text' ).attr( 'name', 'lookfor' + thisGroupNumber + '[]' );
-		last.after( clone.hide().fadeIn( 'fast', function() {
+		clone.css( 'display', 'none' );
+		last.after( clone );
+		clone.show( 'blind', {}, 400, function() {
 			var thisGroupSelector = $( this ).parent().parent().parent().parent();
 			ADVSEARCH.updateQueriesDOMState( '#' + thisGroupElement.attr( 'id' ) );
 			thisGroupElement.find( '.remove-advanced-search-query' ).removeClass( 'hidden' );
-		}));
+		})
 	});
 	
 	$( '#editable-advanced-search-form' ).on( 'click', '.remove-advanced-search-group', function( event ) {
 		event.preventDefault();
-		$( this ).parent().parent().slideUp( 400, function() {
+		$( this ).parent().parent().hide( 'blind', {}, 400, function() {
 			$( this ).remove();
 			ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
 		});
@@ -159,7 +277,7 @@ jQuery( document ).ready( function( $ ) {
 		var thisElement = $( this );
 		var queryRow = thisElement.parent().parent();
 		var thisGroupSelector = queryRow.parent().parent();
-		queryRow.slideUp( 400, function() {
+		queryRow.hide( 'blind', {},  400, function() {
 			queryRow.remove();
 			ADVSEARCH.updateQueriesDOMState( '#' + thisGroupSelector.attr( 'id' ) );
 		});
@@ -169,15 +287,97 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		if ( $( this ).hasClass( 'institution-facet-filter-button' ) ) {
 			$( 'institution-facet-filter.facet-filter-checked' ).each( function ( index, element ) {
-				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'href' ) );
+				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'data-facet' ) );
 			});
 		} else {
-			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'href' ) );
+			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ) );
 		}
+	});
+	
+	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
+		event.preventDefault();
+		var page = $( this ).attr( 'href' );
+		$( "input[name='page']" ).val( page );
+		ADVSEARCH.updateSearchResults( undefined, undefined );
+	});
+	
+	$( 'body' ).on( 'change', '.ajax-update-sort', function( event ) {
+		event.preventDefault();
+		var sort = $( this ).val();
+		$( "input[name='sort']" ).val( sort );
+		ADVSEARCH.updateSearchResults( undefined, undefined );
+	});
+	
+	$( 'body' ).on( 'change', '.ajax-update-limit', function( event ) {
+		event.preventDefault();
+		var limit = $( this ).val();
+		$( "input[name='limit']" ).val( limit );
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
-		ADVSEARCH.updateSearchResults();
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
+	
+	/**
+	 * Get param from url
+	 * 
+	 * This function doesn't handle parameters that aren't followed by equals sign
+	 * This function also doesn't handle multi-valued keys
+	 * 
+	 * @param	{string}	name	Param name
+	 * @param	{string}	url		Url
+	 * 
+	 * @return	{string}
+	 */
+	var getParameterByName = function( name, url ) {
+	    var url = url.toLowerCase(); // avoid case sensitiveness  
+	    var name = name.replace( /[\[\]]/g, "\\$&" ).toLowerCase(); // avoid case sensitiveness
+	    
+	    var regex = new RegExp( "[?&]" + name + "(=([^&#]*)|&|#|$)" ),
+	        results = regex.exec( url );
+	    
+	    if ( ! results ) return null;
+	    if ( ! results[2] ) return '';
+	    
+	    return decodeURIComponent( results[2].replace( /\+/g, " " ) );
+	};
+	
+	/**
+	 * Smooth scroll to the top of the element
+	 * 
+	 * @param	{string}	elementId
+	 * @return	{undefined}
+	 */
+	var smoothScrollToElement = function( elementId ) {
+		$( 'body' ).animate( {
+	        scrollTop: $( elementId ).offset().top
+	    }, 1000);
+	};
+	
+	/**
+  	 * Returns JSON from query string
+  	 * Function supports multi-valued keys
+  	 * 
+  	 * @param	{string}	queryString	?param=value&param2=value2
+  	 * @return	{JSON}
+  	 */
+  	var queryStringToJson = function ( queryString ) {            
+  	    var pairs = queryString.slice( 1 ).split( '&' );
+  	    
+  	    var results = {};
+  	    pairs.forEach( function( pair ) {
+  	        var pair = pair.split('=');
+  	        var key = pair[0];
+  	        var value = decodeURIComponent(pair[1] || '');
+  	        
+  	        if (! results.hasOwnProperty( key )) {
+  	        	results[key] = [];
+  			}
+  	        results[key].push( value );
+  	    });
+
+  	    return JSON.parse( JSON.stringify( results ) );
+  	};
 });
