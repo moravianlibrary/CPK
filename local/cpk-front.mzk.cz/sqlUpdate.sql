@@ -229,3 +229,9 @@ ALTER TABLE `xcncip2_configs`
 ADD CONSTRAINT `institution_link_2` FOREIGN KEY (`source`) REFERENCES `institutions` (`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 UPDATE `system` SET `value`='13' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `institutions`
+  DROP `bot_username`,
+  DROP `bot_password`;
+
+UPDATE `system` SET `value`='14' WHERE `key`='DB_VERSION';
