@@ -147,4 +147,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the xcncip2_configs table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
+     * @return XCNCIP2Configs
+     */
+    public static function getXCNCIP2Configs(ServiceManager $sm)
+    {
+        return new XCNCIP2Configs($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }

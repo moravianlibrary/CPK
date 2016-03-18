@@ -208,3 +208,24 @@ ALTER TABLE `aleph_configs` CHANGE `wwwuser` `password` MEDIUMTEXT NULL;
 ALTER TABLE `aleph_configs` CHANGE `wwwpasswd` `password` MEDIUMTEXT NULL;
 
 UPDATE `system` SET `value`='12' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `xcncip2_configs` (
+  `id` int(11) NOT NULL,
+  `source` varchar(100) NOT NULL DEFAULT '',
+  `url` mediumtext NOT NULL,
+  `username` mediumtext,
+  `password` mediumtext,
+  `cacert` mediumtext NOT NULL,
+  `agency` tinytext NOT NULL,
+  `maximumItemsCount` int(11) NOT NULL DEFAULT '5',
+  `hasUntrustedSSL` tinyint(1) NOT NULL,
+  `cannotUseLUIS` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `xcncip2_configs`
+ ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `source` (`source`);
+
+ALTER TABLE `xcncip2_configs`
+ADD CONSTRAINT `institution_link_2` FOREIGN KEY (`source`) REFERENCES `institutions` (`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+UPDATE `system` SET `value`='13' WHERE `key`='DB_VERSION';

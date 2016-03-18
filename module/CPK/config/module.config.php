@@ -63,6 +63,8 @@ $config = array(
                     'portalpages' => 'CPK\Db\Table\Factory::getPortalPages',
                     'notifications' => 'CPK\Db\Table\Factory::getNotifications',
                     'institutions' => 'CPK\Db\Table\Factory::getInstitutions',
+                    'aleph_configs' => 'CPK\Db\Table\Factory::getAlephConfigs',
+                    'xcncip2_configs' => 'CPK\Db\Table\Factory::getXCNCIP2Configs'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'
