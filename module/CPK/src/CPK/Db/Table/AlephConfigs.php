@@ -55,6 +55,11 @@ class AlephConfigs extends Gateway
             'dont_show_link',
             'logo'
         ],
+        'IdResolver' => [
+            'type',
+            'solrQueryField',
+            'itemIdentifier'
+        ],
         'duedates' => [
             'on_site_loan',
             'reference_library',

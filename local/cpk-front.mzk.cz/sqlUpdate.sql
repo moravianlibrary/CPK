@@ -236,3 +236,17 @@ ALTER TABLE `vufind`.`institutions` CHANGE `logo_url` `logo` MEDIUMTEXT NOT NULL
 ALTER TABLE `xcncip2_configs` ADD `paymentUrl` MEDIUMTEXT NULL AFTER `url`;
 
 UPDATE `system` SET `value`='14' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `aleph_configs` ADD `type` MEDIUMTEXT NOT NULL COMMENT 'Which resolver to choose - xserver or solr?' AFTER `dont_show_link`, ADD `solrQueryField` MEDIUMTEXT NOT NULL COMMENT 'solrQueryField must contain the name of field within which are all the IDs located' AFTER `type`, ADD `itemIdentifier` MEDIUMTEXT NOT NULL COMMENT 'itemIdentifier must contain the name of field within which is the ID located' AFTER `solrQueryField`;
+
+ALTER TABLE `aleph_configs` CHANGE `hmac_key` `hmac_key` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'This is used with creating a hash to verify prolongation url';
+
+ALTER TABLE `aleph_configs` CHANGE `default_patron` `default_patron` MEDIUMTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'Default patron ID will be included into these queries, where we want to know item''s requestability'; 
+
+ALTER TABLE `aleph_configs` CHANGE `maxItemsParsed` `maxItemsParsed` INT(2) NOT NULL COMMENT 'To disable this feature set this to -1 .. if you unset it, there will be set 10 as default';
+
+ALTER TABLE `aleph_configs` CHANGE `default_required_date` `default_required_date` VARCHAR(8) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'redDate - A colon-separated list used to set the default "not required after" date for holds in the format days:months:years e.g. 0:1:0 will set a "not required after" date of 1 month from the current date';
+
+UPDATE `aleph_configs` SET `type`='solr',`solrQueryField`='barcodes',`itemIdentifier`='barcode';
+
+UPDATE `system` SET `value`='15' WHERE `key`='DB_VERSION';
