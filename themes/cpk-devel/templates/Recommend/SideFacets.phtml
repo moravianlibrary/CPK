@@ -233,6 +233,7 @@ JS;
           <? endif; ?>
           <? foreach ($cluster['list'] as $i=>$thisFacet): ?>
               <?
+              $dataFacet = $title.':"'.$thisFacet['value'].'"';
                 if(strlen($thisFacet['displayText']) == 0) {
                   $thisFacet['displayText'] = "-";
                 }
@@ -255,7 +256,7 @@ JS;
               <? if ($allowExclude): ?>
                 <div class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? else: ?>
-                <a href="<?=$addURL ?>" class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
+                <a data-facet='<?=$dataFacet?>' href="<?=$addURL ?>" class="list-group-item facet-filter facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? endif; ?>
               <span class="badge">
                 <?=$this->localizedNumber($thisFacet['count'])?>
