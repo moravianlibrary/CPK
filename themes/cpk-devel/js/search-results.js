@@ -169,7 +169,7 @@ jQuery( document ).ready( function( $ ) {
 		        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + response.data.searchId );
 		        		
 	        		} else {
-	        			console.error(response);
+	        			console.error(response.data);
 	        		}
 	         	},
 	            error: function (request, status, error) {
@@ -230,7 +230,8 @@ jQuery( document ).ready( function( $ ) {
 		var nextGroupNumber = parseInt( clone.attr( 'id' ).match( /\d+/ ) ) + 1;
 		clone.attr( 'id', 'group_' + nextGroupNumber);
 		clone.find( 'select' ).prop( 'selected', false );
-		clone.find( 'select' ).attr( 'name', 'type' + nextGroupNumber + '[]' );
+		clone.find( 'select.group-operator' ).attr( 'name', 'bool' + nextGroupNumber + '[]' );
+		clone.find( 'select.query-type' ).attr( 'name', 'type' + nextGroupNumber + '[]' );
 		clone.find( '.queries:not(:first)').remove();
 		clone.find( 'input:text' ).val( '' );
 		clone.find( 'input:text' ).attr( 'name', 'lookfor' + nextGroupNumber + '[]' );

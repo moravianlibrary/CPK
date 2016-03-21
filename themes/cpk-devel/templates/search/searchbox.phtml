@@ -66,7 +66,7 @@
           <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); $queries++;?>
           <div class='row queries' id='query_<?=$queries?>'>
             <div class='col-md-4 text-right'>
-              <select class='form-control query-type' name='type<?=$queries?>[]'>
+              <select class='form-control query-type' name='type<?=$groups?>[]'>
                 <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
                 <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
                   <?=$this->transEsc($description)?>
@@ -75,7 +75,7 @@
               </select>
             </div>
             <div class='col-md-7'>
-              <input name='lookfor<?=$queries?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
+              <input name='lookfor<?=$groups?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
             </div>
             <div class="col-md-1">
               <a href="#" class='close remove-advanced-search-query'>&times;</a>
