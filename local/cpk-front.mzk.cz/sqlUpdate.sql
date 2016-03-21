@@ -275,3 +275,8 @@ ALTER TABLE `aleph_mappings`
 ADD CONSTRAINT `aleph_mappings` FOREIGN KEY (`source`) REFERENCES `institutions` (`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 UPDATE `system` SET `value`='16' WHERE `key`='DB_VERSION';
+
+-- Set the foreign key to point only to aleph institutions
+ALTER TABLE `aleph_mappings` DROP FOREIGN KEY `aleph_mappings`; ALTER TABLE `aleph_mappings` ADD CONSTRAINT `aleph_mappings` FOREIGN KEY (`source`) REFERENCES `vufind`.`aleph_configs`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+UPDATE `system` SET `value`='17' WHERE `key`='DB_VERSION';
