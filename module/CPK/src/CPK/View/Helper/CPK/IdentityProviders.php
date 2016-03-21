@@ -27,8 +27,7 @@
  */
 namespace CPK\View\Helper\CPK;
 
-use Zend\Config\Config, CPK\Auth\Manager as AuthManager, VuFindHttp\HttpServiceAwareTrait;
-use CPK\Db\Table\Institutions;
+use Zend\Config\Config, CPK\Auth\Manager as AuthManager, CPK\Db\Table\Institutions;
 
 class IdentityProviders extends \Zend\View\Helper\AbstractHelper
 {
@@ -87,7 +86,7 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
                 'name' => $this->lang === 'en' ? $institution['name_en'] : $institution['name_cs'],
                 'name_cs' => $institution['name_cs'],
                 'name_en' => $institution['name_en'],
-                'logo' => $institution['logo_url']
+                'logo' => $institution['logo']
             ];
             
             array_push($idps, $idp);
