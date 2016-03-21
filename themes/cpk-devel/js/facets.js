@@ -20,10 +20,22 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
       html += '</span>';
     }
 
+    var institutionCategory = facetFilter.split('/')[1];
+    
     var url = currentPath + this.href;
     // Just to be safe
     url.replace("'", "\\'");
-    html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "") + (facetName != "institution" ? " facet-filter" : "") + (((facetName == "institution") && (this.level == "2")) ? " institution-facet-filter" : "") + "' title='" + htmlEncode(this.displayText) + "'>";
+    html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "") 
+    + (facetName != "institution" ? " facet-filter" : "") 
+    + (
+    	(
+    		( (facetName == 'institution') && (institutionCategory == "Library") && (this.level == "2") )
+    		||  ( (facetName == 'institution') && (institutionCategory == 'Others') && (this.level == "1") )
+    	) 
+    	? " institution-facet-filter" 
+    	: ""
+    ) 
+    + "' title='" + htmlEncode(this.displayText) + "'>";
     if (this.operator == 'OR') {
       if (this.isApplied) {
         html += '<i class="fa fa-check-square-o"></i>';
