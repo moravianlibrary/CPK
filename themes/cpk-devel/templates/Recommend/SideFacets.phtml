@@ -285,6 +285,9 @@ JS;
           </noscript>
         <? endif; ?>
       </div>
+      <? if($cluster['label'] == 'Institution'): ?>
+        <button type="button" class="btn btn-primary btn-sm btn-block"><?=$this->translate('Update results')?></button>
+      <? endif; ?>
       <div class='facet-divider'></div>
     </div>
   <? endforeach; ?>
