@@ -53,4 +53,17 @@ class AlephMappings extends Gateway
         $this->rowClass = 'CPK\Db\Row\AlephMappings';
         parent::__construct($this->table, $this->rowClass);
     }
+
+    /**
+     * Retrieves aleph mapping from DB for a specific institution
+     * 
+     * @param string $source
+     * @return \CPK\Db\Row\AlephMappings
+     */
+    public function getMapping($source)
+    {
+        return $this->select([
+            'source' => $source
+        ])->current();
+    }
 }

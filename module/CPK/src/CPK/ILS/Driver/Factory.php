@@ -54,7 +54,8 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
             $sm->getServiceLocator()->get('VuFind\CacheManager'),
             $sm->getServiceLocator()->get('VuFind\Search'),
-            $dbTablePluginManager->get('recordstatus')
+            $dbTablePluginManager->get('recordstatus'),
+            $dbTablePluginManager->get('aleph_mappings')
         );
     }
 
