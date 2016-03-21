@@ -71,10 +71,11 @@ class Factory
 
     public static function getLogos(ServiceManager $sm)
     {
-        $config = $sm->getServiceLocator()
-            ->get('VuFind\Config')
-            ->get('config');
-        return new Logos($config);
+        $institutionsTable = $sm->getServiceLocator()
+            ->get('VuFind\DbTablePluginManager')
+            ->get('institutions');
+        
+        return new Logos($institutionsTable);
     }
 
     public static function getGlobalNotifications(ServiceManager $sm)

@@ -32,11 +32,18 @@ use VuFind\Db\Table\Gateway, Zend\Config\Config;
 class Institutions extends Gateway
 {
 
+    const VALID_INSTITUTION_TYPES = [
+        'NCIP',
+        'Aleph'
+    ];
+
     /**
      *
      * @var \Zend\Config\Config
      */
     protected $config;
+
+    protected $cache = [];
 
     /**
      * Constructor
@@ -76,12 +83,7 @@ class Institutions extends Gateway
         $errors = [];
         
         // Check type is one of the enumerated
-        $allowedTypes = [
-            'Aleph',
-            'NCIP'
-        ];
-        
-        if (array_search($type, $allowedTypes, true) === false) {
+        if (array_search($type, self::VALID_INSTITUTION_TYPES, true) === false) {
             array_push($errors, 'Institution provided has not allowed type');
         }
         
@@ -143,6 +145,19 @@ class Institutions extends Gateway
         return $row;
     }
 
+    public function getLogos()
+    {
+        $this->cache = $this->select()->toArray();
+        
+        $toRet = [];
+        
+        foreach ($this->cache as $institution) {
+            $toRet[$institution['source']] = $institution['logo'];
+        }
+        
+        return $toRet;
+    }
+
     /**
      * Retrieves Institutions which are libraries capable of login to.
      *
@@ -150,12 +165,21 @@ class Institutions extends Gateway
      */
     public function getLibraries()
     {
-        return $this->select([
-            'type' => [
-                'NCIP',
-                'Aleph'
-            ]
-        ])->toArray();
+        if (! empty($this->cache)) {
+            
+            $libraries = [];
+            
+            foreach ($this->cache as $institution) {
+                if (array_search($institution['type'], self::VALID_INSTITUTION_TYPES) !== false)
+                    array_push($libraries, $institution);
+            }
+            
+            return $libraries;
+        } else {
+            return $this->select([
+                'type' => self::VALID_INSTITUTION_TYPES
+            ])->toArray();
+        }
     }
 
     /**
@@ -165,8 +189,20 @@ class Institutions extends Gateway
      */
     public function getOthers()
     {
-        return $this->select([
-            'type' => 'IdP'
-        ])->toArray();
+        if (! empty($this->cache)) {
+            
+            $identityProviders = [];
+            
+            foreach ($this->cache as $identityProvider) {
+                if ($identityProvider['type'] === 'IdP')
+                    array_push($identityProviders, $identityProvider);
+            }
+            
+            return $identityProviders;
+        } else {
+            return $this->select([
+                'type' => 'IdP'
+            ])->toArray();
+        }
     }
 }
