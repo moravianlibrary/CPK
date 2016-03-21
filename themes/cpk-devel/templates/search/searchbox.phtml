@@ -31,41 +31,42 @@
                 $queryArray['groupsData'][$key]['groupQueries'][$index]['lookFor'][] = $searchQuery->getString();
             }
         }
-
+        
         $originalQueryJson = json_encode($queryArray);
     ?>
   <div class="searchForm">
-
+  
     <!-- Display advanced search form with queries -->
     <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
     <script>
 		var originalQueryJson = '<?=$originalQueryJson?>';
     </script>
-    <div class='row' id='group-join-type-row'>
-      <div class='col-md-12'>
-        <select id='group-join-type' name="join" class="form-control select selectpicker">
-          <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
-          <option value="OR"<?= ($allGroupsOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
-          <option value="NOT"<?= ($allGroupsOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
+    <div class='row'>
+      <div class='col-md-12'></div>
+        <select id='group-join-type' name="join" class="form-control">
+          <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("group_AND")?></option>
+          <option value="OR"<?= ($allGroupsOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("group_OR")?></option>
         </select>
       </div>
     </div>
     <form id='editable-advanced-search-form' name='searchForm'>
       <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); $groups++; $queries = -1; /* @FIXME: This foreach can be done on $queryArray */?>
       <div class='row group' id='group_<?=$groups?>'>
-        <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>"><i class="pr-interface-crosscancel2"></i></a>
+        <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
         <div class='col-md-2'>
-          <select class="form-control group-operator selectpicker dropdown-select" name='bool<?=$groups?>[]'>
-            <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
-            <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
-            <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
-          </select>
+          <label class='dropdown-select-label'>
+            <select class="group-operator dropdown-select" name='bool<?=$groups?>[]'>
+              <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
+              <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
+              <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
+            </select>
+          </label>
         </div>
         <div class='col-md-9'>
           <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); $queries++;?>
           <div class='row queries' id='query_<?=$queries?>'>
             <div class='col-md-4 text-right'>
-              <select class='form-control query-type selectpicker' name='type<?=$queries?>[]'>
+              <select class='form-control query-type' name='type<?=$queries?>[]'>
                 <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
                 <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
                   <?=$this->transEsc($description)?>
@@ -77,24 +78,24 @@
               <input name='lookfor<?=$queries?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
             </div>
             <div class="col-md-1">
-              <a href="#" class='close remove-advanced-search-query'><i class="pr-interface-crosscancel2"></i></a>
+              <a href="#" class='close remove-advanced-search-query'>&times;</a>
             </div>
           </div>
           <? endforeach; ?>
           <p>
             <a href="#" class="add-search-query">
-              <i class="pr-interface-plusadd"></i> <?=$this->transEsc("add_search")?>
+              <i class="fa fa-plus-circle"></i> <?=$this->transEsc("add_search")?>
             </a>
           </p>
         </div>
         <div class="col-md-1 close">
-          <a class="help-block remove-advanced-search-group" href="#"><i class="pr-interface-crosscancel2"></i></a>
+          <a class="help-block remove-advanced-search-group" href="#">&times;</a>
         </div>
       </div>
       <? endforeach; ?>
       <p>
         <a href="#" class="add-search-group">
-          <i class="pr-interface-plusadd"></i> <?= $this->transEsc('add_search_group') ?>
+          <i class="fa fa-plus-circle"></i> <?= $this->transEsc('add_search_group') ?>
         </a>
       </p>
       <div class='row'>
@@ -108,7 +109,7 @@
           </a>
         </div>
       </div>
-
+      
       <!-- Facets -->
       <div class='hidden' id='hiddenFacetFilters'>
       <? foreach ($filterList as $field => $data): ?>
@@ -118,12 +119,12 @@
       <? endforeach; ?>
       </div>
       <!-- End of facets -->
-
+      
     </form>
     <!-- End of advanced search form -->
-
+    
     <? $tabs = $this->render('search/searchTabs'); ?>
-    <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>
+    <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>    
     <? if (!empty($tabs)): ?></div><? endif; ?>
   </div>
 <? else: ?> <!-- Autocomplete -->
@@ -146,7 +147,7 @@
               var enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
 
               var filters = '';
-
+              
               if (enabledKeepFacets) {
 				filters = '';
 				$( '.applied-filter' ).each(function(){
@@ -162,7 +163,7 @@
                	query = $( this ).val();
 
                	enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
-
+               	
                	if (enabledKeepFacets) {
     			  filters = '';
     			  $( '.applied-filter' ).each(function(){
@@ -177,13 +178,13 @@
               $( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
             	event.preventDefault();
 
-           		// if autocomplete used in Search/Results, load results async
+           		// if autocomplete used in Search/Results, load results async 
   			    if ( ! $( 'header' ).hasClass( 'frontpage' ) ) {
   			      var href = $( '#run-autocomplete' ).attr( 'href' );
   			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]});
   			      return false;
   				}
-
+  				
   				// if autocomplete used on frontpage, load results statically via PHP
   				$( '.searchForm' ).submit();
               });
