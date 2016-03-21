@@ -64,6 +64,7 @@ $config = array(
                     'notifications' => 'CPK\Db\Table\Factory::getNotifications',
                     'institutions' => 'CPK\Db\Table\Factory::getInstitutions',
                     'aleph_configs' => 'CPK\Db\Table\Factory::getAlephConfigs',
+                    'aleph_mappings' => 'CPK\Db\Table\Factory::getAlephMappings',
                     'xcncip2_configs' => 'CPK\Db\Table\Factory::getXCNCIP2Configs'
                 ], /* factories */
                 'invokables' => [

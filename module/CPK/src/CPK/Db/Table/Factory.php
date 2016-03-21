@@ -149,6 +149,21 @@ class Factory
     }
 
     /**
+     * Construct the aleph_mappings table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *            
+     * @return AlephMappings
+     */
+    public static function getAlephMappings(ServiceManager $sm)
+    {
+        return new AlephMappings($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
      * Construct the xcncip2_configs table.
      *
      * @param ServiceManager $sm

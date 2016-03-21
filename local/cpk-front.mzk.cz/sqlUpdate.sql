@@ -250,3 +250,28 @@ ALTER TABLE `aleph_configs` CHANGE `default_required_date` `default_required_dat
 UPDATE `aleph_configs` SET `type`='solr',`solrQueryField`='barcodes',`itemIdentifier`='barcode';
 
 UPDATE `system` SET `value`='15' WHERE `key`='DB_VERSION';
+
+-- Add aleph_mappings table
+CREATE TABLE IF NOT EXISTS `aleph_mappings` (
+`id` int(11) NOT NULL,
+  `source` varchar(100) NOT NULL DEFAULT '',
+  `barcode` enum('z304-address-1','z304-address-2','z304-address-3','z304-address-4') DEFAULT NULL,
+  `fullname` enum('z304-address-1','z304-address-2','z304-address-3','z304-address-4') NOT NULL,
+  `address` enum('z304-address-1','z304-address-2','z304-address-3','z304-address-4') NOT NULL,
+  `city` enum('z304-address-1','z304-address-2','z304-address-3','z304-address-4') NOT NULL,
+  `zip` enum('z304-zip') DEFAULT NULL,
+  `email` enum('z304-email-address') DEFAULT NULL,
+  `user_group` enum('z305-bor-status') DEFAULT NULL,
+  `expiration` enum('z305-expiry-date') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `aleph_mappings`
+ ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `source` (`source`);
+
+ALTER TABLE `aleph_mappings`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+ALTER TABLE `aleph_mappings`
+ADD CONSTRAINT `aleph_mappings` FOREIGN KEY (`source`) REFERENCES `institutions` (`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+UPDATE `system` SET `value`='16' WHERE `key`='DB_VERSION';
