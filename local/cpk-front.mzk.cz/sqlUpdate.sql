@@ -280,3 +280,7 @@ UPDATE `system` SET `value`='16' WHERE `key`='DB_VERSION';
 ALTER TABLE `aleph_mappings` DROP FOREIGN KEY `aleph_mappings`; ALTER TABLE `aleph_mappings` ADD CONSTRAINT `aleph_mappings` FOREIGN KEY (`source`) REFERENCES `vufind`.`aleph_configs`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 UPDATE `system` SET `value`='17' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `aleph_mappings` ADD `phone` ENUM('z304-sms-number','z304-telephone-1','z304-telephone-2','z304-telephone-3','z304-telephone-4') NULL AFTER `email`;
+
+UPDATE `system` SET `value`='18' WHERE `key`='DB_VERSION';
