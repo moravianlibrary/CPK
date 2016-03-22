@@ -178,10 +178,22 @@ class Aleph extends AlephBase
 
     public function getMyProfile($user)
     {
-        if ($this->alephWebService->isXServerEnabled()) {
-            $profile = $this->getMyProfileX($user);
-        } else {
-            $profile = $this->getMyProfileDLF($user);
+        try {
+            if (!$this->alephWebService->isXServerEnabled()) {
+                $profile = $this->getMyProfileX($user);
+            } else {
+                $profile = $this->getMyProfileDLF($user);
+            }
+        } catch (\Exception $e) {
+            
+            $msg = $e->getMessage();
+            
+            /* TODO: Probably expired account ?
+             * message: XServer error: Error retrieving Patron System Key.
+             * or 2nd : ID čtenáře není platné
+             * or 3rd : The patron ID is invalid
+             */
+            throw $e;
         }
         
         $blocks = [];
