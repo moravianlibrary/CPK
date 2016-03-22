@@ -49,7 +49,9 @@ class XCNCIP2Configs extends Gateway
             'cannotUseLUIS',
             'maximumItemsCount',
             'timeout',
-            'logo'
+            'logo',
+            'username',
+            'password'
         ]
     ];
 
@@ -58,7 +60,7 @@ class XCNCIP2Configs extends Gateway
      *
      * @param \Zend\Config\Config $config
      *            VuFind configuration
-     *            
+     *
      * @return void
      */
     public function __construct(Config $config)
@@ -77,28 +79,28 @@ class XCNCIP2Configs extends Gateway
     public function getConfig($source)
     {
         $ncipConfig = $this->getXCNCIP2Config($source);
-        
+
         if (! $ncipConfig)
             return $ncipConfig;
-        
+
         $commonConfig = $this->getCommonConfig($source);
-        
+
         $dbConfig = array_merge($commonConfig, $ncipConfig);
-        
+
         $config = [];
-        
+
         foreach ($this->configMappings as $section => $sectionElements) {
-            
+
             $config[$section] = [];
-            
+
             foreach ($sectionElements as $sectionElement) {
-                
+
                 if (isset($dbConfig[$sectionElement])) {
                     $config[$section][$sectionElement] = $dbConfig[$sectionElement];
                 }
             }
         }
-        
+
         return $config;
     }
 
@@ -107,26 +109,26 @@ class XCNCIP2Configs extends Gateway
         $ncipConf = $this->select([
             'source' => $source
         ])->current();
-        
+
         if (! $ncipConf)
             return [];
-        
+
         return $ncipConf->toArray();
     }
 
     /**
      * Retrieves a column from institutions table
      *
-     * @param string $source            
+     * @param string $source
      */
     protected function getCommonConfig($source)
     {
         $select = new Select('institutions');
-        
+
         $select->where([
             'source' => $source
         ]);
-        
+
         return $this->sql->prepareStatementForSqlObject($select)
             ->execute()
             ->current();
