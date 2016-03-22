@@ -4,8 +4,8 @@
 $json = json_encode([
     'href' => $idp['href'],
     'logo' => $idp['logo'],
-    'name_cs' => $idp['name_cs'],
-    'name_en' => $idp['name_en']
+    'name_cs' => trim($idp['name_cs']),
+    'name_en' => trim($idp['name_en'])
 ]);
 ?>
   <tr class="link" ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
