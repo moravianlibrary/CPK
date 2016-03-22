@@ -73,6 +73,10 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      */
     public function getLogo($source)
     {
+        if (($pos = strpos($source, '.')) !== false) {
+            $source = substr($source, 0, $pos);
+        }
+        
         if (isset($this->idpLogos[$source])) {
             return $this->idpLogos[$source];
         }
