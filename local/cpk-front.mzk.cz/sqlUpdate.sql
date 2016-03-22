@@ -140,23 +140,6 @@ ALTER TABLE `institutions`
 ALTER TABLE `institutions`
 MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
 
--- There will not work constraint addition into user_card & user tables if there are users in institutions which are not inserted here
-INSERT INTO `institutions` (`source`) VALUES
-('Dummy'),
-('mzk'),
-('tre'),
-('svkhk'),
-('vkta'),
-('ntk'),
-('slk'),
-('vkol'),
-('kfbz'),
-('kpsys'),
-('kvkl'),
-('nkp'),
-('mkp'),
-('nlk');
-
 UPDATE `system` SET `value`='7' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `user_card` ADD CONSTRAINT `home_library_link_1` FOREIGN KEY (`home_library`) REFERENCES `vufind`.`institutions`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
