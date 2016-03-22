@@ -37,6 +37,7 @@
 	vm.removeFavorite = removeFavorite;
 	
 	vm.removeSelected = removeSelected;
+	vm.printSelected = printSelected;
 	
 	$q.resolve(storage.getFavorites()).then(onGetFavorites).catch(function(reason) {
 	    
@@ -150,6 +151,35 @@
 	    });
 	}
 	
+	/**
+	 * Redirects user to /Records/Home action if selected something
+	 */
+	function printSelected() {
+	    
+	    var selectedIds = [];
+	    
+	    Object.keys(vm.favSelected).forEach(function(key) {
+		if (vm.favSelected[key] === true) {
+
+		    var id = getFavoriteId(key);
+		    
+		    selectedIds.push(id);
+		}
+	    });
+	    
+	    if (selectedIds.length === 0)
+		return;
+	    
+	    var printLocation = '/Records/Home?print=1';
+	    
+	    selectedIds.forEach(function(selectedId){
+		printLocation += '&id[]=Solr|' + selectedId;
+	    });
+	    
+	    // Open in new tab
+	    window.open(printLocation, '_blank').focus();
+	}
+	
 	function selectAll() {
 	    vm.favorites.forEach(function(favorite) {
 		vm.favSelected[favorite.created()] = vm.allSelected;
@@ -242,6 +272,22 @@
 	
 	function getSorting() {
 	    return activeSorting;
+	}
+	
+	/**
+	 * Returns Solr ID of favorite identified by timestamp created
+	 * 
+	 * @param key
+	 */
+	function getFavoriteId(key) {
+	    var fav = vm.favorites.find(function(favorite) {
+		return favorite.created() === parseInt(key);
+	    });
+	    
+	    if (typeof fav === 'undefined')
+		return;
+	    
+	    return fav.titleLink().replace('/Record/', '');
 	}
     }
     
