@@ -68,10 +68,10 @@ foreach ($queryParams as $key => $value) {
             ?>
             <a class="list-group-item active facet-filter" data-facet='<?=$dataFacet?>' href="<?=$removeLink?>">
               <span class="pull-right flip"><i class="fa fa-times"></i></span>
-              <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>: 
+              <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>:
               <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false)
                   echo explode("/", $this->escapeHtml($filter['displayText']))[1]; //@FIXME QuickFix, fix this problem on higher level
-                else 
+                else
                   echo $this->escapeHtml($filter['displayText']);
               ?>
             </a>
@@ -203,6 +203,15 @@ JS;
             <? $this->headScript()->appendFile('facets.js'); ?>
             <? $sort = isset($hierarchicalFacetSortOptions[$title]) ? $hierarchicalFacetSortOptions[$title] : ''; ?>
             <? if (!in_array($title, $collapsedFacets)): ?>
+              <? if($cluster['label'] == 'Institution'): ?>
+              <?
+              $script = <<<JS
+$(document).ready(function() {
+  initInstitutionsTree($('#facet_{$this->escapeHtml($title)}'), true);
+});
+JS;
+              ?>
+              <? else: ?>
               <?
               $script = <<<JS
 $(document).ready(function() {
@@ -210,8 +219,18 @@ $(document).ready(function() {
 });
 JS;
               ?>
+              <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? else: ?>
+              <? if($cluster['label'] == 'Institution'): ?>
+              <?
+              $script = <<<JS
+$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
+  initInstitutionsTree($('#facet_{$this->escapeHtml($title)}'), true);
+});
+JS;
+              ?>
+              <? else: ?>
               <?
               $script = <<<JS
 $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
@@ -219,6 +238,7 @@ $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', funct
 });
 JS;
               ?>
+              <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? endif; ?>
             <li id="facet_<?=$this->escapeHtml($title)?>" class="jstree-facet"

@@ -112,3 +112,52 @@ function initFacetTree(treeNode, inSidebar)
     }
   );
 }
+
+
+function initInstitutionsTree(treeNode, inSidebar)
+{
+  var loaded = treeNode.data('loaded');
+  if (loaded) {
+    return;
+  }
+  treeNode.data('loaded', true);
+
+  var facet = treeNode.data('facet');
+  var operator = treeNode.data('operator');
+  var currentPath = treeNode.data('path');
+  var allowExclude = treeNode.data('exclude');
+  var excludeTitle = treeNode.data('exclude-title');
+  var sort = treeNode.data('sort');
+  var query = window.location.href.split('?')[1];
+
+  if (inSidebar) {
+    treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
+  } else {
+    treeNode.prepend('<div><i class="fa fa-spinner fa-spin"></i><div>');
+  }
+  $.getJSON(VuFind.getPath() + '/AJAX/JSON?' + query,
+    {
+      method: "getFacetData",
+      facetName: facet,
+      facetSort: sort,
+      facetOperator: operator
+    },
+    function(response, textStatus) {
+      if (response.status == "OK") {
+        var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
+        treeNode.find('.fa-spinner').parent().remove();
+        if (inSidebar) {
+          treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
+            treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
+          });
+        }
+        treeNode.jstree({
+          'plugins': ['checkbox'],
+          'core': {
+            'data': results
+          }
+        });
+      }
+    }
+  );
+}
