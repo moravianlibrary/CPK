@@ -249,7 +249,7 @@ JS;
                 <? else: ?>
                   <span class="pull-right flip"><i class="fa fa-check"></i></span>
                 <? endif; ?>
-                <?=$this->escapeHtml($thisFacet['displayText'])?>
+                <?=$this->transEsc($thisFacet['displayText'])?>
               </a>
             <? else: ?>
               <? $addURL = $this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], $thisFacet['operator']); ?>
@@ -270,7 +270,11 @@ JS;
               <? if($thisFacet['operator'] == 'OR'): ?>
                 <i class="fa fa-square-o"></i>
               <? endif; ?>
-              <?=$this->escapeHtml($thisFacet['displayText'])?>
+              <? if (($cluster['label'] == 'language') OR ($cluster['label'] == 'country_str')): ?>
+                <?=$this->escapeHtml($thisFacet['value'])?>
+              <? else: ?>
+                <?=$this->transEsc($thisFacet['displayText'])?>
+              <? endif; ?>
               <? if ($allowExclude): ?>
                   </a>
                 </div>
