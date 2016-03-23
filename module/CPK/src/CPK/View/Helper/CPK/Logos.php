@@ -51,7 +51,7 @@ class Logos extends \Zend\View\Helper\AbstractHelper
     /**
      * Associative array holding the logos
      *
-     * @var array
+     * @var object
      */
     protected $idpLogos;
 
@@ -63,9 +63,13 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      */
     public function __construct(\Zend\Config\Config $config)
     {
-        if (isset($config['IdPLogos']))
+        $idps = $config->toArray();
         
-        $this->idpLogos = $config['IdPLogos']; 
+        foreach ($idps as $source => $idp) {
+            
+            if (isset($idp['logo']))
+                $this->idpLogos[$source] = $idp['logo'];
+        }
     }
 
     /**
@@ -74,7 +78,11 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      * @param string $source            
      */
     public function getLogo($source)
-    {   
+    {
+        if (($pos = strpos($source, '.')) !== false) {
+            $source = substr($source, 0, $pos);
+        }
+        
         if (isset($this->idpLogos[$source])) {
             return $this->idpLogos[$source];
         }

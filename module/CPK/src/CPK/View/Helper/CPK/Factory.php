@@ -73,7 +73,7 @@ class Factory
     {
         $config = $sm->getServiceLocator()
             ->get('VuFind\Config')
-            ->get('config');
+            ->get('shibboleth');
         
         return new Logos($config);
     }
