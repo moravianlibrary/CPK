@@ -75,42 +75,44 @@ jQuery( document ).ready( function( $ ) {
 				data['join'] = allGroupsOperator;
 			}
 			
-			/* Set default values if not provided before (for basic search) */
-			if (! data.hasOwnProperty( 'bool0' )) {
-				data['bool0'] = [];
-				data['bool0'].push( 'OR' );
-			}
-			
-			if ( (! data.hasOwnProperty( 'join' ) ) || ( ! data.join ) ) {
-				data['join'] = 'OR';
-			}
-			
-			if (! data.hasOwnProperty( 'page' )) {
-				var page = $( "input[name='page']" ).val();
-				data['page'] = page;
-			}
-			
-			/* Set search term and type from Autocomplete when provding async results loading in basic search */
-			if (! data.hasOwnProperty( 'lookfor0' )) {
-				var lookfor0 = $( "input[name='last_searched_lookfor0']" ).val();
-				data['lookfor0'] = [];
-				data['lookfor0'].push( lookfor0 );
-			}
-			
-			if (! data.hasOwnProperty( 'type0' )) {
-				var type = $( "input[name='last_searched_type0']" ).val();
-				data['type0'] = [];
-				data['type0'].push( type );
-			}
-			
-			if (! data.hasOwnProperty( 'limit' )) {
-				var limit = $( "input[name='limit']" ).val();
-				data['limit'] = limit;
-			}
-			
-			if (! data.hasOwnProperty( 'sort' )) {
-				var sort = $( "input[name='sort']" ).val();
-				data['sort'] = sort;
+			if ( dataFromWindowHistory == undefined) {
+				/* Set default values if not provided before (for basic search) */
+				if (! data.hasOwnProperty( 'bool0' )) {
+					data['bool0'] = [];
+					data['bool0'].push( 'OR' );
+				}
+				
+				if ( (! data.hasOwnProperty( 'join' ) ) || ( ! data.join ) ) {
+					data['join'] = 'OR';
+				}
+				
+				if (! data.hasOwnProperty( 'page' )) {
+					var page = $( "input[name='page']" ).val();
+					data['page'] = page;
+				}
+				
+				/* Set search term and type from Autocomplete when provding async results loading in basic search */
+				if (! data.hasOwnProperty( 'lookfor0' )) {
+					var lookfor0 = $( "input[name='last_searched_lookfor0']" ).val();
+					data['lookfor0'] = [];
+					data['lookfor0'].push( lookfor0 );
+				}
+				
+				if (! data.hasOwnProperty( 'type0' )) {
+					var type = $( "input[name='last_searched_type0']" ).val();
+					data['type0'] = [];
+					data['type0'].push( type );
+				}
+				
+				if (! data.hasOwnProperty( 'limit' )) {
+					var limit = $( "input[name='limit']" ).val();
+					data['limit'] = limit;
+				}
+				
+				if (! data.hasOwnProperty( 'sort' )) {
+					var sort = $( "input[name='sort']" ).val();
+					data['sort'] = sort;
+				}
 			}
 			
 			/**************** Start modifications control ****************/
@@ -207,7 +209,11 @@ jQuery( document ).ready( function( $ ) {
 			var stateObject = data;
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
-			window.history.replaceState( stateObject, title, url );
+			window.history.pushState( stateObject, title, url );
+			console.log( 'Pushing state: ' );
+			console.log( stateObject );
+			//window.history.replaceState( stateObject, title, url );
+			//window.history.pushState( stateObject, title, url );
 		},
 	}
 	
@@ -216,6 +222,8 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( window ).bind( 'popstate', function() {
 		var currentState = history.state;
+		console.log( 'POPing state: ' );
+		console.log( currentState );
 		ADVSEARCH.updateSearchResults( currentState, undefined );
 	});
 	
