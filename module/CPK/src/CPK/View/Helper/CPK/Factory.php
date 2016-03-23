@@ -110,7 +110,7 @@ class Factory
         
         $config = $sm->getServiceLocator()
             ->get('VuFind\Config')
-            ->get('notifications');
+            ->get('shibboleth');
         
         $lang = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
             ->get('VuFind\Translator')

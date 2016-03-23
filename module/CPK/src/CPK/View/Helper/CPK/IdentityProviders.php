@@ -27,7 +27,7 @@
  */
 namespace CPK\View\Helper\CPK;
 
-use Zend\Config\Config, CPK\Auth\Manager as AuthManager, CPK\Db\Table\Institutions;
+use Zend\Config\Config, CPK\Auth\Manager as AuthManager;
 
 class IdentityProviders extends \Zend\View\Helper\AbstractHelper
 {
@@ -39,50 +39,59 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
      */
     protected $authManager;
 
-    /**
-     * Institutions table to retrieve all institutions from DB
-     *
-     * @var Institutions
-     */
-    protected $institutionsTable;
+    protected $libraries = [];
+
+    protected $others = [];
 
     /**
-     * Constructor
+     * C'tor
      *
-     * @param
-     *            \Zend\Config\Config VuFind configuration
+     * @param AuthManager $authManager            
+     * @param \Zend\Config\Config $config            
+     * @param string $lang            
      */
     public function __construct(AuthManager $authManager, \Zend\Config\Config $config, $lang)
     {
         $this->authManager = $authManager;
         
-        $this->config = $config;
+        $idps = $config->toArray();
+        
+        foreach ($idps as $idp) {
+            
+            if (isset($idp['entityId']))
+                if (isset($idp['cat_username'])) {
+                    array_push($this->libraries, $idp);
+                } else {
+                    array_push($this->others, $idp);
+                }
+        }
         
         $this->lang = substr($lang, 0, 2);
     }
 
     public function getLibraries()
     {
-        $rows = [];
-        
-        return $this->produceListForTemplate($rows);
+        return $this->produceListForTemplate($this->libraries);
     }
 
     public function getOthers()
     {
-        $rows = [];
-        
-        return $this->produceListForTemplate($rows);
+        return $this->produceListForTemplate($this->others);
     }
 
-    protected function produceListForTemplate($institutions)
+    /**
+     * Adds a href to redirect user to in order to authenticate him with Shibboleth
+     *
+     * @param array $institutions            
+     */
+    protected function produceListForTemplate(array $institutions)
     {
         $idps = [];
         
         foreach ($institutions as $institution) {
             
             $idp = [
-                'href' => $this->authManager->getSessionInitiatorForEntityId(null, $institution['entity_id']),
+                'href' => $this->authManager->getSessionInitiatorForEntityId(null, $institution['entityId']),
                 'name' => $this->lang === 'en' ? $institution['name_en'] : $institution['name_cs'],
                 'name_cs' => $institution['name_cs'],
                 'name_en' => $institution['name_en'],

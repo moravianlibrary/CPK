@@ -166,7 +166,7 @@ class ShibbolethIdentityManager extends Shibboleth
             if ($entityId == $configuration['entityId']) {
                 $config = $configuration;
                 $prefix = $name;
-                $loggedWithKnownEntityId = true;
+                $loggedWithKnownEntityId = ! empty($config['cat_username']);
                 break;
             }
         }
@@ -362,29 +362,8 @@ class ShibbolethIdentityManager extends Shibboleth
             }
 
             if ($name !== 'main') {
-                if (! isset($configuration['username']) ||
-                     empty($configuration['username'])) {
-                    throw new AuthException(
-                        "Shibboleth 'username' is missing in your " .
-                         static::CONFIG_FILE_NAME . ".ini configuration file for '" .
-                         $name . "'");
-                }
-
-                if ($name !== 'default') {
-                    if (! isset($configuration['entityId']) ||
-                         empty($configuration['entityId'])) {
-                        throw new AuthException(
-                            "Shibboleth 'entityId' is missing in your " .
-                             static::CONFIG_FILE_NAME .
-                             ".ini configuration file for '" . $name . "'");
-                    } elseif (! isset($configuration['cat_username']) ||
-                         empty($configuration['cat_username'])) {
-                        throw new AuthException(
-                            "Shibboleth 'cat_username' is missing in your " .
-                             static::CONFIG_FILE_NAME .
-                             ".ini configuration file for '" . $name .
-                             "' with entityId " . $configuration['entityId']);
-                    }
+                if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
+                    throw new AuthException("Shibboleth 'entityId' is missing in your " . static::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
                 }
             } else {
                 $this->canConsolidateMoreTimes = $this->shibbolethConfig->main->canConsolidateMoreTimes;
@@ -715,7 +694,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
     protected function fetchEduPersonPrincipalName()
     {
-        return explode(";", $_SERVER[$this->shibbolethConfig->default->username])[0];
+        return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
     }
 
     /**
