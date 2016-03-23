@@ -149,6 +149,8 @@ jQuery( document ).ready( function( $ ) {
 	        		$( '#side-facets-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
 	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
 	        		
+	        		// Disabled submit button until ajax finishes
+	        		$(' #submit-edited-advanced-search' ).attr( 'disabled', true );
 	        	},
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
@@ -171,6 +173,7 @@ jQuery( document ).ready( function( $ ) {
 	        		} else {
 	        			console.error(response.data);
 	        		}
+	        		$(' #submit-edited-advanced-search' ).removeAttr( 'disabled' );
 	         	},
 	            error: function (request, status, error) {
 	            	console.error(request.responseText);
