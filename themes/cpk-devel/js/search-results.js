@@ -152,7 +152,7 @@ jQuery( document ).ready( function( $ ) {
 	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
 	        		
 	        		// Disabled submit button until ajax finishes
-	        		$(' #submit-edited-advanced-search' ).attr( 'disabled', true );
+	        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
 	        	},
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
@@ -175,7 +175,7 @@ jQuery( document ).ready( function( $ ) {
 	        		} else {
 	        			console.error(response.data);
 	        		}
-	        		$(' #submit-edited-advanced-search' ).removeAttr( 'disabled' );
+	        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).removeAttr( 'disabled' );
 	         	},
 	            error: function (request, status, error) {
 	            	console.error(request.responseText);
