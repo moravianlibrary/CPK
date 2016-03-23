@@ -52,25 +52,25 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
      * @param
      *            \Zend\Config\Config VuFind configuration
      */
-    public function __construct(AuthManager $authManager, Institutions $institutionsTable, $lang)
+    public function __construct(AuthManager $authManager, \Zend\Config\Config $config, $lang)
     {
         $this->authManager = $authManager;
         
-        $this->institutionsTable = $institutionsTable;
+        $this->config = $config;
         
         $this->lang = substr($lang, 0, 2);
     }
 
     public function getLibraries()
     {
-        $rows = $this->institutionsTable->getLibraries();
+        $rows = [];
         
         return $this->produceListForTemplate($rows);
     }
 
     public function getOthers()
     {
-        $rows = $this->institutionsTable->getOthers();
+        $rows = [];
         
         return $this->produceListForTemplate($rows);
     }

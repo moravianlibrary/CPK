@@ -71,11 +71,11 @@ class Factory
 
     public static function getLogos(ServiceManager $sm)
     {
-        $institutionsTable = $sm->getServiceLocator()
-            ->get('VuFind\DbTablePluginManager')
-            ->get('institutions');
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config');
         
-        return new Logos($institutionsTable);
+        return new Logos($config);
     }
 
     public static function getGlobalNotifications(ServiceManager $sm)
@@ -108,14 +108,14 @@ class Factory
     {
         $authManager = $sm->getServiceLocator()->get('VuFind\AuthManager');
         
-        $institutionsTable = $sm->getServiceLocator()
-            ->get('VuFind\DbTablePluginManager')
-            ->get('institutions');
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('notifications');
         
         $lang = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
             ->get('VuFind\Translator')
             ->getLocale() : 'en';
         
-        return new IdentityProviders($authManager, $institutionsTable, $lang);
+        return new IdentityProviders($authManager, $config, $lang);
     }
 }

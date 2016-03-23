@@ -54,8 +54,7 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
             $sm->getServiceLocator()->get('VuFind\CacheManager'),
             $sm->getServiceLocator()->get('VuFind\Search'),
-            $dbTablePluginManager->get('recordstatus'),
-            $dbTablePluginManager->get('aleph_mappings')
+            $dbTablePluginManager->get('recordstatus')
         );
     }
 
@@ -73,9 +72,7 @@ class Factory
         return new MultiBackend(
             $sm->getServiceLocator()->get('VuFind\Config'),
             $sm->getServiceLocator()->get('VuFind\ILSAuthenticator'),
-            $sm->getServiceLocator()->get('VuFind\Search'),
-            $dbTablePluginManager->get('aleph_configs'),
-            $dbTablePluginManager->get('xcncip2_configs')
+            $sm->getServiceLocator()->get('VuFind\Search')
         );
     }
 

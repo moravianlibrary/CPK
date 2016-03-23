@@ -267,3 +267,13 @@ UPDATE `system` SET `value`='17' WHERE `key`='DB_VERSION';
 ALTER TABLE `aleph_mappings` ADD `phone` ENUM('z304-sms-number','z304-telephone-1','z304-telephone-2','z304-telephone-3','z304-telephone-4') NULL AFTER `email`;
 
 UPDATE `system` SET `value`='18' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `user_card` DROP FOREIGN KEY `home_library_link_1`;
+ALTER TABLE `user` DROP FOREIGN KEY `home_library_link_2`;
+ALTER TABLE `aleph_mappings` DROP FOREIGN KEY `aleph_mappings`;
+ALTER TABLE `aleph_configs` DROP FOREIGN KEY `institution_link`;
+ALTER TABLE `xcncip2_configs` DROP FOREIGN KEY `institution_link_2`;
+DROP TABLE `aleph_mappings`;
+DROP TABLE `aleph_configs`;
+DROP TABLE `xcncip2_configs`;
+DROP TABLE `institutions`;

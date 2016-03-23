@@ -56,13 +56,6 @@ class Aleph extends AlephBase
      */
     protected $addressMappings;
 
-    public function __construct(\VuFind\Date\Converter $dateConverter, \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null, \MZKCommon\Db\Table\RecordStatus $recordStatus = null, \CPK\Db\Table\AlephMappings $alephMappingsTable = null)
-    {
-        parent::__construct($dateConverter, $cacheManager, $searchService, $recordStatus);
-        
-        $this->alephMappingsTable = $alephMappingsTable;
-    }
-
     public function init()
     {
         parent::init();
@@ -87,13 +80,9 @@ class Aleph extends AlephBase
             $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
         }
         
-        if (isset($this->config['Availability']['source']))
-            $this->addressMappings = $this->alephMappingsTable->getMapping($this->config['Availability']['source']);
+        // TODO: Implement mappings from config
+        $this->addressMappings = $this->getDefaultMappings();
         
-        if ($this->addressMappings === false) {
-            $this->addressMappings = $this->getDefaultMappings();
-        } else
-            $this->addressMappings = $this->getDefaultMappings();
     }
 
     protected function getDefaultMappings()

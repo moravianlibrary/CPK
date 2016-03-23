@@ -61,9 +61,11 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      * @param
      *            \Zend\Config\Config VuFind configuration
      */
-    public function __construct(\CPK\Db\Table\Institutions $institutionsTable)
+    public function __construct(\Zend\Config\Config $config)
     {
-        $this->idpLogos = $institutionsTable->getLogos();
+        if (isset($config['IdPLogos']))
+        
+        $this->idpLogos = $config['IdPLogos']; 
     }
 
     /**
@@ -72,11 +74,7 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      * @param string $source            
      */
     public function getLogo($source)
-    {
-        if (($pos = strpos($source, '.')) !== false) {
-            $source = substr($source, 0, $pos);
-        }
-        
+    {   
         if (isset($this->idpLogos[$source])) {
             return $this->idpLogos[$source];
         }

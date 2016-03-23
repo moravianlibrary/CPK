@@ -73,15 +73,11 @@ class MultiBackend extends MultiBackendBase
      */
     protected $xcncip2ConfigsTable = null;
 
-    public function __construct($configLoader, $ilsAuth, \VuFindSearch\Service $searchService = null, AlephConfigs $alephConfigsTable = null, XCNCIP2Configs $xcncip2ConfigsTable = null)
+    public function __construct($configLoader, $ilsAuth, \VuFindSearch\Service $searchService = null)
     {
         parent::__construct($configLoader, $ilsAuth);
         
         $this->searchService = $searchService;
-        
-        $this->alephConfigsTable = $alephConfigsTable;
-        
-        $this->xcncip2ConfigsTable = $xcncip2ConfigsTable;
     }
 
     public function init()
@@ -400,98 +396,5 @@ class MultiBackend extends MultiBackendBase
         
         $status = $driver->getItemStatus($id, $bibId, $patronId);
         return $status;
-    }
-
-    /**
-     * Find the correct driver for the correct configuration file for the
-     * given source and cache an initialized copy of it.
-     *
-     * @param string $source
-     *            The source name of the driver to get.
-     *            
-     * @return mixed On success a driver object, otherwise null.
-     */
-    protected function getDriver($source)
-    {
-        if (! $source) {
-            // Check for default driver
-            if ($this->defaultDriver) {
-                $this->debug('Using default driver ' . $this->defaultDriver);
-                $source = $this->defaultDriver;
-            }
-        }
-        
-        if (! isset($this->isInitialized[$source]) || ! $this->isInitialized[$source]) {
-            $driverInst = null;
-            
-            // And we don't have a copy in our cache...
-            if (! isset($this->cache[$source])) {
-                // Get an uninitialized copy
-                $driverInst = $this->getUninitializedDriver($source);
-            } else {
-                // Otherwise, use the uninitialized cached copy
-                $driverInst = $this->cache[$source];
-            }
-            
-            // If we have a driver, initialize it. That version has already
-            // been cached.
-            if ($driverInst) {
-                $this->initializeDriver($driverInst, $source);
-            } else {
-                $this->debug("Could not initialize driver for source '$source'");
-                return null;
-            }
-        }
-        return $this->cache[$source];
-    }
-
-    /**
-     * Find the correct driver for the correct configuration file
-     * for the given source.
-     * For performance reasons, we do not
-     * want to initialize the driver yet if it hasn't been already.
-     *
-     * @param string $source
-     *            the source title for the driver.
-     *            
-     * @return mixed On success an uninitialized driver object, otherwise null.
-     */
-    protected function getUninitializedDriver($source)
-    {
-        // We don't really care if it's initialized here. If it is, then there's
-        // still no added overhead of returning an initialized driver.
-        if (isset($this->cache[$source])) {
-            return $this->cache[$source];
-        }
-        
-        if (isset($this->drivers[$source])) {
-            $driver = $this->drivers[$source];
-            
-            $config = null;
-            
-            if ($driver === 'Aleph') {
-                $config = $this->alephConfigsTable->getConfig($source);
-            } else if ($driver === 'XCNCIP2') {
-                $config = $this->xcncip2ConfigsTable->getConfig($source);
-            }
-            
-            if (! $config) {
-                // Fall back to old-style file based configuration as the DB configuration was not found ..
-                $config = $this->getDriverConfig($source);
-                if (! $config) {
-                    $this->error("No configuration found for source '$source'");
-                    return null;
-                }
-            }
-            
-            $driverInst = clone ($this->getServiceLocator()->get($driver));
-            $driverInst->setConfig($config);
-            
-            $this->cache[$source] = $driverInst;
-            $this->isInitialized[$source] = false;
-            return $driverInst;
-        }
-        
-        return null;
     }
 }
