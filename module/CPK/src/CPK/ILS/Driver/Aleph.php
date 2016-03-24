@@ -80,8 +80,13 @@ class Aleph extends AlephBase
             $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
         }
         
-        // TODO: Implement mappings from config
         $this->addressMappings = $this->getDefaultMappings();
+        
+        if (isset($this->config['AddressMappings'])) {
+            foreach ($this->config['AddressMappings'] as $key => $val) {
+                $this->addressMappings[$key] = $val;
+            }
+        }
         
     }
 
@@ -90,11 +95,12 @@ class Aleph extends AlephBase
         return [
             'barcode' => null,
             'fullname' => 'z304-address-1',
-            'address' => 'z304-address-2',
+            'street' => 'z304-address-2',
             'city' => 'z304-address-3',
             'zip' => 'z304-zip',
             'email' => 'z304-email-address',
-            'user_group' => 'z305-bor-status',
+            'phone' => 'z304-telephone-1',
+            'group' => 'z305-bor-status',
             'expiration' => 'z305-expiry-date'
         ];
     }
@@ -324,7 +330,7 @@ class Aleph extends AlephBase
         $addressInfo = $xml->{'address-information'};
         
         $fullname = (string) $addressInfo->{$this->addressMappings['fullname']};
-        $address = (string) $addressInfo->{$this->addressMappings['address']};
+        $street = (string) $addressInfo->{$this->addressMappings['street']};
         
         $dateFrom = (string) $addressInfo->{'z304-date-from'};
         $dateTo = (string) $addressInfo->{'z304-date-to'};
@@ -356,7 +362,7 @@ class Aleph extends AlephBase
         } else {
             list ($recordList['lastname'], $recordList['firstname']) = explode(",", $fullname);
         }
-        $recordList['address1'] = $address;
+        $recordList['address1'] = $street;
         $recordList['address2'] = $city;
         $recordList['barcode'] = $barcode;
         $recordList['zip'] = $zip;
@@ -374,8 +380,8 @@ class Aleph extends AlephBase
         ));
         $institution = $xml->{'registration'}->{'institution'};
         
-        if (! empty($this->addressMappings['user_group']))
-            $status = (string) $institution->{$this->addressMappings['user_group']};
+        if (! empty($this->addressMappings['group']))
+            $status = (string) $institution->{$this->addressMappings['group']};
         else
             $status = (string) $institution->{'z305-bor-status'};
         

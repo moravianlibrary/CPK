@@ -74,3 +74,14 @@ maxItemsParsed = MAX_NUMBER_OF_ITEMS_TO_PARSE_ASYNCHRONOUSLY
 default_required_date = "0:1:0"
 
 [sublibadm]
+
+[AddressMappings]
+;barcode	= z304-address-0
+fullname	= z304-address-1
+street		= z304-address-2
+city		= z304-address-3
+zip		= z304-zip
+email		= z304-email-address
+phone		= z304-telephone-1
+group		= z305-bor-status
+expiration	= z305-expiry-date
