@@ -37,7 +37,7 @@ jQuery( document ).ready( function( $ ) {
 			
 			var data = {};
 			
-			if ( dataFromWindowHistory !== undefined) { // history.back or forward action was porformed
+			if ( dataFromWindowHistory !== undefined ) { // history.back or forward action was porformed
 				
 				data = dataFromWindowHistory;
 				
@@ -134,13 +134,18 @@ jQuery( document ).ready( function( $ ) {
     		/* Search */	
 			$.ajax({
 	        	type: 'POST',
+	        	cache: false,
 	        	dataType: 'json',
 	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
 	        		
 	        		/* Live update url */
-	        		ADVSEARCH.updateUrl( data );
+	        		if ( dataFromWindowHistory == undefined ) {
+	        			ADVSEARCH.updateUrl( data );
+	        		} else { // from history
+	        			ADVSEARCH.replaceUrl( data );
+	        		}
 	        		
 	        		smoothScrollToElement( '#result-list-placeholder' );
 	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
@@ -175,10 +180,38 @@ jQuery( document ).ready( function( $ ) {
 	        		} else {
 	        			console.error(response.data);
 	        		}
-	        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).removeAttr( 'disabled' );
+	        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).removeAttr( 'selected' );
+	        		
+	        		/** 
+	        		 * Opdate sort and limit selects, when moving in history back or forward. 
+	        		 * We need to use this f****** stupid robust solution to prevent 
+	        		 * incompatibility and bad displaying of options that are 
+	        		 * in real selected 
+	        		 */
+	        		$( '.ajax-update-limit option' ).prop( 'selected', false);
+	        		$( '.ajax-update-limit' ).val( [] );
+	        		$( '.ajax-update-limit option' ).removeAttr( 'selected' );
+	        		
+	        		$( '.ajax-update-sort option' ).prop( 'selected', false );
+	        		$( '.ajax-update-sort' ).val( [] );
+	        		$( '.ajax-update-sort option').removeAttr( 'selected');
+	        		
+	        		$( '.ajax-update-limit' ).val( data.limit );
+	        		$( '.ajax-update-limit option[value=' + data.limit + ']' ).attr( 'selected', 'selected' );
+	        		$( '.ajax-update-limit option[value=' + data.limit + ']' ).attr( 'selected', true );
+	        		
+	        		$( '.ajax-update-sort' ).val( data.sort );
+        			$( '.ajax-update-sort option[value="' + data.sort + '"]' ).attr( 'selected', 'selected' );
+        			$( '.ajax-update-sort option[value="' + data.sort + '"]' ).attr( 'selected', true );
+	        		
 	         	},
-	            error: function (request, status, error) {
-	            	console.error(request.responseText);
+	            error: function (xmlHttpRequest, status, error) {
+	            	console.error(xmlHttpRequest.responseText);
+	            	console.log(xmlHttpRequest);
+	            	console.error(status);
+	            	console.error(error);
+	            	console.log( 'Sent data: ' );
+	            	console.log( data );
 	            }
 	        });
 		},
@@ -210,10 +243,18 @@ jQuery( document ).ready( function( $ ) {
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
 			window.history.pushState( stateObject, title, url );
-			console.log( 'Pushing state: ' );
+			console.log( 'Pushing and replacing state: ' );
 			console.log( stateObject );
-			//window.history.replaceState( stateObject, title, url );
-			//window.history.pushState( stateObject, title, url );
+			window.history.replaceState( stateObject, title, url );
+		},
+		
+		replaceUrl: function( data ) {
+			var stateObject = data;
+			var title = 'New search query';
+			var url = '/Search/Results/?' + jQuery.param( data )
+			window.history.replaceState( stateObject, title, url );
+			console.log( 'Replacing state: ' );
+			console.log( stateObject );
 		},
 	}
 	
