@@ -855,6 +855,7 @@ class SearchController extends AbstractSearch
 	    $viewData['institutionsMappings'] = $institutionsMappings;
 	    
 	    $resultsHtml = $this->getResultListHtml($viewData);
+	    $sanitizedResultsHtml = htmlentities($resultsHtml, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, "UTF-8");
 	    
 	    $paginationHtml = $this->getPaginationHtml($viewData);
 	    
@@ -864,11 +865,11 @@ class SearchController extends AbstractSearch
 	    
 	    $data = [
             'viewData' => $viewData,
-	        'resultsHtml' => $resultsHtml,
-            'paginationHtml' => $paginationHtml,
-            'resultsAmountInfoHtml' => $resultsAmountInfoHtml,
+	        'resultsHtml' => json_encode(['html' => $sanitizedResultsHtml]),
+            'paginationHtml' => json_encode(['html' => $paginationHtml]),
+            'resultsAmountInfoHtml' => json_encode(['html' => $resultsAmountInfoHtml]),
             'searchId' => $searchId,
-	        'sideFacets' => $sideFacets,
+	        'sideFacets' => json_encode(['html' => $sideFacets]),
 	    ];
 	    
 	    return $data;

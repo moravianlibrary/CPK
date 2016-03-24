@@ -162,20 +162,26 @@ jQuery( document ).ready( function( $ ) {
 	        	success: function( response ) {
 	        		if (response.status == 'OK') {
 	        			
+	        			var responseData = response.data;
+	        			var resultsHtml = JSON.parse(responseData.resultsHtml);
+	        			var facetsHtml = JSON.parse(responseData.sideFacets);
+	        			var resultsAmountInfoHtml = JSON.parse(responseData.resultsAmountInfoHtml);
+	        			var paginationHtml = JSON.parse(responseData.paginationHtml);	
+	        			
 	        			/* Ux content replacement */
 	        			$( '#search-results-loader' ).remove();
 	        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
-	        			$( '#result-list-placeholder' ).html( response.data.resultsHtml );
-	        			$( '#pagination-placeholder' ).html( response.data.paginationHtml );
-	        			$( '#results-amount-info-placeholder' ).html( response.data.resultsAmountInfoHtml );
-	        			$( '#side-facets-placeholder' ).html( response.data.sideFacets );
+	        			$( '#result-list-placeholder' ).html( decodeHtml(resultsHtml.html) );
+	        			$( '#pagination-placeholder' ).html( paginationHtml.html );
+	        			$( '#results-amount-info-placeholder' ).html( resultsAmountInfoHtml.html );
+	        			$( '#side-facets-placeholder' ).html( facetsHtml.html );
 		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
 		        		
 		        		/* Update search identificators */
 		        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
-		        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + response.data.searchId );
-		        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + response.data.searchId );
-		        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + response.data.searchId );
+		        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + responseData.searchId );
+		        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + responseData.searchId );
+		        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + responseData.searchId );
 		        		
 	        		} else {
 	        			console.error(response.data);
@@ -206,6 +212,7 @@ jQuery( document ).ready( function( $ ) {
 	        		
 	         	},
 	            error: function (xmlHttpRequest, status, error) {
+	            	$( '#search-results-loader' ).remove();
 	            	console.error(xmlHttpRequest.responseText);
 	            	console.log(xmlHttpRequest);
 	            	console.error(status);
@@ -433,4 +440,11 @@ jQuery( document ).ready( function( $ ) {
 
   	    return JSON.parse( JSON.stringify( results ) );
   	};
+  	
+  	var decodeHtml = function(html) {
+  	    var txt = document.createElement("textarea");
+  	    txt.innerHTML = html;
+  	    return txt.value;
+  	}
+
 });
