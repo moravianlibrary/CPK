@@ -154,12 +154,12 @@ jQuery( document ).ready( function( $ ) {
 	        	beforeSend: function() {
 	        		
 	        		smoothScrollToElement( '#result-list-placeholder' );
-	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
+	        		var loader = "<div id='search-results-loader' class='text-center'></div>";
 	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
 	        			$( '#result-list-placeholder' ).before( loader );
 	        		});
-	        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
-	        		$( '#side-facets-placeholder' ).html( "<i class='fa fa-refresh fa-spin'></i>" );
+	        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-2x fa-refresh fa-spin'></i>" );
+	        		//$( '#side-facets-placeholder' ).hide( 'fade', {}, 200 );
 	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
 	        		
 	        		// Disabled submit button until ajax finishes
@@ -182,6 +182,7 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#results-amount-info-placeholder' ).html( resultsAmountInfoHtml.html );
 	        			$( '#side-facets-placeholder' ).html( facetsHtml.html );
 		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
+		        		//$( '#side-facets-placeholder' ).show( 'fade', {}, 200 );
 		        		
 		        		/* Update search identificators */
 		        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
