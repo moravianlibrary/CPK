@@ -563,7 +563,7 @@ class SolrMarc extends ParentSolrMarc
 
         try {
             $response = $client->send();
-        } catch (TimeoutException $ex) {
+        } catch (\Exception $ex) {
             return null; // TODO what to do when server is not responding
         }
 
