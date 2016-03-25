@@ -152,9 +152,14 @@ function initInstitutionsTree(treeNode, inSidebar)
           });
         }
         treeNode.jstree({
-          'plugins': ['checkbox'],
+          'plugins': ["wholerow", "checkbox"],
           'core': {
-            'data': results
+            'data': results,
+            'themes': {
+              'name': 'proton',
+              'responsive': true,
+              "icons":false
+            }
           }
         });
       }
