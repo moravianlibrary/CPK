@@ -28,12 +28,13 @@ jQuery( document ).ready( function( $ ) {
 		/**
 		 * Return and display new seaerch results
 		 * 
-		 * @param {JSON} originalQueryJson 
-		 * @param {JSON} dataFromAutocomplete
+		 * @param {JSON} 	originalQueryJson 
+		 * @param {JSON} 	dataFromAutocomplete
+		 * @param {boolean}	switchToAdvancedSearch
 		 * 
 		 * @return {undefined}
 		 */
-		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete ) {
+		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, switchToAdvancedSearch ) {
 			
 			var data = {};
 			
@@ -77,7 +78,7 @@ jQuery( document ).ready( function( $ ) {
 			
 			if ( dataFromWindowHistory == undefined) {
 				/* Set default values if not provided before (for basic search) */
-				if (! data.hasOwnProperty( 'bool0' )) {
+				if ( (! data.hasOwnProperty( 'bool0' )) || (! data.bool0) ) {
 					data['bool0'] = [];
 					data['bool0'].push( 'OR' );
 				}
@@ -86,7 +87,7 @@ jQuery( document ).ready( function( $ ) {
 					data['join'] = 'OR';
 				}
 				
-				if (! data.hasOwnProperty( 'page' )) {
+				if ( (! data.hasOwnProperty( 'page' )) || (! data.page) ) {
 					var page = $( "input[name='page']" ).val();
 					data['page'] = page;
 				}
@@ -131,6 +132,18 @@ jQuery( document ).ready( function( $ ) {
 			var lastSearchedType0 = data['type0'][0];
 			$( "input[name='last_searched_type0']" ).val( lastSearchedType0 );
 			
+			/* Live update url */
+    		if ( dataFromWindowHistory == undefined ) {
+    			ADVSEARCH.updateUrl( data );
+    		} else { // from history
+    			ADVSEARCH.replaceUrl( data );
+    		}
+    		
+    		if ( switchToAdvancedSearch ) {
+    			var  toUrl = window.location.href;
+    			window.location.href = toUrl;
+    		}
+			
     		/* Search */	
 			$.ajax({
 	        	type: 'POST',
@@ -139,13 +152,6 @@ jQuery( document ).ready( function( $ ) {
 	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
 	        	data: data,
 	        	beforeSend: function() {
-	        		
-	        		/* Live update url */
-	        		if ( dataFromWindowHistory == undefined ) {
-	        			ADVSEARCH.updateUrl( data );
-	        		} else { // from history
-	        			ADVSEARCH.replaceUrl( data );
-	        		}
 	        		
 	        		smoothScrollToElement( '#result-list-placeholder' );
 	        		var loader = "<div id='search-results-loader' class='text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>";
@@ -378,6 +384,11 @@ jQuery( document ).ready( function( $ ) {
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
 		ADVSEARCH.updateSearchResults( undefined, undefined );
+	});
+	
+	$( '.searchForm' ).on( 'click', '#edit-as-advanced-search-link', function( event ) {
+		event.preventDefault();
+		ADVSEARCH.updateSearchResults( undefined, undefined, true );
 	});
 	
 	/**

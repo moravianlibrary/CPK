@@ -200,8 +200,8 @@
         <? if ($advSearch): ?>
           <a href="<?=$this->url($advSearch)?>" class="btn btn-link" rel="nofollow"><?=$this->transEsc("Advanced")?></a>
         <? endif; ?>
-    	<? if (isset($_GET['fromAdvancedSearchId'])): ?>
-          | <a class='btn btn-link' rel="nofollow" href="<?=$this->url($advSearch)?>?edit=<?=$this->escapeHtmlAttr(htmlspecialchars($_GET['fromAdvancedSearchId']))?>"><?=$this->transEsc("Edit this Advanced Search")?></a>
+    	<? if (isset($_GET['lookfor'])): ?>
+          | <a class='btn btn-link' id='edit-as-advanced-search-link' rel="nofollow" href="#"><?=$this->transEsc("Edit as Advanced Search")?></a>
         <? endif; ?>
     </span>
     <? $shards = $options->getShards(); if ($options->showShardCheckboxes() && !empty($shards)): ?>
