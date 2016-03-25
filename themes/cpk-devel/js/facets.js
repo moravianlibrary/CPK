@@ -59,7 +59,8 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
       'state': {
         'opened': this.hasAppliedChildren
       },
-      'li_attr': this.isApplied ? { 'class': 'active' } : {}
+      'li_attr': this.isApplied ? { 'class': 'active' } : {},
+      'a_attr': this.isApplied ? { 'class': 'jstree-clicked' } : {}
     });
   });
 
