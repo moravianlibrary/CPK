@@ -441,10 +441,15 @@ jQuery( document ).ready( function( $ ) {
   	    return JSON.parse( JSON.stringify( results ) );
   	};
   	
-  	var decodeHtml = function(html) {
-  	    var txt = document.createElement("textarea");
+  	/**
+  	 * Convert html entities to chars 
+  	 * 
+  	 * @param	{string}	html
+  	 * @return	{string}
+  	 */
+  	var decodeHtml = function( html ) {
+  	    var txt = document.createElement( 'textarea' );
   	    txt.innerHTML = html;
   	    return txt.value;
   	}
-
 });
