@@ -5,6 +5,13 @@
 jQuery( document ).ready( function( $ ) {
 	
 	ADVSEARCH = {
+			
+		/**
+		 * Update queries DOM state
+		 * 
+		 * @param	{string}		formSelector
+		 * @return	{undefined}
+		 */
 		updateGroupsDOMState: function( formSelector ) {
 			var groupsCount = $( formSelector ).find( '.group' ).length;
 			if ( groupsCount == 1 ) {
@@ -16,6 +23,12 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 
+		/**
+		 * Update queries DOM state
+		 * 
+		 * @param	{string}		groupSelector
+		 * @return	{undefined}
+		 */
 		updateQueriesDOMState: function( groupSelector ) {
 			var queriesCount = $( groupSelector + ' .queries').length;
 			if ( queriesCount == 1 ) {
@@ -25,6 +38,31 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 		
+		/**
+		 * Check checkboxes in institutions tree.
+		 * 
+		 * @param	{array}		filters
+		 * @return	{undefined}
+		 */
+		checkCheckboxesInInstitutionsTree: function( filters ) {
+			/* 
+			 * FIXME: This function must take url instead of filters argument 
+			 * from async function, in case of initial static page loading 
+			 */
+			
+			$( '#side-panel-institution .institution-facet-filter' ).each( function ( index, element ) {
+				var dataFacet = $( element ).attr( 'data-facet' );
+				console.log('Comparing dataFacet: ');
+				console.log(dataFacet);
+				console.log('With applied filter: ');
+				console.log(filter);
+				if ( $.inArray( dataFacet, filters ) ) {
+					$( element ).parent().click();
+					console.log('Added');
+				}
+			});
+		},
+
 		/**
 		 * Return and display new seaerch results
 		 * 
@@ -153,7 +191,7 @@ jQuery( document ).ready( function( $ ) {
 	        	data: data,
 	        	beforeSend: function() {
 	        		
-	        		smoothScrollToElement( '#result-list-placeholder' );
+	        		smoothScrollToElement( '.main' );
 	        		var loader = "<div id='search-results-loader' class='text-center'></div>";
 	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
 	        			$( '#result-list-placeholder' ).before( loader );
@@ -182,7 +220,6 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '#results-amount-info-placeholder' ).html( resultsAmountInfoHtml.html );
 	        			$( '#side-facets-placeholder' ).html( facetsHtml.html );
 		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
-		        		//$( '#side-facets-placeholder' ).show( 'fade', {}, 200 );
 		        		
 		        		/* Update search identificators */
 		        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
@@ -226,11 +263,23 @@ jQuery( document ).ready( function( $ ) {
 	            	console.error(error);
 	            	console.log( 'Sent data: ' );
 	            	console.log( data );
+	            },
+	            complete: function (xmlHttpRequest, textStatus) {
+	            	if ( data.hasOwnProperty( 'filter' ) || data.filter ) {
+	            		ADVSEARCH.checkCheckboxesInInstitutionsTree( data.filter );
+	            	}
 	            }
 	        });
 		},
 			
-		addOrRemoveFacetFilter: function( value ) {
+		/**
+		 * Add or remove facets to container and update search results
+		 * 
+		 * @param 	{string}	value
+		 * @param 	{boolean}	updateResults
+		 * @return	{undefined}
+		 */
+		addOrRemoveFacetFilter: function( value, updateResults ) {
 			var actionPerformed = 0;
 			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
@@ -240,16 +289,14 @@ jQuery( document ).ready( function( $ ) {
 				}
 			});
 			
-			if (actionPerformed == 0) { /* This filter not applied yet, apply it now */
+			if ( actionPerformed == 0 ) { /* This filter not applied yet, apply it now */
 				var html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + value + "'>";
 				$( '#hiddenFacetFilters, #hiddenFacetFiltersForBasicSearch' ).append( html );
 			}
 			
-			/*
-			 * @TODO: UPDATE URL async here!
-			 */
-			
-			ADVSEARCH.updateSearchResults( undefined, undefined );
+			if ( updateResults ) {
+				ADVSEARCH.updateSearchResults( undefined, undefined );
+			}
 		},
 		
 		updateUrl: function( data ) {
@@ -353,12 +400,15 @@ jQuery( document ).ready( function( $ ) {
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
 		event.preventDefault();
 		if ( $( this ).hasClass( 'institution-facet-filter-button' ) ) {
-			$( 'institution-facet-filter.facet-filter-checked' ).each( function ( index, element ) {
-				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'data-facet' ) );
+			$( '.institution-facet-filter' ).each( function ( index, element ) {
+				if ( $( element ).parent().hasClass( 'jstree-clicked' ) ) {
+					ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'data-facet' ), false );
+				}
 			});
 		} else {
-			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ) );
+			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ), false );
 		}
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {

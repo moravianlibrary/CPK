@@ -32,7 +32,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     		( (facetName == 'institution') && (institutionCategory == "Library") && (this.level == "2") )
     		||  ( (facetName == 'institution') && (institutionCategory == 'Others') && (this.level == "1") )
     	) 
-    	? " institution-facet-filter" 
+    	? " institution-facet-filter facet-filter" 
     	: ""
     ) 
     + "' title='" + htmlEncode(this.displayText) + "'>";
