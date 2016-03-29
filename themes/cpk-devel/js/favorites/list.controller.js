@@ -178,12 +178,12 @@
 	    };
 	    
 	    function setModalContent(response) {
-
-		modal.find('div.modal-content').html(response.data);
-		modal.modal('show');
+		Lightbox.changeContent(response.data);
 	    }
 
 	    $http.post('/AJAX/JSON?method=getLightbox&submodule=Cart&subaction=MyResearchBulk', $.param(data), options).then(setModalContent);
+
+	    modal.modal('show');
 	}
 	
 	/**
