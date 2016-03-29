@@ -42,6 +42,20 @@ class AdminController extends \VuFind\Controller\AbstractBase
     use ExceptionsTrait;
     
     /**
+     * Source / identifier of main portal admin
+     * 
+     * @var string
+     */
+    const PORTAL_ADMIN_SOURCE = 'cpk';
+    
+    /**
+     * Holds names of institutions user is admin of
+     * 
+     * @var array
+     */
+    protected $institutionsBeingAdminAt = [];
+    
+    /**
      * Admin home.
      *
      * @return \Zend\View\Model\ViewModel
@@ -52,8 +66,28 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $user; // Not logged in, returns redirection
         }
         
+        $configLocator = $this->serviceLocator->get('VuFind\Config');
+        
+        $multibackend = $configLocator->get('MultiBackend')->toArray();
+        
+        $driversPath = empty($multibackend['General']['drivers_path']) ? '.' : $multibackend['General']['drivers_path'];        
+
+        $configs = [];
+        
+        // Fetch all configs
+        foreach ($this->institutionsBeingAdminAt as $adminSource) {
+            
+            // Exclude portal configs as they doesn't exist
+            if (strtolower($adminSource) !== self::PORTAL_ADMIN_SOURCE) {
+                
+                $config = $configLocator->get($driversPath . '/' . $adminSource);
+            
+                $configs[$adminSource] = $config->toArray();
+            }
+        }
+
         $this->layout()->searchbox = false;
-        return $this->createViewModel(['user' => $user]);
+        return $this->createViewModel(['user' => $user, 'configs' => $configs]);
     }
     
     public function portalPagesAction()
@@ -63,8 +97,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $user; // Not logged in, returns redirection
         }
         
-        if (! in_array($user['major'], ['cpk', 'CPK'])) {
-            return $this->forceLogin('Wrong permissions');
+        if (! $this->isPortalAdmin()) {
+            return $this->forceLogin('You\'re not a portal admin!');
         }
         // Logged In successfull
         
@@ -125,8 +159,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $user; // Not logged in, returns redirection
         }
     
-        if (! in_array($user['major'], ['cpk', 'CPK'])) {
-            return $this->forceLogin('Wrong permissions');
+        if (! $this->isPortalAdmin()) {
+            return $this->forceLogin('You\'re not a portal admin!');
         }
         // Logged In successfull
         
@@ -169,6 +203,22 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
     
     /**
+     * Checks if logged in user is a portal admin
+     * 
+     * @return boolean
+     */
+    protected function isPortalAdmin()
+    {
+        foreach($this->institutionsBeingAdminAt as $adminSource)
+        {
+            if (strtolower($adminSource) === self::PORTAL_ADMIN_SOURCE)
+                return true;
+        }
+        
+        return false;
+    }
+    
+    /**
      * Get logged in user
      * 
      * @return \CPK\Db\Row\User|Array
@@ -180,19 +230,19 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $this->forceLogin();
         }
         
-        $majorEmpty = true;
+        if (! empty($user->major)) {
+            array_push($this->institutionsBeingAdminAt, $user->major);
+        }
         
-        $libCards = $user->getLibraryCards(true);
-        
-        foreach($libCards as $libCard) {
+        foreach($user->getLibraryCards(true) as $libCard) {
+            
             if (! empty($libCard->major)) {
-                $majorEmpty = false;
-                break;
+                array_push($this->institutionsBeingAdminAt, $libCard->major);
             }
         }
         
-        if ($majorEmpty) {
-            $this->flashMessenger()->addErrorMessage('Wrong permissions');
+        if (empty($this->institutionsBeingAdminAt)) {
+            $this->flashMessenger()->addErrorMessage('You\'re not an admin!');
             $this->flashExceptions($this->flashMessenger());
             return $this->forwardTo('MyResearch', 'Home');
         }

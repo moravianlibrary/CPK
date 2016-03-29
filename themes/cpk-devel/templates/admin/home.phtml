@@ -16,6 +16,25 @@
   
   <div class="col-sm-9 well">
     <h2><?=$this->transEsc('Administration')?></h2>
-    
+    <? foreach($configs as $source => $config): ?>
+      <div class='well'>
+        <h3><?=$source?></h3>
+        <? foreach($config as $section => $keys): ?>
+        <table>
+          <thead>
+            <tr><?=$section ?></tr>
+          </thead>
+          <tbody>
+            <? foreach($keys as $key => $value): ?>
+            <tr>
+              <td><?=$key ?></td>
+              <td><?=$value ?></td>
+            </tr>
+            <? endforeach; ?>
+          </tbody>
+        </table>
+        <? endforeach; ?>
+      </div>
+    <? endforeach; ?>
   </div>
 </div>
