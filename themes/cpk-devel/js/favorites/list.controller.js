@@ -9,16 +9,18 @@
     	.directive('favoritesListItem', favoritesListDirective)
     	.directive('listNotEmpty', listNotEmptyDirective);
 
-    ListController.$inject = [ '$q', '$log', '$scope', 'storage', 'favsBroadcaster', 'Favorite' ];
+    ListController.$inject = [ '$q', '$http', '$log', '$scope', 'storage', 'favsBroadcaster', 'Favorite' ];
     
     // helper private variables
     var divsAsFavs = {};
-    var listEmptyDiv = undefined;    
+    var listEmptyDiv = undefined;
     var listNotEmptyDiv = undefined;
 
-    function ListController($q, $log, $scope, storage, favsBroadcaster, Favorite) {
+    function ListController($q, $http, $log, $scope, storage, favsBroadcaster, Favorite) {
 	
 	var activeSorting = 'recent';
+	
+	var modal = $('#modal'); // FIXME don't grab it by ID, it's slow
 
 	var vm = this;
 
@@ -37,6 +39,7 @@
 	vm.removeFavorite = removeFavorite;
 	
 	vm.removeSelected = removeSelected;
+	vm.exportSelected = exportSelected;
 	vm.printSelected = printSelected;
 	
 	$q.resolve(storage.getFavorites()).then(onGetFavorites).catch(function(reason) {
@@ -151,21 +154,44 @@
 	    });
 	}
 	
+	function exportSelected() {
+	    
+	    var selectedIds = getSelectedIds();
+	    
+	    if (selectedIds.length === 0)
+		return;
+	    
+	    // Append "Solr|" string to all the ids selected
+	    for (var i = 0; i < selectedIds.length; ++i) {
+		selectedIds[i] = 'Solr|' + selectedIds[i];
+	    }	   
+
+	    var data = {
+		ids : selectedIds,
+		'export' : true
+	    };
+
+	    var options = {
+		headers : {
+		    'Content-Type' : 'application/x-www-form-urlencoded'
+		}
+	    };
+	    
+	    function setModalContent(response) {
+
+		modal.find('div.modal-content').html(response.data);
+		modal.modal('show');
+	    }
+
+	    $http.post('/AJAX/JSON?method=getLightbox&submodule=Cart&subaction=MyResearchBulk', $.param(data), options).then(setModalContent);
+	}
+	
 	/**
 	 * Redirects user to /Records/Home action if selected something
 	 */
 	function printSelected() {
 	    
-	    var selectedIds = [];
-	    
-	    Object.keys(vm.favSelected).forEach(function(key) {
-		if (vm.favSelected[key] === true) {
-
-		    var id = getFavoriteId(key);
-		    
-		    selectedIds.push(id);
-		}
-	    });
+	    var selectedIds = getSelectedIds();
 	    
 	    if (selectedIds.length === 0)
 		return;
@@ -226,6 +252,22 @@
 	function changeVisibleDiv() {
 	    listEmptyDiv.hidden = ! listEmptyDiv.hidden;
 	    listNotEmptyDiv.hidden = ! listNotEmptyDiv.hidden;
+	}
+	
+	function getSelectedIds() {
+
+	    var selectedIds = [];
+	    
+	    Object.keys(vm.favSelected).forEach(function(key) {
+		if (vm.favSelected[key] === true) {
+
+		    var id = getFavoriteId(key);
+		    
+		    selectedIds.push(id);
+		}
+	    });
+	    
+	    return selectedIds;
 	}
 	
 	function setSorting(val) {
