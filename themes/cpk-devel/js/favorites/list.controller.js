@@ -39,6 +39,7 @@
 	vm.removeFavorite = removeFavorite;
 	
 	vm.removeSelected = removeSelected;
+	vm.emailSelected = emailSelected;
 	vm.exportSelected = exportSelected;
 	vm.printSelected = printSelected;
 	
@@ -156,34 +157,17 @@
 	
 	function exportSelected() {
 	    
-	    var selectedIds = getSelectedIds();
+	    Lightbox.titleSet = false;
 	    
-	    if (selectedIds.length === 0)
-		return;
+	    useLightboxWithSelected('export');
+	}
+	
+	function emailSelected(event) {
 	    
-	    // Append "Solr|" string to all the ids selected
-	    for (var i = 0; i < selectedIds.length; ++i) {
-		selectedIds[i] = 'Solr|' + selectedIds[i];
-	    }	   
-
-	    var data = {
-		ids : selectedIds,
-		'export' : true
-	    };
-
-	    var options = {
-		headers : {
-		    'Content-Type' : 'application/x-www-form-urlencoded'
-		}
-	    };
+	    modal.find('.modal-title').html(event.target.value);
+	    Lightbox.titleSet = true;
 	    
-	    function setModalContent(response) {
-		Lightbox.changeContent(response.data);
-	    }
-
-	    $http.post('/AJAX/JSON?method=getLightbox&submodule=Cart&subaction=MyResearchBulk', $.param(data), options).then(setModalContent);
-
-	    modal.modal('show');
+	    useLightboxWithSelected('email');
 	}
 	
 	/**
@@ -268,6 +252,39 @@
 	    });
 	    
 	    return selectedIds;
+	}
+	
+	function useLightboxWithSelected(type) {
+	    
+	    var selectedIds = getSelectedIds();
+	    
+	    if (selectedIds.length === 0)
+		return;
+	    
+	    // Append "Solr|" string to all the ids selected
+	    for (var i = 0; i < selectedIds.length; ++i) {
+		selectedIds[i] = 'Solr|' + selectedIds[i];
+	    }	   
+
+	    var data = {
+		ids : selectedIds,
+	    };
+	    
+	    data[type] = true;
+
+	    var options = {
+		headers : {
+		    'Content-Type' : 'application/x-www-form-urlencoded'
+		}
+	    };
+	    
+	    function setModalContent(response) {
+		Lightbox.changeContent(response.data);
+	    }
+
+	    $http.post('/AJAX/JSON?method=getLightbox&submodule=Cart&subaction=MyResearchBulk', $.param(data), options).then(setModalContent);
+
+	    modal.modal('show');
 	}
 	
 	function setSorting(val) {
