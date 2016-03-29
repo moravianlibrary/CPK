@@ -174,7 +174,7 @@ class Aleph extends AlephBase
     public function getMyProfile($user)
     {
         try {
-            if (!$this->alephWebService->isXServerEnabled()) {
+            if ($this->alephWebService->isXServerEnabled()) {
                 $profile = $this->getMyProfileX($user);
             } else {
                 $profile = $this->getMyProfileDLF($user);
