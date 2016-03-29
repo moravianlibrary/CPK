@@ -384,10 +384,13 @@ class MyResearchController extends MyResearchControllerBase
             $offlineFavoritesEnabled = (bool) $config->Site['offlineFavoritesEnabled'];
         }
         
+        // Do we have request for a public list?
+        $idEmpty = $this->params()->fromRoute('id') === null;
+        
         // And is user not logged in ?
         $userNotLoggedIn = $this->getUser() === false;
         
-        if ($offlineFavoritesEnabled && $userNotLoggedIn) {
+        if ($offlineFavoritesEnabled && $idEmpty && $userNotLoggedIn) {
             // Well then, render the favorites for not logged in user & let JS handle it ..
             
             return $this->createViewModel([
