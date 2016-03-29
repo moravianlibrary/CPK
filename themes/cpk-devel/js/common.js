@@ -427,7 +427,7 @@ $(document).ready(function() {
   keyboardShortcuts();
 
   // support "jump menu" dropdown boxes
-  $('select.jumpMenu').change(function(){ $(this).parent('form').submit(); });
+  $('select.jumpMenu').change(function(){ $(this).parents('form').submit(); });
 
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
