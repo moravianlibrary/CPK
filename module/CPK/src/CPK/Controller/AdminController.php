@@ -180,7 +180,18 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $this->forceLogin();
         }
         
-        if (empty($user['major'])) {
+        $majorEmpty = true;
+        
+        $libCards = $user->getLibraryCards(true);
+        
+        foreach($libCards as $libCard) {
+            if (! empty($libCard->major)) {
+                $majorEmpty = false;
+                break;
+            }
+        }
+        
+        if ($majorEmpty) {
             $this->flashMessenger()->addErrorMessage('Wrong permissions');
             $this->flashExceptions($this->flashMessenger());
             return $this->forwardTo('MyResearch', 'Home');
