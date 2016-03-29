@@ -729,6 +729,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
             }
+            if ($this->agency === 'ABG001') { // MKP
+                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
+                $response = $this->sendRequest($request);
+                return $this->handleStutusesZlg($response);
+            }
 
             $request = $this->requests->LUISItemId($ids, null, $this, $patron);
             $response = $this->sendRequest($request);
