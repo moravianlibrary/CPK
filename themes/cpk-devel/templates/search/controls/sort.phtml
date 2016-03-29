@@ -3,8 +3,9 @@
     <?=$this->results->getUrlQuery()->asHiddenFields(array('sort' => '/.*/'));?>
     <label class='dropdown-select-label'>
     <select id="sort_options_1" name="sort" class="jumpMenu form-control dropdown-select ajax-update-sort" style='margin-right: -12px;'>
-      <? foreach ($list as $sortType => $sortData): 
-            $sortData['selected'] = ($sortType == $this->sort) ? true : false;
+      <? foreach ($list as $sortType => $sortData):
+            if ( ! (isset($sortData['selected']) && is_bool($sortData['selected'])))
+                $sortData['selected'] = ($sortType == $this->sort) ? true : false;
       ?>
         <option value="<?=$this->escapeHtmlAttr($sortType)?>"<?=$sortData['selected']?' selected="selected"':''?>><?=$this->transEsc($sortData['desc'])?></option>
       <? endforeach; ?>
