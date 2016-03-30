@@ -1016,6 +1016,9 @@ class AjaxController extends AjaxControllerBase
             $cat_username = 'unknown';
             $source = $cat_username;
         } else {
+            
+            $cat_username = str_replace(':', '\:', $cat_username);
+            
             $splittedCatUsername = explode('.', $cat_username);
 
             $source = $splittedCatUsername[0];
