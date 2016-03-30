@@ -273,26 +273,45 @@ jQuery( document ).ready( function( $ ) {
 		},
 			
 		/**
-		 * Add or remove facets to container and update search results
+		 * Add facet to container and update search results
 		 * 
 		 * @param 	{string}	value
-		 * @param 	{boolean}	updateResults
+		 * @param 	{boolean}	updateResults	Wanna update results?
 		 * @return	{undefined}
 		 */
-		addOrRemoveFacetFilter: function( value, updateResults ) {
-			var actionPerformed = 0;
+		addFacetFilter: function( value, updateResults ) {
+			var enabledFacets = 0;
 			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
-					$( this ).remove();
-					++actionPerformed;
+					++enabledFacets;
 					return false; // javascript equivalent to php's break;
 				}
 			});
-			
-			if ( actionPerformed == 0 ) { /* This filter not applied yet, apply it now */
+
+			if ( enabledFacets == 0 ) { /* This filter not applied yet, apply it now */
 				var html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + value + "'>";
 				$( '#hiddenFacetFilters, #hiddenFacetFiltersForBasicSearch' ).append( html );
 			}
+			
+			if ( updateResults ) {
+				ADVSEARCH.updateSearchResults( undefined, undefined );
+			}
+		},
+		
+		/**
+		 * Remove facet from container and update search results
+		 * 
+		 * @param 	{string}	value
+		 * @param 	{boolean}	updateResults	Wanna update results?
+		 * @return	{undefined}
+		 */
+		removeFacetFilter: function( value, updateResults ) {
+			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
+				if( $( element ).val() == value) {
+					$( this ).remove();
+					return false; // javascript equivalent to php's break;
+				}
+			});
 			
 			if ( updateResults ) {
 				ADVSEARCH.updateSearchResults( undefined, undefined );
@@ -399,17 +418,26 @@ jQuery( document ).ready( function( $ ) {
 	
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
 		event.preventDefault();
-		ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ), true );
+		if ( $( this ).hasClass( 'active' ) ) {
+			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
+		} else {
+			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
+		}
 	});
 	
 	$( 'body' ).on( 'click', '.institution-facet-filter-button', function( event ) {
 		event.preventDefault();
 		$( '.institution-facet-filter' ).each( function ( index, element ) {
 			if ( $( element ).parent().hasClass( 'jstree-clicked' ) ) {
-				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'data-facet' ), true );
+				if (! $( element ).hasClass( 'active' ) ) {
+					ADVSEARCH.add( $( element ).attr( 'data-facet' ), true );
+				}
+			} else {
+				if ($( element ).hasClass( 'active' ) ) {
+					ADVSEARCH.remove( $( element ).attr( 'data-facet' ), true );
+				}
 			}
 		});
-
 	});
 	
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
