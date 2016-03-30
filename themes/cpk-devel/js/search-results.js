@@ -399,16 +399,17 @@ jQuery( document ).ready( function( $ ) {
 	
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
 		event.preventDefault();
-		if ( $( this ).hasClass( 'institution-facet-filter-button' ) ) {
-			$( '.institution-facet-filter' ).each( function ( index, element ) {
-				if ( $( element ).parent().hasClass( 'jstree-clicked' ) ) {
-					ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'data-facet' ), false );
-				}
-			});
-		} else {
-			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ), false );
-			ADVSEARCH.updateSearchResults( undefined, undefined );
-		}
+		ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ), true );
+	});
+	
+	$( 'body' ).on( 'click', '.institution-facet-filter-button', function( event ) {
+		event.preventDefault();
+		$( '.institution-facet-filter' ).each( function ( index, element ) {
+			if ( $( element ).parent().hasClass( 'jstree-clicked' ) ) {
+				ADVSEARCH.addOrRemoveFacetFilter( $( element ).attr( 'data-facet' ), true );
+			}
+		});
+
 	});
 	
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
