@@ -112,20 +112,27 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $user; // Not logged in, returns redirection
         }
         
+        $this->layout()->searchbox = false;
+        
         $this->initConfigs();
         
         // Do we have some POST?
         if (! empty($post = $this->params()->fromPost())) {
             
-            $success = $this->saveNewConfig($post);
-            
-            if ($success) {
+            // Is there a query for a config modification?
+            if (isset($post['requestChange'])) {
                 
-                $requestCreated = $this->translate('request_config_created');
-                $this->flashMessenger()->addSuccessMessage($requestCreated);
+                unset($post['requestChange']);
                 
-                // TODO send an email somewhere
-            }
+                $this->processChangeRequest($post);
+            } else 
+                if (isset($post['requestChangeCancel'])) {
+                    // Or there is query for cancelling a config modification?
+                    
+                    unset($post['requestChangeCancel']);
+                    
+                    $this->processCancelChangeRequest($post);
+                }
         }
         
         $configs = [];
@@ -136,11 +143,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
             // Exclude portal configs as they doesn't exist
             if (strtolower($adminSource) !== self::PORTAL_ADMIN_SOURCE) {
                 
-                $configs[$adminSource] = $this->getInstitutionConfig($adminSource);
+                list ($configs[$adminSource]['active'], $configs[$adminSource]['requested']) = $this->getInstitutionConfig($adminSource);
             }
         }
         
-        $this->layout()->searchbox = false;
         return $this->createViewModel([
             'user' => $user,
             'ncipTemplate' => $this->ncipTemplate,
@@ -320,11 +326,24 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * Saves new configuration
+     * Process a cancel for a configuration change
      *
-     * @param array $config            
+     * @param array $post            
      */
-    protected function saveNewConfig($config)
+    protected function processCancelChangeRequest($post)
+    {
+        $success = $this->deleteRequestConfig($post);
+        
+        if ($success) {
+            
+            $requestCancelled = $this->translate('request_config_change_cancelled');
+            $this->flashMessenger()->addSuccessMessage($requestCancelled);
+            
+            // TODO send an email about cancelling desired change
+        }
+    }
+
+    protected function deleteRequestConfig($config)
     {
         $source = $config['source'];
         
@@ -332,6 +351,55 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return false;
         
         unset($config['source']);
+        
+        if (! in_array($source, $this->institutionsBeingAdminAt)) {
+            throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
+        }
+        
+        $basePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/';
+        
+        $path = $basePath . $this->driversPath . '/requests/';
+        
+        $filename = $path . $source . '.ini';
+        
+        return unlink($filename);
+    }
+
+    /**
+     * Process a configuration change request
+     *
+     * @param array $post            
+     */
+    protected function processChangeRequest($post)
+    {
+        $success = $this->createNewRequestConfig($post);
+        
+        if ($success) {
+            
+            $requestCreated = $this->translate('request_config_created');
+            $this->flashMessenger()->addSuccessMessage($requestCreated);
+            
+            // TODO send an email about new change desired
+        }
+    }
+
+    /**
+     * Saves new configuration
+     *
+     * @param array $config            
+     */
+    protected function createNewRequestConfig($config)
+    {
+        $source = $config['source'];
+        
+        if (empty($source))
+            return false;
+        
+        unset($config['source']);
+        
+        if (! in_array($source, $this->institutionsBeingAdminAt)) {
+            throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
+        }
         
         $config = $this->parseConfigSections($config);
         
@@ -429,6 +497,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function getInstitutionConfig($source)
     {
-        return $this->configLocator->get($this->driversPath . '/' . $source)->toArray();
+        return [
+            $this->configLocator->get($this->driversPath . '/' . $source)->toArray(),
+            $this->configLocator->get($this->driversPath . '/requests/' . $source)->toArray()
+        ];
     }
 }
