@@ -154,7 +154,7 @@ var holdingsILS = {
 	if (typeof status !== 'undefined')
 	    label.text(status);
 	else {
-	    label.text('unknown status');
+	    label.text(VuFind.translate('unknown status'));
 	    setUnknownLabel = true;
 	}
 
