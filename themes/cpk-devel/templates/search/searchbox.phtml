@@ -272,6 +272,6 @@
   <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : $lastSort) ?>">
   <input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
   <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
-  <input type="hidden" name="last_searched_lookfor0" value="<?= (! empty($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
+  <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
   <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
 </div>
