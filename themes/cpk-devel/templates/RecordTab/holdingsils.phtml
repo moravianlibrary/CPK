@@ -113,6 +113,8 @@ $this->headTitle($this->driver->getBreadcrumb());
             $itemId = $row['agency_id'] . ':' . $row['item_id'];
         elseif (isset($row['item_id']))
             $itemId = $row['item_id'];
+        elseif (! empty($row['w_id']))
+            $itemId = $row['w_id'];
         else
             $itemId = false;
 
@@ -168,7 +170,7 @@ $this->headTitle($this->driver->getBreadcrumb());
 				<div title="<?=$this->transEsc('Item Status')?>"
 					data-type="item-status">
 					<? if (! $itemStatusLabel): ?>
-					   <span class="label label-unknown"><?=$this->transEsc('unknown status')?></span>
+					   <span class="label label-unknown"><?=$this->transEsc('status_Unknown Status')?></span>
 					<? else: ?>
 					   <i class="fa fa-spinner fa-spin"></i> <span
 						class="label <?=$itemStatusLabel?>"><?=$this->transEsc('Loading')?> ...</span>

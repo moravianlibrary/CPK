@@ -8,7 +8,7 @@ class SolrMarc extends ParentSolrMarc
 {
 
     protected $ilsConfig = null;
-    
+
     /**
      * These Solr fields should NEVER be used for snippets.  (We exclude author
      * and title because they are already covered by displayed fields; we exclude
@@ -20,7 +20,7 @@ class SolrMarc extends ParentSolrMarc
     protected $forbiddenSnippetFields = [
                     'author', 'author-letter', 'title', 'title_short', 'title_full',
                     'title_full_unstemmed', 'title_auth', 'title_sub', 'spelling', 'id',
-                    'ctrlnum', 'title_autocomplete', 'author_autocomplete', 
+                    'ctrlnum', 'title_autocomplete', 'author_autocomplete',
                     'titleSeries_search_txt_mv', 'authorCorporation_search_txt_mv',
                     'author_display', 'title_display', 'author_facet_str_mv', 'author-letter',
                     'author_sort_str', 'sourceTitle_search_txt_mv', 'author_str', 'spellingShingle',
@@ -89,10 +89,10 @@ class SolrMarc extends ParentSolrMarc
 
     /**
      * Get field of 7xx
-     * 
+     *
      * @param string $field     The MARC field number to read
      * @param array  $subfields The MARC subfield codes to read
-     * 
+     *
      * @return boolean|array
      */
     public function get7xxField($field, array $subfields = null) {
@@ -276,6 +276,7 @@ class SolrMarc extends ParentSolrMarc
                         unset($holding['item_id']);
                     }
                 }
+                $holding['w_id'] = array_key_exists('w', $currentField) ? $currentField['w'] : null;
 
                 $holdings[] = $holding;
             }
@@ -636,7 +637,7 @@ class SolrMarc extends ParentSolrMarc
                 isset($params['mytags']) ? $params['mytags'] : [],
                 isset($params['notes']) ? $params['notes'] : ''
         );
-        
+
         return ['listId' => $list->id];
     }
 
@@ -655,12 +656,12 @@ class SolrMarc extends ParentSolrMarc
     {
         return isset($this->fields['recordtype']) ? $this->fields['recordtype'] : '';
     }
-    
+
     public function getNonStandardISBN()
     {
         return $this->getFieldArray('902');
     }
-    
+
     public function getCitationRecordType()
     {
         return isset($this->fields['citation_record_type']) ? $this->fields['citation_record_type'] : '';

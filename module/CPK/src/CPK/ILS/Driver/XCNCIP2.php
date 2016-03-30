@@ -699,7 +699,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $retVal = [];
 
         if (empty($bibId)) $this->cannotUseLUIS = true;
-        if (! empty($filter)) $this->cannotUseLUIS = true;
+        if (! empty($filter) && $this->agency != 'LIA001') $this->cannotUseLUIS = true;
         if ($this->cannotUseLUIS)
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids));
@@ -914,9 +914,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $item_id = $this->useXPath($itemInformation,
                     'ItemId/ItemIdentifierValue');
-            if (empty($item_id)) { // this is for LIA
-                $item_id = $this->useXPath($itemInformation,
-                        'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
+            if ($this->agency === 'LIA001') {
+                if (empty($item_id)) {
+                    $item_id = $this->useXPath($itemInformation,
+                            'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
+                }
+                if (empty($item_id) || empty($item_id[0])) { // this is for LIA's periodicals (without item_id)
+                    $item_id = $this->useXPath($itemInformation,
+                            'ItemOptionalFields/ItemDescription/CopyNumber');
+                }
             }
 
             $status = $this->useXPath($itemInformation,

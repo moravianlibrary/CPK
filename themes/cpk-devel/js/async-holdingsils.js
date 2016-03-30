@@ -209,7 +209,7 @@ var holdingsILS = {
 	if (labelSet === false) {
 	    var labelType = typeof value.label === 'undefined' ? 'label-success' : value.label;
 
-	    label.removeClass('label-primary').addClass(labelType);
+	    label.removeClass('label-primary').removeClass('label-unknown').addClass(labelType);
 	}
 	
 	var availability = value.availability;
