@@ -429,11 +429,11 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		$( '.institution-facet-filter' ).each( function ( index, element ) {
 			if ( $( element ).parent().hasClass( 'jstree-clicked' ) ) {
-				if (! $( element ).hasClass( 'active' ) ) {
+				if (! $( element ).parent().hasClass( 'active' ) ) {
 					ADVSEARCH.addFacetFilter( $( element ).attr( 'data-facet' ), true );
 				}
 			} else {
-				if ($( element ).hasClass( 'active' ) ) {
+				if ( $( element ).parent().hasClass( 'active' ) ) {
 					ADVSEARCH.removeFacetFilter( $( element ).attr( 'data-facet' ), true );
 				}
 			}
