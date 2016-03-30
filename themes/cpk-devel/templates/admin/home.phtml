@@ -13,26 +13,52 @@
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
-  
   <div class="col-sm-9 well">
     <h2><?=$this->transEsc('Administration')?></h2>
-    <? foreach($configs as $source => $config): ?>
+    <?=$this->flashmessages() ?>
+    <? foreach($configs as $source => $config):
+    
+        $isAleph = isset($config['Catalog']['dlfport']);
+        
+        $template = $isAleph ? $alephTemplate : $ncipTemplate;
+        
+        $defs = $template['Definitions'];
+        unset($template['Definitions']);
+    ?>
       <div class='well'>
-        <h3><?=$source?></h3>
-        <? foreach($config as $section => $keys): ?>
+        <h3><?=$this->transEsc('source_' . $source)?></h3>
+        <? foreach($template as $section => $keys): ?>
+        <form action='.' method='POST'>
         <table>
           <thead>
-            <tr><?=$section ?></tr>
+            <tr><b>[<?=$section ?>]</b></tr>
           </thead>
           <tbody>
-            <? foreach($keys as $key => $value): ?>
+            <? foreach($keys as $key => $value):
+                if (! in_array($key, $defs['hidden'])): ?>
             <tr>
-              <td><?=$key ?></td>
-              <td><?=$value ?></td>
+              <td class="col-xs-3"><?=$key ?></td>
+              <td class="col-xs-9">
+                <input class="form-control"
+                	type="<?=$defs[$key] ?>"
+                	value="<?=$config[$section][$key] ?>"
+                	<?=( $defs[$key] === 'checkbox' && $config[$section][$key] ) ? 'checked="checked"':''; ?>
+                	placeholder="<?=$this->transEsc($value) ?>"
+                	name="<?=$section . '/' . $key ?>"
+                	<?=in_array($key, $defs['optional']) ? '' : 'required'?>/>
+              </td>
             </tr>
-            <? endforeach; ?>
+            <?  endif; 
+               endforeach; ?>
+            <tr>
+              <td>
+                <input type="submit" value="<?=$this->transEsc('request_config_change') ?>"/>
+              </td>
+            </tr>
           </tbody>
         </table>
+        <input type='hidden' name='source' value='<?=$source ?>'/>
+        </form>
         <? endforeach; ?>
       </div>
     <? endforeach; ?>

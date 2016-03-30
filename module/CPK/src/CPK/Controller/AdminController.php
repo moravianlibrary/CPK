@@ -26,35 +26,81 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\ExceptionsTrait,
-    CPK\Db\Row\User;
+use MZKCommon\Controller\ExceptionsTrait, CPK\Db\Row\User;
+use Zend\Config\Writer\Ini as IniWriter;
+use Zend\Config\Config;
 
 /**
  * Class controls VuFind administration.
  *
  * @category VuFind2
- * @package  Controller
- * @author   Martin Kravec <martin.kravec@mzk.cz>
- * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
+ * @package Controller
+ * @author Martin Kravec <martin.kravec@mzk.cz>
+ * @license http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  */
 class AdminController extends \VuFind\Controller\AbstractBase
 {
     use ExceptionsTrait;
-    
+
     /**
      * Source / identifier of main portal admin
-     * 
+     *
      * @var string
      */
     const PORTAL_ADMIN_SOURCE = 'cpk';
-    
+
     /**
      * Holds names of institutions user is admin of
-     * 
+     *
      * @var array
      */
     protected $institutionsBeingAdminAt = [];
-    
+
+    /**
+     * Config Locator
+     *
+     * @var \VuFind\Config\PluginManager
+     */
+    protected $configLocator;
+
+    /**
+     * Path to institutions configurations
+     *
+     * @var array
+     */
+    protected $driversPath;
+
+    /**
+     * Object containing NCIP driver config template
+     *
+     * @var array
+     */
+    protected $ncipTemplate;
+
+    /**
+     * Object containing Aleph driver config template
+     *
+     * @var array
+     */
+    protected $alephTemplate;
+
+    /**
+     * Initialize configurations
+     *
+     * @return void
+     */
+    protected function initConfigs()
+    {
+        $this->configLocator = $this->serviceLocator->get('VuFind\Config');
+        
+        $multibackend = $this->configLocator->get('MultiBackend')->toArray();
+        
+        $this->driversPath = empty($multibackend['General']['drivers_path']) ? '.' : $multibackend['General']['drivers_path'];
+        
+        $this->ncipTemplate = $this->configLocator->get('xcncip2_template')->toArray();
+        $this->alephTemplate = $this->configLocator->get('aleph_template')->toArray();
+    }
+
     /**
      * Admin home.
      *
@@ -62,16 +108,26 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     public function homeAction()
     {
-        if (! ($user = $this->getLoggedInUser()) instanceof User){
+        if (! ($user = $this->getLoggedInUser()) instanceof User) {
             return $user; // Not logged in, returns redirection
         }
         
-        $configLocator = $this->serviceLocator->get('VuFind\Config');
+        $this->initConfigs();
         
-        $multibackend = $configLocator->get('MultiBackend')->toArray();
+        // Do we have some POST?
+        if (! empty($post = $this->params()->fromPost())) {
+            
+            $success = $this->saveNewConfig($post);
+            
+            if ($success) {
+                
+                $requestCreated = $this->translate('request_config_created');
+                $this->flashMessenger()->addSuccessMessage($requestCreated);
+                
+                // TODO send an email somewhere
+            }
+        }
         
-        $driversPath = empty($multibackend['General']['drivers_path']) ? '.' : $multibackend['General']['drivers_path'];        
-
         $configs = [];
         
         // Fetch all configs
@@ -80,20 +136,23 @@ class AdminController extends \VuFind\Controller\AbstractBase
             // Exclude portal configs as they doesn't exist
             if (strtolower($adminSource) !== self::PORTAL_ADMIN_SOURCE) {
                 
-                $config = $configLocator->get($driversPath . '/' . $adminSource);
-            
-                $configs[$adminSource] = $config->toArray();
+                $configs[$adminSource] = $this->getInstitutionConfig($adminSource);
             }
         }
-
+        
         $this->layout()->searchbox = false;
-        return $this->createViewModel(['user' => $user, 'configs' => $configs]);
+        return $this->createViewModel([
+            'user' => $user,
+            'ncipTemplate' => $this->ncipTemplate,
+            'alephTemplate' => $this->alephTemplate,
+            'configs' => $configs
+        ]);
     }
-    
+
     public function portalPagesAction()
     {
         // Log in first!
-        if (! ($user = $this->getLoggedInUser()) instanceof User){
+        if (! ($user = $this->getLoggedInUser()) instanceof User) {
             return $user; // Not logged in, returns redirection
         }
         
@@ -107,8 +166,15 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $portalPagesTable = $this->getTable("portalpages");
         
-        $positions = ['left', 'middle', 'right'];
-        $placements = ['footer', 'advanced-search'];
+        $positions = [
+            'left',
+            'middle',
+            'right'
+        ];
+        $placements = [
+            'footer',
+            'advanced-search'
+        ];
         
         $subAction = $this->params()->fromRoute('subaction');
         if ($subAction == 'Edit') { // is edit in route?
@@ -120,33 +186,37 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $viewModel->setVariable('placements', $placements);
             
             $viewModel->setTemplate('admin/edit-portal-page');
-        } else if ($subAction == 'Save') {
-            $post = $this->params()->fromPost();
-            $portalPagesTable->save($post);
-            return $this->forwardTo('Admin', 'PortalPages');
-        } else if ($subAction == 'Insert') {
-            $post = $this->params()->fromPost();
-            $portalPagesTable->insertNewPage($post);
-            return $this->forwardTo('Admin', 'PortalPages');
-        } else if ($subAction == 'Delete') {
-            $pageId = $this->params()->fromRoute('param');
-            if (! empty($pageId)) {
-                $portalPagesTable->delete($pageId);
-            }
-            return $this->forwardTo('Admin', 'PortalPages');
-        } else if ($subAction == 'Create') {
-            $viewModel->setVariable('positions', $positions);
-            $viewModel->setVariable('placements', $placements);
-            $viewModel->setTemplate('admin/create-portal-page');
-        } else { // normal view
-    	    $allPages = $portalPagesTable->getAllPages('*', false);
-    	    $viewModel->setVariable('pages', $allPages);
-        }
+        } else 
+            if ($subAction == 'Save') {
+                $post = $this->params()->fromPost();
+                $portalPagesTable->save($post);
+                return $this->forwardTo('Admin', 'PortalPages');
+            } else 
+                if ($subAction == 'Insert') {
+                    $post = $this->params()->fromPost();
+                    $portalPagesTable->insertNewPage($post);
+                    return $this->forwardTo('Admin', 'PortalPages');
+                } else 
+                    if ($subAction == 'Delete') {
+                        $pageId = $this->params()->fromRoute('param');
+                        if (! empty($pageId)) {
+                            $portalPagesTable->delete($pageId);
+                        }
+                        return $this->forwardTo('Admin', 'PortalPages');
+                    } else 
+                        if ($subAction == 'Create') {
+                            $viewModel->setVariable('positions', $positions);
+                            $viewModel->setVariable('placements', $placements);
+                            $viewModel->setTemplate('admin/create-portal-page');
+                        } else { // normal view
+                            $allPages = $portalPagesTable->getAllPages('*', false);
+                            $viewModel->setVariable('pages', $allPages);
+                        }
         
         $this->layout()->searchbox = false;
         return $viewModel;
-    }    
-    
+    }
+
     /**
      * Permissions manager
      *
@@ -155,10 +225,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
     public function permissionsManagerAction()
     {
         // Log in first!
-        if (! ($user = $this->getLoggedInUser()) instanceof User){
+        if (! ($user = $this->getLoggedInUser()) instanceof User) {
             return $user; // Not logged in, returns redirection
         }
-    
+        
         if (! $this->isPortalAdmin()) {
             return $this->forceLogin('You\'re not a portal admin!');
         }
@@ -174,53 +244,52 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $post = $this->params()->fromPost();
             $userTable->saveUserWithPermissions($post['eppn'], $post['major']);
             return $this->forwardTo('Admin', 'PermissionsManager');
-        } else if ($subAction == 'RemovePermissions') {
-            $eppn = $this->params()->fromRoute('param');
-            $major = NULL;
-            $userTable->saveUserWithPermissions($eppn, $major);
-            return $this->forwardTo('Admin', 'PermissionsManager');
-        } else if ( $subAction == 'AddUser') {
-            $viewModel->setTemplate('admin/add-user-with-permissions');
-        } else if ( $subAction == 'EditUser') {
-            $eppn = $this->params()->fromRoute('param');
-            $major = $this->params()->fromRoute('param2');
-            
-            $viewModel->setVariable('eppn', $eppn);
-            $viewModel->setVariable('major', $major);
-            
-            $viewModel->setTemplate('admin/edit-user-with-permissions');
-        } else { // normal view
-            $usersWithPermissions = $userTable->getUsersWithPermissions();
-            $viewModel->setVariable(
-                'usersWithPermissions',
-                $usersWithPermissions
-            );
-            $viewModel->setTemplate('admin/permissions-manager');
-        }
-    
+        } else 
+            if ($subAction == 'RemovePermissions') {
+                $eppn = $this->params()->fromRoute('param');
+                $major = NULL;
+                $userTable->saveUserWithPermissions($eppn, $major);
+                return $this->forwardTo('Admin', 'PermissionsManager');
+            } else 
+                if ($subAction == 'AddUser') {
+                    $viewModel->setTemplate('admin/add-user-with-permissions');
+                } else 
+                    if ($subAction == 'EditUser') {
+                        $eppn = $this->params()->fromRoute('param');
+                        $major = $this->params()->fromRoute('param2');
+                        
+                        $viewModel->setVariable('eppn', $eppn);
+                        $viewModel->setVariable('major', $major);
+                        
+                        $viewModel->setTemplate('admin/edit-user-with-permissions');
+                    } else { // normal view
+                        $usersWithPermissions = $userTable->getUsersWithPermissions();
+                        $viewModel->setVariable('usersWithPermissions', $usersWithPermissions);
+                        $viewModel->setTemplate('admin/permissions-manager');
+                    }
+        
         $this->layout()->searchbox = false;
         return $viewModel;
     }
-    
+
     /**
      * Checks if logged in user is a portal admin
-     * 
+     *
      * @return boolean
      */
     protected function isPortalAdmin()
     {
-        foreach($this->institutionsBeingAdminAt as $adminSource)
-        {
+        foreach ($this->institutionsBeingAdminAt as $adminSource) {
             if (strtolower($adminSource) === self::PORTAL_ADMIN_SOURCE)
                 return true;
         }
         
         return false;
     }
-    
+
     /**
      * Get logged in user
-     * 
+     *
      * @return \CPK\Db\Row\User|Array
      */
     protected function getLoggedInUser()
@@ -234,7 +303,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             array_push($this->institutionsBeingAdminAt, $user->major);
         }
         
-        foreach($user->getLibraryCards(true) as $libCard) {
+        foreach ($user->getLibraryCards(true) as $libCard) {
             
             if (! empty($libCard->major)) {
                 array_push($this->institutionsBeingAdminAt, $libCard->major);
@@ -248,5 +317,118 @@ class AdminController extends \VuFind\Controller\AbstractBase
         }
         
         return $user;
+    }
+
+    /**
+     * Saves new configuration
+     *
+     * @param array $config            
+     */
+    protected function saveNewConfig($config)
+    {
+        $source = $config['source'];
+        
+        if (empty($source))
+            return false;
+        
+        unset($config['source']);
+        
+        $config = $this->parseConfigSections($config);
+        
+        $basePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/';
+        
+        $path = $basePath . $this->driversPath . '/requests/';
+        
+        $filename = $path . $source . '.ini';
+        
+        $dirStatus = is_dir($path) || mkdir($path, 0777, true);
+        
+        if (! $dirStatus) {
+            throw new \Exception("Cannot create '$path' directory. Please fix the permissions by running: 'sudo mkdir $path && sudo chown -R www-data $path'");
+        }
+        
+        $config = $this->cleanData($config);
+        $config = new Config($config, false);
+        
+        try {
+            (new IniWriter())->toFile($filename, $config);
+        } catch (\Exception $e) {
+            throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $path'");
+        }
+        
+        return $config;
+    }
+
+    /**
+     * Clean data
+     * Cleanup: Remove double quotes
+     *
+     * @param Array $data
+     *            Data
+     *            
+     * @return Array
+     */
+    protected function cleanData(array $data)
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = $this->cleanData($value);
+            } else {
+                $data[$key] = str_replace('"', '', $value);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Parses config from the POST.
+     *
+     * Note that it cuts out the configuration which is not included within the template
+     *
+     * @param array $config            
+     */
+    protected function parseConfigSections($config)
+    {
+        $newCfg = [];
+        
+        foreach ($config as $key => $value) {
+            
+            list ($section, $key) = explode('/', $key);
+            
+            $newCfg[$section][$key] = $value;
+        }
+        
+        $isAleph = isset($newCfg['Catalog']['restdlf']);
+        
+        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
+        
+        // Prepare template for effective iteration
+        unset($template['Definitions']);
+        
+        $parsedCfg = [];
+        
+        foreach ($template as $section => $keys) {
+            foreach ($keys as $key => $value) {
+                
+                // Set new configuration or default if not provided
+                $parsedCfg[$section][$key] = isset($newCfg[$section][$key]) ? $newCfg[$section][$key] : $value;
+            }
+        }
+        
+        return $parsedCfg;
+    }
+
+    /**
+     * Returns an associative array of institution configuration.
+     *
+     * If was configuration not found, then is returned empty array.
+     *
+     * @param string $source            
+     *
+     * @return array
+     */
+    protected function getInstitutionConfig($source)
+    {
+        return $this->configLocator->get($this->driversPath . '/' . $source)->toArray();
     }
 }
