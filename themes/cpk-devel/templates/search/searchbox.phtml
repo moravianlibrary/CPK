@@ -31,11 +31,11 @@
                 $queryArray['groupsData'][$key]['groupQueries'][$index]['lookFor'][] = $searchQuery->getString();
             }
         }
-        
+
         $originalQueryJson = json_encode($queryArray);
     ?>
   <div class="searchForm">
-  
+
     <!-- Display advanced search form with queries -->
     <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
     <script>
@@ -101,15 +101,15 @@
       <div class='row'>
         <div class='col-sm-12 text-right' style='margin-top: 20px;'>
           <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" value="<?=$this->translate('Update results')?>" id='submit-edited-advanced-search' type='submit'>
-          <a href='/Search/Advanced' title='<?= $this->transEsc('Start a new Advanced Search')?>'>
+          <a href='/Search/Advanced' class="btn pull-right" title='<?= $this->transEsc('Start a new Advanced Search')?>'>
             <?= $this->transEsc('Start a new Advanced Search')?>
           </a>
-          <a href='/Search/Home' title='<?= $this->transEsc('Start a new Basic Search')?>'>
+          <a href='/Search/Home' class="btn pull-right" title='<?= $this->transEsc('Start a new Basic Search')?>'>
             <?= $this->transEsc('Start a new Basic Search')?>
           </a>
         </div>
       </div>
-      
+
       <!-- Facets -->
       <div class='hidden' id='hiddenFacetFilters'>
       <? foreach ($filterList as $field => $data): ?>
@@ -119,12 +119,12 @@
       <? endforeach; ?>
       </div>
       <!-- End of facets -->
-      
+
     </form>
     <!-- End of advanced search form -->
-    
+
     <? $tabs = $this->render('search/searchTabs'); ?>
-    <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>    
+    <? if (!empty($tabs)): ?><?=$tabs ?><div class="tab-content clearfix"><? endif; ?>
     <? if (!empty($tabs)): ?></div><? endif; ?>
   </div>
 <? else: ?> <!-- Autocomplete -->
@@ -147,7 +147,7 @@
               var enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
 
               var filters = '';
-              
+
               if (enabledKeepFacets) {
 				filters = '';
 				$( '.applied-filter' ).each(function(){
@@ -163,7 +163,7 @@
                	query = $( this ).val();
 
                	enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
-               	
+
                	if (enabledKeepFacets) {
     			  filters = '';
     			  $( '.applied-filter' ).each(function(){
@@ -178,13 +178,13 @@
               $( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
             	event.preventDefault();
 
-           		// if autocomplete used in Search/Results, load results async 
+           		// if autocomplete used in Search/Results, load results async
   			    if ( ! $( 'header' ).hasClass( 'frontpage' ) ) {
   			      var href = $( '#run-autocomplete' ).attr( 'href' );
   			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]});
   			      return false;
   				}
-  				
+
   				// if autocomplete used on frontpage, load results statically via PHP
   				$( '.searchForm' ).submit();
               });
