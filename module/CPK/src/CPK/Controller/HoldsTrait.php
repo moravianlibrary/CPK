@@ -208,15 +208,18 @@ trait HoldsTrait
         $status = $catalog->getItemStatus($gatheredDetails['item_id'], $gatheredDetails['id'], $patron['id']);
 
         $holdQueue = null;
-        $holdDueDate = null;
+        $isLend = false;
         if (isset($status['requests_placed']) && ! empty($status['requests_placed'])) {
             $holdQueue = $status['requests_placed'] + 1;
         }
-        if (isset($status['duedate'])) {
-            $holdDueDate = $status['duedate'];
+        if (isset($status['duedate']) && ! empty($status['duedate'])) {
+            $isLend = true;
         }
-        if (empty($holdDueDate) && ($status['status'] == 'On Loan' || $status['status'] == 'On Order')) $holdDueDate = true;
-        if (empty($holdQueue) && ! empty($holdDueDate)) $holdQueue = 1;
+        if ($status['status'] == 'On Loan' || $status['status'] == 'On Order') {
+            $isLend = true;
+        }
+        if ($isLend && empty($holdQueue)) $holdQueue = 1;
+        if (! $isLend) $holdQueue = null;
 
         $view = $this->createViewModel(
             [
@@ -230,7 +233,7 @@ trait HoldsTrait
                 'defaultRequestGroup' => $defaultRequestGroup,
                 'requestGroupNeeded' => $requestGroupNeeded,
                 'holdQueue' => $holdQueue,
-                'holdDueDate' => $holdDueDate,
+                'isLend' => $isLend,
                 'helpText' => isset($checkHolds['helpText']) ? $checkHolds['helpText'] : null
             ]);
         $view->setTemplate('record/hold');
