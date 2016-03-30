@@ -407,8 +407,8 @@ jQuery( document ).ready( function( $ ) {
 			});
 		} else {
 			ADVSEARCH.addOrRemoveFacetFilter( $( this ).attr( 'data-facet' ), false );
+			ADVSEARCH.updateSearchResults( undefined, undefined );
 		}
-		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
