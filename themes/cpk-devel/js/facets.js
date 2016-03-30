@@ -61,6 +61,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
         'selected': this.isApplied
       },
       'li_attr': this.isApplied ? { 'class': 'active' } : {},
+      'a_attr': this.isApplied ? { 'class': 'active' } : {},
     });
   });
 
