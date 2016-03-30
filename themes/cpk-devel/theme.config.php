@@ -22,7 +22,8 @@ $toRet = array(
         'vendor/bootstrap-select.min.js',
         'common.js',
         'lightbox.js',
-        'eu-cookies.js'
+        'eu-cookies.js',
+        'search-results.js'
     ),
     'less' => array(
         'active' => false,

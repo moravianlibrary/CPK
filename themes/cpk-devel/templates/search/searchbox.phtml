@@ -181,7 +181,7 @@
            		// if autocomplete used in Search/Results, load results async
   			    if ( ! $( 'header' ).hasClass( 'frontpage' ) ) {
   			      var href = $( '#run-autocomplete' ).attr( 'href' );
-  			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]});
+  			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]}, true);
   			      return false;
   				}
 
