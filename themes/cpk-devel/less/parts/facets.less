@@ -4,27 +4,34 @@
 
 //part with cpk custom changes
 //////////////////////////////
-.sidebar .facet a {
-  //color: #8a8a8a;
-  color: #333;
-  &:hover {
-    text-decoration: underline;
+.sidebar .facet {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
 
+  a {
+    //color: #8a8a8a;
+    color: #333;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .badge {
+    font-weight: normal;
+    color: grey;
+    background-color: transparent;
+  }
+  .jstree-ocl:before {
+    margin-left: -18px;
+    font-size: 20px;
+    margin-top: -5px;
+    color: #e5004b
   }
 }
-.sidebar .facet .badge {
-  font-weight: normal;
-  color: grey;
-  background-color: transparent;
-}
-
-.list-group {
+.sidebar {
   .list-group-item {
     padding: 2px 16px 2px 26px;
-    &:hover {
-      background-color: white;
-
-    }
+    background-color: inherit;
+    border: 0px;
   }
 
   .list-group-item.active {
@@ -32,59 +39,35 @@
     &:hover, &:focus {
       outline: none;
     }
-
   }
-}
-
-.badge {
-  font-weight: normal;
-  color: #d6d6d6;
-  margin-top: 1px;
 }
 
 li.jstree-facet ul {
   padding-left: 21px;
 }
 
-.facet .jstree-ocl:before {
-  margin-left: -18px;
-  font-size: 20px;
-  margin-top: -5px;
-}
+.sidebar .list-group:not(.filters) {
+  .title::after {
+      content: none;
+      color: #e5004b !important;
+  }
 
-.facet {
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 10px;
-}
-.jstree-ocl::before {
-    color: #e5004b !important;
-    // content: "»" !important;
-}
+  .title::before {
+      content: "⇱ ";
+      color: #e5004b !important;
+  }
 
-.sidebar .list-group:not(.filters) .title::after {
-    content: none;
-    color: #e5004b !important;
-}
+  .title.collapsed::after {
+      color: #e5004b !important;
+      content: none;
+  }
 
-.sidebar .list-group:not(.filters) .title::before {
-    content: "⇱ ";
-    color: #e5004b !important;
-}
-
-.sidebar .list-group:not(.filters) .title.collapsed::after {
-    color: #e5004b !important;
-    content: none;
-}
-
-.sidebar .list-group:not(.filters) .title.collapsed::before {
-    content: "⇲ ";
+  .title.collapsed::before {
+      content: "⇲ ";
+  }
 }
 
 .list-group, .tt-dropdown-menu {
-    background-color: inherit !important;
-}
-
-.list-group-item {
     background-color: inherit !important;
 }
 
