@@ -179,14 +179,19 @@
             	event.preventDefault();
 
            		// if autocomplete used in Search/Results, load results async
-  			    if ( ! $( 'header' ).hasClass( 'frontpage' ) ) {
-  			      var href = $( '#run-autocomplete' ).attr( 'href' );
-  			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]}, true);
+           		var href = $( '#run-autocomplete' ).attr( 'href' );
+				var currentUrl = window.location.pathname;
+				var controller = currentUrl.split('/')[1];
+				var action = currentUrl.split('/')[2];
+				
+  			    if ( controller == 'Search' && action == 'Results' ) {
+  			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor=' + $( "#searchForm_lookfor" ).val() + '&type=AllFields'}, false);
   			      return false;
   				}
 
   				// if autocomplete used on frontpage, load results statically via PHP
-  				$( '.searchForm' ).submit();
+			    //ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]}, true);
+			    $( '.searchForm' ).submit();
               });
           });
       </script>

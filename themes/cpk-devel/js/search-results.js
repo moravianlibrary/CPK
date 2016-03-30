@@ -83,7 +83,8 @@ jQuery( document ).ready( function( $ ) {
 			} else if ( dataFromAutocomplete ) {
 				
 				data = queryStringToJson( dataFromAutocomplete.queryString );
-				
+				console.log('*****Tady data');
+				console.log(data);
 				if ( data.lookfor ) {
 					data['lookfor0'] = data.lookfor;
 					delete data.lookfor;
@@ -95,13 +96,7 @@ jQuery( document ).ready( function( $ ) {
 				}
 				
 			} else { // harvest form's fields and form's hidden facetFilters
-				
-				var filters = [];
-				$( '.hidden-filter' ).each( function( index, element ) {
-					filters.push( $( element ).val() );
-				});
-				data['filter'] = filters;
-				
+
 				$( '.query-type, .query-string, .group-operator' ).each( function( index, element ) {
 					var key = $( element ).attr( 'name' ).slice( 0, -2 );
 					if (! data.hasOwnProperty( key )) {
@@ -113,6 +108,12 @@ jQuery( document ).ready( function( $ ) {
 				var allGroupsOperator = $( 'input[name="join"]' ).val();
 				data['join'] = allGroupsOperator;
 			}
+			
+			var filters = [];
+			$( '.hidden-filter' ).each( function( index, element ) {
+				filters.push( $( element ).val() );
+			});
+			data['filter'] = filters;
 			
 			if ( dataFromWindowHistory == undefined) {
 				/* Set default values if not provided before (for basic search) */
@@ -153,15 +154,6 @@ jQuery( document ).ready( function( $ ) {
 					data['sort'] = sort;
 				}
 			}
-			
-			/**************** Start modifications control ****************/
-			/*
-			var warnings = 0;
-			TODO: If the form input fields were modified, ask to reflect 
-			a new search queries or to use original ones
-			Is jQuery.each.lookFor[] == object.foreach.lookFor[] ? ++warnigns;
-			*/
-			/**************** End of modifications control ****************/
 			
 			/* Set last search */
 			var lastSearchedLookFor0 = data['lookfor0'][0];
