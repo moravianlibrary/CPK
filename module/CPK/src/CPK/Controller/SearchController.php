@@ -554,6 +554,11 @@ class SearchController extends AbstractSearch
 	    $facetConfig = $this->getConfig('facets');
 	    $institutionsMappings = $facetConfig->InstitutionsMappings->toArray();
 	    $view->institutionsMappings = $institutionsMappings;
+	    
+	    /* Handle view template */
+	    if (! empty($this->params()->fromQuery('searchType')) ){
+	        $view->searchTypeTemplate = $this->params()->fromQuery('searchType');
+	    }
 	
 	    return $view;
 	}
