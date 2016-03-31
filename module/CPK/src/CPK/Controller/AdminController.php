@@ -306,13 +306,19 @@ class AdminController extends \VuFind\Controller\AbstractBase
         }
         
         if (! empty($user->major)) {
-            array_push($this->institutionsBeingAdminAt, $user->major);
+            
+            $sources = explode(',', $user->major);
+            
+            $this->institutionsBeingAdminAt = $sources;
         }
         
         foreach ($user->getLibraryCards(true) as $libCard) {
             
             if (! empty($libCard->major)) {
-                array_push($this->institutionsBeingAdminAt, $libCard->major);
+                
+                $sources = explode(',', $libCard->major);
+                
+                $this->institutionsBeingAdminAt = array_merge($this->institutionsBeingAdminAt, $sources);
             }
         }
         
@@ -321,6 +327,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forwardTo('MyResearch', 'Home');
         }
+        
+        // Trim all elements
+        $this->institutionsBeingAdminAt = array_map('trim', $this->institutionsBeingAdminAt);
+        
+        // Remove possible duplicates
+        $this->institutionsBeingAdminAt = array_unique($this->institutionsBeingAdminAt);
         
         return $user;
     }
