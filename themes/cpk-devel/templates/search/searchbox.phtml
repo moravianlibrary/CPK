@@ -17,7 +17,7 @@
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
 ?>
-<? if ($this->searchType == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = -1;?>
+<? if ($this->searchTypeTemplate == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = -1;?>
 
 	<?  //create JSON from query to pass it later as a param into ajax submit
         $queryArray = [];
