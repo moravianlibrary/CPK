@@ -42,17 +42,17 @@
          <? foreach($template as $section => $keys): if(! empty($keys)): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
             <? foreach($keys as $key => $value):
-                if (! in_array($key, $defs['hidden'])): ?>
+                if (! in_array($section . ':' . $key, $defs['hidden'])): ?>
             <tr>
               <td class="col-sm-3"><?=$key ?></td>
               <td class="col-sm-9">
                 <input class="form-control"
-                	type="<?=$defs[$key] ?>"
+                	type="<?=$defs[$section][$key] ?>"
                 	value="<?=$config[$section][$key] ?>"
-                	<?=( $defs[$key] === 'checkbox' && $config[$section][$key] ) ? 'checked="checked"':''; ?>
+                	<?=( $defs[$section][$key] === 'checkbox' && $config[$section][$key] ) ? 'checked="checked"':''; ?>
                 	placeholder="<?=$this->transEsc($value) ?>"
-                	name="<?=$section . '/' . $key ?>"
-                	<?=in_array($key, $defs['optional']) ? '' : 'required'?>/>
+                	name="<?=$section . '[' . $key . ']' ?>"
+                	<?=in_array($section . ':' . $key, $defs['optional']) ? '' : 'required'?>/>
               </td>
             </tr>
             <?  endif; 
