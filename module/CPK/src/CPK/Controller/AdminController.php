@@ -294,7 +294,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * Get logged in user
+     * Get logged in user & set the $this->institutionsBeingAdminAt array
      *
      * @return \CPK\Db\Row\User|Array
      */
