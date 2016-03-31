@@ -150,7 +150,7 @@
 
               if (enabledKeepFacets) {
 				filters = '';
-				$( '.applied-filter' ).each(function(){
+				$( '.hidden-filter' ).each(function(){
 				  filters += '&filter[]=' + encodeURIComponent( $( this ).val() );
 				});
               } else {
@@ -166,7 +166,7 @@
 
                	if (enabledKeepFacets) {
     			  filters = '';
-    			  $( '.applied-filter' ).each(function(){
+    			  $( '.hidden-filter' ).each(function(){
     				  filters += '&filter[]=' + encodeURIComponent( $( this ).val() );
     			  });
                 } else {
@@ -196,7 +196,7 @@
           });
       </script>
     <div class="col-xs-12 col-sm-6 search-form-container">
-      <input class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>" autofocus placeholder="<?=$this->translate('autocomplete-placeholder')?>"/>
+      <input class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" id="searchForm_lookfor" type="text" name="lookfor" value="<?=(isset($this->lookfor0[0])) ? $this->escapeHtmlAttr($this->lookfor0[0]) : $this->escapeHtmlAttr($this->lookfor)?>" autofocus placeholder="<?=$this->translate('autocomplete-placeholder')?>"/>
       <i class="fa fa-times" id="searchclear"></i>
     </div>
       <input type='hidden' name='searchTypeTemplate' value='basic'>
