@@ -29,6 +29,7 @@ namespace CPK\Controller;
 use MZKCommon\Controller\ExceptionsTrait, CPK\Db\Row\User;
 use Zend\Config\Writer\Ini as IniWriter;
 use Zend\Config\Config;
+use VuFind\Mailer\Mailer;
 
 /**
  * Class controls VuFind administration.
@@ -85,6 +86,20 @@ class AdminController extends \VuFind\Controller\AbstractBase
     protected $alephTemplate;
 
     /**
+     * Object holding the configuration of email to use when a configuration change is desired by some institution admin
+     *
+     * @var array
+     */
+    protected $emailConfig;
+
+    /**
+     * Mailer to notify about changes made by institutions admins
+     *
+     * @var Mailer
+     */
+    protected $mailer;
+
+    /**
      * Initialize configurations
      *
      * @return void
@@ -99,6 +114,14 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $this->ncipTemplate = $this->configLocator->get('xcncip2_template')->toArray();
         $this->alephTemplate = $this->configLocator->get('aleph_template')->toArray();
+        
+        $this->emailConfig = $this->configLocator->get('config')['Config_Change_Mailer']->toArray();
+        
+        if (empty($this->emailConfig['from']) || empty($this->emailConfig['to'])) {
+            throw new \Exception('Invalid Config_Change_Mailer configuration!');
+        }
+        
+        $this->mailer = $this->serviceLocator->get('VuFind\Mailer');
     }
 
     /**
@@ -353,7 +376,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $requestCancelled = $this->translate('request_config_change_cancelled');
             $this->flashMessenger()->addSuccessMessage($requestCancelled);
             
-            // TODO send an email about cancelling desired change
+            $this->sendRequestCancelledMail($post['source']);
         }
     }
 
@@ -401,7 +424,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $requestCreated = $this->translate('request_config_created');
             $this->flashMessenger()->addSuccessMessage($requestCreated);
             
-            // TODO send an email about new change desired
+            $this->sendNewRequestMail($post['source']);
         }
     }
 
@@ -491,12 +514,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
         unset($template['Definitions']);
         
         $parsedCfg = [];
-
+        
         // Rename 'relative_path_template' to 'relative_path'
         if (isset($template['Parent_Config']['relative_path_template'])) {
-        
+            
             $template['Parent_Config']['relative_path'] = $template['Parent_Config']['relative_path_template'];
-        
+            
             unset($template['Parent_Config']['relative_path_template']);
         }
         
@@ -613,5 +636,39 @@ class AdminController extends \VuFind\Controller\AbstractBase
         } catch (\Exception $e) {
             throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $path'");
         }
+    }
+
+    /**
+     * Sends an information email about a configuration request change has beed cancelled
+     */
+    protected function sendRequestCancelledMail($source)
+    {
+        $subject = 'Zrušení žádosti o změnu konfigurace u instituce ' . $source;
+        
+        $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" zrušil žádost o změnu konfigurace.';
+        
+        return $this->sendMail($subject, $message);
+    }
+
+    protected function sendNewRequestMail($source)
+    {
+        $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
+        
+        $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" vytvořil žádost o změnu konfigurace.';
+        
+        return $this->sendMail($subject, $message);
+    }
+
+    /**
+     * Sends an email as defined within a config at section named Config_Change_Mailer
+     *
+     * @param string $subject            
+     * @param string $message            
+     */
+    protected function sendMail($subject, $message)
+    {
+        $from = new \Zend\Mail\Address($this->emailConfig['from'], $this->emailConfig['fromName']);
+        
+        return $this->mailer->send($this->emailConfig['to'], $from, $subject, $message);
     }
 }
