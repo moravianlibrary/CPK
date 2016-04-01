@@ -116,42 +116,17 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $this->initConfigs();
         
-        // Do we have some POST?
-        if (! empty($post = $this->params()->fromPost())) {
-            
-            // Is there a query for a config modification?
-            if (isset($post['requestChange'])) {
-                
-                unset($post['requestChange']);
-                
-                $this->processChangeRequest($post);
-            } else 
-                if (isset($post['requestChangeCancel'])) {
-                    // Or there is query for cancelling a config modification?
-                    
-                    unset($post['requestChangeCancel']);
-                    
-                    $this->processCancelChangeRequest($post);
-                }
-        }
-        
-        $configs = [];
-        
-        // Fetch all configs
-        foreach ($this->institutionsBeingAdminAt as $adminSource) {
-            
-            // Exclude portal configs as they doesn't exist
-            if (strtolower($adminSource) !== self::PORTAL_ADMIN_SOURCE) {
-                
-                list ($configs[$adminSource]['active'], $configs[$adminSource]['requested']) = $this->getInstitutionConfig($adminSource);
-            }
-        }
+        $this->handlePostRequest();
         
         return $this->createViewModel([
             'user' => $user,
             'ncipTemplate' => $this->ncipTemplate,
             'alephTemplate' => $this->alephTemplate,
-            'configs' => $configs
+            'configs' => $this->getAdminConfigs(),
+            'restrictedSections' => [
+                'Parent_Config',
+                'Definitions'
+            ]
         ]);
     }
 
@@ -338,6 +313,33 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     * Handles POST request
+     *
+     * It basically processess any config change desired
+     */
+    protected function handlePostRequest()
+    {
+        // Do we have some POST?
+        if (! empty($post = $this->params()->fromPost())) {
+            
+            // Is there a query for a config modification?
+            if (isset($post['requestChange'])) {
+                
+                unset($post['requestChange']);
+                
+                $this->processChangeRequest($post);
+            } else 
+                if (isset($post['requestChangeCancel'])) {
+                    // Or there is query for cancelling a config modification?
+                    
+                    unset($post['requestChangeCancel']);
+                    
+                    $this->processCancelChangeRequest($post);
+                }
+        }
+    }
+
+    /**
      * Process a cancel for a configuration change
      *
      * @param array $post            
@@ -355,6 +357,14 @@ class AdminController extends \VuFind\Controller\AbstractBase
         }
     }
 
+    /**
+     * Deletes request configuration from the requests dir
+     *
+     * @param array $config            
+     * @throws \Exception
+     *
+     * @return boolean
+     */
     protected function deleteRequestConfig($config)
     {
         $source = $config['source'];
@@ -415,6 +425,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $config = $this->parseConfigSections($config);
         
+        if (isset($config['Availability']['source'])) {
+            $config['Availability']['source'] = $source;
+        }
+        
         $basePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/';
         
         $path = $basePath . $this->driversPath . '/requests/';
@@ -469,16 +483,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function parseConfigSections($config)
     {
-        $newCfg = [];
-        
-        foreach ($config as $key => $value) {
-            
-            list ($section, $key) = explode('/', $key);
-            
-            $newCfg[$section][$key] = $value;
-        }
-        
-        $isAleph = isset($newCfg['Catalog']['restdlf']);
+        $isAleph = isset($config['Catalog']['dlfport']);
         
         $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
         
@@ -486,16 +491,46 @@ class AdminController extends \VuFind\Controller\AbstractBase
         unset($template['Definitions']);
         
         $parsedCfg = [];
+
+        // Rename 'relative_path_template' to 'relative_path'
+        if (isset($template['Parent_Config']['relative_path_template'])) {
+        
+            $template['Parent_Config']['relative_path'] = $template['Parent_Config']['relative_path_template'];
+        
+            unset($template['Parent_Config']['relative_path_template']);
+        }
         
         foreach ($template as $section => $keys) {
             foreach ($keys as $key => $value) {
                 
                 // Set new configuration or default if not provided
-                $parsedCfg[$section][$key] = isset($newCfg[$section][$key]) ? $newCfg[$section][$key] : $value;
+                $parsedCfg[$section][$key] = isset($config[$section][$key]) ? $config[$section][$key] : $value;
             }
         }
         
         return $parsedCfg;
+    }
+
+    /**
+     * Returns all configs associated with current admin
+     *
+     * return @array
+     */
+    protected function getAdminConfigs()
+    {
+        $configs = [];
+        
+        // Fetch all configs
+        foreach ($this->institutionsBeingAdminAt as $adminSource) {
+            
+            // Exclude portal configs as they doesn't exist
+            if (strtolower($adminSource) !== self::PORTAL_ADMIN_SOURCE) {
+                
+                $configs[$adminSource] = $this->getInstitutionConfig($adminSource);
+            }
+        }
+        
+        return $configs;
     }
 
     /**
@@ -509,9 +544,74 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function getInstitutionConfig($source)
     {
+        $activeCfg = $this->configLocator->get($this->driversPath . '/' . $source)->toArray();
+        
+        $requestCfgPath = $this->driversPath . '/requests/' . $source;
+        
+        try {
+            $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
+        } catch (\Exception $e) {
+            
+            // There is probably a parent config definition without the parent config
+            $missingParent = $this->getMissingParentConfigName($source);
+            
+            if (! $missingParent)
+                throw $e;
+                
+                // So create one dummy parent config
+            $this->createMissingParent($missingParent);
+            
+            // Now try it again
+            $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
+        }
+        
         return [
-            $this->configLocator->get($this->driversPath . '/' . $source)->toArray(),
-            $this->configLocator->get($this->driversPath . '/requests/' . $source)->toArray()
+            'active' => $activeCfg,
+            'requested' => $requestCfg
         ];
+    }
+
+    /**
+     * Returns filename of missing parent config within a requests' config
+     *
+     * @return false|string
+     */
+    protected function getMissingParentConfigName($source)
+    {
+        $basePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/';
+        
+        $path = $basePath . $this->driversPath . '/requests/';
+        
+        $filename = $path . $source . '.ini';
+        
+        $missingParent = false;
+        
+        $fh = fopen($filename, 'r') or die($php_errormsg);
+        while (! feof($fh)) {
+            $line = fgets($fh, 4096);
+            if (preg_match('/relative_path/', $line)) {
+                
+                $missingParent = explode('"', $line)[1];
+                break;
+            }
+        }
+        fclose($fh);
+        
+        return $path . $missingParent;
+    }
+
+    /**
+     * Creates empty
+     *
+     * @param string $filename            
+     * @throws \Exception
+     */
+    protected function createMissingParent($filename)
+    {
+        try {
+            file_put_contents($filename, '');
+        } catch (\Exception $e) {
+            throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $path'");
+        }
     }
 }

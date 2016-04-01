@@ -39,7 +39,7 @@
             <? endif; ?>
           </thead>
           <tbody>
-         <? foreach($template as $section => $keys): if(! empty($keys)): ?>
+         <? foreach($template as $section => $keys): if(! empty($keys) && ! in_array($section, $restrictedSections)): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
             <? foreach($keys as $key => $value):
                 if (! in_array($section . ':' . $key, $defs['hidden'])): ?>
