@@ -117,7 +117,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $this->emailConfig = $this->configLocator->get('config')['Config_Change_Mailer']->toArray();
         
-        if (empty($this->emailConfig['from']) || empty($this->emailConfig['to'])) {
+        if ($this->emailConfig['enabled'] && (empty($this->emailConfig['from']) || empty($this->emailConfig['to']))) {
             throw new \Exception('Invalid Config_Change_Mailer configuration!');
         }
         
@@ -643,20 +643,30 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function sendRequestCancelledMail($source)
     {
-        $subject = 'Zrušení žádosti o změnu konfigurace u instituce ' . $source;
+        if ($this->emailConfig['enabled']) {
+            
+            $subject = 'Zrušení žádosti o změnu konfigurace u instituce ' . $source;
+            
+            $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" zrušil žádost o změnu konfigurace.';
+            
+            return $this->sendMail($subject, $message);
+        }
         
-        $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" zrušil žádost o změnu konfigurace.';
-        
-        return $this->sendMail($subject, $message);
+        return false;
     }
 
     protected function sendNewRequestMail($source)
     {
-        $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
+        if ($this->emailConfig['enabled']) {
+            
+            $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
+            
+            $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" vytvořil žádost o změnu konfigurace.';
+            
+            return $this->sendMail($subject, $message);
+        }
         
-        $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" vytvořil žádost o změnu konfigurace.';
-        
-        return $this->sendMail($subject, $message);
+        return false;
     }
 
     /**
