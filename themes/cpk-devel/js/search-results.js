@@ -430,6 +430,10 @@ jQuery( document ).ready( function( $ ) {
 				}
 			}
 		});
+		var selectedInstitutions = $('#facet_institution').jstree(true).get_bottom_selected();
+		$.each( selectedInstitutions, function( index, value ){
+		  ADVSEARCH.addFacetFilter( value, true );
+		});
 	});
 	
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {

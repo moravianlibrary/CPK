@@ -53,6 +53,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
       children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
     }
     json.push({
+      'id': facetFilter,
       'text': html,
       'children': children,
       'applied': this.isApplied,
