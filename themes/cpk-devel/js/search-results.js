@@ -422,14 +422,15 @@ jQuery( document ).ready( function( $ ) {
 		$( '.institution-facet-filter' ).each( function ( index, element ) {
 			if ( $( element ).parent().hasClass( 'jstree-clicked' ) ) {
 				if (! $( element ).parent().hasClass( 'active' ) ) {
-					ADVSEARCH.addFacetFilter( $( element ).attr( 'data-facet' ), true );
+					ADVSEARCH.addFacetFilter( $( element ).attr( 'data-facet' ), false );
 				}
 			} else {
 				if ( $( element ).parent().hasClass( 'active' ) ) {
-					ADVSEARCH.removeFacetFilter( $( element ).attr( 'data-facet' ), true );
+					ADVSEARCH.removeFacetFilter( $( element ).attr( 'data-facet' ), false );
 				}
 			}
 		});
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
