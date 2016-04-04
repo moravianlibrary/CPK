@@ -419,21 +419,19 @@ jQuery( document ).ready( function( $ ) {
 	
 	$( 'body' ).on( 'click', '.institution-facet-filter-button', function( event ) {
 		event.preventDefault();
-		$( '.institution-facet-filter' ).each( function ( index, element ) {
-			if ( $( element ).parent().hasClass( 'jstree-clicked' ) ) {
-				if (! $( element ).parent().hasClass( 'active' ) ) {
-					ADVSEARCH.addFacetFilter( $( element ).attr( 'data-facet' ), true );
-				}
-			} else {
-				if ( $( element ).parent().hasClass( 'active' ) ) {
-					ADVSEARCH.removeFacetFilter( $( element ).attr( 'data-facet' ), true );
-				}
-			}
+
+		//remove all institutions
+		var allInstitutions = $('#facet_institution').jstree(true).get_json('#', {flat:true});
+		$.each( allInstitutions, function( index, value ){
+		  ADVSEARCH.removeFacetFilter( value['id'], false );
 		});
+
+		//add selected institutions
 		var selectedInstitutions = $('#facet_institution').jstree(true).get_bottom_selected();
 		$.each( selectedInstitutions, function( index, value ){
-		  ADVSEARCH.addFacetFilter( value, true );
+		  ADVSEARCH.addFacetFilter( value, false );
 		});
+		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
