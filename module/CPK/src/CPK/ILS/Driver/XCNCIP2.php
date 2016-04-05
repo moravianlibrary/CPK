@@ -1145,6 +1145,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $list = $this->useXPath($response, 'LookupUserResponse/LoanedItem');
 
         foreach ($list as $current) {
+            $isbn = $bib_id = $author = $mediumType = null;
             $item_id = $this->getFirstXPathMatchAsString($current,
                 'ItemId/ItemIdentifierValue');
 
@@ -1154,27 +1155,29 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
 
             $dateDue = $this->useXPath($current, 'DateDue');
+            $title = $this->useXPath($current, 'Title');
             $dueStatus =$this->hasOverdue($dateDue);
             $dateDue = $this->parseDate($dateDue);
             $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
             $renewable = empty($renewalNotPermitted)? true : false;
             $additRequest = $this->requests->lookupItem($item_id, $patron['agency']);
-            $additResponse = $this->sendRequest($additRequest);
-            $isbn = $this->useXPath($additResponse,
-                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
-            $bib_id = $this->getFirstXPathMatchAsString($additResponse,
-                    'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-            $author = $this->useXPath($additResponse,
-                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
-            $title = $this->useXPath($additResponse,
-                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
-            if (empty($title) || $title[0] == '')
-                $title = $this->useXPath($current, 'Title');
-            $mediumType = $this->useXPath($additResponse,
-                'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
+            try {
+                $additResponse = $this->sendRequest($additRequest);
+                $isbn = $this->useXPath($additResponse,
+                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
+                $bib_id = $this->getFirstXPathMatchAsString($additResponse,
+                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+                $author = $this->useXPath($additResponse,
+                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
+                if (empty($title) || $title[0] == '')
+                    $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
+                $mediumType = $this->useXPath($additResponse,
+                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
-            if ($this->agency === 'UOG505') { // add record prefix for tre
-                $bib_id = 'UOG505:' . $bib_id;
+                if ($this->agency === 'UOG505') { // add record prefix for tre
+                    $bib_id = 'UOG505:' . $bib_id;
+                }
+            } catch (ILSException $e) {
             }
 
             $retVal[] = array(
