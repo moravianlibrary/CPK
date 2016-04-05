@@ -31,9 +31,9 @@
     ?>
       <div class='well'>
         <form action='/Admin/Home' method='POST'>
-        <table class="col-sm-12">
+        <table class="table table-striped col-sm-12">
           <thead>
-            <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?></h3></td></tr>
+            <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
             <? if ($hasRequested): ?>
               <tr><td colspan="2"><div class="alert alert-warning"><?=$this->transEsc('request_config_change_pending') ?></div></td></tr>
             <? endif; ?>

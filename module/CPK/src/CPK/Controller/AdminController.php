@@ -65,11 +65,18 @@ class AdminController extends \VuFind\Controller\AbstractBase
     protected $configLocator;
 
     /**
-     * Path to institutions configurations
+     * Relative path to institutions configurations
      *
      * @var array
      */
     protected $driversPath;
+
+    /**
+     * Absolute path to institutions configurations
+     *
+     * @var array
+     */
+    protected $driversAbsolutePath;
 
     /**
      * Object containing NCIP driver config template
@@ -110,11 +117,17 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $multibackend = $this->configLocator->get('MultiBackend')->toArray();
         
+        // get the drivers path
         $this->driversPath = empty($multibackend['General']['drivers_path']) ? '.' : $multibackend['General']['drivers_path'];
         
+        // we need it to be an absolute path ..
+        $this->driversAbsolutePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/' . $this->driversPath . '/';
+        
+        // get the templates
         $this->ncipTemplate = $this->configLocator->get('xcncip2_template')->toArray();
         $this->alephTemplate = $this->configLocator->get('aleph_template')->toArray();
         
+        // setup email
         $this->emailConfig = $this->configLocator->get('config')['Config_Change_Mailer']->toArray();
         
         if ($this->emailConfig['enabled'] && (empty($this->emailConfig['from']) || empty($this->emailConfig['to']))) {
@@ -139,10 +152,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $this->initConfigs();
         
-        $this->handlePostRequest();
+        $this->handlePostRequestFromHome();
         
         return $this->createViewModel([
-            'user' => $user,
+            'isPortalAdmin' => $this->isPortalAdmin(),
             'ncipTemplate' => $this->ncipTemplate,
             'alephTemplate' => $this->alephTemplate,
             'configs' => $this->getAdminConfigs(),
@@ -150,6 +163,27 @@ class AdminController extends \VuFind\Controller\AbstractBase
                 'Parent_Config',
                 'Definitions'
             ]
+        ]);
+    }
+
+    public function approvalAction()
+    {
+        // Log in first!
+        if (! ($user = $this->getLoggedInUser()) instanceof User) {
+            return $user; // Not logged in, returns redirection
+        }
+        
+        if (! $this->isPortalAdmin()) {
+            return $this->forceLogin('You\'re not a portal admin!');
+        }
+        
+        $this->initConfigs();
+        
+        $this->handlePostRequestFromApproval();
+        
+        return $this->createViewModel([
+            'isPortalAdmin' => $this->isPortalAdmin(),
+            'configs' => $this->getAllRequestConfigs()
         ]);
     }
 
@@ -166,6 +200,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         // Logged In successfull
         
         $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->isPortalAdmin());
         $viewModel->setVariable('user', $user);
         
         $portalPagesTable = $this->getTable("portalpages");
@@ -239,6 +274,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         // Logged In successfull
         
         $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->isPortalAdmin());
         $viewModel->setVariable('user', $user);
         
         $userTable = $this->getTable('user');
@@ -283,12 +319,19 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function isPortalAdmin()
     {
+        if (isset($this->__isPortalAdmin))
+            return $this->__isPortalAdmin;
+        
         foreach ($this->institutionsBeingAdminAt as $adminSource) {
-            if (strtolower($adminSource) === self::PORTAL_ADMIN_SOURCE)
-                return true;
+            if (strtolower($adminSource) === self::PORTAL_ADMIN_SOURCE) {
+                
+                $this->__isPortalAdmin = true;
+                return $this->__isPortalAdmin;
+            }
         }
         
-        return false;
+        $this->__isPortalAdmin = false;
+        return $this->__isPortalAdmin;
     }
 
     /**
@@ -336,11 +379,11 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * Handles POST request
+     * Handles POST request from a home action
      *
      * It basically processess any config change desired
      */
-    protected function handlePostRequest()
+    protected function handlePostRequestFromHome()
     {
         // Do we have some POST?
         if (! empty($post = $this->params()->fromPost())) {
@@ -360,6 +403,65 @@ class AdminController extends \VuFind\Controller\AbstractBase
                     $this->processCancelChangeRequest($post);
                 }
         }
+    }
+
+    /**
+     * Handles POST request from an approval action
+     */
+    protected function handlePostRequestFromApproval()
+    {
+        // Do we have some POST?
+        if (! empty($post = $this->params()->fromPost())) {
+            
+            // Is there a query for a config modification?
+            if (isset($post['source'])) {
+                
+                $source = $post['source'];
+                
+                $result = $this->approveRequest($source);
+                
+                if ($result) {
+                    
+                    $this->sendRequestApprovedMail($source);
+                    
+                    $msg = $this->translate('approval_succeeded');
+                    $this->flashMessenger()->addSuccessMessage($msg);
+                    
+                    $this->commitNewConfig($source);
+                } else {
+                    
+                    $msg = $this->translate('approval_failed');
+                    $this->flashMessenger()->addErrorMessage($msg);
+                    
+                    $suggestion = "Try to execute 'sudo chown -R www-data \"$this->driversAbsolutePath\"'";
+                    
+                    $this->flashMessenger()->addErrorMessage($suggestion);
+                }
+            }
+        }
+    }
+
+    /**
+     * Approves an configuration request made by institution admin
+     *
+     * @param string $source            
+     *
+     * @return boolean $result
+     */
+    protected function approveRequest($source)
+    {
+        $filename = $this->driversAbsolutePath . 'requests/' . $source . '.ini';
+        
+        $isCopied = copy($filename, $this->driversAbsolutePath . $source . '.ini');
+        
+        if (! $isCopied)
+            return $isCopied;
+        
+        $isDeleted = $this->deleteRequestConfig([
+            'source' => $source
+        ]);
+        
+        return $isDeleted;
     }
 
     /**
@@ -401,11 +503,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
         }
         
-        $basePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/';
-        
-        $path = $basePath . $this->driversPath . '/requests/';
-        
-        $filename = $path . $source . '.ini';
+        $filename = $this->driversAbsolutePath . 'requests/' . $source . '.ini';
         
         return unlink($filename);
     }
@@ -452,16 +550,14 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $config['Availability']['source'] = $source;
         }
         
-        $basePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/';
+        $requestsPath = $this->driversAbsolutePath . 'requests/';
         
-        $path = $basePath . $this->driversPath . '/requests/';
+        $filename = $requestsPath . $source . '.ini';
         
-        $filename = $path . $source . '.ini';
-        
-        $dirStatus = is_dir($path) || mkdir($path, 0777, true);
+        $dirStatus = is_dir($requestsPath) || mkdir($requestsPath, 0777, true);
         
         if (! $dirStatus) {
-            throw new \Exception("Cannot create '$path' directory. Please fix the permissions by running: 'sudo mkdir $path && sudo chown -R www-data $path'");
+            throw new \Exception("Cannot create '$requestsPath' directory. Please fix the permissions by running: 'sudo mkdir $requestsPath && sudo chown -R www-data $requestsPath'");
         }
         
         $config = $this->cleanData($config);
@@ -470,7 +566,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         try {
             (new IniWriter())->toFile($filename, $config);
         } catch (\Exception $e) {
-            throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $path'");
+            throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $requestsPath'");
         }
         
         return $config;
@@ -495,6 +591,45 @@ class AdminController extends \VuFind\Controller\AbstractBase
             }
         }
         return $data;
+    }
+
+    /**
+     * Uses git to version config changes
+     *
+     * @param string $source            
+     */
+    protected function commitNewConfig($source)
+    {
+        exec('dpkg -l | egrep "ii\s+git\s"', $grepInstalled);
+        if (empty($grepInstalled))
+            throw new \Exception('You have to first install git');
+        
+        if (strpos($result[0], 'fatal') === 0) {
+            throw new \Exception("$this->driversAbsolutePath is not a git repository !");
+        }
+        
+        exec("cd $this->driversAbsolutePath && git status --porcelain", $gitStatus);
+        
+        $file = $source . '.ini';
+        
+        // Do we already have this config added to git tracked files?
+        foreach ($gitStatus as $fileStatus) {
+            
+            if (strpos('?? ' .$fileStatus, $file) !== false) {
+                
+                // Now add the file to the tracked files
+                exec("cd $this->driversAbsolutePath && git add $file", $gitStatus);
+            }
+        }
+        
+        $commitMessage = "\"Approved config change for $source\"";
+        
+        exec("cd $this->driversAbsolutePath && git commit \"$file\" -m $commitMessage", $commitResult);
+        
+        $this->flashMessenger()->addWarningMessage("Added commit $commitMessage, but changes are not pushed yet");
+        // git push should be called by cron
+        
+        return true;
     }
 
     /**
@@ -557,6 +692,33 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     * Returns all configs being requested
+     *
+     * return @array
+     */
+    protected function getAllRequestConfigs()
+    {
+        $configs = [];
+        
+        $requestsPath = $this->driversAbsolutePath . 'requests/';
+        
+        $files = scandir($requestsPath, SCANDIR_SORT_NONE);
+        
+        foreach ($files as $file) {
+            if (substr($file, - 4) === '.ini') {
+                
+                $source = substr($file, 0, - 4);
+                
+                $config = $this->getInstitutionConfig($source);
+                
+                $configs[$source] = $config;
+            }
+        }
+        
+        return $configs;
+    }
+
+    /**
      * Returns an associative array of institution configuration.
      *
      * If was configuration not found, then is returned empty array.
@@ -601,11 +763,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function getMissingParentConfigName($source)
     {
-        $basePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/';
-        
-        $path = $basePath . $this->driversPath . '/requests/';
-        
-        $filename = $path . $source . '.ini';
+        $filename = $this->driversAbsolutePath . 'requests/' . $source . '.ini';
         
         $missingParent = false;
         
@@ -662,6 +820,20 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
             
             $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" vytvořil žádost o změnu konfigurace.';
+            
+            return $this->sendMail($subject, $message);
+        }
+        
+        return false;
+    }
+
+    protected function sendRequestApprovedMail($source)
+    {
+        if ($this->emailConfig['enabled']) {
+            
+            $subject = 'Schválení žádosti o změnu konfigurace u instituce ' . $source;
+            
+            $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\n\n právě jsme Vám schválili Vaši žádost o změnu konfigurace v instituci ' . $source;
             
             return $this->sendMail($subject, $message);
         }
