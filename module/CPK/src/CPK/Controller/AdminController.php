@@ -744,7 +744,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
                 throw $e;
                 
                 // So create one dummy parent config
-            $this->createMissingParent($missingParent);
+            $this->createMissingParent($this->driversAbsolutePath . '/requests/' . $missingParent);
             
             // Now try it again
             $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
