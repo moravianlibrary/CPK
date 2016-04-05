@@ -499,7 +499,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         unset($config['source']);
         
-        if (! in_array($source, $this->institutionsBeingAdminAt)) {
+        if (! in_array($source, $this->institutionsBeingAdminAt) && ! $this->isPortalAdmin()) {
             throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
         }
         
