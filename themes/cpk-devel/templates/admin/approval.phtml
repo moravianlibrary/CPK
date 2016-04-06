@@ -44,7 +44,8 @@
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
             <? foreach($keys as $key => $value):
                 $isChanged = $value != $configActive[$section][$key];
-                $isRequired = ! in_array($section . ':' . $key, $defs['optional']);?>
+                $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
+                if (! in_array($section . ':' . $key, $defs['hidden'])): ?>
             <tr>
               <td class="col-sm-3"><?=$key ?></td>
                 <td class="col-sm-9" ng-dblclick="approvalCtrl.edit($event)">
@@ -68,7 +69,7 @@
                 	<?=$isRequired ? 'required' : ''?>/>
               </td>
             </tr>
-            <? endforeach; ?>
+            <? endif; endforeach; ?>
           <? endif; endforeach; ?>
           </tbody>
         </table>
