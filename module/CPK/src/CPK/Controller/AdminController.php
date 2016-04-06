@@ -183,7 +183,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         return $this->createViewModel([
             'isPortalAdmin' => $this->isPortalAdmin(),
-            'configs' => $this->getAllRequestConfigs()
+            'ncipTemplate' => $this->ncipTemplate,
+            'alephTemplate' => $this->alephTemplate,
+            'configs' => $this->getAllRequestConfigs(),
         ]);
     }
 

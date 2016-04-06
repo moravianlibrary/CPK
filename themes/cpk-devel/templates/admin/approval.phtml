@@ -13,7 +13,7 @@
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
-  <div class="col-sm-9 well">
+  <div class="col-sm-9 well" ng-controller='ApprovalController as approvalCtrl'>
     <h2><?=$this->transEsc('configuration_approval')?></h2>
     <?=$this->flashmessages() ?>
     <? $hasRequests = false;
@@ -23,11 +23,18 @@
         $configRequested = $config['requested'];
         $configActive = $config['active'];
         
+        $isAleph = isset($configActive['Catalog']['dlfport']);
+        
+        $template = $isAleph ? $alephTemplate : $ncipTemplate;
+        
+        $defs = $template['Definitions'];
+        unset($template['Definitions']);
+        
         if (! empty($config['requested'])):
           $hasRequests = true;
     ?>
       <div class='well'>
-        <form action='/Admin/Approval' method='POST'>
+        <form ng-submit='approvalCtrl.submit($event)' method='POST'>
         <table class="table table-striped col-sm-12">
           <thead>
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
@@ -36,27 +43,39 @@
          <? foreach($configRequested as $section => $keys): if(! empty($keys)): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
             <? foreach($keys as $key => $value):
-                $isChanged = $value != $configActive[$section][$key];?>
+                $isChanged = $value != $configActive[$section][$key];
+                $isRequired = ! in_array($section . ':' . $key, $defs['optional']);?>
             <tr>
               <td class="col-sm-3"><?=$key ?></td>
-              <? if ($isChanged): ?>
                 <td class="col-sm-9">
+                <div ng-dblclick="approvalCtrl.edit($event)">
+                <? if ($isChanged): ?>
                   <? if (! empty($configActive[$section][$key])): ?>
                     <del style="color: red"><?=$configActive[$section][$key] ?></del>
                     <br>
                   <? endif; ?>
                   <ins style="color: green"><?=$value ?></ins>
-                </td>
-              <? else: ?>
-                <td class="col-sm-9"><?=$value ?></td>
-              <? endif; ?>
+                <? else: ?>
+                  <?=$value ?>
+                <? endif; ?>
+                </div>
+                <input class="form-control hidden" ng-keydown="approvalCtrl.inputKeyDown($event)" ng-blur="approvalCtrl.inputBlurred($event)"
+                	type="<?=$defs[$section][$key] ?>"
+                	value="<?=$value ?>"
+                	<?=( $defs[$section][$key] === 'checkbox' && $value ) ? 'checked="checked"':''; ?>
+                	placeholder="<?=$this->transEsc($template[$section][$key]) ?>"
+                	name="<?=$section . '[' . $key . ']' ?>"
+                	<?=$isRequired ? 'required' : ''?>/>
+              </td>
             </tr>
             <? endforeach; ?>
           <? endif; endforeach; ?>
           </tbody>
         </table>
+        <textarea class="col-sm-12" name="description" placeholder="<?=$this->transEsc('approval_description')?>"></textarea>
         <div class="btn-group">
-          <input class="btn btn-primary" type="submit" value="<?=$this->transEsc('approve_config_change') ?>"/>
+          <input class="btn btn-primary" type="submit" name="approved" value="<?=$this->transEsc('approve_config_change') ?>" ng-submit-approval/>
+          <input class="btn btn-primary" type="submit" name="denied" value="<?=$this->transEsc('deny_config_change') ?>" formnovalidate/>
         </div>
         <input type='hidden' name='source' value='<?=$source ?>'/>
         </form>

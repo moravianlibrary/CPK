@@ -18,6 +18,9 @@ federative-login/login.controller.js
 notifications/module.js
 notifications/notif.controller.js
 
+admin/module.js
+admin/approval.controller.js
+
 cpk.ng-app.js
 "
 
