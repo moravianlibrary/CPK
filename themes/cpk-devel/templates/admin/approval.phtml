@@ -46,8 +46,8 @@
                 $isChanged = $value != $configActive[$section][$key];
                 $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
                 if (! in_array($section . ':' . $key, $defs['hidden'])): ?>
-            <tr>
-              <td class="col-sm-3"><?=$key ?></td>
+            <tr title='<?=($isRequired ? $this->transEsc('This field is required') . ' - ' : '')  . $this->transEsc($template[$section][$key]) ?>'>
+              <td class="col-sm-3"><?=$key . (($isRequired) ? ' *' : '') ?></td>
                 <td class="col-sm-9" ng-dblclick="approvalCtrl.edit($event)">
                 <div>
                 <? if ($isChanged): ?>
@@ -65,6 +65,7 @@
                 	value="<?=$value ?>"
                 	<?=( $defs[$section][$key] === 'checkbox' && $value ) ? 'checked="checked"':''; ?>
                 	placeholder="<?=$this->transEsc($template[$section][$key]) ?>"
+                	title="<?=$this->transEsc($template[$section][$key])?>"
                 	name="<?=$section . '[' . $key . ']' ?>"
                 	<?=$isRequired ? 'required' : ''?>/>
               </td>
@@ -73,7 +74,7 @@
           <? endif; endforeach; ?>
           </tbody>
         </table>
-        <textarea class="col-sm-12" name="message" placeholder="<?=$this->transEsc('approval_description')?>"></textarea>
+        <textarea class="col-sm-12" name="message" placeholder="<?=$this->transEsc('approval_description')?>" title="<?=$this->transEsc('approval_description')?>"></textarea>
         <div class="btn-group">
           <input ng-click='approvalCtrl.submit($event)' class="btn btn-primary" type="submit" name="approved" value="<?=$this->transEsc('approve_config_change') ?>" ng-submit-approval/>
           <input class="btn btn-primary" type="submit" name="denied" value="<?=$this->transEsc('deny_config_change') ?>" formnovalidate/>
