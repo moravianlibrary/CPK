@@ -5,10 +5,16 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 
   $(data).each(function() {
     var html = '';
-    
+
     var lastFacetInString = this.exclude.split( '=' ).pop();
     var facetName = lastFacetInString.split( '%3A' ).shift().substring(1);
-    var facetFilter = facetName + ':"' + this.value + '"';
+    var facetFilterBase = facetName + ':"' + this.value + '"';
+    var facetFilter;
+    if (this.operator == 'OR') {
+      facetFilter = '~' + facetFilterBase;
+    } else {
+      facetFilter = facetFilterBase;
+    }
     if (!this.isApplied && counts) {
       html = "<span class='badge' style='float: right'>" + this.count.toString().replace(/\B(?=(\d{3})+\b)/g, VuFind.translate("number_thousands_separator"));
       if (allowExclude) {
