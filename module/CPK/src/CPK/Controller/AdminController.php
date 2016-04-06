@@ -185,7 +185,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'isPortalAdmin' => $this->isPortalAdmin(),
             'ncipTemplate' => $this->ncipTemplate,
             'alephTemplate' => $this->alephTemplate,
-            'configs' => $this->getAllRequestConfigs(),
+            'configs' => $this->getAllRequestConfigs()
         ]);
     }
 
@@ -415,16 +415,19 @@ class AdminController extends \VuFind\Controller\AbstractBase
         // Do we have some POST?
         if (! empty($post = $this->params()->fromPost())) {
             
+            if (! isset($post['source']))
+                return;
+            
+            $source = $post['source'];
+            
             // Is there a query for a config modification?
-            if (isset($post['source'])) {
+            if (isset($post['approved'])) {
                 
-                $source = $post['source'];
-                
-                $result = $this->approveRequest($source);
+                $result = $this->approveRequest($post);
                 
                 if ($result) {
                     
-                    $this->sendRequestApprovedMail($source);
+                    $this->sendRequestApprovedMail($source, $post['message']);
                     
                     $msg = $this->translate('approval_succeeded');
                     $this->flashMessenger()->addSuccessMessage($msg);
@@ -439,7 +442,18 @@ class AdminController extends \VuFind\Controller\AbstractBase
                     
                     $this->flashMessenger()->addErrorMessage($suggestion);
                 }
-            }
+            } else 
+                if (isset($post['denied'])) {
+                    
+                    $this->deleteRequestConfig([
+                        'source' => $source
+                    ]);
+                    
+                    $this->sendRequestDeniedMail($source, $post['message']);
+                    
+                    $msg = $this->translate('request_successfully_denied');
+                    $this->flashMessenger()->addSuccessMessage($msg);
+                }
         }
     }
 
@@ -450,8 +464,15 @@ class AdminController extends \VuFind\Controller\AbstractBase
      *
      * @return boolean $result
      */
-    protected function approveRequest($source)
+    protected function approveRequest($post)
     {
+        $succeeded = $this->createNewRequestConfig($post, $post['message']);
+        
+        if (! $succeeded)
+            return false;
+        
+        $source = $post['source'];
+        
         $filename = $this->driversAbsolutePath . 'requests/' . $source . '.ini';
         
         $isCopied = copy($filename, $this->driversAbsolutePath . $source . '.ini');
@@ -533,10 +554,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
      *
      * @param array $config            
      */
-    protected function createNewRequestConfig($config)
-    {
+    protected function createNewRequestConfig($config, $comment = null)
+    {        
         $source = $config['source'];
-        
+         
         if (empty($source))
             return false;
         
@@ -569,6 +590,17 @@ class AdminController extends \VuFind\Controller\AbstractBase
             (new IniWriter())->toFile($filename, $config);
         } catch (\Exception $e) {
             throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $requestsPath'");
+        }
+        
+        if ($comment !== null && ! empty($comment)) {
+            
+            // Remove new lines
+            $comment = '; ' . preg_replace('/\s+/', ' ', $comment);
+            
+            // Add some comment to the comment
+            $comment = '; Description added while approving by admin with userId "' . $_SESSION['Account']['userId'] . '":' . PHP_EOL . $comment;
+            
+            file_put_contents($filename, $comment . PHP_EOL, FILE_APPEND);
         }
         
         return $config;
@@ -617,7 +649,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         // Do we already have this config added to git tracked files?
         foreach ($gitStatus as $fileStatus) {
             
-            if (strpos('?? ' .$fileStatus, $file) !== false) {
+            if (strpos('?? ' . $fileStatus, $file) !== false) {
                 
                 // Now add the file to the tracked files
                 exec("cd $this->driversAbsolutePath && git add $file", $gitStatus);
@@ -815,6 +847,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
         return false;
     }
 
+    /**
+     * Sends an information email about a new configuration request
+     */
     protected function sendNewRequestMail($source)
     {
         if ($this->emailConfig['enabled']) {
@@ -829,13 +864,33 @@ class AdminController extends \VuFind\Controller\AbstractBase
         return false;
     }
 
-    protected function sendRequestApprovedMail($source)
+    /**
+     * Sends an information email about a configuration request has been approved
+     */
+    protected function sendRequestApprovedMail($source, $message)
     {
         if ($this->emailConfig['enabled']) {
             
             $subject = 'Schválení žádosti o změnu konfigurace u instituce ' . $source;
             
-            $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\n\n právě jsme Vám schválili Vaši žádost o změnu konfigurace v instituci ' . $source;
+            $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\r\n\r\n právě jsme Vám schválili Vaši žádost o změnu konfigurace v instituci ' . $source . '\r\n\r\n' . $message;
+            
+            return $this->sendMail($subject, $message);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Sends an information email about a configuration request has been denied
+     */
+    protected function sendRequestDeniedMail($source, $message)
+    {
+        if ($this->emailConfig['enabled']) {
+            
+            $subject = 'Žádost o změnu konfigurace u instituce ' . $source . ' byla zamítnuta';
+            
+            $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\r\n\r\n právě Vám byla Vaše žádost o změnu konfigurace v instituci ' . $source . ' zamítnuta.\r\n\r\n' . $message;
             
             return $this->sendMail($subject, $message);
         }

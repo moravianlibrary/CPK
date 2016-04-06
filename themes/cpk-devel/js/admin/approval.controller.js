@@ -20,12 +20,9 @@
 	    input : undefined
 	};
 
-	var formAction = '/Admin/Approval';
 	var dontSubmitNow = false;
 
 	var vm = this;
-
-	vm.submit = submit;
 
 	vm.edit = edit;
 
@@ -34,18 +31,6 @@
 	vm.inputBlurred = inputBlurred;
 
 	return vm;
-
-	function submit($event) {
-
-	    var willSubmit = !dontSubmitNow;
-
-	    if (!willSubmit) {
-		dontSubmitNow = willSubmit;
-	    } else {
-		$event.target.action = formAction;
-		$event.target.submit();
-	    }
-	}
 
 	function edit($event) {
 
@@ -60,6 +45,9 @@
 	function inputKeyDown($event) {
 	    if ($event.keyCode === 13) { // Enter
 
+		// Do not submit the form
+		$event.preventDefault();
+
 		var newValue = $event.target.value;
 
 		// Commiting changes
@@ -68,8 +56,6 @@
 		} else {
 
 		    // Perform dummy submit to show what's wrong
-		    dontSubmitNow = true;
-
 		    submitApprovalBtn.click();
 		}
 
@@ -125,8 +111,6 @@
 	    currentTableRow.input.className = currentTableRow.input.className + ' hidden';
 
 	    currentTableRow.div.removeAttribute('hidden');
-
-	    dontSubmitNow = true;
 	}
 
 	/**
@@ -134,6 +118,11 @@
 	 * 
 	 * It also moves all contents into <del> element when no <ins> found &
 	 * creates new <ins> element with value provided
+	 * 
+	 * Returns false only if the field being set is required & it's not met
+	 * the conditions
+	 * 
+	 * @return boolean
 	 */
 	function setNewDivValue(value) {
 	    if (value === '') {

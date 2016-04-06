@@ -34,7 +34,7 @@
           $hasRequests = true;
     ?>
       <div class='well'>
-        <form ng-submit='approvalCtrl.submit($event)' method='POST'>
+        <form action='/Admin/Approval' method='POST'>
         <table class="table table-striped col-sm-12">
           <thead>
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
@@ -73,9 +73,9 @@
           <? endif; endforeach; ?>
           </tbody>
         </table>
-        <textarea class="col-sm-12" name="description" placeholder="<?=$this->transEsc('approval_description')?>"></textarea>
+        <textarea class="col-sm-12" name="message" placeholder="<?=$this->transEsc('approval_description')?>"></textarea>
         <div class="btn-group">
-          <input class="btn btn-primary" type="submit" name="approved" value="<?=$this->transEsc('approve_config_change') ?>" ng-submit-approval/>
+          <input ng-click='approvalCtrl.submit($event)' class="btn btn-primary" type="submit" name="approved" value="<?=$this->transEsc('approve_config_change') ?>" ng-submit-approval/>
           <input class="btn btn-primary" type="submit" name="denied" value="<?=$this->transEsc('deny_config_change') ?>" formnovalidate/>
         </div>
         <input type='hidden' name='source' value='<?=$source ?>'/>
