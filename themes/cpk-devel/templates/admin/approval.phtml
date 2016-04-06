@@ -47,8 +47,8 @@
                 $isRequired = ! in_array($section . ':' . $key, $defs['optional']);?>
             <tr>
               <td class="col-sm-3"><?=$key ?></td>
-                <td class="col-sm-9">
-                <div ng-dblclick="approvalCtrl.edit($event)">
+                <td class="col-sm-9" ng-dblclick="approvalCtrl.edit($event)">
+                <div>
                 <? if ($isChanged): ?>
                   <? if (! empty($configActive[$section][$key])): ?>
                     <del style="color: red"><?=$configActive[$section][$key] ?></del>
