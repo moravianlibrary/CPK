@@ -50,7 +50,8 @@
                 	type="<?=$defs[$section][$key] ?>"
                 	value="<?=$config[$section][$key] ?>"
                 	<?=( $defs[$section][$key] === 'checkbox' && $config[$section][$key] ) ? 'checked="checked"':''; ?>
-                	placeholder="<?=$this->transEsc($value) ?>"
+                	placeholder="<?=$this->transEsc($value)?>"
+                	title="<?=$this->transEsc($value)?>"
                 	name="<?=$section . '[' . $key . ']' ?>"
                 	<?=in_array($section . ':' . $key, $defs['optional']) ? '' : 'required'?>/>
               </td>
