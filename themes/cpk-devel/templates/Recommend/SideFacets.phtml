@@ -1,7 +1,4 @@
 <? $results = $this->recommend->getResults(); ?>
-<? if ($results->getResultTotal() > 0): ?>
-  <h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4>
-<? endif; ?>
 <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
 <?
   $html = '';
@@ -316,6 +313,11 @@ JS;
       <? endif; ?>
       <div class='facet-divider'></div>
     </div>
+    <? if($cluster['label'] == 'Institution'): ?>
+      <? if ($results->getResultTotal() > 0): ?>
+        <h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4>
+      <? endif; ?>
+    <? endif; ?>
   <? endforeach; ?>
 <? endif; ?>
 <!--data-toggle="modal" data-target="#exampleModal"-->
