@@ -35,8 +35,12 @@
   }
 
   .list-group-item.active {
-    background-color: @brand-primary;
+    color: @brand-primary;
+    font-weight: bold;
     &:hover, &:focus {
+      background-color: transparent;
+      color: @brand-primary;
+      text-decoration: underline;
       outline: none;
     }
   }
