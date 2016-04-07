@@ -283,7 +283,6 @@ JS;
         <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
          <div class="list-group filters">
 
-           <a href='<?=$removeFilterUrl?>'><div class="list-group-item title"><?=$this->transEsc('Remove Filters')?></div></a>
            <? foreach ($filterList as $field => $filters): ?>
              <? if ($field !== 'Institution'): ?>
                  <? foreach ($filters as $i => $filter): ?>
@@ -314,6 +313,7 @@ JS;
                  <? endforeach; ?>
              <? endif; ?>
            <? endforeach; ?>
+           <a href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
          </div>
         <? endif;?>
     <? endif; ?>
