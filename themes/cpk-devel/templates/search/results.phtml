@@ -77,34 +77,35 @@
     	  <? endif; ?>
       </div>
     </div>
+    <div class="hidden-print search-controls row">
+      <div class="col-sm-3">
+      <? if ($recordTotal > 0): ?>
+      <?=$this->render('search/controls/limit.phtml')?>
+      <? endif; ?>
+      </div>
+    <div class='col-sm-6 text-center' id='results-amount-info-placeholder'>
+      <? if ($recordTotal > 0): ?>
+          <strong><?=$this->localizedNumber($this->results->getStartRecord())?></strong> - <strong><?=$this->localizedNumber($this->results->getEndRecord())?></strong>
+          <? if (!isset($this->skipTotalCount)): ?>
+            <?=$this->transEsc('of')?> <strong><?=$this->localizedNumber($recordTotal)?></strong>
+          <? endif; ?>
+        <? else: ?>
+          <h2><?=$this->transEsc('nohit_heading')?></h2>
+        <? endif; ?>
+    </div>
+      <? if ($recordTotal > 0): ?>
+        <div class="col-sm-3 text-right">
+
+          <?=$this->render('search/controls/sort.phtml')?>
+        </div>
+      <? endif; ?>
+    </div>
     <div class="row">
       <div class="<?=$this->layoutClass('mainbody')?>">
         <?=$this->flashmessages()?>
-        <div class="hidden-print search-controls row">
-          <div class="col-sm-3">
-          <? if ($recordTotal > 0): ?>
-          <?=$this->render('search/controls/limit.phtml')?>
-          <? endif; ?>
-          </div>
-    	  <div class='col-sm-6 text-center' id='results-amount-info-placeholder'>
-    	    <? if ($recordTotal > 0): ?>
-              <strong><?=$this->localizedNumber($this->results->getStartRecord())?></strong> - <strong><?=$this->localizedNumber($this->results->getEndRecord())?></strong>
-              <? if (!isset($this->skipTotalCount)): ?>
-                <?=$this->transEsc('of')?> <strong><?=$this->localizedNumber($recordTotal)?></strong>
-              <? endif; ?>
-            <? else: ?>
-              <h2><?=$this->transEsc('nohit_heading')?></h2>
-            <? endif; ?>
-    	  </div>
-          <? if ($recordTotal > 0): ?>
-            <div class="col-sm-3 text-right">
-              
-              <?=$this->render('search/controls/sort.phtml')?>
-            </div>
-          <? endif; ?>
-        </div>
+
         <? /* End Listing Options */ ?>
-    
+
         <? if ($recordTotal < 1): ?>
           <p>
             <? if (isset($this->overrideEmptyMessage)): ?>
