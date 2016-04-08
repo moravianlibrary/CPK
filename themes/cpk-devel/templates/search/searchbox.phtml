@@ -18,6 +18,16 @@
     $lastLimit = $options->getLastLimit();
 ?>
 <? if ($this->searchTypeTemplate == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = -1;?>
+<div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingAdvancedSearch">
+      <h4 class="panel-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAdvancedSearch" aria-expanded="false" aria-controls="collapseAdvancedSearch">
+          <?=$this->transEsc("Edit as Advanced Search")?> <i class="pr-interface-arrowbottom4"></i>
+        </a>
+      </h4>
+    </div>
+    <div id="collapseAdvancedSearch" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAdvancedSearch">
+      <div class="panel-body">
 
 	<?  //create JSON from query to pass it later as a param into ajax submit
         $queryArray = [];
@@ -121,6 +131,11 @@
       <!-- End of facets -->
 
     </form>
+
+  </div>
+</div>
+</div>
+
     <!-- End of advanced search form -->
 
     <? $tabs = $this->render('search/searchTabs'); ?>
