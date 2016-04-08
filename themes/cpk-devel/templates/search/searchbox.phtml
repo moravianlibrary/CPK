@@ -43,7 +43,7 @@
     </script>
     <div class='row'>
       <div class='col-md-12'></div>
-        <select id='group-join-type' name="join" class="form-control">
+        <select id='group-join-type' name="join" class="form-control selectpicker">
           <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("group_AND")?></option>
           <option value="OR"<?= ($allGroupsOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("group_OR")?></option>
         </select>
@@ -55,7 +55,7 @@
         <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
         <div class='col-md-2'>
           <label class='dropdown-select-label'>
-            <select class="group-operator dropdown-select" name='bool<?=$groups?>[]'>
+            <select class="group-operator dropdown-select selectpicker" name='bool<?=$groups?>[]'>
               <option value="AND"<?= ($groupOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
               <option value="OR"<?= ($groupOperator == 'OR') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
               <option value="NOT"<?= ($groupOperator == 'NOT') ? 'selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
@@ -66,7 +66,7 @@
           <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); $queries++;?>
           <div class='row queries' id='query_<?=$queries?>'>
             <div class='col-md-4 text-right'>
-              <select class='form-control query-type' name='type<?=$groups?>[]'>
+              <select class='form-control query-type selectpicker' name='type<?=$groups?>[]'>
                 <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
                 <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
                   <?=$this->transEsc($description)?>
@@ -183,7 +183,7 @@
 				var currentUrl = window.location.pathname;
 				var controller = currentUrl.split('/')[1];
 				var action = currentUrl.split('/')[2];
-				
+
   			    if ( controller == 'Search' && action == 'Results' ) {
   			      ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor=' + $( "#searchForm_lookfor" ).val() + '&type=AllFields'}, false);
   			      return false;
