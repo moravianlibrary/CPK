@@ -133,7 +133,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
     {
-        $this->translator = $translator;
+        $this->translator = $translator->getTranslator();
     }
 
     /**
@@ -1256,11 +1256,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $fines[] = array(
                 'amount' => (string) $amount_int,
                 'checkout' => $date,
-                'fine' => (string) $desc[0],
+                'fine' => $this->translator->translate((string) $type[0]),
                 'balance' => (string) $sum,
                 'createdate' => '',
                 'duedate' => '',
-                'id' => (string) $type[0],
+                'id' => (string) $desc[0],
                 'excluded' => $excluded
             );
         }
@@ -1436,7 +1436,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $logo = $this->logo;
 
         foreach ($blocksParsed as $block) {
-            $block = $this->translator->getTranslator()->translate((string) $block);
+            $block = $this->translator->translate((string) $block);
             if (! empty($logo)) {
                 if (! empty($blocks[$logo]))
                     $blocks[$logo] .= ", " . $block;
