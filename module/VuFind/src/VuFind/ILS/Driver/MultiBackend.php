@@ -65,10 +65,10 @@ class MultiBackend extends AbstractBase
      * @var string
      */
     protected $defaultDriver;
-    
+
     /**
      * The path to the drivers relative to the config path
-     * 
+     *
      * @var string
      */
     protected $driversPath;
@@ -152,7 +152,7 @@ class MultiBackend extends AbstractBase
         $this->defaultDriver = isset($this->config['General']['default_driver'])
             ? $this->config['General']['default_driver']
             : null;
-        
+
         $this->driversPath = isset($this->config['General']['drivers_path'])
             ? $this->config['General']['drivers_path']
             : null;
@@ -518,7 +518,7 @@ class MultiBackend extends AbstractBase
         $driver = $this->getDriver($source);
         if ($driver) {
             $fines = $driver->getMyFines($this->stripIdPrefixes($patron, $source));
-            $fines['source'] = $source;
+            array_walk($fines, function(&$value, $k, $source) { $value['source'] = $source; }, $source);
             return $this->addIdPrefixes($fines, $source);
         }
         throw new ILSException('No suitable backend driver found');
@@ -1418,8 +1418,8 @@ class MultiBackend extends AbstractBase
     {
         // Determine config file name based on class name:
         try {
-            $path = ($this->driversPath === null) 
-                ? $source 
+            $path = ($this->driversPath === null)
+                ? $source
                 : $this->driversPath . '/' . $source;
 
             $config = $this->configLoader->get($path);

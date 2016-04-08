@@ -163,8 +163,6 @@ function getTableRowFromFine(tableBody, fine, counter) {
 	var dataKey = $(this).attr('data-key');
 	var dataVal = fine[dataKey];
 
-	var unknownTitle = tableBody.attr('data-title-unknown');
-
 	if (typeof dataVal != 'undefined') {
 
 	    if (dataKey == 'title') {
@@ -174,9 +172,6 @@ function getTableRowFromFine(tableBody, fine, counter) {
 		    anchor.text(dataVal);
 
 		    dataVal = anchor;
-		} else {
-		    // If title is empty, set the string to unknown
-		    dataVal = unknownTitle;
 		}
 	    } else if (dataKey == 'amount' || dataKey == 'balance') {
 		var sum = parseInt(dataVal) / 100;
@@ -189,8 +184,7 @@ function getTableRowFromFine(tableBody, fine, counter) {
 
 	    tableCell.html(dataVal);
 	} else if (dataKey == 'title') {
-	    // If title is empty, set the string to unknown
-	    dataVal = unknownTitle;
+	    // If title is empty, show nothing
 	    tableCell.text(dataVal);
 	}
 
