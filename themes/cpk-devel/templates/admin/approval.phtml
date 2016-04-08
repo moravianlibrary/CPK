@@ -30,6 +30,8 @@
         $defs = $template['Definitions'];
         unset($template['Definitions']);
         
+        $hidden = $defs['hidden'];
+        
         if (! empty($configRequested)):
           $hasRequests = true;
     ?>
@@ -40,13 +42,12 @@
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
           </thead>
           <tbody>
-         <? foreach($configRequested as $section => $keys): if(! empty($keys)): ?>
+         <? foreach($configRequested as $section => $keys): if(! empty($keys) && array_search($section, $hidden) === false): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
-            <? foreach($keys as $key => $value):
+            <? foreach($keys as $key => $value): if (array_search($section . ':' . $key, $hidden) === false):
                 $isChanged = $value != $configActive[$section][$key];
                 $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
-                $isCheckbox = $defs[$section][$key] === 'checkbox';
-                if (! in_array($section . ':' . $key, $defs['hidden'])): ?>
+                $isCheckbox = $defs[$section][$key] === 'checkbox'; ?>
             <tr title='<?=($isRequired ? $this->transEsc('This field is required') . ' - ' : '')  . $this->transEsc($template[$section][$key]) ?>'>
               <td class="col-sm-3"><?=$key . (($isRequired) ? ' *' : '') ?></td>
                 <td class="col-sm-9" ng-dblclick="approvalCtrl.edit($event)">

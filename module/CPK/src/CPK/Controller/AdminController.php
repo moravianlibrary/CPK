@@ -154,15 +154,13 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $this->handlePostRequestFromHome();
         
+        $adminConfigs = $this->getAdminConfigs();
+        
         return $this->createViewModel([
             'isPortalAdmin' => $this->isPortalAdmin(),
             'ncipTemplate' => $this->ncipTemplate,
             'alephTemplate' => $this->alephTemplate,
-            'configs' => $this->getAdminConfigs(),
-            'restrictedSections' => [
-                'Parent_Config',
-                'Definitions'
-            ]
+            'configs' => $adminConfigs
         ]);
     }
 
@@ -181,11 +179,13 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $this->handlePostRequestFromApproval();
         
+        $allRequestConfigs = $this->getAllRequestConfigs();
+        
         return $this->createViewModel([
             'isPortalAdmin' => $this->isPortalAdmin(),
             'ncipTemplate' => $this->ncipTemplate,
             'alephTemplate' => $this->alephTemplate,
-            'configs' => $this->getAllRequestConfigs()
+            'configs' => $allRequestConfigs
         ]);
     }
 
@@ -544,7 +544,13 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $requestUnchanged = $this->translate('request_config_denied_unchanged');
             $this->flashMessenger()->addErrorMessage($requestUnchanged);
             return;
+        } elseif ($this->changedHiddenConfiguration($post)) {
+            $requestUnchanged = $this->translate('request_config_denied_unauthorized');
+            $this->flashMessenger()->addErrorMessage($requestUnchanged);
+            return;
         }
+        
+        $post['Catalog']['requester'] = $_SESSION['Account']['userId'];
         
         $success = $this->createNewRequestConfig($post);
         
@@ -636,8 +642,11 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     * Returns true if provided configuration differs from the activeOne
      *
-     * @param unknown $config            
+     * @param array $config            
+     *
+     * @return boolean
      */
     protected function changedSomethingComapredToActive($config)
     {
@@ -645,11 +654,21 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
         
+        $defs = $template['Definitions'];
+        
+        $hidden = $defs['hidden'];
+        
         // Has the request changed something?
         foreach ($this->getActiveConfig($config['source']) as $section => $keys) {
+
+            if (array_search($section, $hidden) !== false)
+                continue;
+            
             foreach ($keys as $key => $value) {
+                if (array_search($section . ':' . $key, $hidden) !== false)
+                    continue;
                 
-                if ($template['Definitions'][$section][$key] === 'checkbox') {
+                if ($defs[$section][$key] === 'checkbox') {
                     $config[$section][$key] = isset($config[$section][$key]) ? '1' : '0';
                 }
                 
@@ -660,6 +679,76 @@ class AdminController extends \VuFind\Controller\AbstractBase
         }
         
         return false;
+    }
+
+    /**
+     * Returns true if provided configuration has hidden parameters present within it.
+     *
+     * It should prevent curious institution administrators from changing values they're not supposed to change.
+     *
+     * @param array $config            
+     *
+     * @return boolean
+     */
+    protected function changedHiddenConfiguration($config)
+    {
+        unset($config['source']);
+        
+        $isAleph = isset($config['Catalog']['dlfport']);
+        
+        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
+        
+        $defs = $template['Definitions'];
+        
+        $hidden = $defs['hidden'];
+        
+        // Has the request changed something?
+        foreach ($config as $section => $keys) {
+            foreach ($keys as $key => $value) {
+                if (array_search($section . ':' . $key, $hidden) !== false)
+                    return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Unsets all the keys within a config that matches the template's Definition's hidden array
+     *
+     * @param array $config            
+     *
+     * @return array $filteredConfig
+     */
+    protected function filterHiddenParameters($config)
+    {
+        $isAleph = isset($config['Catalog']['dlfport']);
+        
+        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
+        
+        $hidden = $template['Definitions']['hidden'];
+        
+        if (empty($hidden))
+            return $config;
+        
+        $filteredConfig = [];
+        
+        foreach ($config as $section => $keys) {
+            
+            // There may be hidden whole sections
+            if (array_search($section, $hidden) !== false)
+                continue;
+            
+            foreach ($keys as $key => $value) {
+                
+                // Is hidden current key?
+                if (array_search($section . ':' . $key, $hidden) === false) {
+                    $filteredConfig[$section][$key] = $value;
+                }
+            }
+        }
+        
+        return $filteredConfig;
     }
 
     /**
@@ -788,9 +877,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
                 
                 $source = substr($file, 0, - 4);
                 
-                $config = $this->getInstitutionConfig($source);
-                
-                $configs[$source] = $config;
+                $configs[$source] = $this->getInstitutionConfig($source);
             }
         }
         
@@ -829,12 +916,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
         }
         
-        unset($activeCfg['IdResolver']['prefix']);
-        unset($requestCfg['IdResolver']['prefix']);
-        
         return [
-            'active' => $activeCfg,
-            'requested' => $requestCfg
+            'active' => $this->filterHiddenParameters($activeCfg),
+            'requested' => $this->filterHiddenParameters($requestCfg)
         ];
     }
 

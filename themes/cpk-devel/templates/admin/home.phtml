@@ -27,6 +27,8 @@
         $defs = $template['Definitions'];
         unset($template['Definitions']);
         
+        $hidden = $defs['hidden'];
+        
         $config = $hasRequested ? $configs['requested'] : $configs['active'];
     ?>
       <div class='well'>
@@ -39,10 +41,9 @@
             <? endif; ?>
           </thead>
           <tbody>
-         <? foreach($template as $section => $keys): if(! empty($keys) && ! in_array($section, $restrictedSections)): ?>
+         <? foreach($template as $section => $keys): if(! empty($keys) && array_search($section, $hidden) === false): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
-            <? foreach($keys as $key => $value):
-                if (! in_array($section . ':' . $key, $defs['hidden'])): 
+            <? foreach($keys as $key => $value): if (array_search($section . ':' . $key, $hidden) === false):
                     $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
                     $isCheckbox = $defs[$section][$key] === 'checkbox';?>
             <tr title='<?=($isRequired ? $this->transEsc('This field is required') . ' - ' : '')  . $this->transEsc($value) ?>'>
@@ -61,8 +62,7 @@
                 	<?=$isRequired ? 'required' : ''?>/>
               </td>
             </tr>
-            <?  endif; 
-               endforeach; ?>
+            <? endif; endforeach; ?>
           <? endif; endforeach; ?>
           </tbody>
         </table>
