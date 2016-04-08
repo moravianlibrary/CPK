@@ -424,6 +424,29 @@ class User extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface,
         return isset($this->config->Catalog->library_cards)
             && $this->config->Catalog->library_cards;
     }
+    
+    /**
+     * Checks if user is admin
+     * 
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        if (! empty($this->major)) {
+            
+            return true;
+        }
+        
+        foreach ($this->getLibraryCards(true) as $libCard) {
+            
+            if (! empty($libCard->major)) {
+                
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * Get all library cards associated with the user.

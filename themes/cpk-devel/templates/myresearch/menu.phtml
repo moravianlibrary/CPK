@@ -28,7 +28,12 @@
 	      <?=$this->transEsc('Settings')?>
 	      <span class="pull-right flip"><i class="fa fa-gear"></i></span>
 	    </a>
-
+	    <? if ($user->isAdmin()): ?>
+	      <a href="<?=$this->url('admin')?>" class="list-group-item<?=$this->active == 'admin' ? ' active' : ''?>">
+	        <?=$this->transEsc('Administration')?>
+	        <span class="pull-right flip"><i class="fa fa-gear"></i></span>
+	      </a>
+	    <? endif; ?>
 	    <? if (! empty($user['major'])): ?>
 	      <a href="<?=$this->url('statistics-dashboard')?>" class="list-group-item<?=$this->active == 'statistics' ? ' active' : ''?>">
 	        <?=$this->transEsc('Statistics')?>
