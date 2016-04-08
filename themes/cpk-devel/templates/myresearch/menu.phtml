@@ -55,7 +55,7 @@
       <span class="pull-right flip"><i class="icon-hledani"></i></span>
     </a>
   <? endif; ?>
-  <? if ($user = $this->auth()->isLoggedIn()): ?>
+  <? if ($user): ?>
     <a href="<?=$this->url('myresearch-logout')?>" class="list-group-item">
       <?=$this->transEsc("Log Out")?>
       <span class="pull-right flip"><i class="icon-odhlasit"></i></span>
