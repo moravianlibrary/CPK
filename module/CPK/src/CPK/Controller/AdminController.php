@@ -575,7 +575,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
         }
         
-        $config = $this->parseConfigSections($config);
+        $config = $this->parseConfigSections($config, $source);
         
         if (isset($config['Availability']['source'])) {
             $config['Availability']['source'] = $source;
@@ -707,8 +707,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
      * Note that it cuts out the configuration which is not included within the template
      *
      * @param array $config            
+     * @param string $source            
      */
-    protected function parseConfigSections($config)
+    protected function parseConfigSections($config, $source)
     {
         $isAleph = isset($config['Catalog']['dlfport']);
         
@@ -740,6 +741,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
                 }
             }
         }
+        
+        // Add prefix for IdResolver
+        $parsedCfg['IdResolver']['prefix'] = $source;
         
         return $parsedCfg;
     }
@@ -824,6 +828,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
             // Now try it again
             $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
         }
+        
+        unset($activeCfg['IdResolver']['prefix']);
+        unset($requestCfg['IdResolver']['prefix']);
         
         return [
             'active' => $activeCfg,
