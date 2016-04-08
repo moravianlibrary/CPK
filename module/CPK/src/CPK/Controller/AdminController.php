@@ -540,6 +540,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function processChangeRequest($post)
     {
+        if (! $this->changedSomethingComapredToActive($post)) {
+            $requestUnchanged = $this->translate('request_config_denied_unchanged');
+            $this->flashMessenger()->addErrorMessage($requestUnchanged);
+            return;
+        }
+        
         $success = $this->createNewRequestConfig($post);
         
         if ($success) {
@@ -630,6 +636,33 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     *
+     * @param unknown $config            
+     */
+    protected function changedSomethingComapredToActive($config)
+    {
+        $isAleph = isset($config['Catalog']['dlfport']);
+        
+        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
+        
+        // Has the request changed something?
+        foreach ($this->getActiveConfig($config['source']) as $section => $keys) {
+            foreach ($keys as $key => $value) {
+                
+                if ($template['Definitions'][$section][$key] === 'checkbox') {
+                    $config[$section][$key] = isset($config[$section][$key]) ? '1' : '0';
+                }
+                
+                if ($value != $config[$section][$key]) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
      * Uses git to version config changes
      *
      * @param string $source            
@@ -681,6 +714,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
         
+        $defs = $template['Definitions'];
+        
         // Prepare template for effective iteration
         unset($template['Definitions']);
         
@@ -697,8 +732,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
         foreach ($template as $section => $keys) {
             foreach ($keys as $key => $value) {
                 
-                // Set new configuration or default if not provided
-                $parsedCfg[$section][$key] = isset($config[$section][$key]) ? $config[$section][$key] : $value;
+                if ($defs[$section][$key] === 'checkbox') {
+                    $parsedCfg[$section][$key] = isset($config[$section][$key]) ? '1' : '0';
+                } else {
+                    // Set new configuration or default if not provided
+                    $parsedCfg[$section][$key] = isset($config[$section][$key]) ? $config[$section][$key] : $value;
+                }
             }
         }
         
@@ -765,7 +804,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function getInstitutionConfig($source)
     {
-        $activeCfg = $this->configLocator->get($this->driversPath . '/' . $source)->toArray();
+        $activeCfg = $this->getActiveConfig($source);
         
         $requestCfgPath = $this->driversPath . '/requests/' . $source;
         
@@ -790,6 +829,18 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'active' => $activeCfg,
             'requested' => $requestCfg
         ];
+    }
+
+    /**
+     * Retrieves active config of an institution
+     *
+     * @param string $source            
+     *
+     * @return array
+     */
+    protected function getActiveConfig($source)
+    {
+        return $this->configLocator->get($this->driversPath . '/' . $source)->toArray();
     }
 
     /**

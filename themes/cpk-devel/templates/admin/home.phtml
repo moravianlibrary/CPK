@@ -43,14 +43,18 @@
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
             <? foreach($keys as $key => $value):
                 if (! in_array($section . ':' . $key, $defs['hidden'])): 
-                    $isRequired = ! in_array($section . ':' . $key, $defs['optional']);?>
+                    $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
+                    $isCheckbox = $defs[$section][$key] === 'checkbox';?>
             <tr title='<?=($isRequired ? $this->transEsc('This field is required') . ' - ' : '')  . $this->transEsc($value) ?>'>
               <td class="col-sm-3"><?=$key . (($isRequired) ? ' *' : '') ?></td>
               <td class="col-sm-9">
                 <input class="form-control"
                 	type="<?=$defs[$section][$key] ?>"
-                	value="<?=$config[$section][$key] ?>"
-                	<?=( $defs[$section][$key] === 'checkbox' && $config[$section][$key] ) ? 'checked="checked"':''; ?>
+                	<? if( $isCheckbox ): ?>
+                	  <?=( $config[$section][$key] ) ? 'checked="checked"' : ''; ?>
+                	<? else: ?>
+                	  value="<?=$config[$section][$key]?>"
+                	<? endif; ?>
                 	placeholder="<?=$this->transEsc($value)?>"
                 	title="<?=$this->transEsc($value)?>"
                 	name="<?=$section . '[' . $key . ']' ?>"
