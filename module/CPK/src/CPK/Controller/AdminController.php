@@ -420,6 +420,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             
             $source = $post['source'];
             
+            $contactPerson = $post['Catalog']['contactPerson'];
+            
             // Is there a query for a config modification?
             if (isset($post['approved'])) {
                 
@@ -427,7 +429,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
                 
                 if ($result) {
                     
-                    $this->sendRequestApprovedMail($source, $post['message']);
+                    $this->sendRequestApprovedMail($source, $post['message'], $contactPerson);
                     
                     $msg = $this->translate('approval_succeeded');
                     $this->flashMessenger()->addSuccessMessage($msg);
@@ -449,7 +451,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
                         'source' => $source
                     ]);
                     
-                    $this->sendRequestDeniedMail($source, $post['message']);
+                    $this->sendRequestDeniedMail($source, $post['message'], $contactPerson);
                     
                     $msg = $this->translate('request_successfully_denied');
                     $this->flashMessenger()->addSuccessMessage($msg);
@@ -555,9 +557,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
      * @param array $config            
      */
     protected function createNewRequestConfig($config, $comment = null)
-    {        
+    {
         $source = $config['source'];
-         
+        
         if (empty($source))
             return false;
         
@@ -706,7 +708,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
     /**
      * Returns all configs associated with current admin
      *
-     * return @array
+     * @return array
      */
     protected function getAdminConfigs()
     {
@@ -728,7 +730,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
     /**
      * Returns all configs being requested
      *
-     * return @array
+     * @return array
      */
     protected function getAllRequestConfigs()
     {
@@ -832,6 +834,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
     /**
      * Sends an information email about a configuration request change has beed cancelled
+     *
+     * @param string $source            
      */
     protected function sendRequestCancelledMail($source)
     {
@@ -841,7 +845,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             
             $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" zrušil žádost o změnu konfigurace.';
             
-            return $this->sendMail($subject, $message);
+            return $this->sendMailToPortalAdmin($subject, $message);
         }
         
         return false;
@@ -849,6 +853,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
     /**
      * Sends an information email about a new configuration request
+     *
+     * @param string $source            
      */
     protected function sendNewRequestMail($source)
     {
@@ -858,7 +864,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             
             $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" vytvořil žádost o změnu konfigurace.';
             
-            return $this->sendMail($subject, $message);
+            return $this->sendMailToPortalAdmin($subject, $message);
         }
         
         return false;
@@ -866,8 +872,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
     /**
      * Sends an information email about a configuration request has been approved
+     *
+     * @param string $source            
+     * @param string $message            
+     * @param string $to            
      */
-    protected function sendRequestApprovedMail($source, $message)
+    protected function sendRequestApprovedMail($source, $message, $to)
     {
         if ($this->emailConfig['enabled']) {
             
@@ -875,7 +885,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             
             $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\r\n\r\n právě jsme Vám schválili Vaši žádost o změnu konfigurace v instituci ' . $source . '\r\n\r\n' . $message;
             
-            return $this->sendMail($subject, $message);
+            return $this->sendMailToContactPerson($subject, $message, $to);
         }
         
         return false;
@@ -883,8 +893,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
     /**
      * Sends an information email about a configuration request has been denied
+     *
+     * @param string $source            
+     * @param string $message            
+     * @param string $to            
      */
-    protected function sendRequestDeniedMail($source, $message)
+    protected function sendRequestDeniedMail($source, $message, $to)
     {
         if ($this->emailConfig['enabled']) {
             
@@ -892,7 +906,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             
             $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\r\n\r\n právě Vám byla Vaše žádost o změnu konfigurace v instituci ' . $source . ' zamítnuta.\r\n\r\n' . $message;
             
-            return $this->sendMail($subject, $message);
+            return $this->sendMailToContactPerson($subject, $message, $to);
         }
         
         return false;
@@ -904,10 +918,24 @@ class AdminController extends \VuFind\Controller\AbstractBase
      * @param string $subject            
      * @param string $message            
      */
-    protected function sendMail($subject, $message)
+    protected function sendMailToPortalAdmin($subject, $message)
     {
         $from = new \Zend\Mail\Address($this->emailConfig['from'], $this->emailConfig['fromName']);
         
         return $this->mailer->send($this->emailConfig['to'], $from, $subject, $message);
+    }
+
+    /**
+     * Sends an email to a contact person
+     *
+     * @param string $subject            
+     * @param string $message            
+     * @param string $to            
+     */
+    protected function sendMailToContactPerson($subject, $message, $to)
+    {
+        $from = new \Zend\Mail\Address($this->emailConfig['from'], $this->emailConfig['fromName']);
+        
+        return $this->mailer->send($to, $from, $subject, $message);
     }
 }
