@@ -30,7 +30,9 @@
         $defs = $template['Definitions'];
         unset($template['Definitions']);
         
-        $hidden = $defs['hidden'];
+        // These two cannot be changed by anyone - they're generated
+        unset($configRequested['IdResolver']['prefix']);
+        unset($configRequested['Catalog']['requester']);
         
         if (! empty($configRequested)):
           $hasRequests = true;
@@ -42,9 +44,9 @@
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
           </thead>
           <tbody>
-         <? foreach($configRequested as $section => $keys): if(! empty($keys) && array_search($section, $hidden) === false): ?>
+         <? foreach($configRequested as $section => $keys): if(! empty($keys)): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
-            <? foreach($keys as $key => $value): if (array_search($section . ':' . $key, $hidden) === false):
+            <? foreach($keys as $key => $value):
                 $isChanged = $value != $configActive[$section][$key];
                 $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
                 $isCheckbox = $defs[$section][$key] === 'checkbox'; ?>
@@ -75,7 +77,7 @@
                 	<?=$isRequired ? 'required' : ''?>/>
               </td>
             </tr>
-            <? endif; endforeach; ?>
+            <? endforeach; ?>
           <? endif; endforeach; ?>
           </tbody>
         </table>

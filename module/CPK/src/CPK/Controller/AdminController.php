@@ -468,6 +468,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function approveRequest($post)
     {
+        $requestedConfig = $this->getInstitutionConfig($post['source'], false)['requested'];
+        $requesterId = $requestedConfig['Catalog']['requester'];
+        
+        // Create new config with the initial requester Id
+        $post['Catalog']['requester'] = $requesterId;
+        
         $succeeded = $this->createNewRequestConfig($post, $post['message']);
         
         if (! $succeeded)
@@ -660,7 +666,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         
         // Has the request changed something?
         foreach ($this->getActiveConfig($config['source']) as $section => $keys) {
-
+            
             if (array_search($section, $hidden) !== false)
                 continue;
             
@@ -877,7 +883,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
                 
                 $source = substr($file, 0, - 4);
                 
-                $configs[$source] = $this->getInstitutionConfig($source);
+                $configs[$source] = $this->getInstitutionConfig($source, false);
             }
         }
         
@@ -893,7 +899,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
      *
      * @return array
      */
-    protected function getInstitutionConfig($source)
+    protected function getInstitutionConfig($source, $filterHidden = true)
     {
         $activeCfg = $this->getActiveConfig($source);
         
@@ -916,10 +922,16 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
         }
         
-        return [
-            'active' => $this->filterHiddenParameters($activeCfg),
-            'requested' => $this->filterHiddenParameters($requestCfg)
-        ];
+        if ($filterHidden)
+            return [
+                'active' => $this->filterHiddenParameters($activeCfg),
+                'requested' => $this->filterHiddenParameters($requestCfg)
+            ];
+        else
+            return [
+                'active' => $activeCfg,
+                'requested' => $requestCfg
+            ];
     }
 
     /**
