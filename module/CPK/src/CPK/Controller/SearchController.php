@@ -556,8 +556,8 @@ class SearchController extends AbstractSearch
 	    $view->institutionsMappings = $institutionsMappings;
 	    
 	    /* Handle view template */
-	    if (! empty($this->params()->fromQuery('searchType')) ){
-	        $view->searchTypeTemplate = $this->params()->fromQuery('searchType');
+	    if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
+	        $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
 	    }
 	
 	    return $view;
