@@ -171,7 +171,7 @@ jQuery( document ).ready( function( $ ) {
     		
     		if ( switchToAdvancedSearch ) {
     			var  toUrl = window.location.href;
-    			window.location.href = toUrl;
+    			window.location.href = toUrl + "&searchTypeTemplate=advanced";
     		}
 			
     		/* Search */	
