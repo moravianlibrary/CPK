@@ -353,7 +353,7 @@
     function favoritesListDirective() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/favorites/list-item.html',
+	    templateUrl : '/themes/cpk-devel/js/ng-cpk/favorites/list-item.html',
 	    link : linker
 	};
 	

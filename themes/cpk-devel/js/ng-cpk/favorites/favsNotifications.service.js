@@ -1,9 +1,6 @@
 /**
  * An service providing an 'notifications API' for favorites app
  * 
- * FIXME Actualize the notifications provided .. it is no longer the '__notif'
- * js object, but it is an ng-app already
- * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {

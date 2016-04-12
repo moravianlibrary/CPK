@@ -21,7 +21,7 @@ notifications/notif.controller.js
 admin/module.js
 admin/approval.controller.js
 
-cpk.ng-app.js
+module.js
 "
 
 if [ ! $(which curl) ]; then
@@ -35,7 +35,7 @@ for i in $deps; do
 	args+=" --data-urlencode js_code@${i}"
 done
 
-dest="ng-apps.min.js"
+dest="ng-cpk.min.js"
 
 echo "Requesting google closure compiler to concatenate & compress & compile all the ng-apps together .."
 curl -Ls $args -d output_info=compiled_code https://closure-compiler.appspot.com/compile > "$dest"

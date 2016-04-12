@@ -65,33 +65,34 @@ $useCompiledAngular = false;
 if ($useCompiledAngular) {
 
     // Add compiled angular apps
-    array_push($toRet['js'], 'ng-apps.min.js');
+    array_push($toRet['js'], 'ng-cpk/ng-cpk.min.js');
 } else {
 
     $jsToInclude = [
-        'favorites/module.js',
-        'favorites/translate.filter.js',
-        'favorites/favsNotifications.service.js',
-        'favorites/favorite.class.js',
-        'favorites/favorites.factory.js',
-        'favorites/storage.service.js',
-        'favorites/broadcaster.service.js',
-        'favorites/list.controller.js',
-        'favorites/record.controller.js',
-
-        'federative-login/module.js',
-        'federative-login/login.controller.js',
-
-        'notifications/module.js',
-        'notifications/notif.controller.js',
         
-        'admin/module.js',
-        'admin/approval.controller.js',
-        
-        'history/module.js',
-        'history/checkedouthistory.controller.js',
+        'ng-cpk/favorites/module.js',
+        'ng-cpk/favorites/favsNotifications.service.js',
+        'ng-cpk/favorites/favorite.class.js',
+        'ng-cpk/favorites/favorites.factory.js',
+        'ng-cpk/favorites/storage.service.js',
+        'ng-cpk/favorites/broadcaster.service.js',
+        'ng-cpk/favorites/list.controller.js',
+        'ng-cpk/favorites/record.controller.js',
 
-        'cpk.ng-app.js'
+        'ng-cpk/federative-login/module.js',
+        'ng-cpk/federative-login/login.controller.js',
+
+        'ng-cpk/notifications/module.js',
+        'ng-cpk/notifications/notif.controller.js',
+        
+        'ng-cpk/admin/module.js',
+        'ng-cpk/admin/approval.controller.js',
+        
+        'ng-cpk/history/module.js',
+        'ng-cpk/history/checkedouthistory.controller.js',
+        
+        'ng-cpk/module.js',
+        'ng-cpk/translate.filter.js',
     ];
 
     $toRet['js'] = array_merge($toRet['js'], $jsToInclude);

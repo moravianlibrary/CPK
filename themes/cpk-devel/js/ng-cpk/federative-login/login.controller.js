@@ -120,7 +120,7 @@
     function lastUsedDirective() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/federative-login/last-used.html'
+	    templateUrl : '/themes/cpk-devel/js/ng-cpk/federative-login/last-used.html'
 	};
     }
 

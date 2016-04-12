@@ -4,7 +4,7 @@
  * @author Jiří Kozlovský
  */
 (function() {
-    angular.module('favorites').filter('translate', translateFilter);
+    angular.module('cpk').filter('translate', translateFilter);
 
     function translateFilter() {
 	return function(input) {
@@ -12,7 +12,7 @@
 		return VuFind.translate(input);
 	    }
 	    
-	    return input
+	    return input;
 	}
     }
 })();
