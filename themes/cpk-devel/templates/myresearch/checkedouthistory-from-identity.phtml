@@ -33,7 +33,9 @@
               <?=str_replace('class="', 'class="label label-info ', $this->record($resource)->getFormatList())?>
               <br/>
             <? endif; ?>
-            <? $field996 = $resource->getItem996($ilsDetails['item_id']); ?>
+            <? if (!is_a($resource, 'VuFind\\RecordDriver\\Missing')): ?>
+              <? $field996 = $resource->getItem996($ilsDetails['item_id']); ?>
+            <? endif; ?>
             <? if (!empty($ilsDetails['volume'])): ?>
               <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($ilsDetails['volume'])?>
               <br />
