@@ -666,4 +666,23 @@ class SolrMarc extends ParentSolrMarc
     {
         return isset($this->fields['citation_record_type']) ? $this->fields['citation_record_type'] : '';
     }
+
+
+    /**
+     * From all 996's fields get only the searched item's field.
+     *
+     * @param string $item_id
+     * @return array
+     */
+    public function getItem996($item_id = null)
+    {
+        if (empty($item_id)) return null;
+        $all996subfields = $this->getAll996Subfields();
+        foreach ($all996subfields as $item996) {
+            if ($item_id === $item996['b']) {
+                return $item996;
+            }
+        }
+        return null;
+    }
 }

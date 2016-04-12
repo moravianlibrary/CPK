@@ -1156,6 +1156,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $dateDue = $this->useXPath($current, 'DateDue');
             $title = $this->useXPath($current, 'Title');
+            $publicationYear = $this->useXPath($current, 'Ext/BibliographicDescription/PublicationDate');
             $dueStatus =$this->hasOverdue($dateDue);
             $dateDue = $this->parseDate($dateDue);
             $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
@@ -1190,7 +1191,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'request' => empty($request) ? '' : (string) $request[0],
                 'volume' => '',
                 'author' => empty($author) ? '' : (string) $author[0],
-                'publication_year' => '', // TODO
+                'publication_year' => empty($publicationYear) ? '' : (string) $publicationYear[0],
                 'renewable' => $renewable,
                 'message' => '',
                 'title' => empty($title) ? '' : (string) $title[0],

@@ -66,8 +66,12 @@ foreach ($libraryIdentity['transactions'] as $resource):
         <?=$this->record($resource)->getFormatList()?>
         <br/>
       <? endif; ?>
+      <? $field996 = $resource->getItem996($ilsDetails['item_id']); ?>
       <? if (isset($ilsDetails['volume']) && !empty($ilsDetails['volume'])): ?>
         <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($ilsDetails['volume'])?>
+        <br />
+      <? elseif(isset($field996['v']) && !empty($field996['v'])): ?>
+        <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($field996['v'])?>
         <br />
       <? endif; ?>
 
