@@ -231,6 +231,18 @@ class MultiBackend extends MultiBackendBase
         }
         throw new ILSException('No suitable backend driver found');
     }
+    
+    public function getMyHistory($patron, $limit = 10)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            $history = $driver->getMyHistory($this->stripIdPrefixes($patron, $source), $limit);
+        
+            return $this->addIdPrefixes($history, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
 
     public function getPaymentURL($patron, $fine)
     {

@@ -87,6 +87,9 @@ if ($useCompiledAngular) {
         
         'admin/module.js',
         'admin/approval.controller.js',
+        
+        'history/module.js',
+        'history/checkedouthistory.controller.js',
 
         'cpk.ng-app.js'
     ];

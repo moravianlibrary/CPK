@@ -6,6 +6,10 @@
 	      <?=$this->transEsc('Checked Out Items')?>
 	      <span class="pull-right flip"><i class="icon-typ-kniha"></i></span>
 	    </a>
+	    <a href="<?=$this->url('myresearch-checkedouthistory')?>" class="list-group-item<?=$this->active == 'checkedouthistory' ? ' active' : ''?>">
+	      <?=$this->transEsc('Checked Out History')?>
+	      <span class="pull-right flip"><i class="icon-typ-kniha"></i></span>
+	    </a>
 	    <a href="<?=$this->url('myresearch-holds')?>" class="list-group-item<?=$this->active == 'holds' ? ' active' : ''?>">
 	      <?=$this->transEsc('Holds and Recalls')?>
 	      <span class="pull-right flip"><i class="icon-rezervace2"></i></span>

@@ -603,6 +603,74 @@ class AjaxController extends AjaxControllerBase
                 self::STATUS_ERROR);
     }
 
+    public function getMyHistoryAjax()
+    {
+            // Get the cat_username being requested
+        $cat_username = $this->params()->fromPost('cat_username');
+        
+        $hasPermissions = $this->hasPermissions($cat_username);
+        
+        if ($hasPermissions instanceof \Zend\Http\Response)
+            return $hasPermissions;
+        
+        $renderer = $this->getViewRenderer();
+        
+        $catalog = $this->getILS();
+        
+        $ilsDriver = $catalog->getDriver();
+        
+        if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
+            
+            $patron = [
+                'cat_username' => $cat_username,
+                'id' => $cat_username
+            ];
+            
+            try {
+                // Try to get the profile ..
+                $result = $ilsDriver->getMyHistory($patron);
+            } catch (\Exception $e) {
+                return $this->outputException($e, $cat_username);
+            }
+            
+            $transactions = array();
+            foreach ($result as $current) {
+                // Build record driver:
+                $transactions[] = $this->getDriverForILSRecord($current);
+            }
+            
+            $transactions = array();
+            foreach ($result as $current) {
+                // Build record driver:
+                $transactions[] = $this->getDriverForILSRecord($current);
+            }
+            
+            $templateVars = [
+                'transactions' => $transactions,
+                'history' => true,
+                'currentLimit' => 50,
+                'limitList' => [
+                    50, 100, 200
+                ]
+            ];
+            
+            $html = $renderer->render('myresearch/checkedouthistory-from-identity.phtml', $templateVars);
+            
+            $cat_username = str_replace(':', '\:', $cat_username);
+            $splitted_cat_username = explode('.', $cat_username);
+            
+            $toRet = [
+                'html' => $html
+            ];
+            
+            return $this->output($toRet, self::STATUS_OK);
+        } else
+            return $this->output([
+                'cat_username' => $cat_username,
+                'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
+            ], self::STATUS_ERROR);
+    }
+
     /**
      * Fetches recent notifications.
      *

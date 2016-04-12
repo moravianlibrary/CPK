@@ -363,6 +363,23 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function checkedOutHistoryAction()
+    {
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+        
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver($user)) {
+            return $this->forwardTo('LibraryCards', 'Home');
+        }
+        
+        return $this->createViewModel([
+            'libraryIdentities' => $user->getLibraryCards()
+        ]);
+    }
+
     /**
      * Send user's saved favorites from a particular list to the view
      *
