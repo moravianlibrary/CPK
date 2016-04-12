@@ -326,6 +326,20 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         return $hf;
     }
 
+    protected function getListOfFields()
+    {
+        $search = $this->config->get($this->searchConfig);
+        if (isset($search->Solr->default_field_list_mode)) {
+            $mode = $search->Solr->default_field_list_mode;
+            if ($mode == 'solr') {
+                return null;
+            } else if ($mode == 'override' && isset($search->Solr->default_field_list_override)) {
+                return $search->Solr->default_field_list_override;
+            }
+        }
+        return '*,score';
+    }
+
     /**
      * Create the SOLR connector.
      *
@@ -335,10 +349,13 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
     {
         $config = $this->config->get('config');
 
+        $fl = $this->getListOfFields();
+        $defaults = ($fl == null) ? [] : ['fl' => $fl];
+
         $handlers = [
             'select' => [
                 'fallback' => true,
-                'defaults' => ['fl' => '*,score'],
+                'defaults' => $defaults,
                 'appends'  => ['fq' => []],
             ],
             'term' => [
