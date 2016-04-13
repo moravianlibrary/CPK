@@ -405,6 +405,102 @@ class Aleph extends AlephBase
         
         return $transactions;
     }
+    
+    public function getMyHistoryPage($user, $page, $perPage = 10)
+    {
+        $userId = $user['id'];
+        
+        $historyPage = [];
+        
+        $params = [
+            'type' => 'history'
+        ];
+
+        $xml = $this->alephWebService->doRestDLFRequest(
+            array('patron', $userId, 'circulationActions', 'loans'), $params);
+        
+        $count = 0;
+        $currentPage = 1;
+        foreach ($xml->xpath('//loan') as $item) {
+            
+            if ($currentPage == $page) {
+                $href = (string) $item->xpath('@href')[0];
+                
+                $result = $this->alephWebService->doHTTPRequest($href);
+                $replyCode = (string) $result->{'reply-code'};
+                if ($replyCode != "0000") {
+                    $replyText = (string) $result->{'reply-text'};
+                    $this->logger->err("DLF request failed", array(
+                        'url' => $url,
+                        'reply-code' => $replyCode,
+                        'reply-message' => $replyText
+                    ));
+                    $ex = new AlephRestfulException($replyText, $replyCode);
+                    $ex->setXmlResponse($result);
+                    throw $ex;
+                }
+                
+                $item = $result->xpath('//loan')[0];
+                $z36h = $item->z36h;
+                $z13 = $item->z13;
+                $z30 = $item->z30;
+                $reqnum = (string) $z36h->{'z36h-doc-number'} . (string) $z36h->{'z36h-item-sequence'} . (string) $z36h->{'z36h-sequence'};
+                $title = (string) $z13->{'z13-title'};
+                $author = (string) $z13->{'z13-author'};
+                $publicationYear = (string) $z13->{'z13-year'};
+                $id = (string) $z13->{'z13-doc-number'};
+                $due = (string) $z36h->{'z36h-due-date'};
+                $returned = (string) $z36h->{'z36h-returned-date'};
+                $loaned = (string) $z36h->{'z36h-loan-date'};
+                $dueDate = strtotime($this->dateConverter->convertFromDisplayDate("d.m.Y", $this->parseDate($due)));
+                $group = substr(strrchr($href, "/"), 1);
+                if (strpos($group, '?') !== false) {
+                    $group = substr($group, 0, strpos($group, '?'));
+                }
+                
+                $z36ItemId = $this->admlib . $z36h->{'z36h-doc-number'} . $z36h->{'z36h-item-sequence'};
+                $z36_sub_library_code = (string) $item->{'z36h-sub-library-code'};
+                $item = array(
+                    'id' => $id,
+                    'item_id' => $group,
+                    'title' => $title,
+                    'author' => $author,
+                    'reqnum' => $reqnum,
+                    'loandate' => $this->parseDate($loaned),
+                    'duedate' => $this->parseDate($due),
+                    'returned' => $this->parseDate($returned),
+                    'publicationYear' => $publicationYear,
+                    'z36_item_id' => $z36ItemId,
+                    'z36_sub_library_code' => $z36_sub_library_code
+                );
+                
+                $historyPage[] = $item;
+            }
+            
+            if (++ $count % $perPage === 0) {
+                ++ $currentPage;
+            }
+        }
+        
+        // We need z30-barcode to resolveIds, but history doesnt provide it ...
+        //$this->idResolver->resolveIds($historyPage);
+        
+        $sortByReturned = false;
+        
+        if ($sortByReturned) {
+            $self = $this;
+            usort($historyPage, function ($first, $second) use ($self) {
+                $a = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $first['returned']);
+                $b = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $second['returned']);
+                return ($b - $a);
+            });
+        }
+        
+        return [
+            'historyPage' => $historyPage,
+            'totalPages' => ceil($count / $perPage)
+        ];
+    }
 
     /**
      * Get Status

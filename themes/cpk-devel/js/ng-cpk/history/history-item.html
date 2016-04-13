@@ -1,0 +1,34 @@
+<div id="record{{ resource.uniqueId }}" class="row well"
+	style="margin-bottom: 2px;">
+	<div class="col-sm-2 text-center">
+		<img src="{{ resource.thumbnail }}" class="recordcover"
+			alt="{{ 'Cover Image' | translate }}">
+	</div>
+	<div class="col-sm-9">
+	  <a ng-if="resource.titleLink" href="{{ resource.titleLink }}" class="title">{{ resource.title }}</a>
+	  <div ng-if="!resource.titleLink"> {{ resource.title }}</div>
+	  <div ng-if="resource.authorLink">
+	    {{ 'by' | translate }}:
+	    <a href="{{ resource.authorLink }}">{{ resource.author }}</a>
+	  </div>
+	  <div ng-if="!resource.authorLink">{{ 'by' | translate }}: {{ resource.author }}</div>
+	  <div ng-repeat="format in resource.formats">
+	    {{ format }}
+	  </div>
+	  <div ng-if="resource.volume">
+	    <strong>{{ 'Volume' | translate }}</strong> {{ resource.volume }}
+	    <br>
+	  </div>
+	  <div ng-if="resource.publicationYear">
+	    <strong>{{ 'Year of Publication' | translate }}</strong> {{ resource.publicationYear }}
+	    <br>
+	  </div>
+	  <div ng-if="resource.renewed">
+        <strong>{{ 'Renewed' | translate }}:</strong> {{ resource.renewed }}
+        <br>
+      </div>
+      <div>
+        <strong>{{ 'Due Date' | translate }}:</strong> {{ resource.duedate }}
+	  </div>
+	</div>
+</div>

@@ -603,10 +603,11 @@ class AjaxController extends AjaxControllerBase
                 self::STATUS_ERROR);
     }
 
-    public function getMyHistoryAjax()
+    public function getMyHistoryPageAjax()
     {
             // Get the cat_username being requested
-        $cat_username = $this->params()->fromPost('cat_username');
+        $post = $this->params()->fromPost();
+        $cat_username = $post['cat_username'];
         
         $hasPermissions = $this->hasPermissions($cat_username);
         
@@ -626,44 +627,42 @@ class AjaxController extends AjaxControllerBase
                 'id' => $cat_username
             ];
             
+            $page = isset($post['page']) ? $post['page'] : 1;
+            
             try {
                 // Try to get the profile ..
-                $result = $ilsDriver->getMyHistory($patron);
+                $result = $ilsDriver->getMyHistoryPage($patron, $page);
             } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
             
-            $transactions = array();
-            foreach ($result as $current) {
-                // Build record driver:
-                $transactions[] = $this->getDriverForILSRecord($current);
+            $i = 0;
+            foreach ($result['historyPage'] as &$historyItem) {
+
+                $resource = $this->getDriverForILSRecord($historyItem);
+
+                // We need to let JS know what to opt for ...
+                $historyItem['uniqueId'] = $resource->getUniqueId() . ++$i; //adding order to id (as suffix) to be able to show more covers with same id
+                $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+
+                if ($bibInfo) {
+                    $recordId = "#cover_$recordId";
+
+                    $bibInfo = json_decode($bibInfo);
+
+                    $recordId = preg_replace("/[\.:]/", "", $recordId);
+
+                    $obalky[$recordId] = [
+                        'bibInfo' => $bibInfo,
+                        'advert' => $renderer->record($resource)->getObalkyKnihAdvert(
+                            'checkedouthistory')
+                    ];
+                } else {
+                    $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
+                }
             }
             
-            $transactions = array();
-            foreach ($result as $current) {
-                // Build record driver:
-                $transactions[] = $this->getDriverForILSRecord($current);
-            }
-            
-            $templateVars = [
-                'transactions' => $transactions,
-                'history' => true,
-                'currentLimit' => 50,
-                'limitList' => [
-                    50, 100, 200
-                ]
-            ];
-            
-            $html = $renderer->render('myresearch/checkedouthistory-from-identity.phtml', $templateVars);
-            
-            $cat_username = str_replace(':', '\:', $cat_username);
-            $splitted_cat_username = explode('.', $cat_username);
-            
-            $toRet = [
-                'html' => $html
-            ];
-            
-            return $this->output($toRet, self::STATUS_OK);
+            return $this->output($result, self::STATUS_OK);
         } else
             return $this->output([
                 'cat_username' => $cat_username,

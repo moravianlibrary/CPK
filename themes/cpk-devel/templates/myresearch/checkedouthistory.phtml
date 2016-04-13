@@ -19,10 +19,13 @@
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
       </h3>
-      <div ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well" style="margin-bottom: 2px;">
+      <div ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well center" style="margin-bottom: 2px;">
         <i class="fa fa-spinner fa-spin"></i>
         <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
+      <div ng-repeat="resource in historyCtrl.historyPage" ng-history-item>
+      </div>
+      <div ng-pagination></div>
     <? endforeach; ?>
   </div>
 

@@ -232,12 +232,26 @@ class MultiBackend extends MultiBackendBase
         throw new ILSException('No suitable backend driver found');
     }
     
-    public function getMyHistory($patron, $limit = 10)
+    /**
+     * Retrieves patron's history at a specified page
+     * 
+     * @param array $patron
+     * @param number $page
+     * @throws ILSException
+     * @return mixed|string
+     */
+    public function getMyHistoryPage($patron, $page)
     {
         $source = $this->getSource($patron['cat_username']);
         $driver = $this->getDriver($source);
         if ($driver) {
-            $history = $driver->getMyHistory($this->stripIdPrefixes($patron, $source), $limit);
+            
+            if (! $this->methodSupported($driver, 'getMyHistoryPage'))
+                throw new ILSException('Driver doesn\'t support getMyHistoryPage method');
+            
+            $strippedPatron = $this->stripIdPrefixes($patron, $source);
+            
+            $history = $driver->getMyHistoryPage($strippedPatron, $page);
         
             return $this->addIdPrefixes($history, $source);
         }
