@@ -2,9 +2,9 @@
 
 <? if (count($this->pagesInRange) > 1):
     $arrayKeys = array_keys($this->pagesInRange);
-    $lastArrayKey = array_pop($arrayKeys); 
-    
-    $first_key = current(array_keys($this->pagesInRange));
+
+    $first_key = current($arrayKeys);
+    $lastArrayKey = array_pop($arrayKeys);
 ?>
 
 <div class='col-md-12' id='pagination-placeholder'>
