@@ -471,7 +471,7 @@ class Aleph extends AlephBase
                     'returned' => $this->parseDate($returned),
                     'publicationYear' => $publicationYear,
                     'z36_item_id' => $z36ItemId,
-                    'z36_sub_library_code' => $z36_sub_library_code
+                    'z36_sub_library_code' => $z36_sub_library_code,
                 );
                 
                 $historyPage[] = $item;
@@ -495,6 +495,11 @@ class Aleph extends AlephBase
                 $b = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $second['returned']);
                 return ($b - $a);
             });
+        }
+        
+        $i = ($page - 1) * $perPage;
+        foreach($historyPage as &$historyItem) {
+            $historyItem['rowNo'] = ++$i;
         }
         
         return [
