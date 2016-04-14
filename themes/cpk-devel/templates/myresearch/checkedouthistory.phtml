@@ -32,7 +32,7 @@
         <i class="fa fa-spinner fa-spin"></i>
         <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
-      <div ng-pagination="<?=$source ?>" class='row well' ng-if="paginator.lastPage != 1" ></div>
+      <div ng-pagination="<?=$source ?>" class='row well' ng-if="paginator && paginator.lastPage != 1" ></div>
     </div>
     <? endforeach; ?>
   </div>
