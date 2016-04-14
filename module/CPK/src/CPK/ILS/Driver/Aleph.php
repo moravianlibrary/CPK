@@ -491,8 +491,8 @@ class Aleph extends AlephBase
         if ($sortByReturned) {
             $self = $this;
             usort($historyPage, function ($first, $second) use ($self) {
-                $a = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $first['returned']);
-                $b = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $second['returned']);
+                $a = (int) $first['returned'];
+                $b = (int) $second['returned'];
                 return ($b - $a);
             });
         }

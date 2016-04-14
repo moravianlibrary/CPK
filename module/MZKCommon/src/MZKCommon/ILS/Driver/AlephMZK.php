@@ -1409,8 +1409,8 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
         if ($history) {
             $self = $this;
             usort($transList, function($first, $second) use ($self) {
-                $a = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $first['returned']);
-                $b = (int) $self->dateConverter->convertFromDisplayDate('Ymd', $second['returned']);
+                $a = (int) $first['returned'];
+                $b = (int) $second['returned'];
                 return ($b - $a);
             });
         }
