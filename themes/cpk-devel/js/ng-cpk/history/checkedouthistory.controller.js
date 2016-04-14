@@ -177,6 +177,9 @@
 		}
 		
 		for (var i = currentPage - tolerance, j = 0; i < maxPage; ++j, ++i) {
+		    
+		    var showThisPage = true;
+		    
 		    if (i < 0) {
 			maxPage = maxPage - i;
 			
@@ -185,7 +188,13 @@
 			
 			i = 0;
 		    }
-		    newVisiblePages[j] = newPages[i];
+		    
+		    var showThisPage = !((willShowLast && i === (lastPage - 1)) || (willShowFirst && i === 0));
+		    
+		    if (showThisPage)
+			newVisiblePages[j] = newPages[i];
+		    else
+			--j;
 		}
 
 		$scope.paginator = {
