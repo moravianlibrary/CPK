@@ -8,24 +8,32 @@
 ?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row">
-  <div ng-controller="CheckedOutHistoryController as historyCtrl" class="<?=$this->layoutClass('mainbody')?>">
+  <div class="<?=$this->layoutClass('mainbody')?>">
     <h2><?=$this->transEsc('Checked Out History')?></h2>
     <?=$this->flashmessages()?>
     
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
       $source = explode('.', $libraryIdentity['cat_username'])[0]; ?>
-
+    <div ng-controller="CheckedOutHistoryController as historyCtrl">
       <h3 class="well row blickable" style="margin-bottom: 3px;" id="<?=$source?>">
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
+      <label style="padding-right: 40px;" class="dropdown-select-label pull-right">
+      <select ng-model="historyCtrl.perPage" ng-change="historyCtrl.perPageUpdated()" class="jumpMenu form-control dropdown-select" style="margin-right: -12px;">
+                  <option value="10" selected="selected">10 <?=$this->translate('records-in-genitive') ?></option>
+                  <option value="50">50 <?=$this->translate('records-in-genitive') ?></option>
+                  <option value="100">100 <?=$this->translate('records-in-genitive') ?></option>
+      </select>
+      </label>
       </h3>
-      <div ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well center" style="margin-bottom: 2px;">
+      <div ng-repeat="resource in historyCtrl.historyPage" ng-history-item>
+      </div>
+      <div ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well text-center" style="margin-bottom: 2px;">
         <i class="fa fa-spinner fa-spin"></i>
         <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
-      <div ng-repeat="resource in historyCtrl.historyPage" ng-history-item>
-      </div>
       <div ng-pagination></div>
+    </div>
     <? endforeach; ?>
   </div>
 

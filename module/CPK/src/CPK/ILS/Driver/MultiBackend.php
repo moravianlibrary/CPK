@@ -240,7 +240,7 @@ class MultiBackend extends MultiBackendBase
      * @throws ILSException
      * @return mixed|string
      */
-    public function getMyHistoryPage($patron, $page)
+    public function getMyHistoryPage($patron, $page, $perPage)
     {
         $source = $this->getSource($patron['cat_username']);
         $driver = $this->getDriver($source);
@@ -251,7 +251,7 @@ class MultiBackend extends MultiBackendBase
             
             $strippedPatron = $this->stripIdPrefixes($patron, $source);
             
-            $history = $driver->getMyHistoryPage($strippedPatron, $page);
+            $history = $driver->getMyHistoryPage($strippedPatron, $page, $perPage);
         
             return $this->addIdPrefixes($history, $source);
         }

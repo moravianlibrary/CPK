@@ -406,7 +406,7 @@ class Aleph extends AlephBase
         return $transactions;
     }
     
-    public function getMyHistoryPage($user, $page, $perPage = 10)
+    public function getMyHistoryPage($user, $page, $perPage)
     {
         $userId = $user['id'];
         

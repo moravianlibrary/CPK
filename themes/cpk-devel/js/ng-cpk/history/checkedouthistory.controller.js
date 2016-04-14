@@ -24,6 +24,9 @@
 	vm.historyPage = [];
 	vm.pageSelected = pageSelected;
 	
+	vm.perPage = '10';
+	vm.perPageUpdated = perPageUpdated;
+	
 	return vm;
 	// Public
 	
@@ -58,7 +61,37 @@
 		    
 		}).then($scope.$applyAsync);
 	    }
-	}	
+	}
+	
+	/**
+	 * Is called when an perPage limit is chosen
+	 */
+	function perPageUpdated() {
+	    
+	    // Behave like we just reloaded the page
+	    new Promise(function(resolve) {
+
+		// Hide paginator
+		$scope.paginator.lastPage = 1;
+		
+		// Reset currentPage
+		currentPage = 1;
+		
+		// Hide previous results
+		vm.historyPage = [];
+		
+		// Show loader
+		loaderDiv.removeAttribute('hidden');
+		
+		// Apply the view before prompting for new data
+		resolve();
+	    }).then($scope.$applyAsync);
+		
+	    // Clear the cache
+	    pagesCache = [];
+	    
+	    onHistoryUsernameDirectiveLinked(loaderDiv, username);
+	}
 	
 	// Private
 	
@@ -78,7 +111,8 @@
 		
 		var data = {
 			cat_username : username,
-			page : currentPage
+			page : currentPage,
+			perPage : vm.perPage
 		};
 			
 		var options = {
@@ -107,6 +141,51 @@
 		    }
 		};
 	    });
+	}
+	
+	/**
+	 * Handles the call of an improvized "onload" event when angular links
+	 * the loader div with the username in it
+	 */
+	function onHistoryUsernameDirectiveLinked(domElement, parsedUsername) {
+	    
+	    loaderDiv = domElement;
+	    
+	    // Store the username value
+	    username = parsedUsername;
+	    
+	    // Execute non-blocking Q
+	    $q.resolve(getMyHistoryPage()).then(onGotMyHistoryPage).catch(function(err) {
+		$log.error(err);
+	    });
+	    
+	    function onGotMyHistoryPage(result) {
+		
+		var historyPage = result.historyPage;
+		var totalPages = result.totalPages;
+		
+		// Initialize the cache length
+		pagesCache = new Array(totalPages);
+		
+		/*
+		 * Cache this result as it was removed from the cache in
+		 * previous commnand
+		 */
+		pagesCache[0] = result;
+		
+		initializePaginator();
+		
+		// We need to refresh the view with async job .. use Promise
+		new Promise(function(resolve) {
+			
+		    loaderDiv.setAttribute('hidden', 'hidden');
+			
+		    vm.historyPage = historyPage;
+		    
+		    resolve();
+		    
+		}).then($scope.$applyAsync);
+	    }
 	}
 	
 	/**
@@ -211,51 +290,9 @@
 	    }).then($scope.$applyAsync);
 	}
 	
-	/**
-	 * Handles the call of an improvized "onload" event when angular links
-	 * the loader div with the username in it
-	 */
-	function onHistoryUsernameDirectiveLinked(domElement, parsedUsername) {
+	function scrollToLoader() {
 	    
-	    loaderDiv = domElement;
-	    
-	    // Store the username value
-	    username = parsedUsername;
-	    
-	    // Execute non-blocking Q
-	    $q.resolve(getMyHistoryPage()).then(onGotMyHistoryPage).catch(function(err) {
-		$log.error(err);
-	    });
-	    
-	    function onGotMyHistoryPage(result) {
-		
-		var historyPage = result.historyPage;
-		var totalPages = result.totalPages;
-		
-		// Initialize the cache length
-		pagesCache = new Array(totalPages);
-		
-		/*
-		 * Cache this result as it was removed from the cache in
-		 * previous commnand
-		 */
-		pagesCache[0] = result;
-		
-		initializePaginator();
-		
-		// We need to refresh the view with async job .. use Promise
-		new Promise(function(resolve) {
-		    var parent = loaderDiv.parentElement;
-			
-		    loaderDiv.setAttribute('hidden', 'hidden');
-			
-		    vm.historyPage = historyPage;
-		    
-		    resolve();
-		    
-		}).then($scope.$applyAsync);
-	    }
-	};
+	}
     }
     
     /**

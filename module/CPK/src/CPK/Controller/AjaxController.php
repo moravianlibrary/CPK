@@ -628,10 +628,11 @@ class AjaxController extends AjaxControllerBase
             ];
             
             $page = isset($post['page']) ? $post['page'] : 1;
+            $perPage = isset($post['perPage']) ? (int) $post['perPage'] : 10;            
             
             try {
                 // Try to get the profile ..
-                $result = $ilsDriver->getMyHistoryPage($patron, $page);
+                $result = $ilsDriver->getMyHistoryPage($patron, $page, $perPage);
             } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
