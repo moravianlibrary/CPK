@@ -485,7 +485,8 @@ class Aleph extends AlephBase
         // We need z30-barcode to resolveIds, but history doesnt provide it ...
         //$this->idResolver->resolveIds($historyPage);
         
-        $sortByReturned = false;
+        // TODO this should be configurable from institution config
+        $sortByReturned = true;
         
         if ($sortByReturned) {
             $self = $this;
