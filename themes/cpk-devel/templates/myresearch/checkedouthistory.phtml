@@ -26,13 +26,13 @@
       </select>
       </label>
       </h3>
-      <div ng-repeat="resource in historyCtrl.historyPage" ng-history-item>
+      <div ng-history-item ng-repeat="resource in historyCtrl.historyPage">
       </div>
       <div ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well text-center" style="margin-bottom: 2px;">
         <i class="fa fa-spinner fa-spin"></i>
         <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
-      <div ng-pagination></div>
+      <div ng-pagination="<?=$source ?>" class='row well' ng-if="paginator.lastPage != 1" ></div>
     </div>
     <? endforeach; ?>
   </div>

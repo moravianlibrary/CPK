@@ -328,7 +328,13 @@
     function ngPaginationDirective() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/ng-cpk/pagination.html'
+	    templateUrl : '/themes/cpk-devel/js/ng-cpk/pagination.html',
+	    link : linker
 	};
+	
+	function linker(scope, elements, attrs) {
+	    var source = attrs['ngPagination'];
+	    scope.source = source;
+	}
     }
 })();
