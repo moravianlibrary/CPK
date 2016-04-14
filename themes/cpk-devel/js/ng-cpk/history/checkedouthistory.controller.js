@@ -156,7 +156,7 @@
 	    
 	    // Execute non-blocking Q
 	    $q.resolve(getMyHistoryPage()).then(onGotMyHistoryPage).catch(function(err) {
-		$log.error(err);
+		loaderDiv.innerHTML = err.message;
 	    });
 	    
 	    function onGotMyHistoryPage(result) {
