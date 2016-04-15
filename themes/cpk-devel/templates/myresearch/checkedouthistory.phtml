@@ -1,17 +1,33 @@
 <?
-    // Set up page title:
-    $this->headTitle($this->translate('Checked Out History'));
+// Set up page title:
+$this->headTitle($this->translate('Checked Out History'));
 
-    // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> '.
-    '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Checked Out History') . '</li>';
+// Set up breadcrumbs:
+$this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' . '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Checked Out History') . '</li>';
+
+// Add translations for the ng-app
+$this->jsTranslations()->addStrings(array(
+
+    // For history items
+    'Cover Image' => $this->translate('Cover Image'),
+    'No Cover Image' => $this->translate('No Cover Image'),
+    'by' => $this->translate('by'),
+    'Volume' => $this->translate('Volume'),
+    'Year of Publication' => $this->translate('Year of Publication'),
+    'Renewed' => $this->translate('Renewed'),
+    'Due Date' => $this->translate('Due Date'),
+
+    // For paginator
+    'Prev' => $this->translate('Prev'),
+    'Next' => $this->translate('Next')
+));
 ?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row">
   <div class="<?=$this->layoutClass('mainbody')?>">
     <h2><?=$this->transEsc('Checked Out History')?></h2>
     <?=$this->flashmessages()?>
-    
+
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
       $source = explode('.', $libraryIdentity['cat_username'])[0]; ?>
     <div ng-controller="CheckedOutHistoryController as historyCtrl">
