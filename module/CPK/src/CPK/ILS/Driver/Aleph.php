@@ -32,6 +32,7 @@
 namespace CPK\ILS\Driver;
 
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
+use VuFind\Exception\Date as DateException;
 
 class Aleph extends AlephBase
 {
@@ -452,7 +453,13 @@ class Aleph extends AlephBase
                 $due = (string) $z36h->{'z36h-due-date'};
                 $returned = (string) $z36h->{'z36h-returned-date'};
                 $loaned = (string) $z36h->{'z36h-loan-date'};
-                $dueDate = strtotime($this->dateConverter->convertFromDisplayDate("d.m.Y", $this->parseDate($due)));
+                
+                try {
+                    $dueDate = $this->parseDate($due);
+                } catch (DateException  $e) {
+                    $dueDate = substr($due, -2) . '. ' . substr($due, -4, 2). '. ' . substr($due, 0, 4);
+                }
+                
                 $group = substr(strrchr($href, "/"), 1);
                 if (strpos($group, '?') !== false) {
                     $group = substr($group, 0, strpos($group, '?'));
@@ -467,7 +474,7 @@ class Aleph extends AlephBase
                     'author' => $author,
                     'reqnum' => $reqnum,
                     'loandate' => $this->parseDate($loaned),
-                    'duedate' => $this->parseDate($due),
+                    'duedate' => $dueDate,
                     'returned' => $this->parseDate($returned),
                     'publicationYear' => $publicationYear,
                     'z36_item_id' => $z36ItemId,
@@ -824,7 +831,7 @@ class Aleph extends AlephBase
             $date = substr_replace($date, '20', - 2, 0);
             return $this->dateConverter->convertToDisplayDate('d/m/Y', $date);
         } else {
-            throw new \Exception("Invalid date: $date");
+            throw new DateException("Invalid date: $date");
         }
     }
 }
