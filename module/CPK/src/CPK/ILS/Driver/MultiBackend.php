@@ -65,10 +65,10 @@ class MultiBackend extends MultiBackendBase
      * @var AlephConfigs $alephConfigsTable
      */
     protected $alephConfigsTable = null;
-    
+
     /**
      * DB table for XCNCIP2 configs to effectively initialize drivers
-     * 
+     *
      * @var XCNCIP2Configs
      */
     protected $xcncip2ConfigsTable = null;
@@ -76,14 +76,14 @@ class MultiBackend extends MultiBackendBase
     public function __construct($configLoader, $ilsAuth, \VuFindSearch\Service $searchService = null)
     {
         parent::__construct($configLoader, $ilsAuth);
-        
+
         $this->searchService = $searchService;
     }
 
     public function init()
     {
         parent::init();
-        
+
         $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
     }
 
@@ -95,20 +95,20 @@ class MultiBackend extends MultiBackendBase
      *
      * @param array $cancelDetails
      *            An array of item and patron data
-     *            
+     *
      * @return array An array of data on each request including
      *         whether or not it was successful and a system message (if available)
      */
     public function cancelHolds($cancelDetails)
     {
         $patronSource = $this->getSource($cancelDetails['patron']['cat_username']);
-        
+
         // MyResearch Controller sends us here all the cancelHolds the user want to process
         // & doesn't care about the institutions the hold belongs in compared to passed
         // patron array - which is always only one in order to properly determine
         // current patron being iterated
         $cancelDetails['details'] = $this->getDetailsFromCurrentSource($patronSource, $cancelDetails['details']);
-        
+
         if (count($cancelDetails['details']) > 0) {
             $driver = $this->getDriver($patronSource);
             if ($driver) {
@@ -116,7 +116,7 @@ class MultiBackend extends MultiBackendBase
                     // stripIdPrefixed does not work correctly here ..
                     $cancelDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
                 }
-                
+
                 return $driver->cancelHolds($this->stripIdPrefixes($cancelDetails, $patronSource));
             }
             throw new ILSException('No suitable backend driver found');
@@ -136,7 +136,7 @@ class MultiBackend extends MultiBackendBase
      *
      * @param array $holdDetails
      *            An array of item data
-     *            
+     *
      * @return string Data for use in a form field
      */
     public function getCancelHoldDetails($holdDetails)
@@ -145,17 +145,17 @@ class MultiBackend extends MultiBackendBase
         $driver = $this->getDriver($source);
         if ($driver) {
             $holdDetails = $this->stripIdPrefixes($holdDetails, $source);
-            
+
             $cancelHoldDetails = $driver->getCancelHoldDetails($holdDetails);
-            
+
             // Since addIdPrefixes is unable to ammend source to string & we
             // don't know whether there is a source already, we have to do that this way
             $hasSource = count(explode('.', $cancelHoldDetails)) > 1;
-            
+
             if ($cancelHoldDetails !== null && ! $hasSource) {
                 return "$source.$cancelHoldDetails";
             }
-            
+
             return $cancelHoldDetails;
         }
         throw new ILSException('No suitable backend driver found');
@@ -164,10 +164,10 @@ class MultiBackend extends MultiBackendBase
     protected function getEmptyStatuses($ids)
     {
         $emptyStatuses = [];
-        
+
         foreach ($ids as $id)
             $emptyStatuses[]['id'] = $id;
-        
+
         return $emptyStatuses;
     }
 
@@ -178,7 +178,7 @@ class MultiBackend extends MultiBackendBase
      *
      * @param array $patron
      *            The patron array from patronLogin
-     *            
+     *
      * @return mixed Array of the patron's holds
      */
     public function getMyHolds($patron)
@@ -187,9 +187,9 @@ class MultiBackend extends MultiBackendBase
         $driver = $this->getDriver($source);
         if ($driver) {
             $holds = $driver->getMyHolds($this->stripIdPrefixes($patron, $source));
-            
+
             $this->idResolver->resolveIds($holds, $source, $this->getDriverConfig($source));
-            
+
             return $this->addIdPrefixes($holds, $source, [
                 'id',
                 'item_id',
@@ -207,7 +207,7 @@ class MultiBackend extends MultiBackendBase
      *
      * @param array $patron
      *            The patron array from patronLogin
-     *            
+     *
      * @return mixed Array of the patron's transactions
      */
     public function getMyTransactions($patron)
@@ -216,25 +216,25 @@ class MultiBackend extends MultiBackendBase
         $driver = $this->getDriver($source);
         if ($driver) {
             $transactions = $driver->getMyTransactions($this->stripIdPrefixes($patron, $source));
-            
+
             $this->idResolver->resolveIds($transactions, $source, $this->getDriverConfig($source));
-            
+
             foreach ($transactions as &$transaction) {
-                
+
                 if (isset($transaction['loan_id']) && strpos($transaction['loan_id'], '.') === false) {
                     // Prepend source to loan_id if not there already ..
                     $transaction['loan_id'] = $source . '.' . $transaction['loan_id'];
                 }
             }
-            
+
             return $this->addIdPrefixes($transactions, $source);
         }
         throw new ILSException('No suitable backend driver found');
     }
-    
+
     /**
      * Retrieves patron's history at a specified page
-     * 
+     *
      * @param array $patron
      * @param number $page
      * @throws ILSException
@@ -245,14 +245,14 @@ class MultiBackend extends MultiBackendBase
         $source = $this->getSource($patron['cat_username']);
         $driver = $this->getDriver($source);
         if ($driver) {
-            
+
             if (! $this->methodSupported($driver, 'getMyHistoryPage'))
                 throw new ILSException('Driver doesn\'t support getMyHistoryPage method');
-            
+
             $strippedPatron = $this->stripIdPrefixes($patron, $source);
-            
+
             $history = $driver->getMyHistoryPage($strippedPatron, $page, $perPage);
-        
+
             return $this->addIdPrefixes($history, $source);
         }
         throw new ILSException('No suitable backend driver found');
@@ -281,6 +281,31 @@ class MultiBackend extends MultiBackendBase
     }
 
     /**
+     * Get Status
+     *
+     * This is responsible for retrieving the status information of a certain
+     * record.
+     *
+     * @param string $id The record id to retrieve the holdings for
+     *
+     * @throws ILSException
+     * @return mixed     On success, an associative array with the following keys:
+     * id, availability (boolean), status, location, reserve, callnumber.
+     */
+    public function getStatus($id, $user = null)
+    {
+        $source = $this->getSource($id);
+        $driver = $this->getDriver($source);
+        $profile = $this->getProfile($user, $source);
+
+        if ($driver) {
+            $status = $driver->getStatus($this->getLocalId($id), $profile);
+            return $this->addIdPrefixes($status, $source);
+        }
+        return [];
+    }
+
+    /**
      * Get Statuses
      *
      * This is responsible for retrieving the status information for a
@@ -288,7 +313,7 @@ class MultiBackend extends MultiBackendBase
      *
      * @param array $ids
      *            The array of record ids to retrieve the status for
-     *            
+     *
      * @throws ILSException
      * @return array An array of getStatus() return values on success.
      */
@@ -297,35 +322,22 @@ class MultiBackend extends MultiBackendBase
         // We assume all the ids passed here are being processed by only one ILS/Driver
         if ($bibId === null)
             return $this->getEmptyStatuses($ids);
-        
+
         $source = $this->getSource($bibId);
         $driver = $this->getDriver($source);
-        
-        $profile = null;
-        if ($user != null) {
-            $identities = $user->getLibraryCards();
-            foreach ($identities as $identity) {
-                $profile = $user->libCardToPatronArray($identity);
-                $agency = $this->getSource($profile['cat_username']);
-                if ($agency === $source) {
-                    $profile = $this->stripIdPrefixes($profile, $source);
-                    break;
-                } else
-                    $profile = null;
-            }
-        }
-        
+        $profile = $this->getProfile($user, $source);
+
         if ($driver === null)
             throw new ILSException("Driver is undefined!");
-        
+
         if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
-            
+
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
             }
-            
+
             $bibId = $this->stripIdPrefixes($bibId, $source);
-            
+
             $statuses = $driver->getStatuses($ids, $profile, $filter, $bibId, $nextItemToken);
             if (($driver instanceof Aleph) && (! empty($statuses)))
                 $statuses[0]['usedAleph'] = true;
@@ -343,15 +355,15 @@ class MultiBackend extends MultiBackendBase
      * @param array $renewDetails
      *            An array of data required for renewing items
      *            including the Patron ID and an array of renewal IDS
-     *            
+     *
      * @return array An array of renewal information keyed by item ID
      */
     public function renewMyItems($renewDetails)
     {
         $patronSource = $this->getSource($renewDetails['patron']['cat_username']);
-        
+
         $renewDetails['details'] = $this->getDetailsFromCurrentSource($patronSource, $renewDetails['details']);
-        
+
         if (count($renewDetails['details']) > 0) {
             $driver = $this->getDriver($patronSource);
             if ($driver) {
@@ -359,7 +371,7 @@ class MultiBackend extends MultiBackendBase
                     // stripIdPrefixed does not work correctly here ..
                     $renewDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
                 }
-                
+
                 return $driver->renewMyItems($this->stripIdPrefixes($renewDetails, $patronSource));
             }
             throw new ILSException('No suitable backend driver found');
@@ -378,7 +390,7 @@ class MultiBackend extends MultiBackendBase
      *            The name of the called method.
      * @param array $params
      *            Array of passed parameters.
-     *            
+     *
      * @return bool True if the method can be called with the given parameters,
      *         false otherwise.
      */
@@ -393,34 +405,52 @@ class MultiBackend extends MultiBackendBase
     protected function getDetailsFromCurrentSource($source, $details)
     {
         $detailsForCurrentSource = [];
-        
+
         foreach ($details as $detail) {
             $detailSource = $this->getSource($detail);
-            
+
             if ($detailSource === $source) {
                 array_push($detailsForCurrentSource, $detail);
             }
         }
-        
+
         return $detailsForCurrentSource;
     }
 
-    public function getItemStatus($id, $bibId, $patronId)
+    public function getItemStatus($id, $bibId, $patron)
     {
         if ($bibId === null)
             return $this->getEmptyStatuses($ids);
-        
+
         $source = $this->getSource($bibId);
         $driver = $this->getDriver($source);
-        
+
         if ($driver === null)
             throw new ILSException("Driver is undefined!");
-        
+
         $id = $this->stripIdPrefixes($id, $source);
         $bibId = $this->stripIdPrefixes($bibId, $source);
-        $patronId = $this->stripIdPrefixes($patronId, $source);
-        
-        $status = $driver->getItemStatus($id, $bibId, $patronId);
+        $patron = $this->stripIdPrefixes($patron, $source);
+
+        $status = $driver->getItemStatus($id, $bibId, $patron);
         return $status;
+    }
+
+    protected function getProfile($user, $source)
+    {
+        $profile = null;
+        if ($user != null) {
+            $identities = $user->getLibraryCards();
+            foreach ($identities as $identity) {
+                $profile = $user->libCardToPatronArray($identity);
+                $agency = $this->getSource($profile['cat_username']);
+                if ($agency === $source) {
+                    $profile = $this->stripIdPrefixes($profile, $source);
+                    break;
+                } else
+                    $profile = null;
+            }
+        }
+        return $profile;
     }
 }

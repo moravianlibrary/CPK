@@ -66,12 +66,13 @@ class NCIPRequests {
         return $this->patronInformation($patron, $extras);
     }
 
-    public function lookupItem($itemId, $agency) {
+    public function lookupItem($itemId, $patron) {
         $body =
         "<ns1:LookupItem>" .
-        $this->insertInitiationHeader($agency) .
-        $this->insertItemIdTag($itemId, $agency) .
+        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertItemIdTag($itemId, $patron['agency']) .
         $this->allItemElementType() .
+        $this->insertExtPatronId($patron) .
         "</ns1:LookupItem>";
         return $this->header() . $body . $this->footer();
     }
@@ -149,14 +150,7 @@ class NCIPRequests {
             $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
             "</ns1:NextItemToken>";
         }
-
-        // Append the Ext element containing the UserId
-        if (! empty($patron)) {
-            $body .= '<ns1:Ext>';
-            $body .= $this->insertUserIdTag($patron);
-            $body .= '</ns1:Ext>';
-        }
-
+        $body .= $this->insertExtPatronId($patron);
         $body .= "</ns1:LookupItemSet>";
         return $this->header() . $body . $this->footer();
     }
@@ -177,16 +171,7 @@ class NCIPRequests {
             $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
             "</ns1:NextItemToken>";
         }
-
-        // Append the Ext element containing the UserId
-        if ($this->sigla == "ZLG001") {
-            if (! empty($patron)) {
-                $body .= '<ns1:Ext>';
-                $body .= $this->insertUserIdTag($patron);
-                $body .= '</ns1:Ext>';
-            }
-        }
-
+        $body .= $this->insertExtPatronId($patron);
         $body .= "</ns1:LookupItemSet>";
         return $this->header() . $body . $this->footer();
     }
@@ -416,5 +401,18 @@ class NCIPRequests {
                 "<ns1:AgencyElementType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/schemes/agencyelementtype/" .
                 "agencyelementtype.scm\">") .
                 $value . "</ns1:AgencyElementType>";
+    }
+
+    /* Append the Ext element containing the UserId. */
+    protected function insertExtPatronId($patron) {
+        $body = "";
+        if ($this->sigla == "ZLG001") {
+            if (! empty($patron)) {
+                $body .= '<ns1:Ext>';
+                $body .= $this->insertUserIdTag($patron);
+                $body .= '</ns1:Ext>';
+            }
+        }
+        return $body;
     }
 }

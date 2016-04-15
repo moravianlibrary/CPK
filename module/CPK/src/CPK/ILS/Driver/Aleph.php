@@ -59,35 +59,35 @@ class Aleph extends AlephBase
     public function init()
     {
         parent::init();
-        
+
         if (isset($this->config['Catalog']['available_statuses'])) {
             $this->available_statuses = explode(self::CONFIG_ARRAY_DELIMITER, $this->config['Catalog']['available_statuses']);
         }
-        
+
         if (isset($this->config['Catalog']['logo'])) {
             $this->logo = $this->config['Catalog']['logo'];
         }
-        
+
         if (isset($this->config['Availability']['maxItemsParsed'])) {
             $this->maxItemsParsed = intval($this->config['Availability']['maxItemsParsed']);
         }
-        
+
         if (! isset($this->maxItemsParsed) || $this->maxItemsParsed < 2) {
             $this->maxItemsParsed = 10;
         }
-        
+
         if ($this->idResolver instanceof \VuFind\ILS\Driver\SolrIdResolver) {
             $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
         }
-        
+
         $this->addressMappings = $this->getDefaultMappings();
-        
+
         if (isset($this->config['AddressMappings'])) {
             foreach ($this->config['AddressMappings'] as $key => $val) {
                 $this->addressMappings[$key] = $val;
             }
         }
-        
+
     }
 
     protected function getDefaultMappings()
@@ -114,7 +114,7 @@ class Aleph extends AlephBase
      *
      * @param array $details
      *            An array of item and patron data
-     *            
+     *
      * @return array An array of data on each request including
      *         whether or not it was successful and a system message (if
      *         available)
@@ -125,11 +125,11 @@ class Aleph extends AlephBase
         $patronId = $patron['id'];
         $count = 0;
         $statuses = array();
-        
+
         $statuses['fails'] = 0;
-        
+
         foreach ($details['details'] as $id) {
-            
+
             try {
                 $result = $this->alephWebService->doRestDLFRequest(array(
                     'patron',
@@ -147,7 +147,7 @@ class Aleph extends AlephBase
                 );
                 continue;
             }
-            
+
             $reply_code = $result->{'reply-code'};
             if ($reply_code != "0000") {
                 $message = $result->{'del-pat-hold'}->{'note'};
@@ -180,9 +180,9 @@ class Aleph extends AlephBase
                 $profile = $this->getMyProfileDLF($user);
             }
         } catch (\Exception $e) {
-            
+
             $msg = $e->getMessage();
-            
+
             /* TODO: Probably expired account ?
              * message: XServer error: Error retrieving Patron System Key.
              * or 2nd : ID čtenáře není platné
@@ -190,15 +190,15 @@ class Aleph extends AlephBase
              */
             throw $e;
         }
-        
+
         $blocks = [];
         $translatedBlock = '';
-        
+
         if (isset($profile['blocks']))
             foreach ($profile['blocks'] as $block) {
                 if (isset($this->availabilitySource)) {
                     $translatedBlock = $this->translator->getTranslator()->translate($this->availabilitySource . " " . "Block" . " " . (string) $block);
-                    
+
                     /* Skip blocks which are not translated. */
                     if ($translatedBlock === $this->availabilitySource . " " . "Block" . " " . (string) $block)
                         continue;
@@ -207,7 +207,7 @@ class Aleph extends AlephBase
                     if ($translatedBlock === "Block " . (string) $block)
                         continue;
                 }
-                
+
                 if (! empty($this->logo)) {
                     if (! empty($blocks[$this->logo]))
                         $blocks[$this->logo] .= ", " . $translatedBlock;
@@ -216,9 +216,9 @@ class Aleph extends AlephBase
                 } else
                     $blocks[] = $translatedBlock;
             }
-        
+
         $profile['blocks'] = $blocks;
-        
+
         return $profile;
     }
 
@@ -227,7 +227,7 @@ class Aleph extends AlephBase
      *
      * @param array $user
      *            The patron array
-     *            
+     *
      * @throws ILSException
      * @return array Array of the patron's profile data on success.
      */
@@ -314,7 +314,7 @@ class Aleph extends AlephBase
      *
      * @param array $user
      *            The patron array
-     *            
+     *
      * @throws ILSException
      * @return array Array of the patron's profile data on success.
      */
@@ -326,36 +326,36 @@ class Aleph extends AlephBase
             'patronInformation',
             'address'
         ));
-        
+
         $addressInfo = $xml->{'address-information'};
-        
+
         $fullname = (string) $addressInfo->{$this->addressMappings['fullname']};
         $street = (string) $addressInfo->{$this->addressMappings['street']};
-        
+
         $dateFrom = (string) $addressInfo->{'z304-date-from'};
         $dateTo = (string) $addressInfo->{'z304-date-to'};
-        
+
         if (! empty($this->addressMappings['barcode']))
             $barcode = (string) $addressInfo->{$this->addressMappings['barcode']};
         else
             $barcode = (string) $addressInfo->{'z304-address-5'};
         $city = (string) $addressInfo->{$this->addressMappings['city']};
-        
+
         if (! empty($this->addressMappings['zip']))
             $zip = (string) $addressInfo->{$this->addressMappings['zip']};
         else
             $zip = (string) $addressInfo->{'z304-zip'};
-        
+
         if (! empty($this->addressMappings['email']))
             $email = (string) $addressInfo->{$this->addressMappings['email']};
         else
             $email = (string) $addressInfo->{'z304-email-address'};
-        
+
         if (! empty($this->addressMappings['phone']))
             $phone = (string) $addressInfo->{$this->addressMappings['phone']};
         else
             $phone = (string) $addressInfo->{'z304-telephone-1'};
-        
+
         if (strpos($fullname, ",") === false) {
             $recordList['lastname'] = $fullname;
             $recordList['firstname'] = "";
@@ -379,17 +379,17 @@ class Aleph extends AlephBase
             'registration'
         ));
         $institution = $xml->{'registration'}->{'institution'};
-        
+
         if (! empty($this->addressMappings['group']))
             $status = (string) $institution->{$this->addressMappings['group']};
         else
             $status = (string) $institution->{'z305-bor-status'};
-        
+
         if (! empty($this->addressMappings['expiration']))
             $expiry = (string) $institution->{$this->addressMappings['expiration']};
         else
             $expiry = (string) $institution->{'z305-expiry-date'};
-        
+
         $recordList['expire'] = $this->parseDate($expiry);
         $recordList['group'] = $status;
         return $recordList;
@@ -398,34 +398,34 @@ class Aleph extends AlephBase
     public function getMyTransactions($user, $history = false, $limit = 0)
     {
         $transactions = parent::getMyTransactions($user, $history, $limit);
-        
+
         foreach ($transactions as &$transaction) {
             $transaction['loan_id'] = $transaction['item_id'];
         }
-        
+
         return $transactions;
     }
-    
+
     public function getMyHistoryPage($user, $page, $perPage)
     {
         $userId = $user['id'];
-        
+
         $historyPage = [];
-        
+
         $params = [
             'type' => 'history'
         ];
 
         $xml = $this->alephWebService->doRestDLFRequest(
             array('patron', $userId, 'circulationActions', 'loans'), $params);
-        
+
         $count = 0;
         $currentPage = 1;
         foreach ($xml->xpath('//loan') as $item) {
-            
+
             if ($currentPage == $page) {
                 $href = (string) $item->xpath('@href')[0];
-                
+
                 $result = $this->alephWebService->doHTTPRequest($href);
                 $replyCode = (string) $result->{'reply-code'};
                 if ($replyCode != "0000") {
@@ -439,7 +439,7 @@ class Aleph extends AlephBase
                     $ex->setXmlResponse($result);
                     throw $ex;
                 }
-                
+
                 $item = $result->xpath('//loan')[0];
                 $z36h = $item->z36h;
                 $z13 = $item->z13;
@@ -457,7 +457,7 @@ class Aleph extends AlephBase
                 if (strpos($group, '?') !== false) {
                     $group = substr($group, 0, strpos($group, '?'));
                 }
-                
+
                 $z36ItemId = $this->admlib . $z36h->{'z36h-doc-number'} . $z36h->{'z36h-item-sequence'};
                 $z36_sub_library_code = (string) $item->{'z36h-sub-library-code'};
                 $item = array(
@@ -473,21 +473,21 @@ class Aleph extends AlephBase
                     'z36_item_id' => $z36ItemId,
                     'z36_sub_library_code' => $z36_sub_library_code,
                 );
-                
+
                 $historyPage[] = $item;
             }
-            
+
             if (++ $count % $perPage === 0) {
                 ++ $currentPage;
             }
         }
-        
+
         // We need z30-barcode to resolveIds, but history doesnt provide it ...
         //$this->idResolver->resolveIds($historyPage);
-        
+
         // TODO this should be configurable from institution config
         $sortByReturned = true;
-        
+
         if ($sortByReturned) {
             $self = $this;
             usort($historyPage, function ($first, $second) use ($self) {
@@ -496,12 +496,12 @@ class Aleph extends AlephBase
                 return ($b - $a);
             });
         }
-        
+
         $i = ($page - 1) * $perPage;
         foreach($historyPage as &$historyItem) {
             $historyItem['rowNo'] = ++$i;
         }
-        
+
         return [
             'historyPage' => $historyPage,
             'totalPages' => ceil($count / $perPage)
@@ -516,7 +516,7 @@ class Aleph extends AlephBase
      *
      * @param string $item_id
      *            The record id to retrieve the holdings for
-     *            
+     *
      * @throws ILSException
      * @return mixed On success, an associative array with the following keys:
      *         id, availability (boolean), status, location, reserve,
@@ -525,51 +525,51 @@ class Aleph extends AlephBase
     public function getStatuses($ids, $patron = [], $filter = [], $bibId = null)
     {
         $statuses = array();
-        
+
         $idsCount = count($ids);
-        
+
         $additionalAttributes = [
             'view' => 'full'
         ];
-        
+
         if ($filter !== null)
             foreach ($filter as $name => $value) {
                 $additionalAttributes[$name] = $value;
             }
-        
+
         if (! empty($patron['id'])) {
             $additionalAttributes['patron'] = $patron['id'];
         }
-        
+
         if ($this->maxItemsParsed === - 1 || $idsCount <= $this->maxItemsParsed) {
             // Query all items at once ..
-            
+
             $path_elements = array(
                 'record',
                 str_replace('-', '', $bibId),
                 'items'
             );
-            
+
             $xml = $this->alephWebService->doRestDLFRequest($path_elements, $additionalAttributes);
-            
+
             if (! isset($xml->{'items'})) {
                 return $statuses;
             }
-            
+
             foreach ($xml->{'items'}->{'item'} as $item) {
-                
+
                 $item_id = $item->attributes()->href;
                 $item_id = substr($item_id, strrpos($item_id, '/') + 1);
-                
+
                 // do not process ids which are not in desired $ids array
                 if (array_search($item_id, $ids) === false)
                     continue;
-                
+
                 $statuses[] = $this->parseItem($bibId, $item_id, $item, $patron);
             }
         } else // Query one by one item
             foreach ($ids as $item_id) {
-                
+
                 if (isSeT($additionalAttributes['patron']))
                     // We can search for patron specific bib info
                     // Example URL:
@@ -589,22 +589,22 @@ class Aleph extends AlephBase
                         'items',
                         $item_id
                     );
-                
+
                 $xml = $this->alephWebService->doRestDLFRequest($path_elements, $additionalAttributes);
-                
+
                 if (! isset($xml->{'item'})) {
                     continue;
                 }
-                
+
                 $item = $xml->{'item'};
-                
+
                 $statuses[] = $this->parseItem($bibId, $item_id, $item, $patron);
-                
+
                 // Returns parsed items to show it to user
                 if (count($statuses) === $this->maxItemsParsed)
                     break;
             }
-        
+
         return $statuses;
     }
 
@@ -613,7 +613,7 @@ class Aleph extends AlephBase
      *
      * Returns an array of status, dueDate (which will often be null) & holdType
      *
-     * @param \SimpleXMLElement $item            
+     * @param \SimpleXMLElement $item
      * @return AlephItem $alephItem
      */
     protected function parseItem($bibId, $item_id, \SimpleXMLElement $item, $patron)
@@ -622,7 +622,7 @@ class Aleph extends AlephBase
         if ($item_status['opac'] != 'Y') {
             continue;
         }
-        
+
         $available = false;
         $reserve = ($item_status['request'] == 'C') ? 'N' : 'Y';
         $z30 = $item->z30;
@@ -645,7 +645,7 @@ class Aleph extends AlephBase
         // Customized from here
         if (! empty($patron)) {
             $hold_request = $item->xpath('info[@type="HoldRequest"]/@allowed');
-            
+
             if (! empty($hold_request))
                 $addLink = ($hold_request[0] == 'Y');
             // To here
@@ -654,7 +654,7 @@ class Aleph extends AlephBase
         if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*);([a-zA-Z ]*)/", $status, $matches)) {
             $duedate = $this->parseDate($matches[1]);
             $requested = (trim($matches[2]) == "Requested");
-        } else 
+        } else
             if (preg_match("/([0-9]*\\/[a-zA-Z]*\\/[0-9]*)/", $status, $matches)) {
                 $duedate = $this->parseDate($matches[1]);
             }
@@ -667,34 +667,34 @@ class Aleph extends AlephBase
                     break;
                 }
             }
-        } else 
+        } else
             if (! $available && ($status == "On Hold" || $status == "Requested" || $status == "Požadováno")) {
                 $duedate_status = "requested";
             }
-        
+
         $note = (string) $z30->{'z30-note-opac'};
-        
+
         $availability = (string) $z30->{'z30-item-status'};
-        
+
         // Customized from here
         $isDueDate = preg_match('/^[0-9]+\/.+\/[0-9]+/', $status);
-        
+
         $holdType = 'Recall This';
-        
+
         if ($isDueDate) {
-            
+
             $duedate = (string) $duedate;
-            
+
             if (empty($duedate)) {
                 $duedate = $status;
             }
-            
+
             $label = 'label-warning';
             $status = 'On Loan';
         } else {
-            
+
             if ($available) {
-                
+
                 $status = 'available';
                 $holdType = 'Place a Hold';
                 $label = 'label-success';
@@ -706,7 +706,7 @@ class Aleph extends AlephBase
                 $status = 'unavailable';
             }
         }
-        
+
         return [
             'id' => $bibId,
             'item_id' => $item_id,
@@ -747,19 +747,19 @@ class Aleph extends AlephBase
      *            Bib ID
      * @param string $patronId
      *            Patron ID
-     *            
+     *
      * @return array
      */
-    public function getItemStatus($id, $bibId, $patronId)
+    public function getItemStatus($id, $bibId, $patron)
     {
         $holding = array();
         $bibId = str_replace("-", "", $bibId);
         $params = array();
         $params['view'] = 'full';
-        $params['patron'] = $patronId;
+        $params['patron'] = $patron['id'];
         $xml = $this->alephWebService->doRestDLFRequest(array(
             'patron',
-            $patronId,
+            $patron['id'],
             'record',
             $bibId,
             'items',
@@ -774,7 +774,7 @@ class Aleph extends AlephBase
         $matches = [];
         if (preg_match("/([0-9]*\\/[a-zA-Z0-9]*\\/[0-9]*);([a-zA-Z ]*)/", $status, $matches)) {
             $duedate = $this->parseDate($matches[1]);
-        } else 
+        } else
             if (preg_match("/([0-9]*\\/[a-zA-Z0-9]*\\/[0-9]*)/", $status, $matches)) {
                 $duedate = $this->parseDate($matches[1]);
             }
@@ -803,7 +803,7 @@ class Aleph extends AlephBase
      *
      * @param string $date
      *            Date to parse
-     *            
+     *
      * @return string
      */
     public function parseDate($date)

@@ -205,7 +205,7 @@ trait HoldsTrait
         if (! empty($pickup))
             $extraHoldFields[] = 'pickUpLocation';
 
-        $status = $catalog->getItemStatus($gatheredDetails['item_id'], $gatheredDetails['id'], $patron['id']);
+        $status = $catalog->getItemStatus($gatheredDetails['item_id'], $gatheredDetails['id'], $patron);
 
         $holdQueue = null;
         $isLend = false;

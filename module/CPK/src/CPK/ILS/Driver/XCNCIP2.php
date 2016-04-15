@@ -615,12 +615,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *         id, availability (boolean), status, location, reserve,
      *         callnumber.
      */
-    public function getStatus($id)
+    public function getStatus($id, $patron = [])
     {
         // id may have the form of "patronId:agencyId"
         list ($id, $agencyId) = $this->splitAgencyId($id);
 
-        $request = $this->requests->lookupItem($id, $agencyId);
+        $request = $this->requests->lookupItem($id, $patron);
         $response = $this->sendRequest($request);
         if ($response == null)
             return null;
@@ -680,8 +680,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         );
     }
 
-    public function getItemStatus($id, $bibId, $patronId) {
-        return $this->getStatus($id);
+    public function getItemStatus($id, $bibId, $patron) {
+        return $this->getStatus($id, $patron);
     }
 
     /**
@@ -703,7 +703,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (! empty($filter) && $this->agency != 'LIA001') $this->cannotUseLUIS = true;
         if ($this->cannotUseLUIS)
             // If we cannot use LUIS we will parse only the first one
-            $retVal[] = $this->getStatus(reset($ids));
+            $retVal[] = $this->getStatus(reset($ids), $patron);
         else {
             if ($this->agency === 'TAG001') {
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
@@ -1168,7 +1168,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $dateDue = $this->parseDate($dateDue);
             $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
             $renewable = empty($renewalNotPermitted)? true : false;
-            $additRequest = $this->requests->lookupItem($item_id, $patron['agency']);
+            $additRequest = $this->requests->lookupItem($item_id, $patron);
             try {
                 $additResponse = $this->sendRequest($additRequest);
                 $isbn = $this->useXPath($additResponse,
