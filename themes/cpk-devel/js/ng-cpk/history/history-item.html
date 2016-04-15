@@ -12,7 +12,7 @@
 	    {{ 'by' | translate }}:
 	    <a href="{{ resource.authorLink }}">{{ resource.author }}</a>
 	  </div>
-	  <div ng-if="!resource.authorLink">{{ 'by' | translate }}: {{ resource.author }}</div>
+	  <div ng-if="!resource.authorLink && resource.author">{{ 'by' | translate }}: {{ resource.author }}</div>
 	  <div ng-repeat="format in resource.formats">
 	    {{ format }}
 	  </div>
