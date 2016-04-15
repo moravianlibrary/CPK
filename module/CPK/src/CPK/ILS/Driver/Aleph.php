@@ -88,7 +88,6 @@ class Aleph extends AlephBase
                 $this->addressMappings[$key] = $val;
             }
         }
-
     }
 
     protected function getDefaultMappings()
@@ -184,7 +183,8 @@ class Aleph extends AlephBase
 
             $msg = $e->getMessage();
 
-            /* TODO: Probably expired account ?
+            /*
+             * TODO: Probably expired account ?
              * message: XServer error: Error retrieving Patron System Key.
              * or 2nd : ID čtenáře není platné
              * or 3rd : The patron ID is invalid
@@ -417,16 +417,41 @@ class Aleph extends AlephBase
             'type' => 'history'
         ];
 
-        $xml = $this->alephWebService->doRestDLFRequest(
-            array('patron', $userId, 'circulationActions', 'loans'), $params);
+        $xml = $this->alephWebService->doRestDLFRequest(array(
+            'patron',
+            $userId,
+            'circulationActions',
+            'loans'
+        ), $params);
 
-        $count = 0;
-        $currentPage = 1;
-        foreach ($xml->xpath('//loan') as $item) {
+        $itemsCount = count($xml->xpath('//loan'));
 
-            if ($currentPage == $page) {
-                $href = (string) $item->xpath('@href')[0];
+        $viewFull = false;
 
+        if ($page == 1) {
+            $params['no_loans'] = $perPage;
+            $params['view'] = 'full';
+            $viewFull = true;
+
+            $xml = $this->alephWebService->doRestDLFRequest(array(
+                'patron',
+                $userId,
+                'circulationActions',
+                'loans'
+            ), $params);
+        }
+
+        $items = $xml->xpath('//loan');
+
+        if (! $viewFull) {
+            $items = array_slice($items, $perPage * ($page - 1), $perPage, true);
+        }
+
+        $i = ($page - 1) * $perPage;
+        foreach ($items as $item) {
+            $href = (string) $item->xpath('@href')[0];
+
+            if (! $viewFull) {
                 $result = $this->alephWebService->doHTTPRequest($href);
                 $replyCode = (string) $result->{'reply-code'};
                 if ($replyCode != "0000") {
@@ -442,58 +467,67 @@ class Aleph extends AlephBase
                 }
 
                 $item = $result->xpath('//loan')[0];
-                $z36h = $item->z36h;
-                $z13 = $item->z13;
-                $z30 = $item->z30;
-                $reqnum = (string) $z36h->{'z36h-doc-number'} . (string) $z36h->{'z36h-item-sequence'} . (string) $z36h->{'z36h-sequence'};
-                $title = (string) $z13->{'z13-title'};
-                $author = (string) $z13->{'z13-author'};
-                $publicationYear = (string) $z13->{'z13-year'};
-                $id = (string) $z13->{'z13-doc-number'};
-                $due = (string) $z36h->{'z36h-due-date'};
-                $returned = (string) $z36h->{'z36h-returned-date'};
-                $loaned = (string) $z36h->{'z36h-loan-date'};
-                
-                try {
-                    $dueDate = $this->parseDate($due);
-                } catch (DateException  $e) {
-                    $dueDate = substr($due, -2) . '. ' . substr($due, -4, 2). '. ' . substr($due, 0, 4);
-                }
-                
-                $group = substr(strrchr($href, "/"), 1);
-                if (strpos($group, '?') !== false) {
-                    $group = substr($group, 0, strpos($group, '?'));
-                }
-
-                $z36ItemId = $this->admlib . $z36h->{'z36h-doc-number'} . $z36h->{'z36h-item-sequence'};
-                $z36_sub_library_code = (string) $item->{'z36h-sub-library-code'};
-                $item = array(
-                    'id' => $id,
-                    'item_id' => $group,
-                    'title' => $title,
-                    'author' => $author,
-                    'reqnum' => $reqnum,
-                    'loandate' => $this->parseDate($loaned),
-                    'duedate' => $dueDate,
-                    'returned' => $this->parseDate($returned),
-                    'publicationYear' => $publicationYear,
-                    'z36_item_id' => $z36ItemId,
-                    'z36_sub_library_code' => $z36_sub_library_code,
-                );
-
-                $historyPage[] = $item;
+            } else {
+                $item = $item[0];
             }
 
-            if (++ $count % $perPage === 0) {
-                ++ $currentPage;
+            $z36h = $item->z36h;
+            $z13 = $item->z13;
+            $z30 = $item->z30;
+            $reqnum = (string) $z36h->{'z36h-doc-number'} . (string) $z36h->{'z36h-item-sequence'} . (string) $z36h->{'z36h-sequence'};
+            $title = (string) $z13->{'z13-title'};
+            $author = (string) $z13->{'z13-author'};
+            $publicationYear = (string) $z13->{'z13-year'};
+            $id = (string) $z13->{'z13-doc-number'};
+            $due = (string) $z36h->{'z36h-due-date'};
+            $returned = (string) $z36h->{'z36h-returned-date'};
+            $loaned = (string) $z36h->{'z36h-loan-date'};
+
+            try {
+                $dueDate = $this->parseDate($due);
+            } catch (DateException $e) {
+                /*
+                 * Perform default parsing in format of "d. m. Y" as the date is probably invalid.
+                 * The reason for this is Aleph has implemented such a monstrosity
+                 * within it as saving dates in invalid format, e.g. 20991281 - we want to show
+                 * the user what the OPAC has in it, we don't care about validity
+                 */
+                $dueDate = substr($due, - 2) . '. ' . substr($due, - 4, 2) . '. ' . substr($due, 0, 4);
             }
+
+            $group = substr(strrchr($href, "/"), 1);
+            if (strpos($group, '?') !== false) {
+                $group = substr($group, 0, strpos($group, '?'));
+            }
+
+            $z36ItemId = $this->admlib . $z36h->{'z36h-doc-number'} . $z36h->{'z36h-item-sequence'};
+            $z36_sub_library_code = (string) $item->{'z36h-sub-library-code'};
+            $item = array(
+                'id' => $id,
+                'item_id' => $group,
+                'title' => $title,
+                'author' => $author,
+                'reqnum' => $reqnum,
+                'loandate' => $this->parseDate($loaned),
+                'duedate' => $dueDate,
+                'returned' => $this->parseDate($returned),
+                'publicationYear' => $publicationYear,
+                'z36_item_id' => $z36ItemId,
+                'z36_sub_library_code' => $z36_sub_library_code,
+                'rowNo' => ++ $i
+            );
+
+            $historyPage[] = $item;
         }
 
         // We need z30-barcode to resolveIds, but history doesnt provide it ...
-        //$this->idResolver->resolveIds($historyPage);
+        // $this->idResolver->resolveIds($historyPage);
 
-        // TODO this should be configurable from institution config
-        $sortByReturned = true;
+        /*
+         * We cannot perform any sort as we would have to perform it against
+         * all the items which we don't have currently
+         */
+        $sortByReturned = false;
 
         if ($sortByReturned) {
             $self = $this;
@@ -504,14 +538,9 @@ class Aleph extends AlephBase
             });
         }
 
-        $i = ($page - 1) * $perPage;
-        foreach($historyPage as &$historyItem) {
-            $historyItem['rowNo'] = ++$i;
-        }
-
         return [
             'historyPage' => $historyPage,
-            'totalPages' => ceil($count / $perPage)
+            'totalPages' => ceil($itemsCount / $perPage)
         ];
     }
 
