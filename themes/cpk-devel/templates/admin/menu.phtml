@@ -1,8 +1,8 @@
 <aside class="well list-group">
   <a href="<?=$this->url('admin')?>" class="list-group-item<?=strtolower($this->layout()->templateName) == "home" ? ' active' : ''?>"><?=$this->transEsc('Administration')?></a>
-  
+
   <? if ($isPortalAdmin): ?>
-    <a href="/Admin/Approval" class="list-group-item<?=strtolower($this->layout()->templateName) == "approval" ? ' active' : ''?>"><?=$this->transEsc('configuration_approval')?></a>
+    <a href="/Admin/RequestConfigApproval" class="list-group-item<?=strtolower($this->layout()->templateName) == "request-config-approval" ? ' active' : ''?>"><?=$this->transEsc('configuration_approval')?></a>
     <a href="/Admin/PortalPages" class="list-group-item<?=strtolower($this->layout()->templateName) == "portalpages" ? ' active' : ''?>"><?=$this->transEsc('Portal pages')?></a>
     <a href="/Admin/PermissionsManager" class="list-group-item<?=strtolower($this->layout()->templateName) == "permissions-manager" ? ' active' : ''?>"><?=$this->transEsc('Permissions manager')?></a>
   <? endif; ?>

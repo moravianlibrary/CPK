@@ -1,15 +1,15 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('configuration_approval'));
-  
+
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li class="active"><a href="/Admin/Approval">'.$this->transEsc('configuration_approval').'</a></li> ';
+      '<li class="active"><a href="/Admin/RequestConfigApproval">'.$this->transEsc('configuration_approval').'</a></li> ';
   $this->layout()->title = $this->translate('configuration_approval');
 ?>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-  
+
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
@@ -18,27 +18,27 @@
     <?=$this->flashmessages() ?>
     <? $hasRequests = false;
       foreach($configs as $source => $config):
-    
+
         $diff = $config['diff'];
         $configRequested = $config['requested'];
         $configActive = $config['active'];
-        
+
         $isAleph = isset($configActive['Catalog']['dlfport']);
-        
+
         $template = $isAleph ? $alephTemplate : $ncipTemplate;
-        
+
         $defs = $template['Definitions'];
         unset($template['Definitions']);
-        
+
         // These two cannot be changed by anyone - they're generated
         unset($configRequested['IdResolver']['prefix']);
         unset($configRequested['Catalog']['requester']);
-        
+
         if (! empty($configRequested)):
           $hasRequests = true;
     ?>
       <div class='well'>
-        <form action='/Admin/Approval' method='POST'>
+        <form action='/Admin/RequestConfigApproval' method='POST'>
         <table class="table table-striped col-sm-12">
           <thead>
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>

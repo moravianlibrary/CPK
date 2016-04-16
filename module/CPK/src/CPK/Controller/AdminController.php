@@ -100,7 +100,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         ]);
     }
 
-    public function approvalAction()
+    public function requestConfigApprovalAction()
     {
         if (! $this->accessManager->isLoggedIn())
             return $this->forceLogin();
