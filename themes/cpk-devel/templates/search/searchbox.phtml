@@ -18,17 +18,9 @@
     $lastLimit = $options->getLastLimit();
 ?>
 <? if ($this->searchTypeTemplate == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = -1;?>
-<div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="headingAdvancedSearch">
-      <h4 class="panel-title">
-        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseAdvancedSearch" aria-expanded="false" aria-controls="collapseAdvancedSearch">
-          <?=$this->transEsc("Edit as Advanced Search")?> <i class="pr-interface-arrowbottom4"></i>
-        </a>
-      </h4>
-    </div>
-    <div id="collapseAdvancedSearch" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingAdvancedSearch">
+<div class="panel panel-default search-panel">
+    <div id="collapseAdvancedSearch" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAdvancedSearch">
       <div class="panel-body">
-
 	<?  //create JSON from query to pass it later as a param into ajax submit
         $queryArray = [];
         $queryArray['groupsCount'] = count($query->getQueries());
@@ -47,11 +39,19 @@
   <div class="searchForm">
 
     <!-- Display advanced search form with queries -->
-    <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
+    <div class='row'>
+      <div class='col-md-6'>
+        <h2 class="flip legend"><?=$this->transEsc('Advanced Search')?></h2>
+      </div>
+      <div class='col-md-6 search-panel-options'>
+        <a href="/Search/Home" class='autocomplete-link'><?=$this->translate("Basic Search")?></span></a> |
+	    <a href="/Search/Advanced" class='advanced-search-link disabled-link'><?=$this->translate("Advanced Search")?></a>
+      </div>
+    </div>
     <script>
 		var originalQueryJson = '<?=$originalQueryJson?>';
     </script>
-    <div class='row'>
+    <div class='row' id='group-join-type'>
       <div class='col-md-12'></div>
         <select id='group-join-type' name="join" class="form-control selectpicker">
           <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("group_AND")?></option>
@@ -109,14 +109,8 @@
         </a>
       </p>
       <div class='row'>
-        <div class='col-sm-12 text-right' style='margin-top: 20px;'>
+        <div class='col-sm-12 text-right'>
           <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" value="<?=$this->translate('Update results')?>" id='submit-edited-advanced-search' type='submit'>
-          <a href='/Search/Advanced' class="btn pull-right" title='<?= $this->transEsc('Start a new Advanced Search')?>'>
-            <?= $this->transEsc('Start a new Advanced Search')?>
-          </a>
-          <a href='/Search/Home' class="btn pull-right" title='<?= $this->transEsc('Start a new Basic Search')?>'>
-            <?= $this->transEsc('Start a new Basic Search')?>
-          </a>
         </div>
       </div>
 
