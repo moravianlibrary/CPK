@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Solr hierarchical facet listener.
+ * Solr json facet listener.
  *
  * PHP version 5
  *
@@ -23,8 +23,7 @@
  *
  * @category VuFind2
  * @package  Search
- * @author   David Maus <maus@hab.de>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Vaclav Rosecky <xrosecky@gmail.com>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
@@ -45,10 +44,12 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class NestedFacetListener
+class JsonFacetListener
 {
 
     const SOLR_LOCAL_PARAMS = "/(\\{[^\\}]*\\})*(\S+)/";
+
+    const UNLIMITED_FACET_LIMIT = 10000;
 
     /**
      * Backend.
@@ -81,12 +82,18 @@ class NestedFacetListener
      *
      * @return void
      */
-    public function __construct(BackendInterface $backend, $nestedFacets, $orFacets, $enabledForAllFacets = false)
+    public function __construct(BackendInterface $backend, \Zend\Config\Config $facetConfig)
     {
         $this->backend = $backend;
-        $this->nestedFacets = $nestedFacets;
-        $this->orFacets = $orFacets;
-        $this->enabledForAllFacets = $enabledForAllFacets;
+        if (isset($facetConfig->Results_Settings->orFacets)) {
+            $this->orFacets = explode(',', $facetConfig->Results_Settings->orFacets);
+        }
+        if (isset($facetConfig->SpecialFacets->nested)) {
+            $this->nestedFacets = $facetConfig->SpecialFacets->nested->toArray();
+        }
+        if (isset($facetConfig->JSON_API) && isset($facetConfig->JSON_API->enabled) && $facetConfig->JSON_API->enabled) {
+            $this->enabledForAllFacets = true;
+        }
         if (!empty($this->orFacets) && $this->orFacets[0] == "*") {
             $this->allFacetsAreOr = true;
         }
@@ -130,22 +137,33 @@ class NestedFacetListener
             return;
         }
 
-        $facets = $this->nestedFacets;
-        if ($this->enabledForAllFacets) {
-            foreach ($params->get('facet.field') as $facetField) {
-                if (preg_match(self::SOLR_LOCAL_PARAMS, $facetField, $matches)) {
-                    $facets[] = $matches[2];
-                }
+        $defaultFacetLimit = $params->get('facet.limit')[0];
+        $jsonFacetData = [];
+        $remaining = [];
+        foreach ($params->get('facet.field') as $facetField) {
+            $field = $facetField;
+            if (preg_match(self::SOLR_LOCAL_PARAMS, $field, $matches)) {
+                $field = $matches[2];
             }
+            $isNested = in_array($field, $this->nestedFacets);
+            if ($this->enabledForAllFacets || $isNested) {
+                $limit = $params->get('f.' . $field . '.facet.limit')[0];
+                if (!isset($limit)) {
+                    $limit = $defaultFacetLimit;
+                }
+                $jsonFacetData[$field] = $this->getFacetConfig($field, $limit);
+            } else {
+                $remaining[] = $facetField;
+            }
+        }
+        if (empty($remaining)) {
             $params->remove('facet.field');
+        } else {
+            $params->set('facet.field', $remaining);
         }
 
-        $data = [];
-        foreach ($facets as $facetField) {
-            $data[$facetField] = $this->getFacetConfig($facetField);
-        }
-        if (!empty($data)) {
-            $params->set('json.facet', json_encode($data));
+        if (!empty($jsonFacetData)) {
+            $params->set('json.facet', json_encode($jsonFacetData));
         }
 
         $fqs = $params->get('fq');
@@ -158,10 +176,11 @@ class NestedFacetListener
         }
     }
 
-    protected function getFacetConfig($field) {
+    protected function getFacetConfig($field, $limit) {
         $data = [
                 'type' => 'terms',
-                'field' => $field
+                'field' => $field,
+                'limit' => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
         ];
         if (in_array($field, $this->nestedFacets)) {
             $data['domain'] = [ 'blockChildren' => 'merged_boolean:true' ];

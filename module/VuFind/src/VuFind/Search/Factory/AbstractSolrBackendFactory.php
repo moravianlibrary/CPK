@@ -39,7 +39,7 @@ use VuFind\Search\Solr\V4\ErrorListener;
 use VuFind\Search\Solr\DeduplicationListener;
 use VuFind\Search\Solr\MZKDeduplicationListener;
 use VuFind\Search\Solr\HierarchicalFacetListener;
-use VuFind\Search\Solr\NestedFacetListener;
+use VuFind\Search\Solr\JsonFacetListener;
 
 use VuFindSearch\Backend\BackendInterface;
 use VuFindSearch\Backend\Solr\LuceneSyntaxHelper;
@@ -254,11 +254,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         }
         $useJsonApi = isset($facets->JSON_API) && isset($facets->JSON_API->enabled) && $facets->JSON_API->enabled;
         if (!empty($nested) || $useJsonApi) {
-            $orFacets = [];
-            if (isset($facets->Results_Settings->orFacets)) {
-                $orFacets = explode(',', $facet->Results_Settings->orFacets);
-            }
-            $this->getNestedFacetListener($backend, $nested, $orFacets, $useJsonApi)->attach($events);
+            $this->getJsonFacetListener($backend, $facets)->attach($events);
         }
 
         // Attach error listeners for Solr 3.x and Solr 4.x (for backward
@@ -544,9 +540,9 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
      *
      * @return NestedFacetListener
      */
-    protected function getNestedFacetListener(BackendInterface $backend, $nestedFacets, $orFacets, $enabledForAllFacets)
+    protected function getJsonFacetListener(BackendInterface $backend, \Zend\Config\Config $facetConfig)
     {
-        return new NestedFacetListener($backend, $nestedFacets, $orFacets, $enabledForAllFacets);
+        return new JsonFacetListener($backend, $facetConfig);
     }
 
 }
