@@ -14,7 +14,7 @@
   //$this->headScript()->appendFile("check_item_statuses.js");
   $this->headScript()->appendFile("check_save_statuses.js");
   $this->headScript()->appendFile("jquery-ui.min.js");
-  
+
   // Set up search box:
   $this->layout()->searchbox = $this->context($this)->renderInContext(
       'search/searchbox.phtml',
@@ -32,7 +32,7 @@
   );
 
   // Set up breadcrumbs:
-  
+
   $this->layout()->breadcrumbs .= '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ';
   if (isset($this->overrideTitle)) {
     $this->layout()->breadcrumbs .= '<li class="active">' . $this->escapeHtml($this->overrideTitle) . '</li>';
@@ -53,7 +53,7 @@
         <? if ($recordTotal > 0): ?>
           	<div class="result-list-toolbar hidden-print" style='font-size: 150%;'>
                 <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link mail-record-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>">
-                	<i class="icon-poslat-emailem"></i> 
+                	<i class="icon-poslat-emailem"></i>
                 </a>
                 &nbsp;
                 <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
@@ -78,12 +78,12 @@
       </div>
     </div>
     <div class="hidden-print search-controls row">
-      <div class="col-sm-3">
+      <div class="col-sm-3 col-sm-push-3">
       <? if ($recordTotal > 0): ?>
       <?=$this->render('search/controls/limit.phtml')?>
       <? endif; ?>
       </div>
-    <div class='col-sm-6 text-center' id='results-amount-info-placeholder'>
+    <div class='col-sm-3 col-sm-push-3 text-center' id='results-amount-info-placeholder'>
       <? if ($recordTotal > 0): ?>
           <strong><?=$this->localizedNumber($this->results->getStartRecord())?></strong> - <strong><?=$this->localizedNumber($this->results->getEndRecord())?></strong>
           <? if (!isset($this->skipTotalCount)): ?>
@@ -94,7 +94,7 @@
         <? endif; ?>
     </div>
       <? if ($recordTotal > 0): ?>
-        <div class="col-sm-3 text-right">
+        <div class="col-sm-3 col-sm-push-3 text-right">
 
           <?=$this->render('search/controls/sort.phtml')?>
         </div>
@@ -135,11 +135,11 @@
             <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => 'bottom_'))?>
             <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results, 'options' => isset($this->paginationOptions) ? $this->paginationOptions : []))?>
           </form>
-    
+
         <? endif; ?>
       </div>
       <? /* End Main Listing */ ?>
-    
+
       <? /* Narrow Search Options */ ?>
       <div class="<?=$this->layoutClass('sidebar')?>" id='side-facets-placeholder'>
         <? foreach ($this->results->getRecommendations('side') as $current): ?>
