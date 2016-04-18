@@ -51,7 +51,7 @@
     <script>
 		var originalQueryJson = '<?=$originalQueryJson?>';
     </script>
-    <div class='row' id='group-join-type'>
+    <div class='row' id='group-join-type-row'>
       <div class='col-md-12'></div>
         <select id='group-join-type' name="join" class="form-control selectpicker">
           <option value="AND"<?= ($allGroupsOperator == 'AND') ? 'selected="selected"' : ''?>><?=$this->transEsc("group_AND")?></option>
