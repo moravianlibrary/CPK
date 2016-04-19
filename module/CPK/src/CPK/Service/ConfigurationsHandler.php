@@ -656,29 +656,58 @@ class ConfigurationsHandler
         $commitMessage = "\"Approved config change for $source\"";
         $pbKey = $this->approvalConfig['gitPbKey'];
 
-        $gitCommands = [
-            "commit \"$file\" -m $commitMessage",
-            "stash",
-            "pull",
-            "rebase",
-            "push origin master",
-            "stash apply"
-        ];
+        $lockFile = $this->driversAbsolutePath . '/.locked';
 
-        $cmd = "cd $this->driversAbsolutePath && ssh-agent bash -c 'ssh-add \"$pbKey\"; ";
+        $i = 0;
+        while (file_exists($lockFile)) {
 
-        foreach ($gitCommands as $gitCmd) {
-            $cmd .= 'git ' . $gitCmd . ' && ';
+            if (++ $i > 5)
+                throw new \Exception('Git was locked for more than 5 seconds. Someone else is doing approval too, please refresh the page & check if any changes were made');
+
+            sleep(1);
         }
 
-        $cmd .= ' echo "Successfully pushed an approval"\'';
+        $retVal = 1;
 
-        exec($cmd, $pushResult);
+        // Create lock
+        file_put_contents($lockFile, '');
+
+        try {
+            $gitCommands = [
+                "commit \"$file\" -m $commitMessage",
+                "stash",
+                "pull",
+                "rebase",
+                "push origin master"
+            ];
+
+            $cmd = "cd $this->driversAbsolutePath && ssh-agent bash -c 'ssh-add \"$pbKey\"; ";
+
+            foreach ($gitCommands as $gitCmd) {
+                $cmd .= 'git ' . $gitCmd . ' && ';
+            }
+
+            exec($cmd . 'echo "Approval done"\'', $pushResult, $retVal);
+
+            $cmd = "cd $this->driversAbsolutePath && git stash apply";
+
+            exec($cmd);
+
+        } catch (\Exception $e) {
+
+            // Remove the lock
+            unlink($lockFile);
+            return false;
+        }
+
+        // Remove lock
+        unlink($lockFile);
 
         $this->flashMessenger()->addWarningMessage("Added commit $commitMessage, but changes are not pushed yet");
         // git push should be called by cron
 
-        return true;
+        // bash must return 0 to be done correctly
+        return $retVal === 0;
     }
 
     /**
