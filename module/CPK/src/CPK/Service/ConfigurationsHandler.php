@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Admin Controller
+ * Service dedicated to handle institutions configuration change requests
  *
  * PHP version 5
  *
@@ -41,7 +41,7 @@ use VuFind\Mailer\Mailer;
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  *
  */
-class RequestConfigHandler
+class ConfigurationsHandler
 {
 
     /**

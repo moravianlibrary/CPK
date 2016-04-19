@@ -1,0 +1,26 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('translations_approval'));
+
+  // Set up breadcrumbs:
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li class="active"><a href="/Admin/TranslationsApproval">'.$this->transEsc('translations_approval').'</a></li> ';
+  $this->layout()->title = $this->translate('translations_approval');
+?>
+<div class="row clearfix">
+  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+
+  <div class="col-sm-3">
+    <?=$this->render("admin/menu.phtml")?>
+  </div>
+  <div class="col-sm-9 well">
+    <h2><?=$this->transEsc('translations_approval')?></h2>
+    <?=$this->flashmessages() ?>
+    <? $hasRequests = false; // TODO
+        if (! $hasRequests): ?>
+        <div class='well'>
+          <?=$this->transEsc('approve_no_requests') ?>
+        </div>
+      <? endif ?>
+  </div>
+</div>

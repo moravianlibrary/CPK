@@ -1,11 +1,11 @@
 <?
   // Set page title.
-  $this->headTitle($this->translate('configuration_approval'));
+  $this->headTitle($this->translate('configurations_approval'));
 
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li class="active"><a href="/Admin/RequestConfigApproval">'.$this->transEsc('configuration_approval').'</a></li> ';
-  $this->layout()->title = $this->translate('configuration_approval');
+      '<li class="active"><a href="/Admin/ConfigurationsApproval">'.$this->transEsc('configurations_approval').'</a></li> ';
+  $this->layout()->title = $this->translate('configurations_approval');
 ?>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
@@ -14,7 +14,7 @@
     <?=$this->render("admin/menu.phtml")?>
   </div>
   <div class="col-sm-9 well" ng-controller='ApprovalController as approvalCtrl'>
-    <h2><?=$this->transEsc('configuration_approval')?></h2>
+    <h2><?=$this->transEsc('configurations_approval')?></h2>
     <?=$this->flashmessages() ?>
     <? $hasRequests = false;
       foreach($configs as $source => $config):
@@ -38,7 +38,7 @@
           $hasRequests = true;
     ?>
       <div class='well'>
-        <form action='/Admin/RequestConfigApproval' method='POST'>
+        <form action='/Admin/ConfigurationsApproval' method='POST'>
         <table class="table table-striped col-sm-12">
           <thead>
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>

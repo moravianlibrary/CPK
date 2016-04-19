@@ -43,7 +43,7 @@ class Notifications extends Gateway
      *
      * @param \Zend\Config\Config $config
      *            VuFind configuration
-     *            
+     *
      * @return void
      */
     public function __construct(Config $config)
@@ -57,36 +57,36 @@ class Notifications extends Gateway
     /**
      * Creates new Notifications Row
      *
-     * @param string $cat_username            
-     * @param boolean $hasBlocks            
-     * @param boolean $hasFines            
-     * @param boolean $hasOverdues            
+     * @param string $cat_username
+     * @param boolean $hasBlocks
+     * @param boolean $hasFines
+     * @param boolean $hasOverdues
      *
-     * @return Notifications
+     * @return \CPK\Db\Row\Notifications
      */
     public function createNotificationsRow($cat_username, $hasBlocks, $hasFines, $hasOverdues)
     {
         $row = $this->createRow();
-        
+
         $row->id = $this->getUserCardId($cat_username);
-        
+
         $row->has_blocks = $hasBlocks;
         $row->has_fines = $hasFines;
         $row->has_overdues = $hasOverdues;
-        
+
         $row->last_fetched = date('Y-m-d H:i:s');
-        
+
         $row->save();
-        
+
         return $row;
     }
 
     /**
      * Retrieves Notifications for a user.
      *
-     * @param string $cat_username            
+     * @param string $cat_username
      *
-     * @return Notifications
+     * @return \CPK\Db\Row\Notifications
      */
     public function getNotificationsRow($cat_username, $itIsId = false)
     {
@@ -104,7 +104,9 @@ class Notifications extends Gateway
     /**
      * Retrieves an id of UserCard row where the provided cat_username matches
      *
-     * @param string $cat_username            
+     * @param string $cat_username
+     *
+     * @return string $userCardId
      */
     protected function getUserCardId($cat_username)
     {
@@ -116,16 +118,16 @@ class Notifications extends Gateway
             ->where([
             'cat_username' => $cat_username
         ]);
-        
+
         $userCard = $this->executeAnyZendSQLSelect($select)->current();
-        
+
         return $userCard['id'];
     }
 
     /**
      * Executes any Select
      *
-     * @param Select $select            
+     * @param Select $select
      *
      * @return Result $result
      */

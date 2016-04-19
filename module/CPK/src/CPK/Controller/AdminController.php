@@ -29,7 +29,8 @@ namespace CPK\Controller;
 use MZKCommon\Controller\ExceptionsTrait, CPK\Db\Row\User;
 use VuFind\Exception\Auth as AuthException;
 use Zend\Mvc\MvcEvent;
-use CPK\Service\RequestConfigHandler;
+use CPK\Service\ConfigurationsHandler;
+use CPK\Service\TranslationsHandler;
 
 /**
  * Class controls VuFind administration.
@@ -81,12 +82,20 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     public function homeAction()
     {
+        return $this->redirect()->toRoute('admin-configurations');
+    }
+
+    /**
+     * Action for requesting tranlations changes
+     *
+     * @return mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
+     */
+    public function configurationsAction()
+    {
         if (! $this->accessManager->isLoggedIn())
             return $this->forceLogin();
 
-        $this->layout()->searchbox = false;
-
-        $configHandler = new RequestConfigHandler($this);
+        $configHandler = new ConfigurationsHandler($this);
 
         $configHandler->handlePostRequestFromHome();
 
@@ -98,7 +107,12 @@ class AdminController extends \VuFind\Controller\AbstractBase
         ]);
     }
 
-    public function requestConfigApprovalAction()
+    /**
+     * Action for approval of configuration change requests
+     *
+     * @return mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
+     */
+    public function configurationsApprovalAction()
     {
         if (! $this->accessManager->isLoggedIn())
             return $this->forceLogin();
@@ -106,7 +120,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             // Must be an portal admin ..
         $this->accessManager->assertIsPortalAdmin();
 
-        $configHandler = new RequestConfigHandler($this);
+        $configHandler = new ConfigurationsHandler($this);
 
         $configHandler->handlePostRequestFromApproval();
 
@@ -115,6 +129,49 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'ncipTemplate' => $configHandler->getNcipTemplate(),
             'alephTemplate' => $configHandler->getAlephTemplate(),
             'configs' => $configHandler->getAllRequestConfigs()
+        ]);
+    }
+
+    /**
+     * Action for requesting tranlations changes
+     *
+     * @return mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
+     */
+    public function translationsAction()
+    {
+        if (! $this->accessManager->isLoggedIn())
+            return $this->forceLogin();
+
+        $translationsHandler = new TranslationsHandler($this);
+
+        $translationsHandler->handlePostRequestFromHome();
+
+        return $this->createViewModel([
+            'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
+            'libCards' => $this->accessManager->getUser()
+                ->getLibraryCards()
+        ]);
+    }
+
+    /**
+     * Action for approval of translations change requests
+     *
+     * @return mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
+     */
+    public function translationsApprovalAction()
+    {
+        if (! $this->accessManager->isLoggedIn())
+            return $this->forceLogin();
+
+            // Must be an portal admin ..
+        $this->accessManager->assertIsPortalAdmin();
+
+        $translationsHandler = new TranslationsHandler($this);
+
+        $translationsHandler->handlePostRequestFromApproval();
+
+        return $this->createViewModel([
+            'isPortalAdmin' => $this->accessManager->isPortalAdmin()
         ]);
     }
 

@@ -1,38 +1,38 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('Administration'));
-  
+
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li class="active"><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li> ';
-  $this->layout()->title = $this->translate('Administration');
+      '<li class="active"><a href="/Admin/Configurations">'.$this->transEsc('configurations').'</a></li> ';
+  $this->layout()->title = $this->translate('configurations');
 ?>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-  
+
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
   <div class="col-sm-9 well">
-    <h2><?=$this->transEsc('Administration')?></h2>
+    <h2><?=$this->transEsc('configurations')?></h2>
     <?=$this->flashmessages() ?>
     <? foreach($configs as $source => $configs):
-    
+
         $hasRequested = ! empty($configs['requested']);
-        
+
         $isAleph = isset($configs['active']['Catalog']['dlfport']);
-        
+
         $template = $isAleph ? $alephTemplate : $ncipTemplate;
-        
+
         $defs = $template['Definitions'];
         unset($template['Definitions']);
-        
+
         $hidden = $defs['hidden'];
-        
+
         $config = $hasRequested ? $configs['requested'] : $configs['active'];
     ?>
       <div class='well'>
-        <form action='/Admin/Home' method='POST'>
+        <form action='/Admin/Configurations' method='POST'>
         <table class="table table-striped col-sm-12">
           <thead>
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>

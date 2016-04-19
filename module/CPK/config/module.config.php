@@ -168,7 +168,13 @@ $staticRoutes = array(
     'Statistics/Payments',
     'Statistics/Searches',
     'MyResearch/UserConnect',
-    'MyResearch/Settings'
+    'MyResearch/Settings',
+    'Admin/Configurations',
+    'Admin/ConfigurationsApproval',
+    'Admin/Translations',
+    'Admin/TranslationsApproval',
+    'Admin/PortalPages',
+    'Admin/PermissionsManager'
 );
 
 foreach ($staticRoutes as $route) {

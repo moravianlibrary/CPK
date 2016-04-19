@@ -277,3 +277,25 @@ DROP TABLE `aleph_mappings`;
 DROP TABLE `aleph_configs`;
 DROP TABLE `xcncip2_configs`;
 DROP TABLE `institutions`;
+
+UPDATE `system` SET `value`='19' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `inst_translations` (
+  `id` int(11) NOT NULL,
+  `source` varchar(100) NOT NULL,
+  `key` varchar(30) NOT NULL,
+  `cs_translated` mediumtext NOT NULL,
+  `en_translated` mediumtext NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table holding translations defined by institutions themselves';
+
+--
+-- Klíče pro exportované tabulky
+--
+
+--
+-- Klíče pro tabulku `inst_translations`
+--
+ALTER TABLE `inst_translations`
+ ADD PRIMARY KEY (`id`);
+
+UPDATE `system` SET `value`='20' WHERE `key`='DB_VERSION';
