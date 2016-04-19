@@ -98,7 +98,7 @@ class ConfigurationsHandler
      *
      * @var array
      */
-    protected $emailConfig;
+    protected $approvalConfig;
 
     /**
      * Mailer to notify about changes made by institutions admins
@@ -150,10 +150,10 @@ class ConfigurationsHandler
         $this->alephTemplate = $this->configLocator->get('aleph_template')->toArray();
 
         // setup email
-        $this->emailConfig = $this->configLocator->get('config')['Config_Change_Mailer']->toArray();
+        $this->approvalConfig = $this->configLocator->get('config')['Approval']->toArray();
 
-        if ($this->emailConfig['enabled'] && (empty($this->emailConfig['from']) || empty($this->emailConfig['to']))) {
-            throw new \Exception('Invalid Config_Change_Mailer configuration!');
+        if ($this->approvalConfig['emailEnabled'] && (empty($this->approvalConfig['emailFrom']) || empty($this->approvalConfig['emailTo']))) {
+            throw new \Exception('Invalid Approval configuration!');
         }
 
         $this->mailer = $this->serviceLocator->get('VuFind\Mailer');
@@ -654,8 +654,26 @@ class ConfigurationsHandler
         }
 
         $commitMessage = "\"Approved config change for $source\"";
+        $pbKey = $this->approvalConfig['gitPbKey'];
 
-        exec("cd $this->driversAbsolutePath && git commit \"$file\" -m $commitMessage", $commitResult);
+        $gitCommands = [
+            "commit \"$file\" -m $commitMessage",
+            "stash",
+            "pull",
+            "rebase",
+            "push origin master",
+            "stash apply"
+        ];
+
+        $cmd = "cd $this->driversAbsolutePath && ssh-agent bash -c 'ssh-add \"$pbKey\"; ";
+
+        foreach ($gitCommands as $gitCmd) {
+            $cmd .= 'git ' . $gitCmd . ' && ';
+        }
+
+        $cmd .= ' echo "Successfully pushed an approval"\'';
+
+        exec($cmd, $pushResult);
 
         $this->flashMessenger()->addWarningMessage("Added commit $commitMessage, but changes are not pushed yet");
         // git push should be called by cron
@@ -813,7 +831,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestCancelledMail($source)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['enabled']) {
 
             $subject = 'Zrušení žádosti o změnu konfigurace u instituce ' . $source;
 
@@ -832,7 +850,7 @@ class ConfigurationsHandler
      */
     protected function sendNewRequestMail($source)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['enabled']) {
 
             $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
 
@@ -853,7 +871,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestApprovedMail($source, $message, $to)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['enabled']) {
 
             $subject = 'Schválení žádosti o změnu konfigurace u instituce ' . $source;
 
@@ -874,7 +892,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestDeniedMail($source, $message, $to)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['enabled']) {
 
             $subject = 'Žádost o změnu konfigurace u instituce ' . $source . ' byla zamítnuta';
 
@@ -894,9 +912,9 @@ class ConfigurationsHandler
      */
     protected function sendMailToPortalAdmin($subject, $message)
     {
-        $from = new \Zend\Mail\Address($this->emailConfig['from'], $this->emailConfig['fromName']);
+        $from = new \Zend\Mail\Address($this->approvalConfig['emailFrom'], $this->approvalConfig['emailFromName']);
 
-        return $this->mailer->send($this->emailConfig['to'], $from, $subject, $message);
+        return $this->mailer->send($this->approvalConfig['emailTo'], $from, $subject, $message);
     }
 
     /**
@@ -908,7 +926,7 @@ class ConfigurationsHandler
      */
     protected function sendMailToContactPerson($subject, $message, $to)
     {
-        $from = new \Zend\Mail\Address($this->emailConfig['from'], $this->emailConfig['fromName']);
+        $from = new \Zend\Mail\Address($this->approvalConfig['emailFrom'], $this->approvalConfig['emailFromName']);
 
         return $this->mailer->send($to, $from, $subject, $message);
     }

@@ -13,7 +13,7 @@
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
-  <div class="col-sm-9 well" ng-controller='ApprovalController as approvalCtrl'>
+  <div class="col-sm-9 well" ng-controller='ConfigurationsApprovalController as approvalCtrl'>
     <h2><?=$this->transEsc('configurations_approval')?></h2>
     <?=$this->flashmessages() ?>
     <? $hasRequests = false;
