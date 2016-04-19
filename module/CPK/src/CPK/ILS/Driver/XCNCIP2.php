@@ -929,6 +929,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $status = $this->useXPath($itemInformation,
                     'ItemOptionalFields/CirculationStatus');
+            if (! empty($status) && (string) $status[0] === 'Available on Shelf') $status[0] = 'Available On Shelf';
 
             if (! empty($status) && (string) $status[0] == 'On Loan') {
                 $dueDate = $this->useXPath($itemInformation,
@@ -990,7 +991,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (($status === 'Available On Shelf') || ($status === 'Available For Pickup'))
             $label = 'label-success';
         else
-            if (($status === 'On Loan') || ($status === 'On Order'))
+            if (($status === 'On Loan') || ($status === 'On Order') || ($status === 'In Process') ||
+                    ($status === 'In Transit Between Library Locations'))
                 $label = 'label-warning';
         return $label;
     }
@@ -1846,7 +1848,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $itemRestriction = empty($itemRestriction) ? '' : (string) $itemRestriction[0];
         $addLink = true;
         if ($itemRestriction === 'Not For Loan') $addLink = false;
-        if (($status === 'Circulation Status Undefined') || ($status === 'Not Available')) $addLink = false;
+        if (($status === 'Circulation Status Undefined') || ($status === 'Not Available') ||
+                ($status === 'Lost')) $addLink = false;
         return $addLink;
     }
 }
