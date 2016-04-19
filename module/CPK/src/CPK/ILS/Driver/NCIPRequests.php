@@ -15,10 +15,12 @@ namespace CPK\ILS\Driver;
 class NCIPRequests {
 
     protected $noScheme = false;
-    protected $sigla = '';
+    protected $sigla = null;
+    protected $sendUserId = null;
 
-    public function __construct($agency) {
-        $this->sigla = $agency;
+    public function __construct($config) {
+        $this->sigla = $config['Catalog']['agency'];
+        $this->sendUserId = $config['Catalog']['sendUserId'];
     }
 
     public function patronLogin($username, $password) {
@@ -406,7 +408,7 @@ class NCIPRequests {
     /* Append the Ext element containing the UserId. */
     protected function insertExtPatronId($patron) {
         $body = "";
-        if ($this->sigla == "ZLG001") {
+        if ($this->sendUserId) {
             if (! empty($patron)) {
                 $body .= '<ns1:Ext>';
                 $body .= $this->insertUserIdTag($patron);

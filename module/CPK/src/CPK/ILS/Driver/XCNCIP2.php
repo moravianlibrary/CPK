@@ -128,7 +128,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (isset($this->config['Catalog']['agency']))
             $this->agency = $this->config['Catalog']['agency'];
 
-        $this->requests = new NCIPRequests($this->agency);
+        $this->requests = new NCIPRequests($this->config);
     }
 
     public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
