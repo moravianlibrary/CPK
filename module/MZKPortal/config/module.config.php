@@ -10,6 +10,7 @@ $config = array(
                     'solrportal_muni'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMuni',
                     'solrportal_mzk'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcMzk',
                     'solrportal_kjm'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcKjm',
+                    'solrportal_rajhrad'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcKjm',
                     'solrvut'     => 'MZKPortal\RecordDriver\Factory::getSolrMarcVut',
                     'solrportal_mend'    => 'MZKPortal\RecordDriver\Factory::getSolrMarcMend',
                     'solrmerged'  => 'MZKPortal\RecordDriver\Factory::getSolrMarcMerged',
