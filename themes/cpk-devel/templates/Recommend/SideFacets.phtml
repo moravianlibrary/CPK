@@ -319,33 +319,5 @@ JS;
     <? endif; ?>
   <? endforeach; ?>
 <? endif; ?>
-<!--data-toggle="modal" data-target="#exampleModal"-->
 
-
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="exampleModalLabel"><?=$this->transEsc('Timeline') ?></h4>
-            </div>
-            <div class="modal-body">
-            <? foreach ($this->results->getRecommendations('top') as $current): ?>
-                <div>
-                    <?=$this->recommend($current)?>
-                </div>
-            <? endforeach; ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->transEsc('Close') ?></button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-$('#showmodal').click(function() {
-    $('#exampleModal').modal('show');
-    return false;
-});
-</script>
+<?=$this->render("Recommend/SideFacets/timelineModal.phtml")?>
