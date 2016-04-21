@@ -215,7 +215,7 @@ trait HoldsTrait
         if (isset($status['duedate']) && ! empty($status['duedate'])) {
             $isLend = true;
         }
-        if ($status['status'] == 'On Loan' || $status['status'] == 'On Order') {
+        if ($status['status'] != 'Available On Shelf') {
             $isLend = true;
         }
         if ($isLend && empty($holdQueue)) $holdQueue = 1;

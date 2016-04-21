@@ -630,6 +630,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         // Extract details from the XML:
         $status = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/CirculationStatus');
+        if (! empty($status) && (string) $status[0] === 'Available on Shelf') $status[0] = 'Available On Shelf';
 
         $locations = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/Location');
         foreach ($locations as $locElement) {
