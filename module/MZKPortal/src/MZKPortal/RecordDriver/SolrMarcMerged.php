@@ -38,6 +38,7 @@ class SolrMarcMerged extends ParentSolr
                     $finalID = $id;
                     break;
                 case 'kjm':
+                case 'rajhrad':
                     $finalID = substr($id, 6);   
                     break;
                 case 'mend':
@@ -175,6 +176,7 @@ class SolrMarcMerged extends ParentSolr
             case 'MUNI':
                 return MZKPortal\RecordDriver\SolrMarcBase::getHoldingYear($holding);
             case 'KJM':
+            case 'RAJHRAD':
                 return MZKPortal\RecordDriver\SolrMarcKjm::getHoldingYear($holding);
             case 'MEND':
                 return MZKPortal\RecordDriver\SolrMarcMend::getHoldingYear($holding);
@@ -239,6 +241,7 @@ class SolrMarcMerged extends ParentSolr
             case 'MUNI':
                 return MZKPortal\RecordDriver\SolrMarcBase::unifyHolding($holding);
             case 'KJM':
+            case 'RAJHRAD':
                 return MZKPortal\RecordDriver\SolrMarcKjm::unifyHolding($holding);
             case 'MEND':
                 return MZKPortal\RecordDriver\SolrMarcMend::unifyHolding($holding);
