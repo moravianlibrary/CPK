@@ -236,6 +236,21 @@ class Factory
     }
 
     /**
+     * Construct the Google tag manager helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return GoogleTagManager
+     */
+    public static function getGoogleTagManager(ServiceManager $sm)
+    {
+        $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
+        $conf = isset($config->GoogleTagManager)
+          ? $config->GoogleTagManager : array();
+        return new GoogleTagManager($conf);
+    }
+
+    /**
      * Construct the GetLastSearchLink helper.
      *
      * @param ServiceManager $sm Service manager.
