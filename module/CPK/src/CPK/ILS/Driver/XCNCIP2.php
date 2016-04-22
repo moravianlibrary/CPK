@@ -991,10 +991,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $label = 'label-danger';
         if (($status === 'Available On Shelf') || ($status === 'Available For Pickup'))
             $label = 'label-success';
-        else
-            if (($status === 'On Loan') || ($status === 'On Order') || ($status === 'In Process') ||
+        elseif (($status === 'On Loan') || ($status === 'On Order') || ($status === 'In Process') ||
                     ($status === 'In Transit Between Library Locations'))
                 $label = 'label-warning';
+        elseif (($status === 'Circulation Status Undefined'))
+                $label = 'label-unknown';
         return $label;
     }
 
@@ -1863,6 +1864,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     protected function convertStatus($status, $itemRestriction) {
         if (! empty($status) && (string) $status[0] === 'Available on Shelf') $status[0] = 'Available On Shelf';
         if (! empty($status) && (string) $status[0] === 'Available for Pickup') $status[0] = 'On Order';
+        if (! empty($status) && (string) $status[0] === 'Waiting To Be Reshelved') $status[0] = 'In Process';
         return $status;
     }
 }
