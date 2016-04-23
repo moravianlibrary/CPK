@@ -16,6 +16,9 @@
     $advSearch = $options->getAdvancedSearchAction();
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
+    if(!(isset($filterList) && (is_object($filterList) || is_array($filterList)))) {
+        $filterList = [];
+    }
 ?>
 <? if ($this->searchTypeTemplate == 'advanced'): $query = $this->params->getQuery(); $allGroupsOperator = $query->getOperator(); $groups = -1;?>
 <div class="panel panel-default search-panel">
