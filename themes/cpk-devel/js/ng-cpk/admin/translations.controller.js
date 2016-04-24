@@ -18,8 +18,6 @@
 
     function TranslationsController(translate) {
 
-	var editedAt = undefined;
-
 	var currentTranslationRow = {
 	    div : undefined,
 	    input : undefined,
@@ -55,8 +53,6 @@
 	    currentTranslationRow.submitBtn = submitBtns[source];
 
 	    showCurrentTranslationInput();
-
-	    editedAt = (new Date()).getTime();
 	}
 
 	/**
@@ -68,6 +64,7 @@
 	 */
 	function addTranslation(source, $event) {
 	    
+	    // This method also can be called via click on an icon next to the submit btn
 	    if ($event.target.nodeName === 'I')
 		$event.target = $event.target.nextElementSibling;
 	    
@@ -152,6 +149,7 @@
 		}
 
 		showLanguagesHeaders(source);
+		removeHiddenFromClassName(submitBtns[source]);
 	    }
 	}
 
@@ -257,6 +255,7 @@
 	function removeTranslationKey(source, key) {
 	    var languages = Object.keys(translationRows[source]);
 
+	    var langHidden = false;
 	    languages.forEach(function(lang) {
 		var tr = getTranslationRowWithKey(source, key, lang);
 
@@ -266,9 +265,13 @@
 		    // Hide language header if has no translations
 		    if (langWithoutTranslations(source, lang)) {
 			translationRows[source][lang].className += ' hidden';
+			langHidden = true;
 		    }
 		}
 	    });
+	    
+	    if (langHidden)
+		submitBtns[source].className += ' hidden';
 	}
 
 	/**
@@ -319,6 +322,7 @@
 		    // remove any graphics
 		    if (previousContents === value.trim()) {
 			currentTranslationRow.div.innerHTML = previousContents;
+			
 			return true;
 		    }
 
@@ -329,6 +333,7 @@
 
 	    ins.textContent = value;
 
+	    removeHiddenFromClassName(currentTranslationRow.submitBtn);
 	    return true;
 	}
 
