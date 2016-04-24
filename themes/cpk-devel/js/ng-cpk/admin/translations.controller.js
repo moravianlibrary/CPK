@@ -67,6 +67,10 @@
 	 * translations being approved by portal admin after submitted.
 	 */
 	function addTranslation(source, $event) {
+	    
+	    if ($event.target.nodeName === 'I')
+		$event.target = $event.target.nextElementSibling;
+	    
 	    if ($event.target.form.checkValidity()) {
 
 		var formElements = $event.target.form.elements;
