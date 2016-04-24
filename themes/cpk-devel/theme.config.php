@@ -69,7 +69,7 @@ if ($useCompiledAngular) {
 } else {
 
     $jsToInclude = [
-        
+
         'ng-cpk/favorites/module.js',
         'ng-cpk/favorites/favsNotifications.service.js',
         'ng-cpk/favorites/favorite.class.js',
@@ -84,13 +84,14 @@ if ($useCompiledAngular) {
 
         'ng-cpk/notifications/module.js',
         'ng-cpk/notifications/notif.controller.js',
-        
+
         'ng-cpk/admin/module.js',
-        'ng-cpk/admin/approval.controller.js',
-        
+        'ng-cpk/admin/configurations-approval.controller.js',
+        'ng-cpk/admin/translations.controller.js',
+
         'ng-cpk/history/module.js',
         'ng-cpk/history/checkedouthistory.controller.js',
-        
+
         'ng-cpk/module.js',
         'ng-cpk/translate.filter.js',
     ];

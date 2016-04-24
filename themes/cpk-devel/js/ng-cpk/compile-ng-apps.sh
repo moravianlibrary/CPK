@@ -3,7 +3,6 @@
 deps="
 
 favorites/module.js
-favorites/translate.filter.js
 favorites/favsNotifications.service.js
 favorites/favorite.class.js
 favorites/favorites.factory.js
@@ -19,9 +18,14 @@ notifications/module.js
 notifications/notif.controller.js
 
 admin/module.js
-admin/approval.controller.js
+admin/configurations-approval.controller.js
+admin/translations.controller.js
+
+history/module.js
+history/checkedouthistory.controller.js
 
 module.js
+translate.filter.js
 "
 
 if [ ! $(which curl) ]; then

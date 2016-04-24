@@ -254,11 +254,7 @@ class ConfigurationsHandler
         // Fetch all configs
         foreach ($this->institutionsBeingAdminAt as $adminSource) {
 
-            // Exclude portal configs as they doesn't exist
-            if (strtolower($adminSource) !== AccessManager::PORTAL_ADMIN_SOURCE) {
-
-                $configs[$adminSource] = $this->getInstitutionConfig($adminSource);
-            }
+            $configs[$adminSource] = $this->getInstitutionConfig($adminSource);
         }
 
         return $configs;

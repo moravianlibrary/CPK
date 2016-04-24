@@ -5,7 +5,7 @@
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
 (function() {
-    angular.module('admin').controller('ConfigurationsApprovalController', ConfigurationsApprovalController).directive('ng-submit-approval', submitApproval);
+    angular.module('admin').controller('ApprovalController', ApprovalController).directive('ng-submit-approval', submitApproval);
 
     ApprovalController.$inject = [];
 
@@ -19,8 +19,6 @@
 	    div : undefined,
 	    input : undefined
 	};
-
-	var dontSubmitNow = false;
 
 	var vm = this;
 

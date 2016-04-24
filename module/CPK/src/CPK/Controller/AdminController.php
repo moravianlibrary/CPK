@@ -148,8 +148,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         return $this->createViewModel([
             'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
-            'libCards' => $this->accessManager->getUser()
-                ->getLibraryCards()
+            'sourcesBeingAdmin' => $this->accessManager->getInstitutionsWithAdminRights(),
+            'translations' => $translationsHandler->getAdminTranslations(),
+            'supportedLanguages' => $translationsHandler::SUPPORTED_TRANSLATIONS
         ]);
     }
 
@@ -171,7 +172,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $translationsHandler->handlePostRequestFromApproval();
 
         return $this->createViewModel([
-            'isPortalAdmin' => $this->accessManager->isPortalAdmin()
+            'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
+            'translations' => $translationsHandler->getAllTranslations(),
+            'supportedLanguages' => $translationsHandler::SUPPORTED_TRANSLATIONS
         ]);
     }
 
@@ -399,6 +402,16 @@ class AccessManager
 
         // Trim all elements
         $this->institutionsBeingAdminAt = array_unique(array_map('trim', $this->institutionsBeingAdminAt));
+
+        // Is portal admin ?
+        $this->isPortalAdmin = false;
+        foreach ($this->institutionsBeingAdminAt as $key => $adminSource) {
+            if (strtolower($adminSource) === self::PORTAL_ADMIN_SOURCE) {
+
+                $this->isPortalAdmin = true;
+                unset($this->institutionsBeingAdminAt[$key]); // Do not break because it can be defined more than one way ..
+            }
+        }
     }
 
     /**
@@ -442,18 +455,6 @@ class AccessManager
      */
     public function isPortalAdmin()
     {
-        if (isset($this->isPortalAdmin))
-            return $this->isPortalAdmin;
-
-        foreach ($this->institutionsBeingAdminAt as $adminSource) {
-            if (strtolower($adminSource) === self::PORTAL_ADMIN_SOURCE) {
-
-                $this->isPortalAdmin = true;
-                return $this->isPortalAdmin;
-            }
-        }
-
-        $this->isPortalAdmin = false;
         return $this->isPortalAdmin;
     }
 

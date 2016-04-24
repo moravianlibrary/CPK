@@ -37,7 +37,7 @@ use Zend\ServiceManager\ServiceManager;
  * @author Demian Katz <demian.katz@villanova.edu>
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link http://vufind.org/wiki/vufind2:developer_manual Wiki
- *      
+ *
  *       @codeCoverageIgnore
  */
 class Factory
@@ -48,7 +48,7 @@ class Factory
      *
      * @param ServiceManager $sm
      *            Service manager.
-     *            
+     *
      * @return User
      */
     public static function getUser(ServiceManager $sm)
@@ -63,7 +63,7 @@ class Factory
      *
      * @param ServiceManager $sm
      *            Service manager.
-     *            
+     *
      * @return CitationStyle
      */
     public static function getCitationStyle(ServiceManager $sm)
@@ -78,7 +78,7 @@ class Factory
      *
      * @param ServiceManager $sm
      *            Service manager.
-     *            
+     *
      * @return UserSettings
      */
     public static function getUserSettings(ServiceManager $sm)
@@ -93,7 +93,7 @@ class Factory
      *
      * @param ServiceManager $sm
      *            Service manager.
-     *            
+     *
      * @return PortalPages
      */
     public static function getPortalPages(ServiceManager $sm)
@@ -108,12 +108,27 @@ class Factory
      *
      * @param ServiceManager $sm
      *            Service manager.
-     *            
+     *
      * @return Notifications
      */
     public static function getNotifications(ServiceManager $sm)
     {
         return new Notifications($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
+     * Construct the inst_translations table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return InstTranslations
+     */
+    public static function getInstitutionsTranslations(ServiceManager $sm)
+    {
+        return new InstTranslations($sm->getServiceLocator()
             ->get('VuFind\Config')
             ->get('config'));
     }

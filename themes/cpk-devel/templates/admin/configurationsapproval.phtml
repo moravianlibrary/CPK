@@ -13,17 +13,16 @@
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
-  <div class="col-sm-9 well" ng-controller='ConfigurationsApprovalController as approvalCtrl'>
+  <div class="col-sm-9 well" ng-controller='ApprovalController as approvalCtrl'>
     <h2><?=$this->transEsc('configurations_approval')?></h2>
     <?=$this->flashmessages() ?>
     <? $hasRequests = false;
       foreach($configs as $source => $config):
 
-        $diff = $config['diff'];
-        $configRequested = $config['requested'];
-        $configActive = $config['active'];
+        $transRequested = $config['requested'];
+        $transActive = $config['active'];
 
-        $isAleph = isset($configActive['Catalog']['dlfport']);
+        $isAleph = isset($transActive['Catalog']['dlfport']);
 
         $template = $isAleph ? $alephTemplate : $ncipTemplate;
 
@@ -31,10 +30,10 @@
         unset($template['Definitions']);
 
         // These two cannot be changed by anyone - they're generated
-        unset($configRequested['IdResolver']['prefix']);
-        unset($configRequested['Catalog']['requester']);
+        unset($transRequested['IdResolver']['prefix']);
+        unset($transRequested['Catalog']['requester']);
 
-        if (! empty($configRequested)):
+        if (! empty($transRequested)):
           $hasRequests = true;
     ?>
       <div class='well'>
@@ -44,10 +43,10 @@
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
           </thead>
           <tbody>
-         <? foreach($configRequested as $section => $keys): if(! empty($keys)): ?>
+         <? foreach($transRequested as $section => $keys): if(! empty($keys)): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
             <? foreach($keys as $key => $value):
-                $isChanged = $value != $configActive[$section][$key];
+                $isChanged = $value != $transActive[$section][$key];
                 $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
                 $isCheckbox = $defs[$section][$key] === 'checkbox'; ?>
             <tr title='<?=($isRequired ? $this->transEsc('This field is required') . ' - ' : '')  . $this->transEsc($template[$section][$key]) ?>'>
@@ -55,8 +54,8 @@
                 <td class="col-sm-9" ng-dblclick="approvalCtrl.edit($event)">
                 <div>
                 <? if ($isChanged): ?>
-                  <? if (! empty($configActive[$section][$key])): ?>
-                    <del style="color: red"><?=$configActive[$section][$key] ?></del>
+                  <? if (! empty($transActive[$section][$key])): ?>
+                    <del style="color: red"><?=$transActive[$section][$key] ?></del>
                     <br>
                   <? endif; ?>
                   <ins style="color: green"><?=$value ?></ins>
@@ -83,7 +82,7 @@
         </table>
         <textarea class="col-sm-12" name="message" placeholder="<?=$this->transEsc('approval_description')?>" title="<?=$this->transEsc('approval_description')?>"></textarea>
         <div class="btn-group">
-          <input ng-click='approvalCtrl.submit($event)' class="btn btn-primary" type="submit" name="approved" value="<?=$this->transEsc('approve_config_change') ?>" ng-submit-approval/>
+          <input class="btn btn-primary" type="submit" name="approved" value="<?=$this->transEsc('approve_config_change') ?>" ng-submit-approval/>
           <input class="btn btn-primary" type="submit" name="denied" value="<?=$this->transEsc('deny_config_change') ?>" formnovalidate/>
         </div>
         <input type='hidden' name='source' value='<?=$source ?>'/>

@@ -298,4 +298,6 @@ CREATE TABLE IF NOT EXISTS `inst_translations` (
 ALTER TABLE `inst_translations`
  ADD PRIMARY KEY (`id`);
 
+ALTER TABLE `inst_translations` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+
 UPDATE `system` SET `value`='20' WHERE `key`='DB_VERSION';

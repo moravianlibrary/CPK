@@ -31,6 +31,7 @@ use CPK\Controller\AdminController;
 use Zend\Config\Writer\Ini as IniWriter;
 use Zend\Config\Config;
 use VuFind\Mailer\Mailer;
+use CPK\Db\Table\InstTranslations;
 
 /**
  * An handler for handling requests from institutions admins
@@ -42,6 +43,11 @@ use VuFind\Mailer\Mailer;
  */
 class TranslationsHandler
 {
+
+    const SUPPORTED_TRANSLATIONS = [
+        'cs',
+        'en'
+    ];
 
     /**
      * Controller which spawned this instance.
@@ -56,6 +62,27 @@ class TranslationsHandler
      * @var \Zend\ServiceManager\ServiceLocatorInterface
      */
     protected $serviceLocator;
+
+    /**
+     * Table for Institutions Translations
+     *
+     * @var InstTranslations
+     */
+    protected $translationsTable;
+
+    /**
+     * Translator
+     *
+     * @var \Debug\Service\Translator
+     */
+    protected $translator;
+
+    /**
+     * Mini-cache for processed translations of an institution
+     *
+     * @var array
+     */
+    protected $instTranslations;
 
     /**
      * Config Locator
@@ -76,7 +103,7 @@ class TranslationsHandler
      *
      * @var array
      */
-    protected $emailConfig;
+    protected $approvalConfig;
 
     /**
      * Mailer to notify about changes made by institutions admins
@@ -93,15 +120,49 @@ class TranslationsHandler
     protected $institutionsBeingAdminAt;
 
     /**
+     * Object with full paths of a czech & english language files
+     *
+     * @var array
+     */
+    protected $translationsFilename = [];
+
+    /**
      * C'tor
      *
-     * @param \VuFind\Controller\AbstractBase $controller
+     * @param AdminController $controller
+     *
+     * @throws \Exception
      */
     public function __construct(AdminController $controller)
     {
         $this->ctrl = $controller;
 
         $this->serviceLocator = $this->ctrl->getServiceLocator();
+
+        $this->translationsTable = $this->serviceLocator->get('VuFind\DbTablePluginManager')->get('inst_translations');
+
+        $this->translator = $this->serviceLocator->get('VuFind\Translator');
+
+        $filename = $this->translator->getLocale() . '.ini';
+
+        $mustContain = '-institutions.ini';
+        $found = strrpos($filename, $mustContain, - strlen($mustContain));
+
+        if ($found === false) {
+            throw new \Exception('Language files must end with "-institutions.ini" to support institutions translations');
+        }
+
+        $languagesFullPath = $_SERVER['VUFIND_LOCAL_DIR'] . '/languages/';
+
+        $currLang = substr($filename, 0, 2);
+
+        foreach (self::SUPPORTED_TRANSLATIONS as $tran) {
+            $this->translationsFilename[$tran] = $languagesFullPath . str_replace($currLang, $tran, $filename);
+
+            if (! is_writable($this->translationsFilename[$tran])) {
+                throw new \Exception('Either doesnt exist or cannot write to ' . $this->translationsFilename[$tran] . ' file.');
+            }
+        }
 
         $this->initConfigs();
     }
@@ -115,16 +176,18 @@ class TranslationsHandler
     {
         $this->configLocator = $this->serviceLocator->get('VuFind\Config');
 
+        $this->commonTranslationsConfig = $this->configLocator->get('');
+
         $multibackend = $this->configLocator->get('MultiBackend')->toArray();
 
         // get the drivers path
         $this->driversPath = empty($multibackend['General']['drivers_path']) ? '.' : $multibackend['General']['drivers_path'];
 
         // setup email
-        $this->emailConfig = $this->configLocator->get('config')['Config_Change_Mailer']->toArray();
+        $this->approvalConfig = $this->configLocator->get('config')['Approval']->toArray();
 
-        if ($this->emailConfig['enabled'] && (empty($this->emailConfig['from']) || empty($this->emailConfig['to']))) {
-            throw new \Exception('Invalid Config_Change_Mailer configuration!');
+        if ($this->approvalConfig['emailEnabled'] && (empty($this->approvalConfig['emailFrom']) || empty($this->approvalConfig['emailTo']))) {
+            throw new \Exception('Invalid Approval configuration!');
         }
 
         $this->mailer = $this->serviceLocator->get('VuFind\Mailer');
@@ -179,6 +242,8 @@ class TranslationsHandler
             // Is there a query for a config modification?
             if (isset($post['approved'])) {
 
+                unset($post['approved']);
+
                 $result = $this->approveRequest($post);
 
                 if ($result) {
@@ -187,8 +252,6 @@ class TranslationsHandler
 
                     $msg = $this->translate('approval_succeeded');
                     $this->flashMessenger()->addSuccessMessage($msg);
-
-                    $this->commitNewTranslations($source);
                 } else {
 
                     $msg = $this->translate('approval_failed');
@@ -197,9 +260,7 @@ class TranslationsHandler
             } else
                 if (isset($post['denied'])) {
 
-                    $this->deleteRequestConfig([
-                        'source' => $source
-                    ]);
+                    $this->translationsTable->deleteInstitutionTranslations($source);
 
                     $this->sendRequestDeniedMail($source, $post['message'], $contactPerson);
 
@@ -207,6 +268,260 @@ class TranslationsHandler
                     $this->flashMessenger()->addSuccessMessage($msg);
                 }
         }
+    }
+
+    /**
+     * Retrieves institution translations for current admin
+     *
+     * @return array
+     */
+    public function getAdminTranslations()
+    {
+        $translations = [];
+
+        foreach ($this->institutionsBeingAdminAt as $source) {
+            $requested = $this->getAdminRequestedTranslations($source);
+
+            $requestedNotEmpty = false;
+
+            if (! empty($requested)) {
+                $translations[$source]['requested'] = $requested;
+                $requestedNotEmpty = true;
+            }
+
+            $active = $this->getSourceSpecificActiveTranslations($source);
+
+            $activeNotEmpty = false;
+
+            if (! empty($active)) {
+                $translations[$source]['active'] = $active;
+                $activeNotEmpty = true;
+            }
+
+            $translations[$source]['joinedKeys'] = $this->getJoinedTranslationsKeys($requested, $active);
+        }
+
+        return $translations;
+    }
+
+    /**
+     * Rerieves all institution translations (requested & active together).
+     *
+     * Returns empty active translations if there are no requested as it's
+     * an unnecessary load.
+     *
+     * @return array
+     */
+    public function getAllTranslations()
+    {
+        $translations = [];
+
+        $requested = $this->getAllRequestTranslations();
+
+        $active = $joinedKeys = [];
+
+        if (! empty($requested)) {
+            $active = $this->getAllActiveTranslations();
+        }
+
+        foreach ($requested as $source => $langTranslation) {
+
+            $translations[$source]['requested'] = $langTranslation;
+
+            if (isset($active[$source]))
+                $translations[$source]['active'] = $active[$source];
+            else
+                $translations[$source]['active'] = [];
+
+            $translations[$source]['joinedKeys'] = $this->getJoinedTranslationsKeys($translations[$source]['requested'], $translations[$source]['active']);
+        }
+
+        return $translations;
+    }
+
+    /**
+     * Retrieves all the active translations for institutions
+     *
+     * @return array
+     */
+    protected function getAllActiveTranslations()
+    {
+        $activeTranslations = [];
+
+        foreach (self::SUPPORTED_TRANSLATIONS as $lang) {
+            $activeTranslations[] = $this->getTranslations($lang);
+        }
+
+        $aggregatedActiveTranslations = [];
+
+        foreach ($activeTranslations as $activeTranslation) {
+
+            $lang = substr($activeTranslation['@parent_ini'], 0, 2);
+
+            unset($activeTranslation['@parent_ini']);
+
+            foreach ($activeTranslation as $translationKey => $value) {
+                list ($source, $key) = explode('_', $translationKey);
+
+                $aggregatedActiveTranslations[$source][$lang][$key] = $value;
+            }
+        }
+
+        return $aggregatedActiveTranslations;
+    }
+
+    /**
+     * Retrieves all translations pending approval
+     *
+     * @return array
+     */
+    protected function getAllRequestTranslations()
+    {
+        $requestTranslations = $this->translationsTable->getAllTranslations();
+
+        $aggregatedReqTrans = [];
+
+        foreach ($requestTranslations as $translation) {
+
+            unset($translation['id']);
+
+            $source = $translation['source'];
+            $key = $translation['key'];
+
+            unset($translation['source']);
+            unset($translation['key']);
+
+            foreach ($translation as $langKey => $value) {
+                $lang = reset(explode('_', $langKey));
+
+                $aggregatedReqTrans[$source][$lang][$key] = $value;
+            }
+        }
+
+        return $aggregatedReqTrans;
+    }
+
+    /**
+     * Retrieves only requested translations associated with current admin & with the institution desired
+     *
+     * @param string $source
+     *
+     * @return array
+     */
+    protected function getAdminRequestedTranslations($source)
+    {
+        $requested = [];
+
+        $rows = $this->translationsTable->getInstitutionTranslations($source);
+
+        foreach ($rows as $row) {
+
+            $key = $row->key;
+
+            $requested['cs'][$key] = $row->cs_translated;
+            $requested['en'][$key] = $row->en_translated;
+        }
+
+        return $requested;
+    }
+
+    /**
+     * Gets the translations starting with $source_RESTOFKEY from all the languages
+     *
+     * @param string $source
+     *
+     * @return array
+     */
+    protected function getSourceSpecificActiveTranslations($source)
+    {
+        if (isset($this->instTranslations[$source]))
+            return $this->instTranslations[$source];
+
+        $sourceTrans = [];
+
+        $sourceLength = strlen($source);
+
+        foreach (self::SUPPORTED_TRANSLATIONS as $lang) {
+
+            $translations = $this->getTranslations($lang);
+            $sourceTran = array_filter($translations, function ($key) use ($source, $sourceLength) {
+                return substr($key, 0, $sourceLength) === $source;
+            }, ARRAY_FILTER_USE_KEY);
+
+            if (! empty($sourceTran)) {
+
+                // Remove the source prefix
+
+                $sourceTranUnprefixed = [];
+                foreach ($sourceTran as $key => $val) {
+
+                    $newKey = substr($key, $sourceLength + 1);
+
+                    $sourceTranUnprefixed[$newKey] = $val;
+                }
+
+                $sourceTrans[$lang] = $sourceTranUnprefixed;
+            }
+        }
+
+        $this->instTranslations[$source] = $sourceTrans;
+
+        return $sourceTrans;
+    }
+
+    /**
+     * Retrieves joined translations keys typically from within the requested & the active translations objects.
+     *
+     * Note that it joins the translations only on a institution scope.
+     *
+     * @param array $transA
+     * @param array $transB
+     *
+     * @return array
+     */
+    protected function getJoinedTranslationsKeys($transA, $transB)
+    {
+        $merged = array_merge_recursive($transA, $transB);
+
+        $joinedKeys = [];
+
+        foreach ($merged as $lang => $keyVals) {
+
+            $joinedKeys[$lang] = [];
+
+            foreach ($keyVals as $key => $val) {
+                if (array_search($key, $joinedKeys) === false) {
+                    $joinedKeys[$lang][] = $key;
+                }
+            }
+        }
+
+        return $joinedKeys;
+    }
+
+    /**
+     * Returns translation as an php object
+     *
+     * @param string $lang
+     *
+     * @return array
+     */
+    protected function getTranslations($lang)
+    {
+        if (! isset($this->__translations)) {
+            $this->__translations = [];
+        }
+
+        if (isset($this->__translations[$lang])) {
+            return $this->__translations[$lang];
+        }
+
+        if (! isset($this->translationsFilename[$lang]))
+            throw new \Exception('Unknown language file requested "' . $lang . '"');
+
+        $this->__translations[$lang] = parse_ini_file($this->translationsFilename[$lang]);
+
+        return $this->__translations[$lang];
     }
 
     /**
@@ -222,7 +537,7 @@ class TranslationsHandler
             return;
         }
 
-        $success = false; // TODO save request to DB
+        $success = $this->createNewRequestTranslations($post);
 
         if ($success) {
 
@@ -240,15 +555,43 @@ class TranslationsHandler
      */
     protected function processCancelChangeRequest($post)
     {
-        $success = false; // TODO remove entries from DB
+        $source = $post['source'];
 
-        if ($success) {
-
-            $requestCancelled = $this->translate('request_translations_change_cancelled');
-            $this->flashMessenger()->addSuccessMessage($requestCancelled);
-
-            $this->sendRequestCancelledMail($post['source']);
+        if (! in_array($source, $this->institutionsBeingAdminAt)) {
+            throw new \Exception("You don't have permissions to cancel requested translations of $source!");
         }
+
+        $this->translationsTable->deleteInstitutionTranslations($source);
+
+        $requestCancelled = $this->translate('request_translations_change_cancelled');
+        $this->flashMessenger()->addSuccessMessage($requestCancelled);
+
+        $this->sendRequestCancelledMail($post['source']);
+    }
+
+    protected function createNewRequestTranslations($translations)
+    {
+        $source = $translations['source'];
+        unset($translations['source']);
+
+        if (! in_array($source, $this->institutionsBeingAdminAt)) {
+            throw new \Exception("You don't have permissions to change translations of $source!");
+        }
+
+        $aggregatedTranslations = [];
+        foreach ($translations as $lang => $keys) {
+            foreach ($keys as $key => $value) {
+                $aggregatedTranslations[$key][$lang] = $value;
+            }
+        }
+
+        $this->translationsTable->deleteInstitutionTranslations($source);
+
+        foreach ($aggregatedTranslations as $key => $translationValues) {
+            $this->translationsTable->createNewTranslation($source, $key, $translationValues);
+        }
+
+        return true;
     }
 
     /**
@@ -260,8 +603,49 @@ class TranslationsHandler
      */
     protected function changedSomething($translations)
     {
-        // TODO compare current translations with the one in DB
-        return false;
+        $source = $translations['source'];
+
+        unset($translations['source']);
+
+        $active = $this->getSourceSpecificActiveTranslations($source);
+
+        $changedSomething = false;
+
+        if (empty($active)) {
+
+            $changedSomething = ! empty($translations);
+        } else
+            if (empty($translations)) {
+
+                $changedSomething = ! empty($active);
+            } else
+                foreach ($active as $lang => $keys) {
+
+                    if (isset($translations[$lang])) {
+                        foreach ($keys as $key => $oldValue) {
+                            if (isset($translations[$lang][$key])) {
+
+                                $newValue = $translations[$lang][$key];
+                                unset($translations[$lang][$key]);
+                                if ($newValue !== $oldValue) {
+                                    $changedSomething = true;
+                                    break;
+                                }
+                            } else {
+                                $changedSomething = true;
+                                break;
+                            }
+                        }
+
+                        // there may also be new key requested
+                        if (! empty($translations[$lang] || $changedSomething)) {
+                            $changedSomething = true;
+                            break;
+                        }
+                    }
+                }
+
+        return $changedSomething;
     }
 
     /**
@@ -271,11 +655,49 @@ class TranslationsHandler
      *
      * @return boolean $result
      */
-    protected function approveRequest($post)
+    protected function approveRequest($translations)
     {
-        // TODO Transfer tranlations from DB to real config
+        $source = $translations['source'];
 
-        return false;
+        unset($translations['source']);
+
+        $sourceLength = strlen($source);
+
+        foreach ($translations as $language => $langTranslations) {
+            $currentActiveLangTranslations = $this->getTranslations($language);
+
+            // Iterate over all translations within this language
+            foreach ($currentActiveLangTranslations as $key => $value) {
+                if(substr($key, 0, $sourceLength) === $source) {
+                    // We found a translation of this institution
+
+                    $shortKey = substr($key, $sourceLength + 1);
+
+                    if (! isset($langTranslations[$shortKey])) {
+                        unset($currentActiveLangTranslations[$key]);
+                    } elseif ($langTranslations[$shortKey] != $value) {
+                        $currentActiveLangTranslations[$key] = $langTranslations[$shortKey];
+                        unset($langTranslations[$shortKey]);
+                    }
+                }
+            }
+
+            // And finally add new values
+            foreach ($langTranslations as $newKey => $newValue) {
+                $currentActiveLangTranslations[$source . '_' . $newKey] = $newValue;
+            }
+
+            $currentActiveLangTranslations = $this->cleanData($currentActiveLangTranslations);
+            $currentActiveLangTranslations = new Config($currentActiveLangTranslations, false);
+
+            try {
+                (new IniWriter())->toFile($this->translationsFilename[$language], $currentActiveLangTranslations);
+            } catch (\Exception $e) {
+                throw new \Exception("Cannot write to file '$this->translationsFilename[$language]'. Please fix the permissions by running: 'sudo chown www-data $this->translationsFilename[$language]'");
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -316,7 +738,7 @@ class TranslationsHandler
     }
 
     /**
-     * Sends an information email about a configuration request change has beed cancelled
+     * Sends an information email about a translations request change has beed cancelled
      *
      * @param string $source
      */
@@ -335,7 +757,7 @@ class TranslationsHandler
     }
 
     /**
-     * Sends an information email about a new configuration request
+     * Sends an information email about a new translations request
      *
      * @param string $source
      */
@@ -354,7 +776,7 @@ class TranslationsHandler
     }
 
     /**
-     * Sends an information email about a configuration request has been approved
+     * Sends an information email about a translations request has been approved
      *
      * @param string $source
      * @param string $message
@@ -375,7 +797,7 @@ class TranslationsHandler
     }
 
     /**
-     * Sends an information email about a configuration request has been denied
+     * Sends an information email about a translations request has been denied
      *
      * @param string $source
      * @param string $message
@@ -403,9 +825,9 @@ class TranslationsHandler
      */
     protected function sendMailToPortalAdmin($subject, $message)
     {
-        $from = new \Zend\Mail\Address($this->emailConfig['from'], $this->emailConfig['fromName']);
+        $from = new \Zend\Mail\Address($this->approvalConfig['emailFrom'], $this->approvalConfig['emailFromName']);
 
-        return $this->mailer->send($this->emailConfig['to'], $from, $subject, $message);
+        return $this->mailer->send($this->approvalConfig['emailTo'], $from, $subject, $message);
     }
 
     /**
@@ -417,7 +839,7 @@ class TranslationsHandler
      */
     protected function sendMailToContactPerson($subject, $message, $to)
     {
-        $from = new \Zend\Mail\Address($this->emailConfig['from'], $this->emailConfig['fromName']);
+        $from = new \Zend\Mail\Address($this->approvalConfig['emailFrom'], $this->approvalConfig['emailFromName']);
 
         return $this->mailer->send($to, $from, $subject, $message);
     }

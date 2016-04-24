@@ -29,6 +29,13 @@ namespace CPK\Db\Table;
 
 use VuFind\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
 
+/**
+ * This database table is supposed to fulfill the needs of having a temporary
+ * storage of institution's translations requested by their administrators
+ * before those are approved into production
+ *
+ * @author Jiří Kozlovský <mail@jkozlovsky.cz>
+ */
 class InstTranslations extends Gateway
 {
 
@@ -37,6 +44,13 @@ class InstTranslations extends Gateway
      * @var \Zend\Config\Config
      */
     protected $config;
+
+    /**
+     * Mini-cache
+     *
+     * @var array
+     */
+    protected $cache;
 
     /**
      * Constructor
@@ -59,21 +73,15 @@ class InstTranslations extends Gateway
      *
      * @param string $source
      * @param string $key
-     * @param string $csTranslated
-     * @param string $enTranslated
+     * @param array $csTranslated
      *
      * @throws \Exception
      *
      * @return \CPK\Db\Row\InstTranslations
      */
-    public function createNewTranslation($source, $key, $csTranslated, $enTranslated)
+    public function createNewTranslation($source, $key, $languageTranslations)
     {
-        if (array_search(true, array_map('empty', [
-            $source,
-            $key,
-            $csTranslated,
-            $enTranslated
-        ])) !== false) {
+        if (empty($key) || empty($languageTranslations)) {
             throw new \Exception('Cannot create new translation with empty value');
         }
 
@@ -81,8 +89,10 @@ class InstTranslations extends Gateway
 
         $row->source = $source;
         $row->key = $key;
-        $row->cs_translated = $csTranslated;
-        $row->en_translated = $enTranslated;
+
+        foreach ($languageTranslations as $lang => $value) {
+            $row[$lang . '_translated'] = $value;
+        }
 
         $row->save();
 
@@ -90,39 +100,17 @@ class InstTranslations extends Gateway
     }
 
     /**
-     * Alters an specified translation row, which if found by matching $source & $key
+     * Deletes all translations associated with an institution identified by $source
      *
      * @param string $source
-     * @param string $key
-     * @param string $csTranslated
-     * @param string $enTranslated
      *
-     * @throws \Exception
-     *
-     * @return \CPK\Db\Row\InstTranslations
+     * @return number
      */
-    public function alterTranslation($source, $key, $csTranslated, $enTranslated)
+    public function deleteInstitutionTranslations($source)
     {
-        // One of csTranslated & enTranslated may be empty ..
-        if (array_search(true, array_map('empty', [
-            $source,
-            $key,
-            $csTranslated . $enTranslated
-        ])) !== false) {
-            throw new \Exception('Cannot alter translation with empty value');
-        }
-
-        $row = $this->getTranslation($source, $key);
-
-        if (! empty($csTranslated))
-            $row->cs_translated = $csTranslated;
-
-        if (! empty($enTranslated))
-            $row->en_translated = $enTranslated;
-
-        $row->save();
-
-        return $row;
+        return $this->delete([
+            'source' => $source
+        ]);
     }
 
     /**
@@ -134,9 +122,24 @@ class InstTranslations extends Gateway
      */
     public function getInstitutionTranslations($source)
     {
-        return $this->select([
+        if (isset($cache[$source]))
+            return $cache[$source];
+
+        $cache[$source] = $this->select([
             'source' => $source
         ]);
+
+        return $cache[$source];
+    }
+
+    /**
+     * Retrieves all institution translations
+     *
+     * @return array
+     */
+    public function getAllTranslations()
+    {
+        return $this->select()->toArray();
     }
 
     /**
