@@ -101,7 +101,7 @@
   					title="<?=$this->transEsc('insert_new_en_translation') ?>"/>
   				</div>
 				<i class="fa fa-plus-circle pull-right" style="color:green;font-size:1.4em;cursor:pointer;padding-top: 8%;"
-				    ng-click="transCtrl.addTranslation(<?=$source?>,$event)"
+				    ng-click="transCtrl.addTranslation('<?=$source?>',$event)"
 					title="<?=$this->transEsc('add_translation') ?>"></i>
 				<input form="<?=$newTransFormId?>" type="submit" value="" class="hidden" ng-new-translation="submit" ng-click="transCtrl.addTranslation('<?=$source?>',$event)">
 			</td>

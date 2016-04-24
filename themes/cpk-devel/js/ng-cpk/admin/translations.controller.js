@@ -48,8 +48,8 @@
 	 */
 	function editTranslation($event) {
 
-	    currentTranslationRow.div = $event.currentTarget.children[0];
-	    currentTranslationRow.input = currentTranslationRow.div.nextElementSibling;
+	    currentTranslationRow.div = $event.currentTarget.children[0].children[0];
+	    currentTranslationRow.input = currentTranslationRow.div.parentElement.nextElementSibling;
 
 	    var source = currentTranslationRow.input.form.getAttribute('data-source');
 	    currentTranslationRow.submitBtn = submitBtns[source];
@@ -318,7 +318,7 @@
 		    // If the new value is the same as the old value, just
 		    // remove any graphics
 		    if (previousContents === value.trim()) {
-			del[0].parentElement.innerHTML = previousContents;
+			currentTranslationRow.div.innerHTML = previousContents;
 			return true;
 		    }
 
