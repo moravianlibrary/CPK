@@ -1,5 +1,5 @@
 /**
- * Async search-results.js v 0.1
+ * Async search-results.js v 0.2
  * @Author Martin Kravec <martin.kravec@mzk.cz>
  */
 jQuery( document ).ready( function( $ ) {
@@ -7,7 +7,10 @@ jQuery( document ).ready( function( $ ) {
 	ADVSEARCH = {
 			
 		/**
-		 * Update queries DOM state
+		 * Update form's DOM state for groups.
+		 * 
+		 * This function updates numbers in form's DOM to ensure, that jQuery
+		 * will correctly handle showing or hiding some elements in form.
 		 * 
 		 * @param	{string}		formSelector
 		 * @return	{undefined}
@@ -24,7 +27,10 @@ jQuery( document ).ready( function( $ ) {
 		},
 
 		/**
-		 * Update queries DOM state
+		 * Update form's DOM state gor queries.
+		 * 
+		 * This function updates numbers in form's DOM to ensure, that jQuery
+		 * will correctly handle showing or hiding some elements in form.
 		 * 
 		 * @param	{string}		groupSelector
 		 * @return	{undefined}
@@ -62,29 +68,57 @@ jQuery( document ).ready( function( $ ) {
 				}
 			});
 		},
+		
+		/**
+		 * Switch searchtype template
+		 * 
+		 * @param	{string}		newSearchTypeTemplate	basic|advanced
+		 * @return	{undefined}
+		 */
+		switchSearchTemplate: function( newSearchTypeTemplate ) {
+			$( '.search-panel' ).hide( 'blind', {}, 500, function() {
+				
+				if (newSearchTypeTemplate == 'advanced') {
+					$( '.search-type-template-switch' ).text( VuFind.translate('Basic Search') );
+				} else {
+					$( '.search-type-template-switch' ).text( VuFind.translate('Advanced Search') );
+				}
+				
+				$( '.search-panel' ).show( 'blind', {}, 500);
+			});
+		},
 
 		/**
-		 * Return and display new seaerch results
+		 * This function gathers data from autocomplete|advancedSearch|windowHistory.
+		 * The data are sent via ajax to Solr, which returns results.
+		 * These results are displayed async via jQuery UI.
 		 * 
-		 * @param {JSON} 	originalQueryJson 
+		 * This function also handles live url changes with window.history.pushState,
+		 * popState and replaceState.
+		 * 
+		 * @param {JSON} 	dataFromWindowHistory 
 		 * @param {JSON} 	dataFromAutocomplete
-		 * @param {boolean}	switchToAdvancedSearch
+		 * @param {string}	newSearchTypeTemplate		basic|advanced
 		 * 
 		 * @return {undefined}
 		 */
-		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, switchToAdvancedSearch ) {
+		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate ) {
 			
 			var data = {};
+			var reloadResults = true;
 			
-			if ( dataFromWindowHistory !== undefined ) { // history.back or forward action was porformed
-				
+			if ( dataFromWindowHistory !== undefined ) {
+				/* 
+				 * If moving in browser history, take data from window.history 
+				 * instead of gather some form.
+				 */
 				data = dataFromWindowHistory;
 				
 			} else if ( dataFromAutocomplete ) {
-				
+				/* 
+				 * If search started in autocomplete, gather data from autocomplete form 
+				 */
 				data = queryStringToJson( dataFromAutocomplete.queryString );
-				console.log('*****Tady data');
-				console.log(data);
 				if ( data.lookfor ) {
 					data['lookfor0'] = data.lookfor;
 					delete data.lookfor;
@@ -95,9 +129,11 @@ jQuery( document ).ready( function( $ ) {
 					delete data.type;
 				}
 				
-			} else { // harvest form's fields and form's hidden facetFilters
-
-				$( '.query-type, .query-string, .group-operator' ).each( function( index, element ) {
+			} else {
+				/* If search started in advanced search, gather data from
+				 * advances search form and hidden facetFilters 
+				 */
+				$( 'select.query-type, input.query-string, select.group-operator' ).each( function( index, element ) {
 					var key = $( element ).attr( 'name' ).slice( 0, -2 );
 					if (! data.hasOwnProperty( key )) {
 						data[key] = [];
@@ -115,8 +151,12 @@ jQuery( document ).ready( function( $ ) {
 			});
 			data['filter'] = filters;
 			
+			/* 
+			 * Autocomplete form does not have all the data, that are 
+			 * nessessary to perform search, thus this will set default ones.
+			 */
 			if ( dataFromWindowHistory == undefined) {
-				/* Set default values if not provided before (for basic search) */
+				
 				if ( (! data.hasOwnProperty( 'bool0' )) || (! data.bool0) ) {
 					data['bool0'] = [];
 					data['bool0'].push( 'OR' );
@@ -162,112 +202,133 @@ jQuery( document ).ready( function( $ ) {
 			var lastSearchedType0 = data['type0'][0];
 			$( "input[name='last_searched_type0']" ).val( lastSearchedType0 );
 			
-			/* Live update url */
+			/* 
+			 * If we want to just switch template between basic and advanced search,
+			 * we need to again to gather data from forms 
+			 * (becasue of future movement in browser history) and then switch 
+			 * the templates.
+			 */
+			if ( newSearchTypeTemplate ) {
+
+    			data['searchTypeTemplate'] = newSearchTypeTemplate;
+    			
+    			ADVSEARCH.switchSearchTemplate( newSearchTypeTemplate );
+    			
+    			reloadResults = false;
+    		}
+			
+			/* 
+			 * Live update url.
+			 */
     		if ( dataFromWindowHistory == undefined ) {
     			ADVSEARCH.updateUrl( data );
     		} else { // from history
     			ADVSEARCH.replaceUrl( data );
     		}
-    		
-    		if ( switchToAdvancedSearch ) {
-    			var  toUrl = window.location.href;
-    			window.location.href = toUrl + "&searchTypeTemplate=advanced";
-    		}
 			
-    		/* Search */	
-			$.ajax({
-	        	type: 'POST',
-	        	cache: false,
-	        	dataType: 'json',
-	        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
-	        	data: data,
-	        	beforeSend: function() {
-	        		
-	        		smoothScrollToElement( '.main' );
-	        		var loader = "<div id='search-results-loader' class='text-center'></div>";
-	        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
-	        			$( '#result-list-placeholder' ).before( loader );
-	        		});
-	        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-2x fa-refresh fa-spin'></i>" );
-	        		//$( '#side-facets-placeholder' ).hide( 'fade', {}, 200 );
-	        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
-	        		
-	        		// Disabled submit button until ajax finishes
-	        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
-	        	},
-	        	success: function( response ) {
-	        		if (response.status == 'OK') {
-	        			
-	        			var responseData = response.data;
-	        			var resultsHtml = JSON.parse(responseData.resultsHtml);
-	        			var facetsHtml = JSON.parse(responseData.sideFacets);
-	        			var resultsAmountInfoHtml = JSON.parse(responseData.resultsAmountInfoHtml);
-	        			var paginationHtml = JSON.parse(responseData.paginationHtml);	
-	        			
-	        			/* Ux content replacement */
-	        			$( '#search-results-loader' ).remove();
-	        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
-	        			$( '#result-list-placeholder' ).html( decodeHtml(resultsHtml.html) );
-	        			$( '#pagination-placeholder' ).html( paginationHtml.html );
-	        			$( '#results-amount-info-placeholder' ).html( resultsAmountInfoHtml.html );
-	        			$( '#side-facets-placeholder' ).html( facetsHtml.html );
-		        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
+    		/*
+    		 * Get search results from Solr and display them
+    		 * 
+    		 * There can be some situations where we do not want to reload 
+    		 * search results. E.g. when we are just switching templates.
+    		 *
+    		 */
+    		if (reloadResults) {
+	    		/* Search */	
+				$.ajax({
+		        	type: 'POST',
+		        	cache: false,
+		        	dataType: 'json',
+		        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
+		        	data: data,
+		        	beforeSend: function() {
 		        		
-		        		/* Update search identificators */
-		        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
-		        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + responseData.searchId );
-		        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + responseData.searchId );
-		        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + responseData.searchId );
+		        		smoothScrollToElement( '.main' );
+		        		var loader = "<div id='search-results-loader' class='text-center'></div>";
+		        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
+		        			$( '#result-list-placeholder' ).before( loader );
+		        		});
+		        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-2x fa-refresh fa-spin'></i>" );
+		        		//$( '#side-facets-placeholder' ).hide( 'fade', {}, 200 );
+		        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
 		        		
-	        		} else {
-	        			console.error(response.data);
-	        		}
-	        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).removeAttr( 'selected' );
-	        		
-	        		/** 
-	        		 * Opdate sort and limit selects, when moving in history back or forward. 
-	        		 * We need to use this f****** stupid robust solution to prevent 
-	        		 * incompatibility and bad displaying of options that are 
-	        		 * in real selected 
-	        		 */
-	        		$( '.ajax-update-limit option' ).prop( 'selected', false);
-	        		$( '.ajax-update-limit' ).val( [] );
-	        		$( '.ajax-update-limit option' ).removeAttr( 'selected' );
-	        		
-	        		$( '.ajax-update-sort option' ).prop( 'selected', false );
-	        		$( '.ajax-update-sort' ).val( [] );
-	        		$( '.ajax-update-sort option').removeAttr( 'selected');
-	        		
-	        		$( '.ajax-update-limit' ).val( data.limit );
-	        		$( '.ajax-update-limit option[value=' + data.limit + ']' ).attr( 'selected', 'selected' );
-	        		$( '.ajax-update-limit option[value=' + data.limit + ']' ).attr( 'selected', true );
-	        		
-	        		$( '.ajax-update-sort' ).val( data.sort );
-        			$( '.ajax-update-sort option[value="' + data.sort + '"]' ).attr( 'selected', 'selected' );
-        			$( '.ajax-update-sort option[value="' + data.sort + '"]' ).attr( 'selected', true );
-	        		
-	         	},
-	            error: function (xmlHttpRequest, status, error) {
-	            	$( '#search-results-loader' ).remove();
-	            	console.error(xmlHttpRequest.responseText);
-	            	console.log(xmlHttpRequest);
-	            	console.error(status);
-	            	console.error(error);
-	            	console.log( 'Sent data: ' );
-	            	console.log( data );
-	            },
-	            complete: function (xmlHttpRequest, textStatus) {
-	            	if ( data.hasOwnProperty( 'filter' ) || data.filter ) {
-	            		ADVSEARCH.checkCheckboxesInInstitutionsTree( data.filter );
-	            	}
-	            }
-	        });
+		        		// Disabled submit button until ajax finishes
+		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
+		        	},
+		        	success: function( response ) {
+		        		if (response.status == 'OK') {
+		        			
+		        			var responseData = response.data;
+		        			var resultsHtml = JSON.parse(responseData.resultsHtml);
+		        			var facetsHtml = JSON.parse(responseData.sideFacets);
+		        			var resultsAmountInfoHtml = JSON.parse(responseData.resultsAmountInfoHtml);
+		        			var paginationHtml = JSON.parse(responseData.paginationHtml);	
+		        			
+		        			/* Ux content replacement */
+		        			$( '#search-results-loader' ).remove();
+		        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
+		        			$( '#result-list-placeholder' ).html( decodeHtml(resultsHtml.html) );
+		        			$( '#pagination-placeholder' ).html( paginationHtml.html );
+		        			$( '#results-amount-info-placeholder' ).html( resultsAmountInfoHtml.html );
+		        			$( '#side-facets-placeholder' ).html( facetsHtml.html );
+			        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
+			        		
+			        		/* Update search identificators */
+			        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
+			        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + responseData.searchId );
+			        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + responseData.searchId );
+			        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + responseData.searchId );
+			        		
+		        		} else {
+		        			console.error(response.data);
+		        		}
+		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).removeAttr( 'selected' );
+		        		
+		        		/* 
+		        		 * Opdate sort and limit selects, when moving in history back or forward. 
+		        		 * We need to use this f****** stupid robust solution to prevent 
+		        		 * incompatibility and bad displaying of options that are 
+		        		 * in real selected 
+		        		 */
+		        		$( '.ajax-update-limit option' ).prop( 'selected', false);
+		        		$( '.ajax-update-limit' ).val( [] );
+		        		$( '.ajax-update-limit option' ).removeAttr( 'selected' );
+		        		
+		        		$( '.ajax-update-sort option' ).prop( 'selected', false );
+		        		$( '.ajax-update-sort' ).val( [] );
+		        		$( '.ajax-update-sort option').removeAttr( 'selected');
+		        		
+		        		$( '.ajax-update-limit' ).val( data.limit );
+		        		$( '.ajax-update-limit option[value=' + data.limit + ']' ).attr( 'selected', 'selected' );
+		        		$( '.ajax-update-limit option[value=' + data.limit + ']' ).attr( 'selected', true );
+		        		
+		        		$( '.ajax-update-sort' ).val( data.sort );
+	        			$( '.ajax-update-sort option[value="' + data.sort + '"]' ).attr( 'selected', 'selected' );
+	        			$( '.ajax-update-sort option[value="' + data.sort + '"]' ).attr( 'selected', true );
+		        		
+		         	},
+		            error: function (xmlHttpRequest, status, error) {
+		            	$( '#search-results-loader' ).remove();
+		            	console.error(xmlHttpRequest.responseText);
+		            	console.log(xmlHttpRequest);
+		            	console.error(status);
+		            	console.error(error);
+		            	console.log( 'Sent data: ' );
+		            	console.log( data );
+		            },
+		            complete: function (xmlHttpRequest, textStatus) {
+		            	if ( data.hasOwnProperty( 'filter' ) || data.filter ) {
+		            		ADVSEARCH.checkCheckboxesInInstitutionsTree( data.filter );
+		            	}
+		            }
+		        });
+    		}
 		},
 			
 		/**
 		 * Add facet to container and update search results
 		 * 
-		 * @param 	{string}	value
+		 * @param 	{string}	value			institutions:"0/Brno/"
 		 * @param 	{boolean}	updateResults	Wanna update results?
 		 * @return	{undefined}
 		 */
@@ -293,7 +354,7 @@ jQuery( document ).ready( function( $ ) {
 		/**
 		 * Remove facet from container and update search results
 		 * 
-		 * @param 	{string}	value
+		 * @param 	{string}	value			institutions:"0/Brno/"
 		 * @param 	{boolean}	updateResults	Wanna update results?
 		 * @return	{undefined}
 		 */
@@ -310,23 +371,33 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 		
+		/**
+		 * Update URL with provided data via pushing state to window history
+		 * 
+		 * @param	{Object}	data	Object with lookFor, bool, etc.
+		 */
 		updateUrl: function( data ) {
 			var stateObject = data;
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
 			window.history.pushState( stateObject, title, url );
-			console.log( 'Pushing and replacing state: ' );
-			console.log( stateObject );
+			//console.log( 'Pushing and replacing state: ' );
+			//console.log( stateObject );
 			window.history.replaceState( stateObject, title, url );
 		},
 		
+		/**
+		 * Update URL with provided data via replacing state in window history
+		 * 
+		 * @param	{Object}	data	Object with lookFor, bool, etc.
+		 */
 		replaceUrl: function( data ) {
 			var stateObject = data;
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
 			window.history.replaceState( stateObject, title, url );
-			console.log( 'Replacing state: ' );
-			console.log( stateObject );
+			//console.log( 'Replacing state: ' );
+			//console.log( stateObject );
 		},
 	}
 	
@@ -335,17 +406,28 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( window ).bind( 'popstate', function() {
 		var currentState = history.state;
-		console.log( 'POPing state: ' );
-		console.log( currentState );
-		ADVSEARCH.updateSearchResults( currentState, undefined );
+		//console.log( 'POPing state: ' );
+		//console.log( currentState );
+		if (currentState.searchTypeTemplate) {
+			ADVSEARCH.updateSearchResults( currentState, undefined, currentState.searchTypeTemplate );
+		} else {
+			ADVSEARCH.updateSearchResults( currentState, undefined );
+		}
 	});
 	
-	/* Update DOM state on page load */
+	/* Update form's DOM on page load 
+	 * 
+	 * This function updates numbers in form's DOM to ensure, that jQuery
+	 * will correctly handle showing or hiding some elements in form.
+	 */
 	ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
 	$( '#editable-advanced-search-form .group' ).each( function(){
 		ADVSEARCH.updateQueriesDOMState( '#' + $( this ).attr( 'id' ) );
 	});
 	
+	/*
+	 * Add search group on click in advanced search template
+	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '.add-search-group', function( event ) {
 		event.preventDefault();
 		var parentDiv = $( this ).parent().parent();
@@ -367,6 +449,9 @@ jQuery( document ).ready( function( $ ) {
 		})
 	});
 	
+	/*
+	 * Add search query on click in advanced search template
+	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '.add-search-query', function( event ) {
 		event.preventDefault();
 		var parentDiv = $( this ).parent().parent();
@@ -389,6 +474,9 @@ jQuery( document ).ready( function( $ ) {
 		})
 	});
 	
+	/*
+	 * Remove search group on click in advanced search template
+	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '.remove-advanced-search-group', function( event ) {
 		event.preventDefault();
 		$( this ).parent().parent().hide( 'blind', {}, 400, function() {
@@ -397,6 +485,9 @@ jQuery( document ).ready( function( $ ) {
 		});
 	});
 	
+	/*
+	 * Remove search query on click in advanced search template
+	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '.remove-advanced-search-query', function( event ) {
 		event.preventDefault();
 		var thisElement = $( this );
@@ -408,6 +499,9 @@ jQuery( document ).ready( function( $ ) {
 		});
 	});
 	
+	/*
+	 * Add or remove clicked facet
+	 */
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
 		event.preventDefault();
 		if ( $( this ).hasClass( 'active' ) ) {
@@ -417,6 +511,9 @@ jQuery( document ).ready( function( $ ) {
 		}
 	});
 	
+	/*
+	 * Remove all institutions facets and add checked ones
+	 */
 	$( 'body' ).on( 'click', '.institution-facet-filter-button', function( event ) {
 		event.preventDefault();
 
@@ -434,6 +531,9 @@ jQuery( document ).ready( function( $ ) {
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
+	/*
+	 * Update search results on paginating
+	 */
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
 		event.preventDefault();
 		var page = $( this ).attr( 'href' );
@@ -441,6 +541,9 @@ jQuery( document ).ready( function( $ ) {
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
+	/*
+	 * Update search results on changing sorting
+	 */
 	$( 'body' ).on( 'change', '.ajax-update-sort', function( event ) {
 		event.preventDefault();
 		var sort = $( this ).val();
@@ -448,6 +551,9 @@ jQuery( document ).ready( function( $ ) {
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
+	/*
+	 * Update search results on changing limit
+	 */
 	$( 'body' ).on( 'change', '.ajax-update-limit', function( event ) {
 		event.preventDefault();
 		var limit = $( this ).val();
@@ -455,14 +561,32 @@ jQuery( document ).ready( function( $ ) {
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
+	/*
+	 * Update search results on submiting advanced search form
+	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
-	$( '.searchForm' ).on( 'click', '#edit-as-advanced-search-link', function( event ) {
+	/*
+	 * Switch search type template to basic search (autocomplete) or advanced search
+	 */
+	$( 'body' ).on( 'click', '.search-type-template-switch', function( event ) {
 		event.preventDefault();
-		ADVSEARCH.updateSearchResults( undefined, undefined, true );
+		
+		var currentUrl = window.location.href;
+		var searchTypeTemplate = getParameterByName( 'searchTypeTemplate', currentUrl );
+		
+		var newSearchTypeTemplate = undefined;
+		
+		if (searchTypeTemplate == 'basic') {
+			newSearchTypeTemplate = 'advanced';
+		} else {
+			newSearchTypeTemplate = 'basic';
+		}
+		
+		ADVSEARCH.updateSearchResults( undefined, undefined, newSearchTypeTemplate );
 	});
 	
 	/**

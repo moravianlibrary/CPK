@@ -1,0 +1,107 @@
+<?
+    $query = $this->params->getQuery();
+    $allGroupsOperator = $query->getOperator();
+    $groups = -1;
+?>
+<div class="panel panel-default search-panel <?=($this->searchResults) ? 'scrollable-search-panel' : ''?>">
+  <div id="collapseAdvancedSearch" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAdvancedSearch">
+    <div class="panel-body">
+  	  <div class="searchForm">
+
+        <div class='row'>
+          <div class='col-md-12 scrollable-search-panel-options'>
+    	    <a href="#" class='search-type-template-switch'><?=$this->translate("Basic Search")?></a>
+          </div>
+        </div>
+
+    	<div class='row' id='group-join-type-row'>
+      	  <div class='col-md-12'>
+            <select id='group-join-type' name="join" class="form-control selectpicker">
+              <option value="AND"<?= ($allGroupsOperator == 'AND') ? ' selected="selected"' : ''?>><?=$this->transEsc("group_AND")?></option>
+              <option value="OR"<?= ($allGroupsOperator == 'OR') ? ' selected="selected"' : ''?>><?=$this->transEsc("group_OR")?></option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <form id='editable-advanced-search-form' name='searchForm'>
+
+        <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); $groups++; $queries = -1;?>
+        <div class='row group' id='group_<?=$groups?>'>
+          <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
+
+          <div class='col-md-2'>
+            <label class='dropdown-select-label'>
+              <select class="group-operator dropdown-select selectpicker" name='bool<?=$groups?>[]'>
+                <option value="AND"<?= ($groupOperator == 'AND') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
+                <option value="OR"<?= ($groupOperator == 'OR') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
+                <option value="NOT"<?= ($groupOperator == 'NOT') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
+              </select>
+            </label>
+          </div>
+
+          <div class='col-md-9'>
+            <? foreach ($queryGroup->getQueries() as $query): $queryHandler = $query->getHandler(); $queryString  = $query->getString(); $queries++;?>
+            <div class='row queries' id='query_<?=$queries?>'>
+
+              <div class='col-md-4 text-right'>
+                <select class='form-control query-type selectpicker' name='type<?=$groups?>[]'>
+                  <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
+                  <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
+                    <?=$this->transEsc($description)?>
+                  </option>
+                  <? endforeach; ?>
+                </select>
+              </div>
+
+              <div class='col-md-7'>
+                <input name='lookfor<?=$groups?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
+              </div>
+
+              <div class="col-md-1">
+                <a href="#" class='close remove-advanced-search-query'>&times;</a>
+              </div>
+
+            </div>
+            <? endforeach; ?>
+
+            <p>
+              <a href="#" class="add-search-query">
+                <i class="pr-interface-plusadd"></i> <?=$this->transEsc("add_search")?>
+              </a>
+            </p>
+          </div>
+
+          <div class="col-md-1 close">
+            <a class="help-block remove-advanced-search-group" href="#">&times;</a>
+          </div>
+        </div>
+        <? endforeach; ?>
+
+        <p>
+          <a href="#" class="add-search-group">
+            <i class="pr-interface-plusadd"></i> <?=$this->transEsc('add_search_group')?>
+          </a>
+        </p>
+
+        <div class='row'>
+          <div class='col-sm-12 text-right'>
+            <input class="btn btn-lg btn-primary pull-right flip advanced-find-button" value="<?=$this->translate('Update results')?>" id='submit-edited-advanced-search' type='submit'>
+          </div>
+        </div>
+
+        <!-- Facets -->
+        <div class='hidden' id='hiddenFacetFilters'>
+        <? foreach ($filterList as $field => $data): ?>
+          <? foreach ($data as $value): ?>
+            <input type='hidden' class='hidden-filter' name='filter[]' value='<?=$this->escapeHtmlAttr($field)?>:"<?=$this->escapeHtmlAttr($value)?>"'>
+          <? endforeach; ?>
+        <? endforeach; ?>
+        </div>
+        <!-- End of facets -->
+
+      </form>
+    </div>
+  </div>
+</div>

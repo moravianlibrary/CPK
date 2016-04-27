@@ -27,7 +27,7 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\RecordController as RecordControllerBase, 
+use MZKCommon\Controller\RecordController as RecordControllerBase,
 VuFind\Controller\HoldsTrait as HoldsTraitBase;
 use Zend\Mail\Address;
 
@@ -64,7 +64,7 @@ class RecordController extends RecordControllerBase
         if ($this->params()->fromQuery('getXml')) {
             return $this->getXml();
         }
-        
+
         // Special case -- handle login request (currently needed for holdings
         // tab when driver-based holds mode is enabled, but may also be useful
         // in other circumstances):
@@ -118,45 +118,50 @@ class RecordController extends RecordControllerBase
                 $view->$varName = $field7xx;
             }
         }
-        
+
         $user = $this->getAuthManager()->isLoggedIn();
-        
+
         $view->isLoggedIn = $user;
         $view->offlineFavoritesEnabled = false;
-        
+
         if ($this->getConfig()->Site['offlineFavoritesEnabled'] !== null) {
             $view->offlineFavoritesEnabled = (bool) $this->getConfig()->Site['offlineFavoritesEnabled'];
         }
-        
+
         /* Citation style fieldset */
         $citationStyleTable = $this->getTable('citationstyle');
         $availableCitationStyles = $citationStyleTable->getAllStyles();
-        
+
         $defaultCitationStyleValue = $this->getConfig()->Record->default_citation_style;
-        
+
         foreach ($availableCitationStyles as $style) {
             if ($style['value'] === $defaultCitationStyleValue) {
                 $defaultCitationStyle = $style['value'];
                 break;
             }
         }
-        
+
         $userSettingsTable = $this->getTable("usersettings");
-        
+
         if ($user = $this->getAuthManager()->isLoggedIn()) {
             $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
         }
-        
+
         $selectedCitationStyle = (! empty($preferedCitationStyle))
         ? $preferedCitationStyle
         : $defaultCitationStyle;
-        
+
         $view->selectedCitationStyle = $selectedCitationStyle;
 
         $view->availableCitationStyles = $availableCitationStyles;
         //
-        
+
         $view->config = $this->getConfig();
+
+        /* Handle view template */
+        if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
+            $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
+        }
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
         return $view;
@@ -221,18 +226,18 @@ class RecordController extends RecordControllerBase
         $recordID = $this->driver->getUniqueID();
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         $recordDriver = $recordLoader->load($recordID);
-        
+
         $parentRecordID = $recordDriver->getParentRecordID();
         $parentRecordDriver = $recordLoader->load($parentRecordID);
-        
+
         $format = $parentRecordDriver->getRecordType();
         if ($format === 'marc')
             $format .= '21';
         $recordXml = $parentRecordDriver->getXml($format);
-        
+
         session_regenerate_id();
         $sessionId = session_id();
-        
+
         $hasControlfield002 = strpos($recordXml, 'controlfield tag="002"');
         if ($hasControlfield002 === false) { // there is no controlfield 002
             $afterTag = '</leader>';
@@ -248,12 +253,12 @@ class RecordController extends RecordControllerBase
                 0
             );
         }
-        
+
         $xml = '<?xml version = "1.0" encoding = "UTF-8"?>
 <publish-avail>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ 
+xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
  http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
 <ListRecords>
 <record>
@@ -266,7 +271,7 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
 </OAI-PMH>
 <session-id>'.$sessionId.'</session-id>
 </publish-avail>';
-        
+
         $response = new \Zend\Http\Response();
         $response->getHeaders()->addHeaderLine(
             'Content-Type',
@@ -275,7 +280,7 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         $response->setContent($xml);
         return $response;
     }
-    
+
     /**
      * Email action - Allows the email form to appear.
      *
@@ -290,7 +295,7 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         ) {
             return $this->forceLogin();
         }
-    
+
         // Retrieve the record driver:
         $driver = $this->loadRecord();
 
@@ -311,13 +316,13 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
                 $cc = $this->params()->fromPost('ccself') && $view->from != $view->to
                 ? $view->from : null;
                 $sender = new \Zend\Mail\Address(
-                    $view->from, 
+                    $view->from,
                     $this->translate('Central Library Portal')
                 );
                 $mailer->sendRecord(
-                    $view->to, 
-                    $sender, 
-                    $view->message, 
+                    $view->to,
+                    $sender,
+                    $view->message,
                     $driver,
                     $this->getViewRenderer(),
                     $subject,

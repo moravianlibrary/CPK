@@ -1,0 +1,168 @@
+<div class='panel panel-default search-panel <?=($this->searchResults) ? 'scrollable-search-panel' : ''?>'>
+  <div id="collapseAdvancedSearch" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAdvancedSearch">
+    <div class="panel-body">
+      <div class="searchForm">
+
+        <div class='row'>
+          <div class='col-md-12 scrollable-search-panel-options'>
+	        <a href="#" class='search-type-template-switch'><?=$this->translate("Advanced Search")?></a>
+          </div>
+        </div>
+
+      </div>
+
+      <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
+        <script>
+        jQuery(document).ready(function($){
+          $("#searchForm_lookfor").keyup(function(){
+              $("#searchclear").toggle(Boolean($(this).val()));
+          });
+          $("#searchclear").toggle(Boolean($("#searchForm_lookfor").val()));
+          $("#searchclear").click(function(){
+              $("#searchForm_lookfor").val('').focus();
+              $(this).hide();
+          });
+
+          /* Set autocomplete On page load */
+          var query = $( ".search-query" ).val();
+
+          var enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
+
+          var filters = '';
+
+          if (enabledKeepFacets) {
+    				filters = '';
+    				$( '.hidden-filter' ).each(function(){
+    				  filters += '&filter[]=' + encodeURIComponent( $( this ).val() );
+    				});
+          } else {
+            filters = '';
+          }
+          $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields" + filters);
+
+          /* Update autocomplete On some change */
+          $( ".search-query" ).on( 'change', function( event ) {
+           	query = $( this ).val();
+
+           	enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
+
+           	if (enabledKeepFacets) {
+        			  filters = '';
+        			  $( '.hidden-filter' ).each(function(){
+        				  filters += '&filter[]=' + encodeURIComponent( $( this ).val() );
+        			  });
+            } else {
+                filters = '';
+            }
+
+        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields" + filters);
+       	  });
+
+          $( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
+        		event.preventDefault();
+
+            	/* if autocomplete used in Search/Results, load results async */
+           		var href = $( '#run-autocomplete' ).attr( 'href' );
+    				  var currentUrl = window.location.pathname;
+    				  var controller = currentUrl.split('/')[1];
+    				  var action = currentUrl.split('/')[2];
+
+    		      if ( controller == 'Search' && action == 'Results' ) {
+    		        ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0[]=' + $( "#searchForm_lookfor" ).val() + '&type0[]=AllFields'}, false);
+    		        return false;
+    				  }
+
+    				/*
+    				 * If autocomplete used on frontpage, load results statically via PHP
+    		     * ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]}, true);
+    		     */
+		    		$( '.searchForm' ).submit();
+          });
+        });
+        </script>
+
+        <div class="col-xs-10 col-lg-6 search-form-container">
+          <input
+          	class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>"
+          	id="searchForm_lookfor"
+          	type="text"
+          	name="lookfor0[]"
+          	value="<?=(isset($this->lookfor0[0])) ? $this->escapeHtmlAttr($this->lookfor0[0]) : isset($lookfor) ? $this->escapeHtmlAttr(explode(":", trim($this->lookfor, "()"))[1]) : ''?>"
+          	autofocus
+          	placeholder="<?=$this->translate('autocomplete-placeholder')?>"
+          />
+          <i class="fa fa-times" id="searchclear"></i>
+        </div>
+
+        <input type='hidden' name='searchTypeTemplate' value='basic'>
+        <input type="hidden" name="type0[]" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>">
+			  <input type='hidden' name='join' value='AND'>
+			  <input type='hidden' name='bool0[]' value='AND'>
+			  <? if(!empty($lastLimit)): ?>
+			      <input type="hidden" name="limit" value="<?=$this->escapeHtmlAttr($lastLimit)?>">
+			  <? endif; ?>
+			  <? if(!empty($lastSort)): ?>
+			      <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
+			  <? endif; ?>
+
+        <a href='/Search/Results?lookfor=&type0[]=AllFields' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'>
+          <i class="pr-interface-search"></i>
+          <span> <?=$this->transEsc("Find")?></span>
+        </a>
+
+        <? if ($options->showShardCheckboxes() && !empty($shards)):
+          $selectedShards = isset($this->selectedShards) ? $this->selectedShards : $options->getDefaultSelectedShards(); ?>
+  		    <br />
+          <? foreach ($shards as $shard => $val): $isSelected = empty($selectedShards) || in_array($shard, $selectedShards); ?>
+              <input type="checkbox" <?=$isSelected ? 'checked="checked" ' : ''?>name="shard[]" value='<?=$this->escapeHtmlAttr($shard)?>' /> <?=$this->transEsc($shard)?>
+          <? endforeach; ?>
+        <? endif; ?>
+
+        <? if ((isset($hasDefaultsApplied) && $hasDefaultsApplied) || !empty($filterDetails)): ?>
+          <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
+          <div class="checkbox">
+            <label>
+              <input onChange="$('.applied-filter').click(); $( '.search-query' ).trigger( 'change' );" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
+              <?=$this->transEsc("basic_search_keep_filters")?>
+            </label>
+          </div>
+
+          <div class="hidden">
+            <? foreach ($filterDetails as $current): ?>
+            <input class="applied-filter" id="<?=$this->escapeHtmlAttr($current['id'])?>" type="checkbox"<?=$defaultFilterState?> name="filter[]" value="<?=$this->escapeHtmlAttr($current['value'])?>" />
+            <label for="<?=$this->escapeHtmlAttr($current['id'])?>"><?=$this->escapeHtml($current['value'])?></label>
+            <? endforeach; ?>
+
+            <? if (isset($hasDefaultsApplied) && $hasDefaultsApplied): ?>
+              <!-- this is a hidden element that flags whether or not default filters have been applied;
+              it is intentionally unlabeled, as users are not meant to manipulate it directly. -->
+              <input class="applied-filter" id="dfApplied" type="checkbox" name="dfApplied" value="1"<?=$defaultFilterState?> />
+            <? endif; ?>
+          </div>
+
+        <? endif; ?>
+
+        <?
+          /* Show hidden field for active search class when in combined handler mode. */
+          if ($this->searchbox()->combinedHandlersActive()) {
+            echo '<input type="hidden" name="activeSearchClassId" value="' . $this->escapeHtmlAttr($this->searchClassId) . '" />';
+          }
+
+        ?>
+
+        <!-- Facets for basic search -->
+        <div class='hidden' id='hiddenFacetFiltersForBasicSearch'>
+          <? foreach ($filterList as $field => $data): ?>
+            <? foreach ($data as $value): ?>
+            <input type='hidden' class='hidden-filter' name='filter[]' value='<?=$this->escapeHtmlAttr($field)?>:"<?=$this->escapeHtmlAttr($value)?>"'>
+            <? endforeach; ?>
+          <? endforeach; ?>
+        </div>
+        <!-- End of facets -->
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
