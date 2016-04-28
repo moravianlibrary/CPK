@@ -101,7 +101,7 @@
                 <i class="icon-odhlasit"></i> <?=$this->transEsc("Log Out")?></a>
 			<? else: ?>
 			<li id="loginOptions">
-              <?=$this->auth()->getLogin() ?>
+              <?=$this->render('Auth/Shibboleth/login.phtml') ?>
             <? endif; ?>
             </li>
 		<? endif; ?>
