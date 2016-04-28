@@ -1,6 +1,8 @@
 <? $results = $this->recommend->getResults(); ?>
 <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
 <?
+
+
   $html = '';
   $shown = 0;
   foreach ($checkboxFilters as $current) {
@@ -321,3 +323,90 @@ JS;
 <? endif; ?>
 
 <?=$this->render("Recommend/SideFacets/timelineModal.phtml")?>
+
+
+<? if (!empty($this->facetList)): ?>
+    <div class="row">
+        <? foreach ($this->facetList as $field => $list): ?>
+            <div class="col-sm-12">
+                <label for="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
+                <?
+                $selectId = 'limit_' . $this->escapeHtmlAttr(str_replace(' ', '', $field));
+                $onClick = "$('#" . $selectId . "').val('');";
+                ?>
+                <select class="col-sm-12 form-control chosen-select" id="<?=$selectId?>" name="filter[]" multiple="multiple" size="10">
+                    <? if (is_array($this->hierarchicalFacets) && in_array($field, $this->hierarchicalFacets)): ?>
+                        <?
+
+                        $top = isset($this->preferredFacets[$field])? $this->preferredFacets[$field] : array();
+                        $priors = array();
+                        foreach ($list['list'] as $i => $value) {
+                            $key = $value['value'];
+                            if (isset($top[$key])) {
+                                $priors[$top[$key]] = $value;
+                            }
+                        }
+                        ksort($priors);
+                        ?>
+                        <? foreach ($priors as $i => $value): ?>
+                            <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                                <?=$this->transEsc($value['displayText'])?>
+                            </option>
+                        <? endforeach; ?>
+
+                        <? foreach ($list['list'] as $value): ?>
+                            <? if (!isset($top[$value['value']])): ?>
+                                <? $display = str_pad('', 4 * $value['level'] * 6, '&nbsp;', STR_PAD_LEFT) . $this->transEsc($value['displayText']); ?>
+                                <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>><?=$display?></option>
+                            <? endif; ?>
+                        <? endforeach; ?>
+
+                    <? else: ?>
+                        <?
+                        // Sort the current facet list alphabetically; we'll use this data
+                        // along with the foreach below to display facet options in the
+                        // correct order.
+                        $sorted = array();
+                        foreach ($list['list'] as $i => $value) {
+                            if (!empty($value['displayText'])) {
+                                $sorted[$i] = $this->transEsc($value['displayText']);
+                            }
+                        }
+                        asort($sorted, SORT_LOCALE_STRING);
+                        $top = isset($this->preferredFacets[$field])? $this->preferredFacets[$field] : array();
+                        $priors = array();
+                        foreach ($list['list'] as $i => $value) {
+                            $key = $value['value'];
+                            if (isset($top[$key])) {
+                                $priors[$top[$key]] = $value;
+                            }
+                        }
+                        ksort($priors);
+                        ?>
+                        <? foreach ($priors as $i => $value): ?>
+                            <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                                <?=$this->transEsc($value['displayText'])?>
+                            </option>
+                        <? endforeach; ?>
+                        <? if (!empty($top) && count($priors) != count($sorted)):?>
+                            <option disabled="disabled">=================</option>
+                        <? endif;?>
+                        <? foreach ($sorted as $i => $display): ?>
+                            <? $value = $list['list'][$i]; if (!isset($top[$value['value']])):?>
+                                <option value="<?=$this->escapeHtmlAttr(($value['operator'] == 'OR' ? '~' : '') . $field . ':"' . $value['value'] . '"')?>"<?=(isset($value['selected']) && $value['selected'])?' selected="selected"':''?>>
+                                    <?=$this->escapeHtml($display)?>
+                                </option>
+                            <? endif;?>
+                        <? endforeach; ?>
+                    <? endif; ?>
+
+                </select>
+            </div>
+        <? endforeach; ?>
+    </div>
+<? endif; ?>
+<script type="text/javascript">
+    jQuery( document ).ready( function( $ ){
+        $( '.chosen-select' ).chosen();
+    });
+</script>
