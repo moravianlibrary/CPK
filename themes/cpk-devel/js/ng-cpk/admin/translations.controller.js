@@ -20,6 +20,8 @@
     var translationRows = {};
 
     function TranslationsController(translate) {
+	
+	var unsaved = false;
 
 	var currentTranslationRow = {
 	    div : undefined,
@@ -39,6 +41,11 @@
 	vm.oldTranslationKeyDown = oldTranslationKeyDown;
 	vm.oldTranslationBlurred = oldTranslationBlurred;
 
+	window.onbeforeunload = function(e) {
+	    if (unsaved)
+		return 'You have unsaved changes, do you really want to quit?';
+	};
+	
 	return vm;
 
 	/**
@@ -48,6 +55,8 @@
 	 * feedback of new ability to change it's value.
 	 */
 	function editTranslation($event) {
+	    
+	    unsaved = true;
 
 	    currentTranslationRow.div = $event.currentTarget.children[0];
 	    currentTranslationRow.input = currentTranslationRow.div.nextElementSibling;
@@ -66,6 +75,8 @@
 	 * translations being approved by portal admin after submitted.
 	 */
 	function addTranslation(source, $event) {
+	    
+	    unsaved = true;
 
 	    if ($event.target.nodeName === 'A') {
 		$event.target = $event.target.nextElementSibling;
@@ -143,23 +154,6 @@
 	}
 
 	/**
-	 * Returns true if there is found any translation with specified key
-	 */
-	function translationKeyExists(source, key) {
-	    var inputs = submitBtns[source].form.elements;
-
-	    for (var i = 0; i < inputs.length; i += LANG_COUNT) {
-		var input = inputs.item(i);
-
-		var inputKey = input.name.replace(/\[.+$/g, '');
-		if (inputKey === key)
-		    return true;
-	    }
-
-	    return false;
-	}
-
-	/**
 	 * Removes translation from the table of translations.
 	 * 
 	 * Note that it isn't meant to be removed from translations themselves,
@@ -167,6 +161,8 @@
 	 * translations being approved by portal admin after submitted.
 	 */
 	function removeTranslation($event) {
+	    
+	    unsaved = true;
 	    
 	    var keyTD = $event.target.parentElement;
 	    
@@ -239,6 +235,23 @@
 	}
 
 	// private
+
+	/**
+	 * Returns true if there is found any translation with specified key
+	 */
+	function translationKeyExists(source, key) {
+	    var inputs = submitBtns[source].form.elements;
+
+	    for (var i = 0; i < inputs.length; i += LANG_COUNT) {
+		var input = inputs.item(i);
+
+		var inputKey = input.name.replace(/\[.+$/g, '');
+		if (inputKey === key)
+		    return true;
+	    }
+
+	    return false;
+	}
 
 	/**
 	 * Shows input within current table row & hides current div
