@@ -10,7 +10,7 @@ class SolrMarc extends ParentSolrDefault
 {
 
     protected $numberOfHoldings;
-    
+
     const ALEPH_BASE_URL = "http://aleph.mzk.cz/";
 
     public function getAllSubjectHeadings()
@@ -51,7 +51,7 @@ class SolrMarc extends ParentSolrDefault
         }
         return $this->numberOfHoldings;
     }
-    
+
     public function getRealTimeHoldings($filters = array())
     {
         $holdings = $this->hasILS()
@@ -196,6 +196,67 @@ class SolrMarc extends ParentSolrDefault
     public function getSubscribedVolumes()
     {
         return $this->getFirstFieldValue('910', array('s'));
+    }
+
+    /**
+     * Return an array of associative URL arrays with one or more of the following
+     * keys:
+     *
+     * <li>
+     *   <ul>desc: URL description text to display (optional)</ul>
+     *   <ul>url: fully-formed URL (required if 'route' is absent)</ul>
+     *   <ul>route: VuFind route to build URL with (required if 'url' is absent)</ul>
+     *   <ul>routeParams: Parameters for route (optional)</ul>
+     *   <ul>queryString: Query params to append after building route (optional)</ul>
+     * </li>
+     *
+     * @return array
+     */
+    public function getURLs()
+    {
+        $retVal = [];
+
+        // Which fields/subfields should we check for URLs?
+        $fieldsToCheck = [
+            '856' => ['y', 'z', '3'],   // Standard URL
+            '555' => ['a']         // Cumulative index/finding aids
+        ];
+
+        foreach ($fieldsToCheck as $field => $subfields) {
+            $urls = $this->getMarcRecord()->getFields($field);
+            if ($urls) {
+                foreach ($urls as $url) {
+                    // Is there an address in the current field?
+                    $address = $url->getSubfield('u');
+                    if ($address) {
+                        $address = $address->getData();
+                        $subfield = null;
+
+                        // Is there a description?  If not, just use the URL itself.
+                        foreach ($subfields as $current) {
+                            $desc = $url->getSubfield($current);
+                            if ($desc) {
+                                $subfield = $current;
+                                break;
+                            }
+                        }
+                        if ($desc) {
+                            $desc = $desc->getData();
+                            $part = $url->getSubfield('z');
+                            if ($part && $subfield != 'z') {
+                                $desc .= ' (' . $part->getData() . ')';
+                            }
+                        } else {
+                            $desc = $address;
+                        }
+
+                        $retVal[] = ['url' => $address, 'desc' => $desc];
+                    }
+                }
+            }
+        }
+
+        return $retVal;
     }
 
 }
