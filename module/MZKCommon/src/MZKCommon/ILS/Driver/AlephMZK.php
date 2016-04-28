@@ -1409,8 +1409,8 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
         if ($history) {
             $self = $this;
             usort($transList, function($first, $second) use ($self) {
-                $a = (int) $first['returned'];
-                $b = (int) $second['returned'];
+                $a = $first['returned']  ? (int) $self->dateConverter->convertFromDisplayDate('Ymd', $first['returned'])  : '0';
+                $b = $second['returned'] ? (int) $self->dateConverter->convertFromDisplayDate('Ymd', $second['returned']) : '0';
                 return ($b - $a);
             });
         }
@@ -2255,18 +2255,22 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
      */
     public function parseDate($date)
     {
-        if ($date == null || $date == "") {
-            return "";
-        } else if (preg_match("/^[0-9]{8}$/", $date) === 1) { // 20120725
-            return $this->dateConverter->convertToDisplayDate('Ynd', $date);
-        } else if (preg_match("/^[0-9]+\/[A-Za-z]{3}\/[0-9]{4}$/", $date) === 1) {
-            // 13/jan/2012
-            return $this->dateConverter->convertToDisplayDate('d/M/Y', $date);
-        } else if (preg_match("/^[0-9]+\/[0-9]+\/[0-9]{4}$/", $date) === 1) {
-            // 13/7/2012
-            return $this->dateConverter->convertToDisplayDate('d/m/Y', $date);
-        } else {
-            throw new \Exception("Invalid date: $date");
+        try {
+            if ($date == null || $date == "") {
+                return "";
+            } else if (preg_match("/^[0-9]{8}$/", $date) === 1) { // 20120725
+                return $this->dateConverter->convertToDisplayDate('Ynd', $date);
+            } else if (preg_match("/^[0-9]+\/[A-Za-z]{3}\/[0-9]{4}$/", $date) === 1) {
+                // 13/jan/2012
+                return $this->dateConverter->convertToDisplayDate('d/M/Y', $date);
+            } else if (preg_match("/^[0-9]+\/[0-9]+\/[0-9]{4}$/", $date) === 1) {
+                // 13/7/2012
+                return $this->dateConverter->convertToDisplayDate('d/m/Y', $date);
+            } else {
+                throw new \Exception("Invalid date: $date");
+            }
+        } catch (\VuFind\Exception\Date $ex) {
+            return null;
         }
     }
 
