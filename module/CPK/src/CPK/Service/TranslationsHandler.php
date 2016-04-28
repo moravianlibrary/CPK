@@ -260,7 +260,7 @@ class TranslationsHandler
             } else
                 if (isset($post['denied'])) {
 
-                    $this->translationsTable->deleteInstitutionTranslations($source);
+                    $this->transferActiveToRequested($source);
 
                     $this->sendRequestDeniedMail($source, $post['message'], $contactPerson);
 
@@ -279,26 +279,35 @@ class TranslationsHandler
     {
         $translations = [];
 
+        $requested = [];
+
+        $active = [];
+
         foreach ($this->institutionsBeingAdminAt as $source) {
-            $requested = $this->getAdminRequestedTranslations($source);
+            $requested[$source] = $this->getAdminRequestedTranslations($source);
 
-            $requestedNotEmpty = false;
+            $active[$source] = $this->getSourceSpecificActiveTranslations($source);
+        }
 
-            if (! empty($requested)) {
-                $translations[$source]['requested'] = $requested;
-                $requestedNotEmpty = true;
+        $translations = $this->getTranslationSourceDiff($requested, $active);
+
+        foreach ($translations as $source => $keys) {
+
+            if (! (isset($keys['hasRequested']) && $keys['hasRequested'])) {
+                $hasDiff = false;
+                foreach ($keys as $key => $langTrans) {
+                    foreach ($langTrans as $lang => $value) {
+                        if (isset($value['diff'])) {
+                            $hasDiff = true;
+                            $translations[$source]['hasRequested'] = $hasDiff;
+                            break;
+                        }
+                    }
+
+                    if ($hasDiff)
+                        break;
+                }
             }
-
-            $active = $this->getSourceSpecificActiveTranslations($source);
-
-            $activeNotEmpty = false;
-
-            if (! empty($active)) {
-                $translations[$source]['active'] = $active;
-                $activeNotEmpty = true;
-            }
-
-            $translations[$source]['joinedKeys'] = $this->getJoinedTranslationsKeys($requested, $active);
         }
 
         return $translations;
@@ -314,26 +323,32 @@ class TranslationsHandler
      */
     public function getAllTranslations()
     {
-        $translations = [];
-
         $requested = $this->getAllRequestTranslations();
 
-        $active = $joinedKeys = [];
+        $active = $this->getAllActiveTranslations();
 
-        if (! empty($requested)) {
-            $active = $this->getAllActiveTranslations();
-        }
+        $translations = $this->getTranslationSourceDiff($requested, $active);
 
-        foreach ($requested as $source => $langTranslation) {
+        foreach ($translations as $source => $keys) {
 
-            $translations[$source]['requested'] = $langTranslation;
+            if (! (isset($keys['hasRequested']) && $keys['hasRequested'])) {
+                $hasDiff = false;
+                foreach ($keys as $key => $langTrans) {
+                    foreach ($langTrans as $lang => $value) {
+                        if (isset($value['diff'])) {
+                            $hasDiff = true;
+                            break;
+                        }
+                    }
+                    if ($hasDiff)
+                        break;
+                }
+            } else {
+                $hasDiff = true;
+            }
 
-            if (isset($active[$source]))
-                $translations[$source]['active'] = $active[$source];
-            else
-                $translations[$source]['active'] = [];
-
-            $translations[$source]['joinedKeys'] = $this->getJoinedTranslationsKeys($translations[$source]['requested'], $translations[$source]['active']);
+            if (! $hasDiff)
+                unset($translations[$source]);
         }
 
         return $translations;
@@ -363,7 +378,7 @@ class TranslationsHandler
             foreach ($activeTranslation as $translationKey => $value) {
                 list ($source, $key) = explode('_', $translationKey);
 
-                $aggregatedActiveTranslations[$source][$lang][$key] = $value;
+                $aggregatedActiveTranslations[$source][$key][$lang] = $value;
             }
         }
 
@@ -394,7 +409,7 @@ class TranslationsHandler
             foreach ($translation as $langKey => $value) {
                 $lang = reset(explode('_', $langKey));
 
-                $aggregatedReqTrans[$source][$lang][$key] = $value;
+                $aggregatedReqTrans[$source][$key][$lang] = $value;
             }
         }
 
@@ -418,8 +433,8 @@ class TranslationsHandler
 
             $key = $row->key;
 
-            $requested['cs'][$key] = $row->cs_translated;
-            $requested['en'][$key] = $row->en_translated;
+            $requested[$key]['cs'] = $row->cs_translated;
+            $requested[$key]['en'] = $row->en_translated;
         }
 
         return $requested;
@@ -457,10 +472,13 @@ class TranslationsHandler
 
                     $newKey = substr($key, $sourceLength + 1);
 
-                    $sourceTranUnprefixed[$newKey] = $val;
+                    if ($newKey !== '')
+                        $sourceTranUnprefixed[$newKey] = $val;
                 }
 
-                $sourceTrans[$lang] = $sourceTranUnprefixed;
+                foreach ($sourceTranUnprefixed as $key => $value) {
+                    $sourceTrans[$key][$lang] = $value;
+                }
             }
         }
 
@@ -525,6 +543,67 @@ class TranslationsHandler
     }
 
     /**
+     * Returns the translations diff from requested translations & active translations
+     *
+     * @param array $requested
+     * @param array $active
+     */
+    protected function getTranslationSourceDiff(array $requested, array $active)
+    {
+        $translations = [];
+
+        $deleteAllTranslationsRequested = [];
+
+        foreach ($requested as $source => $sourceTranslation) {
+
+            $deleteAllTranslationsRequested[$source] = empty($sourceTranslation);
+            foreach ($sourceTranslation as $key => $langTranslations) {
+                foreach ($langTranslations as $lang => $value) {
+
+                    if (! isset($active[$source][$key][$lang])) {
+
+                        $translations[$source][$key][$lang]['diff']['new'] = $value;
+                    } else
+                        if ($active[$source][$key][$lang] !== $value) {
+
+                            $translations[$source][$key][$lang]['diff']['new'] = $value;
+                            $translations[$source][$key][$lang]['diff']['old'] = $active[$source][$key][$lang];
+                            unset($active[$source][$key][$lang]);
+                        } else {
+
+                            $translations[$source][$key][$lang] = $value;
+                            unset($active[$source][$key][$lang]);
+                        }
+                }
+
+                if (isset($active[$source][$key]) && empty($active[$source][$key]))
+                    unset($active[$source][$key]);
+            }
+
+            if (isset($active[$source]) && empty($active[$source]))
+                unset($active[$source]);
+        }
+
+        foreach ($active as $source => $sourceTranslation) {
+
+            // We need to know when admin wants to delete all his translations
+            $translations[$source]['hasRequested'] = ! isset($requested[$source]) || (empty($requested[$source]) && ! empty($active[$source]));
+
+            if (! $translations[$source]['hasRequested'])
+                foreach ($sourceTranslation as $key => $langTranslations) {
+
+                    // Now we need to know if there was at least one translation removed
+                    if (! isset($requested[$source][$key])) {
+                        $translations[$source]['hasRequested'] = true;
+                        break;
+                    }
+                }
+        }
+
+        return $translations;
+    }
+
+    /**
      * Process a configuration change request
      *
      * @param array $post
@@ -561,12 +640,23 @@ class TranslationsHandler
             throw new \Exception("You don't have permissions to cancel requested translations of $source!");
         }
 
-        $this->translationsTable->deleteInstitutionTranslations($source);
+        $this->transferActiveToRequested($source);
 
         $requestCancelled = $this->translate('request_translations_change_cancelled');
         $this->flashMessenger()->addSuccessMessage($requestCancelled);
 
         $this->sendRequestCancelledMail($post['source']);
+    }
+
+    protected function transferActiveToRequested($source)
+    {
+        $this->translationsTable->deleteInstitutionTranslations($source);
+
+        $active = $this->getSourceSpecificActiveTranslations($source);
+
+        foreach ($active as $key => $langTrans) {
+            $this->translationsTable->createNewTranslation($source, $key, $langTrans);
+        }
     }
 
     protected function createNewRequestTranslations($translations)
@@ -578,16 +668,9 @@ class TranslationsHandler
             throw new \Exception("You don't have permissions to change translations of $source!");
         }
 
-        $aggregatedTranslations = [];
-        foreach ($translations as $lang => $keys) {
-            foreach ($keys as $key => $value) {
-                $aggregatedTranslations[$key][$lang] = $value;
-            }
-        }
-
         $this->translationsTable->deleteInstitutionTranslations($source);
 
-        foreach ($aggregatedTranslations as $key => $translationValues) {
+        foreach ($translations as $key => $translationValues) {
             $this->translationsTable->createNewTranslation($source, $key, $translationValues);
         }
 
@@ -597,55 +680,57 @@ class TranslationsHandler
     /**
      * Returns true if provided translations differs from the currently active translations
      *
-     * @param array $translations
+     * @param array $requested
      *
      * @return boolean
      */
-    protected function changedSomething($translations)
+    protected function changedSomething($requested)
     {
-        $source = $translations['source'];
+        $source = $requested['source'];
 
-        unset($translations['source']);
+        unset($requested['source']);
 
         $active = $this->getSourceSpecificActiveTranslations($source);
 
-        $changedSomething = false;
-
         if (empty($active)) {
 
-            $changedSomething = ! empty($translations);
+            return ! empty($requested);
         } else
-            if (empty($translations)) {
+            if (empty($requested)) {
 
-                $changedSomething = ! empty($active);
+                return ! empty($active);
             } else
-                foreach ($active as $lang => $keys) {
+                foreach ($active as $key => $langTrans) {
 
-                    if (isset($translations[$lang])) {
-                        foreach ($keys as $key => $oldValue) {
-                            if (isset($translations[$lang][$key])) {
+                    if (isset($requested[$key])) {
+                        foreach ($langTrans as $lang => $oldValue) {
+                            if (isset($requested[$key][$lang])) {
 
-                                $newValue = $translations[$lang][$key];
-                                unset($translations[$lang][$key]);
+                                $newValue = $requested[$key][$lang];
+
                                 if ($newValue !== $oldValue) {
-                                    $changedSomething = true;
-                                    break;
+                                    return true;
                                 }
+
+                                unset($requested[$key][$lang]);
                             } else {
-                                $changedSomething = true;
-                                break;
+                                // A language definition was deleted
+                                return true;
                             }
                         }
 
-                        // there may also be new key requested
-                        if (! empty($translations[$lang] || $changedSomething)) {
-                            $changedSomething = true;
-                            break;
+                        if (! empty($requested[$key])) {
+                            // New language definition was added
+                            return true;
                         }
+                    } else {
+                        // There was deleted a key
+                        return true;
                     }
                 }
 
-        return $changedSomething;
+            // Return true if there was not unset any key (usually new key)
+        return ! empty($requested);
     }
 
     /**
@@ -663,31 +748,65 @@ class TranslationsHandler
 
         $sourceLength = strlen($source);
 
-        foreach ($translations as $language => $langTranslations) {
+        $aggregatedTranslations = [];
+
+        // Aggregate the languages
+        foreach (self::SUPPORTED_TRANSLATIONS as $language) {
+
+            foreach ($translations as $key => $langTrans) {
+
+                if (isset($langTrans[$language]))
+                    $aggregatedTranslations[$language][$key] = $langTrans[$language];
+            }
+        }
+
+        foreach (self::SUPPORTED_TRANSLATIONS as $language) {
+
             $currentActiveLangTranslations = $this->getTranslations($language);
 
-            // Iterate over all translations within this language
-            foreach ($currentActiveLangTranslations as $key => $value) {
-                if(substr($key, 0, $sourceLength) === $source) {
-                    // We found a translation of this institution
+            if (empty($aggregatedTranslations)) {
+                // Delete all occurrences of the source
 
-                    $shortKey = substr($key, $sourceLength + 1);
-
-                    if (! isset($langTranslations[$shortKey])) {
+                // Iterate over all translations within this language
+                foreach ($currentActiveLangTranslations as $key => $value) {
+                    if (substr($key, 0, $sourceLength) === $source) {
+                        // We found a translation of this institution, so remove it
                         unset($currentActiveLangTranslations[$key]);
-                    } elseif ($langTranslations[$shortKey] != $value) {
-                        $currentActiveLangTranslations[$key] = $langTranslations[$shortKey];
-                        unset($langTranslations[$shortKey]);
                     }
+                }
+            } else {
+                // Apply the changes of the source
+
+                $langTranslations = $aggregatedTranslations[$language];
+
+                // Iterate over all translations within this language
+                foreach ($currentActiveLangTranslations as $key => $value) {
+                    if (substr($key, 0, $sourceLength) === $source) {
+                        // We found a translation of this institution
+
+                        $shortKey = substr($key, $sourceLength + 1);
+
+                        if (! isset($langTranslations[$shortKey])) {
+                            unset($currentActiveLangTranslations[$key]);
+                        } elseif ($langTranslations[$shortKey] != $value) {
+                            $currentActiveLangTranslations[$key] = $langTranslations[$shortKey];
+                            unset($langTranslations[$shortKey]);
+                        }
+                    }
+                }
+
+                // And finally add new values
+                foreach ($langTranslations as $newKey => $newValue) {
+                    $currentActiveLangTranslations[$source . '_' . $newKey] = $newValue;
                 }
             }
 
-            // And finally add new values
-            foreach ($langTranslations as $newKey => $newValue) {
-                $currentActiveLangTranslations[$source . '_' . $newKey] = $newValue;
-            }
-
             $currentActiveLangTranslations = $this->cleanData($currentActiveLangTranslations);
+
+            // Actualize the cache
+            $this->instTranslations[$source] = $translations;
+            $this->__translations[$language] = $currentActiveLangTranslations;
+
             $currentActiveLangTranslations = new Config($currentActiveLangTranslations, false);
 
             try {

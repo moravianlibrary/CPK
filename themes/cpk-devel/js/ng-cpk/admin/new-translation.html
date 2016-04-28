@@ -1,19 +1,19 @@
-<td>
+<td class="col-xs-3">
 	{{ newTranslation.key }}
 </td>
-<td ng-dblclick="transCtrl.editTranslation($event)">
-	<div>
-		<ins style="color: green">
-			{{ newTranslation.value }}
-		</ins>
-		<i class="fa fa-minus-circle pull-right"
-			style="color: red; font-size: 1.4em; cursor: pointer;"
-			ng-click="transCtrl.removeTranslation($event)"
-			title="{{ 'remove_translation' | translate }}"></i>
+<td ng-dblclick="transCtrl.editTranslation($event)" ng-repeat="newTranslationLang in newTranslation.langValues">
+    <div>
+	  <ins style="color: green">
+		{{ newTranslationLang.value }}
+	  </ins>
 	</div>
-	<input class="form-control hidden" type="text"
-	   name="{{ newTranslation.name }}" required="required"
-	   value="{{ newTranslation.value }}"
-	   ng-keydown="transCtrl.oldTranslationKeyDown($event)"
-	   ng-blur="transCtrl.oldTranslationBlurred($event)" />
+	<input class="hidden" type="text"
+       name="{{ newTranslationLang.name }}" required="required"
+       value="{{ newTranslationLang.value }}"
+       ng-keydown="transCtrl.oldTranslationKeyDown($event)"
+       ng-blur="transCtrl.oldTranslationBlurred($event)" />
+</td>
+<td class="col-xs-1">
+  <a class="btn btn-link" href="#" ng-click="transCtrl.removeTranslation($event)">
+  <i class="fa fa-trash-o"></i> {{ 'remove_translation' | translate }}</a>
 </td>

@@ -29,9 +29,8 @@
           <?=$this->transEsc('approve_no_requests') ?>
         </div>
         <? else: foreach ($translations as $source => $sourceTranslations):
-            $transRequested = $sourceTranslations['requested'];
-            $transActive = $sourceTranslations['active'];
-            $joinedKeys = $sourceTranslations['joinedKeys'];
+
+            unset ($sourceTranslations['hasRequested']);
 
             $newTransFormId = $source . '_newTrans';
             ?>
@@ -39,70 +38,68 @@
         <form action='/Admin/TranslationsApproval' method='POST' data-source="<?=$source?>">
         <table class="table table-striped">
           <thead>
-            <tr><td id="<?=$source?>" class="blickable" colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
+            <tr><th id="<?=$source?>" class="blickable" colspan="4"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></th></tr>
+            <tr>
+              <th class="col-xs-3"><?=$this->transEsc('translation_key')?></th>
+              <? foreach($supportedLanguages as $lang):?>
+                <th class="col-xs-4"><?=$this->transEsc('translation_' . $lang)?></th>
+              <? endforeach; ?>
+              <th class="col-xs-1"><?=$this->transEsc('add_remove')?></th>
+            </tr>
           </thead>
           <tbody>
-         <? foreach($supportedLanguages as $lang):
-            $keys = $joinedKeys[$lang];?>
-           <tr ng-language='<?=$source . '_' . $lang ?>' <?=empty($keys) ? "class='hidden'":''?>>
-             <td class="text-center" colspan="2"><h5><?=$this->transEsc('lang_' . $lang) ?></h5></td>
-           </tr>
-            <tr ng-repeat="newTranslation in transCtrl.newTranslations['<?=$source?>']['<?=$lang?>']" ng-new-translation-template>
-            </tr>
-            <? foreach($keys as $key):
-              $isChanged = (! isset($transActive[$lang][$key])) || $transActive[$lang][$key] != $transRequested[$lang][$key];
-            ?>
+          <? foreach($sourceTranslations as $key => $languageTranslations): ?>
             <tr>
-              <td><?=$key ?></td>
-              <td ng-dblclick="transCtrl.editTranslation($event)">
-                <div>
-                  <div class="col-xs-11">
-                  <? if ($isChanged): ?>
-                    <? if (! empty($transActive[$lang][$key])): ?>
-                      <del style="color: red"><?=$transActive[$lang][$key] ?></del>
+              <td class="col-xs-3"><?=$key ?></td>
+              <? foreach($supportedLanguages as $lang):?>
+                <td ng-dblclick="transCtrl.editTranslation($event)" class="col-xs-4">
+                  <div>
+                  <? if (isset($languageTranslations[$lang]['diff'])):
+                       $currentValue = $languageTranslations[$lang]['diff']['new'];?>
+                    <? if (isset($languageTranslations[$lang]['diff']['old'])): ?>
+                      <del style="color: red"><?=$languageTranslations[$lang]['diff']['old'] ?></del>
                       <br>
                     <? endif; ?>
-                    <ins style="color: green"><?=$transRequested[$lang][$key] ?></ins>
-                  <? else: ?>
-                    <?=$transActive[$lang][$key] ?>
+                    <ins style="color: green"><?=$languageTranslations[$lang]['diff']['new'] ?></ins>
+                  <? else:
+                    $currentValue = $languageTranslations[$lang];?>
+                    <?=$languageTranslations[$lang]?>
                   <? endif; ?>
                   </div>
-               	  <i class="fa fa-minus-circle pull-right" style="color:red;font-size:1.4em;cursor:pointer;"
-              		  ng-click="transCtrl.removeTranslation($event)"
-              		  title="<?=$this->transEsc('remove_translation') ?>"></i>
-                </div>
-                <input class="form-control hidden" type="text" name="<?=$lang . '[' . $key . ']' ?>" required="required"
-                	value="<?=$isChanged ? $transRequested[$lang][$key] : $transActive[$lang][$key] ?>"
+                <input class="hidden" type="text" name="<?=$key . '[' . $lang . ']' ?>" required="required"
+                	value="<?=$currentValue ?>"
                 	ng-keydown="transCtrl.oldTranslationKeyDown($event)"
                 	ng-blur="transCtrl.oldTranslationBlurred($event)"/>
+                </td>
+              <? endforeach; ?>
+              <td class="col-xs-1">
+                <a class="btn btn-link" href="#<?=$source?>" ng-click="transCtrl.removeTranslation($event)">
+                <i class="fa fa-trash-o"></i> <?=$this->transEsc('remove_translation') ?></a>
               </td>
             </tr>
-          <? endforeach; endforeach; ?>
-           <tr ng-language='newTransDef'>
-             <td class="text-center" colspan="2"><h5><?=$this->transEsc('new_trans_def') ?></h5></td>
-           </tr>
+          <? endforeach; ?>
           <tr>
-          	<td style="vertical-align:middle">
+          	<td class="col-xs-3">
           		<input form="<?=$newTransFormId?>" class="form-control" type="text"
           			value="" name="" ng-new-translation="key" required
-          			placeholder="<?=$this->transEsc('insert_new_translation_key') ?>"
-          			title="<?=$this->transEsc('insert_new_translation_key') ?>"/>
+          			placeholder="<?=$this->transEsc('translation_key') ?>"
+          			title="<?=$this->transEsc('translation_key') ?>"/>
           	</td>
-			<td>
-				<div class="col-xs-11">
+			<td class="col-xs-4">
   				<input form="<?=$newTransFormId?>" class="form-control" type="text"
   					value="" name="" ng-new-translation="cs" required
-  					placeholder="<?=$this->transEsc('insert_new_cs_translation') ?>"
-  					title="<?=$this->transEsc('insert_new_cs_translation') ?>"/>
-
+  					placeholder="<?=$this->transEsc('translation_cs') ?>"
+  					title="<?=$this->transEsc('translation_cs') ?>"/>
+  			</td>
+  			<td class="col-xs-4">
   				<input form="<?=$newTransFormId?>" class="form-control" type="text"
   					value="" name="" ng-new-translation="en" required
-  					placeholder="<?=$this->transEsc('insert_new_en_translation') ?>"
-  					title="<?=$this->transEsc('insert_new_en_translation') ?>"/>
-  				</div>
-				<i class="fa fa-plus-circle pull-right" style="color:green;font-size:1.4em;cursor:pointer;padding-top: 8%;"
-				    ng-click="transCtrl.addTranslation('<?=$source?>',$event)"
-					title="<?=$this->transEsc('add_translation') ?>"></i>
+  					placeholder="<?=$this->transEsc('translation_en') ?>"
+  					title="<?=$this->transEsc('translation_en') ?>"/>
+  			</td>
+  			<td class="col-xs-1">
+  				<a class="btn btn-link" href="#<?=$source?>" ng-click="transCtrl.addTranslation('<?=$source?>',$event)">
+  				<i class="pr-interface-plusadd"></i> <?=$this->transEsc('add_translation')?></a>
 				<input form="<?=$newTransFormId?>" type="submit" value="" class="hidden" ng-new-translation="submit" ng-click="transCtrl.addTranslation('<?=$source?>',$event)">
 			</td>
           </tr>

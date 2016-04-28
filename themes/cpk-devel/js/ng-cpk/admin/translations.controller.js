@@ -6,9 +6,12 @@
  */
 (function() {
     angular.module('admin').controller('TranslationsController', TranslationsController).directive('ngSubmitBtn', submitBtn).directive('ngNewTranslation',
-	    newTranslation).directive('ngNewTranslationTemplate', newTranslationTemplate).directive('ngLanguage', languageDirective);
+	    newTranslation).directive('ngNewTranslationTemplate', newTranslationTemplate);
 
     TranslationsController.$inject = [ 'translateFilter' ];
+
+    const
+    LANG_COUNT = 2;
 
     var submitBtns = {};
 
@@ -46,8 +49,8 @@
 	 */
 	function editTranslation($event) {
 
-	    currentTranslationRow.div = $event.currentTarget.children[0].children[0];
-	    currentTranslationRow.input = currentTranslationRow.div.parentElement.nextElementSibling;
+	    currentTranslationRow.div = $event.currentTarget.children[0];
+	    currentTranslationRow.input = currentTranslationRow.div.nextElementSibling;
 
 	    var source = currentTranslationRow.input.form.getAttribute('data-source');
 	    currentTranslationRow.submitBtn = submitBtns[source];
@@ -63,11 +66,10 @@
 	 * translations being approved by portal admin after submitted.
 	 */
 	function addTranslation(source, $event) {
-	    
-	    // This method also can be called via click on an icon next to the submit btn
-	    if ($event.target.nodeName === 'I')
+
+	    if ($event.target.nodeName === 'A') {
 		$event.target = $event.target.nextElementSibling;
-	    
+	    }
 	    if ($event.target.form.checkValidity()) {
 
 		var formElements = $event.target.form.elements;
@@ -83,27 +85,46 @@
 		    if (formElement.value.length) {
 			var type = formElement.getAttribute('ng-new-translation');
 
-			if (type !== 'key') {
-			    newTranslation['langValues'][type] = formElement.value;
-			} else {
+			if (type === 'key') {
+
 			    newTranslation['key'] = formElement.value;
 
-			    var keyExists = getTranslationRowWithKey(source, newTranslation.key);
+			    var keyExists = translationKeyExists(source, newTranslation.key);
 
+			    var errMsg;
 			    if (keyExists) {
 
 				// Show it's a duplicate key
-				var errMsg = translate('new_translation_key_already_used');
+				errMsg = translate('new_translation_key_already_used');
+
+			    } else if (newTranslation.key.trim().length === 0) {
+
+				// Show it's an empty value
+				errMsg = translate('Empty value not allowed');
+			    }
+
+			    if (typeof errMsg !== 'undefined') {
+
 				formElement.setCustomValidity(errMsg);
 
 				// Hide it then
 				setTimeout(function() {
 				    formElement.setCustomValidity('');
 				}, 500);
+
 				return;
-			    } else {
-				formElement.setCustomValidity('');
 			    }
+
+			    formElement.setCustomValidity('');
+			} else { // the type is a language now
+
+			    var language = type;
+
+			    if (typeof newTranslation['langValues'][language] === 'undefined')
+				newTranslation['langValues'][language] = {};
+
+			    newTranslation['langValues'][language]['value'] = formElement.value;
+			    newTranslation['langValues'][language]['name'] = newTranslation.key + '[' + language + ']';
 			}
 
 			formElement.value = '';
@@ -113,44 +134,29 @@
 		// Now we are sure we don't need to show user any error
 		$event.preventDefault();
 
-		var languages = Object.keys(newTranslation.langValues);
-
-		var languageTranslations = {};
-
-		languages.forEach(function(language) {
-
-		    languageTranslations[language] = [];
-
-		    var value = newTranslation.langValues[language];
-		    languageTranslations[language].push({
-			key : newTranslation.key,
-			value : value,
-			name : language + '[' + newTranslation.key + ']'
-		    });
-		});
-
 		if (typeof vm.newTranslations[source] === 'undefined') {
-		    vm.newTranslations[source] = languageTranslations;
+		    vm.newTranslations[source] = [ newTranslation ];
 		} else {
-
-		    // Merge the institution translations
-
-		    var newSourceTranslations = {};
-		    Object.keys(vm.newTranslations[source]).forEach(function(language) {
-
-			var oldSourceTranslations = vm.newTranslations[source][language];
-
-			newSourceTranslations[language] = languageTranslations[language];
-
-			newSourceTranslations[language] = newSourceTranslations[language].concat(oldSourceTranslations);
-		    });
-
-		    vm.newTranslations[source] = newSourceTranslations;
+		    vm.newTranslations[source].push(newTranslation);
 		}
-
-		showLanguagesHeaders(source);
-		removeHiddenFromClassName(submitBtns[source]);
 	    }
+	}
+
+	/**
+	 * Returns true if there is found any translation with specified key
+	 */
+	function translationKeyExists(source, key) {
+	    var inputs = submitBtns[source].form.elements;
+
+	    for (var i = 0; i < inputs.length; i += LANG_COUNT) {
+		var input = inputs.item(i);
+
+		var inputKey = input.name.replace(/\[.+$/g, '');
+		if (inputKey === key)
+		    return true;
+	    }
+
+	    return false;
 	}
 
 	/**
@@ -161,19 +167,26 @@
 	 * translations being approved by portal admin after submitted.
 	 */
 	function removeTranslation($event) {
-	    // Get the hidden input from the same table data cell
-	    var input = $event.target.parentElement.nextElementSibling;
-
-	    // Get the key from previous table data cell
-	    var key = input.parentElement.previousElementSibling.textContent.trim();
+	    
+	    var keyTD = $event.target.parentElement;
+	    
+	    for (var i = 0; i <= LANG_COUNT; ++i) {
+		keyTD = keyTD.previousElementSibling; 
+	    }
+	    
+	    var key = keyTD.textContent.trim();
 
 	    if (confirm(translate('confirm_translation_delete_of') + ' "' + key + '" ?') === false) {
 		return;
 	    }
-
-	    var source = input.form.getAttribute('data-source');
-
-	    removeTranslationKey(source, key);
+	    
+	    var target = $event.target;
+	    do {
+		target = target.parentElement;
+		
+	    } while(target.nodeName !== 'TR' && target.nodeName !== 'TBODY');
+		
+	    target.remove();
 	}
 
 	/**
@@ -249,32 +262,6 @@
 	}
 
 	/**
-	 * Removes key translated within an institution identified by source in
-	 * all languages
-	 */
-	function removeTranslationKey(source, key) {
-	    var languages = Object.keys(translationRows[source]);
-
-	    var langHidden = false;
-	    languages.forEach(function(lang) {
-		var tr = getTranslationRowWithKey(source, key, lang);
-
-		if (tr !== false) {
-		    tr.remove();
-
-		    // Hide language header if has no translations
-		    if (langWithoutTranslations(source, lang)) {
-			translationRows[source][lang].className += ' hidden';
-			langHidden = true;
-		    }
-		}
-	    });
-	    
-	    if (langHidden)
-		submitBtns[source].className += ' hidden';
-	}
-
-	/**
 	 * Sets new value to the <ins> element within a div.
 	 * 
 	 * It also moves all contents into <del> element when no <ins> found &
@@ -322,7 +309,7 @@
 		    // remove any graphics
 		    if (previousContents === value.trim()) {
 			currentTranslationRow.div.innerHTML = previousContents;
-			
+
 			return true;
 		    }
 
@@ -346,19 +333,6 @@
 	 */
 	function langWithoutTranslations(source, lang) {
 	    return translationRows[source][lang].nextElementSibling.hasAttribute('ng-language');
-	}
-
-	/**
-	 * Unhides all the language header rows from within the institution
-	 * table
-	 */
-	function showLanguagesHeaders(source) {
-
-	    var languageRows = translationRows[source];
-
-	    Object.keys(languageRows).forEach(function(language) {
-		removeHiddenFromClassName(languageRows[language]);
-	    });
 	}
 
 	/**
@@ -386,47 +360,6 @@
 	    }
 
 	    return contents;
-	}
-
-	/**
-	 * Retrieves the table row domElement which is identified by key it
-	 * translates.
-	 * 
-	 * Returns false if not found.
-	 * 
-	 * There may be also left the language attribute empty. Then it returns
-	 * false only if no language has provided key. Otherwise returns first
-	 * translationRow found.
-	 */
-	function getTranslationRowWithKey(source, key, lang) {
-
-	    if (typeof lang !== 'undefined') {
-
-		var languageRow = translationRows[source][lang];
-
-		var next = languageRow.nextElementSibling;
-
-		while (next.hasAttribute('ng-language') === false) {
-		    if (next.children[0].textContent.trim() === key)
-			return next;
-
-		    next = next.nextElementSibling;
-		}
-	    } else {
-		var languages = Object.keys(translationRows[source]);
-
-		for (var i = 0; i < languages.length; ++i) {
-		    var lang = languages[i];
-
-		    var result = getTranslationRowWithKey(source, key, lang);
-		    if (result !== false) {
-			return result;
-		    }
-		}
-		;
-	    }
-
-	    return false;
 	}
 
 	/**
@@ -502,36 +435,5 @@
 	    restrict : 'A',
 	    templateUrl : '/themes/cpk-devel/js/ng-cpk/admin/new-translation.html'
 	};
-    }
-
-    function languageDirective() {
-	return {
-	    restrict : 'A',
-	    link : linker
-	};
-
-	function linker(scope, elements, attrs) {
-
-	    var attributeVal = attrs['ngLanguage'];
-
-	    if (attributeVal === 'newTransDef') {
-		return;
-		/*
-		 * It's here to easily detect if language has any translations
-		 * within it by not having the next one with attribute
-		 * 'ng-language'
-		 */
-
-	    }
-
-	    var source, lang;
-
-	    [ source, lang ] = attrs['ngLanguage'].split('_');
-
-	    if (typeof translationRows[source] === 'undefined')
-		translationRows[source] = {};
-
-	    translationRows[source][lang] = elements.context;
-	}
     }
 })();
