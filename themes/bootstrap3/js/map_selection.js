@@ -1,10 +1,11 @@
+/* global VuFind, OpenLayers */
 function loadMapSelection(params) {
     var geoField = params['geoField'];
     var boundingBox = params['boundingBox'];
     var searchParams = params['searchParams'];
     var showSelection = params['showSelection'];
     var useWKT = params['useWKT'];
-    var baseURL = path;
+    var baseURL = VuFind.getPath();
     var init = true;
     var srcProj = new OpenLayers.Projection('EPSG:4326');
     var dstProj = new OpenLayers.Projection('EPSG:900913')
