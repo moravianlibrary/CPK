@@ -1,5 +1,4 @@
-<div class='panel panel-default search-panel <?=($this->searchResults) ? 'scrollable-search-panel' : ''?>'>
-  <div id="collapseAdvancedSearch" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAdvancedSearch">
+  <div id="collapseAdvancedSearch" class="panel-collapse collapse in basic-search-panel<?=(isset($hiddenBasicSearch)) ? ' hidden' : ''?>" role="tabpanel" aria-labelledby="headingAdvancedSearch">
     <div class="panel-body">
       <div class="searchForm">
 
@@ -87,7 +86,7 @@
           	id="searchForm_lookfor"
           	type="text"
           	name="lookfor0[]"
-          	value="<?=(isset($this->lookfor0[0])) ? $this->escapeHtmlAttr($this->lookfor0[0]) : isset($lookfor) ? $this->escapeHtmlAttr(explode(":", trim($this->lookfor, "()"))[1]) : ''?>"
+          	value="<?=(isset($this->lookfor0[0])) ? $this->escapeHtmlAttr($this->lookfor0[0]) : (! empty($lookfor) && (strpos($lookfor, ":") !== false)) ? $this->escapeHtmlAttr(explode(":", trim($this->lookfor, "()"))[1]) : ''?>"
           	autofocus
           	placeholder="<?=$this->translate('autocomplete-placeholder')?>"
           />
@@ -96,14 +95,14 @@
 
         <input type='hidden' name='searchTypeTemplate' value='basic'>
         <input type="hidden" name="type0[]" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>">
-			  <input type='hidden' name='join' value='AND'>
-			  <input type='hidden' name='bool0[]' value='AND'>
-			  <? if(!empty($lastLimit)): ?>
-			      <input type="hidden" name="limit" value="<?=$this->escapeHtmlAttr($lastLimit)?>">
-			  <? endif; ?>
-			  <? if(!empty($lastSort)): ?>
-			      <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
-			  <? endif; ?>
+	    <input type='hidden' name='join' value='AND'>
+	    <input type='hidden' name='bool0[]' value='AND'>
+	    <? if(!empty($lastLimit)): ?>
+	      <input type="hidden" name="limit" value="<?=$this->escapeHtmlAttr($lastLimit)?>">
+	    <? endif; ?>
+	    <? if(!empty($lastSort)): ?>
+	      <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
+	    <? endif; ?>
 
         <a href='/Search/Results?lookfor=&type0[]=AllFields' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'>
           <i class="pr-interface-search"></i>
@@ -163,6 +162,5 @@
       </form>
     </div>
   </div>
-</div>
 
 <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>

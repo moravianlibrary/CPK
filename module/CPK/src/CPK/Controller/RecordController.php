@@ -159,9 +159,11 @@ class RecordController extends RecordControllerBase
         $view->config = $this->getConfig();
 
         /* Handle view template */
-        if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
-            $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
-        }
+	    if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
+	        $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
+	    } else {
+	        $view->searchTypeTemplate = 'basic';
+	    }
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
         return $view;

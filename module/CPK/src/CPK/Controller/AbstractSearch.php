@@ -279,28 +279,28 @@ class AbstractSearch extends AbstractBase
         // Send both GET and POST variables to search class:
         $request = $this->getRequest()->getQuery()->toArray()
             + $this->getRequest()->getPost()->toArray();
-        
+
         /* Set limit and sort */
         $searchesConfig = $this->getConfig('searches');
-        $view->limit = (! empty($request['limit'])) 
-            ? $request['limit'] 
+        $view->limit = (! empty($request['limit']))
+            ? $request['limit']
             : $searchesConfig->General->default_limit;
-        $view->sort  = (! empty($request['sort'])) 
-            ? $request['sort'] 
+        $view->sort  = (! empty($request['sort']))
+            ? $request['sort']
             : $searchesConfig->General->default_sort;
-        
+
         if (! empty($request['limit'])) {
             $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $request['limit'];
         }
-        
+
         if (! empty($request['sort'])) {
             $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $request['sort'];
         }
-        
+
         // If user have preferred limit and sort settings
         if ($user = $this->getAuthManager()->isLoggedIn()) {
             $userSettingsTable = $this->getTable("usersettings");
-             
+
             if (isset($_SESSION['VuFind\Search\Solr\Options']['lastLimit'])) {
                 $request['limit'] = $_SESSION['VuFind\Search\Solr\Options']['lastLimit'];
             } else {
@@ -311,7 +311,7 @@ class AbstractSearch extends AbstractBase
                 }
             }
             $view->limit = $request['limit'];
-            
+
             if (isset($_SESSION['VuFind\Search\Solr\Options']['lastSort'])) {
                 $request['sort'] = $_SESSION['VuFind\Search\Solr\Options']['lastSort'];
             } else {
@@ -322,13 +322,13 @@ class AbstractSearch extends AbstractBase
                 }
             }
             $view->sort = $request['sort'];
-            
+
         }
-        
+
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $view->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $view->sort;
         /**/
-        
+
         $view->results = $results = $runner->run(
             $request, $this->searchClassId, $this->getSearchSetupCallback()
         );
@@ -391,7 +391,7 @@ class AbstractSearch extends AbstractBase
 
         return $view;
     }
-    
+
     /**
      * Process the jumpto parameter -- either redirect to a specific record and
      * return view model, or ignore the parameter and return false.

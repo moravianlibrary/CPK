@@ -87,9 +87,10 @@ class SearchController extends AbstractSearch
 	    if ($user = $this->getAuthManager()->isLoggedIn()) {
 	        $userSettingsTable = $this->getTable("usersettings");
 
-        $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
-        if (! empty($preferredRecordsPerPage))
-            $view->preferredRecordsPerPage = $preferredRecordsPerPage;
+            $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
+            if (! empty($preferredRecordsPerPage)) {
+                $view->preferredRecordsPerPage = $preferredRecordsPerPage;
+            }
 	    }
 
 	    return $view;
@@ -310,14 +311,20 @@ class SearchController extends AbstractSearch
 	 */
 	public function homeAction()
 	{
-	    return $this->createViewModel(
-	        [
-	                        'results' => $this->getHomePageFacets(),
-	                        'hierarchicalFacets' => $this->getHierarchicalFacets(),
-	                        'hierarchicalFacetSortOptions'
-	                        => $this->getHierarchicalFacetSortSettings()
-	        ]
-	        );
+	    $view = $this->createViewModel();
+
+	    /* Handle view template */
+	    if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
+	        $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
+	    } else {
+	        $view->searchTypeTemplate = 'basic';
+	    }
+
+        $view->results = $this->getHomePageFacets();
+        $view->hierarchicalFacets = $this->getHierarchicalFacets();
+        $view->hierarchicalFacetSortOptions = $this->getHierarchicalFacetSortSettings();
+
+	    return $view;
 	}
 
 	/**
@@ -563,6 +570,8 @@ class SearchController extends AbstractSearch
 	    /* Handle view template */
 	    if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
 	        $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
+	    } else {
+	        $view->searchTypeTemplate = 'basic';
 	    }
 
 	    $view->searchResults = true;

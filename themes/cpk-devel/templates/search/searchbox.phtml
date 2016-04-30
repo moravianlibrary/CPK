@@ -27,29 +27,55 @@
         isset($this->checkboxFilters) && is_array($this->checkboxFilters) ? $this->checkboxFilters : array()
      );
 
+    ?>
+
+<div class='panel panel-default search-panel <?=($this->searchResults) ? 'scrollable-search-panel' : ''?>'>
+
+    <?
+    /*
+     * Render both searchTypeTemplates (basic, advanced) for future switching.
+     * This solutions prevent switching to re-download the same data from Solr.
+     */
+
+    /* Render advanced search. Decide whether hidden or not. */
+    $arrayOfVariablesForAdvancedSearch = [
+        'this' => $this,
+        'lastSort' => $lastSort,
+        'lastLimit' => $lastLimit,
+        'filterList' => $filterList,
+        'options' => $options,
+        'params' => $this->params,
+    ];
+    if ($this->searchTypeTemplate != 'advanced') {
+        $arrayOfVariablesForAdvancedSearch['hiddenAdvancedSearch'] = true;
+    }
+    echo $this->context($this)->renderInContext(
+        "search/ajax/advanced-search.phtml",
+        $arrayOfVariablesForAdvancedSearch
+    );
+
+    /* Render basic search. Decide whether hidden or not. */
+    $arrayOfVariablesForBasicSearch = [
+        'this' => $this,
+        'options' => $options,
+        'shards' => $shards,
+        'basicSearch' => $basicSearch,
+        'filterList' => $filterList,
+        'handlers' => $handlers
+    ];
+
     if ($this->searchTypeTemplate == 'advanced') {
-        echo $this->context($this)->renderInContext("search/ajax/advanced-search.phtml",
-            array(
-                'this' => $this,
-                'lastSort' => $lastSort,
-                'lastLimit' => $lastLimit,
-                'filterList' => $filterList,
-                'options' => $options
-            )
-        );
-    } else {
-        echo $this->context($this)->renderInContext("search/ajax/autocomplete.phtml",
-            array(
-                'this' => $this,
-                'options' => $options,
-                'shards' => $shards,
-                'basicSearch' => $basicSearch,
-                'handlers' => $handlers
-            )
-        );
+        $arrayOfVariablesForBasicSearch['hiddenBasicSearch'] = true;
     }
 
+    echo $this->context($this)->renderInContext(
+        "search/ajax/autocomplete.phtml",
+        $arrayOfVariablesForBasicSearch
+    );
+
 ?>
+
+</div>
 
 <div class='hidden'>
   <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : $lastLimit) ?>">

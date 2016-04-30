@@ -1,10 +1,9 @@
 <?
-    $query = $this->params->getQuery();
-    $allGroupsOperator = $query->getOperator();
+    $query = (! is_null($params)) ? $params->getQuery() : null;
+    $allGroupsOperator = (! is_null($query)) ? $query->getOperator() : 'AND';
     $groups = -1;
 ?>
-<div class="panel panel-default search-panel <?=($this->searchResults) ? 'scrollable-search-panel' : ''?>">
-  <div id="collapseAdvancedSearch" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingAdvancedSearch">
+  <div id="collapseAdvancedSearch" class="panel-collapse collapse in advanced-search-panel<?=(isset($hiddenAdvancedSearch)) ? ' hidden' : ''?>" role="tabpanel" aria-labelledby="headingAdvancedSearch">
     <div class="panel-body">
   	  <div class="searchForm">
 
@@ -26,6 +25,7 @@
       </div>
 
       <form id='editable-advanced-search-form' name='searchForm'>
+      <!-- If search consists of more than one query, foreach them -->
 
         <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); $groups++; $queries = -1;?>
         <div class='row group' id='group_<?=$groups?>'>
@@ -104,4 +104,3 @@
       </form>
     </div>
   </div>
-</div>

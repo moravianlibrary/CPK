@@ -80,8 +80,12 @@ jQuery( document ).ready( function( $ ) {
 				
 				if (newSearchTypeTemplate == 'advanced') {
 					$( '.search-type-template-switch' ).text( VuFind.translate('Basic Search') );
+					$( '.advanced-search-panel' ).removeClass('hidden');
+					$( '.basic-search-panel' ).addClass('hidden');
 				} else {
 					$( '.search-type-template-switch' ).text( VuFind.translate('Advanced Search') );
+					$( '.advanced-search-panel' ).addClass('hidden');
+					$( '.basic-search-panel' ).removeClass('hidden');
 				}
 				
 				$( '.search-panel' ).show( 'blind', {}, 500);
