@@ -25,8 +25,9 @@
       </div>
 
       <form id='editable-advanced-search-form' name='searchForm'>
-      <!-- If search consists of more than one query, foreach them -->
+      <!-- If search consists of more than one search groups, foreach them -->
 
+	  <? if(is_a($query, 'VuFindSearch\Query\QueryGroup')): ?>
         <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); $groups++; $queries = -1;?>
         <div class='row group' id='group_<?=$groups?>'>
           <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
@@ -78,6 +79,62 @@
           </div>
         </div>
         <? endforeach; ?>
+
+      <!-- If search consists of one search group -->
+      <? elseif(is_a($query, 'VuFindSearch\Query\Query')): $groupOperator = 'AND'; $groups++; $queries = -1;?>
+
+		<div class='row group' id='group_<?=$groups?>'>
+          <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
+
+          <div class='col-md-2'>
+            <label class='dropdown-select-label'>
+              <select class="group-operator dropdown-select selectpicker" name='bool<?=$groups?>[]'>
+                <option value="AND"<?= ($groupOperator == 'AND') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
+                <option value="OR"<?= ($groupOperator == 'OR') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
+                <option value="NOT"<?= ($groupOperator == 'NOT') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
+              </select>
+            </label>
+          </div>
+
+          <div class='col-md-9'>
+            <? $queryHandler = $query->getHandler(); $queryString  = $query->getString(); $queries++;?>
+            <div class='row queries' id='query_<?=$queries?>'>
+
+              <div class='col-md-4 text-right'>
+                <select class='form-control query-type selectpicker' name='type<?=$groups?>[]'>
+                  <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
+                  <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
+                    <?=$this->transEsc($description)?>
+                  </option>
+                  <? endforeach; ?>
+                </select>
+              </div>
+
+              <div class='col-md-7'>
+                <input name='lookfor<?=$groups?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
+              </div>
+
+              <div class="col-md-1">
+                <a href="#" class='close remove-advanced-search-query'>&times;</a>
+              </div>
+
+            </div>
+
+            <p>
+              <a href="#" class="add-search-query">
+                <i class="pr-interface-plusadd"></i> <?=$this->transEsc("add_search")?>
+              </a>
+            </p>
+          </div>
+
+          <div class="col-md-1 close">
+            <a class="help-block remove-advanced-search-group" href="#">&times;</a>
+          </div>
+        </div>
+
+      <? else: ?>
+      	<? throw new \Exception('Unhandled Query object'); ?>
+      <? endif; ?>
 
         <p>
           <a href="#" class="add-search-group">
