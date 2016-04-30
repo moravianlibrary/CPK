@@ -2,11 +2,13 @@
     <div class="panel-body">
       <div class="searchForm">
 
+		<? if($this->searchResults): ?>
         <div class='row'>
           <div class='col-md-12 scrollable-search-panel-options'>
 	        <a href="#" class='search-type-template-switch'><?=$this->translate("Advanced Search")?></a>
           </div>
         </div>
+        <? endif; ?>
 
       </div>
 
