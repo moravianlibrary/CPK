@@ -18,16 +18,16 @@ jQuery( document ).ready( function( $ ) {
 		updateGroupsDOMState: function( formSelector ) {
 			var groupsCount = $( formSelector ).find( '.group' ).length;
 			if ( groupsCount == 1 ) {
-				$( '.remove-advanced-search-group' ).parent().addClass( 'hidden' );
-				$( '#group-join-type-row' ).addClass( 'hidden' );
+				$( '.remove-advanced-search-group' ).parent().hide( 'blind', {}, 200);
+				$( '#group-join-type-row' ).hide( 'blind', {}, 200);
 			} else {
-				$( '.remove-advanced-search-group' ).parent().removeClass( 'hidden' );
-				$( '#group-join-type-row' ).removeClass( 'hidden' );
+				$( '.remove-advanced-search-group' ).parent().show( 'blind', {}, 200);
+				$( '#group-join-type-row' ).show( 'blind', {}, 200);
 			}
 		},
 
 		/**
-		 * Update form's DOM state gor queries.
+		 * Update form's DOM state for queries.
 		 * 
 		 * This function updates numbers in form's DOM to ensure, that jQuery
 		 * will correctly handle showing or hiding some elements in form.
@@ -38,9 +38,9 @@ jQuery( document ).ready( function( $ ) {
 		updateQueriesDOMState: function( groupSelector ) {
 			var queriesCount = $( groupSelector + ' .queries').length;
 			if ( queriesCount == 1 ) {
-				$( groupSelector ).find( '.remove-advanced-search-query' ).parent().addClass( 'hidden' );
+				$( groupSelector ).find( '.remove-advanced-search-query' ).parent().hide( 'blind', {}, 200);
 			} else {
-				$( groupSelector ).find( '.remove-advanced-search-query' ).parent().removeClass( 'hidden' );
+				$( groupSelector ).find( '.remove-advanced-search-query' ).parent().show( 'blind', {}, 200);
 			}
 		},
 		
@@ -283,6 +283,9 @@ jQuery( document ).ready( function( $ ) {
 			        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + responseData.searchId );
 			        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + responseData.searchId );
 			        		
+			        		/* Update lookfor inputs in both search type templates to be the same when switching templates*/
+			        		ADVSEARCH.updateSearchTypeTemplates( data );
+			        		
 		        		} else {
 		        			console.error(response.data);
 		        		}
@@ -379,6 +382,7 @@ jQuery( document ).ready( function( $ ) {
 		 * Update URL with provided data via pushing state to window history
 		 * 
 		 * @param	{Object}	data	Object with lookFor, bool, etc.
+		 * @return	{undefined}
 		 */
 		updateUrl: function( data ) {
 			var stateObject = data;
@@ -394,6 +398,7 @@ jQuery( document ).ready( function( $ ) {
 		 * Update URL with provided data via replacing state in window history
 		 * 
 		 * @param	{Object}	data	Object with lookFor, bool, etc.
+		 * @return	{undefined}
 		 */
 		replaceUrl: function( data ) {
 			var stateObject = data;
@@ -402,6 +407,79 @@ jQuery( document ).ready( function( $ ) {
 			window.history.replaceState( stateObject, title, url );
 			//console.log( 'Replacing state: ' );
 			//console.log( stateObject );
+		},
+		
+		/**
+		 * Clear form in advanced search template
+		 * 
+		 * @return	{undefined}
+		 */
+		clearAdvancedSearchTemplate: function( ) {
+			
+			/*
+			 * Remove redundand elements
+			 */
+			var d1 = $.Deferred();
+			var d2 = $.Deferred();
+			
+			$.when(
+				d1
+			).then( function( x ) {
+				ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
+			});
+			
+			$.when(
+				d2
+			).then( function( x ) {
+				ADVSEARCH.updateQueriesDOMState( '#group_0' );
+			});
+			
+			d1.resolve(
+				$( '#editable-advanced-search-form .group' ).each( function ( index, element ) {
+					if ( $( element ).attr( 'id' ) != 'group_0' ) {
+						$( element ).hide( 'blind', {}, 200, function() {
+		        			$( element ).remove();
+		        		});
+					} 
+				})
+			);
+			
+			d2.resolve(
+				$( '#group_0 .queries' ).each( function ( index, element ) {
+					if ( $( element ).attr( 'id' ) != 'query_0' ) {
+						$( element ).hide( 'blind', {}, 200, function() {
+		        			$( element ).remove();
+		        		});
+					} 
+				})
+			);
+			
+			/* Previous callback does not work, so lets try to update it again after 300ms :/ */
+			setTimeout(function() { 
+				ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
+			}, 300);
+			
+			/* 
+			 * Empty first query
+			 */
+			$( '.query_0 .query-string' ).val( '' );
+			
+			/*
+			 * @TODO Clear (select first options) also select for .group-operator
+			 * and select for .query-type
+			 * */
+		},
+		
+		/**
+		 * Update lookfor inputs in both search type templates to be the same when switching templates
+		 * 
+		 * @param	{Object}	data	Object with lookFor, bool, etc.
+		 * @return	{undefined}
+		 */
+		updateSearchTypeTemplates: function( data ) {
+			ADVSEARCH.clearAdvancedSearchTemplate();
+			
+			// @TODO Fill both search type templates with provided data object
 		},
 	}
 	
@@ -504,6 +582,17 @@ jQuery( document ).ready( function( $ ) {
 	});
 	
 	/*
+	 * Clear advanced search template
+	 */
+	$( '#editable-advanced-search-form' ).on( 'click', '#clearAdvancedSearchLink', function( event ) {
+		event.preventDefault();
+		ADVSEARCH.clearAdvancedSearchTemplate();
+		
+		// Clear also autocomplete
+		$( '#searchForm_lookfor' ).val( '' );
+	});
+	
+	/*
 	 * Add or remove clicked facet
 	 */
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
@@ -592,7 +681,7 @@ jQuery( document ).ready( function( $ ) {
 		
 		ADVSEARCH.updateSearchResults( undefined, undefined, newSearchTypeTemplate );
 	});
-	
+
 	/**
 	 * Get param from url
 	 * 
