@@ -139,7 +139,7 @@
 
 			    if (type === 'key') {
 
-				newTranslation['key'] = formElement.value;
+				newTranslation['key'] = formElement.value.trim();
 
 				var keyExists = translationKeyExists(source, newTranslation.key);
 
@@ -149,10 +149,13 @@
 				    // Show it's a duplicate key
 				    errMsg = translate('new_translation_key_already_used');
 
-				} else if (newTranslation.key.trim().length === 0) {
+				} else if (newTranslation.key.length === 0) {
 
 				    // Show it's an empty value
-				    errMsg = translate('Empty value not allowed');
+				    errMsg = translate('empty_value_not_allowed');
+				} else if (newTranslation.key.match(/\s+/) !== null) {
+				    
+				    errMsg = translate('whitespaces_not_allowed');
 				}
 
 				if (typeof errMsg !== 'undefined') {

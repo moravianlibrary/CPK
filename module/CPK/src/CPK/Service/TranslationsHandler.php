@@ -376,7 +376,7 @@ class TranslationsHandler
             unset($activeTranslation['@parent_ini']);
 
             foreach ($activeTranslation as $translationKey => $value) {
-                list ($source, $key) = explode('_', $translationKey);
+                list ($source, $key) = explode('_', $translationKey, 2);
 
                 $aggregatedActiveTranslations[$source][$key][$lang] = $value;
             }
@@ -802,8 +802,8 @@ class TranslationsHandler
                             unset($currentActiveLangTranslations[$key]);
                         } elseif ($langTranslations[$shortKey] != $value) {
                             $currentActiveLangTranslations[$key] = $langTranslations[$shortKey];
-                            unset($langTranslations[$shortKey]);
                         }
+                        unset($langTranslations[$shortKey]);
                     }
                 }
 
@@ -827,6 +827,8 @@ class TranslationsHandler
                 throw new \Exception("Cannot write to file '$this->translationsFilename[$language]'. Please fix the permissions by running: 'sudo chown www-data $this->translationsFilename[$language]'");
             }
         }
+
+        $this->transferActiveToRequested($source);
 
         return true;
     }

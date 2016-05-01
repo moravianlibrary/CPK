@@ -8,14 +8,6 @@
   $this->layout()->title = $this->translate('translations');
 
   $this->layout()->templateName = 'translations/main';
-
-  // Add translations for the javascript
-  $this->jsTranslations()->addStrings([
-      'remove_translation' => $this->translate('remove_translation'),
-      'new_translation_key_already_used' => $this->translate('new_translation_key_already_used'),
-      'confirm_translation_delete_of' => $this->translate('confirm_translation_delete_of'),
-      'add_translation' => $this->translate('add_translation')
-  ]);
 ?>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
