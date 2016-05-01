@@ -18,8 +18,8 @@ notifications/module.js
 notifications/notif.controller.js
 
 admin/module.js
-admin/configurations-approval.controller.js
-admin/translations.controller.js
+ng-cpk/admin/configurations/conf.controller.js
+ng-cpk/admin/translations/trans.controller.js
 
 history/module.js
 history/checkedouthistory.controller.js

@@ -589,12 +589,24 @@ class TranslationsHandler
             // We need to know when admin wants to delete all his translations
             $translations[$source]['hasRequested'] = ! isset($requested[$source]) || (empty($requested[$source]) && ! empty($active[$source]));
 
-            if (! $translations[$source]['hasRequested'])
+
                 foreach ($sourceTranslation as $key => $langTranslations) {
 
                     // Now we need to know if there was at least one translation removed
                     if (! isset($requested[$source][$key])) {
                         $translations[$source]['hasRequested'] = true;
+
+                        $json = [
+                            'source' => $source,
+                            'key' => $key
+                        ];
+
+                        $json = array_merge($json, $langTranslations);
+
+                        $translations[$source][$key]['deleted']['JSON'] = json_encode($json);
+
+                        $translations[$source][$key]['deleted'] = array_merge($translations[$source][$key]['deleted'], $langTranslations);
+
                         break;
                     }
                 }

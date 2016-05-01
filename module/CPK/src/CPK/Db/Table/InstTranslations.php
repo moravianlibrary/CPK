@@ -73,16 +73,14 @@ class InstTranslations extends Gateway
      *
      * @param string $source
      * @param string $key
-     * @param array $csTranslated
-     *
-     * @throws \Exception
+     * @param array $languageTranslations
      *
      * @return \CPK\Db\Row\InstTranslations
      */
     public function createNewTranslation($source, $key, $languageTranslations)
     {
         if (empty($key) || empty($languageTranslations)) {
-            throw new \Exception('Cannot create new translation with empty value');
+            return false;
         }
 
         $row = $this->createRow();

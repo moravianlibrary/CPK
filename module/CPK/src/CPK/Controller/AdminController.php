@@ -31,6 +31,7 @@ use VuFind\Exception\Auth as AuthException;
 use Zend\Mvc\MvcEvent;
 use CPK\Service\ConfigurationsHandler;
 use CPK\Service\TranslationsHandler;
+use Zend\View\Model\ViewModel;
 
 /**
  * Class controls VuFind administration.
@@ -104,7 +105,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'ncipTemplate' => $configHandler->getNcipTemplate(),
             'alephTemplate' => $configHandler->getAlephTemplate(),
             'configs' => $configHandler->getAdminConfigs()
-        ]);
+        ], 'admin/configurations/main.phtml');
     }
 
     /**
@@ -129,7 +130,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'ncipTemplate' => $configHandler->getNcipTemplate(),
             'alephTemplate' => $configHandler->getAlephTemplate(),
             'configs' => $configHandler->getAllRequestConfigs()
-        ]);
+        ], 'admin/configurations/approval.phtml');
     }
 
     /**
@@ -151,7 +152,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'sourcesBeingAdmin' => $this->accessManager->getInstitutionsWithAdminRights(),
             'translations' => $translationsHandler->getAdminTranslations(),
             'supportedLanguages' => $translationsHandler::SUPPORTED_TRANSLATIONS
-        ]);
+        ], 'admin/translations/main.phtml');
     }
 
     /**
@@ -175,7 +176,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
             'translations' => $translationsHandler->getAllTranslations(),
             'supportedLanguages' => $translationsHandler::SUPPORTED_TRANSLATIONS
-        ]);
+        ],'admin/translations/approval.phtml');
     }
 
     public function portalPagesAction()
@@ -297,6 +298,22 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $this->layout()->searchbox = false;
         return $viewModel;
+    }
+
+    /**
+     * Overriden createViewModel which accepts template as the 2nd arg.
+     *
+     * {@inheritDoc}
+     * @see \VuFind\Controller\AbstractBase::createViewModel()
+     */
+    protected function createViewModel(array $params = null, $template = null)
+    {
+        $vm = parent::createViewModel($params);
+
+        if (isset($template))
+            $vm->setTemplate($template);
+
+        return $vm;
     }
 }
 

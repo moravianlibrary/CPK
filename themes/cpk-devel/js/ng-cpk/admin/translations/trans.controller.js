@@ -6,7 +6,7 @@
  */
 (function() {
     angular.module('admin').controller('TranslationsController', TranslationsController).directive('ngSubmitBtn', submitBtn).directive('ngNewTranslation',
-	    newTranslation).directive('ngNewTranslationTemplate', newTranslationTemplate);
+	    newTranslation).directive('ngNewTranslationTemplate', newTranslationTemplate).directive('ngDeletedTranslationTemplate', deletedTranslationTemplate);
 
     TranslationsController.$inject = [ 'translateFilter' ];
 
@@ -20,7 +20,7 @@
     var translationRows = {};
 
     function TranslationsController(translate) {
-	
+
 	var unsaved = false;
 
 	var currentTranslationRow = {
@@ -31,21 +31,27 @@
 
 	var vm = this;
 
+	// note that it does not hold all the translations, just recently added
 	vm.newTranslations = {};
+
+	vm.deletedTranslations = {};
 
 	vm.editTranslation = editTranslation;
 
 	vm.addTranslation = addTranslation;
 	vm.removeTranslation = removeTranslation;
+	vm.restoreTranslation = restoreTranslation;
 
 	vm.oldTranslationKeyDown = oldTranslationKeyDown;
 	vm.oldTranslationBlurred = oldTranslationBlurred;
+
+	vm.submit = submit;
 
 	window.onbeforeunload = function(e) {
 	    if (unsaved)
 		return 'You have unsaved changes, do you really want to quit?';
 	};
-	
+
 	return vm;
 
 	/**
@@ -55,8 +61,6 @@
 	 * feedback of new ability to change it's value.
 	 */
 	function editTranslation($event) {
-	    
-	    unsaved = true;
 
 	    currentTranslationRow.div = $event.currentTarget.children[0];
 	    currentTranslationRow.input = currentTranslationRow.div.nextElementSibling;
@@ -74,81 +78,117 @@
 	 * is instead being added to a form which triggers request for
 	 * translations being approved by portal admin after submitted.
 	 */
-	function addTranslation(source, $event) {
-	    
-	    unsaved = true;
+	function addTranslation(source, $event, type) {
 
-	    if ($event.target.nodeName === 'A') {
-		$event.target = $event.target.nextElementSibling;
-	    }
-	    if ($event.target.form.checkValidity()) {
+	    if (typeof type !== 'undefined') {
+		if (type === 'json' && typeof source === 'string') {
+		    var parsedTranslation = JSON.parse(source);
 
-		var formElements = $event.target.form.elements;
+		    return addTranslation(parsedTranslation, $event, 'object');
 
-		var newTranslation = {
-		    key : undefined,
-		    langValues : {}
-		};
+		} else if (type === 'object' && typeof source === 'object') {
 
-		for (var i = 0; i < formElements.length; ++i) {
-		    var formElement = formElements.item(i);
+		    parsedTranslation = source;
 
-		    if (formElement.value.length) {
-			var type = formElement.getAttribute('ng-new-translation');
+		    source = parsedTranslation.source;
 
-			if (type === 'key') {
+		    delete (parsedTranslation['source']);
 
-			    newTranslation['key'] = formElement.value;
+		    var newTranslation = {
+			key : parsedTranslation.key,
+			langValues : []
+		    };
 
-			    var keyExists = translationKeyExists(source, newTranslation.key);
+		    delete (parsedTranslation['key']);
 
-			    var errMsg;
-			    if (keyExists) {
+		    Object.keys(parsedTranslation).forEach(function(language) {
 
-				// Show it's a duplicate key
-				errMsg = translate('new_translation_key_already_used');
+			var langValue = {
+			    value : parsedTranslation[language],
+			    name : newTranslation.key + '[' + language + ']'
+			};
 
-			    } else if (newTranslation.key.trim().length === 0) {
+			newTranslation.langValues.push(langValue);
+		    });
 
-				// Show it's an empty value
-				errMsg = translate('Empty value not allowed');
-			    }
+		    unsaved = true;
 
-			    if (typeof errMsg !== 'undefined') {
+		    addNewTranslation(source, newTranslation);
 
-				formElement.setCustomValidity(errMsg);
-
-				// Hide it then
-				setTimeout(function() {
-				    formElement.setCustomValidity('');
-				}, 500);
-
-				return;
-			    }
-
-			    formElement.setCustomValidity('');
-			} else { // the type is a language now
-
-			    var language = type;
-
-			    if (typeof newTranslation['langValues'][language] === 'undefined')
-				newTranslation['langValues'][language] = {};
-
-			    newTranslation['langValues'][language]['value'] = formElement.value;
-			    newTranslation['langValues'][language]['name'] = newTranslation.key + '[' + language + ']';
-			}
-
-			formElement.value = '';
-		    }
+		    getParentTableRow($event.target).remove();
 		}
+	    } else {
 
-		// Now we are sure we don't need to show user any error
-		$event.preventDefault();
+		if ($event.target.nodeName === 'A') {
+		    $event.target = $event.target.nextElementSibling;
+		}
+		if ($event.target.form.checkValidity()) {
 
-		if (typeof vm.newTranslations[source] === 'undefined') {
-		    vm.newTranslations[source] = [ newTranslation ];
-		} else {
-		    vm.newTranslations[source].push(newTranslation);
+		    var formElements = $event.target.form.elements;
+
+		    var newTranslation = {
+			key : undefined,
+			langValues : {}
+		    };
+
+		    for (var i = 0; i < formElements.length; ++i) {
+			var formElement = formElements.item(i);
+
+			if (formElement.value.length) {
+			    var type = formElement.getAttribute('ng-new-translation');
+
+			    if (type === 'key') {
+
+				newTranslation['key'] = formElement.value;
+
+				var keyExists = translationKeyExists(source, newTranslation.key);
+
+				var errMsg;
+				if (keyExists) {
+
+				    // Show it's a duplicate key
+				    errMsg = translate('new_translation_key_already_used');
+
+				} else if (newTranslation.key.trim().length === 0) {
+
+				    // Show it's an empty value
+				    errMsg = translate('Empty value not allowed');
+				}
+
+				if (typeof errMsg !== 'undefined') {
+
+				    formElement.setCustomValidity(errMsg);
+
+				    // Hide it then
+				    setTimeout(function() {
+					formElement.setCustomValidity('');
+				    }, 500);
+
+				    return;
+				}
+
+				formElement.setCustomValidity('');
+			    } else { // the type is a language now
+
+				var language = type;
+
+				if (typeof newTranslation['langValues'][language] === 'undefined')
+				    newTranslation['langValues'][language] = {};
+
+				newTranslation['langValues'][language]['value'] = formElement.value;
+				newTranslation['langValues'][language]['name'] = newTranslation.key + '[' + language + ']';
+			    }
+
+			    formElement.value = '';
+			}
+		    }
+
+		    unsaved = true;
+
+		    // Now we are sure we don't need to show user any error
+		    $event.preventDefault();
+
+		    addNewTranslation(source, newTranslation);
 		}
 	    }
 	}
@@ -160,29 +200,81 @@
 	 * it is instead being removed from a form which triggers request for
 	 * translations being approved by portal admin after submitted.
 	 */
-	function removeTranslation($event) {
-	    
-	    unsaved = true;
-	    
-	    var keyTD = $event.target.parentElement;
-	    
-	    for (var i = 0; i <= LANG_COUNT; ++i) {
-		keyTD = keyTD.previousElementSibling; 
-	    }
-	    
-	    var key = keyTD.textContent.trim();
+	function removeTranslation(source, $event) {
 
-	    if (confirm(translate('confirm_translation_delete_of') + ' "' + key + '" ?') === false) {
-		return;
+	    var tr = getParentTableRow($event.target);
+
+	    var key = tr.children[0].textContent.trim();
+
+	    var langValues = [];
+
+	    var newDef = {
+		key : key
+	    };
+
+	    for (var i = 1; tr.children[i].hasAttribute('ng-dblclick'); ++i) {
+
+		var td = tr.children[i];
+
+		var div = td.children[0];
+		var ins = div.getElementsByTagName('ins');
+
+		var langValue;
+		if (ins.length) {
+		    langValue = ins[0].textContent.trim();
+		} else {
+		    langValue = div.textContent.trim();
+		}
+
+		langValues.push(langValue);
+
+		var inputs = td.getElementsByTagName('input');
+
+		if (inputs.length) {
+
+		    var input = inputs[0];
+
+		    var lang = input.name.substr(-3, 2);
+
+		    newDef[lang] = langValue;
+		}
 	    }
-	    
-	    var target = $event.target;
-	    do {
-		target = target.parentElement;
-		
-	    } while(target.nodeName !== 'TR' && target.nodeName !== 'TBODY');
-		
-	    target.remove();
+
+	    newDef['source'] = source;
+
+	    var deletedTranslation = {
+		key : key,
+		langValues : langValues,
+		newDef : newDef
+	    };
+
+	    var alreadyDeleted = false;
+	    if (typeof vm.newTranslations[source] !== 'undefined')
+		for (var i = 0; i < vm.newTranslations[source].length; ++i) {
+		    if (vm.newTranslations[source][i].key.trim() === key.trim()) {
+			vm.newTranslations[source].splice(i--, 1);
+
+			alreadyDeleted = true;
+		    }
+		}
+
+	    if (!alreadyDeleted)
+		tr.remove();
+
+	    addDeletedTranslation(source, deletedTranslation);
+
+	}
+
+	/**
+	 * Basically the same function as the addTranslation except this one
+	 * deletes the "deletedTranslation" from within the view model - this is
+	 * useful specifically when the deleted translation was rendered by
+	 * angular, not PHP.
+	 */
+	function restoreTranslation(key, newDefinition, $event) {
+	    vm.deletedTranslations[newDefinition.source].splice(key, 1);
+
+	    return addTranslation(newDefinition, $event, 'object');
 	}
 
 	/**
@@ -234,6 +326,15 @@
 	    hideCurrentTranslationInput();
 	}
 
+	/**
+	 * When hitting the submit button, the user is actually commiting a
+	 * save, so let's make sure to don't show him the message "You have
+	 * unsaved changes"
+	 */
+	function submit() {
+	    unsaved = false;
+	}
+
 	// private
 
 	/**
@@ -245,8 +346,8 @@
 	    for (var i = 0; i < inputs.length; i += LANG_COUNT) {
 		var input = inputs.item(i);
 
-		var inputKey = input.name.replace(/\[.+$/g, '');
-		if (inputKey === key)
+		var inputKey = getKeyFromInputName(input.name);
+		if (inputKey === key.trim())
 		    return true;
 	    }
 
@@ -272,6 +373,30 @@
 	    currentTranslationRow.input.className = currentTranslationRow.input.className + ' hidden';
 
 	    currentTranslationRow.div.removeAttribute('hidden');
+	}
+
+	/**
+	 * Returns closest parent
+	 * <tr> element if any. Undefined otherwise.
+	 */
+	function getParentTableRow(target) {
+	    do {
+		target = target.parentElement;
+
+	    } while (target.nodeName !== 'TR' && target.nodeName !== 'BODY');
+
+	    if (target.nodeName !== 'TR') {
+		return undefined;
+	    }
+
+	    return target;
+	}
+
+	/**
+	 * Retrieves the key from an input name
+	 */
+	function getKeyFromInputName(inputName) {
+	    return inputName.replace(/\[.+$/g, '');
 	}
 
 	/**
@@ -334,6 +459,8 @@
 	    ins.textContent = value;
 
 	    removeHiddenFromClassName(currentTranslationRow.submitBtn);
+
+	    unsaved = true;
 	    return true;
 	}
 
@@ -357,7 +484,29 @@
 	}
 
 	/**
-	 * Gets the proposed value of the <ins> element within a div.
+	 * Adds new translation into the view model
+	 */
+	function addNewTranslation(source, newTranslation) {
+	    if (typeof vm.newTranslations[source] === 'undefined') {
+		vm.newTranslations[source] = [ newTranslation ];
+	    } else
+		vm.newTranslations[source].push(newTranslation);
+	}
+
+	/**
+	 * Add deleted translation into the view model
+	 */
+	function addDeletedTranslation(source, deletedTranslation) {
+
+	    if (typeof vm.deletedTranslations[source] === 'undefined') {
+		vm.deletedTranslations[source] = [ deletedTranslation ];
+	    } else
+		vm.deletedTranslations[source].push(deletedTranslation);
+	}
+
+	/**
+	 * Gets the proposed value of the <ins> element within a currently
+	 * editing div.
 	 * 
 	 * If <ins> is not found, then are returned the contents of the div.
 	 */
@@ -424,7 +573,7 @@
 
 	    var input = elements.context;
 
-	    var source = input.form.id.split('_')[0];
+	    var source = input.getAttribute('form').split('_')[0];
 
 	    if (typeof newTranslationRows[source] === 'undefined')
 		newTranslationRows[source] = {};
@@ -446,7 +595,21 @@
     function newTranslationTemplate() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/ng-cpk/admin/new-translation.html'
+	    templateUrl : '/themes/cpk-devel/js/ng-cpk/admin/translations/new-translation.html',
+	    link : linker
 	};
+
+	function linker(scope, elements, attrs) {
+	    var source = attrs['ngNewTranslationTemplate'];
+
+	    scope.source = source;
+	}
+    }
+
+    function deletedTranslationTemplate() {
+	return {
+	    restrict : 'A',
+	    templateUrl : '/themes/cpk-devel/js/ng-cpk/admin/translations/deleted-translation.html'
+	}
     }
 })();

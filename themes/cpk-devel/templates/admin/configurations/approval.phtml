@@ -6,6 +6,7 @@
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
       '<li class="active"><a href="/Admin/ConfigurationsApproval">'.$this->transEsc('configurations_approval').'</a></li> ';
   $this->layout()->title = $this->translate('configurations_approval');
+  $this->layout()->templateName = 'configurations/approval';
 ?>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>

@@ -24,27 +24,25 @@
  * 
  * Not logged user should retain his privacy so that's why need to delete all
  * the favorites as soon, as the browser closes. This can be done using
- * sessionStorage. We are going to use this nice localForage driver:
- * https://github.com/thgreasi/localForage-sessionStorageWrapper .. see also
- * directory js/vendor/ with "localforage-*.js" wildcard match
+ * sessionStorage.
  * 
  * 2) Transferring favorites from not logged in user to logged in user:
  * 
- * We will have to create some transfer model to let user's browser's content
- * from session storage tranfer to server's MySQL over an PHP middleware. ->
- * TODO: What's the best way to complete this task?
+ * After PHP detects user has just logged in, it will create a global JS function
+ * "sendMeFavs" returning true. The broadcaster service will detect that & will
+ * send all the user favorites to the PHP
  * 
  * 3) Creating favorites
  * 
- * We should replace all the current links within all the phtml templates being
- * pointed to an PHP controller handling favorites for logged in users with
- * javascript solution (assigning handlers & controllers from this app to them
- * instead of the links).
+ * This is solved by:
+ * 	I.   Parse the record being added
+ * 	II.  Convert the parsed data to a Favorite class
+ * 	III. Store the Favorite class instance of the record into the
+ * 		sessionStorage
  * 
  * 4) Deleting favorites
  * 
- * This is an easy task - there'll be a simple delete button as is now, but is
- * about to be handled by JS, not PHP.
+ * Simply purge the Favorite from the sessionStorage, identified by timestamp.
  * 
  * 5) Notifying user about having favorites & not being logged in yet
  * 
@@ -57,7 +55,9 @@
  * Guide you can look at here:
  * https://github.com/johnpapa/angular-styleguide#angular-style-guide
  * 
- * 6) All other functionalities should be for logged in users only
+ * 6) Print, export or email favorites
+ * 
+ * There are used VuFind built-in JS functions to reach this goal 
  * 
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
