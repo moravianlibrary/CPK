@@ -462,12 +462,13 @@ jQuery( document ).ready( function( $ ) {
 			/* 
 			 * Empty first query
 			 */
-			$( '.query_0 .query-string' ).val( '' );
+			$( '#query_0 .query-string' ).val( '' );
+
+			$( '#group_0 select.group-operator' ).val(1);
+			$( '#query_0 select.query-type' ).val(1);
 			
-			/*
-			 * @TODO Clear (select first options) also select for .group-operator
-			 * and select for .query-type
-			 * */
+			$( '#group_0 select.group-operator' ).selectpicker( 'refresh' );
+			$( '#query_0 select.query-type' ).selectpicker( 'refresh' );
 		},
 		
 		/**
