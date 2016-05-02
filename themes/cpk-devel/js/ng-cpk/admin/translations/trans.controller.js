@@ -23,6 +23,8 @@
 
 	var unsaved = false;
 
+	var preventBlur = false;
+
 	var currentTranslationRow = {
 	    div : undefined,
 	    input : undefined,
@@ -294,6 +296,8 @@
 		// Cancelling changes
 		$event.target.value = getTranslationValue();
 		hideCurrentTranslationInput();
+
+		preventBlur = true;
 	    }
 	}
 
@@ -303,17 +307,26 @@
 	 */
 	function oldTranslationBlurred($event, type) {
 
-	    var newValue = $event.target.value;
+	    if (preventBlur === false) {
+		var newValue = $event.target.value;
 
-	    var resetWhenInvalid = true;
+		var resetWhenInvalid = true;
 
-	    if (!changeTranslationValue($event.target, newValue, resetWhenInvalid, type)) {
+		if (!changeTranslationValue($event.target, newValue, resetWhenInvalid, type)) {
 
-		// Cancelling changes
-		$event.target.value = getTranslationValue();
+		    // Cancelling changes
+		    $event.target.value = getTranslationValue();
+		}
+
+		hideCurrentTranslationInput();
+	    } else {
+		preventBlur = false;
+		var prev = $event.target.getAttribute('data-prev');
+		
+		if (prev) {
+		    $event.target.value = prev;
+		}
 	    }
-
-	    hideCurrentTranslationInput();
 	}
 
 	/**
@@ -428,8 +441,20 @@
 		var keyValid = checkKeyValidity(input, currentTranslationRow.source, value, resetWhenInvalid);
 
 		// Exit now if key is not valid
-		if (! keyValid)
+		if (!keyValid)
 		    return false;
+
+		// Change next inputs' name
+		var td = input.parentElement.nextElementSibling;
+
+		while (td.hasAttribute('ng-dblclick')) {
+
+		    var input = td.lastElementChild;
+
+		    input.name = input.name.replace(/^[^\[]+/, value);
+
+		    td = td.nextElementSibling;
+		}
 	    }
 
 	    var ins = currentTranslationRow.div.getElementsByTagName('ins');
