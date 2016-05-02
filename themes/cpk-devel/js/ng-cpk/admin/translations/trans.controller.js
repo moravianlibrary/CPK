@@ -26,7 +26,8 @@
 	var currentTranslationRow = {
 	    div : undefined,
 	    input : undefined,
-	    submitBtn : undefined
+	    submitBtn : undefined,
+	    source : undefined
 	};
 
 	var vm = this;
@@ -60,13 +61,20 @@
 	 * It shows an input field instead of plain text so that user has a
 	 * feedback of new ability to change it's value.
 	 */
-	function editTranslation($event) {
+	function editTranslation($event, type) {
 
 	    currentTranslationRow.div = $event.currentTarget.children[0];
 	    currentTranslationRow.input = currentTranslationRow.div.nextElementSibling;
 
-	    var source = currentTranslationRow.input.form.getAttribute('data-source');
-	    currentTranslationRow.submitBtn = submitBtns[source];
+	    currentTranslationRow.input.setAttribute('data-prev', currentTranslationRow.input.value);
+
+	    if (typeof type === 'undefined') {
+		var source = currentTranslationRow.input.form.getAttribute('data-source');
+		currentTranslationRow.submitBtn = submitBtns[source];
+	    } else if (type === 'key') {
+		currentTranslationRow.submitBtn = currentTranslationRow.input.form.children[0];
+		currentTranslationRow.source = currentTranslationRow.div.parentElement.nextElementSibling.lastElementChild.form.getAttribute('data-source');
+	    }
 
 	    showCurrentTranslationInput();
 	}
@@ -141,36 +149,11 @@
 
 				newTranslation['key'] = formElement.value.trim();
 
-				var keyExists = translationKeyExists(source, newTranslation.key);
+				var keyValid = checkKeyValidity(formElement, source, newTranslation.key);
 
-				var errMsg;
-				if (keyExists) {
-
-				    // Show it's a duplicate key
-				    errMsg = translate('new_translation_key_already_used');
-
-				} else if (newTranslation.key.length === 0) {
-
-				    // Show it's an empty value
-				    errMsg = translate('empty_value_not_allowed');
-				} else if (newTranslation.key.match(/\s+/) !== null) {
-				    
-				    errMsg = translate('whitespaces_not_allowed');
-				}
-
-				if (typeof errMsg !== 'undefined') {
-
-				    formElement.setCustomValidity(errMsg);
-
-				    // Hide it then
-				    setTimeout(function() {
-					formElement.setCustomValidity('');
-				    }, 500);
-
+				// Exit now if key is not valid
+				if (!keyValid)
 				    return;
-				}
-
-				formElement.setCustomValidity('');
 			    } else { // the type is a language now
 
 				var language = type;
@@ -287,7 +270,7 @@
 	 * Note that event prevents default behavior, so it does not submit the
 	 * form. It instead updates the value in a nice graphical way.
 	 */
-	function oldTranslationKeyDown($event) {
+	function oldTranslationKeyDown($event, type) {
 	    if (isEnter($event)) {
 
 		// Do not submit the form
@@ -295,8 +278,10 @@
 
 		var newValue = $event.target.value;
 
+		var resetWhenInvalid = false;
+
 		// Commiting changes
-		if (changeTranslationValue(newValue)) {
+		if (changeTranslationValue($event.target, newValue, resetWhenInvalid, type)) {
 		    hideCurrentTranslationInput();
 		} else {
 
@@ -316,11 +301,13 @@
 	 * Event callback when old translation's input field loses focus to
 	 * handle it's changes
 	 */
-	function oldTranslationBlurred($event) {
+	function oldTranslationBlurred($event, type) {
 
 	    var newValue = $event.target.value;
 
-	    if (!changeTranslationValue(newValue)) {
+	    var resetWhenInvalid = true;
+
+	    if (!changeTranslationValue($event.target, newValue, resetWhenInvalid, type)) {
 
 		// Cancelling changes
 		$event.target.value = getTranslationValue();
@@ -413,12 +400,37 @@
 	 * 
 	 * @return boolean
 	 */
-	function changeTranslationValue(value) {
+	function changeTranslationValue(input, value, resetWhenInvalid, type) {
+
+	    if (typeof resetWhenInvalid === 'undefined') {
+		resetWhenInvalid = false;
+	    }
+
+	    if (typeof type === 'undefined') {
+		type = 'languageTranslationValue';
+	    }
 
 	    value = value.trim();
 
-	    if (value == '')
+	    if (value == '') {
+
+		var errMsg = translate('empty_value_not_allowed');
+
+		if (resetWhenInvalid === false) {
+		    setTmpCustomValidity(input, errMsg);
+		} else {
+		    input.value = input.getAttribute('data-prev');
+		}
+
 		return false; // Refuse empty values
+	    } else if (type === 'key') {
+
+		var keyValid = checkKeyValidity(input, currentTranslationRow.source, value, resetWhenInvalid);
+
+		// Exit now if key is not valid
+		if (! keyValid)
+		    return false;
+	    }
 
 	    var ins = currentTranslationRow.div.getElementsByTagName('ins');
 
@@ -460,8 +472,6 @@
 	    }
 
 	    ins.textContent = value;
-
-	    removeHiddenFromClassName(currentTranslationRow.submitBtn);
 
 	    unsaved = true;
 	    return true;
@@ -505,6 +515,64 @@
 		vm.deletedTranslations[source] = [ deletedTranslation ];
 	    } else
 		vm.deletedTranslations[source].push(deletedTranslation);
+	}
+
+	/**
+	 * Checks validity of a translation key. Returns false if invalid with
+	 * error message setup via setCustomValidity on the input dom element
+	 */
+	function checkKeyValidity(input, source, key, resetWhenInvalid) {
+
+	    if (typeof resetWhenInvalid === 'undefined') {
+		resetWhenInvalid = false;
+	    }
+
+	    var keyExists = translationKeyExists(source, key);
+
+	    var errMsg;
+	    if (keyExists) {
+
+		// Show it's a duplicate key
+		errMsg = translate('new_translation_key_already_used');
+
+	    } else if (key.length === 0) {
+
+		// Show it's an empty value
+		errMsg = translate('empty_value_not_allowed');
+	    } else if (key.match(/\s+/) !== null) {
+
+		errMsg = translate('whitespaces_not_allowed');
+	    }
+
+	    if (typeof errMsg !== 'undefined') {
+
+		if (resetWhenInvalid === false) {
+		    // Just show what is invalid
+		    setTmpCustomValidity(input, errMsg);
+
+		} else {
+		    // Just reset to a previous value
+		    input.value = input.getAttribute('data-prev');
+		}
+
+		return false;
+	    }
+
+	    input.setCustomValidity('');
+	    return true;
+	}
+
+	/**
+	 * Sets temporary custom validity, usually being used in order to only
+	 * show user what is invalid & enable exiting the edit mode with form
+	 * still being submit capable
+	 */
+	function setTmpCustomValidity(input, validity) {
+	    input.setCustomValidity(validity);
+
+	    setTimeout(function() {
+		input.setCustomValidity('');
+	    }, 500);
 	}
 
 	/**

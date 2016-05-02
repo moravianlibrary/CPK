@@ -1,5 +1,9 @@
-<td class="col-xs-3">
-	{{ newTranslation.key }}
+<td ng-dblclick="transCtrl.editTranslation($event, 'key')" class="col-xs-3">
+	<div>{{ newTranslation.key }}</div>
+        <input class="hidden" type="text" name="{{ source + '[' + newTranslation.key + ']' }}" form="dummy" required="required"
+            value="{{ newTranslation.key }}"
+            ng-keydown="transCtrl.oldTranslationKeyDown($event, 'key')"
+            ng-blur="transCtrl.oldTranslationBlurred($event, 'key')"/>
 </td>
 <td ng-dblclick="transCtrl.editTranslation($event)" ng-repeat="newTranslationLang in newTranslation.langValues">
     <div>

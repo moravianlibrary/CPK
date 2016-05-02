@@ -6,7 +6,8 @@
       'add_translation' => $this->translate('add_translation'),
       'empty_value_not_allowed' => $this->translate('empty_value_not_allowed'),
       'whitespaces_not_allowed' => $this->translate('whitespaces_not_allowed')
-  ]); ?>
+  ]);
+  ?>
 <table class="table">
   <thead>
     <tr><th id="<?=$source?>" class="blickable" colspan="4"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></th></tr>
@@ -35,7 +36,13 @@
 			<i class="pr-interface-plusadd"></i> <?=$this->transEsc('add_translation')?></a>
 		</td>
     <? else: ?>
-      <td class="col-xs-3"><?=$key ?></td>
+      <td class="col-xs-3" ng-dblclick="transCtrl.editTranslation($event, 'key')">
+        <div><?=$key ?></div>
+        <input class="hidden" type="text" name="<?=$source . '[' . $key . ']'?>" form="dummy" required="required"
+        	value="<?=$key ?>"
+        	ng-keydown="transCtrl.oldTranslationKeyDown($event, 'key')"
+        	ng-blur="transCtrl.oldTranslationBlurred($event, 'key')"/>
+      </td>
       <? foreach($supportedLanguages as $lang):?>
         <td ng-dblclick="transCtrl.editTranslation($event)" class="col-xs-4">
           <div>
