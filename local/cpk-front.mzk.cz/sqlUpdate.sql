@@ -288,16 +288,27 @@ CREATE TABLE IF NOT EXISTS `inst_translations` (
   `en_translated` mediumtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table holding translations defined by institutions themselves';
 
---
--- Klíče pro exportované tabulky
---
-
---
--- Klíče pro tabulku `inst_translations`
---
 ALTER TABLE `inst_translations`
  ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `inst_translations` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 
 UPDATE `system` SET `value`='20' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `inst_configs` (
+  `id` int(11) NOT NULL,
+  `source` varchar(10) NOT NULL DEFAULT '',
+  `section` varchar(64) NOT NULL,
+  `key` varchar(64) NOT NULL,
+  `value` mediumtext NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `inst_configs`
+ ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `inst_configs`
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+UPDATE `system` SET `value`='21' WHERE `key`='DB_VERSION';

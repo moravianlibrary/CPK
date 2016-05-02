@@ -384,10 +384,23 @@ class ConfigurationsHandler
                     $config[$section][$key] = isset($config[$section][$key]) ? '1' : '0';
                 }
 
-                if ($value != $config[$section][$key]) {
+                $newValue = $config[$section][$key];
+                unset($config[$section][$key]);
+                if ($value != $newValue) {
                     return true;
                 }
             }
+
+            // Clear empty values
+            foreach ($config[$section] as $key => $value) {
+                if ($value === '')
+                    unset($config[$section][$key]);
+            }
+
+            if (isset($config[$section]) && empty($config[$section]))
+                unset($config[$section]);
+            else
+                return true; // Something new added
         }
 
         return false;
@@ -621,89 +634,25 @@ class ConfigurationsHandler
     }
 
     /**
-     * Uses git to version config changes
+     * Uses db to version config changes
      *
      * @param string $source
      */
     protected function commitNewConfig($source)
     {
-        exec('dpkg -l | egrep "ii\s+git\s"', $grepInstalled);
-        if (empty($grepInstalled))
-            throw new \Exception('You have to first install git');
+        $table = $this->ctrl->getTable('InstConfigs');
 
-        if (strpos($result[0], 'fatal') === 0) {
-            throw new \Exception("$this->driversAbsolutePath is not a git repository !");
+        $config = $this->getInstitutionConfig($source, false)['requested'];
+
+        $userId = (int) $config['Catalog']['requester'];
+
+        unset($config['Catalog']['requester']);
+
+        if (! is_numeric($userId)) {
+            $userId = 0;
         }
 
-        exec("cd $this->driversAbsolutePath && git status --porcelain", $gitStatus);
-
-        $file = $source . '.ini';
-
-        // Do we already have this config added to git tracked files?
-        foreach ($gitStatus as $fileStatus) {
-
-            if (strpos('?? ' . $fileStatus, $file) !== false) {
-
-                // Now add the file to the tracked files
-                exec("cd $this->driversAbsolutePath && git add $file", $gitStatus);
-            }
-        }
-
-        $commitMessage = "\"Approved config change for $source\"";
-        $pbKey = $this->approvalConfig['gitPbKey'];
-
-        $lockFile = $this->driversAbsolutePath . '/.locked';
-
-        $i = 0;
-        while (file_exists($lockFile)) {
-
-            if (++ $i > 5)
-                throw new \Exception('Git was locked for more than 5 seconds. Someone else is doing approval too, please refresh the page & check if any changes were made');
-
-            sleep(1);
-        }
-
-        $retVal = 1;
-
-        // Create lock
-        file_put_contents($lockFile, '');
-
-        try {
-            $gitCommands = [
-                "commit \"$file\" -m $commitMessage",
-                "stash",
-                "pull",
-                "rebase",
-                "push origin master"
-            ];
-
-            $cmd = "cd $this->driversAbsolutePath && ssh-agent bash -c 'ssh-add \"$pbKey\"; ";
-
-            foreach ($gitCommands as $gitCmd) {
-                $cmd .= 'git ' . $gitCmd . ' && ';
-            }
-
-            exec($cmd . 'echo "Approval done"\'', $pushResult, $retVal);
-
-            $cmd = "cd $this->driversAbsolutePath && git stash apply";
-
-            exec($cmd);
-
-        } catch (\Exception $e) {
-
-            // Remove the lock
-            unlink($lockFile);
-            return false;
-        }
-
-        // Remove lock
-        unlink($lockFile);
-
-        $this->flashMessenger()->addWarningMessage("Added commit $commitMessage, but changes are not pushed yet");
-        // git push should be called by cron
-
-        // bash must return 0 to be done correctly
-        return $retVal === 0;
+        $table->createNewConfig($source, $userId, $config);
     }
 
     /**

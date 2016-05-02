@@ -132,4 +132,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the inst_configs table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return InstConfigs
+     */
+    public static function getInstitutionsConfigs(ServiceManager $sm)
+    {
+        return new InstConfigs($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }
