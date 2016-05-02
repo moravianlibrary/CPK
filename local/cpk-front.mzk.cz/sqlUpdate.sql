@@ -312,3 +312,8 @@ ALTER TABLE `inst_configs`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 UPDATE `system` SET `value`='21' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `portal_pages` CHANGE `language_code` `language_code` VARCHAR( 32 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL ;
+UPDATE `portal_pages` SET language_code = 'cs-cpk-institutions' WHERE language_code = 'cs-cpk';
+UPDATE `portal_pages` SET language_code = 'en-cpk-institutions' WHERE language_code = 'en-cpk';
+UPDATE `system` SET `value`='22' WHERE `key`='DB_VERSION';
