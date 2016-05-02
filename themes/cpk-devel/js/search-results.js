@@ -378,7 +378,6 @@ jQuery( document ).ready( function( $ ) {
 			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
 					$( this ).remove();
-					return false; // javascript equivalent to php's break;
 				}
 			});
 			
@@ -632,8 +631,10 @@ jQuery( document ).ready( function( $ ) {
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
 		event.preventDefault();
 		if ( $( this ).hasClass( 'active' ) ) {
+			console.log( 'Removing facet filter.' );
 			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
 		} else {
+			console.log( 'Adding facet filter.' );
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
 	});
