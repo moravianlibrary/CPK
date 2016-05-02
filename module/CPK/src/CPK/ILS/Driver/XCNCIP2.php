@@ -44,6 +44,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 {
 
     const AGENCY_ID_DELIMITER = ':';
+    const CANCEL_REQUEST_PREFIX = 'req';
 
     protected $maximumItemsCount = null;
 
@@ -274,9 +275,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     break;
 
                 } else
-                    if ($hold['id'] == $recent) { // Biblio-leveled cancel request
+                    if ($hold['reqnum'] == $recent) { // Biblio-leveled cancel request
 
-                        $request_id = $hold['reqnum'];
+                        $request_id = substr($hold['reqnum'], strlen(static::CANCEL_REQUEST_PREFIX));
 
                         if (! $request_id > 0) {
                             $message = 'XCNCIP2 Driver cannot cancel biblio-leveled request without request id!';
@@ -400,7 +401,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getCancelHoldDetails($holdDetails)
     {
-        return empty($holdDetails['item_id']) ? $holdDetails['id'] : $holdDetails['item_id'];
+        $holdDetails['item_id'] = substr($holdDetails['item_id'], strpos($holdDetails['item_id'], '.') + 1); // strip prefix
+        if ($holdDetails['item_id'] == 'N/A') $holdDetails['item_id'] = '';
+        return empty($holdDetails['item_id']) ? $holdDetails['reqnum'] : $holdDetails['item_id'];
     }
 
     /**
@@ -1368,7 +1371,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'type' => empty($type) ? '' : (string) $type[0],
                 'id' => empty($bib_id) ? '' : $bib_id,
                 'location' => empty($location) ? '' : (string) $location[0],
-                'reqnum' => empty($reqnum) ? '' : (string) $reqnum[0],
+                'reqnum' => empty($reqnum) ? '' : static::CANCEL_REQUEST_PREFIX . (string) $reqnum[0],
                 'expire' => empty($expire) ? '' : $expire,
                 'create' => empty($create) ? '' : $create,
                 'position' => empty($position) ? null : (string) $position[0],
