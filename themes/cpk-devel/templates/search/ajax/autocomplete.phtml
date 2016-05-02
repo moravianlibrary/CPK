@@ -59,26 +59,41 @@
         	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields" + filters);
        	  });
 
-          $( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
-        		event.preventDefault();
+			$( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
+				event.preventDefault();
 
-            	/* if autocomplete used in Search/Results, load results async */
-           		var href = $( '#run-autocomplete' ).attr( 'href' );
-    				  var currentUrl = window.location.pathname;
-    				  var controller = currentUrl.split('/')[1];
-    				  var action = currentUrl.split('/')[2];
+                /* if autocomplete used in Search/Results, load results async */
+                var href = $( '#run-autocomplete' ).attr( 'href' );
+                var currentUrl = window.location.pathname;
+                var controller = currentUrl.split('/')[1];
+                var action = currentUrl.split('/')[2];
 
-    		      if ( controller == 'Search' && action == 'Results' ) {
-    		        ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0[]=' + $( "#searchForm_lookfor" ).val() + '&type0[]=AllFields'}, false);
-    		        return false;
-    				  }
+                if ( controller == 'Search' && action == 'Results' ) {
+                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0[]=' + $( "#searchForm_lookfor" ).val() + '&type0[]=AllFields'}, false);
+                    return false;
+                }
 
-    				/*
-    				 * If autocomplete used on frontpage, load results statically via PHP
-    		     * ADVSEARCH.updateSearchResults( undefined, {queryString: '?' + href.split( '?' )[1]}, true);
-    		     */
-		    		$( '.searchForm' ).submit();
-          });
+				$( '.searchForm' ).submit();
+          	});
+
+			/*
+			 * If autocomplete submitted by pressing ENTER, do not reload page
+			 * statically when on async page with search results.
+			 */
+            $( '.searchForm' ).submit( function( event ) {
+            	var currentUrl = window.location.pathname;
+                var controller = currentUrl.split('/')[1];
+                var action = currentUrl.split('/')[2];
+
+                if ( controller == 'Search' && action == 'Results' ) {
+                  	event.preventDefault();
+                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0[]=' + $( "#searchForm_lookfor" ).val() + '&type0[]=AllFields'}, false);
+                    return false;
+				} else {
+					// continue by static submitting form
+				}
+            });
+
         });
         </script>
 
