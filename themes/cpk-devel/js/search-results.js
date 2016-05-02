@@ -72,13 +72,13 @@ jQuery( document ).ready( function( $ ) {
 		/**
 		 * Switch searchtype template
 		 * 
-		 * @param	{string}		newSearchTypeTemplate	basic|advanced
+		 * @param	{object}		data	Object with lookFor, bool, etc.
 		 * @return	{undefined}
 		 */
-		switchSearchTemplate: function( newSearchTypeTemplate ) {
+		switchSearchTemplate: function( data ) {
 			$( '.search-panel' ).hide( 'blind', {}, 500, function() {
 				
-				if (newSearchTypeTemplate == 'advanced') {
+				if (data.searchTypeTemplate == 'advanced') {
 					$( '.search-type-template-switch' ).text( VuFind.translate('Basic Search') );
 					$( '.advanced-search-panel' ).removeClass('hidden');
 					$( '.basic-search-panel' ).addClass('hidden');
@@ -87,6 +87,8 @@ jQuery( document ).ready( function( $ ) {
 					$( '.advanced-search-panel' ).addClass('hidden');
 					$( '.basic-search-panel' ).removeClass('hidden');
 				}
+				
+				ADVSEARCH.updateSearchTypeTemplates( data );
 				
 				$( '.search-panel' ).show( 'blind', {}, 500);
 			});
@@ -123,15 +125,22 @@ jQuery( document ).ready( function( $ ) {
 				 * If search started in autocomplete, gather data from autocomplete form 
 				 */
 				data = queryStringToJson( dataFromAutocomplete.queryString );
-				if ( data.lookfor ) {
-					data['lookfor0'] = data.lookfor;
-					delete data.lookfor;
+				if ( data.lookfor0 ) {
+					var templookfor0 = data.lookfor0[0];
+					data['lookfor0'] = [];
+					data['lookfor0'].push( templookfor0 );
 				}
 				
-				if ( data.type ) {
-					data['type0'] = data.type;
-					delete data.type;
+				if ( data.type0 ) {
+					var temptype0 = data.type0[0];
+					data['type0'] = [];
+					data['type0'].push( temptype0 );
 				}
+				
+				data['searchTypeTemplate'] = 'basic';
+				
+				//console.log( 'Data fromautocomplete: ' );
+				//console.log( data );
 				
 			} else {
 				/* If search started in advanced search, gather data from
@@ -161,7 +170,7 @@ jQuery( document ).ready( function( $ ) {
 			 */
 			if ( dataFromWindowHistory == undefined) {
 				
-				if ( (! data.hasOwnProperty( 'bool0' )) || (! data.bool0) ) {
+				if ( (! data.hasOwnProperty( 'bool0' )) || ( ! data.bool0 ) ) {
 					data['bool0'] = [];
 					data['bool0'].push( 'OR' );
 				}
@@ -170,7 +179,7 @@ jQuery( document ).ready( function( $ ) {
 					data['join'] = 'OR';
 				}
 				
-				if ( (! data.hasOwnProperty( 'page' )) || (! data.page) ) {
+				if ( (! data.hasOwnProperty( 'page' )) || ( ! data.page ) ) {
 					var page = $( "input[name='page']" ).val();
 					data['page'] = page;
 				}
@@ -216,7 +225,7 @@ jQuery( document ).ready( function( $ ) {
 
     			data['searchTypeTemplate'] = newSearchTypeTemplate;
     			
-    			ADVSEARCH.switchSearchTemplate( newSearchTypeTemplate );
+    			ADVSEARCH.switchSearchTemplate( data );
     			
     			reloadResults = false;
     		}
@@ -478,9 +487,33 @@ jQuery( document ).ready( function( $ ) {
 		 * @return	{undefined}
 		 */
 		updateSearchTypeTemplates: function( data ) {
-			ADVSEARCH.clearAdvancedSearchTemplate();
 			
-			// @TODO Fill both search type templates with provided data object
+			//console.log( 'Data: ' );
+			//console.log( data );
+			
+			if ( (data.hasOwnProperty( 'lookfor1' ) ) || ( data.lookfor0.length > 1 )) {
+				/* Search was made in advanced search */
+				
+				/* Fill autocomplete search form */
+				console.log( 'Filling autocomplete with' );
+				console.log( data.lookfor0[0] );
+				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
+			} else {
+				/* Search was made in autocomplete */
+				
+				/* Fill adv. search form */
+				ADVSEARCH.clearAdvancedSearchTemplate();
+				console.log( 'Clearing advanced search form' );
+				
+				console.log( 'Filling advanced search form with ' );
+				console.log( data.lookfor0[0] );
+				
+				$( '#query_0 .query-string' ).val( data.lookfor0[0] );
+				
+				console.log( 'Filling autocomplete with' );
+				console.log( data.lookfor0[0] );
+				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
+			}
 		},
 	}
 	
@@ -672,12 +705,10 @@ jQuery( document ).ready( function( $ ) {
 		var currentUrl = window.location.href;
 		var searchTypeTemplate = getParameterByName( 'searchTypeTemplate', currentUrl );
 		
-		var newSearchTypeTemplate = undefined;
+		var newSearchTypeTemplate = 'basic';
 		
 		if (searchTypeTemplate == 'basic') {
 			newSearchTypeTemplate = 'advanced';
-		} else {
-			newSearchTypeTemplate = 'basic';
 		}
 		
 		ADVSEARCH.updateSearchResults( undefined, undefined, newSearchTypeTemplate );

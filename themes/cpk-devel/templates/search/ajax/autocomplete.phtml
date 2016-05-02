@@ -39,10 +39,11 @@
           } else {
             filters = '';
           }
-          $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields" + filters);
+          $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic" + filters);
 
           /* Update autocomplete On some change */
           $( ".search-query" ).on( 'change', function( event ) {
+
            	query = $( this ).val();
 
            	enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
@@ -56,7 +57,11 @@
                 filters = '';
             }
 
-        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields" + filters);
+        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic" + filters);
+
+        	  /* Change first query in advanced search to match value in autocomplete */
+        	  ADVSEARCH.clearAdvancedSearchTemplate();
+			  $( '#query_0 .query-string' ).val( query );
        	  });
 
 			$( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
@@ -69,7 +74,7 @@
                 var action = currentUrl.split('/')[2];
 
                 if ( controller == 'Search' && action == 'Results' ) {
-                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0[]=' + $( "#searchForm_lookfor" ).val() + '&type0[]=AllFields'}, false);
+                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic'}, false);
                     return false;
                 }
 
@@ -87,7 +92,7 @@
 
                 if ( controller == 'Search' && action == 'Results' ) {
                   	event.preventDefault();
-                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0[]=' + $( "#searchForm_lookfor" ).val() + '&type0[]=AllFields'}, false);
+                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields'}, false);
                     return false;
 				} else {
 					// continue by static submitting form
@@ -121,7 +126,7 @@
 	      <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
 	    <? endif; ?>
 
-        <a href='/Search/Results?lookfor=&type0[]=AllFields' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'>
+        <a href='/Search/Results?lookfor=&type0[]=AllFields&searchTypeTemplate=basic' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'>
           <i class="pr-interface-search"></i>
           <span> <?=$this->transEsc("Find")?></span>
         </a>
