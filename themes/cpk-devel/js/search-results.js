@@ -350,7 +350,7 @@ jQuery( document ).ready( function( $ ) {
 		 */
 		addFacetFilter: function( value, updateResults ) {
 			var enabledFacets = 0;
-			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
+			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
 					++enabledFacets;
 					return false; // javascript equivalent to php's break;
@@ -359,7 +359,7 @@ jQuery( document ).ready( function( $ ) {
 
 			if ( enabledFacets == 0 ) { /* This filter not applied yet, apply it now */
 				var html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + value + "'>";
-				$( '#hiddenFacetFilters, #hiddenFacetFiltersForBasicSearch' ).append( html );
+				$( '#hiddenFacetFilters' ).append( html );
 			}
 			
 			if ( updateResults ) {
@@ -375,7 +375,7 @@ jQuery( document ).ready( function( $ ) {
 		 * @return	{undefined}
 		 */
 		removeFacetFilter: function( value, updateResults ) {
-			$( '#hiddenFacetFilters input, #hiddenFacetFiltersForBasicSearch input' ).each( function( index, element ) {
+			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
 					$( this ).remove();
 				}

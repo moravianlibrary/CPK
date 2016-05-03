@@ -151,16 +151,6 @@
           </div>
         </div>
 
-        <!-- Facets -->
-        <div class='hidden' id='hiddenFacetFilters'>
-        <? foreach ($filterList as $field => $data): ?>
-          <? foreach ($data as $value): ?>
-            <input type='hidden' class='hidden-filter' name='filter[]' value='<?=$this->escapeHtmlAttr($field)?>:"<?=$this->escapeHtmlAttr($value)?>"'>
-          <? endforeach; ?>
-        <? endforeach; ?>
-        </div>
-        <!-- End of facets -->
-
       </form>
     </div>
   </div>
