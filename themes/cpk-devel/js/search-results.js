@@ -658,6 +658,22 @@ jQuery( document ).ready( function( $ ) {
 		});
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
+
+	/*
+	 * Apply chosen filters
+	 */
+	$( 'body' ).on( 'click', '.apply-filters-button', function( event ) {
+		event.preventDefault();
+
+		var selectedFilters = $( this ).closest('.row').find(".chosen-select").val();
+
+		$.each( selectedFilters, function( index, value ){
+			ADVSEARCH.addFacetFilter( value, false );
+		});
+
+		ADVSEARCH.updateSearchResults( undefined, undefined );
+
+	});
 	
 	/*
 	 * Update search results on paginating
