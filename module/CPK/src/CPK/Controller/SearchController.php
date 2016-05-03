@@ -324,6 +324,8 @@ class SearchController extends AbstractSearch
         $view->hierarchicalFacets = $this->getHierarchicalFacets();
         $view->hierarchicalFacetSortOptions = $this->getHierarchicalFacetSortSettings();
 
+        $this->layout()->docCount = $view->results->getResultTotal();
+
 	    return $view;
 	}
 
