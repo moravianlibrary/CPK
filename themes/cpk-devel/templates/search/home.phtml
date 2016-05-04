@@ -28,9 +28,25 @@
       <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
     </div>
   <? endif; ?>
-  <div class="col-md-4">
+  <div class="col-md-4 most-wanted">
     <h2><?=$this->transEsc('frontpage-most-wanted')?></h2>
-    <div class="white-box" style="height: 600px;">
+    <? $iBook=0 ?>
+    <div class="list-group">
+      <? foreach ($mostWanted as $book): ?>
+        <? $iBook++ ?>
+      <a href="#" class="list-group-item clearfix">
+        <row>
+          <div class="col-xs-11">
+            <h4 class="list-group-item-heading"><?=$book['name']?></h4>
+            <p class="list-group-item-text"><?=$book['author']?></p>
+          </div>
+          <div class="number">
+            <?=$iBook?>
+          </div>
+        </row>
+      </a>
+      <? endforeach; ?>
+
     </div>
   </div>
   <div class="col-md-4">
