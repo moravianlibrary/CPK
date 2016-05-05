@@ -139,14 +139,19 @@
           <? endforeach; ?>
         <? endif; ?>
 
-        <? if ((isset($hasDefaultsApplied) && $hasDefaultsApplied) || !empty($filterDetails)): ?>
-          <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
-          <div class="checkbox">
+		  <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
+		  <? if ((isset($hasDefaultsApplied) && $hasDefaultsApplied) || !empty($filterDetails)): ?>
+          <div class="checkbox" id='keep-facets-enabled-checkbox'>
+          <? else: ?>
+          <div class="checkbox hidden" id='keep-facets-enabled-checkbox'>
+          <? endif; ?>
             <label>
               <input onChange="$('.applied-filter').click(); $( '.search-query' ).trigger( 'change' );" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
               <?=$this->transEsc("basic_search_keep_filters")?>
             </label>
           </div>
+
+        <? if ((isset($hasDefaultsApplied) && $hasDefaultsApplied) || !empty($filterDetails)): ?>
 
           <div class="hidden">
             <? foreach ($filterDetails as $current): ?>

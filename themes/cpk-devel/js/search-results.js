@@ -179,10 +179,8 @@ jQuery( document ).ready( function( $ ) {
 					data['join'] = 'OR';
 				}
 				
-				if ( (! data.hasOwnProperty( 'page' )) || ( ! data.page ) ) {
-					var page = $( "input[name='page']" ).val();
-					data['page'] = page;
-				}
+				var page = $( "input[name='page']" ).val();
+				data['page'] = page;
 				
 				/* Set search term and type from Autocomplete when provding async results loading in basic search */
 				if (! data.hasOwnProperty( 'lookfor0' )) {
@@ -294,6 +292,13 @@ jQuery( document ).ready( function( $ ) {
 			        		
 			        		/* Update lookfor inputs in both search type templates to be the same when switching templates*/
 			        		ADVSEARCH.updateSearchTypeTemplates( data );
+			        		
+			        		/* If filters enabled, show checkbox in autocomplete */
+			        		if ( data.filter.length > 0 ) {
+			        			$( '#keep-facets-enabled-checkbox' ).removeClass( 'hidden' );
+			        		} else {
+			        			$( '#keep-facets-enabled-checkbox' ).addClass( 'hidden' );
+			        		}
 			        		
 		        		} else {
 		        			console.error(response.data);
@@ -630,6 +635,9 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
 		event.preventDefault();
+		
+		$( "input[name='page']" ).val( '1' );
+		
 		if ( $( this ).hasClass( 'active' ) ) {
 			console.log( 'Removing facet filter.' );
 			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
@@ -644,6 +652,8 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( 'body' ).on( 'click', '.institution-facet-filter-button', function( event ) {
 		event.preventDefault();
+		
+		$( "input[name='page']" ).val( '1' );
 
 		//remove all institutions
 		var allInstitutions = $('#facet_institution').jstree(true).get_json('#', {flat:true});
@@ -692,6 +702,7 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		var sort = $( this ).val();
 		$( "input[name='sort']" ).val( sort );
+		$( "input[name='page']" ).val( '1' );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
@@ -702,6 +713,7 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		var limit = $( this ).val();
 		$( "input[name='limit']" ).val( limit );
+		$( "input[name='page']" ).val( '1' );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
