@@ -57,7 +57,7 @@
                 filters = '';
             }
 
-        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1" + filters);
+        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
 
         	  /* Change first query in advanced search to match value in autocomplete */
         	  ADVSEARCH.clearAdvancedSearchTemplate();
@@ -74,7 +74,13 @@
                 var action = currentUrl.split('/')[2];
 
                 if ( controller == 'Search' && action == 'Results' ) {
-                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic&page=1'}, false);
+                    ADVSEARCH.updateSearchResults(
+                    	undefined,
+                    	{
+                        	queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic&page=1&bool0=AND&join=AND&keepEnabledFilters=' + enabledKeepFacets + ''
+                        },
+                    	false
+                    );
                     return false;
                 }
 
@@ -92,7 +98,13 @@
 
                 if ( controller == 'Search' && action == 'Results' ) {
                   	event.preventDefault();
-                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=AllFields&page=1'}, false);
+                    ADVSEARCH.updateSearchResults(
+						undefined,
+						{
+							queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=AllFields&page=1&bool0=AND&join=AND&keepEnabledFilters='+enabledKeepFacets
+						},
+						false
+					);
                     return false;
 				} else {
 					// continue by static submitting form
@@ -120,6 +132,7 @@
 	    <input type='hidden' name='join' value='AND'>
 	    <input type='hidden' name='bool0[]' value='AND'>
 	    <input type='hidden' name='page' value='1'>
+	    <input type='hidden' name='keepEnabledFilters' value='true'>
 	    <? if(!empty($lastLimit)): ?>
 	      <input type="hidden" name="limit" value="<?=$this->escapeHtmlAttr($lastLimit)?>">
 	    <? endif; ?>

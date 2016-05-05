@@ -92,6 +92,7 @@
   <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
   <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
   <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
+  <input type='hidden' name='keepFacetsEnabled' value='0'>
 </div>
 
 <!-- Facets -->

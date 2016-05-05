@@ -137,10 +137,22 @@ jQuery( document ).ready( function( $ ) {
 					data['type0'].push( temptype0 );
 				}
 				
+				if ( data.join[0] ) {
+					data['join'] = data.join[0];
+				}
+				
+				if ( data.keepEnabledFilters[0] ) {
+					data['keepEnabledFilters'] = data.keepEnabledFilters[0];
+				}
+				
+				if ( data.page[0] ) {
+					data['page'] = data.page[0];
+				}
+				
 				data['searchTypeTemplate'] = 'basic';
 				
-				//console.log( 'Data fromautocomplete: ' );
-				//console.log( data );
+				console.log( 'Data fromautocomplete: ' );
+				console.log( data );
 				
 			} else {
 				/* If search started in advanced search, gather data from
@@ -169,6 +181,13 @@ jQuery( document ).ready( function( $ ) {
 			});
 			data['filter'] = filters;
 			
+			if ( dataFromAutocomplete ) {
+				tempData = queryStringToJson( dataFromAutocomplete.queryString );
+				if ( tempData.keepEnabledFilters == 'false' ) {
+					data['filter'] = [];
+				}
+			}
+			
 			/* 
 			 * Autocomplete form does not have all the data, that are 
 			 * nessessary to perform search, thus this will set default ones.
@@ -177,14 +196,17 @@ jQuery( document ).ready( function( $ ) {
 				
 				if ( (! data.hasOwnProperty( 'bool0' )) || ( ! data.bool0 ) ) {
 					data['bool0'] = [];
-					data['bool0'].push( 'OR' );
+					data['bool0'].push( 'AND' );
 				}
 				
 				if ( (! data.hasOwnProperty( 'join' ) ) || ( ! data.join ) ) {
-					data['join'] = 'OR';
+					data['join'] = 'AND';
 				}
 				
-				/* Set search term and type from Autocomplete when provding async results loading in basic search */
+				/* 
+				 * Set search term and type from Autocomplete when provding 
+				 * async results loading in basic search 
+				 */
 				if (! data.hasOwnProperty( 'lookfor0' )) {
 					var lookfor0 = $( "input[name='last_searched_lookfor0']" ).val();
 					data['lookfor0'] = [];
@@ -510,23 +532,23 @@ jQuery( document ).ready( function( $ ) {
 				/* Search was made in advanced search */
 				
 				/* Fill autocomplete search form */
-				console.log( 'Filling autocomplete with' );
-				console.log( data.lookfor0[0] );
+				//console.log( 'Filling autocomplete with' );
+				//console.log( data.lookfor0[0] );
 				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
 			} else {
 				/* Search was made in autocomplete */
 				
 				/* Fill adv. search form */
 				ADVSEARCH.clearAdvancedSearchTemplate();
-				console.log( 'Clearing advanced search form' );
+				//console.log( 'Clearing advanced search form' );
 				
-				console.log( 'Filling advanced search form with ' );
-				console.log( data.lookfor0[0] );
+				//console.log( 'Filling advanced search form with ' );
+				//console.log( data.lookfor0[0] );
 				
 				$( '#query_0 .query-string' ).val( data.lookfor0[0] );
 				
-				console.log( 'Filling autocomplete with' );
-				console.log( data.lookfor0[0] );
+				//console.log( 'Filling autocomplete with' );
+				//console.log( data.lookfor0[0] );
 				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
 			}
 		},
