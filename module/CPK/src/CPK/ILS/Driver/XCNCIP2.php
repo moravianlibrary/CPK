@@ -1849,6 +1849,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @return boolean $addLink
      */
     protected function isLinkAllowed($status, $itemRestriction) {
+        // Always show MKP's hold link, because it is hold for record, not item.
+        if ($this->agency === 'ABG001') return true;
         $status = empty($status) ? '' : (string) $status[0];
         $itemRestriction = empty($itemRestriction) ? '' : (string) $itemRestriction[0];
         $addLink = true;
