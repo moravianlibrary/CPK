@@ -92,14 +92,14 @@
       <? if (isset($authors['main']) && !empty($authors['main'])): ?>
       <tr>
         <th class="col-md-4"><?=$this->transEsc('Main Author')?>: </th>
-        <td property="author"><a href="<?=$this->record($this->driver)->getLink('author', $authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a></td>
+        <td property="author"><a href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a></td>
       </tr>
       <? endif; ?>
 
       <? if (isset($authors['corporate']) && !empty($authors['corporate'])): ?>
       <tr>
         <th class="col-md-4"><?=$this->transEsc('Corporate Author')?>: </th>
-        <td property="creator"><a href="<?=$this->record($this->driver)->getLink('author', $authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
+        <td property="creator"><a href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
       </tr>
       <? endif; ?>
 
@@ -107,7 +107,7 @@
       <tr>
         <th class="col-md-4"><?=$this->transEsc('Other Authors')?>: </th>
         <td>
-          <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="<?=$this->record($this->driver)->getLink('author', $field)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
+          <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($field)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
         </td>
       </tr>
       <? endif; ?>
@@ -217,7 +217,7 @@
         </td>
       </tr>
       <? endif; ?>
-      
+
       <?= $this->record($this->driver)->displayFieldsOf7xx(true); ?>
 
       <? $edition = $this->driver->getEdition(); if (!empty($edition)): ?>
@@ -446,7 +446,7 @@
       </td>
     </tr>
   <? endif; ?>
-  
+
   <? $nonStandardISBN = $this->driver->getNonStandardISBN(); if (! empty($nonStandardISBN)): ?>
     <? $contentDisplayed = true; ?>
     <tr>
