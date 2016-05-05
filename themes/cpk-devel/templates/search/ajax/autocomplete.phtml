@@ -39,7 +39,7 @@
           } else {
             filters = '';
           }
-          $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic" + filters);
+          $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1" + filters);
 
           /* Update autocomplete On some change */
           $( ".search-query" ).on( 'change', function( event ) {
@@ -57,7 +57,7 @@
                 filters = '';
             }
 
-        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic" + filters);
+        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1" + filters);
 
         	  /* Change first query in advanced search to match value in autocomplete */
         	  ADVSEARCH.clearAdvancedSearchTemplate();
@@ -74,7 +74,7 @@
                 var action = currentUrl.split('/')[2];
 
                 if ( controller == 'Search' && action == 'Results' ) {
-                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic'}, false);
+                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic&page=1'}, false);
                     return false;
                 }
 
@@ -92,7 +92,7 @@
 
                 if ( controller == 'Search' && action == 'Results' ) {
                   	event.preventDefault();
-                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields'}, false);
+                    ADVSEARCH.updateSearchResults( undefined, {queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=AllFields&page=1'}, false);
                     return false;
 				} else {
 					// continue by static submitting form
@@ -119,6 +119,7 @@
         <input type="hidden" name="type0[]" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>">
 	    <input type='hidden' name='join' value='AND'>
 	    <input type='hidden' name='bool0[]' value='AND'>
+	    <input type='hidden' name='page' value='1'>
 	    <? if(!empty($lastLimit)): ?>
 	      <input type="hidden" name="limit" value="<?=$this->escapeHtmlAttr($lastLimit)?>">
 	    <? endif; ?>

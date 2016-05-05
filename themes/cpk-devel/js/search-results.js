@@ -156,6 +156,11 @@ jQuery( document ).ready( function( $ ) {
 				
 				var allGroupsOperator = $( 'input[name="join"]' ).val();
 				data['join'] = allGroupsOperator;
+				
+				if (! data.hasOwnProperty( 'searchTypeTemplate' )) {
+					data['searchTypeTemplate'] = 'advanced';
+				}
+
 			}
 			
 			var filters = [];
@@ -179,9 +184,6 @@ jQuery( document ).ready( function( $ ) {
 					data['join'] = 'OR';
 				}
 				
-				var page = $( "input[name='page']" ).val();
-				data['page'] = page;
-				
 				/* Set search term and type from Autocomplete when provding async results loading in basic search */
 				if (! data.hasOwnProperty( 'lookfor0' )) {
 					var lookfor0 = $( "input[name='last_searched_lookfor0']" ).val();
@@ -203,6 +205,11 @@ jQuery( document ).ready( function( $ ) {
 				if (! data.hasOwnProperty( 'sort' )) {
 					var sort = $( "input[name='sort']" ).val();
 					data['sort'] = sort;
+				}
+				
+				if (! data.hasOwnProperty( 'page' )) {
+					var page = $( "input[name='page']" ).val();
+					data['page'] = page;
 				}
 			}
 			
@@ -254,7 +261,8 @@ jQuery( document ).ready( function( $ ) {
 		        	data: data,
 		        	beforeSend: function() {
 		        		
-		        		smoothScrollToElement( '.main' );
+		        		scrollToTop();
+
 		        		var loader = "<div id='search-results-loader' class='text-center'></div>";
 		        		$( '#result-list-placeholder' ).hide( 'blind', {}, 200, function() {
 		        			$( '#result-list-placeholder' ).before( loader );
@@ -267,6 +275,9 @@ jQuery( document ).ready( function( $ ) {
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
 		        	},
 		        	success: function( response ) {
+		        		
+		        		scrollToTop();
+		        		
 		        		if (response.status == 'OK') {
 		        			
 		        			var responseData = response.data;
@@ -722,6 +733,7 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
+		$( "input[name='page']" ).val( '1' );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
@@ -778,6 +790,16 @@ jQuery( document ).ready( function( $ ) {
 	        scrollTop: $( elementId ).offset().top
 	    }, 1000);
 	};
+	
+	/**
+	 * Scroll to the top of the document
+	 * 
+	 * @return	{undefined}
+	 */
+	var scrollToTop = function( elementId ) {
+		$( 'html, body' ).animate( { scrollTop: 0 }, 'slow' );
+	};
+	
 	
 	/**
   	 * Returns JSON from query string
