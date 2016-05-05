@@ -214,6 +214,13 @@ Subject:
       - [and, 100]
       - [or, ~]
 
+Inspiration:
+  DismaxFields:
+    - inspiration
+  QueryFields:
+    inspiration:
+      - [onephrase, 100]
+
 # This field definition is a compromise that supports both journal-level and
 # article-level data.  The disadvantage is that hits in article titles will
 # be mixed in.  If you are building a purely article-oriented index, you should
