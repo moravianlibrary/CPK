@@ -182,7 +182,7 @@ jQuery( document ).ready( function( $ ) {
 			data['filter'] = filters;
 			
 			if ( dataFromAutocomplete ) {
-				tempData = queryStringToJson( dataFromAutocomplete.queryString );
+				var tempData = queryStringToJson( dataFromAutocomplete.queryString );
 				if ( tempData.keepEnabledFilters == 'false' ) {
 					data['filter'] = [];
 				}
@@ -290,10 +290,9 @@ jQuery( document ).ready( function( $ ) {
 		        			$( '#result-list-placeholder' ).before( loader );
 		        		});
 		        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-2x fa-refresh fa-spin'></i>" );
-		        		//$( '#side-facets-placeholder' ).hide( 'fade', {}, 200 );
 		        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
 		        		
-		        		// Disabled submit button until ajax finishes
+		        		// Disable submit button until ajax finishes
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
 		        	},
 		        	success: function( response ) {
@@ -301,6 +300,11 @@ jQuery( document ).ready( function( $ ) {
 		        		scrollToTop();
 		        		
 		        		if (response.status == 'OK') {
+		        			
+		        			if (data['filter'].length < 1) {
+		        				/* Remove filters from containers when performing search without keeping enabled facets */
+		        				$( '#hiddenFacetFilters' ).html( '' );
+		        			}
 		        			
 		        			var responseData = response.data;
 		        			var resultsHtml = JSON.parse(responseData.resultsHtml);
@@ -328,10 +332,35 @@ jQuery( document ).ready( function( $ ) {
 			        		
 			        		/* If filters enabled, show checkbox in autocomplete */
 			        		if ( data.filter.length > 0 ) {
-			        			$( '#keep-facets-enabled-checkbox' ).removeClass( 'hidden' );
+			        			$( '#keep-facets-enabled-checkbox' ).show( 'blind', {}, 500 );
 			        		} else {
-			        			$( '#keep-facets-enabled-checkbox' ).addClass( 'hidden' );
+			        			$( '#keep-facets-enabled-checkbox' ).hide( 'blind', {}, 200 );
 			        		}
+			        		
+			        		console.log(' responseData.recordTotal: ');
+		        			console.log( responseData.recordTotal );
+		        			console.log(' Success happened ');
+			        		
+			        		/* Hide no results container when there is more than 0 results */
+			        		if ( responseData.recordTotal > 0 ) {
+			        			console.log(' responseData.recordTotal: ');
+			        			console.log( responseData.recordTotal );
+			        			console.log( 'Hide no resuls, show new results' );
+			        			$( '#no-results-container' ).hide( 'blind', {}, 200, function(){
+			        				$( this ).css( 'display', 'none' );
+			        			} );
+			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls' ).show( 'blind', {}, 500 );
+			        		} else {
+			        			console.log(' responseData.recordTotal: ');
+			        			console.log( responseData.recordTotal );
+			        			console.log( 'Show NO results' );
+			        			$( '#no-results-container strong' ).text( data.lookfor0[0] );
+			        			
+			        			$( '#no-results-container' ).show( 'blind', {}, 500 );
+			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls' ).hide( 'blind', {}, 200 );
+			        		}
+			        		
+			        		/**/
 			        		
 		        		} else {
 		        			console.error(response.data);
@@ -361,7 +390,7 @@ jQuery( document ).ready( function( $ ) {
 	        			$( '.ajax-update-sort option[value="' + data.sort + '"]' ).attr( 'selected', true );
 		        		
 		         	},
-		            error: function (xmlHttpRequest, status, error) {
+		            error: function ( xmlHttpRequest, status, error ) {
 		            	$( '#search-results-loader' ).remove();
 		            	console.error(xmlHttpRequest.responseText);
 		            	console.log(xmlHttpRequest);
@@ -370,7 +399,7 @@ jQuery( document ).ready( function( $ ) {
 		            	console.log( 'Sent data: ' );
 		            	console.log( data );
 		            },
-		            complete: function (xmlHttpRequest, textStatus) {
+		            complete: function ( xmlHttpRequest, textStatus ) {
 		            	if ( data.hasOwnProperty( 'filter' ) || data.filter ) {
 		            		ADVSEARCH.checkCheckboxesInInstitutionsTree( data.filter );
 		            	}
@@ -624,7 +653,7 @@ jQuery( document ).ready( function( $ ) {
 			var thisGroupSelector = $( this ).parent().parent().parent().parent();
 			ADVSEARCH.updateQueriesDOMState( '#' + thisGroupElement.attr( 'id' ) );
 			thisGroupElement.find( '.remove-advanced-search-query' ).removeClass( 'hidden' );
-		})
+		});
 	});
 	
 	/*

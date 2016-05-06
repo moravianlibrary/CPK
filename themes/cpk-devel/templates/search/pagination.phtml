@@ -7,9 +7,9 @@
     $lastArrayKey = array_pop($arrayKeys);
 ?>
 
-<div class='col-md-12' id='pagination-placeholder'>
+<div class='col-md-12'>
     <div class='row'>
-    
+
       <div class='col-md-2'>
           <ul class="pagination" style='float: left;'>
             <? if (isset($this->previous)): ?>
@@ -18,7 +18,7 @@
             <? endif; ?>
           </ul>
       </div>
-      
+
       <div class='col-md-8' style='text-align: center'>
           <ul class="pagination" align='center'>
             <? if (isset($this->previous)): ?>
@@ -28,29 +28,29 @@
                 <? endif; ?>
               <? endif; ?>
             <? endif; ?>
-            
+
               <? foreach ($this->pagesInRange as $key => $page): ?>
-              
+
                 <? if ($key == ($first_key)): ?>
                   <? if ($first_key > 2): ?>
                     <li class='disabled'><span>...</span></li>
                   <? endif; ?>
                 <? endif; ?>
-                
+
                 <? if ($page != $this->current): ?>
                   <li><a class='ajax-update-page' href="<?=$page?>"><?=$page?></a></li>
                 <? else: ?>
                   <li class="active"><span><?=$page?></span></li>
                 <? endif; ?>
-                
+
                 <? if ($key == ($lastArrayKey)): ?>
                   <? if (($this->pageCount != $lastArrayKey) > 0): ?>
                     <li class='disabled'><span>...</span></li>
                   <? endif; ?>
                 <? endif; ?>
-                
+
               <? endforeach; ?>
-            
+
             <? if (isset($this->next)): ?>
               <? if (!isset($this->options['disableLast']) || !$this->options['disableLast']): ?>
                 <? if (! isset($this->pagesInRange[$this->pageCount])): ?>
@@ -60,7 +60,7 @@
             <? endif; ?>
           </ul>
       </div>
-      
+
       <div class='col-md-2'>
           <ul class="pagination" style='float: right'>
             <? if (isset($this->next)): ?>

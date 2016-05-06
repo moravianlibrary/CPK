@@ -70,11 +70,12 @@
         <? endif; ?>
     </div>
       <? if ($recordTotal > 0): ?>
-        <div class="col-sm-3 col-sm-push-3 text-right">
-
+        <div class="col-sm-3 col-sm-push-3 text-right" id='search-results-controls'>
+      <? else: ?>
+		<div class="col-sm-3 col-sm-push-3 text-right" id='search-results-controls' style='display: none;'>
+	  <? endif; ?>
           <?=$this->render('search/ajax/controls/sort.phtml')?>
         </div>
-      <? endif; ?>
     </div>
     <div class="row">
       <div class="<?=$this->layoutClass('mainbody')?>">
@@ -83,36 +84,34 @@
         <? /* End Listing Options */ ?>
 
         <? if ($recordTotal < 1): ?>
-          <p>
-            <? if (isset($this->overrideEmptyMessage)): ?>
-              <?=$this->overrideEmptyMessage?>
-            <? else: ?>
-              <?=$this->transEsc('nohit_prefix')?> - <strong><?=$this->escapeHtml($lookfor)?></strong> - <?=$this->transEsc('nohit_suffix')?>
-            <? endif; ?>
-          </p>
-          <p>
-          	<?= $this->translate('nohit_recommendation') ?>
-          </p>
-          <? if (isset($this->parseError)): ?>
-            <p class="alert alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
-          <? endif; ?>
-          <? foreach (($top = $this->results->getRecommendations('top')) as $current): ?>
-            <?=$this->recommend($current)?>
-          <? endforeach; ?>
-          <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
-            <? if (!in_array($current, $top)): ?>
-              <?=$this->recommend($current)?>
-            <? endif; ?>
-          <? endforeach; ?>
-        <? else: ?>
-          <form class="form-inline" method="post" name="bulkActionForm" action="<?=$this->url('cart-home')?>">
-            <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
-            <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
-            <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => 'bottom_'))?>
-            <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results, 'options' => isset($this->paginationOptions) ? $this->paginationOptions : []))?>
-          </form>
-
+          <div id='no-results-container'>
+		<? else: ?>
+          <div id='no-results-container' style='display: none;'>
         <? endif; ?>
+
+            <?= $this->context($this)->renderInContext('search/no-results', ['lookfor' => $lookfor]) ?>
+          </div>
+
+		 <div id='result-list-placeholder'>
+		   <? if ($recordTotal > 0): ?>
+             <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
+		   <? endif; ?>
+		 </div>
+
+	     <? if ($recordTotal > 0): ?>
+          <div id='bulk-action-buttons-placeholder'>
+         <? else: ?>
+           <div id='bulk-action-buttons-placeholder' style='display: none;'>
+		 <? endif; ?>
+		     <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
+		   </div>
+
+		 <div id='pagination-placeholder'>
+            <? if ($recordTotal > 0): ?>
+              <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results, 'options' => isset($this->paginationOptions) ? $this->paginationOptions : []))?>
+            <? endif; ?>
+		 </div>
+
       </div>
       <? /* End Main Listing */ ?>
 
