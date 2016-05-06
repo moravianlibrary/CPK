@@ -253,6 +253,13 @@
                 $(this).data('selected', -1);
               }
             }
+            
+            /* Hit esc after enter to hide list */
+            hide();
+            $(this).data('selected', -1);
+            element.addClass('autocomplete-results hidden');
+            /**/
+            
             break;
           }
           // hide on escape
