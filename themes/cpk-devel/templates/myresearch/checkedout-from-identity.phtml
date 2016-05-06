@@ -72,6 +72,9 @@ foreach ($libraryIdentity['transactions'] as $resource):
       <? if (isset($ilsDetails['volume']) && !empty($ilsDetails['volume'])): ?>
         <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($ilsDetails['volume'])?>
         <br />
+      <? elseif(isset($field996['d']) && !empty($field996['d'])): ?>
+        <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($field996['d'])?>
+        <br />
       <? elseif(isset($field996['v']) && !empty($field996['v'])): ?>
         <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($field996['v'])?>
         <br />
