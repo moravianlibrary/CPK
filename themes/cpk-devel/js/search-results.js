@@ -535,7 +535,7 @@ jQuery( document ).ready( function( $ ) {
 			}, 300);
 			
 			/* 
-			 * Empty first query
+			 * Empty first query and set default values to selects
 			 */
 			$( '#query_0 .query-string' ).val( '' );
 			
