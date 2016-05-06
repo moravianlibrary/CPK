@@ -6,7 +6,7 @@
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $summary[0] : false; ?>
     <? if ($summary): ?>
       <p><?=$this->truncate($summary, 300)?></p>
-      
+
       <? if(strlen($summary) > 300): ?>
         <p><a href='#summary'><?=$this->transEsc('Full description')?></a></p>
       <? endif; ?>
@@ -174,7 +174,9 @@
       <? endif; ?>
 
       <?
-        $openUrl = $this->driver->openURLActive('record') ? $this->driver->getOpenURL() : false;
+        // undefined method openURLActive
+        // $openUrl = $this->driver->openURLActive('record') ? $this->driver->getOpenURL() : false;
+        $openUrl = false;
         // Account for replace_other_urls setting
         $urls = $this->driver->getURLs();
       ?>
@@ -198,7 +200,7 @@
           <th><?=$this->transEsc('Related Items')?></th>
           <td>
             <? foreach ($recordLinks as $recordLink): ?>
-              <?=$this->transEsc($recordLink['title'])?>: 
+              <?=$this->transEsc($recordLink['title'])?>:
               <a href="<?=$this->recordLink()->related($recordLink['link'])?>"><?=$this->escapeHtml($recordLink['value'])?></a><br />
             <? endforeach; ?>
           </td>
@@ -253,8 +255,8 @@
       <? else: ?>
         <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
       <? endif; ?>
-      
-      
+
+
       <? /* Display qrcode if appropriate: */ ?>
       <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
       <? if($QRCode): ?>
