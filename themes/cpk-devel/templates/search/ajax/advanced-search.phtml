@@ -15,7 +15,7 @@
 
     	<div class='row' id='group-join-type-row'>
       	  <div class='col-md-12'>
-            <select id='group-join-type' name="join" class="form-control selectpicker">
+            <select id='group-join-type' name="join" class="form-control">
               <option value="AND"<?= ($allGroupsOperator == 'AND') ? ' selected="selected"' : ''?>><?=$this->transEsc("group_AND")?></option>
               <option value="OR"<?= ($allGroupsOperator == 'OR') ? ' selected="selected"' : ''?>><?=$this->transEsc("group_OR")?></option>
             </select>
@@ -34,7 +34,7 @@
 
           <div class='col-md-2'>
             <label class='dropdown-select-label'>
-              <select class="group-operator dropdown-select selectpicker" name='bool<?=$groups?>[]'>
+              <select class="group-operator dropdown-select" name='bool<?=$groups?>[]'>
                 <option value="AND"<?= ($groupOperator == 'AND') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
                 <option value="OR"<?= ($groupOperator == 'OR') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
                 <option value="NOT"<?= ($groupOperator == 'NOT') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
@@ -47,7 +47,7 @@
             <div class='row queries' id='query_<?=$queries?>'>
 
               <div class='col-md-4 text-right'>
-                <select class='form-control query-type selectpicker' name='type<?=$groups?>[]'>
+                <select class='form-control query-type' name='type<?=$groups?>[]'>
                   <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
                   <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
                     <?=$this->transEsc($description)?>
@@ -88,7 +88,7 @@
 
           <div class='col-md-2'>
             <label class='dropdown-select-label'>
-              <select class="group-operator dropdown-select selectpicker" name='bool<?=$groups?>[]'>
+              <select class="group-operator dropdown-select" name='bool<?=$groups?>[]'>
                 <option value="AND"<?= ($groupOperator == 'AND') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_AND")?></option>
                 <option value="OR"<?= ($groupOperator == 'OR') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_OR")?></option>
                 <option value="NOT"<?= ($groupOperator == 'NOT') ? ' selected="selected"' : ''?>><?=$this->transEsc("search_NOT")?></option>
@@ -101,7 +101,7 @@
             <div class='row queries' id='query_<?=$queries?>'>
 
               <div class='col-md-4 text-right'>
-                <select class='form-control query-type selectpicker' name='type<?=$groups?>[]'>
+                <select class='form-control query-type' name='type<?=$groups?>[]'>
                   <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
                   <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
                     <?=$this->transEsc($description)?>
