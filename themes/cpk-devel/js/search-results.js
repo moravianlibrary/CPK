@@ -538,12 +538,10 @@ jQuery( document ).ready( function( $ ) {
 			 * Empty first query
 			 */
 			$( '#query_0 .query-string' ).val( '' );
-
-			$( '#group_0 select.group-operator' ).val(1);
-			$( '#query_0 select.query-type' ).val(1);
 			
-			$( '#group_0 select.group-operator' ).selectpicker( 'refresh' );
-			$( '#query_0 select.query-type' ).selectpicker( 'refresh' );
+			$( '#group_0 select.group-operator' )[0].selectedIndex = 0;
+			$( '#group_0 select.query-type' )[0].selectedIndex = 0;
+
 		},
 		
 		/**
