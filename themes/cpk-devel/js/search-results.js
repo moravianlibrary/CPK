@@ -539,8 +539,8 @@ jQuery( document ).ready( function( $ ) {
 			 */
 			$( '#query_0 .query-string' ).val( '' );
 			
-			$( '#group_0 select.group-operator' )[0].selectedIndex = 0;
-			$( '#group_0 select.query-type' )[0].selectedIndex = 0;
+			$( '#group_0 select.group-operator' ).selectedIndex = 0;
+			$( '#group_0 select.query-type' ).selectedIndex = 0;
 
 		},
 		
