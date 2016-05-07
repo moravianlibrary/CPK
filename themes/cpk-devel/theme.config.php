@@ -23,7 +23,9 @@ $toRet = array(
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
-        'search-results.js'
+        'search-results.js',
+        'vendor/jsTree/jstree.min.js',
+        'facets.js'
     ),
     'less' => array(
         'active' => false,
