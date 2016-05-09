@@ -44,6 +44,47 @@ foreach ($queryParams as $key => $value) {
 
 ?>
 
+<? if ($results->getResultTotal() > 0): ?>
+    <h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4>
+<? endif; ?>
+<? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
+    <div class="list-group filters">
+
+        <? foreach ($filterList as $field => $filters): ?>
+            <? if ($field !== 'Institution'): ?>
+                <? foreach ($filters as $i => $filter): ?>
+                    <?
+                    $index = isset($filter['field']) ? array_search($filter['field'], $collapsedFacets) : false;
+                    if ($index !== false) {
+                        unset($collapsedFacets[$index]); // Open if we have a match
+                    }
+                    if (isset($filter['specialType']) && $filter['specialType'] == 'keyword') {
+                        $removeLink = $this->currentPath().$results->getUrlQuery()->replaceTerm($filter['value'], '');
+                    } else {
+                        $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value'], true, $filter['operator']);
+                    }
+                    if ($filter['displayText'] == '[* TO *]') {
+                        $filter['displayText'] = $this->translate('filter_wildcard');
+                    }
+                    $dataFacet = $filter['field'].':"'.$filter['value'].'"';
+                    ?>
+                    <a class="list-group-item active facet-filter" data-facet='<?=$dataFacet?>' href="<?=$removeLink?>">
+                        <span class="pull-right flip"><i class="fa fa-times"></i></span>
+                        <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>:
+                        <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false)
+                            echo explode("/", $this->escapeHtml($filter['displayText']))[1]; //@FIXME QuickFix, fix this problem on higher level
+                        else
+                            echo $this->escapeHtml($filter['displayText']);
+                        ?>
+                    </a>
+                <? endforeach; ?>
+            <? endif; ?>
+        <? endforeach; ?>
+        <a href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
+    </div>
+<? endif;?>
+
+
 <? if ($this->recommend instanceof \CPK\Recommend\SideFacets && isset($myLibs) && is_array($myLibs) && count($myLibs) > 0):
 
     $urlParams = $results->getUrlQuery()->getParamArray();
@@ -276,47 +317,7 @@ JS;
       <? endif; ?>
       <div class='facet-divider'></div>
     </div>
-    <? if($cluster['label'] == 'Institution'): ?>
-      <? if ($results->getResultTotal() > 0): ?>
-        <h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4>
-      <? endif; ?>
-        <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
-         <div class="list-group filters">
 
-           <? foreach ($filterList as $field => $filters): ?>
-             <? if ($field !== 'Institution'): ?>
-                 <? foreach ($filters as $i => $filter): ?>
-                   <?
-                     $index = isset($filter['field']) ? array_search($filter['field'], $collapsedFacets) : false;
-                     if ($index !== false) {
-                         unset($collapsedFacets[$index]); // Open if we have a match
-                     }
-                     if (isset($filter['specialType']) && $filter['specialType'] == 'keyword') {
-                       $removeLink = $this->currentPath().$results->getUrlQuery()->replaceTerm($filter['value'], '');
-                     } else {
-                       $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value'], true, $filter['operator']);
-                     }
-                     if ($filter['displayText'] == '[* TO *]') {
-                       $filter['displayText'] = $this->translate('filter_wildcard');
-                     }
-                     $dataFacet = $filter['field'].':"'.$filter['value'].'"';
-                   ?>
-                   <a class="list-group-item active facet-filter" data-facet='<?=$dataFacet?>' href="<?=$removeLink?>">
-                     <span class="pull-right flip"><i class="fa fa-times"></i></span>
-                     <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>:
-                     <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false)
-                         echo explode("/", $this->escapeHtml($filter['displayText']))[1]; //@FIXME QuickFix, fix this problem on higher level
-                       else
-                         echo $this->escapeHtml($filter['displayText']);
-                     ?>
-                   </a>
-                 <? endforeach; ?>
-             <? endif; ?>
-           <? endforeach; ?>
-           <a href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
-         </div>
-        <? endif;?>
-    <? endif; ?>
   <? endforeach; ?>
 <? endif; ?>
 
