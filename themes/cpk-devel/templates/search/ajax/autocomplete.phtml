@@ -1,17 +1,6 @@
   <div id="collapseAdvancedSearch" class="panel-collapse collapse in basic-search-panel<?=(isset($hiddenBasicSearch)) ? ' hidden' : ''?>" role="tabpanel" aria-labelledby="headingAdvancedSearch">
     <div class="panel-body">
-      <div class="searchForm">
 
-		<div class='row'>
-          <div class='col-md-12 scrollable-search-panel-options'>
-		<? if($this->searchResults): ?>
-	        <a href="#" class='search-type-template-switch'><?=$this->translate("Advanced Search")?></a>
-        <? else: ?>
-            <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=10"><?=$this->translate("Advanced Search")?></a>
-        <? endif; ?>
-		  </div>
-        </div>
-      </div>
 
       <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
         <script>
@@ -190,7 +179,11 @@
           }
 
         ?>
-
+      <? if($this->searchResults): ?>
+          <a href="#" class='search-type-template-switch'><?=$this->translate("Advanced Search")?></a>
+      <? else: ?>
+          <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=10"><?=$this->translate("Advanced Search")?></a>
+      <? endif; ?>
       </form>
     </div>
   </div>
