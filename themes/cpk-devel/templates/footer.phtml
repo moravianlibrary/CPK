@@ -2,7 +2,7 @@
     $portalPages = $this->portalPages()->getAllPages();
 ?>
 <div class="row">
-  <div class="col-sm-4">
+  <div class="col-sm-3">
     <h2><?=$this->transEsc('Search Options')?></h2>
     <ul>
       <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
@@ -23,19 +23,31 @@
       <? endif; ?>
     </ul>
   </div>
-  <div class="col-sm-4">
+  <div class="col-sm-3">
     <h2 id='aboutPortalHeader'><?=$this->transEsc('About portal knihovny.cz')?></h2>
     <ul>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
-          <? if ($page['placement'] === 'footer' && $page['position'] === 'middle'): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-left'): ?>
             <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
     </ul>
   </div>
-  <div class="col-sm-4">
+  <div class="col-sm-3">
+    <h2 id='aboutPortalHeader'><?=$this->transEsc('About libraries')?></h2>
+    <ul>
+      <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-right'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
+    </ul>
+  </div>
+  <div class="col-sm-3">
     <h2><?=$this->transEsc('Need Help?')?></h2>
     <ul>
       <li><a target="_blank" href="https://docs.google.com/a/mzk.cz/document/d/1pc1F4tQkkV1-SmnxuBztdfcVAINIfv7TMrkTOIEP5QI/edit?usp=sharing"><?=$this->transEsc('Hint')?></a></li>

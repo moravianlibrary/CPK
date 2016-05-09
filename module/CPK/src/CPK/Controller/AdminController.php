@@ -197,7 +197,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $positions = [
             'left',
-            'middle',
+            'middle-left',
+            'middle-right',
             'right'
         ];
         $placements = [
