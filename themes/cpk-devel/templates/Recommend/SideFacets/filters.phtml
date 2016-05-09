@@ -1,7 +1,8 @@
 <? if (!empty($this->facetList)): ?>
+    <div class="row">
     <? foreach ($this->facetList as $field => $list): ?>
-        <div class="row">
-            <div class="col-sm-12">
+
+            <div class="col-sm-3">
                 <label for="limit_<?=$this->escapeHtmlAttr(str_replace(' ', '', $field))?>"><?=$this->transEsc($list['label'])?>:</label>
                 <?
                 $selectId = 'limit_' . $this->escapeHtmlAttr(str_replace(' ', '', $field));
@@ -75,11 +76,10 @@
 
                 </select>
             </div>
-            <div style="text-align: center;">
-                <button type="button" style="border: 0px none;" class="btn btn-primary btn-sm apply-filters-button"><?=$this->translate('apply-filters')?></button>
-            </div>
-        </div>
+
+
     <? endforeach; ?>
+    </div>
 <? endif; ?>
 <script type="text/javascript">
     jQuery( document ).ready( function( $ ){
