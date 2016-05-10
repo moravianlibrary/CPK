@@ -39,6 +39,12 @@
 	})
 </script>
 
+<? if($this->referer): ?>
+	<a href='<?=$this->layout()->referer?>' title='<?=$this->translate('Back to search results')?>'>
+		<i class="fa fa-arrow-left" aria-hidden="true"></i> <?=$this->translate('Back to search results')?>
+	</a>
+<? endif; ?>
+
 <? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
   <ul class="pager hidden-print">
     <? if ($this->scrollData['previousRecord']): ?>
