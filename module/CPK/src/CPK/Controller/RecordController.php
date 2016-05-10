@@ -166,6 +166,14 @@ class RecordController extends RecordControllerBase
 	    }
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
+
+        $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
+        if ($referer) {
+            if (strpos($referer, '/Search/Results?') !== false) {
+                $this->layout()->referer = $referer;
+            }
+        }
+
         return $view;
     }
 
