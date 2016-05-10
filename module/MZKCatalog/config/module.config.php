@@ -35,6 +35,17 @@ $config = array(
                 ),
                 'defaultTab' => null,
             ),
+            'MZKCatalog\RecordDriver\EbscoSolrMarc' => array(
+                'tabs' => array(
+                    'Description' => 'Description',
+                    'TOC' => 'TOC',
+                    'UserComments' => 'UserComments',
+                    'Reviews' => 'Reviews',
+                    'Excerpt' => 'Excerpt',
+                    'Details' => 'StaffViewMARC',
+                ),
+                'defaultTab' => null,
+            ),
         ) /* recorddriver_tabs */
     ), /* vufind */
     'service_manager' => array(
