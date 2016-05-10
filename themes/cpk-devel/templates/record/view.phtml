@@ -6,7 +6,7 @@
   // Set up standard record scripts:
   $this->headScript()->appendFile("record.js");
   $this->headScript()->appendFile("check_save_statuses.js");
-  
+
   // Activate Syndetics Plus if necessary:
   if ($this->syndeticsPlus()->isActive()) {
     echo $this->headScript()->appendFile($this->syndeticsPlus()->getScript());
@@ -24,7 +24,7 @@
   }
   $this->layout()->breadcrumbs .= '<li class="active">' . $this->escapeHtml($this->driver->getTitle()) . '</li> ';
   $this->layout()->title = $this->driver->getShortTitle();
-  
+
   $fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
     ? '?fromAdvancedSearchId='.htmlspecialchars($_GET['fromAdvancedSearchId'])
     : '';
@@ -38,6 +38,26 @@
 		getCitation( '<?=$this->driver->getUniqueID()?>', false, insertCitation );
 	})
 </script>
+
+<? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
+  <ul class="pager hidden-print">
+    <? if ($this->scrollData['previousRecord']): ?>
+      <li>
+        <a href="<?=$this->recordLink()->getUrl($this->scrollData['previousRecord'])?>" title="<?=$this->transEsc('Previous Search Result')?>" rel="nofollow">&laquo; <?=$this->transEsc('Prev')?></a>
+      </li>
+    <? else: ?>
+      <li class="disabled"><a href="#">&laquo; <?=$this->transEsc('Prev')?></a></li>
+    <? endif; ?>
+    #<?=$this->localizedNumber($this->scrollData['currentPosition']) . ' ' . $this->transEsc('of') . ' ' . $this->localizedNumber($this->scrollData['resultTotal']) . ' ' . $this->transEsc('results') ?>
+    <? if ($this->scrollData['nextRecord']): ?>
+      <li>
+        <a href="<?=$this->recordLink()->getUrl($this->scrollData['nextRecord'])?>" title="<?=$this->transEsc('Next Search Result')?>" rel="nofollow"><?=$this->transEsc('Next')?> &raquo;</a>
+      </li>
+    <? else: ?>
+      <li class="disabled"><a href="#"><?=$this->transEsc('Next')?> &raquo;</a></li>
+    <? endif; ?>
+  </ul>
+<? endif; ?>
 
 <? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
   <ul class="pager hidden-print">
@@ -65,7 +85,7 @@
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
       <?=$this->flashmessages()?>
-      
+
     <!-- Modal -->
     <div class="modal fade" id="citationsModal" tabindex="-1" role="dialog" aria-labelledby="citationsLabel">
       <div class="modal-dialog" role="document">
@@ -90,15 +110,15 @@
 			    <a href="http://www.citacepro.com/nacist-dokument-sysno/<?=$id?>?katalog=cpk" target="_blank">
 			      <img src="/themes/cpk-devel/images/logoCitacePROkatalog.png" alt="Citace PRO">
 			    </a>
-			  </div>      
-		  </div>    	
+			  </div>
+		  </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Modal -->
     <div class="modal fade" id="permalinkModal" tabindex="-1" role="dialog" aria-labelledby="permalinkLabel">
       <div class="modal-dialog" role="document">
@@ -108,8 +128,8 @@
             <h4 class="modal-title" id="permalinkLabel"><?=$this->translate('Permalink')?></h4>
           </div>
           <div class="modal-body">
-            <p><?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?></p>     
-		  </div>    	
+            <p><?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?></p>
+		  </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
           </div>
@@ -122,7 +142,7 @@
             <? if (count($this->tabs) > 0): ?>
               <a name="tabnav"></a>
               <ul class="recordTabs nav nav-tabs">
-              
+
                 <? foreach ($this->tabs as $tab => $obj): ?>
                 <? // add current tab to breadcrumbs if applicable:
                   $desc = $obj->getDescription();
@@ -142,16 +162,16 @@
                 <? endforeach; ?>
               </ul>
            	<? endif; ?>
-        
+
                 <div class="tab-content" id="record-tabs">
                   <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
                     <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
                   </div>
                 </div>
-            
+
                 <?=$this->driver->supportsCoinsOpenURL()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenURL()).'"></span>':''?>
             </div>
-            
+
             <!-- Modal -->
                 <div class="modal fade" id="subjectsModal" tabindex="-1" role="dialog" aria-labelledby="subjectsLabel">
                   <div class="modal-dialog" role="document">
@@ -174,16 +194,16 @@
                                 <? endforeach; ?>
                               </div>
                               <? endforeach; ?>
-                          <? endif; ?>  
+                          <? endif; ?>
                         </div>
-            		  </div>    	
+            		  </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
                       </div>
                     </div>
                   </div>
                 </div>
-                
+
              <!-- Modal -->
                 <div class="modal fade" id="mailRecordModal" tabindex="-1" role="dialog" aria-labelledby="mailRecordLabel">
                   <div class="modal-dialog" role="document">
@@ -194,17 +214,17 @@
                       </div>
                       <div class="modal-body">
                         <?=$this->context($this)->renderInContext('record/email.phtml', [])?>
-            		  </div>    	
+            		  </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
                       </div>
                     </div>
                   </div>
                 </div>
-         
+
             <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
             <script>
-            
+
             /**
              * Removes active state from Buy Link when there are no buyLinks
              *
@@ -216,48 +236,48 @@
             	if ( buyLinks.data[0]['buyLinksCount'] === 0 )
             		$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
             }
-            
+
             jQuery( document ).ready( function( $ ) {
-            
+
             	// Disable eversion tab
             	var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
             	if ( eVersionLinksCount === 0 ) {
             		$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );
             		$( "#e-version-table" ).addClass( 'hidden' );
             	}
-            
+
             	// Disable holdings tab
             	var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
             	if ( holdingsCount === 0 ) {
             		$( '#holdings' ).parent().removeClass( 'active' ).addClass( 'disabled' );
             	}
-            
+
             	//
             	var recordID = '<?= $this->driver->getUniqueID() ?>';
             	var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
-            
+
             	var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );
-            
+
             	var source = "<?= $source ?>";
-            
+
             	// select default record group
             	$( '#record-group li a' ).each( function() {
-            
+
             		var title = $( this ).attr( 'title' );
             		if ( $( this ).attr( 'id' ).toLowerCase().indexOf( source.toLowerCase() ) >= 0 ) {
             			$( '#first-record-group' ).text( title );
             		}
-            
+
             	});
 
             	$( '#subjects-tr' ).on('click', '#show-all-subjects', function(){
             		$( '#subjectsModal' ).modal( 'show' );
             	});
-            
+
             });
             </script>
 		</div>
-    
+
     </div>
     <div class='col-sm-3'>
       <?= $this->render('RecordDriver/SolrDefault/record-sidebar.phtml'); ?>
