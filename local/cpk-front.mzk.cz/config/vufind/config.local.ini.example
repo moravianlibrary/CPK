@@ -44,6 +44,10 @@ gitPbKey		= /home/vufind/.ssh/id_rsa
 ;It is better than ;marc_links so use this instead of ;marc_link
 fields_in_core = "773,770,772,777,780,785"
 
+; Set this to true in order to enable "next" and "previous" links to navigate
+; through the current result set from within the record view.
+next_prev_navigation = true
+
 [Catalog]
 library_cards = true
 minHoldingsToApplyFilters = 30
