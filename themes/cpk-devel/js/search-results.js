@@ -739,22 +739,6 @@ jQuery( document ).ready( function( $ ) {
 	});
 
 	/*
-	 * Apply chosen filters
-	 */
-	$( 'body' ).on( 'click', '.apply-filters-button', function( event ) {
-		event.preventDefault();
-
-		var selectedFilters = $( this ).closest('.row').find(".chosen-select").val();
-
-		$.each( selectedFilters, function( index, value ){
-			ADVSEARCH.addFacetFilter( value, false );
-		});
-
-		ADVSEARCH.updateSearchResults( undefined, undefined );
-
-	});
-	
-	/*
 	 * Update search results on paginating
 	 */
 	$( 'body' ).on( 'click', '.ajax-update-page', function( event ) {
@@ -791,6 +775,17 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
 		event.preventDefault();
+
+		//add chosen filters
+		$(".chosen-select").each(function() {
+			var selectedFilters = $( this ).val();
+			if(selectedFilters!=null) {
+				$.each(selectedFilters, function (index, value) {
+					ADVSEARCH.addFacetFilter(value, false);
+				});
+			}
+		});
+
 		$( "input[name='page']" ).val( '1' );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
