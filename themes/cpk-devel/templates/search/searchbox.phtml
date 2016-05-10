@@ -93,6 +93,7 @@
   <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
   <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
   <input type='hidden' name='keepFacetsEnabled' value='0'>
+  <input type="hidden" name="searchTypeTemplate" value="<?= (! empty($_GET['searchTypeTemplate']) ? $this->escapeHtmlAttr($_GET['searchTypeTemplate']) : '') ?>">
 </div>
 
 <!-- Facets -->

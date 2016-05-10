@@ -170,7 +170,13 @@ jQuery( document ).ready( function( $ ) {
 				data['join'] = allGroupsOperator;
 				
 				if (! data.hasOwnProperty( 'searchTypeTemplate' )) {
-					data['searchTypeTemplate'] = 'advanced';
+					var searchTypeTemplate = $( "input[name='searchTypeTemplate']" ).val();
+					
+					if (searchTypeTemplate) {
+						data['searchTypeTemplate'] = searchTypeTemplate;
+					} else {
+						data['searchTypeTemplate'] = 'advanced';
+					}	
 				}
 
 			}
@@ -238,9 +244,12 @@ jQuery( document ).ready( function( $ ) {
 			/* Set last search */
 			var lastSearchedLookFor0 = data['lookfor0'][0];
 			$( "input[name='last_searched_lookfor0']" ).val( lastSearchedLookFor0 );
-			
+
 			var lastSearchedType0 = data['type0'][0];
 			$( "input[name='last_searched_type0']" ).val( lastSearchedType0 );
+			
+			var searchTypeTemplate = data['searchTypeTemplate'];
+			$( "input[name='searchTypeTemplate']" ).val( searchTypeTemplate );
 			
 			/* 
 			 * If we want to just switch template between basic and advanced search,
