@@ -46,7 +46,7 @@ fields_in_core = "773,770,772,777,780,785"
 
 ; Set this to true in order to enable "next" and "previous" links to navigate
 ; through the current result set from within the record view.
-next_prev_navigation = true
+next_prev_navigation = false
 
 [Catalog]
 library_cards = true
