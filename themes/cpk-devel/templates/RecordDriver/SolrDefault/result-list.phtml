@@ -108,6 +108,12 @@
   $firstRecordInInstitutions = reset($records);
 
   $currentUrl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+
+    if (!function_exists('base64url_encode')) {
+        function base64url_encode($data) {
+            return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+        }
+    }
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
     <div class="white-box clearfix">
