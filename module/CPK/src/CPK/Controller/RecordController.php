@@ -167,14 +167,17 @@ class RecordController extends RecordControllerBase
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 
-        $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
+        $referer = $this->params()->fromQuery('referer', false);
         if ($referer) {
-            if (strpos($referer, '/Search/Results?') !== false) {
-                $view->referer = $referer;
-            }
+            $view->referer = $referer;
+            $view->refererUrl = $this->base64url_decode($referer);
         }
 
         return $view;
+    }
+
+    protected function base64url_decode($data) {
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 
     /**

@@ -106,6 +106,8 @@
   //
 
   $firstRecordInInstitutions = reset($records);
+
+  $currentUrl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
     <div class="white-box clearfix">
@@ -114,9 +116,9 @@
             <? $recordId =  preg_replace("/\./", "", $recordId)?>
             <? $recordId =  preg_replace("/:/", "", $recordId)?>
             <? if ($this->params->getSearchType() == 'advanced'): ?>
-            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=base64url_encode($currentUrl)?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
-            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?fromSearchId=<?=$this->results->getSearchId()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=base64url_encode($currentUrl)?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? endif;?>
             	<div class="coverThumbnail cover_<?=$recordId?>">
 
@@ -140,9 +142,9 @@
     <div class="col-sm-7 col-xs-7 middle search-result-container">
       <div class="root-title">
         <? if ($this->params->getSearchType() == 'advanced'): ?>
-        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?fromAdvancedSearchId=<?=$this->results->getSearchId()?>" class="title">
+        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=base64url_encode($currentUrl)?>" class="title">
         <? else: ?>
-        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?fromSearchId=<?=$this->results->getSearchId()?>" class="title">
+        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=base64url_encode($currentUrl)?>" class="title">
         <? endif;?>
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
