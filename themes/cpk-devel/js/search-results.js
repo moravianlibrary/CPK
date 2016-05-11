@@ -463,6 +463,20 @@ jQuery( document ).ready( function( $ ) {
 		},
 		
 		/**
+		 * Remove all filters
+		 * 
+		 * @param 	{boolean}	updateResults	Wanna update results?
+		 * @return	{undefined}
+		 */
+		removeAllFilters: function( updateResults ) {
+			$( '#hiddenFacetFilters input' ).remove();
+			
+			if ( updateResults ) {
+				ADVSEARCH.updateSearchResults( undefined, undefined );
+			}
+		},
+		
+		/**
 		 * Update URL with provided data via pushing state to window history
 		 * 
 		 * @param	{Object}	data	Object with lookFor, bool, etc.
@@ -737,7 +751,16 @@ jQuery( document ).ready( function( $ ) {
 		});
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
-
+	
+	/*
+	 * Add or remove clicked facet
+	 */
+	$( 'body' ).on( 'click', '#remove-all-filters-async', function( event ) {
+		event.preventDefault();
+		
+		ADVSEARCH.removeAllFilters( true );
+	});
+	
 	/*
 	 * Update search results on paginating
 	 */
