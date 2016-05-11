@@ -32,7 +32,8 @@ use VuFind\Db\Table\Gateway,
     Zend\Db\Sql\Select,
     Zend\Db\Sql\Update,
     Zend\Db\Sql\Delete,
-    Zend\Db\Sql\Insert;
+    Zend\Db\Sql\Insert,
+    Zend\Db\Sql\Expression;
 
 /**
  * Table Definition for PortalPage
@@ -247,6 +248,8 @@ class PortalPage extends Gateway
      */
     public function insertNewPage(array $page)
     {
+        $nextGroup = $this->getMaxValueInColumn('group') + 1;
+
         $insert = new Insert($this->table);
 
         $insert->values([
@@ -259,10 +262,31 @@ class PortalPage extends Gateway
             'position' => $page['position'],
             'order_priority' => $page['orderPriority'],
             'last_modified_timestamp' => date("Y-m-d H:i:s"),
-            'last_modified_user_id' => $page['userId']
+            'last_modified_user_id' => $page['userId'],
+            'group' => $nextGroup
         ]);
 
         $this->executeAnyZendSQLInsert($insert);
+
+        /* And create one page for second language */
+        $insert2 = new Insert($this->table);
+
+        $page['title'] .= ' 2';
+        $insert2->values([
+            'title' => $page['title'],
+            'pretty_url' => $this->generateCleanUrl($page['title']),
+            'language_code' => $page['language'],
+            'content' => $page['content'],
+            'published' => isset($page['published']) ? 1 : 0,
+            'placement' => $page['placement'],
+            'position' => $page['position'],
+            'order_priority' => $page['orderPriority'],
+            'last_modified_timestamp' => date("Y-m-d H:i:s"),
+            'last_modified_user_id' => $page['userId'],
+            'group' => $nextGroup
+        ]);
+
+        $this->executeAnyZendSQLInsert($insert2);
     }
 
     /**
@@ -297,5 +321,30 @@ class PortalPage extends Gateway
 	    $cleanUrl = preg_replace("/[\/_| -]+/", '-', $cleanUrl);
 
 	    return $cleanUrl;
+    }
+
+    /**
+     * Get max value in columnt
+     *
+     * @param string $column
+     *
+     * @return int
+     */
+    protected function getMaxValueInColumn($column)
+    {
+        $select = new Select($this->table);
+
+        $select->columns(array(
+            'max' => new Expression('MAX(`'.$column.'`)')
+        ));
+
+        $statement = $this->sql->prepareStatementForSqlObject($select);
+        $results = $statement->execute();
+
+        $resultSet = new \Zend\Db\ResultSet\ResultSet();
+        $resultSet->initialize($results);
+        $resultsArray = $resultSet->toArray();
+
+        return $resultsArray[0]['max'];
     }
 }
