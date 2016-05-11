@@ -40,10 +40,10 @@ class PortalPages extends \Zend\View\Helper\AbstractHelper
 {
     /**
      * @var CPK\Db\Table\PortalPage
-     * 
+     *
      */
     protected $portalPageTable;
-    
+
     /**
      * @param CPK\Db\Table\PortalPage $portalPageTable
      * @param string $languageCode
@@ -53,17 +53,18 @@ class PortalPages extends \Zend\View\Helper\AbstractHelper
         $this->portalPageTable = $portalPageTable;
         $this->languageCode = $languageCode;
     }
-    
+
     /**
      * Get the specified page
-     * 
+     *
      * @param unknown $prettyUrl
+     * * @param string $languageCode
      */
-    public function getPage($prettyUrl)
+    public function getPage($prettyUrl, $languageCode)
     {
-        return $this->portalPageTable->getPage($prettyUrl);
+        return $this->portalPageTable->getPage($prettyUrl, $languageCode);
     }
-    
+
     /**
      * Get all pages
      */

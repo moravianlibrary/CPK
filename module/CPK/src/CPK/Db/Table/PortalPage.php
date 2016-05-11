@@ -49,12 +49,12 @@ class PortalPage extends Gateway
      * @var \Zend\Config\Config
      */
     protected $config;
-    
+
     /**
      * Constructor
      *
      * @param \Zend\Config\Config $config VuFind configuration
-     * 
+     *
      * @return void
      */
     public function __construct(Config $config)
@@ -64,7 +64,7 @@ class PortalPage extends Gateway
         $this->rowClass = 'CPK\Db\Row\PortalPage';
         parent::__construct($this->table, $this->rowClass);
     }
-    
+
     /**
      * Executes any Select
      *
@@ -77,7 +77,7 @@ class PortalPage extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($select);
         return $statement->execute();
     }
-    
+
     /**
      * Executes any Update
      *
@@ -90,7 +90,7 @@ class PortalPage extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($update);
         return $statement->execute();
     }
-    
+
     /**
      * Executes any Insert
      *
@@ -103,7 +103,7 @@ class PortalPage extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($insert);
         return $statement->execute();
     }
-    
+
     /**
      * Executes any Delete
      *
@@ -116,7 +116,7 @@ class PortalPage extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($delete);
         return $statement->execute();
     }
-    
+
     /**
      * Returns database connection
      *
@@ -129,63 +129,64 @@ class PortalPage extends Gateway
 
     /**
      * Returns all rows from portal_pages table
-     * 
+     *
      * @param string    $languageCode, e.g. "en-cpk"
      * @param boolean   $publishedOnly Set to false to get all pages
      *
      * @return array
      */
     public function getAllPages($languageCode = '*', $publishedOnly = true)
-    {       
+    {
         $select = new Select($this->table);
-        
+
         $condition = '';
         if ($languageCode != '*') {
             $condition = "language_code='$languageCode'";
         }
-        
+
         if ($publishedOnly) {
             if (! empty($condition)) {
                 $condition .= ' AND published="1"';
             } else {
                 $condition = 'published="1"';
             }
-            
+
         }
         if (! empty($condition)) {
             $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
             $select->where($predicate);
         }
-        
+
         $select->order('order_priority');
-        
+
         $results= $this->executeAnyZendSQLSelect($select);
-        
+
         $resultSet = new \Zend\Db\ResultSet\ResultSet();
         $resultSet->initialize($results);
-        
+
         return $resultSet->toArray();
     }
-    
+
     /**
      * Return row from table
      *
      * @param string $prettyUrl
+     * @param string $languageCode
      *
      * @return array
      */
-    public function getPage($prettyUrl)
+    public function getPage($prettyUrl, $languageCode)
     {
         $select = new Select($this->table);
-        
-        $condition = "`pretty_url`='$prettyUrl'";
+        $subSelect = "SELECT `group` FROM `$this->table` WHERE `pretty_url`='$prettyUrl'";
+        $condition = "`language_code` = '$languageCode' AND `group` = ($subSelect) ";
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
-        
+
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result;
     }
-    
+
     /**
      * Return row from table by id
      *
@@ -196,9 +197,9 @@ class PortalPage extends Gateway
     public function getPageById($pageId)
     {
         $select = new Select($this->table);
-    
+
         $subSelect = "SELECT `group` FROM `portal_pages` ";
-    
+
         $condition = "`id`='$pageId'";
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
@@ -206,18 +207,18 @@ class PortalPage extends Gateway
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result;
     }
-    
+
     /**
      * Save edited row to table by id
      *
      * @param array $page
-     * 
+     *
      * @return void
      */
     public function save(array $page)
     {
         $update = new Update($this->table);
-        
+
         $update->set([
             'title' => $page['title'],
             'pretty_url' => $this->generateCleanUrl($page['title']),
@@ -233,21 +234,21 @@ class PortalPage extends Gateway
         $update->where([
             'id' => $page['pageId']
         ]);
-    
+
         $this->executeAnyZendSQLUpdate($update);
     }
-    
+
     /**
      * Insert a new row to table
      *
      * @param array $page
-     * 
+     *
      * @return void
      */
     public function insertNewPage(array $page)
     {
         $insert = new Insert($this->table);
-    
+
         $insert->values([
             'title' => $page['title'],
             'pretty_url' => $this->generateCleanUrl($page['title']),
@@ -260,10 +261,10 @@ class PortalPage extends Gateway
             'last_modified_timestamp' => date("Y-m-d H:i:s"),
             'last_modified_user_id' => $page['userId']
         ]);
-    
+
         $this->executeAnyZendSQLInsert($insert);
     }
-    
+
     /**
      * Remove row from table by id
      *
@@ -274,17 +275,17 @@ class PortalPage extends Gateway
     public function delete($pageId)
     {
         $update = new Delete($this->table);
-    
+
         $update->where([
             'id' => $pageId
         ]);
-    
+
         $this->executeAnyZendSQLDelete($update);
     }
-    
+
     /**
      * Generate clean url from title
-     * 
+     *
      * @param string $title
      */
     protected function generateCleanUrl($title)

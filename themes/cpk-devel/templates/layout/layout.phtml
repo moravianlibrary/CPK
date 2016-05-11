@@ -236,7 +236,7 @@
           <div class="modal-body" ng-last-used ng-show='fedLoginCtrl.hasLastIdps()'>
 		  </div>
 		  <div class="modal-header link" ng-click="fedLoginCtrl.showHelpContent()" style="cursor: pointer">
-		    <? $portalPage = $this->portalPages()->getPage('napoveda-pro-prihlaseni-a-registraci'); ?>
+		    <? $portalPage = $this->portalPages()->getPage('napoveda-pro-prihlaseni-a-registraci', explode("-", $this->layout()->userLang)[0]); ?>
 		    <h4 class="modal-title"><?=$portalPage['title']?></h4>
 		  </div>
 		  <div class="modal-body" ng-help-content hidden="hidden">

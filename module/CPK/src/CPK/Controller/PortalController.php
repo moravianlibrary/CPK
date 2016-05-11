@@ -32,7 +32,7 @@ use VuFind\Controller\AbstractBase;
  * @author  Martin Kravec <martin.kravec@mzk.cz>
  * @license http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  */
-class PortalController extends AbstractBase 
+class PortalController extends AbstractBase
 {
 	/**
 	 * View page
@@ -42,19 +42,31 @@ class PortalController extends AbstractBase
 	public function pageAction()
 	{
 	    $prettyUrl = $this->params()->fromRoute('subaction');
-	    $language = $this->params()->fromRoute('param');
-	    
 	    $portalPagesTable = $this->getTable("portalpages");
-	    $page = $portalPagesTable->getPage($prettyUrl);
-	    
+	    $config = $this->getConfig();
+
+	    /* Sorry, @FIXME We need to get lenguage, which we selected, but is not in COOKIE at this point of code */
+	    /* This solution also does not support more than 2 languages. */
+	    $previousLanguageCode = (! empty($_COOKIE['language'])) ? $_COOKIE['language'] : $config->Site->language ;
+	    $explodedPreviousLang = explode("-", $previousLanguageCode, 2);
+	    if ($explodedPreviousLang[0] == 'cs') {
+	        $langPrefix = 'en';
+	    } else {
+	        $langPrefix = 'cs';
+	    }
+	    $languageCode = $langPrefix."-".$explodedPreviousLang[1];
+	    /**/
+
+	    $page = $portalPagesTable->getPage($prettyUrl, $languageCode);
+
 	    $view = $this->createViewModel([
 	       'page' => $page,
 	    ]);
-	    
+
 	    $view->setTemplate('portal/page');
-	    
+
 	    if (! $page) $view->setTemplate('error/404');
-	   
+
 	    if ($page['published'] != '1') {
 	        $view->setTemplate('error/404');
 	        $displayToken = $this->params()->fromQuery('displayToken');
@@ -67,7 +79,7 @@ class PortalController extends AbstractBase
         	    }
 	        }
 	    }
-	    
+
 	    return $view;
 	}
 }

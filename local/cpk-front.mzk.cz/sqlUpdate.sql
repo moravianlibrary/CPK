@@ -317,3 +317,6 @@ ALTER TABLE `portal_pages` CHANGE `language_code` `language_code` VARCHAR( 32 ) 
 UPDATE `portal_pages` SET language_code = 'cs-cpk-institutions' WHERE language_code = 'cs-cpk';
 UPDATE `portal_pages` SET language_code = 'en-cpk-institutions' WHERE language_code = 'en-cpk';
 UPDATE `system` SET `value`='22' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `portal_pages` ADD `group` INT NOT NULL;
+UPDATE `system` SET `value`='23' WHERE `key`='DB_VERSION';
