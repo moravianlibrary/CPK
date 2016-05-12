@@ -185,6 +185,12 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		
 		var data = {};
+		var institutions = [];
+		$( '.jstree-clicked span' ).each( function( index, element ) {
+			var explodedArray = $( element ).attr( 'data-facet' ).split(":");
+			institutions.push(explodedArray[1].slice(1, -1));
+		});
+		data['institutions'] = institutions;
 		
 		$.ajax({
         	type: 'POST',
@@ -195,7 +201,8 @@ jQuery( document ).ready( function( $ ) {
         	beforeSend: function() {
         	},
         	success: function( response ) {
-        		
+        		console.log( 'Save these institutions: ' );
+        		console.log( data );
         		if (response.status == 'OK') {
         			
         			$( '#save-these-institutions-confirmation' ).modal( 'show' );

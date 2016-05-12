@@ -336,4 +336,49 @@ class UserSettings extends Gateway
             $this->getDbConnection()->commit();
         }
     }
+
+    /**
+     * Save chosen institutions to DB
+     *
+     * @param VuFind\Db\Row\User $user
+     * @param array $institutions
+     *
+     * @return void
+     */
+    public function saveTheseInstitutions(User $user, array $institutions = [])
+    {
+        $data = "";
+        foreach($institutions as $institution) {
+            $data .= $institution.';';
+        }
+        $data = trim($data, ";");
+
+        $hasUserSettingsAlready = $this->hasUserSettings($user);
+
+        // insert new setting if not already set
+        if (! $hasUserSettingsAlready) {
+
+            $this->getDbConnection()->beginTransaction();
+            $this->getDbTable($this->table)->insert([
+                'user_id' => $user->id,
+                'saved_institutions' => $data
+            ]);
+            $this->getDbConnection()->commit();
+
+        } else { // update setting if already set
+
+            $update = new Update($this->table);
+            $update->set([
+                'saved_institutions' => $data
+            ]);
+            $update->where([
+                'user_id' => $user->id
+            ]);
+
+            $this->getDbConnection()->beginTransaction();
+            $this->sql->prepareStatementForSqlObject($update)->execute();
+            $this->getDbConnection()->commit();
+        }
+    }
+
 }

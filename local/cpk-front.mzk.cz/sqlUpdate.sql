@@ -321,5 +321,5 @@ UPDATE `system` SET `value`='22' WHERE `key`='DB_VERSION';
 ALTER TABLE `portal_pages` ADD `group` INT NOT NULL;
 UPDATE `system` SET `value`='23' WHERE `key`='DB_VERSION';
 
-ALTER TABLE `user_settings` ADD `saved_institutions` TEXT NULL;
+ALTER TABLE `user_settings` ADD `saved_institutions` TEXT NOT NULL;
 UPDATE `system` SET `value`='24' WHERE `key`='DB_VERSION';

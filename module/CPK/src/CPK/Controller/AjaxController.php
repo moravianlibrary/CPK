@@ -1341,10 +1341,26 @@ class AjaxController extends AjaxControllerBase
      */
     public function saveTheseInstitutionsAjax()
     {
-        /*$postParams = $this->params()->fromPost();
-        $searchController = $this->getServiceLocator()->get('searchController');
-        $viewData = $searchController->ajaxResultsAction($postParams);*/
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
 
-        return $this->output($viewData, self::STATUS_OK);
+        $institutions = $this->params()->fromPost('institutions');
+
+        if ($user) {
+            try {
+                $userSettingsTable = $this->getTable("usersettings");
+                $userSettingsTable->saveTheseInstitutions($user, $institutions);
+            } catch (\Exception $e) {
+                return $this->outputException($e);
+            }
+
+        } else {
+            return $this->output([message => "You can't save these institutions when you are not logged in."], self::STATUS_NEED_AUTH);
+        }
+
+        return $this->output([], self::STATUS_OK);
     }
 }
