@@ -43,19 +43,15 @@ class PortalController extends AbstractBase
 	{
 	    $prettyUrl = $this->params()->fromRoute('subaction');
 	    $portalPagesTable = $this->getTable("portalpages");
-	    $config = $this->getConfig();
 
-	    /* Sorry, @FIXME We need to get lenguage, which we selected, but is not in COOKIE at this point of code */
-	    /* This solution also does not support more than 2 languages. */
-	    $previousLanguageCode = (! empty($_COOKIE['language'])) ? $_COOKIE['language'] : $config->Site->language ;
-	    $explodedPreviousLang = explode("-", $previousLanguageCode, 2);
-	    if ($explodedPreviousLang[0] == 'cs') {
-	        $langPrefix = 'en';
+	    if (! empty($this->params()->fromPost('mylang'))) {
+	        $languageCode = $this->params()->fromPost('mylang');
+	    } else if (! empty($_COOKIE['language'])) {
+	        $languageCode = $_COOKIE['language'];
 	    } else {
-	        $langPrefix = 'cs';
+	        $config = $this->getConfig();
+	        $languageCode = $config->Site->language;
 	    }
-	    $languageCode = $langPrefix."-".$explodedPreviousLang[1];
-	    /**/
 
 	    $page = $portalPagesTable->getPage($prettyUrl, $languageCode);
 
