@@ -30,9 +30,9 @@ namespace CPK\Controller;
 use MZKCommon\Controller\AjaxController as AjaxControllerBase, VuFind\Exception\ILS as ILSException;
 
 class AjaxController extends AjaxControllerBase
-{   
+{
     use \VuFind\Db\Table\DbTableAwareTrait;
-    
+
     /**
      * Downloads SFX JIB content for current record.
      *
@@ -608,35 +608,35 @@ class AjaxController extends AjaxControllerBase
             // Get the cat_username being requested
         $post = $this->params()->fromPost();
         $cat_username = $post['cat_username'];
-        
+
         $hasPermissions = $this->hasPermissions($cat_username);
-        
+
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
-        
+
         $renderer = $this->getViewRenderer();
-        
+
         $catalog = $this->getILS();
-        
+
         $ilsDriver = $catalog->getDriver();
-        
+
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
-            
+
             $patron = [
                 'cat_username' => $cat_username,
                 'id' => $cat_username
             ];
-            
+
             $page = isset($post['page']) ? $post['page'] : 1;
-            $perPage = isset($post['perPage']) ? (int) $post['perPage'] : 10;            
-            
+            $perPage = isset($post['perPage']) ? (int) $post['perPage'] : 10;
+
             try {
                 // Try to get the profile ..
                 $result = $ilsDriver->getMyHistoryPage($patron, $page, $perPage);
             } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
-            
+
             $i = 0;
             foreach ($result['historyPage'] as &$historyItem) {
 
@@ -662,7 +662,7 @@ class AjaxController extends AjaxControllerBase
                     $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                 }
             }
-            
+
             return $this->output($result, self::STATUS_OK);
         } else
             return $this->output([
@@ -1084,9 +1084,9 @@ class AjaxController extends AjaxControllerBase
             $cat_username = 'unknown';
             $source = $cat_username;
         } else {
-            
+
             $cat_username = str_replace(':', '\:', $cat_username);
-            
+
             $splittedCatUsername = explode('.', $cat_username);
 
             $source = $splittedCatUsername[0];
@@ -1319,7 +1319,7 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output([], self::STATUS_OK);
     }
-    
+
     /**
      * Return search results
      *
@@ -1330,6 +1330,20 @@ class AjaxController extends AjaxControllerBase
         $postParams = $this->params()->fromPost();
         $searchController = $this->getServiceLocator()->get('searchController');
         $viewData = $searchController->ajaxResultsAction($postParams);
+
+        return $this->output($viewData, self::STATUS_OK);
+    }
+
+    /**
+     * Save chosen institutions to DB
+     *
+     * @return \Zend\Http\Response
+     */
+    public function saveTheseInstitutionsAjax()
+    {
+        /*$postParams = $this->params()->fromPost();
+        $searchController = $this->getServiceLocator()->get('searchController');
+        $viewData = $searchController->ajaxResultsAction($postParams);*/
 
         return $this->output($viewData, self::STATUS_OK);
     }

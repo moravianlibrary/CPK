@@ -48,20 +48,20 @@ class UserSettings extends Gateway
      * @var \Zend\Config\Config
      */
     protected $config;
-    
+
     /**
      * Constructor
      *
      * @param \Zend\Config\Config $config VuFind configuration
-     * 
-     * @return void 
+     *
+     * @return void
      */
     public function __construct(Config $config)
     {
         $this->config = $config;
         parent::__construct('user_settings', 'CPK\Db\Row\UserSettings');
     }
-    
+
     /**
      * Executes any Select
      *
@@ -74,7 +74,7 @@ class UserSettings extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($select);
         return $statement->execute();
     }
-    
+
     /**
      * Executes any Update
      *
@@ -87,7 +87,7 @@ class UserSettings extends Gateway
         $statement = $this->sql->prepareStatementForSqlObject($update);
         return $statement->execute();
     }
-    
+
     /**
      * Returns database connection
      *
@@ -104,10 +104,10 @@ class UserSettings extends Gateway
      * @return array
      */
     public function getSettings(User $user)
-    {       
+    {
         return $this->select(['user_id' => $user['id']])->toArray();
     }
-    
+
     /**
      * Returns citation style for user from user_settings table
      *
@@ -122,15 +122,15 @@ class UserSettings extends Gateway
             'citation_style'
         ]);
         $select->limit(1);
-        
+
         $condition = 'user_id="'.$user['id'].'" AND citation_style IS NOT NULL';
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
-        
+
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result['citation_style'];
     }
-    
+
     /**
      * Returns whether user has a row in user_settings table
      *
@@ -142,21 +142,21 @@ class UserSettings extends Gateway
     {
         $select = new Select($this->table);
         $select->limit(1);
-    
+
         $condition = 'user_id="'.$user['id'].'"';
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
-    
+
         $result = $this->executeAnyZendSQLSelect($select)->current();
         if (! empty($result))
             return true;
-        
+
         return false;
     }
-    
+
     /**
      * Set preferred citation style into user_settings table
-     * 
+     *
      * @param VuFind\Db\Row\User $user
      * @param string $citationStyleValue
      *
@@ -165,19 +165,19 @@ class UserSettings extends Gateway
     public function setCitationStyle(User $user, $citationStyleValue)
     {
         $hasUserSettingsAlready = $this->hasUserSettings($user);
-        
+
         // insert new setting if not already set
         if (! $hasUserSettingsAlready) {
-            
+
             $this->getDbConnection()->beginTransaction();
             $this->getDbTable($this->table)->insert([
                 'user_id' => $user->id,
                 'citation_style' => $citationStyleValue
             ]);
             $this->getDbConnection()->commit();
-            
+
         } else { // update setting if already set
-            
+
             $update = new Update($this->table);
             $update->set([
                 'citation_style' => $citationStyleValue
@@ -185,13 +185,13 @@ class UserSettings extends Gateway
             $update->where([
                 'user_id' => $user->id
             ]);
-            
+
             $this->getDbConnection()->beginTransaction();
             $this->sql->prepareStatementForSqlObject($update)->execute();
             $this->getDbConnection()->commit();
         }
     }
-    
+
     /**
      * Set preferred amount of records per page for user into user_settings table
      *
@@ -203,19 +203,19 @@ class UserSettings extends Gateway
     public function setRecordsPerPage(User $user, $recordsPerPage)
     {
         $hasUserSettingsAlready = $this->hasUserSettings($user);
-    
+
         // insert new setting if not already set
         if (! $hasUserSettingsAlready) {
-    
+
             $this->getDbConnection()->beginTransaction();
             $this->getDbTable($this->table)->insert([
                 'user_id' => $user->id,
                 'records_per_page' => $recordsPerPage
             ]);
             $this->getDbConnection()->commit();
-    
+
         } else { // update setting if already set
-    
+
             $update = new Update($this->table);
             $update->set([
                 'records_per_page' => $recordsPerPage
@@ -229,7 +229,7 @@ class UserSettings extends Gateway
             $this->getDbConnection()->commit();
         }
     }
-    
+
     /**
      * Returns records per page for user from user_settings table
      *
@@ -244,17 +244,17 @@ class UserSettings extends Gateway
             'records_per_page'
         ]);
         $select->limit(1);
-    
+
         $condition = 'user_id="'.$user['id'].'" AND records_per_page IS NOT NULL';
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
-    
+
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result['records_per_page'];
     }
-    
+
     /**
-     * Returns array of user settings from user_settings table
+     * Returns sorting of user settings from user_settings table
      *
      * @param VuFind\Db\Row\User $user
      *
@@ -267,15 +267,38 @@ class UserSettings extends Gateway
             'sorting'
         ]);
         $select->limit(1);
-    
+
         $condition = 'user_id="'.$user['id'].'" AND sorting IS NOT NULL';
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
-    
+
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result['sorting'];
     }
-    
+
+    /**
+     * Returns saved institutions from user settings from user_settings table
+     *
+     * @param VuFind\Db\Row\User $user
+     *
+     * @return string
+     */
+    public function getSavedInstitutions(User $user)
+    {
+        $select = new Select($this->table);
+        $select->columns([
+            'saved_institutions'
+        ]);
+        $select->limit(1);
+
+        $condition = 'user_id="'.$user['id'].'" AND saved_institutions IS NOT NULL';
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        return $result['saved_institutions'];
+    }
+
     /**
      * Set preferred sorting for user into user_settings table
      *
@@ -287,19 +310,19 @@ class UserSettings extends Gateway
     public function setPreferredSorting(User $user, $preferredSorting)
     {
         $hasUserSettingsAlready = $this->hasUserSettings($user);
-    
+
         // insert new setting if not already set
         if (! $hasUserSettingsAlready) {
-    
+
             $this->getDbConnection()->beginTransaction();
             $this->getDbTable($this->table)->insert([
                 'user_id' => $user->id,
                 'sorting' => $preferredSorting
             ]);
             $this->getDbConnection()->commit();
-    
+
         } else { // update setting if already set
-    
+
             $update = new Update($this->table);
             $update->set([
                 'sorting' => $preferredSorting

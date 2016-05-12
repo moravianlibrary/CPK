@@ -175,3 +175,51 @@ function initInstitutionsTree(treeNode, inSidebar)
     }
   );
 }
+
+jQuery( document ).ready( function( $ ) {
+	
+	/*
+	 * Save chosen institutions to DB
+	 */
+	$( 'body' ).on( 'click', '#save-these-institutions', function( event ) {
+		event.preventDefault();
+		
+		var data = {};
+		
+		$.ajax({
+        	type: 'POST',
+        	cache: false,
+        	dataType: 'json',
+        	url: VuFind.getPath() + '/AJAX/JSON?method=saveTheseInstitutions',
+        	data: data,
+        	beforeSend: function() {
+        	},
+        	success: function( response ) {
+        		
+        		if (response.status == 'OK') {
+        			
+        			$( '#save-these-institutions-confirmation' ).modal( 'show' );
+        			
+        			setTimeout( function() {
+        				$( '#save-these-institutions-confirmation' ).modal( 'hide' );
+        			}, 1200 );
+        			
+        		} else {
+        			console.error(response.data);
+        		}
+
+         	},
+            error: function ( xmlHttpRequest, status, error ) {
+            	$( '#search-results-loader' ).remove();
+            	console.error(xmlHttpRequest.responseText);
+            	console.error(xmlHttpRequest);
+            	console.error(status);
+            	console.error(error);
+            },
+            complete: function ( xmlHttpRequest, textStatus ) {
+            }
+        });
+		
+	});
+	
+});
