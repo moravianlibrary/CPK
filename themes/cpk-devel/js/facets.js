@@ -177,13 +177,13 @@ function initInstitutionsTree(treeNode, inSidebar)
 }
 
 jQuery( document ).ready( function( $ ) {
-	
+
 	/*
 	 * Save chosen institutions to DB
 	 */
 	$( 'body' ).on( 'click', '#save-these-institutions', function( event ) {
 		event.preventDefault();
-		
+
 		var data = {};
 		var institutions = [];
 
@@ -194,7 +194,7 @@ jQuery( document ).ready( function( $ ) {
         });
 
 		data['institutions'] = institutions;
-		
+
 		$.ajax({
         	type: 'POST',
         	cache: false,
@@ -207,13 +207,13 @@ jQuery( document ).ready( function( $ ) {
         		console.log( 'Save these institutions: ' );
         		console.log( data );
         		if (response.status == 'OK') {
-        			
+
         			$( '#save-these-institutions-confirmation' ).modal( 'show' );
-        			
+
         			setTimeout( function() {
         				$( '#save-these-institutions-confirmation' ).modal( 'hide' );
         			}, 1200 );
-        			
+
         		} else {
         			console.error(response.data);
         		}
@@ -229,7 +229,71 @@ jQuery( document ).ready( function( $ ) {
             complete: function ( xmlHttpRequest, textStatus ) {
             }
         });
-		
+
 	});
-	
+
+    /*
+     * Loading institutions from db
+     */
+    $( 'body' ).on( 'click', '#load-institutions', function( event ) {
+        event.preventDefault();
+
+
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            dataType: 'json',
+            url: VuFind.getPath() + '/AJAX/JSON?method=getSavedInstitutions',
+            beforeSend: function() {
+            },
+            success: function( response ) {
+                console.log( 'Save these institutions: ' );
+                console.log( response );
+                if (response.status == 'OK') {
+                    $('#facet_institution').jstree(true).deselect_all();
+
+                    var csvInstitutions = response.data.savedInstitutions;
+
+                    var arrayInstitutions = csvInstitutions.split(";");
+
+
+                    $.each( arrayInstitutions, function( index, value ){
+                        var institution = '~institution:"' + value + '"';
+                        $('#facet_institution').jstree(true).select_node(institution);
+
+                    });
+
+                    $( "input[name='page']" ).val( '1' );
+
+                    //remove all institutions
+                    var allInstitutions = $('#facet_institution').jstree(true).get_json('#', {flat:true});
+                    $.each( allInstitutions, function( index, value ){
+                        ADVSEARCH.removeFacetFilter( value['id'], false );
+                    });
+
+                    //add selected institutions
+                    var selectedInstitutions = $('#facet_institution').jstree(true).get_bottom_selected();
+                    $.each( selectedInstitutions, function( index, value ){
+                        ADVSEARCH.addFacetFilter( value, false );
+                    });
+                    ADVSEARCH.updateSearchResults( undefined, undefined );
+
+                } else {
+                    console.error(response.data);
+                }
+
+            },
+            error: function ( xmlHttpRequest, status, error ) {
+                $( '#search-results-loader' ).remove();
+                console.error(xmlHttpRequest.responseText);
+                console.error(xmlHttpRequest);
+                console.error(status);
+                console.error(error);
+            },
+            complete: function ( xmlHttpRequest, textStatus ) {
+            }
+        });
+
+    });
+
 });
