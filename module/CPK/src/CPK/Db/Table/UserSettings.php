@@ -277,29 +277,6 @@ class UserSettings extends Gateway
     }
 
     /**
-     * Returns saved institutions from user settings from user_settings table
-     *
-     * @param VuFind\Db\Row\User $user
-     *
-     * @return string
-     */
-    public function getSavedInstitutions(User $user)
-    {
-        $select = new Select($this->table);
-        $select->columns([
-            'saved_institutions'
-        ]);
-        $select->limit(1);
-
-        $condition = 'user_id="'.$user['id'].'" AND saved_institutions IS NOT NULL';
-        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
-        $select->where($predicate);
-
-        $result = $this->executeAnyZendSQLSelect($select)->current();
-        return $result['saved_institutions'];
-    }
-
-    /**
      * Set preferred sorting for user into user_settings table
      *
      * @param VuFind\Db\Row\User $user
@@ -381,4 +358,26 @@ class UserSettings extends Gateway
         }
     }
 
+    /**
+     * Get saved institutions
+     *
+     * @param VuFind\Db\Row\User $user
+     *
+     * @return string
+     */
+    public function getSavedInstitutions(User $user)
+    {
+        $select = new Select($this->table);
+        $select->columns([
+            'saved_institutions'
+        ]);
+        $select->limit(1);
+
+        $condition = 'user_id="'.$user['id'].'" AND saved_institutions IS NOT NULL';
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        return $result['saved_institutions'];
+    }
 }

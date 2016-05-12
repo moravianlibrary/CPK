@@ -1363,4 +1363,28 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output([], self::STATUS_OK);
     }
+
+    /**
+     * Get saved institutions
+     *
+     * @return \Zend\Http\Response
+     */
+    public function getSavedInstitutionsAjax()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        $savedInstitutions = '';
+        try {
+            $userSettingsTable = $this->getTable("usersettings");
+            $savedInstitutions = $userSettingsTable->getSavedInstitutions($user);
+        } catch (\Exception $e) {
+            return $this->outputException($e);
+        }
+
+        return $this->output(['savedInstitutions' => $savedInstitutions], self::STATUS_OK);
+    }
 }
