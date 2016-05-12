@@ -140,6 +140,14 @@ foreach ($queryParams as $key => $value) {
           <button type="button" class="btn btn-primary btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
           <? endif; ?>
           <? endif; ?>
+
+          <? if($cluster['label'] == 'Institution'): ?>
+            <span>
+                <a href='#' title='<?=$this->translate('Load institutions')?>' data-toggle="tooltip" id='load-institutions'>
+                    <i class='pr-web-uploadarrow' style='color: #ddd;'></i>
+                </a>
+            </span>
+          <? endif; ?>
       </div>
       <div id="side-collapse-<?=$this->escapeHtmlAttr($title) ?>" class="collapse<? if(!in_array($title, $collapsedFacets)): ?> in<? endif ?>">
         <? if (isset($rangeFacets[$title])): ?>
@@ -313,13 +321,11 @@ JS;
       <? if($cluster['label'] == 'Institution'): ?>
         <div style="text-align: center;">
           <button type="button" style="border: 0px none;" class="btn btn-primary btn-sm institution-facet-filter-button"><?=$this->translate('Update results')?></button>
-          <button type="button" style="border: 0px none;" class="btn btn-primary btn-sm" id='save-these-institutions'><?=$this->translate('Save these institutions')?></button>
-          <button type="button" style="border: 0px none;" class="btn btn-primary btn-sm" id='load-institutions'><?=$this->translate('Load institutions')?></button>
-        </div>
-        <div style='text-align: right; color: #ddd;'>
-      	  <a href='#' title='<?=$this->translate('Save these institutions')?>' id='save-these-institutions'>
-      		<i class='fa fa-floppy-o'></i>
-      	  </a>
+            <span>
+                <a href='#' title='<?=$this->translate('Save these institutions')?>' data-toggle="tooltip" id='save-these-institutions'>
+                    <i class='pr-web-downloadarrow' style='color: #ddd;'></i>
+                </a>
+            </span>
         </div>
       <? endif; ?>
       <div class='facet-divider'></div>
@@ -327,6 +333,11 @@ JS;
 
   <? endforeach; ?>
 <? endif; ?>
+<script>
+$(function () {
+$('[data-toggle="tooltip"]').tooltip()
+})
+</script>
 
 <?=$this->render("Recommend/SideFacets/timelineModal.phtml")?>
 
