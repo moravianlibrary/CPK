@@ -186,10 +186,13 @@ jQuery( document ).ready( function( $ ) {
 		
 		var data = {};
 		var institutions = [];
-		$( '.jstree-clicked span' ).each( function( index, element ) {
-			var explodedArray = $( element ).attr( 'data-facet' ).split(":");
-			institutions.push(explodedArray[1].slice(1, -1));
-		});
+
+        var selectedInstitutions = $('#facet_institution').jstree(true).get_bottom_selected();
+        $.each( selectedInstitutions, function( index, value ){
+            var explodedArray = value.split(":");
+            institutions.push(explodedArray[1].slice(1, -1));
+        });
+
 		data['institutions'] = institutions;
 		
 		$.ajax({
