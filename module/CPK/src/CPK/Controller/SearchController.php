@@ -608,6 +608,11 @@ class SearchController extends AbstractSearch
 
 	    $view->searchResults = true;
 
+	    $view->referer = $this->base64url_encode(
+	        'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' .
+	        "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"
+	    );
+
 	    return $view;
 	}
 
@@ -801,6 +806,9 @@ class SearchController extends AbstractSearch
         $request = $this->getRequest()->getQuery()->toArray()
         + $this->getRequest()->getPost()->toArray()
         + $postParams;
+
+        /* Prepare referer */
+        $viewData['referer'] = $this->base64url_encode($postParams['searchResultsUrl']);
 
         /* Set limit and sort */
         $searchesConfig = $this->getConfig('searches');
@@ -1019,5 +1027,9 @@ class SearchController extends AbstractSearch
         $viewRender = $this->getServiceLocator()->get('ViewRenderer');
         $html = $viewRender->render($viewModel);
         return $html;
+    }
+
+    protected function base64url_encode($data) {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 }

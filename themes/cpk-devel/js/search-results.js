@@ -274,6 +274,11 @@ jQuery( document ).ready( function( $ ) {
     		} else { // from history
     			ADVSEARCH.replaceUrl( data );
     		}
+    		
+    		/*
+    		 * Send current url (for link in full view Go back to search results)
+    		 * */
+			data['searchResultsUrl'] = window.location.href;
 			
     		/*
     		 * Get search results from Solr and display them
