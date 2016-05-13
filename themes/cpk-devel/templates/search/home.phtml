@@ -30,20 +30,18 @@
   <? endif; ?>
   <div class="col-md-4 most-wanted">
     <h2><?=$this->transEsc('frontpage-most-wanted')?></h2>
-    <? $iBook=0 ?>
     <div class="list-group">
       <? foreach ($mostWanted as $book): ?>
-        <? $iBook++ ?>
       <a href="#" class="list-group-item clearfix">
-        <row>
-          <div class="col-xs-11">
+        <div class='row'>
+          <div class="col-xs-3 ">
+			<img width="50" align="middle" alt="cover" src="https://cache.obalkyknih.cz/api/cover?multi=%7B%22isbn%22%3A%228071693731%22%2C%22nbn%22%3A%22BOA001-svkos.MVK01000235838%22%7D&type=medium&keywords=(V%C5%A1e%3Aphp)">
+          </div>
+          <div class="col-xs-9 content">
             <h4 class="list-group-item-heading"><?=$book['name']?></h4>
             <p class="list-group-item-text"><?=$book['author']?></p>
           </div>
-          <div class="number">
-            <?=$iBook?>
-          </div>
-        </row>
+        </div>
       </a>
       <? endforeach; ?>
 
