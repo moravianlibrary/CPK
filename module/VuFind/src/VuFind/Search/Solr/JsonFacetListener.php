@@ -140,20 +140,22 @@ class JsonFacetListener
         $defaultFacetLimit = $params->get('facet.limit')[0];
         $jsonFacetData = [];
         $remaining = [];
-        foreach ($params->get('facet.field') as $facetField) {
-            $field = $facetField;
-            if (preg_match(self::SOLR_LOCAL_PARAMS, $field, $matches)) {
-                $field = $matches[2];
-            }
-            $isNested = in_array($field, $this->nestedFacets);
-            if ($this->enabledForAllFacets || $isNested) {
-                $limit = $params->get('f.' . $field . '.facet.limit')[0];
-                if (!isset($limit)) {
-                    $limit = $defaultFacetLimit;
+        if ($params->get('facet.field')) {
+            foreach ($params->get('facet.field') as $facetField) {
+                $field = $facetField;
+                if (preg_match(self::SOLR_LOCAL_PARAMS, $field, $matches)) {
+                    $field = $matches[2];
                 }
-                $jsonFacetData[$field] = $this->getFacetConfig($field, $limit);
-            } else {
-                $remaining[] = $facetField;
+                $isNested = in_array($field, $this->nestedFacets);
+                if ($this->enabledForAllFacets || $isNested) {
+                    $limit = $params->get('f.' . $field . '.facet.limit')[0];
+                    if (!isset($limit)) {
+                        $limit = $defaultFacetLimit;
+                    }
+                    $jsonFacetData[$field] = $this->getFacetConfig($field, $limit);
+                } else {
+                    $remaining[] = $facetField;
+                }
             }
         }
         if (empty($remaining)) {
