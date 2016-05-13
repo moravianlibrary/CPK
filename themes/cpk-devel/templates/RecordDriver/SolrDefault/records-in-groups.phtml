@@ -5,7 +5,7 @@
 
 	  	$recordSource = explode(".", $this->driver->getUniqueId())[0];
 
-	  	$logoUrl = $this->config->IdPLogos->$recordSource ?: '';
+	  	$logoUrl = isset($this->config->IdPLogos->$recordSource) ? $this->config->IdPLogos->$recordSource : '';
 
 	  	$currentInstitution = $this->translate('source_'.$recordSource);
   	?>
@@ -20,17 +20,17 @@
 		<div class='single-institution' style='width: 100%;'>
 		<h3 style="margin-top: 5px; margin-bottom: 5px; padding: 10px 10px 30px 10px;">
 	<? endif;?>
-			
+
 			<? if ($logoUrl) : ?>
 				<img class='hidden-xs' height='20' src='<?=$logoUrl?>' align='right'>
 			<? endif;?>
 
 			<span class='pull-left'>
 				<?=$currentInstitution?>
-				
+
 				<? if (count($dedupedRecords) !== 1) : ?>
 					<i class="fa fa-caret-down"></i>
-				<? endif;?>	
+				<? endif;?>
 			</span>
 			</h3>
 
@@ -45,7 +45,7 @@
                         $tempCnbs[] = $record;
                         unset($dedupedRecords[$key]);
                     }
-                    
+
                     if ($record['source'] === 'source_caslin') {
                         $tempCaslins[] = $record;
                         unset($dedupedRecords[$key]);
@@ -64,16 +64,16 @@
 	  				$sourceWithoutPrefix = substr($source, 7);
 	  				$logoUrl = $this->config->IdPLogos->$sourceWithoutPrefix ?: '';
 	  				//if ($source !== 'source_'.$recordSource)
-	  				
-	  				$fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId'])) 
-	  				 ? '?fromAdvancedSearchId='.htmlspecialchars($_GET['fromAdvancedSearchId']) 
+
+	  				$fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
+	  				 ? '?fromAdvancedSearchId='.htmlspecialchars($_GET['fromAdvancedSearchId'])
 	  				 : '';
-	  				
+
 	  					echo "<li><a href='".$this->url('record', array('id' => $link)).$fromAdvancedSearchIdParam."' title='".$this->translate($source)."'><div class='record-group-list-item'>";
-	  					
+
 	  					if ($logoUrl)
 	  					    echo "<img class='hidden-xs pull-right' height='16' src='$logoUrl'>";
-	  					
+
 	  					echo "<span>".$this->translate($source)."</span>";
 
                         echo "</div></a></li>";
