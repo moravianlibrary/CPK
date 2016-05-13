@@ -1,4 +1,4 @@
-<div class="well" style='padding: 0px !important;'>
+<div style='padding: 0px !important;'>
 
   	<?php
 	  	$dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
