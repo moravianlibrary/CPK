@@ -233,11 +233,10 @@ jQuery( document ).ready( function( $ ) {
 	});
 
     /*
-     * Loading institutions from db
+     * Load saved institutions from db
      */
-    $( 'body' ).on( 'click', '#load-institutions', function( event ) {
+    $( 'body' ).on( 'click', '#load-saved-institutions', function( event ) {
         event.preventDefault();
-
 
         $.ajax({
             type: 'POST',
@@ -294,6 +293,53 @@ jQuery( document ).ready( function( $ ) {
             }
         });
 
+    });
+    
+    /*
+     * Load my institutions from HTML container
+     */
+    $( 'body' ).on( 'click', '#load-my-institutions', function( event ) {
+        event.preventDefault();
+        
+        var data = $( '#my-libraries-container' ).text();
+        console.log('Loading my libraries: ');
+        console.log( data  );
+
+        $('#facet_institution').jstree(true).deselect_all();
+
+        var arrayInstitutions = data.split(";");
+
+        $.each( arrayInstitutions, function( index, value ){
+            var institution = '~institution:"' + value + '"';
+            $('#facet_institution').jstree(true).select_node(institution);
+
+        });
+
+        $( "input[name='page']" ).val( '1' );
+
+        //remove all institutions
+        var allInstitutions = $('#facet_institution').jstree(true).get_json('#', {flat:true});
+        $.each( allInstitutions, function( index, value ){
+            ADVSEARCH.removeFacetFilter( value['id'], false );
+        });
+
+        //add selected institutions
+        var selectedInstitutions = $('#facet_institution').jstree(true).get_bottom_selected();
+        $.each( selectedInstitutions, function( index, value ){
+            ADVSEARCH.addFacetFilter( value, false );
+        });
+        ADVSEARCH.updateSearchResults( undefined, undefined );
+
+    });
+    
+    /*
+     * Load nearest institutions from HTML container
+     */
+    $( 'body' ).on( 'click', '#load-nearest-institutions', function( event ) {
+        event.preventDefault();
+        
+        console.log('Loading nearest libraries: ');
+        console.log( 'disabled'  );
     });
 
 });
