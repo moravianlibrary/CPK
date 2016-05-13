@@ -24,7 +24,7 @@
                     <? endif;?>
 
                     <? if (! empty($formats)): ?>
-                        <div class="iconlabel"><i style='font-size: 300%' class="fa fa-fw <?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
+                        <div class="iconlabel"><i style='font-size: 300%; color: #aaa;' class="fa fa-fw <?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
                     <? elseif ($summThumb = $this->record($similarRecordDriver)->getThumbnail('small')): ?>
                         <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
                     <? else: ?>
