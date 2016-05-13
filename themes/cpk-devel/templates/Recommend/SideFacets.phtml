@@ -92,7 +92,11 @@ foreach ($queryParams as $key => $value) {
     <? $facets_before_more = $this->recommend->getShowMoreSetting($title); ?>
     <div class="list-group facet" id="side-panel-<?=$this->escapeHtmlAttr($title) ?>">
       <div class='row' style='padding-top: 6px;'>
-          <div class="col-sm-6 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
+        <? if($cluster['label'] == 'Institution'): ?>
+        <div class="col-xs-7 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
+        <? else: ?>
+        <div class="col-xs-12 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
+        <? endif; ?>
             <?=$this->transEsc($cluster['label'])?>
               <? if (isset($rangeFacets[$title])): ?>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
@@ -101,7 +105,7 @@ foreach ($queryParams as $key => $value) {
               <? endif; ?>
           </div>
      	 <? if($cluster['label'] == 'Institution'): ?>
-            <div class='col-sm-6 institutions-loaders'>
+            <div class='col-xs-5 institutions-loaders'>
                 <a href='#' title='<?=$this->translate('Load saved institutions')?>' data-toggle="tooltip" id='load-saved-institutions'>
                     <i class='pr-web-uploadarrow'> </i>
                 </a>
