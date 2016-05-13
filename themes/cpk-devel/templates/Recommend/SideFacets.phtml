@@ -97,6 +97,7 @@ foreach ($queryParams as $key => $value) {
         <? else: ?>
         <div class="col-xs-12 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
         <? endif; ?>
+            <i class="pr-institution-arrow"></i>
             <?=$this->transEsc($cluster['label'])?>
               <? if (isset($rangeFacets[$title])): ?>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>

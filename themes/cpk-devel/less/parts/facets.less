@@ -32,6 +32,21 @@
     padding: 2px 16px 2px 26px;
     background-color: inherit;
     border: 0px;
+
+    i.pr-institution-arrow:before {
+      // pr-interface-arrowbottom4
+      content: "\ead9";
+      color: @brand-primary;
+    }
+
+    &.collapsed {
+      i.pr-institution-arrow:before {
+        // pr-interface-arrowright5
+        content: "\ead8";
+        color: @brand-primary;
+      }
+    }
+
   }
 
   .list-group-item.active {
@@ -78,19 +93,11 @@ li.jstree-facet ul {
       color: #e5004b !important;
   }
 
-  .title::before {
-      content: "⇱ ";
-      color: #e5004b !important;
-  }
-
   .title.collapsed::after {
       color: #e5004b !important;
       content: none;
   }
 
-  .title.collapsed::before {
-      content: "⇲ ";
-  }
 }
 
 
