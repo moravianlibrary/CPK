@@ -62,7 +62,7 @@
 	  				$link = $record['id'];
 	  				$source = $record['source'];
 	  				$sourceWithoutPrefix = substr($source, 7);
-	  				$logoUrl = $this->config->IdPLogos->$sourceWithoutPrefix ?: '';
+	  				$logoUrl = isset($this->config->IdPLogos->$sourceWithoutPrefix) ? $this->config->IdPLogos->$sourceWithoutPrefix : '';
 	  				//if ($source !== 'source_'.$recordSource)
 
 	  				$fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
