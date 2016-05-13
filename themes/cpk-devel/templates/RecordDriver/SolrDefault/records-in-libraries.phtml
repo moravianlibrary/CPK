@@ -1,9 +1,9 @@
 <span class='records-in-libraries-title'>
 	<?=$this->translate('Found in') ?>
     <?=$this->countRecords?>
-    <?= ($countRecords > 1) 
-        ? $this->translate('institutions-in-locale') 
-        : $this->translate('institution-in-locale') 
+    <?= ($countRecords > 1)
+        ? $this->translate('institutions-in-locale')
+        : $this->translate('institution-in-locale')
     ?>
 </span>
 
@@ -22,20 +22,20 @@
 	    $i++;
 		$record = $value['id'];
 		$recordInLibraryOwnershipClass = is_array($this->myLibs) && in_array($source, $this->myLibs) ? 'my-library-record' : 'other-library-record';
-		
+
 		if ($this->params->getSearchType() == 'advanced') {
 		    $recordUrl = $this->recordLink()->getUrl($record).'?fromAdvancedSearchId='.$this->results->getSearchId();
 		} else {
 		    $recordUrl = $this->recordLink()->getUrl($record).'?fromSearchId='.$this->results->getSearchId();
 		}
-		
+
 		$anchor = $this->transEsc('source_' . $source, null, $source);
-		
+
 	?>
 
     <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>">
-        <div class="row root-title">
-            <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-12" style='margin-top: -10px;'>
                 <span class="<?=$recordInLibraryOwnershipClass?>"><?=$anchor?></span>
             </div>
         </div>
@@ -45,7 +45,7 @@
 <? endforeach; ?>
 
 
-<? if (count($this->records) > $maxInstitutionsShown): 
+<? if (count($this->records) > $maxInstitutionsShown):
 	// If there is more institutions than $maxInstitutionsShown, print Dropdown
 ?>
 <div class="margin-bottom">
@@ -60,25 +60,25 @@
                 if ($i <= $maxInstitutionsShown) continue;
                 $record = $value['id'];
                 $recordInLibraryOwnershipClass = is_array($this->myLibs) && in_array($source, $this->myLibs) ? 'my-library-record' : 'other-library-record';
-                
+
                 if ($this->params->getSearchType() == 'advanced') {
                     $recordUrl = $this->recordLink()->getUrl($record).'?fromAdvancedSearchId='.$this->results->getSearchId();
                 } else {
                     $recordUrl = $this->recordLink()->getUrl($record).'?fromSearchId='.$this->results->getSearchId();
                 }
-                
+
                 $anchor = $this->transEsc('source_' . $source, null, $source);
-                
+
                 ?>
-            
+
                 <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>">
-                    <div class="row root-title">
-                        <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-12" style='margin-top: -10px;'>
                             <span class="<?=$recordInLibraryOwnershipClass?>"><?=$anchor?></span>
                         </div>
                     </div>
                 </a>
-            
+
             <? endforeach; ?>
         </ul>
     </div>
