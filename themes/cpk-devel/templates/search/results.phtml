@@ -62,9 +62,9 @@
       </div>
     <div class='col-sm-3 col-sm-push-3 text-center' id='results-amount-info-placeholder'>
       <? if ($recordTotal > 0): ?>
-          <strong><?=$this->localizedNumber($this->results->getStartRecord())?></strong> - <strong><?=$this->localizedNumber($this->results->getEndRecord())?></strong>
+          <?=$this->localizedNumber($this->results->getStartRecord())?> - <?=$this->localizedNumber($this->results->getEndRecord())?>
           <? if (!isset($this->skipTotalCount)): ?>
-            <?=$this->transEsc('of')?> <strong><?=$this->localizedNumber($recordTotal)?></strong>
+           <?=$this->transEsc('of')?> <?=$this->localizedNumber($recordTotal)?>
           <? endif; ?>
         <? else: ?>
           <h2><?=$this->transEsc('nohit_heading')?></h2>
