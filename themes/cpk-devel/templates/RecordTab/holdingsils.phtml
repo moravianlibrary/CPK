@@ -45,7 +45,7 @@ $this->headTitle($this->driver->getBreadcrumb());
 
 
 <? if (! empty($holdings)) : ?>
-<table class="table table-view" id="no-more-tables">
+<table class="table table-view table-striped" id="no-more-tables">
     <? if ($filters !== false): ?>
       <caption>
 		<div class="col-md-2"></div>
@@ -94,6 +94,7 @@ $this->headTitle($this->driver->getBreadcrumb());
 	<thead>
 		<tr>
 			<th><?=$this->transEsc("Status")?>&nbsp;</th>
+			<th></th>
 			<th><?=$this->transEsc("Due Date")?>&nbsp;</th>
 			<th><?=$this->transEsc("Department")?>&nbsp;</th>
 			<th><?=$this->transEsc("Collection")?>&nbsp;</th>
@@ -167,25 +168,26 @@ $this->headTitle($this->driver->getBreadcrumb());
 					<span class="availability"><?=empty($row['availability']) ? '' : $this->transEsc('availability_' . $row['availability'])?></span>
 				</div>
 
-				<div title="<?=$this->transEsc('Item Status')?>"
-					data-type="item-status">
-					<? if (! $itemStatusLabel): ?>
-					   <span class="label label-unknown"><?=$this->transEsc('status_Unknown Status')?></span>
-					<? else: ?>
-					   <i class="fa fa-spinner fa-spin"></i> <span
-						class="label <?=$itemStatusLabel?>"><?=$this->transEsc('Loading')?> ...</span>
-					<? endif; ?>
-				</div>
-
-      <? if (!empty($row['link']) && $row['link']): ?>
-      <div title="<?=$this->transEsc('Place a Hold')?>" data-type="link"
-					hidden="hidden">
-					<a class="holdPlace"
-						href="<?=$this->recordLink()->getRequestUrl($row['link'])?>"><span></span></a>
-				</div>
-      <? endif; ?>
-
     </td>
+    <td>
+    	<div title="<?=$this->transEsc('Item Status')?>" data-type="item-status">
+			<? if (! $itemStatusLabel): ?>
+			   <span class="label label-unknown"><?=$this->transEsc('status_Unknown Status')?></span>
+			<? else: ?>
+			   <i class="fa fa-spinner fa-spin"></i> <span
+				class="label <?=$itemStatusLabel?>"><?=$this->transEsc('Loading')?> ...</span>
+			<? endif; ?>
+		</div>
+
+		<? if (!empty($row['link']) && $row['link']): ?>
+      	 <div title="<?=$this->transEsc('Place a Hold')?>" data-type="link" hidden="hidden">
+			<a class="holdPlace" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>">
+				<span></span>
+			</a>
+		</div>
+      <? endif; ?>
+    </td>
+
 			<td data-title="<?=$this->transEsc("Due Date")?>"
 				data-type="duedate">
       <?if (!empty($row['duedate']) && $row['duedate']) : ?>
