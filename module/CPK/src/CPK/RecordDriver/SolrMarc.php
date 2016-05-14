@@ -10,6 +10,16 @@ class SolrMarc extends ParentSolrMarc
     protected $ilsConfig = null;
 
     /**
+     * These Solr fields should be used for snippets if available (listed in order
+     * of preference).
+     *
+     * @var array
+     */
+    protected $preferredSnippetFields = [
+        'fulltext'
+    ];
+
+    /**
      * These Solr fields should NEVER be used for snippets.  (We exclude author
      * and title because they are already covered by displayed fields; we exclude
      * spelling because it contains lots of fields jammed together and may cause
@@ -18,14 +28,14 @@ class SolrMarc extends ParentSolrMarc
      * @var array
      */
     protected $forbiddenSnippetFields = [
-                    'author', 'author-letter', 'title', 'title_short', 'title_full',
-                    'title_full_unstemmed', 'title_auth', 'title_sub', 'spelling', 'id',
-                    'ctrlnum', 'title_autocomplete', 'author_autocomplete',
-                    'titleSeries_search_txt_mv', 'authorCorporation_search_txt_mv',
-                    'author_display', 'title_display', 'author_facet_str_mv', 'author-letter',
-                    'author_sort_str', 'sourceTitle_search_txt_mv', 'author_str', 'spellingShingle',
-                    'source_title_facet_str', 'title_fullStr', 'title_display', 'title_sort',
-                    'title_auth', 'author_search', 'publishDate'
+        'author', 'author-letter', 'title', 'title_short', 'title_full',
+        'title_full_unstemmed', 'title_auth', 'title_sub', 'spelling', 'id',
+        'ctrlnum', 'title_autocomplete', 'author_autocomplete',
+        'titleSeries_search_txt_mv', 'authorCorporation_search_txt_mv',
+        'author_display', 'title_display', 'author_facet_str_mv', 'author-letter',
+        'author_sort_str', 'sourceTitle_search_txt_mv', 'author_str', 'spellingShingle',
+        'source_title_facet_str', 'title_fullStr', 'title_display', 'title_sort',
+        'title_auth', 'author_search', 'publishDate'
     ];
 
     protected function getILSconfig()
@@ -684,5 +694,30 @@ class SolrMarc extends ParentSolrMarc
             }
         }
         return null;
+    }
+
+    /**
+     * Pick one line from the highlighted text (if any) to use as a snippet.
+     *
+     * @return mixed False if no snippet found, otherwise associative array
+     * with 'snippet' and 'caption' keys.
+     */
+    public function getHighlightedSnippet()
+    {
+        // Only process snippets if the setting is enabled:
+        if ($this->snippet) {
+            // First check for preferred fields:
+            foreach ($this->preferredSnippetFields as $current) {
+                if (isset($this->highlightDetails[$current][0])) {
+                    return [
+                        'snippet' => $this->highlightDetails[$current][0],
+                        'caption' => $this->getSnippetCaption($current)
+                    ];
+                }
+            }
+        }
+
+        // If we got this far, no snippet was found:
+        return false;
     }
 }
