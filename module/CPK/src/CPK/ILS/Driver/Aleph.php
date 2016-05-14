@@ -713,7 +713,8 @@ class Aleph extends AlephBase
         $availability = (string) $z30->{'z30-item-status'};
 
         // Customized from here
-        $isDueDate = preg_match('/^[0-9]+\/.+\/[0-9]+/', $status);
+        $matches = [];
+        $isDueDate = preg_match('/^[0-9]+\/.+\/[0-9]+/', $status, $matches);
 
         $holdType = 'Recall This';
 
@@ -722,7 +723,7 @@ class Aleph extends AlephBase
             $duedate = (string) $duedate;
 
             if (empty($duedate)) {
-                $duedate = $status;
+                $duedate = $this->parseDate($matches[0]);
             }
 
             $label = 'label-warning';
