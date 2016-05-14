@@ -3,51 +3,53 @@
   $this->headTitle($this->driver->getBreadcrumb());
 ?>
 
-<div id='google-books-link' class='hidden'>
-	<a title='<?= $this->translate('Google Books') ?>' target='_blank'><?= $this->translate('Google Books') ?></a>
+<div class="list-group">
+
+    <div id='google-books-link' class='hidden'>
+    	<a title='<?= $this->translate('Google Books') ?>' class="list-group-item" target='_blank'><?= $this->translate('Google Books') ?></a>
+    </div>
+
+    <div id='antikvariaty-link' class='hidden'>
+    	<a title='<?= $this->translate('Antikvariat') ?>' class="list-group-item" target='_blank'><?= $this->translate('Antikvariat') ?></a>
+    </div>
+
+    <div id='zbozi-link' class='hidden'>
+    	<a title='<?= $this->translate('Zboží.cz') ?>' class="list-group-item" target='_blank'><?= $this->translate('Zboží.cz') ?></a>
+    </div>
+
+    <script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
+    <script>
+
+    	function displayBuyLinks( buyLinks )
+    	{
+    		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
+    			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+
+    		if ( buyLinks.data[0]['gBooksLink'] !== '' ) {
+    			$( "#google-books-link" ).removeClass( 'hidden' );
+    			$( "#google-books-link a" ).attr( 'href', buyLinks.data[0]['gBooksLink'] );
+    		}
+    		if ( buyLinks.data[0]['zboziLink'] !== '' ) {
+    			$( "#zbozi-link" ).removeClass( 'hidden' );
+    			$( "#zbozi-link a" ).attr( 'href' , buyLinks.data[0]['zboziLink'] );
+    		}
+    		if ( buyLinks.data[0]['antikvariatyLink'] !== '' ) {
+    			$( "#antikvariaty-link ").removeClass( 'hidden' );
+    			$( "#antikvariaty-link a ").attr( 'href', buyLinks.data[0]['antikvariatyLink'] );
+    		}
+    	}
+
+    	jQuery( document ).ready( function( $ ) {
+
+    		if (buyLinks === undefined || buyLinks.length == 0) {
+
+    			var recordID = '<?= $this->driver->getUniqueID() ?>';
+    			var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
+    			var buyLinks = getBuyLinks( recordID, parentRecordID, displayBuyLinks );
+
+    		}
+
+    	});
+    </script>
+
 </div>
-
-<div id='antikvariaty-link' class='hidden'>
-	<a title='<?= $this->translate('Antikvariat') ?>' target='_blank'><?= $this->translate('Antikvariat') ?></a>
-</div>
-
-<div id='zbozi-link' class='hidden'>
-	<a title='<?= $this->translate('Zboží.cz') ?>' target='_blank'><?= $this->translate('Zboží.cz') ?></a>
-</div>
-
-<div id='ajax-error-info'></div>
-
-<script src="/themes/cpk-devel/js/ajax-record-tabs.js"></script>
-<script>
-
-	function displayBuyLinks( buyLinks )
-	{
-		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
-			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-		
-		if ( buyLinks.data[0]['gBooksLink'] !== '' ) {
-			$( "#google-books-link" ).removeClass( 'hidden' );
-			$( "#google-books-link a" ).attr( 'href', buyLinks.data[0]['gBooksLink'] );
-		}
-		if ( buyLinks.data[0]['zboziLink'] !== '' ) {
-			$( "#zbozi-link" ).removeClass( 'hidden' );
-			$( "#zbozi-link a" ).attr( 'href' , buyLinks.data[0]['zboziLink'] );
-		}
-		if ( buyLinks.data[0]['antikvariatyLink'] !== '' ) {
-			$( "#antikvariaty-link ").removeClass( 'hidden' );
-			$( "#antikvariaty-link a ").attr( 'href', buyLinks.data[0]['antikvariatyLink'] );
-		}
-	}
-
-	jQuery( document ).ready( function( $ ) {
-
-		if (buyLinks === undefined || buyLinks.length == 0) {
-
-			var recordID = '<?= $this->driver->getUniqueID() ?>';
-			var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
-			var buyLinks = getBuyLinks( recordID, parentRecordID, displayBuyLinks );
-			 
-		}
-
-	});
-</script>
