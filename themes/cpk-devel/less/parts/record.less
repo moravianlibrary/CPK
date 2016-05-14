@@ -82,7 +82,7 @@ body .well.similar-item {
 .record-toolbar-container {
     margin-bottom: 20px;
     padding: 19px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid @grey-color;
 }
 
 .record-toolbar-container .list-group-item, .record-toolbar-container .list-group, .record-toolbar-container .tt-dropdown-menu {
@@ -121,4 +121,17 @@ body .well.similar-item {
 #no-more-tables th, #e-version-table th {
     color: @grey-text-color;
     font-weight: normal;
+}
+
+.border {
+    border: 1px solid @border-color !important;
+}
+
+.table-core tr td, .table-core tr th {
+    padding: 4px !important;
+    border: none !important;
+}
+.table-core tr th {
+    font-weight: normal;
+    color: @grey-text-color;
 }
