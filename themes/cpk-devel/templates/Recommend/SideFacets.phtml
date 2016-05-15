@@ -45,7 +45,7 @@ foreach ($queryParams as $key => $value) {
 ?>
 
 <? if ($results->getResultTotal() > 0): ?>
-    <h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4>
+    <h3 class='side-facets-header'><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h3>
 <? endif; ?>
 <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
     <div class="list-group filters">
