@@ -31,7 +31,7 @@
 
     <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>">
         <div class="row">
-            <div class="col-sm-12" style='margin-top: -10px;'>
+            <div class="col-sm-12" style='padding-top: 10px;'>
                 <span class="<?=$recordInLibraryOwnershipClass?>"><?=$anchor?></span>
             </div>
         </div>
@@ -62,14 +62,15 @@
                 $anchor = $this->transEsc('source_' . $source, null, $source);
 
                 ?>
-
-                <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>">
-                    <div class="row">
-                        <div class="col-sm-12" style='margin-top: -10px;'>
-                            <span class="<?=$recordInLibraryOwnershipClass?>"><?=$anchor?></span>
+				<li>
+                    <a href="<?=$recordUrl?>" title="<?=$this->translate('Record in institution') . ' ' . $anchor ?>">
+                        <div class="row">
+                            <div class="col-sm-12" style='margin-top: -10px;'>
+                                <span class="<?=$recordInLibraryOwnershipClass?>"><?=$anchor?></span>
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                </li>
 
             <? endforeach; ?>
         </ul>
