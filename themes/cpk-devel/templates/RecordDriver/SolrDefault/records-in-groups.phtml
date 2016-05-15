@@ -62,20 +62,15 @@
 	  				$source = $record['source'];
 	  				$sourceWithoutPrefix = substr($source, 7);
 	  				$logoUrl = $this->logos()->getLogo($sourceWithoutPrefix);
-	  				//if ($source !== 'source_'.$recordSource)
 
-	  				$fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
-	  				 ? '?fromAdvancedSearchId='.htmlspecialchars($_GET['fromAdvancedSearchId'])
-	  				 : '';
+  					echo "<li><a href='".$this->url('record', array('id' => $link))."?referer=".$this->referer."' title='".$this->translate($source)."'><div class='record-group-list-item'>";
 
-	  					echo "<li><a href='".$this->url('record', array('id' => $link)).$fromAdvancedSearchIdParam."' title='".$this->translate($source)."'><div class='record-group-list-item'>";
+  					if ($logoUrl)
+  					    echo "<img class='hidden-xs pull-right' height='16' src='$logoUrl'>";
 
-	  					if ($logoUrl)
-	  					    echo "<img class='hidden-xs pull-right' height='16' src='$logoUrl'>";
+  					echo "<span>".$this->translate($source)."</span>";
 
-	  					echo "<span>".$this->translate($source)."</span>";
-
-                        echo "</div></a></li>";
+                    echo "</div></a></li>";
 		  		}
 		  	?>
 		</ul>

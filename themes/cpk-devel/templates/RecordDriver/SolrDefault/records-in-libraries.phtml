@@ -23,11 +23,7 @@
 		$record = $value['id'];
 		$recordInLibraryOwnershipClass = is_array($this->myLibs) && in_array($source, $this->myLibs) ? 'my-library-record' : 'other-library-record';
 
-		if ($this->params->getSearchType() == 'advanced') {
-		    $recordUrl = $this->recordLink()->getUrl($record).'?fromAdvancedSearchId='.$this->results->getSearchId();
-		} else {
-		    $recordUrl = $this->recordLink()->getUrl($record).'?fromSearchId='.$this->results->getSearchId();
-		}
+		$recordUrl = $this->recordLink()->getUrl($record).'?referer='.$this->referer;
 
 		$anchor = $this->transEsc('source_' . $source, null, $source);
 
@@ -61,11 +57,7 @@
                 $record = $value['id'];
                 $recordInLibraryOwnershipClass = is_array($this->myLibs) && in_array($source, $this->myLibs) ? 'my-library-record' : 'other-library-record';
 
-                if ($this->params->getSearchType() == 'advanced') {
-                    $recordUrl = $this->recordLink()->getUrl($record).'?fromAdvancedSearchId='.$this->results->getSearchId();
-                } else {
-                    $recordUrl = $this->recordLink()->getUrl($record).'?fromSearchId='.$this->results->getSearchId();
-                }
+                $recordUrl = $this->recordLink()->getUrl($record).'?referer='.$this->referer;
 
                 $anchor = $this->transEsc('source_' . $source, null, $source);
 
