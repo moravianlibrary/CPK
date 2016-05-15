@@ -1,4 +1,4 @@
-<h4><?=$this->transEsc('Similar Items')?></h4>
+<h4 class='similar-items-header'><?=$this->transEsc('Similar Items')?></h4>
 <? $similarRecords = $this->related->getResults(); ?>
 <? if (!empty($similarRecords)): ?>
   <div class='similar-items-container list-group'>
