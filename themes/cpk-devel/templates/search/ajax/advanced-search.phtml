@@ -29,7 +29,7 @@
 
 	  <? if(is_a($query, 'VuFindSearch\Query\QueryGroup')): ?>
         <? foreach ($query->getQueries() as $queryGroup): $groupOperator = $queryGroup->getOperator(); $groups++; $queries = -1;?>
-        <div class='row group' id='group_<?=$groups?>'>
+        <div class='row group border' id='group_<?=$groups?>'>
           <a href="#" class="group-close hidden" title="<?=$this->transEsc("del_search")?>">&times;</a>
 
           <div class='col-md-2'>
