@@ -173,6 +173,8 @@ class RecordController extends RecordControllerBase
             $view->refererUrl = $this->base64url_decode($referer);
         }
 
+        $this->layout()->recordView = true;
+
         return $view;
     }
 
