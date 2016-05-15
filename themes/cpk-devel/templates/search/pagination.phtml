@@ -38,7 +38,7 @@
                 <? endif; ?>
 
                 <? if ($page != $this->current): ?>
-                  <li><a class='ajax-update-page' href="<?=$page?>"><?=$page?></a></li>
+                  <li><a class='ajax-update-page' href="<?=$page?>"><?=$this->localizedNumber($page)?></a></li>
                 <? else: ?>
                   <li class="active"><span><?=$page?></span></li>
                 <? endif; ?>
@@ -54,7 +54,7 @@
             <? if (isset($this->next)): ?>
               <? if (!isset($this->options['disableLast']) || !$this->options['disableLast']): ?>
                 <? if (! isset($this->pagesInRange[$this->pageCount])): ?>
-                  <li><a class='ajax-update-page' href="<?=$this->pageCount?>"><?=$this->pageCount?></a></li>
+                  <li><a class='ajax-update-page' href="<?=$this->pageCount?>"><?=$this->localizedNumber($this->pageCount)?></a></li>
                 <? endif; ?>
               <? endif; ?>
             <? endif; ?>
