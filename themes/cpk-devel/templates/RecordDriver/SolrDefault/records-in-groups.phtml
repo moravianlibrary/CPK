@@ -5,8 +5,7 @@
 
 	  	$recordSource = explode(".", $this->driver->getUniqueId())[0];
 
-	  	$logoUrl = isset($this->config->IdPLogos->$recordSource) ? $this->config->IdPLogos->$recordSource : '';
-
+	  	$logoUrl = $this->logos()->getLogo($recordSource);
 	  	$currentInstitution = $this->translate('source_'.$recordSource);
   	?>
 
@@ -62,7 +61,7 @@
 	  				$link = $record['id'];
 	  				$source = $record['source'];
 	  				$sourceWithoutPrefix = substr($source, 7);
-	  				$logoUrl = isset($this->config->IdPLogos->$sourceWithoutPrefix) ? $this->config->IdPLogos->$sourceWithoutPrefix : '';
+	  				$logoUrl = $this->logos()->getLogo($sourceWithoutPrefix);
 	  				//if ($source !== 'source_'.$recordSource)
 
 	  				$fromAdvancedSearchIdParam = (isset($_GET['fromAdvancedSearchId']))
