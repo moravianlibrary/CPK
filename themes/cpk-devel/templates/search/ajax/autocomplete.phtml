@@ -103,7 +103,7 @@
         });
         </script>
 
-        <div class="col-xs-10 col-lg-6 search-form-container">
+        <div class="col-xs-10 col-lg-6 col-lg-offset-2 search-form-container">
           <input
           	class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>"
           	id="searchForm_lookfor"
