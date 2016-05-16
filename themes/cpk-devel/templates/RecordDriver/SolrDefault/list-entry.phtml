@@ -29,7 +29,7 @@
         </script>
       <? endif;?>
       <? if (! empty($formats)): ?>
-        <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="fa fa-fw <?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
+        <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-<?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
       <? elseif ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
         <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
       <? else: ?>

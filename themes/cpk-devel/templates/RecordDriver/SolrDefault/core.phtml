@@ -18,7 +18,7 @@
             <div class="row text-center #cover" id="cover">
                 <? $formats = $this->driver->getFormats(); ?>
                 <? if (! empty($formats)): ?>
-                    <div class="iconlabel col-md-12"><i style="font-size: 70px; color: #cccccc;" class="fa fa-fw <?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
+                    <div class="iconlabel col-md-12"><i style="font-size: 70px; color: #cccccc;" class="pr-format-<?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
                 <? else: ?>
                     <img class="recordcover col-md-12" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
                 <? endif; ?>
