@@ -1,0 +1,97 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('Portal pages | Administration'));
+
+  // Set up breadcrumbs:
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
+      '<li class="active">'.$this->transEsc('Widgets').'</li>';
+
+  $this->layout()->title = $this->translate('Widgets');
+?>
+<div class="row clearfix">
+  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+
+  <div class="col-sm-3">
+    <?=$this->render("admin/menu.phtml")?>
+  </div>
+
+  <div class="col-sm-9">
+    <h2><?=$this->translate('Widgets')?></h2>
+    <div class='well'>
+      <div class='admin-toolbox'>
+        <a href='/Admin/Widgets/List'><button class='btn btn-lg btn-primary'><?=$this->translate('New widget')?></button></a>
+      </div>
+      <div>
+		<table class='table table-hover table-responsive'>
+          <thead>
+            <tr>
+              <th width='90%'><?=$this->translate('Widget')?></th>
+              <th width='10%'></th>
+            </tr>
+          </thead>
+          <tbody>
+            <? foreach($this->widgets as $widget): ?>
+            <tr class='portal-page-row'>
+              <td>
+                <?= htmlspecialchars($widget['cs_title']) ?>
+              </td>
+              <td class='portal-pages-actions'>
+                <div class="dropdown pull-right">
+                  <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
+                  </span>
+                  <ul class="dropdown-menu" aria-labelledby="actions">
+                    <li>
+                      <a href='/Admin/Widgets/Edit/<?= $widget['id'] ?>'>
+                        <i class='fa fa-edit'></i>
+                        <?=$this->translate('Edit')?>
+                      </a>
+                    </li>
+                    <li>
+                      <a target='_blank' href='/Admin/Widgets/Preview/<?= $widget['id'] ?>'>
+                        <i class='fa fa-tv'></i>
+                        <?=$this->translate('Preview')?>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+            <? endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h2><?=$this->translate('Homepage widgets')?></h2>
+    <div class='well'>
+	  <div class='row'>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('First column');?></h2>
+			<select id='first-column-widget'>
+				<? foreach($this->widgets as $widget): ?>
+				<option value='<?=$widget['id']?>'><?=$widget['cs_title']?></option>
+				<? endforeach; ?>
+			</select>
+        </div>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('Second column');?></h2>
+			<select id='second-column-widget'>
+				<? foreach($this->widgets as $widget): ?>
+				<option value='<?=$widget['id']?>'><?=$widget['cs_title']?></option>
+				<? endforeach; ?>
+			</select>
+        </div>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('Third column');?></h2>
+			<select id='third-column-widget'>
+				<? foreach($this->widgets as $widget): ?>
+				<option value='<?=$widget['id']?>'><?=$widget['cs_title']?></option>
+				<? endforeach; ?>
+			</select>
+        </div>
+      </div>
+	</div>
+  </div>
+</div>

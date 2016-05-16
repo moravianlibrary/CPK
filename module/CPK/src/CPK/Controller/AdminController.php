@@ -302,6 +302,38 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     * Widgets manager
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function widgetsAction()
+    {
+        if (! $this->accessManager->isLoggedIn())
+            return $this->forceLogin();
+
+            // Must be an portal admin ..
+            $this->accessManager->assertIsPortalAdmin();
+
+            $user = $this->accessManager->getUser();
+
+            $widgets = [
+                ['id' => '1', 'en_title' => 'News', 'cs_title' => 'Novinky'],
+                ['id' => '2', 'en_title' => 'Most wanted', 'cs_title' => 'Nejpůjčovanější'],
+                ['id' => '3', 'en_title' => 'Actions', 'cs_title' => 'Akce'],
+                ['id' => '3', 'en_title' => 'Authors', 'cs_title' => 'Autoři']
+            ];
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgets', $widgets);
+            $viewModel->setTemplate('admin/widgets/list');
+
+            $this->layout()->searchbox = false;
+            return $viewModel;
+    }
+
+    /**
      * Overriden createViewModel which accepts template as the 2nd arg.
      *
      * {@inheritDoc}
