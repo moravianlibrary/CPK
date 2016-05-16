@@ -2,7 +2,6 @@
 <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
 <?
 
-
   $html = '';
   $shown = 0;
   foreach ($checkboxFilters as $current) {
@@ -59,9 +58,9 @@ foreach ($queryParams as $key => $value) {
                         unset($collapsedFacets[$index]); // Open if we have a match
                     }
                     if (isset($filter['specialType']) && $filter['specialType'] == 'keyword') {
-                        $removeLink = $this->currentPath().$results->getUrlQuery()->replaceTerm($filter['value'], '');
+                        $removeLink = $results->getUrlQuery()->replaceTerm($filter['value'], '');
                     } else {
-                        $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value'], true, $filter['operator']);
+                        $removeLink = $results->getUrlQuery()->removeFacet($filter['field'], $filter['value'], true, $filter['operator']);
                     }
                     if ($filter['displayText'] == '[* TO *]') {
                         $filter['displayText'] = $this->translate('filter_wildcard');
@@ -270,7 +269,7 @@ JS;
               <a id="more-narrowGroupHidden-<?=$this->escapeHtmlAttr($title)?>" class="list-group-item narrow-toggle" href="javascript:moreFacets('narrowGroupHidden-<?=$title ?>')"><?=$this->transEsc('More options')?>...</a>
             <? endif; ?>
             <? if ($thisFacet['isApplied']): ?>
-              <a class="list-group-item active<? if ($i >= $facets_before_more): ?><?=$moreClass ?><?endif ?><? if ($thisFacet['operator'] == 'OR'): ?> facetOR applied<? endif ?>" href="<?=$this->currentPath().$results->getUrlQuery()->removeFacet($title, $thisFacet['value'], true, $thisFacet['operator']) ?>">
+              <a class="list-group-item active<? if ($i >= $facets_before_more): ?><?=$moreClass ?><?endif ?><? if ($thisFacet['operator'] == 'OR'): ?> facetOR applied<? endif ?>" href="<?=$results->getUrlQuery()->removeFacet($title, $thisFacet['value'], true, $thisFacet['operator']) ?>">
                 <? if ($thisFacet['operator'] == 'OR'): ?>
                   <i class="fa fa-check-square-o"></i>
                 <? else: ?>
@@ -279,7 +278,7 @@ JS;
                 <?=$this->transEsc($thisFacet['displayText'])?>
               </a>
             <? else: ?>
-              <? $addURL = $this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], $thisFacet['operator']); ?>
+              <? $addURL = $results->getUrlQuery()->addFacet($title, $thisFacet['value'], $thisFacet['operator']); ?>
               <? if ($allowExclude): ?>
                 <div class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? else: ?>
@@ -288,7 +287,7 @@ JS;
               <span class="badge">
                 <?=$this->localizedNumber($thisFacet['count'])?>
                 <? if ($allowExclude): ?>
-                  <a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="fa fa-times"></i></a>
+                  <a href="<?=$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="fa fa-times"></i></a>
                 <? endif; ?>
               </span>
               <? if ($allowExclude): ?>
