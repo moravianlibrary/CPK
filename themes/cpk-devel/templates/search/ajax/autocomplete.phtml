@@ -1,7 +1,7 @@
   <div id="collapseAdvancedSearch" class="panel-collapse collapse in basic-search-panel<?=(isset($hiddenBasicSearch)) ? ' hidden' : ''?>" role="tabpanel" aria-labelledby="headingAdvancedSearch">
     <div class="panel-body">
 
-
+	  <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
         <script>
         jQuery(document).ready(function($){
           $("#searchForm_lookfor").keyup(function(){
