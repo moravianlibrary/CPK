@@ -59,4 +59,18 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\Config')->get('config')
         );
     }
+
+    /**
+     * Construct the LibrariesController.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return LibrariesController
+     */
+    public static function getLibrariesController(ServiceManager $sm)
+    {
+        return new LibrariesController(
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
+        );
+    }
 }

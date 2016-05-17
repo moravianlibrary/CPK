@@ -132,7 +132,8 @@ $config = array(
     'controllers' => array(
         'factories' => array(
             'record' => 'CPK\Controller\Factory::getRecordController',
-            'portal' => 'CPK\Controller\Factory::getPortalController'
+            'portal' => 'CPK\Controller\Factory::getPortalController',
+            'libraries' => 'CPK\Controller\Factory::getLibrariesController'
         ),
         'invokables' => array(
             'my-research' => 'CPK\Controller\MyResearchController',
