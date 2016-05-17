@@ -196,3 +196,55 @@ search-result-container p {
 .sidebar a.narrow-toggle {
     color: @brand-primary;
 }
+
+.ajax-update-sort, .ajax-update-limit {
+    border: none;
+    background-color: inherit;
+    color: @brand-primary;
+}
+
+#sort-container .dropdown-menu {
+    right: 0px;
+}
+
+.ajax-update-sort:hover, .ajax-update-sort:focus, .ajax-update-sort:active, .ajax-update-sort .btn:focus, .ajax-update-sort .btn:active {
+    border: none;
+    border-style: none;
+    background-color: inherit !important;
+    color: inherit !important;
+    outline: none;
+    
+    .btn.active:focus, .btn.focus, .btn.focus:active, .btn.active.focus {
+        outline: none !important;
+    }
+    
+    .btn:active, .btn.active {
+        box-shadow: none;
+    }
+}
+
+.ajax-update-limit:hover, .ajax-update-limit:focus, .ajax-update-limit:active, .ajax-update-limit .btn:focus, .ajax-update-limit .btn:active {
+    border: none;
+    border-style: none;
+    background-color: inherit !important;
+    color: inherit !important;
+    outline: none;
+    
+    .btn.active:focus, .btn.focus, .btn.focus:active, .btn.active.focus {
+        outline: none !important;
+    }
+    
+    .btn:active, .btn.active {
+        box-shadow: none;
+    }
+}
+
+.ajax-update-sort .caret, .ajax-update-limit .caret {
+    border: none;
+    margin-bottom: 30px;
+}
+
+.ajax-update-sort .caret:after, .ajax-update-limit .caret:after {
+    font-family: "pr-icons";
+    content: "\ead9";
+}

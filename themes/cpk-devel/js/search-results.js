@@ -779,9 +779,11 @@ jQuery( document ).ready( function( $ ) {
 	/*
 	 * Update search results on changing sorting
 	 */
-	$( 'body' ).on( 'change', '.ajax-update-sort', function( event ) {
+	$( 'body' ).on( 'click', '.apply-sort', function( event ) {
 		event.preventDefault();
-		var sort = $( this ).val();
+		var sort = $( this ).attr( 'data-sort' );
+		var text = $( this ).text();
+		$( '.ajax-update-sort' ).find( '.value' ).text( text );
 		$( "input[name='sort']" ).val( sort );
 		$( "input[name='page']" ).val( '1' );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
@@ -790,9 +792,11 @@ jQuery( document ).ready( function( $ ) {
 	/*
 	 * Update search results on changing limit
 	 */
-	$( 'body' ).on( 'change', '.ajax-update-limit', function( event ) {
+	$( 'body' ).on( 'click', '.apply-limit', function( event ) {
 		event.preventDefault();
-		var limit = $( this ).val();
+		var limit = $( this ).attr( 'data-limit' );
+		var text = $( this ).text();
+		$( '.ajax-update-limit' ).find( '.value' ).text( limit );
 		$( "input[name='limit']" ).val( limit );
 		$( "input[name='page']" ).val( '1' );
 		ADVSEARCH.updateSearchResults( undefined, undefined );

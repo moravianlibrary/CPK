@@ -1,16 +1,22 @@
 <? $list = $this->params->getSortList(); if (!empty($list)): ?>
-  <form class="form-inline" action="<?=$this->currentPath()?>" method="get" name="sort">
-    <?=$this->results->getUrlQuery()->asHiddenFields(array('sort' => '/.*/'));?>
-    <label class='dropdown-select-label'>
-    <select id="sort_options_1" name="sort" class="form-control dropdown-select ajax-update-sort">
-      <? foreach ($list as $sortType => $sortData):
-            if ( ! (isset($sortData['selected']) && is_bool($sortData['selected'])))
-                $sortData['selected'] = ($sortType == $this->sort) ? true : false;
-      ?>
-        <option value="<?=$this->escapeHtmlAttr($sortType)?>"<?=$sortData['selected']?' selected="selected"':''?>><?=$this->transEsc($sortData['desc'])?></option>
-      <? endforeach; ?>
-    </select>
-    </label>
-    <noscript><input type="submit" class="btn btn-default" value="<?=$this->transEsc("Set")?>" /></noscript>
-  </form>
+    <div class="dropdown" id="sort-container">
+      <button class="btn btn-default dropdown-toggle ajax-update-sort" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <span><?=$this->translate('Sort')." "?></span>
+        <span class='value'>
+            <?
+                foreach ($list as $sortType => $sortData) {
+                    if ($sortType == $this->sort) {
+                        echo $this->translate($sortData['desc']);
+                    }
+                }
+            ?>
+        </span>
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+      	<? foreach ($list as $sortType => $sortData): ?>
+            <li><a href="#" class='apply-sort' data-sort='<?=$sortType?>'><?=$this->translate($sortData['desc'])?></a></li>
+        <? endforeach; ?>
+      </ul>
+    </div>
 <? endif; ?>
