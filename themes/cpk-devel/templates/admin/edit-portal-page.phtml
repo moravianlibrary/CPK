@@ -1,20 +1,21 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('Portal pages | Administration'));
-  
+
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
       '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
       '<li><a href="/Admin/PortalPages">'.$this->transEsc('Portal pages').'</a></li>'.
       '<li class="active">'.$this->translate('Edit').': '.htmlspecialchars($this->page['title']).'</li>';
-  
+
   $this->layout()->title = $this->translate('Portal pages');
 ?>
 <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 <script>
 	jQuery( document ).ready( function( $ ) {
-		tinymce.init({ 
-			selector:'.editor', 
+		tinymce.init({
+			selector:'.editor',
 			toolbar: [
 			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright | bullist numlist | image | link | table | preview'
 			],
@@ -24,7 +25,7 @@
 			    '*': 'font-family'
 			}
 		});
-		
+
 		$( '#deletePage' ).on( 'click', function( event ) {
 			event.preventDefault();
 			var url = $ ( this ).attr( 'href' );
@@ -43,16 +44,16 @@
 				$( '.position-placeholder' ).removeClass( 'hidden' );
 			}
 		});
-		
+
 	});
 </script>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-  
+
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
-  
+
   <div class="col-sm-9">
     <h2><?=$this->translate('Edit').': '.htmlspecialchars($this->page['title'])?></h2>
     <div class='well'>

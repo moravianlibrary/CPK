@@ -1,9 +1,10 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('Administration'));
-  
+
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
       '<li class="active"><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li> ';
   $this->layout()->title = $this->translate('Permissions manager');
 ?>
@@ -22,11 +23,11 @@ jQuery( document ).ready( function( $ ) {
 </script>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-  
+
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
-  
+
   <h2><?=$this->transEsc('Permissions manager')?></h2>
   <div class="col-sm-9 well">
       <div class='admin-toolbox'>

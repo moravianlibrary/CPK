@@ -1,13 +1,14 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('Administration'));
-  
+
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
       '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
       '<li><a href="/Admin/PermissionsManager">'.$this->transEsc('Permissions manager').'</a></li>'.
       '<li class="active">'.$this->translate('Edit users permissions').'</li>';
-  
+
   $this->layout()->title = $this->translate('Edit users permissions');
 ?>
 <script>
@@ -17,11 +18,11 @@ jQuery( document ).ready( function( $ ) {
 </script>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-  
+
   <div class="col-sm-3">
     <?=$this->render("admin/menu.phtml")?>
   </div>
-  
+
   <div class="col-sm-9">
     <h2><?=$this->translate('Edit users permissions')?></h2>
     <div class='well'>
