@@ -147,4 +147,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the most_wanted table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return MostWanted
+     */
+    public static function getMostWanted(ServiceManager $sm)
+    {
+        return new MostWanted($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }
