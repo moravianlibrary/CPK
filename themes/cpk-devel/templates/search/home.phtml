@@ -33,14 +33,35 @@
       <h2><?=$this->transEsc('frontpage-most-wanted')?></h2>
     </div>
     <div class="list-group">
-      <? foreach ($mostWanted as $book): ?>
-      <a href="#" class="list-group-item clearfix">
+      <? foreach ($this->mostWanted as $book): ?>
+      <a href="/Record/<?=$book['record_id']?>" class="list-group-item clearfix">
         <div class='row'>
           <div class="col-xs-3 ">
-			<img width="50" align="middle" alt="cover" src="https://cache.obalkyknih.cz/api/cover?multi=%7B%22isbn%22%3A%228071693731%22%2C%22nbn%22%3A%22BOA001-svkos.MVK01000235838%22%7D&type=medium&keywords=(V%C5%A1e%3Aphp)">
+			<?
+			$recordId =  preg_replace("/\./", "", $book['record_id']);
+            $recordId =  preg_replace("/:/", "", $recordId);
+            $formats = $book['driver']->getFormats();
+            if (empty($lookfor)) {
+                $lookfor = $this->record($book['driver'])->getObalkyKnihAdvert('record');
+            }
+            ?>
+                <? if ($bibinfo = $this->record($book['driver'])->getObalkyKnihJSONV3()): ?>
+                    <script type="text/javascript">
+                        obalky.display_thumbnail_without_links(".cover_<?=$book['record_id']?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                    </script>
+                <? endif;?>
+
+                <? if (! empty($formats)): ?>
+                    <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($book['driver'])->getFormatClass($formats[0])?>"></i></div>
+                <? elseif ($summThumb = $this->record($book['driver'])->getThumbnail('small')): ?>
+                    <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                <? else: ?>
+                    <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                <? endif; ?>
+
           </div>
           <div class="col-xs-9 content">
-            <h4 class="list-group-item-heading"><?=$book['name']?></h4>
+            <h4 class="list-group-item-heading"><?=$book['title']?></h4>
             <p class="list-group-item-text"><?=$book['author']?></p>
           </div>
         </div>
