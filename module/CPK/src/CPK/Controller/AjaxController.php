@@ -1408,4 +1408,99 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output('', self::STATUS_OK);
     }
+
+    /**
+     * Creates MySQL DB table libraries_geolocations
+     *
+     *
+     * @return \Zend\Http\Response
+     */
+    public function createLirariesGeolocationsTableAjax()
+    {
+        try {
+            $librariesGeolocationTable = $this->getTable("libraries_geolocations");
+
+            $infoApiUrl = 'http://info.knihovny.cz/api/libraries?limit=999999';
+
+            $libraries = $this->remoteJsonToArray($infoApiUrl);
+
+            $data = [];
+            foreach($libraries as $library) {
+                $data[] = [
+                    'sigla' => $library['sigla'],
+                    'latitude' => $library['latitude'],
+                    'longitude' => $library['longitude'],
+                    'town' => $library['city'],
+                    'district' => $library['district'],
+                    'region' => $library['region'],
+                    'zip' => $library['zip'],
+                    'street' => $library['street'],
+                ];
+            }
+
+            $librariesGeolocationTable->saveGeoData($data);
+
+        } catch (\Exception $e) {
+            return $this->output($e->getMessage(), self::STATUS_ERROR);
+        }
+
+        return $this->output('', self::STATUS_OK);
+    }
+
+/**
+	 * Returns content from url coverted from JSON to array
+	 *
+	 * CURLOPT_HEADER - Include header in result? (0 = yes, 1 = no)
+	 * CURLOPT_RETURNTRANSFER - (true = return, false = print) data
+	 *
+	 * @param  string  $infoApiUrl
+	 *
+	 * @throws	\Exception when cURL us not installed
+	 * @throws	\Exception when Json cannot be decoded
+	 * 			or the encoded data is deeper than the recursion limit.
+	 * @throws	\Exception when response body contains error element
+	 * @throws	\Exception when reponse status code is not 200
+	 * @return	mixed
+	 */
+	private function remoteJsonToArray($infoApiUrl)
+	{
+		if (! function_exists('curl_init'))
+			throw new \Exception('cURL is not installed!');
+
+		$curlAdapterConfig = array(
+			'adapter'     => '\Zend\Http\Client\Adapter\Curl',
+			'curloptions' => array(
+				CURLOPT_FOLLOWLOCATION 	=> true,
+				CURLOPT_USERAGENT		=> "Mozilla/5.0",
+				CURLOPT_HEADER			=> 0,
+				CURLOPT_RETURNTRANSFER	=> true,
+				CURLOPT_TIMEOUT			=> 30,
+				CURLOPT_SSL_VERIFYHOST	=> 0,
+				CURLOPT_SSL_VERIFYPEER	=> 0,
+			),
+		);
+
+		$client = new \Zend\Http\Client($infoApiUrl, $curlAdapterConfig);
+		$response = $client->send();
+
+		// Response head error handling
+		$responseStatusCode = $response->getStatusCode();
+		if($responseStatusCode !== 200)
+			throw new \Exception("Response status code: ".$responseStatusCode);
+		//
+
+		$output	= $response->getBody();
+
+		// Response body error handling
+		$dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
+
+		if ($dataArray === NULL)
+			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
+
+		if ((isset($dataArray['result']) && ($dataArray['result'] == 'error')))
+			throw new \Exception($dataArray['message']);
+		//
+
+		return $dataArray;
+	}
 }
