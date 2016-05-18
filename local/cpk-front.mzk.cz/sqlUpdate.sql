@@ -335,3 +335,17 @@ CREATE TABLE IF NOT EXISTS `most_wanted` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 UPDATE `system` SET `value`='26' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `libraries_geolocations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sigla` varchar(6) COLLATE utf8_unicode_ci NOT NULL,
+  `latitude` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `longitude` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `town` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `district` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `region` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `zip` varchar(6) COLLATE utf8_unicode_ci NOT NULL,
+  `street` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+UPDATE `system` SET `value`='27' WHERE `key`='DB_VERSION';

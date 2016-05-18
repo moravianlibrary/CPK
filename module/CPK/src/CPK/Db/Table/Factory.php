@@ -162,4 +162,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the libraries_geolocations table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return LibrariesGeolocations
+     */
+    public static function getLibrariesGeolocations(ServiceManager $sm)
+    {
+        return new LibrariesGeolocations($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }
