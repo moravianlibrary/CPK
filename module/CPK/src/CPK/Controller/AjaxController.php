@@ -1474,7 +1474,7 @@ class AjaxController extends AjaxControllerBase
 				CURLOPT_USERAGENT		=> "Mozilla/5.0",
 				CURLOPT_HEADER			=> 0,
 				CURLOPT_RETURNTRANSFER	=> true,
-				CURLOPT_TIMEOUT			=> 30,
+				CURLOPT_TIMEOUT			=> 120,
 				CURLOPT_SSL_VERIFYHOST	=> 0,
 				CURLOPT_SSL_VERIFYPEER	=> 0,
 			),
