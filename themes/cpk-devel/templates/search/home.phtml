@@ -36,15 +36,16 @@
       <? foreach ($this->mostWanted as $book): ?>
       <a href="/Record/<?=$book['record_id']?>" class="list-group-item clearfix">
         <div class='row'>
-          <div class="col-xs-3 ">
-			<?
-			$recordId =  preg_replace("/\./", "", $book['record_id']);
-            $recordId =  preg_replace("/:/", "", $recordId);
-            $formats = $book['driver']->getFormats();
-            ?>
+          <?
+          $recordId =  preg_replace("/\./", "", $book['record_id']);
+          $recordId =  preg_replace("/:/", "", $recordId);
+          $formats = $book['driver']->getFormats();
+          ?>
+          <div class="col-xs-3 cover_<?=$recordId?>">
+
                 <? if ($bibinfo = $this->record($book['driver'])->getObalkyKnihJSONV3()): ?>
                     <script type="text/javascript">
-                        obalky.display_thumbnail_without_links(".cover_<?=$book['record_id']?>", <?=$bibinfo?>, <?=json_encode($book['title'])?>);
+                        obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($book['title'])?>);
                     </script>
                 <? endif;?>
 
