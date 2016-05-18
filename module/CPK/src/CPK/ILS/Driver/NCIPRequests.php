@@ -20,7 +20,7 @@ class NCIPRequests {
 
     public function __construct($config) {
         $this->sigla = $config['Catalog']['agency'];
-        $this->sendUserId = $config['Catalog']['sendUserId'];
+        $this->sendUserId = isset($config['Catalog']['sendUserId']) ? $config['Catalog']['sendUserId']: true;
     }
 
     public function patronLogin($username, $password) {
