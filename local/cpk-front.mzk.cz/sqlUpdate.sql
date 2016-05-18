@@ -349,3 +349,14 @@ CREATE TABLE IF NOT EXISTS `libraries_geolocations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 UPDATE `system` SET `value`='27' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `libraries_geolocations` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT,
+ CHANGE `sigla` `sigla` VARCHAR(6) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+ CHANGE `latitude` `latitude` VARCHAR(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+ CHANGE `longitude` `longitude` VARCHAR(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+ CHANGE `town` `town` VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+ CHANGE `district` `district` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+ CHANGE `region` `region` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+ CHANGE `zip` `zip` VARCHAR(6) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
+ CHANGE `street` `street` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+UPDATE `system` SET `value`='27' WHERE `key`='DB_VERSION';
