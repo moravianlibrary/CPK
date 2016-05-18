@@ -1387,4 +1387,25 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output(['savedInstitutions' => $savedInstitutions], self::STATUS_OK);
     }
+
+    /**
+     * Harvest most wanted records from Solr to MySQL.
+     *
+     * @return \Zend\Http\Response
+     */
+    public function harvestMostWantedRecordsAjax()
+    {
+        $searchController = $this->getServiceLocator()->get('searchController');
+        $records = $searchController->harvestMostWantedRecordsAction();
+
+        $mostWantedTable = $this->getTable("mostwanted");
+
+        try {
+            $mostWantedTable->saveRecords($records);
+        } catch (\Exception $e) {
+            return $this->output($e->getMessage(), self::STATUS_ERROR);
+        }
+
+        return $this->output('', self::STATUS_OK);
+    }
 }
