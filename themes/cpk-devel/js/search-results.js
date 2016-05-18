@@ -837,6 +837,8 @@ jQuery( document ).ready( function( $ ) {
 			newSearchTypeTemplate = 'advanced';
 		}
 		
+		$( 'input[name=searchTypeTemplate]' ).val(newSearchTypeTemplate);
+		
 		ADVSEARCH.updateSearchResults( undefined, undefined, newSearchTypeTemplate );
 	});
 
