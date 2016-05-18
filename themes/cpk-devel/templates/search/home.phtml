@@ -41,13 +41,10 @@
 			$recordId =  preg_replace("/\./", "", $book['record_id']);
             $recordId =  preg_replace("/:/", "", $recordId);
             $formats = $book['driver']->getFormats();
-            if (empty($lookfor)) {
-                $lookfor = $this->record($book['driver'])->getObalkyKnihAdvert('record');
-            }
             ?>
                 <? if ($bibinfo = $this->record($book['driver'])->getObalkyKnihJSONV3()): ?>
                     <script type="text/javascript">
-                        obalky.display_thumbnail_without_links(".cover_<?=$book['record_id']?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        obalky.display_thumbnail_without_links(".cover_<?=$book['record_id']?>", <?=$bibinfo?>, <?=json_encode($book['title'])?>);
                     </script>
                 <? endif;?>
 
