@@ -109,7 +109,7 @@
           	id="searchForm_lookfor"
           	type="text"
           	name="lookfor0[]"
-          	value="<?=(isset($this->lookfor0[0])) ? $this->escapeHtmlAttr($this->lookfor0[0]) : (! empty($lookfor) && (strpos($lookfor, ":") !== false)) ? $this->escapeHtmlAttr(explode(":", trim($this->lookfor, "()"))[1]) : ''?>"
+          	value="<?=(isset($_GET['lookfor0'][0])) ? $this->escapeHtmlAttr($_GET['lookfor0'][0]) : ''?>"
           	autofocus
           	placeholder="<?=$this->translate('autocomplete-placeholder')?>"
           />
