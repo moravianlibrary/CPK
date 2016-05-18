@@ -818,7 +818,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $retVal[] = array(
                     'id' => empty($bib_id) ? "" : $bib_id,
                     'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-                    'status' => empty($status) ? "" : $status,
+                    'status' => empty($status) ? '' : (string) $status[0],
                     'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
                     'collection' => '',
                     'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
