@@ -599,13 +599,14 @@ class SearchController extends AbstractSearch
         $mainParams = [];
         $mainParams['limit'] = '100';
         $mainParams['join'] = 'AND';
-        $mainParams['sort'] = 'loanRelevance desc';
         $mainParams['bool0'] = [];
         $mainParams['bool0'][] = 'AND';
         $mainParams['type0'] = [];
         $mainParams['type0'][] = 'AllFields';
         $mainParams['lookfor0'] = [];
         $mainParams['lookfor0'][] = '';
+        $mainParams['filter'] = [];
+        $mainParams['filter'][] = 'inspiration:"top_results"';
 
         $request = $this->getRequest()->getQuery()->toArray()
         + $mainParams;
