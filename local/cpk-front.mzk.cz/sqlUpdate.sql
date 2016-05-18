@@ -326,3 +326,12 @@ UPDATE `system` SET `value`='24' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `user_settings` CHANGE `saved_institutions` `saved_institutions` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 UPDATE `system` SET `value`='25' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `most_wanted` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `record_id` int(11) NOT NULL,
+  `title` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `author` int(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+UPDATE `system` SET `value`='26' WHERE `key`='DB_VERSION';
