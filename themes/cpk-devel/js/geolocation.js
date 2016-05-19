@@ -39,7 +39,7 @@ jQuery( document ).ready( function( $ ) {
 		    2: VuFind.translate('Position unavailable'),
 		    3: VuFind.translate('Request timeout')
 		};
-		alert( VuFind.translate('Geo Error')+": " + errors[error.code] );
+		alert( errors[error.code] );
 	};
 	
 });
