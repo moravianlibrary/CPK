@@ -25,18 +25,7 @@
 ////////
 
 .header-container {
-  .container-fixed();
 
-  @media (min-width: @screen-sm-min) {
-    width: @container-sm;
-  }
-  @media (min-width: @screen-md-min) {
-    width: @container-md;
-  }
-  @media (min-width: @screen-lg-min) {
-    width: 1440px;
-  }
-  
   position: relative;
   z-index: 5;
 }
@@ -48,9 +37,10 @@ header {
   box-shadow: 2px 2px 2px #ccc;
   @media (min-width: @screen-lg-min) {
     &.frontpage {
-      background-image: url("/themes/cpk-devel/images/book-colage.png");
-      // background-position: center;
+      background-image: url("/themes/cpk-devel/images/book-colage-left.png"),url("/themes/cpk-devel/images/book-colage-right.png");
       height: 492px;
+      background-position: left bottom, right bottom;
+      background-repeat: no-repeat;
     }
   }
   h1,h2,h3,h4 {
