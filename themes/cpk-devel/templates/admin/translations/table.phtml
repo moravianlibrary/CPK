@@ -11,7 +11,7 @@
 <table class="table">
   <thead>
     <tr><th id="<?=$source?>" class="blickable" colspan="4"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></th></tr>
-    <? if ($hasRequested): ?>
+    <? if (isset($hasRequested) && $hasRequested): ?>
       <tr><th colspan="4"><div class="alert alert-warning"><?=$this->transEsc('request_translations_change_pending') ?></div></th></tr>
     <? endif; ?>
     <tr>

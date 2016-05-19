@@ -21,8 +21,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Controller
- * @author   Martin Kravec <martin.kravec@mzk.cz>
+ * @package  Service
+ * @author   Jiří Kozlovský <mail@jkozlovsky.cz>
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  */
 namespace CPK\Service;
@@ -166,6 +166,9 @@ class ConfigurationsHandler
 
         // setup email
         $this->approvalConfig = $this->configLocator->get('config')['Approval']->toArray();
+
+        if (! isset($this->approvalConfig['emailEnabled']))
+            $this->approvalConfig['emailEnabled'] = false;
 
         if ($this->approvalConfig['emailEnabled'] && (empty($this->approvalConfig['emailFrom']) || empty($this->approvalConfig['emailTo']))) {
             throw new \Exception('Invalid Approval configuration!');
@@ -687,7 +690,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestCancelledMail($source)
     {
-        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Zrušení žádosti o změnu konfigurace u instituce ' . $source;
 
@@ -706,7 +709,7 @@ class ConfigurationsHandler
      */
     protected function sendNewRequestMail($source)
     {
-        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
 
@@ -727,7 +730,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestApprovedMail($source, $message, $to)
     {
-        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Schválení žádosti o změnu konfigurace u instituce ' . $source;
 
@@ -748,7 +751,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestDeniedMail($source, $message, $to)
     {
-        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Žádost o změnu konfigurace u instituce ' . $source . ' byla zamítnuta';
 

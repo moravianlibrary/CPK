@@ -21,8 +21,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Controller
- * @author   Martin Kravec <martin.kravec@mzk.cz>
+ * @package  Service
+ * @author   Jiří Kozlovský <mail@jkozlovsky.cz>
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  */
 namespace CPK\Service;
@@ -186,6 +186,9 @@ class TranslationsHandler
         // setup email
         $this->approvalConfig = $this->configLocator->get('config')['Approval']->toArray();
 
+        if (! isset($this->approvalConfig['emailEnabled']))
+            $this->approvalConfig['emailEnabled'] = false;
+
         if ($this->approvalConfig['emailEnabled'] && (empty($this->approvalConfig['emailFrom']) || empty($this->approvalConfig['emailTo']))) {
             throw new \Exception('Invalid Approval configuration!');
         }
@@ -248,7 +251,7 @@ class TranslationsHandler
 
                 if ($result) {
 
-                    $this->sendRequestApprovedMail($source, $post['message'], $contactPerson);
+                    $this->sendRequestApprovedMail($source, isset($post['message']) ? $post['message'] : '', $contactPerson);
 
                     $msg = $this->translate('approval_succeeded');
                     $this->flashMessenger()->addSuccessMessage($msg);
@@ -877,7 +880,7 @@ class TranslationsHandler
      */
     protected function sendRequestCancelledMail($source)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Zrušení žádosti o změnu překladů u instituce ' . $source;
 
@@ -896,7 +899,7 @@ class TranslationsHandler
      */
     protected function sendNewRequestMail($source)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Žádost o změnu překladů u instituce ' . $source;
 
@@ -917,7 +920,7 @@ class TranslationsHandler
      */
     protected function sendRequestApprovedMail($source, $message, $to)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Schválení žádosti o změnu překladů u instituce ' . $source;
 
@@ -938,7 +941,7 @@ class TranslationsHandler
      */
     protected function sendRequestDeniedMail($source, $message, $to)
     {
-        if ($this->emailConfig['enabled']) {
+        if ($this->approvalConfig['emailEnabled']) {
 
             $subject = 'Žádost o změnu překladů u instituce ' . $source . ' byla zamítnuta';
 

@@ -74,7 +74,7 @@ class InstConfigs extends Gateway
      * @param string $source
      * @param array $config
      *
-     * @return \CPK\Db\Row\InstTranslations
+     * @return int $countKeysApproved
      */
     public function createNewConfig($source, array $config)
     {
@@ -84,6 +84,8 @@ class InstConfigs extends Gateway
         $this->getDbConnection()->beginTransaction();
 
         $this->deleteLastRequestConfig($source);
+
+        $countKeysApproved = 0;
 
         foreach ($config as $section => $keyValues) {
             foreach ($keyValues as $key => $value) {
@@ -97,13 +99,15 @@ class InstConfigs extends Gateway
                 $row->user_requested = $_SESSION['Account']['userId'];
 
                 $row->save();
+
+                ++$countKeysApproved;
             }
         }
 
         // Now commit whole transaction
         $this->getDbConnection()->commit();
 
-        return $row;
+        return $countKeysApproved;
     }
 
     /**
@@ -128,7 +132,7 @@ class InstConfigs extends Gateway
             $section = $row->section;
 
             // Change it if portal admin changed it during approval
-            if ($config[$section][$key] !== $row->value) {
+            if (isset($config[$section][$key]) && $config[$section][$key] !== $row->value) {
                 $row->value = $config[$section][$key];
             }
 

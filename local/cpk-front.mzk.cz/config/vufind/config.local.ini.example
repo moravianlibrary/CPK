@@ -35,8 +35,6 @@ emailFromName		= Centrální portál knihoven
 emailFrom		= cpk-dev@mzk.cz
 emailTo			= cpk-dev@mzk.cz
 
-gitPbKey		= /home/vufind/.ssh/id_rsa
-
 [Record]
 ;This will build links from 7xx fiedls. Link is build from subfields x or z for searching by ISN, 
 ; or t for searching by AllFields.\

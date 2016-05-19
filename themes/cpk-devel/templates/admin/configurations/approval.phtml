@@ -51,7 +51,7 @@
          if(! empty($keys) && array_search($section, $hidden) === false): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
             <? foreach($keys as $key => $value): if (array_search($section . ':' . $key, $hidden) === false):
-                $isChanged = $value != $transActive[$section][$key];
+                $isChanged = isset($transActive[$section][$key]) && $value != $transActive[$section][$key];
                 $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
                 $isCheckbox = $defs[$section][$key] === 'checkbox'; ?>
             <tr title='<?=($isRequired ? $this->transEsc('This field is required') . ' - ' : '')  . $this->transEsc($template[$section][$key]) ?>'>
