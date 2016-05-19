@@ -150,6 +150,31 @@ class LibrariesGeolocations extends Gateway
             $insert->values($row);
             $this->executeAnyZendSQLInsert($insert);
         }
+    }
 
+    /**
+     * Return towns from table by Region
+     *
+     * @param string $region
+     *
+     * @return array
+     */
+    public function getTownsByRegion($region)
+    {
+        $select = new Select($this->table);
+        $select->columns(array('town' => new Expression('DISTINCT(town)')));
+
+        $region = str_replace(" kraj", '', $region);
+
+        $condition = "`region`='$region'";
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $results = $this->executeAnyZendSQLSelect($select);
+
+        $resultSet = new \Zend\Db\ResultSet\ResultSet();
+        $resultSet->initialize($results);
+
+        return $resultSet->toArray();
     }
 }

@@ -339,8 +339,47 @@ jQuery( document ).ready( function( $ ) {
     $( 'body' ).on( 'click', '#load-nearest-institutions', function( event ) {
         event.preventDefault();
         
-        console.log('Loading nearest libraries: ');
-        console.log( 'disabled'  );
+        GEO.getPositionForLoadingInstitutions();
     });
+    
+
+    FACETS = {
+    			
+		reloadInstitutionsByGeolocation: function( coords ) {
+			console.log( 'Loading position... Coords: ' );
+			console.log( coords );
+			
+			$.ajax({
+	            type: 'POST',
+	            cache: false,
+	            dataType: 'json',
+	            data: coords,
+	            url: VuFind.getPath() + '/AJAX/JSON?method=getTownsByRegion',
+	            beforeSend: function() {
+	            },
+	            success: function( response ) {
+
+	                if (response.status == 'OK') {
+		                console.log( 'STATUS: OK ' );
+		                console.log( response );
+	                } else {
+	                    console.error(response.data);
+	                }
+
+	            },
+	            error: function ( xmlHttpRequest, status, error ) {
+	                $( '#search-results-loader' ).remove();
+	                console.error(xmlHttpRequest.responseText);
+	                console.error(xmlHttpRequest);
+	                console.error(status);
+	                console.error(error);
+	            },
+	            complete: function ( xmlHttpRequest, textStatus ) {
+	            }
+	        });
+		}
+		
+	};
+    	
 
 });

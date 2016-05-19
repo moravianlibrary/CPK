@@ -1503,4 +1503,32 @@ class AjaxController extends AjaxControllerBase
 
 		return $dataArray;
 	}
+
+	/**
+	 * Get towns by region
+	 *
+	 * @return string
+	 */
+	public function getTownsByRegionAjax()
+	{
+        try {
+            $coords = $this->params()->fromPost();
+            $latitude = $coords['latitude'];
+            $longitude = $coords['longitude'];
+
+            $geocode = file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&sensor=false&language=cs");
+
+            $geoData = json_decode($geocode, true);
+
+            $region = $geoData['results'][0]['address_components'][8]['long_name'];
+
+            $librariesGeolocationsTable = $this->getTable("librariesgeolocations");
+            $towns = $librariesGeolocationsTable->getTownsByRegion($region);
+
+        } catch (\Exception $e) {
+            return $this->output($e->getMessage(), self::STATUS_ERROR);
+        }
+
+        return $this->output($towns, self::STATUS_OK);
+	}
 }
