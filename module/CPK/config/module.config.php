@@ -157,6 +157,7 @@ $config = array(
             'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator',
             'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager',
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
+            'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader'
         ), // Exceptions throwing system
 
         'invokables' => array(
