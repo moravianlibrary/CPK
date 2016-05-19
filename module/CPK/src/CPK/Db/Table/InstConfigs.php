@@ -72,18 +72,18 @@ class InstConfigs extends Gateway
      * Creates new configuration key value pairs for an institution specified by $source
      *
      * @param string $source
-     * @param string $key
-     * @param array $languageTranslations
+     * @param array $config
      *
      * @return \CPK\Db\Row\InstTranslations
      */
-    public function createNewConfig($source, $userId, array $config)
+    public function createNewConfig($source, array $config)
     {
-        // This will prevent autocommit to Db
-
         $timestamp = date('Y-m-d H:i:s');
 
+        // This will prevent autocommit to Db
         $this->getDbConnection()->beginTransaction();
+
+        $this->deleteLastRequestConfig($source);
 
         foreach ($config as $section => $keyValues) {
             foreach ($keyValues as $key => $value) {
@@ -93,8 +93,8 @@ class InstConfigs extends Gateway
                 $row->section = $section;
                 $row->key = $key;
                 $row->value = $value;
-                $row->timestamp = $timestamp;
-                $row->user_id = $userId;
+                $row->timestamp_requested = $timestamp;
+                $row->user_requested = $_SESSION['Account']['userId'];
 
                 $row->save();
             }
@@ -104,6 +104,180 @@ class InstConfigs extends Gateway
         $this->getDbConnection()->commit();
 
         return $row;
+    }
+
+    /**
+     * Flags an configuration within this table as approved
+     *
+     * @param string $source
+     *
+     * @return array
+     */
+    public function approveConfig($config, $source)
+    {
+        $timestamp = date('Y-m-d H:i:s');
+
+        // This will prevent autocommit to Db
+        $this->getDbConnection()->beginTransaction();
+
+        $requestedConfig = $this->getRawRequestedConfig($source);
+
+        foreach ($requestedConfig as $row) {
+
+            $key = $row->key;
+            $section = $row->section;
+
+            // Change it if portal admin changed it during approval
+            if ($config[$section][$key] !== $row->value) {
+                $row->value = $config[$section][$key];
+            }
+
+            $row->timestamp_approved = $timestamp;
+            $row->user_approved = $_SESSION['Account']['userId'];
+
+            $row->save();
+        }
+
+        // Now commit whole transaction
+        $this->getDbConnection()->commit();
+
+        return $requestedConfig;
+    }
+
+    /**
+     * Retrieves all the configurations not approved yet.
+     *
+     * @return array
+     */
+    public function getAllRequestConfigsWithActive()
+    {
+        $configs = [];
+
+        $allRequested = $this->select('timestamp_approved IS NULL');
+
+        foreach ($allRequested as $rowRequested) {
+
+            $source = $rowRequested->source;
+            $section = $rowRequested->section;
+            $key = $rowRequested->key;
+            $value = $rowRequested->value;
+
+            $configs[$source]['requested'][$section][$key] = $value;
+        }
+
+        foreach ($configs as $source => $sourceRequestedConfig) {
+            $configs[$source]['active'] = $this->getApprovedConfig($source);
+
+            if ($configs[$source]['active'] === false)
+                $configs[$source]['active'] = [];
+        }
+
+        return $configs;
+    }
+
+    /**
+     * Removes last requested config associated with institution identified by $source
+     *
+     * @param string $source
+     *
+     * @return number
+     */
+    public function deleteLastRequestConfig($source)
+    {
+        /**
+         * This where clausule uses this suggestion of updating value being selected within a subquery:
+         * http://stackoverflow.com/questions/45494/mysql-error-1093-cant-specify-target-table-for-update-in-from-clause#answer-9843719
+         */
+        return $this->delete([
+            "timestamp_requested IN (SELECT timestamp_requested FROM (SELECT DISTINCT MAX(timestamp_requested) FROM $this->table WHERE source = ? AND timestamp_approved IS NULL) as a) AND source = ? AND timestamp_approved IS NULL" => [
+                $source,
+                $source
+            ]
+        ]);
+    }
+
+    /**
+     * Retrieves latest approved config specified by a source
+     *
+     * @param string $source
+     *
+     * @return mixed array|false
+     */
+    public function getApprovedConfig($source)
+    {
+        return $this->getConfig($source, 'approved');
+    }
+
+    /**
+     * Retrieves latest requested config specified by a source
+     *
+     * @param string $source
+     *
+     * @return mixed array|false
+     */
+    public function getRequestedConfig($source)
+    {
+        return $this->getConfig($source, 'requested');
+    }
+
+    /**
+     * Retrieves configuration from the table but does not rearrange it into object.
+     *
+     * It rather stays in a format of multiple Rows capable of editing themselves using the Zend API.
+     *
+     * @param string $source
+     *
+     * @return array|false
+     */
+    protected function getRawRequestedConfig($source)
+    {
+        return $this->getConfig($source, 'requested', true);
+    }
+
+    /**
+     * Retrieves latest config specified by a source with latest timestampType.
+     *
+     * Returns false if no cofiguration found for an institution
+     *
+     * @param string $source
+     * @param string $timestampType
+     * @param boolean $stayRaw
+     *
+     * @return mixed|boolean|array
+     */
+    protected function getConfig($source, $timestampType, $stayRaw = false)
+    {
+        $sqlAppendix = '';
+        if ($timestampType === 'requested')
+            $sqlAppendix = 'AND timestamp_approved IS NULL';
+
+        $dbConfig = $this->select([
+            "timestamp_$timestampType IN (SELECT DISTINCT MAX(timestamp_$timestampType) FROM $this->table WHERE source = ? $sqlAppendix) AND source = ? $sqlAppendix" => [
+                $source,
+                $source
+            ]
+        ]);
+
+        if ($dbConfig->count() === 0) {
+            return false;
+        }
+
+        if ($stayRaw)
+            return $dbConfig;
+
+        $config = [];
+        foreach ($dbConfig as $dbConfigRow) {
+
+            $section = $dbConfigRow['section'];
+
+            $key = $dbConfigRow['key'];
+
+            $value = $dbConfigRow['value'];
+
+            $config[$section][$key] = $value;
+        }
+
+        return $config;
     }
 
     /**

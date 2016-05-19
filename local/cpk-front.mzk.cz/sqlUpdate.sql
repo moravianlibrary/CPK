@@ -18,7 +18,7 @@ ALTER TABLE `citation_style`
 ALTER TABLE `citation_style`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 
-INSERT INTO `vufind`.`citation_style` (`id`, `description`, `value`) 
+INSERT INTO `citation_style` (`id`, `description`, `value`) 
   VALUES (NULL, 'ČSN ISO 690', '38673'),
          (NULL, 'Harvard', '3'), 
          (NULL, 'NISO/ANSI Z39.29 (2005)', '4'),
@@ -142,9 +142,9 @@ MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
 
 UPDATE `system` SET `value`='7' WHERE `key`='DB_VERSION';
 
-ALTER TABLE `user_card` ADD CONSTRAINT `home_library_link_1` FOREIGN KEY (`home_library`) REFERENCES `vufind`.`institutions`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `user_card` ADD CONSTRAINT `home_library_link_1` FOREIGN KEY (`home_library`) REFERENCES `institutions`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-ALTER TABLE `user` ADD CONSTRAINT `home_library_link_2` FOREIGN KEY (`home_library`) REFERENCES `vufind`.`institutions`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `user` ADD CONSTRAINT `home_library_link_2` FOREIGN KEY (`home_library`) REFERENCES `institutions`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 UPDATE `system` SET `value`='8' WHERE `key`='DB_VERSION';
 
@@ -214,7 +214,7 @@ ALTER TABLE `institutions`
 
 UPDATE `system` SET `value`='13' WHERE `key`='DB_VERSION';
 
-ALTER TABLE `vufind`.`institutions` CHANGE `logo_url` `logo` MEDIUMTEXT NOT NULL;
+ALTER TABLE `institutions` CHANGE `logo_url` `logo` MEDIUMTEXT NOT NULL;
 
 ALTER TABLE `xcncip2_configs` ADD `paymentUrl` MEDIUMTEXT NULL AFTER `url`;
 
@@ -260,7 +260,7 @@ ADD CONSTRAINT `aleph_mappings` FOREIGN KEY (`source`) REFERENCES `institutions`
 UPDATE `system` SET `value`='16' WHERE `key`='DB_VERSION';
 
 -- Set the foreign key to point only to aleph institutions
-ALTER TABLE `aleph_mappings` DROP FOREIGN KEY `aleph_mappings`; ALTER TABLE `aleph_mappings` ADD CONSTRAINT `aleph_mappings` FOREIGN KEY (`source`) REFERENCES `vufind`.`aleph_configs`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `aleph_mappings` DROP FOREIGN KEY `aleph_mappings`; ALTER TABLE `aleph_mappings` ADD CONSTRAINT `aleph_mappings` FOREIGN KEY (`source`) REFERENCES `aleph_configs`(`source`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 UPDATE `system` SET `value`='17' WHERE `key`='DB_VERSION';
 
@@ -359,4 +359,12 @@ ALTER TABLE `libraries_geolocations` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCR
  CHANGE `region` `region` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
  CHANGE `zip` `zip` VARCHAR(6) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,
  CHANGE `street` `street` VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
-UPDATE `system` SET `value`='27' WHERE `key`='DB_VERSION';
+
+UPDATE `system` SET `value`='28' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `inst_configs` CHANGE `timestamp` `timestamp_requested` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ CHANGE `user_id` `user_requested` INT(11) NOT NULL,
+ ADD `timestamp_approved` TIMESTAMP NULL AFTER `timestamp_requested`,
+ ADD `user_approved`  INT(11) NULL;
+
+UPDATE `system` SET `value`='29' WHERE `key`='DB_VERSION';

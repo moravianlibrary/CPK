@@ -24,12 +24,14 @@
         $transRequested = $config['requested'];
         $transActive = $config['active'];
 
-        $isAleph = isset($transActive['Catalog']['dlfport']);
+        $isAleph = isset($transRequested['Catalog']['dlfport']);
 
         $template = $isAleph ? $alephTemplate : $ncipTemplate;
 
         $defs = $template['Definitions'];
         unset($template['Definitions']);
+
+        $hidden = $defs['hidden'];
 
         // These two cannot be changed by anyone - they're generated
         unset($transRequested['IdResolver']['prefix']);
@@ -45,9 +47,10 @@
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
           </thead>
           <tbody>
-         <? foreach($transRequested as $section => $keys): if(! empty($keys)): ?>
+         <? foreach($transRequested as $section => $keys):
+         if(! empty($keys) && array_search($section, $hidden) === false): ?>
             <tr><td colspan="2"><b>[<?=$section ?>]</b></td></tr>
-            <? foreach($keys as $key => $value):
+            <? foreach($keys as $key => $value): if (array_search($section . ':' . $key, $hidden) === false):
                 $isChanged = $value != $transActive[$section][$key];
                 $isRequired = ! in_array($section . ':' . $key, $defs['optional']);
                 $isCheckbox = $defs[$section][$key] === 'checkbox'; ?>
@@ -78,7 +81,7 @@
                 	<?=$isRequired ? 'required' : ''?>/>
               </td>
             </tr>
-            <? endforeach; ?>
+            <? endif; endforeach; ?>
           <? endif; endforeach; ?>
           </tbody>
         </table>

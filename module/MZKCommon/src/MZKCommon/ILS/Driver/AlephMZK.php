@@ -924,9 +924,7 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
                 throw new ILSException("Missing Catalog/{$current} config setting.");
             }
         }
-        if (!isset($this->config['sublibadm'])) {
-            throw new ILSException('Missing sublibadm config setting.');
-        }
+
         $lang = $this->translator->getTranslator()->getLocale();
         $this->alephWebService->init($this->config['Catalog'], $lang);
         $this->bib = explode(',', $this->config['Catalog']['bib']);

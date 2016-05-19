@@ -129,7 +129,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
             'ncipTemplate' => $configHandler->getNcipTemplate(),
             'alephTemplate' => $configHandler->getAlephTemplate(),
-            'configs' => $configHandler->getAllRequestConfigs()
+            'configs' => $configHandler->getAllRequestConfigsWithActive()
         ], 'admin/configurations/approval.phtml');
     }
 
@@ -356,7 +356,6 @@ class AdminController extends \VuFind\Controller\AbstractBase
  * dedicated to adminitrators.
  *
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
- *
  */
 class AccessManager
 {

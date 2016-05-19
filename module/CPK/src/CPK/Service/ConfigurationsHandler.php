@@ -28,7 +28,6 @@
 namespace CPK\Service;
 
 use CPK\Controller\AdminController;
-use CPK\Controller\AccessManager;
 use Zend\Config\Writer\Ini as IniWriter;
 use Zend\Config\Config;
 use VuFind\Mailer\Mailer;
@@ -57,6 +56,13 @@ class ConfigurationsHandler
      * @var \Zend\ServiceManager\ServiceLocatorInterface
      */
     protected $serviceLocator;
+
+    /**
+     * Db Table for institution configs
+     *
+     * @var \CPK\Db\Table\InstConfigs
+     */
+    protected $instConfigsTable;
 
     /**
      * Config Locator
@@ -115,6 +121,13 @@ class ConfigurationsHandler
     protected $institutionsBeingAdminAt;
 
     /**
+     * Array of source driver type definitions
+     *
+     * @var string[]
+     */
+    protected $sourceTypes;
+
+    /**
      * C'tor
      *
      * @param \VuFind\Controller\AbstractBase $controller
@@ -124,6 +137,8 @@ class ConfigurationsHandler
         $this->ctrl = $controller;
 
         $this->serviceLocator = $this->ctrl->getServiceLocator();
+
+        $this->instConfigsTable = $this->serviceLocator->get('VuFind\DbTablePluginManager')->get('inst_configs');
 
         $this->initConfigs();
     }
@@ -159,6 +174,8 @@ class ConfigurationsHandler
         $this->mailer = $this->serviceLocator->get('VuFind\Mailer');
 
         $this->institutionsBeingAdminAt = $this->ctrl->getAccessManager()->getInstitutionsWithAdminRights();
+
+        $this->sourceTypes = $this->configLocator->get('MultiBackend')->toArray()['Drivers'];
     }
 
     /**
@@ -208,6 +225,8 @@ class ConfigurationsHandler
             // Is there a query for a config modification?
             if (isset($post['approved'])) {
 
+                unset($post['approved']);
+
                 $result = $this->approveRequest($post);
 
                 if ($result) {
@@ -222,17 +241,11 @@ class ConfigurationsHandler
 
                     $msg = $this->translate('approval_failed');
                     $this->flashMessenger()->addErrorMessage($msg);
-
-                    $suggestion = "Try to execute 'sudo chown -R www-data \"$this->driversAbsolutePath\"'";
-
-                    $this->flashMessenger()->addErrorMessage($suggestion);
                 }
             } else
                 if (isset($post['denied'])) {
 
-                    $this->deleteRequestConfig([
-                        'source' => $source
-                    ]);
+                    $this->deleteRequestConfig($source);
 
                     $this->sendRequestDeniedMail($source, $post['message'], $contactPerson);
 
@@ -285,24 +298,9 @@ class ConfigurationsHandler
      *
      * @return array
      */
-    public function getAllRequestConfigs()
+    public function getAllRequestConfigsWithActive()
     {
-        $configs = [];
-
-        $requestsPath = $this->driversAbsolutePath . 'requests/';
-
-        $files = scandir($requestsPath, SCANDIR_SORT_NONE);
-
-        foreach ($files as $file) {
-            if (substr($file, - 4) === '.ini') {
-
-                $source = substr($file, 0, - 4);
-
-                $configs[$source] = $this->getInstitutionConfig($source, false);
-            }
-        }
-
-        return $configs;
+        return $this->instConfigsTable->getAllRequestConfigsWithActive();
     }
 
     /**
@@ -321,8 +319,6 @@ class ConfigurationsHandler
             $this->flashMessenger()->addErrorMessage($requestUnchanged);
             return;
         }
-
-        $post['Catalog']['requester'] = $_SESSION['Account']['userId'];
 
         $success = $this->createNewRequestConfig($post);
 
@@ -370,8 +366,13 @@ class ConfigurationsHandler
 
         $hidden = $defs['hidden'];
 
-        // Has the request changed something?
-        foreach ($this->getActiveConfig($config['source']) as $section => $keys) {
+        $currentRequested = $this->instConfigsTable->getRequestedConfig($config['source']);
+
+        if (! $currentRequested && ! empty($config['Catalog']))
+            return true;
+
+            // Has the request changed something?
+        foreach ($currentRequested as $section => $keys) {
 
             if (array_search($section, $hidden) !== false)
                 continue;
@@ -447,74 +448,34 @@ class ConfigurationsHandler
      */
     protected function approveRequest($post)
     {
-        $requestedConfig = $this->getInstitutionConfig($post['source'], false)['requested'];
-        $requesterId = $requestedConfig['Catalog']['requester'];
-
-        // Create new config with the initial requester Id
-        $post['Catalog']['requester'] = $requesterId;
-
-        $succeeded = $this->createNewRequestConfig($post, $post['message']);
-
-        if (! $succeeded)
-            return false;
-
         $source = $post['source'];
 
-        $requestFilename = $this->driversAbsolutePath . 'requests/' . $source . '.ini';
-        $activeFilename = $this->driversAbsolutePath . $source . '.ini';
+        unset($post['source']);
+        unset($post['message']);
 
-        $isCopied = copy($requestFilename, $activeFilename);
+        $succeeded = $this->instConfigsTable->approveConfig($post, $source);
 
-        if (! $isCopied) {
-
-            // Perform chown using mv & cp if www-data owns the dir
-            $deleteMeFilename = $activeFilename . '_deleteMe';
-
-            $fullCmd = "mv \"" . $activeFilename . "\" \"" . $deleteMeFilename . "\"";
-            $fullCmd .= " && ";
-            $fullCmd .= "cp \"" . $deleteMeFilename . "\" \"" . $activeFilename . "\"";
-            $fullCmd .= " && ";
-            $fullCmd .= "rm \"" . $deleteMeFilename . "\"";
-
-            exec($fullCmd, $result);
-
-            $isCopied = copy($requestFilename, $activeFilename);
-
-            if (! $isCopied)
-                return $isCopied;
-        }
-
-        $isDeleted = $this->deleteRequestConfig([
-            'source' => $source
-        ]);
-
-        return $isDeleted;
+        return $succeeded;
     }
 
     /**
      * Deletes request configuration from the requests dir
      *
-     * @param array $config
+     * @param string $source
      * @throws \Exception
      *
      * @return boolean
      */
-    protected function deleteRequestConfig($config)
+    protected function deleteRequestConfig($source)
     {
-        $source = $config['source'];
-
         if (empty($source))
             return false;
-
-        unset($config['source']);
 
         if (! in_array($source, $this->institutionsBeingAdminAt) && ! $this->ctrl->isPortalAdmin()) {
             throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
         }
 
-        $filename = $this->driversAbsolutePath . 'requests/' . $source . '.ini';
-
-        return unlink($filename);
+        return $this->instConfigsTable->deleteLastRequestConfig($source);
     }
 
     /**
@@ -522,7 +483,7 @@ class ConfigurationsHandler
      *
      * @param array $config
      */
-    protected function createNewRequestConfig($config, $comment = null)
+    protected function createNewRequestConfig($config)
     {
         $source = $config['source'];
 
@@ -537,41 +498,17 @@ class ConfigurationsHandler
 
         $config = $this->parseConfigSections($config, $source);
 
-        if (isset($config['Availability']['source'])) {
+        if (! isset($config['Availability']['source'])) {
             $config['Availability']['source'] = $source;
         }
 
-        $requestsPath = $this->driversAbsolutePath . 'requests/';
-
-        $filename = $requestsPath . $source . '.ini';
-
-        $dirStatus = is_dir($requestsPath) || mkdir($requestsPath, 0777, true);
-
-        if (! $dirStatus) {
-            throw new \Exception("Cannot create '$requestsPath' directory. Please fix the permissions by running: 'sudo mkdir $requestsPath && sudo chown -R www-data $requestsPath'");
+        if (! isset($config['IdResolver']['source'])) {
+            $config['IdResolver']['prefix'] = $source;
         }
 
-        $config = $this->cleanData($config);
-        $config = new Config($config, false);
+        $newConfRequest = $this->instConfigsTable->createNewConfig($source, $config);
 
-        try {
-            (new IniWriter())->toFile($filename, $config);
-        } catch (\Exception $e) {
-            throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $requestsPath'");
-        }
-
-        if ($comment !== null && ! empty($comment)) {
-
-            // Remove new lines
-            $comment = '; ' . preg_replace('/\s+/', ' ', $comment);
-
-            // Add some comment to the comment
-            $comment = '; Description added while approving by admin with userId "' . $_SESSION['Account']['userId'] . '":' . PHP_EOL . $comment;
-
-            file_put_contents($filename, $comment . PHP_EOL, FILE_APPEND);
-        }
-
-        return $config;
+        return $newConfRequest;
     }
 
     /**
@@ -640,25 +577,20 @@ class ConfigurationsHandler
      */
     protected function commitNewConfig($source)
     {
-        $table = $this->ctrl->getTable('InstConfigs');
+        $config = $this->instConfigsTable->getRequestedConfig($source);
 
-        $config = $this->getInstitutionConfig($source, false)['requested'];
+        if ($config === false)
+            $config = [];
 
-        $userId = (int) $config['Catalog']['requester'];
-
-        unset($config['Catalog']['requester']);
-
-        if (! is_numeric($userId)) {
-            $userId = 0;
-        }
-
-        $table->createNewConfig($source, $userId, $config);
+        return $this->instConfigsTable->createNewConfig($source, $config);
     }
 
     /**
      * Parses config from the POST.
      *
-     * Note that it cuts out the configuration which is not included within the template
+     * Note that it cuts out the configuration which is not included within the template.
+     *
+     * FIXME: Setup the default value from template
      *
      * @param array $config
      * @param string $source
@@ -689,7 +621,14 @@ class ConfigurationsHandler
 
                 if ($defs[$section][$key] === 'checkbox') {
                     $parsedCfg[$section][$key] = isset($config[$section][$key]) ? '1' : '0';
+
+                } elseif ($defs[$section][$key] === 'number') {
+
+                    // Set new configuration or default if not provided
+                    $parsedCfg[$section][$key] = !empty($config[$section][$key]) ? $config[$section][$key] : $value;
+
                 } else {
+
                     // Set new configuration or default if not provided
                     $parsedCfg[$section][$key] = isset($config[$section][$key]) ? $config[$section][$key] : $value;
                 }
@@ -713,26 +652,19 @@ class ConfigurationsHandler
      */
     protected function getInstitutionConfig($source, $filterHidden = true)
     {
-        $activeCfg = $this->getActiveConfig($source);
+        $activeCfg = $this->instConfigsTable->getApprovedConfig($source);
 
-        $requestCfgPath = $this->driversPath . '/requests/' . $source;
+        if ($activeCfg === false)
+            $activeCfg = [];
 
-        try {
-            $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
-        } catch (\Exception $e) {
-
-            // There is probably a parent config definition without the parent config
-            $missingParent = $this->getMissingParentConfigName($source);
-
-            if (! $missingParent)
-                throw $e;
-
-                // So create one dummy parent config
-            $this->createMissingParent($this->driversAbsolutePath . '/requests/' . $missingParent);
-
-            // Now try it again
-            $requestCfg = $this->configLocator->get($requestCfgPath)->toArray();
+        if ($this->sourceTypes[$source] === 'Aleph' && ! isset($activeCfg['Catalog']['dlfport'])) {
+            $activeCfg['Catalog']['dlfport'] = '';
         }
+
+        $requestCfg = $this->instConfigsTable->getRequestedConfig($source);
+
+        if ($requestCfg === false)
+            $requestCfg = [];
 
         if ($filterHidden)
             return [
@@ -744,58 +676,6 @@ class ConfigurationsHandler
                 'active' => $activeCfg,
                 'requested' => $requestCfg
             ];
-    }
-
-    /**
-     * Retrieves active config of an institution
-     *
-     * @param string $source
-     *
-     * @return array
-     */
-    protected function getActiveConfig($source)
-    {
-        return $this->configLocator->get($this->driversPath . '/' . $source)->toArray();
-    }
-
-    /**
-     * Returns filename of missing parent config within a requests' config
-     *
-     * @return false|string
-     */
-    protected function getMissingParentConfigName($source)
-    {
-        $filename = $this->driversAbsolutePath . 'requests/' . $source . '.ini';
-
-        $missingParent = false;
-
-        $fh = fopen($filename, 'r') or die($php_errormsg);
-        while (! feof($fh)) {
-            $line = fgets($fh, 4096);
-            if (preg_match('/relative_path/', $line)) {
-
-                $missingParent = explode('"', $line)[1];
-                break;
-            }
-        }
-        fclose($fh);
-
-        return $path . $missingParent;
-    }
-
-    /**
-     * Creates empty
-     *
-     * @param string $filename
-     * @throws \Exception
-     */
-    protected function createMissingParent($filename)
-    {
-        try {
-            file_put_contents($filename, '');
-        } catch (\Exception $e) {
-            throw new \Exception("Cannot write to file '$filename'. Please fix the permissions by running: 'sudo chown -R www-data $path'");
-        }
     }
 
     /**
