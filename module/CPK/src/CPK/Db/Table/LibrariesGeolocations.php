@@ -155,6 +155,10 @@ class LibrariesGeolocations extends Gateway
     /**
      * Return towns from table by Region
      *
+     * @todo For better performance, WHERE only institutions connected to portal. So first of all,
+     * add column to table and store there some information, in harvesting
+     * method AJAX->createLirariesGeolocationsTableAjax
+     *
      * @param string $region
      *
      * @return array
