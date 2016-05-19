@@ -19,7 +19,7 @@ jQuery( document ).ready( function( $ ) {
 			    );
 			}
 			else {
-				alert("Geolocation is not supported by this browser");
+				alert(VuFind.translate('Geolocation is not supported by this browser'));
 			}
 		},
 		
@@ -35,9 +35,9 @@ jQuery( document ).ready( function( $ ) {
 	
 	function geo_error( error ) {
 		var errors = { 
-			1: 'Permission denied',
-		    2: 'Position unavailable',
-		    3: 'Request timeout'
+			1: VuFind.translate('Permission denied'),
+		    2: VuFind.translate('Position unavailable'),
+		    3: VuFind.translate('Request timeout')
 		};
 		alert( "Error: " + errors[error.code] );
 	};

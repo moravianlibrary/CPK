@@ -362,6 +362,29 @@ jQuery( document ).ready( function( $ ) {
 	                if (response.status == 'OK') {
 		                console.log( 'STATUS: OK ' );
 		                console.log( response );
+		                
+		                $('#facet_institution').jstree(true).deselect_all();
+		                
+		                $.each( response.data, function( key, value ) {
+		                	var townFacet = '~institution:"1/Library/'+value.town.toLowerCase()+'/"';
+		                	$('#facet_institution').jstree(true).select_node(townFacet);
+	                	});
+		                
+		                $( "input[name='page']" ).val( '1' );
+
+		                //remove all institutions
+		                var allInstitutions = $('#facet_institution').jstree(true).get_json('#', {flat:true});
+		                $.each( allInstitutions, function( index, value ){
+		                    ADVSEARCH.removeFacetFilter( value['id'], false );
+		                });
+
+		                //add selected institutions
+		                var selectedInstitutions = $('#facet_institution').jstree(true).get_bottom_selected();
+		                $.each( selectedInstitutions, function( index, value ){
+		                    ADVSEARCH.addFacetFilter( value, false );
+		                });
+		                ADVSEARCH.updateSearchResults( undefined, undefined );
+		                
 	                } else {
 	                    console.error(response.data);
 	                }
