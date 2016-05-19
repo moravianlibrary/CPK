@@ -619,10 +619,12 @@ class ConfigurationsHandler
         foreach ($template as $section => $keys) {
             foreach ($keys as $key => $value) {
 
-                if ($defs[$section][$key] === 'checkbox') {
+                $definitionExists = isset($defs[$section][$key]);
+
+                if ($definitionExists && $defs[$section][$key] === 'checkbox') {
                     $parsedCfg[$section][$key] = isset($config[$section][$key]) ? '1' : '0';
 
-                } elseif ($defs[$section][$key] === 'number') {
+                } elseif ($definitionExists && $defs[$section][$key] === 'number') {
 
                     // Set new configuration or default if not provided
                     $parsedCfg[$section][$key] = !empty($config[$section][$key]) ? $config[$section][$key] : $value;
@@ -685,7 +687,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestCancelledMail($source)
     {
-        if ($this->approvalConfig['enabled']) {
+        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
 
             $subject = 'Zrušení žádosti o změnu konfigurace u instituce ' . $source;
 
@@ -704,7 +706,7 @@ class ConfigurationsHandler
      */
     protected function sendNewRequestMail($source)
     {
-        if ($this->approvalConfig['enabled']) {
+        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
 
             $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
 
@@ -725,7 +727,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestApprovedMail($source, $message, $to)
     {
-        if ($this->approvalConfig['enabled']) {
+        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
 
             $subject = 'Schválení žádosti o změnu konfigurace u instituce ' . $source;
 
@@ -746,7 +748,7 @@ class ConfigurationsHandler
      */
     protected function sendRequestDeniedMail($source, $message, $to)
     {
-        if ($this->approvalConfig['enabled']) {
+        if (isset($this->approvalConfig['enabled']) && $this->approvalConfig['enabled']) {
 
             $subject = 'Žádost o změnu konfigurace u instituce ' . $source . ' byla zamítnuta';
 
