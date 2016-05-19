@@ -1529,6 +1529,8 @@ class AjaxController extends AjaxControllerBase
             return $this->output($e->getMessage(), self::STATUS_ERROR);
         }
 
-        return $this->output($towns, self::STATUS_OK);
+        $output = ['region' => $region, 'towns' => $towns];
+
+        return $this->output($output, self::STATUS_OK);
 	}
 }

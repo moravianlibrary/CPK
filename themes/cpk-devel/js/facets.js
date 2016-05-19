@@ -361,11 +361,13 @@ jQuery( document ).ready( function( $ ) {
 
 	                if (response.status == 'OK') {
 		                console.log( 'STATUS: OK ' );
-		                console.log( response );
+		                //console.log( response );
+		                console.log( 'My region is:' );
+		                console.log( response.data.region );
 		                
 		                $('#facet_institution').jstree(true).deselect_all();
 		                
-		                $.each( response.data, function( key, value ) {
+		                $.each( response.data.towns, function( key, value ) {
 		                	var townFacet = '~institution:"1/Library/'+value.town.toLowerCase()+'/"';
 		                	$('#facet_institution').jstree(true).select_node(townFacet);
 	                	});
