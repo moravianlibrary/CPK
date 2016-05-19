@@ -54,9 +54,9 @@
                 <input class="form-control"
                 	type="<?=$defs[$section][$key] ?>"
                 	<? if( $isCheckbox ): ?>
-                	  <?=( $config[$section][$key] ) ? 'checked="checked"' : ''; ?>
+                	  <?=( isset($config[$section][$key]) && $config[$section][$key] ) ? 'checked="checked"' : ''; ?>
                 	<? else: ?>
-                	  value="<?=$config[$section][$key]?>"
+                	  value="<?=isset($config[$section][$key]) ? $config[$section][$key] : ''?>"
                 	<? endif; ?>
                 	placeholder="<?=$this->transEsc($value)?>"
                 	title="<?=$this->transEsc($value)?>"
