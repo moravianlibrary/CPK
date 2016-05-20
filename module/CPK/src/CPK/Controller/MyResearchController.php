@@ -369,12 +369,12 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
-        
+
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
             return $this->forwardTo('LibraryCards', 'Home');
         }
-        
+
         return $this->createViewModel([
             'libraryIdentities' => $user->getLibraryCards()
         ]);
@@ -391,25 +391,25 @@ class MyResearchController extends MyResearchControllerBase
         if (! $this->listsEnabled()) {
             throw new \Exception('Lists disabled');
         }
-        
+
         $config = $this->getConfig();
-        
+
         // Are "offline favorites" enabled ?
         $offlineFavoritesEnabled = false;
-        
+
         if ($config->Site['offlineFavoritesEnabled'] !== null) {
             $offlineFavoritesEnabled = (bool) $config->Site['offlineFavoritesEnabled'];
         }
-        
+
         // Do we have request for a public list?
         $idEmpty = $this->params()->fromRoute('id') === null;
-        
+
         // And is user not logged in ?
         $userNotLoggedIn = $this->getUser() === false;
-        
+
         if ($offlineFavoritesEnabled && $idEmpty && $userNotLoggedIn) {
             // Well then, render the favorites for not logged in user & let JS handle it ..
-            
+
             return $this->createViewModel([
                 'loggedIn' => false
             ]);
@@ -421,7 +421,7 @@ class MyResearchController extends MyResearchControllerBase
 
     public function userConnectAction()
     {
-        // This eid serves only to warn user he wants to connect the same instituion account
+            // This eid serves only to warn user he wants to connect the same instituion account
         if (isset($_GET['eid']))
             $entityIdInitiatedWith = $_GET['eid'];
         else
@@ -431,9 +431,7 @@ class MyResearchController extends MyResearchControllerBase
 
         // We can't really determine if is user logged in if entityIdInitiatedWith is provided
         // We have to leave this on ShibbolethIdentityManager ..
-        $haveToLogin = ! is_array($patron) &&
-             ! $this->isLoggedInWithDummyDriver($patron) &&
-             empty($entityIdInitiatedWith);
+        $haveToLogin = ! is_array($patron) && ! $this->isLoggedInWithDummyDriver($patron) && empty($entityIdInitiatedWith);
 
         // Stop now if the user does not have valid catalog credentials available:
         if ($haveToLogin) {
@@ -469,8 +467,7 @@ class MyResearchController extends MyResearchControllerBase
             }
 
             if ($user->consolidationSucceeded)
-                $this->processSuccessMessage(
-                    "Identities were successfully connected");
+                $this->processSuccessMessage("Identities were successfully connected");
 
                 // Show user all his connected identities
             return $this->redirect()->toRoute('librarycards-home');
@@ -616,7 +613,7 @@ class MyResearchController extends MyResearchControllerBase
             ->setNamespace('success')
             ->addMessage($msg);
     }
-    
+
     /**
      * Settings view
      *
@@ -629,55 +626,55 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
-        
+
         /* Citation style fieldset */
         $citationStyleTable = $this->getTable('citationstyle');
         $availableCitationStyles = $citationStyleTable->getAllStyles();
-        
+
         $defaultCitationStyleValue = $this->getConfig()->Record->default_citation_style;
-        
+
         foreach ($availableCitationStyles as $style) {
             if ($style['value'] === $defaultCitationStyleValue) {
                 $defaultCitationStyle = $style['id'];
                 break;
             }
         }
-        
+
         $userSettingsTable = $this->getTable("usersettings");
         $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
-        
-        $selectedCitationStyle = (! empty($preferedCitationStyle)) 
-            ? $preferedCitationStyle 
+
+        $selectedCitationStyle = (! empty($preferedCitationStyle))
+            ? $preferedCitationStyle
             : $defaultCitationStyle;
-        
+
         $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
         $viewVars['availableCitationStyles'] = $availableCitationStyles;
-        
+
         /* Records per page fieldset */
         $searchesConfig = $this->getConfig('searches');
         $recordsPerPageOptions = explode(",", $searchesConfig->General->limit_options);
         $recordsPerPageDefaultValue = $searchesConfig->General->default_limit;
         $preferredRecordsPerPageValue = $userSettingsTable->getRecordsPerPage($user);
-        
+
         $selectedRecordsPerPageOption = (! empty($preferredRecordsPerPageValue))
         ? $preferredRecordsPerPageValue
         : $recordsPerPageDefaultValue;
-        
+
         $viewVars['recordsPerPageOptions'] = $recordsPerPageOptions;
         $viewVars['selectedRecordsPerPageOption'] = $selectedRecordsPerPageOption;
-        
+
         /* Sorting fieldset */
         $sortingOptions = $searchesConfig->Sorting->toArray();
         $defaultSorting = $searchesConfig->General->default_sort;
         $preferredSorting = $userSettingsTable->getSorting($user);
-        
+
         $selectedSorting = (! empty($preferredSorting))
         ? $preferredSorting
         : $defaultSorting;
-        
+
         $viewVars['sortingOptions'] = $sortingOptions;
         $viewVars['selectedSorting'] = $selectedSorting;
-        
+
         //
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());

@@ -362,7 +362,7 @@ class ShibbolethIdentityManager extends Shibboleth
             }
 
             if ($name !== 'main') {
-                if (! isset($configuration['entityId']) || empty($configuration['entityId'])) {
+                if (! isset($configuration['entityId'])) {
                     throw new AuthException("Shibboleth 'entityId' is missing in your " . static::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
                 }
             } else {
@@ -449,16 +449,14 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     public function getAccountConsolidationRedirectUrl($userRowId)
     {
-        // Create & write token to DB & user's cookie
+            // Create & write token to DB & user's cookie
         $token = $this->generateToken();
         setCookie(static::CONSOLIDATION_TOKEN_TAG, $token);
 
-        $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token,
-            $userRowId);
+        $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
 
         if (! $tokenCreated)
-            throw new AuthException(
-                'Could not create consolidation token entry into session table');
+            throw new AuthException('Could not create consolidation token entry into session table');
 
             // Create redirection URL
         $hostname = $this->config->Site->url;
@@ -472,12 +470,10 @@ class ShibbolethIdentityManager extends Shibboleth
         $entityId = $this->fetchCurrentEntityId();
         $target .= '?eid=' . urlencode($entityId);
 
-        $loginRedirect = $this->config->Shibboleth->login . '?forceAuthn=1&target=' .
-             urlencode($target);
+        $loginRedirect = $this->config->Shibboleth->login . '?forceAuthn=1&target=' . urlencode($target);
 
         if ($this->canLogoutSafely()) {
-            return $this->config->Shibboleth->logout . '?return=' .
-                 urlencode($loginRedirect);
+            return $this->config->Shibboleth->logout . '?return=' . urlencode($loginRedirect);
         } else
             return $loginRedirect;
     }
@@ -492,16 +488,16 @@ class ShibbolethIdentityManager extends Shibboleth
      *            send user to after login (some drivers may override this).
      *
      * @param string $entityId
-     *            
+     *
      * @return mixed bool|string
      */
     public function getSessionInitiatorForEntityId($target, $entityId)
     {
         $initiator = parent::getSessionInitiator($target);
-        
+
         if (! empty($entityId))
             $initiator .= '&entityID=' . urlencode($entityId);
-        
+
         return $initiator;
     }
 

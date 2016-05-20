@@ -46,26 +46,27 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
     /**
      * C'tor
      *
-     * @param AuthManager $authManager            
-     * @param \Zend\Config\Config $config            
-     * @param string $lang            
+     * @param AuthManager $authManager
+     * @param \Zend\Config\Config $config
+     * @param string $lang
      */
     public function __construct(AuthManager $authManager, \Zend\Config\Config $config, $lang)
     {
         $this->authManager = $authManager;
-        
+
         $idps = $config->toArray();
-        
+
         foreach ($idps as $idp) {
-            
+
             if (isset($idp['entityId']))
                 if (isset($idp['cat_username'])) {
                     array_push($this->libraries, $idp);
-                } else {
+
+                } elseif ($idp['entityId']) {
                     array_push($this->others, $idp);
                 }
         }
-        
+
         $this->lang = substr($lang, 0, 2);
     }
 
@@ -82,14 +83,14 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
     /**
      * Adds a href to redirect user to in order to authenticate him with Shibboleth
      *
-     * @param array $institutions            
+     * @param array $institutions
      */
     protected function produceListForTemplate(array $institutions)
     {
         $idps = [];
-        
+
         foreach ($institutions as $institution) {
-            
+
             $idp = [
                 'href' => $this->authManager->getSessionInitiatorForEntityId(null, $institution['entityId']),
                 'name' => $this->lang === 'en' ? $institution['name_en'] : $institution['name_cs'],
@@ -97,10 +98,10 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
                 'name_en' => $institution['name_en'],
                 'logo' => $institution['logo']
             ];
-            
+
             array_push($idps, $idp);
         }
-        
+
         return $idps;
     }
 }
