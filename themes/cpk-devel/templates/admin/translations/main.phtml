@@ -23,7 +23,7 @@
 
         if (isset($translations[$source])) {
 
-            $this->hasRequested = $translations[$source]['hasRequested'];
+            $this->hasRequested = isset($translations[$source]['hasRequested']) && $translations[$source]['hasRequested'];
             unset($translations[$source]['hasRequested']);
 
             $this->sourceTranslations = $translations[$source];
