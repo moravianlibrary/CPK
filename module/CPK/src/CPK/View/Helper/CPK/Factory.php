@@ -55,7 +55,7 @@ class Factory
      *
      * @param ServiceManager $sm
      *            Service manager.
-     *            
+     *
      * @return Flashmessages
      */
     public static function getFlashmessages(ServiceManager $sm)
@@ -74,8 +74,11 @@ class Factory
         $config = $sm->getServiceLocator()
             ->get('VuFind\Config')
             ->get('shibboleth');
-        
-        return new Logos($config);
+
+        $tableLocator = $sm->getServiceLocator()
+            ->get('VuFind\DbTablePluginManager');
+
+        return new Logos($config, $tableLocator->get('inst_configs'));
     }
 
     public static function getGlobalNotifications(ServiceManager $sm)
@@ -83,11 +86,11 @@ class Factory
         $config = $sm->getServiceLocator()
             ->get('VuFind\Config')
             ->get('notifications');
-        
+
         $lang = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
             ->get('VuFind\Translator')
             ->getLocale() : 'en';
-        
+
         return new GlobalNotifications($config, $lang, $sm->get('transesc'));
     }
 
@@ -96,26 +99,26 @@ class Factory
         $portalPageTable = $sm->getServiceLocator()
             ->get('VuFind\DbTablePluginManager')
             ->get("portalpages");
-        
+
         $languageCode = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
             ->get('VuFind\Translator')
             ->getLocale() : 'en';
-        
+
         return new PortalPages($portalPageTable, $languageCode);
     }
 
     public static function getIdentityProviders(ServiceManager $sm)
     {
         $authManager = $sm->getServiceLocator()->get('VuFind\AuthManager');
-        
+
         $config = $sm->getServiceLocator()
             ->get('VuFind\Config')
             ->get('shibboleth');
-        
+
         $lang = $sm->getServiceLocator()->has('VuFind\Translator') ? $sm->getServiceLocator()
             ->get('VuFind\Translator')
             ->getLocale() : 'en';
-        
+
         return new IdentityProviders($authManager, $config, $lang);
     }
 }

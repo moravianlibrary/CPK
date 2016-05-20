@@ -225,6 +225,34 @@ class InstConfigs extends Gateway
     }
 
     /**
+     * Retrieves latest approved logo from within an institution.
+     *
+     * Returns false if no logo found.
+     *
+     * @param string $source
+     * @return string|boolean
+     */
+    public function getLatestApprovedLogo($source)
+    {
+        $select = $this->sql->select();
+
+        $select->columns(['id','value']);
+
+        $select->where(['source' => $source, 'section' => 'Catalog', 'key' => 'logo']);
+
+        $select->order('timestamp_approved DESC');
+        $select->limit(1);
+
+        $lastLogoRow = $this->selectWith($select)->current();
+
+        if (isset($lastLogoRow['value'])) {
+            return $lastLogoRow['value'];
+        }
+
+        return false;
+    }
+
+    /**
      * Retrieves configuration from the table but does not rearrange it into object.
      *
      * It rather stays in a format of multiple Rows capable of editing themselves using the Zend API.

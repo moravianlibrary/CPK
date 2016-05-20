@@ -42,18 +42,25 @@ class Logos extends \Zend\View\Helper\AbstractHelper
 {
 
     /**
-     * DB institutions table
+     * DB institutions configs table
      *
-     * @var \CPK\Db\Table\Institutions
+     * @var \CPK\Db\Table\InstConfigs
      */
-    protected $institutionsTable;
+    protected $instConfigsTable;
 
     /**
-     * Associative array holding the logos
+     * Associative array holding the logos parsed from shibboleth config
      *
      * @var object
      */
-    protected $idpLogos;
+    protected $idpLogosFromShibConf;
+
+    /**
+     * Associative array holding the logos parsed from DB
+     *
+     * @var object
+     */
+    protected $idpLogosFromDb;
 
     /**
      * Constructor
@@ -61,32 +68,46 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      * @param
      *            \Zend\Config\Config VuFind configuration
      */
-    public function __construct(\Zend\Config\Config $config)
+    public function __construct(\Zend\Config\Config $shibConf, \CPK\Db\Table\InstConfigs $instConfigsTable)
     {
-        $idps = $config->toArray();
-        
+        $this->instConfigsTable = $instConfigsTable;
+
+        $idps = $shibConf->toArray();
+
         foreach ($idps as $source => $idp) {
-            
+
             if (isset($idp['logo']))
-                $this->idpLogos[$source] = $idp['logo'];
+                $this->idpLogosFromShibConf[$source] = $idp['logo'];
         }
     }
 
     /**
      * Returns URL of the institution's logo specified by the source.
      *
-     * @param string $source            
+     * @param string $source
      */
     public function getLogo($source)
     {
+
         if (($pos = strpos($source, '.')) !== false) {
             $source = substr($source, 0, $pos);
         }
-        
-        if (isset($this->idpLogos[$source])) {
-            return $this->idpLogos[$source];
+
+        if (isset($this->idpLogosFromDb[$source])) {
+            return $this->idpLogosFromDb[$source];
         }
-        
+
+        $latestConfigLogo = $this->instConfigsTable->getLatestApprovedLogo($source);
+
+        if ($latestConfigLogo !== false) {
+            $this->idpLogosFromDb[$source] = $latestConfigLogo;
+            return $latestConfigLogo;
+        }
+
+        if (isset($this->idpLogosFromShibConf[$source])) {
+            return $this->idpLogosFromShibConf[$source];
+        }
+
         return '';
     }
 }
