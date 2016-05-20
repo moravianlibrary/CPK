@@ -2,6 +2,9 @@
 
 namespace CPK\Libraries;
 
+use CPK\Libraries\Entities\FullLibrary;
+use CPK\Libraries\Entities\SimpleLibrary;
+
 class Loader {
 
     public $infoKnihovnyUrl = "http://info.knihovny.cz/api/";
@@ -45,7 +48,34 @@ class Loader {
         $output	= $response->getBody();
 
 
-        return $output;
+        $apilibraries = \Zend\Json\Json::decode($output);
+        foreach ($apilibraries as $apilibrary)
+        {
+            $library = new SimpleLibrary();
+            $library->sigla = $apilibrary->sigla;
+            $library->name = $apilibrary->name;
+            $library->nameen = $apilibrary->name_en;
+            $library->code = $apilibrary->code;
+            $library->city = $apilibrary->city;
+            $library->street = $apilibrary->street;
+            $library->zip = $apilibrary->zip;
+            $library->longitude = $apilibrary->longitude;
+            $library->latitude = $apilibrary->latitude;
+            $library->description = $apilibrary->description;
+            $library->region = $apilibrary->region;
+            $library->district = $apilibrary->district;
+            $library->context = $apilibrary->context;
+            $library->active = $apilibrary->active;
+            $library->ico = $apilibrary->ico;
+            $library->dic = $apilibrary->dic;
+            $library->mvs_description = $apilibrary->mvs_description;
+            $library->mvs_url = $apilibrary->mvs_url;
+            $library->url = $apilibrary->url;
+
+            $libraries[] = $library;
+        }
+
+        return $libraries;
 
     }
 

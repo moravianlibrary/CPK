@@ -5,9 +5,9 @@ namespace CPK\Libraries\Entities;
 class FullLibrary extends SimpleLibrary {
     public $created_at;
     public $updated_at;
-    //array of people objects
+    //array of Person objects
     public $people;
-    //array of website objects
+    //array of Website objects
     public $websites;
     //array of email objects
     public $emails;

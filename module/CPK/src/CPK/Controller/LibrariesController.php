@@ -42,9 +42,9 @@ class LibrariesController extends AbstractBase
 
 		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
 
-		$test = $librariesLoader-> LoadLibraries("brno","10","0","active");
+		$libraries = $librariesLoader-> LoadLibraries("brno","10","0","active");
 
-
+		$view->libraries = $libraries;
 
 		$view->setTemplate('libraries/list');
 
