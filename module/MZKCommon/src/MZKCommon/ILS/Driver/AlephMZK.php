@@ -930,7 +930,7 @@ class AlephMZK extends \VuFind\ILS\Driver\AbstractBase implements \Zend\Log\Logg
         $this->bib = explode(',', $this->config['Catalog']['bib']);
         $this->useradm = $this->config['Catalog']['useradm'];
         $this->admlib = $this->config['Catalog']['admlib'];
-        $this->sublibadm = $this->config['sublibadm'];
+        $this->sublibadm = isset($this->config['sublibadm']) ? $this->config['sublibadm'] : [];
         if (isset($this->config['duedates'])) {
             $this->duedates = $this->config['duedates'];
         }
