@@ -773,22 +773,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $holdQueue = $this->getFirstXPathMatchAsString($bibInfo,
                     'HoldingsSet/ItemInformation/ItemOptionalFields/HoldQueueLength');
 
-                $itemRestrictions = $this->useXPath($bibInfo,
+                $itemRestriction = $this->useXPath($bibInfo,
                     'HoldingsSet/ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
-
-                $restrictedToLibrary = false;
-                $monthLoanPeriod = false;
-
-                $restrictions = [];
-                foreach ($itemRestrictions as $itemRestriction) {
-                    $restrictions[] = (string) $itemRestriction;
-
-                    $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
-
-                    $monthLoanPeriod = ($itemRestriction ==
-                         'Limited Circulation, Normal Loan Period') ||
-                         empty($itemRestriction);
-                }
 
                 $locationNameInstances = $this->useXPath($bibInfo,
                     'HoldingsSet/ItemInformation/ItemOptionalFields/Location/LocationName/LocationNameInstance');
@@ -827,7 +813,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'item_id' => empty($item_id) ? "" : $item_id,
                     'label' => $label,
                     'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
-                    'restrictions' => $restrictions,
+                    'restrictions' => '',
                     'duedate' => empty($dueDate) ? '' : $dueDate,
                     'next_item_token' => '',
                     'addLink' => $addLink,
