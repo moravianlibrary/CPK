@@ -209,13 +209,22 @@
 
       <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
           <? foreach ($summ as $field): ?>
-            <p><?=substr($this->escapeHtml($field), 0, 200)?>...</p>
+            <? $secondPart = substr($field, 200); ?>
+            <? $spacePosition = strpos($secondPart, ' '); ?>
+            <? if (empty($spacePosition) && ($spacePosition > 20)): ?>
+              <? $spacePosition = 0; ?>
+            <? endif; ?>
+            <p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?>...</p>
           <? endforeach; ?>
 
         <? else: ?>
           <? $summOK = $this->driver->getSummaryObalkyKnih(); if (!empty($summOK)): ?>
-            <p><?=substr($this->escapeHtml($summOK), 0, 200)?>...</p>
-
+            <? $secondPart = substr($summOK, 200); ?>
+            <? $spacePosition = strpos($secondPart, ' '); ?>
+            <? if (empty($spacePosition) && ($spacePosition > 20)): ?>
+              <? $spacePosition = 0; ?>
+            <? endif; ?>
+            <p><?=$this->escapeHtml(substr($summOK, 0, 200 + $spacePosition))?>...</p>
           <? endif; ?>
         <? endif; ?>
 
