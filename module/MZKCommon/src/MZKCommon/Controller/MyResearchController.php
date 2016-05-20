@@ -472,6 +472,32 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+    public function finesPaymentAction()
+    {
+        $status = $this->params()->fromQuery('status');
+        if ($status == 'ok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_successful');
+        } else if ($status == 'nok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_failed');
+        } else if ($status == 'error') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_error');
+        }
+        return $this->redirect()->toRoute('myresearch-fines');
+    }
+
+    public function prolongationPaymentAction()
+    {
+        $status = $this->params()->fromQuery('status');
+        if ($status == 'ok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_successful');
+        } else if ($status == 'nok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_failed');
+        } else if ($status == 'error') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_error');
+        }
+        return $this->redirect()->toRoute('myresearch-profile');
+    }
+
     protected function getHMAC()
     {
         $config = $this->getConfig();
