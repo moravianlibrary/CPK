@@ -66,7 +66,8 @@ $config = array(
                     'inst_configs' => 'CPK\Db\Table\Factory::getInstitutionsConfigs',
                     'mostwanted' => 'CPK\Db\Table\Factory::getMostWanted',
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
-                    'frontend' => 'CPK\Db\Table\Factory::getFrontend'
+                    'frontend' => 'CPK\Db\Table\Factory::getFrontend',
+                    'widgets' => 'CPK\Db\Table\Factory::getWidgets'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'

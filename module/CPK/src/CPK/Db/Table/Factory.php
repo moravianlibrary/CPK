@@ -192,4 +192,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the widgets table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return Widgets
+     */
+    public static function getWidgets(ServiceManager $sm)
+    {
+        return new Widgets($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }

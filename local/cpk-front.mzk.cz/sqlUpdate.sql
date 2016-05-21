@@ -382,3 +382,17 @@ INSERT INTO `frontend` (`id`, `first_homepage_widget`, `second_homepage_widget`,
 (1, 'most_wanted', 'events', 'infobox');
 
 UPDATE `system` SET `value`='30' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `widgets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
+
+
+INSERT INTO `widgets` (`id`, `name`) VALUES
+(1, 'most_wanted'),
+(2, 'events'),
+(3, 'infobox');
+
+UPDATE `system` SET `value`='31' WHERE `key`='DB_VERSION';

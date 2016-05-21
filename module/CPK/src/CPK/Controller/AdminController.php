@@ -350,6 +350,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $frontendTable = $this->getTable('frontend');
         $viewModel->setVariable('homePageWidgets', $frontendTable->getHomepageWidgets());
 
+        $widgetsTable = $this->getTable('widgets');
+        $widgets = $widgetsTable->getAllWidgets();
+
         $widgets = ['most_wanted', 'events', 'infobox'];
         $viewModel->setVariable('widgets', $widgets);
 
