@@ -177,4 +177,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the frontend table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return Frontend
+     */
+    public static function getFrontend(ServiceManager $sm)
+    {
+        return new Frontend($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }

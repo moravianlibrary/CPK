@@ -368,3 +368,17 @@ ALTER TABLE `inst_configs` CHANGE `timestamp` `timestamp_requested` TIMESTAMP NO
  ADD `user_approved`  INT(11) NULL;
 
 UPDATE `system` SET `value`='29' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `frontend` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `first_homepage_widget` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  `second_homepage_widget` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  `third_homepage_widget` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+
+
+INSERT INTO `frontend` (`id`, `first_homepage_widget`, `second_homepage_widget`, `third_homepage_widget`) VALUES
+(1, 'most_wanted', 'events', 'infobox');
+
+UPDATE `system` SET `value`='30' WHERE `key`='DB_VERSION';

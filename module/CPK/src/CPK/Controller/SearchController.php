@@ -328,6 +328,11 @@ class SearchController extends AbstractSearch
 
 		$view->mostWanted = $this->getMostWantedRecordsAction(5);
 
+		$frontendTable = $this->getTable('frontend');
+        $widgets = $frontendTable->getHomepageWidgets();
+
+        $view->widgets = $widgets;
+
 	    return $view;
 	}
 
