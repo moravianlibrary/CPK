@@ -32,6 +32,7 @@ use Zend\Mvc\MvcEvent;
 use CPK\Service\ConfigurationsHandler;
 use CPK\Service\TranslationsHandler;
 use Zend\View\Model\ViewModel;
+use Zend\View\Model\JsonModel;
 
 /**
  * Class controls VuFind administration.
@@ -308,29 +309,51 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     public function widgetsAction()
     {
-        if (! $this->accessManager->isLoggedIn())
+        if (! $this->accessManager->isLoggedIn()) {
             return $this->forceLogin();
+        }
 
-            // Must be an portal admin ..
-            $this->accessManager->assertIsPortalAdmin();
+        // Must be an portal admin ..
+        $this->accessManager->assertIsPortalAdmin();
 
-            $user = $this->accessManager->getUser();
+        /*
+         * Handle subactions
+         * */
+        $subAction = $this->params()->fromRoute('subaction');
+        if ($subAction == 'SaveHomePageWidgets') {
+            $post = $this->params()->fromPost();
 
-            $widgets = [
-                ['id' => '1', 'en_title' => 'News', 'cs_title' => 'Novinky'],
-                ['id' => '2', 'en_title' => 'Most wanted', 'cs_title' => 'Nejpůjčovanější'],
-                ['id' => '3', 'en_title' => 'Actions', 'cs_title' => 'Akce'],
-                ['id' => '3', 'en_title' => 'Authors', 'cs_title' => 'Autoři']
-            ];
+            $data = [];
+            $data['first_homepage_widget']  = $post['first-homepage-widget'];
+            $data['second_homepage_widget'] = $post['second-homepage-widget'];
+            $data['third_homepage_widget']  = $post['third-homepage-widget'];
 
-            $viewModel = $this->createViewModel();
-            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
-            $viewModel->setVariable('user', $user);
-            $viewModel->setVariable('widgets', $widgets);
-            $viewModel->setTemplate('admin/widgets/list');
+            $frontendTable = $this->getTable('frontend');
+            $frontendTable->saveHomePageWidgets($data);
 
-            $this->layout()->searchbox = false;
+            $data['status'] = 'OK';
+
+            $viewModel = new JsonModel($data);
+
             return $viewModel;
+        }
+
+        $user = $this->accessManager->getUser();
+
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('user', $user);
+        $viewModel->setTemplate('admin/widgets/list');
+
+        $this->layout()->searchbox = false;
+
+        $frontendTable = $this->getTable('frontend');
+        $viewModel->setVariable('homePageWidgets', $frontendTable->getHomepageWidgets());
+
+        $widgets = ['most_wanted', 'events', 'infobox'];
+        $viewModel->setVariable('widgets', $widgets);
+
+        return $viewModel;
     }
 
     /**

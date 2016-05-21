@@ -17,82 +17,93 @@
     <?=$this->render("admin/menu.phtml")?>
   </div>
 
-  <div class="col-sm-9">
-    <h2><?=$this->translate('Widgets')?></h2>
-    <div class='well'>
-      <div class='admin-toolbox'>
-        <a href='/Admin/Widgets/List'><button class='btn btn-lg btn-primary'><?=$this->translate('New widget')?></button></a>
-      </div>
-      <div>
-		<table class='table table-hover table-responsive'>
-          <thead>
-            <tr>
-              <th width='90%'><?=$this->translate('Widget')?></th>
-              <th width='10%'></th>
-            </tr>
-          </thead>
-          <tbody>
-            <? foreach($this->widgets as $widget): ?>
-            <tr class='portal-page-row'>
-              <td>
-                <?= htmlspecialchars($widget['cs_title']) ?>
-              </td>
-              <td class='portal-pages-actions'>
-                <div class="dropdown pull-right">
-                  <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
-                  </span>
-                  <ul class="dropdown-menu" aria-labelledby="actions">
-                    <li>
-                      <a href='/Admin/Widgets/Edit/<?= $widget['id'] ?>'>
-                        <i class='fa fa-edit'></i>
-                        <?=$this->translate('Edit')?>
-                      </a>
-                    </li>
-                    <li>
-                      <a target='_blank' href='/Admin/Widgets/Preview/<?= $widget['id'] ?>'>
-                        <i class='fa fa-tv'></i>
-                        <?=$this->translate('Preview')?>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-            <? endforeach; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
+  <div class="col-sm-9" id='homepage-widgets'>
     <h2><?=$this->translate('Homepage widgets')?></h2>
     <div class='well'>
 	  <div class='row'>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('First column');?></h2>
-			<select id='first-column-widget'>
-				<? foreach($this->widgets as $widget): ?>
-				<option value='<?=$widget['id']?>'><?=$widget['cs_title']?></option>
-				<? endforeach; ?>
+			<select id='first-homepage-widget'>
+			  <? foreach($widgets as $widget): ?>
+				<option value='<?=$widget?>'<?=($widget==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget)?></option>
+			  <? endforeach; ?>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('Second column');?></h2>
-			<select id='second-column-widget'>
-				<? foreach($this->widgets as $widget): ?>
-				<option value='<?=$widget['id']?>'><?=$widget['cs_title']?></option>
-				<? endforeach; ?>
+			<select id='second-homepage-widget'>
+				<? foreach($widgets as $widget): ?>
+				<option value='<?=$widget?>'<?=($widget==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget)?></option>
+			  <? endforeach; ?>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('Third column');?></h2>
-			<select id='third-column-widget'>
-				<? foreach($this->widgets as $widget): ?>
-				<option value='<?=$widget['id']?>'><?=$widget['cs_title']?></option>
-				<? endforeach; ?>
+			<select id='third-homepage-widget'>
+				<? foreach($widgets as $widget): ?>
+				<option value='<?=$widget?>'<?=($widget==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget)?></option>
+			  <? endforeach; ?>
 			</select>
         </div>
       </div>
 	</div>
   </div>
+</div>
+
+<script>
+	jQuery( document ).ready( function( $ ) {
+		$( '#homepage-widgets' ).on( 'change', 'select', function( event ) {
+			event.preventDefault();
+
+			var data = {};
+
+			$( '#homepage-widgets select' ).each(function( index, element ) {
+				data[$( element ).attr( 'id' )] = $( element ).val();
+			});
+
+			$.ajax({
+	            type: 'POST',
+	            cache: false,
+	            dataType: 'json',
+	            data: data,
+	            url: VuFind.getPath() + '/Admin/Widgets/SaveHomePageWidgets',
+	            beforeSend: function() {
+	            },
+	            success: function( response ) {
+
+	                if (response.status == 'OK') {
+
+	                	$( '#save-homepage-widgets-confirmation' ).modal( 'show' );
+
+	        			setTimeout( function() {
+	        				$( '#save-homepage-widgets-confirmation' ).modal( 'hide' );
+	        			}, 1200 );
+
+	                } else {
+	                    console.error(response.data);
+	                }
+
+	            },
+	            error: function ( xmlHttpRequest, status, error ) {
+	                $( '#search-results-loader' ).remove();
+	                console.error(xmlHttpRequest.responseText);
+	                console.error(xmlHttpRequest);
+	                console.error(status);
+	                console.error(error);
+	            },
+	            complete: function ( xmlHttpRequest, textStatus ) {
+	            }
+	        });
+		});
+	});
+</script>
+
+<div class="modal fade" id="save-homepage-widgets-confirmation" tabindex="-1" role="dialog" aria-labelledby="save-homepage-widgets-confirmation-label" style='margin-top: 150px;'>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+               <?=$this->translate('Widgets saved')?>
+            </div>
+        </div>
+    </div>
 </div>

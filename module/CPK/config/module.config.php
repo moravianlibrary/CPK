@@ -165,6 +165,11 @@ $config = array(
             'wantitfactory' => 'CPK\WantIt\Factory',
             'searchController' => 'CPK\Controller\SearchController',
         )
+    ),
+    'view_manager' => array(
+        'strategies' => array(
+            'ViewJsonStrategy'
+        )
     )
 );
 

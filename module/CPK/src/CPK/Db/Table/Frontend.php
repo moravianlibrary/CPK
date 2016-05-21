@@ -139,4 +139,20 @@ class Frontend extends Gateway
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result;
     }
+
+    /**
+     * Save homepage widgets
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public function saveHomePageWidgets(array $data)
+    {
+        $update = new Update($this->table);
+
+        $update->set($data);
+
+        $this->executeAnyZendSQLUpdate($update);
+    }
 }
