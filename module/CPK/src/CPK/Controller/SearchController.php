@@ -940,6 +940,7 @@ class SearchController extends AbstractSearch
 
 	    $viewData['myLibs'] = $this->getUsersHomeLibraries();
 	    $viewData['config'] = $this->getConfig();
+	    $viewData['facetConfig'] = $this->getConfig('facets');
 
 
 		// Set up facet information:
