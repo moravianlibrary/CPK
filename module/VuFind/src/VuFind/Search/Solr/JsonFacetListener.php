@@ -75,6 +75,13 @@ class JsonFacetListener
     protected $enabledForAllFacets = false;
 
     /**
+     * Logger.
+     *
+     * @var Zend\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * Constructor.
      *
      * @param BackendInterface $backend   Backend
@@ -165,10 +172,14 @@ class JsonFacetListener
         }
 
         if (!empty($jsonFacetData)) {
+            $this->logger->info("fq: " . print_r($jsonFacetData, true));
             $params->set('json.facet', json_encode($jsonFacetData));
         }
 
         $fqs = $params->get('fq');
+        $newfqs = $this->transformFacets($fqs);
+        $params->set('fq', $newfqs);
+        /*
         if (is_array($fqs) && !empty($fqs)) {
             $newfqs = array();
             foreach ($fqs as &$query) {
@@ -176,6 +187,7 @@ class JsonFacetListener
             }
             $params->set('fq', $newfqs);
         }
+        */
     }
 
     protected function getFacetConfig($field, $limit) {
@@ -186,30 +198,57 @@ class JsonFacetListener
         ];
         if (in_array($field, $this->nestedFacets)) {
             $data['domain'] = [ 'blockChildren' => 'merged_boolean:true' ];
+            $data['facet']  = [ 'count' => "unique(_root_)" ];
         }
         if ($this->allFacetsAreOr || in_array($field, $this->orFacets)) {
-            $data['excludeTags'] = [ $field . '_filter' ];
+            $data['excludeTags'] = [ $field . '_filter', 'nested_facet_filter' ];
+            $data['domain']['excludeTags'] = [ $field . '_filter', 'nested_facet_filter' ];
         }
         return $data;
     }
 
-    protected function transformFacetQuery($fq) {
-        list($field, $query) = explode(":", $fq, 2);
-        $params = null;
-        $matches = [];
-        if (preg_match(self::SOLR_LOCAL_PARAMS, $field, $matches)) {
-            $params = $matches[1];
-            $field = $matches[2];
+    protected function transformFacets($fqs) {
+        $newfqs = array();
+        $nestedFacets = [];
+        foreach ($fqs as $fq) {
+            list($field, $query) = explode(":", $fq, 2);
+            $localParams = null;
+            $matches = [];
+            if (preg_match(self::SOLR_LOCAL_PARAMS, $field, $matches)) {
+                $localParams = $matches[1];
+                $field = $matches[2];
+                $fq = $localParams . ' (' . $field . ':' . $query . ')';
+            }
+            if (in_array($field, $this->nestedFacets)) {
+                $nestedFacets[] = $fq;
+                if ($this->allFacetsAreOr || in_array($field, $this->orFacets)) {
+                    $newfqs[] = $this->addToLocalParams($localParams, "parent which='merged_boolean:true'") . ' (' . $field . ':' . $query . ')';
+                }
+            } else {
+                $newfqs[] = $fq;
+            }
         }
-        if (!in_array($field, $this->nestedFacets)) {
-            return $fq;
+        if (!empty($nestedFacets)) {
+            $newfqs[] = "{!parent which='merged_boolean:true' tag=nested_facet_filter}( " . implode(' AND ', $nestedFacets) . " )";
         }
-        if ($params != null) {
-            $params = rtrim($params, "}") . " parent which='merged_boolean:true'" . "}";
-            return $params . $field . ':' . $query;
-        } else {
-            return "{!parent which='merged_boolean:true'}" . $fq;
-        }
+        $this->logger->debug("fq: " . print_r($newfqs, true));
+        return $newfqs;
+    }
+
+    protected function addToLocalParams($localParams, $newParam) {
+        return rtrim($localParams, "}") . " " . $newParam . "}";
+    }
+
+    /**
+     * Set the Logger.
+     *
+     * @param VuFind\Log\Logger $logger Logger
+     *
+     * @return void
+     */
+    public function setLogger(\VuFind\Log\Logger $logger)
+    {
+        $this->logger = $logger;
     }
 
 }

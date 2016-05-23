@@ -254,7 +254,11 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         }
         $useJsonApi = isset($facets->JSON_API) && isset($facets->JSON_API->enabled) && $facets->JSON_API->enabled;
         if (!empty($nested) || $useJsonApi) {
-            $this->getJsonFacetListener($backend, $facets)->attach($events);
+            $jsonFacetListener = $this->getJsonFacetListener($backend, $facets);
+            if ($this->logger) {
+                $jsonFacetListener->setLogger($this->logger);
+            }
+            $jsonFacetListener->attach($events);
         }
 
         // Attach error listeners for Solr 3.x and Solr 4.x (for backward
