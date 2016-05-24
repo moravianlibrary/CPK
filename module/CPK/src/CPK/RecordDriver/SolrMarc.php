@@ -720,4 +720,25 @@ class SolrMarc extends ParentSolrMarc
         // If we got this far, no snippet was found:
         return false;
     }
+
+    public function getBibinfoForObalkyKnihV3()
+    {
+        $bibinfo = array();
+        $isbn = $this->getCleanISBN();
+        if (!empty($isbn)) {
+            $bibinfo['isbn'] = $isbn;
+        }
+        $ean = $this->getEAN();
+        if (!empty($ean) && !array_key_exists('isbn', $bibinfo)) {
+            $bibinfo['isbn'] = $ean;
+        }
+        $cnb = $this->getCNB();
+        if (isset($cnb)) {
+            $bibinfo['nbn'] = $cnb;
+        } else {
+            $prefix = 'BOA001';
+            $bibinfo['nbn'] = $prefix . '-' . str_replace('-', '', $this->getUniqueID());
+        }
+        return $bibinfo;
+    }
 }
