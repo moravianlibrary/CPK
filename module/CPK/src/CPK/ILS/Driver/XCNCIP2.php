@@ -1476,7 +1476,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'country' => empty($country) ? '' : (string) $country[0],
             'zip' => empty($zip) ? '' : (string) $zip[0],
             'phone' => empty($phone) ? '' : (string) $phone[0],
-            'group' => empty($group) ? '' : (string) $group[0],
+            'group' => $this->extractData($group),
             'blocks' => empty($blocks) ? array() : $blocks,
             'email' => empty($email) ? '' : (string) $email[0],
             'expire' => $expireDate
@@ -1857,5 +1857,24 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (! empty($status) && (string) $status[0] === 'Available for Pickup') $status[0] = 'On Order';
         if (! empty($status) && (string) $status[0] === 'Waiting To Be Reshelved') $status[0] = 'In Process';
         return $status;
+    }
+
+    /**
+     * Extract the first data from array of SimpleXMLElements.
+     *
+     * @param array of SimpleXMLElements $elements
+     * @return string $data
+     */
+    protected function extractData($elements) {
+        $data = '';
+        if (! empty($elements)) {
+            foreach ($elements as $element) {
+                if (! empty($element)) {
+                    $data = (string) $element;
+                    break;
+                }
+            }
+        }
+        return $data;
     }
 }

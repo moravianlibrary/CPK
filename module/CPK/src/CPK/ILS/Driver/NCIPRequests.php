@@ -344,7 +344,8 @@ class NCIPRequests {
             $body =
             $this->insertUserElementType("Block Or Trap") .
             $this->insertUserElementType("Name Information") .
-            $this->insertUserElementType("User Address Information");
+            $this->insertUserElementType("User Address Information") .
+            $this->insertUserElementType("User Privilege");
         }
         return $body;
     }
