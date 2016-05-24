@@ -17,6 +17,31 @@
 
   </div>
   <div class="col-md-6">
-    Map placeholder
+    <style>
+      #map {height: 600px;}
+    </style>
+    <div id="map"></div>
+
+    <script>
+    function initMap() {
+    var myLatLng = {lat: 49.78, lng: 15.39};
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 7,
+    center: myLatLng
+    });
+    <? foreach ($this->libraries as $library):?>
+      var position = {lat: <?=$library->latitude ?>, lng: <?=$library->longitude ?>};
+      var marker = new google.maps.Marker({
+      position: position,
+      map: map,
+      title: '<?=$library->latitude ?>'
+      });
+    <? endforeach; ?>
+    }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=initMap"
+            async defer></script>
+
   </div>
 </div>
