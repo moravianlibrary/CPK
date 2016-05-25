@@ -819,6 +819,7 @@ jQuery( document ).ready( function( $ ) {
 		});
 
 		$( "input[name='page']" ).val( '1' );
+		$( "input[name='searchTypeTemplate']" ).val( 'advanced' );
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
