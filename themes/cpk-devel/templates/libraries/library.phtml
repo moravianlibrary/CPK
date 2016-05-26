@@ -1,0 +1,46 @@
+<?
+  $title = "Knihovny";
+  $this->layout()->title = $title;
+  $this->headTitle($title);
+?>
+
+
+<h1>Knihovny</h1>
+<div class='row'>
+  <div class="col-md-6">
+    <h3>Name of library</h3>
+    <p>Adress</p>
+    <p>Opening hours</p>
+    <p>links</p>
+
+    <p>More info</p>
+
+
+  </div>
+  <div class="col-md-6">
+    <style>
+      #map {height: 600px;}
+    </style>
+    <div id="map"></div>
+
+    <script>
+      function initMap() {
+        var myLatLng = {lat: 49.78, lng: 15.39};
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 7,
+          center: myLatLng
+        });
+        var position = {lat: 49.78, lng: 15.39};
+        var marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: 'name of library'
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=initMap"
+            async defer></script>
+
+  </div>
+</div>

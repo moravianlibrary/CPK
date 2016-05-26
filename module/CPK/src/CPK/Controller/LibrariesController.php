@@ -54,5 +54,27 @@ class LibrariesController extends AbstractBase
 
 	}
 
+	public function libraryAction()
+	{
+		$view = $this->createViewModel([
+
+		]);
+
+		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
+
+		$library = $librariesLoader->LoadLibrary("BOA001");
+
+		$view->library = $library;
+
+		$view->apikey= $this->getConfig()->GoogleMaps->apikey;
+
+		$view->setTemplate('libraries/library');
+
+		return $view;
+
+	}
+
+
+
 
 }
