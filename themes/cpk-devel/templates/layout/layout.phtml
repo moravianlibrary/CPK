@@ -198,12 +198,16 @@
                </div>
             </div>
           <? else: ?>
-            <div class="clearfix">
-              <div class='container'>
-                <?=$this->layout()->searchbox ?>
-                <?=$this->render('shib-assertion.phtml')?>
+            <? if ($this->layout()->headerType == "libraries"): ?>
+                <?=$this->render('libraries/header.phtml')?>
+            <? else: ?>
+              <div class="clearfix">
+                <div class='container'>
+                  <?=$this->layout()->searchbox ?>
+                  <?=$this->render('shib-assertion.phtml')?>
+                </div>
               </div>
-            </div>
+            <? endif; ?>
           <? endif; ?>
       </div>
     </header>
