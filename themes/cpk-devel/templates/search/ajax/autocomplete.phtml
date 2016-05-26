@@ -1,7 +1,7 @@
   <div id="collapseAdvancedSearch" class="panel-collapse collapse in basic-search-panel<?=(isset($hiddenBasicSearch)) ? ' hidden' : ''?>" role="tabpanel" aria-labelledby="headingAdvancedSearch">
     <div class="panel-body">
 
-	  <form class="searchForm navbar-form navbar-left flip" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
+	  <form class="searchForm navbar-form navbar-left flip find-form text-center" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" autocomplete="off">
         <script>
         jQuery(document).ready(function($){
           $("#searchForm_lookfor").keyup(function(){
@@ -103,18 +103,16 @@
         });
         </script>
 
-        <div class="col-xs-10 col-lg-6 col-lg-offset-2 search-form-container">
           <input
-          	class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>"
-          	id="searchForm_lookfor"
-          	type="text"
-          	name="lookfor0[]"
-          	value="<?=(isset($_GET['lookfor0'][0])) ? $this->escapeHtmlAttr($_GET['lookfor0'][0]) : ''?>"
-          	autofocus
-          	placeholder="<?=$this->translate('autocomplete-placeholder')?>"
+            class="form-control find-input search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>"
+            id="searchForm_lookfor"
+            type="text"
+            name="lookfor0[]"
+            value="<?=(isset($_GET['lookfor0'][0])) ? $this->escapeHtmlAttr($_GET['lookfor0'][0]) : ''?>"
+            autofocus
+            placeholder="<?=$this->translate('autocomplete-placeholder')?>"
           />
           <i class="fa fa-times" id="searchclear"></i>
-        </div>
 
         <input type='hidden' name='searchTypeTemplate' value='basic'>
         <input type="hidden" name="type0[]" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>">
@@ -129,7 +127,7 @@
 	      <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
 	    <? endif; ?>
 
-        <a href='/Search/Results?lookfor=&type0[]=AllFields&searchTypeTemplate=basic' id='run-autocomplete' class="btn btn-primary find-button" title='<?=$this->transEsc("Find")?>'>
+        <a href='/Search/Results?lookfor=&type0[]=AllFields&searchTypeTemplate=basic' id='run-autocomplete' class="btn btn-primary find-button form-control" title='<?=$this->transEsc("Find")?>'>
           <i class="pr-interface-search"></i>
           <span> <?=$this->transEsc("Find")?></span>
         </a>
