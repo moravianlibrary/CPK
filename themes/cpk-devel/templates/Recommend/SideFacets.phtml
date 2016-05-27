@@ -1,4 +1,3 @@
-<? $institutionField = empty($this->facetConfig) ? '' : $this->facetConfig->Advanced_Settings->institution_facet; ?>
 <? $results = $this->recommend->getResults(); ?>
 <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
 <?
@@ -51,7 +50,7 @@ foreach ($queryParams as $key => $value) {
     <div class="list-group filters">
 
         <? foreach ($filterList as $field => $filters): ?>
-            <? if ($field !== $institutionField): ?>
+            <? if ($field !== 'Institution'): ?>
                 <? foreach ($filters as $i => $filter): ?>
                     <?
                     $index = isset($filter['field']) ? array_search($filter['field'], $collapsedFacets) : false;
@@ -92,7 +91,7 @@ foreach ($queryParams as $key => $value) {
     <? $facets_before_more = $this->recommend->getShowMoreSetting($title); ?>
     <div class="list-group facet" id="side-panel-<?=$this->escapeHtmlAttr($title) ?>">
       <div class='row' style='padding-top: 6px;'>
-        <? if($cluster['label'] == $institutionField): ?>
+        <? if($cluster['label'] == 'Institution'): ?>
         <div class="col-xs-7 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
         <? else: ?>
         <div class="col-xs-12 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
@@ -105,7 +104,7 @@ foreach ($queryParams as $key => $value) {
               <? endif; ?>
               <? endif; ?>
           </div>
-     	 <? if($cluster['label'] == $institutionField): ?>
+     	 <? if($cluster['label'] == 'Institution'): ?>
             <div class='col-xs-5 institutions-loaders'>
                 <? if($this->auth()->isLoggedIn()): ?>
                 <a href='#' title='<?=$this->translate('Load saved institutions')?>' data-toggle="tooltip" id='load-saved-institutions'>
@@ -210,7 +209,7 @@ JS;
           <? if (in_array($title, $hierarchicalFacets)): ?>
             <? $sort = isset($hierarchicalFacetSortOptions[$title]) ? $hierarchicalFacetSortOptions[$title] : ''; ?>
             <? if (!in_array($title, $collapsedFacets)): ?>
-              <? if($cluster['label'] == $institutionField): ?>
+              <? if($cluster['label'] == 'Institution'): ?>
               <?
               $script = <<<JS
 $(document).ready(function() {
@@ -229,7 +228,7 @@ JS;
               <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? else: ?>
-              <? if($cluster['label'] == $institutionField): ?>
+              <? if($cluster['label'] == 'Institution'): ?>
               <?
               $script = <<<JS
 $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
@@ -316,7 +315,7 @@ JS;
           </noscript>
         <? endif; ?>
       </div>
-      <? if($cluster['label'] == $institutionField): ?>
+      <? if($cluster['label'] == 'Institution'): ?>
         <div style="text-align: center; margin-top: 10px;">
           <button type="button" style="border: 0px none;" class="btn btn-primary btn-sm institution-facet-filter-button"><?=$this->translate('Update results')?></button>
           <? if($this->auth()->isLoggedIn()): ?>
