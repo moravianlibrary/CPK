@@ -28,6 +28,7 @@
 namespace CPK\Auth;
 
 use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException, VuFind\Db\Row\UserCard;
+use VuFind\Cookie\CookieManager;
 
 /**
  * Shibboleth authentication module.
@@ -40,7 +41,6 @@ use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\
  */
 class ShibbolethIdentityManager extends Shibboleth
 {
-
     /**
      * This is configuration filename without ini ext to use for configuration of all the IdPs we support.
      *
@@ -54,9 +54,31 @@ class ShibbolethIdentityManager extends Shibboleth
     /**
      * This is TAG used to retrieve token from user's cookie while connecting with another account.
      *
-     * @var CONSOLIDATION_TOKEN_TAG
+     * @var const CONSOLIDATION_TOKEN_TAG
      */
     const CONSOLIDATION_TOKEN_TAG = "__connAcc";
+
+    /**
+     * Holds how long does it take to expire an consolidation token
+     *
+     * @var const int
+     */
+    const CONSOLIDATION_TOKEN_EXPIRATION = 900;
+
+    /**
+     * Flag for having the user's consolidation token set as a cookie already - just in case
+     * there is an attempt to create another one before the cookie get propagated to user's browser
+     *
+     * @var bool
+     */
+    protected $consolidationCookieSet = false;
+
+    /**
+     * Private CookieManager instance
+     *
+     * @var CookieManager
+     */
+    protected $cookieManager = null;
 
     /**
      * This is key in $_SERVER how it Shibooleth SP returns for entityID of IdP user used to log in.
@@ -140,18 +162,17 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected $workingLogoutEntityIds = null;
 
-    public function __construct(\VuFind\Config\PluginManager $configLoader,
-        UserTable $userTableGateway)
+    public function __construct(\VuFind\Config\PluginManager $configLoader, UserTable $userTableGateway, CookieManager $cookieManager)
     {
         $this->shibbolethConfig = $configLoader->get(static::CONFIG_FILE_NAME);
 
         if (empty($this->shibbolethConfig)) {
-            throw new AuthException(
-                "Could not load " . static::CONFIG_FILE_NAME .
-                     ".ini configuration file.");
+            throw new AuthException("Could not load " . static::CONFIG_FILE_NAME . ".ini configuration file.");
         }
 
         $this->userTableGateway = $userTableGateway;
+
+        $this->cookieManager = $cookieManager;
     }
 
     public function authenticate($request, UserRow $userToConnectWith = null)
@@ -176,9 +197,7 @@ class ShibbolethIdentityManager extends Shibboleth
                 $config = $this->shibbolethConfig['default'];
                 $prefix = 'Dummy';
             } else
-                throw new AuthException(
-                    'Recieved entityId was not found in ' . static::CONFIG_FILE_NAME .
-                         '.ini config nor default config part exists.');
+                throw new AuthException('Recieved entityId was not found in ' . static::CONFIG_FILE_NAME . '.ini config nor default config part exists.');
         }
 
         $attributes = $this->fetchAttributes($config);
@@ -186,9 +205,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $eppn = $this->fetchEduPersonPrincipalName();
 
         if (empty($eppn)) {
-            throw new AuthException(
-                'IdP "' . $prefix .
-                     '" didn\'t provide eduPersonPrincipalName attribute.');
+            throw new AuthException('IdP "' . $prefix . '" didn\'t provide eduPersonPrincipalName attribute.');
         }
 
         // Get UserRow by checking for known eppn
@@ -198,18 +215,15 @@ class ShibbolethIdentityManager extends Shibboleth
         $connectIdentities = $userToConnectWith !== null;
         if ($connectIdentities) {
 
-            if ($currentUser !== false &&
-                 $currentUser->id === $userToConnectWith['id'])
-                throw new AuthException(
-                    $this->translate("You already have this identity connected"));
+            if ($currentUser !== false && $currentUser->id === $userToConnectWith['id'])
+                throw new AuthException($this->translate("You already have this identity connected"));
 
             if ($loggedWithKnownEntityId && ! empty($attributes['cat_username'])) {
 
                 $updateUserRow = true;
 
                 // Set here the prefix to let MultiBackend understand which Driver it needs
-                $attributes['cat_username'] = $prefix . static::SEPARATOR .
-                     $attributes['cat_username'];
+                $attributes['cat_username'] = $prefix . static::SEPARATOR . $attributes['cat_username'];
             } else {
                 // We now detected unkown entityID - this identity will be Dummy
                 $updateUserRow = false;
@@ -225,9 +239,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
             if ($currentUser === false) {
                 // We now detected user has no entry with current eppn in our DB, thus append new libCard
-                $userToConnectWith->createLibraryCard($attributes['cat_username'],
-                    $prefix, $eppn, $attributes['email'],
-                    $this->canConsolidateMoreTimes);
+                $userToConnectWith->createLibraryCard($attributes['cat_username'], $prefix, $eppn, $attributes['email'], $this->canConsolidateMoreTimes);
             } else {
                 // We now detected user has two entries in our user table, thus we need to merge those
 
@@ -244,16 +256,13 @@ class ShibbolethIdentityManager extends Shibboleth
                 $this->transferLibraryCards($currentUser, $userToConnectWith);
 
                 // We need to check, if there doesn't exist library card with the same institution to update it
-                $this->updateIdentity($userToConnectWith,
-                    $attributes['cat_username'], $prefix, $eppn);
+                $this->updateIdentity($userToConnectWith, $attributes['cat_username'], $prefix, $eppn);
 
-                $this->userTableGateway->mergeUserInAllTables($currentUser,
-                    $userToConnectWith);
+                $this->userTableGateway->mergeUserInAllTables($currentUser, $userToConnectWith);
             }
 
             if ($updateUserRow) {
-                $userToConnectWith = $this->updateUserRow($userToConnectWith,
-                    $attributes);
+                $userToConnectWith = $this->updateUserRow($userToConnectWith, $attributes);
             }
 
             return $userToConnectWith;
@@ -272,8 +281,7 @@ class ShibbolethIdentityManager extends Shibboleth
             if ($loggedWithKnownEntityId && ! empty($attributes['cat_username'])) {
 
                 // Set here the prefix to let MultiBackend understand which Driver it needs
-                $attributes['cat_username'] = $prefix . static::SEPARATOR .
-                     $attributes['cat_username'];
+                $attributes['cat_username'] = $prefix . static::SEPARATOR . $attributes['cat_username'];
 
                 // Did the userRow exist before? ..
                 if (! $userRowCreatedRecently) {
@@ -283,12 +291,10 @@ class ShibbolethIdentityManager extends Shibboleth
                     // We need to check, if there doesn't exist library card with the same institution to update it
                     if (! $wasDummyBefore) {
                         // We should check, if we have correct cat_username & home_library ...
-                        $this->updateIdentity($currentUser,
-                            $attributes['cat_username'], $prefix, $eppn);
+                        $this->updateIdentity($currentUser, $attributes['cat_username'], $prefix, $eppn);
                     } else {
                         // IdP finally returned cat_username for this User .. update proprietary libCard
-                        $currentUser->upgradeLibraryCardFromDummy($eppn,
-                            $attributes['cat_username'], $prefix);
+                        $currentUser->upgradeLibraryCardFromDummy($eppn, $attributes['cat_username'], $prefix);
                     }
                 }
             } else {
@@ -304,8 +310,7 @@ class ShibbolethIdentityManager extends Shibboleth
             }
 
             if ($userRowCreatedRecently) {
-                $currentUser = $this->createUser($currentUser, $attributes, $prefix,
-                    $eppn);
+                $currentUser = $this->createUser($currentUser, $attributes, $prefix, $eppn);
             }
 
             return $currentUser;
@@ -349,16 +354,14 @@ class ShibbolethIdentityManager extends Shibboleth
         $shib = $this->config->Shibboleth;
 
         if (! isset($shib->login)) {
-            throw new AuthException(
-                'Shibboleth login configuration parameter is not set.');
+            throw new AuthException('Shibboleth login configuration parameter is not set.');
         } elseif (isset($shib->getAssertion) && $shib->getAssertion == true) {
             $this->shibAssertionExportEnabled = true;
         }
 
         foreach ($this->shibbolethConfig as $name => $configuration) {
             if ($name === 'Dummy') {
-                throw new AuthException(
-                    'Shibboleth config section cannot be called \'Dummy\', this name is reserved.');
+                throw new AuthException('Shibboleth config section cannot be called \'Dummy\', this name is reserved.');
             }
 
             if ($name !== 'main') {
@@ -395,11 +398,10 @@ class ShibbolethIdentityManager extends Shibboleth
     public function canLogoutSafely()
     {
         $currentEntityId = $this->fetchCurrentEntityId();
-        if (array_search(null,
-            [
-                $currentEntityId,
-                $this->workingLogoutEntityIds
-            ]) === false)
+        if (array_search(null, [
+            $currentEntityId,
+            $this->workingLogoutEntityIds
+        ]) === false)
             return in_array($currentEntityId, $this->workingLogoutEntityIds);
         else
             return true;
@@ -417,17 +419,17 @@ class ShibbolethIdentityManager extends Shibboleth
         $token = $this->getConsolidationTokenFromCookie();
 
         if (empty($token))
-            throw new AuthException(
-                $this->translate(
-                    'No token recieved after logging with another account'));
+            throw new AuthException($this->translate('No token recieved after logging with another account'));
 
-        $userToConnectWith = $this->userTableGateway->getUserFromConsolidationToken(
-            $token);
+        $userToConnectWith = $this->userTableGateway->getUserFromConsolidationToken($token, self::CONSOLIDATION_TOKEN_EXPIRATION);
 
-        if (! $userToConnectWith)
-            throw new AuthException(
-                $this->translate(
-                    'The consolidation has expired. Please authenticate again.'));
+        if (! $userToConnectWith) {
+
+            // unset the cookie
+            setcookie(static::CONSOLIDATION_TOKEN_TAG, null, -1, '/');
+
+            throw new AuthException($this->translate('The consolidation has expired. Please authenticate again.'));
+        }
 
         return $this->authenticate(null, $userToConnectWith);
     }
@@ -444,21 +446,29 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * @param number $userRowId
      *
-     * @return string $accountConsolidationRedirectUrl
+     * @return string $accountConsolidationUrl
      * @throws AuthException
      */
-    public function getAccountConsolidationRedirectUrl($userRowId)
+    public function getAccountConsolidationUrl($userRowId, $targetEid)
     {
-            // Create & write token to DB & user's cookie
-        $token = $this->generateToken();
-        setCookie(static::CONSOLIDATION_TOKEN_TAG, $token);
+        // Create & write token to DB & user's cookie
+        if (! $this->consolidationCookieSet && ! isset($_COOKIE[static::CONSOLIDATION_TOKEN_TAG])) {
+            $token = $this->generateToken();
 
-        $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
+            $currTime = time();
+            $expires = $currTime + static::CONSOLIDATION_TOKEN_EXPIRATION;
 
-        if (! $tokenCreated)
-            throw new AuthException('Could not create consolidation token entry into session table');
+            $this->cookieManager->set(static::CONSOLIDATION_TOKEN_TAG, $token, $expires);
 
-            // Create redirection URL
+            $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
+
+            if (! $tokenCreated)
+                throw new AuthException('Could not create consolidation token entry into session table');
+
+            $this->consolidationCookieSet = true;
+        }
+
+        // Create redirection URL
         $hostname = $this->config->Site->url;
 
         if (substr($hostname, - 1) !== '/') {
@@ -471,6 +481,9 @@ class ShibbolethIdentityManager extends Shibboleth
         $target .= '?eid=' . urlencode($entityId);
 
         $loginRedirect = $this->config->Shibboleth->login . '?forceAuthn=1&target=' . urlencode($target);
+
+        if (! empty($targetEid))
+            $loginRedirect .= '&entityID=' . urlencode($targetEid);
 
         if ($this->canLogoutSafely()) {
             return $this->config->Shibboleth->logout . '?return=' . urlencode($loginRedirect);
@@ -605,8 +618,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow = $this->updateUserRow($userRow, $attributes);
 
         // Assign the user new library card
-        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library,
-            $eppn, $userRow->email, $this->canConsolidateMoreTimes);
+        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, $userRow->email, $this->canConsolidateMoreTimes);
 
         return $userRow;
     }
@@ -657,9 +669,7 @@ class ShibbolethIdentityManager extends Shibboleth
                     }
 
                     // cat_username needs to contain agencyId in some cases for XCNCIP2 valid LookupUser message
-                    if ($attribute === 'cat_username' &&
-                         isset($config['changeAgencyIdSeparator']) &&
-                         $config['changeAgencyIdSeparator'] instanceof \Zend\Config\Config) {
+                    if ($attribute === 'cat_username' && isset($config['changeAgencyIdSeparator']) && $config['changeAgencyIdSeparator'] instanceof \Zend\Config\Config) {
                         $agencyIdSeparators = $config['changeAgencyIdSeparator']->toArray();
 
                         $currentSeparator = key($agencyIdSeparators);
@@ -667,10 +677,8 @@ class ShibbolethIdentityManager extends Shibboleth
 
                         $catUsernameSplitted = explode($currentSeparator, $value);
 
-                        if (isset($config['invertAgencyIdWithUsername']) &&
-                             $config['invertAgencyIdWithUsername'])
-                            $catUsernameSplitted = array_reverse(
-                                $catUsernameSplitted);
+                        if (isset($config['invertAgencyIdWithUsername']) && $config['invertAgencyIdWithUsername'])
+                            $catUsernameSplitted = array_reverse($catUsernameSplitted);
 
                         $value = implode($desiredSeparator, $catUsernameSplitted);
                     }
@@ -700,8 +708,7 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function generateToken()
     {
-        return chr(mt_rand(97, 122)) . chr(mt_rand(97, 122)) . substr(md5(time()), 3) .
-             chr(mt_rand(97, 122));
+        return chr(mt_rand(97, 122)) . chr(mt_rand(97, 122)) . substr(md5(time()), 3) . chr(mt_rand(97, 122));
     }
 
     /**
@@ -744,9 +751,7 @@ class ShibbolethIdentityManager extends Shibboleth
             $this->setLibCardDeletionFlag($libCard, true);
 
             try {
-                $into->createLibraryCard($libCard->cat_username,
-                    $libCard->home_library, $libCard->eppn, $libCard->card_name,
-                    $this->canConsolidateMoreTimes);
+                $into->createLibraryCard($libCard->cat_username, $libCard->home_library, $libCard->eppn, $libCard->card_name, $this->canConsolidateMoreTimes);
             } catch (AuthException $e) {
                 // Something went wrong - restore libCard flagged for deletion
                 $this->setLibCardDeletionFlag($libCard, false);

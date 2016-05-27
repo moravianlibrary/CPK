@@ -28,6 +28,7 @@
 namespace CPK\Db\Table;
 
 use VuFind\Db\Table\User as BaseUser, CPK\Db\Row\User as UserRow, Zend\Db\Sql\Select, Zend\Db\Sql\Update, Zend\Db\Adapter\Driver\Mysqli\Result;
+use CPK\Auth\ShibbolethIdentityManager;
 
 /**
  * Table Definition for user
@@ -85,8 +86,13 @@ class User extends BaseUser
 
         $isExpired = time() >= intval($result['created']) + $secondsToExpire;
 
-        if ($isExpired)
+        if ($isExpired) {
+
+            // unset the cookie
+            setcookie(ShibbolethIdentityManager::CONSOLIDATION_TOKEN_TAG, null, -1 , '/');
+
             throw new \VuFind\Exception\Auth('Consolidation token has expired.');
+        }
 
         return $this->getUserByRowId($result['data']);
     }
@@ -386,10 +392,10 @@ class User extends BaseUser
         if ($mergedSomething)
             $into->save();
     }
-    
+
     /**
      * Returns rows from user and user_card tables, where user.major is not empty.
-     * 
+     *
      * @return array
      */
     public function getUsersWithPermissions()
@@ -397,20 +403,20 @@ class User extends BaseUser
         $select = new Select('user_card');
         $select->columns(['eppn', 'major']);
         $select->where("`major` IS NOT NULL AND `major` <> ''");
-        
+
         $statement = $this->sql->prepareStatementForSqlObject($select);
         $results = $statement->execute();
 
         $resultSet = new \Zend\Db\ResultSet\ResultSet();
         $resultSet->initialize($results);
         $resultsArray = $resultSet->toArray();
-        
+
         return $resultsArray;
     }
-    
+
     /**
      * Sets permissions to user
-     * 
+     *
      * @param string $eppn EduPersonPrincipalName
      * @param string $major Major permissions
      */

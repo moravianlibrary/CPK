@@ -54,7 +54,7 @@ class Manager extends BaseManager
      * @var CPK\Db\Table\UserSettings
      */
     protected $userSettingsTable;
-    
+
     /**
      * Constructor
      *
@@ -106,12 +106,12 @@ class Manager extends BaseManager
             error_log($e);
             throw new AuthException('authentication_error_technical');
         }
-        
+
         $_ENV['justLoggedIn'] = true;
 
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
-        
+
         // Set preferred settings right after log in, once
         $limit = $this->userSettingsTable->getRecordsPerPage($user);
         $sort = $this->userSettingsTable->getSorting($user);
@@ -119,7 +119,7 @@ class Manager extends BaseManager
         // @FIXME: use session manager
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $sort;
-        
+
         return $user;
     }
 
@@ -222,7 +222,7 @@ class Manager extends BaseManager
      * @return string $accountConsolidationRedirectUrl
      * @throws AuthException
      */
-    public function getAccountConsolidationRedirectUrl()
+    public function getAccountConsolidationUrl($entityId)
     {
         $this->checkActiveAuthIsSIM();
 
@@ -232,7 +232,7 @@ class Manager extends BaseManager
             throw new AuthException("Cannot consolidate empty UserRow");
         }
 
-        return $this->getAuth()->getAccountConsolidationRedirectUrl($userRow->id);
+        return $this->getAuth()->getAccountConsolidationUrl($userRow->id, $entityId);
     }
 
     /**
@@ -280,7 +280,7 @@ class Manager extends BaseManager
      *            send user to after login (some drivers may override this).
      *
      * @param string $entityId
-     *            
+     *
      * @return mixed bool|string
      */
     public function getSessionInitiatorForEntityId($target, $entityId) {

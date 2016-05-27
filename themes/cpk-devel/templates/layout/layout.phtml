@@ -235,6 +235,7 @@
         </div>
       </div>
     </div>
+    <? if (! $user): ?>
     <!-- Modal for login -->
     <div class="modal fade" id="loginModal" role="dialog">
       <div class="modal-dialog" role="document">
@@ -276,6 +277,7 @@
         </div>
       </div>
     </div>
+    <? endif; ?>
     <?=$this->piwik()?>
   </body>
 </html>

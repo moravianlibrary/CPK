@@ -119,6 +119,8 @@ class Factory
             ->get('VuFind\Translator')
             ->getLocale() : 'en';
 
-        return new IdentityProviders($authManager, $config, $lang);
+        $logosHelper = Factory::getLogos($sm);
+
+        return new IdentityProviders($authManager, $logosHelper, $config, $lang);
     }
 }

@@ -40,28 +40,31 @@
 	    if (typeof idp === 'string')
 		idp = JSON.parse(idp);
 
-	    getLastIdps();
+	    if (!idp.isConsolidation) {
 
-	    // If saved already, just push it in front
-	    lastIdps.find(function(lastIdp, i) {
-		if (lastIdp.href === idp.href) {
+		getLastIdps();
 
-		    // Remove yourself
-		    lastIdps.splice(i, 1);
-		    return true;
-		}
-	    });
+		// If saved already, just push it in front
+		lastIdps.find(function(lastIdp, i) {
+		    if (lastIdp.href === idp.href) {
 
-	    // Set as first
-	    lastIdps.unshift(idp);
+			// Remove yourself
+			lastIdps.splice(i, 1);
+			return true;
+		    }
+		});
 
-	    // Maximally we will have 3 institutions
-	    if (lastIdps.length > 3)
-		lastIdps.pop();
+		// Set as first
+		lastIdps.unshift(idp);
 
-	    var source = JSON.stringify(lastIdps);
+		// Maximally we will have 3 institutions
+		if (lastIdps.length > 3)
+		    lastIdps.pop();
 
-	    localStorage.setItem(lastIdpsTag, source);
+		var source = JSON.stringify(lastIdps);
+
+		localStorage.setItem(lastIdpsTag, source);
+	    }
 
 	    window.location = idp.href;
 	}

@@ -39,6 +39,13 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
      */
     protected $authManager;
 
+    /**
+     * Logos helper to fetch logos properly as desired
+     *
+     * @var Logos $logosHelper
+     */
+    protected $logosHelper;
+
     protected $libraries = [];
 
     protected $others = [];
@@ -50,20 +57,21 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
      * @param \Zend\Config\Config $config
      * @param string $lang
      */
-    public function __construct(AuthManager $authManager, \Zend\Config\Config $config, $lang)
+    public function __construct(AuthManager $authManager, Logos $logosHelper, \Zend\Config\Config $config, $lang)
     {
         $this->authManager = $authManager;
+        $this->logosHelper = $logosHelper;
 
         $idps = $config->toArray();
 
-        foreach ($idps as $idp) {
+        foreach ($idps as $source => $idp) {
 
             if (isset($idp['entityId']))
                 if (isset($idp['cat_username'])) {
-                    array_push($this->libraries, $idp);
+                    $this->libraries[$source] = $idp;
 
                 } elseif ($idp['entityId']) {
-                    array_push($this->others, $idp);
+                    $this->others[$source] = $idp;
                 }
         }
 
@@ -72,12 +80,22 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
 
     public function getLibraries()
     {
-        return $this->produceListForTemplate($this->libraries);
+        if ($this->authManager->isLoggedIn())
+            $isConsolidation = true;
+        else
+            $isConsolidation = false;
+
+        return $this->produceListForTemplate($this->libraries, $isConsolidation);
     }
 
     public function getOthers()
     {
-        return $this->produceListForTemplate($this->others);
+        if ($this->authManager->isLoggedIn())
+            $isConsolidation = true;
+        else
+            $isConsolidation = false;
+
+        return $this->produceListForTemplate($this->others, $isConsolidation);
     }
 
     /**
@@ -85,18 +103,24 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
      *
      * @param array $institutions
      */
-    protected function produceListForTemplate(array $institutions)
+    protected function produceListForTemplate(array $institutions, $isConsolidation)
     {
         $idps = [];
 
-        foreach ($institutions as $institution) {
+        foreach ($institutions as $source => $institution) {
+
+            if ($isConsolidation)
+                $href = $this->authManager->getAccountConsolidationUrl($institution['entityId']);
+            else
+                $href = $this->authManager->getSessionInitiatorForEntityId(null, $institution['entityId']);
 
             $idp = [
-                'href' => $this->authManager->getSessionInitiatorForEntityId(null, $institution['entityId']),
+                'href' => $href,
                 'name' => $this->lang === 'en' ? $institution['name_en'] : $institution['name_cs'],
                 'name_cs' => $institution['name_cs'],
                 'name_en' => $institution['name_en'],
-                'logo' => $institution['logo']
+                'logo' => $this->logosHelper->getLogo($source),
+                'isConsolidation' => $isConsolidation
             ];
 
             array_push($idps, $idp);

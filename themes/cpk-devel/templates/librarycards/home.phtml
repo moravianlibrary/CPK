@@ -17,7 +17,7 @@
       <h2><?=$this->transEsc('Linked accounts')?></h2>
      </div>
      <div class="col-xs-6">
-      <a class="btn btn-default pull-right" style="margin-top:20px;" href="<?=$this->url('myresearch-userconnect')?>"><?=$this->transEsc("Connect another account")?></a>
+      <a class="btn btn-default pull-right" style="margin-top:20px;" href="#" onclick='$("div#userConnectModal").modal("show")'><?=$this->transEsc("Connect another account")?></a>
      </div>
     </div>
     <? if (empty($this->libraryCards)): ?>
@@ -71,3 +71,39 @@
   </div>
 
 </div>
+
+<!-- Modal for connecting identities -->
+    <div class="modal fade" id="userConnectModal" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content" ng-controller="FederativeLoginController as fedLoginCtrl">
+          <div class="modal-header link" ng-click="fedLoginCtrl.showHelpContent()" style="cursor: pointer">
+		    <? $portalPage = $this->portalPages()->getPage('napoveda-pro-prihlaseni-a-registraci', explode("-", $this->layout()->userLang)[0]); ?>
+		    <h4 class="modal-title"><?=$portalPage['title']?></h4>
+		  </div>
+		  <div class="modal-body" ng-help-content hidden="hidden">
+		    <?=$portalPage['content'] ?>
+		  </div>
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><?=$this->translate('connect_with')?></h4>
+          </div>
+          <div class="modal-body">
+          	<?=$this->render('login/identity-providers.phtml', [
+          	    'idps' => $this->identityProviders()->getLibraries()
+          	]) ?>
+		  </div>
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><?=$this->translate('login_other')?></h4>
+          </div>
+          <div class="modal-body">
+          	<?=$this->render('login/identity-providers.phtml', [
+          	    'idps' => $this->identityProviders()->getOthers()
+          	]) ?>
+		  </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
+          </div>
+        </div>
+      </div>
+    </div>

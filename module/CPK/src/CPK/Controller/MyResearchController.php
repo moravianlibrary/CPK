@@ -445,15 +445,8 @@ class MyResearchController extends MyResearchControllerBase
         $authManager = $this->getAuthManager();
 
         if (empty($entityIdInitiatedWith)) {
-            try {
-                $redirectTo = $authManager->getAccountConsolidationRedirectUrl();
 
-                return $this->redirect()->toUrl($redirectTo);
-            } catch (AuthException $e) {
-                $this->processAuthenticationException($e);
-
-                return $this->redirect()->toRoute('librarycards-home');
-            }
+            return $this->redirect()->toRoute('librarycards-home');
         } else {
 
             // Clear followUp ...
