@@ -241,7 +241,7 @@ class MultiBackend extends MultiBackendBase
         if ($driver) {
 
             if (! $this->methodSupported($driver, 'getMyHistoryPage'))
-                throw new ILSException('Driver doesn\'t support getMyHistoryPage method');
+                throw new ILSException('driver_no_history');
 
             $strippedPatron = $this->stripIdPrefixes($patron, $source);
 

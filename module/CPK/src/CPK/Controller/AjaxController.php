@@ -1076,9 +1076,8 @@ class AjaxController extends AjaxControllerBase
 
             // Something went wrong - include cat_username to properly
             // attach the error message into the right table
-        $debugMsg = ('development' == APPLICATION_ENV) ? ': ' . $e->getMessage() : '';
 
-        $message = $this->translate('An error has occurred') . $debugMsg;
+        $message = $this->translate('An error has occurred') . ': ' . $this->translate($e->getMessage());
 
         if ($cat_username == null) {
             $cat_username = 'unknown';
