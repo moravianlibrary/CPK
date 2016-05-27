@@ -180,7 +180,7 @@ class PortalPage extends Gateway
     {
         $select = new Select($this->table);
         $subSelect = "SELECT `group` FROM `$this->table` WHERE `pretty_url`='$prettyUrl'";
-        $condition = "`language_code` = '$languageCode' AND `group` = ($subSelect) ";
+        $condition = "`language_code` like '$languageCode%' AND `group` = ($subSelect) ";
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
 
