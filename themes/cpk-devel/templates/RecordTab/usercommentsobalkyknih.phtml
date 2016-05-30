@@ -20,7 +20,7 @@
       <input class="btn btn-primary" data-loading-text="<?=$this->transEsc('Submitting') ?>..." type="submit" value="<?=$this->transEsc("Add your comment")?>"/>
     <? else: ?>
       <textarea id="comment" name="comment" class="form-control" rows="3" disabled></textarea><br/>
-      <a href="<?=$this->url('myresearch-userlogin')?>" class="btn btn-primary" title="<?=$this->transEsc("You must be logged in first")?>"><i class="icon-prihlasit"></i> <?=$this->transEsc("You must be logged in first")?></a>
+      <a href="#" onclick='$("div#loginModal").modal("show")'><i class="pr-user-passwordlock"></i> <?=$this->transEsc("You must be logged in first")?></a>
     <? endif; ?>
   </div>
 </form>
