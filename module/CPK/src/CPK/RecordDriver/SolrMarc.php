@@ -522,7 +522,7 @@ class SolrMarc extends ParentSolrMarc
 
         $i = 0;
 
-        foreach ($phpResponse[0]['reviews'] as $review) {
+        if (! empty($phpResponse)) foreach ($phpResponse[0]['reviews'] as $review) {
             $com = new \stdClass();
             $com->library = $review['library_name'];
             $com->created = $review['created'];
@@ -551,7 +551,7 @@ class SolrMarc extends ParentSolrMarc
         $response = $client->send();
         $responseBody = $response->getBody();
         $phpResponse = json_decode($responseBody, true);
-        $bookid = $phpResponse[0]['book_id'];
+        $bookid = empty($phpResponse) ? '' : $phpResponse[0]['book_id'];
         return $bookid;
     }
 
