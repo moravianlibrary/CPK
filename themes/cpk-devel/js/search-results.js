@@ -43,32 +43,7 @@ jQuery( document ).ready( function( $ ) {
 				$( groupSelector ).find( '.remove-advanced-search-query' ).parent().show( 'blind', {}, 200);
 			}
 		},
-		
-		/**
-		 * Check checkboxes in institutions tree.
-		 * 
-		 * @param	{array}		filters
-		 * @return	{undefined}
-		 */
-		checkCheckboxesInInstitutionsTree: function( filters ) {
-			/* 
-			 * FIXME: This function must take url instead of filters argument 
-			 * from async function, in case of initial static page loading 
-			 */
-			
-			$( '#side-panel-institution .institution-facet-filter' ).each( function ( index, element ) {
-				var dataFacet = $( element ).attr( 'data-facet' );
-				console.log('Comparing dataFacet: ');
-				console.log(dataFacet);
-				console.log('With applied filter: ');
-				console.log(filter);
-				if ( $.inArray( dataFacet, filters ) ) {
-					$( element ).parent().click();
-					console.log('Added');
-				}
-			});
-		},
-		
+
 		/**
 		 * Switch searchtype template
 		 * 
@@ -413,11 +388,6 @@ jQuery( document ).ready( function( $ ) {
 		            	console.log( 'Sent data: ' );
 		            	console.log( data );
 		            },
-		            complete: function ( xmlHttpRequest, textStatus ) {
-		            	if ( data.hasOwnProperty( 'filter' ) || data.filter ) {
-		            		ADVSEARCH.checkCheckboxesInInstitutionsTree( data.filter );
-		            	}
-		            }
 		        });
     		}
 		},
