@@ -427,14 +427,7 @@ jQuery( document ).ready( function( $ ) {
 		 */
 		removeFacetFilter: function( value, updateResults ) {
 			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
-				var filter = $( element ).val();
-
-				// remove also OR facets
-				if (filter.match("^~")) {
-					filter = filter.substring(1);
-				}
-
-				if( filter == value) {
+				if( $( element ).val() == value) {
 					$( this ).remove();
 				}
 			});
