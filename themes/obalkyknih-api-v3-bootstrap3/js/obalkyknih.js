@@ -186,3 +186,18 @@ obalky.display_thumbnail_cover_without_links = function (element, bibinfo, query
 	    img.src = obalky.coverUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
 	  });
 }
+
+obalky.display_authority_cover = function (element, bibinfo, query) {
+    var multi = encodeURIComponent(JSON.stringify(bibinfo));
+    $(document).ready(function() {
+      var img = new Image();
+      img.onload = function() {
+        if (obalky.imageIsLoaded(img)) {
+          var href = obalky.coverTargetUrl(bibinfo);
+          $(element).html("<div class='cover_thumbnail'><img align='left' src='" + img.src + "' alt='" + obalky.coverText + "'></img></div>");
+        }
+      }
+      img.src = obalky.coverUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
+      img.src = bibinfo.cover_medium_url;
+    });
+}

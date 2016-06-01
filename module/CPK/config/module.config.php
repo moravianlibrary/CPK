@@ -33,7 +33,8 @@ $config = array(
                     'solrcpk_vkol' => 'CPK\RecordDriver\Factory::getSolrMarcVKOL',
                     'solrcpk_nlk' => 'CPK\RecordDriver\Factory::getSolrMarcNLK',
                     'solrlocal' => 'CPK\RecordDriver\Factory::getSolrMarcLocal',
-                    'solrdublincore' => 'CPK\RecordDriver\Factory::getSolrDublinCore'
+                    'solrdublincore' => 'CPK\RecordDriver\Factory::getSolrDublinCore',
+                    'solrauthority' => 'CPK\RecordDriver\Factory::getSolrAuthority'
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
@@ -127,6 +128,16 @@ $config = array(
                     'HierarchyTree' => 'HierarchyTree',
                     'Map' => 'Map',
                     'Details' => 'StaffViewDublinCore',
+                    'DedupedRecords' => 'DedupedRecords'
+                ],
+                'defaultTab' => 'EVersion'
+            ],
+            'CPK\RecordDriver\SolrAuthority' => [
+                'tabs' => [
+                    'EVersion' => 'EVersion',
+                    'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
+                    'Reviews' => 'Reviews',
+                    'Details' => 'StaffViewMARC',
                     'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => 'EVersion'
