@@ -1,4 +1,4 @@
-<? $institutionField = $this->facetConfig->Advanced_Settings->institution_facet; ?>
+<? $institutionField = empty($this->facetConfig) ? '' : $this->facetConfig->Advanced_Settings->institution_facet; ?>
 <? $results = $this->recommend->getResults(); ?>
 <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
 <?
