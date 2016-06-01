@@ -67,7 +67,7 @@ foreach ($queryParams as $key => $value) {
                     }
                     $dataFacet = $filter['field'].':"'.$filter['value'].'"';
                     ?>
-                    <a class="list-group-item active facet-filter" data-facet='<?=$dataFacet?>' href="<?=$removeLink?>">
+                    <a class="list-group-item active facet-filter" data-facet='<? if($filter['operator'] == 'OR'){echo "~";}?><?=$dataFacet?>' href="<?=$removeLink?>">
                         <span class="pull-right flip"><i class="fa fa-times"></i></span>
                         <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>:
                         <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false)
