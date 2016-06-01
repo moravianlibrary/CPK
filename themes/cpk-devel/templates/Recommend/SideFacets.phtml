@@ -89,7 +89,7 @@ foreach ($queryParams as $key => $value) {
   <? foreach ($sideFacetSet as $title => $cluster): ?>
     <? $allowExclude = $this->recommend->excludeAllowed($title); ?>
     <? $facets_before_more = $this->recommend->getShowMoreSetting($title); ?>
-    <div class="list-group facet" id="side-panel-<?=$this->escapeHtmlAttr($title) ?>">
+    <div class="list-group facet" id="side-panel-<? if($cluster['label'] == 'Institution'): ?>institution<? else: ?><?=$this->escapeHtmlAttr($title) ?><? endif; ?>">
       <div class='row' style='padding-top: 6px;'>
         <? if($cluster['label'] == 'Institution'): ?>
         <div class="col-xs-7 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
@@ -213,7 +213,7 @@ JS;
               <?
               $script = <<<JS
 $(document).ready(function() {
-  initInstitutionsTree($('#facet_{$this->escapeHtml($title)}'), true);
+  initInstitutionsTree($('#facet_institution'), true);
 });
 JS;
               ?>
@@ -232,7 +232,7 @@ JS;
               <?
               $script = <<<JS
 $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
-  initInstitutionsTree($('#facet_{$this->escapeHtml($title)}'), true);
+  initInstitutionsTree($('#facet_institution'), true);
 });
 JS;
               ?>
@@ -247,7 +247,7 @@ JS;
               <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? endif; ?>
-            <li id="facet_<?=$this->escapeHtml($title)?>" class="jstree-facet"
+            <li id="facet_<? if($cluster['label'] == 'Institution'): ?>institution<? else: ?><?=$this->escapeHtml($title)?><? endif; ?>" class="jstree-facet"
                   data-facet="<?=$this->escapeHtmlAttr($title)?>"
                   data-path="<?=$this->currentPath()?>"
                   data-exclude="<?=$allowExclude?>"
