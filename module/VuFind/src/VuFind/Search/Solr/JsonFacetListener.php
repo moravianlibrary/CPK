@@ -95,7 +95,7 @@ class JsonFacetListener
     {
         $this->backend = $backend;
         if (isset($facetConfig->Results_Settings->orFacets)) {
-            $this->orFacets = explode(',', $facetConfig->Results_Settings->orFacets);
+            $this->orFacets = array_map('trim', explode(',', $facetConfig->Results_Settings->orFacets));
         }
         if (isset($facetConfig->SpecialFacets->nested)) {
             $this->nestedFacets = $facetConfig->SpecialFacets->nested->toArray();
@@ -182,7 +182,7 @@ class JsonFacetListener
         }
 
         if (!empty($jsonFacetData)) {
-            $this->logger->info("fq: " . print_r($jsonFacetData, true));
+            $this->logger->info("json.facet: " . print_r($jsonFacetData, true));
             $params->set('json.facet', json_encode($jsonFacetData));
         }
     }
@@ -235,7 +235,7 @@ class JsonFacetListener
         if (count($nestedFacets) > 1) {
             $newfqs[] = "{!parent which='merged_boolean:true' tag=nested_facet_filter}( " . implode(' AND ', $nestedFacets) . " )";
         }
-        $this->logger->debug("fq: " . print_r($newfqs, true));
+        $this->logger->debug("New fq parameters: " . print_r($newfqs, true));
         $params->set('fq', $newfqs);
     }
 
