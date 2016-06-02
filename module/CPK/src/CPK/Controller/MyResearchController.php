@@ -2,7 +2,7 @@
 /**
  * MyResearch Controller
  *
- * PHP version 6
+ * PHP version 5.6
  *
  * Copyright (C) Moravian Library 2016.
  *

@@ -215,8 +215,14 @@ class ShibbolethIdentityManager extends Shibboleth
         // Get UserRow by checking for known eppn
         $currentUser = $this->userTableGateway->getUserRowByEppn($eppn);
 
-        if ($currentUser === false && empty($this->cookieManager->get('agreed_terms_of_use'))) {
-            throw new TermsUnaccepted();
+        if ($currentUser === false) {
+            // New user in portal
+
+            // Has the user already agreed the terms of use ?
+            $termsAgreed = isset($_GET['terms_of_use_accepted']) && $_GET['terms_of_use_accepted'] === 'yes';
+
+            if (! $termsAgreed)
+                throw new TermsUnaccepted();
         }
 
         // Now we need to know if there is a request to connect two identities

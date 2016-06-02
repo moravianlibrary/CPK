@@ -278,17 +278,11 @@
       </div>
     </div>
     <? endif; ?>
-    <? if (isset($_GET['AcceptTermsOfUse']) && ! isset($_COOKIE['agreed_terms_of_use'])):
-      $agreeUrl = $this->url('myresearch-home').'?auth_method=Shibboleth'?>
+    <? if (isset($_GET['AcceptTermsOfUse'])):
+      $agreeUrl = $this->url('myresearch-home').'?auth_method=Shibboleth&terms_of_use_accepted=yes'?>
     <!-- Modal for login -->
     <script type="text/javascript">
-
     	$(function() { $('#termsOfUseModal').modal('show').unbind('click') });
-
-    	window.termsOfUseAgree = function() {
-    		Cookies.set('agreed_terms_of_use', 1, { expires : 365 });
-    		window.location='<?=$agreeUrl?>';
-    	}
     </script>
     <div class="modal fade" id="termsOfUseModal" role="dialog">
       <div class="modal-dialog" role="document">
@@ -302,7 +296,7 @@
 		  </div>
           <div class="modal-footer">
             <div class="btn-group">
-              <button type="button" title="<?=$this->translate('terms_of_use_agree') ?>" class="btn btn-default" onclick="termsOfUseAgree()"><?=$this->translate('i_agree')?></button>
+              <button type="button" title="<?=$this->translate('terms_of_use_agree') ?>" class="btn btn-default" onclick="location='<?=$agreeUrl?>'"><?=$this->translate('i_agree')?></button>
               <button type="button" title="<?=$this->translate('terms_of_use_disagree') ?>" class="btn btn-default" onclick="$('#termsOfUseModal').modal('hide');"><?=$this->translate('i_disagree')?></button>
             </div>
           </div>
