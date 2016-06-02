@@ -20,6 +20,12 @@ class Loader {
     }
 
 
+    public function GetSearchResults($query, $page){
+        $offset = ($page - 1) * 10;
+        return $this->LoadLibraries($query, "10", $offset, "active");
+        
+    }
+
     /**
      * @param $query
      * @param $limit
@@ -33,6 +39,7 @@ class Loader {
         $params['q'] = $query;
         $params['status'] 	  = $status;
         $params['limit'] 	  = $limit;
+        $params['offset']     = $offset;
         $buildedQuery = http_build_query($params);
 
         $url   = $this->infoKnihovnyUrl.'libraries?'.$buildedQuery;
