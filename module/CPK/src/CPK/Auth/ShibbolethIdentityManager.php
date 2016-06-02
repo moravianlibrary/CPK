@@ -29,6 +29,7 @@ namespace CPK\Auth;
 
 use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException, VuFind\Db\Row\UserCard;
 use VuFind\Cookie\CookieManager;
+use CPK\Exception\TermsUnaccepted;
 
 /**
  * Shibboleth authentication module.
@@ -213,6 +214,10 @@ class ShibbolethIdentityManager extends Shibboleth
 
         // Get UserRow by checking for known eppn
         $currentUser = $this->userTableGateway->getUserRowByEppn($eppn);
+
+        if ($currentUser === false && empty($this->cookieManager->get('agreed_terms_of_use'))) {
+            throw new TermsUnaccepted();
+        }
 
         // Now we need to know if there is a request to connect two identities
         $connectIdentities = $userToConnectWith !== null;

@@ -98,6 +98,9 @@ class Manager extends BaseManager
         } catch (\VuFind\Exception\PasswordSecurity $e) {
             // Pass password security exceptions through unmodified
             throw $e;
+        } catch (\CPK\Exception\TermsUnaccepted $e) {
+            // Pass terms of use exceptions through unmodified
+            throw $e;
         } catch (\Exception $e) {
             // Catch other exceptions, log verbosely, and treat them as technical
             // difficulties

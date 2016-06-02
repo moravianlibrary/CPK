@@ -278,6 +278,38 @@
       </div>
     </div>
     <? endif; ?>
+    <? if (isset($_GET['AcceptTermsOfUse']) && ! isset($_COOKIE['agreed_terms_of_use'])):
+      $agreeUrl = $this->url('myresearch-home').'?auth_method=Shibboleth'?>
+    <!-- Modal for login -->
+    <script type="text/javascript">
+
+    	$(function() { $('#termsOfUseModal').modal('show').unbind('click') });
+
+    	window.termsOfUseAgree = function() {
+    		Cookies.set('agreed_terms_of_use', 1, { expires : 365 });
+    		window.location='<?=$agreeUrl?>';
+    	}
+    </script>
+    <div class="modal fade" id="termsOfUseModal" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title"><?=$this->translate('terms_of_use')?></h4>
+          </div>
+          <div class="modal-body">
+          	<? $termsOfUsePage = $this->portalPages()->getPage('terms-of-use', explode("-", $this->layout()->userLang)[0]);?>
+          	<?=isset($termsOfUsePage['content']) ? $termsOfUsePage['content'] : 'Terms of use are unavailable, please contact the administrator at cpk-dev@mzk.cz' ?>
+		  </div>
+          <div class="modal-footer">
+            <div class="btn-group">
+              <button type="button" title="<?=$this->translate('terms_of_use_agree') ?>" class="btn btn-default" onclick="termsOfUseAgree()"><?=$this->translate('i_agree')?></button>
+              <button type="button" title="<?=$this->translate('terms_of_use_disagree') ?>" class="btn btn-default" onclick="$('#termsOfUseModal').modal('hide');"><?=$this->translate('i_disagree')?></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <? endif; ?>
     <?=$this->piwik()?>
   </body>
 </html>

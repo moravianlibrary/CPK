@@ -2,9 +2,9 @@
 /**
  * MyResearch Controller
  *
- * PHP version 5
+ * PHP version 6
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) Moravian Library 2016.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -21,26 +21,67 @@
  *
  * @category VuFind2
  * @package  Controller
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author Jiří Kozlovský <mail@jkozlovsky.cz>
+ * @author Martin Kravec <kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
 namespace CPK\Controller;
 
 use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFind\Exception\Auth as AuthException, VuFind\Exception\ListPermission as ListPermissionException, VuFind\Exception\RecordMissing as RecordMissingException, Zend\Stdlib\Parameters, MZKCommon\Controller\ExceptionsTrait;
+use CPK\Exception\TermsUnaccepted;
+use Zend\Mvc\MvcEvent;
 
 /**
  * Controller for the user account area.
  *
  * @category VuFind2
  * @package Controller
- * @author Demian Katz <demian.katz@villanova.edu>
+ * @author Jiří Kozlovský <mail@jkozlovsky.cz>
+ * @author Martin Kravec <kravec@mzk.cz>
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link http://vufind.org Main Site
  */
 class MyResearchController extends MyResearchControllerBase
 {
     use ExceptionsTrait;
+
+    /**
+     * Overriden onDispatch to process Exceptions used to redirect user somewhere else
+     *
+     * {@inheritDoc}
+     * @see \Zend\Mvc\Controller\AbstractActionController::onDispatch()
+     */
+    public function onDispatch(MvcEvent $e)
+    {
+        $routeMatch = $e->getRouteMatch();
+        if (!$routeMatch) {
+            /**
+             * @todo Determine requirements for when route match is missing.
+             *       Potentially allow pulling directly from request metadata?
+             */
+            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
+        }
+
+        $action = $routeMatch->getParam('action', 'not-found');
+        $method = static::getMethodFromAction($action);
+
+        if (!method_exists($this, $method)) {
+            $method = 'notFoundAction';
+        }
+
+        try {
+
+            $actionResponse = $this->$method();
+
+        } catch(TermsUnaccepted $e) {
+            return $this->redirect()->toUrl('/?AcceptTermsOfUse');
+        }
+
+        $e->setResult($actionResponse);
+
+        return $actionResponse;
+    }
 
     public function logoutAction()
     {
