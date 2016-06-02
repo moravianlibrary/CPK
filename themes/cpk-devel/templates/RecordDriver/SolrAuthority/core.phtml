@@ -37,6 +37,16 @@
 
     <?/* Display Main Details */?>
     <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
+      <? $details = $this->driver->getBibliographicDetails(); ?>
+      <? if (! empty($details)): ?>
+      <tr>
+        <th class="col-md-3"><?=$this->transEsc('Bibliographic Details')?>: </th>
+        <td>
+          <div><?=$details?></div>
+        </td>
+      </tr>
+      <? endif; ?>
+
       <? $addedEntryNames = $this->driver->getAddedEntryPersonalNames(); if (!empty($addedEntryNames)): $iteration = 0; $namesCount = count($addedEntryNames);?>
       <tr>
         <th><?=$this->transEsc('Alternative names')?>: </th>
