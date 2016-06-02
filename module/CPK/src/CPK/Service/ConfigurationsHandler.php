@@ -341,7 +341,7 @@ class ConfigurationsHandler
      */
     protected function processCancelChangeRequest($post)
     {
-        $success = $this->deleteRequestConfig($post);
+        $success = $this->deleteRequestConfig($post['source']);
 
         if ($success) {
 
@@ -369,13 +369,17 @@ class ConfigurationsHandler
 
         $hidden = $defs['hidden'];
 
-        $currentRequested = $this->instConfigsTable->getRequestedConfig($config['source']);
+        $currentActive = $this->instConfigsTable->getApprovedConfig($config['source']);
 
-        if (! $currentRequested && ! empty($config['Catalog']))
+        if (! $currentActive && ! empty($config['Catalog'])) {
+
+            // There is no active config yet, so if not empty, it is changed indeed
+
             return true;
+        }
 
-            // Has the request changed something?
-        foreach ($currentRequested as $section => $keys) {
+        // Has the request changed something?
+        foreach ($currentActive as $section => $keys) {
 
             if (array_search($section, $hidden) !== false)
                 continue;
@@ -390,7 +394,7 @@ class ConfigurationsHandler
 
                 $newValue = $config[$section][$key];
                 unset($config[$section][$key]);
-                if ($value != $newValue) {
+                if ($value != trim($newValue)) {
                     return true;
                 }
             }
@@ -474,7 +478,7 @@ class ConfigurationsHandler
         if (empty($source))
             return false;
 
-        if (! in_array($source, $this->institutionsBeingAdminAt) && ! $this->ctrl->isPortalAdmin()) {
+        if (! in_array($source, $this->institutionsBeingAdminAt) && ! $this->ctrl->getAccessManager()->isPortalAdmin()) {
             throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
         }
 
