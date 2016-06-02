@@ -30,6 +30,7 @@ namespace CPK\Controller;
 use MZKCommon\Controller\RecordController as RecordControllerBase,
 VuFind\Controller\HoldsTrait as HoldsTraitBase;
 use Zend\Mail\Address;
+use CPK\RecordDriver\SolrAuthority;
 
 /**
  * Redirects the user to the appropriate default VuFind action.
@@ -189,14 +190,19 @@ class RecordController extends RecordControllerBase
      */
     protected function get856Links()
     {
-        $parentRecordID = $this->driver->getParentRecordID();
+        if ($this->driver instanceof SolrAuthority) {
+            $links = $this->driver->getLinks();
+        }
+        else {
+            $parentRecordID = $this->driver->getParentRecordID();
 
-        if ($this->recordLoader === null)
-            $this->recordLoader = $this->getServiceLocator()
+            if ($this->recordLoader === null)
+                $this->recordLoader = $this->getServiceLocator()
                 ->get('VuFind\RecordLoader');
 
-        $recordDriver = $this->recordLoader->load($parentRecordID);
-        $links = $recordDriver->get856Links();
+            $recordDriver = $this->recordLoader->load($parentRecordID);
+            $links = $recordDriver->get856Links();
+        }
         return $links;
     }
 

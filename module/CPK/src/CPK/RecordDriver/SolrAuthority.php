@@ -57,22 +57,53 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getAuthorityCover()
     {
-        $field = $this->getMarcRecord()->getField('001');
-        $auth_id = empty($field) ? '' : $field->getData();
-        $coverUrl = '';
-
-        if (! empty($auth_id)) {
-            $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/api/auth/meta');
-            $client->setParameterGet(array(
-                'auth_id' => $auth_id
-            ));
-
-            $response = $client->send();
-            $responseBody = $response->getBody();
-            $phpResponse = json_decode($responseBody, true);
-            $coverUrl = empty($phpResponse[0]['cover_medium_url']) ? '' : $phpResponse[0]['cover_medium_url'];
-        }
-
+        $obalky = $this->getAuthorityFromObalkyKnih();
+        $coverUrl = empty($obalky[0]['cover_medium_url']) ? '' : $obalky[0]['cover_medium_url'];
         return $coverUrl;
+    }
+
+    /**
+     * Get authority's e-version links.
+     *
+     * @return array
+     */
+    public function getLinks()
+    {
+        $links = array();
+        $obalky = $this->getAuthorityFromObalkyKnih();
+        foreach ($obalky as $part) {
+            if (isset($part['backlink_url'])) {
+                $links[] = 'obalkyknih|online|' . $part['backlink_url'];
+            }
+        }
+        $field = $this->getFieldArray('998', array('a'));
+        foreach ($field as $part) {
+            $links[] = 'auth|online|' . $part;
+        }
+        return $links;
+    }
+
+    private function getAuthorityFromObalkyKnih()
+    {
+        if (! isset($this->obalky)) {
+            $field = $this->getMarcRecord()->getField('001');
+            $auth_id = empty($field) ? '' : $field->getData();
+
+            if (! empty($auth_id)) {
+                $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/api/auth/meta');
+                $client->setParameterGet(array(
+                    'auth_id' => $auth_id
+                ));
+
+                $response = $client->send();
+                $responseBody = $response->getBody();
+                $phpResponse = json_decode($responseBody, true);
+                $this->obalky = empty($phpResponse) ? null : $phpResponse;
+            }
+            else {
+                $this->obalky = null;
+            }
+        }
+        return $this->obalky;
     }
 }
