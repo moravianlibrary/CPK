@@ -40,15 +40,23 @@ class LibrariesController extends AbstractBase
 
 		]);
 
+		$getParameters = $this->getRequest()->getQuery()->toArray();
+		$query = $getParameters['query'];
+
 		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
 
-		$libraries = $librariesLoader->LoadLibraries("brno","10","0","active");
-
+		$libraries = $librariesLoader->LoadLibraries($query,"10","0","active");
+		if ($libraries==null) {
+			$view->setTemplate('libraries/not-found');
+			return $view;
+		}
 		$view->libraries = $libraries;
 
 		$view->apikey= $this->getConfig()->GoogleMaps->apikey;
 
 		$view->setTemplate('libraries/list');
+
+
 
 		return $view;
 
