@@ -59,25 +59,25 @@ class Loader {
         foreach ($apilibraries as $apilibrary)
         {
             $library = new SimpleLibrary();
-            $library->sigla = $apilibrary->sigla;
-            $library->name = $apilibrary->name;
-            $library->nameen = $apilibrary->name_en;
-            $library->code = $apilibrary->code;
-            $library->city = $apilibrary->city;
-            $library->street = $apilibrary->street;
-            $library->zip = $apilibrary->zip;
-            $library->longitude = $apilibrary->longitude;
-            $library->latitude = $apilibrary->latitude;
-            $library->description = $apilibrary->description;
-            $library->region = $apilibrary->region;
-            $library->district = $apilibrary->district;
-            $library->context = $apilibrary->context;
-            $library->active = $apilibrary->active;
-            $library->ico = $apilibrary->ico;
-            $library->dic = $apilibrary->dic;
-            $library->mvs_description = $apilibrary->mvs_description;
-            $library->mvs_url = $apilibrary->mvs_url;
-            $library->url = $apilibrary->url;
+            $library->setSigla($apilibrary->sigla);
+            $library->setName($apilibrary->name);
+            $library->setNameen($apilibrary->name_en);
+            $library->setCode($apilibrary->code);
+            $library->setCity($apilibrary->city);
+            $library->setStreet($apilibrary->street);
+            $library->setZip($apilibrary->zip);
+            $library->setLongitude($apilibrary->longitude);
+            $library->setLatitude($apilibrary->latitude);
+            $library->setDescription($apilibrary->description);
+            $library->setRegion($apilibrary->region);
+            $library->setDistrict($apilibrary->district);
+            $library->setContext($apilibrary->context);
+            $library->setActive($apilibrary->active);
+            $library->setIco($apilibrary->ico);
+            $library->setDic($apilibrary->dic);
+            $library->setMvsDescription($apilibrary->mvs_description);
+            $library->setMvsUrl($apilibrary->mvs_url);
+            $library->setUrl($apilibrary->url);
 
             $libraries[] = $library;
         }
