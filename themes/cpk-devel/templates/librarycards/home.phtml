@@ -46,7 +46,7 @@
             <img height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
           </td>
           <td><?=$this->transEsc("source_$source", null, $source) ?></td>
-          <td title="<?=$record['cat_username'] ?>"><?=$record['card_name'] ?></td>
+          <td title="<?=$record['eppn'] ?>"><?=$record['card_name'] ?></td>
           <td>
           <? /* Do not create a choice for deletion if this is the only card */ if(count($this->libraryCards) !== 1): ?>
             <div class="btn-group">

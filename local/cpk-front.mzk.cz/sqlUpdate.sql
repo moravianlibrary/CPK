@@ -396,3 +396,7 @@ INSERT INTO `widgets` (`id`, `name`) VALUES
 (3, 'infobox');
 
 UPDATE `system` SET `value`='31' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `user_card` CHANGE `eppn` `eppn` VARCHAR(255) NULL DEFAULT NULL;
+
+UPDATE `system` SET `value`='32' WHERE `key`='DB_VERSION';

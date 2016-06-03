@@ -278,12 +278,10 @@
       </div>
     </div>
     <? endif; ?>
-    <? if (isset($_GET['AcceptTermsOfUse'])):
+    <? if (! $user && isset($_GET['AcceptTermsOfUse'])):
       $agreeUrl = $this->url('myresearch-home').'?auth_method=Shibboleth&terms_of_use_accepted=yes'?>
-    <!-- Modal for login -->
-    <script type="text/javascript">
-    	$(function() { $('#termsOfUseModal').modal('show').unbind('click') });
-    </script>
+    <!-- Modal for terms of use -->
+    <script type="text/javascript">$(function(){$('#termsOfUseModal').modal('show').unbind('click');});</script>
     <div class="modal fade" id="termsOfUseModal" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
