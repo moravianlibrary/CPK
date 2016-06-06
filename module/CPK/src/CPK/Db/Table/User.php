@@ -229,6 +229,20 @@ class User extends BaseUser
     }
 
     /**
+     * Deletes token from the session table & returns either 1 on success
+     * or 0 on failure.
+     *
+     * @param string $token
+     */
+    public function deleteConsolidationToken($token)
+    {
+        $this->getDbTable('session')->delete([
+            'last_used' => '-1',
+            'session_id' => $token
+        ]);
+    }
+
+    /**
      * Clears all expired tokens.
      *
      * @return number clearedTokens
@@ -240,20 +254,6 @@ class User extends BaseUser
         return $this->getDbTable('session')->delete([
             'last_used' => '-1',
             'created <= ?' => $dateTime
-        ]);
-    }
-
-    /**
-     * Deletes token from the session table & returns either 1 on success
-     * or 0 on failure.
-     *
-     * @param string $token
-     */
-    protected function deleteConsolidationToken($token)
-    {
-        $this->getDbTable('session')->delete([
-            'last_used' => '-1',
-            'session_id' => $token
         ]);
     }
 

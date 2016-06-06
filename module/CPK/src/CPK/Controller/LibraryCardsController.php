@@ -28,6 +28,10 @@
 namespace CPK\Controller;
 
 use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\Db\Row\User as UserRow, MZKCommon\Controller\ExceptionsTrait;
+use Zend\Mvc\MvcEvent;
+use CPK\Auth\Manager;
+use CPK\Auth\ShibbolethIdentityManager;
+use CPK\Db\Table\User;
 
 /**
  * Controller for the library card functionality.
@@ -50,6 +54,20 @@ class LibraryCardsController extends LibraryCardsControllerBase
      */
     public function homeAction()
     {
+        if ($this->params()->fromPost('processLogin')
+            || $this->getSessionInitiator()
+            || $this->params()->fromPost('auth_method')
+            || $this->params()->fromQuery('auth_method')
+            ) {
+                try {
+                    if (!$this->getAuthManager()->isLoggedIn()) {
+                        $this->getAuthManager()->login($this->getRequest());
+                    }
+                } catch (AuthException $e) {
+                    $this->processAuthenticationException($e);
+                }
+        }
+
         // Stop now if the user does not have valid catalog credentials available:
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
@@ -118,13 +136,35 @@ class LibraryCardsController extends LibraryCardsControllerBase
                 ->fromQuery('confirm'));
 
         if ($confirm) {
-            $user->disconnectIdentity($cardID);
+            $userLoggedInWithDisconnectedIdentity = $user->disconnectIdentity($cardID);
 
             // Success Message
             $this->flashMessenger()
                 ->setNamespace('success')
                 ->addMessage('Identity disconnected');
             // Redirect to MyResearch library cards
+
+            if ($userLoggedInWithDisconnectedIdentity) {
+                $authManager = $this->getServiceLocator()->get('VuFind\AuthManager');
+
+                if ($authManager instanceof Manager) {
+                    $relogUrl = $this->getRelogUrl($authManager);
+
+                    // Perform only local logout
+                    $authManager->logout();
+
+                    // Destroy consolidation cookie
+                    $this->getUserTable()->deleteConsolidationToken($_COOKIE[ShibbolethIdentityManager::CONSOLIDATION_TOKEN_TAG]);
+
+                    // Clearing user's COOKIE is quite impossible while redirecting
+                    // We should do that after redirected
+
+                    // "New account" will be now created from the one user used to login with
+                    // Automatically accept the terms of use again as the user has appaerantely already accepted those
+                    return $this->redirect()->toUrl($relogUrl);
+                }
+            }
+
             return $this->redirect()->toRoute('librarycards-home');
         }
 
@@ -157,5 +197,108 @@ class LibraryCardsController extends LibraryCardsControllerBase
     public function editCardAction()
     {
         return $this->redirect()->toRoute('librarycards-home');
+    }
+
+    protected function getRelogUrl(Manager $authManager)
+    {
+        $loginUrl = $authManager->getSessionInitiatorForEntityId(null, $_SESSION['Account']->eidLoggedInWith);
+
+        // Switch the common target with custom target
+        $newTarget = $this->url()->fromRoute('librarycards-home') . '?terms_of_use_accepted=yes';
+
+        $shibTargetRaw = $this->getConfig()->Shibboleth->target;
+        $newShibTargetRaw = preg_replace('/(http[s]?:\/\/[^\/]*).*/', '\1' . $newTarget, $shibTargetRaw);
+
+        $shibTarget = urlencode($shibTargetRaw);
+        $newShibTarget = urlencode($newShibTargetRaw);
+
+        $loginUrl = str_replace($shibTarget . urlencode('?'), $newShibTarget . urlencode('&'), $loginUrl);
+
+        return $loginUrl;
+    }
+
+    /**
+     * Process an authentication error.
+     *
+     * @param AuthException $e Exception to process.
+     *
+     * @return void
+     */
+    protected function processAuthenticationException(AuthException $e)
+    {
+        $msg = $e->getMessage();
+        // If a Shibboleth-style login has failed and the user just logged
+        // out, we need to override the error message with a more relevant
+        // one:
+        if ($msg == 'authentication_error_admin'
+            && $this->getAuthManager()->userHasLoggedOut()
+            && $this->getSessionInitiator()
+        ) {
+            $msg = 'authentication_error_loggedout';
+        }
+        $this->flashMessenger()->addMessage($msg, 'error');
+    }
+
+    /**
+     * Overriden onDispatch to process Exceptions used to redirect user somewhere else
+     *
+     * {@inheritDoc}
+     * @see \Zend\Mvc\Controller\AbstractActionController::onDispatch()
+     */
+    public function onDispatch(MvcEvent $e)
+    {
+        $routeMatch = $e->getRouteMatch();
+        if (!$routeMatch) {
+            /**
+             * @todo Determine requirements for when route match is missing.
+             *       Potentially allow pulling directly from request metadata?
+             */
+            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
+        }
+
+        $action = $routeMatch->getParam('action', 'not-found');
+        $method = static::getMethodFromAction($action);
+
+        if (!method_exists($this, $method)) {
+            $method = 'notFoundAction';
+        }
+
+        try {
+
+            $actionResponse = $this->$method();
+
+        } catch(TermsUnaccepted $e) {
+            return $this->redirect()->toUrl('/?AcceptTermsOfUse');
+        }
+
+        $e->setResult($actionResponse);
+
+        return $actionResponse;
+    }
+
+    /**
+     * Convenience method to get a session initiator URL. Returns false if not
+     * applicable.
+     *
+     * @return string|bool
+     */
+    protected function getSessionInitiator()
+    {
+        $url = $this->getServerUrl('myresearch-home');
+        return $this->getAuthManager()->getSessionInitiator($url);
+    }
+
+    /**
+     * Retruns table of User database
+     *
+     * @return User
+     */
+    protected function getUserTable()
+    {
+        if(! isset($this->userTable)) {
+            $this->userTable = $this->getServiceLocator()->get('VuFind\DbTablePluginManager')->get('User');
+        }
+
+        return $this->userTable;
     }
 }

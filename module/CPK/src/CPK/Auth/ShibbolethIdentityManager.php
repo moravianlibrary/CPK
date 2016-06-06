@@ -163,6 +163,13 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected $workingLogoutEntityIds = null;
 
+    /**
+     * Session container
+     *
+     * @var \Zend\Session\Container
+     */
+    protected $session;
+
     public function __construct(\VuFind\Config\PluginManager $configLoader, UserTable $userTableGateway, CookieManager $cookieManager)
     {
         $this->shibbolethConfig = $configLoader->get(static::CONFIG_FILE_NAME);
@@ -174,6 +181,9 @@ class ShibbolethIdentityManager extends Shibboleth
         $this->userTableGateway = $userTableGateway;
 
         $this->cookieManager = $cookieManager;
+
+        // Set up session:
+        $this->session = new \Zend\Session\Container('Account');
     }
 
     public function authenticate($request, UserRow $userToConnectWith = null)
@@ -212,6 +222,9 @@ class ShibbolethIdentityManager extends Shibboleth
             throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
         }
 
+        $this->session->eppnLoggedInWith = $eppn;
+        $this->session->eidLoggedInWith = $entityId;
+
         // Get UserRow by checking for known eppn
         $currentUser = $this->userTableGateway->getUserRowByEppn($eppn);
 
@@ -223,6 +236,11 @@ class ShibbolethIdentityManager extends Shibboleth
 
             if (! $termsAgreed)
                 throw new TermsUnaccepted();
+
+            // Create new consolidation cookie so user can immediately connect new account
+            $createConsolidationCookie = true;
+        } else {
+            $createConsolidationCookie = false;
         }
 
         // Now we need to know if there is a request to connect two identities
@@ -318,6 +336,9 @@ class ShibbolethIdentityManager extends Shibboleth
             if ($userRowCreatedRecently) {
                 $currentUser = $this->createUser($currentUser, $attributes, $homeLibrary, $eppn);
             }
+
+            if ($createConsolidationCookie)
+                $this->createConsolidationCookie($currentUser->id);
 
             return $currentUser;
         }
@@ -459,19 +480,7 @@ class ShibbolethIdentityManager extends Shibboleth
     {
         // Create & write token to DB & user's cookie
         if (! $this->consolidationCookieSet && ! isset($_COOKIE[static::CONSOLIDATION_TOKEN_TAG])) {
-            $token = $this->generateToken();
-
-            $currTime = time();
-            $expires = $currTime + static::CONSOLIDATION_TOKEN_EXPIRATION;
-
-            $this->cookieManager->set(static::CONSOLIDATION_TOKEN_TAG, $token, $expires);
-
-            $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
-
-            if (! $tokenCreated)
-                throw new AuthException('Could not create consolidation token entry into session table');
-
-            $this->consolidationCookieSet = true;
+            $this->createConsolidationCookie($userRowId);
         }
 
         // Create redirection URL
@@ -766,6 +775,31 @@ class ShibbolethIdentityManager extends Shibboleth
 
             $from->deleteLibraryCardRow($libCard, false);
         }
+    }
+
+    /**
+     * Creates an consolidation token.
+     *
+     * It also distributes it to database & user's cookie. It is paired with current user's account
+     *
+     * @param number $userRowId
+     * @throws AuthException
+     */
+    protected function createConsolidationCookie($userRowId)
+    {
+        $token = $this->generateToken();
+
+        $currTime = time();
+        $expires = $currTime + static::CONSOLIDATION_TOKEN_EXPIRATION;
+
+        $this->cookieManager->set(static::CONSOLIDATION_TOKEN_TAG, $token, $expires);
+
+        $tokenCreated = $this->userTableGateway->saveUserConsolidationToken($token, $userRowId);
+
+        if (! $tokenCreated)
+            throw new AuthException('Could not create consolidation token entry into session table');
+
+        $this->consolidationCookieSet = true;
     }
 
     /**

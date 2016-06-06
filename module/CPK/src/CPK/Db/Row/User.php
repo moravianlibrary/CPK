@@ -42,17 +42,17 @@ class User extends BaseUser
 {
 
     const COLUMN_MAJOR_GLUE = ';';
-    
+
     /**
      * Holds all User's libCards.
      *
      * @var \Zend\Db\ResultSet\AbstractResultSet
      */
     protected $allLibCards;
-    
+
     /**
      * Holds all User's nonDummy libCards.
-     * 
+     *
      * @var \Zend\Db\ResultSet\AbstractResultSet
      */
     protected $nonDummyLibCards;
@@ -170,8 +170,14 @@ class User extends BaseUser
             throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
         }
 
-        if ($id instanceof UserCard)
-            return $this->deleteLibraryCardRow($id, $activateAnother);
+        if ($id instanceof UserCard) {
+
+            $userLoggedInWithTheDisconnected = $_SESSION['Account']->eppnLoggedInWith === $id->eppn;
+
+            $this->deleteLibraryCardRow($id, $activateAnother);
+
+            return $userLoggedInWithTheDisconnected;
+        }
 
         $allLibCards = $this->getAllUserLibraryCards();
 
@@ -179,6 +185,7 @@ class User extends BaseUser
         foreach ($allLibCards as $key => $libCard) {
             if ($libCard->id === intval($id)) {
                 $found = $key;
+                $deletedEppn = $libCard->eppn;
                 break;
             }
         }
@@ -207,6 +214,10 @@ class User extends BaseUser
 
             $this->activateBestLibraryCard($allLibCards);
         }
+
+        $userLoggedInWithTheDisconnected = $_SESSION['Account']->eppnLoggedInWith === $deletedEppn;
+
+        return $userLoggedInWithTheDisconnected;
     }
 
     /**
@@ -298,25 +309,25 @@ class User extends BaseUser
         if (!$this->libraryCardsEnabled()) {
             return new \Zend\Db\ResultSet\ResultSet();
         }
-        
+
         if ($includingDummyCards) {
-            
+
             if ($this->allLibCards == null) {
-                $this->allLibCards = $this->getDbTable( 'UserCard' )->select( 
+                $this->allLibCards = $this->getDbTable( 'UserCard' )->select(
                         [
                             'user_id' => $this->id
                         ] );
             }
-            
+
             return $this->allLibCards;
         } elseif ($this->nonDummyLibCards == null) {
-            
-            $this->nonDummyLibCards = $this->getDbTable( 'UserCard' )->select( 
+
+            $this->nonDummyLibCards = $this->getDbTable( 'UserCard' )->select(
                     [
                         'user_id' => $this->id,'home_library != ?' => 'Dummy'
                     ] );
         }
-        
+
         return $this->nonDummyLibCards;
     }
 
