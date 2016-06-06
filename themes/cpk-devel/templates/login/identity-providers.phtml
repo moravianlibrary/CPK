@@ -1,12 +1,7 @@
 <table>
 <tbody>
 <? foreach($idps as $idp):
-$json = json_encode([
-    'href' => $idp['href'],
-    'logo' => $idp['logo'],
-    'name_cs' => trim($idp['name_cs']),
-    'name_en' => trim($idp['name_en'])
-]);
+$json = json_encode($idp);
 ?>
   <tr class="link" ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
     <td class="col-sm-4">
