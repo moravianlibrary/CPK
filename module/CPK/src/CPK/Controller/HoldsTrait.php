@@ -127,7 +127,7 @@ trait HoldsTrait
                 $this->flashMessenger()
                     ->setNamespace('error')
                     ->addMessage('hold_invalid_request_group');
-            } elseif (! $this->holds()->validatePickUpInput(
+            } elseif (isset($gatheredDetails['pickUpLocation']) && ! $this->holds()->validatePickUpInput(
                 $gatheredDetails['pickUpLocation'], $extraHoldFields, $pickup)) {
                 $this->flashMessenger()
                     ->setNamespace('error')
