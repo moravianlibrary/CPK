@@ -5,6 +5,8 @@
     // Set up breadcrumbs:
     $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> '.
     '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Library Cards') . '</li>';
+
+    $deleted = [];
 ?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 <div class="row">
@@ -38,6 +40,11 @@
           $eppnScope = substr($record['eppn'], ++$atPos);
 
           $source = $eppnScope;
+
+          if ($record['home_library'] === 'Dummy.deleted') {
+              $deleted[$source] = $record;
+              continue;
+          }
       }
 
       ?>
@@ -59,6 +66,18 @@
               </ul>
             </div>
           <? endif; ?>
+          </td>
+        </tr>
+      <? endforeach; ?>
+      <? foreach ($deleted as $source => $record):?>
+        <tr style="color: gray">
+          <td style="text-align: center;">
+            <img style="filter: grayscale(100%);" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
+          </td>
+          <td><?=$this->transEsc("source_$source", null, $source) ?></td>
+          <td title="<?=$record['eppn'] ?>"><?=$record['card_name'] ?></td>
+          <td title="<?=$this->translate('identity_deleted_description')?>">
+            <?=$this->translate('identity_deleted')?>
           </td>
         </tr>
       <? endforeach; ?>

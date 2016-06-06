@@ -607,6 +607,40 @@ class User extends BaseUser
     }
 
     /**
+     * Marks an identity as deleted from the library.
+     *
+     * @param number|UserCard $libCard
+     * @throws AuthException
+     * @return boolean $success
+     */
+    public function identityDeletedFromLibrary($libCard)
+    {
+        // Cast to UserCard if not already
+        if (! $libCard instanceof UserCard) {
+
+            if (is_int($libCard)) {
+                $libCard = $this->getLibraryCard($libCard);
+
+                $allowed = $libCard->user_id === $this->id;
+
+                if (! $allowed)
+                    throw new AuthException('Cannot mark foreign identity as deleted!');
+            } else
+                return false;
+
+            if ($libCard === false)
+                return true;
+        }
+
+        $libCard->cat_username = 'Dummy.' . $libCard->cat_username;
+        $libCard->home_library = 'Dummy.deleted';
+
+        $libCard->save();
+
+        return true;
+    }
+
+    /**
      * Checks for UserRow->major value to remove access connected with passed $home_library.
      *
      * @param string $home_library
