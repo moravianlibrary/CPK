@@ -71,8 +71,8 @@ class NCIPRequests {
     public function lookupItem($itemId, $patron) {
         $body =
         "<ns1:LookupItem>" .
-        $this->insertInitiationHeader($patron['agency']) .
-        $this->insertItemIdTag($itemId, $patron['agency']) .
+        $this->insertInitiationHeader($patron) .
+        $this->insertItemIdTag($itemId, $patron) .
         $this->allItemElementType() .
         $this->insertExtPatronId($patron) .
         "</ns1:LookupItem>";
@@ -85,9 +85,9 @@ class NCIPRequests {
 
         $body =
         "<ns1:RequestItem>" .
-        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertInitiationHeader($patron) .
         $this->insertUserIdTag($patron) .
-        $this->insertItemIdTag($holdDetails['item_id'], $patron['agency']) .
+        $this->insertItemIdTag($holdDetails['item_id'], $patron) .
         $this->insertRequestType("Hold") .
         //$this->insertRequestType("Loan") .
         $this->insertRequestScopeType($requestScopeType);
@@ -99,9 +99,9 @@ class NCIPRequests {
     public function cancelRequestItemUsingItemId($patron, $itemId) {
         $body =
         "<ns1:CancelRequestItem>" .
-        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertInitiationHeader($patron) .
         $this->insertUserIdTag($patron) .
-        $this->insertItemIdTag($itemId, $patron['agency']) .
+        $this->insertItemIdTag($itemId, $patron) .
         $this->insertRequestType("Estimate") .
         $this->insertRequestScopeType("Item") .
         "</ns1:CancelRequestItem>";
@@ -113,7 +113,7 @@ class NCIPRequests {
         if ($this->sigla == "TAG001") $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
-        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertInitiationHeader($patron) .
         $this->insertUserIdTag($patron) .
         $this->insertRequestIdTag($requestId, $patron) .
         $this->insertRequestType($requestType) .
@@ -125,9 +125,9 @@ class NCIPRequests {
     public function renewItem($patron, $itemId) {
         $body =
         "<ns1:RenewItem>" .
-        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertInitiationHeader($patron) .
         $this->insertUserIdTag($patron) .
-        $this->insertItemIdTag($itemId, $patron['agency']) .
+        $this->insertItemIdTag($itemId, $patron) .
         //$this->allItemElementType() .
         //$this->allUserElementType() .
         "</ns1:RenewItem>";
@@ -136,11 +136,11 @@ class NCIPRequests {
 
     public function LUISItemId($itemList, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
         $body = "<ns1:LookupItemSet>";
-        $body .= $this->insertInitiationHeader($patron['agency']);
+        $body .= $this->insertInitiationHeader($patron);
         foreach ($itemList as $id) {
             if ($mainClass !== null)
                 list ($id, $agency) = $mainClass->splitAgencyId($id);
-            $body .= $this->insertItemIdTag($id, $agency);
+            $body .= $this->insertItemIdTag($id, $patron);
         }
         $body .= $this->allItemElementType();
         if (! empty($mainClass->getMaximumItemsCount())) {
@@ -159,7 +159,7 @@ class NCIPRequests {
 
     public function LUISBibItem($bibId, $nextItemToken = null, XCNCIP2 $mainClass = null, $patron = []) {
         $body = "<ns1:LookupItemSet>";
-        $body .= $this->insertInitiationHeader($patron['agency']);
+        $body .= $this->insertInitiationHeader($patron);
         if ($mainClass !== null)
             list ($bibId, $agency) = $mainClass->splitAgencyId($bibId);
         $body .= $this->insertBibliographicItemIdTag($bibId);
@@ -181,8 +181,8 @@ class NCIPRequests {
     public function lookupAgency($patron) {
         $body =
         "<ns1:LookupAgency>" .
-        $this->insertInitiationHeader($patron['agency']) .
-        $this->insertAgencyIdTag($patron['agency']) .
+        $this->insertInitiationHeader($patron) .
+        $this->insertAgencyIdTag($patron) .
         $this->insertAgencyElementType("Agency Address Information") .
         $this->insertAgencyElementType("Agency User Privilege Type") .
         $this->insertAgencyElementType("Application Profile Supported Type") .
@@ -206,7 +206,7 @@ class NCIPRequests {
     protected function patronInformation($patron, $extras = '') {
         $body =
         "<ns1:LookupUser>" .
-        $this->insertInitiationHeader($patron['agency']) .
+        $this->insertInitiationHeader($patron) .
         $this->insertUserIdTag($patron) .
         // Do not use htmlspecialchars for $extras.
         $extras .
@@ -214,8 +214,8 @@ class NCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
-    protected function insertInitiationHeader($to, $from = "CPK") {
-        if (empty($to)) $to = $this->sigla;
+    protected function insertInitiationHeader($patron, $from = "CPK") {
+        $to = (isset($patron['agency']) && ! empty($patron['agency'])) ? $patron['agency'] : $this->sigla;
         $initiationHeader =
         "<ns1:InitiationHeader>" .
         "<ns1:FromAgencyId>" .
@@ -237,7 +237,7 @@ class NCIPRequests {
     protected function insertUserIdTag($patron) {
         $body =
         "<ns1:UserId>" .
-        $this->insertAgencyIdTag($patron['agency']) .
+        $this->insertAgencyIdTag($patron) .
         ($this->noScheme ?
                 "<ns1:UserIdentifierType>" :
                 "<ns1:UserIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
@@ -248,8 +248,8 @@ class NCIPRequests {
         return $body;
     }
 
-    protected function insertAgencyIdTag($agency) {
-        if (empty($agency)) $agency = $this->sigla;
+    protected function insertAgencyIdTag($patron) {
+        $agency = (isset($patron['agency']) && ! empty($patron['agency'])) ? $patron['agency'] : $this->sigla;
         if (empty($agency)) return '';
         return ($this->noScheme ?
                 "<ns1:AgencyId>" :
@@ -257,10 +257,10 @@ class NCIPRequests {
         htmlspecialchars($agency) . "</ns1:AgencyId>";
     }
 
-    protected function insertItemIdTag($itemId, $agency) {
+    protected function insertItemIdTag($itemId, $patron) {
         $body =
         "<ns1:ItemId>" .
-        $this->insertAgencyIdTag($agency) .
+        $this->insertAgencyIdTag($patron) .
         $this->insertItemIdentifierType() .
         "<ns1:ItemIdentifierValue>" . htmlspecialchars($itemId) . "</ns1:ItemIdentifierValue>" .
         "</ns1:ItemId>";
@@ -270,7 +270,7 @@ class NCIPRequests {
     protected function insertRequestIdTag($requestId, $patron) {
         $body =
         "<ns1:RequestId>" .
-        $this->insertAgencyIdTag($patron['agency']) .
+        $this->insertAgencyIdTag($patron) .
         ($this->noScheme ?
                 "<ns1:RequestIdentifierType>" :
                 "<ns1:RequestIdentifierType ns1:Scheme=\"http://www.library.sk/ncip/v2_02/schemes.scm\">") .

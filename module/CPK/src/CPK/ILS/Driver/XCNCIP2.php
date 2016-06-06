@@ -1852,7 +1852,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @param SimpleXMLElement $status
      * @return SimpleXMLElement $status
      */
-    protected function convertStatus($status, $itemRestriction) {
+    protected function convertStatus($status) {
         if (! empty($status) && (string) $status[0] === 'Available on Shelf') $status[0] = 'Available On Shelf';
         if (! empty($status) && (string) $status[0] === 'Available for Pickup') $status[0] = 'On Order';
         if (! empty($status) && (string) $status[0] === 'Waiting To Be Reshelved') $status[0] = 'In Process';
