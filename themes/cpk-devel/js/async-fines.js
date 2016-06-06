@@ -77,6 +77,8 @@ function updateFinesTable(response) {
 
 		var formattedMoney = formatMoney(moneyFormat, totalSum);
 		summaryRow.find('td[data-type=sum]').text(formattedMoney);
+		if(data.paymentUrl !== null)
+			summaryRow.after('<a href="' + data.paymentUrl + '">Zaplatit pokuty online</a>');
 
 		// Unhide the table
 		tableBody.removeAttr('hidden');

@@ -481,6 +481,17 @@ class AjaxController extends AjaxControllerBase
                 $data['fines'] = $fines;
                 $data['source'] = $fines['source'];
 
+                $totalFine = 0;
+                if (! empty($fines)) {
+                    foreach ($fines as $fine) {
+                        $totalFine += ($fine['amount']);
+                    }
+                }
+                if ($totalFine < 0) {
+                    $data['paymentUrl'] = $ilsDriver->getPaymentURL($patron,
+                        - 1 * $totalFine);
+                }
+
             } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
