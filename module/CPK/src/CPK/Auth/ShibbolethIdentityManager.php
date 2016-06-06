@@ -386,6 +386,10 @@ class ShibbolethIdentityManager extends Shibboleth
             $this->shibAssertionExportEnabled = true;
         }
 
+        if (! isset($shib->target)) {
+            throw new AuthException('Could not find the target configuration.');
+        }
+
         foreach ($this->shibbolethConfig as $name => $configuration) {
             if ($name === 'Dummy') {
                 throw new AuthException('Shibboleth config section cannot be called \'Dummy\', this name is reserved.');
@@ -511,17 +515,13 @@ class ShibbolethIdentityManager extends Shibboleth
      * form is inadequate).
      * Returns false when no session initiator is needed.
      *
-     * @param string $target
-     *            Full URL where external authentication method should
-     *            send user to after login (some drivers may override this).
-     *
      * @param string $entityId
      *
      * @return mixed bool|string
      */
-    public function getSessionInitiatorForEntityId($target, $entityId)
+    public function getSessionInitiatorForEntityId($entityId)
     {
-        $initiator = parent::getSessionInitiator($target);
+        $initiator = parent::getSessionInitiator(null);
 
         if (! empty($entityId))
             $initiator .= '&entityID=' . urlencode($entityId);

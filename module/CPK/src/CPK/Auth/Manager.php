@@ -278,17 +278,13 @@ class Manager extends BaseManager
      * form is inadequate).
      * Returns false when no session initiator is needed.
      *
-     * @param string $target
-     *            Full URL where external authentication method should
-     *            send user to after login (some drivers may override this).
-     *
      * @param string $entityId
      *
      * @return mixed bool|string
      */
-    public function getSessionInitiatorForEntityId($target, $entityId) {
+    public function getSessionInitiatorForEntityId( $entityId) {
         if ($this->getAuth() instanceof ShibbolethIdentityManager) {
-            return $this->getAuth()->getSessionInitiatorForEntityId($target, $entityId);
+            return $this->getAuth()->getSessionInitiatorForEntityId($entityId);
         } else {
             return false;
         }

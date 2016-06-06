@@ -112,7 +112,7 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
             if ($isConsolidation)
                 $href = $this->authManager->getAccountConsolidationUrl($institution['entityId']);
             else
-                $href = $this->authManager->getSessionInitiatorForEntityId(null, $institution['entityId']);
+                $href = $this->authManager->getSessionInitiatorForEntityId($institution['entityId']);
 
             $idp = [
                 'href' => $href,

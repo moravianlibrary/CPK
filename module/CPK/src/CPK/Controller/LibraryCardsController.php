@@ -201,7 +201,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
 
     protected function getRelogUrl(Manager $authManager)
     {
-        $loginUrl = $authManager->getSessionInitiatorForEntityId(null, $_SESSION['Account']->eidLoggedInWith);
+        $loginUrl = $authManager->getSessionInitiatorForEntityId($_SESSION['Account']->eidLoggedInWith);
 
         // Switch the common target with custom target
         $newTarget = $this->url()->fromRoute('librarycards-home') . '?terms_of_use_accepted=yes';
