@@ -544,6 +544,9 @@ class User extends BaseUser
             $libCards[] = $row;
         }
 
+        // Reset the cache
+        $this->allLibCards = null;
+
         $this->activateBestLibraryCard($libCards);
 
         return $row->id;
