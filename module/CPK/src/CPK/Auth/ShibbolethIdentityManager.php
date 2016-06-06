@@ -497,7 +497,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $target = $hostname . 'MyResearch/UserConnect';
 
         $entityId = $this->fetchCurrentEntityId();
-        $target .= '?eid=' . urlencode($entityId);
+        $target .= '?eid=' . urlencode($entityId) . '&terms_of_use_accepted=yes';
 
         $loginRedirect = $this->config->Shibboleth->login . '?forceAuthn=1&target=' . urlencode($target);
 
