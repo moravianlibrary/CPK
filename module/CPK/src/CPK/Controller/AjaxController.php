@@ -491,6 +491,7 @@ class AjaxController extends AjaxControllerBase
                     $data['paymentUrl'] = $ilsDriver->getPaymentURL($patron,
                         - 1 * $totalFine);
                 }
+                $data['payButtonText'] = $this->translate('Online payment of fines');
 
             } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
