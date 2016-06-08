@@ -7,6 +7,33 @@
     ?>
 </span>
 
+<?
+    // sort records in libraries, put institutions in filters to the beginning
+    $foundRecords = $this->records;
+    $institutionsFilters = [];
+    if (isset($_GET['filter'])) {
+        if (count($_GET['filter'])) {
+            foreach ($_GET['filter'] as $key => $value) {
+                $explodedArray = explode('/', trim($value, '"'));
+                $source = strtolower($explodedArray[count($explodedArray)-2]);
+                $institutionsFilters[] = $source;
+            }
+        }
+    }
+
+    $prependedLibraries = [];
+    if (count($foundRecords) && count($institutionsFilters)) {
+        foreach ($foundRecords as $source => $array) {
+            if (in_array($source, $institutionsFilters)) {
+                unset($foundRecords[$source]);
+                $prependedLibraries[$source] = $array;
+            }
+        }
+    }
+
+    $recordsInLibraries = $prependedLibraries + $foundRecords;
+?>
+
 <div class="col-sm-12 dedupInformation">
 <?php
 	if ($this->countRecords <= 2) {
@@ -18,7 +45,7 @@
 	}
 
 	 $i = 0; // Print first $maxInstitutionsShown institutions
-	 foreach ($this->records as $source => $value):
+	 foreach ($recordsInLibraries as $source => $value):
 	    $i++;
 		$record = $value['id'];
 		$recordInLibraryOwnershipClass = is_array($this->myLibs) && in_array($source, $this->myLibs) ? 'my-library-record' : 'other-library-record';
@@ -40,8 +67,7 @@
     <? if ($i == $maxInstitutionsShown) break; ?>
 <? endforeach; ?>
 
-
-<? if (count($this->records) > $maxInstitutionsShown):
+<? if (count($recordsInLibraries) > $maxInstitutionsShown):
 	// If there is more institutions than $maxInstitutionsShown, print Dropdown
 ?>
 <div class="margin-bottom">
@@ -51,7 +77,7 @@
             <?
                 $i = 0;
                 // print rest of institutions, to dropdown
-                foreach ($this->records as $source => $value):
+                foreach ($recordsInLibraries as $source => $value):
                 $i++;
                 if ($i <= $maxInstitutionsShown) continue;
                 $record = $value['id'];
