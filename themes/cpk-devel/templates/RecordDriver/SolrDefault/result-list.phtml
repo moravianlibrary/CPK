@@ -105,7 +105,32 @@
   }
   //
 
-  $firstRecordInInstitutions = reset($records);
+  // sort records in libraries, put institutions in filters to the beginning
+  $foundRecords = $records;
+  $institutionsFilters = [];
+  if (isset($_GET['filter'])) {
+      if (count($_GET['filter'])) {
+          foreach ($_GET['filter'] as $key => $value) {
+              $explodedArray = explode('/', trim($value, '"'));
+              $source = strtolower($explodedArray[count($explodedArray)-2]);
+              $institutionsFilters[] = $source;
+          }
+      }
+  }
+
+  $prependedLibraries = [];
+  if (count($foundRecords) && count($institutionsFilters)) {
+      foreach ($foundRecords as $source => $array) {
+          if (in_array($source, $institutionsFilters)) {
+              unset($foundRecords[$source]);
+              $prependedLibraries[$source] = $array;
+          }
+      }
+  }
+
+  $recordsInLibraries = $prependedLibraries + $foundRecords;
+
+  $firstRecordInInstitutions = reset($recordsInLibraries);
 
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
@@ -264,7 +289,8 @@
              array(
                 'records' => $records,
                 'config' => $this->config,
-                'countRecords' => $countRecords
+                'countRecords' => $countRecords,
+                'recordsInLibraries' => $recordsInLibraries
              )
          );
      }
