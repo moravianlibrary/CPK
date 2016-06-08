@@ -161,8 +161,7 @@ var holdingsILS = {
 	var availability = value.availability;
 
 	if (typeof availability !== 'undefined') {
-	    var availabilitySpan = statusDiv.siblings('div[data-type=availability]').children('span');
-
+	    var availabilitySpan = statusDiv.parent().parent().find('td div[data-type=availability] span');
 	    availabilitySpan.text(availability);
 	}
 
