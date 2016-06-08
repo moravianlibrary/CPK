@@ -279,7 +279,7 @@ jQuery( document ).ready( function( $ ) {
 		        			$( '#result-list-placeholder' ).before( loader );
 		        		});
 		        		$( '#results-amount-info-placeholder' ).html( "<i class='fa fa-2x fa-refresh fa-spin'></i>" );
-		        		$( '#pagination-placeholder' ).hide( 'blind', {}, 200 );
+		        		$( '#pagination-placeholder, #side-facets-placeholder' ).hide( 'blind', {}, 200 );
 		        		
 		        		// Disable submit button until ajax finishes
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
@@ -309,6 +309,7 @@ jQuery( document ).ready( function( $ ) {
 		        			$( '#results-amount-info-placeholder' ).html( resultsAmountInfoHtml.html );
 		        			$( '#side-facets-placeholder' ).html( facetsHtml.html );
 			        		$( '#result-list-placeholder, #pagination-placeholder, #results-amount-info-placeholder' ).show( 'blind', {}, 500 );
+			        		$( '#side-facets-placeholder' ).show( 'blind', {}, 500 );
 			        		
 			        		/* Update search identificators */
 			        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
