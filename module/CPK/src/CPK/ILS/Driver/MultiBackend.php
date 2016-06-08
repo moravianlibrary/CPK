@@ -184,11 +184,7 @@ class MultiBackend extends MultiBackendBase
 
             $this->idResolver->resolveIds($holds, $source, $this->getDriverConfig($source));
 
-            return $this->addIdPrefixes($holds, $source, [
-                'id',
-                'item_id',
-                'cat_username'
-            ]);
+            return $this->addIdPrefixes($holds, $source);
         }
         throw new ILSException('No suitable backend driver found');
     }
