@@ -70,6 +70,20 @@ function updateProfileTable(response) {
 			    parentTable.before(errorMessage);
 			})
 		    }
+			if (key == 'message') {
+				if (val!=null) {
+					var errorMessage = $("<div>").addClass('block-alert').text(val);
+
+					parentTable.before(errorMessage);
+				}
+			}
+			if (key == 'prolongRegistrationUrl') {
+				if (val!=null) {
+					var link = $("<a>").addClass('btn btn-default').attr('href', val).text(patron['prolongText']);
+
+					parentTable.before(link);
+				}
+			}
 		}
 	    })
 

@@ -338,7 +338,21 @@ class AjaxController extends AjaxControllerBase
             } catch (\Exception $e) {
                 return $this->outputException($e, $cat_username);
             }
-
+            $expire = date_create_from_format('d. m. Y', $profile['expire']);
+            $dateDiff = date_diff($expire, date_create());
+            $message = null;
+            $prolongRegistrationUrl = null;
+            if ($dateDiff->days < 31 && $dateDiff->invert != 0) {
+                $message = $this->translate('library_card_expiration_warning');
+                $prolongRegistrationUrl = $ilsDriver->getProlongRegistrationUrl($patron);
+            }
+            if ($dateDiff->invert == 0 && $dateDiff->days > 0) {
+                $message = $this->translate('library_card_expirated_warning');
+                $prolongRegistrationUrl = $ilsDriver->getProlongRegistrationUrl($patron);
+            }
+            $profile['message'] = $message;
+            $profile['prolongRegistrationUrl'] = $prolongRegistrationUrl;
+            $profile['prolongText'] = $this->translate('prolong_registration_url');
             return $this->output($profile, self::STATUS_OK);
         } else
             return $this->output(
