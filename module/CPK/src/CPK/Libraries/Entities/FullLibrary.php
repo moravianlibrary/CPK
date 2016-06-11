@@ -9,17 +9,17 @@ class FullLibrary extends SimpleLibrary {
     public $people;
     //array of Website objects
     public $websites;
-    //array of email objects
+    //array of Email objects
     public $emails;
-    //array of phone numbers
+    //array of Phone objects
     public $phones;
-    //array of fax numbers
+    //array of Fax objects
     public $faxes;
-    //array of opening hours
+    //OpeningHours object
     public $opening_hours;
-    //array of projects objects
+    //array of Project objects
     public $projects;
-    //array of services objects
+    //array of Service objects
     public $services;
 
 
