@@ -11,7 +11,9 @@
   <div class="col-md-6">
     <? foreach ($this->libraries as $library):?>
       <div class="well">
-        <h3><?=$library->getName()?></h3>
+        <a href="/Libraries/Library?sigla=<?=$library->getSigla()?>">
+          <h3><?=$library->getName()?></h3>
+        </a>
         <p><?=$library->getAddress()?></p>
       </div>
     <? endforeach; ?>

@@ -60,13 +60,14 @@ class LibrariesController extends AbstractBase
 
 	public function libraryAction()
 	{
-		$view = $this->createViewModel([
+		$view = $this->createViewModel();
 
-		]);
+		$getParameters = $this->getRequest()->getQuery()->toArray();
+		$sigla = $getParameters['sigla'];
 
 		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
 
-		$library = $librariesLoader->LoadLibrary("BOA001");
+		$library = $librariesLoader->LoadLibrary($sigla);
 
 		$view->library = $library;
 

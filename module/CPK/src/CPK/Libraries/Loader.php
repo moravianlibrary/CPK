@@ -16,6 +16,42 @@ class Loader {
      * @return FullLibrary object
      */
     public function LoadLibrary($sigla){
+        $url   = $this->infoKnihovnyUrl.'libraries/'.$sigla;
+
+        $client = new \Zend\Http\Client($url);
+        $response = $client->send();
+
+        // Response head error handling
+        $responseStatusCode = $response->getStatusCode();
+        if($responseStatusCode !== 200)
+            throw new \Exception("info.knihovny.cz response status code: ".$responseStatusCode);
+
+        $output	= $response->getBody();
+        $apilibrary = \Zend\Json\Json::decode($output);
+
+        $library = new SimpleLibrary();
+        $library->setSigla($apilibrary->sigla);
+        $library->setName($apilibrary->name);
+        $library->setNameen($apilibrary->name_en);
+        $library->setCode($apilibrary->code);
+        $library->setCity($apilibrary->city);
+        $library->setStreet($apilibrary->street);
+        $library->setZip($apilibrary->zip);
+        $library->setLongitude($apilibrary->longitude);
+        $library->setLatitude($apilibrary->latitude);
+        $library->setDescription($apilibrary->description);
+        $library->setRegion($apilibrary->region);
+        $library->setDistrict($apilibrary->district);
+        $library->setContext($apilibrary->context);
+        $library->setActive($apilibrary->active);
+        $library->setIco($apilibrary->ico);
+        $library->setDic($apilibrary->dic);
+        $library->setMvsDescription($apilibrary->mvs_description);
+        $library->setMvsUrl($apilibrary->mvs_url);
+        $library->setUrl($apilibrary->url);
+
+        return $library;
+
 
     }
 
