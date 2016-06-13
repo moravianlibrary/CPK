@@ -73,10 +73,12 @@ class Loader {
         }
         $library->faxes = $faxes;
         
-        $apiOpeningHours = $apilibrary->opening_hours;
-        $openingHours = new OpeningHours($apiOpeningHours);
+        if(isset($apilibrary->opening_hours) && ! empty($apilibrary->opening_hours)) {
+            $apiOpeningHours = $apilibrary->opening_hours;
+            $openingHours = new OpeningHours($apiOpeningHours);
 
-        $library->opening_hours = $openingHours;
+            $library->opening_hours = $openingHours;
+        }
 
         foreach ($apilibrary->projects as $apiproject) {
             $project = new Project($apiproject);
