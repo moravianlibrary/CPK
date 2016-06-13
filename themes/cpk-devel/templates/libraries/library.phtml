@@ -9,7 +9,11 @@
 <div class='row'>
   <div class="col-md-6 library-detail">
     <h1><?=$library->getName()?></h1>
+    <? if ($library->getAddress()!=null):?>
     <h2><i class="pr-location-pinmap5"></i><?=$library->getAddress()?></h2>
+    <? endif; ?>
+
+    <? if ($library->opening_hours!=null):?>
     <h2><i class="pr-interface-clocktime"></i>Otevírací doba</h2>
       <table>
         <tr>
@@ -42,27 +46,43 @@
         </tr>
 
       </table>
+    <? endif; ?>
 <!--    <h2><i class="pr-web-linkurl"></i>Odkazy</h2>-->
-    <h2><i class="pr-web-browseinternetnetwork"></i>Webové stránky</h2>
-    <? foreach ($library->websites as $website):?>
-      <p><a href="<?=$website->getUrl()?>"><?=$website->getNote()?></a></p>
-    <? endforeach; ?>
-    <h2><i class="pr-interface-circlerighttrue"></i>Služby</h2>
-    <? foreach ($library->services as $service):?>
-      <p><?=$service->getName()?></p>
-    <? endforeach; ?>
-    <h2><i class="pr-interface-circlerighttrue"></i>Projekty</h2>
-    <? foreach ($library->projects as $project):?>
-      <p><?=$project->getName()?></p>
-    <? endforeach; ?>
-    <h2><i class="pr-communication-phonecall"></i>Telefon</h2>
-    <? foreach ($library->phones as $phone):?>
-      <p><?=$phone->getPhone()?></p>
-    <? endforeach; ?>
-    <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
-    <? foreach ($library->emails as $email):?>
-      <p><a href="<?=$email->getEmail()?>"><?=$email->getNote()?></a></p>
-    <? endforeach; ?>
+
+    <? if ($library->websites!=null):?>
+      <h2><i class="pr-web-browseinternetnetwork"></i>Webové stránky</h2>
+      <? foreach ($library->websites as $website):?>
+        <p><a href="<?=$website->getUrl()?>"><?=$website->getNote()?></a></p>
+      <? endforeach; ?>
+    <? endif; ?>
+
+    <? if ($library->services!=null):?>
+      <h2><i class="pr-interface-circlerighttrue"></i>Služby</h2>
+      <? foreach ($library->services as $service):?>
+        <p><?=$service->getName()?></p>
+      <? endforeach; ?>
+    <? endif; ?>
+
+    <? if ($library->projects!=null):?>
+      <h2><i class="pr-interface-circlerighttrue"></i>Projekty</h2>
+      <? foreach ($library->projects as $project):?>
+        <p><?=$project->getName()?></p>
+      <? endforeach; ?>
+    <? endif; ?>
+
+    <? if ($library->phones!=null):?>
+      <h2><i class="pr-communication-phonecall"></i>Telefon</h2>
+      <? foreach ($library->phones as $phone):?>
+        <p><?=$phone->getPhone()?></p>
+      <? endforeach; ?>
+    <? endif; ?>
+
+    <? if ($library->emails!=null):?>
+      <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
+      <? foreach ($library->emails as $email):?>
+        <p><a href="<?=$email->getEmail()?>"><?=$email->getNote()?></a></p>
+      <? endforeach; ?>
+    <? endif; ?>
 
 
 
