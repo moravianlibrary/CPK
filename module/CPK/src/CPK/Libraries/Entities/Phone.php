@@ -3,5 +3,19 @@
 namespace CPK\Libraries\Entities;
 
 class Phone {
-    public $phone;
+    private $phone;
+
+    function __construct($apiobject) {
+        $this->phone = $apiobject->phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+    
+    
 }

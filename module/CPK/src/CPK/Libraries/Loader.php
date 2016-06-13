@@ -40,76 +40,52 @@ class Loader {
         $library = new FullLibrary();
         $this->ParseSimpleLibrary($apilibrary,$library);
         $library->created_at = $apilibrary->created_at;
-        $library->updated_at = $apilibrary->apdated_at;
+        $library->updated_at = $apilibrary->updated_at;
         foreach ($apilibrary->people as $apiperson)
         {
-            $person = new Person();
-            $person->first_name = $apiperson->first_name;
-            $person->last_name = $apiperson->last_name;
-            $person->email = $apiperson->email;
-            $person->phone = $apiperson->phone;
-            $person->degree1 = $apiperson->degree1;
-            $person->degree2 = $apiperson->degree2;
-            $person->role = $apiperson->role;
+            $person = new Person($apiperson);
             $people[] = $person;
         }
         $library->people = $people;
         
         
         foreach ($apilibrary->websites as $apiwebsite) {
-            $website = new Website();
-            $website->url = $apiwebsite->url;
-            $website->note = $apiwebsite->note;
+            $website = new Website($apiwebsite);
             $websites[] = $website;
         }
         $library->websites = $websites;
 
         foreach ($apilibrary->emails as $apiemail) {
-            $email = new Email();
-            $email->email = $apiemail->email;
-            $email->note = $apiemail->note;
+            $email = new Email($apiemail);
             $emails[] = $email;
         }
         $library->emails = $emails;
         
         foreach ($apilibrary->phones as $apiphone) {
-            $phone = new Phone();
-            $phone->phone = $apiphone->phone;
+            $phone = new Phone($apiphone);
             $phones[] = $phone;
         }
         $library->phones = $phones;
         
         foreach ($apilibrary->faxes as $apifax) {
-            $fax = new Fax();
-            $fax->fax = $apifax->fax;
+            $fax = new Fax($apifax);
             $faxes[] = $fax;
         }
         $library->faxes = $faxes;
         
         $apiOpeningHours = $apilibrary->opening_hours;
-        $openingHours = new OpeningHours();
-        $openingHours->mo = $apiOpeningHours->mo;
-        $openingHours->tu = $apiOpeningHours->tu;
-        $openingHours->we = $apiOpeningHours->we;
-        $openingHours->th = $apiOpeningHours->th;
-        $openingHours->fr = $apiOpeningHours->fr;
-        $openingHours->sa = $apiOpeningHours->sa;
-        $openingHours->su = $apiOpeningHours->su;
-        $openingHours->note = $apiOpeningHours->note;
+        $openingHours = new OpeningHours($apiOpeningHours);
+
         $library->opening_hours = $openingHours;
 
         foreach ($apilibrary->projects as $apiproject) {
-            $project = new Project();
-            $project->code = $apiproject->code;
-            $project->name = $apiproject->name;
+            $project = new Project($apiproject);
             $projects[] = $project;
         }
         $library->projects = $projects;
 
         foreach ($apilibrary->services as $apiservice) {
-            $service = new Service();
-            $service->code = $apiservice->code;
-            $service->name = $apiservice->name;
+            $service = new Service($apiservice);
             $services[] = $service;
         }
         $library->services = $services;

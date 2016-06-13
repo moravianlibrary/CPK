@@ -3,6 +3,29 @@
 namespace CPK\Libraries\Entities;
 
 class Email {
-    public $email;
-    public $note;
+    private $email;
+    private $note;
+
+    function __construct($apiobject) {
+        $this->email = $apiobject->email;
+        $this->note = $apiobject->note;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNote()
+    {
+        return $this->note;
+    }
+
+    
 }

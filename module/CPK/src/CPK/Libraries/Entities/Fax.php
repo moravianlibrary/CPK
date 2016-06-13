@@ -3,5 +3,20 @@
 namespace CPK\Libraries\Entities;
 
 class Fax {
-    public $fax;
+    private $fax;
+
+    function __construct($apiobject) {
+        $this->fax = $apiobject->fax;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFax()
+    {
+        return $this->fax;
+    }
+    
+    
+    
 }
