@@ -6,15 +6,66 @@
 ?>
 
 
-<h1>Knihovny</h1>
 <div class='row'>
-  <div class="col-md-6">
-    <h3><?=$library->getName()?></h3>
-    <p><?=$library->getAddress()?></p>
-    <p>Opening hours</p>
-    <p>links</p>
+  <div class="col-md-6 library-detail">
+    <h1><?=$library->getName()?></h1>
+    <h2><i class="pr-location-pinmap5"></i><?=$library->getAddress()?></h2>
+    <h2><i class="pr-interface-clocktime"></i>Otevírací doba</h2>
+      <table>
+        <tr>
+          <td><?=$this->transEsc('Monday')?></td>
+          <td><?=$library->opening_hours->getMo()?></td>
+        </tr>
+        <tr>
+          <td><?=$this->transEsc('Tuesday')?></td>
+          <td><?=$library->opening_hours->getTu()?></td>
+        </tr>
+        <tr>
+          <td><?=$this->transEsc('Wednesday')?></td>
+          <td><?=$library->opening_hours->getWe()?></td>
+        </tr>
+        <tr>
+          <td><?=$this->transEsc('Thursday')?></td>
+          <td><?=$library->opening_hours->getTh()?></td>
+        </tr>
+        <tr>
+          <td><?=$this->transEsc('Friday')?></td>
+          <td><?=$library->opening_hours->getFr()?></td>
+        </tr>
+        <tr>
+          <td><?=$this->transEsc('Saturday')?></td>
+          <td><?=$library->opening_hours->getSa()?></td>
+        </tr>
+        <tr>
+          <td><?=$this->transEsc('Sunday')?></td>
+          <td><?=$library->opening_hours->getSu()?></td>
+        </tr>
 
-    <p>More info</p>
+      </table>
+<!--    <h2><i class="pr-web-linkurl"></i>Odkazy</h2>-->
+    <h2><i class="pr-web-browseinternetnetwork"></i>Webové stránky</h2>
+    <? foreach ($library->websites as $website):?>
+      <p><a href="<?=$website->getUrl()?>"><?=$website->getNote()?></a></p>
+    <? endforeach; ?>
+    <h2><i class="pr-interface-circlerighttrue"></i>Služby</h2>
+    <? foreach ($library->services as $service):?>
+      <p><?=$service->getName()?></p>
+    <? endforeach; ?>
+    <h2><i class="pr-interface-circlerighttrue"></i>Projekty</h2>
+    <? foreach ($library->projects as $project):?>
+      <p><?=$project->getName()?></p>
+    <? endforeach; ?>
+    <h2><i class="pr-communication-phonecall"></i>Telefon</h2>
+    <? foreach ($library->phones as $phone):?>
+      <p><?=$phone->getPhone()?></p>
+    <? endforeach; ?>
+    <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
+    <? foreach ($library->emails as $email):?>
+      <p><a href="<?=$email->getEmail()?>"><?=$email->getNote()?></a></p>
+    <? endforeach; ?>
+
+
+
 
 
   </div>
@@ -32,7 +83,7 @@
           zoom: 7,
           center: myLatLng
         });
-        var position = {lat: 49.78, lng: 15.39};
+        var position = {lat: <?=$library->getLatitude() ?>, lng: <?=$library->getLongitude() ?>};
         var marker = new google.maps.Marker({
           position: position,
           map: map,
