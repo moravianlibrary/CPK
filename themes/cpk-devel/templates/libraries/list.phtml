@@ -35,12 +35,14 @@
     center: myLatLng
     });
     <? foreach ($this->libraries as $library):?>
-      var position = {lat: <?=$library->getLatitude() ?>, lng: <?=$library->getLongitude() ?>};
-      var marker = new google.maps.Marker({
-      position: position,
-      map: map,
-      title: '<?=$library->getName() ?>'
-      });
+      <? if (($library->getLatitude()!=null)||($library->getLongitude()!=null)):?>
+        var position = {lat: <?=$library->getLatitude() ?>, lng: <?=$library->getLongitude() ?>};
+        var marker = new google.maps.Marker({
+        position: position,
+        map: map,
+        title: '<?=$library->getName() ?>'
+        });
+      <? endif; ?>
     <? endforeach; ?>
     }
     </script>
