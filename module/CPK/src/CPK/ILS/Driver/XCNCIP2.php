@@ -761,7 +761,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus');
 
                 if (! empty($status) && (string) $status[0] == 'On Loan') {
-                    $dueDate = $this->useXPath($holdingSet, 'HoldingsSet/ItemInformation/DateDue');
+                    $dueDate = $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/DateDue');
                     $dueDate = $this->parseDate($dueDate);
                 } else {
                     $dueDate = false;
@@ -1265,7 +1265,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'excluded' => $excluded
             );
         }
-        if (empty($fines) && ! empty($monetaryValue)) $fines[] = array(
+        if (empty($fines) && ! empty($monetaryValue) && (int) $monetaryValue[0] != 0) $fines[] = array(
                 'amount' => (string) $monetaryValue[0],
                 'balance' => (string) $monetaryValue[0]
             );
