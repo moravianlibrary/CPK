@@ -184,6 +184,9 @@ obalky.display_thumbnail_cover_without_links = function (element, bibinfo, query
 	      }
 	    }
 	    img.src = obalky.coverUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
+	    if (bibinfo.cover_medium_url) {
+	        img.src = bibinfo.cover_medium_url;
+	    }
 	  });
 }
 
@@ -197,7 +200,6 @@ obalky.display_authority_cover = function (element, bibinfo, query) {
           $(element).html("<div class='cover_thumbnail'><img align='left' src='" + img.src + "' alt='" + obalky.coverText + "'></img></div>");
         }
       }
-      img.src = obalky.coverUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
       img.src = bibinfo.cover_medium_url;
     });
 }

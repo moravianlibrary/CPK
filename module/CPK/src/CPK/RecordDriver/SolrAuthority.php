@@ -43,6 +43,19 @@ class SolrAuthority extends ParentSolrMarc
         return $name;
     }
 
+    /**
+     * Get the authority's name, shown as title of record.
+     *
+     * @return string
+     */
+    public function getHighlightedTitle()
+    {
+        $field = $this->getFieldArray('100', array('a'));
+        $name = empty($field) ? '' : $field[0];
+        if (substr($name, -1) == ',') $name = substr($name, 0, -1);
+        return $name;
+    }
+
     public function getBibinfoForObalkyKnihV3()
     {
         $bibinfo = array();
