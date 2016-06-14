@@ -80,17 +80,23 @@ class Loader {
             $library->opening_hours = $openingHours;
         }
 
-        foreach ($apilibrary->projects as $apiproject) {
-            $project = new Project($apiproject);
-            $projects[] = $project;
+        if(isset($apilibrary->projects) && ! empty($apilibrary->projects)) {
+            $projects[] = null;
+            foreach ($apilibrary->projects as $apiproject) {
+                $project = new Project($apiproject);
+                $projects[] = $project;
+            }
+            $library->projects = $projects;
         }
-        $library->projects = $projects;
 
-        foreach ($apilibrary->services as $apiservice) {
-            $service = new Service($apiservice);
-            $services[] = $service;
+        if(isset($apilibrary->services) && ! empty($apilibrary->services)) {
+            $services[] = null;
+            foreach ($apilibrary->services as $apiservice) {
+                $service = new Service($apiservice);
+                $services[] = $service;
+            }
+            $library->services = $services;
         }
-        $library->services = $services;
 
         return $library;
 
