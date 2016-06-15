@@ -27,9 +27,10 @@
  */
 namespace CPK\Auth;
 
-use VuFind\Exception\Auth as AuthException, CPK\Db\Table\User as UserTable, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Exception\VuFind\Exception as VuFindException, VuFind\Db\Row\UserCard;
+use VuFind\Exception\Auth as AuthException, CPK\Db\Row\User as UserRow, VuFind\Auth\Shibboleth as Shibboleth, VuFind\Db\Row\UserCard;
 use VuFind\Cookie\CookieManager;
 use CPK\Exception\TermsUnaccepted;
+use Zend\ServiceManager\ServiceManager;
 
 /**
  * Shibboleth authentication module.
@@ -42,6 +43,7 @@ use CPK\Exception\TermsUnaccepted;
  */
 class ShibbolethIdentityManager extends Shibboleth
 {
+
     /**
      * This is configuration filename without ini ext to use for configuration of all the IdPs we support.
      *
@@ -119,6 +121,13 @@ class ShibbolethIdentityManager extends Shibboleth
     const SEPARATOR_REGEXED = "\\.";
 
     /**
+     * Service locator to retrieve services dynamically on-demand
+     *
+     * @var ServiceManager serviceLocator
+     */
+    protected $serviceLocator = null;
+
+    /**
      * This is a standalone file with filename shibboleth.ini in localconfig/config/vufind directory
      *
      * @var \Zend\Config\Config shibbolethConfig
@@ -128,7 +137,7 @@ class ShibbolethIdentityManager extends Shibboleth
     /**
      * Holds User tableGateway to store and retrieve data from there.
      *
-     * @var UserTable $userTableGateway
+     * @var \CPK\Db\Table\User $userTableGateway
      */
     protected $userTableGateway = null;
 
@@ -170,20 +179,35 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected $session;
 
-    public function __construct(\VuFind\Config\PluginManager $configLoader, UserTable $userTableGateway, CookieManager $cookieManager)
+    /**
+     * Portal email address to send emails from.
+     *
+     * @var string
+     */
+    protected $portalMail;
+
+    public function __construct(ServiceManager $serviceLocator)
     {
+        $this->serviceLocator = $serviceLocator;
+
+        $this->userTableGateway = $serviceLocator->get('VuFind\DbTablePluginManager')->get('user');
+        $this->cookieManager = $serviceLocator->get('VuFind\CookieManager');
+
+        $configLoader = $serviceLocator->get('VuFind\Config');
+
         $this->shibbolethConfig = $configLoader->get(static::CONFIG_FILE_NAME);
 
         if (empty($this->shibbolethConfig)) {
             throw new AuthException("Could not load " . static::CONFIG_FILE_NAME . ".ini configuration file.");
         }
 
-        $this->userTableGateway = $userTableGateway;
-
-        $this->cookieManager = $cookieManager;
-
         // Set up session:
         $this->session = new \Zend\Session\Container('Account');
+
+        if (isset($configLoader->get('config')->Mail->from))
+            $this->portalMail = $configLoader->get('config')->Mail->from;
+        else
+            throw new AuthException('Configuration [Mail] -> from not found! Exiting now ...');
     }
 
     public function authenticate($request, UserRow $userToConnectWith = null)
@@ -216,11 +240,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $attributes = $this->fetchAttributes($config);
 
-        $eppn = $this->fetchEduPersonPrincipalName();
-
-        if (empty($eppn)) {
-            throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
-        }
+        $eppn = $this->getEduPersonPrincipalName($homeLibrary, $entityId);
 
         $this->session->eppnLoggedInWith = $eppn;
         $this->session->eidLoggedInWith = $entityId;
@@ -237,7 +257,7 @@ class ShibbolethIdentityManager extends Shibboleth
             if (! $termsAgreed)
                 throw new TermsUnaccepted();
 
-            // Create new consolidation cookie so user can immediately connect new account
+                // Create new consolidation cookie so user can immediately connect new account
             $createConsolidationCookie = true;
         } else {
             $createConsolidationCookie = false;
@@ -457,7 +477,7 @@ class ShibbolethIdentityManager extends Shibboleth
         if (! $userToConnectWith) {
 
             // unset the cookie
-            setcookie(static::CONSOLIDATION_TOKEN_TAG, null, -1, '/');
+            setcookie(static::CONSOLIDATION_TOKEN_TAG, null, - 1, '/');
 
             throw new AuthException($this->translate('The consolidation has expired. Please authenticate again.'));
         }
@@ -711,9 +731,44 @@ class ShibbolethIdentityManager extends Shibboleth
         return isset($_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV]) ? $_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV] : null;
     }
 
-    protected function fetchEduPersonPrincipalName()
+    /**
+     * Gets the mandatory eduPersonPrincipalName.
+     *
+     * Throws an exception if not provided by the IdP & sends an email to appropriate technical contact
+     *
+     * @param string $homeLibrary
+     * @param string $entityId
+     * @throws AuthException
+     * @return string $eppn
+     */
+    protected function getEduPersonPrincipalName($homeLibrary, $entityId)
     {
-        return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
+        $eppnExists = isset($_SERVER['eduPersonPrincipalName']);
+
+        if ($eppnExists)
+            return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
+        else {
+
+            $mailer = $this->serviceLocator->get('VuFind\Mailer');
+
+            if (isset($_SERVER['Meta-technicalContact']))
+                $technicalContacts = $_SERVER['Meta-technicalContact'];
+            else
+                throw new AuthException('Could not find the technical contact in metadata, or Shibboleth SP is incorrectly configured.');
+
+            $testingUrl = $this->getSessionInitiatorForEntityId($entityId);
+
+            $view = $this->serviceLocator->get('viewmanager')->getRenderer();
+
+            $body = $view->partial('Email/eppn-missing.phtml', [
+                'entityId' => $entityId,
+                'testingUrl' => $testingUrl
+            ]);
+
+            $mailer->send($technicalContacts, $this->portalMail, $this->translate('eppn_missing_mail_subject'), $body);
+
+            throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
+        }
     }
 
     /**

@@ -95,13 +95,7 @@ class Factory
 
     public static function getShibbolethIdentityManager(ServiceManager $sm) {
 
-        $sl = $sm->getServiceLocator();
-
-        return new ShibbolethIdentityManager(
-            $sl->get('VuFind\Config'),
-            $sl->get('VuFind\DbTablePluginManager')->get('user'),
-            $sl->get('VuFind\CookieManager')
-            );
+        return new ShibbolethIdentityManager($sm->getServiceLocator());
     }
 
     /**
