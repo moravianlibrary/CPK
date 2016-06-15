@@ -765,7 +765,7 @@ class ShibbolethIdentityManager extends Shibboleth
                 'testingUrl' => $testingUrl
             ]);
 
-            $mailer->send($technicalContacts, $this->portalMail, $this->translate('eppn_missing_mail_subject'), $body);
+            $mailer->send($technicalContacts, $this->portalMail, $this->translate('eppn_missing_mail_subject'), $body, $this->portalMail);
 
             throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
         }
