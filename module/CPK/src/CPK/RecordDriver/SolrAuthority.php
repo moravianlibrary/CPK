@@ -76,6 +76,17 @@ class SolrAuthority extends ParentSolrMarc
     }
 
     /**
+     * Get the authority's bibliographic details.
+     *
+     * @return array $field
+     */
+    public function getSummary()
+    {
+        $field = $this->getFieldArray('678', array('a'));
+        return empty($field) ? '' : $field;
+    }
+
+    /**
      * Get authority's e-version links.
      *
      * @return array
