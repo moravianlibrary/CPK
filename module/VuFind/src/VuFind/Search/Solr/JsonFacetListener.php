@@ -193,7 +193,7 @@ class JsonFacetListener
             return $this->getNestedFacetConfig($field, $limit, $filters);
         }
         $data = [
-                'type' => 'terms',
+                'type'  => 'terms',
                 'field' => $field,
                 'limit' => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
         ];
@@ -224,6 +224,7 @@ class JsonFacetListener
         $config['facet'][$facetField] = [
             'type'     => 'terms',
             'field'    => $facetField,
+            'mincount' => 0,
             'limit'    => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
         ];
         if ($this->parentCount) {
