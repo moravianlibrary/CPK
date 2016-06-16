@@ -127,7 +127,13 @@ class RecordCollection extends AbstractRecordCollection
             if (isset($this->response['facets'])) {
                 foreach ($this->response['facets'] as $field => $facet) {
                     if (is_array($facet)) {
-                        foreach ($facet['buckets'] as $bucket) {
+                        $buckets = [];
+                        if (isset($facet['buckets'])) {
+                            $buckets = $facet['buckets'];
+                        } else if (isset($facet[$field]['buckets'])) {
+                            $buckets = $facet[$field]['buckets'];
+                        }
+                        foreach ($buckets as $bucket) {
                             $value = $bucket['val'];
                             $count = $bucket['count'];
                             $facets['facet_fields'][$field][] = [$value, $count];

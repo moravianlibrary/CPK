@@ -148,11 +148,11 @@ class JsonFacetListener
         if (!$params) {
             return;
         }
-        $this->transformFacetQueries($params);
-        $this->transformFacets($params);
+        $nestedFilters = $this->transformFacetQueries($params);
+        $this->transformFacets($params, $nestedFilters);
     }
 
-    protected function transformFacets($params)
+    protected function transformFacets($params, $nestedFilters)
     {
         $defaultFacetLimit = $params->get('facet.limit')[0];
         $jsonFacetData = [];
@@ -169,7 +169,7 @@ class JsonFacetListener
                     if (!isset($limit)) {
                         $limit = $defaultFacetLimit;
                     }
-                    $jsonFacetData[$field] = $this->getFacetConfig($field, $limit);
+                    $jsonFacetData[$field] = $this->getFacetConfig($field, $limit, $nestedFilters);
                 } else {
                     $remaining[] = $facetField;
                 }
@@ -182,26 +182,21 @@ class JsonFacetListener
         }
 
         if (!empty($jsonFacetData)) {
-            $this->logger->info("json.facet: " . print_r($jsonFacetData, true));
+            $this->logger->info("json.facet: " . json_encode($jsonFacetData, JSON_PRETTY_PRINT));
             $params->set('json.facet', json_encode($jsonFacetData));
         }
     }
 
-    protected function getFacetConfig($field, $limit)
+    protected function getFacetConfig($field, $limit, $filters)
     {
+        if (in_array($field, $this->nestedFacets)) {
+            return $this->getNestedFacetConfig($field, $limit, $filters);
+        }
         $data = [
                 'type' => 'terms',
                 'field' => $field,
                 'limit' => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
         ];
-        if (in_array($field, $this->nestedFacets)) {
-            $data['domain'] = [ 'blockChildren' => 'merged_boolean:true' ];
-            if ($this->parentCount) {
-                $data['facet']  = [ 'count' => "unique(_root_)" ];
-            }
-        }
-        $data['excludeTags'] = [ 'nested_facet_filter' ];
-        $data['domain']['excludeTags'] = [ 'nested_facet_filter' ];
         if ($this->isOrFacet($field)) {
             $data['excludeTags'][] = $field . '_filter';
             $data['domain']['excludeTags'][] = $field . '_filter';
@@ -209,8 +204,37 @@ class JsonFacetListener
         return $data;
     }
 
+    protected function getNestedFacetConfig($facetField, $limit, $filters)
+    {
+        $q = 'merged_child_boolean:true';
+        $appliedFilters = [];
+        foreach ($filters as $field => $filter) {
+            if ($facetField != $field) {
+                $appliedFilters[] = ' ( '. $filter . ' ) ';
+            }
+        }
+        if (!empty($appliedFilters)) {
+            $q .= ' AND ' . implode(' AND ', $appliedFilters);
+        }
+        $config = [
+            'type'   => 'query',
+            'q'      => $q,
+            'domain' => [ "blockChildren" => "merged_boolean:true"],
+        ];
+        $config['facet'][$facetField] = [
+            'type'     => 'terms',
+            'field'    => $facetField,
+            'limit'    => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
+        ];
+        if ($this->parentCount) {
+            $config['facet'][$facetField]['facet'] = [ 'count' => 'unique(_root_)' ];
+        }
+        return $config;
+    }
+
     protected function transformFacetQueries($params)
     {
+        $filters = [];
         $fqs = $params->get('fq');
         $newfqs = array();
         $nestedFacets = [];
@@ -228,6 +252,7 @@ class JsonFacetListener
                     $nestedFacets[] = $fq;
                 }
                 $newfqs[] = $this->addToLocalParams($localParams, "parent which='merged_boolean:true'") . ' (' . $field . ':' . $query . ')';
+                $filters[$field][] = $query;
             } else {
                 $newfqs[] = $fq;
             }
@@ -237,6 +262,12 @@ class JsonFacetListener
         }
         $this->logger->debug("New fq parameters: " . print_r($newfqs, true));
         $params->set('fq', $newfqs);
+        $nestedFilters = array();
+        foreach ($filters as $field => $values) {
+            $operator = $this->isOrFacet($field) ? 'OR' : 'AND';
+            $nestedFilters[$field] = implode(' ' . $operator . ' ' , $values);
+        }
+        return $nestedFilters;
     }
 
     protected function addToLocalParams($localParams, $newParam)
