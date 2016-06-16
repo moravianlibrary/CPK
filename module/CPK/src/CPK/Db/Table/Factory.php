@@ -164,6 +164,21 @@ class Factory
     }
 
     /**
+     * Construct the favorite_authors table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return MostWanted
+     */
+    public static function getFavoriteAuthors(ServiceManager $sm)
+    {
+        return new FavoriteAuthors($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
      * Construct the libraries_geolocations table.
      *
      * @param ServiceManager $sm

@@ -353,7 +353,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $widgetsTable = $this->getTable('widgets');
         $widgets = $widgetsTable->getAllWidgets();
 
-        $widgets = ['most_wanted', 'events', 'infobox'];
+        $widgets = ['most_wanted', 'events', 'infobox', 'favorite_authors'];
         $viewModel->setVariable('widgets', $widgets);
 
         return $viewModel;

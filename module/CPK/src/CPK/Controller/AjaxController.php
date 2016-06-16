@@ -1435,6 +1435,27 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
+     * Harvest most favorite authors from Solr to MySQL.
+     *
+     * @return \Zend\Http\Response
+     */
+    public function harvestFavoriteAuthorsAjax()
+    {
+        $searchController = $this->getServiceLocator()->get('searchController');
+        $records = $searchController->harvestFavoriteAuthorsAction();
+
+        $mostWantedTable = $this->getTable("favorite_authors");
+
+        try {
+            $mostWantedTable->saveRecords($records);
+        } catch (\Exception $e) {
+            return $this->output($e->getMessage(), self::STATUS_ERROR);
+        }
+
+        return $this->output('', self::STATUS_OK);
+    }
+
+    /**
      * Creates MySQL DB table libraries_geolocations
      *
      *

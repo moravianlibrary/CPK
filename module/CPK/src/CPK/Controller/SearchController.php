@@ -327,6 +327,7 @@ class SearchController extends AbstractSearch
         $this->layout()->docCount = $view->results->getResultTotal();
 
 		$view->mostWanted = $this->getMostWantedRecordsAction(5);
+		$view->favoriteAuthors= $this->getFavoriteAuthorsAction(5);
 
 		$frontendTable = $this->getTable('frontend');
         $widgets = $frontendTable->getHomepageWidgets();
@@ -626,6 +627,38 @@ class SearchController extends AbstractSearch
 	}
 
 	/**
+	 * Harvest 100 favorite authors from SOLR.
+	 * This method serves only for harvesting.
+	 *
+	 * @return array
+	 */
+	public function harvestFavoriteAuthorsAction()
+	{
+	    $mainParams = [];
+	    $mainParams['limit'] = '100';
+	    $mainParams['join'] = 'AND';
+	    $mainParams['bool0'] = [];
+	    $mainParams['bool0'][] = 'AND';
+	    $mainParams['type0'] = [];
+	    $mainParams['type0'][] = 'AllFields';
+	    $mainParams['lookfor0'] = [];
+	    $mainParams['lookfor0'][] = '';
+	    $mainParams['filter'] = [];
+	    $mainParams['filter'][] = 'inspiration:"favorite_authors"';
+
+	    $request = $this->getRequest()->getQuery()->toArray()
+	    + $mainParams;
+
+	    $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+
+	    $records = $runner->run(
+	        $request, $this->searchClassId, $this->getSearchSetupCallback()
+	        );
+
+	    return $records->getResults();
+	}
+
+	/**
 	 * Get most wanted records from MySQL
 	 *
 	 * @param  int|false   $randomLimit
@@ -640,6 +673,26 @@ class SearchController extends AbstractSearch
 	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
 	    foreach ($records as $key => $record) {
 	       $records[$key]['driver'] = $recordLoader->load($record['record_id']);
+	    }
+
+	    return $records;
+	}
+
+	/**
+	 * Get favorite authors from MySQL
+	 *
+	 * @param  int|false   $randomLimit
+	 *
+	 * @return array
+	 */
+	public function getFavoriteAuthorsAction($randomLimit = false)
+	{
+	    $favoriteAuthorsTable = $this->getTable("favoriteauthors");
+	    $records = $favoriteAuthorsTable->getRecords($randomLimit);
+
+	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+	    foreach ($records as $key => $record) {
+	        $records[$key]['driver'] = $recordLoader->load($record['authority_id']);
 	    }
 
 	    return $records;

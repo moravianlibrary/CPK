@@ -66,6 +66,7 @@ $config = array(
                     'inst_translations' => 'CPK\Db\Table\Factory::getInstitutionsTranslations',
                     'inst_configs' => 'CPK\Db\Table\Factory::getInstitutionsConfigs',
                     'mostwanted' => 'CPK\Db\Table\Factory::getMostWanted',
+                    'favorite_authors' => 'CPK\Db\Table\Factory::getFavoriteAuthors',
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
                     'widgets' => 'CPK\Db\Table\Factory::getWidgets'
