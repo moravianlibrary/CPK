@@ -400,3 +400,14 @@ UPDATE `system` SET `value`='31' WHERE `key`='DB_VERSION';
 ALTER TABLE `user_card` CHANGE `eppn` `eppn` VARCHAR(255) NULL DEFAULT NULL;
 
 UPDATE `system` SET `value`='32' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `favorite_authors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `authority_id` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `authority_name` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `short_note_cs` text COLLATE utf8_unicode_ci NOT NULL,
+  `short_note_en` text COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+UPDATE `system` SET `value`='33' WHERE `key`='DB_VERSION';
