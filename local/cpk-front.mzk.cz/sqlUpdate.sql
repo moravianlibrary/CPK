@@ -411,3 +411,30 @@ CREATE TABLE IF NOT EXISTS `favorite_authors` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 UPDATE `system` SET `value`='33' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `email_types` (
+`id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` varchar(63) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `delay` time NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `key` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Email types for determining email type being sent with appropriate time delay';
+
+INSERT INTO `email_types` (`id`, `key`, `name`, `delay`) VALUES
+(1, 'idp_no_eppn', 'IdP gate did not send the eduPersonPrincipalName', '23:59:59'),
+(2, 'ils_api_not_available', 'The API for ILS is not available at the moment', '02:30:00');
+
+CREATE TABLE IF NOT EXISTS `email_delayer` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `type` int(11) NOT NULL,
+  `last_sent` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `email_type` (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Email delayer for determining delays between each warning email sent to an email';
+
+ALTER TABLE `email_delayer`
+  ADD CONSTRAINT `email_type` FOREIGN KEY (`type`) REFERENCES `vufind`.`email_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+UPDATE `system` SET `value`='34' WHERE `key`='DB_VERSION';
