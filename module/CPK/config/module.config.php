@@ -70,6 +70,7 @@ $config = array(
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
                     'widgets' => 'CPK\Db\Table\Factory::getWidgets',
+                    'infobox' => 'CPK\Db\Table\Factory::getInfobox',
                     'email_delayer' => 'CPK\Db\Table\Factory::getEmailDelayer',
                     'email_types' => 'CPK\Db\Table\Factory::getEmailTypes'
                 ], /* factories */

@@ -50,7 +50,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getHighlightedTitle()
     {
-        $field = $this->getFieldArray('100', array('a'));
+        $field = $this->getFieldArray('100', array('a', 'd'));
         $name = empty($field) ? '' : $field[0];
         if (substr($name, -1) == ',') $name = substr($name, 0, -1);
         return $name;

@@ -224,6 +224,21 @@ class Factory
     }
 
     /**
+     * Construct the infobox table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return Infobox
+     */
+    public static function getInfobox(ServiceManager $sm)
+    {
+        return new Infobox($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
      * Construct the email_delayer table.
      *
      * @param ServiceManager $sm

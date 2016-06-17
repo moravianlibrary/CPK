@@ -1,6 +1,6 @@
 <?php
 /**
- * Table Definition for MostWanted
+ * Table Definition for Infobox
  *
  * PHP version 5
  *
@@ -37,7 +37,7 @@ use VuFind\Db\Table\Gateway,
     Zend\Db\Sql\Expression;
 
 /**
- * Table Definition for MostWanted
+ * Table Definition for Infobox
  *
  * @category VuFind2
  * @package  Db_Table
@@ -45,7 +45,7 @@ use VuFind\Db\Table\Gateway,
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org Main Site
  */
-class MostWanted extends Gateway
+class Infobox extends Gateway
 {
     /**
      * @var \Zend\Config\Config
@@ -62,7 +62,7 @@ class MostWanted extends Gateway
     public function __construct(Config $config)
     {
         $this->config = $config;
-        parent::__construct('most_wanted', 'CPK\Db\Row\MostWanted');
+        parent::__construct('infobox', 'CPK\Db\Row\Infobox');
     }
 
     /**
@@ -128,21 +128,13 @@ class MostWanted extends Gateway
     }
 
     /**
-     * Returns array of MostWanted records from table
-     *
-     * @param   int|false   $randomLimit
+     * Returns all infobox items
      *
      * @return array
      */
-    public function getRecords($randomLimit = false)
+    public function getItems()
     {
         $select = new Select($this->table);
-
-        if ($randomLimit) {
-            $select->limit($randomLimit);
-        }
-
-        $select->order(new Expression('RAND()'));
 
         $results= $this->executeAnyZendSQLSelect($select);
 
@@ -153,44 +145,71 @@ class MostWanted extends Gateway
     }
 
     /**
-     * Replace table content with new records
+     * Returns actual infobox items
      *
-     * @param array $records
+     * @param   int|false   $randomLimit
+     *
+     * @return array
+     */
+    public function getActualItems($randomLimit = false)
+    {
+        $select = new Select($this->table);
+
+        $condition = "NOW() BETWEEN date_from AND date_to";
+
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        if ($randomLimit) {
+            $select->limit($randomLimit);
+        }
+
+        $results = $this->executeAnyZendSQLSelect($select);
+
+        $resultSet = new \Zend\Db\ResultSet\ResultSet();
+        $resultSet->initialize($results);
+
+        return $resultSet->toArray();
+    }
+
+    /**
+     * Insert a new row to table
+     *
+     * @param array $data
      *
      * @return void
      */
-    public function saveRecords($records)
+    public function addItem(array $data)
     {
-        /* Truncate table */
-        $delete = new Delete($this->table);
+        $insert = new Insert($this->table);
 
-        $delete->where([
-            "1=1"
+        $insert->values([
+            'title_cs' => $data['title_cs'],
+            'title_en' => $data['title_en'],
+            'text_cs' => $data['text_cs'],
+            'text_en' => $data['text_en'],
+            'date_from' => $data['date_from'],
+            'date_to' => $data['date_to']
         ]);
 
-        $this->executeAnyZendSQLDelete($delete);
+        $this->executeAnyZendSQLInsert($insert);
+    }
 
-        /* Insert new records */
-        $arrayOfValues = [];
+    /**
+     * Remove row from table by id
+     *
+     * @param int $id
+     *
+     * @return array
+     */
+    public function removeItem($id)
+    {
+        $update = new Delete($this->table);
 
-        foreach($records as $record) {
-            $title = $record->getTitle();
+        $update->where([
+            'id' => $id
+        ]);
 
-            $authors = $record->getDeduplicatedAuthors();
-            $author = $authors['main'];
-
-            $recordId = $record->getUniqueID();
-
-            $arrayOfValues = [
-                'record_id' => $recordId,
-                'title' => $title,
-                'author' => $author
-            ];
-
-            /* @FIXME: Rewrite this to INSERT all rows at once */
-            $insert = new Insert($this->table);
-            $insert->values($arrayOfValues);
-            $this->executeAnyZendSQLInsert($insert);
-        }
+        $this->executeAnyZendSQLDelete($update);
     }
 }

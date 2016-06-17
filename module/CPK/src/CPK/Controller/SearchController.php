@@ -328,6 +328,7 @@ class SearchController extends AbstractSearch
 
 		$view->mostWanted = $this->getMostWantedRecordsAction(5);
 		$view->favoriteAuthors= $this->getFavoriteAuthorsAction(5);
+		$view->infobox= $this->getInfoboxAction(5);
 
 		$frontendTable = $this->getTable('frontend');
         $widgets = $frontendTable->getHomepageWidgets();
@@ -696,6 +697,21 @@ class SearchController extends AbstractSearch
 	    }
 
 	    return $records;
+	}
+
+	/**
+	 * Get infobox from MySQL
+	 *
+	 * @param  int|false   $randomLimit
+	 *
+	 * @return array
+	 */
+	public function getInfoboxAction($randomLimit = false)
+	{
+	    $infoboxTable = $this->getTable("infobox");
+	    $infoboxItems = $infoboxTable->getActualItems($randomLimit);
+
+	    return $infoboxItems;
 	}
 
 	/**

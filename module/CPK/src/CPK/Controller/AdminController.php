@@ -360,6 +360,78 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     * Infobox manager
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function infoboxAction()
+    {
+        if (! $this->accessManager->isLoggedIn()) {
+            return $this->forceLogin();
+        }
+
+        // Must be an portal admin ..
+        $this->accessManager->assertIsPortalAdmin();
+
+        /*
+         * Handle subactions
+         * */
+        $subAction = $this->params()->fromRoute('subaction');
+        if ($subAction == 'CreateItem') {
+            $user = $this->accessManager->getUser();
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setTemplate('admin/widgets/infobox/create-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'AddItem') {
+            $post = $this->params()->fromPost();
+
+            $data = [];
+            $data['title_cs']  = $post['title_cs'];
+            $data['title_en']  = $post['title_en'];
+            $data['text_cs']  = $post['text_cs'];
+            $data['text_en']  = $post['text_en'];
+            $data['date_from']  = $post['date_from'].' 00:00:00';
+            $data['date_to']  = $post['date_to'].' 00:00:00';
+
+            $infoboxTable = $this->getTable('infobox');
+            $infobox = $infoboxTable->addItem($data);
+        }
+
+        if ($subAction == 'RemoveItem') {
+            $post = $this->params()->fromPost();
+
+            $data = [];
+            $data['id']  = $post['id'];
+
+            $infoboxTable = $this->getTable('infobox');
+            $infobox = $infoboxTable->removeItem($data['id']);
+        }
+
+        $user = $this->accessManager->getUser();
+
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('user', $user);
+        $viewModel->setTemplate('admin/widgets/infobox/list');
+
+        $this->layout()->searchbox = false;
+
+        $infoboxTable = $this->getTable('infobox');
+        $infobox = $infoboxTable->getItems();
+
+        $viewModel->setVariable('infobox', $infobox);
+
+        return $viewModel;
+    }
+
+    /**
      * Overriden createViewModel which accepts template as the 2nd arg.
      *
      * {@inheritDoc}

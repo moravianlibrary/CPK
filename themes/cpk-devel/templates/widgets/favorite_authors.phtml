@@ -15,7 +15,7 @@
 
                 <? if ($bibinfo = $this->record($author['driver'])->getObalkyKnihJSONV3()): ?>
                     <script type="text/javascript">
-                        obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($author['authority_name'])?>);
+                        obalky.display_authority_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($author['authority_name'])?>);
                     </script>
                 <? endif;?>
 

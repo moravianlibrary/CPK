@@ -41,37 +41,52 @@ class Loader {
         $this->ParseSimpleLibrary($apilibrary,$library);
         $library->created_at = $apilibrary->created_at;
         $library->updated_at = $apilibrary->updated_at;
-        foreach ($apilibrary->people as $apiperson)
-        {
-            $person = new Person($apiperson);
-            $people[] = $person;
-        }
-        $library->people = $people;
-        
-        
-        foreach ($apilibrary->websites as $apiwebsite) {
-            $website = new Website($apiwebsite);
-            $websites[] = $website;
-        }
-        $library->websites = $websites;
 
-        foreach ($apilibrary->emails as $apiemail) {
-            $email = new Email($apiemail);
-            $emails[] = $email;
+        if(isset($apilibrary->people) && ! empty($apilibrary->people)) {
+            $projects = [];
+            foreach ($apilibrary->people as $apiperson) {
+                $person = new Person($apiperson);
+                $people[] = $person;
+            }
+            $library->people = $people;
         }
-        $library->emails = $emails;
-        
-        foreach ($apilibrary->phones as $apiphone) {
-            $phone = new Phone($apiphone);
-            $phones[] = $phone;
+
+
+        if(isset($apilibrary->websites) && ! empty($apilibrary->websites)) {
+            $projects = [];
+            foreach ($apilibrary->websites as $apiwebsite) {
+                $website = new Website($apiwebsite);
+                $websites[] = $website;
+            }
+            $library->websites = $websites;
         }
-        $library->phones = $phones;
-        
-        foreach ($apilibrary->faxes as $apifax) {
-            $fax = new Fax($apifax);
-            $faxes[] = $fax;
+
+        if(isset($apilibrary->emails) && ! empty($apilibrary->emails)) {
+            $services = [];
+            foreach ($apilibrary->emails as $apiemail) {
+                $email = new Email($apiemail);
+                $emails[] = $email;
+            }
+            $library->emails = $emails;
         }
-        $library->faxes = $faxes;
+
+        if(isset($apilibrary->phones) && ! empty($apilibrary->phones)) {
+            $services = [];
+            foreach ($apilibrary->phones as $apiphone) {
+                $phone = new Phone($apiphone);
+                $phones[] = $phone;
+            }
+            $library->phones = $phones;
+        }
+
+        if(isset($apilibrary->faxes) && ! empty($apilibrary->faxes)) {
+            $services = [];
+            foreach ($apilibrary->faxes as $apifax) {
+                $fax = new Fax($apifax);
+                $faxes[] = $fax;
+            }
+            $library->faxes = $faxes;
+        }
         
         if(isset($apilibrary->opening_hours) && ! empty($apilibrary->opening_hours)) {
             $apiOpeningHours = $apilibrary->opening_hours;
@@ -81,7 +96,7 @@ class Loader {
         }
 
         if(isset($apilibrary->projects) && ! empty($apilibrary->projects)) {
-            $projects[] = null;
+            $projects = [];
             foreach ($apilibrary->projects as $apiproject) {
                 $project = new Project($apiproject);
                 $projects[] = $project;
@@ -90,7 +105,7 @@ class Loader {
         }
 
         if(isset($apilibrary->services) && ! empty($apilibrary->services)) {
-            $services[] = null;
+            $services = [];
             foreach ($apilibrary->services as $apiservice) {
                 $service = new Service($apiservice);
                 $services[] = $service;
@@ -104,25 +119,44 @@ class Loader {
     }
 
     private function ParseSimpleLibrary($apilibrary,SimpleLibrary $libraryObject) {
-        $libraryObject->setSigla($apilibrary->sigla);
-        $libraryObject->setName($apilibrary->name);
-        $libraryObject->setNameen($apilibrary->name_en);
-        $libraryObject->setCode($apilibrary->code);
-        $libraryObject->setCity($apilibrary->city);
-        $libraryObject->setStreet($apilibrary->street);
-        $libraryObject->setZip($apilibrary->zip);
-        $libraryObject->setLongitude($apilibrary->longitude);
-        $libraryObject->setLatitude($apilibrary->latitude);
-        $libraryObject->setDescription($apilibrary->description);
-        $libraryObject->setRegion($apilibrary->region);
-        $libraryObject->setDistrict($apilibrary->district);
-        $libraryObject->setContext($apilibrary->context);
-        $libraryObject->setActive($apilibrary->active);
-        $libraryObject->setIco($apilibrary->ico);
-        $libraryObject->setDic($apilibrary->dic);
-        $libraryObject->setMvsDescription($apilibrary->mvs_description);
-        $libraryObject->setMvsUrl($apilibrary->mvs_url);
-        $libraryObject->setUrl($apilibrary->url);
+        if(isset($apilibrary->sigla) && ! empty($apilibrary->sigla))
+            $libraryObject->setSigla($apilibrary->sigla);
+        if(isset($apilibrary->name) && ! empty($apilibrary->name))
+            $libraryObject->setName($apilibrary->name);
+        if(isset($apilibrary->name_en) && ! empty($apilibrary->name_en))
+            $libraryObject->setNameen($apilibrary->name_en);
+        if(isset($apilibrary->code) && ! empty($apilibrary->code))
+            $libraryObject->setCode($apilibrary->code);
+        if(isset($apilibrary->city) && ! empty($apilibrary->city))
+            $libraryObject->setCity($apilibrary->city);
+        if(isset($apilibrary->street) && ! empty($apilibrary->street))
+            $libraryObject->setStreet($apilibrary->street);
+        if(isset($apilibrary->zip) && ! empty($apilibrary->zip))
+            $libraryObject->setZip($apilibrary->zip);
+        if(isset($apilibrary->longitude) && ! empty($apilibrary->longitude))
+            $libraryObject->setLongitude($apilibrary->longitude);
+        if(isset($apilibrary->latitude) && ! empty($apilibrary->latitude))
+            $libraryObject->setLatitude($apilibrary->latitude);
+        if(isset($apilibrary->description) && ! empty($apilibrary->description))
+            $libraryObject->setDescription($apilibrary->description);
+        if(isset($apilibrary->region) && ! empty($apilibrary->region))
+            $libraryObject->setRegion($apilibrary->region);
+        if(isset($apilibrary->district) && ! empty($apilibrary->district))
+            $libraryObject->setDistrict($apilibrary->district);
+        if(isset($apilibrary->context) && ! empty($apilibrary->context))
+            $libraryObject->setContext($apilibrary->context);
+        if(isset($apilibrary->active) && ! empty($apilibrary->active))
+            $libraryObject->setActive($apilibrary->active);
+        if(isset($apilibrary->ico) && ! empty($apilibrary->ico))
+            $libraryObject->setIco($apilibrary->ico);
+        if(isset($apilibrary->dic) && ! empty($apilibrary->dic))
+            $libraryObject->setDic($apilibrary->dic);
+        if(isset($apilibrary->mvs_description) && ! empty($apilibrary->mvs_description))
+            $libraryObject->setMvsDescription($apilibrary->mvs_description);
+        if(isset($apilibrary->mvs_url) && ! empty($apilibrary->mvs_url))
+            $libraryObject->setMvsUrl($apilibrary->mvs_url);
+        if(isset($apilibrary->url) && ! empty($apilibrary->url))
+            $libraryObject->setUrl($apilibrary->url);
     }
 
 
