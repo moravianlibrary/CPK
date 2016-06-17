@@ -131,6 +131,24 @@ class EmailDelayer extends Gateway
     }
 
     /**
+     * Clears number of attempts to send an type of mail
+     *
+     * @param unknown $to
+     * @param unknown $emailType
+     * @return void
+     * @throws \Exception
+     */
+    public function clearAttempts($to, $emailType)
+    {
+        $row = $this->getRow($to, $emailType);
+
+        if ($row !== false) {
+            $row->send_attempts_count = 0;
+            $row->save();
+        }
+    }
+
+    /**
      * Gets the number of tries within an email_delayer row.
      *
      * @param string $to

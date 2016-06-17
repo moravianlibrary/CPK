@@ -737,20 +737,23 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function getEduPersonPrincipalName($homeLibrary, $entityId)
     {
+        if (isset($_SERVER['Meta-technicalContact']))
+            $technicalContacts = $_SERVER['Meta-technicalContact'];
+        else
+            throw new AuthException('Could not find the technical contact in metadata, or Shibboleth SP is incorrectly configured.');
+
         $eppnExists = isset($_SERVER['eduPersonPrincipalName']);
 
-        if ($eppnExists)
+        if ($eppnExists) {
+
+            $this->clearNoEppnEmailAttempts($technicalContacts);
+
             return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
-        else {
+        } else {
 
             $mailer = $this->serviceLocator->get('CPK\Mailer');
 
             $mailer instanceof \CPK\Mailer\Mailer;
-
-            if (isset($_SERVER['Meta-technicalContact']))
-                $technicalContacts = $_SERVER['Meta-technicalContact'];
-            else
-                throw new AuthException('Could not find the technical contact in metadata, or Shibboleth SP is incorrectly configured.');
 
             $testingUrl = $this->getSessionInitiatorForEntityId($entityId);
 
@@ -765,6 +768,16 @@ class ShibbolethIdentityManager extends Shibboleth
 
             throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
         }
+    }
+
+    /**
+     * Same as EmailDelayer's clearAttempts method.
+     *
+     * @param string $technicalContacts
+     */
+    protected function clearNoEppnEmailAttempts($technicalContacts)
+    {
+        $this->serviceLocator->get('VuFind\DbTablePluginManager')->get('email_delayer')->clearAttempts($technicalContacts, EmailTypes::IDP_NO_EPPN);
     }
 
     /**
