@@ -16,7 +16,7 @@
 
     <? if ($library->opening_hours!=null):?>
     <h2><i class="pr-interface-clocktime"></i>Otevírací doba</h2>
-      <table>
+      <table class="table">
         <tr>
           <td><?=$this->transEsc('Monday')?></td>
           <td><?=$library->opening_hours->getMo()?></td>
