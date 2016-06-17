@@ -179,6 +179,7 @@ class Infobox extends Gateway
 
         if ($randomLimit) {
             $select->limit($randomLimit);
+            $select->order(new Expression('RAND()'));
         }
 
         $results = $this->executeAnyZendSQLSelect($select);
