@@ -186,7 +186,7 @@ class Loader {
 
         $paginationSet = [];
         if($totalPages<=5) {
-            for ($i = 1; $i <= 5; $i++) {
+            for ($i = 1; $i <= $totalPages; $i++) {
                 $paginationSet[] = $i;
             }
             return $paginationSet;
@@ -210,7 +210,7 @@ class Loader {
 
 
             sort($paginationSet);
-            
+
             return array_unique($paginationSet);
 
         }
