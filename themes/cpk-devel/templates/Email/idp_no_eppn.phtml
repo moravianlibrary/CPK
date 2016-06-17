@@ -1,0 +1,21 @@
+<? // This is a text-only email template; do not include HTML! ?>
+Dobrý den,
+
+rádi bychom Vás informovali o tom, že Vaše IdP brána s entityId "<?=$this->entityId?>" nám do portálu Knihovny.cz neposílá uživatelovo eduPersonPrincipalName, které je nutné k jeho přihlášení.
+
+Atribut eduPersonPrincipalName vyžadujeme proto, že nám poskytuje unikátní identifikátor uživatele, ke kterému v naší databázi vztahujeme uživatelovy oblíbené tituly. Atribut také používáme při propojování účtů z více institucí, ať už se jedná o knihovnu, či nikoliv.
+
+Dokud nám Vaše IdP brána nebude posílat "eppn", Vaši uživatelé se k nám nebudou moci přihlásit.
+
+Zda byl problém vyřešen můžete ověřit přihlášením se na této adrese:
+<?=$this->testingUrl?>
+
+
+Více informací o projektu a konfiguraci IdP pro zapojení do portálu naleznete na http://eduid.cz/cs/tech/sources/cpk
+
+--
+S přátelským pozdravem,
+vývojový tým Centrálního portálu knihoven.<? if (isset($this->failureTimes)): ?>
+
+
+P.S. Pokus o připojení od počátků těchto problémů selhal celkem <?=$this->failureTimes?>x<? endif; ?>

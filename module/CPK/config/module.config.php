@@ -69,7 +69,9 @@ $config = array(
                     'favorite_authors' => 'CPK\Db\Table\Factory::getFavoriteAuthors',
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
-                    'widgets' => 'CPK\Db\Table\Factory::getWidgets'
+                    'widgets' => 'CPK\Db\Table\Factory::getWidgets',
+                    'email_delayer' => 'CPK\Db\Table\Factory::getEmailDelayer',
+                    'email_types' => 'CPK\Db\Table\Factory::getEmailTypes'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'
@@ -171,7 +173,8 @@ $config = array(
             'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator',
             'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager',
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
-            'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader'
+            'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
+            'CPK\Mailer' => 'CPK\Mailer\Factory::createService'
         ), // Exceptions throwing system
 
         'invokables' => array(

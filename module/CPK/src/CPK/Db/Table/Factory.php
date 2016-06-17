@@ -222,4 +222,34 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the email_delayer table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return EmailDelayer
+     */
+    public static function getEmailDelayer(ServiceManager $sm)
+    {
+        return new EmailDelayer($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
+     * Construct the email_types table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return EmailTypes
+     */
+    public static function getEmailTypes(ServiceManager $sm)
+    {
+        return new EmailTypes($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }

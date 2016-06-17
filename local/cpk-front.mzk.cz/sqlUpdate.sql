@@ -438,3 +438,7 @@ ALTER TABLE `email_delayer`
   ADD CONSTRAINT `email_type` FOREIGN KEY (`type`) REFERENCES `vufind`.`email_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `system` SET `value`='34' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `email_delayer` ADD `send_attempts_count` INT(11) NOT NULL DEFAULT '1' ;
+
+UPDATE `system` SET `value`='35' WHERE `key`='DB_VERSION';

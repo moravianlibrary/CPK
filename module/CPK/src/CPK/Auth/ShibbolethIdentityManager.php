@@ -31,6 +31,8 @@ use VuFind\Exception\Auth as AuthException, CPK\Db\Row\User as UserRow, VuFind\A
 use VuFind\Cookie\CookieManager;
 use CPK\Exception\TermsUnaccepted;
 use Zend\ServiceManager\ServiceManager;
+use CPK\Db\Table\EmailDelayer;
+use CPK\Db\Table\EmailTypes;
 
 /**
  * Shibboleth authentication module.
@@ -179,13 +181,6 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected $session;
 
-    /**
-     * Portal email address to send emails from.
-     *
-     * @var string
-     */
-    protected $portalMail;
-
     public function __construct(ServiceManager $serviceLocator)
     {
         $this->serviceLocator = $serviceLocator;
@@ -204,10 +199,9 @@ class ShibbolethIdentityManager extends Shibboleth
         // Set up session:
         $this->session = new \Zend\Session\Container('Account');
 
-        if (isset($configLoader->get('config')->Mail->from))
-            $this->portalMail = $configLoader->get('config')->Mail->from;
-        else
-            throw new AuthException('Configuration [Mail] -> from not found! Exiting now ...');
+        $cpkMailer = $this->serviceLocator->get('CPK\Mailer');
+
+        $cpkMailer instanceof \CPK\Mailer\Mailer;
     }
 
     public function authenticate($request, UserRow $userToConnectWith = null)
@@ -745,11 +739,13 @@ class ShibbolethIdentityManager extends Shibboleth
     {
         $eppnExists = isset($_SERVER['eduPersonPrincipalName']);
 
-        if ($eppnExists)
+        if (!$eppnExists)
             return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
         else {
 
-            $mailer = $this->serviceLocator->get('VuFind\Mailer');
+            $mailer = $this->serviceLocator->get('CPK\Mailer');
+
+            $mailer instanceof \CPK\Mailer\Mailer;
 
             if (isset($_SERVER['Meta-technicalContact']))
                 $technicalContacts = $_SERVER['Meta-technicalContact'];
@@ -758,14 +754,14 @@ class ShibbolethIdentityManager extends Shibboleth
 
             $testingUrl = $this->getSessionInitiatorForEntityId($entityId);
 
-            $view = $this->serviceLocator->get('viewmanager')->getRenderer();
-
-            $body = $view->partial('Email/eppn-missing.phtml', [
+            $templateVars = [
                 'entityId' => $entityId,
                 'testingUrl' => $testingUrl
-            ]);
+            ];
 
-            $mailer->send($technicalContacts, $this->portalMail, $this->translate('eppn_missing_mail_subject'), $body, $this->portalMail);
+            $renderer = $this->serviceLocator->get('ViewRenderer');
+
+            $mailer->sendEppnMissing($technicalContacts, $renderer, $templateVars);
 
             throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
         }
