@@ -739,7 +739,7 @@ class ShibbolethIdentityManager extends Shibboleth
     {
         $eppnExists = isset($_SERVER['eduPersonPrincipalName']);
 
-        if (!$eppnExists)
+        if ($eppnExists)
             return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
         else {
 
