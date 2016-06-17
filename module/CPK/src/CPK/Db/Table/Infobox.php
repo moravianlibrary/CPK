@@ -194,4 +194,22 @@ class Infobox extends Gateway
 
         $this->executeAnyZendSQLInsert($insert);
     }
+
+    /**
+     * Remove row from table by id
+     *
+     * @param int $id
+     *
+     * @return array
+     */
+    public function removeItem($id)
+    {
+        $update = new Delete($this->table);
+
+        $update->where([
+            'id' => $id
+        ]);
+
+        $this->executeAnyZendSQLDelete($update);
+    }
 }

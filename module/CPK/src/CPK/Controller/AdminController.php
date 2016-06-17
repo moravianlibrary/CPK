@@ -404,6 +404,16 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $infobox = $infoboxTable->addItem($data);
         }
 
+        if ($subAction == 'RemoveItem') {
+            $post = $this->params()->fromPost();
+
+            $data = [];
+            $data['id']  = $post['id'];
+
+            $infoboxTable = $this->getTable('infobox');
+            $infobox = $infoboxTable->removeItem($data['id']);
+        }
+
         $user = $this->accessManager->getUser();
 
         $viewModel = $this->createViewModel();
