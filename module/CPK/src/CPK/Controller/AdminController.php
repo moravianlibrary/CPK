@@ -360,6 +360,59 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     * Infobox manager
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function infoboxAction()
+    {
+        if (! $this->accessManager->isLoggedIn()) {
+            return $this->forceLogin();
+        }
+
+        // Must be an portal admin ..
+        $this->accessManager->assertIsPortalAdmin();
+
+        /*
+         * Handle subactions
+         * */
+        $subAction = $this->params()->fromRoute('subaction');
+        if ($subAction == 'Create') {
+            /*$post = $this->params()->fromPost();
+
+            $data = [];
+            $data['first_homepage_widget']  = $post['first-homepage-widget'];
+            $data['second_homepage_widget'] = $post['second-homepage-widget'];
+            $data['third_homepage_widget']  = $post['third-homepage-widget'];
+
+            $frontendTable = $this->getTable('frontend');
+            $frontendTable->saveHomePageWidgets($data);
+
+            $data['status'] = 'OK';
+
+            $viewModel = new JsonModel($data);
+
+            return $viewModel;*/
+        }
+
+        $user = $this->accessManager->getUser();
+
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('user', $user);
+        $viewModel->setTemplate('admin/widgets/infobox');
+
+        $this->layout()->searchbox = false;
+
+        $infoboxTable = $this->getTable('infobox');
+        $infobox = $infoboxTable->getItems();
+
+        $viewModel->setVariable('infobox', $infobox);
+
+        return $viewModel;
+    }
+
+    /**
      * Overriden createViewModel which accepts template as the 2nd arg.
      *
      * {@inheritDoc}
