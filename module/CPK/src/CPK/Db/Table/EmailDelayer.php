@@ -140,7 +140,7 @@ class EmailDelayer extends Gateway
      */
     public function clearAttempts($to, $emailType)
     {
-        $row = $this->getRow($to, $emailType);
+        $row = $this->getRow($to, $emailType)[0];
 
         if ($row !== false) {
             $row->send_attempts_count = 0;
