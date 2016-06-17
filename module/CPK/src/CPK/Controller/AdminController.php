@@ -377,22 +377,31 @@ class AdminController extends \VuFind\Controller\AbstractBase
          * Handle subactions
          * */
         $subAction = $this->params()->fromRoute('subaction');
-        if ($subAction == 'Create') {
-            /*$post = $this->params()->fromPost();
+        if ($subAction == 'CreateItem') {
+            $user = $this->accessManager->getUser();
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setTemplate('admin/widgets/infobox/create-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'AddItem') {
+            $post = $this->params()->fromPost();
 
             $data = [];
-            $data['first_homepage_widget']  = $post['first-homepage-widget'];
-            $data['second_homepage_widget'] = $post['second-homepage-widget'];
-            $data['third_homepage_widget']  = $post['third-homepage-widget'];
+            $data['title_cs']  = $post['title_cs'];
+            $data['title_en']  = $post['title_en'];
+            $data['text_cs']  = $post['text_cs'];
+            $data['text_en']  = $post['text_en'];
+            $data['date_from']  = $post['date_from'].' 00:00:00';
+            $data['date_to']  = $post['date_to'].' 00:00:00';
 
-            $frontendTable = $this->getTable('frontend');
-            $frontendTable->saveHomePageWidgets($data);
-
-            $data['status'] = 'OK';
-
-            $viewModel = new JsonModel($data);
-
-            return $viewModel;*/
+            $infoboxTable = $this->getTable('infobox');
+            $infobox = $infoboxTable->addItem($data);
         }
 
         $user = $this->accessManager->getUser();
@@ -400,7 +409,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
         $viewModel->setVariable('user', $user);
-        $viewModel->setTemplate('admin/widgets/infobox');
+        $viewModel->setTemplate('admin/widgets/infobox/list');
 
         $this->layout()->searchbox = false;
 

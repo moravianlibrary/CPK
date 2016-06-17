@@ -171,4 +171,27 @@ class Infobox extends Gateway
 
         return $resultSet->toArray();
     }
+
+    /**
+     * Insert a new row to table
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public function addItem(array $data)
+    {
+        $insert = new Insert($this->table);
+
+        $insert->values([
+            'title_cs' => $data['title_cs'],
+            'title_en' => $data['title_en'],
+            'text_cs' => $data['text_cs'],
+            'text_en' => $data['text_en'],
+            'date_from' => $data['date_from'],
+            'date_to' => $data['date_to']
+        ]);
+
+        $this->executeAnyZendSQLInsert($insert);
+    }
 }
