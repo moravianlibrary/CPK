@@ -69,7 +69,8 @@ $config = array(
                     'favorite_authors' => 'CPK\Db\Table\Factory::getFavoriteAuthors',
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
-                    'widgets' => 'CPK\Db\Table\Factory::getWidgets'
+                    'widgets' => 'CPK\Db\Table\Factory::getWidgets',
+                    'infoboxitems' => 'CPK\Db\Table\Factory::getInfobox'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'

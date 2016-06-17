@@ -222,4 +222,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the infobox table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return Infobox
+     */
+    public static function getInfobox(ServiceManager $sm)
+    {
+        return new Infobox($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }

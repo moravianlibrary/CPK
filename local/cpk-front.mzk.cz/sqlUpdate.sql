@@ -438,3 +438,25 @@ ALTER TABLE `email_delayer`
   ADD CONSTRAINT `email_type` FOREIGN KEY (`type`) REFERENCES `vufind`.`email_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `system` SET `value`='34' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `infobox` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title_en` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `title_cs` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `text_en` text COLLATE utf8_unicode_ci NOT NULL,
+  `text_cs` text COLLATE utf8_unicode_ci NOT NULL,
+  `date_from` datetime NOT NULL,
+  `date_to` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+INSERT INTO `infobox` (`id`, `title_en`, `title_cs`, `text_en`, `text_cs`, `date_from`, `date_to`) VALUES
+(1, '...we are the champions?', '...jsme nejlepší?', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00'),
+(2, '...we are the champions? 2', '...jsme nejlepší? 2', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00'),
+(3, '...we are the champions? 3', '...jsme nejlepší? 3', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00'),
+(4, '...we are the champions? 4', '...jsme nejlepší? 4', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00'),
+(4, '...we are the champions? 5', '...jsme nejlepší? 5', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00');
+
+
+UPDATE `system` SET `value`='35' WHERE `key`='DB_VERSION';
+
