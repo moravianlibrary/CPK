@@ -173,6 +173,55 @@ class Loader {
         return count($this->GetAllSearchResults($query));
     }
 
+    public function GetNumberOfPages($query){
+        $count = $this->GetCountOfAllSearchResults($query);
+        return ceil($count/10);
+    }
+
+
+
+    public function GetPagination($query, $page){
+        $totalPages = $this->GetNumberOfPages($query);
+        $currentPage = $page;
+
+        $paginationSet = [];
+        if($totalPages<=5) {
+            for ($i = 1; $i <= 5; $i++) {
+                $paginationSet[] = $i;
+            }
+            return $paginationSet;
+        }
+        else {
+            $paginationSet[] = 1;
+
+            for ($i = 1; $i <= 3; $i++) {
+                $candidatePage = $currentPage - $i;
+                if ($candidatePage > 0)
+                    $paginationSet[] = $candidatePage;
+            }
+            $paginationSet[] = $currentPage;
+            for ($i = 1; $i <= 3; $i++) {
+                $candidatePage = $currentPage + $i;
+                if ($candidatePage < $totalPages)
+                    $paginationSet[] = $candidatePage;
+            }
+
+            $paginationSet[] = $totalPages;
+
+
+            sort($paginationSet);
+            
+            return array_unique($paginationSet);
+
+        }
+
+
+
+
+    }
+
+
+
 
     /**
      * @param $query

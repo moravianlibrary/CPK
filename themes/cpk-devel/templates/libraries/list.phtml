@@ -18,7 +18,19 @@
         <p><i class="pr-location-pinmap5"></i><?=$library->getAddress()?></p>
       </div>
     <? endforeach; ?>
-
+    <div class="row">
+      <div class="col-md-8" style="text-align: center">
+        <ul class="pagination" align="center">
+          <? foreach ($this->pagination as $pag):?>
+            <li <? if ($pag == $this->page): ?> class="active"<? endif; ?> >
+              <a href="/Libraries/List?query=<?=$this->query?>&page=<?=$pag?>">
+                <?=$pag?>
+              </a>
+            </li>
+          <? endforeach; ?>
+        </ul>
+      </div>
+    </div>
   </div>
   <div class="col-md-6">
     <style>
