@@ -28,7 +28,6 @@
 namespace CPK\Db\Table;
 
 use VuFind\Db\Table\Gateway,
-    VuFind\Db\Row\User,
     Zend\Config\Config,
     Zend\Db\Sql\Update,
     Zend\Db\Sql\Insert,
@@ -145,6 +144,24 @@ class Infobox extends Gateway
     }
 
     /**
+     * Return row from table
+     *
+     * @param int $id
+     *
+     * @return array
+     */
+    public function getItem($id)
+    {
+        $select = new Select($this->table);
+        $condition = "`id` = '$id'";
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $result = $this->executeAnyZendSQLSelect($select)->current();
+        return $result;
+    }
+
+    /**
      * Returns actual infobox items
      *
      * @param   int|false   $randomLimit
@@ -193,6 +210,32 @@ class Infobox extends Gateway
         ]);
 
         $this->executeAnyZendSQLInsert($insert);
+    }
+
+    /**
+     * Save edited row to table by id
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public function saveItem(array $data)
+    {
+        $update = new Update($this->table);
+
+        $update->set([
+            'title_cs' => $data['title_cs'],
+            'title_en' => $data['title_en'],
+            'text_cs' => $data['text_cs'],
+            'text_en' => $data['text_en'],
+            'date_from' => $data['date_from'],
+            'date_to' => $data['date_to']
+        ]);
+        $update->where([
+            'id' => $data['id']
+        ]);
+
+        $this->executeAnyZendSQLUpdate($update);
     }
 
     /**

@@ -389,6 +389,24 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $viewModel;
         }
 
+        if ($subAction == 'EditItem') {
+            $user = $this->accessManager->getUser();
+
+            $id = $this->params()->fromRoute('param');
+
+            $infoboxTable = $this->getTable('infobox');
+            $item = $infoboxTable->getItem($id);
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('item', $item);
+            $viewModel->setTemplate('admin/widgets/infobox/edit-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
         if ($subAction == 'AddItem') {
             $post = $this->params()->fromPost();
 
@@ -397,21 +415,34 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $data['title_en']  = $post['title_en'];
             $data['text_cs']  = $post['text_cs'];
             $data['text_en']  = $post['text_en'];
-            $data['date_from']  = $post['date_from'].' 00:00:00';
+            $data['date_from'] = $post['date_from'].' 00:00:00';
             $data['date_to']  = $post['date_to'].' 00:00:00';
 
             $infoboxTable = $this->getTable('infobox');
             $infobox = $infoboxTable->addItem($data);
         }
 
-        if ($subAction == 'RemoveItem') {
+        if ($subAction == 'SaveItem') {
             $post = $this->params()->fromPost();
 
             $data = [];
             $data['id']  = $post['id'];
+            $data['title_cs']  = $post['title_cs'];
+            $data['title_en']  = $post['title_en'];
+            $data['text_cs']  = $post['text_cs'];
+            $data['text_en']  = $post['text_en'];
+            $data['date_from'] = $post['date_from'].' 00:00:00';
+            $data['date_to']  = $post['date_to'].' 00:00:00';
 
             $infoboxTable = $this->getTable('infobox');
-            $infobox = $infoboxTable->removeItem($data['id']);
+            $infobox = $infoboxTable->saveItem($data);
+        }
+
+        if ($subAction == 'RemoveItem') {
+            $id = $this->params()->fromRoute('param');
+
+            $infoboxTable = $this->getTable('infobox');
+            $infobox = $infoboxTable->removeItem($id);
         }
 
         $user = $this->accessManager->getUser();

@@ -8,7 +8,7 @@
       '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
       '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
       '<li><a href="/Admin/Infobox">'.$this->transEsc('Infobox').'</a></li>'.
-      '<li class="active">'.$this->transEsc('Create item').'</li>';
+      '<li class="active">'.$this->transEsc('Edit item').'</li>';
 
   $this->layout()->title = $this->translate('Infobox');
 
@@ -22,43 +22,59 @@
   </div>
 
   <div class="col-sm-9" id='homepage-infobox'>
-    <h2><?=$this->translate('Create new information')?></h2>
+    <h2><?=$this->translate('Edit')?></h2>
     <div class='well'>
 	  <div class='row'>
-        <form action='/Admin/Infobox/AddItem' method='post'>
+	      <div class='admin-toolbox'>
+            <div class="dropdown pull-right">
+              <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <i class='fa fa-ellipsis-v fa-2x dropdown-toggle pointer'></i>
+              </span>
+              <ul class="dropdown-menu" aria-labelledby="actions">
+                <li>
+                  <a href='/Admin/Infobox/RemoveItem/<?= $this->item['id'] ?>'>
+                    <i class='fa fa-remove'></i>
+                    <?=$this->translate('Delete')?>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        <form action='/Admin/Infobox/SaveItem' method='post'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
+          <input type='hidden' name='id' value='<?=$this->item['id']?>'>
           <fieldset class="form-group">
             <div class="col-xs-8">
               <label><?=$this->translate('Cs title')?></label>
-              <input class='form-control' name='title_cs' type='text' placeholder='<?=$this->translate('Enter title')?>' required>
+              <input class='form-control' name='title_cs' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item['title_cs']?>' required>
             </div>
           </fieldset>
           <fieldset class="form-group">
             <div class="col-xs-8">
               <label><?=$this->translate('En title')?></label>
-              <input class='form-control' name='title_en' type='text' placeholder='<?=$this->translate('Enter title')?>' required>
+              <input class='form-control' name='title_en' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item['title_en']?>' required>
             </div>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Cs text')?></label>
-            <textarea rows='15' class='form-control' name='text_cs' required></textarea>
+            <textarea rows='15' class='form-control' name='text_cs' required><?=$this->item['text_cs']?></textarea>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('En text')?></label>
-            <textarea rows='15' class='form-control' name='text_en' required></textarea>
+            <textarea rows='15' class='form-control' name='text_en' required><?=$this->item['text_en']?></textarea>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Valid from')?></label>
 			<span class="input-group">
 			  <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-			  <input id='dateFrom' name='date_from' class="form-control" type="text" required>
+			  <input id='dateFrom' name='date_from' class="form-control" type="text" value='<?=$this->item['date_from']?>' required>
 			</span>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Valid to')?></label>
 			<span class="input-group">
 			  <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-			  <input id='dateTo' name='date_to' class="form-control" type="text" required>
+			  <input id='dateTo' name='date_to' class="form-control" type="text" value='<?=$this->item['date_to']?>' required>
 			</span>
           </fieldset>
           <fieldset class="form-group">
