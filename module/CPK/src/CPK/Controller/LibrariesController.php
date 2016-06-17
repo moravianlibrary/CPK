@@ -50,11 +50,11 @@ class LibrariesController extends AbstractBase
 			$view->setTemplate('libraries/not-found');
 			return $view;
 		}
-
+		$resultsCount = $librariesLoader->GetCountOfAllSearchResults($query);
 		$view->page = $page;
-		$view->resultsCount = $librariesLoader->GetCountOfAllSearchResults($query);
+		$view->resultsCount = $resultsCount;
 		$view->from = (($page-1)*10)+1;
-		$view->to = $page * 10;
+		$view->to = min($page * 10,$resultsCount);
 		
 		$view->query = $query;
 		$view->pagination = $librariesLoader->GetPagination($query, $page);
