@@ -708,7 +708,7 @@ class SearchController extends AbstractSearch
 	 */
 	public function getInfoboxAction($randomLimit = false)
 	{
-	    $infoboxTable = $this->getTable("infoboxitems");
+	    $infoboxTable = $this->getTable("infobox");
 	    $infoboxItems = $infoboxTable->getActualItems($randomLimit);
 
 	    return $infoboxItems;

@@ -70,7 +70,7 @@ $config = array(
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
                     'widgets' => 'CPK\Db\Table\Factory::getWidgets',
-                    'infoboxitems' => 'CPK\Db\Table\Factory::getInfobox'
+                    'infobox' => 'CPK\Db\Table\Factory::getInfobox'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'
