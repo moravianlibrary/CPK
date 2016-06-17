@@ -26,7 +26,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getAddedEntryPersonalNames()
     {
-        $field = $this->getFieldArray('400', array('a'));
+        $field = $this->getFieldArray('400', array('a', 'd'));
         $name = empty($field) ? '' : $field;
         return $name;
     }
@@ -38,7 +38,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getPseudonyms()
     {
-        $field = $this->getFieldArray('500', array('a'));
+        $field = $this->getFieldArray('500', array('a', 'd'));
         $name = empty($field) ? '' : $field;
         return $name;
     }
