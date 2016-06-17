@@ -163,8 +163,16 @@ class Loader {
     public function GetSearchResults($query, $page){
         $offset = ($page - 1) * 10;
         return $this->LoadLibraries($query, "10", $offset, "active");
-        
     }
+
+    public function GetAllSearchResults($query){
+        return $this->LoadLibraries($query, "9999", null, "active");
+    }
+
+    public function GetCountOfAllSearchResults($query){
+        return count($this->GetAllSearchResults($query));
+    }
+
 
     /**
      * @param $query
@@ -179,7 +187,8 @@ class Loader {
         $params['q'] = $query;
         $params['status'] 	  = $status;
         $params['limit'] 	  = $limit;
-        $params['offset']     = $offset;
+        if ($offset!=null)
+            $params['offset']     = $offset;
         $buildedQuery = http_build_query($params);
 
         $url   = $this->infoKnihovnyUrl.'libraries?'.$buildedQuery;
