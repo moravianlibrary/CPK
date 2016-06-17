@@ -1,8 +1,7 @@
 <h1>Najděte knihovnu nejblíže vám</h1>
 <form class="find-form text-center" action="/Libraries/List/" method="get">
-    <input class="form-control find-input" name="query" placeholder="Zadejte hledaný výraz"/>
+    <input class="form-control find-input" name="query" placeholder="Zadejte hledaný výraz" value="<?=$this->layout()->query ?>"/>
     <button href="/Libraries/List/" class="btn btn-primary find-button">Hledat</button>
 </form>
 <div class="col-md-12 text-center" style="margin-top: 10px;">
-
 </div>
