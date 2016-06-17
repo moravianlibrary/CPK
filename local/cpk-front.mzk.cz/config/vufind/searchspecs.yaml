@@ -528,6 +528,10 @@ adv_search_001:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
+    id_authority:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
 
 adv_search_nbn:
   QueryFields:
