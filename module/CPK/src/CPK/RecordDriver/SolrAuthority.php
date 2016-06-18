@@ -179,4 +179,16 @@ class SolrAuthority extends ParentSolrMarc
     {
         return isset($this->fields['heading_display']) ? $this->fields['heading_display'] : '';
     }
+
+    /**
+     * Get id_authority.
+     *
+     * @return string
+     */
+    public function getAuthorityId()
+    {
+        $id = $this->getMarcRecord()->getField('001', [])->getData();
+
+        return (! empty($id)) ? $id : '';
+    }
 }
