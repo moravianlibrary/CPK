@@ -335,6 +335,17 @@ class SearchController extends AbstractSearch
 
         $view->widgets = $widgets;
 
+        if (! empty($this->params()->fromPost('mylang'))) {
+            $languageCode = $this->params()->fromPost('mylang');
+        } else if (! empty($_COOKIE['language'])) {
+            $languageCode = $_COOKIE['language'];
+        } else {
+            $config = $this->getConfig();
+            $languageCode = $config->Site->language;
+        }
+
+        $view->language = $languageCode;
+
 	    return $view;
 	}
 

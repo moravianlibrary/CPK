@@ -8,7 +8,8 @@
         <div class='row'>
           <div class="col-xs-12 content">
             <a href=""><h4><?=$item['title_cs']?></h4></a>
-            <p class="list-group-item-text"><?=$item['text_cs']?></p>
+            <? $key = 'text_'.explode('-', $this->language)[0]; ?>
+            <p class="list-group-item-text"><?=$item[$key]?></p>
           </div>
         </div>
       </div>
