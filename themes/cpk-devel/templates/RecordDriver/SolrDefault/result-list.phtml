@@ -260,6 +260,14 @@
         <? endif; ?>
       <? endif; ?>
 
+	  <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+        <? if (! empty($authorityId = $this->driver->getAuthorityId())): ?>
+		  <div>
+			<a title="<?=$this->transEsc('Show all publications')?>" href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=$authorityId?>"><?=$this->translate('Show all publications')?></a>
+		  </div>
+        <? endif; ?>
+      <? endif; ?>
+
       <? /* We need to find out if we're supposed to display an OpenURL link ($openUrlActive),
             but even if we don't plan to display the link, we still want to get the $openUrl
             value for use in generating a COinS (Z3988) tag -- see bottom of file.
