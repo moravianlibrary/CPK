@@ -57,11 +57,11 @@
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Cs text')?></label>
-            <textarea rows='15' class='form-control' name='text_cs' required><?=$this->item['text_cs']?></textarea>
+            <textarea rows='15' class='form-control editor' name='text_cs' required><?=$this->item['text_cs']?></textarea>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('En text')?></label>
-            <textarea rows='15' class='form-control' name='text_en' required><?=$this->item['text_en']?></textarea>
+            <textarea rows='15' class='form-control editor' name='text_en' required><?=$this->item['text_en']?></textarea>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Valid from')?></label>
@@ -85,7 +85,7 @@
 	</div>
   </div>
 </div>
-
+<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 <script>
 
 	jQuery( document ).ready( function( $ ) {
@@ -113,6 +113,18 @@
 			changeMonth: true,
 			changeYear: true,
 			dateFormat: "yy-mm-dd"
+		});
+
+		tinymce.init({
+			selector:'.editor',
+			toolbar: [
+			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright | bullist numlist | image | link | table | preview'
+			],
+			plugins: "image imagetools link preview table",
+			menubar: "edit insert view format",
+			invalid_styles: {
+			    '*': 'font-family'
+			}
 		});
 	});
 
