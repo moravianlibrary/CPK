@@ -94,12 +94,6 @@ class SolrAuthority extends ParentSolrMarc
     public function getLinks()
     {
         $links = array();
-        $obalky = $this->getAuthorityFromObalkyKnih();
-        foreach ($obalky as $part) {
-            if (isset($part['backlink_url'])) {
-                $links[] = 'obalkyknih|online|' . $part['backlink_url'];
-            }
-        }
         $field = $this->getFieldArray('998', array('a'));
         foreach ($field as $part) {
             $links[] = 'auth|online|' . $part;
