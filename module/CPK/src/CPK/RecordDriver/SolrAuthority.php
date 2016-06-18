@@ -38,9 +38,11 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getPseudonyms()
     {
-        $field = $this->getFieldArray('500', array('a', 'd'));
-        $name = empty($field) ? '' : $field;
-        return $name;
+        $array = [];
+        $array['a'] = $this->getFieldArray('500', array('a'), false);
+        $array['d'] = $this->getFieldArray('500', array('d'), false);
+        $array['7'] = $this->getFieldArray('500', array('7'), false);
+        return $array;
     }
 
     /**

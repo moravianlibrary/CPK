@@ -27,7 +27,7 @@ use MZKCommon\View\Helper\MZKCommon\Record as ParentRecord;
 
 /**
  * Record driver view helper
- * 
+ *
  * @author	Martin Kravec	<kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  */
@@ -36,7 +36,7 @@ class Record extends ParentRecord
 {
     /**
      * Display values of 7xx fields
-     * 
+     *
      * @param   boolean $showDescription
      *
      * @return string
@@ -47,7 +47,7 @@ class Record extends ParentRecord
             'RecordDriver/SolrDefault/fieldsOf7xx.phtml', array('showDescription' => $showDescription)
         );
     }
-    
+
     /**
      * Display field 773
      *
@@ -59,5 +59,43 @@ class Record extends ParentRecord
             'RecordDriver/SolrDefault/field773.phtml',
             []
         );
+    }
+
+    /**
+     * Get "recordId" = authorityId by field 'id_authority'
+     *
+     * @param string $authorityId
+     *
+     * @return string
+     */
+    public function getRecordIdByAuthority($authorityId)
+    {
+        $mainParams = [];
+        $mainParams['limit'] = '100';
+        $mainParams['join'] = 'AND';
+        $mainParams['bool0'] = [];
+        $mainParams['bool0'][] = 'AND';
+        $mainParams['type0'] = [];
+        $mainParams['type0'][] = 'AllFields';
+        $mainParams['lookfor0'] = [];
+        $mainParams['lookfor0'][] = '';
+        $mainParams['filter'] = [];
+        $mainParams['filter'][] = 'id_authority:'.$authorityId;
+
+        $request = $mainParams;
+
+        $sm = $this->getView()->getHelperPluginManager()->getServiceLocator();
+
+        $runner = $sm->get('VuFind\SearchRunner');
+
+        $records = $runner->run(
+            $request, 'Solr', null
+        );
+
+        $results = $records->getResults();
+
+        $authority = $results[0];
+
+        return $authority->getUniqueId();
     }
 }

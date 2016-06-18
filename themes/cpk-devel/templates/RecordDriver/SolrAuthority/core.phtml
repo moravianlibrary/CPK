@@ -79,21 +79,15 @@
       </tr>
       <? endif; ?>
 
-      <? $pseudonyms = $this->driver->getPseudonyms(); if (!empty($pseudonyms)): $iteration = 0; $subjectsCount = count($pseudonyms);?>
+      <? $pseudonyms = $this->driver->getPseudonyms(); if (!empty($pseudonyms)): $subjectsCount = count($pseudonyms['a']);?>
       <tr>
         <th><?=$this->transEsc('Published also like')?>: </th>
         <td>
-          <? foreach ($pseudonyms as $field): $iteration++; ?>
+          <? for($i = 0; $i < $subjectsCount; $i++): $pseudonym = trim($this->escapeHtml($pseudonyms['a'][$i].' '.$pseudonyms['d'][$i])); $pseudonymId = $this->record($this->driver)->getRecordIdByAuthority($pseudonyms['7'][$i]); ?>
           <div>
-            <? $pseudonym = ''; ?>
-            <? if(count($field) == 1) $field = explode('--', is_array($field) ? $field[0] : $field); ?>
-            <? $i = 0; foreach ($field as $subfield): ?>
-              <?=($i++ == 0) ? '' : ' &gt; '?>
-              <? $pseudonym = trim($subfield); ?>
-              <a title="<?=$this->escapeHtmlAttr($pseudonym)?>" href="<?=$this->record($this->driver)->getLink('author', $pseudonym)?>"><?=trim($this->escapeHtml($subfield))?></a>
-            <? endforeach; ?>
+            <a title="<?=$pseudonym?>" href="/Record/<?=$pseudonymId?>"><?=$pseudonym?></a>
           </div>
-          <? endforeach; ?>
+          <? endfor; ?>
         </td>
       </tr>
       <? endif; ?>
