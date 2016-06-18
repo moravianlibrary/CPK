@@ -58,7 +58,7 @@
             <? $i = 0; foreach ($field as $subfield): ?>
               <?=($i++ == 0) ? '' : ' &gt; '?>
               <? $name = trim($subfield); ?>
-              <a title="<?=$this->escapeHtmlAttr($name)?>" href="<?=$this->record($this->driver)->getLink('author', $name)?>"><?=trim($this->escapeHtml($subfield))?></a>
+              <?=trim($this->escapeHtml($name))?>
             <? endforeach; ?>
           </div>
           <? endforeach; ?>
