@@ -44,6 +44,17 @@ class SolrAuthority extends ParentSolrMarc
     }
 
     /**
+     * Get authority's source.
+     *
+     * @return array
+     */
+    public function getSource()
+    {
+        $field = $this->getFieldArray('670');
+        return $field;
+    }
+
+    /**
      * Get the authority's name, shown as title of record.
      *
      * @return string

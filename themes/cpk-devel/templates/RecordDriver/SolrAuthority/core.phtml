@@ -66,6 +66,19 @@
       </tr>
       <? endif; ?>
 
+      <? $authoritySources = $this->driver->getSource(); if (count($authoritySources)):?>
+      <tr>
+        <th><?=$this->transEsc('Source')?>: </th>
+        <td>
+          <? foreach ($authoritySources as $source): ?>
+          <div>
+			<?=$source?>
+          </div>
+          <? endforeach; ?>
+        </td>
+      </tr>
+      <? endif; ?>
+
       <? $pseudonyms = $this->driver->getPseudonyms(); if (!empty($pseudonyms)): $iteration = 0; $subjectsCount = count($pseudonyms);?>
       <tr>
         <th><?=$this->transEsc('Published also like')?>: </th>
