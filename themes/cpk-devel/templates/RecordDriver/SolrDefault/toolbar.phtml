@@ -46,10 +46,12 @@
 
     title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span add-remove="add"><?=$this->transEsc('Add to favorites')?></span><span add-remove="rem"><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
   <? endif; ?>
+  <? if(! ($this->driver instanceof CPK\RecordDriver\SolrAuthority)): ?>
   <li class="list-group-item" id='citace-pro'>
     <a class="modal-link disabled-link" title="<?=$this->transEsc('Show citations')?>" ><i class="pr-communication-bubblechattalkconversationline"> </i> <?=$this->transEsc('Show citations')?></a>
     <i id='citation-link-spinner' class="fa fa-spinner fa-spin"></i>
   </li>
+  <? endif; ?>
   <? if (!empty($addThis)): ?>
     <li><a class="addThis addthis_button list-group-item" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-fw fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
   <? endif; ?>
