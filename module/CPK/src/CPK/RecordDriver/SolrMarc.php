@@ -741,4 +741,16 @@ class SolrMarc extends ParentSolrMarc
         }
         return $bibinfo;
     }
+
+    /**
+     * Get authority ID of main author.
+     *
+     * @return string
+     */
+    public function getMainAuthorAuthorityId()
+    {
+        $field = $this->getFieldArray('100', array('7'));
+        $name = empty($field) ? '' : $field[0];
+        return $name;
+    }
 }
