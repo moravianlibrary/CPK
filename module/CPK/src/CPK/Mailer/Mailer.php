@@ -86,13 +86,14 @@ class Mailer extends BaseMailer
      * Sends an warning email message to all technical contacts, delimited by semicolon.
      *
      * @param string $technicalContacts
+     * @param string $source
      * @param PhpRenderer $renderer
      * @param array $templateVars
      * @throws MailException
      */
-    public function sendEppnMissing($technicalContacts, PhpRenderer $renderer, array $templateVars = [])
+    public function sendEppnMissing($technicalContacts, $source, PhpRenderer $renderer, array $templateVars = [])
     {
-        if ($this->emailDelayer->canSendEmailTypeTo($technicalContacts, EmailTypes::IDP_NO_EPPN)) {
+        if ($this->emailDelayer->canSendEmailTypeTo($technicalContacts, $source, EmailTypes::IDP_NO_EPPN)) {
 
             if (! isset($templateVars['failureTimes'])) {
                 $templateVars['failureTimes'] = $this->emailDelayer->getSendAttemptsCount($technicalContacts, EmailTypes::IDP_NO_EPPN);
@@ -112,6 +113,7 @@ class Mailer extends BaseMailer
      * Sends an warning email message to all administration contacts, delimited by semicolon.
      *
      * @param string $technicalContacts
+     * @param string $source
      * @param PhpRenderer $renderer
      * @param array $templateVars
      * @throws MailException

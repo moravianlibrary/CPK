@@ -797,7 +797,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
             $renderer = $this->serviceLocator->get('ViewRenderer');
 
-            $mailer->sendEppnMissing($technicalContacts, $renderer, $templateVars);
+            $mailer->sendEppnMissing($technicalContacts, $homeLibrary, $renderer, $templateVars);
 
             throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
         }

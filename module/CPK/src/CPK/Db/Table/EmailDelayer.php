@@ -108,13 +108,13 @@ class EmailDelayer extends Gateway
             $row->type = $emailTypeRow->id;
             $row->save();
 
-            $this->sendAttemptsCounts[$to][$emailType] = 1;
+            $this->sendAttemptsCounts[$to][$source][$emailType] = 1;
 
             return true;
         }
 
         // Increment attempts count
-        $this->sendAttemptsCounts[$to][$emailType] = ++$row->send_attempts_count;
+        $this->sendAttemptsCounts[$to][$source][$emailType] = ++$row->send_attempts_count;
 
         // Get the email delay
         $minimalDelay = date_parse_from_format('G:i:s', $emailTypeRow->delay);
@@ -142,9 +142,9 @@ class EmailDelayer extends Gateway
      * @return void
      * @throws \Exception
      */
-    public function clearAttempts($to, $emailType)
+    public function clearAttempts($to, $source, $emailType)
     {
-        $row = $this->getRow($to, $emailType)[0];
+        $row = $this->getRow($to, $source, $emailType)[0];
 
         if ($row !== false) {
             $row->send_attempts_count = 0;
@@ -156,16 +156,17 @@ class EmailDelayer extends Gateway
      * Gets the number of tries within an email_delayer row.
      *
      * @param string $to
+     * @param string $source
      * @param string $emailType
      * @return int
      * @throws \Exception
      */
-    public function getSendAttemptsCount($to, $emailType)
+    public function getSendAttemptsCount($to, $source, $emailType)
     {
-        if (isset($this->sendAttemptsCounts[$to][$emailType]))
-            return (int) $this->sendAttemptsCounts[$to][$emailType];
+        if (isset($this->sendAttemptsCounts[$to][$source][$emailType]))
+            return (int) $this->sendAttemptsCounts[$to][$source][$emailType];
         else {
-            $row = $this->getRow($to, $emailType)[0];
+            $row = $this->getRow($to, $source, $emailType)[0];
 
             if (!row)
                 return 0;
