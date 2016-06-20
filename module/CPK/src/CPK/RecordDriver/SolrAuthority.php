@@ -42,6 +42,11 @@ class SolrAuthority extends ParentSolrMarc
         $array['a'] = $this->getFieldArray('500', array('a'), false);
         $array['d'] = $this->getFieldArray('500', array('d'), false);
         $array['7'] = $this->getFieldArray('500', array('7'), false);
+
+        if (empty($array['a']) || empty($array['d']) || empty($array['7'])) {
+            return [];
+        }
+
         return $array;
     }
 
