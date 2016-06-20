@@ -779,7 +779,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
         if ($eppnExists) {
 
-            $this->clearNoEppnEmailAttempts($technicalContacts);
+            $this->clearNoEppnEmailAttempts($technicalContacts, $homeLibrary);
 
             return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
         } else {
@@ -808,9 +808,9 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * @param string $technicalContacts
      */
-    protected function clearNoEppnEmailAttempts($technicalContacts)
+    protected function clearNoEppnEmailAttempts($technicalContacts, $homeLibrary)
     {
-        $this->serviceLocator->get('VuFind\DbTablePluginManager')->get('email_delayer')->clearAttempts($technicalContacts, EmailTypes::IDP_NO_EPPN);
+        $this->serviceLocator->get('VuFind\DbTablePluginManager')->get('email_delayer')->clearAttempts($technicalContacts, $homeLibrary, EmailTypes::IDP_NO_EPPN);
     }
 
     /**
