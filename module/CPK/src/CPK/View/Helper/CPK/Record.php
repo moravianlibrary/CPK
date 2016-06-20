@@ -94,6 +94,10 @@ class Record extends ParentRecord
 
         $results = $records->getResults();
 
+        if(! isset($results[0])) {
+            return false;
+        }
+
         $authority = $results[0];
 
         return $authority->getUniqueId();
