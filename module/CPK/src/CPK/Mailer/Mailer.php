@@ -118,7 +118,7 @@ class Mailer extends BaseMailer
      * @param array $templateVars
      * @throws MailException
      */
-    public function sendApiNotAvailable($institutionAdminMail, $source, PhpRenderer $renderer, array $templateVars = [])
+    public function sendApiNotAvailable($institutionAdminMail, $source, $message, PhpRenderer $renderer, array $templateVars = [])
     {
         if ($this->emailDelayer->canSendEmailTypeTo($institutionAdminMail, $source, EmailTypes::ILS_API_NOT_AVAILABLE)) {
 
@@ -127,6 +127,8 @@ class Mailer extends BaseMailer
             }
 
             $templateVars['source'] = $source;
+
+            $templateVars['message'] = $message;
 
             $templateName = $this->getTemplateNameFor(EmailTypes::ILS_API_NOT_AVAILABLE);
             $body = $renderer->partial($templateName, $templateVars);

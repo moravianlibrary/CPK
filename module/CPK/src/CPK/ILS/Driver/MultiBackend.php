@@ -138,7 +138,7 @@ class MultiBackend extends MultiBackendBase
                         $cancelDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
                     } catch (\Exception $e) {
 
-                        $this->sendMailApiError($driver, $patronSource);
+                        $this->sendMailApiError($driver, $patronSource, $e);
                         throw $e;
                     }
                 }
@@ -176,7 +176,7 @@ class MultiBackend extends MultiBackendBase
                 $cancelHoldDetails = $driver->getCancelHoldDetails($holdDetails);
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
 
@@ -222,7 +222,7 @@ class MultiBackend extends MultiBackendBase
                 $fines = $driver->getMyFines($this->stripIdPrefixes($patron, $source));
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
             array_walk($fines, function (&$value, $k, $source) {
@@ -252,7 +252,7 @@ class MultiBackend extends MultiBackendBase
                 $holds = $driver->getMyHolds($this->stripIdPrefixes($patron, $source));
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e, $e);
                 throw $e;
             }
 
@@ -292,7 +292,7 @@ class MultiBackend extends MultiBackendBase
                 return $driver->placeHold($holdDetails);
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
         }
@@ -318,7 +318,7 @@ class MultiBackend extends MultiBackendBase
                 $profile = $driver->getMyProfile($this->stripIdPrefixes($patron, $source));
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
 
@@ -350,7 +350,7 @@ class MultiBackend extends MultiBackendBase
                 $transactions = $driver->getMyTransactions($this->stripIdPrefixes($patron, $source));
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
 
@@ -392,7 +392,7 @@ class MultiBackend extends MultiBackendBase
                 $history = $driver->getMyHistoryPage($strippedPatron, $page, $perPage);
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
 
@@ -447,7 +447,7 @@ class MultiBackend extends MultiBackendBase
                 $status = $driver->getStatus($this->getLocalId($id), $profile);
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
             return $this->addIdPrefixes($status, $source);
@@ -492,7 +492,7 @@ class MultiBackend extends MultiBackendBase
                 $statuses = $driver->getStatuses($ids, $profile, $filter, $bibId, $nextItemToken);
             } catch (\Exception $e) {
 
-                $this->sendMailApiError($driver, $source);
+                $this->sendMailApiError($driver, $source, $e);
                 throw $e;
             }
             if (($driver instanceof Aleph) && (! empty($statuses)))
@@ -532,7 +532,7 @@ class MultiBackend extends MultiBackendBase
                     return $driver->renewMyItems($this->stripIdPrefixes($renewDetails, $patronSource));
                 } catch (\Exception $e) {
 
-                    $this->sendMailApiError($driver, $patronSource);
+                    $this->sendMailApiError($driver, $patronSource, $e);
                     throw $e;
                 }
             }
@@ -609,7 +609,7 @@ class MultiBackend extends MultiBackendBase
             $status = $driver->getItemStatus($id, $bibId, $patron);
         } catch (\Exception $e) {
 
-            $this->sendMailApiError($driver, $source);
+            $this->sendMailApiError($driver, $source, $e);
             throw $e;
         }
         return $status;
@@ -639,7 +639,7 @@ class MultiBackend extends MultiBackendBase
      *
      * @param CPKDriverInterface $driver
      */
-    protected function sendMailApiError(CPKDriverInterface $driver, $source)
+    protected function sendMailApiError(CPKDriverInterface $driver, $source, \Exception $e)
     {
         $adminMail = $driver->getAdministratorEmail();
 
@@ -651,7 +651,7 @@ class MultiBackend extends MultiBackendBase
             if ($this->renderer === null)
                 $this->renderer = $this->childServiceLocator->get('ViewRenderer');
 
-            $this->mailer->sendApiNotAvailable($adminMail, $source, $this->renderer);
+            $this->mailer->sendApiNotAvailable($adminMail, $source, $e->getMessage(), $this->renderer);
         }
     }
 
