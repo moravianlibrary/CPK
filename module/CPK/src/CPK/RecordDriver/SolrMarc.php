@@ -753,4 +753,19 @@ class SolrMarc extends ParentSolrMarc
         $name = empty($field) ? '' : $field[0];
         return $name;
     }
+
+    /**
+     * Get an array of authority Ids of all secondary authors in the same order
+     * and amount as getSecondaryAuthors() method from author2 solr field.
+     *
+     * @return array
+     */
+    public function getSecondaryAuthoritiesIds()
+    {
+        $ahoj =  isset($this->fields['authority2_display_mv'])
+        ? $this->fields['authority2_display_mv']
+        : [];
+
+        return $ahoj;
+    }
 }

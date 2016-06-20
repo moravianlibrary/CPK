@@ -103,7 +103,7 @@
               </tr>
               <? endif; ?>
 
-              <? $authors = $this->driver->getDeduplicatedAuthors(); $authorityId = $this->driver->getMainAuthorAuthorityId(); ?>
+              <? $authors = $this->driver->getDeduplicatedAuthors(); $authorityId = $this->driver->getMainAuthorAuthorityId(); $secondaryAuthoritiesIds = $this->driver->getSecondaryAuthoritiesIds(); ?>
               <? if (isset($authors['main']) && !empty($authors['main'])): $localAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($authorityId);?>
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Main Author')?>: </th>
@@ -111,7 +111,7 @@
                   <? if (! empty($localAuthorityId)): ?>
                   <a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityId?>"><i class="pr-user-single5" style="font-size: 20px;"></i></a>
                   <? endif; ?>
-                  <a href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a>
+                  <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a>
                 </td>
               </tr>
               <? endif; ?>
@@ -127,7 +127,19 @@
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Other Authors')?>: </th>
                 <td>
-                  <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($field)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
+                  <? $i = 0; foreach ($authors['secondary'] as $field): ?>
+                  <?=($i++ == 0)?'':', '?>
+                  <span property="contributor">
+                    <? if (! empty($secondaryAuthoritiesIds[$i])): $secondaryAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($secondaryAuthoritiesIds[$i]);?>
+                      <? if (! empty($secondaryAuthorityId)): ?>
+						<a title="<?=$this->translate('Show person')?> <?=$field?>" href="/Record/<?=$secondaryAuthorityId?>"><i class="pr-user-single5" style="font-size: 20px;"></i></a>
+					  <? endif; ?>
+                    <? endif; ?>
+                    <a title='<?=$this->translate('Show publications by')?> <?=$field?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($field)?>">
+                      <?=$this->escapeHtml($field)?>
+                    </a>
+                  </span>
+                  <? endforeach; ?>
                 </td>
               </tr>
               <? endif; ?>
