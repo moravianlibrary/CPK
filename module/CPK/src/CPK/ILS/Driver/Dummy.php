@@ -35,7 +35,8 @@ namespace CPK\ILS\Driver;
 
 use VuFind\ILS\Driver\AbstractBase;
 
-class Dummy extends AbstractBase {
+class Dummy extends AbstractBase implements CPKDriverInterface
+{
 
     /**
      * Initialize the driver.
@@ -44,8 +45,9 @@ class Dummy extends AbstractBase {
      * make the driver active.
      *
      * @return void
-    */
-    public function init() {}
+     */
+    public function init()
+    {}
 
     /**
      * Get Status
@@ -53,13 +55,15 @@ class Dummy extends AbstractBase {
      * This is responsible for retrieving the status information of a certain
      * record.
      *
-     * @param string $id The record id to retrieve the holdings for
+     * @param string $id
+     *            The record id to retrieve the holdings for
      *
      * @throws \VuFind\Exception\ILS
-     * @return mixed     On success, an associative array with the following keys:
-     * id, availability (boolean), status, location, reserve, callnumber.
-    */
-    public function getStatus($id) {
+     * @return mixed On success, an associative array with the following keys:
+     *         id, availability (boolean), status, location, reserve, callnumber.
+     */
+    public function getStatus($id)
+    {
         throw new ILS("Dummy driver cannot get statuses");
     }
 
@@ -69,12 +73,14 @@ class Dummy extends AbstractBase {
      * This is responsible for retrieving the status information for a
      * collection of records.
      *
-     * @param array $ids The array of record ids to retrieve the status for
+     * @param array $ids
+     *            The array of record ids to retrieve the status for
      *
      * @throws \VuFind\Exception\ILS
-     * @return array     An array of getStatus() return values on success.
-    */
-    public function getStatuses($ids) {
+     * @return array An array of getStatus() return values on success.
+     */
+    public function getStatuses($ids)
+    {
         throw new ILS("Dummy driver cannot get statuses");
     }
 
@@ -84,15 +90,18 @@ class Dummy extends AbstractBase {
      * This is responsible for retrieving the holding information of a certain
      * record.
      *
-     * @param string $id     The record id to retrieve the holdings for
-     * @param array  $patron Patron data
+     * @param string $id
+     *            The record id to retrieve the holdings for
+     * @param array $patron
+     *            Patron data
      *
      * @throws \VuFind\Exception\ILS
-     * @return array         On success, an associative array with the following
-     * keys: id, availability (boolean), status, location, reserve, callnumber,
-     * duedate, number, barcode.
-    */
-    public function getHolding($id, array $patron = null) {
+     * @return array On success, an associative array with the following
+     *         keys: id, availability (boolean), status, location, reserve, callnumber,
+     *         duedate, number, barcode.
+     */
+    public function getHolding($id, array $patron = null)
+    {
         throw new ILS("Dummy driver cannot get holdings");
     }
 
@@ -102,12 +111,24 @@ class Dummy extends AbstractBase {
      * This is responsible for retrieving the acquisitions history data for the
      * specific record (usually recently received issues of a serial).
      *
-     * @param string $id The record id to retrieve the info for
+     * @param string $id
+     *            The record id to retrieve the info for
      *
      * @throws \VuFind\Exception\ILS
-     * @return array     An array with the acquisitions data on success.
-    */
-    public function getPurchaseHistory($id) {
+     * @return array An array with the acquisitions data on success.
+     */
+    public function getPurchaseHistory($id)
+    {
         throw new ILS("Dummy driver cannot get purchase history");
+    }
+
+    /**
+     * Gets the contact person for this driver instance.
+     *
+     * @return string
+     */
+    public function getAdministratorEmail()
+    {
+        throw new ILS("Dummy driver cannot get administrator email");
     }
 }

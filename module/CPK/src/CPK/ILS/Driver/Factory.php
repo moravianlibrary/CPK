@@ -1,10 +1,10 @@
 <?php
 /**
- * ILS Driver Factory Class
+ * ILS Driver Factory Class for CPK
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2014.
+ * Copyright (C) Moravian Library 2016
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -21,7 +21,7 @@
  *
  * @category VuFind2
  * @package  ILS_Drivers
- * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
+ * @author   Jiří Kozlovský <mail@jkozlovsky.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
@@ -29,11 +29,11 @@ namespace CPK\ILS\Driver;
 use Zend\ServiceManager\ServiceManager;
 
 /**
- * ILS Driver Factory Class
+ * ILS Driver Factory Class for CPK
  *
  * @category VuFind2
  * @package  ILS_Drivers
- * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
+ * @author   Jiří Kozlovský <mail@jkozlovsky.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
@@ -48,12 +48,13 @@ class Factory
      */
     public static function getAleph(ServiceManager $sm)
     {
-        $dbTablePluginManager = $sm->getServiceLocator()->get('VuFind\DbTablePluginManager');
+        $sl = $sm->getServiceLocator();
+        $dbTablePluginManager = $sl->get('VuFind\DbTablePluginManager');
 
         return new Aleph(
-            $sm->getServiceLocator()->get('VuFind\DateConverter'),
-            $sm->getServiceLocator()->get('VuFind\CacheManager'),
-            $sm->getServiceLocator()->get('VuFind\Search'),
+            $sl->get('VuFind\DateConverter'),
+            $sl->get('VuFind\CacheManager'),
+            $sl->get('VuFind\Search'),
             $dbTablePluginManager->get('recordstatus')
         );
     }
@@ -67,12 +68,13 @@ class Factory
      */
     public static function getMultiBackend(ServiceManager $sm)
     {
-        $dbTablePluginManager = $sm->getServiceLocator()->get('VuFind\DbTablePluginManager');
+        $sl = $sm->getServiceLocator();
+        $dbTablePluginManager = $sl->get('VuFind\DbTablePluginManager');
 
         return new MultiBackend(
-            $sm->getServiceLocator()->get('VuFind\Config'),
-            $sm->getServiceLocator()->get('VuFind\ILSAuthenticator'),
-            $sm->getServiceLocator()->get('VuFind\Search'),
+            $sl->get('VuFind\Config'),
+            $sl->get('VuFind\ILSAuthenticator'),
+            $sl->get('VuFind\Search'),
             $dbTablePluginManager->get('InstConfigs')
         );
     }

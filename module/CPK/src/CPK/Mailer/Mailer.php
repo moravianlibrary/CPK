@@ -54,6 +54,13 @@ class Mailer extends BaseMailer
     protected $idpMail = null;
 
     /**
+     * The mail portal uses for sending emails to driver configuration contacts
+     *
+     * @var string portalMail
+     */
+    protected $portalMail = null;
+
+    /**
      * DB Table instance EmailDelayer
      *
      * @var EmailDelayer
@@ -66,6 +73,9 @@ class Mailer extends BaseMailer
 
         if (isset($config->Mail->idpMail))
             $this->idpMail = $config->Mail->idpMail;
+
+        if (isset($config->Mail->portalMail))
+            $this->portalMail = $config->Mail->portalMail;
 
         $this->emailDelayer = $emailDelayer;
 

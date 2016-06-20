@@ -34,7 +34,7 @@ namespace CPK\ILS\Driver;
 use MZKCommon\ILS\Driver\Aleph as AlephBase;
 use VuFind\Exception\Date as DateException;
 
-class Aleph extends AlephBase
+class Aleph extends AlephBase implements CPKDriverInterface
 {
 
     const CONFIG_ARRAY_DELIMITER = ',';
@@ -863,5 +863,18 @@ class Aleph extends AlephBase
         } else {
             throw new DateException("Invalid date: $date");
         }
+    }
+
+    /**
+     * Gets the contact person for this driver instance.
+     *
+     * @return string
+     */
+    public function getAdministratorEmail()
+    {
+        if (isset($this->config['Catalog']['contactPerson']))
+            return $this->config['Catalog']['contactPerson'];
+        else
+            return null;
     }
 }

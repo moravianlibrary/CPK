@@ -40,7 +40,7 @@ use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
-    \VuFindHttp\HttpServiceAwareInterface, \VuFind\I18n\Translator\TranslatorAwareInterface
+    \VuFindHttp\HttpServiceAwareInterface, \VuFind\I18n\Translator\TranslatorAwareInterface, CPKDriverInterface
 {
 
     const AGENCY_ID_DELIMITER = ':';
@@ -1677,6 +1677,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     public function getMaximumItemsCount()
     {
         return $this->maximumItemsCount;
+    }
+
+    /**
+     * Gets the contact person for this driver instance.
+     *
+     * @return string
+     */
+    public function getAdministratorEmail()
+    {
+        if (isset($this->config->Catalog->contactPerson))
+            return $this->config->Catalog->contactPerson;
+        else
+            return null;
     }
 
     /**

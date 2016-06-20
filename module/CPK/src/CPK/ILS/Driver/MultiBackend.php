@@ -29,6 +29,7 @@
 namespace CPK\ILS\Driver;
 
 use VuFind\Exception\ILS as ILSException, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver, CPK\ILS\Driver\Aleph, CPK\ILS\Driver\XCNCIP2;
+use CPK\Mailer\Mailer;
 
 /**
  * Multiple Backend Driver.
@@ -65,6 +66,27 @@ class MultiBackend extends MultiBackendBase
      */
     protected $instConfigsTable = null;
 
+    /**
+     * CPK Mailer for handling ILS errors
+     *
+     * @var Mailer
+     */
+    protected $mailer = null;
+
+    /**
+     * PhpRenderer for Mailer to render the templates
+     *
+     * @var PhpRenderer
+     */
+    protected $renderer = null;
+
+    /**
+     * Child service locator to $this->serviceLocator
+     *
+     * @var ServiceLocatorInterface
+     */
+    protected $childServiceLocator = null;
+
     public function __construct($configLoader, $ilsAuth, \VuFindSearch\Service $searchService, \CPK\Db\Table\InstConfigs $instConfigs)
     {
         parent::__construct($configLoader, $ilsAuth);
@@ -79,6 +101,9 @@ class MultiBackend extends MultiBackendBase
         parent::init();
 
         $this->idResolver = new SolrIdResolver($this->searchService, $this->config);
+
+        // Set the child service locator
+        $this->childServiceLocator = $this->getServiceLocator()->getServiceLocator();
     }
 
     /**
@@ -108,7 +133,14 @@ class MultiBackend extends MultiBackendBase
             if ($driver) {
                 foreach ($cancelDetails['details'] as $key => $detail) {
                     // stripIdPrefixed does not work correctly here ..
-                    $cancelDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
+
+                    try {
+                        $cancelDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
+                    } catch (\Exception $e) {
+
+                        $this->sendMailApiError($driver);
+                        throw $e;
+                    }
                 }
 
                 return $driver->cancelHolds($this->stripIdPrefixes($cancelDetails, $patronSource));
@@ -140,7 +172,13 @@ class MultiBackend extends MultiBackendBase
         if ($driver) {
             $holdDetails = $this->stripIdPrefixes($holdDetails, $source);
 
-            $cancelHoldDetails = $driver->getCancelHoldDetails($holdDetails);
+            try {
+                $cancelHoldDetails = $driver->getCancelHoldDetails($holdDetails);
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
 
             // Since addIdPrefixes is unable to ammend source to string & we
             // don't know whether there is a source already, we have to do that this way
@@ -166,6 +204,36 @@ class MultiBackend extends MultiBackendBase
     }
 
     /**
+     * Get Patron Fines
+     *
+     * This is responsible for retrieving all fines by a specific patron.
+     *
+     * @param array $patron
+     *            The patron array from patronLogin
+     *
+     * @return mixed Array of the patron's fines
+     */
+    public function getMyFines($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            try {
+                $fines = $driver->getMyFines($this->stripIdPrefixes($patron, $source));
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
+            array_walk($fines, function (&$value, $k, $source) {
+                $value['source'] = $source;
+            }, $source);
+            return $this->addIdPrefixes($fines, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
      * Get Patron Holds
      *
      * This is responsible for retrieving all holds by a specific patron.
@@ -180,13 +248,85 @@ class MultiBackend extends MultiBackendBase
         $source = $this->getSource($patron['cat_username']);
         $driver = $this->getDriver($source);
         if ($driver) {
-            $holds = $driver->getMyHolds($this->stripIdPrefixes($patron, $source));
+            try {
+                $holds = $driver->getMyHolds($this->stripIdPrefixes($patron, $source));
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
 
             $this->idResolver->resolveIds($holds, $source, $this->getDriverConfig($source));
 
             return $this->addIdPrefixes($holds, $source);
         }
         throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
+     * Place Hold
+     *
+     * Attempts to place a hold or recall on a particular item and returns
+     * an array with result details
+     *
+     * @param array $holdDetails
+     *            An array of item and patron data
+     *
+     * @return mixed An array of data on the request including
+     *         whether or not it was successful and a system message (if available)
+     */
+    public function placeHold($holdDetails)
+    {
+        $source = $this->getSource($holdDetails['patron']['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            if ($this->getSource($holdDetails['id']) != $source) {
+                return [
+                    "success" => false,
+                    "sysMessage" => 'hold_wrong_user_institution'
+                ];
+            }
+            $holdDetails = $this->stripIdPrefixes($holdDetails, $source);
+
+            try {
+                return $driver->placeHold($holdDetails);
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
+     * Get Patron Profile
+     *
+     * This is responsible for retrieving the profile for a specific patron.
+     *
+     * @param array $patron
+     *            The patron array
+     *
+     * @return mixed Array of the patron's profile data
+     */
+    public function getMyProfile($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            try {
+                $profile = $driver->getMyProfile($this->stripIdPrefixes($patron, $source));
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
+
+            $profile['source'] = $source;
+
+            return $this->addIdPrefixes($profile, $source);
+        }
+        return [];
     }
 
     /**
@@ -205,7 +345,14 @@ class MultiBackend extends MultiBackendBase
         $source = $this->getSource($patron['cat_username']);
         $driver = $this->getDriver($source);
         if ($driver) {
-            $transactions = $driver->getMyTransactions($this->stripIdPrefixes($patron, $source));
+
+            try {
+                $transactions = $driver->getMyTransactions($this->stripIdPrefixes($patron, $source));
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
 
             $this->idResolver->resolveIds($transactions, $source, $this->getDriverConfig($source));
 
@@ -241,7 +388,13 @@ class MultiBackend extends MultiBackendBase
 
             $strippedPatron = $this->stripIdPrefixes($patron, $source);
 
-            $history = $driver->getMyHistoryPage($strippedPatron, $page, $perPage);
+            try {
+                $history = $driver->getMyHistoryPage($strippedPatron, $page, $perPage);
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
 
             return $this->addIdPrefixes($history, $source);
         }
@@ -290,7 +443,13 @@ class MultiBackend extends MultiBackendBase
         $profile = $this->getProfile($user, $source);
 
         if ($driver) {
-            $status = $driver->getStatus($this->getLocalId($id), $profile);
+            try {
+                $status = $driver->getStatus($this->getLocalId($id), $profile);
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
             return $this->addIdPrefixes($status, $source);
         }
         return [];
@@ -329,7 +488,13 @@ class MultiBackend extends MultiBackendBase
 
             $bibId = $this->stripIdPrefixes($bibId, $source);
 
-            $statuses = $driver->getStatuses($ids, $profile, $filter, $bibId, $nextItemToken);
+            try {
+                $statuses = $driver->getStatuses($ids, $profile, $filter, $bibId, $nextItemToken);
+            } catch (\Exception $e) {
+
+                $this->sendMailApiError($driver);
+                throw $e;
+            }
             if (($driver instanceof Aleph) && (! empty($statuses)))
                 $statuses[0]['usedAleph'] = true;
             return $this->addIdPrefixes($statuses, $source);
@@ -363,7 +528,13 @@ class MultiBackend extends MultiBackendBase
                     $renewDetails['details'][$key] = preg_replace("/$patronSource\./", '', $detail);
                 }
 
-                return $driver->renewMyItems($this->stripIdPrefixes($renewDetails, $patronSource));
+                try {
+                    return $driver->renewMyItems($this->stripIdPrefixes($renewDetails, $patronSource));
+                } catch (\Exception $e) {
+
+                    $this->sendMailApiError($driver);
+                    throw $e;
+                }
             }
             throw new ILSException('No suitable backend driver found');
         } else
@@ -404,7 +575,6 @@ class MultiBackend extends MultiBackendBase
         return $this->drivers[$source];
     }
 
-
     protected function getDetailsFromCurrentSource($source, $details)
     {
         $detailsForCurrentSource = [];
@@ -435,7 +605,13 @@ class MultiBackend extends MultiBackendBase
         $bibId = $this->stripIdPrefixes($bibId, $source);
         $patron = $this->stripIdPrefixes($patron, $source);
 
-        $status = $driver->getItemStatus($id, $bibId, $patron);
+        try {
+            $status = $driver->getItemStatus($id, $bibId, $patron);
+        } catch (\Exception $e) {
+
+            $this->sendMailApiError($driver);
+            throw $e;
+        }
         return $status;
     }
 
@@ -455,6 +631,26 @@ class MultiBackend extends MultiBackendBase
             }
         }
         return $profile;
+    }
+
+    /**
+     * Sends an mail informating about API error to an administrator email of
+     * provided driver instance.
+     *
+     * @param CPKDriverInterface $driver
+     */
+    protected function sendMailApiError(CPKDriverInterface $driver)
+    {
+        $adminMail = $driver->getAdministratorEmail();
+
+        if ($this->mailer === null)
+            $this->mailer = $this->childServiceLocator->get('CPK\Mailer');
+
+        if ($this->renderer === null)
+            $this->renderer = $this->childServiceLocator->get('ViewRenderer');
+
+        if ($adminMail != null)
+            $this->mailer->sendApiNotAvailable($adminMail, $this->renderer);
     }
 
     /**
