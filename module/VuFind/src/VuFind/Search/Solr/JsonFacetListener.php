@@ -252,7 +252,7 @@ class JsonFacetListener
                 if ($this->isOrFacet($field)) {
                     $nestedFacets[] = $fq;
                 }
-                $newfqs[] = $this->addToLocalParams($localParams, "parent which='merged_boolean:true'") . ' (' . $field . ':' . $query . ')';
+                $newfqs[] = $this->addToLocalParams($localParams, "parent which='merged_boolean:true'") . ' ' . $field . ':' . $query;
                 $filters[$field][] = $query;
             } else {
                 $newfqs[] = $fq;
