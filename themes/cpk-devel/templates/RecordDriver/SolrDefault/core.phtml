@@ -130,7 +130,7 @@
                   <? $i = 0; foreach ($authors['secondary'] as $field): ?>
                   <?=($i++ == 0)?'':', '?>
                   <span property="contributor">
-                    <? if (! empty($secondaryAuthoritiesIds[$i])): $secondaryAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($secondaryAuthoritiesIds[$i]);?>
+                    <? if (! empty($secondaryAuthoritiesIds[$i-1])): $secondaryAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($secondaryAuthoritiesIds[$i-1]);?>
                       <? if (! empty($secondaryAuthorityId)): ?>
 						<a title="<?=$this->translate('Show person')?> <?=$field?>" href="/Record/<?=$secondaryAuthorityId?>"><i class="pr-user-single5" style="font-size: 20px;"></i></a>
 					  <? endif; ?>
