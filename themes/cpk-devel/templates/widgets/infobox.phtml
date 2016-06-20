@@ -1,3 +1,4 @@
+<? $language = explode('-', $this->language)[0]; ?>
   <div class="col-md-4 infobox widget">
   	<div class='header'>
     	<h2><?=$this->transEsc('You know that')?></h2>
@@ -7,9 +8,8 @@
       <div class="list-group-item clearfix">
         <div class='row'>
           <div class="col-xs-12 content">
-            <a href=""><h4><?=$item['title_cs']?></h4></a>
-            <? $key = 'text_'.explode('-', $this->language)[0]; ?>
-            <p class="list-group-item-text"><?=$item[$key]?></p>
+            <a href=""><h4><?=$item['title_'.$language]?></h4></a>
+            <p class="list-group-item-text"><?=$item['text_'.$language]?></p>
           </div>
         </div>
       </div>
