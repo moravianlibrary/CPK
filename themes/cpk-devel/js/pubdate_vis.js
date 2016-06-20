@@ -61,10 +61,10 @@ function loadVis(facetFields, searchParams, baseURL, zooming) {
         if (val['data'] == undefined || val['data'].length == 0) {
           return;
         }
-        $("#datevis" + key + "xWrapper").removeClass('hidden');
+        $("#dateVisModal #datevis" + key + "xWrapper").removeClass('hidden');
 
         // plot graph
-        var placeholder = $("#datevis" + key + "x");
+        var placeholder = $("#dateVisModal #datevis" + key + "x");
 
         //set up the hasFilter variable
         var hasFilter = true;
