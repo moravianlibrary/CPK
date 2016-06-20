@@ -96,7 +96,7 @@ class Mailer extends BaseMailer
         if ($this->emailDelayer->canSendEmailTypeTo($technicalContacts, $source, EmailTypes::IDP_NO_EPPN)) {
 
             if (! isset($templateVars['failureTimes'])) {
-                $templateVars['failureTimes'] = $this->emailDelayer->getSendAttemptsCount($technicalContacts, EmailTypes::IDP_NO_EPPN);
+                $templateVars['failureTimes'] = $this->emailDelayer->getSendAttemptsCount($technicalContacts, $source, EmailTypes::IDP_NO_EPPN);
             }
 
             $templateName = $this->getTemplateNameFor(EmailTypes::IDP_NO_EPPN);
@@ -123,7 +123,7 @@ class Mailer extends BaseMailer
         if ($this->emailDelayer->canSendEmailTypeTo($institutionAdminMail, $source, EmailTypes::ILS_API_NOT_AVAILABLE)) {
 
             if (! isset($templateVars['failureTimes'])) {
-                $templateVars['failureTimes'] = $this->emailDelayer->getSendAttemptsCount($institutionAdminMail, EmailTypes::ILS_API_NOT_AVAILABLE);
+                $templateVars['failureTimes'] = $this->emailDelayer->getSendAttemptsCount($institutionAdminMail, $source, EmailTypes::ILS_API_NOT_AVAILABLE);
             }
 
             $templateVars['source'] = $source;
