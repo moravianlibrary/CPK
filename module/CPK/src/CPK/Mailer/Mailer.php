@@ -116,13 +116,15 @@ class Mailer extends BaseMailer
      * @param array $templateVars
      * @throws MailException
      */
-    public function sendApiNotAvailable($institutionAdminMail, PhpRenderer $renderer, array $templateVars = [])
+    public function sendApiNotAvailable($institutionAdminMail, $source, PhpRenderer $renderer, array $templateVars = [])
     {
-        if ($this->emailDelayer->canSendEmailTypeTo($institutionAdminMail, EmailTypes::ILS_API_NOT_AVAILABLE)) {
+        if ($this->emailDelayer->canSendEmailTypeTo($institutionAdminMail, $source, EmailTypes::ILS_API_NOT_AVAILABLE)) {
 
             if (! isset($templateVars['failureTimes'])) {
                 $templateVars['failureTimes'] = $this->emailDelayer->getSendAttemptsCount($institutionAdminMail, EmailTypes::ILS_API_NOT_AVAILABLE);
             }
+
+            $templateVars['source'] = $source;
 
             $templateName = $this->getTemplateNameFor(EmailTypes::ILS_API_NOT_AVAILABLE);
             $body = $renderer->partial($templateName, $templateVars);

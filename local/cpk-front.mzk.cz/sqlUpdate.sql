@@ -463,3 +463,7 @@ UPDATE `system` SET `value`='35' WHERE `key`='DB_VERSION';
 ALTER TABLE `email_delayer` ADD `send_attempts_count` INT(11) NOT NULL DEFAULT '1' ;
 
 UPDATE `system` SET `value`='36' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `email_delayer` ADD `source` VARCHAR(10) NOT NULL AFTER `email`;
+
+UPDATE `system` SET `value`='37' WHERE `key`='DB_VERSION';

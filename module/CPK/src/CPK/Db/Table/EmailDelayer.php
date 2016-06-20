@@ -69,16 +69,18 @@ class EmailDelayer extends Gateway
      * and also an EmailTypes Row as the second return value.
      *
      * @param string $to
+     * @param string $source
      * @param string $type
      * @return \CPK\Db\Row\EmailDelayer[]|\CPK\Db\Row\EmailTypes[]
      * @throws \Exception
      */
-    public function getRow($to, $emailType) {
+    public function getRow($to, $source, $emailType) {
 
         $emailTypeRow = $this->getEmailTypeRow($emailType);
 
         $row = $this->select([
             'email' => $to,
+            'source' => $source,
             'type' => $emailTypeRow->id
         ])->current();
 
@@ -90,17 +92,19 @@ class EmailDelayer extends Gateway
      * returns boolean whether the time delay has passed since last email sent.
      *
      * @param string $to
+     * @param string $source
      * @param string $type
      * @return boolean
      * @throws \Exception
      */
-    public function canSendEmailTypeTo($to, $emailType) {
+    public function canSendEmailTypeTo($to, $source, $emailType) {
 
-        list($row, $emailTypeRow) = $this->getRow($to, $emailType);
+        list($row, $emailTypeRow) = $this->getRow($to, $source, $emailType);
 
         if (! $row) {
             $row = $this->createRow();
             $row->email = $to;
+            $row->source = $source;
             $row->type = $emailTypeRow->id;
             $row->save();
 
