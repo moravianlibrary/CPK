@@ -467,3 +467,24 @@ UPDATE `system` SET `value`='36' WHERE `key`='DB_VERSION';
 ALTER TABLE `email_delayer` ADD `source` VARCHAR(10) NOT NULL AFTER `email`;
 
 UPDATE `system` SET `value`='37' WHERE `key`='DB_VERSION';
+
+TRUNCATE `notifications`;
+
+ALTER TABLE `notifications`
+  DROP `has_blocks`,
+  DROP `has_fines`,
+  DROP `has_overdues`,
+  DROP `blocks_read`,
+  DROP `fines_read`,
+  DROP `overdues_read`;
+
+ALTER TABLE `notifications`
+  ADD `type` INT(11) NOT NULL AFTER `id`,
+  ADD KEY `notification_type` (`type`),
+  ADD `shows` BOOLEAN NOT NULL AFTER `type`,
+  ADD `read` BOOLEAN NOT NULL AFTER `shows`;
+
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notification_type_id` FOREIGN KEY (`type`) REFERENCES `vufind`.`notification_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+UPDATE `system` SET `value`='38' WHERE `key`='DB_VERSION';
