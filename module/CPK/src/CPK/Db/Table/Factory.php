@@ -119,6 +119,21 @@ class Factory
     }
 
     /**
+     * Construct the notification_types table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return NotificationTypes
+     */
+    public static function getNotificationTypes(ServiceManager $sm)
+    {
+        return new NotificationTypes($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
      * Construct the inst_translations table.
      *
      * @param ServiceManager $sm

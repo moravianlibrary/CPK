@@ -92,7 +92,7 @@
 	/**
 	 * A notification has been clicked .. follow the href if any
 	 */
-	function notifClicked(href) {
+	function notifClicked(href, type) {
 	    
 	    if (typeof href !== 'undefined') {
 		
@@ -102,7 +102,8 @@
 		}
 			
 		var data = {
-			notificationType : href.split('/').pop()
+			notificationType : type,
+			source : href.split('#').pop()
 		};
 			
 		var options = {

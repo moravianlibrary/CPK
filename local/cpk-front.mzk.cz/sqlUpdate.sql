@@ -488,3 +488,20 @@ ALTER TABLE `notifications`
   ADD CONSTRAINT `notification_type_id` FOREIGN KEY (`type`) REFERENCES `vufind`.`notification_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `system` SET `value`='38' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `notifications` DROP FOREIGN KEY `user_card_id`;
+
+TRUNCATE `notifications`;
+
+ALTER TABLE `notifications` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `notifications` ADD `user` INT(11) NOT NULL AFTER `id`;
+ALTER TABLE `notifications` ADD  CONSTRAINT `notification_usercard_id` FOREIGN KEY (`user`) REFERENCES `vufind`.`user_card`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+INSERT INTO `notification_types` (`key`, `name_cs`, `name_en`) VALUES
+  ('fines', 'Uživatel má nezaplacenou pokutu, či poplatek.', 'User has to pay a fine.'),
+  ('blocks', 'Uživatel má blokaci.', 'User has block or trap.'),
+  ('overdues', 'Uživatel má nevrácené výpůjčky', 'User has overdued items.'),
+  ('user_dummy', 'Uživatel nemá propojenou žádnou knihovnu.', 'User has no library connected.');
+
+UPDATE `system` SET `value`='39' WHERE `key`='DB_VERSION';

@@ -39,6 +39,12 @@ class Notifications extends Gateway
     protected $config;
 
     /**
+     *
+     * @var NotificationTypes
+     */
+    protected $notificationTypesTable;
+
+    /**
      * Constructor
      *
      * @param \Zend\Config\Config $config
@@ -46,7 +52,7 @@ class Notifications extends Gateway
      *
      * @return void
      */
-    public function __construct(Config $config)
+    public function __construct(Config $config, NotificationTypes $notificationTypesTable)
     {
         $this->config = $config;
         $this->table = 'notifications';
@@ -58,27 +64,34 @@ class Notifications extends Gateway
      * Creates new Notifications Row
      *
      * @param string $cat_username
-     * @param boolean $hasBlocks
-     * @param boolean $hasFines
-     * @param boolean $hasOverdues
      *
-     * @return \CPK\Db\Row\Notifications
+     * @return array \CPK\Db\Row\Notifications
      */
-    public function createNotificationsRow($cat_username, $hasBlocks, $hasFines, $hasOverdues)
+    public function createNotificationsRows($cat_username, array $notificationsParsed)
     {
-        $row = $this->createRow();
+        if ($this->notificationTypesTable === null)
+            $this->notificationTypesTable = $this->getDbTable('notification_types');
 
-        $row->id = $this->getUserCardId($cat_username);
+        $returnArray = [];
 
-        $row->has_blocks = $hasBlocks;
-        $row->has_fines = $hasFines;
-        $row->has_overdues = $hasOverdues;
+        $userCardId = $this->getUserCardId($cat_username);
 
-        $row->last_fetched = date('Y-m-d H:i:s');
+        $timestampNow = date('Y-m-d H:i:s');
 
-        $row->save();
+        foreach ($notificationsParsed as $notificationTypeKey => $notificationShows) {
+            $row = $this->createRow();
 
-        return $row;
+            $row->user = $userCardId;
+            $row->type = $this->notificationTypesTable->getNotificationTypeId($notificationTypeKey);
+            $row->shows = $notificationShows;
+            $row->last_fetched = $timestampNow;
+
+            $row->save();
+
+            $returnArray[$notificationTypeKey] = $row;
+        }
+
+        return $returnArray;
     }
 
     /**
@@ -86,19 +99,46 @@ class Notifications extends Gateway
      *
      * @param string $cat_username
      *
+     * @return array \CPK\Db\Row\Notifications
+     */
+    public function getNotificationsRows($cat_username)
+    {
+        if ($this->notificationTypesTable === null)
+            $this->notificationTypesTable = $this->getDbTable('notification_types');
+
+        $rows = $returnArray = [];
+
+        $rows = $this->select([
+            'user' => $this->getUserCardId($cat_username)
+        ]);
+
+        foreach ($rows as $row) {
+
+            $notificationKey = $this->notificationTypesTable->getNotificationTypeFromId($row->type);
+
+            $returnArray[$notificationKey] = $row;
+        }
+
+        return $returnArray;
+    }
+
+    /**
+     * Retrieves the Notifications Row for a certain user of a specified notification type
+     *
+     * @param string $userCardId
+     * @param string $notificationType
      * @return \CPK\Db\Row\Notifications
      */
-    public function getNotificationsRow($cat_username, $itIsId = false)
+    public function getNotificationsRow($userCardId, $notificationType)
     {
-        if ($itIsId === false)
-            return $this->select([
-                'id' => $this->getUserCardId($cat_username)
-            ])
-                ->current();
-        else
-            return $this->select([
-                'id' => $cat_username
-            ])->current();
+        if ($this->notificationTypesTable === null)
+            $this->notificationTypesTable = $this->getDbTable('notification_types');
+
+        return $this->select([
+            'user' => $userCardId,
+            'type' => $this->notificationTypesTable->getNotificationTypeId($notificationType)
+        ])
+            ->current();
     }
 
     /**

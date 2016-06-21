@@ -31,7 +31,7 @@
          </div>
 	   </div>
 	   <div ng-repeat='notification in notifCtrl.notifications["<?=$libraryCard['cat_username'] ?>"]'>
-	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href)'>
+	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href,notification.type)'>
 	       {{ notification.message }}
 	     </div>
 	   </div>

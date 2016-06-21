@@ -1,10 +1,10 @@
 <?php
 /**
- * Row Definition for Notifications
+ * Row Definition for Notification Types
  *
  * PHP version 5
  *
- * Copyright (C) Moravian Library 2015.
+ * Copyright (C) Moravian Library 2016.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -31,16 +31,9 @@ use VuFind\Db\Row\RowGateway,
     VuFind\Db\Table\DbTableAwareInterface,
     VuFind\Db\Table\DbTableAwareTrait;
 
-class Notifications extends RowGateway implements DbTableAwareInterface
+class NotificationTypes extends RowGateway implements DbTableAwareInterface
 {
     use DbTableAwareTrait;
-
-    /**
-     * Flag for timestamp already being set on this row since this instance exists.
-     *
-     * @var boolean
-     */
-    protected $lastFetchedSet = false;
 
     /**
      * Constructor
@@ -51,7 +44,7 @@ class Notifications extends RowGateway implements DbTableAwareInterface
      */
     public function __construct(\Zend\Db\Adapter\Adapter $adapter)
     {
-        parent::__construct('id', 'notifications', $adapter);
+        parent::__construct('id', 'notification_types', $adapter);
     }
 
     /**
@@ -64,39 +57,5 @@ class Notifications extends RowGateway implements DbTableAwareInterface
     public function setConfig(\Zend\Config\Config $config)
     {
         $this->config = $config;
-    }
-
-    /**
-     * Sets the flag of notification being showed to user.
-     *
-     * @param boolean $shows
-     */
-    public function setNotificationShows($shows)
-    {
-        $this->shows = boolval($shows);
-
-        if (! $this->lastFetchedSet) {
-            $this->lastFetchedSet = true;
-            $this->last_fetched = date('Y-m-d H:i:s');
-        }
-
-        $this->save();
-    }
-
-    /**
-     * Sets the flag of notification being read by user.
-     *
-     * @param boolean $read
-     */
-    public function setNotificationRead($read)
-    {
-        $this->read = boolval($read);
-
-        if (! $this->lastFetchedSet) {
-            $this->lastFetchedSet = true;
-            $this->last_fetched = date('Y-m-d H:i:s');
-        }
-
-        $this->save();
     }
 }

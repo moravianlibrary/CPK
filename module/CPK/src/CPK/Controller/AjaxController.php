@@ -814,11 +814,12 @@ class AjaxController extends AjaxControllerBase
     public function notificationReadAjax()
     {
             // Check user is logged in ..
-        if (!$user = $this->getAuthManager()->isLoggedIn()) {
-            return $this->output( 'You are not logged in.', self::STATUS_ERROR );
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
 
-        $notificationType = $this->params()->fromPost( 'notificationType' );
+        $notificationType = $this->params()->fromPost('notificationType');
+        $source = $this->params()->fromPost('source');
 
         $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
 
@@ -835,7 +836,7 @@ class AjaxController extends AjaxControllerBase
 
         try {
 
-            $notifHandler->setUserNotificationRead($user, $notificationType);
+            $notifHandler->setUserNotificationRead($user, $notificationType, $source);
         } catch (\Exception $e) {
 
             $userNotifications = [

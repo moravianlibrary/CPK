@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway, Zend\Config\Config;
+use Zend\Config\Config;
 
 /**
  * Class for DB table email_types.
@@ -42,10 +42,9 @@ use VuFind\Db\Table\Gateway, Zend\Config\Config;
  *
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
-class EmailTypes extends Gateway
+class EmailTypes extends ConstantsValidator
 {
     // Append here another types
-
     const IDP_NO_EPPN = 'idp_no_eppn';
 
     const ILS_API_NOT_AVAILABLE = 'ils_api_not_available';
@@ -72,28 +71,8 @@ class EmailTypes extends Gateway
         parent::__construct($this->table, $this->rowClass);
     }
 
-    /*
-     * Do not change the following
-     */
-
-    private static $constCache = null;
-
-    /**
-     * Throws an exception if there is provided unknown email type.
-     *
-     * @param string $emailType
-     * @throws \Exception
-     */
-    public static function assertValid($emailType) {
-
-        if (self::$constCache === null) {
-            $constants = (new \ReflectionClass(get_called_class()))->getConstants();
-
-            self::$constCache = array_values($constants);
-        }
-
-        if (! in_array($emailType, self::$constCache)) {
-            throw new \Exception('Email type invalid');
-        }
+    protected static function getInvalidConstantValueMessage()
+    {
+        return "Email type not recognized.";
     }
 }

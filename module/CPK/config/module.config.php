@@ -63,6 +63,7 @@ $config = array(
                     'usersettings' => 'CPK\Db\Table\Factory::getUserSettings',
                     'portalpages' => 'CPK\Db\Table\Factory::getPortalPages',
                     'notifications' => 'CPK\Db\Table\Factory::getNotifications',
+                    'notification_types' => 'CPK\Db\Table\Factory::getNotificationTypes',
                     'inst_translations' => 'CPK\Db\Table\Factory::getInstitutionsTranslations',
                     'inst_configs' => 'CPK\Db\Table\Factory::getInstitutionsConfigs',
                     'mostwanted' => 'CPK\Db\Table\Factory::getMostWanted',

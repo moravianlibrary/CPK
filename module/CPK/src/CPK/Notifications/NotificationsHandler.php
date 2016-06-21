@@ -29,6 +29,7 @@
 namespace CPK\Notifications;
 
 use CPK\Db\Table\Notifications, VuFind\Exception\ILS as ILSException;
+use CPK\Db\Table\NotificationTypes;
 
 class NotificationsHandler
 {
@@ -64,9 +65,9 @@ class NotificationsHandler
     /**
      * Temporary Notifications Row
      *
-     * @var \CPK\Db\Row\Notifications
+     * @var array \CPK\Db\Row\Notifications
      */
-    protected $notificationsRow;
+    protected $userNotificationsRows;
 
     /**
      * Interval to wait before querying the ILS for notifications again, measured in seconds
@@ -78,7 +79,7 @@ class NotificationsHandler
     /**
      * C'tor
      *
-     * @param \Zend\View\Renderer\RendererInterface $viewModel            
+     * @param \Zend\View\Renderer\RendererInterface $viewModel
      */
     public function __construct(\Zend\View\Renderer\RendererInterface $viewModel, Notifications $notificationsTable, \VuFind\ILS\Connection $ils)
     {
@@ -90,78 +91,45 @@ class NotificationsHandler
     public function getUserNotifications($cat_username)
     {
         $source = explode('.', $cat_username)[0];
-        
-        $this->notificationsRow = $this->notificationsTable->getNotificationsRow($cat_username);
-        
-        if ($this->notificationsRow === false) {
-            
+
+        $this->userNotificationsRows = $this->notificationsTable->getNotificationsRows($cat_username);
+
+        $apiRelevantKeys = NotificationTypes::getAllApiRelevantTypes();
+        $presentApiRelevatKeys = array_intersect(array_keys($this->userNotificationsRows), $apiRelevantKeys);
+
+        $hasAllApiRelevantKeys = empty(array_diff($apiRelevantKeys, $presentApiRelevatKeys));
+
+        if (! $hasAllApiRelevantKeys) {
+
             // Notifications have never been fetched before
             $this->createNewUserNotifications($cat_username, $source);
         } else {
-            
+
             // They have been fetched some time ago, check if it was more than REFETCH_INTERVAL_SECS
-            $lastFetched = strtotime($this->notificationsRow->last_fetched);
-            
-            $shouldFetchAgain = $lastFetched + self::REFETCH_INTERVAL_SECS <= time();
-            
-            if ($shouldFetchAgain) {
-                $this->actualizeUserNotifications($cat_username, $source);
-            }
+            $this->checkToFetchAgain($cat_username, $source);
         }
-        
+
         $data['notifications'] = [];
-        
-        if ($this->notificationsRow->has_blocks) {
-            
-            $clazz = $this->newNotifClass;
-            
-            if (! $this->notificationsRow->blocks_read) {
-                $clazz .= ' notif-unread';
+
+        foreach ($this->userNotificationsRows as $notificationType => $notificationRow) {
+
+            if ($notificationRow->shows) {
+                $clazz = $this->newNotifClass;
+
+                if (! $notificationRow->read)
+                    $clazz .= ' notif-unread';
+
+                $notification = [
+                    'clazz' => $clazz,
+                    'message' => $this->translate("notif_you_have_$notificationType"),
+                    'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                    'type' => $notificationType
+                ];
+
+                array_push($data['notifications'], $notification);
             }
-            
-            $notification = [
-                'clazz' => $clazz,
-                'message' => $this->translate('notif_you_have_blocks'),
-                'href' => '/MyResearch/Profile#' . $source
-            ];
-            
-            array_push($data['notifications'], $notification);
         }
-        
-        if ($this->notificationsRow->has_fines) {
-            
-            $clazz = $this->newNotifClass;
-            
-            if (! $this->notificationsRow->fines_read) {
-                $clazz .= ' notif-unread';
-            }
-            
-            $notification = [
-                'clazz' => $clazz,
-                'message' => $this->translate('notif_you_have_fines'),
-                'href' => '/MyResearch/Fines#' . $source
-            ];
-            
-            array_push($data['notifications'], $notification);
-        }
-        
-        if ($this->notificationsRow->has_overdues) {
-            
-            $clazz = $this->newNotifClass;
-            
-            if (! $this->notificationsRow->overdues_read) {
-                $clazz .= ' notif-unread';
-            }
-            
-            $notification = [
-                'clazz' => $clazz,
-                'message' => $this->translate('notif_you_have_overdues'),
-                'href' => '/MyResearch/CheckedOut#' . $source
-            ];
-            
-            array_push($data['notifications'], $notification);
-        }
-        
+
         if (count($data['notifications']) === 0) {
             // No notifications added ..
             $data['notifications'] = array(
@@ -171,107 +139,136 @@ class NotificationsHandler
                 ]
             );
         }
-        
+
         return $data;
     }
 
     /**
      * Sets an notification type as read for specific user
      *
-     * @param \CPK\Db\Row\User $user            
-     * @param string $notificationType            
+     * @param \CPK\Db\Row\User $user
+     * @param string $notificationType
      */
-    public function setUserNotificationRead(\CPK\Db\Row\User $user, $notificationType)
+    public function setUserNotificationRead(\CPK\Db\Row\User $user, $notificationType, $source)
     {
-        list ($notificationType, $source) = explode('#', $notificationType);
-        
+        list ($notificationType, $deleteme) = explode('#', $notificationType);
+
+        NotificationTypes::assertValid($notificationType);
+
         foreach ($user->getLibraryCards() as $libCard) {
             if ($libCard->home_library === $source) {
-                $this->notificationsRow = $this->notificationsTable->getNotificationsRow($libCard->id, true);
+                $this->userNotificationsRows[$notificationType] = $this->notificationsTable->getNotificationsRow($libCard->id, $notificationType);
                 break;
             }
         }
-        
-        if (isset($this->notificationsRow)) {
-            
-            switch ($notificationType) {
-                
-                case 'Fines':
-                    $this->notificationsRow->fines_read = true;
-                    break;
-                
-                case 'Profile':
-                    $this->notificationsRow->blocks_read = true;
-                    break;
-                
-                case 'CheckedOut':
-                    $this->notificationsRow->overdues_read = true;
-                    break;
-            }
-            
-            $this->notificationsRow->save();
+
+        if (isset($this->userNotificationsRows[$notificationType])) {
+
+            $this->userNotificationsRows[$notificationType]->read = true;
+            $this->userNotificationsRows[$notificationType]->save();
         }
     }
 
     /**
      * Creates new Notifications Row in DB
      *
-     * @param string $cat_username            
-     * @param string $source            
+     * @param string $cat_username
+     * @param string $source
      */
     protected function createNewUserNotifications($cat_username, $source)
     {
         $hasBlocks = $this->fetchHasBlocks($cat_username, $source);
-        
+
         $hasFines = $this->fetchHasFines($cat_username, $source);
-        
+
         $hasOverdues = $this->fetchHasOverdues($cat_username, $source);
-        
-        $this->notificationsRow = $this->notificationsTable->createNotificationsRow($cat_username, $hasBlocks, $hasFines, $hasOverdues);
+
+        $userNotifications = [
+            NotificationTypes::BLOCKS => $hasBlocks,
+            NotificationTypes::FINES => $hasFines,
+            NotificationTypes::OVERDUES => $hasOverdues
+        ];
+
+        $this->userNotificationsRows = $this->notificationsTable->createNotificationsRows($cat_username, $userNotifications);
     }
 
     /**
      * Retrieves new Notifications for a user.
      *
-     * It also sets particular notifications as unread only if there was an notification active before & now it's not active anymore ..
+     * It also sets particular notifications as unread only if there was an notification active before & now it's not active anymore.
      *
-     * @param string $cat_username            
-     * @param string $source            
+     * Note that it does not update any notifications which are not fetched via API.
+     *
+     * @param string $notificationsType
+     * @param string $cat_username
+     * @param string $source
      */
-    protected function actualizeUserNotifications($cat_username, $source)
+    protected function actualizeUserNotifications($notificationsType, $cat_username, $source)
     {
-        $hasBlocks = $this->fetchHasBlocks($cat_username, $source);
-        
-        $hasFines = $this->fetchHasFines($cat_username, $source);
-        
-        $hasOverdues = $this->fetchHasOverdues($cat_username, $source);
-        
-        if ($this->notificationsRow->has_blocks && $hasBlocks === false) {
-            $this->notificationsRow->blocks_read = false;
+        $notificationsRow = &$this->userNotificationsRows[$notificationsType];
+
+        switch ($notificationsType) {
+
+            case NotificationTypes::BLOCKS:
+
+                $showNotification = $this->fetchHasBlocks($cat_username, $source);
+                break;
+
+            case NotificationTypes::FINES:
+
+                $showNotification = $this->fetchHasFines($cat_username, $source);
+                break;
+
+            case NotificationTypes::OVERDUES:
+
+                $showNotification = $this->fetchHasOverdues($cat_username, $source);
+                break;
+
+            default:
+                $showNotification = false;
         }
-        
-        if ($this->notificationsRow->has_fines && $hasFines === false) {
-            $this->notificationsRow->fines_read = false;
+
+        $wasShownBefore = boolval($notificationsRow->shows);
+
+        $shouldSetUnread = $wasShownBefore && $showNotification === false;
+
+        if ($shouldSetUnread) {
+            $notificationsRow->read = false;
         }
-        
-        if ($this->notificationsRow->has_overdues && $hasOverdues === false) {
-            $this->notificationsRow->overdues_read = false;
+
+        $notificationsRow->shows = $showNotification;
+
+        $notificationsRow->last_fetched = date('Y-m-d H:i:s');
+
+        $notificationsRow->save();
+    }
+
+    /**
+     * Checks whether it is needed to fetch again the notifications.
+     *
+     * It also fetches those if neccessarry.
+     *
+     * @param string $cat_username
+     * @param string $source
+     */
+    protected function checkToFetchAgain($cat_username, $source)
+    {
+        foreach ($this->userNotificationsRows as $notificationsType => $notificationsRow) {
+            $lastFetched = strtotime($notificationsRow->last_fetched);
+
+            $shouldFetchAgain = $lastFetched + self::REFETCH_INTERVAL_SECS <= time();
+
+            if ($shouldFetchAgain) {
+                $this->actualizeUserNotifications($notificationsType, $cat_username, $source);
+            }
         }
-        
-        $this->notificationsRow->has_blocks = $hasBlocks;
-        $this->notificationsRow->has_fines = $hasFines;
-        $this->notificationsRow->has_overdues = $hasOverdues;
-        
-        $this->notificationsRow->last_fetched = date('Y-m-d H:i:s');
-        
-        $this->notificationsRow->save();
     }
 
     /**
      * Returns notifications of user's blocks.
      *
-     * @param string $cat_username            
-     * @param string $source            
+     * @param string $cat_username
+     * @param string $source
      */
     protected function fetchHasBlocks($cat_username, $source)
     {
@@ -279,22 +276,22 @@ class NotificationsHandler
             'cat_username' => $cat_username,
             'id' => $cat_username
         ]);
-        
+
         if (is_array($profile) && count($profile) === 0) {
-            
+
             throw new ILSException('Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
-        } else 
+        } else
             if (count($profile['blocks']))
                 return true;
-        
+
         return false;
     }
 
     /**
      * Returns notifications of user's fines.
      *
-     * @param string $cat_username            
-     * @param string $source            
+     * @param string $cat_username
+     * @param string $source
      */
     protected function fetchHasFines($cat_username, $source)
     {
@@ -302,20 +299,20 @@ class NotificationsHandler
             'cat_username' => $cat_username,
             'id' => $cat_username
         ]);
-        
+
         unset($fines['source']);
-        
+
         if (count($fines))
             return true;
-        
+
         return false;
     }
 
     /**
      * Returns notifications of user's overdues.
      *
-     * @param string $cat_username            
-     * @param string $source            
+     * @param string $cat_username
+     * @param string $source
      */
     protected function fetchHasOverdues($cat_username, $source)
     {
@@ -323,13 +320,13 @@ class NotificationsHandler
             'cat_username' => $cat_username,
             'id' => $cat_username
         ]);
-        
+
         foreach ($result as $current) {
-            
+
             if (isset($current['dueStatus']) && $current['dueStatus'] === "overdue")
                 return true;
         }
-        
+
         return false;
     }
 
@@ -343,7 +340,7 @@ class NotificationsHandler
      * @param string $default
      *            Default value to use if no translation is found (null
      *            for no default).
-     *            
+     *
      * @return string
      */
     protected function translate($msg, $tokens = [], $default = null)
