@@ -1175,9 +1175,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $mediumType = $this->useXPath($additResponse,
                         'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
 
-                if ($this->agency === 'UOG505') { // add record prefix for tre
-                    $bib_id = 'UOG505:' . $bib_id;
-                }
             } catch (ILSException $e) {
             }
 
@@ -1339,9 +1336,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
             if ($this->agency === 'ZLG001') { // add record prefix for kfbz
                 $bib_id = 'oai:' . $bib_id;
-            }
-            if ($this->agency === 'UOG505') {
-                $bib_id = 'UOG505:' . $bib_id; // add record prefix for tre
             }
             $create = $this->parseDate($create);
             $expire = $this->parseDate($expire);
