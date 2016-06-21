@@ -15,7 +15,5 @@
 <? endif; ?>
 
 <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
-  <? if (!in_array($current, $top)): ?>
-    <?=$this->recommend($current)?>
-  <? endif; ?>
+  <?=$this->recommend($current)?>
 <? endforeach; ?>
