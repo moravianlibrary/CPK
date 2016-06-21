@@ -28,7 +28,6 @@
 namespace CPK\Db\Table;
 
 use VuFind\Db\Table\Gateway,
-    VuFind\Db\Row\User,
     Zend\Config\Config,
     Zend\Db\Sql\Update,
     Zend\Db\Sql\Select;
