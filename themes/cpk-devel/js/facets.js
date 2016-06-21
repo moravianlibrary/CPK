@@ -59,7 +59,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
         'opened': this.hasAppliedChildren,
         'selected': this.isApplied
       },
-      'li_attr': this.isApplied ? { 'class': 'active' } : {},
+      'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
       'a_attr': this.isApplied ? { 'class': 'active' } :
           { 'href': window.location.href + "&filter%5B%5D=" + facetFilter },
     });
