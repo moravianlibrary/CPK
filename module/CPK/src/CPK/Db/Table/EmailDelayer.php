@@ -102,6 +102,7 @@ class EmailDelayer extends Gateway
         list($row, $emailTypeRow) = $this->getRow($to, $source, $emailType);
 
         if (! $row) {
+
             $row = $this->createRow();
             $row->email = $to;
             $row->source = $source;
