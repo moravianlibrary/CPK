@@ -52,7 +52,7 @@ class Notifications extends Gateway
      *
      * @return void
      */
-    public function __construct(Config $config, NotificationTypes $notificationTypesTable)
+    public function __construct(Config $config)
     {
         $this->config = $config;
         $this->table = 'notifications';
