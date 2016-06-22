@@ -25,7 +25,7 @@
         	<h2><?=$this->translate('First column');?></h2>
 			<select id='first-homepage-widget'>
 			  <? foreach($widgets as $widget): ?>
-				<option value='<?=$widget?>'<?=($widget==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget)?></option>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
 			  <? endforeach; ?>
 			</select>
         </div>
@@ -33,7 +33,7 @@
         	<h2><?=$this->translate('Second column');?></h2>
 			<select id='second-homepage-widget'>
 				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget?>'<?=($widget==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget)?></option>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
 			  <? endforeach; ?>
 			</select>
         </div>
@@ -41,7 +41,7 @@
         	<h2><?=$this->translate('Third column');?></h2>
 			<select id='third-homepage-widget'>
 				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget?>'<?=($widget==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget)?></option>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
 			  <? endforeach; ?>
 			</select>
         </div>

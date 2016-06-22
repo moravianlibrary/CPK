@@ -679,15 +679,15 @@ class SearchController extends AbstractSearch
 	 */
 	public function getMostWantedRecordsAction($randomLimit = false)
 	{
-	    $mostWantedTable = $this->getTable("mostwanted");
-	    $records = $mostWantedTable->getRecords($randomLimit);
+	    $widgetContentTable = $this->getTable("widgetcontent");
+	    $mostWanted = $widgetContentTable->getContentsByName('most_wanted', $randomLimit);
 
 	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-	    foreach ($records as $key => $record) {
-	       $records[$key]['driver'] = $recordLoader->load($record['record_id']);
+	    foreach ($mostWanted as $key => $record) {
+	       $mostWanted[$key]->setRecordDriver($recordLoader->load($record->getValue()));
 	    }
 
-	    return $records;
+	    return $mostWanted;
 	}
 
 	/**
@@ -699,15 +699,15 @@ class SearchController extends AbstractSearch
 	 */
 	public function getFavoriteAuthorsAction($randomLimit = false)
 	{
-	    $favoriteAuthorsTable = $this->getTable("favoriteauthors");
-	    $records = $favoriteAuthorsTable->getRecords($randomLimit);
+	    $widgetContentTable = $this->getTable("widgetcontent");
+	    $favoriteAuthors = $widgetContentTable->getContentsByName('favorite_authors', $randomLimit, true);
 
 	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-	    foreach ($records as $key => $record) {
-	        $records[$key]['driver'] = $recordLoader->load($record['authority_id']);
+	    foreach ($favoriteAuthors as $key => $record) {
+	        $favoriteAuthors[$key]->setRecordDriver($recordLoader->load($record->getValue()));
 	    }
 
-	    return $records;
+	    return $favoriteAuthors;
 	}
 
 	/**

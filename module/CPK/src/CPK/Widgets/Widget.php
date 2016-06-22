@@ -1,6 +1,6 @@
 <?php
 /**
- * Row Definition for MostWanted
+ * Object Definition for Widget
  *
  * PHP version 5
  *
@@ -20,51 +20,32 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Db_Row
  * @author   Martin Kravec <martin.kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
  */
-namespace CPK\Db\Row;
-
-use VuFind\Db\Row\RowGateway,
-    VuFind\Db\Table\DbTableAwareInterface,
-    VuFind\Db\Table\DbTableAwareTrait;
+namespace CPK\Widgets;
 
 /**
- * Row Definition for MostWanted
+ * Object Definition for Widget
  *
  * @category VuFind2
- * @package  Db_Row
  * @author   Martin Kravec <martin.kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
- * @link     http://vufind.org Main Site
  */
-class MostWanted extends RowGateway implements DbTableAwareInterface
-{
-    use DbTableAwareTrait;
+class Widget {
+    private $id;
+    private $name;
+    private $display;
 
-    /**
-     * Constructor
-     *
-     * @param \Zend\Db\Adapter\Adapter $adapter Database adapter
-     *
-     * @return void
-     */
-    public function __construct(\Zend\Db\Adapter\Adapter $adapter)
-    {
-        parent::__construct('id', 'most_wanted', $adapter);
+    public function getId() {
+        return $this->id;
     }
 
-    /**
-     * Configuration setter
-     *
-     * @param \Zend\Config\Config $config VuFind configuration
-     *
-     * @return void
-     */
-    public function setConfig(\Zend\Config\Config $config)
-    {
-        $this->config = $config;
+    public function getName() {
+        return $this->name;
+    }
+
+    public function getDisplay() {
+        return $this->display;
     }
 }

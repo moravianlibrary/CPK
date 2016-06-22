@@ -1,6 +1,6 @@
 <?php
 /**
- * Row Definition for FavoriteAuthors
+ * Row Definition for WidgetContent
  *
  * PHP version 5
  *
@@ -32,7 +32,7 @@ use VuFind\Db\Row\RowGateway,
     VuFind\Db\Table\DbTableAwareTrait;
 
 /**
- * Row Definition for FavoriteAuthors
+ * Row Definition for WidgetContent
  *
  * @category VuFind2
  * @package  Db_Row
@@ -40,7 +40,7 @@ use VuFind\Db\Row\RowGateway,
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org Main Site
  */
-class FavoriteAuthors extends RowGateway implements DbTableAwareInterface
+class WidgetContent extends RowGateway implements DbTableAwareInterface
 {
     use DbTableAwareTrait;
 
@@ -53,7 +53,7 @@ class FavoriteAuthors extends RowGateway implements DbTableAwareInterface
      */
     public function __construct(\Zend\Db\Adapter\Adapter $adapter)
     {
-        parent::__construct('id', 'favorite_authors', $adapter);
+        parent::__construct('id', 'widget_content', $adapter);
     }
 
     /**

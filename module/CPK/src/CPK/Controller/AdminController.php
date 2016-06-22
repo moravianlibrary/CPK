@@ -350,10 +350,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $frontendTable = $this->getTable('frontend');
         $viewModel->setVariable('homePageWidgets', $frontendTable->getHomepageWidgets());
 
-        $widgetsTable = $this->getTable('widgets');
-        $widgets = $widgetsTable->getAllWidgets();
+        $widgetsTable = $this->getTable('widget');
+        $widgets = $widgetsTable->getWidgets();
 
-        $widgets = ['most_wanted', 'events', 'infobox', 'favorite_authors'];
         $viewModel->setVariable('widgets', $widgets);
 
         return $viewModel;
@@ -465,10 +464,14 @@ class AdminController extends \VuFind\Controller\AbstractBase
     /**
      * Overriden createViewModel which accepts template as the 2nd arg.
      *
+     * @param array $params Parameters to pass to ViewModel constructor.
+     *
      * {@inheritDoc}
      * @see \VuFind\Controller\AbstractBase::createViewModel()
+     *
+     * @return ViewModel
      */
-    protected function createViewModel(array $params = null, $template = null)
+    protected function createViewModel($params = null, $template = null)
     {
         $vm = parent::createViewModel($params);
 

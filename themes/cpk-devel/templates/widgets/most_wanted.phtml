@@ -4,24 +4,24 @@
     </div>
     <div class="list-group">
       <? foreach ($this->mostWanted as $book): ?>
-      <a href="/Record/<?=$book['record_id']?>" class="list-group-item clearfix">
+      <a href="/Record/<?=$book->getValue()?>" class="list-group-item clearfix">
         <div class='row'>
           <?
-          $recordId =  preg_replace("/\./", "", $book['record_id']);
+          $recordId =  preg_replace("/\./", "", $book->getValue());
           $recordId =  preg_replace("/:/", "", $recordId);
-          $formats = $book['driver']->getFormats();
+          $formats = $book->getRecordDriver()->getFormats();
           ?>
           <div class="col-xs-3 cover_<?=$recordId?>">
 
-                <? if ($bibinfo = $this->record($book['driver'])->getObalkyKnihJSONV3()): ?>
+                <? if ($bibinfo = $this->record($book->getRecordDriver())->getObalkyKnihJSONV3()): ?>
                     <script type="text/javascript">
-                        obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($book['title'])?>);
+                        obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($book->getRecordDriver()->getTitle())?>);
                     </script>
                 <? endif;?>
 
                 <? if (! empty($formats)): ?>
-                    <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($book['driver'])->getFormatClass($formats[0])?>"></i></div>
-                <? elseif ($summThumb = $this->record($book['driver'])->getThumbnail('small')): ?>
+                    <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($book->getRecordDriver())->getFormatClass($formats[0])?>"></i></div>
+                <? elseif ($summThumb = $this->record($book->getRecordDriver())->getThumbnail('small')): ?>
                     <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
                 <? else: ?>
                     <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
@@ -29,8 +29,8 @@
 
           </div>
           <div class="col-xs-9 content">
-            <h4 class="list-group-item-heading"><?=$book['title']?></h4>
-            <p class="list-group-item-text"><?=$book['author']?></p>
+            <h4 class="list-group-item-heading"><?=$book->getRecordDriver()->getTitle()?></h4>
+            <p class="list-group-item-text"><?=$book->getRecordDriver()->getDeduplicatedAuthors()['main']?></p>
           </div>
         </div>
       </a>

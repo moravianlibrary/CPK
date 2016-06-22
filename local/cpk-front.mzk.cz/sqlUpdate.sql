@@ -505,3 +505,34 @@ INSERT INTO `notification_types` (`key`, `name_cs`, `name_en`) VALUES
   ('user_dummy', 'Uživatel nemá propojenou žádnou knihovnu.', 'User has no library connected.');
 
 UPDATE `system` SET `value`='39' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `widgets` ADD `display` VARCHAR( 32 ) NOT NULL ;
+
+UPDATE `vufind`.`widgets` SET `display` = 'random' WHERE `widgets`.`id` =1;
+UPDATE `vufind`.`widgets` SET `display` = 'default' WHERE `widgets`.`id` =2;
+UPDATE `vufind`.`widgets` SET `display` = 'default' WHERE `widgets`.`id` =3;
+
+INSERT INTO `vufind`.`widgets` (`id` , `name` , `display`) VALUES (NULL , 'favorite_authors', 'priority');
+
+RENAME TABLE `widgets` TO `widget`;
+
+CREATE TABLE IF NOT EXISTS `widget_content` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `widget_id` int(11) NOT NULL,
+  `value` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `preferred_value` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=10 ;
+
+INSERT INTO `widget_content` (`id`, `widget_id`, `value`, `preferred_value`) VALUES
+(5, 1, 'nkp.NKC01-000038254', 0),
+(6, 1, 'cbvk.CbvkUsCat_0474696', 0),
+(7, 1, 'vkol.SVK01-000430490', 0),
+(8, 4, 'auth.AUT10-000011623', 0),
+(9, 4, 'auth.AUT10-000033729', 0);
+
+DROP TABLE `most_wanted`;
+
+DROP TABLE `favorite_authors`;
+
+UPDATE `system` SET `value`='40' WHERE `key`='DB_VERSION';

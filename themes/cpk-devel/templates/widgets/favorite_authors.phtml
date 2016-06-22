@@ -4,25 +4,25 @@
     </div>
     <div class="list-group">
       <? foreach ($this->favoriteAuthors as $author): ?>
-      <a href="/Record/<?=$author['authority_id']?>" class="list-group-item clearfix">
+      <a href="/Record/<?=$author->getValue()?>" class="list-group-item clearfix">
         <div class='row'>
           <?
-          $recordId =  preg_replace("/\./", "", $author['authority_id']);
+          $recordId =  preg_replace("/\./", "", $author->getValue());
           $recordId =  preg_replace("/:/", "", $recordId);
-          $formats = $author['driver']->getFormats();
-          $shortNoteKey = 'short_note_'.explode('-', $this->language)[0];
+          $formats = $author->getRecordDriver()->getFormats();
+          $language = explode('-', $this->language)[0];
           ?>
           <div class="col-xs-3 cover_<?=$recordId?>">
 
-                <? if ($bibinfo = $this->record($author['driver'])->getObalkyKnihJSONV3()): ?>
+                <? if ($bibinfo = $this->record($author->getRecordDriver())->getObalkyKnihJSONV3()): ?>
                     <script type="text/javascript">
-                        obalky.display_authority_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($author['authority_name'])?>);
+                        obalky.display_authority_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($author->getRecordDriver()->getPersonalName())?>);
                     </script>
                 <? endif;?>
 
                 <? if (! empty($formats)): ?>
-                    <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($author['driver'])->getFormatClass($formats[0])?>"></i></div>
-                <? elseif ($summThumb = $this->record($author['driver'])->getThumbnail('small')): ?>
+                    <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($author->getRecordDriver())->getFormatClass($formats[0])?>"></i></div>
+                <? elseif ($summThumb = $this->record($author->getRecordDriver())->getThumbnail('small')): ?>
                     <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
                 <? else: ?>
                     <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
@@ -30,8 +30,10 @@
 
           </div>
           <div class="col-xs-9 content">
-            <h4 class="list-group-item-heading"><?=$author['authority_name']?></h4>
-            <p class="list-group-item-text"><?=$author[$shortNoteKey]?></p>
+            <h4 class="list-group-item-heading"><?=$author->getRecordDriver()->getPersonalName()?></h4>
+            <p class="list-group-item-text">
+            	<?= ($language=='cs') ? $author->getRecordDriver()->getShortNoteCs() : $author->getRecordDriver()->getShortNoteEn() ?>
+            </p>
           </div>
         </div>
       </a>

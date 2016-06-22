@@ -164,36 +164,6 @@ class Factory
     }
 
     /**
-     * Construct the most_wanted table.
-     *
-     * @param ServiceManager $sm
-     *            Service manager.
-     *
-     * @return MostWanted
-     */
-    public static function getMostWanted(ServiceManager $sm)
-    {
-        return new MostWanted($sm->getServiceLocator()
-            ->get('VuFind\Config')
-            ->get('config'));
-    }
-
-    /**
-     * Construct the favorite_authors table.
-     *
-     * @param ServiceManager $sm
-     *            Service manager.
-     *
-     * @return MostWanted
-     */
-    public static function getFavoriteAuthors(ServiceManager $sm)
-    {
-        return new FavoriteAuthors($sm->getServiceLocator()
-            ->get('VuFind\Config')
-            ->get('config'));
-    }
-
-    /**
      * Construct the libraries_geolocations table.
      *
      * @param ServiceManager $sm
@@ -224,16 +194,31 @@ class Factory
     }
 
     /**
-     * Construct the widgets table.
+     * Construct the widget table.
      *
      * @param ServiceManager $sm
      *            Service manager.
      *
      * @return Widgets
      */
-    public static function getWidgets(ServiceManager $sm)
+    public static function getWidget(ServiceManager $sm)
     {
-        return new Widgets($sm->getServiceLocator()
+        return new Widget($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
+
+    /**
+     * Construct the widget_content table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return WidgetContent
+     */
+    public static function getWidgetContent(ServiceManager $sm)
+    {
+        return new WidgetContent($sm->getServiceLocator()
             ->get('VuFind\Config')
             ->get('config'));
     }

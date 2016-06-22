@@ -1,6 +1,6 @@
 <?php
 /**
- * Row Definition for Widgets
+ * Row Definition for Widget
  *
  * PHP version 5
  *
@@ -32,7 +32,7 @@ use VuFind\Db\Row\RowGateway,
     VuFind\Db\Table\DbTableAwareTrait;
 
 /**
- * Row Definition for Widgets
+ * Row Definition for Widget
  *
  * @category VuFind2
  * @package  Db_Row
@@ -40,7 +40,7 @@ use VuFind\Db\Row\RowGateway,
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org Main Site
  */
-class Widgets extends RowGateway implements DbTableAwareInterface
+class Widget extends RowGateway implements DbTableAwareInterface
 {
     use DbTableAwareTrait;
 
@@ -53,7 +53,7 @@ class Widgets extends RowGateway implements DbTableAwareInterface
      */
     public function __construct(\Zend\Db\Adapter\Adapter $adapter)
     {
-        parent::__construct('id', 'widgets', $adapter);
+        parent::__construct('id', 'widget', $adapter);
     }
 
     /**

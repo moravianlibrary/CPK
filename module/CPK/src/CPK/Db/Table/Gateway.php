@@ -1,6 +1,6 @@
 <?php
 /**
- * Table Definition for Widgets
+ * Generic VuFind table gateway.
  *
  * PHP version 5
  *
@@ -19,24 +19,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * @category VuFind2
+*  @category VuFind2
  * @package  Db_Table
  * @author   Martin Kravec <martin.kravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
 namespace CPK\Db\Table;
-
-use VuFind\Db\Table\Gateway,
-    Zend\Config\Config,
-    Zend\Db\Sql\Update,
-    Zend\Db\Sql\Insert,
-    Zend\Db\Sql\Delete,
+use VuFind\Db\Table\Gateway as ParentGateway,
     Zend\Db\Sql\Select,
+    Zend\Db\Sql\Update,
+    Zend\Db\Sql\Delete,
+    Zend\Db\Sql\Insert,
     Zend\Db\Sql\Expression;
 
 /**
- * Table Definition for Widgets
+ * Generic VuFind table gateway.
  *
  * @category VuFind2
  * @package  Db_Table
@@ -44,24 +42,16 @@ use VuFind\Db\Table\Gateway,
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link     http://vufind.org Main Site
  */
-class Widgets extends Gateway
+class Gateway extends ParentGateway
 {
     /**
-     * @var \Zend\Config\Config
-     */
-    protected $config;
-
-    /**
-     * Constructor
+     * Returns database connection
      *
-     * @param \Zend\Config\Config $config VuFind configuration
-     *
-     * @return void
+     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
      */
-    public function __construct(Config $config)
+    protected function getDbConnection()
     {
-        $this->config = $config;
-        parent::__construct('widgets', 'CPK\Db\Row\Widgets');
+        return $this->getAdapter()->driver->getConnection();
     }
 
     /**
@@ -71,7 +61,7 @@ class Widgets extends Gateway
      *
      * @return Zend\Db\Adapter\Driver\ResultInterface $result
      */
-    protected function executeAnyZendSQLSelect(Select $select)
+    protected function executeAnyZendSQLSelect(\Zend\Db\Sql\Select $select)
     {
         $statement = $this->sql->prepareStatementForSqlObject($select);
         return $statement->execute();
@@ -84,7 +74,7 @@ class Widgets extends Gateway
      *
      * @return Zend\Db\Adapter\Driver\ResultInterface $result
      */
-    protected function executeAnyZendSQLUpdate(Update $update)
+    protected function executeAnyZendSQLUpdate(\Zend\Db\Sql\Update $update)
     {
         $statement = $this->sql->prepareStatementForSqlObject($update);
         return $statement->execute();
@@ -97,7 +87,7 @@ class Widgets extends Gateway
      *
      * @return Zend\Db\Adapter\Driver\StatementInterface
      */
-    protected function executeAnyZendSQLInsert(Insert $insert)
+    protected function executeAnyZendSQLInsert(\Zend\Db\Sql\Insert $insert)
     {
         $statement = $this->sql->prepareStatementForSqlObject($insert);
         return $statement->execute();
@@ -110,36 +100,35 @@ class Widgets extends Gateway
      *
      * @return Zend\Db\Adapter\Driver\StatementInterface
      */
-    protected function executeAnyZendSQLDelete(Delete $delete)
+    protected function executeAnyZendSQLDelete(\Zend\Db\Sql\Delete $delete)
     {
         $statement = $this->sql->prepareStatementForSqlObject($delete);
         return $statement->execute();
     }
 
     /**
-     * Returns database connection
+     * Return array of specific objects created from DB results
      *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
-     */
-    protected function getDbConnection()
-    {
-        return $this->getAdapter()->driver->getConnection();
-    }
-    /**
-     * Returns widgets
+     * @param   Zend\Db\Adapter\Driver\Mysqli\Result    $results
+     * @param   string                                  $class  E.g.: '\CPK\Widgets\Widget'
      *
-     * @return array
+     * @return  array
      */
-    public function getAllWidgets()
-    {
-        $select = new Select($this->table);
-        $select->columns(['name']);
-
-        $results= $this->executeAnyZendSQLSelect($select);
-
-        $resultSet = new \Zend\Db\ResultSet\ResultSet();
+    protected function resultsToArrayOfSpecifiObjects(
+        \Zend\Db\Adapter\Driver\Mysqli\Result $results,
+        $class
+        ) {
+        $resultSet = new \Zend\Db\ResultSet\HydratingResultSet(
+            new \Zend\Stdlib\Hydrator\Reflection,
+            new $class
+            );
         $resultSet->initialize($results);
 
-        return $resultSet->toArray();
+        $array = [];
+        foreach($resultSet as $object) {
+            $array[] = $object;
+        }
+
+        return $array;
     }
 }
