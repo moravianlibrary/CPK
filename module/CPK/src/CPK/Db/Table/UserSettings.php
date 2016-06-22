@@ -102,7 +102,7 @@ class UserSettings extends Gateway
      *
      * @return array
      */
-    public function getSettings(User $user)
+    public function getSettings(\CPK\Db\Row\User $user)
     {
         return $this->select(['user_id' => $user['id']])->toArray();
     }
@@ -114,7 +114,7 @@ class UserSettings extends Gateway
      *
      * @return string
      */
-    public function getUserCitationStyle(User $user)
+    public function getUserCitationStyle(\CPK\Db\Row\User $user)
     {
         $select = new Select($this->table);
         $select->columns([
@@ -137,7 +137,7 @@ class UserSettings extends Gateway
      *
      * @return bool
      */
-    public function hasUserSettings(User $user)
+    public function hasUserSettings(\CPK\Db\Row\User $user)
     {
         $select = new Select($this->table);
         $select->limit(1);
@@ -161,7 +161,7 @@ class UserSettings extends Gateway
      *
      * @return void
      */
-    public function setCitationStyle(User $user, $citationStyleValue)
+    public function setCitationStyle(\CPK\Db\Row\User $user, $citationStyleValue)
     {
         $hasUserSettingsAlready = $this->hasUserSettings($user);
 
@@ -199,7 +199,7 @@ class UserSettings extends Gateway
      *
      * @return void
      */
-    public function setRecordsPerPage(User $user, $recordsPerPage)
+    public function setRecordsPerPage(\CPK\Db\Row\User $user, $recordsPerPage)
     {
         $hasUserSettingsAlready = $this->hasUserSettings($user);
 
@@ -236,7 +236,7 @@ class UserSettings extends Gateway
      *
      * @return tinyInt
      */
-    public function getRecordsPerPage(User $user)
+    public function getRecordsPerPage(\CPK\Db\Row\User $user)
     {
         $select = new Select($this->table);
         $select->columns([
@@ -259,7 +259,7 @@ class UserSettings extends Gateway
      *
      * @return string
      */
-    public function getSorting(User $user)
+    public function getSorting(\CPK\Db\Row\User $user)
     {
         $select = new Select($this->table);
         $select->columns([
@@ -283,7 +283,7 @@ class UserSettings extends Gateway
      *
      * @return void
      */
-    public function setPreferredSorting(User $user, $preferredSorting)
+    public function setPreferredSorting(\CPK\Db\Row\User $user, $preferredSorting)
     {
         $hasUserSettingsAlready = $this->hasUserSettings($user);
 
@@ -321,7 +321,7 @@ class UserSettings extends Gateway
      *
      * @return void
      */
-    public function saveTheseInstitutions(User $user, array $institutions = [])
+    public function saveTheseInstitutions(\CPK\Db\Row\User $user, array $institutions = [])
     {
         $data = "";
         foreach($institutions as $institution) {
@@ -364,7 +364,7 @@ class UserSettings extends Gateway
      *
      * @return string
      */
-    public function getSavedInstitutions(User $user)
+    public function getSavedInstitutions(\CPK\Db\Row\User $user)
     {
         $select = new Select($this->table);
         $select->columns([
