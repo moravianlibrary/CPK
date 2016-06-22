@@ -746,6 +746,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if ($response === null)
                 return [];
 
+            $newNextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
+
             $bibInfos = $this->useXPath($response,
                 'LookupItemSetResponse/BibInformation');
 
@@ -815,7 +817,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                     'restrictions' => '',
                     'duedate' => empty($dueDate) ? '' : $dueDate,
-                    'next_item_token' => '',
+                    'next_item_token' => empty($newNextItemToken) ? '' : (string) $newNextItemToken[0],
                     'addLink' => $addLink,
                 );
             }
@@ -1861,6 +1863,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     protected function convertStatus($status) {
         if (! empty($status) && (string) $status[0] === 'Available on Shelf') $status[0] = 'Available On Shelf';
+        if (! empty($status) && (string) $status[0] === 'Not available') $status[0] = 'Not Available';
         if (! empty($status) && (string) $status[0] === 'Available for Pickup') $status[0] = 'On Order';
         if (! empty($status) && (string) $status[0] === 'Available For Pickup') $status[0] = 'On Order';
         if (! empty($status) && (string) $status[0] === 'Waiting To Be Reshelved') $status[0] = 'In Process';
