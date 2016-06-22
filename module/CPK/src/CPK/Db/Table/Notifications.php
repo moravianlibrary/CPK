@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
+use CPK\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
 
 class Notifications extends Gateway
 {
@@ -162,18 +162,5 @@ class Notifications extends Gateway
         $userCard = $this->executeAnyZendSQLSelect($select)->current();
 
         return $userCard['id'];
-    }
-
-    /**
-     * Executes any Select
-     *
-     * @param Select $select
-     *
-     * @return Result $result
-     */
-    protected function executeAnyZendSQLSelect(Select $select)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
     }
 }

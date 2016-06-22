@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway,
+use CPK\Db\Table\Gateway,
     Zend\Config\Config,
     Zend\Db\Sql\Select,
     Zend\Db\Sql\Update,
@@ -64,68 +64,6 @@ class PortalPage extends Gateway
         $this->table = 'portal_pages';
         $this->rowClass = 'CPK\Db\Row\PortalPage';
         parent::__construct($this->table, $this->rowClass);
-    }
-
-    /**
-     * Executes any Select
-     *
-     * @param Zend\Db\Sql\Select $select
-     *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
-     */
-    protected function executeAnyZendSQLSelect(Select $select)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
-    }
-
-    /**
-     * Executes any Update
-     *
-     * @param Zend\Db\Sql\Update $update
-     *
-     * @return Zend\Db\Adapter\Driver\StatementInterface
-     */
-    protected function executeAnyZendSQLUpdate(Update $update)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($update);
-        return $statement->execute();
-    }
-
-    /**
-     * Executes any Insert
-     *
-     * @param Zend\Db\Sql\Insert $insert
-     *
-     * @return Zend\Db\Adapter\Driver\StatementInterface
-     */
-    protected function executeAnyZendSQLInsert(Insert $insert)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($insert);
-        return $statement->execute();
-    }
-
-    /**
-     * Executes any Delete
-     *
-     * @param Zend\Db\Sql\Delete $delete
-     *
-     * @return Zend\Db\Adapter\Driver\StatementInterface
-     */
-    protected function executeAnyZendSQLDelete(Delete $delete)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($delete);
-        return $statement->execute();
-    }
-
-    /**
-     * Returns database connection
-     *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
-     */
-    protected function getDbConnection()
-    {
-        return $this->getAdapter()->driver->getConnection();
     }
 
     /**

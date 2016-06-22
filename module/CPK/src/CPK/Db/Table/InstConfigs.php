@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
+use CPK\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
 
 /**
  * This database table is supposed to fulfill the needs of having a temporary
@@ -310,15 +310,5 @@ class InstConfigs extends Gateway
         }
 
         return $config;
-    }
-
-    /**
-     * Returns database connection.
-     *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection $conn
-     */
-    protected function getDbConnection()
-    {
-        return $this->getAdapter()->driver->getConnection();
     }
 }

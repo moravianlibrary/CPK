@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway,
+use CPK\Db\Table\Gateway,
     Zend\Config\Config,
     Zend\Db\Sql\Select;
 
@@ -46,12 +46,12 @@ class CitationStyle extends Gateway
      * @var \Zend\Config\Config
      */
     protected $config;
-    
+
     /**
      * Constructor
      *
      * @param \Zend\Config\Config $config VuFind configuration
-     * 
+     *
      * @return void
      */
     public function __construct(Config $config)
@@ -61,42 +61,6 @@ class CitationStyle extends Gateway
         $this->rowClass = 'CPK\Db\Row\CitationStyle';
         parent::__construct($this->table, $this->rowClass);
     }
-    
-    /**
-     * Executes any Select
-     *
-     * @param Zend\Db\Sql\Select $select
-     *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
-     */
-    protected function executeAnyZendSQLSelect(Select $select)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
-    }
-    
-    /**
-     * Executes any Update
-     *
-     * @param Zend\Db\Sql\Update $update
-     *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
-     */
-    protected function executeAnyZendSQLUpdate(Update $update)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($update);
-        return $statement->execute();
-    }
-    
-    /**
-     * Returns database connection
-     *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
-     */
-    protected function getDbConnection()
-    {
-        return $this->getAdapter()->driver->getConnection();
-    }
 
     /**
      * Returns rows from citation_style table
@@ -104,18 +68,18 @@ class CitationStyle extends Gateway
      * @return array
      */
     public function getAllStyles()
-    {       
+    {
         $select = new Select($this->table);
         $select->order('description');
-        
+
         $results= $this->executeAnyZendSQLSelect($select);
-        
+
         $resultSet = new \Zend\Db\ResultSet\ResultSet();
         $resultSet->initialize($results);
-        
+
         return $resultSet->toArray();
     }
-    
+
     /**
      * Return value of citation style
      *
@@ -130,11 +94,11 @@ class CitationStyle extends Gateway
             'value'
         ]);
         $select->limit(1);
-        
+
         $condition = 'id="'.$citationStyleId.'"';
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
-        
+
         $result = $this->executeAnyZendSQLSelect($select)->current();
         return $result['value'];
     }
