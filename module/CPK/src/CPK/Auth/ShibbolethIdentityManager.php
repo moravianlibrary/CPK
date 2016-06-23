@@ -363,7 +363,8 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $this->setUserName($currentUser);
 
-        $this->handleDummyNotification($currentUser);
+        if (! isset($_ENV['isDummy']) || $_ENV['isDummy'])
+            $this->handleDummyNotification($currentUser);
 
         return $currentUser;
 

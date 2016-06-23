@@ -89,6 +89,8 @@ class User extends BaseUser
                 $this->activateLibraryCardRow($realCards[0]);
             }
         }
+
+        $_ENV['isDummy'] = $this->home_library === 'Dummy';
     }
 
     /**
