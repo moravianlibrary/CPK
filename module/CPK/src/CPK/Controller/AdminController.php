@@ -394,7 +394,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $id = $this->params()->fromRoute('param');
 
             $infoboxTable = $this->getTable('infobox');
-            $item = $infoboxTable->getItem($id);
+            $infoboxItem = new \CPK\Widgets\InfoboxItem();
+            $infoboxItem->setId($id);
+            $item = $infoboxTable->getItem($infoboxItem);
 
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
@@ -409,39 +411,43 @@ class AdminController extends \VuFind\Controller\AbstractBase
         if ($subAction == 'AddItem') {
             $post = $this->params()->fromPost();
 
-            $data = [];
-            $data['title_cs']  = $post['title_cs'];
-            $data['title_en']  = $post['title_en'];
-            $data['text_cs']  = $post['text_cs'];
-            $data['text_en']  = $post['text_en'];
-            $data['date_from'] = $post['date_from'].' 00:00:00';
-            $data['date_to']  = $post['date_to'].' 00:00:00';
+            $infoboxItem = new \CPK\Widgets\InfoboxItem();
+            $infoboxItem->setTitleCs($post['title_cs']);
+            $infoboxItem->setTitleEn($post['title_en']);
+            $infoboxItem->setTextCs($post['text_en']);
+            $infoboxItem->setTextEn($post['text_en']);
+            $infoboxItem->setDateFrom($post['date_from'].' 00:00:00');
+            $infoboxItem->setDateTo($post['date_to'].' 00:00:00');
 
             $infoboxTable = $this->getTable('infobox');
-            $infobox = $infoboxTable->addItem($data);
+            $infobox = $infoboxTable->addItem($infoboxItem);
         }
 
         if ($subAction == 'SaveItem') {
             $post = $this->params()->fromPost();
 
-            $data = [];
-            $data['id']  = $post['id'];
-            $data['title_cs']  = $post['title_cs'];
-            $data['title_en']  = $post['title_en'];
-            $data['text_cs']  = $post['text_cs'];
-            $data['text_en']  = $post['text_en'];
-            $data['date_from'] = $post['date_from'].' 00:00:00';
-            $data['date_to']  = $post['date_to'].' 00:00:00';
+            $infoboxItem = new \CPK\Widgets\InfoboxItem();
+            $infoboxItem->setId($post['id']);
+            $infoboxItem->setTitleCs($post['title_cs']);
+            $infoboxItem->setTitleEn($post['title_en']);
+            $infoboxItem->setTextCs($post['text_en']);
+            $infoboxItem->setTextEn($post['text_en']);
+            $infoboxItem->setDateFrom($post['date_from'].' 00:00:00');
+            $infoboxItem->setDateTo($post['date_to'].' 00:00:00');
 
             $infoboxTable = $this->getTable('infobox');
-            $infobox = $infoboxTable->saveItem($data);
+            $infobox = $infoboxTable->saveItem($infoboxItem);
         }
 
         if ($subAction == 'RemoveItem') {
             $id = $this->params()->fromRoute('param');
 
             $infoboxTable = $this->getTable('infobox');
-            $infobox = $infoboxTable->removeItem($id);
+
+            $infoboxItem = new \CPK\Widgets\InfoboxItem();
+            $infoboxItem->setId($id);
+
+            $infobox = $infoboxTable->removeItem($infoboxItem);
         }
 
         $user = $this->accessManager->getUser();

@@ -32,7 +32,7 @@
               </span>
               <ul class="dropdown-menu" aria-labelledby="actions">
                 <li>
-                  <a href='/Admin/Infobox/RemoveItem/<?= $this->item['id'] ?>'>
+                  <a href='/Admin/Infobox/RemoveItem/<?= $this->item->getId() ?>'>
                     <i class='fa fa-remove'></i>
                     <?=$this->translate('Delete')?>
                   </a>
@@ -42,39 +42,39 @@
           </div>
         <form action='/Admin/Infobox/SaveItem' method='post'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
-          <input type='hidden' name='id' value='<?=$this->item['id']?>'>
+          <input type='hidden' name='id' value='<?=$this->item->getId()?>'>
           <fieldset class="form-group">
             <div class="col-xs-8">
               <label><?=$this->translate('Cs title')?></label>
-              <input class='form-control' name='title_cs' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item['title_cs']?>' required>
+              <input class='form-control' name='title_cs' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item->getTitleCs()?>' required>
             </div>
           </fieldset>
           <fieldset class="form-group">
             <div class="col-xs-8">
               <label><?=$this->translate('En title')?></label>
-              <input class='form-control' name='title_en' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item['title_en']?>' required>
+              <input class='form-control' name='title_en' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item->getTitleEn()?>' required>
             </div>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Cs text')?></label>
-            <textarea rows='15' class='form-control editor' name='text_cs' required><?=$this->item['text_cs']?></textarea>
+            <textarea rows='15' class='form-control editor' name='text_cs'><?=$this->item->getTextCs()?></textarea>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('En text')?></label>
-            <textarea rows='15' class='form-control editor' name='text_en' required><?=$this->item['text_en']?></textarea>
+            <textarea rows='15' class='form-control editor' name='text_en'><?=$this->item->getTextEn()?></textarea>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Valid from')?></label>
 			<span class="input-group">
 			  <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-			  <input id='dateFrom' name='date_from' class="form-control" type="text" value='<?=$this->item['date_from']?>' required>
+			  <input id='dateFrom' name='date_from' class="form-control" type="text" value='<?=$this->item->getDateFrom()?>' required>
 			</span>
           </fieldset>
           <fieldset class="form-group">
             <label><?=$this->translate('Valid to')?></label>
 			<span class="input-group">
 			  <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-			  <input id='dateTo' name='date_to' class="form-control" type="text" value='<?=$this->item['date_to']?>' required>
+			  <input id='dateTo' name='date_to' class="form-control" type="text" value='<?=$this->item->getDateTo()?>' required>
 			</span>
           </fieldset>
           <fieldset class="form-group">

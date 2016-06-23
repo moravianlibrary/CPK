@@ -8,8 +8,12 @@
       <div class="list-group-item clearfix">
         <div class='row'>
           <div class="col-xs-12 content">
-            <a href=""><h4><?=$item['title_'.$language]?></h4></a>
-            <p class="list-group-item-text"><?=$item['text_'.$language]?></p>
+            <h4 class='link'>
+              <?=($language=='cs') ? $item->getTitleCs() : $item->getTitleEn()?>
+            </h4>
+            <p class="list-group-item-text">
+              <?=($language=='cs') ? $item->getTextCs() : $item->getTextEn()?>
+            </p>
           </div>
         </div>
       </div>

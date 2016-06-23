@@ -27,7 +27,7 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway,
+use CPK\Db\Table\Gateway,
     Zend\Config\Config,
     Zend\Db\Sql\Update,
     Zend\Db\Sql\Insert,
@@ -65,68 +65,6 @@ class Infobox extends Gateway
     }
 
     /**
-     * Executes any Select
-     *
-     * @param Zend\Db\Sql\Select $select
-     *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
-     */
-    protected function executeAnyZendSQLSelect(Select $select)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
-    }
-
-    /**
-     * Executes any Update
-     *
-     * @param Zend\Db\Sql\Update $update
-     *
-     * @return Zend\Db\Adapter\Driver\ResultInterface $result
-     */
-    protected function executeAnyZendSQLUpdate(Update $update)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($update);
-        return $statement->execute();
-    }
-
-    /**
-     * Executes any Insert
-     *
-     * @param Zend\Db\Sql\Insert $insert
-     *
-     * @return Zend\Db\Adapter\Driver\StatementInterface
-     */
-    protected function executeAnyZendSQLInsert(Insert $insert)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($insert);
-        return $statement->execute();
-    }
-
-    /**
-     * Executes any Delete
-     *
-     * @param Zend\Db\Sql\Delete $delete
-     *
-     * @return Zend\Db\Adapter\Driver\StatementInterface
-     */
-    protected function executeAnyZendSQLDelete(Delete $delete)
-    {
-        $statement = $this->sql->prepareStatementForSqlObject($delete);
-        return $statement->execute();
-    }
-
-    /**
-     * Returns database connection
-     *
-     * @return \Zend\Db\Adapter\Driver\Mysqli\Connection
-     */
-    protected function getDbConnection()
-    {
-        return $this->getAdapter()->driver->getConnection();
-    }
-
-    /**
      * Returns all infobox items
      *
      * @return array
@@ -137,28 +75,36 @@ class Infobox extends Gateway
 
         $results= $this->executeAnyZendSQLSelect($select);
 
-        $resultSet = new \Zend\Db\ResultSet\ResultSet();
-        $resultSet->initialize($results);
+        $items = $this->resultsToArrayOfSpecifiObjects(
+            $results,
+            '\CPK\Widgets\InfoboxItem'
+        );
 
-        return $resultSet->toArray();
+        return $items;
     }
 
     /**
      * Return row from table
      *
-     * @param int $id
+     * @param \CPK\Widgets\InfoboxItem $infoboxItem
      *
      * @return array
      */
-    public function getItem($id)
+    public function getItem(\CPK\Widgets\InfoboxItem $infoboxItem)
     {
         $select = new Select($this->table);
-        $condition = "`id` = '$id'";
+        $condition = "`id` = '".$infoboxItem->getId()."'";
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
 
-        $result = $this->executeAnyZendSQLSelect($select)->current();
-        return $result;
+        $result = $this->executeAnyZendSQLSelect($select);
+
+        $item = $this->resultsToArrayOfSpecifiObjects(
+            $result,
+            '\CPK\Widgets\InfoboxItem'
+        );
+
+        return $item[0];
     }
 
     /**
@@ -184,30 +130,32 @@ class Infobox extends Gateway
 
         $results = $this->executeAnyZendSQLSelect($select);
 
-        $resultSet = new \Zend\Db\ResultSet\ResultSet();
-        $resultSet->initialize($results);
+        $items = $this->resultsToArrayOfSpecifiObjects(
+            $results,
+            '\CPK\Widgets\InfoboxItem'
+        );
 
-        return $resultSet->toArray();
+        return $items;
     }
 
     /**
      * Insert a new row to table
      *
-     * @param array $data
+     * @param \CPK\Widgets\InfoboxItem $infoboxItem
      *
      * @return void
      */
-    public function addItem(array $data)
+    public function addItem(\CPK\Widgets\InfoboxItem $infoboxItem)
     {
         $insert = new Insert($this->table);
 
         $insert->values([
-            'title_cs' => $data['title_cs'],
-            'title_en' => $data['title_en'],
-            'text_cs' => $data['text_cs'],
-            'text_en' => $data['text_en'],
-            'date_from' => $data['date_from'],
-            'date_to' => $data['date_to']
+            'title_cs' => $infoboxItem->getTitleCs(),
+            'title_en' => $infoboxItem->getTitleEn(),
+            'text_cs' => $infoboxItem->getTextCs(),
+            'text_en' => $infoboxItem->getTextEn(),
+            'date_from' => $infoboxItem->getDateFrom(),
+            'date_to' => $infoboxItem->getDateTo()
         ]);
 
         $this->executeAnyZendSQLInsert($insert);
@@ -216,42 +164,42 @@ class Infobox extends Gateway
     /**
      * Save edited row to table by id
      *
-     * @param array $data
+     * @param \CPK\Widgets\InfoboxItem $infoboxItem
      *
      * @return void
      */
-    public function saveItem(array $data)
+    public function saveItem(\CPK\Widgets\InfoboxItem $infoboxItem)
     {
         $update = new Update($this->table);
 
         $update->set([
-            'title_cs' => $data['title_cs'],
-            'title_en' => $data['title_en'],
-            'text_cs' => $data['text_cs'],
-            'text_en' => $data['text_en'],
-            'date_from' => $data['date_from'],
-            'date_to' => $data['date_to']
+            'title_cs' => $infoboxItem->getTitleCs(),
+            'title_en' => $infoboxItem->getTitleEn(),
+            'text_cs' => $infoboxItem->getTextCs(),
+            'text_en' => $infoboxItem->getTextEn(),
+            'date_from' => $infoboxItem->getDateFrom(),
+            'date_to' => $infoboxItem->getDateTo()
         ]);
         $update->where([
-            'id' => $data['id']
+            'id' => $infoboxItem->getId()
         ]);
 
         $this->executeAnyZendSQLUpdate($update);
     }
 
     /**
-     * Remove row from table by id
+     * Remove row from table
      *
-     * @param int $id
+     * @param \CPK\Widgets\InfoboxItem $infoboxItem
      *
      * @return array
      */
-    public function removeItem($id)
+    public function removeItem(\CPK\Widgets\InfoboxItem $infoboxItem)
     {
         $update = new Delete($this->table);
 
         $update->where([
-            'id' => $id
+            'id' => $infoboxItem->getId()
         ]);
 
         $this->executeAnyZendSQLDelete($update);
