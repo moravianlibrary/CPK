@@ -2,7 +2,7 @@
 /**
  * Abstract class for checking validity of deefined constants within a class.
  *
- * PHP version 5
+ * PHP version 7
  *
  * Copyright (C) Moravian Library 2016.
  *
@@ -27,12 +27,10 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway;
-
 abstract class ConstantsValidator extends Gateway
 {
 
-    protected static $constCache = null;
+    protected static $constCache = [];
 
     /**
      * Throws an exception if there is provided unknown constant value.
@@ -42,13 +40,15 @@ abstract class ConstantsValidator extends Gateway
      */
     public static function assertValid($constantValue) {
 
-        if (static::$constCache === null) {
+        $calledClass = get_called_class();
+
+        if (static::$constCache[$calledClass] === null) {
             $constants = (new \ReflectionClass(get_called_class()))->getConstants();
 
-            static::$constCache = array_values($constants);
+            static::$constCache[$calledClass] = array_values($constants);
         }
 
-        if (! in_array($constantValue, static::$constCache)) {
+        if (! in_array($constantValue, static::$constCache[$calledClass])) {
             throw new \Exception(static::getInvalidConstantValueMessage());
         }
     }
@@ -56,6 +56,8 @@ abstract class ConstantsValidator extends Gateway
     /**
      * Returns string which is about to be inserted into Exception as a message
      * when the constant provided to assertValid method is not found.
+     *
+     * @return string $exceptionMessage
      */
     protected static function getInvalidConstantValueMessage() {
         return "Invalid constant value provided to " . get_called_class();

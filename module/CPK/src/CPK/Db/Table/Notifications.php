@@ -2,9 +2,9 @@
 /**
  * Table Definition for Notifications
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) Moravian Library 2015.
+ * Copyright (C) Moravian Library 2015-2016.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -28,6 +28,7 @@
 namespace CPK\Db\Table;
 
 use CPK\Db\Table\Gateway, Zend\Config\Config, Zend\Db\Sql\Select;
+use CPK\Db\Row\User as UserRow;
 
 class Notifications extends Gateway
 {
@@ -61,16 +62,19 @@ class Notifications extends Gateway
     }
 
     /**
-     * Creates new Notifications Row
+     * Creates new Notifications Rows with scope to specified UserCard by $cat_username.
+     *
+     * It just overwrites existing Notifications which belongs to User Card, if found any.
+     *
+     * The $notificationsParsed must have keys, which can be found within the constants of NotificationTypes.
      *
      * @param string $cat_username
-     *
+     * @param array $notificationsParsed
      * @return array \CPK\Db\Row\Notifications
      */
-    public function createNotificationsRows($cat_username, array $notificationsParsed)
+    public function createUserCardNotificationsRows($cat_username, array $notificationsParsed)
     {
-        if ($this->notificationTypesTable === null)
-            $this->notificationTypesTable = $this->getDbTable('notification_types');
+        $notificationTypesTable = $this->getNotificationTypesTable();
 
         $returnArray = [];
 
@@ -78,48 +82,95 @@ class Notifications extends Gateway
 
         $timestampNow = date('Y-m-d H:i:s');
 
-        foreach ($notificationsParsed as $notificationTypeKey => $notificationShows) {
-            $row = $this->createRow();
+        foreach ($notificationsParsed as $notificationType => $notificationShows) {
 
-            $row->user = $userCardId;
-            $row->type = $this->notificationTypesTable->getNotificationTypeId($notificationTypeKey);
+            $notificationTypeId = $notificationTypesTable->getNotificationTypeId($notificationType);
+
+            $exists = $this->select([
+                'user_card' => $userCardId,
+                'type' => $notificationTypeId
+            ]);
+
+            if (count($exists)) {
+                $row = $exists->current();
+            } else {
+                $row = $this->createRow();
+            }
+
+            $row->user_card = $userCardId;
+            $row->type = $notificationTypeId;
             $row->shows = $notificationShows;
             $row->last_fetched = $timestampNow;
 
             $row->save();
 
-            $returnArray[$notificationTypeKey] = $row;
+            $returnArray[$notificationType] = $row;
         }
 
         return $returnArray;
     }
 
     /**
-     * Retrieves Notifications for a user.
+     * Creates new Notifications Rows with scope to specified User.
      *
-     * @param string $cat_username
+     * It just overwrites existing Notifications which belongs to User, if found any.
      *
+     * The $notificationsParsed must have keys, which can be found within the constants of NotificationTypes.
+     *
+     * @param UserRow $user
+     * @param array $notificationsParsed
      * @return array \CPK\Db\Row\Notifications
      */
-    public function getNotificationsRows($cat_username)
+    public function createUserNotificationsRows(UserRow $user, array $notificationsParsed)
     {
-        if ($this->notificationTypesTable === null)
-            $this->notificationTypesTable = $this->getDbTable('notification_types');
+        $notificationTypesTable = $this->getNotificationTypesTable();
 
-        $rows = $returnArray = [];
+        $returnArray = [];
 
-        $rows = $this->select([
-            'user' => $this->getUserCardId($cat_username)
-        ]);
+        $userId = $user->id;
 
-        foreach ($rows as $row) {
+        $timestampNow = date('Y-m-d H:i:s');
 
-            $notificationKey = $this->notificationTypesTable->getNotificationTypeFromId($row->type);
+        foreach ($notificationsParsed as $notificationType => $notificationShows) {
 
-            $returnArray[$notificationKey] = $row;
+            $notificationTypeId = $notificationTypesTable->getNotificationTypeId($notificationType);
+
+            $exists = $this->select([
+                'user' => $userId,
+                'type' => $notificationTypeId
+            ]);
+
+            if (count($exists)) {
+                $row = $exists->current();
+            } else {
+                $row = $this->createRow();
+            }
+
+            $row->user = $userId;
+            $row->type = $notificationTypeId;
+            $row->shows = $notificationShows;
+            $row->last_fetched = $timestampNow;
+
+            $row->save();
+
+            $returnArray[$notificationType] = $row;
         }
 
         return $returnArray;
+    }
+
+    /**
+     * Retrieves Notifications of provided UserCard cat_username.
+     *
+     * @param string $cat_username
+     *
+     * @return \CPK\Db\Row\Notifications[]
+     */
+    public function getNotificationsRowsFromUserCardUsername($cat_username)
+    {
+        $userCardId = $this->getUserCardId($cat_username);
+
+        return $this->getNotificationsRowsFrom('user_card', $userCardId);
     }
 
     /**
@@ -129,16 +180,74 @@ class Notifications extends Gateway
      * @param string $notificationType
      * @return \CPK\Db\Row\Notifications
      */
-    public function getNotificationsRow($userCardId, $notificationType)
+    public function getNotificationsRowFromUserCardUsername($userCardId, $notificationType)
     {
-        if ($this->notificationTypesTable === null)
-            $this->notificationTypesTable = $this->getDbTable('notification_types');
+        $notificationTypeId = $this->getNotificationTypesTable()->getNotificationTypeId($notificationType);
 
         return $this->select([
-            'user' => $userCardId,
-            'type' => $this->notificationTypesTable->getNotificationTypeId($notificationType)
-        ])
-            ->current();
+            'user_card' => $userCardId,
+            'type' => $notificationTypeId
+        ])->current();
+    }
+
+    /**
+     * Retrives Notifications of provided User.
+     *
+     * @param UserRow $user
+     * @return \CPK\Db\Row\Notifications[]
+     */
+    public function getNotificationsRowsFromUser(UserRow $user)
+    {
+        $userId = $user->id;
+
+        return $this->getNotificationsRowsFrom('user', $userId);
+    }
+
+    /**
+     * Retrieves the Notifications Row for a certain user of a specified notification type
+     *
+     * @param UserRow $user
+     * @param string $notificationType
+     * @return \CPK\Db\Row\Notifications
+     */
+    public function getNotificationsRowFromUser(UserRow $user, $notificationType)
+    {
+        $notificationTypeId = $this->getNotificationTypesTable()->getNotificationTypeId($notificationType);
+
+        return $this->select([
+            'user' => $user->id,
+            'type' => $notificationTypeId
+        ])->current();
+    }
+
+    /**
+     * Gets the array of Notifications Rows matching the value within the column.
+     *
+     * This method probably won't work as expected when column is one of these:
+     *
+     * [ 'type', 'last_fetched', 'shows', 'read' ]
+     *
+     * @param string $column
+     * @param string $value
+     * @return \CPK\Db\Row\Notifications[]
+     */
+    protected function getNotificationsRowsFrom($column, $value)
+    {
+        $notificationTypesTable = $this->getNotificationTypesTable();
+
+        $returnArray = [];
+
+        $rows = $this->select([
+            $column => $value
+        ]);
+
+        foreach ($rows as $row) {
+
+            $notificationKey = $notificationTypesTable->getNotificationTypeFromId($row->type);
+            $returnArray[$notificationKey] = $row;
+        }
+
+        return $returnArray;
     }
 
     /**
@@ -162,5 +271,13 @@ class Notifications extends Gateway
         $userCard = $this->executeAnyZendSQLSelect($select)->current();
 
         return $userCard['id'];
+    }
+
+    protected function getNotificationTypesTable()
+    {
+        if ($this->notificationTypesTable === null)
+            $this->notificationTypesTable = $this->getDbTable('notification_types');
+
+        return $this->notificationTypesTable;
     }
 }

@@ -2,9 +2,9 @@
 /**
  * Row Definition for user
  *
- * PHP version 5
+ * PHP version 7
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) Moravian Library 2016
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -34,7 +34,7 @@ use VuFind\Db\Row\User as BaseUser, VuFind\Exception\Auth as AuthException, VuFi
  *
  * @category VuFind2
  * @package Db_Row
- * @author Demian Katz <demian.katz@villanova.edu>
+ * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link http://vufind.org Main Site
  */

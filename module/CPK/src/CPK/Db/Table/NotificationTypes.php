@@ -2,7 +2,7 @@
 /**
  * Table Definition for Notification Types
  *
- * PHP version 5
+ * PHP version 7
  *
  * Copyright (C) Moravian Library 2016.
  *
@@ -36,7 +36,6 @@ class NotificationTypes extends ConstantsValidator
      * Please see the getAllApiRelevantTypes method after
      * adding another constant defining Notification Type
      */
-
     const FINES = 'fines';
 
     const BLOCKS = 'blocks';
@@ -91,6 +90,18 @@ class NotificationTypes extends ConstantsValidator
     }
 
     /**
+     * Returns array of all the notification types, which doesn't use API to work
+     *
+     * @return string[]
+     */
+    public static function getAllApiNonrelevantTypes()
+    {
+        return [
+            self::USER_DUMMY
+        ];
+    }
+
+    /**
      * Retrieves the notification_type row's id.
      *
      * @param string $notificationTypeKey
@@ -132,6 +143,14 @@ class NotificationTypes extends ConstantsValidator
         return null;
     }
 
+    /**
+     * Retrieves appropriate URL to redirect user to after he clicks the notification specified by
+     * notification type
+     *
+     * @param string $notificationType
+     * @param string $source
+     * @return string $onClickUrl
+     */
     public static function getNotificationTypeClickUrl($notificationType, $source = null)
     {
         static::assertValid($notificationType);

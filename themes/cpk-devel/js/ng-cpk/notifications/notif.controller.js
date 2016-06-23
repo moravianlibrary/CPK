@@ -63,9 +63,18 @@
 	    
 	    vm.notifications[username] = [];
 	    
-	    $q.resolve(fetchNotifications(username)).then(function(notifications) {
+	    $q.resolve(fetchNotificationsForUserCard(username)).then(function(notifications) {
 		
-		onGotNotifications(notifications, source, username);
+		onGotNotificationsForUserCard(notifications, source, username);
+		
+	    }).catch(function(reason) {
+		
+		$log.error(reason);
+	    });
+	    
+	    $q.resolve(fetchNotificationsForUser()).then(function(notifications) {
+		
+		onGotNotificationsForUser(notifications);
 		
 	    }).catch(function(reason) {
 		
@@ -74,9 +83,9 @@
 	}
 	
 	/**
-	 * What to do with notifications after we got them?
+	 * Process the notifications on user_card scale after we got them.
 	 */
-	function onGotNotifications(notifications, source, username) {
+	function onGotNotificationsForUserCard(notifications, source, username) {
 	    if (notifications instanceof Array) {
 		
 		vm.notifications[username] = notifications;
@@ -86,6 +95,20 @@
 		}
 		    
 		hideLoader(source);
+	    }
+	}
+	
+	/**
+	 * Process the notifications on user scale after we got them.
+	 */
+	function onGotNotificationsForUser(notifications) {
+	    if (notifications instanceof Array) {
+		
+		vm.notifications['user'] = notifications;
+		    
+		if (notifications.length !== 0 || hasGlobalNotifications()) {
+		    showWarningIcon();
+		}
 	    }
 	}
 	
@@ -125,7 +148,7 @@
 	 * 
 	 * @param username
 	 */
-	function fetchNotifications(username) {
+	function fetchNotificationsForUserCard(username) {
 	    return new Promise(function(resolve, reject) {
 		
 		var data = {
@@ -138,7 +161,7 @@
 			}
 		};
 		
-		$http.post('/AJAX/JSON?method=getMyNotifications', $.param(data), options).then(onSuccess, onFail);
+		$http.post('/AJAX/JSON?method=getMyNotificationsForUserCard', $.param(data), options).then(onSuccess, onFail);
 		
 		function onSuccess(response) {
 		    
@@ -162,6 +185,20 @@
 		function onFail(err) {
 		    reject(err);
 		}
+	    });
+	}
+
+	/**
+	 * Fetches notifications for current user asynchronously.
+	 * 
+	 * Returns an Promise.
+	 * 
+	 * @param username
+	 */
+	function fetchNotificationsForUser() {
+	    return $http({
+		method: 'GET',
+		url: '/AJAX/JSON?method=getMyNotificationsForUserCard'
 	    });
 	}
 	

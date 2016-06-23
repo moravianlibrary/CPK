@@ -698,11 +698,11 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
-     * Fetches recent notifications.
+     * Fetches recent notifications related to User Card specified by 'cat_username' POST param.
      *
      * @return \Zend\Http\Response
      */
-    public function getMyNotificationsAjax()
+    public function getMyNotificationsForUserCardAjax()
     {
         $cat_username = $this->params()->fromPost('cat_username');
 
@@ -713,22 +713,52 @@ class AjaxController extends AjaxControllerBase
         if ($hasPermissions instanceof \Zend\Http\Response)
             return $hasPermissions;
 
-        $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
+        $notifHandler = $this->getNotificationsHandler();
 
-        // Check we have correct notifications handler
-        if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
-
-            return $this->output([
-                'errors' => [
-                    'Did not found expected Notifications handler'
-                ],
-                'notifications' => []
-            ], self::STATUS_ERROR);
-        }
+        if ($notifHandler instanceof \Zend\Http\Response)
+            return $notifHandler;
 
         try {
 
-            $userNotifications = $notifHandler->getUserNotifications($cat_username);
+            $userNotifications = $notifHandler->getUserCardNotifications($cat_username);
+        } catch (\Exception $e) {
+
+            $userNotifications = [
+                'errors' => [
+                    $e->getMessage()
+                ],
+                'notifications' => [
+                    [
+                        'clazz' => 'warning',
+                        'message' => $e->getMessage()
+                    ]
+                ]
+            ];
+        }
+
+        return $this->output($userNotifications, self::STATUS_OK);
+    }
+
+    /**
+     * Fetches recent User notifications.
+     *
+     * @return \Zend\Http\Response
+     */
+    public function getMyNotificationsForUserAjax() {
+
+            // Check user's logged in
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            return $this->output('You are not logged in.', self::STATUS_ERROR);
+        }
+
+        $notifHandler = $this->getNotificationsHandler();
+
+        if ($notifHandler instanceof \Zend\Http\Response)
+            return $notifHandler;
+
+        try {
+
+            $userNotifications = $notifHandler->getUserNotifications($user);
         } catch (\Exception $e) {
 
             $userNotifications = [
@@ -821,22 +851,14 @@ class AjaxController extends AjaxControllerBase
         $notificationType = $this->params()->fromPost('notificationType');
         $source = $this->params()->fromPost('source');
 
-        $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
+        $notifHandler = $this->getNotificationsHandler();
 
-        // Check we have correct notifications handler
-        if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
-
-            return $this->output([
-                'errors' => [
-                    'Did not found expected Notifications handler'
-                ],
-                'notifications' => []
-            ], self::STATUS_ERROR);
-        }
+        if ($notifHandler instanceof \Zend\Http\Response)
+            return $notifHandler;
 
         try {
 
-            $notifHandler->setUserNotificationRead($user, $notificationType, $source);
+            $notifHandler->setUserCardNotificationRead($user, $notificationType, $source);
         } catch (\Exception $e) {
 
             $userNotifications = [
@@ -1019,7 +1041,7 @@ class AjaxController extends AjaxControllerBase
      * is returned.
      *
      * @param string $cat_username
-     * @return \Zend\Http\Response|boolean
+     * @return \Zend\Http\Response|\CPK\Db\Row\User
      */
     protected function hasPermissions($cat_username)
     {
@@ -1028,6 +1050,9 @@ class AjaxController extends AjaxControllerBase
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
+
+        if ($loggedInIsSufficient)
+            return $user;
 
         if ($cat_username === null) {
             return $this->output('No cat_username provided.', self::STATUS_ERROR);
@@ -1052,6 +1077,32 @@ class AjaxController extends AjaxControllerBase
         }
 
         return $user;
+    }
+
+    /**
+     * Returns the Notifications Handler.
+     *
+     * If not found, returns directly the output of any Ajax method with instance
+     * of the \Zend\Http\Response
+     *
+     * @return \CPK\Notifications\NotificationsHandler|\Zend\Http\Response
+     */
+    protected function getNotificationsHandler()
+    {
+        $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
+
+        // Check we have correct notifications handler
+        if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
+
+            return $this->output([
+                'errors' => [
+                    'Did not found expected Notifications handler'
+                ],
+                'notifications' => []
+            ], self::STATUS_ERROR);
+        }
+
+        return $notifHandler;
     }
 
     /**

@@ -435,7 +435,7 @@ CREATE TABLE IF NOT EXISTS `email_delayer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Email delayer for determining delays between each warning email sent to an email';
 
 ALTER TABLE `email_delayer`
-  ADD CONSTRAINT `email_type` FOREIGN KEY (`type`) REFERENCES `vufind`.`email_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `email_type` FOREIGN KEY (`type`) REFERENCES `email_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `system` SET `value`='34' WHERE `key`='DB_VERSION';
 
@@ -485,7 +485,7 @@ ALTER TABLE `notifications`
   ADD `read` BOOLEAN NOT NULL AFTER `shows`;
 
 ALTER TABLE `notifications`
-  ADD CONSTRAINT `notification_type_id` FOREIGN KEY (`type`) REFERENCES `vufind`.`notification_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `notification_type_id` FOREIGN KEY (`type`) REFERENCES `notification_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 UPDATE `system` SET `value`='38' WHERE `key`='DB_VERSION';
 
@@ -496,7 +496,7 @@ TRUNCATE `notifications`;
 ALTER TABLE `notifications` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `notifications` ADD `user` INT(11) NOT NULL AFTER `id`;
-ALTER TABLE `notifications` ADD  CONSTRAINT `notification_usercard_id` FOREIGN KEY (`user`) REFERENCES `vufind`.`user_card`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `notifications` ADD  CONSTRAINT `notification_usercard_id` FOREIGN KEY (`user`) REFERENCES `user_card`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 INSERT INTO `notification_types` (`key`, `name_cs`, `name_en`) VALUES
   ('fines', 'Uživatel má nezaplacenou pokutu, či poplatek.', 'User has to pay a fine.'),
@@ -506,6 +506,7 @@ INSERT INTO `notification_types` (`key`, `name_cs`, `name_en`) VALUES
 
 UPDATE `system` SET `value`='39' WHERE `key`='DB_VERSION';
 
+<<<<<<< Updated upstream
 ALTER TABLE `widgets` ADD `display` VARCHAR( 32 ) NOT NULL ;
 
 UPDATE `vufind`.`widgets` SET `display` = 'random' WHERE `widgets`.`id` =1;
@@ -536,3 +537,17 @@ DROP TABLE `most_wanted`;
 DROP TABLE `favorite_authors`;
 
 UPDATE `system` SET `value`='40' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `notifications` DROP FOREIGN KEY `notification_usercard_id`; 
+
+TRUNCATE TABLE `notifications` ;
+
+ALTER TABLE `notifications` ADD  CONSTRAINT `notification_user_id` FOREIGN KEY (`user`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `notifications` CHANGE `user` `user` INT(11) NULL DEFAULT NULL;
+
+ALTER TABLE `notifications` ADD `user_card` INT(11) NULL DEFAULT NULL AFTER `user`, ADD INDEX (`user_card`);
+
+ALTER TABLE `notifications` ADD CONSTRAINT `notification_usercard_id` FOREIGN KEY (`user_card`) REFERENCES `user_card`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; 
+
+UPDATE `system` SET `value`='41' WHERE `key`='DB_VERSION';

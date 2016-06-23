@@ -33,6 +33,7 @@ use CPK\Exception\TermsUnaccepted;
 use Zend\ServiceManager\ServiceManager;
 use CPK\Db\Table\EmailDelayer;
 use CPK\Db\Table\EmailTypes;
+use CPK\Db\Table\NotificationTypes;
 
 /**
  * Shibboleth authentication module.
@@ -181,6 +182,13 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected $session;
 
+    /**
+     * Notifications handler
+     *
+     * @var \CPK\Notifications\NotificationsHandler
+     */
+    protected $notificationsHandler;
+
     public function __construct(ServiceManager $serviceLocator)
     {
         $this->serviceLocator = $serviceLocator;
@@ -199,9 +207,7 @@ class ShibbolethIdentityManager extends Shibboleth
         // Set up session:
         $this->session = new \Zend\Session\Container('Account');
 
-        $cpkMailer = $this->serviceLocator->get('CPK\Mailer');
-
-        $cpkMailer instanceof \CPK\Mailer\Mailer;
+        $this->notificationsHandler = $serviceLocator->get('CPK\NotificationsHandler');
     }
 
     public function authenticate($request, UserRow $userToConnectWith = null)
@@ -356,6 +362,8 @@ class ShibbolethIdentityManager extends Shibboleth
             $this->createConsolidationCookie($currentUser->id);
 
         $this->setUserName($currentUser);
+
+        $this->handleDummyNotification($currentUser);
 
         return $currentUser;
 
@@ -971,5 +979,17 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow->save();
 
         return $userRow;
+    }
+
+    /**
+     * Sets User a notification of having just a Dummy account if has no library connected
+     *
+     * @param UserRow $currentUser
+     */
+    protected function handleDummyNotification(UserRow $currentUser)
+    {
+        $isDummy = $currentUser->home_library === 'Dummy';
+
+        $this->notificationsHandler->setUserNotificationShows($currentUser, NotificationTypes::USER_DUMMY, $isDummy);
     }
 }
