@@ -709,7 +709,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids), $patron);
         else {
-            if ($this->agency === 'TAG001') {
+            if ($this->agency === 'TAG001' || $this->agency === 'ULG001') {
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
@@ -734,6 +734,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
             }
+
             if ($this->agency === 'ABG001') { // MKP
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
@@ -840,6 +841,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $item_id = $this->useXPath($holdingSet,
                     'ItemInformation/ItemId/ItemIdentifierValue');
+            if ($this->agency === 'ULG001') {
+                $item_id[0] = str_replace('31480', '', $item_id[0]);
+            }
 
             $status = $this->useXPath($holdingSet,
                     'ItemInformation/ItemOptionalFields/CirculationStatus');
