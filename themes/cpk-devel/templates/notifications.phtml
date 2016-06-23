@@ -4,7 +4,7 @@
     <i global-notif="warningIcon" class="fa fa-warning notificationWarning" id="notif-warning" style="display: none;"></i>
   </a>
   <ul id='notificationsList' class="dropdown-menu">
-  	<li>
+  	<li ng-init='notifCtrl.initApiNonrelevantNotifications()'>
   	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
 	    <i class="pull-right icon-logo-komplet notif-knihovny-logo"></i>
 	  </div>
@@ -15,6 +15,11 @@
 	    <i class="fa fa-spinner fa-spin"></i>
 	    <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
+      <div ng-repeat='notification in notifCtrl.notifications["noAPI"]["user"]'>
+	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href,notification.type)'>
+	       {{ notification.message }}
+	     </div>
+	   </div>
       <div hidden='hidden' global-notif='withoutNotifications' class="notif-default">
 	    <?=$this->translate('without_notifications') ?>
       </div>
@@ -22,7 +27,7 @@
   <? if ($user): foreach ($libraryCards as $libraryCard):
 	   $source = explode('.', $libraryCard['cat_username'])[0];
   ?>
-	<li ng-init='notifCtrl.initNotifications("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
+	<li ng-init='notifCtrl.initApiRelevantNotificationsForUserCard("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
 	   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
 	     <div institution-notif='<?=$source?>' class="notif-default">

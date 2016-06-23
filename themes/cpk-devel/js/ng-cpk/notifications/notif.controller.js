@@ -36,18 +36,29 @@
     var onLinkerDone = function() {};
 
     function NotificationsController($q, $log, $http) {
+	
+	var apiNonrelevantJobDoneFlag = false;
+	
+	var onApiNonrelevantJobDone;
 
 	var vm = this;
 	
 	vm.notifications = {};
 	
-	vm.initNotifications = initNotifications;
+	vm.initApiRelevantNotificationsForUserCard = initApiRelevantNotificationsForUserCard;
+	
+	vm.initApiNonrelevantNotifications = initApiNonrelevantNotifications;
 	
 	vm.notifClicked = notifClicked;
 	
 	onLinkerDone = function() {
 	    if (! hasGlobalNotifications()) {
-		showWithoutNotifications();
+		
+		if (apiNonrelevantJobDoneFlag) {
+		    showWithoutNotifications();
+		} else {
+		    onApiNonrelevantJobDone = onLinkerDone;
+		}
 	    } else {
 		showWarningIcon();
 	    }
@@ -59,7 +70,7 @@
 	 * Initializes an empty array for an username provided in order to
 	 * successfully bind data to this Controller
 	 */
-	function initNotifications(source, username) {
+	function initApiRelevantNotificationsForUserCard(source, username) {
 	    
 	    vm.notifications[username] = [];
 	    
@@ -71,14 +82,25 @@
 		
 		$log.error(reason);
 	    });
+	}
+	
+	function initApiNonrelevantNotifications() {
 	    
+	    vm.notifications['noAPI'] = {};
+	    
+	    vm.notifications['noAPI']['user'] = [];
+
 	    $q.resolve(fetchNotificationsForUser()).then(function(notifications) {
 		
 		onGotNotificationsForUser(notifications);
 		
+		apiNonrelevantJobDone();
+		
 	    }).catch(function(reason) {
 		
 		$log.error(reason);
+		
+		apiNonrelevantJobDone();
 	    });
 	}
 	
@@ -104,7 +126,7 @@
 	function onGotNotificationsForUser(notifications) {
 	    if (notifications instanceof Array) {
 		
-		vm.notifications['user'] = notifications;
+		vm.notifications['noAPI']['user'] = notifications;
 		    
 		if (notifications.length !== 0 || hasGlobalNotifications()) {
 		    showWarningIcon();
@@ -196,9 +218,34 @@
 	 * @param username
 	 */
 	function fetchNotificationsForUser() {
-	    return $http({
-		method: 'GET',
-		url: '/AJAX/JSON?method=getMyNotificationsForUserCard'
+	    return new Promise(function(resolve, reject) {
+		$http({
+			method: 'GET',
+			url: '/AJAX/JSON?method=getMyNotificationsForUser'
+		    }).then(onSuccess, onFail);
+		
+		function onSuccess(response) {
+		    
+		    response = response.data.data;
+		    
+		    // Print errors if any
+		    if (typeof response.errors === 'object') {
+			
+			response.errors.forEach(function(err) {
+			    $log.error(err);
+			})
+		    }
+		    
+		    if (typeof response.notifications !== 'undefined') {
+			resolve(response.notifications);
+		    } else {
+			reject('No notifications returned!');
+		    }
+		}
+		
+		function onFail(err) {
+		    reject(err);
+		}
 	    });
 	}
 	
@@ -286,7 +333,20 @@
 	 * @returns {Boolean}
 	 */
 	function hasGlobalNotifications() {
-	    return globalNotifHolder.synchronousNotifications.children.length !== 0;
+	    
+	    var hasSynchronousGlobalNotifications = globalNotifHolder.synchronousNotifications.children.length !== 0;
+	    
+	    var hasApiNonrelevantNotifications = typeof vm.notifications['noAPI']['user'] === 'object' && vm.notifications['noAPI']['user'].length !== 0;
+	    
+	    return hasSynchronousGlobalNotifications || hasApiNonrelevantNotifications;
+	}
+	
+	function apiNonrelevantJobDone() {
+	    apiNonrelevantJobDoneFlag = true;
+		
+	    if (typeof onApiNonrelevantJobDone === 'function') {
+	        onApiNonrelevantJobDone.call();
+	    }
 	}
     }
     
