@@ -506,7 +506,6 @@ INSERT INTO `notification_types` (`key`, `name_cs`, `name_en`) VALUES
 
 UPDATE `system` SET `value`='39' WHERE `key`='DB_VERSION';
 
-<<<<<<< Updated upstream
 ALTER TABLE `widgets` ADD `display` VARCHAR( 32 ) NOT NULL ;
 
 UPDATE `vufind`.`widgets` SET `display` = 'random' WHERE `widgets`.`id` =1;
