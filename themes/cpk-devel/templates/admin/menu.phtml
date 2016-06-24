@@ -9,6 +9,8 @@
     <a href="/Admin/Widgets" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/list" ? ' active' : ''?>"><?=$this->transEsc('Widgets')?></a>
     <div style=" margin-left: 15px; ">
     	<a href="/Admin/Infobox" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/infobox/list" ? ' active' : ''?>"><?=$this->transEsc('Infobox')?></a>
+    	<a href="/Admin/MostWanted" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/most-wanted/list" ? ' active' : ''?>"><?=$this->transEsc('Most wanted')?></a>
+    	<a href="/Admin/FavoriteAuthors" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/favorite-authors/list" ? ' active' : ''?>"><?=$this->transEsc('Favorite Authors')?></a>
     </div>
     <a href="/Admin/PermissionsManager" class="list-group-item<?=strtolower($this->layout()->templateName) == "permissions-manager" ? ' active' : ''?>"><?=$this->transEsc('Permissions manager')?></a>
   <? endif; ?>

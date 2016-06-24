@@ -420,7 +420,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $infoboxItem->setDateTo($post['date_to'].' 00:00:00');
 
             $infoboxTable = $this->getTable('infobox');
-            $infobox = $infoboxTable->addItem($infoboxItem);
+            $infoboxTable->addItem($infoboxItem);
         }
 
         if ($subAction == 'SaveItem') {
@@ -436,7 +436,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $infoboxItem->setDateTo($post['date_to'].' 00:00:00');
 
             $infoboxTable = $this->getTable('infobox');
-            $infobox = $infoboxTable->saveItem($infoboxItem);
+            $infoboxTable->saveItem($infoboxItem);
         }
 
         if ($subAction == 'RemoveItem') {
@@ -447,7 +447,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $infoboxItem = new \CPK\Widgets\InfoboxItem();
             $infoboxItem->setId($id);
 
-            $infobox = $infoboxTable->removeItem($infoboxItem);
+            $infoboxTable->removeItem($infoboxItem);
         }
 
         $user = $this->accessManager->getUser();
@@ -463,6 +463,116 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $infobox = $infoboxTable->getItems();
 
         $viewModel->setVariable('infobox', $infobox);
+
+        return $viewModel;
+    }
+
+    /**
+     * MostWanted manager
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function mostWantedAction()
+    {
+        if (! $this->accessManager->isLoggedIn()) {
+            return $this->forceLogin();
+        }
+
+        // Must be an portal admin ..
+        $this->accessManager->assertIsPortalAdmin();
+
+        /*
+         * Handle subactions
+         * */
+        $subAction = $this->params()->fromRoute('subaction');
+        if ($subAction == 'CreateItem') {
+            $user = $this->accessManager->getUser();
+
+            $widgetTable = $this->getTable('widget');
+            $mostWantedWidget = $widgetTable->getWidgetByName('most_wanted');
+            $mostWantedTableId = $mostWantedWidget->getId();
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgetId', $mostWantedTableId);
+            $viewModel->setTemplate('admin/widgets/most-wanted/create-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'EditItem') {
+            $user = $this->accessManager->getUser();
+
+            $id = $this->params()->fromRoute('param');
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($id);
+            $widgetContent = $widgetContentTable->getContentById($widgetContent);
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgetContent', $widgetContent);
+            $viewModel->setTemplate('admin/widgets/most-wanted/edit-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'AddItem') {
+            $post = $this->params()->fromPost();
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setWidgetId($post['widget_id']);
+            $widgetContent->setValue($post['value']);
+            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+
+            $widgetContentTable->addWidgetContent($widgetContent);
+        }
+
+        if ($subAction == 'SaveItem') {
+            $post = $this->params()->fromPost();
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($post['id']);
+            $widgetContent->setWidgetId($post['widget_id']);
+            $widgetContent->setValue($post['value']);
+            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+
+            $widgetContentTable->saveWidgetContent($widgetContent);
+        }
+
+        if ($subAction == 'RemoveItem') {
+            $id = $this->params()->fromRoute('param');
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($id);
+
+            $widgetContentTable->removeWidgetContent($widgetContent);
+        }
+
+        $user = $this->accessManager->getUser();
+
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('user', $user);
+        $viewModel->setTemplate('admin/widgets/most-wanted/list');
+
+        $this->layout()->searchbox = false;
+
+        $widgetContentTable = $this->getTable('widgetcontent');
+        $widgetsContents = $widgetContentTable->getContentsByName('most_wanted', false, false, true);
+
+        $viewModel->setVariable('widgetsContents', $widgetsContents);
 
         return $viewModel;
     }

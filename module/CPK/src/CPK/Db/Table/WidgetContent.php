@@ -30,6 +30,9 @@ namespace CPK\Db\Table;
 use CPK\Db\Table\Gateway,
     Zend\Config\Config,
     Zend\Db\Sql\Select,
+    Zend\Db\Sql\Insert,
+    Zend\Db\Sql\Update,
+    Zend\Db\Sql\Delete,
     Zend\Db\Sql\Expression;
 
 /**
@@ -70,7 +73,7 @@ class WidgetContent extends Gateway
      *
      * @return  array
      */
-    public function getContentsById($widgetId, $limit = false, $prefferedValues = false)
+    public function getContentsByWidgetId($widgetId, $limit = false, $prefferedValues = false)
     {
         $select = new Select($this->table);
 
@@ -106,7 +109,7 @@ class WidgetContent extends Gateway
      *
      * @return  array
      */
-    public function getContentsByName($name, $limit = false, $prefferedValues = false)
+    public function getContentsByName($name, $limit = false, $prefferedValues = false, $preferredFirst = false)
     {
         $select = new Select($this->table);
 
@@ -121,6 +124,10 @@ class WidgetContent extends Gateway
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);
 
+        if ($preferredFirst) {
+            $select->order('preferred_value DESC');
+        }
+
         if ($limit) {
             $select->limit($limit);
         }
@@ -133,5 +140,92 @@ class WidgetContent extends Gateway
             );
 
         return $contents;
+    }
+
+    /**
+     * Insert a new row to table
+     *
+     * @param   \CPK\Widgets\WidgetContent  $widgetContent
+     *
+     * @return void
+     */
+    public function addWidgetContent(\CPK\Widgets\WidgetContent $widgetContent)
+    {
+        $insert = new Insert($this->table);
+
+        $insert->values([
+            'widget_id' => $widgetContent->getWidgetId(),
+            'value' => $widgetContent->getValue(),
+            'preferred_value' => $widgetContent->getPreferredValue()
+        ]);
+
+        $this->executeAnyZendSQLInsert($insert);
+    }
+
+    /**
+     * Save edited row to table by id
+     *
+     * @param   \CPK\Widgets\WidgetContent  $widgetContent
+     *
+     * @return void
+     */
+    public function saveWidgetContent(\CPK\Widgets\WidgetContent $widgetContent)
+    {
+        $update = new Update($this->table);
+
+        $update->set([
+            'widget_id' => $widgetContent->getWidgetId(),
+            'value' => $widgetContent->getValue(),
+            'preferred_value' => $widgetContent->getPreferredValue()
+        ]);
+        $update->where([
+            'id' => $widgetContent->getId()
+        ]);
+
+        $this->executeAnyZendSQLUpdate($update);
+    }
+
+    /**
+     * Remove row from table
+     *
+     * @param   \CPK\Widgets\WidgetContent  $widgetContent
+     *
+     * @return void
+     */
+    public function removeWidgetContent(\CPK\Widgets\WidgetContent $widgetContent)
+    {
+        $update = new Delete($this->table);
+
+        $update->where([
+            'id' => $widgetContent->getId()
+        ]);
+
+        $this->executeAnyZendSQLDelete($update);
+    }
+
+    /**
+     * Returns row by Id
+     *
+     * @param   \CPK\Widgets\WidgetContent  $widgetContent
+     *
+     * @return  \CPK\Widgets\WidgetContent
+     */
+    public function getContentById(\CPK\Widgets\WidgetContent $widgetContent)
+    {
+        $select = new Select($this->table);
+
+        $condition = "id='".$widgetContent->getId()."'";
+
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $results = $this->executeAnyZendSQLSelect($select);
+
+        $contents = $this->resultsToArrayOfSpecifiObjects(
+            $results,
+            '\CPK\Widgets\WidgetContent'
+        );
+
+        return $contents[0];
     }
 }

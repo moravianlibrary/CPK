@@ -59,6 +59,22 @@ class WidgetContent {
         return $this->recordDriver;
     }
 
+    public function setId($id) {
+        return $this->id = $id;
+    }
+
+    public function setWidgetId($widgetId) {
+        return $this->widget_id = $widgetId;
+    }
+
+    public function setValue($value) {
+        return $this->value = $value;
+    }
+
+    public function setPreferredValue($preferredValue) {
+        return $this->preferred_value = $preferredValue;
+    }
+
     public function setRecordDriver($recordDriver) {
         $this->recordDriver = $recordDriver;
     }

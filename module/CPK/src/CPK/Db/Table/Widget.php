@@ -76,4 +76,29 @@ class Widget extends Gateway
 
         return $widgets;
     }
+
+    /**
+     * Returns widgets
+     *
+     * @param   string  $name
+     *
+     * @return array
+     */
+    public function getWidgetByName($name)
+    {
+        $select = new Select($this->table);
+
+        $condition = "`name`='$name'";
+
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $results= $this->executeAnyZendSQLSelect($select);
+        $widgets = $this->resultsToArrayOfSpecifiObjects(
+            $results,
+            '\CPK\Widgets\Widget'
+        );
+
+        return $widgets[0];
+    }
 }

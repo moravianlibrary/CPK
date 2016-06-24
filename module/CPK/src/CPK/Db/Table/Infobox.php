@@ -192,7 +192,7 @@ class Infobox extends Gateway
      *
      * @param \CPK\Widgets\InfoboxItem $infoboxItem
      *
-     * @return array
+     * @return void
      */
     public function removeItem(\CPK\Widgets\InfoboxItem $infoboxItem)
     {
