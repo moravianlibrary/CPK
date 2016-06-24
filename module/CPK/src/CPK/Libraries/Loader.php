@@ -125,6 +125,14 @@ class Loader {
             $libraryObject->setName($apilibrary->name);
         if(isset($apilibrary->name_en) && ! empty($apilibrary->name_en))
             $libraryObject->setNameen($apilibrary->name_en);
+        if(isset($apilibrary->bname) && ! empty($apilibrary->bname))
+            $libraryObject->setBName($apilibrary->bname);
+        if(isset($apilibrary->bname_en) && ! empty($apilibrary->bname_en))
+            $libraryObject->setBNameen($apilibrary->bname_en);
+        if(isset($apilibrary->cname) && ! empty($apilibrary->cname))
+            $libraryObject->setCName($apilibrary->cname);
+        if(isset($apilibrary->cname_en) && ! empty($apilibrary->cname_en))
+            $libraryObject->setCNameen($apilibrary->cname_en);
         if(isset($apilibrary->code) && ! empty($apilibrary->code))
             $libraryObject->setCode($apilibrary->code);
         if(isset($apilibrary->city) && ! empty($apilibrary->city))

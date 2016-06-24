@@ -13,9 +13,12 @@
   <div class="col-md-6 library-list">
     <? foreach ($this->libraries as $library):?>
       <div class="well">
-        <a href="/Libraries/Library?sigla=<?=$library->getSigla()?>">
-          <h3><?=$library->getName()?></h3>
-        </a>
+        <h3>
+          <a href="/Libraries/Library?sigla=<?=$library->getSigla()?>">
+            <?=$library->getName()?>
+          </a>
+          (<?=$library->getBName()?> - <?=$library->getCName()?>)
+        </h3>
         <p><i class="pr-location-pinmap5"></i><?=$library->getAddress()?></p>
       </div>
     <? endforeach; ?>

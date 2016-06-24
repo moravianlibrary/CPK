@@ -7,6 +7,10 @@ class SimpleLibrary
     private $sigla;
     private $name;
     private $nameen;
+    private $bname;
+    private $bnameen;
+    private $cname;
+    private $cnameen;
     private $code;
     private $city;
     private $street;
@@ -48,6 +52,38 @@ class SimpleLibrary
     public function setNameen($nameen)
     {
         $this->nameen = $nameen;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setBName($bname)
+    {
+        $this->bname = $bname;
+    }
+
+    /**
+     * @param mixed $nameen
+     */
+    public function setBNameen($bnameen)
+    {
+        $this->bnameen = $bnameen;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setCName($cname)
+    {
+        $this->cname = $cname;
+    }
+
+    /**
+     * @param mixed $nameen
+     */
+    public function setCNameen($cnameen)
+    {
+        $this->cnameen = $cnameen;
     }
 
     /**
@@ -189,6 +225,22 @@ class SimpleLibrary
     /**
      * @return mixed
      */
+    public function getBName()
+    {
+        return $this->bname;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCName()
+    {
+        return $this->cname;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getSigla()
     {
         return $this->sigla;
@@ -200,6 +252,22 @@ class SimpleLibrary
     public function getNameen()
     {
         return $this->nameen;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBNameen()
+    {
+        return $this->bnameen;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCNameen()
+    {
+        return $this->cnameen;
     }
 
     /**
