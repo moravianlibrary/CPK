@@ -700,7 +700,7 @@ class SearchController extends AbstractSearch
 	public function getFavoriteAuthorsAction($randomLimit = false)
 	{
 	    $widgetContentTable = $this->getTable("widgetcontent");
-	    $favoriteAuthors = $widgetContentTable->getContentsByName('favorite_authors', $randomLimit, true);
+	    $favoriteAuthors = $widgetContentTable->getContentsByName('favorite_authors', $randomLimit, false);
 
 	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
 	    foreach ($favoriteAuthors as $key => $record) {

@@ -578,6 +578,116 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
+     * FavoriteAuthors manager
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function favoriteAuthorsAction()
+    {
+        if (! $this->accessManager->isLoggedIn()) {
+            return $this->forceLogin();
+        }
+
+        // Must be an portal admin ..
+        $this->accessManager->assertIsPortalAdmin();
+
+        /*
+         * Handle subactions
+         * */
+        $subAction = $this->params()->fromRoute('subaction');
+        if ($subAction == 'CreateItem') {
+            $user = $this->accessManager->getUser();
+
+            $widgetTable = $this->getTable('widget');
+            $favoriteAuthorsWidget = $widgetTable->getWidgetByName('favorite_authors');
+            $favoriteAuthorsTableId = $favoriteAuthorsWidget->getId();
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgetId', $favoriteAuthorsTableId);
+            $viewModel->setTemplate('admin/widgets/favorite-authors/create-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'EditItem') {
+            $user = $this->accessManager->getUser();
+
+            $id = $this->params()->fromRoute('param');
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($id);
+            $widgetContent = $widgetContentTable->getContentById($widgetContent);
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgetContent', $widgetContent);
+            $viewModel->setTemplate('admin/widgets/favorite-authors/edit-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'AddItem') {
+            $post = $this->params()->fromPost();
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setWidgetId($post['widget_id']);
+            $widgetContent->setValue($post['value']);
+            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+
+            $widgetContentTable->addWidgetContent($widgetContent);
+        }
+
+        if ($subAction == 'SaveItem') {
+            $post = $this->params()->fromPost();
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($post['id']);
+            $widgetContent->setWidgetId($post['widget_id']);
+            $widgetContent->setValue($post['value']);
+            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+
+            $widgetContentTable->saveWidgetContent($widgetContent);
+        }
+
+        if ($subAction == 'RemoveItem') {
+            $id = $this->params()->fromRoute('param');
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($id);
+
+            $widgetContentTable->removeWidgetContent($widgetContent);
+        }
+
+        $user = $this->accessManager->getUser();
+
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('user', $user);
+        $viewModel->setTemplate('admin/widgets/favorite-authors/list');
+
+        $this->layout()->searchbox = false;
+
+        $widgetContentTable = $this->getTable('widgetcontent');
+        $widgetsContents = $widgetContentTable->getContentsByName('favorite_authors', false, false, true);
+
+        $viewModel->setVariable('widgetsContents', $widgetsContents);
+
+        return $viewModel;
+    }
+
+    /**
      * Overriden createViewModel which accepts template as the 2nd arg.
      *
      * @param array $params Parameters to pass to ViewModel constructor.

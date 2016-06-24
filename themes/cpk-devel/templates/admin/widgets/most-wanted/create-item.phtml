@@ -1,6 +1,6 @@
 <?
   // Set page title.
-  $this->headTitle($this->translate('Infobox').' | '.$this->translate('Administration'));
+  $this->headTitle($this->translate('Most wanted').' | '.$this->translate('Administration'));
 
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
@@ -10,7 +10,7 @@
       '<li><a href="/Admin/MostWanted">'.$this->transEsc('Most wanted').'</a></li>'.
       '<li class="active">'.$this->transEsc('Create item').'</li>';
 
-  $this->layout()->title = $this->translate('Infobox');
+  $this->layout()->title = $this->translate('Most wanted');
 
   $this->headScript()->appendFile("jquery-ui.min.js");
 ?>
@@ -21,8 +21,8 @@
     <?=$this->render("admin/menu.phtml")?>
   </div>
 
-  <div class="col-sm-9" id='homepage-infobox'>
-    <h2><?=$this->translate('Create new information')?></h2>
+  <div class="col-sm-9" id='homepage-mostwanted'>
+    <h2><?=$this->translate('Create item')?></h2>
     <div class='well'>
 	  <div class='row'>
         <form action='/Admin/MostWanted/AddItem' method='post'>
