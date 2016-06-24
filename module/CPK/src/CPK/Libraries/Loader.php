@@ -242,7 +242,7 @@ class Loader {
 
         $url   = $this->infoKnihovnyUrl.'libraries?'.$buildedQuery;
 
-        $client = new \Zend\Http\Client($url);
+        $client = new \Zend\Http\Client($url, array('timeout' => 60));
         $response = $client->send();
 
         // Response head error handling
