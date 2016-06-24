@@ -1484,7 +1484,7 @@ class AjaxController extends AjaxControllerBase
 
         $data .= "<br>\n[favorite_authors]"."<br>\n";
         foreach ($favoriteAuthors as $content) {
-            $data .= 'auth.'.$content->getValue()."<br>\n";
+            $data .= $content->getValue()."<br>\n";
         }
 
         echo $data;
