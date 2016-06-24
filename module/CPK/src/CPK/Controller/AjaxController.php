@@ -1466,45 +1466,39 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
-     * Harvest most wanted records from Solr to MySQL.
+     * Harvest most wanted records from MySql to Solr.
      *
      * @return \Zend\Http\Response
      */
     public function harvestMostWantedRecordsAjax()
     {
-        $searchController = $this->getServiceLocator()->get('searchController');
-        $records = $searchController->harvestMostWantedRecordsAction();
+        $widgetContenTable = $this->getTable('widgetcontent');
+        $contents = $widgetContenTable->getContentsByName('most_wanted');
 
-        $mostWantedTable = $this->getTable("mostwanted");
-
-        try {
-            $mostWantedTable->saveRecords($records);
-        } catch (\Exception $e) {
-            return $this->output($e->getMessage(), self::STATUS_ERROR);
+        $data = [];
+        foreach ($contents as $content) {
+            $data[] = $content->getValue();
         }
 
-        return $this->output('', self::STATUS_OK);
+        return $this->output($data, self::STATUS_OK);
     }
 
     /**
-     * Harvest most favorite authors from Solr to MySQL.
+     * Harvest most favorite authors from MySql to Solr.
      *
      * @return \Zend\Http\Response
      */
     public function harvestFavoriteAuthorsAjax()
     {
-        $searchController = $this->getServiceLocator()->get('searchController');
-        $records = $searchController->harvestFavoriteAuthorsAction();
+       $widgetContenTable = $this->getTable('widgetcontent');
+        $contents = $widgetContenTable->getContentsByName('favorite_authors');
 
-        $mostWantedTable = $this->getTable("favorite_authors");
-
-        try {
-            $mostWantedTable->saveRecords($records);
-        } catch (\Exception $e) {
-            return $this->output($e->getMessage(), self::STATUS_ERROR);
+        $data = [];
+        foreach ($contents as $content) {
+            $data[] = $content->getValue();
         }
 
-        return $this->output('', self::STATUS_OK);
+        return $this->output($data, self::STATUS_OK);
     }
 
     /**
