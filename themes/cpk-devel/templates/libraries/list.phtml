@@ -17,7 +17,9 @@
           <a href="/Libraries/Library?sigla=<?=$library->getSigla()?>">
             <?=$library->getName()?>
           </a>
-          (<?=$library->getBName()?> - <?=$library->getCName()?>)
+          <? if ($library->getAlternativeNamesFormated()!=null):?>
+            <?=$library->getAlternativeNamesFormated()?>
+          <? endif; ?>
         </h3>
         <p><i class="pr-location-pinmap5"></i><?=$library->getAddress()?></p>
       </div>

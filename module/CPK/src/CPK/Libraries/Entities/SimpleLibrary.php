@@ -295,7 +295,20 @@ class SimpleLibrary
         return $this->latitude;
     }
 
+    public function getAlternativeNamesFormated()
+    {
+        $b = $this->bname;
+        $c = $this->cname;
 
+        if ($b==null&&$c==null) return null;
+        if ($b==null) {
+            return "(" . $c . ")";
+        };
+        if ($c==null) {
+            return "(" . $b . ")";
+        }
+        return "(" . $b . " - " . $c . ")";
+    }
 
 
     

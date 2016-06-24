@@ -10,6 +10,9 @@
 <div class='row'>
   <div class="col-md-6 library-detail">
     <h1><?=$library->getName()?></h1>
+    <? if ($library->getAlternativeNamesFormated()!=null):?>
+      <h3><?=$library->getAlternativeNamesFormated()?></h3>
+    <? endif; ?>
     <? if ($library->getAddress()!=null):?>
     <h2><i class="pr-location-pinmap5"></i><?=$library->getAddress()?></h2>
     <? endif; ?>
