@@ -1466,39 +1466,29 @@ class AjaxController extends AjaxControllerBase
     }
 
     /**
-     * Harvest most wanted records from MySql to Solr.
+     * Harvest most wanted records and favorite authors from MySql to Solr.
      *
      * @return \Zend\Http\Response
      */
-    public function harvestMostWantedRecordsAjax()
+    public function harvestMostWantedAndAuthorsAjax()
     {
         $widgetContenTable = $this->getTable('widgetcontent');
-        $contents = $widgetContenTable->getContentsByName('most_wanted');
+        $mostWantedRecords = $widgetContenTable->getContentsByName('most_wanted');
 
-        $data = [];
-        foreach ($contents as $content) {
-            $data[] = $content->getValue();
+        $data = "[most_wanted]"."<br>\n";
+        foreach ($mostWantedRecords as $content) {
+            $data .= $content->getValue()."<br>\n";
         }
 
-        return $this->output($data, self::STATUS_OK);
-    }
+        $favoriteAuthors = $widgetContenTable->getContentsByName('favorite_authors');
 
-    /**
-     * Harvest most favorite authors from MySql to Solr.
-     *
-     * @return \Zend\Http\Response
-     */
-    public function harvestFavoriteAuthorsAjax()
-    {
-       $widgetContenTable = $this->getTable('widgetcontent');
-        $contents = $widgetContenTable->getContentsByName('favorite_authors');
-
-        $data = [];
-        foreach ($contents as $content) {
-            $data[] = $content->getValue();
+        $data .= "<br>\n[favorite_authors]"."<br>\n";
+        foreach ($favoriteAuthors as $content) {
+            $data .= $content->getValue()."<br>\n";
         }
 
-        return $this->output($data, self::STATUS_OK);
+        echo $data;
+        exit();
     }
 
     /**
