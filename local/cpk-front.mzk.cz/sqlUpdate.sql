@@ -550,3 +550,8 @@ ALTER TABLE `notifications` ADD `user_card` INT(11) NULL DEFAULT NULL AFTER `use
 ALTER TABLE `notifications` ADD CONSTRAINT `notification_usercard_id` FOREIGN KEY (`user_card`) REFERENCES `user_card`(`id`) ON DELETE CASCADE ON UPDATE CASCADE; 
 
 UPDATE `system` SET `value`='41' WHERE `key`='DB_VERSION';
+
+UPDATE `email_types` SET `delay` = '167:59:59' WHERE `email_types`.`key` = 'idp_no_eppn';
+UPDATE `email_types` SET `delay` = '11:59:59' WHERE `email_types`.`key` = 'ils_api_not_available';
+
+UPDATE `system` SET `value`='42' WHERE `key`='DB_VERSION';
