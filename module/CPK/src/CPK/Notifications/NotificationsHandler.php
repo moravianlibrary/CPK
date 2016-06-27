@@ -120,11 +120,13 @@ class NotificationsHandler
      */
     public function getUserCardNotifications($cat_username)
     {
-        $this->getUserCardApiRelevantNotifications($cat_username);
+        $source = explode('.', $cat_username)[0];
 
-        $this->getUserCardApiNonrelevantNotifications($cat_username);
+        $this->getUserCardApiRelevantNotifications($cat_username, $source);
 
-        return $this->prepareNotificationsRowsForOutput($this->userCardNotificationsRows);
+        $this->getUserCardApiNonrelevantNotifications($cat_username, $source);
+
+        return $this->prepareNotificationsRowsForOutput($this->userCardNotificationsRows, $source);
     }
 
     /**
@@ -243,10 +245,8 @@ class NotificationsHandler
      *
      * @param string $cat_username
      */
-    protected function getUserCardApiRelevantNotifications($cat_username)
+    protected function getUserCardApiRelevantNotifications($cat_username, $source)
     {
-        $source = explode('.', $cat_username)[0];
-
         $userCardNotifications = $this->notificationsTable->getNotificationsRowsFromUserCardUsername($cat_username);
 
         $this->userCardNotificationsRows = array_merge($this->userCardNotificationsRows, $userCardNotifications);
@@ -269,7 +269,7 @@ class NotificationsHandler
      *
      * @param string $cat_username
      */
-    protected function getUserCardApiNonrelevantNotifications($cat_username)
+    protected function getUserCardApiNonrelevantNotifications($cat_username, $source)
     {
         /*
          * Here should come the logic for getting the UserCard scoped Notifications which
@@ -504,9 +504,10 @@ class NotificationsHandler
      * being returned to AngularJS notifications controller for further process.
      *
      * @param \CPK\Db\Row\Notifications[] $notificationsRows
+     * @param string $source
      * @return string[][][]
      */
-    protected function prepareNotificationsRowsForOutput(array $notificationsRows)
+    protected function prepareNotificationsRowsForOutput(array $notificationsRows, $source = null)
     {
         $data['notifications'] = [];
 
