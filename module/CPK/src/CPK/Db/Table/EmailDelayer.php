@@ -27,14 +27,14 @@
  */
 namespace CPK\Db\Table;
 
-use VuFind\Db\Table\Gateway as ParentGateway, Zend\Config\Config;
+use Zend\Config\Config;
 
 /**
  * Class for DB table email_delayer
  *
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  */
-class EmailDelayer extends ParentGateway
+class EmailDelayer extends Gateway
 {
     /**
      *

@@ -42,7 +42,7 @@ abstract class ConstantsValidator extends Gateway
 
         $calledClass = get_called_class();
 
-        if (static::$constCache[$calledClass] === null) {
+        if (! isset(static::$constCache[$calledClass])) {
             $constants = (new \ReflectionClass(get_called_class()))->getConstants();
 
             static::$constCache[$calledClass] = array_values($constants);
