@@ -178,7 +178,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     array(
                         'adapter' => 'Zend\Http\Client\Adapter\Curl',
                         'curloptions' => array(
-                            CURLOPT_FOLLOWLOCATION => true,
                             CURLOPT_SSL_VERIFYHOST => false,
                             CURLOPT_SSL_VERIFYPEER => false
                         )
@@ -951,6 +950,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 if (! empty($level)) {
                     if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
                     if ((string) $level[0] == '2') if (! empty($locationName)) $collection = (string) $locationName[0];
+                    if (empty($department) && (string) $level[0] == '4') {
+                        if (! empty($locationName)) $department = (string) $locationName[0];
+                    }
                 }
             }
 
