@@ -430,7 +430,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $infoboxItem->setId($post['id']);
             $infoboxItem->setTitleCs($post['title_cs']);
             $infoboxItem->setTitleEn($post['title_en']);
-            $infoboxItem->setTextCs($post['text_en']);
+            $infoboxItem->setTextCs($post['text_cs']);
             $infoboxItem->setTextEn($post['text_en']);
             $infoboxItem->setDateFrom($post['date_from'].' 00:00:00');
             $infoboxItem->setDateTo($post['date_to'].' 00:00:00');
