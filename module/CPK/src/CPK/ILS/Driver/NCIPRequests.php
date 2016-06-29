@@ -110,7 +110,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingRequestId($patron, $requestId) {
         $requestType = "Estimate";
-        if ($this->sigla == "TAG001") $requestType = "Hold";
+        if ($this->sigla == "TAG001" || $this->sigla == "ULG001") $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
