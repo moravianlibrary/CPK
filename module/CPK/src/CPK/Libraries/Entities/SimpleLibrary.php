@@ -30,6 +30,56 @@ class SimpleLibrary
     //url for getting this info
     private $url;
 
+
+    public function ParseSimpleLibrary($apilibrary,SimpleLibrary $libraryObject) {
+        if(isset($apilibrary->sigla) && ! empty($apilibrary->sigla))
+            $libraryObject->setSigla($apilibrary->sigla);
+        if(isset($apilibrary->name) && ! empty($apilibrary->name))
+            $libraryObject->setName($apilibrary->name);
+        if(isset($apilibrary->name_en) && ! empty($apilibrary->name_en))
+            $libraryObject->setNameen($apilibrary->name_en);
+        if(isset($apilibrary->bname) && ! empty($apilibrary->bname))
+            $libraryObject->setBName($apilibrary->bname);
+        if(isset($apilibrary->bname_en) && ! empty($apilibrary->bname_en))
+            $libraryObject->setBNameen($apilibrary->bname_en);
+        if(isset($apilibrary->cname) && ! empty($apilibrary->cname))
+            $libraryObject->setCName($apilibrary->cname);
+        if(isset($apilibrary->cname_en) && ! empty($apilibrary->cname_en))
+            $libraryObject->setCNameen($apilibrary->cname_en);
+        if(isset($apilibrary->code) && ! empty($apilibrary->code))
+            $libraryObject->setCode($apilibrary->code);
+        if(isset($apilibrary->city) && ! empty($apilibrary->city))
+            $libraryObject->setCity($apilibrary->city);
+        if(isset($apilibrary->street) && ! empty($apilibrary->street))
+            $libraryObject->setStreet($apilibrary->street);
+        if(isset($apilibrary->zip) && ! empty($apilibrary->zip))
+            $libraryObject->setZip($apilibrary->zip);
+        if(isset($apilibrary->longitude) && ! empty($apilibrary->longitude))
+            $libraryObject->setLongitude($apilibrary->longitude);
+        if(isset($apilibrary->latitude) && ! empty($apilibrary->latitude))
+            $libraryObject->setLatitude($apilibrary->latitude);
+        if(isset($apilibrary->description) && ! empty($apilibrary->description))
+            $libraryObject->setDescription($apilibrary->description);
+        if(isset($apilibrary->region) && ! empty($apilibrary->region))
+            $libraryObject->setRegion($apilibrary->region);
+        if(isset($apilibrary->district) && ! empty($apilibrary->district))
+            $libraryObject->setDistrict($apilibrary->district);
+        if(isset($apilibrary->context) && ! empty($apilibrary->context))
+            $libraryObject->setContext($apilibrary->context);
+        if(isset($apilibrary->active) && ! empty($apilibrary->active))
+            $libraryObject->setActive($apilibrary->active);
+        if(isset($apilibrary->ico) && ! empty($apilibrary->ico))
+            $libraryObject->setIco($apilibrary->ico);
+        if(isset($apilibrary->dic) && ! empty($apilibrary->dic))
+            $libraryObject->setDic($apilibrary->dic);
+        if(isset($apilibrary->mvs_description) && ! empty($apilibrary->mvs_description))
+            $libraryObject->setMvsDescription($apilibrary->mvs_description);
+        if(isset($apilibrary->mvs_url) && ! empty($apilibrary->mvs_url))
+            $libraryObject->setMvsUrl($apilibrary->mvs_url);
+        if(isset($apilibrary->url) && ! empty($apilibrary->url))
+            $libraryObject->setUrl($apilibrary->url);
+    }
+
     /**
      * @param mixed $sigla
      */

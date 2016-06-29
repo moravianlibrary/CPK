@@ -24,6 +24,7 @@
  */
 namespace CPK\Controller;
 
+use CPK\Libraries\Entities\SearchResults;
 use VuFind\Controller\AbstractBase;
 
 /**
@@ -45,20 +46,20 @@ class LibrariesController extends AbstractBase
 
 		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
 
-		$libraries = $librariesLoader->GetSearchResults($query, $page);
+		$searchresults = new SearchResults($query,$page);
+		$libraries = $searchresults->getLibraries();
 		if ($libraries==null) {
 			$view->setTemplate('libraries/not-found');
 			return $view;
 		}
-		$resultsCount = $librariesLoader->GetCountOfAllSearchResults($query);
+		$resultsCount = $searchresults->getNumberOfResults();
 		$view->page = $page;
 		$view->resultsCount = $resultsCount;
 		$view->from = (($page-1)*10)+1;
 		$view->to = min($page * 10,$resultsCount);
 		
 		$view->query = $query;
-		$view->pagination = $librariesLoader->GetPagination($query, $page);
-
+		$view->pagination = $searchresults->GetPagination();
 		$view->libraries = $libraries;
 		$view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
 		$view->setTemplate('libraries/list');
