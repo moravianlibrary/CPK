@@ -1327,7 +1327,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
 
             // Deal with Tabor.
-            if ($this->agency === 'TAG001') {
+            if ($this->agency === 'TAG001' || $this->agency === 'ULG001') {
                 // $type == 'Hold' => rezervace; $type == 'Stack Retrieval' => objednavka
                 if (empty($expire)) $expire = $this->useXPath($current,
                         'Ext/NeedBeforeDate');
@@ -1746,7 +1746,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     protected function addEnviromentalException($message)
     {
-        $_ENV['exceptions']['ncip'][] = $message;
+        $_ENV['exceptions']['ncip'] = $message;
     }
 
     protected function useXPath(\SimpleXMLElement $xmlObject, $xPath)

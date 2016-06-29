@@ -57,7 +57,7 @@ obalky.fetchImage = obalky.fetchImageWithoutLinks || function (element, bibinfo,
         if (type == "thumbnail") {
             dim = "height='36' width='27'";
         }
-        $(element).html("<img src='" + img.src + "' alt='" + obalky.coverText + "' " + dim + "></img>");
+        $("[id=" + $(element).attr('id') + "]").html("<img src='" + img.src + "' alt='" + obalky.coverText + "' " + dim + "></img>");
       }
     }
     img.src = obalky.coverUrl + "?multi=" + multi + "&type=" + type  + "&keywords=" + encodeURIComponent(query);
