@@ -16,6 +16,7 @@
 		<tbody>
 			<? if ($this->linksFrom856): ?>
 				<? foreach ($this->linksFrom856 as $linkRawString):
+				    if (empty($linkRawString)) continue;
 					$link = explode("|", $linkRawString);
 					$anchor = ! empty($link[3]) ? $link[3] : $this->transEsc('Link');
 					$destination = (substr($link[0], 0, 4) === 'kram') ? $this->translate('Digital library') : $this->translate('Web');

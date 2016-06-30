@@ -8,6 +8,7 @@
             <?
               $recordId = $similarRecordDriver->getUniqueID();
               $formats = $similarRecordDriver->getFormats();
+              $format = empty($formats) ? '' : $formats[0];
               if (empty($lookfor)) {
                   $lookfor = $this->record($similarRecordDriver)->getObalkyKnihAdvert('record');
               }
@@ -17,7 +18,7 @@
               <div class="col-md-3 ">
     			<? $recordId =  preg_replace("/\./", "", $recordId)?>
                     <? $recordId =  preg_replace("/:/", "", $recordId)?>
-              		<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?><?="?referer=".$this->referer?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)' class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
+              		<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?><?="?referer=".$this->referer?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($format)?>)' class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
                         <? if ($bibinfo = $this->record($similarRecordDriver)->getObalkyKnihJSONV3()): ?>
                             <script type="text/javascript">
                                 obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
@@ -25,7 +26,7 @@
                         <? endif;?>
 
                         <? if (! empty($formats)): ?>
-                            <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($similarRecordDriver)->getFormatClass($formats[0])?>"></i></div>
+                            <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($similarRecordDriver)->getFormatClass($format)?>"></i></div>
                         <? elseif ($summThumb = $this->record($similarRecordDriver)->getThumbnail('small')): ?>
                             <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
                         <? else: ?>
@@ -37,7 +38,7 @@
               <div class="col-md-9 content">
                 <h5 class="list-group-item-heading">
                   <a href='<?=$similarRecordUrl?>'
-                    	title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($formats[0])?>)'>
+                    	title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($format)?>)'>
                     <strong><?=$this->escapeHtml($similarRecordDriver->getTitle())?></strong>
                   </a>
                 </h5>

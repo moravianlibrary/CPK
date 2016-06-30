@@ -7,6 +7,7 @@
 function xml_highlight($s)
 {
     $s = htmlspecialchars($s);
+    $s = preg_replace("#&gt;&lt;#sU", "&gt;\n&lt;",$s);
     $s = preg_replace("#&lt;([/]*?)(.*)([\s]*?)&gt;#sU",
         "<font color=\"#0000FF\">&lt;\\1\\2\\3&gt;</font>",$s);
     $s = preg_replace("#&lt;([\?])(.*)([\?])&gt;#sU",
