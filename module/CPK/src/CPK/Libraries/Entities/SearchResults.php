@@ -103,6 +103,12 @@ class SearchResults
         return $this->librariesPage;
     }
 
+    public function getAllLibraries() {
+        if ($this->librariesAll==null)
+            $this->LoadAllSearchResults();
+        return $this->librariesAll;
+    }
+
     public function getNumberOfResults() {
         if ($this->librariesAll==null)
             $this->LoadAllSearchResults();

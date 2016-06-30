@@ -61,6 +61,7 @@ class LibrariesController extends AbstractBase
 		$view->query = $query;
 		$view->pagination = $searchresults->GetPagination();
 		$view->libraries = $libraries;
+		$view->allLibraries = $searchresults->getAllLibraries();
 		$view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
 		$view->setTemplate('libraries/list');
 		return $view;

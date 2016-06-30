@@ -52,7 +52,7 @@
     zoom: 7,
     center: myLatLng
     });
-    <? foreach ($this->libraries as $library):?>
+    <? foreach ($this->allLibraries as $library):?>
       <? if (($library->getLatitude()!=null)||($library->getLongitude()!=null)):?>
         var position = {lat: <?=$library->getLatitude() ?>, lng: <?=$library->getLongitude() ?>};
         var marker = new google.maps.Marker({
