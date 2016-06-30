@@ -57,7 +57,7 @@ class LibrariesController extends AbstractBase
 		$view->resultsCount = $resultsCount;
 		$view->from = (($page-1)*10)+1;
 		$view->to = min($page * 10,$resultsCount);
-		
+
 		$view->query = $query;
 		$view->pagination = $searchresults->GetPagination();
 		$view->libraries = $libraries;
@@ -81,7 +81,7 @@ class LibrariesController extends AbstractBase
 
 		$view->library = $library;
 
-		$view->apikey= $this->getConfig()->GoogleMaps->apikey;
+		$view->apikey= empty($this->getConfig()->GoogleMaps) ? '' : $this->getConfig()->GoogleMaps->apikey;
 
 		$view->setTemplate('libraries/library');
 
