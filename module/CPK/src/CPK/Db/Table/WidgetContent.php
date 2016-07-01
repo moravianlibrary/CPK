@@ -159,7 +159,9 @@ class WidgetContent extends Gateway
             'preferred_value' => $widgetContent->getPreferredValue()
         ]);
 
-        $this->executeAnyZendSQLInsert($insert);
+        if (! $this->rowExist($insert)) {
+            $this->executeAnyZendSQLInsert($insert);
+        }
     }
 
     /**
@@ -182,7 +184,14 @@ class WidgetContent extends Gateway
             'id' => $widgetContent->getId()
         ]);
 
-        $this->executeAnyZendSQLUpdate($update);
+        if (! $this->rowExist($update)) {
+            $this->executeAnyZendSQLUpdate($update);
+        }
+        else {
+            $delete = new Delete($this->table);
+            $delete->where($update->getRawState()['where']);
+            $this->executeDelete($delete);
+        }
     }
 
     /**

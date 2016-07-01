@@ -131,4 +131,25 @@ class Gateway extends ParentGateway
 
         return $array;
     }
+
+    /**
+     * Checks if table already contains data going to be inserted.
+     *
+     * @param   Zend\Db\Sql\Insert | Zend\Db\Sql\Update   $row
+     *
+     * @return  boolean
+     */
+    protected function rowExist($row) {
+        $state = $row->getRawState();
+        $selecet = new Select($state['table']);
+        if ($row instanceof \Zend\Db\Sql\Update) {
+            $selecet->where($state['set']);
+        }
+        else {
+            $selecet->where(array_combine($state['columns'], $state['values']));
+        }
+        $check = $this->executeSelect($selecet);
+        return (count($check->toArray()) > 0) ? true : false;
+    }
+
 }
