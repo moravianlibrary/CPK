@@ -42,7 +42,7 @@ class Loader {
         $library->updated_at = $apilibrary->updated_at;
 
         if(isset($apilibrary->people) && ! empty($apilibrary->people)) {
-            $projects = [];
+            $people = [];
             foreach ($apilibrary->people as $apiperson) {
                 $person = new Person($apiperson);
                 $people[] = $person;
@@ -52,7 +52,7 @@ class Loader {
 
 
         if(isset($apilibrary->websites) && ! empty($apilibrary->websites)) {
-            $projects = [];
+            $websites = [];
             foreach ($apilibrary->websites as $apiwebsite) {
                 $website = new Website($apiwebsite);
                 $websites[] = $website;
@@ -61,7 +61,7 @@ class Loader {
         }
 
         if(isset($apilibrary->emails) && ! empty($apilibrary->emails)) {
-            $services = [];
+            $emails = [];
             foreach ($apilibrary->emails as $apiemail) {
                 $email = new Email($apiemail);
                 $emails[] = $email;
@@ -70,7 +70,7 @@ class Loader {
         }
 
         if(isset($apilibrary->phones) && ! empty($apilibrary->phones)) {
-            $services = [];
+            $phones = [];
             foreach ($apilibrary->phones as $apiphone) {
                 $phone = new Phone($apiphone);
                 $phones[] = $phone;
@@ -79,7 +79,7 @@ class Loader {
         }
 
         if(isset($apilibrary->faxes) && ! empty($apilibrary->faxes)) {
-            $services = [];
+            $faxes = [];
             foreach ($apilibrary->faxes as $apifax) {
                 $fax = new Fax($apifax);
                 $faxes[] = $fax;
