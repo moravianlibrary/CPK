@@ -5,7 +5,7 @@ $this->headTitle($this->translate('Checked Out History'));
 // Set up breadcrumbs:
 $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' . '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Checked Out History') . '</li>';
 
-// Add translations for the ng-app
+// Add translations for the data-ng-app
 $this->jsTranslations()->addStrings(array(
 
     // For history items
@@ -30,25 +30,25 @@ $this->jsTranslations()->addStrings(array(
 
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
       $source = explode('.', $libraryIdentity['cat_username'])[0]; ?>
-    <div ng-controller="CheckedOutHistoryController as historyCtrl">
+    <div data-ng-controller="CheckedOutHistoryController as historyCtrl">
       <h3 class="well row blickable" style="margin-bottom: 3px;" id="<?=$source?>">
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
       <label style="padding-right: 40px;" class="dropdown-select-label pull-right">
-      <select ng-model="historyCtrl.perPage" ng-change="historyCtrl.perPageUpdated()" class="jumpMenu form-control dropdown-select" style="margin-right: -12px;">
+      <select data-ng-model="historyCtrl.perPage" data-ng-change="historyCtrl.perPageUpdated()" class="jumpMenu form-control dropdown-select" style="margin-right: -12px;">
                   <option value="10" selected="selected">10 <?=$this->translate('records-in-genitive') ?></option>
                   <option value="50">50 <?=$this->translate('records-in-genitive') ?></option>
                   <option value="100">100 <?=$this->translate('records-in-genitive') ?></option>
       </select>
       </label>
       </h3>
-      <div ng-history-item ng-repeat="resource in historyCtrl.historyPage">
+      <div data-ng-history-item data-ng-repeat="resource in historyCtrl.historyPage">
       </div>
-      <div ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well text-center" style="margin-bottom: 2px;">
+      <div data-ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well text-center" style="margin-bottom: 2px;">
         <i class="fa fa-spinner fa-spin"></i>
         <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
-      <div ng-pagination="<?=$source ?>" class='row well' ng-if="paginator && paginator.lastPage != 1" ></div>
+      <div data-ng-pagination="<?=$source ?>" class='row well' data-ng-if="paginator && paginator.lastPage != 1" ></div>
     </div>
     <? endforeach; ?>
   </div>

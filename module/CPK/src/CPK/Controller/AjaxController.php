@@ -857,19 +857,57 @@ class AjaxController extends AjaxControllerBase
             return $notifHandler;
 
         try {
+            if ($source === 'user') {
 
-            $notifHandler->setUserCardNotificationRead($user, $notificationType, $source);
+                $notifHandler->setUserNotificationRead($user, $notificationType);
+
+            } else {
+
+                $notifHandler->setUserCardNotificationRead($user, $notificationType, $source);
+
+            }
         } catch (\Exception $e) {
 
-            $userNotifications = [
+            return $this->output([
                 'errors' => [
                     $e->getMessage()
-                ],
-                'notifications' => []
-            ];
+                ]
+            ], self::STATUS_ERROR);
         }
 
         return $this->output(null, self::STATUS_OK);
+    }
+
+    /**
+     * Retrieves the portal page
+     *
+     * @return \Zend\Http\Response
+     */
+    public function getPortalPageAjax()
+    {
+        $prettyUrl = $this->params()->fromQuery('prettyUrl');
+
+        if (empty($prettyUrl) && empty($prettyUrl = $this->params()->fromPost('prettyUrl')))
+            return $this->output('No prettyUrl provided', self::STATUS_ERROR);
+
+        $lang = $this->getServiceLocator()->has('VuFind\Translator') ? $this->getServiceLocator()
+            ->get('VuFind\Translator')
+            ->getLocale() : 'en';
+
+        try {
+
+            $portalPagesTable = $this->getTable("portalpages");
+            $page = $portalPagesTable->getPage($prettyUrl, $lang);
+
+            return $this->output($page, self::STATUS_OK);
+        } catch (\Exception $e) {
+
+            return $this->output([
+                'errors' => [
+                    $e->getMessage()
+                ]
+            ], self::STATUS_ERROR);
+        }
     }
 
     /**

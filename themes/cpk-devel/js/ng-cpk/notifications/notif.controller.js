@@ -9,7 +9,7 @@
 
     angular.module('notifications').controller('NotificationsController', NotificationsController).directive('globalNotif', globalNotifDirective).directive('institutionNotif', institutionNotif);
 
-    NotificationsController.$inject = [ '$q', '$log', '$http' ];
+    NotificationsController.$inject = [ '$q', '$log', '$http', '$location', '$rootScope' ];
     
     globalNotifDirective.$inject = [ '$log' ];
     
@@ -35,7 +35,7 @@
      */
     var onLinkerDone = function() {};
 
-    function NotificationsController($q, $log, $http) {
+    function NotificationsController($q, $log, $http, $location, $rootScope) {
 	
 	var apiNonrelevantJobDoneFlag = false;
 	
@@ -137,18 +137,21 @@
 	/**
 	 * A notification has been clicked .. follow the href if any
 	 */
-	function notifClicked(href, type) {
+	function notifClicked(href, type, source) {
 	    
 	    if (typeof href !== 'undefined') {
 		
 		function followLocation() {
 		    
-		    window.location = href;
+		    if ($location.url() === href)
+			$rootScope.$broadcast('notificationClicked');
+		    
+		    $location.url(href);
 		}
 			
 		var data = {
 			notificationType : type,
-			source : href.split('#').pop()
+			source : source
 		};
 			
 		var options = {

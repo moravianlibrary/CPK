@@ -3,7 +3,7 @@
   // Set up page title:
   $this->headTitle(isset($list) ? $list->title : $this->translate('Favorites'));
 
-  // Add translations for the favorites ng-app
+  // Add translations for the favorites data-ng-app
   $this->jsTranslations()->addStrings(
       array(
           'mainAuthor' => $this->translate('Main Author'),
@@ -58,7 +58,7 @@
 
 <?=$this->flashmessages()?>
 <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-<div class="row" ng-controller="ListController as listCtrl">
+<div class="row" data-ng-controller="ListController as listCtrl">
   <div class="<?=$this->layoutClass('mainbody')?>" list-not-empty="true">
     <div class="clearfix hidden-print">
   	<h2 class="pull-left flip"><?=$this->transEsc('Favorites')?></h2>
@@ -70,7 +70,7 @@
     </div>
 		<div class="resulthead">
 			<div class="pull-right flip">
-				<select name="sort" class="form-control" ng-model="listCtrl.sortVal" ng-model-options="{ getterSetter: true }">
+				<select name="sort" class="form-control" data-ng-model="listCtrl.sortVal" data-ng-model-options="{ getterSetter: true }">
 					<option value='recent'><?=$this->transEsc('By Recent')?></option>
 					<option value='author'><?=$this->transEsc('By Author')?></option>
 					<option value='alphabetical'><?=$this->transEsc('sort_title')?></option>
@@ -79,17 +79,17 @@
 		</div>
 	<div>
     <label>
-      <input ng-model="listCtrl.allSelected" ng-change="listCtrl.selectAll()" type="checkbox"/>
+      <input data-ng-model="listCtrl.allSelected" data-ng-change="listCtrl.selectAll()" type="checkbox"/>
       <?=$this->transEsc('select_page')?> | <?=$this->transEsc('with_selected')?>:
     </label>
 
 	<div class="btn-group" title="<?=$this->transEsc('login_to_use_this')?>">
-    <input class="btn btn-default" type="submit" ng-click="listCtrl.removeSelected()" value="<?=$this->transEsc('Delete')?>" />
-    <input class="btn btn-default" type="submit" ng-click="listCtrl.emailSelected($event)" value="<?=$this->transEsc('email_selected')?>" />
-    <input class="btn btn-default" type="submit" ng-click="listCtrl.exportSelected()" value="<?=$this->transEsc('export_selected')?>" />
-    <input class="btn btn-default" type="submit" ng-click="listCtrl.printSelected()" value="<?=$this->transEsc('print_selected')?>" />
+    <input class="btn btn-default" type="submit" data-ng-click="listCtrl.removeSelected()" value="<?=$this->transEsc('Delete')?>" />
+    <input class="btn btn-default" type="submit" data-ng-click="listCtrl.emailSelected($event)" value="<?=$this->transEsc('email_selected')?>" />
+    <input class="btn btn-default" type="submit" data-ng-click="listCtrl.exportSelected()" value="<?=$this->transEsc('export_selected')?>" />
+    <input class="btn btn-default" type="submit" data-ng-click="listCtrl.printSelected()" value="<?=$this->transEsc('print_selected')?>" />
     </div>
-  	<div ng-repeat="fav in listCtrl.favorites">
+  	<div data-ng-repeat="fav in listCtrl.favorites">
     	<div favorites-list-item>
     	</div>
     </div>

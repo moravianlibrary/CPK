@@ -174,7 +174,7 @@ class NotificationTypes extends ConstantsValidator
             case static::USER_DUMMY:
 
                 $controller = '/LibraryCards/';
-                $action = 'Home';
+                $action = 'Home?viewModal=help-with-log-in-and-registration';
                 break;
         }
 

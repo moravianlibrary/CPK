@@ -1,10 +1,10 @@
-<li class="dropdown" ng-controller="NotificationsController as notifCtrl">
+<li class="dropdown" data-ng-controller="NotificationsController as notifCtrl">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="notif_icon">
     <i style="font-size: 20px;" class="pr-communication-bellnotification2"></i>
     <i global-notif="warningIcon" class="fa fa-warning notificationWarning" id="notif-warning" style="display: none;"></i>
   </a>
   <ul id='notificationsList' class="dropdown-menu">
-  	<li ng-init='notifCtrl.initApiNonrelevantNotifications()'>
+  	<li data-ng-init='notifCtrl.initApiNonrelevantNotifications()'>
   	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
 	    <i class="pull-right icon-logo-komplet notif-knihovny-logo"></i>
 	  </div>
@@ -15,8 +15,8 @@
 	    <i class="fa fa-spinner fa-spin"></i>
 	    <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
       </div>
-      <div ng-repeat='notification in notifCtrl.notifications["noAPI"]["user"]'>
-	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href,notification.type)'>
+      <div data-ng-repeat='notification in notifCtrl.notifications["noAPI"]["user"]'>
+	     <div class="notif-{{ notification.clazz }}" data-ng-click='notifCtrl.notifClicked(notification.href,notification.type,"user")'>
 	       {{ notification.message }}
 	     </div>
 	   </div>
@@ -27,7 +27,7 @@
   <? if ($user): foreach ($libraryCards as $libraryCard):
 	   $source = explode('.', $libraryCard['cat_username'])[0];
   ?>
-	<li ng-init='notifCtrl.initApiRelevantNotificationsForUserCard("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
+	<li data-ng-init='notifCtrl.initApiRelevantNotificationsForUserCard("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
 	   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
 	     <div institution-notif='<?=$source?>' class="notif-default">
@@ -35,8 +35,8 @@
 	       <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
          </div>
 	   </div>
-	   <div ng-repeat='notification in notifCtrl.notifications["<?=$libraryCard['cat_username'] ?>"]'>
-	     <div class="notif-{{ notification.clazz }}" ng-click='notifCtrl.notifClicked(notification.href,notification.type)'>
+	   <div data-ng-repeat='notification in notifCtrl.notifications["<?=$libraryCard['cat_username'] ?>"]'>
+	     <div class="notif-{{ notification.clazz }}" data-ng-click='notifCtrl.notifClicked(notification.href,notification.type,"<?=$source ?>")'>
 	       {{ notification.message }}
 	     </div>
 	   </div>

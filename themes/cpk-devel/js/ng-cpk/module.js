@@ -5,16 +5,12 @@
  * @author Jiří Kozlovský
  */
 (function() {
-    angular.module('cpk', [ 'favorites', 'notifications', 'federativeLogin', 'admin', 'history' ]).controller('MainController', MainController);
-
-    MainController.$inject = [ 'favsBroadcaster'];
-
-    function MainController(favsBroadcaster) {
-
-	var vm = this;
-
-	// We need to initialize injected services on every page ..
-
-	return vm;
-    }
+    var cpkApp = angular.module('cpk', [ 'favorites', 'notifications', 'federativeLogin', 'admin', 'history' ]);
+    	
+    cpkApp.config(['$locationProvider', function($locationProvider) {
+	$locationProvider.html5Mode({
+	    enabled: true,
+	    requireBase: false
+	});
+    }]);
 })();

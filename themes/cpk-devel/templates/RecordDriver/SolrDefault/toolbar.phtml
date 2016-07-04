@@ -39,7 +39,7 @@
     	<a id="save-record" class="modal-link <?=$controllerClass?>"
 
   	     <? if ($handleOfflineFavorites) : ?>
-        	href="#" ng-controller="RecordFavController as recFavCtrl" ng-click="recFavCtrl.addOrRemoveFavorite()"
+        	href="#" data-ng-controller="RecordFavController as recFavCtrl" data-ng-click="recFavCtrl.addOrRemoveFavorite()"
     	 <? else: ?>
         	href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
          <? endif; ?>

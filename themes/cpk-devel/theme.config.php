@@ -95,6 +95,7 @@ if ($useCompiledAngular) {
         'ng-cpk/history/checkedouthistory.controller.js',
 
         'ng-cpk/module.js',
+        'ng-cpk/global.controller.js',
         'ng-cpk/translate.filter.js',
     ];
 

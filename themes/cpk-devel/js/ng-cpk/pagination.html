@@ -1,33 +1,33 @@
-<div class='col-md-2' ng-if="paginator.activePage != 1">
+<div class='col-md-2' data-ng-if="paginator.activePage != 1">
 	<ul class="pagination" style='float: left;'>
 		<li>
-		  <a href="#{{ source }}" ng-click="paginator.goToPage(paginator.activePage - 1)"><i class="fa fa-long-arrow-left fa-2x"></i>{{ 'Prev' | translate }}</a>
+		  <a href="#{{ source }}" data-ng-click="paginator.goToPage(paginator.activePage - 1)"><i class="fa fa-long-arrow-left fa-2x"></i>{{ 'Prev' | translate }}</a>
 		</li>
 	</ul>
 </div>
 <div class='col-md-8' style='text-align: center'>
 	<ul class="pagination" align='center'>
-		<li ng-if="paginator.showFirst">
-		  <a href="#{{ source }}" ng-click="paginator.goToPage(1)">1</a>
+		<li data-ng-if="paginator.showFirst">
+		  <a href="#{{ source }}" data-ng-click="paginator.goToPage(1)">1</a>
 		</li>
-		<li ng-if="paginator.showFirst" class="disabled">
+		<li data-ng-if="paginator.showFirst" class="disabled">
 		  <span>...</span>
 		</li>
-		<li ng-repeat="page in paginator.visiblePages" class="{{ page.clazz }}">
-		  <a href="#{{ source }}" ng-click="paginator.goToPage(page.number)">{{ page.number }}</a>
+		<li data-ng-repeat="page in paginator.visiblePages" class="{{ page.clazz }}">
+		  <a href="#{{ source }}" data-ng-click="paginator.goToPage(page.number)">{{ page.number }}</a>
 		</li>
-		<li ng-if="paginator.showLast" class="disabled">
+		<li data-ng-if="paginator.showLast" class="disabled">
 		  <span>...</span>
 		</li>
-		<li ng-if="paginator.showLast">
-		  <a href="#{{ source }}" ng-click="paginator.goToPage(paginator.lastPage)">{{ paginator.lastPage }}</a>
+		<li data-ng-if="paginator.showLast">
+		  <a href="#{{ source }}" data-ng-click="paginator.goToPage(paginator.lastPage)">{{ paginator.lastPage }}</a>
 		</li>
 	</ul>
 </div>
-<div class='col-md-2' ng-if="paginator.lastPage != paginator.activePage">
+<div class='col-md-2' data-ng-if="paginator.lastPage != paginator.activePage">
 	<ul class="pagination" style='float: right'>
 		<li style='float: right;'>
-		  <a href="#{{ source }}" ng-click="paginator.goToPage(paginator.activePage + 1)">{{ 'Next' | translate }} <i class="fa fa-long-arrow-right fa-2x"></i></a>
+		  <a href="#{{ source }}" data-ng-click="paginator.goToPage(paginator.activePage + 1)">{{ 'Next' | translate }} <i class="fa fa-long-arrow-right fa-2x"></i></a>
 		</li>
 	</ul>
 </div>

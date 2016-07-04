@@ -25,6 +25,7 @@ history/module.js
 history/checkedouthistory.controller.js
 
 module.js
+global.controller.js
 translate.filter.js
 "
 
@@ -41,7 +42,7 @@ done
 
 dest="ng-cpk.min.js"
 
-echo "Requesting google closure compiler to concatenate & compress & compile all the ng-apps together .."
+echo "Requesting google closure compiler to concatenate & compress & compile all the data-ng-apps together .."
 curl -Ls $args -d output_info=compiled_code https://closure-compiler.appspot.com/compile > "$dest"
 
 if [ "$(grep "ERROR:" "$dest")" ]; then

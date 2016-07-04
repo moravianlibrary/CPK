@@ -3,12 +3,12 @@
 
 		<label class="pull-left flip">
 			<span class="pull-left noprint">
-				<input ng-model="listCtrl.favSelected[fav.created()]" type="checkbox" />
+				<input data-ng-model="listCtrl.favSelected[fav.created()]" type="checkbox" />
 			</span>
 		</label>
 		<div class="coverThumbnail">
-			<img ng-if="fav.image()" src="" ng-src="{{ fav.image() }}" alt="cover" height="80" width="63"/>
-			<i ng-if="fav.icon()" class="{{ fav.icon() }}" style="{{ fav.iconStyle() }}" />
+			<img data-ng-if="fav.image()" src="" data-ng-src="{{ fav.image() }}" alt="cover" height="80" width="63"/>
+			<i data-ng-if="fav.icon()" class="{{ fav.icon() }}" style="{{ fav.iconStyle() }}" />
 		</div>
 	</div>
 	<div class="col-xs-6 middle">
@@ -17,21 +17,21 @@
 		</div>
 
 		<div class="resultItemLine2">
-			{{ 'mainAuthor' | translate }} <a ng-href="fav.authorLink()">{{ fav.author() }}</a> <br/>
-			<div ng-show="fav.published()">
+			{{ 'mainAuthor' | translate }} <a data-ng-href="fav.authorLink()">{{ fav.author() }}</a> <br/>
+			<div data-ng-show="fav.published()">
 				{{ 'published' | translate }} {{ fav.published() }}
 			</div>
 		</div>
 
 		<div class="last">
 
-			<div ng-show="fav.fulltext()">
-				<a ng-href="fav.fulltext()" class="fulltext" target="new">
+			<div data-ng-show="fav.fulltext()">
+				<a data-ng-href="fav.fulltext()" class="fulltext" target="new">
 				<i class="fa fa-external-link"></i>{{ 'onlineResources' | translate }}</a>
 			</div>
 			<br><br>
 			<div class="iconlabel">
-				<i ng-class="fav.formatIconClass()"></i><span class="format-text">{{ fav.format() | translate }}</span>
+				<i data-ng-class="fav.formatIconClass()"></i><span class="format-text">{{ fav.format() | translate }}</span>
 			</div>
 
 		</div>
@@ -44,7 +44,7 @@
 				href="#">{{ 'delete' | translate }}</a>
 			<ul class="dropdown-menu" role="menu">
 				<li><a
-					ng-click="listCtrl.removeFavorite(fav.created())"
+					data-ng-click="listCtrl.removeFavorite(fav.created())"
 					title="{{ confirmDelete }}">{{ 'yes' | translate }}</a></li>
 				<li><a>{{ 'no' | translate }}</a></li>
 			</ul>

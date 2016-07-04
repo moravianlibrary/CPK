@@ -363,11 +363,9 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $this->setUserName($currentUser);
 
-        if (! isset($_ENV['isDummy']) || $_ENV['isDummy'])
-            $this->handleDummyNotification($currentUser);
+        $this->handleDummyNotification($currentUser);
 
         return $currentUser;
-
     }
 
     /**
@@ -819,7 +817,9 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function clearNoEppnEmailAttempts($technicalContacts, $homeLibrary)
     {
-        $this->serviceLocator->get('VuFind\DbTablePluginManager')->get('email_delayer')->clearAttempts($technicalContacts, $homeLibrary, EmailTypes::IDP_NO_EPPN);
+        $this->serviceLocator->get('VuFind\DbTablePluginManager')
+            ->get('email_delayer')
+            ->clearAttempts($technicalContacts, $homeLibrary, EmailTypes::IDP_NO_EPPN);
     }
 
     /**
@@ -989,8 +989,11 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function handleDummyNotification(UserRow $currentUser)
     {
-        $isDummy = $currentUser->home_library === 'Dummy';
+        if (! isset($_ENV['isDummy']) || $_ENV['isDummy']) {
 
-        $this->notificationsHandler->setUserNotificationShows($currentUser, NotificationTypes::USER_DUMMY, $isDummy);
+            $isDummy = $currentUser->home_library === 'Dummy';
+
+            $this->notificationsHandler->setUserNotificationShows($currentUser, NotificationTypes::USER_DUMMY, $isDummy);
+        }
     }
 }

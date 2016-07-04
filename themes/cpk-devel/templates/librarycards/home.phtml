@@ -94,12 +94,12 @@
 <!-- Modal for connecting identities -->
     <div class="modal fade" id="userConnectModal" role="dialog">
       <div class="modal-dialog" role="document">
-        <div class="modal-content" ng-controller="FederativeLoginController as fedLoginCtrl">
-          <div class="modal-header link" ng-click="fedLoginCtrl.showHelpContent()" style="cursor: pointer">
+        <div class="modal-content" data-ng-controller="FederativeLoginController as fedLoginCtrl">
+          <div class="modal-header link" data-ng-click="fedLoginCtrl.showHelpContent()" style="cursor: pointer">
 		    <? $portalPage = $this->portalPages()->getPage('napoveda-pro-prihlaseni-a-registraci', explode("-", $this->layout()->userLang)[0]); ?>
 		    <h4 class="modal-title"><?=$portalPage['title']?></h4>
 		  </div>
-		  <div class="modal-body" ng-help-content hidden="hidden">
+		  <div class="modal-body" data-ng-help-content hidden="hidden">
 		    <?=$portalPage['content'] ?>
 		  </div>
           <div class="modal-header">
