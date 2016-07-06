@@ -1,6 +1,11 @@
 (function() {
     angular.module('history').controller('CheckedOutHistoryController', CheckedOutHistoryController).directive('ngHistoryUsername', ngHistoryUsernameDirective)
-    	.directive('ngHistoryItem', ngHistoryItemDirective).directive('ngPagination', ngPaginationDirective);
+    	.directive('ngHistoryItem', ngHistoryItemDirective).directive('ngPagination', ngPaginationDirective)
+    	.filter('urlencode', function() {
+    		return function(input) {
+    			return encodeURI(input);
+			}
+		});
     
     CheckedOutHistoryController.$inject = [ '$q', '$log', '$http', '$scope' ];
     
