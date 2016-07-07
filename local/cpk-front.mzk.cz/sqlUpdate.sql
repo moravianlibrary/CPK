@@ -555,3 +555,19 @@ UPDATE `email_types` SET `delay` = '167:59:59' WHERE `email_types`.`key` = 'idp_
 UPDATE `email_types` SET `delay` = '11:59:59' WHERE `email_types`.`key` = 'ils_api_not_available';
 
 UPDATE `system` SET `value`='42' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `frontend` ADD `first_inspiration_widget` VARCHAR( 40 ) NOT NULL ,
+ADD `second_inspiration_widget` VARCHAR( 40 ) NOT NULL ,
+ADD `third_inspiration_widget` VARCHAR( 40 ) NOT NULL ,
+ADD `fourth_inspiration_widget` VARCHAR( 40 ) NOT NULL ,
+ADD `fifth_inspiration_widget` VARCHAR( 40 ) NOT NULL ,
+ADD `sixth_inspiration_widget` VARCHAR( 40 ) NOT NULL ;
+
+UPDATE `vufind`.`frontend` SET `first_inspiration_widget` = 'most_wanted',
+`second_inspiration_widget` = 'favorite_authors',
+`third_inspiration_widget` = 'infobox',
+`fourth_inspiration_widget` = 'most_wanted',
+`fifth_inspiration_widget` = 'favorite_authors',
+`sixth_inspiration_widget` = 'infobox' WHERE `frontend`.`id` =1;
+
+UPDATE `system` SET `value`='43' WHERE `key`='DB_VERSION';

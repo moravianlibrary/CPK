@@ -1,12 +1,19 @@
 <?
   // Set page title.
-  $this->headTitle($this->translate('Knihovny.cz'));
+  $title = "Inspiration";
+  $this->headTitle($this->translate('Inspiration'));
+  $this->layout()->title = $title;
+  $this->headTitle($title);
+  $this->layout()->headerType = "inspiration";
 
   // Disable top search box -- this page has a special layout.
   $this->layout()->searchbox = false;
 ?>
 <div class="searchHomeContent">
-  <?=$this->render('widgets/'.$this->widgets['first_homepage_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['second_homepage_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['third_homepage_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['first_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['second_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['third_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['fourth_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['fifth_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['sixth_inspiration_widget'].'.phtml')?>
 </div>

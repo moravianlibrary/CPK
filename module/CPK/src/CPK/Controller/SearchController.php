@@ -1153,11 +1153,11 @@ class SearchController extends AbstractSearch
         $view = $this->createViewModel();
 
         $view->mostWanted = $this->getMostWantedRecordsAction(5);
-        $view->favoriteAuthors= $this->getFavoriteAuthorsAction(5);
+        $view->favoriteAuthors= $this->getFavoriteAuthorsAction(4);
         $view->infobox= $this->getInfoboxAction(5);
 
         $frontendTable = $this->getTable('frontend');
-        $widgets = $frontendTable->getHomepageWidgets();
+        $widgets = $frontendTable->getInspirationWidgets();
 
         $view->widgets = $widgets;
 

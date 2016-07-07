@@ -48,16 +48,73 @@
       </div>
 	</div>
   </div>
+
+  <div class="col-sm-9" id='inspiration-widgets'>
+    <h2><?=$this->translate('Inspiration widgets')?></h2>
+    <div class='well'>
+	  <div class='row'>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('First column');?></h2>
+			<select id='first-inspiration-widget'>
+			  <? foreach($widgets as $widget): ?>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['first_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
+			  <? endforeach; ?>
+			</select>
+        </div>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('Second column');?></h2>
+			<select id='second-inspiration-widget'>
+				<? foreach($widgets as $widget): ?>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['second_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
+			  <? endforeach; ?>
+			</select>
+        </div>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('Third column');?></h2>
+			<select id='third-inspiration-widget'>
+				<? foreach($widgets as $widget): ?>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['third_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
+			  <? endforeach; ?>
+			</select>
+        </div>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('Fourth column');?></h2>
+			<select id='fourth-inspiration-widget'>
+			  <? foreach($widgets as $widget): ?>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fourth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
+			  <? endforeach; ?>
+			</select>
+        </div>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('Fifth column');?></h2>
+			<select id='fifth-inspiration-widget'>
+				<? foreach($widgets as $widget): ?>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fifth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
+			  <? endforeach; ?>
+			</select>
+        </div>
+        <div class='col-md-4 text-center'>
+        	<h2><?=$this->translate('Sixth column');?></h2>
+			<select id='sixth-inspiration-widget'>
+				<? foreach($widgets as $widget): ?>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['sixth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getName())?></option>
+			  <? endforeach; ?>
+			</select>
+        </div>
+      </div>
+	</div>
+  </div>
+
 </div>
 
 <script>
 	jQuery( document ).ready( function( $ ) {
-		$( '#homepage-widgets' ).on( 'change', 'select', function( event ) {
+		$( '#homepage-widgets, #inspiration-widgets' ).on( 'change', 'select', function( event ) {
 			event.preventDefault();
 
 			var data = {};
 
-			$( '#homepage-widgets select' ).each(function( index, element ) {
+			$( '#homepage-widgets select, #inspiration-widgets select' ).each(function( index, element ) {
 				data[$( element ).attr( 'id' )] = $( element ).val();
 			});
 
@@ -73,10 +130,10 @@
 
 	                if (response.status == 'OK') {
 
-	                	$( '#save-homepage-widgets-confirmation' ).modal( 'show' );
+	                	$( '#save-widgets-confirmation' ).modal( 'show' );
 
 	        			setTimeout( function() {
-	        				$( '#save-homepage-widgets-confirmation' ).modal( 'hide' );
+	        				$( '#save-widgets-confirmation' ).modal( 'hide' );
 	        			}, 1200 );
 
 	                } else {
@@ -98,7 +155,7 @@
 	});
 </script>
 
-<div class="modal fade" id="save-homepage-widgets-confirmation" tabindex="-1" role="dialog" aria-labelledby="save-homepage-widgets-confirmation-label" style='margin-top: 150px;'>
+<div class="modal fade" id="save-widgets-confirmation" tabindex="-1" role="dialog" aria-labelledby="save-widgets-confirmation-label" style='margin-top: 150px;'>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
