@@ -26,6 +26,7 @@ namespace CPK\Controller;
 
 use CPK\Libraries\Entities\SearchResults;
 use VuFind\Controller\AbstractBase;
+use Zend\View\Model\JsonModel;
 
 /**
  * PortalController
@@ -87,6 +88,18 @@ class LibrariesController extends AbstractBase
 
 		return $view;
 
+	}
+
+	public function autocompleteJsonAction()
+	{
+		$term = $this->params()->fromQuery('term');
+
+		$apiResponse = file_get_contents("http://info.knihovny.cz/api/autocomplete?q=$term");
+		$dataArray = \Zend\Json\Json::decode($apiResponse, \Zend\Json\Json::TYPE_ARRAY);
+
+		$result = new JsonModel($dataArray);
+
+		return $result;
 	}
 
 

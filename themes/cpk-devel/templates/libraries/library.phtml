@@ -3,6 +3,7 @@
   $this->layout()->title = $title;
   $this->headTitle($title);
   $this->layout()->headerType = "libraries";
+  $this->headScript()->appendFile("jquery-ui.min.js");
   setlocale(LC_NUMERIC, "en_US.utf8");
 ?>
 
