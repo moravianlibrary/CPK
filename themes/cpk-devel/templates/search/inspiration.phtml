@@ -1,0 +1,12 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('Knihovny.cz'));
+
+  // Disable top search box -- this page has a special layout.
+  $this->layout()->searchbox = false;
+?>
+<div class="searchHomeContent">
+  <?=$this->render('widgets/'.$this->widgets['first_homepage_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['second_homepage_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['third_homepage_widget'].'.phtml')?>
+</div>

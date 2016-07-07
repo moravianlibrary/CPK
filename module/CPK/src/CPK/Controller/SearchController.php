@@ -1142,4 +1142,36 @@ class SearchController extends AbstractSearch
     protected function base64url_encode($data) {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
+
+    /**
+     * Inspiration action
+     *
+     * @return mixed
+     */
+    public function inspirationAction()
+    {
+        $view = $this->createViewModel();
+
+        $view->mostWanted = $this->getMostWantedRecordsAction(5);
+        $view->favoriteAuthors= $this->getFavoriteAuthorsAction(5);
+        $view->infobox= $this->getInfoboxAction(5);
+
+        $frontendTable = $this->getTable('frontend');
+        $widgets = $frontendTable->getHomepageWidgets();
+
+        $view->widgets = $widgets;
+
+        if (! empty($this->params()->fromPost('mylang'))) {
+            $languageCode = $this->params()->fromPost('mylang');
+        } else if (! empty($_COOKIE['language'])) {
+            $languageCode = $_COOKIE['language'];
+        } else {
+            $config = $this->getConfig();
+            $languageCode = $config->Site->language;
+        }
+
+        $view->language = $languageCode;
+
+        return $view;
+    }
 }

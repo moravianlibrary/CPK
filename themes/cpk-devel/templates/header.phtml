@@ -19,7 +19,7 @@
             <a href="<?=$this->url('home')?>"><?=$this->translate('Catalog')?><span class="sr-only">(current)</span></a>
         </li>
         <li>
-            <a href="#"><?=$this->translate('Inspiration')?></a>
+            <a href="/Search/Inspiration" title="<?=$this->translate('Inspiration')?>"><?=$this->translate('Inspiration')?></a>
         </li>
         <li <? if ($this->layout()->headerType == "libraries"): ?>class="active"<? endif; ?> >
             <a href="/Libraries/List/"><?=$this->translate('Libraries')?></a>
