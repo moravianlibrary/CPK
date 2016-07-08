@@ -11,7 +11,7 @@
           $recordId =  preg_replace("/:/", "", $recordId);
           $formats = $book->getRecordDriver()->getFormats();
           ?>
-          <div class="col-xs-3 cover_<?=$recordId?>">
+          <div class="col-xs-3 cover_<?=$recordId?>" id="<?=$recordId?>">
 
                 <? if ($bibinfo = $this->record($book->getRecordDriver())->getObalkyKnihJSONV3()): ?>
                     <script type="text/javascript">
