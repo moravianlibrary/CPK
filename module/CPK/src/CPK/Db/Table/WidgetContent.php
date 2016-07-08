@@ -126,6 +126,8 @@ class WidgetContent extends Gateway
 
         if ($preferredFirst) {
             $select->order('preferred_value DESC');
+        } else {
+            $select->order(array(new Expression('RAND()')));
         }
 
         if ($limit) {
