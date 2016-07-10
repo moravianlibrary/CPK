@@ -1659,4 +1659,21 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output($output, self::STATUS_OK);
 	}
+
+	/**
+	 * Get subCategories for conspectus
+	 *
+	 * @return string
+	 */
+	public function getConspectusSubCategoriesAjax()
+	{
+        $post = $this->params()->fromPost();
+        $category = trim($post['category']);
+
+        $subCategories = [];
+
+	    $output = ['subCategories' => $subCategories];
+
+	    return $this->output($output, self::STATUS_OK);
+	}
 }

@@ -33,8 +33,13 @@ use VuFind\Exception\Mail as MailException;
  * @author  Martin Kravec <martin.kravec@mzk.cz>
  * @license http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  */
-class SearchController extends AbstractSearch
+class SearchController extends SearchControllerBase
 {
+
+    //protected $conspectusField     = 'category_txtF';
+    protected $conspectusField     = 'category_str';
+    //protected $conspectusField     = 'subject_facet_str_mv';
+    protected $conspectusFieldName = 'Conspectus';
 
 	/**
 	 * Handle an advanced search
@@ -1152,7 +1157,7 @@ class SearchController extends AbstractSearch
     {
         $view = $this->createViewModel();
 
-        $view->mostWanted = $this->getMostWantedRecordsAction(5);
+        /*$view->mostWanted = $this->getMostWantedRecordsAction(5);
         $view->favoriteAuthors= $this->getFavoriteAuthorsAction(4);
         $view->infobox= $this->getInfoboxAction(5);
 
@@ -1170,7 +1175,34 @@ class SearchController extends AbstractSearch
             $languageCode = $config->Site->language;
         }
 
-        $view->language = $languageCode;
+        $view->language = $languageCode;*/
+
+        /* Conspectus */
+        $results = $this->getResultsManager()->get('Solr');
+        $params = $results->getParams();
+        $params->addFacet($this->conspectusField, $this->conspectusFieldName);
+        $params->setLimit(0);
+        $results->getResults();
+        $facets = $results->getFacetList();
+
+/*
+        $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+
+        $request['type0'][] = $this->conspectusField;
+        $request['bool0'][] = 'OR';
+        $request['join'] = 'AND';
+        $request['limit'] = '0';
+        $request['fl'][] = $this->conspectusField;
+
+        $results = $runner->run(
+            $request, $this->searchClassId, $this->getSearchSetupCallback()
+        );
+        $facets = $results->getFacetList();
+*/
+
+        $view->results = $results;
+        $view->facets = $facets;
+        $view->field = $this->conspectusField;
 
         return $view;
     }
