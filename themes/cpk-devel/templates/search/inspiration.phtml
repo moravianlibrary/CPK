@@ -8,12 +8,81 @@
 
   // Disable top search box -- this page has a special layout.
   $this->layout()->searchbox = false;
+
+  // Conspectus
+  $results = $this->results;
+  $field = $this->field;
+  $facets = $this->facets[$field]['list'];
+  $sortedList = $this->sortFacetList($results, $field, $facets, 'search-results');
 ?>
-<div class="searchHomeContent">
-  <?=$this->render('widgets/'.$this->widgets['first_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['second_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['third_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['fourth_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['fifth_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['sixth_inspiration_widget'].'.phtml')?>
+
+<div>
+  <?//=$this->render('widgets/'.$this->widgets['first_inspiration_widget'].'.phtml')?>
+  <?//=$this->render('widgets/'.$this->widgets['second_inspiration_widget'].'.phtml')?>
+  <?//=$this->render('widgets/'.$this->widgets['third_inspiration_widget'].'.phtml')?>
+  <?//=$this->render('widgets/'.$this->widgets['fourth_inspiration_widget'].'.phtml')?>
+  <?//=$this->render('widgets/'.$this->widgets['fifth_inspiration_widget'].'.phtml')?>
+  <?//=$this->render('widgets/'.$this->widgets['sixth_inspiration_widget'].'.phtml')?>
 </div>
+
+<div id='conspectus'>
+  <h2><?=$this->transEsc('Conspectus')?></h2>
+    <? foreach ($sortedList as $url => $value): ?>
+      <div class='category'>
+        <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
+          <i class='fa fa-plus'> </i>&nbsp;&nbsp;
+        </a>
+        <a href="<?=$url?>" title='<?=$this->escapeHtml($value)?>' class='category-text'>
+          <?=$this->escapeHtml($value)?>
+        </a>
+        <div class='expanded-category hidden'></div>
+      </div>
+    <? endforeach; ?>
+</div>
+
+<script>
+	jQuery( document ).ready( function( $ ) {
+
+		/* Get conspectus subcategories */
+		var data = {};
+		$( ".category .category-text" ).each( function( index, element ) {
+			data['category'] = $( element ).text();
+
+    		$.ajax({
+            	type: 'POST',
+            	cache: false,
+            	dataType: 'json',
+            	url: VuFind.getPath() + '/AJAX/JSON?method=getConspectusSubCategories',
+            	data: data,
+            	success: function( response ) {
+            		if (response.status == 'OK') {
+    					$( element ).parent().find( '.expanded-category' ).html(response.data);
+            		} else {
+            			console.error(response.data);
+            		}
+
+            	},
+                error: function ( xmlHttpRequest, status, error ) {
+                	console.error(xmlHttpRequest.responseText);
+                	console.log(xmlHttpRequest);
+                	console.error(status);
+                	console.error(error);
+                	console.log( 'Sent data: ' );
+                	console.log( data );
+                },
+            });
+
+		});
+
+		/* Expand subcategories on click */
+		$( '#conspectus' ).on( 'click', '.expand-category', function(){
+			var expandedCategoryElement = $( this ).parent().find( '.expanded-category' );
+			if( expandedCategoryElement.hasClass( 'hidden' ) ) {
+				expandedCategoryElement.removeClass( 'hidden' );
+			} else {
+				expandedCategoryElement.addClass( 'hidden' );
+			}
+		});
+
+	});
+</script>
