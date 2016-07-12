@@ -877,4 +877,30 @@ class Aleph extends AlephBase implements CPKDriverInterface
         else
             return null;
     }
+
+    public function getProlongRegistrationUrl($patron)
+    {
+        if ($this->prolongRegistrationUrl == null) {
+            return null;
+        }
+        $status = '03';
+        $expire = date_create_from_format('d. m. Y', $patron['expire']);
+        $dateDiff = date_diff(date_create(), $expire);
+        $daysDiff =  (($dateDiff->invert == 0) ? 1: -1) *  $dateDiff->days;
+        if ($daysDiff > 31) {
+            return null;
+        }
+        $hash = hash_hmac('sha256', $patron['id'], $this->hmacKey, true);
+        $hash = base64_encode($hash);
+        $params = array (
+            'id'           => $patron['id'],
+            'status_cten'  => $this->prolongRegistrationStatus,
+            'from'         => 'cpk',
+            'hmac'         => $hash,
+        );
+        $query = http_build_query($params);
+        $url = $this->prolongRegistrationUrl . '?' . $query;
+        return $url;
+
+    }
 }
