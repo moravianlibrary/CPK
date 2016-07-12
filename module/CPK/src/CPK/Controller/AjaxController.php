@@ -1089,9 +1089,6 @@ class AjaxController extends AjaxControllerBase
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
 
-        if ($loggedInIsSufficient)
-            return $user;
-
         if ($cat_username === null) {
             return $this->output('No cat_username provided.', self::STATUS_ERROR);
         }

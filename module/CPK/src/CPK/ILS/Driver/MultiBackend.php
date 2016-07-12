@@ -538,9 +538,7 @@ class MultiBackend extends MultiBackendBase
             }
             throw new ILSException('No suitable backend driver found');
         } else
-            return [
-                'count' => 0
-            ];
+            return false;
     }
 
     /**
@@ -736,5 +734,19 @@ class MultiBackend extends MultiBackendBase
         }
 
         return null;
+    }
+
+    public function getRenewDetails($checkoutDetails)
+    {
+        $source = $this->getSource($checkoutDetails['id']);
+        if (empty($source)) $source = $this->getSource($checkoutDetails['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            $details = $driver->getRenewDetails(
+                    $this->stripIdPrefixes($checkoutDetails, $source)
+            );
+            return $this->addIdPrefixes($details, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
     }
 }
