@@ -708,7 +708,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids), $patron);
         else {
-            if ($this->agency === 'TAG001' || $this->agency === 'ULG001') {
+            if ($this->agency === 'TAG001' || $this->agency === 'ULG001' || $this->agency === 'KHG001' ||
+                    $this->agency === 'ABC016') {
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
