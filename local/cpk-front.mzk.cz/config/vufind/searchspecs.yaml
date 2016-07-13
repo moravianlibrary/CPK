@@ -347,6 +347,7 @@ AllFields:
     - fulltext_unstemmed^10
     - allfields
     - fulltext
+    - toc_txt_mv
     - isbn
     - issn
   DismaxParams:
@@ -417,6 +418,8 @@ AllFields:
       - [or, ~]
     fulltext:
       - [or, ~]
+    toc_txt_mv:
+      - [onephrase, ~]
     isbn:
       - [onephrase, ~]
     issn:
