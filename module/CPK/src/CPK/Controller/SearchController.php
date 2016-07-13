@@ -584,6 +584,7 @@ class SearchController extends SearchControllerBase
 
 	    $view->myLibs = $this->getUsersHomeLibraries();
 	    $view->config = $this->getConfig();
+	    if (! isset($view->saved)) $view->saved = null;
 
 		// Set up facet information:
 		$view->facetList = $this->processAdvancedFacets(

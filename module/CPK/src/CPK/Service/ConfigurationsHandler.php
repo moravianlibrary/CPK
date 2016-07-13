@@ -647,6 +647,11 @@ class ConfigurationsHandler
         // Add prefix for IdResolver
         $parsedCfg['IdResolver']['prefix'] = $source;
 
+        // Auth username cannot be empty, so value 'false' is used when empty.
+        if (isset($parsedCfg['Catalog']['username']) && empty($parsedCfg['Catalog']['username'])) {
+            $parsedCfg['Catalog']['username'] = 'false';
+        }
+
         return $parsedCfg;
     }
 
