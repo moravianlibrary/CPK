@@ -36,10 +36,10 @@ use VuFind\Exception\Mail as MailException;
 class SearchController extends SearchControllerBase
 {
 
-    //protected $conspectusField     = 'category_txtF';
     protected $conspectusField     = 'category_str';
-    //protected $conspectusField     = 'subject_facet_str_mv';
     protected $conspectusFieldName = 'Conspectus';
+    protected $conspectusSubField     = 'subcategory_str';
+    protected $conspectusSubFieldName = 'conspectusSubCategories';
 
 	/**
 	 * Handle an advanced search
@@ -1189,7 +1189,7 @@ class SearchController extends SearchControllerBase
     {
         $view = $this->createViewModel();
 
-        /*$view->mostWanted = $this->getMostWantedRecordsAction(5);
+        $view->mostWanted = $this->getMostWantedRecordsAction(4);
         $view->favoriteAuthors= $this->getFavoriteAuthorsAction(4);
         $view->infobox= $this->getInfoboxAction(5);
 
@@ -1207,7 +1207,7 @@ class SearchController extends SearchControllerBase
             $languageCode = $config->Site->language;
         }
 
-        $view->language = $languageCode;*/
+        $view->language = $languageCode;
 
         /* Conspectus */
         $results = $this->getResultsManager()->get('Solr');
@@ -1217,25 +1217,62 @@ class SearchController extends SearchControllerBase
         $results->getResults();
         $facets = $results->getFacetList();
 
-/*
-        $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
-
-        $request['type0'][] = $this->conspectusField;
-        $request['bool0'][] = 'OR';
-        $request['join'] = 'AND';
-        $request['limit'] = '0';
-        $request['fl'][] = $this->conspectusField;
-
-        $results = $runner->run(
-            $request, $this->searchClassId, $this->getSearchSetupCallback()
-        );
-        $facets = $results->getFacetList();
-*/
-
         $view->results = $results;
         $view->facets = $facets;
         $view->field = $this->conspectusField;
 
         return $view;
+    }
+
+    /**
+     * Get subCategories for conspectus
+     *
+     * @param   array   $postParams
+     *
+     * @return array
+     */
+    public function getConspectusSubCategoriesAction(array $postParams)
+    {
+        $category = trim($postParams['category']);
+
+        /*
+         $results = $this->getResultsManager()->get('Solr');
+         $params = $results->getParams();
+         $params->addFacet($this->conspectusSubField, $this->conspectusSubFieldName);
+         $options = $params->getOptions();
+         $options->addHiddenFilter($this->conspectusField.':"'.$category.'"');
+         $params->setLimit(0);
+         $results->getResults();
+         $facets = $results->getFacetList();
+         */
+
+        $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+
+        $request['type0'][] = 'AllFields';
+        $request['bool0'][] = 'AND';
+        $request['join'] = 'AND';
+        $request['limit'] = '0';
+        $request['fl'][] = $this->conspectusSubField;
+        $request['filter'][] = $this->conspectusField.':"'.$category.'"';
+
+        $results = $runner->run(
+            $request, $this->searchClassId, $this->getSearchSetupCallback()
+        );
+
+        $viewModel = $this->createViewModel();
+        $viewModel->setTemplate('search/ajax/conspectus-subcategories.php');
+
+        $viewModel->results = $results;
+
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $html = $viewRender->render($viewModel);
+
+        $subCategories = htmlentities($html, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, "UTF-8");
+
+        $data = [
+            'subCategories' => json_encode(['html' => $html])
+        ];
+
+        return $data;
     }
 }

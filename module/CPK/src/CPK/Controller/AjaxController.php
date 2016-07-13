@@ -1676,19 +1676,16 @@ class AjaxController extends AjaxControllerBase
 	}
 
 	/**
-	 * Get subCategories for conspectus
+	 * Return conspectus subcategories
 	 *
-	 * @return string
+	 * @return \Zend\Http\Response
 	 */
 	public function getConspectusSubCategoriesAjax()
 	{
-        $post = $this->params()->fromPost();
-        $category = trim($post['category']);
+	    $postParams = $this->params()->fromPost();
+	    $searchController = $this->getServiceLocator()->get('searchController');
+	    $viewData = $searchController->getConspectusSubCategoriesAction($postParams);
 
-        $subCategories = [];
-
-	    $output = ['subCategories' => $subCategories];
-
-	    return $this->output($output, self::STATUS_OK);
+	    return $this->output($viewData, self::STATUS_OK);
 	}
 }

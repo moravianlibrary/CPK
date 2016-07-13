@@ -17,12 +17,12 @@
 ?>
 
 <div>
-  <?//=$this->render('widgets/'.$this->widgets['first_inspiration_widget'].'.phtml')?>
-  <?//=$this->render('widgets/'.$this->widgets['second_inspiration_widget'].'.phtml')?>
-  <?//=$this->render('widgets/'.$this->widgets['third_inspiration_widget'].'.phtml')?>
-  <?//=$this->render('widgets/'.$this->widgets['fourth_inspiration_widget'].'.phtml')?>
-  <?//=$this->render('widgets/'.$this->widgets['fifth_inspiration_widget'].'.phtml')?>
-  <?//=$this->render('widgets/'.$this->widgets['sixth_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['first_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['second_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['third_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['fourth_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['fifth_inspiration_widget'].'.phtml')?>
+  <?=$this->render('widgets/'.$this->widgets['sixth_inspiration_widget'].'.phtml')?>
 </div>
 
 <div id='conspectus'>
@@ -35,7 +35,7 @@
         <a href="<?=$url?>" title='<?=$this->escapeHtml($value)?>' class='category-text'>
           <?=$this->escapeHtml($value)?>
         </a>
-        <div class='expanded-category hidden'></div>
+        <div class='expanded-category hidden' style='padding-left: 40px;'></div>
       </div>
     <? endforeach; ?>
 </div>
@@ -55,11 +55,21 @@
             	url: VuFind.getPath() + '/AJAX/JSON?method=getConspectusSubCategories',
             	data: data,
             	success: function( response ) {
+
             		if (response.status == 'OK') {
-    					$( element ).parent().find( '.expanded-category' ).html(response.data);
+
+                		var subCategories = JSON.parse(response.data.subCategories);
+/*
+                		response.data['subCategories'].forEach( function( item ) {
+							html += "<a href='/Search/Results?filter[]=subcategory_str:\""+item+"\"' title='"+item+"'>"+item+"</a><br>";
+                    	});
+*/
+    					//$( element ).parent().find( '.expanded-category' ).html( decodeHtml( subCategories.html ) );
+    					$( element ).parent().find( '.expanded-category' ).html( subCategories.html );
+
             		} else {
             			console.error(response.data);
-            		}
+                	}
 
             	},
                 error: function ( xmlHttpRequest, status, error ) {
@@ -75,12 +85,17 @@
 		});
 
 		/* Expand subcategories on click */
-		$( '#conspectus' ).on( 'click', '.expand-category', function(){
+		$( '#conspectus' ).on( 'click', '.expand-category', function( event ){
+
+			event.preventDefault();
+
 			var expandedCategoryElement = $( this ).parent().find( '.expanded-category' );
 			if( expandedCategoryElement.hasClass( 'hidden' ) ) {
 				expandedCategoryElement.removeClass( 'hidden' );
+				expandedCategoryElement.parent().find( 'i.fa' ).removeClass( 'fa-plus' ).addClass( 'fa-minus' );
 			} else {
 				expandedCategoryElement.addClass( 'hidden' );
+				expandedCategoryElement.parent().find( 'i.fa' ).removeClass( 'fa-minus' ).addClass( 'fa-plus' );
 			}
 		});
 
