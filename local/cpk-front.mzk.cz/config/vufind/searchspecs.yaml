@@ -539,3 +539,15 @@ adv_search_nbn:
       - [onephrase, 100]
       - [and, 50]
       - [or, ~]
+      
+adv_search_fulltext:
+  QueryFields:
+    fulltext:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+    toc_txt_mv:
+      - [onephrase, 100]
+      - [and, 50]
+      - [or, ~]
+  
