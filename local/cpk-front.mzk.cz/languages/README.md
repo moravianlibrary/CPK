@@ -8,9 +8,9 @@ If you are willing to use our Admin controller for editing institution-level tra
 These language files must be webserver writable, so you should place them in a institution-translations directory within the languages dir & symlink them to parent dir. You could do it e.g. this way
 
     mkdir institution-translations
-    touch {cs,en}-cpk-institutions.ini
-    ln -s cs-cpk-institutions.ini
-    ln -s en-cpk-institutions.ini
+    touch institution-translations/{cs,en}-cpk-institutions.ini
+    ln -s institution-translations/cs-cpk-institutions.ini
+    ln -s institution-translations/en-cpk-institutions.ini
 
 Important thing to make it work is to change ownership of those institution language files to Apache's user (typically www-data)
 
