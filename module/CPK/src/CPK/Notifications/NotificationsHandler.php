@@ -510,6 +510,7 @@ class NotificationsHandler
     protected function prepareNotificationsRowsForOutput(array $notificationsRows, $source = null)
     {
         $data['notifications'] = [];
+        $data['source'] = $source;
 
         foreach ($notificationsRows as $notificationType => $notificationRow) {
 
@@ -528,16 +529,6 @@ class NotificationsHandler
 
                 array_push($data['notifications'], $notification);
             }
-        }
-
-        if (count($data['notifications']) === 0) {
-            // No notifications added ..
-            $data['notifications'] = array(
-                [
-                    'clazz' => 'default',
-                    'message' => $this->translate('without_notifications')
-                ]
-            );
         }
 
         return $data;

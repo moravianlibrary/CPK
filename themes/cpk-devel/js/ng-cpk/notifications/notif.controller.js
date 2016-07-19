@@ -201,9 +201,12 @@
 		    }
 		    
 		    if (typeof response.notifications !== 'undefined') {
-			resolve(response.notifications);
+			    resolve(response.notifications);
+			    if (response.notifications.length == 0) {
+			        $("ul#notificationsList>li#" + response.source).append("<div class=\"notif-default\">" + VuFind.translate('without_notifications') + "</div>");
+			    }
 		    } else {
-			reject('No notifications returned!');
+			    reject('No notifications returned!');
 		    }
 		};
 		

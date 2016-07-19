@@ -27,7 +27,7 @@
   <? if ($user): foreach ($libraryCards as $libraryCard):
 	   $source = explode('.', $libraryCard['cat_username'])[0];
   ?>
-	<li data-ng-init='notifCtrl.initApiRelevantNotificationsForUserCard("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
+	<li id="<?=$source?>" data-ng-init='notifCtrl.initApiRelevantNotificationsForUserCard("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
 	   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
 	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
 	     <div institution-notif='<?=$source?>' class="notif-default">
