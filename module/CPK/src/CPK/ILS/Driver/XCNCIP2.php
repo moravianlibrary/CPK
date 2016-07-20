@@ -1239,6 +1239,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         $fines = array();
         $sum = 0;
+        $leastOne = false;
         foreach ($list as $current) {
             $excluded = false;
             $amount = $this->useXPath($current,
@@ -1255,6 +1256,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $date = $this->parseDate($date);
             $amount_int = (int) $amount[0] * (- 1);
             if ($amount_int == 0) continue; // remove zero fees
+            if (! $excluded) $leastOne = true;
             $sum += $amount_int;
 
             if ($this->agency == 'ZLG001') $desc = $action;
@@ -1275,6 +1277,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'amount' => (string) $monetaryValue[0],
                 'balance' => (string) $monetaryValue[0]
             );
+        if (! empty($fines) && ! $leastOne) $fines[count($fines) - 1]['excluded'] = false;
         return $fines;
     }
 
