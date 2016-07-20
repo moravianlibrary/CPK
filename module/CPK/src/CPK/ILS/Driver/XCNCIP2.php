@@ -338,11 +338,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             try {
                 $request = $this->requests->renewItem($patron, $item);
                 $response = $this->sendRequest($request);
-                $date = $this->useXPath($response, 'RenewItemResponse/DateForReturn');
+                $rawDate = $this->useXPath($response, 'RenewItemResponse/DateForReturn');
+                $date = $this->parseDate($rawDate);
                 $result[$item] = array(
                     'success' => true,
-                    'new_date' => (string) $date[0],
-                    'new_time' => (string) $date[0], // used the same like previous
+                    'new_date' => $date,
+                    'new_time' => $date, // used the same like previous
                     'item_id' => $item,
                     'sysMessage' => ''
                 );
