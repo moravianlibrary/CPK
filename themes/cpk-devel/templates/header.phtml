@@ -66,6 +66,12 @@
 		                class="modal-link" title="<?=$this->transEsc('Your Favorites')?>"><i
 		                class="icon-oblibene"></i> <?=$this->transEsc('Your Favorites')?></a>
 					</li>
+					<li role="separator" class="divider"></li>
+        			<li id="logoutOptions">
+                      <a href="<?=$this->url('myresearch-logout')?>"
+                        class="modal-link" title="<?=$this->transEsc("Log Out")?>">
+                        <i class="pr-interface-logoutexit"></i> <?=$this->transEsc("Log Out")?></a>
+                    </li>
 				</ul>
 			</li>
 		  <? else: ?>
@@ -75,6 +81,7 @@
 		        class="icon-oblibene"></i> <?=$this->transEsc('Your Favorites')?></a>
 		    </li>
 		  <? endif ?>
+
         <? endif; ?>
 
         <? if (isset($this->layout()->themeOptions) && count($this->layout()->themeOptions) > 1): ?>
@@ -91,6 +98,14 @@
           </li>
         <? endif; ?>
 
+        <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
+        <? if(! $user): ?>
+			<li id="loginOptions">
+              <?=$this->render('Auth/Shibboleth/login.phtml') ?>
+            <? endif; ?>
+            </li>
+		<? endif; ?>
+
         <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
           <form method="post" name="langForm" id="langForm" style="float: left;">
             <input type="hidden" name="mylang"/>
@@ -102,18 +117,6 @@
         <? endforeach; ?>
         <? endif; ?>
 
-        <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
-        <? if($user): ?>
-			<li id="logoutOptions">
-              <a href="<?=$this->url('myresearch-logout')?>"
-                class="modal-link" title="<?=$this->transEsc("Log Out")?>">
-                <i class="pr-interface-logoutexit"></i> <?=$this->transEsc("Log Out")?></a>
-			<? else: ?>
-			<li id="loginOptions">
-              <?=$this->render('Auth/Shibboleth/login.phtml') ?>
-            <? endif; ?>
-            </li>
-		<? endif; ?>
       </ul>
     </nav>
   </div>
