@@ -41,7 +41,7 @@
 						<? else : ?>
 						<td><span class="label label-<?=$statusClass?>"><?=$this->transEsc('link_access_status_'.$link[1])?></span></td>
 						<? endif; ?>
-						<td><a title='<?=$title?>' href='<?=$link[2]?>'><?=$anchor?></a></td>
+						<td><a title='<?=$title?>' href='<?=$link[2]?>' target='_blank'><?=$anchor?></a></td>
 						<td><?=$this->transEsc('source_'.$link[0])?></td>
 					</tr>
 				<? endforeach; ?>
