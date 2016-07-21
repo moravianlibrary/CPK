@@ -10,7 +10,7 @@
 ?>
 
 <?=$this->flashmessages()?>
-<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<!--<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>-->
 <h2><?=$this->transEsc($pageTitle); ?></h2>
 
 <form action='' class="form-horizontal edit-list-form" method="post" name="<?=empty($this->list->id) ? 'newList' : 'editListForm'?>">
