@@ -3,7 +3,7 @@
 <? foreach($idps as $idp):
 $json = json_encode($idp);
 ?>
-  <tr class="link" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
+  <tr class="link idp-record" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
     <td class="col-sm-4">
       <? if($idp['logo']):?>
         <img height='30' src="<?=$idp['logo']?>">
