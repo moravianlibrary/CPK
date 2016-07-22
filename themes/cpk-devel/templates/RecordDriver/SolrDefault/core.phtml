@@ -46,7 +46,7 @@
           <div class="col-sm-12">
           <? endif; ?>
 
-            <h3 property="name"><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h3>
+            <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h2>
 
             <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
               <? foreach ($summ as $field): ?>
