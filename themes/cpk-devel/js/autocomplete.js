@@ -85,6 +85,10 @@
     function createList(data, input) {
       var shell = $('<div/>');
 
+      if((data.byTitle.length > 0) || (data.byAuthor.length > 0) || (data.bySubject.length > 0)) {
+    	  createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":");
+      }
+      
       if(data.byTitle.length > 0) {
     	  createListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'));
       }
