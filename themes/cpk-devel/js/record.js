@@ -454,7 +454,8 @@ function getCitation( recordId, citationValue , callback ) {
  * @return	{undefined}
  */
 function insertCitation( citation ) {
-	jQuery( '#citation-placeholder' ).html( citation );
+	var html = "<input class='selectOnClick form-control' value='"+citation+"'>";
+	jQuery( '#citation-placeholder' ).html( html );
 	$( '#citation-style-selector' ).removeClass( 'hidden' );
 }
 
@@ -462,5 +463,9 @@ jQuery( document ).ready( function( $ ) {
 	$( '.style' ).on( 'change', function() {
 		var recordId = $( this ).attr( 'id' ).replace( 'record_', '' );
 		getCitation( recordId, $( this ).val(), insertCitation);
+	});
+	
+	$( '.selectOnClick' ).on( 'click', function() {
+		$( this ).select();
 	});
 });

@@ -101,7 +101,7 @@
             <h4 class="modal-title" id="permalinkLabel"><?=$this->translate('Permalink')?></h4>
           </div>
           <div class="modal-body">
-            <p><?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?></p>
+            <input class='selectOnClick form-control' value='<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>'>
 		  </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
