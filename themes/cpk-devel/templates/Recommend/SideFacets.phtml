@@ -107,7 +107,7 @@ foreach ($queryParams as $key => $value) {
      	 <? if($cluster['label'] == 'Institution'): ?>
             <div class='col-xs-5 institutions-loaders'>
                 <? if($this->auth()->isLoggedIn()): ?>
-                <a href='#' title='<?=$this->translate('Load saved institutions')?>' data-toggle="tooltip" id='load-saved-institutions'>
+                <a href='#' title='<?=$this->translate('Load preferred institutions')?>' data-toggle="tooltip" id='load-saved-institutions'>
                     <i class='pr-web-uploadarrow'> </i>
                 </a>
                 <? endif; ?>
@@ -320,7 +320,7 @@ JS;
           <button type="button" style="border: 0px none;" class="btn btn-primary btn-sm institution-facet-filter-button"><?=$this->translate('Update results')?></button>
           <? if($this->auth()->isLoggedIn()): ?>
             <span>
-                <a href='#' title='<?=$this->translate('Save these institutions')?>' data-toggle="tooltip" id='save-these-institutions'>
+                <a href='#' title='<?=$this->translate('Save these institutions as preferred')?>' data-toggle="tooltip" id='save-these-institutions'>
                     <i class='pr-web-downloadarrow'> </i>
                 </a>
             </span>
