@@ -21,14 +21,14 @@
 	<? endif;?>
 
 			<? if ($logoUrl) : ?>
-				<img class='hidden-xs' height='20' src='<?=$logoUrl?>' align='right'>
+				<img class='hidden-xs' height='20' src='<?=$logoUrl?>' align='left' style='margin-right: 8px;'>
 			<? endif;?>
 
-			<span class='pull-left'>
-				<?=$currentInstitution?>
+			<span>
+				<span class='pull-left' style='padding-bottom: 6px;'><?=$currentInstitution?></span>
 
 				<? if (count($dedupedRecords) !== 1) : ?>
-					<i class="fa fa-caret-down"></i>
+					<i class='pr-interface-arrowbottom4 pull-right' align='right' style='display: block;'></i>
 				<? endif;?>
 			</span>
 			</h3>
