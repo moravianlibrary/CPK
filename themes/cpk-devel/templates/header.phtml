@@ -42,7 +42,9 @@
         <? endif; ?>
 
         <? if ($notificationsEnabled): ?>
-          <?=$this->render('notifications.phtml', [ 'user' => $user, 'libraryCards' => $libraryCards])?>
+          <? if($user): ?>
+            <?=$this->render('notifications.phtml', [ 'user' => $user, 'libraryCards' => $libraryCards])?>
+          <? endif; ?>
         <? endif; ?>
 
         <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
