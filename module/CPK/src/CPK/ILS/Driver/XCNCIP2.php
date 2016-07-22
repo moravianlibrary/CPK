@@ -1420,6 +1420,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Country');
         $zip = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostalCode');
+        if (empty($zip)) {
+            $zip = $this->useXPath($response,
+                    'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostOfficeBox');
+        }
         $electronicAddress = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress');
         foreach ($electronicAddress as $recent) {
@@ -1432,6 +1436,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         }
         $group = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
+        if (empty($group)) {
+            $group = $this->useXPath($response,
+                    'LookupUserResponse/UserOptionalFields/UserPrivilege/AgencyUserPrivilegeType');
+        }
 
         $rawExpire = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
@@ -1465,6 +1473,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (empty($city)) {
             $city = $this->useXPath($response,
                 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line2');
+        }
+        if (empty($address1)) {
+            $address1 = $this->useXPath($response,
+                    'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/District');
         }
         if (empty($address1)) {
             $address1 = $this->useXPath($response,
