@@ -39,12 +39,19 @@
       $( '.searchForm' ).submit();
     }
 
-    function createListFrom(shell, input, data, category) {
+    function createListFrom(shell, input, data, category, main) {
 
-    	shell.append($('<div/>')
+    	if (main) {
+    		shell.append($('<div/>')
+        		.addClass('autocomplete-results-category-main')
+                .html(category)
+            );
+    	} else {
+    		shell.append($('<div/>')
         		.addClass('autocomplete-results-category')
                 .html(category)
-        );
+            );
+    	}
 
     	var length = Math.min(options.maxResults, data.length);
         input.data('length', length);
@@ -86,17 +93,17 @@
       var shell = $('<div/>');
 
       if((data.byTitle.length > 0) || (data.byAuthor.length > 0) || (data.bySubject.length > 0)) {
-    	  createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":");
+    	  createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":", true);
       }
       
       if(data.byTitle.length > 0) {
-    	  createListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'));
+    	  createListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
       }
       if(data.byAuthor.length > 0) {
-    	  createListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'));
+    	  createListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'), false);
       }
       if(data.bySubject.length > 0) {
-    	  createListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'));
+    	  createListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
       }
 
       $.fn.autocompleteVufind.element.html(shell);
