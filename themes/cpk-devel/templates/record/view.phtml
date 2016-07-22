@@ -118,7 +118,7 @@
 				<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
 			  </div>
 			</div>
-			<div class="well border">
+			<div>
             <? if (count($this->tabs) > 0): ?>
               <a name="tabnav"></a>
               <ul class="recordTabs nav nav-tabs">
@@ -143,7 +143,7 @@
               </ul>
            	<? endif; ?>
 
-                <div class="tab-content" id="record-tabs">
+                <div class="tab-content well border" id="record-tabs">
                   <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
                     <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
                   </div>
