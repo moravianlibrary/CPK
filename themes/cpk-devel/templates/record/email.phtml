@@ -27,7 +27,7 @@
   <div class="control-group">
     <label class="control-label" for="export_format"><?=$this->transEsc('Send As')?>:</label>
     <div class="controls">
-      <select name="export_format" class="jumpMenu">  
+      <select name="export_format" class="jumpMenu">
         <? foreach ($this->export as $format => $value): ?>
           <? if ($value): ?>
             <option value="<?=$this->escapeHtml(str_replace(' ', '', $format))?>"><?=$this->transEsc($format)?></option>
@@ -52,10 +52,12 @@
       </div>
     </div>
   <? endif ?>
+  <br>
   <?=$this->recaptcha()->html(true) ?>
   <div class="control-group">
     <div class="controls">
-      <input class="btn btn-primary" type="submit" name="submit" value="<?=$this->transEsc('Send Email')?>"/>
+      <input class="btn btn-primary pull-right" type="submit" name="submit" value="<?=$this->transEsc('Send Email')?>"/>
+      <br><br>
     </div>
   </div>
 
