@@ -35,11 +35,8 @@
       <? foreach ($this->libraryCards as $record):
             $source = explode('.', $record['cat_username'])[0];
       if ($source === 'Dummy') {
-          // The source is dummy, thus in order to parse logo & correctly tranlate it, we need to get at least eppnScope
-          $atPos = strpos($record['eppn'], '@');
-          $eppnScope = substr($record['eppn'], ++$atPos);
 
-          $source = $eppnScope;
+          $source = explode('.', $record['cat_username'])[1];
 
           if ($record['home_library'] === 'Dummy.deleted') {
               $deleted[$source] = $record;

@@ -89,10 +89,6 @@ class Logos extends \Zend\View\Helper\AbstractHelper
     public function getLogo($source)
     {
 
-        if (($pos = strpos($source, '.')) !== false) {
-            $source = substr($source, 0, $pos);
-        }
-
         if (isset($this->idpLogosFromDb[$source])) {
             return $this->idpLogosFromDb[$source];
         }
@@ -106,6 +102,13 @@ class Logos extends \Zend\View\Helper\AbstractHelper
 
         if (isset($this->idpLogosFromShibConf[$source])) {
             return $this->idpLogosFromShibConf[$source];
+        }
+
+        $hasDot = ($pos = strpos($source, '.')) !== false;
+
+        if ($hasDot) {
+            $sourceWithoutAdot = substr($source, 0, $pos);
+            return $this->getLogo($sourceWithoutAdot);
         }
 
         return '';
