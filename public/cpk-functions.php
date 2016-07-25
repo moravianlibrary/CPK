@@ -1,4 +1,4 @@
 <?php
-function notEmpty($a) {
-    return isset($a) && ! empty($a);
+function notEmpty($arr, $key) {
+    return isset($arr[$key]) && ! empty($arr[$key]);
 }
