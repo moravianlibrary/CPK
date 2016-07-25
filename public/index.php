@@ -77,6 +77,11 @@ if (!class_exists('Zend\Loader\AutoloaderFactory')) {
     throw new RuntimeException('Unable to load ZF2.');
 }
 
+$cpkFunction = __DIR__ . '/cpk-functions.php';
+
+if (file_exists($cpkFunction))
+    require_once($cpkFunction);
+
 // Run the application!
 Zend\Mvc\Application::init(require 'config/application.config.php')->run();
 

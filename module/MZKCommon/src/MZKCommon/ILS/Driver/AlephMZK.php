@@ -520,7 +520,7 @@ class AlephWebServices {
     {
         $this->host = $config['host'];
         $this->xserver_enabled = false;
-        if (isset($config['wwwuser']) && isset($config['wwwpasswd'])) {
+        if (notEmpty($config['wwwuser']) && notEmpty($config['wwwpasswd'])) {
             $this->wwwuser = $config['wwwuser'];
             $this->wwwpasswd = $config['wwwpasswd'];
             $this->xserver_enabled = true;
