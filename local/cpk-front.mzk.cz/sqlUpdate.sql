@@ -571,3 +571,10 @@ UPDATE `vufind`.`frontend` SET `first_inspiration_widget` = 'most_wanted',
 `sixth_inspiration_widget` = 'infobox' WHERE `frontend`.`id` =1;
 
 UPDATE `system` SET `value`='43' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `widget_content` ADD `description` TEXT NULL ;
+ALTER TABLE `widget_content` CHANGE `description` `description_cs` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `widget_content` ADD `description_en` TEXT NULL ;
+UPDATE `widget_content` SET `description_cs`='Defaultní popisek' WHERE `widget_id`=4
+UPDATE `widget_content` SET `description_en`='Default description' WHERE `widget_id`=4
+UPDATE `system` SET `value`='44' WHERE `key`='DB_VERSION';

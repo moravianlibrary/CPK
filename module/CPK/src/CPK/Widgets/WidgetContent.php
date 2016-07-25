@@ -38,6 +38,8 @@ class WidgetContent {
     private $value;
     private $preferred_value;
     private $recordDriver;
+    private $description_cs;
+    private $description_en;
 
     public function getId() {
         return $this->id;
@@ -59,6 +61,14 @@ class WidgetContent {
         return $this->recordDriver;
     }
 
+    public function getDescriptionCs() {
+        return $this->description_cs;
+    }
+
+    public function getDescriptionEn() {
+        return $this->description_en;
+    }
+
     public function setId($id) {
         return $this->id = $id;
     }
@@ -77,5 +87,13 @@ class WidgetContent {
 
     public function setRecordDriver($recordDriver) {
         $this->recordDriver = $recordDriver;
+    }
+
+    public function setDescriptionCs($descriptionCs) {
+        $this->description_cs = $descriptionCs;
+    }
+
+    public function setDescriptionEn($descriptionEn) {
+        $this->description_en = $descriptionEn;
     }
 }

@@ -48,7 +48,7 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
     {
         return 'VuFind\Autocomplete\AutocompleteInterface';
     }
-    
+
     /**
      * This returns an array of suggestions based on current request parameters.
      * This logic is present in the factory class so that it can be easily shared
@@ -64,11 +64,11 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
      * @return array
      */
     public function getSuggestions(
-        $request, 
-        $typeParam = 'type', 
+        $request,
+        $typeParam = 'type',
         $queryParam = 'q',
         $facetFilters = []
-    ) 
+    )
     {
         // Process incoming parameters:
         $type = $request->get($typeParam, '');
@@ -88,7 +88,7 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
             ->get($options->getSearchIni());
         $types = isset($config->Autocomplete_Types) ?
             $config->Autocomplete_Types->toArray() : [];
-            
+
         // Figure out which handler to use:
         // Handler
         // solr field with "text_autocomplete" type
@@ -106,20 +106,20 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
             $titleHandler = $this->get($titleName);
             $titleHandler->setConfig($titleParams);
         }
-        
+
         if ($authorModule) {
             if (strpos($authorModule, ':') === false) {
                 $authorModule .= ':'; // force colon to avoid warning in explode below
             }
             list($authorName, $authorParams) = explode(':', $authorModule, 2);
-            
+
             /* $authorHandler Needs to be cloned, becouse $authorHandler is
             the same object as $titleHandler, so the $titleHandler
             would have overwritten params! */
-            $authorHandler = clone $this->get($authorName); 
+            $authorHandler = clone $this->get($authorName);
             $authorHandler->setConfig($authorParams);
         }
-        
+
         if ($subjectModule) {
             if (strpos($subjectModule, ':') === false) {
                 $subjectModule .= ':'; // force colon to avoid warning in explode below
@@ -128,20 +128,20 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
             $subjectHandler = clone $this->get($subjectName);
             $subjectHandler->setConfig($subjectParams);
         }
-        
+
         $titleSuggestions = (isset($titleHandler) && is_object($titleHandler))
             ? array_values($titleHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
-        
+
         $authorSuggestions = (isset($authorHandler) && is_object($authorHandler))
             ? array_values($authorHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
-        
+
         $subjectSuggestions = (isset($subjectHandler) && is_object($subjectHandler))
             ? array_values($subjectHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
-        
+
         $suggestions['byTitle'] = $titleSuggestions;
         $suggestions['byAuthor'] = $authorSuggestions;
         $suggestions['bySubject'] = $subjectSuggestions;
-            
+
         return $suggestions;
     }
 }

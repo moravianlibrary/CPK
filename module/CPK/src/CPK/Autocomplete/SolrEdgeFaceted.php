@@ -42,7 +42,7 @@ use \VuFind\Autocomplete\SolrEdgeFaceted as ParentSolrEdgeFaceted;
  * @link     http://vufind.org/wiki/vufind2:autosuggesters Wiki
  */
 class SolrEdgeFaceted extends ParentSolrEdgeFaceted
-{   
+{
     /**
      * getSuggestions
      *
@@ -93,7 +93,7 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
         }
         return array_unique($results);
     }
-    
+
     /**
      * Experimental autocomplete that returns also asociative results.
      *
@@ -110,7 +110,7 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
         if (!is_object($this->searchObject)) {
             throw new \Exception('Please set configuration first.');
         }
-    
+
         $results = array();
         try {
             $this->searchObject->getParams()->setBasicSearch(
