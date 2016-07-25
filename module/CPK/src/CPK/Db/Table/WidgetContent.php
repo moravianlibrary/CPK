@@ -158,7 +158,9 @@ class WidgetContent extends Gateway
         $insert->values([
             'widget_id' => $widgetContent->getWidgetId(),
             'value' => $widgetContent->getValue(),
-            'preferred_value' => $widgetContent->getPreferredValue()
+            'preferred_value' => $widgetContent->getPreferredValue(),
+            'description_cs' => $widgetContent->getDescriptionCs(),
+            'description_en' => $widgetContent->getDescriptionEn()
         ]);
 
         if (! $this->rowExist($insert)) {
@@ -180,7 +182,9 @@ class WidgetContent extends Gateway
         $update->set([
             'widget_id' => $widgetContent->getWidgetId(),
             'value' => $widgetContent->getValue(),
-            'preferred_value' => $widgetContent->getPreferredValue()
+            'preferred_value' => $widgetContent->getPreferredValue(),
+            'description_cs' => $widgetContent->getDescriptionCs(),
+            'description_en' => $widgetContent->getDescriptionEn()
         ]);
         $update->where([
             'id' => $widgetContent->getId()

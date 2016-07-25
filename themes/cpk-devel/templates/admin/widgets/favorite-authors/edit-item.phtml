@@ -60,6 +60,20 @@
           </fieldset>-->
 
           <fieldset class="form-group">
+            <div class="col-xs-8">
+              <label><?=$this->translate('Description')?> Cs</label>
+              <textarea class='form-control' name='description_cs'><?=$this->widgetContent->getDescriptionCs()?></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <div class="col-xs-8">
+              <label><?=$this->translate('Description')?> En</label>
+              <textarea class='form-control' name='description_en'><?=$this->widgetContent->getDescriptionEn()?></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-group">
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>

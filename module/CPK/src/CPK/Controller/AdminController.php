@@ -648,6 +648,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $widgetContent = new \CPK\Widgets\WidgetContent();
             $widgetContent->setWidgetId($post['widget_id']);
             $widgetContent->setValue($post['value']);
+            $widgetContent->setDescriptionCs($post['description_cs']);
+            $widgetContent->setDescriptionEn($post['description_en']);
             $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
 
             $widgetContentTable->addWidgetContent($widgetContent);
@@ -662,6 +664,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $widgetContent->setId($post['id']);
             $widgetContent->setWidgetId($post['widget_id']);
             $widgetContent->setValue($post['value']);
+            $widgetContent->setDescriptionCs($post['description_cs']);
+            $widgetContent->setDescriptionEn($post['description_en']);
             $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
 
             $widgetContentTable->saveWidgetContent($widgetContent);
