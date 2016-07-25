@@ -240,6 +240,8 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $attributes = $this->fetchAttributes($config);
 
+        $homeLibrary = isset($attributes['cat_username']) ? $homeLibrary : 'Dummy';
+
         $eppn = $this->getEduPersonPrincipalName($homeLibrary, $entityId);
 
         $this->session->eppnLoggedInWith = $eppn;
