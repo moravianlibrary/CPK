@@ -91,16 +91,18 @@ class PortalController extends AbstractBase
 	    $subAction = $this->params()->fromRoute('subaction');
 	    $post = $this->params()->fromPost();
 
+	    $config = $this->getConfig();
+
 	    if ($subAction == 'RequestHelp') {
 	        $vars['status'] = 'Request for help was sent';
-	        $to = [ 'kravec@mzk.cz' ];
-	        $this->sendMailToPersons('CPK feedback: žádost o pomoc', $post['text'], $to, $post['email'], $post['name']);
+	        $recipients = explode(",", $config->Feedback->RequestHelpRecipients);
+	        $this->sendMailToPersons('CPK feedback: žádost o pomoc', $post['text'], $recipients, $post['email'], $post['name']);
 	    }
 
 	    if ($subAction == 'ReportBug') {
 	        $vars['status'] = 'Bug was reported';
-	        $to = ['kravec@mzk.cz', 'kravec.martin@gmail.com' ];
-	        $this->sendMailToPersons('CPK feedback: ohlášení chyby', $post['text'], $to, $post['email'], $post['name']);
+	        $recipients = explode(",", $config->Feedback->ReportBugRecipients);
+	        $this->sendMailToPersons('CPK feedback: ohlášení chyby', $post['text'], $recipients, $post['email'], $post['name']);
 	    }
 
 	    $view = $this->createViewModel($vars);
@@ -114,16 +116,16 @@ class PortalController extends AbstractBase
 	 *
 	 * @param string $subject
 	 * @param string $message
-	 * @param array $to
+	 * @param array  $recipients
 	 * @param string $fromEmail
 	 * @param string $fromName
 	 */
-	protected function sendMailToPersons($subject, $message, $to, $fromEmail, $fromName)
+	protected function sendMailToPersons($subject, $message, $recipients, $fromEmail, $fromName)
 	{
 	    $from = new \Zend\Mail\Address($fromEmail, $fromName);
 	    $mailer = $this->serviceLocator->get('VuFind\Mailer');
 
-	    foreach($to as $person) {
+	    foreach($recipients as $person) {
 	        $mailer->send($person, $from, $subject, $message);
 	    }
 
