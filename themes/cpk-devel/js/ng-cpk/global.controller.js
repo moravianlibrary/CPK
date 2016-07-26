@@ -71,7 +71,7 @@
 		$http.get('/AJAX/JSON?method=getPortalPage&prettyUrl=' + portalPageId).then(function(dataOnSuccess) {
 		    var portalPage = dataOnSuccess.data.data;
 
-		    header.innerHTML = '<h4 class="modal-title">' + portalPage.title + '</h4>';
+		    header.textContent = portalPage.title;
 		    body.innerHTML = portalPage.content;
 
 		}, function(dataOnError) {

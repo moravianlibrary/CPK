@@ -143,10 +143,9 @@
 		
 		function followLocation() {
 		    
-		    if ($location.url() === href)
-			$rootScope.$broadcast('notificationClicked');
-		    
 		    $location.url(href);
+		    
+		    $rootScope.$broadcast('notificationClicked');
 		}
 			
 		var data = {
