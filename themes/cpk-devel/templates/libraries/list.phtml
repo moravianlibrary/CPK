@@ -4,6 +4,7 @@
   $this->headTitle($title);
   $this->layout()->headerType = "libraries";
   $this->headScript()->appendFile("jquery-ui.min.js");
+  $this->headScript()->appendFile("markerclusterer.js");
   setlocale(LC_NUMERIC, "en_US.utf8");
   $this->layout()->query = $this->query;
 ?>
@@ -48,8 +49,8 @@
     <script>
     function initMap() {
     var myLatLng = {lat: 49.78, lng: 15.39};
-
-    var map = new google.maps.Map(document.getElementById('map'), {
+      var markers = [];
+      var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 7,
     center: myLatLng
     });
@@ -61,8 +62,11 @@
         map: map,
         title: '<?=$library->getName() ?>'
         });
+        markers.push(marker);
       <? endif; ?>
     <? endforeach; ?>
+      var mcOptions = {gridSize: 75, maxZoom: 10, imagePath: "/themes/cpk-devel/images/markerclusterer/m"};
+      var mc = new MarkerClusterer(map, markers, mcOptions);
     }
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=initMap"
