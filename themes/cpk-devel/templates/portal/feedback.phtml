@@ -1,0 +1,100 @@
+<?
+  $title = $this->translate('Feedback').' | '.$this->translate('Central Library Portal');
+  $this->layout()->title = $title;
+  $this->headTitle($title);
+?>
+<div class='white-box clearfix portal-page'>
+  <div class="title">
+    <h1><?=$this->translate('Feedback')?></h1>
+  </div>
+  <div>
+  <? if($this->status): ?>
+	<div class="alert alert-success">
+	  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+  	  <?=$this->translate($this->status)?>
+    </div>
+  <? endif; ?>
+  </div>
+  <div class='content'>
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#help"><?=$this->translate('I need help')?></a></li>
+      <li><a data-toggle="tab" href="#bugreport"><?=$this->translate('I want to report bug')?></a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div id="help" class="tab-pane fade in active">
+        <h3><?=$this->translate('I need help')?></h3>
+        <form action='/Portal/Feedback/RequestHelp' class='form' method='post'>
+
+        	<div class='row'>
+			  <div class="col-xs-8">
+    			<fieldset class="form-group">
+                  <label><?=$this->translate('Describe problem')?></label>
+                  <textarea name='text' class='form-control' required></textarea>
+                </fieldset>
+              </div>
+             </div>
+
+			 <div class='row'>
+			   <div class="col-xs-4">
+    			  <fieldset class="form-group">
+                    <label><?=$this->translate('Your name')?></label>
+                    <input type='text' name='name' class='form-control' required>
+                  </fieldset>
+               </div>
+             </div>
+
+			<div class='row'>
+			  <div class="col-xs-4">
+                <fieldset class="form-group">
+                  <label><?=$this->translate('Your email')?></label>
+                  <input type='email' name='email' class='form-control' required>
+                </fieldset>
+              </div>
+            </div>
+
+			<fieldset class="form-group">
+              <input type='submit' class='btn btn-primary' value='<?=$this->translate('Send form')?>'>
+            </fieldset>
+        </form>
+      </div>
+      <div id="bugreport" class="tab-pane fade in">
+        <h3><?=$this->translate('I want to report bug')?></h3>
+        <form action='/Portal/Feedback/ReportBug' class='form' method='post'>
+
+        	<div class='row'>
+			  <div class="col-xs-8">
+    			<fieldset class="form-group">
+                  <label><?=$this->translate('Describe problem')?></label>
+                  <textarea name='text' class='form-control' required></textarea>
+                </fieldset>
+              </div>
+             </div>
+
+			 <div class='row'>
+			   <div class="col-xs-4">
+    			  <fieldset class="form-group">
+                    <label><?=$this->translate('Your name')?></label>
+                    <input type='text' name='name' class='form-control' required>
+                  </fieldset>
+               </div>
+             </div>
+
+			<div class='row'>
+			  <div class="col-xs-4">
+                <fieldset class="form-group">
+                  <label><?=$this->translate('Your email')?></label>
+                  <input type='email' name='email' class='form-control' required>
+                </fieldset>
+              </div>
+            </div>
+
+			<fieldset class="form-group">
+              <input type='submit' class='btn btn-primary' value='<?=$this->translate('Send form')?>'>
+            </fieldset>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

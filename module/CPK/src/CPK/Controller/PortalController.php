@@ -78,4 +78,55 @@ class PortalController extends AbstractBase
 
 	    return $view;
 	}
+
+	/**
+	 * View feedback
+	 *
+	 * @return mixed
+	 */
+	public function feedbackAction()
+	{
+	    $vars = [];
+
+	    $subAction = $this->params()->fromRoute('subaction');
+	    $post = $this->params()->fromPost();
+
+	    if ($subAction == 'RequestHelp') {
+	        $vars['status'] = 'Request for help was sent';
+	        $to = [ 'kravec@mzk.cz' ];
+	        $this->sendMailToPersons('CPK feedback: žádost o pomoc', $post['text'], $to, $post['email'], $post['name']);
+	    }
+
+	    if ($subAction == 'ReportBug') {
+	        $vars['status'] = 'Bug was reported';
+	        $to = ['kravec@mzk.cz', 'kravec.martin@gmail.com' ];
+	        $this->sendMailToPersons('CPK feedback: ohlášení chyby', $post['text'], $to, $post['email'], $post['name']);
+	    }
+
+	    $view = $this->createViewModel($vars);
+	    $view->setTemplate('portal/feedback');
+
+	    return $view;
+	}
+
+	/**
+	 * Sends an email to a contact person
+	 *
+	 * @param string $subject
+	 * @param string $message
+	 * @param array $to
+	 * @param string $fromEmail
+	 * @param string $fromName
+	 */
+	protected function sendMailToPersons($subject, $message, $to, $fromEmail, $fromName)
+	{
+	    $from = new \Zend\Mail\Address($fromEmail, $fromName);
+	    $mailer = $this->serviceLocator->get('VuFind\Mailer');
+
+	    foreach($to as $person) {
+	        $mailer->send($person, $from, $subject, $message);
+	    }
+
+	    return;
+	}
 }
