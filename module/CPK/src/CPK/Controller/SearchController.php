@@ -677,6 +677,37 @@ class SearchController extends SearchControllerBase
 	}
 
 	/**
+	 * Retrieves the record from SOLR by availability_id_str_mv field
+	 *
+	 * @return array
+	 */
+	public function getRecordByAvailabilityIdStrMvAction($sourcedZ30docNumber)
+	{
+	    list ($source, $z30docnumber) = explode('.', $sourcedZ30docNumber);
+
+        $mainParams = [];
+        $mainParams['limit'] = '1';
+        $mainParams['join'] = 'AND';
+        $mainParams['bool0'] = [];
+        $mainParams['bool0'][] = 'AND';
+        $mainParams['type0'] = [];
+        $mainParams['type0'][] = 'availability_id_str_mv:"' . $z30docnumber . '"';
+        $mainParams['lookfor0'] = [];
+        $mainParams['lookfor0'][] = 'local_ids_str_mv:"' . $source . '*"';
+
+        $request = $this->getRequest()->getQuery()->toArray()
+        + $mainParams;
+
+        $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+
+        $records = $runner->run(
+            $request, $this->searchClassId, $this->getSearchSetupCallback()
+        );
+
+	    return $records->getResults();
+	}
+
+	/**
 	 * Get most wanted records from MySQL
 	 *
 	 * @param  int|false   $randomLimit

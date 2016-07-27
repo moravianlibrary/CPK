@@ -666,25 +666,43 @@ class AjaxController extends AjaxControllerBase
             $i = 0;
             foreach ($result['historyPage'] as &$historyItem) {
 
+                $historyItem['source'] = 'VuFind';
+
+                $searchController = $this->getServiceLocator()->get('CPK\SolrEdgeFaceted');
+
+                list ($source, $id) = explode('.', $historyItem['id']);
+
+                $id = $searchController->getRecordIdFromAvailabilityIdAndLocalId($source, $id);
+
+                if ($id === null) {
+                    $historyItem['id'] = 'unknown-record';
+                    continue;
+                }
+
+                $historyItem['id'] = $id;
+
                 $resource = $this->getDriverForILSRecord($historyItem);
 
-                // We need to let JS know what to opt for ...
-                $historyItem['uniqueId'] = $resource->getUniqueId() . ++$i; //adding order to id (as suffix) to be able to show more covers with same id
-                $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+                try {
+                    // We need to let JS know what to opt for ...
+                    $historyItem['uniqueId'] = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
+                    $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
 
-                if ($bibInfo) {
-                    $recordId = "#cover_$recordId";
+                    if ($bibInfo) {
+                        $recordId = "#cover_$recordId";
 
-                    $bibInfo = json_decode($bibInfo);
+                        $bibInfo = json_decode($bibInfo);
 
-                    $recordId = preg_replace("/[\.:]/", "", $recordId);
+                        $recordId = preg_replace("/[\.:]/", "", $recordId);
 
-                    $obalky[$recordId] = [
-                        'bibInfo' => $bibInfo,
-                        'advert' => $renderer->record($resource)->getObalkyKnihAdvert(
-                            'checkedouthistory')
-                    ];
-                } else {
+                        $obalky[$recordId] = [
+                            'bibInfo' => $bibInfo,
+                            'advert' => $renderer->record($resource)->getObalkyKnihAdvert('checkedouthistory')
+                        ];
+                    } else {
+                        $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
+                    }
+                } catch (\Exception $e) {
                     $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                 }
             }

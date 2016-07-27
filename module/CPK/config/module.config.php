@@ -173,6 +173,7 @@ $config = array(
             'VuFind\AuthManager' => 'CPK\Auth\Factory::getAuthManager',
             'VuFind\ILSAuthenticator' => 'CPK\Auth\Factory::getILSAuthenticator',
             'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager',
+            'CPK\SolrEdgeFaceted' => 'CPK\Service\Factory::getSolrEdgeFaceted',
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
             'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService'

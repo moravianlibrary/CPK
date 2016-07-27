@@ -72,4 +72,9 @@ class Factory
             )
         );
     }
+
+    public static function getSolrEdgeFaceted(ServiceManager $sm)
+    {
+        return new SolrEdgeFaceted($sm->get('VuFind\SearchResultsPluginManager'));
+    }
 }
