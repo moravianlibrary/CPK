@@ -51,6 +51,13 @@ class Spellcheck implements IteratorAggregate, Countable
     protected $terms;
 
     /**
+     * Collations returned by Solr
+     *
+     * @var unknown
+     */
+    protected $collations;
+
+    /**
      * Spelling query that generated suggestions
      *
      * @var string
@@ -82,6 +89,12 @@ class Spellcheck implements IteratorAggregate, Countable
             }
         }
         $this->query = $query;
+        $this->collations = [];
+        foreach ($list as $term => $info) {
+            if ($term == 'collation') {
+                $this->collations[] = $info;
+            }
+        }
     }
 
     /**
@@ -92,6 +105,11 @@ class Spellcheck implements IteratorAggregate, Countable
     public function getQuery()
     {
         return $this->query;
+    }
+
+    public function getCollations()
+    {
+        return $this->collations;
     }
 
     /**

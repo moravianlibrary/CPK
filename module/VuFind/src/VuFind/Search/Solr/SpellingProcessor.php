@@ -170,6 +170,19 @@ class SpellingProcessor
     public function getSuggestions(Spellcheck $spellcheck, AbstractQuery $query)
     {
         $allSuggestions = [];
+        // Process collations
+        $collations = [
+            'freq' => 1,
+            'suggestions' => []
+        ];
+        foreach ($spellcheck->getCollations() as $collation) {
+            $collations['suggestions'][$collation] = 1;
+        }
+        $allSuggestions[$query->getAllTerms()] = $collations;
+        if (!empty($allSuggestions)) {
+            return $allSuggestions;
+        }
+
         foreach ($spellcheck as $term => $info) {
             if (!$this->shouldSkipTerm($query, $term, false)
                 && ($suggestions = $this->formatAndFilterSuggestions($query, $info))

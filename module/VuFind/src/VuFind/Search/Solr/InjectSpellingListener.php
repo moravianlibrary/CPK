@@ -139,6 +139,13 @@ class InjectSpellingListener
                     $params->set(
                         'spellcheck.dictionary', current($this->dictionaries)
                     );
+                    // FIXME: make configurable
+                    $params->set('spellcheck.onlyMorePopular', 'true');
+                    $params->set('spellcheck.collate', 'true');
+                    $params->set('spellcheck.maxCollations', 100);
+                    $params->set('spellcheck.maxCollationTries', 100);
+                    $params->set('spellcheck.collateExtendedResults', 'false');
+                    $params->set('spellcheck.alternativeTermCount', 10);
 
                     // Turn on spellcheck.q generation in query builder:
                     $this->backend->getQueryBuilder()
