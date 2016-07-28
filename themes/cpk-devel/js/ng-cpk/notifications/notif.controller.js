@@ -170,7 +170,9 @@
 		--unreadNotifsCount;
 		updateUnreadNotifsCount();
 		
-		notification.clazz.replace(/[^\s]*unread/, '');
+		var searchFor = /[^\s]*unread/;
+		
+		notification.clazz = notification.clazz.replace(searchFor, '');
 	    }
 	    
 	    if (typeof href !== 'undefined') {
