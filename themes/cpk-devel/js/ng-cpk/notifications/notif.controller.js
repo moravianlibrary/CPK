@@ -20,7 +20,8 @@
 	    loader : undefined,
 	    parent : undefined,
 	    synchronousNotifications : undefined,
-	    warningIcon : undefined
+	    warningIcon : undefined,
+	    unreadNotifsCount : undefined
     };
     
     /**
@@ -40,6 +41,8 @@
 	var apiNonrelevantJobDoneFlag = false;
 	
 	var onApiNonrelevantJobDone;
+	
+	var unreadNotifsCount = 0;
 
 	var vm = this;
 	
@@ -112,8 +115,19 @@
 		
 		vm.notifications[username] = notifications;
 		    
-		if (notifications.length !== 0 || hasGlobalNotifications()) {
+		if (notifications.length !== 0) {
+		    
+		    notifications.forEach(function(notification) {
+			
+			if (notification.clazz.match(/unread/))
+			   ++unreadNotifsCount;
+		    });
+		    
+		    updateUnreadNotifsCount();
+		    
 		    showWarningIcon();
+		} else {
+		    hideDOM(institutionNotifLoaderHolder[source + '.parent']);
 		}
 		    
 		hideLoader(source);
@@ -128,7 +142,16 @@
 		
 		vm.notifications['noAPI']['user'] = notifications;
 		    
-		if (notifications.length !== 0 || hasGlobalNotifications()) {
+		if (notifications.length !== 0) {
+		    
+		    notifications.forEach(function(notification) {
+			
+			if (notification.clazz.match(/unread/))
+			   ++unreadNotifsCount;
+		    });
+		    
+		    updateUnreadNotifsCount();
+		    
 		    showWarningIcon();
 		}
 	    }
@@ -137,7 +160,18 @@
 	/**
 	 * A notification has been clicked .. follow the href if any
 	 */
-	function notifClicked(href, type, source) {
+	function notifClicked(notification, source) {
+	    
+	    var clazz = notification.clazz;
+	    var href = notification.href;
+	    var type = notification.type;
+	    
+	    if (clazz.match(/unread/)) {
+		--unreadNotifsCount;
+		updateUnreadNotifsCount();
+		
+		notification.clazz.replace(/[^\s]*unread/, '');
+	    }
 	    
 	    if (typeof href !== 'undefined') {
 		
@@ -317,17 +351,35 @@
 	}
 	
 	/**
+	 * Sets the count to the counter of unread notifications
+	 */
+	function updateUnreadNotifsCount() {
+	    
+	    unreadNotifsCount < 0 && (unreadNotifsCount = 0);
+	    
+	    globalNotifHolder.unreadNotifsCount.textContent = unreadNotifsCount || '';
+	}
+	
+	/**
 	 * Shows up the global notification section
 	 */
 	function showGlobalNotifications() {
-	    globalNotifHolder.parent.removeAttribute('hidden');
+	    showDOM(globalNotifHolder.parent);
 	}
 	
 	/**
 	 * Hides that div
 	 */
 	function hideGlobalNotifications() {
-	    globalNotifHolder.parent.setAttribute('hidden', 'hidden');
+	    hideDOM(globalNotifHolder.parent);
+	}
+	
+	function showDOM(dom) {
+	    dom.removeAttribute('hidden');
+	}
+	
+	function hideDOM(dom) {
+	    dom.setAttribute('hidden', 'hidden');
 	}
 	
 	/**
@@ -386,6 +438,11 @@
 	    	case 'warningIcon':
 	    	    
 	    	    globalNotifHolder.warningIcon = elements.context;
+	    	    break;
+	    	    
+	    	case 'unreadNotifsCount':
+	    	    
+	    	    globalNotifHolder.unreadNotifsCount = elements.context;
 	    	    break;
 	    	    
 	    	default:
