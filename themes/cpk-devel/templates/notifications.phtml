@@ -4,7 +4,7 @@
     <i global-notif="warningIcon" class="fa fa-warning notificationWarning" id="notif-warning" style="display: none;"></i>
   </a>
   <ul id='notificationsList' class="dropdown-menu">
-  	<li data-ng-init='notifCtrl.initApiNonrelevantNotifications()'>
+  	<li data-ng-init='notifCtrl.initApiNonrelevantNotifications()' global-notif='parent'>
   	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
 	    <i class="pull-right icon-logo-komplet notif-knihovny-logo"></i>
 	  </div>
@@ -20,9 +20,6 @@
 	       {{ notification.message }}
 	     </div>
 	   </div>
-      <div hidden='hidden' global-notif='withoutNotifications' class="notif-default">
-	    <?=$this->translate('without_notifications') ?>
-      </div>
 	</li>
   <? if ($user): foreach ($libraryCards as $libraryCard):
 	   $source = explode('.', $libraryCard['cat_username'])[0];

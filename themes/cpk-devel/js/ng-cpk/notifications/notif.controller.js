@@ -18,7 +18,7 @@
      */
     var globalNotifHolder = {
 	    loader : undefined,
-	    withoutNotifications : undefined,
+	    parent : undefined,
 	    synchronousNotifications : undefined,
 	    warningIcon : undefined
     };
@@ -55,7 +55,7 @@
 	    if (! hasGlobalNotifications()) {
 		
 		if (apiNonrelevantJobDoneFlag) {
-		    showWithoutNotifications();
+		    hideGlobalNotifications();
 		} else {
 		    onApiNonrelevantJobDone = onLinkerDone;
 		}
@@ -272,7 +272,7 @@
 	    
 	    if (! hasGlobalNotifications()) {
 		
-		showWithoutNotifications();
+		hideGlobalNotifications();
 	    }
 	}
 	
@@ -294,7 +294,7 @@
 	    
 	    if (hasGlobalNotifications()) {
 
-		hideWithoutNotifications();
+		showGlobalNotifications();
 	    }
 	}
 
@@ -317,19 +317,17 @@
 	}
 	
 	/**
-	 * Shows up the div called "withoutNotifications" whose purpose is to
-	 * inform user about having no notifications or messages within an
-	 * institution identity.
+	 * Shows up the global notification section
 	 */
-	function showWithoutNotifications() {
-	    globalNotifHolder.withoutNotifications.removeAttribute('hidden');
+	function showGlobalNotifications() {
+	    globalNotifHolder.parent.removeAttribute('hidden');
 	}
 	
 	/**
 	 * Hides that div
 	 */
-	function hideWithoutNotifications() {
-	    globalNotifHolder.withoutNotifications.setAttribute('hidden', 'hidden');
+	function hideGlobalNotifications() {
+	    globalNotifHolder.parent.setAttribute('hidden', 'hidden');
 	}
 	
 	/**
@@ -375,9 +373,9 @@
 	    	    globalNotifHolder.loader = elements.context;
 	    	    break;
 	    	    
-	    	case 'withoutNotifications':
+	    	case 'parent':
 	    	    
-	    	    globalNotifHolder.withoutNotifications = elements.context;
+	    	    globalNotifHolder.parent = elements.context;
 	    	    break;
 	    	    
 	    	case 'synchronousNotifications':
