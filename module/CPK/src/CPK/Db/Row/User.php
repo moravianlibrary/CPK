@@ -353,6 +353,35 @@ class User extends BaseUser
     }
 
     /**
+     *
+     * @param string $source
+     * @param string $homeLibrary
+     */
+    public function updateLibCardIfNeeded($source, $homeLibrary, $cat_username)
+    {
+        if ($homeLibrary === 'Dummy') {
+
+            // We need to mark nondummy identity as dummy if any
+
+            $nonDummyIdentity = $this->getDbTable('UserCard')
+                ->select([
+                'user_id' => $this->id,
+                'home_library' => $source
+            ])
+                ->current();
+
+            if (! $nonDummyIdentity)
+                return;
+
+            $nonDummyIdentity->home_library = $homeLibrary;
+            $nonDummyIdentity->cat_username = $cat_username;
+            $nonDummyIdentity->save();
+
+            $this->activateBestLibraryCard();
+        }
+    }
+
+    /**
      * Converts libraryCard into 'patron' array used by major part of VuFind.
      *
      * @param VuFind\Db\Row\UserCard $libCard

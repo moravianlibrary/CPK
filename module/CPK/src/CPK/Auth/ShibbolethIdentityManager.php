@@ -353,6 +353,10 @@ class ShibbolethIdentityManager extends Shibboleth
                 // We can't store current $prefix to home_library as it always needs to be Dummy,
                 // so we store the information about $prefix in cat_username unscoped
                 $attributes['cat_username'] = $homeLibrary . static::SEPARATOR . $prefix;
+
+                if (! $userRowCreatedRecently) {
+                    $currentUser->updateLibCardIfNeeded($prefix, $homeLibrary, $attributes['cat_username']);
+                }
             }
 
             if ($userRowCreatedRecently) {
