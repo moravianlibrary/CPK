@@ -108,6 +108,11 @@ class PortalController extends AbstractBase
 	    $view = $this->createViewModel($vars);
 	    $view->setTemplate('portal/feedback');
 
+	    if ($user = $this->getAuthManager()->isLoggedIn()) {
+	        $view->setVariable('userFullName', trim($user['firstname'].' '.$user['lastname']));
+	        $view->setVariable('userEmail', $user['email']);
+	    }
+
 	    return $view;
 	}
 
