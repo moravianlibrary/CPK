@@ -551,7 +551,18 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     public function getSessionInitiatorForEntityId($entityId)
     {
-        $initiator = parent::getSessionInitiator(null);
+        $config = $this->getConfig();
+
+        $shibTarget =
+            isset($_SERVER['SSL_SESSION_ID']) ? 'https://' : 'http://' .
+            $_SERVER['SERVER_NAME'] .
+            $_SERVER['REQUEST_URI'] === '/' ? '/Search/Home' : $_SERVER['REQUEST_URI'];
+
+        $append = (strpos($shibTarget, '?') !== false) ? '&' : '?';
+
+        $initiator = $config->Shibboleth->login
+            . '?target=' . urlencode($shibTarget)
+            . urlencode($append . 'auth_method=Shibboleth');
 
         if (! empty($entityId))
             $initiator .= '&entityID=' . urlencode($entityId);
