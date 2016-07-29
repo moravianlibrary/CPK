@@ -674,7 +674,7 @@ class SolrMarc extends ParentSolrMarc
 
     public function getCitationRecordType()
     {
-        return isset($this->fields['citation_record_type']) ? $this->fields['citation_record_type'] : '';
+        return isset($this->fields['citation_record_type_str']) ? $this->fields['citation_record_type_str'] : '';
     }
 
 
