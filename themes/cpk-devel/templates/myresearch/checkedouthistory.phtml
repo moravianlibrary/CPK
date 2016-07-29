@@ -35,10 +35,10 @@ $this->jsTranslations()->addStrings(array(
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
       <label style="padding-right: 40px;" class="dropdown-select-label pull-right">
-      <select data-ng-model="historyCtrl.perPage" data-ng-change="historyCtrl.perPageUpdated()" class="jumpMenu form-control dropdown-select" style="margin-right: -12px;">
-                  <option value="10" selected="selected">10 <?=$this->translate('records-in-genitive') ?></option>
-                  <option value="50">50 <?=$this->translate('records-in-genitive') ?></option>
-                  <option value="100">100 <?=$this->translate('records-in-genitive') ?></option>
+      <select data-ng-pages-count="<?=$libraryIdentity['cat_username']?>" data-ng-model="historyCtrl.perPage" data-ng-change="historyCtrl.perPageUpdated()" class="jumpMenu form-control dropdown-select hidden" style="margin-right: -12px;">
+        <option value="10" selected="selected">10 <?=$this->translate('records-in-genitive') ?></option>
+        <option value="50">50 <?=$this->translate('records-in-genitive') ?></option>
+        <option value="100">100 <?=$this->translate('records-in-genitive') ?></option>
       </select>
       </label>
       </h3>

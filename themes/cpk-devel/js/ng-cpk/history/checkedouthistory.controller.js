@@ -1,6 +1,6 @@
 (function() {
     angular.module('history').controller('CheckedOutHistoryController', CheckedOutHistoryController).directive('ngHistoryUsername', ngHistoryUsernameDirective)
-    	.directive('ngHistoryItem', ngHistoryItemDirective).directive('ngPagination', ngPaginationDirective)
+    	.directive('ngHistoryItem', ngHistoryItemDirective).directive('ngPagination', ngPaginationDirective).directive('ngPagesCount', ngPagesCountDirective)
     	.filter('urlencode', function() {
     		return function(input) {
     			return encodeURI(input);
@@ -9,7 +9,9 @@
     
     CheckedOutHistoryController.$inject = [ '$q', '$log', '$http', '$scope' ];
     
-    var onElementLinked = function() {};    
+    var onHistoryUsernameLinked = function() {};
+    
+    var pagesCountDOM = {};
     
     function CheckedOutHistoryController($q, $log, $http, $scope) {
 
@@ -21,7 +23,7 @@
 	
 	var pagesCache = [];
 	
-	onElementLinked = onHistoryUsernameDirectiveLinked;
+	onHistoryUsernameLinked = onHistoryUsernameDirectiveLinked;
 	
 	// Public
 	var vm = this;
@@ -169,6 +171,9 @@
 		var historyPage = result.historyPage;
 		var totalPages = result.totalPages;
 		
+		if (totalPages > 0)
+		    pagesCountDOM[username].className = pagesCountDOM[username].className.replace('hidden','');
+		
 		// Initialize the cache length
 		pagesCache = new Array(totalPages);
 		
@@ -302,7 +307,7 @@
     
     /**
      * Directive for creating an improvized "onload" event when angular links
-     * the loader div with the username in it to call the onElementLinked
+     * the loader div with the username in it to call the onHistoryUsernameLinked
      * function
      */
     function ngHistoryUsernameDirective() {
@@ -312,7 +317,7 @@
 	};
 	
 	function linker(scope, elements, attrs) {
-	    onElementLinked(elements.context, attrs.ngHistoryUsername);
+	    onHistoryUsernameLinked(elements.context, attrs.ngHistoryUsername);
 	}
     }
     
@@ -340,6 +345,17 @@
 	function linker(scope, elements, attrs) {
 	    var source = attrs['ngPagination'];
 	    scope.source = source;
+	}
+    }
+    
+    function ngPagesCountDirective() {
+	return {
+	    restrict : 'A',
+	    link : linker
+	};
+	
+	function linker(scope, elements, attrs) {
+	    pagesCountDOM[attrs['ngPagesCount']] = elements.context;
 	}
     }
 })();
