@@ -37,7 +37,6 @@
   <div class="col-sm-3">
     <h2 id='aboutPortalHeader'><?=$this->transEsc('About libraries')?></h2>
     <ul>
-      <li><a href="http://www.ptejteseknihovny.cz/"><?=$this->transEsc('Ask a Librarian')?></a></li>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-right'): ?>
@@ -45,6 +44,7 @@
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
+      <li><a href="http://www.ptejteseknihovny.cz/"><?=$this->transEsc('Ask a Librarian')?></a></li>
     </ul>
   </div>
   <div class="col-sm-3">
