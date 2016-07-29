@@ -432,7 +432,7 @@ function getCitation( recordId, citationValue , callback ) {
 		success: function( result ) {
 			if( result.status !== 'OK' ) {
 				$( "#ajax-error-info" ).empty().append( result.data );
-				
+				$( '#citation-link-spinner' ).addClass( 'hidden' );
 			} else {
 				callback( result.data );
 				displayCitationLink();
