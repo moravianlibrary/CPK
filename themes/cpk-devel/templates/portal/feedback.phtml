@@ -56,7 +56,7 @@
 						<input type='email' name='email' class='form-control' value='<?=$this->userEmail?>' required>
                     <? else: ?>
                         <input type='email' name='email' class='form-control' required>
-                    <? endif; ?>
+                  <? endif; ?>
                 </fieldset>
               </div>
             </div>
@@ -83,7 +83,11 @@
 			   <div class="col-xs-4">
     			  <fieldset class="form-group">
                     <label><?=$this->translate('Your name')?></label>
-                    <input type='text' name='name' class='form-control' required>
+                    <? if ($this->userFullName): ?>
+						<input type='text' name='name' class='form-control' value='<?=$this->userFullName?>' required>
+                    <? else: ?>
+                        <input type='text' name='name' class='form-control' required>
+                    <? endif; ?>
                   </fieldset>
                </div>
              </div>
@@ -92,7 +96,11 @@
 			  <div class="col-xs-4">
                 <fieldset class="form-group">
                   <label><?=$this->translate('Your email')?></label>
-                  <input type='email' name='email' class='form-control' required>
+                  <? if ($this->userEmail): ?>
+						<input type='email' name='email' class='form-control' value='<?=$this->userEmail?>' required>
+                    <? else: ?>
+                        <input type='email' name='email' class='form-control' required>
+                  <? endif; ?>
                 </fieldset>
               </div>
             </div>
