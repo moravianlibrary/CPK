@@ -172,14 +172,18 @@
 		
 		var searchFor = /[^\s]*unread/;
 		
-		notification.clazz = notification.clazz.replace(searchFor, '');
+		notification.clazz = clazz.replace(searchFor, '');
 	    }
 	    
 	    if (typeof href !== 'undefined') {
 		
 		function followLocation() {
 		    
-		    $location.url(href);
+		    if (source === 'user') {
+			$location.url(href);
+		    } else {
+			location.href = href;
+		    }
 		    
 		    $rootScope.$broadcast('notificationClicked');
 		}
