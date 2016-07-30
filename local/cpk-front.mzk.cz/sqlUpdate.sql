@@ -578,3 +578,6 @@ ALTER TABLE `widget_content` ADD `description_en` TEXT NULL ;
 UPDATE `widget_content` SET `description_cs`='Defaultní popisek' WHERE `widget_id`=4
 UPDATE `widget_content` SET `description_en`='Default description' WHERE `widget_id`=4
 UPDATE `system` SET `value`='44' WHERE `key`='DB_VERSION';
+
+DELETE FROM `citation_style` WHERE value='4'
+UPDATE `system` SET `value`='45' WHERE `key`='DB_VERSION';
