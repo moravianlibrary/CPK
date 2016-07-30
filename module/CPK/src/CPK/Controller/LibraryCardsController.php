@@ -45,7 +45,7 @@ use CPK\Db\Table\User;
  */
 class LibraryCardsController extends LibraryCardsControllerBase
 {
-    use ExceptionsTrait;
+    use ExceptionsTrait, LoginTrait;
 
     /**
      * Send user's library cards to the view

@@ -44,7 +44,7 @@ use Zend\View\Model\JsonModel;
  */
 class AdminController extends \VuFind\Controller\AbstractBase
 {
-    use ExceptionsTrait;
+    use ExceptionsTrait, LoginTrait;
 
     /**
      * Access manager instance

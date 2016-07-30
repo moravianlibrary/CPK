@@ -36,6 +36,8 @@ use Zend\View\Model\JsonModel;
  */
 class LibrariesController extends AbstractBase
 {
+    use LoginTrait;
+
 	public function listAction()
 	{
 		$view = $this->createViewModel();

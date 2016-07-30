@@ -8,6 +8,7 @@ use Zend\View\Model\ViewModel;
 
 class StatusController extends AbstractBase
 {
+   use LoginTrait;
 
     public function defaultAction()
     {

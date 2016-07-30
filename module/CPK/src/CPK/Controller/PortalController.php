@@ -34,6 +34,8 @@ use VuFind\Controller\AbstractBase;
  */
 class PortalController extends AbstractBase
 {
+    use LoginTrait;
+
 	/**
 	 * View page
 	 *

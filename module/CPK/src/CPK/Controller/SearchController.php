@@ -26,7 +26,6 @@ namespace CPK\Controller;
 
 use VuFind\Controller\SearchController as SearchControllerBase;
 use VuFind\Exception\Mail as MailException;
-use Zend\Mvc\MvcEvent;
 
 /**
  * SearchController
@@ -36,6 +35,7 @@ use Zend\Mvc\MvcEvent;
  */
 class SearchController extends SearchControllerBase
 {
+    use LoginTrait;
 
     protected $conspectusField     = 'category_str';
     protected $conspectusFieldName = 'Conspectus';
@@ -1275,60 +1275,5 @@ class SearchController extends SearchControllerBase
         ];
 
         return $data;
-    }
-
-    /**
-     * Overriden onDispatch to process Exceptions used to redirect user somewhere else
-     *
-     * {@inheritDoc}
-     * @see \Zend\Mvc\Controller\AbstractActionController::onDispatch()
-     */
-    public function onDispatch(MvcEvent $e)
-    {
-        $routeMatch = $e->getRouteMatch();
-        if (!$routeMatch) {
-            /**
-             * @todo Determine requirements for when route match is missing.
-             *       Potentially allow pulling directly from request metadata?
-             */
-            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
-        }
-
-        $action = $routeMatch->getParam('action', 'not-found');
-        $method = static::getMethodFromAction($action);
-
-        if (!method_exists($this, $method)) {
-            $method = 'notFoundAction';
-        }
-
-        try {
-
-            $this->checkShibbolethLogin();
-            $actionResponse = $this->$method();
-
-        } catch(TermsUnaccepted $e) {
-            return $this->redirect()->toUrl('/?AcceptTermsOfUse');
-        }
-
-        $e->setResult($actionResponse);
-
-        return $actionResponse;
-    }
-
-    protected function checkShibbolethLogin() {
-
-        // Check shibboleth login
-        if ($this->params()->fromPost('processLogin')
-            || $this->params()->fromPost('auth_method')
-            || $this->params()->fromQuery('auth_method')
-            ) {
-                try {
-                    if (!$this->getAuthManager()->isLoggedIn()) {
-                        $this->getAuthManager()->login($this->getRequest());
-                    }
-                } catch (AuthException $e) {
-                    $this->processAuthenticationException($e);
-                }
-            }
     }
 }

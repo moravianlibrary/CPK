@@ -44,7 +44,7 @@ use CPK\RecordDriver\SolrAuthority;
 class RecordController extends RecordControllerBase
 {
 
-    use HoldsTrait, HoldsTraitBase {
+    use LoginTrait, HoldsTrait, HoldsTraitBase {
         HoldsTrait::holdAction insteadof HoldsTraitBase;
     }
 

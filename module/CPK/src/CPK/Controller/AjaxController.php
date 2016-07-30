@@ -31,7 +31,7 @@ use MZKCommon\Controller\AjaxController as AjaxControllerBase, VuFind\Exception\
 
 class AjaxController extends AjaxControllerBase
 {
-    use \VuFind\Db\Table\DbTableAwareTrait;
+    use \VuFind\Db\Table\DbTableAwareTrait, LoginTrait;
 
     /**
      * Downloads SFX JIB content for current record.

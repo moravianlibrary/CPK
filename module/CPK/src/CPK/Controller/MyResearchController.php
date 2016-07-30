@@ -44,44 +44,7 @@ use Zend\Mvc\MvcEvent;
  */
 class MyResearchController extends MyResearchControllerBase
 {
-    use ExceptionsTrait;
-
-    /**
-     * Overriden onDispatch to process Exceptions used to redirect user somewhere else
-     *
-     * {@inheritDoc}
-     * @see \Zend\Mvc\Controller\AbstractActionController::onDispatch()
-     */
-    public function onDispatch(MvcEvent $e)
-    {
-        $routeMatch = $e->getRouteMatch();
-        if (!$routeMatch) {
-            /**
-             * @todo Determine requirements for when route match is missing.
-             *       Potentially allow pulling directly from request metadata?
-             */
-            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
-        }
-
-        $action = $routeMatch->getParam('action', 'not-found');
-        $method = static::getMethodFromAction($action);
-
-        if (!method_exists($this, $method)) {
-            $method = 'notFoundAction';
-        }
-
-        try {
-
-            $actionResponse = $this->$method();
-
-        } catch(TermsUnaccepted $e) {
-            return $this->redirect()->toUrl('/?AcceptTermsOfUse');
-        }
-
-        $e->setResult($actionResponse);
-
-        return $actionResponse;
-    }
+    use ExceptionsTrait, LoginTrait;
 
     public function logoutAction()
     {
