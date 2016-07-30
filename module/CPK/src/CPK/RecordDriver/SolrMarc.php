@@ -762,10 +762,10 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getSecondaryAuthoritiesIds()
     {
-        $ahoj =  isset($this->fields['authority2_display_mv'])
+        $ids =  isset($this->fields['authority2_display_mv'])
         ? $this->fields['authority2_display_mv']
         : [];
 
-        return $ahoj;
+        return $ids;
     }
 }
