@@ -118,7 +118,7 @@
 			
 		    newTarget += newTarget.indexOf('?') >= 0 ? '&' : '?' + 'auth_method=Shibboleth';
 
-		    lastIdp.href.replace(/target=[^&]*/, 'target=' + encodeURIComponent(newTarget));
+		    lastIdp.href = lastIdp.href.replace(/target=[^&]*/, 'target=' + encodeURIComponent(newTarget));
 		});
 	    }
 

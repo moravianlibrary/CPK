@@ -86,7 +86,6 @@ trait LoginTrait {
 
     protected function checkShibbolethLogin()
     {
-
         // Check shibboleth login
         if ($this->params()->fromPost('processLogin') || $this->params()->fromPost('auth_method') || $this->params()->fromQuery('auth_method')) {
             try {
