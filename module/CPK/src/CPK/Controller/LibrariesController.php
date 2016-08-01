@@ -64,7 +64,6 @@ class LibrariesController extends AbstractBase
 		$view->query = $query;
 		$view->pagination = $searchresults->GetPagination();
 		$view->libraries = $libraries;
-		$view->allLibraries = $searchresults->getAllLibraries();
 		$view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
 		$view->setTemplate('libraries/list');
 		return $view;
@@ -103,6 +102,19 @@ class LibrariesController extends AbstractBase
 
 		return $result;
 	}
+
+    public function markersJsonAction()
+    {
+        $q = $this->params()->fromQuery('q');
+
+        $apiResponse = file_get_contents("http://info.knihovny.cz/api/v1/markers?q=$q");
+        $dataArray = \Zend\Json\Json::decode($apiResponse, \Zend\Json\Json::TYPE_ARRAY);
+
+        $result = new JsonModel($dataArray);
+
+        return $result;
+    }
+
 
 
 

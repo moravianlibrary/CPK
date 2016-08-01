@@ -12,7 +12,7 @@ class SearchResults
 
     //load on first use
     private $librariesPage;
-    private $librariesAll;
+    private $count;
 
     private $resultsPerPage = 10;
 
@@ -25,7 +25,7 @@ class SearchResults
     public function __construct($query, $currentPage)
     {
         $this->query = $query;
-        if ($currentPage==null)
+        if ($currentPage == null)
             throw new \Exception("Invalid argument: currentPage");
         $this->currentPage = $currentPage;
     }
@@ -38,33 +38,39 @@ class SearchResults
      *
      * @return array of SimpleLibrary objects
      */
-    private function LoadLibraries($query, $limit, $offset, $status){
+    private function LoadLibraries($query, $limit, $offset, $status)
+    {
 
         $params['q'] = $query;
-        $params['status'] 	  = $status;
-        $params['limit'] 	  = $limit;
-        if ($offset!=null)
-            $params['offset']     = $offset;
+        $params['status'] = $status;
+        $params['limit'] = $limit;
+        if ($offset != null)
+            $params['offset'] = $offset;
         $buildedQuery = http_build_query($params);
 
-        $url   = Loader::$infoKnihovnyUrl.'libraries?'.$buildedQuery;
+        $url = Loader::$infoKnihovnyUrl . 'libraries?' . $buildedQuery;
 
         $client = new \Zend\Http\Client($url, array('timeout' => 60));
         $response = $client->send();
 
         // Response head error handling
         $responseStatusCode = $response->getStatusCode();
-        if($responseStatusCode !== 200)
-            throw new \Exception("info.knihovny.cz response status code: ".$responseStatusCode);
+        if ($responseStatusCode !== 200)
+            throw new \Exception("info.knihovny.cz response status code: " . $responseStatusCode);
 
-        $output	= $response->getBody();
+        $output = $response->getBody();
 
 
-        $apilibraries = \Zend\Json\Json::decode($output);
-        foreach ($apilibraries as $apilibrary)
-        {
+        $apiObject = \Zend\Json\Json::decode($output);
+
+        $respLimit = $apiObject->limit;
+        $respOffset = $apiObject->offset;
+        $this->count = $apiObject->all;
+        $apiLibraries = $apiObject->libraries;
+
+        foreach ($apiLibraries as $apilibrary) {
             $library = new SimpleLibrary();
-            $library->ParseSimpleLibrary($apilibrary,$library);
+            $library->ParseSimpleLibrary($apilibrary, $library);
 
             $libraries[] = $library;
         }
@@ -74,65 +80,53 @@ class SearchResults
     }
 
 
-    private function LoadPageResults(){
+    private function LoadPageResults()
+    {
         $offset = ($this->currentPage - 1) * $this->resultsPerPage;
-        $this->librariesPage = $this->LoadLibraries($this->query, $this->resultsPerPage , $offset, "active");
+        $this->librariesPage = $this->LoadLibraries($this->query, $this->resultsPerPage, $offset, "active");
     }
 
-    private function LoadAllSearchResults(){
-        $this->librariesAll = $this->LoadLibraries($this->query, "9999", null, "active");
-    }
-
-    public function getCurrentPage(){
+    public function getCurrentPage()
+    {
         return $this->currentPage;
     }
 
-    public function getQuery(){
+    public function getQuery()
+    {
         return $this->query;
     }
 
-    public function getMapPins(){
-        if ($this->librariesAll==null)
-            $this->LoadAllSearchResults();
-        return "pins";
-    }
-
-    public function getLibraries() {
-        if ($this->librariesPage==null)
+    public function getLibraries()
+    {
+        if ($this->librariesPage == null)
             $this->LoadPageResults();
         return $this->librariesPage;
     }
 
-    public function getAllLibraries() {
-        if ($this->librariesAll==null)
-            $this->LoadAllSearchResults();
-        return $this->librariesAll;
+    public function getNumberOfResults()
+    {
+        return $this->count;
     }
 
-    public function getNumberOfResults() {
-        if ($this->librariesAll==null)
-            $this->LoadAllSearchResults();
-        return count($this->librariesAll);
-    }
-
-    public function GetNumberOfPages(){
+    public function GetNumberOfPages()
+    {
         $count = $this->getNumberOfResults();
-        return ceil($count/$this->resultsPerPage);
+        return ceil($count / $this->resultsPerPage);
     }
 
 
-    public function GetPagination(){
+    public function GetPagination()
+    {
         $totalPages = $this->GetNumberOfPages($this->query);
         $currentPage = $this->currentPage;
 
         $paginationSet = [];
-        if($totalPages<=5) {
+        if ($totalPages <= 5) {
             for ($i = 1; $i <= $totalPages; $i++) {
                 $paginationSet[] = $i;
             }
             return $paginationSet;
-        }
-        else {
+        } else {
             $paginationSet[] = 1;
 
             for ($i = 1; $i <= 3; $i++) {
@@ -155,5 +149,5 @@ class SearchResults
             return array_unique($paginationSet);
         }
     }
-    
+
 }

@@ -15,7 +15,7 @@ use CPK\Libraries\Entities\Website;
 
 class Loader {
 
-    public static $infoKnihovnyUrl = "http://info.knihovny.cz/api/";
+    public static $infoKnihovnyUrl = "http://info.knihovny.cz/api/v1/";
 
     /**
      * @param $sigla
@@ -122,7 +122,7 @@ class Loader {
      * @return array of Project objects
      */
     public function LoadAllProjects(){
-        return "ahoj";
+        return "";
     }
 
     /**

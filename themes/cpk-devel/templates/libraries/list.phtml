@@ -43,33 +43,83 @@
   <div class="col-md-6">
     <style>
       #map {height: 600px;}
+      .loader {
+        left: 50%;
+        transform: translateX(-50%);
+        position:absolute;
+        top:200px;
+        font-size:40px;
+      }
+      .marker-info {
+        min-width:200px;
+        padding: 5px;
+      }
+
+      .marker-title {
+        font-size: 18px;
+        color: #333;
+      }
+
+      .marker-subtitle {
+        font-size: 15px;
+        color: #666;
+        margin-top: 10px;
+        margin-bottom: 5px;
+      }
     </style>
+
+
+    <div class="loader">Map data loading ...</div>
     <div id="map"></div>
 
     <script>
-    function initMap() {
+
+      function getData() {
+        var url = "/Libraries/markersJson?q=<?=$this->query?>";
+        $.getJSON(url, function(data) {
+          initialize(data);
+        });
+      }
+    function initialize(libraries) {
     var myLatLng = {lat: 49.78, lng: 15.39};
       var markers = [];
       var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 7,
     center: myLatLng
     });
-    <? foreach ($this->allLibraries as $library):?>
-      <? if (($library->getLatitude()!=null)||($library->getLongitude()!=null)):?>
-        var position = {lat: <?=$library->getLatitude() ?>, lng: <?=$library->getLongitude() ?>};
+      var bounds = new google.maps.LatLngBounds();
+      var infoWindow = new google.maps.InfoWindow();
+      var info = [];
+      for(var i = 0; i < libraries.length; i++) {
+        var library = libraries[i];
+        var contentString = '<div id="content" class="marker-info">'+
+            '<div class="marker-title">' + library.name + '</div>'+
+            '<div class="marker-subtitle">' + library.address + '</div>' +
+            '<div class="marker-link"><a href="https://cpk-front.mzk.cz/Libraries/Library?sigla=' + library.sigla +
+            '">Detail knihovny</a>' +
+            '</div>';
+        info.push(contentString);
         var marker = new google.maps.Marker({
-        position: position,
-        map: map,
-        title: '<?=$library->getName() ?>'
+          position: new google.maps.LatLng (library.latitude, library.longitude),
+          map: map,
+          title: library.name
         });
+        bounds.extend(marker.getPosition());
         markers.push(marker);
-      <? endif; ?>
-    <? endforeach; ?>
+        google.maps.event.addListener(marker, 'click', (function(marker, index) {
+          return function() {
+            infoWindow.setContent(info[index]);
+            infoWindow.open(map, marker);
+          }
+        })(marker, i));
+      }
+
       var mcOptions = {gridSize: 75, maxZoom: 10, imagePath: "/themes/cpk-devel/images/markerclusterer/m"};
       var mc = new MarkerClusterer(map, markers, mcOptions);
     }
+
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=initMap"
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=getData"
             async defer></script>
 
   </div>
