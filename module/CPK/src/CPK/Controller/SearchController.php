@@ -37,10 +37,13 @@ class SearchController extends SearchControllerBase
 {
     use LoginTrait;
 
-    protected $conspectusField     = 'category_str';
+    //protected $conspectusField     = 'category_str';
+    protected $conspectusField     = 'category_txtF';
     protected $conspectusFieldName = 'Conspectus';
-    protected $conspectusSubField     = 'subcategory_str';
+
+    //protected $conspectusSubField     = 'subcategory_str';
     protected $conspectusSubFieldName = 'conspectusSubCategories';
+    protected $conspectusSubField     = 'subcategory_txtF';
 
 	/**
 	 * Handle an advanced search
@@ -1190,9 +1193,15 @@ class SearchController extends SearchControllerBase
     {
         $view = $this->createViewModel();
 
-        $view->mostWanted = $this->getMostWantedRecordsAction(4);
-        $view->favoriteAuthors= $this->getFavoriteAuthorsAction(4);
-        $view->infobox= $this->getInfoboxAction(5);
+        /*$view->mostWanted = $this->getMostWantedRecordsAction(4);
+        $view->favoriteAuthors = $this->getFavoriteAuthorsAction(4);
+        $view->infobox = $this->getInfoboxAction(5);
+        $view->inspirationWidget1 = $this->getGetInspirationWidgetContent(1, 5);
+        $view->inspirationWidget2 = $this->getGetInspirationWidgetContent(2, 5);
+        $view->inspirationWidget3 = $this->getGetInspirationWidgetContent(3, 5);
+        $view->inspirationWidget4 = $this->getGetInspirationWidgetContent(4, 5);
+        $view->inspirationWidget5 = $this->getGetInspirationWidgetContent(5, 5);
+        $view->inspirationWidget6 = $this->getGetInspirationWidgetContent(6, 5);*/
 
         $frontendTable = $this->getTable('frontend');
         $widgets = $frontendTable->getInspirationWidgets();
@@ -1225,6 +1234,18 @@ class SearchController extends SearchControllerBase
         return $view;
     }
 
+    protected function getGetInspirationWidgetContent($columnNumber, $randomLimit) {
+        $widgetContentTable = $this->getTable("widgetcontent");
+        $widgetContens = $widgetContentTable->getContentsByName('inspiration_'.$columnNumber, $randomLimit);
+
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        foreach ($widgetContens as $key => $record) {
+            $widgetContens[$key]->setRecordDriver($recordLoader->load($record->getValue()));
+        }
+
+        return $widgetContens;
+    }
+
     /**
      * Get subCategories for conspectus
      *
@@ -1236,18 +1257,23 @@ class SearchController extends SearchControllerBase
     {
         $category = trim($postParams['category']);
 
-        /*
+
          $results = $this->getResultsManager()->get('Solr');
          $params = $results->getParams();
          $params->addFacet($this->conspectusSubField, $this->conspectusSubFieldName);
          $options = $params->getOptions();
-         $options->addHiddenFilter($this->conspectusField.':"'.$category.'"');
+         $rawQuery = $this->conspectusField . ':(' . $this->mungeQuery($category) . ')';
+         $options->addHiddenFilter($rawQuery);
+         //$options->addHiddenFilter($this->conspectusField.':"'.$category.'"');
          $params->setLimit(0);
          $results->getResults();
          $facets = $results->getFacetList();
-         */
+         $subCategories = [];
+         foreach($facets[$this->conspectusSubField]['list'] as $facet){
+             $subCategories[] = $facet['value'];
+         }
 
-        $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+        /*$runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
 
         $request['type0'][] = 'AllFields';
         $request['bool0'][] = 'AND';
@@ -1274,6 +1300,16 @@ class SearchController extends SearchControllerBase
             'subCategories' => json_encode(['html' => $html])
         ];
 
+        */
+         $data = [
+             'subCategories' => $subCategories
+         ];
+
         return $data;
+    }
+
+    protected function mungeQuery($query) {
+        $forbidden = array(':', '(', ')', '*', '+', '"');
+        return str_replace($forbidden, " ", $query);
     }
 }

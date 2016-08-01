@@ -11,6 +11,11 @@
     	<a href="/Admin/Infobox" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/infobox/list" ? ' active' : ''?>"><?=$this->transEsc('Infobox')?></a>
     	<a href="/Admin/MostWanted" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/most-wanted/list" ? ' active' : ''?>"><?=$this->transEsc('Most wanted')?></a>
     	<a href="/Admin/FavoriteAuthors" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/favorite-authors/list" ? ' active' : ''?>"><?=$this->transEsc('Favorite authors')?></a>
+    	<? foreach($this->widgetsForMenu as $widget): ?>
+    	  <? if (! in_array($widget->getName(), ['infobox', 'most_wanted', 'favorite_authors', 'events'])): // these are already printed, because they have different templates?>
+		    <a href="/Admin/Widget/<?=$widget->getId()?>" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/widget/list" ? ' active' : ''?>"><?=$this->transEsc($widget->getName())?></a>
+		  <? endif; ?>
+    	<? endforeach; ?>
     </div>
     <a href="/Admin/PermissionsManager" class="list-group-item<?=strtolower($this->layout()->templateName) == "permissions-manager" ? ' active' : ''?>"><?=$this->transEsc('Permissions manager')?></a>
   <? endif; ?>

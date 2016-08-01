@@ -1,0 +1,39 @@
+  <div class="col-md-4">
+    <div class='header'>
+      <h2><?=$this->transEsc($this->widgetTitle)?></h2>
+    </div>
+    <div class="list-group">
+      <? foreach ($this->inspirationWidget as $book): ?>
+      <a href="/Record/<?=$book->getValue()?>" class="list-group-item clearfix">
+        <div class='row'>
+          <?
+          $recordId =  preg_replace("/\./", "", $book->getValue());
+          $recordId =  preg_replace("/:/", "", $recordId);
+          $formats = $book->getRecordDriver()->getFormats();
+          ?>
+          <div class="col-xs-3 cover_<?=$recordId?>" id="<?=$recordId?>">
+
+                <? if ($bibinfo = $this->record($book->getRecordDriver())->getObalkyKnihJSONV3()): ?>
+                    <script type="text/javascript">
+                        obalky.display_thumbnail_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($book->getRecordDriver()->getTitle())?>);
+                    </script>
+                <? endif;?>
+
+                <? if (! empty($formats)): ?>
+                    <div class="iconlabel"><i style='font-size: 300%; color: #CCCCCC;' class="pr-format-<?=$this->record($book->getRecordDriver())->getFormatClass($formats[0])?>"></i></div>
+                <? elseif ($summThumb = $this->record($book->getRecordDriver())->getThumbnail('small')): ?>
+                    <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                <? else: ?>
+                    <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                <? endif; ?>
+
+          </div>
+          <div class="col-xs-9 content">
+            <h4 class="list-group-item-heading"><?=$book->getRecordDriver()->getTitle()?></h4>
+            <p class="list-group-item-text"><?=$book->getRecordDriver()->getDeduplicatedAuthors()['main']?></p>
+          </div>
+        </div>
+      </a>
+      <? endforeach; ?>
+    </div>
+  </div>

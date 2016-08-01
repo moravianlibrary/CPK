@@ -16,14 +16,14 @@
   $sortedList = $this->sortFacetList($results, $field, $facets, 'search-results');
 ?>
 
-<div>
-  <?=$this->render('widgets/'.$this->widgets['first_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['second_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['third_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['fourth_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['fifth_inspiration_widget'].'.phtml')?>
-  <?=$this->render('widgets/'.$this->widgets['sixth_inspiration_widget'].'.phtml')?>
-</div>
+<!--<div>
+  <?/*=$this->render('widgets/'.((in_array($this->widgets['first_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['first_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget1, 'widgetTitle' => 'inspiration_1'])*/?>
+  <?/*=$this->render('widgets/'.((in_array($this->widgets['second_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['second_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget2, 'widgetTitle' => 'inspiration_2'])*/?>
+  <?/*=$this->render('widgets/'.((in_array($this->widgets['third_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['third_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget3, 'widgetTitle' => 'inspiration_3'])*/?>
+  <?/*=$this->render('widgets/'.((in_array($this->widgets['fourth_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['fourth_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget4, 'widgetTitle' => 'inspiration_4'])*/?>
+  <?/*=$this->render('widgets/'.((in_array($this->widgets['fifth_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['fifth_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget5, 'widgetTitle' => 'inspiration_5'])*/?>
+  <?/*=$this->render('widgets/'.((in_array($this->widgets['sixth_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['sixth_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget6, 'widgetTitle' => 'inspiration_6'])*/?>
+</div>-->
 
 <div id='conspectus'>
   <h2><?=$this->transEsc('Conspectus')?></h2>
@@ -58,14 +58,15 @@
 
             		if (response.status == 'OK') {
 
-                		var subCategories = JSON.parse(response.data.subCategories);
-/*
-                		response.data['subCategories'].forEach( function( item ) {
+                		var subCategories = response.data.subCategories;
+						var html = '';
+
+                		subCategories.forEach( function( item ) {
 							html += "<a href='/Search/Results?filter[]=subcategory_str:\""+item+"\"' title='"+item+"'>"+item+"</a><br>";
                     	});
-*/
+
     					//$( element ).parent().find( '.expanded-category' ).html( decodeHtml( subCategories.html ) );
-    					$( element ).parent().find( '.expanded-category' ).html( subCategories.html );
+    					$( element ).parent().find( '.expanded-category' ).html( html );
 
             		} else {
             			console.error(response.data);

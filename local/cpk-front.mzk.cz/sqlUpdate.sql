@@ -581,3 +581,38 @@ UPDATE `system` SET `value`='44' WHERE `key`='DB_VERSION';
 
 DELETE FROM `citation_style` WHERE value='4'
 UPDATE `system` SET `value`='45' WHERE `key`='DB_VERSION';
+
+INSERT INTO `vufind`.`widget` (`id`, `name`, `display`) VALUES (NULL, 'inspiration_1', 'random'), (NULL, 'inspiration_2', 'random'), (NULL, 'inspiration_3', 'random'), (NULL, 'inspiration_4', 'random'), (NULL, 'inspiration_5', 'random'), (NULL, 'inspiration_6', 'random');
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('5','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('5','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('5','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('5','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('5','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('6','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('6','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('6','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('6','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('6','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('7','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('7','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('7','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('7','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('7','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('8','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('8','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('8','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('8','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('8','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('9','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('9','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('9','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('9','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('9','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('10','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('10','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('10','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('10','mzk.MZK01-001304218','0',NULL,NULL);
+INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `description_cs`, `description_en`) VALUES ('10','mzk.MZK01-001304218','0',NULL,NULL);
+
+UPDATE `vufind`.`frontend` SET `first_inspiration_widget` = 'inspiration_1', `second_inspiration_widget` = 'inspiration_2', `third_inspiration_widget` = 'inspiration_3', `fourth_inspiration_widget` = 'inspiration_4', `fifth_inspiration_widget` = 'inspiration_5', `sixth_inspiration_widget` = 'inspiration_6' WHERE `frontend`.`id` = 1;
+UPDATE `system` SET `value`='46' WHERE `key`='DB_VERSION';

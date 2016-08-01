@@ -78,7 +78,7 @@ class Widget extends Gateway
     }
 
     /**
-     * Returns widgets
+     * Returns widget
      *
      * @param   string  $name
      *
@@ -89,6 +89,31 @@ class Widget extends Gateway
         $select = new Select($this->table);
 
         $condition = "`name`='$name'";
+
+        $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+        $select->where($predicate);
+
+        $results= $this->executeAnyZendSQLSelect($select);
+        $widgets = $this->resultsToArrayOfSpecifiObjects(
+            $results,
+            '\CPK\Widgets\Widget'
+        );
+
+        return $widgets[0];
+    }
+
+    /**
+     * Returns widget
+     *
+     * @param   int  $id
+     *
+     * @return array
+     */
+    public function getWidgetById($id)
+    {
+        $select = new Select($this->table);
+
+        $condition = "`id`='$id'";
 
         $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
         $select->where($predicate);

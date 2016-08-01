@@ -711,6 +711,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     protected function createViewModel($params = null, $template = null)
     {
+        // We must call widgets in avery action, to load widgets to menu
+        $params['widgetsForMenu'] = $this->getWidgetsForMenu();
+
         $vm = parent::createViewModel($params);
 
         if (isset($template))
@@ -718,6 +721,137 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         return $vm;
     }
+
+    /**
+     * Get widgets for menu
+     *
+     * @return array
+     * */
+    protected function getWidgetsForMenu() {
+        $widgetTable = $this->getTable('Widget');
+        return $widgetTable->getWidgets();
+    }
+
+    /**
+     * Widgets manager
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    public function widgetAction()
+    {
+        if (! $this->accessManager->isLoggedIn()) {
+            return $this->forceLogin();
+        }
+
+        // Must be an portal admin ..
+        $this->accessManager->assertIsPortalAdmin();
+
+        $widgetId = $this->params()->fromRoute('subaction');
+
+        $widgetContentTable = $this->getTable('widgetcontent');
+        $widgetTable = $this->getTable('Widget');
+        $widget = $widgetTable->getWidgetById($widgetId);
+        $widgetName = $widget->getName();
+
+        /*
+         * Handle subactions
+         * */
+        $action = $this->params()->fromRoute('param');
+        if ($action == 'CreateItem') {
+            $user = $this->accessManager->getUser();
+
+            $widgetTable = $this->getTable('widget');
+            $widget = $widgetTable->getWidgetById($widgetId);
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgetId', $widgetId);
+            $viewModel->setVariable('widgetTitle', $widgetName);
+            $viewModel->setTemplate('admin/widgets/widget/create-item');
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($action == 'EditItem') {
+            $user = $this->accessManager->getUser();
+
+            $id = $this->params()->fromRoute('param2');
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($id);
+            $widgetContent = $widgetContentTable->getContentById($widgetContent);
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgetContent', $widgetContent);
+            $viewModel->setVariable('widgetId', $widgetId);
+            $viewModel->setTemplate('admin/widgets/widget/edit-item');
+            $viewModel->setVariable('widgetTitle', $widgetName);
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($action == 'AddItem') {
+            $post = $this->params()->fromPost();
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setWidgetId($post['widget_id']);
+            $widgetContent->setValue($post['value']);
+            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+
+            $widgetContentTable->addWidgetContent($widgetContent);
+        }
+
+        if ($action == 'SaveItem') {
+            $post = $this->params()->fromPost();
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($post['id']);
+            $widgetContent->setWidgetId($post['widget_id']);
+            $widgetContent->setValue($post['value']);
+            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+
+            $widgetContentTable->saveWidgetContent($widgetContent);
+        }
+
+        if ($action == 'RemoveItem') {
+            $id = $this->params()->fromRoute('param2');
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            $widgetContent = new \CPK\Widgets\WidgetContent();
+            $widgetContent->setId($id);
+
+            $widgetContentTable->removeWidgetContent($widgetContent);
+        }
+
+        $user = $this->accessManager->getUser();
+
+        $viewModel = $this->createViewModel();
+        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('user', $user);
+        $viewModel->setVariable('widgetId', $widgetId);
+        $viewModel->setVariable('widgetTitle', $widgetName);
+        $viewModel->setTemplate('admin/widgets/widget/list');
+
+        $this->layout()->searchbox = false;
+
+        $widgetsContents = $widgetContentTable->getContentsByName($widgetName, false, false, true);
+
+        $viewModel->setVariable('widgetsContents', $widgetsContents);
+
+        return $viewModel;
+    }
+
 }
 
 /**
