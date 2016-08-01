@@ -1193,7 +1193,7 @@ class SearchController extends SearchControllerBase
     {
         $view = $this->createViewModel();
 
-        /*$view->mostWanted = $this->getMostWantedRecordsAction(4);
+        $view->mostWanted = $this->getMostWantedRecordsAction(4);
         $view->favoriteAuthors = $this->getFavoriteAuthorsAction(4);
         $view->infobox = $this->getInfoboxAction(5);
         $view->inspirationWidget1 = $this->getGetInspirationWidgetContent(1, 5);
@@ -1201,7 +1201,7 @@ class SearchController extends SearchControllerBase
         $view->inspirationWidget3 = $this->getGetInspirationWidgetContent(3, 5);
         $view->inspirationWidget4 = $this->getGetInspirationWidgetContent(4, 5);
         $view->inspirationWidget5 = $this->getGetInspirationWidgetContent(5, 5);
-        $view->inspirationWidget6 = $this->getGetInspirationWidgetContent(6, 5);*/
+        $view->inspirationWidget6 = $this->getGetInspirationWidgetContent(6, 5);
 
         $frontendTable = $this->getTable('frontend');
         $widgets = $frontendTable->getInspirationWidgets();
@@ -1256,7 +1256,6 @@ class SearchController extends SearchControllerBase
     public function getConspectusSubCategoriesAction(array $postParams)
     {
         $category = trim($postParams['category']);
-
 
          $results = $this->getResultsManager()->get('Solr');
          $params = $results->getParams();
