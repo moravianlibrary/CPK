@@ -171,6 +171,7 @@ class AjaxController extends AjaxControllerBase
         }
 
         $ids = array_filter($ids);
+        $ids = array_unique($ids);
 
         $ilsDriver = $this->getILS()->getDriver();
 
@@ -248,8 +249,9 @@ class AjaxController extends AjaxControllerBase
 
                 $key = array_search(trim($unescId), $ids);
 
-                if ($key !== false)
+                if ($key !== false) {
                     unset($ids[$key]);
+                }
             }
 
             if ($nextItemToken || $usedGetStatus || $usedAleph) {
