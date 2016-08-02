@@ -85,7 +85,7 @@
     <? if ($library->emails!=null):?>
       <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
       <? foreach ($library->emails as $email):?>
-        <p><a href="<?=$email->getEmail()?>"><?=$email->getNote()?></a></p>
+        <p><a href="mailto:<?=$email->getEmail()?>"><?=$email->getEmail()?></a> <?=$email->getNote()?></p>
       <? endforeach; ?>
     <? endif; ?>
 
