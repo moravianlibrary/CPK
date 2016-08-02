@@ -37,13 +37,8 @@ class SearchController extends SearchControllerBase
 {
     use LoginTrait;
 
-    //protected $conspectusField     = 'category_str';
-    protected $conspectusField     = 'category_txtF';
+    protected $conspectusField     = 'conspectus_str_mv';
     protected $conspectusFieldName = 'Conspectus';
-
-    //protected $conspectusSubField     = 'subcategory_str';
-    protected $conspectusSubFieldName = 'conspectusSubCategories';
-    protected $conspectusSubField     = 'subcategory_txtF';
 
 	/**
 	 * Handle an advanced search
@@ -1227,9 +1222,23 @@ class SearchController extends SearchControllerBase
         $results->getResults();
         $facets = $results->getFacetList();
 
-        $view->results = $results;
-        $view->facets = $facets;
-        $view->field = $this->conspectusField;
+        $conspectus = [];
+        foreach ($facets[$this->conspectusField]['list'] as $facet) {
+            $explodedFacet = explode("/", $facet['value']);
+            $category = $explodedFacet[1];
+            $subCategory = $explodedFacet[2];
+
+            if (array_key_exists($category, $conspectus)) {
+                if (! array_key_exists($subCategory, $conspectus[$category])) {
+                    $conspectus[$category][] = $subCategory;
+                }
+            } else {
+                $conspectus[$category] = [];
+                $conspectus[$category][] = $subCategory;
+            }
+        }
+
+        $view->conspectus = $conspectus;
 
         return $view;
     }
@@ -1244,71 +1253,5 @@ class SearchController extends SearchControllerBase
         }
 
         return $widgetContens;
-    }
-
-    /**
-     * Get subCategories for conspectus
-     *
-     * @param   array   $postParams
-     *
-     * @return array
-     */
-    public function getConspectusSubCategoriesAction(array $postParams)
-    {
-        $category = trim($postParams['category']);
-
-         $results = $this->getResultsManager()->get('Solr');
-         $params = $results->getParams();
-         $params->addFacet($this->conspectusSubField, $this->conspectusSubFieldName);
-         $options = $params->getOptions();
-         $rawQuery = $this->conspectusField . ':(' . $this->mungeQuery($category) . ')';
-         $options->addHiddenFilter($rawQuery);
-         //$options->addHiddenFilter($this->conspectusField.':"'.$category.'"');
-         $params->setLimit(0);
-         $results->getResults();
-         $facets = $results->getFacetList();
-         $subCategories = [];
-         foreach($facets[$this->conspectusSubField]['list'] as $facet){
-             $subCategories[] = $facet['value'];
-         }
-
-        /*$runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
-
-        $request['type0'][] = 'AllFields';
-        $request['bool0'][] = 'AND';
-        $request['join'] = 'AND';
-        $request['limit'] = '0';
-        $request['fl'][] = $this->conspectusSubField;
-        $request['filter'][] = $this->conspectusField.':"'.$category.'"';
-
-        $results = $runner->run(
-            $request, $this->searchClassId, $this->getSearchSetupCallback()
-        );
-
-        $viewModel = $this->createViewModel();
-        $viewModel->setTemplate('search/ajax/conspectus-subcategories.php');
-
-        $viewModel->results = $results;
-
-        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
-        $html = $viewRender->render($viewModel);
-
-        $subCategories = htmlentities($html, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, "UTF-8");
-
-        $data = [
-            'subCategories' => json_encode(['html' => $html])
-        ];
-
-        */
-         $data = [
-             'subCategories' => $subCategories
-         ];
-
-        return $data;
-    }
-
-    protected function mungeQuery($query) {
-        $forbidden = array(':', '(', ')', '*', '+', '"');
-        return str_replace($forbidden, " ", $query);
     }
 }
