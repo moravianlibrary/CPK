@@ -105,7 +105,9 @@ class LibrariesController extends AbstractBase
 
     public function markersJsonAction()
     {
-        $q = $this->params()->fromQuery('q');
+        $query = $this->params()->fromQuery('q');
+
+        $q = urlencode($query);
 
         $apiResponse = file_get_contents("http://info.knihovny.cz/api/v1/markers?q=$q");
         $dataArray = \Zend\Json\Json::decode($apiResponse, \Zend\Json\Json::TYPE_ARRAY);
