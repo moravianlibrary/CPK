@@ -4,6 +4,7 @@ namespace CPK\RecordDriver;
 use CPK\RecordDriver\SolrMarc as ParentSolrMarc;
 use VuFind\XSLT\Import\VuFind;
 use VuFind\RecordDriver\Response;
+use Zend\Http\Client\Adapter\Exception\TimeoutException;
 
 class SolrAuthority extends ParentSolrMarc
 {
@@ -138,15 +139,20 @@ class SolrAuthority extends ParentSolrMarc
             $auth_id = empty($field) ? '' : $field->getData();
 
             if (! empty($auth_id)) {
-                $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/api/auth/meta');
-                $client->setParameterGet(array(
-                    'auth_id' => $auth_id
-                ));
+                try {
+                    $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/api/auth/meta');
+                    $client->setParameterGet(array(
+                        'auth_id' => $auth_id
+                    ));
 
-                $response = $client->send();
-                $responseBody = $response->getBody();
-                $phpResponse = json_decode($responseBody, true);
-                $this->obalky = empty($phpResponse) ? null : $phpResponse;
+                    $response = $client->send();
+                    $responseBody = $response->getBody();
+                    $phpResponse = json_decode($responseBody, true);
+                    $this->obalky = empty($phpResponse) ? null : $phpResponse;
+                }
+                catch (TimeoutException $e) {
+                    $this->obalky = null;
+                }
             }
             else {
                 $this->obalky = null;
