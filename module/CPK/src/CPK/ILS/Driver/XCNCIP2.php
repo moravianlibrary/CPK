@@ -401,7 +401,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getCancelHoldDetails($holdDetails)
     {
-        $holdDetails['item_id'] = substr($holdDetails['item_id'], strpos($holdDetails['item_id'], '.') + 1); // strip prefix
+        if (strpos($holdDetails['item_id'], '.') != null) {
+            $holdDetails['item_id'] = substr($holdDetails['item_id'], strpos($holdDetails['item_id'], '.') + 1); // strip prefix
+        }
         if ($holdDetails['item_id'] == 'N/A') $holdDetails['item_id'] = '';
         return empty($holdDetails['item_id']) ? $holdDetails['reqnum'] : $holdDetails['item_id'];
     }
