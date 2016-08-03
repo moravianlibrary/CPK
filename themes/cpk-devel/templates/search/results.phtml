@@ -141,20 +141,6 @@
                 <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
                 	<i class="fa fa-feed pointer"></i>
                 </a>
-                <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
-                &nbsp;
-                  <? if (is_numeric($this->results->getSearchId())): ?>
-                    <? if ($this->results->isSavedSearch()): ?>
-                      <a id='add-to-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Delete saved search')?>'>
-                        <i class="fa fa-minus-square pointer"></i>
-                      </a>
-                    <? else: ?>
-                      <a id='remove-from-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Save search')?>'>
-                        <i class="icon-ulozit-vyhledavani"></i>
-                      </a>
-                    <? endif; ?>
-                  <? endif; ?>
-                <? endif; ?>
               </div>
     	  <? endif; ?>
       </div>

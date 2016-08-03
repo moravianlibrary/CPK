@@ -166,7 +166,23 @@
 
         ?>
       <? if($this->searchResults): ?>
-          <a href="#" class='search-type-template-switch pull-right'><?=$this->translate("Advanced Search")?></a>
+          <span class="pull-right search-box-right">
+          <a href="#" class="search-type-template-switch" ><?=$this->translate("Advanced Search")?></a>
+          <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
+              <? if (is_numeric($this->results->getSearchId())): ?>
+                  <? if ($this->results->isSavedSearch()): ?>
+                      <a class="save-search-link" id='add-to-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Delete saved search')?>'>
+                          <?=$this->translate('Delete saved search')?>
+                      </a>
+                  <? else: ?>
+                      <a class="save-search-link" id='remove-from-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Save search')?>'>
+                          <i class="pr-web-downloadarrow"></i>
+                          <?=$this->translate('Save search')?>
+                      </a>
+                  <? endif; ?>
+              <? endif; ?>
+          <? endif; ?>
+          </span>
       <? elseif ($this->frontpage): ?>
           <div class='col-md-12 text-center homepage-advanced-search-link'>
     		<a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=10"><?=$this->translate("Advanced Search")?></a>
