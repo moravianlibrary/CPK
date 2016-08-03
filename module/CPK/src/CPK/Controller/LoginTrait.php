@@ -72,10 +72,9 @@ trait LoginTrait {
         }
 
         try {
-
             $this->checkShibbolethLogin();
             $actionResponse = $this->$method();
-        } catch (TermsUnaccepted $e) {
+        } catch (\CPK\Exception\TermsUnaccepted $e) {
             return $this->redirect()->toUrl('/?AcceptTermsOfUse');
         }
 
