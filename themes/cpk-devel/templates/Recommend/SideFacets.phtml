@@ -148,6 +148,14 @@ foreach ($queryParams as $key => $value) {
 
       <div id="side-collapse-<?=$this->escapeHtmlAttr($title) ?>" class="collapse<? if(!in_array($title, $collapsedFacets)): ?> in<? endif ?>">
         <? if (isset($rangeFacets[$title])): ?>
+          <?
+          $min = !empty($rangeFacets[$title]['values'][0]) ? min($rangeFacets[$title]['values'][0], 1400) : 1400;
+          $future = date('Y', time()+31536000);
+          $max = !empty($rangeFacets[$title]['values'][1]) ? max($future, $rangeFacets[$title]['values'][1]) : $future;
+          $low  = !empty($rangeFacets[$title]['values'][0]) ? $rangeFacets[$title]['values'][0] : $min;
+          $high = !empty($rangeFacets[$title]['values'][1]) ? $rangeFacets[$title]['values'][1] : $max;
+          $reversed = $this->layout()->rtl ? 'true' : 'false';
+          ?>
           <div class="list-group-item">
             <form action='' name="<?=$this->escapeHtmlAttr($title)?>Filter" id="<?=$this->escapeHtmlAttr($title)?>Filter">
               <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$title}:.*/"))?>
@@ -158,13 +166,13 @@ foreach ($queryParams as $key => $value) {
                   <label for="<?=$this->escapeHtmlAttr($title)?>from">
                     <?=$this->transEsc('date_from')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=isset($rangeFacets[$title]['values'][0])?$this->escapeHtmlAttr($rangeFacets[$title]['values'][0]):''?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=$min?>" <?=$extraInputAttribs?>/>
                 </div>
                 <div class="col-sm-6">
                   <label for="<?=$this->escapeHtmlAttr($title)?>to">
                     <?=$this->transEsc('date_to')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=isset($rangeFacets[$title]['values'][1])?$this->escapeHtmlAttr($rangeFacets[$title]['values'][1]):''?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=$max?>" <?=$extraInputAttribs?>/>
                 </div>
               </div>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
@@ -176,12 +184,6 @@ foreach ($queryParams as $key => $value) {
           <? if ($rangeFacets[$title]['type'] == 'date'): ?>
             <? $this->headScript()->appendFile('vendor/bootstrap-slider.js'); ?>
             <?
-              $min = !empty($rangeFacets[$title]['values'][0]) ? min($rangeFacets[$title]['values'][0], 1400) : 1400;
-              $future = date('Y', time()+31536000);
-              $max = !empty($rangeFacets[$title]['values'][1]) ? max($future, $rangeFacets[$title]['values'][1]) : $future;
-              $low  = !empty($rangeFacets[$title]['values'][0]) ? $rangeFacets[$title]['values'][0] : $min;
-              $high = !empty($rangeFacets[$title]['values'][1]) ? $rangeFacets[$title]['values'][1] : $max;
-              $reversed = $this->layout()->rtl ? 'true' : 'false';
               $script = <<<JS
 $(document).ready(function() {
   var fillTexts = function() {
