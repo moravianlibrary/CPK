@@ -229,7 +229,6 @@ class ShibbolethIdentityManager extends Shibboleth
                 break;
             }
         }
-
         if ($config == null) {
             if (isset($this->shibbolethConfig['default'])) {
                 $config = $this->shibbolethConfig['default'];
@@ -237,14 +236,16 @@ class ShibbolethIdentityManager extends Shibboleth
             } else
                 throw new AuthException('Recieved entityId was not found in ' . static::CONFIG_FILE_NAME . '.ini config nor default config part exists.');
         }
-
         $attributes = $this->fetchAttributes($config);
 
         $homeLibrary = isset($attributes['cat_username']) ? $homeLibrary : 'Dummy';
 
         $eppn = $this->getEduPersonPrincipalName($homeLibrary, $entityId);
 
+        // Store eppn in session for required logging-off logic
         $this->session->eppnLoggedInWith = $eppn;
+
+        // EID for connecting identities
         $this->session->eidLoggedInWith = $entityId;
 
         // Get UserRow by checking for known eppn
@@ -553,10 +554,11 @@ class ShibbolethIdentityManager extends Shibboleth
     {
         $config = $this->getConfig();
 
+        $hasControllerAttached = preg_match("/\/[^\/]+\//", $_SERVER['REQUEST_URI']);
+
         $shibTarget =
-            isset($_SERVER['SSL_SESSION_ID']) ? 'https://' : 'http://' .
-            $_SERVER['SERVER_NAME'] .
-            $_SERVER['REQUEST_URI'] === '/' ? '/Search/Home' : $_SERVER['REQUEST_URI'];
+            isset($_SERVER['SSL_SESSION_ID']) ? 'https://' : 'http://' . $_SERVER['SERVER_NAME'] .
+            $hasControllerAttached ? $_SERVER['REQUEST_URI'] : '/Search/Home';
 
         $append = (strpos($shibTarget, '?') !== false) ? '&' : '?';
 

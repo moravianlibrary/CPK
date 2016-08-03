@@ -27,11 +27,11 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\AjaxController as AjaxControllerBase, VuFind\Exception\ILS as ILSException;
+use MZKCommon\Controller\AjaxController as AjaxControllerBase;
 
 class AjaxController extends AjaxControllerBase
 {
-    use \VuFind\Db\Table\DbTableAwareTrait, LoginTrait;
+    use \VuFind\Db\Table\DbTableAwareTrait;
 
     /**
      * Downloads SFX JIB content for current record.

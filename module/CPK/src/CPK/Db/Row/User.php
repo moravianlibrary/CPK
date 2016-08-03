@@ -469,6 +469,9 @@ class User extends BaseUser
 
         $eppnScope = explode('@', $eppn)[1];
 
+        if (! is_array($canConsolidateMoreTimes))
+            $canConsolidateMoreTimes = [];
+
         // Check that the user has only one institution account unless his organization is in $canConsolidateMoreTimes
         if (! in_array($eppnScope, $canConsolidateMoreTimes)) {
             $hasAccountAlready = false;

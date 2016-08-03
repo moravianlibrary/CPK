@@ -1,8 +1,1 @@
-<? if ($sessionInitiator = $this->auth()->getManager()->getSessionInitiator($this->serverUrl($this->url('myresearch-home')))): ?>
-  <a href="#" onclick='$("div#loginModal").modal("show")'><i
-    class="pr-user-passwordlock"></i> <?=$this->transEsc("Institutional Login")?></a>
-<? else: ?>
-  <a href="#" onclick='$("div#loginModal").modal("show")'
-    class="modal-link" title="<?=$this->transEsc("Login")?>"><i
-    class="pr-user-passwordlock"></i> <?=$this->transEsc("Login")?></a>
-<? endif; ?>
+<a href="#" onclick='$("div#loginModal").modal("show")'><i class="pr-user-passwordlock"></i> <?=$this->transEsc("Institutional Login")?></a>
