@@ -100,7 +100,7 @@ foreach ($queryParams as $key => $value) {
             <?=$this->transEsc($cluster['label'])?>
               <? if (isset($rangeFacets[$title])): ?>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
-              <button type="button" class="btn btn-primary btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
+              <button type="button" class="btn btn-default btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
               <? endif; ?>
               <? endif; ?>
           </div>
@@ -317,7 +317,7 @@ JS;
       </div>
       <? if($cluster['label'] == 'Institution'): ?>
         <div style="text-align: center; margin-top: 10px;">
-          <button type="button" style="border: 0px none;" class="btn btn-primary btn-sm institution-facet-filter-button"><?=$this->translate('Update results')?></button>
+          <button type="button" class="btn btn-default btn-sm institution-facet-filter-button"><?=$this->translate('Update results')?></button>
           <? if($this->auth()->isLoggedIn()): ?>
             <span>
                 <a href='#' title='<?=$this->translate('Save these institutions as preferred')?>' data-toggle="tooltip" id='save-these-institutions'>
