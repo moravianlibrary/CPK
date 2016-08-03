@@ -8,6 +8,17 @@ use Zend\Http\Client\Adapter\Exception\TimeoutException;
 
 class SolrAuthority extends ParentSolrMarc
 {
+    private $searchController = null;
+    private $searchRunner = null;
+
+    public function __construct($mainConfig = null, $recordConfig = null,
+            $searchSettings = null, $searchController = null, $searchRunner = null
+    ) {
+        $this->searchController = $searchController;
+        $this->searchRunner = $searchRunner;
+        parent::__construct($mainConfig, $recordConfig, $searchSettings);
+    }
+
     /**
      * Get the full name of authority.
      *
@@ -202,4 +213,34 @@ class SolrAuthority extends ParentSolrMarc
 
         return (! empty($id)) ? $id : '';
     }
+
+    /**
+     * Returns true, if authority has publications.
+     *
+     * @return bool
+     */
+    public function hasPublications()
+    {
+        $request = array(
+            'sort' => 'relevance',
+            'join' => 'AND',
+            'type0' => array(0 => 'adv_search_author_corporation'),
+            'bool0' => array(0 => 'AND'),
+            'searchTypeTemplate' => 'anvanced',
+            'lookfor0' => array(0 => $this->getAuthorityId()),
+        );
+        $results = $this->searchRunner->run( $request, 'Solr', $this->searchController->getSearchSetupCallback() );
+        return ($results->getResultTotal() > 0) ? true : false;
+    }
+
+    /**
+     * Get link to search publications of authority.
+     *
+     * @return string
+     */
+    public function getPublicationsUrl()
+    {
+        return "/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=" . $this->getAuthorityId();
+    }
+
 }

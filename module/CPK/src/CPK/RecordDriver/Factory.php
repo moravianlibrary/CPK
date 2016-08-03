@@ -107,7 +107,9 @@ class Factory
         $driver = new \CPK\RecordDriver\SolrAuthority(
                 $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
                 null,
-                $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+                $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+                $sm->getServiceLocator()->get('searchController'),
+                $sm->getServiceLocator()->get('VuFind\SearchRunner')
         );
         $driver->attachILS(
                 $sm->getServiceLocator()->get('VuFind\ILSConnection'),

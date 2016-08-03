@@ -1289,4 +1289,8 @@ class SearchController extends SearchControllerBase
 
         return $widgetContens;
     }
+
+    public function getSearchSetupCallback() {
+        return parent::getSearchSetupCallback();
+    }
 }
