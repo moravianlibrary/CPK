@@ -603,10 +603,32 @@ class SearchController extends SearchControllerBase
 
 	    $view->searchResults = true;
 
-	    $view->referer = $this->base64url_encode(
+	    $referer = $this->base64url_encode(
 	        'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' .
 	        "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"
 	    );
+
+	    $view->referer = $referer;
+
+	    /* Get more results for swithing to next/previous record of search results */
+	    $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+
+	    $extraRequest = $this->getRequest()->getQuery()->toArray()
+	    + $this->getRequest()->getPost()->toArray();
+
+	    $searchesConfig = $this->getConfig('searches');
+	    $extraRequest['limit'] = $searchesConfig->General->records_switching_limit;
+	    $extraRequest['page'] = 1;
+	    $extraResultsForSwitching = $runner->run(
+	        $extraRequest, $this->searchClassId, $this->getSearchSetupCallback()
+	    );
+	    $extraResults = [];
+	    foreach($extraResultsForSwitching->getResults() as $record) {
+	        $extraResults[] = $record->getUniqueId();
+	    }
+	    $view->extraResults = $extraResults;
+	    $view->referer = $referer;
+	    /**/
 
 	    return $view;
 	}
@@ -1007,6 +1029,19 @@ class SearchController extends SearchControllerBase
             $request, $this->searchClassId, $this->getSearchSetupCallback()
         );
         $viewData['params'] = $results->getParams();
+
+        /* Get more results for swithing to next/previous record of search results */
+        $extraRequest = $request;
+        $extraRequest['limit'] = $searchesConfig->General->records_switching_limit;
+        $extraRequest['page'] = 1;
+        $extraResultsForSwitching = $runner->run(
+            $extraRequest, $this->searchClassId, $this->getSearchSetupCallback()
+        );
+        $extraResults = [];
+        foreach($extraResultsForSwitching->getResults() as $record) {
+            $extraResults[] = $record->getUniqueId();
+        }
+        $viewData['extraResults'] = $extraResults;
 
         // If we received an EmptySet back, that indicates that the real search
         // failed due to some kind of syntax error, and we should display a

@@ -160,3 +160,17 @@
       </div>
     </div>
 </div>
+
+<script>
+    jQuery( document ).ready( function( $ ) {
+        <? if ($this->extraResults && $this->referer): ?>
+        	/* Save results to local storage for swithing to next/previous record of search results */
+        	if ( typeof(Storage) !== 'undefined' ) {
+        		var extraResults = ["<?=implode("\", \"", $this->extraResults)?>"];
+        		localStorage.setItem( '<?=$this->referer?>', JSON.stringify( extraResults ) );
+            } else {
+                console.error( 'Sorry! No Web Storage support.' );
+            }
+        <? endif; ?>
+    });
+</script>

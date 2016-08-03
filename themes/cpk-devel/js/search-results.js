@@ -301,6 +301,15 @@ jQuery( document ).ready( function( $ ) {
 		        			var resultsAmountInfoHtml = JSON.parse(responseData.resultsAmountInfoHtml);
 		        			var paginationHtml = JSON.parse(responseData.paginationHtml);	
 		        			
+		        			/* Save results to local storage for swithing to next/previous record of search results */
+		                	if ( typeof(Storage) !== 'undefined' ) {
+		                		var extraResults = responseData.viewData.extraResults;
+			        			var referer = responseData.viewData.referer;
+			            		localStorage.setItem( referer, JSON.stringify( extraResults ) );
+		                    } else {
+		                        console.error( 'Sorry! No Web Storage support.' );
+		                    }
+		        			
 		        			/* Ux content replacement */
 		        			$( '#search-results-loader' ).remove();
 		        			$( '#result-list-placeholder, #pagination-placeholder' ).css( 'display', 'none' );
