@@ -1254,6 +1254,7 @@ class SearchController extends SearchControllerBase
         $params = $results->getParams();
         $params->addFacet($this->conspectusField, $this->conspectusFieldName);
         $params->setLimit(0);
+        $params->setFacetLimit(10000);
         $results->getResults();
         $facets = $results->getFacetList();
 
@@ -1263,8 +1264,8 @@ class SearchController extends SearchControllerBase
             $category = $explodedFacet[1];
             $subCategory = $explodedFacet[2];
 
-            if (array_key_exists($category, $conspectus)) {
-                if (! array_key_exists($subCategory, $conspectus[$category])) {
+            if (array_key_exists($category, $conspectus)  && ! empty($category)) {
+                if (! array_key_exists($subCategory, $conspectus[$category]) && ! empty($subCategory)) {
                     $conspectus[$category][] = $subCategory;
                 }
             } else {
