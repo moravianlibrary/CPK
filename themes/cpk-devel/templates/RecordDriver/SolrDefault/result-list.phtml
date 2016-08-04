@@ -262,9 +262,9 @@
       <? endif; ?>
 
 	  <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
-        <? if (! empty($authorityId = $this->driver->getAuthorityId())): ?>
+        <? if ($this->driver->hasPublications()): ?>
 		  <div>
-			<a title="<?=$this->transEsc('Show publications of this person')?>" href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=$authorityId?>"><?=$this->translate('Show publications of this person')?></a>
+			<a title="<?=$this->transEsc('Show publications of this person')?>" href="<?=$this->driver->getPublicationsUrl()?>"><?=$this->translate('Show publications of this person')?></a>
 		  </div>
         <? endif; ?>
       <? endif; ?>

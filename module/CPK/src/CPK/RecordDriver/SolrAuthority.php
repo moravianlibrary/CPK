@@ -222,12 +222,11 @@ class SolrAuthority extends ParentSolrMarc
     public function hasPublications()
     {
         $request = array(
-            'sort' => 'relevance',
             'join' => 'AND',
             'type0' => array(0 => 'adv_search_author_corporation'),
             'bool0' => array(0 => 'AND'),
-            'searchTypeTemplate' => 'anvanced',
             'lookfor0' => array(0 => $this->getAuthorityId()),
+            'limit' => '1',
         );
         $results = $this->searchRunner->run( $request, 'Solr', $this->searchController->getSearchSetupCallback() );
         return ($results->getResultTotal() > 0) ? true : false;
