@@ -109,6 +109,16 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `last_fetched` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `notification_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` varchar(64) NOT NULL,
+  `name_cs` varchar(256) NOT NULL,
+  `name_en` varchar(256) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `key` (`key`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='Notification types to improve notifications scaling';
+
+
 ALTER TABLE `notifications`
  ADD PRIMARY KEY (`id`);
 
@@ -455,7 +465,7 @@ INSERT INTO `infobox` (`id`, `title_en`, `title_cs`, `text_en`, `text_cs`, `date
 (2, '...we are the champions? 2', '...jsme nejlepší? 2', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00'),
 (3, '...we are the champions? 3', '...jsme nejlepší? 3', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00'),
 (4, '...we are the champions? 4', '...jsme nejlepší? 4', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00'),
-(4, '...we are the champions? 5', '...jsme nejlepší? 5', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00');
+(5, '...we are the champions? 5', '...jsme nejlepší? 5', 'We are the champions my friends.', 'Jsme nejlepší, protože je to tak.', '2016-06-17 00:00:00', '2016-09-30 00:00:00');
 
 
 UPDATE `system` SET `value`='35' WHERE `key`='DB_VERSION';
@@ -575,11 +585,11 @@ UPDATE `system` SET `value`='43' WHERE `key`='DB_VERSION';
 ALTER TABLE `widget_content` ADD `description` TEXT NULL ;
 ALTER TABLE `widget_content` CHANGE `description` `description_cs` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
 ALTER TABLE `widget_content` ADD `description_en` TEXT NULL ;
-UPDATE `widget_content` SET `description_cs`='Defaultní popisek' WHERE `widget_id`=4
-UPDATE `widget_content` SET `description_en`='Default description' WHERE `widget_id`=4
+UPDATE `widget_content` SET `description_cs`='Defaultní popisek' WHERE `widget_id`=4;
+UPDATE `widget_content` SET `description_en`='Default description' WHERE `widget_id`=4;
 UPDATE `system` SET `value`='44' WHERE `key`='DB_VERSION';
 
-DELETE FROM `citation_style` WHERE value='4'
+DELETE FROM `citation_style` WHERE value='4';
 UPDATE `system` SET `value`='45' WHERE `key`='DB_VERSION';
 
 INSERT INTO `vufind`.`widget` (`id`, `name`, `display`) VALUES (NULL, 'inspiration_1', 'random'), (NULL, 'inspiration_2', 'random'), (NULL, 'inspiration_3', 'random'), (NULL, 'inspiration_4', 'random'), (NULL, 'inspiration_5', 'random'), (NULL, 'inspiration_6', 'random');
@@ -653,6 +663,8 @@ WHERE `widget`.`id` = 10;
 ALTER TABLE `widget` ADD `show_all_records_link` BOOLEAN NOT NULL ;
 UPDATE `widget` SET `show_all_records_link`=1 WHERE 1;
 
+ALTER TABLE `widget` ADD `shown_records_number` INT NOT NULL ;
+
 UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 1; 
 UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 2; 
 UPDATE `vufind`.`widget` SET `shown_records_number` = '4' WHERE `widget`.`id` = 3; 
@@ -664,7 +676,6 @@ UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 
 UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 9; 
 UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 10;
 
-ALTER TABLE `widget` ADD `shown_records_number` INT NOT NULL ;
 
 ALTER TABLE `widget` ADD `showCover` BOOLEAN NOT NULL ;
 
