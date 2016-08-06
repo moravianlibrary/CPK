@@ -10,14 +10,13 @@
   $this->layout()->searchbox = false;
 ?>
 
-<div>
-  <?=$this->render('widgets/'.((in_array($this->widgets['first_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['first_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget1, 'widgetTitle' => 'inspiration_1'])?>
-  <?=$this->render('widgets/'.((in_array($this->widgets['second_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['second_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget2, 'widgetTitle' => 'inspiration_2'])?>
-  <?=$this->render('widgets/'.((in_array($this->widgets['third_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['third_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget3, 'widgetTitle' => 'inspiration_3'])?>
-  <?=$this->render('widgets/'.((in_array($this->widgets['fourth_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['fourth_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget4, 'widgetTitle' => 'inspiration_4'])?>
-  <?=$this->render('widgets/'.((in_array($this->widgets['fifth_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['fifth_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget5, 'widgetTitle' => 'inspiration_5'])?>
-  <?=$this->render('widgets/'.((in_array($this->widgets['sixth_inspiration_widget'], ['infobox','favorite_authors','most_wanted'])) ? $this->widgets['sixth_inspiration_widget'] : 'inspiration-widget').'.phtml', ['inspirationWidget' => $this->inspirationWidget6, 'widgetTitle' => 'inspiration_6'])?>
-</div>
+<? foreach ($this->widgets as $widget): ?>
+  <? if ($widget->getName() == 'infobox') : ?>
+	  <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
+    <? else: ?>
+      <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
+    <? endif; ?>
+<? endforeach; ?>
 
 <div id='conspectus'>
   <h2><?=$this->transEsc('Conspectus')?></h2>

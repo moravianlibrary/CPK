@@ -616,3 +616,68 @@ INSERT INTO `widget_content`(`widget_id`, `value`, `preferred_value`, `descripti
 
 UPDATE `vufind`.`frontend` SET `first_inspiration_widget` = 'inspiration_1', `second_inspiration_widget` = 'inspiration_2', `third_inspiration_widget` = 'inspiration_3', `fourth_inspiration_widget` = 'inspiration_4', `fifth_inspiration_widget` = 'inspiration_5', `sixth_inspiration_widget` = 'inspiration_6' WHERE `frontend`.`id` = 1;
 UPDATE `system` SET `value`='46' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `widget` ADD `title_cs` VARCHAR(128) NOT NULL , ADD `title_en` VARCHAR(128) NOT NULL ;
+
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Nejpůjčovanější knihy 2015', `title_en` = 'Popular books in 2015' 
+WHERE `widget`.`id` = 1; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Akce', `title_en` = 'Events' 
+WHERE `widget`.`id` = 2; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Víte, že ...', `title_en` = 'You know that ...' 
+WHERE `widget`.`id` = 3; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Oblíbení autoři', `title_en` = 'Favorite authors' 
+WHERE `widget`.`id` = 4; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Inspirace 1', `title_en` = 'Inspiration 1' 
+WHERE `widget`.`id` = 5; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Inspirace 2', `title_en` = 'Inspiration 2' 
+WHERE `widget`.`id` = 6; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Inspirace 3', `title_en` = 'Inspiration 3' 
+WHERE `widget`.`id` = 7; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Inspirace 4', `title_en` = 'Inspiration 4' 
+WHERE `widget`.`id` = 8; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Inspirace 5', `title_en` = 'Inspiration 5' 
+WHERE `widget`.`id` = 9; 
+UPDATE `vufind`.`widget` 
+SET `title_cs` = 'Inspirace 6', `title_en` = 'Inspiration 6' 
+WHERE `widget`.`id` = 10;
+
+ALTER TABLE `widget` ADD `show_all_records_link` BOOLEAN NOT NULL ;
+UPDATE `widget` SET `show_all_records_link`=1 WHERE 1;
+
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 1; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 2; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '4' WHERE `widget`.`id` = 3; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 4; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 5; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 6; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 7; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 8; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 9; 
+UPDATE `vufind`.`widget` SET `shown_records_number` = '5' WHERE `widget`.`id` = 10;
+
+ALTER TABLE `widget` ADD `shown_records_number` INT NOT NULL ;
+
+ALTER TABLE `widget` ADD `showCover` BOOLEAN NOT NULL ;
+
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 1; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 3; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 4; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 5; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 6; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 7; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 8; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 9; 
+UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 10;
+
+ALTER TABLE `widget` CHANGE `showCover` `show_cover` TINYINT(1) NOT NULL;
+
+UPDATE `system` SET `value`='47' WHERE `key`='DB_VERSION';

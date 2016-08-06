@@ -209,13 +209,13 @@ class WidgetContent extends Gateway
      */
     public function removeWidgetContent(\CPK\Widgets\WidgetContent $widgetContent)
     {
-        $update = new Delete($this->table);
+        $delete = new Delete($this->table);
 
-        $update->where([
+        $delete->where([
             'id' => $widgetContent->getId()
         ]);
 
-        $this->executeAnyZendSQLDelete($update);
+        $this->executeAnyZendSQLDelete($delete);
     }
 
     /**

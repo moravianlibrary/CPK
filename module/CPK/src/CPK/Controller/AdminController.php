@@ -316,6 +316,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
         // Must be an portal admin ..
         $this->accessManager->assertIsPortalAdmin();
 
+        $user = $this->accessManager->getUser();
+
+        $this->layout()->searchbox = false;
+
         /*
          * Handle subactions
          * */
@@ -345,14 +349,85 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $viewModel;
         }
 
+        if ($subAction == 'CreateWidget') {
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setTemplate('admin/widgets/create-widget');
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'InsertWidget') {
+            $post = $this->params()->fromPost();
+
+            $widgetsTable = $this->getTable('widget');
+
+            $widget = new \CPK\Widgets\Widget();
+            $widget->setName($post['name']);
+            $widget->setDisplay($post['display']);
+            $widget->setTitleCs($post['title_cs']);
+            $widget->setTitleEn($post['title_en']);
+            $widget->setShowAllRecordsLink(isset($post['show_all_records_link']) ? 1 : 0);
+            $widget->setShownRecordsNumber($post['shown_records_number']);
+            $widget->setShowCover(isset($post['show_cover']) ? 1 : 0);
+
+            $widgetsTable->addWidget($widget);
+
+            return $this->forwardTo('Admin', 'Widgets');
+        }
+
+        if ($subAction == 'EditWidget') {
+            $widgetId = $this->params()->fromRoute('param');
+
+            $widgetsTable = $this->getTable('widget');
+            $widget = $widgetsTable->getWidgetById($widgetId);
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widget', $widget);
+            $viewModel->setTemplate('admin/widgets/edit-widget');
+
+            return $viewModel;
+        }
+
+        if ($subAction == 'SaveWidget') {
+            $post = $this->params()->fromPost();
+
+            $widgetsTable = $this->getTable('widget');
+
+            $widget = new \CPK\Widgets\Widget();
+            $widget->setId($post['id']);
+            $widget->setName($post['name']);
+            $widget->setDisplay($post['display']);
+            $widget->setTitleCs($post['title_cs']);
+            $widget->setTitleEn($post['title_en']);
+            $widget->setShowAllRecordsLink(isset($post['show_all_records_link']) ? 1 : 0);
+            $widget->setShownRecordsNumber($post['shown_records_number']);
+            $widget->setShowCover(isset($post['show_cover']) ? 1 : 0);
+
+            $widgetsTable->saveWidget($widget);
+
+            return $this->forwardTo('Admin', 'Widgets');
+        }
+
+        if ($subAction == 'RemoveWidget') {
+            $widgetId = $this->params()->fromRoute('param');
+
+            $widgetsTable = $this->getTable('widget');
+            $widget = $widgetsTable->getWidgetById($widgetId);
+            $widgetsTable->removeWidget($widget);
+
+            return $this->forwardTo('Admin', 'Widgets');
+        }
+
         $user = $this->accessManager->getUser();
 
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
         $viewModel->setVariable('user', $user);
-        $viewModel->setTemplate('admin/widgets/list');
-
-        $this->layout()->searchbox = false;
+        $viewModel->setTemplate('admin/widgets/main');
 
         $frontendTable = $this->getTable('frontend');
         $viewModel->setVariable('homePageWidgets', $frontendTable->getHomepageWidgets());

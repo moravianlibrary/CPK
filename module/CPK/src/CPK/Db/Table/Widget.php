@@ -29,7 +29,10 @@ namespace CPK\Db\Table;
 
 use CPK\Db\Table\Gateway,
     Zend\Config\Config,
-    Zend\Db\Sql\Select;
+    Zend\Db\Sql\Select,
+    Zend\Db\Sql\Insert,
+    Zend\Db\Sql\Update,
+    Zend\Db\Sql\Delete;
 
 /**
  * Table Definition for Widget
@@ -125,5 +128,74 @@ class Widget extends Gateway
         );
 
         return $widgets[0];
+    }
+
+    /**
+     * Insert a new row to table
+     *
+     * @param   \CPK\Widgets\Widget  $widget
+     *
+     * @return void
+     */
+    public function addWidget(\CPK\Widgets\Widget $widget)
+    {
+        $insert = new Insert($this->table);
+
+        $insert->values([
+            'name' => $widget->getName(),
+            'display' => $widget->getDisplay(),
+            'title_cs' => $widget->getTitleCs(),
+            'title_en' => $widget->getTitleEn(),
+            'show_all_records_link' => $widget->getShowAllRecordsLink(),
+            'shown_records_number' => $widget->getShownRecordsNumber(),
+            'show_cover' => $widget->getShowCover()
+        ]);
+
+        $this->executeAnyZendSQLInsert($insert);
+    }
+
+    /**
+     * Save edited row to table by id
+     *
+     * @param   \CPK\Widgets\Widget  $widget
+     *
+     * @return void
+     */
+    public function saveWidget(\CPK\Widgets\Widget $widget)
+    {
+        $update = new Update($this->table);
+
+        $update->set([
+            'name' => $widget->getName(),
+            'display' => $widget->getDisplay(),
+            'title_cs' => $widget->getTitleCs(),
+            'title_en' => $widget->getTitleEn(),
+            'show_all_records_link' => $widget->getShowAllRecordsLink(),
+            'shown_records_number' => $widget->getShownRecordsNumber(),
+            'show_cover' => $widget->getShowCover()
+        ]);
+        $update->where([
+            'id' => $widget->getId()
+        ]);
+
+        $this->executeAnyZendSQLUpdate($update);
+    }
+
+    /**
+     * Remove row from table
+     *
+     * @param   \CPK\Widgets\Widget  $widget
+     *
+     * @return void
+     */
+    public function removeWidget(\CPK\Widgets\Widget $widget)
+    {
+        $delete = new Delete($this->table);
+
+        $delete->where([
+            'id' => $widget->getId()
+        ]);
+
+        $this->executeAnyZendSQLDelete($delete);
     }
 }

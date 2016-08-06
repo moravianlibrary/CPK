@@ -6,14 +6,12 @@
     <a href="/Admin/ConfigurationsApproval" class="list-group-item<?=strtolower($this->layout()->templateName) == "configurations/approval" ? ' active' : ''?>"><?=$this->transEsc('configurations_approval')?></a>
     <a href="/Admin/TranslationsApproval" class="list-group-item<?=strtolower($this->layout()->templateName) == "translations/approval" ? ' active' : ''?>"><?=$this->transEsc('translations_approval')?></a>
     <a href="/Admin/PortalPages" class="list-group-item<?=strtolower($this->layout()->templateName) == "portalpages" ? ' active' : ''?>"><?=$this->transEsc('Portal pages')?></a>
-    <a href="/Admin/Widgets" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/list" ? ' active' : ''?>"><?=$this->transEsc('Widgets')?></a>
+    <a href="/Admin/Widgets" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/main" ? ' active' : ''?>"><?=$this->transEsc('Widgets')?></a>
     <div style=" margin-left: 15px; ">
     	<a href="/Admin/Infobox" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/infobox/list" ? ' active' : ''?>"><?=$this->transEsc('Infobox')?></a>
-    	<a href="/Admin/MostWanted" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/most-wanted/list" ? ' active' : ''?>"><?=$this->transEsc('Most wanted')?></a>
-    	<a href="/Admin/FavoriteAuthors" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/favorite-authors/list" ? ' active' : ''?>"><?=$this->transEsc('Favorite authors')?></a>
     	<? foreach($this->widgetsForMenu as $widget): ?>
-    	  <? if (! in_array($widget->getName(), ['infobox', 'most_wanted', 'favorite_authors', 'events'])): // these are already printed, because they have different templates?>
-		    <a href="/Admin/Widget/<?=$widget->getId()?>" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/widget/list" ? ' active' : ''?>"><?=$this->transEsc($widget->getName())?></a>
+    	  <? if (! in_array($widget->getName(), ['infobox'])): // these are already printed, because they have different templates?>
+		    <a href="/Admin/Widget/<?=$widget->getId()?>" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/widget/list" ? ' active' : ''?>"><?=$widget->getTitleCs()?></a>
 		  <? endif; ?>
     	<? endforeach; ?>
     </div>

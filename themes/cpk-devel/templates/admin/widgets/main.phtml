@@ -47,10 +47,8 @@
         </div>
       </div>
 	</div>
-  </div>
 
-  <div class="col-sm-9" id='inspiration-widgets'>
-    <h2><?=$this->translate('Inspiration widgets')?></h2>
+	<h2><?=$this->translate('Inspiration widgets')?></h2>
     <div class='well'>
 	  <div class='row'>
         <div class='col-md-4 text-center'>
@@ -103,6 +101,50 @@
         </div>
       </div>
 	</div>
+
+	<h2><?=$this->translate('Widget list')?></h2>
+    <div class='well'>
+	  <div class='row'>
+        <div class='col-md-12 '>
+          <div class="admin-toolbox pull-left">
+            <a href="/Admin/Widgets/CreateWidget">
+              <button class="btn btn-lg btn-primary"><?=$this->translate('Create new widget')?></button>
+            </a>
+          </div>
+          <table class="table table-hover table-responsive">
+			<thead>
+			  <tr>
+			    <th class='col-md-10' align='left'><?=$this->translate('Title')?></th>
+			    <th class='col-md-2'> </th>
+			  </tr>
+			</thead>
+			<tbody>
+		    <? foreach($widgets as $widget): ?>
+			  <tr>
+			    <td><?= $widget->getTitleCs() ?></td>
+			    <td>
+    			  <div class="dropdown pull-right">
+					<span id="actions" class="actions" aria-expanded="true" aria-haspopup="true" data-toggle="dropdown">
+					  <i class="fa fa-ellipsis-v dropdown-toggle pointer"></i>
+					</span>
+					<ul class="dropdown-menu" aria-labelledby="actions">
+                      <li>
+                   	    <a href="/Admin/Widgets/EditWidget/<?=$widget->getId()?>">
+                          <i class="fa fa-edit"></i>
+                            <?=$this->translate('Edit')?>
+                        </a>
+					  </li>
+                	</ul>
+                  </div>
+                </td>
+              </tr>
+		    <? endforeach; ?>
+		    </tbody>
+		  </table>
+        </div>
+      </div>
+	</div>
+
   </div>
 
 </div>

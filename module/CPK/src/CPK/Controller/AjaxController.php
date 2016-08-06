@@ -1525,21 +1525,27 @@ class AjaxController extends AjaxControllerBase
      *
      * @return \Zend\Http\Response
      */
-    public function harvestMostWantedAndAuthorsAjax()
+    public function harvestWidgetsContentsAjax()
     {
-        $widgetContenTable = $this->getTable('widgetcontent');
-        $mostWantedRecords = $widgetContenTable->getContentsByName('most_wanted');
+        $widgetContentTable = $this->getTable('widgetcontent');
 
-        $data = "[most_wanted]"."<br>\n";
-        foreach ($mostWantedRecords as $content) {
-            $data .= $content->getValue()."<br>\n";
-        }
+        $widgetTable = $this->getTable('widget');
+        $widgets = $widgetTable->getWidgets();
 
-        $favoriteAuthors = $widgetContenTable->getContentsByName('favorite_authors');
+        $data = "";
+        $i = 1;
+        foreach ($widgets as $widget) {
+            if ($i != 1) {
+                $data .= "<br>\n";
+            }
+            $widgetName = $widget->getName();
+            $data .= "[$widgetName]"."<br>\n";
 
-        $data .= "<br>\n[favorite_authors]"."<br>\n";
-        foreach ($favoriteAuthors as $content) {
-            $data .= $content->getValue()."<br>\n";
+            $contents = $widgetContentTable->getContentsByName($widgetName);
+            foreach ($contents as $content) {
+                $data .= $content->getValue()."<br>\n";
+            }
+            $i++;
         }
 
         echo $data;

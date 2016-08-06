@@ -36,6 +36,32 @@ class Widget {
     private $id;
     private $name;
     private $display;
+    private $title_cs;
+    private $title_en;
+
+    /*
+     * Widget contents
+     * @var array Array of CPK\Widgets\WidgetContents
+     */
+    private $contents;
+
+    /*
+     * Show link in widget for showing all widget contents
+     * @var boolean $show_all_records_link
+     **/
+    private $show_all_records_link;
+
+    /*
+     * How many contents to show in widget
+     * @var int $shown_records_number
+     **/
+    private $shown_records_number;
+
+    /*
+     * Show cover?
+     * var boolean showCover
+     */
+    private $show_cover;
 
     public function getId() {
         return $this->id;
@@ -47,5 +73,65 @@ class Widget {
 
     public function getDisplay() {
         return $this->display;
+    }
+
+    public function getTitleCs() {
+        return $this->title_cs;
+    }
+
+    public function getTitleEn() {
+        return $this->title_en;
+    }
+
+    public function getShowAllRecordsLink() {
+        return $this->show_all_records_link;
+    }
+
+    public function getShownRecordsNumber() {
+        return $this->shown_records_number;
+    }
+
+    public function getContents() {
+        return $this->contents;
+    }
+
+    public function getShowCover() {
+        return $this->show_cover;
+    }
+
+    public function setContents($contents) {
+        $this->contents = $contents;
+    }
+
+    public function setDisplay($display) {
+        $this->display = $display;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+    public function setName($name) {
+        $this->name = $name;
+    }
+
+    public function setTitleCs($titleCs) {
+        $this->title_cs = $titleCs;
+    }
+
+    public function setTitleEn($titleEn) {
+        $this->title_en = $titleEn;
+    }
+
+    public function setShowAllRecordsLink($showAllRecordsLink) {
+        $this->show_all_records_link = $showAllRecordsLink;
+    }
+
+    public function setShownRecordsNumber($shownRecordsNumber) {
+        $this->shown_records_number = $shownRecordsNumber;
+    }
+
+    public function setShowCover($showCover) {
+        $this->show_cover = $showCover;
     }
 }

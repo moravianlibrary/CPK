@@ -330,12 +330,22 @@ class SearchController extends SearchControllerBase
 
         $this->layout()->docCount = $view->results->getResultTotal();
 
-		$view->mostWanted = $this->getMostWantedRecordsAction(5);
-		$view->favoriteAuthors= $this->getFavoriteAuthorsAction(5);
-		$view->infobox= $this->getInfoboxAction(5);
+        $frontendTable = $this->getTable('frontend');
+        $widgetNames = $frontendTable->getHomepageWidgets();
 
-		$frontendTable = $this->getTable('frontend');
-        $widgets = $frontendTable->getHomepageWidgets();
+        $widgetTable = $this->getTable('widget');
+        $widgets = [];
+        foreach ($widgetNames as $key => $widgetName) {
+            $widget = $widgetTable->getWidgetByName($widgetName);
+            if ($widgetName == 'infobox') {
+                $infoboxTable = $this->getTable("infobox");
+                $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
+                $widget->setContents($infoboxItems);
+            } else {
+                $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
+            }
+            $widgets[$widgetName] = $widget;
+        }
 
         $view->widgets = $widgets;
 
@@ -348,7 +358,7 @@ class SearchController extends SearchControllerBase
             $languageCode = $config->Site->language;
         }
 
-        $view->language = $languageCode;
+        $view->language = explode("-", $languageCode)[0];
 
 	    return $view;
 	}
@@ -726,61 +736,6 @@ class SearchController extends SearchControllerBase
         );
 
 	    return $records->getResults();
-	}
-
-	/**
-	 * Get most wanted records from MySQL
-	 *
-	 * @param  int|false   $randomLimit
-	 *
-	 * @return array
-	 */
-	public function getMostWantedRecordsAction($randomLimit = false)
-	{
-	    $widgetContentTable = $this->getTable("widgetcontent");
-	    $mostWanted = $widgetContentTable->getContentsByName('most_wanted', $randomLimit);
-
-	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-	    foreach ($mostWanted as $key => $record) {
-	       $mostWanted[$key]->setRecordDriver($recordLoader->load($record->getValue()));
-	    }
-
-	    return $mostWanted;
-	}
-
-	/**
-	 * Get favorite authors from MySQL
-	 *
-	 * @param  int|false   $randomLimit
-	 *
-	 * @return array
-	 */
-	public function getFavoriteAuthorsAction($randomLimit = false)
-	{
-	    $widgetContentTable = $this->getTable("widgetcontent");
-	    $favoriteAuthors = $widgetContentTable->getContentsByName('favorite_authors', $randomLimit, false);
-
-	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-	    foreach ($favoriteAuthors as $key => $record) {
-	        $favoriteAuthors[$key]->setRecordDriver($recordLoader->load($record->getValue()));
-	    }
-
-	    return $favoriteAuthors;
-	}
-
-	/**
-	 * Get infobox from MySQL
-	 *
-	 * @param  int|false   $randomLimit
-	 *
-	 * @return array
-	 */
-	public function getInfoboxAction($randomLimit = false)
-	{
-	    $infoboxTable = $this->getTable("infobox");
-	    $infoboxItems = $infoboxTable->getActualItems($randomLimit);
-
-	    return $infoboxItems;
 	}
 
 	/**
@@ -1223,18 +1178,23 @@ class SearchController extends SearchControllerBase
     {
         $view = $this->createViewModel();
 
-        $view->mostWanted = $this->getMostWantedRecordsAction(4);
-        $view->favoriteAuthors = $this->getFavoriteAuthorsAction(4);
-        $view->infobox = $this->getInfoboxAction(5);
-        $view->inspirationWidget1 = $this->getGetInspirationWidgetContent(1, 5);
-        $view->inspirationWidget2 = $this->getGetInspirationWidgetContent(2, 5);
-        $view->inspirationWidget3 = $this->getGetInspirationWidgetContent(3, 5);
-        $view->inspirationWidget4 = $this->getGetInspirationWidgetContent(4, 5);
-        $view->inspirationWidget5 = $this->getGetInspirationWidgetContent(5, 5);
-        $view->inspirationWidget6 = $this->getGetInspirationWidgetContent(6, 5);
-
         $frontendTable = $this->getTable('frontend');
-        $widgets = $frontendTable->getInspirationWidgets();
+        $widgetNames = $frontendTable->getInspirationWidgets();
+
+        $widgetTable = $this->getTable('widget');
+        $widgets = [];
+
+        foreach ($widgetNames as $key => $widgetName) {
+            $widget = $widgetTable->getWidgetByName($widgetName);
+            if ($widgetName == 'infobox') {
+                $infoboxTable = $this->getTable("infobox");
+                $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
+                $widget->setContents($infoboxItems);
+            } else {
+                $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
+            }
+            $widgets[$widgetName] = $widget;
+        }
 
         $view->widgets = $widgets;
 
@@ -1247,7 +1207,7 @@ class SearchController extends SearchControllerBase
             $languageCode = $config->Site->language;
         }
 
-        $view->language = $languageCode;
+        $view->language = explode("-", $languageCode)[0];
 
         /* Conspectus */
         $results = $this->getResultsManager()->get('Solr');
@@ -1279,9 +1239,13 @@ class SearchController extends SearchControllerBase
         return $view;
     }
 
-    protected function getGetInspirationWidgetContent($columnNumber, $randomLimit) {
+    /* Get content for widget
+     * @param string $widgetName
+     * @param int    $limit
+     * */
+    protected function getWidgetContent($widgetName, $limit) {
         $widgetContentTable = $this->getTable("widgetcontent");
-        $widgetContens = $widgetContentTable->getContentsByName('inspiration_'.$columnNumber, $randomLimit);
+        $widgetContens = $widgetContentTable->getContentsByName($widgetName, $limit);
 
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         foreach ($widgetContens as $key => $record) {
