@@ -960,7 +960,7 @@ class AjaxController extends AjaxControllerBase
         // obalky
         $bookid = $this->params()->fromPost('obalkyknihbookid');
         // //////////////////////////////////////////
-        $client = new \Zend\Http\Client('http://cache.obalkyknih.cz/?add_review=true');
+        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/?add_review=true');
         $client->setMethod('POST');
         $client->setParameterGet(
             array(
