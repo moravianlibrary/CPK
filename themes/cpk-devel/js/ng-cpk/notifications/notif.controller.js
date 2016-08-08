@@ -343,7 +343,7 @@
 	 * because how "hideWarningIcon" function works
 	 */
 	function showWarningIcon() {
-	    globalNotifHolder.warningIcon.style = "";
+	    globalNotifHolder.warningIcon.style.display = "";
 	}
 	
 	/**
@@ -353,7 +353,7 @@
 	 * attribute hidden would have failed hiding it.
 	 */
 	function hideWarningIcon() {
-	    globalNotifHolder.warningIcon.style = "display: none;";
+	    globalNotifHolder.warningIcon.style.display = "none";
 	}
 	
 	/**

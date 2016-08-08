@@ -103,6 +103,7 @@
 
 	function linker(scope, elements, attrs) {
 
+	    // IE 11 :(
 	    var modalAttr = attrs.ngModal.split('.');
 	    
 	    var modalId = modalAttr[0];
