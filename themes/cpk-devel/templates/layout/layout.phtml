@@ -80,12 +80,10 @@
           )
         );
 
-        $isIE = preg_match('/Trident\/\d{1,2}.\d{1,2}; rv:([0-9]*)/', $_SERVER['HTTP_USER_AGENT'], $matches);
+        $isIE = preg_match('/Windows/', $_SERVER['HTTP_USER_AGENT']);
 
         // Fix some IE issues
         if ($isIE) {
-
-            $ieVersion = $matches[1];
 
             $this->headScript()->appendFile('vendor/es6-promise.min.js');
         }
