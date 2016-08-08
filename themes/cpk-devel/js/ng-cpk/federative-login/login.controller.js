@@ -43,16 +43,20 @@
 	    if (!idp.isConsolidation) {
 
 		getLastIdps();
+		
+		// IE 11 :(
+		var lastIdpsLength = lastIdps.length;
 
 		// If saved already, just push it in front
-		lastIdps.find(function(lastIdp, i) {
+		for (var i = 0; i < lastIdpsLength; ++i) {
+		    var lastIdp = lastIdps[i];
 		    if (lastIdp.href === idp.href) {
 
 			// Remove yourself
 			lastIdps.splice(i, 1);
-			return true;
+			break;
 		    }
-		});
+		};
 
 		// Set as first
 		lastIdps.unshift(idp);
