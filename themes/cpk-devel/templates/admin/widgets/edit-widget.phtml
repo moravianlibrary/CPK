@@ -75,6 +75,15 @@
             </div>
           </fieldset>
           <fieldset class="form-group">
+            <div class="col-xs-3">
+              <label><?=$this->translate('Description')?></label>
+              <select class='form-control' name='description'>
+                <option value='author'<?=($this->widget->getDescription() == 'author') ? ' selected' : ''?>><?=$this->translate('Author')?></option>
+                <option value='description'<?=($this->widget->getDescription() == 'description') ? ' selected' : ''?>><?=$this->translate('Description')?></option>
+              </select>
+            </div>
+          </fieldset>
+          <fieldset class="form-group">
             <div class="col-xs-1">
               <label><?=$this->translate('Show all records link')?></label>
               <input type='checkbox' class='form-control' name='show_all_records_link' value='1'<?=($this->widget->getShowAllRecordsLink() == 1) ? ' checked' : ''?>>

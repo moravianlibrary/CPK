@@ -63,6 +63,12 @@ class Widget {
      */
     private $show_cover;
 
+    /*
+     * What to show as description (author, description)
+     * @var string
+     */
+    private $description;
+
     public function getId() {
         return $this->id;
     }
@@ -99,6 +105,10 @@ class Widget {
         return $this->show_cover;
     }
 
+    public function getDescription() {
+        return $this->description;
+    }
+
     public function setContents($contents) {
         $this->contents = $contents;
     }
@@ -133,5 +143,9 @@ class Widget {
 
     public function setShowCover($showCover) {
         $this->show_cover = $showCover;
+    }
+
+    public function setDescription($description) {
+        $this->description = $description;
     }
 }

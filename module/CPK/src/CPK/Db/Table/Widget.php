@@ -148,7 +148,8 @@ class Widget extends Gateway
             'title_en' => $widget->getTitleEn(),
             'show_all_records_link' => $widget->getShowAllRecordsLink(),
             'shown_records_number' => $widget->getShownRecordsNumber(),
-            'show_cover' => $widget->getShowCover()
+            'show_cover' => $widget->getShowCover(),
+            'description' => $widget->getDescription()
         ]);
 
         $this->executeAnyZendSQLInsert($insert);
@@ -172,7 +173,8 @@ class Widget extends Gateway
             'title_en' => $widget->getTitleEn(),
             'show_all_records_link' => $widget->getShowAllRecordsLink(),
             'shown_records_number' => $widget->getShownRecordsNumber(),
-            'show_cover' => $widget->getShowCover()
+            'show_cover' => $widget->getShowCover(),
+            'description' => $widget->getDescription()
         ]);
         $update->where([
             'id' => $widget->getId()

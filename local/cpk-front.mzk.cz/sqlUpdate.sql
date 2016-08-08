@@ -692,3 +692,19 @@ UPDATE `vufind`.`widget` SET `showCover` = '1' WHERE `widget`.`id` = 10;
 ALTER TABLE `widget` CHANGE `showCover` `show_cover` TINYINT(1) NOT NULL;
 
 UPDATE `system` SET `value`='47' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `widget` ADD `description` VARCHAR(32) NOT NULL ;
+
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 1;
+UPDATE `vufind`.`widget` SET `description` = 'description' WHERE `widget`.`id` = 2; 
+UPDATE `vufind`.`widget` SET `description` = 'description' WHERE `widget`.`id` = 3; 
+UPDATE `vufind`.`widget` SET `description` = 'description' WHERE `widget`.`id` = 4; 
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 5; 
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 6; 
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 7; 
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 8; 
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 9; 
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 10; 
+UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 13;
+
+UPDATE `system` SET `value`='48' WHERE `key`='DB_VERSION';

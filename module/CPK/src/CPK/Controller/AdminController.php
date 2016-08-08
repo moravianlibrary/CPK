@@ -371,6 +371,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $widget->setShowAllRecordsLink(isset($post['show_all_records_link']) ? 1 : 0);
             $widget->setShownRecordsNumber($post['shown_records_number']);
             $widget->setShowCover(isset($post['show_cover']) ? 1 : 0);
+            $widget->setDescription($post['description']);
 
             $widgetsTable->addWidget($widget);
 
@@ -406,6 +407,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $widget->setShowAllRecordsLink(isset($post['show_all_records_link']) ? 1 : 0);
             $widget->setShownRecordsNumber($post['shown_records_number']);
             $widget->setShowCover(isset($post['show_cover']) ? 1 : 0);
+            $widget->setDescription($post['description']);
 
             $widgetsTable->saveWidget($widget);
 

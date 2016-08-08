@@ -45,9 +45,9 @@
               <? endif; ?>
             </h4>
             <p class="list-group-item-text">
-              <? if ($this->widget->getName() == 'most_wanted'): ?>
+              <? if ($this->widget->getDescription() == 'author'): ?>
                 <?= $item->getRecordDriver()->getDeduplicatedAuthors()['main'] ?>
-              <? else: ?>
+              <? elseif ($this->widget->getDescription() == 'description'): ?>
                 <?= ($this->language == 'cs') ? $item->getDescriptionCs() : $item->getDescriptionEn() ?>
               <? endif; ?>
             </p>
