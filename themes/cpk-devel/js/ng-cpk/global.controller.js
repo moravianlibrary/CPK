@@ -103,7 +103,10 @@
 
 	function linker(scope, elements, attrs) {
 
-	    [ modalId, modalPart ] = attrs.ngModal.split('.');
+	    var modalAttr = attrs.ngModal.split('.');
+	    
+	    var modalId = modalAttr[0];
+	    var modalPart = modalAttr[1];
 
 	    if (typeof linkedObjects.modal[modalId] === 'undefined')
 		linkedObjects.modal[modalId] = {};
