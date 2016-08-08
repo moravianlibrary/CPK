@@ -79,6 +79,17 @@
             "'Phone number too short after IDD'" => 'libphonenumber_tooshortidd'
           )
         );
+
+        $isIE = preg_match('/Trident\/\d{1,2}.\d{1,2}; rv:([0-9]*)/', $_SERVER['HTTP_USER_AGENT'], $matches);
+
+        // Fix some IE issues
+        if ($isIE) {
+
+            $ieVersion = $matches[0];
+
+            $this->headScript()->appendFile('vendor/es6-promise.min.js');
+        }
+
         // Deal with cart stuff:
         $cart = $this->cart();
         if ($cart->isActive()) {
