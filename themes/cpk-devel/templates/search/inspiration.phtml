@@ -10,36 +10,44 @@
   $this->layout()->searchbox = false;
 ?>
 
-<? foreach ($this->widgets as $widget): ?>
-  <? if ($widget->getName() == 'infobox') : ?>
+<? $i = 0; foreach ($this->widgets as $widget): $i++;?>
+  <? if (($i % 3) == 0): ?>
+    <div class='row'>
+  <? endif; ?>
+    <? if ($widget->getName() == 'infobox') : ?>
 	  <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
     <? else: ?>
       <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
     <? endif; ?>
+  <? if (($i % 3) == 0): ?>
+    </div>
+  <? endif; ?>
 <? endforeach; ?>
 
-<div id='conspectus'>
-  <h2><?=$this->transEsc('Conspectus')?></h2>
-    <? foreach ($conspectus as $category => $subCategories): ?>
-      <div class='category'>
-        <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
-          <i class='fa fa-plus'> </i>&nbsp;&nbsp;
-        </a>
-        <a href='/Search/Results?filter[]=conspectus_str_mv:"0/<?=$this->escapeHtml($category)?>/"' title='<?=$this->escapeHtml($category)?>' class='category-text' target='_blank'>
-          <?=$this->escapeHtml($category)?>
-        </a>
-        <div class='expanded-category hidden' style='padding-left: 40px;'>
-			<? foreach ($subCategories as $subCategory): ?>
-			<div>
-    			<a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'></a>
-    			<a href='/Search/Results?filter[]=conspectus_str_mv:"1/<?=$this->escapeHtml($category)?>/<?=$this->escapeHtml($subCategory)?>/"' title='<?=$this->escapeHtml($subCategory)?>' target='_blank'>
-    				<?=$this->escapeHtml($subCategory)?>
-    			</a>
-        	</div>
-			<? endforeach; ?>
-        </div>
-      </div>
-    <? endforeach; ?>
+<div id='conspectus row'>
+  <div class='col-12-12'>
+      <h2><?=$this->transEsc('Conspectus')?></h2>
+        <? foreach ($conspectus as $category => $subCategories): ?>
+          <div class='category'>
+            <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
+              <i class='fa fa-plus'> </i>&nbsp;&nbsp;
+            </a>
+            <a href='/Search/Results?filter[]=conspectus_str_mv:"0/<?=$this->escapeHtml($category)?>/"' title='<?=$this->escapeHtml($category)?>' class='category-text' target='_blank'>
+              <?=$this->escapeHtml($category)?>
+            </a>
+            <div class='expanded-category hidden' style='padding-left: 40px;'>
+    			<? foreach ($subCategories as $subCategory): ?>
+    			<div>
+        			<a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'></a>
+        			<a href='/Search/Results?filter[]=conspectus_str_mv:"1/<?=$this->escapeHtml($category)?>/<?=$this->escapeHtml($subCategory)?>/"' title='<?=$this->escapeHtml($subCategory)?>' target='_blank'>
+        				<?=$this->escapeHtml($subCategory)?>
+        			</a>
+            	</div>
+    			<? endforeach; ?>
+            </div>
+          </div>
+        <? endforeach; ?>
+  </div>
 </div>
 
 <script>
