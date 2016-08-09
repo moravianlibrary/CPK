@@ -99,7 +99,10 @@ if ($useCompiledAngular) {
         'ng-cpk/translate.filter.js',
     ];
 
-    $toRet['js'] = array_merge($toRet['js'], $jsToInclude);
+    $isIE = preg_match('/Windows/', $_SERVER['HTTP_USER_AGENT']);
+    if (! $isIE) {
+        $toRet['js'] = array_merge($toRet['js'], $jsToInclude);
+    }
 }
 
 return $toRet;
