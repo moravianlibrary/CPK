@@ -27,7 +27,7 @@
 			  <? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($this->homePageWidgets['first_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -36,7 +36,7 @@
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			  <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			  <option value='conspectus'<?=($this->homePageWidgets['second_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -45,7 +45,7 @@
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			  <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			  <option value='conspectus'<?=($this->homePageWidgets['third_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
       </div>
@@ -60,7 +60,7 @@
 			  <? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['first_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($this->inspirationWidgets['first_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -69,7 +69,7 @@
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['second_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($this->inspirationWidgets['second_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -78,25 +78,25 @@
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['third_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($this->inspirationWidgets['third_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('Fourth column');?></h2>
 			<select id='fourth-inspiration-widget'>
 			  <? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fourth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
+				<option value='<?=$widget->getName()?>'<?=($this->inspirationWidgets['fourth_inspiration_widget']==$this->inspirationWidgets['fourth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($widget->getName()=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('Fifth column');?></h2>
 			<select id='fifth-inspiration-widget'>
 				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fifth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
+				<option value='<?=$widget->getName()?>'<?=($this->inspirationWidgets['fifth_inspiration_widget']==$this->inspirationWidgets['fifth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($widget->getName()=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -105,7 +105,7 @@
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['sixth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($this->inspirationWidgets['sixth_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
       </div>
