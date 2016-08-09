@@ -250,7 +250,7 @@ jQuery( document ).ready( function( $ ) {
 
 
                     $.each( arrayInstitutions, function( index, value ){
-                        var institution = '~institution:"' + value + '"';
+                        var institution = '~local_institution_facet_str_mv:"' + value + '"';
                         $('#facet_institution').jstree(true).select_node(institution);
 
                     });
@@ -303,7 +303,7 @@ jQuery( document ).ready( function( $ ) {
         var arrayInstitutions = data.split(";");
 
         $.each( arrayInstitutions, function( index, value ){
-            var institution = '~institution:"' + value + '"';
+            var institution = '~local_institution_facet_str_mv:"' + value + '"';
             $('#facet_institution').jstree(true).select_node(institution);
 
         });
@@ -360,7 +360,7 @@ jQuery( document ).ready( function( $ ) {
 		                $('#facet_institution').jstree(true).deselect_all();
 		                
 		                $.each( response.data.towns, function( key, value ) {
-		                	var townFacet = '~institution:"1/Library/'+value.town.toLowerCase()+'/"';
+		                	var townFacet = '~local_institution_facet_str_mv:"1/Library/'+value.town.toLowerCase()+'/"';
 		                	$('#facet_institution').jstree(true).select_node(townFacet);
 	                	});
 		                
