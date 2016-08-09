@@ -19,7 +19,7 @@
         position: 'absolute',
         top: offset.top + offset.height + scrollTop,
         left: offset.left,
-        minWidth: offset.width,
+        minWidth: offset.width - 24,
         maxWidth: input.closest('form').width(),
         zIndex: 5000
       });
