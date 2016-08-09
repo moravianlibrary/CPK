@@ -85,7 +85,7 @@
         <td>
           <? for($i = 0; $i < $subjectsCount; $i++): $pseudonym = trim($this->escapeHtml($pseudonyms['a'][$i].' '.$pseudonyms['d'][$i])); $pseudonymId = $this->record($this->driver)->getRecordIdByAuthority($pseudonyms['7'][$i]); ?>
           <div>
-            <a title="<?=$this->translate('Show person')?> <?=$pseudonym?>" href="/Record/<?=$pseudonymId?>"><i class="pr-user-single5" style="font-size: 20px;"></i></a>
+            <a title="<?=$this->translate('Show person')?> <?=$pseudonym?>" href="/Record/<?=$pseudonymId?>"><i class="pr-user-single5 author-icon"></i></a>
             <a title="<?=$this->translate('Show publications by')?> <?=$pseudonym?>" href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=$pseudonym?>"><?=$pseudonym?></a>
           </div>
           <? endfor; ?>
