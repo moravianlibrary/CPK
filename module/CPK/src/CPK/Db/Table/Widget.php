@@ -102,7 +102,7 @@ class Widget extends Gateway
             '\CPK\Widgets\Widget'
         );
 
-        return $widgets[0];
+        return isset($widgets[0]) ? $widgets[0] : false;
     }
 
     /**

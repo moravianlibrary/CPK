@@ -14,6 +14,8 @@
   <? endif; ?>
     <? if ($widget->getName() == 'infobox') : ?>
 	  <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
+	<? elseif ($widget->getName() == 'conspectus'): ?>
+      <?=$this->render('widgets/conspectus.phtml')?>
     <? else: ?>
       <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
     <? endif; ?>
@@ -21,50 +23,3 @@
     </div>
   <? endif; ?>
 <? endforeach; ?>
-
-<div id='conspectus' class='row'>
-  <div class='col-12-12'>
-      <h2><?=$this->transEsc('Conspectus')?></h2>
-        <? foreach ($conspectus as $category => $subCategories): ?>
-          <div class='category'>
-            <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
-              <i class='fa fa-plus'> </i>&nbsp;&nbsp;
-            </a>
-            <a href='/Search/Results?filter[]=conspectus_str_mv:"0/<?=$this->escapeHtml($category)?>/"' title='<?=$this->escapeHtml($category)?>' class='category-text' target='_blank'>
-              <?=$this->escapeHtml($category)?>
-            </a>
-            <div class='expanded-category hidden' style='padding-left: 40px;'>
-    			<? foreach ($subCategories as $subCategory): ?>
-    			<div>
-        			<a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'></a>
-        			<a href='/Search/Results?filter[]=conspectus_str_mv:"1/<?=$this->escapeHtml($category)?>/<?=$this->escapeHtml($subCategory)?>/"' title='<?=$this->escapeHtml($subCategory)?>' target='_blank'>
-        				<?=$this->escapeHtml($subCategory)?>
-        			</a>
-            	</div>
-    			<? endforeach; ?>
-            </div>
-          </div>
-        <? endforeach; ?>
-  </div>
-</div>
-
-<script>
-	jQuery( document ).ready( function( $ ) {
-
-		/* Expand subcategories on click */
-		$( '#conspectus' ).on( 'click', '.expand-category', function( event ){
-
-			event.preventDefault();
-
-			var expandedCategoryElement = $( this ).parent().find( '.expanded-category' );
-			if( expandedCategoryElement.hasClass( 'hidden' ) ) {
-				expandedCategoryElement.removeClass( 'hidden' );
-				expandedCategoryElement.parent().find( 'i.fa' ).removeClass( 'fa-plus' ).addClass( 'fa-minus' );
-			} else {
-				expandedCategoryElement.addClass( 'hidden' );
-				expandedCategoryElement.parent().find( 'i.fa' ).removeClass( 'fa-minus' ).addClass( 'fa-plus' );
-			}
-		});
-
-	});
-</script>

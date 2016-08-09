@@ -341,6 +341,10 @@ class SearchController extends SearchControllerBase
                 $infoboxTable = $this->getTable("infobox");
                 $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
                 $widget->setContents($infoboxItems);
+            } else if ($widgetName == 'conspectus') {
+                // do nothing, there is view prepared for it.
+                $widget = new \CPK\Widgets\Widget();
+                $widget->setName($widgetName);
             } else {
                 $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
             }
@@ -1190,6 +1194,10 @@ class SearchController extends SearchControllerBase
                 $infoboxTable = $this->getTable("infobox");
                 $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
                 $widget->setContents($infoboxItems);
+            } else if ($widgetName == 'conspectus') {
+                // do nothing, there is view prepared for it.
+                $widget = new \CPK\Widgets\Widget();
+                $widget->setName($widgetName);
             } else {
                 $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
             }
