@@ -58,7 +58,7 @@ class PortalPages extends \Zend\View\Helper\AbstractHelper
      * Get the specified page
      *
      * @param unknown $prettyUrl
-     * * @param string $languageCode
+     * @param string $languageCode
      */
     public function getPage($prettyUrl, $languageCode)
     {
