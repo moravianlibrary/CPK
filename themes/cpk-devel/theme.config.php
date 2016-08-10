@@ -99,8 +99,7 @@ if ($useCompiledAngular) {
         'ng-cpk/translate.filter.js',
     ];
 
-    $isIE = preg_match('/Windows/', $_SERVER['HTTP_USER_AGENT']);
-    if (! $isIE) {
+    if (! strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') && ! strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7')) {
         $toRet['js'] = array_merge($toRet['js'], $jsToInclude);
     }
 }
