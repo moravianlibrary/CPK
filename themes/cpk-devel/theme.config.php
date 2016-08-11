@@ -18,7 +18,6 @@ $toRet = array(
         'vendor/js.cookie.js',
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
-        'vendor/angular.min.js',
         'vendor/bootstrap-select.min.js',
         'common.js',
         'lightbox.js',
@@ -67,10 +66,13 @@ $useCompiledAngular = false;
 if ($useCompiledAngular) {
 
     // Add compiled angular apps
-    array_push($toRet['js'], 'ng-cpk/ng-cpk.min.js');
+    array_push($toRet['js'], 'vendor/angular.min.js', 'ng-cpk/ng-cpk.min.js');
+
 } else {
 
     $jsToInclude = [
+
+        'vendor/angular.min.js',
 
         'ng-cpk/favorites/module.js',
         'ng-cpk/favorites/favsNotifications.service.js',
