@@ -71,6 +71,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     protected $translator = false;
 
+    protected $libsLikeTabor = null;
+
     /**
      * Set the HTTP service to be used for HTTP requests.
      *
@@ -130,6 +132,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $this->agency = $this->config['Catalog']['agency'];
 
         $this->requests = new NCIPRequests($this->config);
+        $this->libsLikeTabor = $this->requests->getLibsLikeTabor();
     }
 
     public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
@@ -711,8 +714,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // If we cannot use LUIS we will parse only the first one
             $retVal[] = $this->getStatus(reset($ids), $patron);
         else {
-            if ($this->agency === 'TAG001' || $this->agency === 'ULG001' || $this->agency === 'KHG001' ||
-                    $this->agency === 'ABC016' || $this->agency === 'HBG001' || $this->agency === 'CBA001') {
+            if (in_array($this->agency, $this->libsLikeTabor)) {
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
@@ -1334,7 +1336,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
 
             // Deal with Tabor.
-            if ($this->agency === 'TAG001' || $this->agency === 'ULG001') {
+            if (in_array($this->agency, $this->libsLikeTabor)) {
                 // $type == 'Hold' => rezervace; $type == 'Stack Retrieval' => objednavka
                 if (empty($expire)) $expire = $this->useXPath($current,
                         'Ext/NeedBeforeDate');

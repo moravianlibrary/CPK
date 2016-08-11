@@ -15,11 +15,15 @@ namespace CPK\ILS\Driver;
 class NCIPRequests {
 
     protected $noScheme = false;
-    protected $sigla = null;
+    protected $agency = null;
     protected $sendUserId = null;
 
+    protected $libsLikeTabor = [
+        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'CBA001',
+    ];
+
     public function __construct($config) {
-        $this->sigla = $config['Catalog']['agency'];
+        $this->agency = $config['Catalog']['agency'];
         $this->sendUserId = isset($config['Catalog']['sendUserId']) ? $config['Catalog']['sendUserId']: true;
     }
 
@@ -110,7 +114,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingRequestId($patron, $requestId) {
         $requestType = "Estimate";
-        if ($this->sigla == "TAG001" || $this->sigla == "ULG001") $requestType = "Hold";
+        if (in_array($this->agency, $this->libsLikeTabor)) $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -193,6 +197,10 @@ class NCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function getLibsLikeTabor() {
+        return $this->libsLikeTabor;
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
@@ -215,7 +223,7 @@ class NCIPRequests {
     }
 
     protected function insertInitiationHeader($patron, $from = "CPK") {
-        $to = (isset($patron['agency']) && ! empty($patron['agency'])) ? $patron['agency'] : $this->sigla;
+        $to = (isset($patron['agency']) && ! empty($patron['agency'])) ? $patron['agency'] : $this->agency;
         $initiationHeader =
         "<ns1:InitiationHeader>" .
         "<ns1:FromAgencyId>" .
@@ -249,7 +257,7 @@ class NCIPRequests {
     }
 
     protected function insertAgencyIdTag($patron) {
-        $agency = (isset($patron['agency']) && ! empty($patron['agency'])) ? $patron['agency'] : $this->sigla;
+        $agency = (isset($patron['agency']) && ! empty($patron['agency'])) ? $patron['agency'] : $this->agency;
         if (empty($agency)) return '';
         return ($this->noScheme ?
                 "<ns1:AgencyId>" :
@@ -296,7 +304,7 @@ class NCIPRequests {
     /* Allowed values are: Accession Number, Barcode. */
     protected function insertItemIdentifierType() {
         $itemIdentifierType = "Accession Number";
-        if ($this->sigla == "LIA001") $itemIdentifierType = "Barcode";
+        if ($this->agency == "LIA001") $itemIdentifierType = "Barcode";
         return ($this->noScheme ?
                 "<ns1:ItemIdentifierType>" :
                 "<ns1:ItemIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
@@ -340,7 +348,7 @@ class NCIPRequests {
         $this->insertUserElementType("User Privilege") .
         $this->insertUserElementType("User Id") .
         $this->insertUserElementType("Previous User Id");
-        if ($this->sigla == "LIA001") {
+        if ($this->agency == "LIA001") {
             $body =
             $this->insertUserElementType("Block Or Trap") .
             $this->insertUserElementType("Name Information") .
