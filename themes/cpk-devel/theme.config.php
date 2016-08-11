@@ -99,7 +99,8 @@ if ($useCompiledAngular) {
         'ng-cpk/translate.filter.js',
     ];
 
-    if (! strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') && ! strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7')) {
+    if (! isset($_SERVER['HTTP_USER_AGENT']) ||
+            (! strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') && ! strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7'))) {
         $toRet['js'] = array_merge($toRet['js'], $jsToInclude);
     }
 }
