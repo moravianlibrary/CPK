@@ -38,12 +38,37 @@ class Help extends \Zend\View\Helper\AbstractHelper
 {
     /**
      * Get questionmark help
+     *
+     * @param   string  $translationKey
+     *
+     * @return  string
      */
     public function getQuestionMarkHelp($translationKey)
     {
         return $this->view->render(
             'Help/questionmark-help.phtml',
             ['translationKey' => $translationKey]
+        );
+    }
+
+    /**
+     * Get element help
+     *
+     * @param   string  $translationKey
+     * @param   string  $element        HTML
+     * @param   string  $source         mzk
+     *
+     * @return  string
+     */
+    public function getElementHelp($translationKey, $element, $source)
+    {
+        return $this->view->render(
+            'Help/element-help.phtml',
+            [
+                'translationKey' => $translationKey,
+                'element' => $element,
+                'source' => $source
+            ]
         );
     }
 }

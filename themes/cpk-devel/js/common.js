@@ -499,7 +499,7 @@ $(document).ready(function() {
     /* Tooltips
      * @see http://www.opentip.org/documentation.html 
      **/
-	$( '.questionmark-help' ).each( function( index, element ) {
+	$( '.questionmark-help, .element-help' ).each( function( index, element ) {
 		new Opentip( 
 			element,
 			$( element ).find( '.help-text' ).html(),
