@@ -9,6 +9,7 @@ $toRet = array(
         'vendor/font-awesome.min.css',
         'vendor/bootstrap-slider.css',
         'vendor/bootstrap-select.min.css',
+        'vendor/opentip.css',
         'print.css:print'
     ),
     'js' => array(
@@ -19,6 +20,7 @@ $toRet = array(
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
         'vendor/bootstrap-select.min.js',
+        'vendor/opentip-jquery.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
@@ -40,7 +42,8 @@ $toRet = array(
             'portalpages' => 'CPK\View\Helper\CPK\Factory::getPortalPages',
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
             'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
-            'identityProviders' => 'CPK\View\Helper\CPK\Factory::getIdentityProviders'
+            'identityProviders' => 'CPK\View\Helper\CPK\Factory::getIdentityProviders',
+            'help' => 'CPK\View\Helper\CPK\Factory::getHelp'
         ),
         'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',

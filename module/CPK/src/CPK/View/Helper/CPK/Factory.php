@@ -123,4 +123,9 @@ class Factory
 
         return new IdentityProviders($authManager, $logosHelper, $config, $lang);
     }
+
+    public static function getHelp(ServiceManager $sm)
+    {
+        return new Help();
+    }
 }
