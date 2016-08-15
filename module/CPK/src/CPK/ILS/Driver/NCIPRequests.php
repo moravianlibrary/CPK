@@ -86,6 +86,9 @@ class NCIPRequests {
     public function requestItem($patron, $holdDetails) {
         $requestScopeType = "Item";
         // TODO if (library.equals("Liberec")) requestScopeType = "Bibliographic Item";
+        $strDate = str_replace('. ', '-', $holdDetails['requiredBy']);
+        $date = strtotime($strDate);
+        $requiredBy = gmdate('Y-m-d\Th:m:s', $date);
 
         $body =
         "<ns1:RequestItem>" .
@@ -95,6 +98,7 @@ class NCIPRequests {
         $this->insertRequestType("Hold") .
         //$this->insertRequestType("Loan") .
         $this->insertRequestScopeType($requestScopeType);
+        $body .= "<ns1:NeedBeforeDate>" . htmlspecialchars($requiredBy) . "</ns1:NeedBeforeDate>";
         if (! empty($holdDetails['pickUpLocation'])) $body .= "<ns1:PickupLocation>" . htmlspecialchars($holdDetails['pickUpLocation']) . "</ns1:PickupLocation>";
         $body .= "</ns1:RequestItem>";
         return $this->header() . $body . $this->footer();
