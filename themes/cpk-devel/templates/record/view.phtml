@@ -119,28 +119,37 @@
 			  </div>
 			</div>
 			<div>
-            <? if (count($this->tabs) > 0): ?>
-              <a name="tabnav"></a>
-              <ul class="recordTabs nav nav-tabs">
 
-                <? foreach ($this->tabs as $tab => $obj): ?>
-                <? // add current tab to breadcrumbs if applicable:
-                  $desc = $obj->getDescription();
-                  $tab_classes = array();
-                  if (0 === strcasecmp($this->activeTab, $tab)) {
-                    $tab_classes[] = 'active';
-                    $tab_classes[] = 'initiallyActive';
-                    $this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc($desc) . '</li>';
-                    $activeTabObj = $obj;
-                  }
-                  if (!$obj->isVisible()) { $tab_classes[] = 'hidden'; }
-                  if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
-                ?>
-                <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
-                  <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav"><?=($desc=='Holdings') ? $this->transEsc('Borrow') : $this->transEsc($desc)?></a>
-                </li>
-                <? endforeach; ?>
-              </ul>
+            <? if (count($this->tabs) > 0): ?>
+            <div class='row'>
+              <div class='col-md-11'>
+
+                  <a name="tabnav"></a>
+                  <ul class="recordTabs nav nav-tabs">
+
+                    <? foreach ($this->tabs as $tab => $obj): ?>
+                    <? // add current tab to breadcrumbs if applicable:
+                      $desc = $obj->getDescription();
+                      $tab_classes = array();
+                      if (0 === strcasecmp($this->activeTab, $tab)) {
+                        $tab_classes[] = 'active';
+                        $tab_classes[] = 'initiallyActive';
+                        $this->layout()->breadcrumbs .= '<li class="active">' . $this->transEsc($desc) . '</li>';
+                        $activeTabObj = $obj;
+                      }
+                      if (!$obj->isVisible()) { $tab_classes[] = 'hidden'; }
+                      if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
+                    ?>
+                    <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
+                      <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav"><?=($desc=='Holdings') ? $this->transEsc('Borrow') : $this->transEsc($desc)?></a>
+                    </li>
+                    <? endforeach; ?>
+                  </ul>
+              </div>
+           	  <div class='col-md-1 text-right' style='padding-right: 15px; margin-top: 10px;'>
+				<?= $this->help()->getQuestionMarkHelp('questionmark_help_core_tabs') ?>
+              </div>
+            </div>
            	<? endif; ?>
 
                 <div class="tab-content well border" id="record-tabs">
@@ -151,6 +160,7 @@
 
                 <?=$this->driver->supportsCoinsOpenURL()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenURL()).'"></span>':''?>
             </div>
+
 
             <!-- Modal -->
                 <div class="modal fade" id="subjectsModal" tabindex="-1" role="dialog" aria-labelledby="subjectsLabel">

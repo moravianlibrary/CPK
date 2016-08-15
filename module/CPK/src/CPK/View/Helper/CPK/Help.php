@@ -26,6 +26,8 @@
  */
 namespace CPK\View\Helper\CPK;
 
+use Zend\Config\Config;
+
 /**
  * Portal pages view helper
  *
@@ -37,6 +39,21 @@ namespace CPK\View\Helper\CPK;
 class Help extends \Zend\View\Helper\AbstractHelper
 {
     /**
+     * @var \Zend\Config\Config $config
+     */
+    protected $config;
+
+    /**
+     * C'tor
+     *
+     * @param \Zend\Config\Config $config
+     */
+    public function __construct(\Zend\Config\Config $config)
+    {
+        $this->config = $config->toArray();
+    }
+
+    /**
      * Get questionmark help
      *
      * @param   string  $translationKey
@@ -45,6 +62,10 @@ class Help extends \Zend\View\Helper\AbstractHelper
      */
     public function getQuestionMarkHelp($translationKey)
     {
+        if (! $this->config['Help']['questionmark_help_enabled']) {
+            return '';
+        }
+
         return $this->view->render(
             'Help/questionmark-help.phtml',
             ['translationKey' => $translationKey]
@@ -52,7 +73,7 @@ class Help extends \Zend\View\Helper\AbstractHelper
     }
 
     /**
-     * Get element help
+     * Get element help (tooltip)
      *
      * @param   string  $translationKey
      * @param   string  $element        HTML
@@ -62,6 +83,10 @@ class Help extends \Zend\View\Helper\AbstractHelper
      */
     public function getElementHelp($translationKey, $element, $source)
     {
+        if (! $this->config['Help']['element_help_enabled']) {
+            return '';
+        }
+
         return $this->view->render(
             'Help/element-help.phtml',
             [

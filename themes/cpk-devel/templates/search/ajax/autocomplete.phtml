@@ -187,6 +187,7 @@
           <div class='col-md-12 text-center homepage-advanced-search-link'>
     		<a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=10"><?=$this->translate("Advanced Search")?></a>
           </div>
+          <?= $this->help()->getQuestionMarkHelp('questionmark_help_autocomplete') ?>
       <? else: ?>
           <? if (! $this->layout()->recordView): ?>
       	      <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=10"><?=$this->translate("Advanced Search")?></a>

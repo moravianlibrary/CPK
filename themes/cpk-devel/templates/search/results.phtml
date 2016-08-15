@@ -141,6 +141,7 @@
                 <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
                 	<i class="fa fa-feed pointer"></i>
                 </a>
+                <?= $this->help()->getQuestionMarkHelp('questionmark_help_search_results_rss') ?>
               </div>
     	  <? endif; ?>
       </div>

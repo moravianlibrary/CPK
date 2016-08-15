@@ -16,7 +16,10 @@
 
     <div class="row">
      <div class="col-xs-6">
-      <h2><?=$this->transEsc('Linked accounts')?></h2>
+      <h2>
+        <?=$this->transEsc('Linked accounts')?>
+        <?= $this->help()->getQuestionMarkHelp('questionmark_help_library_cards') ?>
+      </h2>
      </div>
      <div class="col-xs-6">
       <a class="btn btn-default pull-right" style="margin-top:20px;" href="#" onclick='$("div#userConnectModal").modal("show")'><?=$this->transEsc("Connect another account")?></a>

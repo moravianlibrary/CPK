@@ -126,6 +126,10 @@ class Factory
 
     public static function getHelp(ServiceManager $sm)
     {
-        return new Help();
+        $config = $sm->getServiceLocator()
+        ->get('VuFind\Config')
+        ->get('config');
+
+        return new Help($config);
     }
 }
