@@ -89,10 +89,10 @@
           <span class="badge"><?=$list->cnt?></span>
         </a>
     <? endforeach; ?>
-    </div>
     <a href="<?=$this->url('editList', array('id'=>'NEW'))?>" title="<?=$this->transEsc('Create a List') ?>" class="list-group-item">
       <?=$this->transEsc('Create a List') ?>
       <span class="pull-right flip"><i class="pr-interface-plusadd"></i></span>
     </a>
+    </div>
   </ul>
 <? endif ?>
