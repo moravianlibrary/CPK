@@ -112,7 +112,7 @@
           </fieldset>
           <fieldset class="form-group position-placeholder">
             <div class="col-xs-3">
-              <label><?=$this->translate('Position')?></label>
+              <label><?=$this->translate('Position')?> (<?=$this->translate('No need to set, when placement is modal')?>)</label>
               <select id='view' class='form-control' name='position'>
                 <? foreach($this->positions as $position): ?>
                 <option value='<?=$position?>'<?= ($this->page['position'] == $position) ? " selected='selected'" : ""?>><?=$this->translate($position)?></option>

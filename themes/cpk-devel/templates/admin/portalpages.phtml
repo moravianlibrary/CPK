@@ -42,6 +42,9 @@
                 <? if ($page['published'] === 0): ?>
                 <span class="label label-warning pull-right"><?=$this->translate('Not published')?></span>
                 <? endif; ?>
+                <? if ($page['placement'] === 'modal'): ?>
+                <span class="label label-info pull-right"><?=$this->translate('Modal')?></span>
+                <? endif; ?>
               </td>
               <td ><?=$this->translate($page['language_code'])?></td>
               <td><?=date("d. M. Y", strtotime($page['last_modified_timestamp']))?></td>

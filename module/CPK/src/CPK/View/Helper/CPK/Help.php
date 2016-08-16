@@ -27,6 +27,7 @@
 namespace CPK\View\Helper\CPK;
 
 use Zend\Config\Config;
+use CPK\Db\Table\PortalPage;
 
 /**
  * Portal pages view helper
@@ -44,31 +45,56 @@ class Help extends \Zend\View\Helper\AbstractHelper
     protected $config;
 
     /**
-     * C'tor
-     *
-     * @param \Zend\Config\Config $config
+     * @var CPK\Db\Table\PortalPage $portalPageTable,
      */
-    public function __construct(\Zend\Config\Config $config)
+    protected $portalPageTable;
+
+    /**
+     * @var string  $languageCode
+     */
+    protected $languageCode;
+
+    /**
+     * Constructor
+     *
+     * @param   \Zend\Config\Config     $config
+     * @param   CPK\Db\Table\PortalPage $portalPageTable
+     * @param   string                  $languageCode
+     */
+    public function __construct(
+        \Zend\Config\Config $config,
+        \CPK\Db\Table\PortalPage $portalPageTable,
+        $languageCode
+    )
     {
         $this->config = $config->toArray();
+        $this->portalPageTable = $portalPageTable;
+        $this->languageCode = $languageCode;
     }
 
     /**
      * Get questionmark help
      *
-     * @param   string  $translationKey
+     * @param   string  $pageName
      *
      * @return  string
      */
-    public function getQuestionMarkHelp($translationKey)
+    public function getQuestionMarkHelp($pageName)
     {
         if (! $this->config['Help']['questionmark_help_enabled']) {
             return '';
         }
 
+        $prettyUrl = $pageName.'-'.explode("-", $this->languageCode)[0];
+
+        $portalPage = $this->portalPageTable->getPage($prettyUrl, $this->languageCode);
+
         return $this->view->render(
             'Help/questionmark-help.phtml',
-            ['translationKey' => $translationKey]
+            [
+                'pageName' => $pageName,
+                'portalPage' => $portalPage
+            ]
         );
     }
 

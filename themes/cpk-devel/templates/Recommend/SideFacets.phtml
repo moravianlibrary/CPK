@@ -46,7 +46,7 @@ foreach ($queryParams as $key => $value) {
 <? if ($results->getResultTotal() > 0): ?>
     <h3 class='side-facets-header'>
       <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
-      <?= $this->help()->getQuestionMarkHelp('questionmark_help_facets') ?>
+      <?= $this->help()->getQuestionMarkHelp('facets') ?>
     </h3>
 <? endif; ?>
 <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>

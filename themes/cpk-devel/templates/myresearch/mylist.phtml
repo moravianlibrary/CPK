@@ -31,7 +31,7 @@ if ($this->loggedIn === false) {
     <div class="clearfix hidden-print">
       <h2 class="pull-left flip">
         <?=$list ? $this->escapeHtml($list->title) : $this->transEsc("Your Favorites")?>
-        <?= $this->help()->getQuestionMarkHelp('questionmark_help_my_list') ?>
+        <?= $this->help()->getQuestionMarkHelp('my-list') ?>
       </h2>
       <div class="pull-right flip">
         <? if (isset($list)): ?>

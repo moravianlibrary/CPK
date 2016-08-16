@@ -127,9 +127,17 @@ class Factory
     public static function getHelp(ServiceManager $sm)
     {
         $config = $sm->getServiceLocator()
-        ->get('VuFind\Config')
-        ->get('config');
+            ->get('VuFind\Config')
+            ->get('config');
 
-        return new Help($config);
+        $portalPageTable = $sm->getServiceLocator()
+            ->get('VuFind\DbTablePluginManager')
+            ->get("portalpages");
+
+        $languageCode = $sm->getServiceLocator()->has('VuFind\Translator')
+            ? $sm->getServiceLocator()->get('VuFind\Translator')->getLocale()
+            : 'en';
+
+        return new Help($config, $portalPageTable, $languageCode);
     }
 }

@@ -494,26 +494,5 @@ $(document).ready(function() {
 //	    $('.top-header').toggleClass('hidden', $(document).scrollTop() <= 50).toggleClass('tiny', $(document).scrollTop() > 50);
 //	    $('.top-header').toggleClass('full-width', $(document).scrollTop() > 88);
 
-  });
-  
-    /* Tooltips
-     * @see http://www.opentip.org/documentation.html 
-     **/
-	$( '.questionmark-help, .element-help' ).each( function( index, element ) {
-		new Opentip( 
-			element,
-			$( element ).find( '.help-text' ).html(),
-			{ 
-				delay:			0, 
-				tipJoint:		'bottom',
-				fixed:			true,
-				background:		'#ffffff',
-				borderColor:	'#ACACAC',
-				borderWidth:	1,
-				borderRadius:	0,
-				shadowBlur:		5
-			}
-		);
-	});
-  
+  }); 
 });

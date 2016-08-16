@@ -204,7 +204,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
         ];
         $placements = [
             'footer',
-            'advanced-search'
+            'advanced-search',
+            'modal',
         ];
 
         $subAction = $this->params()->fromRoute('subaction');
