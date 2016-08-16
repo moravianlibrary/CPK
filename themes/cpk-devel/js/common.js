@@ -495,4 +495,17 @@ $(document).ready(function() {
 //	    $('.top-header').toggleClass('full-width', $(document).scrollTop() > 88);
 
   }); 
+  
+  $( '.element-help' ).hover( function() {
+	  var html = $( this ).find( '.help-text' ).html();
+	  $( this ).popover({
+		  trigger: 'manual',
+		  content: html,
+		  placement: 'top',
+		  html: true
+	  });
+	  $( this ).popover( 'show' );
+  }).mouseleave( function() {
+	  $( this ).popover( 'hide' );
+  });
 });

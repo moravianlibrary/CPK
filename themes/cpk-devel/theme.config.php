@@ -9,7 +9,6 @@ $toRet = array(
         'vendor/font-awesome.min.css',
         'vendor/bootstrap-slider.css',
         'vendor/bootstrap-select.min.css',
-        'vendor/opentip.css',
         'print.css:print'
     ),
     'js' => array(
@@ -20,7 +19,6 @@ $toRet = array(
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
         'vendor/bootstrap-select.min.js',
-        'vendor/opentip-jquery.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
