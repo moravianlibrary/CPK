@@ -81,6 +81,10 @@ class Help extends \Zend\View\Helper\AbstractHelper
      */
     public function getQuestionMarkHelp($pageName)
     {
+        if (! isset($this->config['Help']['questionmark_help_enabled'])) {
+            return '';
+        }
+
         if (! $this->config['Help']['questionmark_help_enabled']) {
             return '';
         }
