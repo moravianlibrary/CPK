@@ -96,12 +96,15 @@ class SolrAuthority extends ParentSolrMarc
     /**
      * Get the url of authority's cover from obalkyknih.
      *
+     * Example of return value https://cache.obalkyknih.cz/file/cover/1376898/medium
+     *
      * @return string $coverUrl
      */
     public function getAuthorityCover()
     {
         $obalky = $this->getAuthorityFromObalkyKnih();
         $coverUrl = empty($obalky[0]['cover_medium_url']) ? '' : $obalky[0]['cover_medium_url'];
+        $coverUrl = str_replace('http://', 'https://', $coverUrl);
         return $coverUrl;
     }
 
