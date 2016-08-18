@@ -77,9 +77,11 @@ function updateFinesTable(response) {
 
 		var formattedMoney = formatMoney(moneyFormat, totalSum);
 		summaryRow.find('td[data-type=sum]').text(formattedMoney);
-		if(data.paymentUrl !== null)
-			summaryRow.after('<tr><td></td><td></td><td></td><td><a class="btn btn-primary btn-sm" href="' + data.paymentUrl + '">' + data.payButtonText + '</a></td></tr>');
 
+		if (!(typeof data.paymentUrl === "undefined")) {
+			if (data.paymentUrl !== null)
+				summaryRow.after('<tr><td></td><td></td><td></td><td><a class="btn btn-primary btn-sm" href="' + data.paymentUrl + '">' + data.payButtonText + '</a></td></tr>');
+		}
 		// Unhide the table
 		tableBody.removeAttr('hidden');
 
