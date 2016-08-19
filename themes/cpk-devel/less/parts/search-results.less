@@ -175,9 +175,12 @@
     padding: 0px 10px 0px 10px;
 }
 
-.scrollable-menu li a {
+.dropdown-menu.scrollable-menu li a {
     color: @brand-primary;
     font-size: 100%;
+    @media (max-width: @screen-sm) {
+      white-space: normal;
+    }
 }
 
 .coverThumbnail {
