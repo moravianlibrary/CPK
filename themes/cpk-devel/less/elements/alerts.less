@@ -1,0 +1,36 @@
+.alert {
+  border-width: 2px;
+  font-weight: normal;
+  padding-left: 40px;
+  &:before {
+    font-family: 'pr-icons' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 20px;
+    margin-left: -27px;
+    margin-right: 7px;
+  }
+}
+
+.alert-success:before {
+  content: "\eacf";
+}
+
+.alert-info:before {
+  //TODO add "i" to circle
+  content: "\ead0";
+}
+
+.alert-warning:before {
+  content: "\e918";
+}
+
+.alert-danger:before {
+  content: "\eace";
+}
