@@ -65,14 +65,14 @@ function updateProfileTable(response) {
 			$.each(val, function(logoUrl, blockMessage) {
 			    
 			    // Create division to put the logo & the message into
-			    var errorMessage = $("<div>").addClass('block-alert').text(blockMessage);
+			    var errorMessage = $("<div>").addClass('alert alert-danger').text(blockMessage);
 			    
 			    parentTable.before(errorMessage);
 			})
 		    }
 			if (key == 'message') {
 				if (val!=null) {
-					var errorMessage = $("<div>").addClass('block-alert').text(val);
+					var errorMessage = $("<div>").addClass('alert alert-danger').text(val);
 
 					parentTable.before(errorMessage);
 				}
