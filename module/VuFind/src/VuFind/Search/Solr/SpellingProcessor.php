@@ -178,8 +178,8 @@ class SpellingProcessor
         foreach ($spellcheck->getCollations() as $collation) {
             $collations['suggestions'][$collation] = 1;
         }
-        $allSuggestions[$query->getAllTerms()] = $collations;
-        if (!empty($allSuggestions)) {
+        if (!empty($collations['suggestions'])) {
+            $allSuggestions[$query->getAllTerms()] = $collations;
             return $allSuggestions;
         }
 
