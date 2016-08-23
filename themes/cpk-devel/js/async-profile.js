@@ -97,7 +97,7 @@ function updateProfileTable(response) {
 	    var label = caption.children('span.label');
 	    
 	    // Set red background to the label	    
-	    label.removeClass('label-primary').addClass('label-danger');
+	    label.removeClass('label-info').addClass('label-danger');
 	    
 	    // Print the message
 	    if (message) {

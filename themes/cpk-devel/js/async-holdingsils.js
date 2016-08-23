@@ -175,7 +175,7 @@ var holdingsILS = {
 	    var dueDateColumn = tableRow.children('td[data-type=duedate]').first();
 	    dueDateColumn.text(dueDate);
 
-	    label.removeClass('label-primary').addClass('label-warning');
+	    label.removeClass('label-info').addClass('label-warning');
 	    labelSet = true;
 	}
 
@@ -200,7 +200,7 @@ var holdingsILS = {
 	    divLink.remove();
 
 	    if (setUnknownLabel) {
-		label.removeClass('label-primary').addClass('label-unknown');
+		label.removeClass('label-info').addClass('label-unknown');
 		labelSet = true;
 	    }
 	}
@@ -208,7 +208,7 @@ var holdingsILS = {
 	if (labelSet === false) {
 	    var labelType = typeof value.label === 'undefined' ? 'label-success' : value.label;
 
-	    label.removeClass('label-primary').removeClass('label-unknown').addClass(labelType);
+	    label.removeClass('label-info').removeClass('label-unknown').addClass(labelType);
 	}
 	
 	var availability = value.availability;

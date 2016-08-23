@@ -46,7 +46,7 @@ $this->jsTranslations()->addStrings(array(
       </div>
       <div data-ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well text-center" style="margin-bottom: 2px;">
         <i class="fa fa-spinner fa-spin"></i>
-        <span class="label label-primary"><?=$this->transEsc('Loading')?> ...</span>
+        <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
       </div>
       <div data-ng-pagination="<?=$source ?>" class='row well' data-ng-if="paginator && paginator.lastPage != 1" ></div>
     </div>
