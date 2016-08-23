@@ -163,7 +163,7 @@
 	    
 	    // Execute non-blocking Q
 	    $q.resolve(getMyHistoryPage()).then(onGotMyHistoryPage).catch(function(err) {
-		loaderDiv.innerHTML = err.message;
+		loaderDiv.innerHTML = '<span class="label label-danger">' + err.message + '</span>';
 	    });
 	    
 	    function onGotMyHistoryPage(result) {
