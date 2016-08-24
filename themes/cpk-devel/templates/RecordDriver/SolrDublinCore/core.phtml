@@ -35,7 +35,9 @@
 
   <div class="col-sm-9">
     <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h2>
-
+	<div class='want-it'>
+        <?=$this->translate('Want it')?>
+    </div>
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $this->escapeHtml($summary[0]) : false; ?>
     <? if ($summary): ?>
       <p><?=$this->truncate($summary, 300)?></p>

@@ -34,7 +34,9 @@
 
   <div class="col-sm-9">
     <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getPersonalName())?></strong></h2>
-
+	<div class='want-it'>
+        <?=$this->translate('Want it')?>
+    </div>
     <?/* Display Main Details */?>
     <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
       <? $details = $this->driver->getBibliographicDetails(); ?>
