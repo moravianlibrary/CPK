@@ -655,9 +655,6 @@ class Aleph extends AlephBase implements CPKDriverInterface
     protected function parseItem($bibId, $item_id, \SimpleXMLElement $item, $patron)
     {
         $item_status = $this->alephTranslator->tab15Translate($item);
-        if ($item_status['opac'] != 'Y') {
-            continue;
-        }
 
         $available = false;
         $reserve = ($item_status['request'] == 'C') ? 'N' : 'Y';
