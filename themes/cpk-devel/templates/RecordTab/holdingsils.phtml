@@ -22,6 +22,7 @@ $offlineMode = $this->ils()->getOfflineMode();
 // Set page title.
 $this->headTitle($this->driver->getBreadcrumb());
 ?>
+<?= $this->help()->getQuestionMarkHelp('core-tabs') ?>
 <? if ($offlineMode == "ils-offline"): ?>
 <div class="alert alert-warning">
 	<h2><?=$this->transEsc('ils_offline_title')?></h2>

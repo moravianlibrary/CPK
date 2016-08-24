@@ -140,7 +140,7 @@
 
             <? if (count($this->tabs) > 0): ?>
             <div class='row'>
-              <div class='col-md-11'>
+              <div class='col-md-12'>
 
                   <a name="tabnav"></a>
                   <ul class="recordTabs nav nav-tabs">
@@ -163,9 +163,6 @@
                     </li>
                     <? endforeach; ?>
                   </ul>
-              </div>
-           	  <div class='col-md-1 text-right' style='padding-right: 15px; margin-top: 10px;'>
-				<?= $this->help()->getQuestionMarkHelp('core-tabs') ?>
               </div>
             </div>
            	<? endif; ?>
