@@ -176,6 +176,11 @@ class RecordController extends RecordControllerBase
 
         $this->layout()->recordView = true;
 
+        /* Get sigla */
+        $multiBackendConfig = $this->getConfig('MultiBackend');
+        $recordSource = explode(".", $this->driver->getUniqueId())[0];
+        $view->sigla = $multiBackendConfig->SiglaMapping->$recordSource;
+
         return $view;
     }
 
