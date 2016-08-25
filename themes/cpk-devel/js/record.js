@@ -454,7 +454,7 @@ function getCitation( recordId, citationValue , callback ) {
  * @return	{undefined}
  */
 function insertCitation( citation ) {
-	var html = "<input class='selectOnClick form-control' value='"+citation+"'>";
+	var html = "<textarea class='selectOnClick form-control' rows='5' cols='50' onclick='this.focus();this.select()' readonly='readonly' style='background-color: #fff;'>"+citation+"</textarea>";
 	jQuery( '#citation-placeholder' ).html( html );
 	$( '#citation-style-selector' ).removeClass( 'hidden' );
 }
