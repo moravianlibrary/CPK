@@ -416,7 +416,7 @@
             </tr>
           <? endif; ?>
 
-          <? $issns = $this->driver->getISSNs(); if (!empty($issns)): ?>
+          <? $issns = $this->driver->getISSNs(); if (empty($issns)) {$issns = $this->driver->getISSNFromMarc();} if (!empty($issns)): ?>
             <? $contentDisplayed = true; ?>
             <tr>
               <th><?=$this->transEsc('ISSN')?>: </th>

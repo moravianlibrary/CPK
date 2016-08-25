@@ -768,4 +768,10 @@ class SolrMarc extends ParentSolrMarc
 
         return $ids;
     }
+
+    public function getISSNFromMarc()
+    {
+        $issn = $this->getFieldArray('022', array('a'));
+        return $issn;
+    }
 }
