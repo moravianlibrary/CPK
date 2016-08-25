@@ -234,7 +234,7 @@
     </div>
     <footer class="hidden-print header-container">
       <div class="container">
-        <?=$this->render('footer.phtml')?>
+        <?=$this->render('footer.phtml', ['user' => $user])?>
         <?=$this->layout()->poweredBy ?>
       </div>
     </footer>
