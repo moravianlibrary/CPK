@@ -1,6 +1,6 @@
 <?
     $id = $this->driver->getUniqueID();
-    $source = explode(".", $id)[0];
+    $recordSource = $source = explode(".", $id)[0];
     $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 ?>
 
@@ -97,7 +97,7 @@
         <td><?=$this->transEsc('Authority')?></td>
       </tr>
 
-	  <? if ($this->driver->hasPublications()): ?>
+	  <? if ($this->driver->hasPublications() && $recordSource !== 'osobnosti'): ?>
       <tr>
         <th><?=$this->transEsc('Publications')?>: </th>
         <td>
