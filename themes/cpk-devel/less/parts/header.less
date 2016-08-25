@@ -25,9 +25,12 @@
 ////////
 
 .header-container {
-
   position: relative;
   z-index: 2;
+  @media (min-width: 1460px) {
+    .container-fixed();
+    width: 1440px;
+  }
 }
 
 
