@@ -27,7 +27,7 @@
  */
 namespace CPK\ILS\Driver;
 
-use VuFind\Exception\ILS as ILSException, DOMDocument, Zend\XmlRpc\Value\String;
+use VuFind\Exception\ILS as ILSException, DOMDocument;
 
 /**
  * XC NCIP Toolkit (v2) ILS Driver

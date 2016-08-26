@@ -505,11 +505,11 @@ class ConfigurationsHandler
 
         $config = $this->parseConfigSections($config, $source);
 
-        if (! isset($config['Availability']['source'])) {
+        if (! isset($config['Availability']['source']) || empty($config['Availability']['source'])) {
             $config['Availability']['source'] = $source;
         }
 
-        if (! isset($config['IdResolver']['source'])) {
+        if (! isset($config['IdResolver']['prefix']) || empty($config['IdResolver']['prefix'])) {
             $config['IdResolver']['prefix'] = $source;
         }
 
