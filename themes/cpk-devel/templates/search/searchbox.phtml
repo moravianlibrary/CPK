@@ -22,10 +22,28 @@
 
     $shards = $options->getShards();
 
+    if (isset($_GET['referer'])) { /* Record view */
+        $referer = $_GET['referer'];
+        $refererUrl = base64_decode(str_pad(strtr($referer, '-_', '+/'), strlen($referer) % 4, '=', STR_PAD_RIGHT));
+        $parts = parse_url($refererUrl);
+        parse_str($parts['query'], $filters);
+
+        if (empty($filterList)) {
+            foreach ($filters['filter'] as $filter) {
+                $key = explode(":", $filter, 2)[0];
+                $value = explode(":", $filter, 2)[1];
+                if(! array_key_exists($key, $filterList)) {
+                    $filterList[$key] = [];
+                }
+                $filterList[$key][] = trim($value, '"');
+            }
+        }
+    }
+
     $filterDetails = $this->searchbox()->getFilterDetails(
-        isset($this->filterList) && is_array($this->filterList) ? $this->filterList : array(),
+        isset($this->filterList) && is_array($this->filterList) ? $this->filterList : (! empty($filterList) ? $filterList : array()),
         isset($this->checkboxFilters) && is_array($this->checkboxFilters) ? $this->checkboxFilters : array()
-     );
+    );
 
     ?>
 
@@ -85,18 +103,29 @@
 
 </div>
 
+<!-- Facets -->
 <div class='hidden'>
-  <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : $lastLimit) ?>">
-  <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : $lastSort) ?>">
-  <input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
-  <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
-  <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
-  <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
-  <input type='hidden' name='keepFacetsEnabled' value='0'>
-  <input type="hidden" name="searchTypeTemplate" value="<?= (! empty($_GET['searchTypeTemplate']) ? $this->escapeHtmlAttr($_GET['searchTypeTemplate']) : '') ?>">
+    <? if (! empty($filters)): ?>
+      <input type="hidden" name="limit" value="<?= (! empty($filters['limit']) ? $this->escapeHtmlAttr($filters['limit']) : $lastLimit) ?>">
+      <input type="hidden" name="sort" value="<?= (! empty($filters['sort']) ? $this->escapeHtmlAttr($filters['sort']) : $lastSort) ?>">
+      <input type="hidden" name="page" value="<?= (! empty($filters['page']) ? $this->escapeHtmlAttr($filters['page']) : '1') ?>">
+      <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
+      <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($filters['lookfor0'][0]) ? $this->escapeHtmlAttr($filters['lookfor0'][0]) : '') ?>">
+      <input type="hidden" name="last_searched_type0" value="<?= (! empty($filters['type0'][0]) ? $this->escapeHtmlAttr($filters['type0'][0]) : 'AllFields') ?>">
+      <input type='hidden' name='keepFacetsEnabled' value='0'>
+      <input type="hidden" name="searchTypeTemplate" value="<?= (! empty($filters['searchTypeTemplate']) ? $this->escapeHtmlAttr($filters['searchTypeTemplate']) : '') ?>">
+    <? else: /* Search Results page */ ?>
+      <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : $lastLimit) ?>">
+      <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : $lastSort) ?>">
+      <input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
+      <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
+      <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
+      <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
+      <input type='hidden' name='keepFacetsEnabled' value='0'>
+      <input type="hidden" name="searchTypeTemplate" value="<?= (! empty($_GET['searchTypeTemplate']) ? $this->escapeHtmlAttr($_GET['searchTypeTemplate']) : '') ?>">
+    <? endif; ?>
 </div>
 
-<!-- Facets -->
 <div class='hidden' id='hiddenFacetFilters'>
 <? foreach ($filterList as $field => $data): ?>
   <? foreach ($data as $value): ?>
