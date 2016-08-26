@@ -20,7 +20,10 @@
             <a href="/Search/Inspiration" title="<?=$this->translate('Inspiration')?>"><?=$this->translate('Inspiration')?></a>
         </li>
         <li <? if ($this->layout()->headerType == "libraries"): ?>class="active"<? endif; ?> >
-            <a href="/Libraries/List/"><?=$this->translate('Libraries')?></a>
+            <a href="/Libraries/List/">
+                <? $titleHtml = $this->translate('Libraries') ?>
+                <?= $this->help()->getElementHelp('element_help_header_libraries', $titleHtml) ?>
+            </a>
         </li>
         <!--<li>
             <a href="http://info.knihovny.cz/events"><?=$this->translate('Events')?></a>

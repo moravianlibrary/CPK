@@ -1,10 +1,10 @@
 <span class='records-in-libraries-title'>
-	<?=$this->translate('Found in') ?>
-    <?=$this->countRecords?>
-    <?= ($countRecords > 1)
-        ? $this->translate('institutions-in-locale')
-        : $this->translate('institution-in-locale')
+    <? ($countRecords > 1)
+        ? $string = $this->translate('institutions-in-locale')
+        : $string = $this->translate('institution-in-locale')
     ?>
+    <? $titleHtml = $this->translate('Found in') . " " . $this->countRecords . " " . $string ?>
+    <?= $this->help()->getElementHelp('element_help_search_results_found_in', $titleHtml) ?>
 </span>
 
 <div class="col-sm-12 dedupInformation">

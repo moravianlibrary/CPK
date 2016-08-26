@@ -205,7 +205,10 @@
                  <?=$this->render('search/searchbox.phtml'); ?>
                  <?=$this->render('shib-assertion.phtml')?>
                  <a href="/Search/Inspiration" class="pull-left arrow-link"><i class="pr-interface-arrowleft"></i> <?=$this->transEsc("frontpage-left-arrow-link")?></a>
-                 <a href="/Libraries/List/" class="pull-right arrow-link"><?=$this->transEsc("frontpage-right-arrow-link")?> <i class="pr-interface-arrowright"></i></a>
+                 <a href="/Libraries/List/" class="pull-right arrow-link">
+                   <? $titleHtml = $this->transEsc("frontpage-right-arrow-link") ."<i class=\"pr-interface-arrowright\"></i>"; ?>
+                   <?= $this->help()->getElementHelp('element_help_frontpage_right_arrow', $titleHtml, "mzk") ?>
+                 </a>
                </div>
             </div>
           <? else: ?>
