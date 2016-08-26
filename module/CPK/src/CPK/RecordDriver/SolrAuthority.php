@@ -127,8 +127,13 @@ class SolrAuthority extends ParentSolrMarc
     public function getLinks()
     {
         $links = array();
-        $field = $this->getFieldArray('998', array('a'));
-        foreach ($field as $part) {
+        $field998 = $this->getFieldArray('998', array('a'));
+        foreach ($field998 as $part) {
+            $links[] = 'auth|online|' . $part;
+        }
+
+        $field856 = $this->getFieldArray('856', array('u'));
+        foreach ($field856 as $part) {
             $links[] = 'auth|online|' . $part;
         }
         return $links;
