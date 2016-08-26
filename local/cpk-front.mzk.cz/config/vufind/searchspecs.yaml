@@ -329,10 +329,9 @@ AllFields:
     - title_new^100
     - series^50
     - series2^30
-    - author_search^700
-    - author^700
-    - author2^700
-    - author_viz^500
+    - author^500
+    - author2^400
+    - author_viz^300
     - coporation_viz^300
     - author_fuller^150
     - contents^10
@@ -375,9 +374,6 @@ AllFields:
       - [and, 50]
     series2:
       - [and, 30]
-    author_search:
-      - [onephrase, 300]
-      - [and, 250]
     author:  
       - [onephrase, 300]
       - [and, 250]
