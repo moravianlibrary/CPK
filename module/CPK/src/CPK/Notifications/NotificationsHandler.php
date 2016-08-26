@@ -232,7 +232,7 @@ class NotificationsHandler
         } else {
 
             if (boolval($showNotification) !== boolval($notificationsRow->shows)) {
-                $notificationsRow->shows = $showNotification;
+                $notificationsRow->shows = ($showNotification) ? 1 : 0;
                 $notificationsRow->save();
             }
         }
@@ -375,7 +375,7 @@ class NotificationsHandler
             $notificationsRow->read = false;
         }
 
-        $notificationsRow->shows = $showNotification;
+        $notificationsRow->shows = ($showNotification) ? 1 : 0;
 
         $notificationsRow->last_fetched = date('Y-m-d H:i:s');
 
