@@ -13,9 +13,7 @@
           $action = (isset($redirectUrlArray[2])) ? $redirectUrlArray[2] : '';
       ?>
       <? endif; ?>
-      <? if(! $this->user): ?>
         <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
-      <? endif; ?>
      <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
