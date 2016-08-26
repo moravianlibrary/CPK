@@ -47,7 +47,7 @@
           <? endif; ?>
             <h2 class='record-title' property='name'>
               <? $titleHtml = "<strong>".$this->escapeHtml($this->driver->getTitle())."</strong>"; ?>
-              <?= $this->help()->getElementHelp('element_help_default_message', $titleHtml, $source) ?>
+              <?= $this->help()->getElementHelp('element_help_default_message', $titleHtml) ?>
             </h2>
             <div class='want-it'>
                 <?=$this->translate('Want it')?>

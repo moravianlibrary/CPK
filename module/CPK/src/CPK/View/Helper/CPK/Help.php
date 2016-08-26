@@ -117,11 +117,10 @@ class Help extends \Zend\View\Helper\AbstractHelper
      *
      * @param   string  $translationKey
      * @param   string  $element        HTML
-     * @param   string  $source         mzk
      *
      * @return  string
      */
-    public function getElementHelp($translationKey, $element, $source)
+    public function getElementHelp($translationKey, $element)
     {
         if (! $this->config['Help']['element_help_enabled']) {
             return '';
@@ -131,8 +130,7 @@ class Help extends \Zend\View\Helper\AbstractHelper
             'Help/element-help.phtml',
             [
                 'translationKey' => $translationKey,
-                'element' => $element,
-                'source' => $source
+                'element' => $element
             ]
         );
     }
