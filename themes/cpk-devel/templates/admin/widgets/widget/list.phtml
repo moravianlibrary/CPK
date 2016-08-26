@@ -7,7 +7,7 @@
       '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
       '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
       '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
-      '<li class="active">'.$this->transEsc('Widget').'</li>';
+      '<li class="active">'.$this->translate($this->widgetTitle).'</li>';
 
   $this->layout()->title = $this->translate($this->widgetTitle);
 

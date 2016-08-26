@@ -554,230 +554,6 @@ class AdminController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * MostWanted manager
-     *
-     * @return \Zend\View\Model\ViewModel
-     */
-    public function mostWantedAction()
-    {
-        if (! $this->accessManager->isLoggedIn()) {
-            return $this->forceLogin();
-        }
-
-        // Must be an portal admin ..
-        $this->accessManager->assertIsPortalAdmin();
-
-        /*
-         * Handle subactions
-         * */
-        $subAction = $this->params()->fromRoute('subaction');
-        if ($subAction == 'CreateItem') {
-            $user = $this->accessManager->getUser();
-
-            $widgetTable = $this->getTable('widget');
-            $mostWantedWidget = $widgetTable->getWidgetByName('most_wanted');
-            $mostWantedTableId = $mostWantedWidget->getId();
-
-            $viewModel = $this->createViewModel();
-            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
-            $viewModel->setVariable('user', $user);
-            $viewModel->setVariable('widgetId', $mostWantedTableId);
-            $viewModel->setTemplate('admin/widgets/most-wanted/create-item');
-            $this->layout()->searchbox = false;
-
-            return $viewModel;
-        }
-
-        if ($subAction == 'EditItem') {
-            $user = $this->accessManager->getUser();
-
-            $id = $this->params()->fromRoute('param');
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setId($id);
-            $widgetContent = $widgetContentTable->getContentById($widgetContent);
-
-            $viewModel = $this->createViewModel();
-            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
-            $viewModel->setVariable('user', $user);
-            $viewModel->setVariable('widgetContent', $widgetContent);
-            $viewModel->setTemplate('admin/widgets/most-wanted/edit-item');
-            $this->layout()->searchbox = false;
-
-            return $viewModel;
-        }
-
-        if ($subAction == 'AddItem') {
-            $post = $this->params()->fromPost();
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setWidgetId($post['widget_id']);
-            $widgetContent->setValue($post['value']);
-            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
-
-            $widgetContentTable->addWidgetContent($widgetContent);
-        }
-
-        if ($subAction == 'SaveItem') {
-            $post = $this->params()->fromPost();
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setId($post['id']);
-            $widgetContent->setWidgetId($post['widget_id']);
-            $widgetContent->setValue($post['value']);
-            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
-
-            $widgetContentTable->saveWidgetContent($widgetContent);
-        }
-
-        if ($subAction == 'RemoveItem') {
-            $id = $this->params()->fromRoute('param');
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setId($id);
-
-            $widgetContentTable->removeWidgetContent($widgetContent);
-        }
-
-        $user = $this->accessManager->getUser();
-
-        $viewModel = $this->createViewModel();
-        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
-        $viewModel->setVariable('user', $user);
-        $viewModel->setTemplate('admin/widgets/most-wanted/list');
-
-        $this->layout()->searchbox = false;
-
-        $widgetContentTable = $this->getTable('widgetcontent');
-        $widgetsContents = $widgetContentTable->getContentsByName('most_wanted', false, false, true);
-
-        $viewModel->setVariable('widgetsContents', $widgetsContents);
-
-        return $viewModel;
-    }
-
-    /**
-     * FavoriteAuthors manager
-     *
-     * @return \Zend\View\Model\ViewModel
-     */
-    public function favoriteAuthorsAction()
-    {
-        if (! $this->accessManager->isLoggedIn()) {
-            return $this->forceLogin();
-        }
-
-        // Must be an portal admin ..
-        $this->accessManager->assertIsPortalAdmin();
-
-        /*
-         * Handle subactions
-         * */
-        $subAction = $this->params()->fromRoute('subaction');
-        if ($subAction == 'CreateItem') {
-            $user = $this->accessManager->getUser();
-
-            $widgetTable = $this->getTable('widget');
-            $favoriteAuthorsWidget = $widgetTable->getWidgetByName('favorite_authors');
-            $favoriteAuthorsTableId = $favoriteAuthorsWidget->getId();
-
-            $viewModel = $this->createViewModel();
-            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
-            $viewModel->setVariable('user', $user);
-            $viewModel->setVariable('widgetId', $favoriteAuthorsTableId);
-            $viewModel->setTemplate('admin/widgets/favorite-authors/create-item');
-            $this->layout()->searchbox = false;
-
-            return $viewModel;
-        }
-
-        if ($subAction == 'EditItem') {
-            $user = $this->accessManager->getUser();
-
-            $id = $this->params()->fromRoute('param');
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setId($id);
-            $widgetContent = $widgetContentTable->getContentById($widgetContent);
-
-            $viewModel = $this->createViewModel();
-            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
-            $viewModel->setVariable('user', $user);
-            $viewModel->setVariable('widgetContent', $widgetContent);
-            $viewModel->setTemplate('admin/widgets/favorite-authors/edit-item');
-            $this->layout()->searchbox = false;
-
-            return $viewModel;
-        }
-
-        if ($subAction == 'AddItem') {
-            $post = $this->params()->fromPost();
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setWidgetId($post['widget_id']);
-            $widgetContent->setValue($post['value']);
-            $widgetContent->setDescriptionCs($post['description_cs']);
-            $widgetContent->setDescriptionEn($post['description_en']);
-            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
-
-            $widgetContentTable->addWidgetContent($widgetContent);
-        }
-
-        if ($subAction == 'SaveItem') {
-            $post = $this->params()->fromPost();
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setId($post['id']);
-            $widgetContent->setWidgetId($post['widget_id']);
-            $widgetContent->setValue($post['value']);
-            $widgetContent->setDescriptionCs($post['description_cs']);
-            $widgetContent->setDescriptionEn($post['description_en']);
-            $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
-
-            $widgetContentTable->saveWidgetContent($widgetContent);
-        }
-
-        if ($subAction == 'RemoveItem') {
-            $id = $this->params()->fromRoute('param');
-
-            $widgetContentTable = $this->getTable('widgetcontent');
-
-            $widgetContent = new \CPK\Widgets\WidgetContent();
-            $widgetContent->setId($id);
-
-            $widgetContentTable->removeWidgetContent($widgetContent);
-        }
-
-        $user = $this->accessManager->getUser();
-
-        $viewModel = $this->createViewModel();
-        $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
-        $viewModel->setVariable('user', $user);
-        $viewModel->setTemplate('admin/widgets/favorite-authors/list');
-
-        $this->layout()->searchbox = false;
-
-        $widgetContentTable = $this->getTable('widgetcontent');
-        $widgetsContents = $widgetContentTable->getContentsByName('favorite_authors', false, false, true);
-
-        $viewModel->setVariable('widgetsContents', $widgetsContents);
-
-        return $viewModel;
-    }
-
-    /**
      * Overriden createViewModel which accepts template as the 2nd arg.
      *
      * @param array $params Parameters to pass to ViewModel constructor.
@@ -847,6 +623,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $viewModel->setVariable('widgetId', $widgetId);
             $viewModel->setVariable('widgetTitle', $widgetName);
             $viewModel->setTemplate('admin/widgets/widget/create-item');
+            $viewModel->setVariable('widget', $widget);
             $this->layout()->searchbox = false;
 
             return $viewModel;
@@ -869,6 +646,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $viewModel->setVariable('widgetId', $widgetId);
             $viewModel->setTemplate('admin/widgets/widget/edit-item');
             $viewModel->setVariable('widgetTitle', $widgetName);
+            $viewModel->setVariable('widget', $widget);
             $this->layout()->searchbox = false;
 
             return $viewModel;
@@ -883,6 +661,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $widgetContent->setWidgetId($post['widget_id']);
             $widgetContent->setValue($post['value']);
             $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+            $widgetContent->setDescriptionCs(isset($post['description_cs']) ? $post['description_cs'] : null);
+            $widgetContent->setDescriptionEn(isset($post['description_en']) ? $post['description_en'] : null);
 
             $widgetContentTable->addWidgetContent($widgetContent);
         }
@@ -897,6 +677,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $widgetContent->setWidgetId($post['widget_id']);
             $widgetContent->setValue($post['value']);
             $widgetContent->setPreferredValue(isset($post['preferred_value']) ? $post['preferred_value'] : 0);
+            $widgetContent->setDescriptionCs(isset($post['description_cs']) ? $post['description_cs'] : null);
+            $widgetContent->setDescriptionEn(isset($post['description_en']) ? $post['description_en'] : null);
 
             $widgetContentTable->saveWidgetContent($widgetContent);
         }

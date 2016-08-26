@@ -7,7 +7,7 @@
       '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
       '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
       '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
-      '<li><a href="/Admin/Widget">'.$this->transEsc('Widget').'</a></li>'.
+      '<li><a href="/Admin/Widget/'.$widgetId.'">'.$this->translate($this->widgetTitle).'</a></li>'.
       '<li class="active">'.$this->transEsc('Edit item').'</li>';
 
   $this->layout()->title = $this->translate('Favorite authors');
@@ -58,6 +58,22 @@
               <input class='form-control' name='preferred_value' type='checkbox' value='1' <?=($this->widgetContent->getPreferredValue()=='1') ? ' checked' : ''?>>
             </div>
           </fieldset>-->
+
+          <? if ($widget->getDescription() == 'description'): ?>
+		  <fieldset class="form-group">
+            <div class="col-xs-8">
+              <label><?=$this->translate('Description')?> Cs</label>
+              <textarea class='form-control' name='description_cs'><?=$this->widgetContent->getDescriptionCs()?></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-group">
+            <div class="col-xs-8">
+              <label><?=$this->translate('Description')?> En</label>
+              <textarea class='form-control' name='description_en'><?=$this->widgetContent->getDescriptionEn()?></textarea>
+            </div>
+          </fieldset>
+          <? endif; ?>
 
           <fieldset class="form-group">
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
