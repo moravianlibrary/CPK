@@ -29,6 +29,7 @@
             filters = '';
           }
           $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1" + filters);
+          $( ".searchForm" ).attr("action", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1" + filters);
 
           /* Update autocomplete On some change */
           $( ".search-query" ).on( 'change', function( event ) {
@@ -47,6 +48,7 @@
             }
 
         	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+        	  $( ".searchForm" ).attr("action", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
 
         	  /* Change first query in advanced search to match value in autocomplete */
         	  ADVSEARCH.clearAdvancedSearchTemplate();
@@ -81,6 +83,7 @@
 			 * statically when on async page with search results.
 			 */
             $( '.searchForm' ).submit( function( event ) {
+                event.preventDefault();
             	var currentUrl = window.location.pathname;
                 var controller = currentUrl.split('/')[1];
                 var action = currentUrl.split('/')[2];
@@ -96,7 +99,9 @@
 					);
                     return false;
 				} else {
-					// continue by static submitting form
+					var url = $( '#run-autocomplete' ).attr( 'href' );
+					$( location ).attr( 'href',  url);
+					return false;
 				}
             });
 
