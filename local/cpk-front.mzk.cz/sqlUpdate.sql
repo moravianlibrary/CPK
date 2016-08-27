@@ -708,3 +708,13 @@ UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 10;
 UPDATE `vufind`.`widget` SET `description` = 'author' WHERE `widget`.`id` = 13;
 
 UPDATE `system` SET `value`='48' WHERE `key`='DB_VERSION';
+
+CREATE TABLE IF NOT EXISTS `modal_specific_contents` (
+`id` int(11) NOT NULL,
+  `portal_page_group` int(11) NOT NULL,
+  `language_code` varchar(32) NOT NULL,
+  `content` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `modal_specific_contents` ADD `source` VARCHAR(12) NOT NULL ;
+
+UPDATE `system` SET `value`='49' WHERE `key`='DB_VERSION';

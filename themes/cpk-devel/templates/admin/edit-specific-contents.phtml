@@ -1,0 +1,88 @@
+<?
+  // Set page title.
+  $this->headTitle($this->translate('Portal pages | Administration'));
+
+  // Set up breadcrumbs:
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
+      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
+      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
+      '<li><a href="/Admin/PortalPages">'.$this->transEsc('Portal pages').'</a></li>'.
+      '<li><a href="/Admin/PortalPages/Edit/'.$this->page['id'].'">'.$this->translate('Edit').': '.htmlspecialchars($this->page['title']).'</a></li>'.
+      '<li class="active">'.$this->translate('Edit specific contents').'</li>';
+
+  $this->layout()->title = $this->translate('Portal pages');
+?>
+<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+<script>
+	jQuery( document ).ready( function( $ ) {
+		tinymce.init({
+			selector:'.editor',
+			toolbar: [
+			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright | bullist numlist | image | link | table | preview'
+			],
+			plugins: "image imagetools link preview table",
+			menubar: "edit insert view format",
+			invalid_styles: {
+			    '*': 'font-family font-size'
+			}
+		});
+
+		if ($( '#view' ).val() == 'advanced-search') {
+			$( '.position-placeholder' ).addClass( 'hidden' );
+		}
+		$( '#view' ).on( 'change', function() {
+			if( $( this ).val() == 'advanced-search' ) {
+				$( '.position-placeholder' ).addClass( 'hidden' );
+			} else {
+				$( '.position-placeholder' ).removeClass( 'hidden' );
+			}
+		});
+
+	});
+</script>
+<div class="row clearfix">
+  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+
+  <div class="col-sm-3">
+    <?=$this->render("admin/menu.phtml")?>
+  </div>
+
+  <div class="col-sm-9">
+    <h2><?=$this->translate('Edit').': '.htmlspecialchars($this->page['title'])?></h2>
+    <div class='well'>
+      <div>
+        <? if (! empty($this->page)): ?>
+        <form action='/Admin/PortalPages/SaveSpecificContents' method='post'>
+
+          <input type='hidden' name='pageId' value='<?=$this->page['id']?>'>
+          <input type='hidden' name='pageGroup' value='<?=$this->page['group']?>'>
+          <input type='hidden' name='language' value='<?=$this->page['language_code']?>'>
+
+          <fieldset class="form-group">
+            <div class="col-xs-3">
+              <label><?=$this->translate('Language')?></label>
+              <input type='text' value='<?=$this->page['language_code']?>' disabled>
+            </div>
+          </fieldset>
+
+          <div id="sources">
+            <div class="panel list-group">
+              <? foreach($this->sources as $source): ?>
+			    <a href="#" class="list-group-item" data-toggle="collapse" data-target="#modal_for_<?=$source?>" data-parent="#sources"><?=$this->translate('source_'.$source)?></a>
+                  <div id="modal_for_<?=$source?>" class="sublinks collapse">
+              	    <textarea rows='15' class='form-control editor' name='content[]'><?=isset($specificContents[$source]) ? $specificContents[$source] : ''?></textarea>
+              	    <input type='hidden' name='source[]' value='<?=$source?>'>
+                  </div>
+              <? endforeach; ?>
+            </div>
+		  </div>
+
+          <fieldset class="form-group">
+            <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
+          </fieldset>
+        </form>
+        <? endif; ?>
+      </div>
+    </div>
+  </div>
+</div>

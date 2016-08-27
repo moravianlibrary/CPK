@@ -66,6 +66,14 @@
                 <i class='fa fa-ellipsis-v fa-2x dropdown-toggle pointer'></i>
               </span>
               <ul class="dropdown-menu" aria-labelledby="actions">
+                <? if ($this->page['placement'] == 'modal'): ?>
+                <li>
+			      <a href='/Admin/PortalPages/EditSpecificContents/<?= $this->page['id'] ?>'>
+                    <i class='fa fa-list'></i>
+                    <?=$this->translate('Edit specific contents')?>
+                  </a>
+                </li>
+                <? endif; ?>
                 <li>
                   <a target='_blank' href='/Portal/Page/<?= $this->page['pretty_url'] ?>?displayToken=94752eedb5baaf2896e35b4a76d9575c'>
                     <i class='fa fa-tv'></i>

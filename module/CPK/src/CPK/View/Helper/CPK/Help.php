@@ -76,10 +76,11 @@ class Help extends \Zend\View\Helper\AbstractHelper
      * Get questionmark help
      *
      * @param   string  $pageName
+     * @param   string  $source         mzk
      *
      * @return  string
      */
-    public function getQuestionMarkHelp($pageName)
+    public function getQuestionMarkHelp($pageName, $source = false)
     {
         if (! isset($this->config['Help']['questionmark_help_enabled'])) {
             return '';
@@ -92,6 +93,15 @@ class Help extends \Zend\View\Helper\AbstractHelper
         $prettyUrl = $pageName.'-'.explode("-", $this->languageCode)[0];
 
         $portalPage = $this->portalPageTable->getPage($prettyUrl, $this->languageCode);
+
+        if ($source) {
+            $portalPageGroup = $portalPage['group'];
+            $language = $portalPage['language_code'];
+            $specificContent = $this->portalPageTable->getSpecificContent($language, $portalPageGroup, $source);
+            if (! empty($specificContent['content'])) {
+                $portalPage['content'] = $specificContent['content'];
+            }
+        }
 
         return $this->view->render(
             'Help/questionmark-help.phtml',

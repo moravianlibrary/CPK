@@ -1,4 +1,7 @@
 <?
+$id = $this->driver->getUniqueID();
+$source = explode(".", $id)[0];
+
 // Set page title.
 $this->headTitle($this->translate('Holdings') . ': ' . $this->driver->getBreadcrumb());
 $this->headScript()->appendFile('async-holdingsils.js');
@@ -22,7 +25,7 @@ $offlineMode = $this->ils()->getOfflineMode();
 // Set page title.
 $this->headTitle($this->driver->getBreadcrumb());
 ?>
-<?= $this->help()->getQuestionMarkHelp('core-tabs') ?>
+<?= $this->help()->getQuestionMarkHelp('core-tabs', $source) ?>
 <? if ($offlineMode == "ils-offline"): ?>
 <div class="alert alert-warning">
 	<h2><?=$this->transEsc('ils_offline_title')?></h2>

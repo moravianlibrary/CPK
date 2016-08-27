@@ -178,6 +178,38 @@ class PortalPage extends Gateway
     }
 
     /**
+     * Save specific contents
+     *
+     * @param array $page
+     *
+     * @return void
+     */
+    public function saveSpecifiContents(array $page)
+    {
+        $delete = new Delete('modal_specific_contents');
+
+        $delete->where([
+            'portal_page_group' => $page['pageGroup'],
+            'language_code' => $page['language']
+        ]);
+
+        $this->executeAnyZendSQLDelete($delete);
+
+        foreach ($page['content'] as $key => $content) {
+
+            $insert = new Insert('modal_specific_contents');
+            $insert->values([
+                'portal_page_group' => $page['pageGroup'],
+                'language_code' => $page['language'],
+                'content' => $page['content'][$key],
+                'source' => $page['source'][$key]
+            ]);
+            $this->executeAnyZendSQLInsert($insert);
+
+        }
+    }
+
+    /**
      * Insert a new row to table
      *
      * @param array $page
@@ -236,13 +268,13 @@ class PortalPage extends Gateway
      */
     public function delete($pageId)
     {
-        $update = new Delete($this->table);
+        $delete = new Delete($this->table);
 
-        $update->where([
+        $delete->where([
             'id' => $pageId
         ]);
 
-        $this->executeAnyZendSQLDelete($update);
+        $this->executeAnyZendSQLDelete($delete);
     }
 
     /**
@@ -284,5 +316,55 @@ class PortalPage extends Gateway
         $resultsArray = $resultSet->toArray();
 
         return $resultsArray[0]['max'];
+    }
+
+    /**
+     * Returns rows from modal_specific_contents table
+     *
+     * @param string    $languageCode, e.g. "en-cpk"
+     * @param boolean   $portalPageGroup
+     *
+     * @return array
+     */
+    public function getSpecificContents($languageCode, $portalPageGroup)
+    {
+        $select = new Select('modal_specific_contents');
+
+        $condition = "language_code='$languageCode' AND portal_page_group='$portalPageGroup'";
+
+        if (! empty($condition)) {
+            $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+            $select->where($predicate);
+        }
+
+        $results= $this->executeAnyZendSQLSelect($select);
+
+        $resultSet = new \Zend\Db\ResultSet\ResultSet();
+        $resultSet->initialize($results);
+
+        return $resultSet->toArray();
+    }
+
+    /**
+     * Returns row from modal_specific_contents table
+     *
+     * @param string    $languageCode, e.g. "en-cpk"
+     * @param boolean   $portalPageGroup
+     * @param string    $source             mzk
+     *
+     * @return array
+     */
+    public function getSpecificContent($languageCode, $portalPageGroup, $source)
+    {
+        $select = new Select('modal_specific_contents');
+
+        $condition = "language_code='$languageCode' AND portal_page_group='$portalPageGroup' AND source='$source'";
+
+        if (! empty($condition)) {
+            $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+            $select->where($predicate);
+        }
+
+        return $this->executeAnyZendSQLSelect($select)->current();
     }
 }

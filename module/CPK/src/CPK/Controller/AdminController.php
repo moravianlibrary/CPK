@@ -218,32 +218,53 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $viewModel->setVariable('placements', $placements);
 
             $viewModel->setTemplate('admin/edit-portal-page');
-        } else
-            if ($subAction == 'Save') {
+        } else if ($subAction == 'Save') {
+            $post = $this->params()->fromPost();
+            $portalPagesTable->save($post);
+            return $this->forwardTo('Admin', 'PortalPages');
+         } else if ($subAction == 'SaveSpecificContents') {
                 $post = $this->params()->fromPost();
-                $portalPagesTable->save($post);
+                $portalPagesTable->saveSpecifiContents($post);
                 return $this->forwardTo('Admin', 'PortalPages');
-            } else
-                if ($subAction == 'Insert') {
-                    $post = $this->params()->fromPost();
-                    $portalPagesTable->insertNewPage($post);
-                    return $this->forwardTo('Admin', 'PortalPages');
-                } else
-                    if ($subAction == 'Delete') {
-                        $pageId = $this->params()->fromRoute('param');
-                        if (! empty($pageId)) {
-                            $portalPagesTable->delete($pageId);
-                        }
-                        return $this->forwardTo('Admin', 'PortalPages');
-                    } else
-                        if ($subAction == 'Create') {
-                            $viewModel->setVariable('positions', $positions);
-                            $viewModel->setVariable('placements', $placements);
-                            $viewModel->setTemplate('admin/create-portal-page');
-                        } else { // normal view
-                            $allPages = $portalPagesTable->getAllPages('*', false);
-                            $viewModel->setVariable('pages', $allPages);
-                        }
+        } else if ($subAction == 'Insert') {
+            $post = $this->params()->fromPost();
+            $portalPagesTable->insertNewPage($post);
+            return $this->forwardTo('Admin', 'PortalPages');
+        } else if ($subAction == 'Delete') {
+            $pageId = $this->params()->fromRoute('param');
+            if (! empty($pageId)) {
+                $portalPagesTable->delete($pageId);
+            }
+            return $this->forwardTo('Admin', 'PortalPages');
+        } else if ($subAction == 'Create') {
+            $viewModel->setVariable('positions', $positions);
+            $viewModel->setVariable('placements', $placements);
+            $viewModel->setTemplate('admin/create-portal-page');
+        } else if ($subAction == 'EditSpecificContents') {
+            $pageId = (int) $this->params()->fromRoute('param');
+            $page = $portalPagesTable->getPageById($pageId);
+            $viewModel->setVariable('page', $page);
+
+            $multiBackendConfig = $this->getConfig('MultiBackend');
+            $sources = [];
+            foreach($multiBackendConfig->Drivers as $source => $value) {
+                if ($source !== 'Dummy') {
+                    $sources[] = $source;
+                }
+            }
+            $viewModel->setVariable('sources', $sources);
+            $specificContentsResults = $portalPagesTable->getSpecificContents($page['language_code'], $page['group']);
+            $specificContents = [];
+            foreach ($specificContentsResults as $row) {
+                $specificContents[$row['source']] = $row['content'];
+            }
+            $viewModel->setVariable('specificContents', $specificContents);
+
+            $viewModel->setTemplate('admin/edit-specific-contents');
+        } else { // normal view
+            $allPages = $portalPagesTable->getAllPages('*', false);
+            $viewModel->setVariable('pages', $allPages);
+        }
 
         $this->layout()->searchbox = false;
         return $viewModel;
