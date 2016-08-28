@@ -134,7 +134,11 @@ class SolrAuthority extends ParentSolrMarc
 
         $field856 = $this->getFieldArray('856', array('u'));
         foreach ($field856 as $part) {
-            $links[] = 'auth|online|' . $part;
+            if (strpos($part, 'osobnostiregionu') !== false) {
+                $links[] = 'osobnostiregionu|online|' . $part;
+            } else {
+                $links[] = 'auth|online|' . $part;
+            }
         }
         return $links;
     }
