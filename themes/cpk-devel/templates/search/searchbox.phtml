@@ -26,9 +26,11 @@
         $referer = $_GET['referer'];
         $refererUrl = base64_decode(str_pad(strtr($referer, '-_', '+/'), strlen($referer) % 4, '=', STR_PAD_RIGHT));
         $parts = parse_url($refererUrl);
-        parse_str($parts['query'], $filters);
+        if (isset($parts['query'])) {
+            parse_str($parts['query'], $filters);
+        }
 
-        if (empty($filterList)) {
+        if (empty($filterList) && ! empty($filterList)) {
             foreach ($filters['filter'] as $filter) {
                 $key = explode(":", $filter, 2)[0];
                 $value = explode(":", $filter, 2)[1];
