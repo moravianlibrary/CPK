@@ -24,6 +24,7 @@
  */
 namespace CPK\View\Helper\CPK;
 use MZKCommon\View\Helper\MZKCommon\Record as ParentRecord;
+use CPK\Db\Row\User;
 
 /**
  * Record driver view helper
@@ -101,5 +102,38 @@ class Record extends ParentRecord
         $authority = $results[0];
 
         return $authority->getUniqueId();
+    }
+
+    /**
+     * This functions gets recordsId, finds parent and all the local IDs
+     * and finds the one, that fits users preferences (favorite library)
+     *
+     * @param string            $recordId
+     *
+     * @return string
+     */
+    public function getRelevantRecord($recordId)
+    {
+        $authManager = $this->view->auth()->getManager();
+        $user = $authManager->isLoggedIn();
+
+        if ($user instanceof \CPK\Db\Row\User) {
+
+            $sm = $this->getView()->getHelperPluginManager()->getServiceLocator();
+            $ajaxController = $sm->get('ajaxCtrl');
+            $availablesRecords = $ajaxController->getRecordSiblings($recordId);
+
+            $myLibraries = $user->getNonDummyInstitutions();
+            sort($myLibraries);
+
+            foreach ($availablesRecords as $record) {
+                foreach ($myLibraries as $myLibrary) {
+                    if (explode(".", $record, 2)[0] == $myLibrary) {
+                        return $record;
+                    }
+                }
+            }
+        }
+        return $recordId;
     }
 }

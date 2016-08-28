@@ -3,12 +3,12 @@
       <h2><?=($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn()?></h2>
     </div>
     <div class="list-group">
-      <? foreach ($this->widget->getContents() as $item): ?>
-      <a href="/Record/<?=$item->getValue()?>" class="list-group-item clearfix" target="_blank">
+      <? foreach ($this->widget->getContents() as $item): $id = $this->record($item->getRecordDriver())->getRelevantRecord($item->getValue()); ?>
+      <a href="/Record/<?=$id?>" class="list-group-item clearfix" target="_blank">
         <div class='row'>
           <? if ($this->widget->getShowCover()): ?>
               <?
-              $recordId =  preg_replace("/\./", "", $item->getValue());
+              $recordId =  preg_replace("/\./", "", $id);
               $recordId =  preg_replace("/:/", "", $recordId);
               $formats = $item->getRecordDriver()->getFormats();
               ?>

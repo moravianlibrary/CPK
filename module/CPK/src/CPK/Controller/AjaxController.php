@@ -1696,4 +1696,24 @@ class AjaxController extends AjaxControllerBase
 
 	    return $this->output($viewData, self::STATUS_OK);
 	}
+
+	/**
+	 * Return siblings of record
+	 *
+	 * @param  string  $recordId
+	 *
+	 * @return array
+	 */
+	public function getRecordSiblings($recordId)
+	{
+	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+	    $recordDriver = $recordLoader->load($recordId);
+
+	    $parentRecordID = $recordDriver->getParentRecordID();
+	    $parentRecordDriver = $recordLoader->load($parentRecordID);
+
+	    $childrenIds = $parentRecordDriver->getChildrenIds();
+
+	    return $childrenIds;
+	}
 }

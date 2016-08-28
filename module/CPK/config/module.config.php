@@ -182,6 +182,7 @@ $config = array(
         'invokables' => array(
             'wantitfactory' => 'CPK\WantIt\Factory',
             'searchController' => 'CPK\Controller\SearchController',
+            'ajaxCtrl' => 'CPK\Controller\AjaxController',
         )
     ),
     'view_manager' => array(
