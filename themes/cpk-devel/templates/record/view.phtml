@@ -159,7 +159,11 @@
                       if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
                     ?>
                     <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
-                      <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav"><?=($desc=='Holdings') ? $this->transEsc('Borrow') : $this->transEsc($desc)?></a>
+                      <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav">
+                          <? $titleHtml = ($desc=='Holdings') ? $this->transEsc('Borrow') : $this->transEsc($desc) ?>
+                          <?= $this->help()->getElementHelp('element_help_record_tab_'.$desc, $titleHtml) ?>
+
+                      </a>
                     </li>
                     <? endforeach; ?>
                   </ul>
