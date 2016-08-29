@@ -25,8 +25,9 @@
 	      <span class="pull-right flip"><i class="pr-ecommerce-creditcardmastercard"></i></span>
 	    </a>
 	    <a href="<?=$this->url('myresearch-profile')?>" class="list-group-item<?=$this->active == 'profile' ? ' active' : ''?>">
-	      <?=$this->transEsc('Profile')?>
-	      <span class="pull-right flip"><i class="pr-user-single"></i></span>
+	        <? $titleHtml = $this->transEsc('Profile'); ?>
+            <?= $this->help()->getElementHelp('element_help_profile', $titleHtml) ?>
+            <span class="pull-right flip"><i class="pr-user-single"></i></span>
 	    </a>
 	    <a href="<?=$this->url('myresearch-settings')?>" class="list-group-item<?=$this->active == 'settings' ? ' active' : ''?>">
 	      <?=$this->transEsc('Settings')?>
@@ -49,7 +50,8 @@
   <? endif; ?>
   <? if ($user && $user->libraryCardsEnabled()): ?>
     <a href="<?=$this->url('librarycards-home')?>" class="list-group-item<?=$this->active == 'librarycards' ? ' active' : ''?>">
-      <?=$this->transEsc('Linked accounts')?>
+        <? $titleHtml = $this->transEsc('Linked accounts'); ?>
+        <?= $this->help()->getElementHelp('element_help_linked_accounts', $titleHtml) ?>
       <span class="pull-right flip"><i class="pr-user-malegroup"></i></span>
     </a>
   <? endif; ?>
