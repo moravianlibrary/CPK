@@ -100,7 +100,8 @@ foreach ($queryParams as $key => $value) {
         <div class="col-xs-12 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
         <? endif; ?>
             <i class="pr-institution-arrow"></i>
-            <?=$this->transEsc($cluster['label'])?>
+            <? $titleHtml = $this->transEsc($cluster['label']); ?>
+            <?= $this->help()->getElementHelp('element_help_facet_' . $cluster['label'], $titleHtml) ?>
               <? if (isset($rangeFacets[$title])): ?>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
               <button type="button" class="btn btn-default btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
