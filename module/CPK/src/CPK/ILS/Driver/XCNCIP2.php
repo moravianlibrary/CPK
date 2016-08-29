@@ -706,13 +706,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getStatuses($ids, $patron = [], $filter = [], $bibId = [], $nextItemToken = null)
     {
-        $retVal = [];
-
         if (empty($bibId)) $this->cannotUseLUIS = true;
         if (! empty($filter) && $this->agency != 'LIA001') $this->cannotUseLUIS = true;
-        if ($this->cannotUseLUIS)
+        if ($this->cannotUseLUIS) {
             // If we cannot use LUIS we will parse only the first one
+            $retVal = [];
             $retVal[] = $this->getStatus(reset($ids), $patron);
+            return $retVal;
+        }
         else {
             if (in_array($this->agency, $this->libsLikeTabor)) {
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
@@ -746,89 +747,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 return $this->handleStutusesZlg($response);
             }
 
-            $request = $this->requests->LUISItemId($ids, null, $this, $patron);
-            $response = $this->sendRequest($request);
-
-            if ($response === null)
-                return [];
-
-            $newNextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
-
-            $bibInfos = $this->useXPath($response,
-                'LookupItemSetResponse/BibInformation');
-
-            foreach ($bibInfos as $bibInfo) {
-
-                $bib_id = $this->getFirstXPathMatchAsString($bibInfo, 'HoldingsSet/ItemInformation/' .
-                        'ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-
-                $item_id = $this->getFirstXPathMatchAsString($bibInfo,
-                    'BibliographicId/BibliographicRecordId/BibliographicRecordIdentifier');
-
-                $status = $this->useXPath($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/CirculationStatus');
-
-                if (! empty($status) && (string) $status[0] == 'On Loan') {
-                    $dueDate = $this->useXPath($bibInfo, 'HoldingsSet/ItemInformation/DateDue');
-                    $dueDate = $this->parseDate($dueDate);
-                } else {
-                    $dueDate = false;
-                }
-
-                $itemCallNo = $this->getFirstXPathMatchAsString($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/ItemDescription/CallNumber');
-
-                $holdQueue = $this->getFirstXPathMatchAsString($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/HoldQueueLength');
-
-                $itemRestriction = $this->useXPath($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
-
-                $locationNameInstances = $this->useXPath($bibInfo,
-                    'HoldingsSet/ItemInformation/ItemOptionalFields/Location/LocationName/LocationNameInstance');
-
-                foreach ($locationNameInstances as $locationNameInstance) {
-                    // FIXME: Create config to map location abbreviations of each institute into human readable values
-
-                    $locationLevel = $this->getFirstXPathMatchAsString(
-                        $locationNameInstance, '//LocationNameLevel');
-
-                    if ($locationLevel == 4) {
-                        $department = $this->getFirstXPathMatchAsString(
-                            $locationNameInstance, '//LocationNameValue');
-                    } else
-                        if ($locationLevel == 3) {
-                            $sublibrary = $this->getFirstXPathMatchAsString(
-                                $locationNameInstance, '//LocationNameValue');
-                        } else {
-                            $locationInBuilding = $this->useXPath(
-                                $locationNameInstance, '//LocationNameValue');
-                        }
-                }
-
-                $label = $this->determineLabel($status);
-                $addLink = $this->isLinkAllowed($status, $itemRestriction);
-
-                $retVal[] = array(
-                    'id' => empty($bib_id) ? "" : $bib_id,
-                    'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-                    'status' => empty($status) ? '' : (string) $status[0],
-                    'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
-                    'collection' => '',
-                    'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
-                    'department' => empty($department) ? '' : $department,
-                    'requests_placed' => ! isset($holdQueue) ? "" : $holdQueue,
-                    'item_id' => empty($item_id) ? "" : $item_id,
-                    'label' => $label,
-                    'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
-                    'restrictions' => '',
-                    'duedate' => empty($dueDate) ? '' : $dueDate,
-                    'next_item_token' => empty($newNextItemToken) ? '' : (string) $newNextItemToken[0],
-                    'addLink' => $addLink,
-                );
+            if ($this->agency === 'UOG505') { // tre
+                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
+                $response = $this->sendRequest($request);
+                return $this->handleStutusesZlg($response);
             }
         }
-        return $retVal;
+        return [];
     }
 
     private function handleStutuses($response)
