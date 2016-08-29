@@ -63,12 +63,20 @@
     </div>
   <? endif; ?>
   </li>
-  <li class="list-group-item"><a id="mail-record" class="modal-link <?=$controllerClass?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow"><i class="pr-communication-emailenvelopemail"> </i> <?=$this->transEsc('Email this')?></a></li>
+  <li class="list-group-item">
+    <a id="mail-record" class="modal-link <?=$controllerClass?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow">
+      <? $titleHtml = "<i class=\"pr-communication-emailenvelopemail\"> </i>" . $this->transEsc('Email this') ?>
+      <?= $this->help()->getElementHelp('element_help_email_this', $titleHtml) ?>
+    </a>
+  </li>
 
   <? $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>
   <? if(count($exportFormats) > 0): ?>
     <li class="dropdown list-group-item">
-      <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>" rel="nofollow"><i class="pr-web-uploadarrow"> </i> <?=$this->transEsc('Export Record') ?></a>
+      <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>" rel="nofollow">
+        <? $titleHtml = "<i class=\"pr-web-uploadarrow\"> </i>" . $this->transEsc('Export Record') ?>
+        <?= $this->help()->getElementHelp('element_help_export_record', $titleHtml) ?>
+      </a>
       <ul class="dropdown-menu record-export" role="menu">
         <? foreach ($exportFormats as $exportFormat): ?>
           <li><a <? if ($this->export()->needsRedirect($exportFormat)): ?>target="<?=$this->escapeHtmlAttr($exportFormat)?>Main" <? endif; ?>href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>?style=<?=$this->escapeHtmlAttr($exportFormat)?>" rel="nofollow"><?=$this->transEsc($this->export()->getLabelForFormat($exportFormat))?></a></li>
