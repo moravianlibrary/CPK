@@ -10,7 +10,10 @@
     $id = $this->driver->getUniqueID();
     $source = explode(".", $id)[0];
 ?>
-<h2><?=$this->transEsc('request_place_text')?></h2>
+<h2>
+    <?=$this->transEsc('request_place_text')?>
+    <?= $this->help()->getQuestionMarkHelp('request-place', $source) ?>
+</h2>
 <? if ($this->helpText): ?>
 <p class="helptext"><?=$this->helpText?></p>
 <? endif; ?>
