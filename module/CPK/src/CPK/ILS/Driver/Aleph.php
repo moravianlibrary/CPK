@@ -195,30 +195,32 @@ class Aleph extends AlephBase implements CPKDriverInterface
         $blocks = [];
         $translatedBlock = '';
 
-        if (isset($profile['blocks']))
-            foreach ($profile['blocks'] as $block) {
-                if (isset($this->availabilitySource)) {
-                    $translatedBlock = $this->translator->getTranslator()->translate($this->availabilitySource . " " . "Block" . " " . (string) $block);
+        if (isset($profile['blocks'])) {
+            if ($this->alephWebService->isXServerEnabled()) {
+                foreach ($profile['blocks'] as $block) {
+                    if (isset($this->availabilitySource)) {
+                        $translatedBlock = $this->translator->getTranslator()->translate($this->availabilitySource . " " . "Block" . " " . (string) $block);
 
-                    /* Skip blocks which are not translated. */
-                    if ($translatedBlock === $this->availabilitySource . " " . "Block" . " " . (string) $block)
-                        continue;
-                } else {
-                    $translatedBlock = $this->translator->getTranslator()->translate("Block " . (string) $block);
-                    if ($translatedBlock === "Block " . (string) $block)
-                        continue;
+                        /* Skip blocks which are not translated. */
+                        if ($translatedBlock === $this->availabilitySource . " " . "Block" . " " . (string) $block)
+                            continue;
+                    } else {
+                        $translatedBlock = $this->translator->getTranslator()->translate("Block " . (string) $block);
+                        if ($translatedBlock === "Block " . (string) $block)
+                            continue;
+                    }
+
+                    if (! empty($this->logo)) {
+                        if (! empty($blocks[$this->logo]))
+                            $blocks[$this->logo] .= ", " . $translatedBlock;
+                            else
+                                $blocks[$this->logo] = $translatedBlock;
+                    } else
+                        $blocks[] = $translatedBlock;
                 }
-
-                if (! empty($this->logo)) {
-                    if (! empty($blocks[$this->logo]))
-                        $blocks[$this->logo] .= ", " . $translatedBlock;
-                    else
-                        $blocks[$this->logo] = $translatedBlock;
-                } else
-                    $blocks[] = $translatedBlock;
+                $profile['blocks'] = $blocks;
             }
-
-        $profile['blocks'] = $blocks;
+        }
 
         return $profile;
     }
@@ -393,6 +395,20 @@ class Aleph extends AlephBase implements CPKDriverInterface
 
         $recordList['expire'] = $this->parseDate($expiry);
         $recordList['group'] = $status;
+
+        $xml = $this->alephWebService->doRestDLFRequest(array(
+            'patron',
+            $user['id'],
+            'patronStatus',
+            'blocks'
+        ));
+        foreach ($xml->{'blocks_messages'}->{'global-blocks'}->{'patron-block'} as $block) {
+            $recordList['blocks'][] = (string) $block;
+        }
+        foreach ($xml->{'blocks_messages'}->{'global-blocks'}->{'consortial-block'} as $block) {
+            $recordList['blocks'][] = (string) $block;
+        }
+
         return $recordList;
     }
 
