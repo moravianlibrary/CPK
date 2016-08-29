@@ -123,7 +123,21 @@ class Help extends \Zend\View\Helper\AbstractHelper
     public function getElementHelp($translationKey, $element)
     {
         if (! $this->config['Help']['element_help_enabled']) {
-            return '';
+            return $this->view->render(
+                'Help/element-help-not-available.phtml',
+                [
+                    'element' => $element
+                ]
+            );
+        }
+
+        if ($this->translate($translationKey) == $translationKey) {
+            return $this->view->render(
+                'Help/element-help-not-available.phtml',
+                [
+                    'element' => $element
+                ]
+            );
         }
 
         return $this->view->render(
@@ -133,5 +147,23 @@ class Help extends \Zend\View\Helper\AbstractHelper
                 'element' => $element
             ]
         );
+    }
+
+    /**
+     * Translate a string if a translator is available.
+     *
+     * @param string $msg
+     *            Message to translate
+     * @param array $tokens
+     *            Tokens to inject into the translated string
+     * @param string $default
+     *            Default value to use if no translation is found (null
+     *            for no default).
+     *
+     * @return string
+     */
+    protected function translate($msg, $tokens = [], $default = null)
+    {
+        return $this->getView()->plugin('translate')->__invoke($msg, $tokens, $default);
     }
 }
