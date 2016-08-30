@@ -31,13 +31,15 @@
         }
 
         if (empty($filterList) && ! empty($filters)) {
-            foreach ($filters['filter'] as $filter) {
-                $key = explode(":", $filter, 2)[0];
-                $value = explode(":", $filter, 2)[1];
-                if(! array_key_exists($key, $filterList)) {
-                    $filterList[$key] = [];
+            if (isset($filters['filter'])) {
+                foreach ($filters['filter'] as $filter) {
+                    $key = explode(":", $filter, 2)[0];
+                    $value = explode(":", $filter, 2)[1];
+                    if(! array_key_exists($key, $filterList)) {
+                        $filterList[$key] = [];
+                    }
+                    $filterList[$key][] = trim($value, '"');
                 }
-                $filterList[$key][] = trim($value, '"');
             }
         }
     }
