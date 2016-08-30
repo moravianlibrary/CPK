@@ -72,6 +72,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     protected $translator = false;
 
     protected $libsLikeTabor = null;
+    protected $libsLikeLiberec = null;
 
     /**
      * Set the HTTP service to be used for HTTP requests.
@@ -133,6 +134,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         $this->requests = new NCIPRequests($this->config);
         $this->libsLikeTabor = $this->requests->getLibsLikeTabor();
+        $this->libsLikeLiberec = $this->requests->getLibsLikeLiberec();
     }
 
     public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
@@ -715,7 +717,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     public function getStatuses($ids, $patron = [], $filter = [], $bibId = [], $nextItemToken = null)
     {
         if (empty($bibId)) $this->cannotUseLUIS = true;
-        if (! empty($filter) && $this->agency != 'LIA001') $this->cannotUseLUIS = true;
+        if (! empty($filter) && in_array($this->agency, $this->libsLikeLiberec)) $this->cannotUseLUIS = true;
         if ($this->cannotUseLUIS) {
             // If we cannot use LUIS we will parse only the first one
             $retVal = [];
@@ -736,8 +738,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 return $this->handleStutusesZlg($response);
             }
 
-            if ($this->agency === 'LIA001') {
+            if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $bibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
+                $bibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $bibId);
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutusesZlg($response);
@@ -850,7 +853,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $item_id = $this->useXPath($itemInformation,
                     'ItemId/ItemIdentifierValue');
-            if ($this->agency === 'LIA001') {
+            if (in_array($this->agency, $this->libsLikeLiberec)) {
                 if (empty($item_id)) {
                     $item_id = $this->useXPath($itemInformation,
                             'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
@@ -1263,7 +1266,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // Deal with Liberec.
             if (empty($position)) $position = $this->useXPath($current,
                     'Ext/HoldQueueLength');
-            if ($this->agency === 'LIA001') {
+            if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $title = $extTitle; // TODO temporary solution for periodics
                 if ((! empty($type)) && ((string) $type[0] == 'w')) $cannotCancel = true;
             }
@@ -1281,8 +1284,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             if (! empty($position)) if ((string) $position[0] === '0') $position = null; // hide queue position
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
-            if ($this->agency === 'LIA001') { // change record prefix for kvkl
+            if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
+                $bib_id = str_replace('cbvk_us_cat*', 'CbvkUsCat_', $bib_id);
             }
             if ($this->agency === 'ZLG001') { // add record prefix for kfbz
                 $bib_id = 'oai:' . $bib_id;

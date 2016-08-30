@@ -19,7 +19,10 @@ class NCIPRequests {
     protected $sendUserId = null;
 
     protected $libsLikeTabor = [
-        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'CBA001',
+        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001',
+    ];
+    protected $libsLikeLiberec = [
+        'LIA001', 'CBA001',
     ];
 
     public function __construct($config) {
@@ -205,6 +208,10 @@ class NCIPRequests {
         return $this->libsLikeTabor;
     }
 
+    public function getLibsLikeLiberec() {
+        return $this->libsLikeLiberec;
+    }
+
     protected function header() {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
         "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
@@ -308,7 +315,7 @@ class NCIPRequests {
     /* Allowed values are: Accession Number, Barcode. */
     protected function insertItemIdentifierType() {
         $itemIdentifierType = "Accession Number";
-        if ($this->agency == "LIA001") $itemIdentifierType = "Barcode";
+        if (in_array($this->agency, $this->libsLikeLiberec)) $itemIdentifierType = "Barcode";
         return ($this->noScheme ?
                 "<ns1:ItemIdentifierType>" :
                 "<ns1:ItemIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
@@ -352,7 +359,7 @@ class NCIPRequests {
         $this->insertUserElementType("User Privilege") .
         $this->insertUserElementType("User Id") .
         $this->insertUserElementType("Previous User Id");
-        if ($this->agency == "LIA001") {
+        if (in_array($this->agency, $this->libsLikeLiberec)) {
             $body =
             $this->insertUserElementType("Block Or Trap") .
             $this->insertUserElementType("Name Information") .
