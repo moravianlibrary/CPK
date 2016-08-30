@@ -629,7 +629,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         list ($id, $agencyId) = $this->splitAgencyId($id);
 
         $request = $this->requests->lookupItem($id, $patron);
-        $response = $this->sendRequest($request);
+        try {
+            $response = $this->sendRequest($request);
+        }
+        catch (ILSException $e) {
+            return array(
+                'item_id' => $id,
+                'usedGetStatus' => true
+            );
+        }
         if ($response == null)
             return null;
 
