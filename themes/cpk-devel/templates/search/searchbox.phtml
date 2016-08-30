@@ -30,7 +30,7 @@
             parse_str($parts['query'], $filters);
         }
 
-        if (empty($filterList) && ! empty($filterList)) {
+        if (empty($filterList) && ! empty($filters)) {
             foreach ($filters['filter'] as $filter) {
                 $key = explode(":", $filter, 2)[0];
                 $value = explode(":", $filter, 2)[1];
