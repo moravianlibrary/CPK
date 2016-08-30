@@ -115,12 +115,11 @@
 		// Setup default language
 		var lang = document.body.parentNode.getAttribute('lang');
 
+		var newTarget = location.pathname + location.search;
+		newTarget += (newTarget.indexOf('?') >= 0 ? '&' : '?') + 'auth_method=Shibboleth';
+
 		lastIdps.forEach(function(lastIdp) {
 		    lastIdp.name = lastIdp['name_' + lang];
-		    
-		    var newTarget = location.pathname + location.search;
-			
-		    newTarget += newTarget.indexOf('?') >= 0 ? '&' : '?' + 'auth_method=Shibboleth';
 
 		    lastIdp.href = lastIdp.href.replace(/target=[^&]*/, 'target=' + encodeURIComponent(newTarget));
 		});
