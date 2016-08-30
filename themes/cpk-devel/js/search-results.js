@@ -822,6 +822,15 @@ jQuery( document ).ready( function( $ ) {
 		
 		ADVSEARCH.updateSearchResults( undefined, undefined, newSearchTypeTemplate );
 	});
+	
+	$( 'body' ).on( 'mouseover', '.result', function( event ) {
+	
+		$( this ).find( '.search-results-favorite-button' ).removeClass( 'hidden' );
+	});
+	
+	$( 'body' ).on( 'mouseleave', '.result', function( event ) {
+		$( this ).find( '.search-results-favorite-button' ).addClass( 'hidden' );
+	});
 
 	/**
 	 * Get param from url
