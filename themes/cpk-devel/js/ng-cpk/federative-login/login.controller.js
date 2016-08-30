@@ -50,7 +50,7 @@
 		// If saved already, just push it in front
 		for (var i = 0; i < lastIdpsLength; ++i) {
 		    var lastIdp = lastIdps[i];
-		    if (lastIdp.href === idp.href) {
+		    if (lastIdp.name === idp.name) {
 
 			// Remove yourself
 			lastIdps.splice(i, 1);
