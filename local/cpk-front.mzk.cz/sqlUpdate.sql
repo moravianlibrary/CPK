@@ -718,3 +718,10 @@ CREATE TABLE IF NOT EXISTS `modal_specific_contents` (
 ALTER TABLE `modal_specific_contents` ADD `source` VARCHAR(12) NOT NULL ;
 
 UPDATE `system` SET `value`='49' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `modal_specific_contents` DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+ALTER TABLE `modal_specific_contents` 
+  CHANGE `language_code` `language_code` VARCHAR(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, 
+  CHANGE `content` `content` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, 
+  CHANGE `source` `source` VARCHAR(12) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
+UPDATE `system` SET `value`='50' WHERE `key`='DB_VERSION';
