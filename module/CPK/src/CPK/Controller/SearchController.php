@@ -644,6 +644,15 @@ class SearchController extends SearchControllerBase
 	    $view->referer = $referer;
 	    /**/
 
+	    $user = $this->getAuthManager()->isLoggedIn();
+
+	    $view->isLoggedIn = $user;
+	    $view->offlineFavoritesEnabled = false;
+
+	    if ($this->getConfig()->Site['offlineFavoritesEnabled'] !== null) {
+	        $view->offlineFavoritesEnabled = (bool) $this->getConfig()->Site['offlineFavoritesEnabled'];
+	    }
+
 	    return $view;
 	}
 
@@ -1051,6 +1060,16 @@ class SearchController extends SearchControllerBase
 	    $viewData['config'] = $this->getConfig();
 	    $viewData['facetConfig'] = $this->getConfig('facets');
 
+	    //
+
+	    $user = $this->getAuthManager()->isLoggedIn();
+
+	    $viewData['isLoggedIn'] = $user;
+	    $viewData['offlineFavoritesEnabled'] = false;
+
+	    if ($this->getConfig()->Site['offlineFavoritesEnabled'] !== null) {
+	        $viewData['offlineFavoritesEnabled'] = (bool) $this->getConfig()->Site['offlineFavoritesEnabled'];
+	    }
 
 		// Set up facet information:
 		$viewData['facetList'] = $this->processAdvancedFacets(
