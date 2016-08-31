@@ -362,4 +362,43 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         }
         return $this->redirectToRecord();
     }
+
+    /**
+     * ProcessSave -- store the results of the Save action.
+     *
+     * @return mixed
+     */
+    protected function processSave()
+    {
+        // Retrieve user object and force login if necessary:
+        if (!($user = $this->getUser())) {
+            return $this->forceLogin();
+        }
+
+        // Perform the save operation:
+        $driver = $this->loadRecord();
+        $post = $this->getRequest()->getPost()->toArray();
+        $tagParser = $this->getServiceLocator()->get('VuFind\Tags');
+        $post['mytags'] = (isset($post['mytags'])) ? $tagParser->parse($post['mytags']) : [];
+        $results = $driver->saveToFavorites($post, $user);
+
+        // Display a success status message:
+        $listUrl = $this->url()->fromRoute('userList', ['id' => $results['listId']]);
+        $message = [
+            'html' => true,
+            'msg' => $this->translate('bulk_save_success') . '. '
+            . '<a href="' . $listUrl . '" class="gotolist">'
+            . $this->translate('go_to_list') . '</a>.'
+        ];
+        $this->flashMessenger()->addMessage($message, 'success');
+
+        // redirect to followup url saved in saveAction
+        if ($url = $this->getFollowupUrl()) {
+            $this->clearFollowupUrl();
+            return $this->redirect()->toUrl($url);
+        }
+
+        // No followup info found?  Send back to record view:
+        return $this->redirectToRecord();
+    }
 }
