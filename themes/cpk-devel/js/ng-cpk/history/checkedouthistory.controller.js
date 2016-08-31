@@ -66,7 +66,7 @@
 		    
 		    return resolve();
 		    
-		}).then($scope.$applyAsync);
+		}).then($scope.$applyAsync).then(downloadCovers(result['obalky']));
 	    }
 	}
 	
@@ -141,7 +141,7 @@
 			
 			// Cache the answer ..
 			pagesCache[cacheIndex] = response.data;
-			
+		        
 			return resolve(response.data);
 		    } else {
 			return reject(response.data);
@@ -194,7 +194,19 @@
 		    
 		    resolve();
 		    
-		}).then($scope.$applyAsync);
+		}).then($scope.$applyAsync).then(downloadCovers(result['obalky']));
+	    }
+	}
+	
+	function downloadCovers(covers) {
+	    if (typeof covers !== 'undefined') {
+		for ( var id in covers) {
+		    if (covers.hasOwnProperty(id)) {
+			var cover = covers[id];
+
+			obalky.fetchImage(id, cover.bibInfo, cover.advert, 'icon');
+		    }
+		}
 	    }
 	}
 	
@@ -307,8 +319,8 @@
     
     /**
      * Directive for creating an improvized "onload" event when angular links
-     * the loader div with the username in it to call the onHistoryUsernameLinked
-     * function
+     * the loader div with the username in it to call the
+     * onHistoryUsernameLinked function
      */
     function ngHistoryUsernameDirective() {
 	return {

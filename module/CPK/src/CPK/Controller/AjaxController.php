@@ -637,6 +637,8 @@ class AjaxController extends AjaxControllerBase
         $post = $this->params()->fromPost();
         $cat_username = $post['cat_username'];
 
+        $source = explode('.', $cat_username, 1)[0];
+
         $hasPermissions = $this->hasPermissions($cat_username);
 
         if ($hasPermissions instanceof \Zend\Http\Response)
@@ -665,37 +667,27 @@ class AjaxController extends AjaxControllerBase
                 return $this->outputException($e, $cat_username);
             }
 
+            $obalky = [];
+
             $i = 0;
             foreach ($result['historyPage'] as &$historyItem) {
-
-                $historyItem['source'] = 'VuFind';
-
-                $searchController = $this->getServiceLocator()->get('CPK\SolrEdgeFaceted');
-
-                list ($source, $id) = explode('.', $historyItem['id']);
-
-                $id = $searchController->getRecordIdFromAvailabilityIdAndLocalId($source, $id);
-
-                if ($id === null) {
-                    $historyItem['id'] = 'unknown-record';
-                    continue;
-                }
-
-                $historyItem['id'] = $id;
 
                 $resource = $this->getDriverForILSRecord($historyItem);
 
                 try {
                     // We need to let JS know what to opt for ...
-                    $historyItem['uniqueId'] = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
+                    $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
                     $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
 
                     if ($bibInfo) {
+
+                        $recordId = preg_replace("/[\.:]/", "", $recordId);
+
+                        $historyItem['uniqueId'] = $recordId;
+
                         $recordId = "#cover_$recordId";
 
                         $bibInfo = json_decode($bibInfo);
-
-                        $recordId = preg_replace("/[\.:]/", "", $recordId);
 
                         $obalky[$recordId] = [
                             'bibInfo' => $bibInfo,
@@ -708,6 +700,8 @@ class AjaxController extends AjaxControllerBase
                     $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                 }
             }
+
+            $result['obalky'] = $obalky;
 
             return $this->output($result, self::STATUS_OK);
         } else

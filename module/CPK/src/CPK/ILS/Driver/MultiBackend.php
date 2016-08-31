@@ -396,6 +396,8 @@ class MultiBackend extends MultiBackendBase
                 throw $e;
             }
 
+            $this->idResolver->resolveIds($history['historyPage'], $source, $this->getDriverConfig($source));
+
             return $this->addIdPrefixes($history, $source);
         }
         throw new ILSException('No suitable backend driver found');

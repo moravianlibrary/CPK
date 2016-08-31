@@ -498,6 +498,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
             $due = (string) $z36h->{'z36h-due-date'};
             $returned = (string) $z36h->{'z36h-returned-date'};
             $loaned = (string) $z36h->{'z36h-loan-date'};
+            $barcode = (string) $z30->{'z30-barcode'};
 
             try {
                 $dueDate = $this->parseDate($due);
@@ -523,6 +524,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
                 'item_id' => $group,
                 'title' => $title,
                 'author' => $author,
+                'barcode' => $barcode,
                 'reqnum' => $reqnum,
                 'loandate' => $this->parseDate($loaned),
                 'duedate' => $dueDate,
