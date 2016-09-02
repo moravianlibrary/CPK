@@ -68,6 +68,7 @@ class SearchResults
         $this->count = $apiObject->all;
         $apiLibraries = $apiObject->libraries;
 
+        $libraries = [];
         foreach ($apiLibraries as $apilibrary) {
             $library = new SimpleLibrary();
             $library->ParseSimpleLibrary($apilibrary, $library);
