@@ -726,6 +726,10 @@ class Aleph extends AlephBase implements CPKDriverInterface
         $note = (string) $z30->{'z30-note-opac'};
 
         $availability = (string) $z30->{'z30-item-status'};
+        if ($this->availabilitySource == 'nkp' &&
+                ($availability == 'archivní exemplář' || $availability == 'archival copy')) {
+            $available = false;
+        }
 
         // Customized from here
         $matches = [];
