@@ -298,15 +298,18 @@
                 $controllerClass = 'controller:' . $this->record($this->driver)->getController();
                 $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled; ?>
         	<li class="list-group-item">
-        	<a id="save-record" class="modal-link <?=$controllerClass?>"
+			<a id="save-record" class="modal-link <?=$controllerClass?>"
 
-      	     <? if ($handleOfflineFavorites) : ?>
-            	href="#" data-ng-controller="RecordFavController as recFavCtrl" data-ng-click="recFavCtrl.addOrRemoveFavorite()"
-        	 <? else: ?>
-            	href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
-             <? endif; ?>
+  	         <? if ($handleOfflineFavorites) : ?>
+        		href="#" data-ng-click="searchFavCtrl.addOrRemoveFavorite(<?=isset($_ENV['currentRecordNo']) ? $_ENV['currentRecordNo'] : '' ?>)"
+    	    <? else: ?>
+        		href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
+            <? endif; ?>
 
-             title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span add-remove="add"><?=$this->transEsc('Add to favorites')?></span><span add-remove="rem" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
+    		title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i>
+    		<span add-remove="add<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>"><?=$this->transEsc('Add to favorites')?></span>
+    		<span add-remove="rem<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span>
+    		</a></li>
       	  <? endif; ?>
 		  </div>
 		</div>

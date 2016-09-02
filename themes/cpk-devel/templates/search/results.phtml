@@ -97,7 +97,7 @@
             <?= $this->context($this)->renderInContext('search/no-results', ['lookfor' => $lookfor]) ?>
           </div>
 
-		 <div id='result-list-placeholder'>
+		 <div id='result-list-placeholder' data-ng-controller="SearchFavController as searchFavCtrl">
 		   <? if ($recordTotal > 0): ?>
              <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
 		   <? endif; ?>

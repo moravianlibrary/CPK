@@ -19,6 +19,10 @@
 	factory.createFromCurrentRecord = function() {
 	    return factory.create().parseCurrentRecord();
 	};
+	
+	factory.createFromCurrentSearch = function(rank) {
+	    return factory.create().parseCurrentSearch(rank);
+	}
 
 	return factory;
     }

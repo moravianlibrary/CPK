@@ -9,6 +9,8 @@
 (function() {
 
     angular.module('favorites').value('Favorite', Favorite);
+    
+    var searchItems = undefined;
 
     function Favorite() {
 
@@ -37,6 +39,115 @@
 
 	// Public
 	var vm = this;
+	
+	vm.parseCurrentSearch = function(rank) {
+	    if (typeof rank === 'undefined') 
+		return console.error('Cannot parse from current search with unknown rank!');
+	    
+	    rank = parseInt(rank);
+	    
+	    if (rank < 0)
+		return console.error('Invalid rank provided for parsing current search!');
+	    
+	    if (typeof searchItems === 'undefined') {
+		searchItems = $('div#result-list-placeholder').children();
+	    }
+	    
+	    var desiredRecord = searchItems.get(rank);
+	    
+	    desiredRecord = desiredRecord.getElementsByClassName('row')[0];
+	    
+	    
+	    //TODO
+	    vm.title(parseTitleForSearchRecord());
+
+	    vm.author(parseAuthorForSearchRecord());
+	    
+	    vm.format(parseFormatForSearchRecord());
+
+	    vm.published(parsePublishedForSearchRecord());
+
+	    vm.image(parseImageForSearchRecord());
+	    
+	    return vm;
+	    
+	    function parseTitleForSearchRecord() {
+		var anchor = desiredRecord.querySelector('a.title');
+		
+		if (anchor) {
+		    vm.titleLink(anchor.getAttribute('href'));
+		    
+		    return anchor.textContent.trim();
+		}
+		
+		console.error('Parsing search record title and link failed!');
+	    }
+
+	    function parseAuthorForSearchRecord() {
+		var anchor = desiredRecord.querySelector('a.author-info');
+		
+		if (anchor) {
+		    vm.authorLink(anchor.getAttribute('href'));
+		    
+		    return anchor.textContent.trim();
+		}
+		
+		console.error('Parsing search record author and link failed!');
+	    }
+	    
+	    function parseFormatForSearchRecord() {
+		var iconDiv = desiredRecord.querySelector('div.format-list div.iconlabel');
+
+		if (iconDiv) {
+
+		    vm.formatIconClass(iconDiv.getElementsByTagName('i')[0].getAttribute('class'));
+
+		    return iconDiv.getElementsByTagName('span')[0].getAttribute('data-orig');
+		}
+
+		console.error('Parsing format icon class failed!');
+		console.error('Parsing record format failed!');
+		
+	    }
+
+	    function parsePublishedForSearchRecord() {
+		var span = desiredRecord.querySelector('span.summDate');
+		
+		if (span) {
+		    return span.textContent.trim();
+		}
+
+		console.error('Parsing publication date failed!');
+	    }
+
+	    function parseImageForSearchRecord() {
+		    
+		var thumbnail = desiredRecord.getElementsByClassName('coverThumbnail')[0];
+		
+		var image = thumbnail.getElementsByTagName('img')[0];
+
+		if (typeof image !== 'undefined') {
+		    return image.getAttribute('src');
+		}
+
+		// Parsing image has failed .. so try to parse an icon
+		
+		var icon = thumbnail.getElementsByTagName('i')[0];
+		
+		if (typeof icon !== 'undefined') {
+			
+		    // Set at least the icon to the object
+		    vm.icon(icon.getAttribute('class'));
+		    vm.iconStyle(icon.getAttribute('style'));
+			
+		    // And image is undefined ..
+		    return undefined;
+		}
+		
+		console.error('Parsing search image source or icon failed!');
+		
+	    }
+	}
 
 	vm.parseCurrentRecord = function() {
 
@@ -72,7 +183,7 @@
 	    return vm; // Respect fluent API
 
 	    function parseTitle() {
-		var expectedSiblingHeader = tablePointer.siblings('h3');
+		var expectedSiblingHeader = tablePointer.siblings('h2');
 
 		if (expectedSiblingHeader.length)
 		    return expectedSiblingHeader.text();

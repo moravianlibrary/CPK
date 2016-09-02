@@ -5,7 +5,8 @@
   || (isset($this->showBulkOptions) && $this->showBulkOptions); ?>
 <? $i = $this->indexStart; ?>
 
-<? foreach ($this->results->getResults() as $current):
+<? foreach ($this->results->getResults() as $j => $current):
+  $_ENV['currentRecordNo'] = $j;
   $recordNumber = $this->results->getStartRecord()+$i-$this->indexStart; ?>
   <div id="result<?=$i++ ?>" class="row result clearfix">
     <?=$this->record($current)->getSearchResult('list')?>
