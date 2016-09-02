@@ -26,6 +26,7 @@ namespace CPK\Controller;
 
 use VuFind\Controller\SearchController as SearchControllerBase;
 use VuFind\Exception\Mail as MailException;
+use VuFind\Exception\RecordMissing as RecordMissingException;
 
 /**
  * SearchController
@@ -1276,7 +1277,12 @@ class SearchController extends SearchControllerBase
 
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         foreach ($widgetContens as $key => $record) {
-            $widgetContens[$key]->setRecordDriver($recordLoader->load($record->getValue()));
+            try {
+                $widgetContens[$key]->setRecordDriver($recordLoader->load($record->getValue()));
+            } catch (RecordMissingException $e) {
+                // ignore this widget content item and just don't show not found record
+                unset($widgetContens[$key]);
+            }
         }
 
         return $widgetContens;
