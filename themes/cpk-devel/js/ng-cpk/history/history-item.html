@@ -6,7 +6,10 @@
 	</div>
 	<div class="col-sm-9">
 	  <a data-ng-if="resource.titleLink" href="{{ resource.titleLink }}" class="title">{{ resource.title }}</a>
-	  <div data-ng-if="!resource.titleLink">  <a class="title" ng-href="/Record/{{ resource.id | urlencode }}" title="{{ resource.author }}">{{ resource.title }}</a></div>
+	  <div data-ng-if="!resource.titleLink">
+	    <a ng-if="resource.id" class="title" ng-href="/Record/{{ resource.id | urlencode }}" title="{{ resource.author }}">{{ resource.title }}</a>
+	    <span ng-if="! resource.id" title="{{ resource.author }}">{{ resource.title }}</span>
+	  </div>
 	  <div data-ng-if="resource.authorLink">
 	    {{ 'by' | translate }}:
 	    <a href="{{ resource.authorLink }}">{{ resource.author }}</a>

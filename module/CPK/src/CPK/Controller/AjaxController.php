@@ -637,8 +637,6 @@ class AjaxController extends AjaxControllerBase
         $post = $this->params()->fromPost();
         $cat_username = $post['cat_username'];
 
-        $source = explode('.', $cat_username, 1)[0];
-
         $hasPermissions = $this->hasPermissions($cat_username);
 
         if ($hasPermissions instanceof \Zend\Http\Response)
@@ -671,34 +669,36 @@ class AjaxController extends AjaxControllerBase
 
             $i = 0;
             foreach ($result['historyPage'] as &$historyItem) {
-
                 $resource = $this->getDriverForILSRecord($historyItem);
 
-                try {
-                    // We need to let JS know what to opt for ...
-                    $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
-                    $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+                if ($resource instanceof \VuFind\REcordDriver\Missing) {
+                    unset($historyItem['id']);
+                    $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
+                } else try {
+                        // We need to let JS know what to opt for ...
+                        $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
+                        $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
 
-                    if ($bibInfo) {
+                        if ($bibInfo) {
 
-                        $recordId = preg_replace("/[\.:]/", "", $recordId);
+                            $recordId = preg_replace("/[\.:]/", "", $recordId);
 
-                        $historyItem['uniqueId'] = $recordId;
+                            $historyItem['uniqueId'] = $recordId;
 
-                        $recordId = "#cover_$recordId";
+                            $recordId = "#cover_$recordId";
 
-                        $bibInfo = json_decode($bibInfo);
+                            $bibInfo = json_decode($bibInfo);
 
-                        $obalky[$recordId] = [
-                            'bibInfo' => $bibInfo,
-                            'advert' => $renderer->record($resource)->getObalkyKnihAdvert('checkedouthistory')
-                        ];
-                    } else {
+                            $obalky[$recordId] = [
+                                'bibInfo' => $bibInfo,
+                                'advert' => $renderer->record($resource)->getObalkyKnihAdvert('checkedouthistory')
+                            ];
+                        } else {
+                            $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
+                        }
+                    } catch (\Exception $e) {
                         $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                     }
-                } catch (\Exception $e) {
-                    $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
-                }
             }
 
             $result['obalky'] = $obalky;

@@ -519,6 +519,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
 
             $z36ItemId = $this->admlib . $z36h->{'z36h-doc-number'} . $z36h->{'z36h-item-sequence'};
             $z36_sub_library_code = (string) $item->{'z36h-sub-library-code'};
+
             $item = array(
                 'id' => $id,
                 'item_id' => $group,
