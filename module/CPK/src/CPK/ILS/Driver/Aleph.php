@@ -750,7 +750,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
                 $status = 'available';
                 $holdType = 'Place a Hold';
                 $label = 'label-success';
-            } elseif ($duedate_status = "requested") {
+            } elseif ($duedate_status == "requested") {
                 $label = 'label-warning';
                 $status = 'On Order';
             } else {
