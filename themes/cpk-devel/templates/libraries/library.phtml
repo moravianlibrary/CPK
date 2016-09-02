@@ -75,19 +75,52 @@
       <? endforeach; ?>
     <? endif; ?>
 
-    <? if ($library->phones!=null):?>
+    <? if ($library->getPhones()!=null):?>
       <h2><i class="pr-communication-phonecall"></i>Telefon</h2>
-      <? foreach ($library->phones as $phone):?>
+      <? foreach ($library->getFirst2Phones() as $phone):?>
         <p><?=$phone->getPhone()?></p>
       <? endforeach; ?>
+
+      <? if ($library->hasMoreThan2Phones()):?>
+        <p>
+          <a data-toggle="collapse" data-target="#collapsePhones" aria-expanded="false" aria-controls="collapsePhones">
+            Zobrazit další <i class="pr-interface-arrowbottom4"></i>
+          </a>
+        </p>
+        <div class="collapse" id="collapsePhones">
+          <div class="well">
+            <? foreach ($library->getMorePhones() as $phone):?>
+              <p><?=$phone->getPhone()?></p>
+            <? endforeach; ?>
+          </div>
+        </div>
+      <? endif; ?>
+
     <? endif; ?>
 
-    <? if ($library->emails!=null):?>
+    <? if ($library->getEmails()!=null):?>
       <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
-      <? foreach ($library->emails as $email):?>
+      <? foreach ($library->getFirst2Emails() as $email):?>
         <p><a href="mailto:<?=$email->getEmail()?>"><?=$email->getEmail()?></a> <?=$email->getNote()?></p>
       <? endforeach; ?>
+
+      <? if ($library->hasMoreThan2Emails()):?>
+        <p>
+          <a data-toggle="collapse" data-target="#collapseEmails" aria-expanded="false" aria-controls="collapseEmails">
+            Zobrazit další <i class="pr-interface-arrowbottom4"></i>
+          </a>
+        </p>
+        <div class="collapse" id="collapseEmails">
+          <div class="well">
+            <? foreach ($library->getMoreEmails() as $email):?>
+              <p><a href="mailto:<?=$email->getEmail()?>"><?=$email->getEmail()?></a> <?=$email->getNote()?></p>
+            <? endforeach; ?>
+          </div>
+        </div>
+      <? endif; ?>
+
     <? endif; ?>
+
 
     <? if ($library->branches!=null):?>
       <h2><i class="pr-interface-househome"></i>Pobočky</h2>

@@ -67,7 +67,7 @@ class Loader {
                 $email = new Email($apiemail);
                 $emails[] = $email;
             }
-            $library->emails = $emails;
+            $library->setEmails($emails);
         }
 
         if(isset($apilibrary->phones) && ! empty($apilibrary->phones)) {
@@ -76,7 +76,7 @@ class Loader {
                 $phone = new Phone($apiphone);
                 $phones[] = $phone;
             }
-            $library->phones = $phones;
+            $library->setPhones($phones);
         }
 
         if(isset($apilibrary->faxes) && ! empty($apilibrary->faxes)) {
