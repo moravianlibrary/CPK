@@ -81,12 +81,18 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             $this->searchObject->getParams()->setSort($this->facetField);
             $results = $this->searchObject->getResults();
             $facets = $this->searchObject->getFacetList();
-            if (isset($facets[$this->facetField]['list'])) {
-                $queryWithoutDiacritic = $this->removeDiacritic($query);
-                foreach ($facets[$this->facetField]['list'] as $filter) {
-                    if (stripos($this->removeDiacritic($filter['value']), $queryWithoutDiacritic) !== false) {
-                        array_push($results, $filter['value']);
+            if ($this->autocompleteField !== 'author_autocomplete') {
+                if (isset($facets[$this->facetField]['list'])) {
+                    $queryWithoutDiacritic = $this->removeDiacritic($query);
+                    foreach ($facets[$this->facetField]['list'] as $filter) {
+                        if (stripos($this->removeDiacritic($filter['value']), $queryWithoutDiacritic) !== false) {
+                            array_push($results, $filter['value']);
+                        }
                     }
+                }
+            } else {
+                foreach ($facets[$this->facetField]['list'] as $filter) {
+                    array_push($results, $filter['value']);
                 }
             }
         } catch (\Exception $e) {
