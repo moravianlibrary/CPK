@@ -21,6 +21,8 @@ class FullLibrary extends SimpleLibrary {
     public $projects;
     //array of Service objects
     public $services;
+    //array of Branch objects
+    public $branches;
 
 
 }

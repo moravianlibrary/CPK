@@ -89,6 +89,18 @@
       <? endforeach; ?>
     <? endif; ?>
 
+    <? if ($library->branches!=null):?>
+      <h2><i class="pr-interface-househome"></i>Pobočky</h2>
+      <table class="table table-striped">
+        <? foreach ($library->branches as $branch):?>
+          <tr>
+            <td><?=$branch->getName()?></td>
+            <td><?=$branch->getAddress()?></td>
+          </tr>
+        <? endforeach; ?>
+      </table>
+    <? endif; ?>
+
 
 
 

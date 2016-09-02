@@ -2,6 +2,7 @@
 
 namespace CPK\Libraries;
 
+use CPK\Libraries\Entities\Branch;
 use CPK\Libraries\Entities\Email;
 use CPK\Libraries\Entities\Fax;
 use CPK\Libraries\Entities\FullLibrary;
@@ -110,6 +111,15 @@ class Loader {
                 $services[] = $service;
             }
             $library->services = $services;
+        }
+
+        if(isset($apilibrary->branches) && ! empty($apilibrary->branches)) {
+            $branches = [];
+            foreach ($apilibrary->branches as $apibranch) {
+                $branch = new Branch($apibranch);
+                $branches[] = $branch;
+            }
+            $library->branches = $branches;
         }
 
         return $library;
