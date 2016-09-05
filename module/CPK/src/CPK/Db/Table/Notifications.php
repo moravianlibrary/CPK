@@ -82,9 +82,11 @@ class Notifications extends Gateway
 
         $timestampNow = date('Y-m-d H:i:s');
 
-        foreach ($notificationsParsed as $notificationType => $notificationShows) {
+        foreach ($notificationsParsed as $notificationType => $notificationDetails) {
 
             $notificationTypeId = $notificationTypesTable->getNotificationTypeId($notificationType);
+
+            $notificationShows = $notificationDetails['shows'];
 
             $exists = $this->select([
                 'user_card' => $userCardId,
@@ -102,6 +104,16 @@ class Notifications extends Gateway
             $row->shows = ($notificationShows)? 1 : 0;
             $row->read = 0;
             $row->last_fetched = $timestampNow;
+
+            if (isset($notificationDetails['hash'])) {
+
+                $notificationHash = $notificationDetails['hash'];
+
+                if (strlen($notificationHash) > 32)
+                    $notificationHash = substr($notificationHash, 0, 32);
+
+                $row->control_hash_md5 = $notificationHash;
+            }
 
             $row->save();
 

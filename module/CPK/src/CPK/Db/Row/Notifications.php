@@ -27,9 +27,7 @@
  */
 namespace CPK\Db\Row;
 
-use VuFind\Db\Row\RowGateway,
-    VuFind\Db\Table\DbTableAwareInterface,
-    VuFind\Db\Table\DbTableAwareTrait;
+use VuFind\Db\Row\RowGateway, VuFind\Db\Table\DbTableAwareInterface, VuFind\Db\Table\DbTableAwareTrait;
 
 class Notifications extends RowGateway implements DbTableAwareInterface
 {
@@ -45,7 +43,8 @@ class Notifications extends RowGateway implements DbTableAwareInterface
     /**
      * Constructor
      *
-     * @param \Zend\Db\Adapter\Adapter $adapter Database adapter
+     * @param \Zend\Db\Adapter\Adapter $adapter
+     *            Database adapter
      *
      * @return void
      */
@@ -57,7 +56,8 @@ class Notifications extends RowGateway implements DbTableAwareInterface
     /**
      * Configuration setter
      *
-     * @param \Zend\Config\Config $config VuFind configuration
+     * @param \Zend\Config\Config $config
+     *            VuFind configuration
      *
      * @return void
      */
@@ -98,5 +98,24 @@ class Notifications extends RowGateway implements DbTableAwareInterface
         }
 
         $this->save();
+    }
+
+    /**
+     * Returns true only if provided notification hash is different from the one last hash
+     *
+     * @param string $newHash
+     * @return boolean $isDifferent
+     */
+    public function isNotificationDifferent($newHash)
+    {
+        $isDifferent = $newHash !== $this->control_hash_md5;
+
+        if ($isDifferent) {
+            // Update current hash
+            $this->control_hash_md5 = $newHash;
+            $this->save();
+        }
+
+        return $isDifferent;
     }
 }

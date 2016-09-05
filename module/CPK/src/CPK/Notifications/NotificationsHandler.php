@@ -316,16 +316,16 @@ class NotificationsHandler
      */
     protected function createNewUserCardApiRelevantNotifications($cat_username, $source)
     {
-        $hasBlocks = $this->fetchHasBlocks($cat_username, $source);
+        $blocksDetails = $this->fetchBlocksDetails($cat_username, $source);
 
-        $hasFines = $this->fetchHasFines($cat_username, $source);
+        $finesDetails = $this->fetchFinesDetails($cat_username, $source);
 
-        $hasOverdues = $this->fetchHasOverdues($cat_username, $source);
+        $overduesDetails = $this->fetchOverduesDetails($cat_username, $source);
 
         $userNotifications = [
-            NotificationTypes::BLOCKS => $hasBlocks,
-            NotificationTypes::FINES => $hasFines,
-            NotificationTypes::OVERDUES => $hasOverdues
+            NotificationTypes::BLOCKS => $blocksDetails,
+            NotificationTypes::FINES => $finesDetails,
+            NotificationTypes::OVERDUES => $overduesDetails
         ];
 
         $this->userCardNotificationsRows = $this->notificationsTable->createUserCardNotificationsRows($cat_username, $userNotifications);
@@ -350,32 +350,42 @@ class NotificationsHandler
 
             case NotificationTypes::BLOCKS:
 
-                $showNotification = $this->fetchHasBlocks($cat_username, $source);
+                $notificationDetails = $this->fetchBlocksDetails($cat_username, $source);
                 break;
 
             case NotificationTypes::FINES:
 
-                $showNotification = $this->fetchHasFines($cat_username, $source);
+                $notificationDetails = $this->fetchFinesDetails($cat_username, $source);
                 break;
 
             case NotificationTypes::OVERDUES:
 
-                $showNotification = $this->fetchHasOverdues($cat_username, $source);
+                $notificationDetails = $this->fetchOverduesDetails($cat_username, $source);
                 break;
 
             default:
-                $showNotification = false;
+                return;
         }
 
         $wasShownBefore = boolval($notificationsRow->shows);
 
-        $shouldSetUnread = $wasShownBefore && $showNotification === false;
+        $notificationShows = $notificationDetails['shows'];
+
+        $shouldSetUnread = $wasShownBefore && $notificationShows === false;
+
+        if (! $shouldSetUnread) {
+            $controlHash = $notificationDetails['hash'];
+
+            $shouldSetUnread = ($controlHash !== $notificationsRow->control_hash_md5);
+
+            $notificationsRow->control_hash_md5 = $controlHash;
+        }
 
         if ($shouldSetUnread) {
             $notificationsRow->read = false;
         }
 
-        $notificationsRow->shows = ($showNotification) ? 1 : 0;
+        $notificationsRow->shows = ($notificationShows) ? 1 : 0;
 
         $notificationsRow->last_fetched = date('Y-m-d H:i:s');
 
@@ -409,7 +419,7 @@ class NotificationsHandler
      * @param string $cat_username
      * @param string $source
      */
-    protected function fetchHasBlocks($cat_username, $source)
+    protected function fetchBlocksDetails($cat_username, $source)
     {
         $profile = $this->ils->getMyProfile([
             'cat_username' => $cat_username,
@@ -420,10 +430,19 @@ class NotificationsHandler
 
             throw new ILSException('Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
         } else
-            if (count($profile['blocks']))
-                return true;
+            if (count($profile['blocks'])) {
 
-        return false;
+                $controlHash = md5(json_encode($profile['blocks']));
+
+                return [
+                    'shows' => true,
+                    'hash' => $controlHash
+                ];
+            }
+
+        return [
+            'shows' => false
+        ];
     }
 
     /**
@@ -432,7 +451,7 @@ class NotificationsHandler
      * @param string $cat_username
      * @param string $source
      */
-    protected function fetchHasFines($cat_username, $source)
+    protected function fetchFinesDetails($cat_username, $source)
     {
         $fines = $this->ils->getMyFines([
             'cat_username' => $cat_username,
@@ -441,10 +460,19 @@ class NotificationsHandler
 
         unset($fines['source']);
 
-        if (count($fines))
-            return true;
+        if (count($fines)) {
 
-        return false;
+                $controlHash = md5(json_encode($fines));
+
+                return [
+                    'shows' => true,
+                    'hash' => $controlHash
+                ];
+        }
+
+        return [
+            'shows' => false
+        ];
     }
 
     /**
@@ -453,20 +481,34 @@ class NotificationsHandler
      * @param string $cat_username
      * @param string $source
      */
-    protected function fetchHasOverdues($cat_username, $source)
+    protected function fetchOverduesDetails($cat_username, $source)
     {
         $result = $this->ils->getMyTransactions([
             'cat_username' => $cat_username,
             'id' => $cat_username
         ]);
 
+        $overduedIds = [];
+
         foreach ($result as $current) {
 
             if (isset($current['dueStatus']) && $current['dueStatus'] === "overdue")
-                return true;
+                array_push($overduedIds, $current['id']);
         }
 
-        return false;
+        if (count($overduedIds)) {
+
+            $controlHash = md5(json_encode($overduedIds));
+
+            return [
+                'shows' => true,
+                'hash' => $controlHash
+            ];
+        }
+
+        return [
+            'shows' => false
+        ];
     }
 
     /**

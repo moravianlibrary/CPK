@@ -725,3 +725,7 @@ ALTER TABLE `modal_specific_contents`
   CHANGE `content` `content` TEXT CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL, 
   CHANGE `source` `source` VARCHAR(12) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL;
 UPDATE `system` SET `value`='50' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `notifications` ADD `control_hash_md5` VARCHAR(32) NULL DEFAULT NULL COMMENT 'Control hash used to identify differencies between seperate notifications' ;
+
+UPDATE `system` SET `value`='51' WHERE `key`='DB_VERSION';
