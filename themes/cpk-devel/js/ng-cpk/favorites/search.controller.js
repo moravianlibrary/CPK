@@ -17,15 +17,15 @@
 
     angular.module('favorites').controller('SearchFavController', SearchController).directive('addRemove', SearchDirective);
 
-    SearchController.$inject = [ '$log', 'storage', 'favoritesFactory', 'Favorite', 'favsBroadcaster' ];
+    SearchController.$inject = [ '$window', '$scope', '$compile', '$log', 'storage', 'favoritesFactory', 'Favorite', 'favsBroadcaster' ];
 
     /**
      * Private variables to let the addRemove directive handle desired elements
      * to the SearchController ..
      */
-    var pubElements = [];
+    var pubElements = [], pubElementsLinked = [];
 
-    function SearchController($log, storage, favoritesFactory, Favorite, favsBroadcaster) {
+    function SearchController($window, $scope, $compile, $log, storage, favoritesFactory, Favorite, favsBroadcaster) {
 
 	var favs = [],
 	recordIsFav = [];
@@ -35,15 +35,16 @@
 	vm.addOrRemoveFavorite = addOrRemoveFavorite;
 	vm.isFavorite = isFavorite;
 	
-	var rankedItemsLength = document.querySelectorAll('div#result-list-placeholder div[id]').length;
+	var rankedItemsLength, rankedItems;
+	init(true);
 	
-	for (var rank = 0; rank < rankedItemsLength; ++rank) {
-	    isFavorite(rank).then(function(favorite) {
-		favs[rank] = favorite;
-	    
-	    	switchAddRemoveSpanVisibility(rank);
-	    });
-	}
+	$window.addEventListener('searchResultsLoaded', function() {
+	    $scope.$apply(init());
+	});
+	
+	$window.addEventListener('searchResultsLoading', function() {
+	    $scope.$apply(reset());
+	});
 
 	/**
 	 * Public function about to be called from the favsBroadcaster when an event
@@ -85,6 +86,33 @@
 
 	return;
 	//
+	
+	function init(directly) {
+	    rankedItems = document.querySelectorAll('div#result-list-placeholder div[id]');
+	    
+	    if (typeof directly === 'undefined')
+		$compile(rankedItems)($scope);
+	    
+	    rankedItemsLength = rankedItems.length;
+	    for (var rank = 0; rank < rankedItemsLength; ++rank) {
+		isFavorite(rank).then(function(result) {
+		    
+		    rank = result.rank;
+		    favorite = result.favorite;
+		    
+		    favs[rank] = favorite;
+
+	    	    switchAddRemoveSpanVisibility(rank);
+		});
+	    }
+	}
+	
+	function reset() {
+	    favs = [];
+	    recordIsFav = [];
+	    pubElements = [];
+	    pubElementsLinked = [];
+	}
 
 	/**
 	 * Dispatches the user's click based on the logic implemented ..
@@ -151,7 +179,10 @@
 		var recordId = getRecordId(undefined, rank);
 		
 		storage.hasFavorite(recordId).then(function(favorite) {
-		    resolve(favorite);
+		    resolve({
+			rank: rank,
+			favorite: favorite
+		    });
 		}).catch(reject);
 	    });
 	};
@@ -160,6 +191,9 @@
 	 * Gets the record id of a ranked record 
 	 */
 	function getRecordId(fromThis, rank) {
+	    
+	    if (typeof rank !== 'undefined')
+		return rankedItems[rank].querySelector('a.title').getAttribute('href').match(/Record\/(.*)\?/)[1];
 	    
 	    var fromWhat = (typeof fromThis === "undefined") ? location.pathname : fromThis;
 	    
@@ -174,6 +208,13 @@
 	 */
 	function switchAddRemoveSpanVisibility(rank) {
 	    	    
+	    if (typeof pubElementsLinked[rank] === 'undefined' || ! pubElementsLinked[rank]) {
+		pubElementsLinked[rank] = function() {
+		    switchAddRemoveSpanVisibility(rank);
+		};
+		
+		return;
+	    }
 	    // Switch their roles ..
 	    pubElements[rank].remFavBtn.hidden = ! pubElements[rank].remFavBtn.hidden;
 	    pubElements[rank].addFavBtn.hidden = ! pubElements[rank].addFavBtn.hidden;
@@ -232,8 +273,11 @@
 		// Set it to hidden
 		elements.context.hidden = true;
 		    
-	    } 
-	    
+	    }
+	    if (typeof pubElementsLinked[rank] === 'function') {
+		pubElementsLinked[rank].call();
+	    } else
+		pubElementsLinked[rank] = true;
 	};
     };
 })();

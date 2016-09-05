@@ -283,6 +283,9 @@ jQuery( document ).ready( function( $ ) {
 		        		
 		        		// Disable submit button until ajax finishes
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
+		        		
+	        		    	// Let another applications know we are loading new results ..
+	        		        window.dispatchEvent(new Event('searchResultsLoading'));
 		        	},
 		        	success: function( response ) {
 		        		
@@ -358,8 +361,9 @@ jQuery( document ).ready( function( $ ) {
 			        			$( '#no-results-container' ).show( 'blind', {}, 500 );
 			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls' ).hide( 'blind', {}, 200 );
 			        		}
-			        		
-			        		/**/
+
+		        		    	// Let another applications know we have loaded new results ..
+		        		        window.dispatchEvent(new Event('searchResultsLoaded'));
 			        		
 		        		} else {
 		        			console.error(response.data);
