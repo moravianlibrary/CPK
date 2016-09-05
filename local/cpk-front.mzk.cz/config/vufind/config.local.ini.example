@@ -46,6 +46,9 @@ fields_in_core = "773,770,772,777,780,785"
 ; through the current result set from within the record view.
 next_prev_navigation = false
 
+; Set domain, where citations should work. Must be approved by CitacePro.
+citation_local_domain = cpk-front.mzk.czddddd
+
 [Catalog]
 library_cards = true
 minHoldingsToApplyFilters = 30

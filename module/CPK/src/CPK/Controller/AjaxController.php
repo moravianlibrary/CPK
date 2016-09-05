@@ -1336,9 +1336,11 @@ class AjaxController extends AjaxControllerBase
                 ->Record->default_citation_style;
         }
 
+        $citationLocalDomain = $this->getConfig()->Record->citation_local_domain;
+
         $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
             .$recordId
-            ."?server=".$_SERVER['SERVER_NAME']
+            ."?server=".$citationLocalDomain
             ."&citacniStyl=".$preferredCitationStyle;
 
         try {
