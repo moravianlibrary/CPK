@@ -1268,8 +1268,11 @@ class SearchController extends SearchControllerBase
     }
 
     /* Get content for widget
+     *
      * @param string $widgetName
      * @param int    $limit
+     *
+     * @return  CPK\Widgets\WidgetContent
      * */
     protected function getWidgetContent($widgetName, $limit) {
         $widgetContentTable = $this->getTable("widgetcontent");
