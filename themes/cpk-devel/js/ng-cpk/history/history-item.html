@@ -17,23 +17,20 @@
 	    <a href="{{ resource.authorLink }}">{{ resource.author }}</a>
 	  </div>
 	  <div data-ng-if="!resource.authorLink && resource.author">{{ 'by' | translate }}: <a ng-href="/Author/Home?author={{ resource.author | urlencode }}" title="{{ resource.author }}">{{ resource.author }}</a></div>
-	  <div data-ng-repeat="format in resource.formats">
-	    {{ format }}
-	  </div>
 	  <div data-ng-if="resource.volume">
 	    <strong>{{ 'Volume' | translate }}</strong> {{ resource.volume }}
 	    <br>
 	  </div> 
-	  <div data-ng-if="resource.publicationYear">
-	    <strong>{{ 'Year of Publication' | translate }}</strong> {{ resource.publicationYear }}
-	    <br>
-	  </div>
+      <div ng-repeat="formatDef in resource.formats" class="iconlabel" style='color: #777;'>
+       <i class="small-format-icon pr-format-{{ formatDef.format }}"></i>
+       <span data-orig="{{ formatDef.orig }}" class="format-text">{{ formatDef.orig | translate }}</span>
+      </div> 
 	  <div data-ng-if="resource.renewed">
-        <strong>{{ 'Renewed' | translate }}:</strong> {{ resource.renewed }}
+        <strong>{{ 'Renewed' | translate }}: {{ resource.renewed }}</strong>
         <br>
       </div>
       <div>
-        <strong>{{ 'Due Date' | translate }}:</strong> {{ resource.duedate }}
+        <strong>{{ 'Due Date' | translate }}: {{ resource.duedate }}</strong>
 	  </div>
 	</div>
 </div>

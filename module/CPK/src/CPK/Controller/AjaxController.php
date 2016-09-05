@@ -671,7 +671,7 @@ class AjaxController extends AjaxControllerBase
             foreach ($result['historyPage'] as &$historyItem) {
                 $resource = $this->getDriverForILSRecord($historyItem);
 
-                if ($resource instanceof \VuFind\REcordDriver\Missing) {
+                if ($resource instanceof \VuFind\RecordDriver\Missing) {
                     unset($historyItem['id']);
                     $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                 } else try {
@@ -695,6 +695,16 @@ class AjaxController extends AjaxControllerBase
                             ];
                         } else {
                             $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
+                        }
+
+                        $formats = $resource->getFormats();
+                        if (count($formats) > 0) {
+                            $historyItem['formats'] = array_map(function($item) {
+                                return [
+                                    'orig' => $item,
+                                    'format' => preg_replace('/[^a-z]/', '', strtolower($item))
+                                ];
+                            }, $formats);
                         }
                     } catch (\Exception $e) {
                         $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');

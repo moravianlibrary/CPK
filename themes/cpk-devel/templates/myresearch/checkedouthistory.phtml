@@ -16,6 +16,40 @@ $this->jsTranslations()->addStrings(array(
     'Year of Publication' => $this->translate('Year of Publication'),
     'Renewed' => $this->translate('Renewed'),
     'Due Date' => $this->translate('Due Date'),
+    /* Actualization with:
+     *
+     * cat /tmp/copyPastedPartOfLangFile | awk "{print \"'\"\$1\"'\"}" | awk '{print $1 " => $this->translate(" $1 "),"}'
+     */
+
+    '0/ARTICLES/' => $this->translate('0/ARTICLES/'),
+    '0/BOOKS/' => $this->translate('0/BOOKS/'),
+    '0/ELECTRONIC_SOURCE/' => $this->translate('0/ELECTRONIC_SOURCE/'),
+    '0/LARGE_PRINTS/' => $this->translate('0/LARGE_PRINTS/'),
+    '0/MANUSCRIPTS/' => $this->translate('0/MANUSCRIPTS/'),
+    '0/MAPS/' => $this->translate('0/MAPS/'),
+    '0/MUSICAL_SCORES/' => $this->translate('0/MUSICAL_SCORES/'),
+    '0/NORMS/' => $this->translate('0/NORMS/'),
+    '0/PERIODICALS/' => $this->translate('0/PERIODICALS/'),
+    '0/VISUAL_DOCUMENTS/' => $this->translate('0/VISUAL_DOCUMENTS/'),
+    '0/AUDIO/' => $this->translate('0/AUDIO/'),
+    '1/AUDIO/CD/' => $this->translate('1/AUDIO/CD/'),
+    '1/AUDIO/DVD/' => $this->translate('1/AUDIO/DVD/'),
+    '1/AUDIO/LP/' => $this->translate('1/AUDIO/LP/'),
+    '1/AUDIO/CASSETTE/' => $this->translate('1/AUDIO/CASSETTE/'),
+    '1/AUDIO/OTHER/' => $this->translate('1/AUDIO/OTHER/'),
+    '0/VIDEO/' => $this->translate('0/VIDEO/'),
+    '1/VIDEO/BLURAY/' => $this->translate('1/VIDEO/BLURAY/'),
+    '1/VIDEO/VHS/' => $this->translate('1/VIDEO/VHS/'),
+    '1/VIDEO/DVD/' => $this->translate('1/VIDEO/DVD/'),
+    '1/VIDEO/CDROM/' => $this->translate('1/VIDEO/CDROM/'),
+    '1/VIDEO/OTHER/' => $this->translate('1/VIDEO/OTHER/'),
+    '0/OTHER/' => $this->translate('0/OTHER/'),
+    '1/OTHER/BRAILLE/' => $this->translate('1/OTHER/BRAILLE/'),
+    '1/OTHER/KIT/' => $this->translate('1/OTHER/KIT/'),
+    '1/OTHER/OBJECT/' => $this->translate('1/OTHER/OBJECT/'),
+    '1/OTHER/MICROFORMS/' => $this->translate('1/OTHER/MICROFORMS/'),
+    '1/OTHER/MIX_DOCUMENT/' => $this->translate('1/OTHER/MIX_DOCUMENT/'),
+    '1/OTHER/UNSPECIFIED/' => $this->translate('1/OTHER/UNSPECIFIED/'),
 
     // For paginator
     'Prev' => $this->translate('Prev'),
