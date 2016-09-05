@@ -755,6 +755,19 @@ class SolrMarc extends ParentSolrMarc
     }
 
     /**
+     * Returns name of the Author to display
+     *
+     * @return string|NULL
+     */
+    public function getDisplayAuthor()
+    {
+        if (isset($this->fields['author_display']))
+            return $this->fields['author_display'];
+
+        return null;
+    }
+
+    /**
      * Get an array of authority Ids of all secondary authors in the same order
      * and amount as getSecondaryAuthors() method from author2 solr field.
      *

@@ -675,6 +675,12 @@ class AjaxController extends AjaxControllerBase
                     unset($historyItem['id']);
                     $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                 } else try {
+
+                        $displayAuthor = $resource->getDisplayAuthor();
+
+                        if ($displayAuthor)
+                            $historyItem['author'] = $displayAuthor;
+
                         // We need to let JS know what to opt for ...
                         $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
                         $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
