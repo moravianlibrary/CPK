@@ -2,7 +2,9 @@
 	style="margin-bottom: 2px;">
 	<div class="col-sm-2 text-center">
 	    <strong class="pull-left order">{{ resource.rowNo }}.</strong>
-		<img id="cover_{{ resource.uniqueId }}" src="{{ resource.thumbnail }}" class="recordcover">
+	    <div id="cover_{{ resource.uniqueId }}">
+		  <img ng-if="resource.thumbnail" src="{{ resource.thumbnail }}" class="recordcover">
+		</div>
 	</div>
 	<div class="col-sm-9">
 	  <a data-ng-if="resource.titleLink" href="{{ resource.titleLink }}" class="title">{{ resource.title }}</a>
