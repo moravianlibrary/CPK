@@ -100,6 +100,7 @@ class Notifications extends Gateway
             $row->user_card = $userCardId;
             $row->type = $notificationTypeId;
             $row->shows = ($notificationShows)? 1 : 0;
+            $row->read = 0;
             $row->last_fetched = $timestampNow;
 
             $row->save();
@@ -149,6 +150,7 @@ class Notifications extends Gateway
             $row->user = $userId;
             $row->type = $notificationTypeId;
             $row->shows = ($notificationShows)? 1 : 0;
+            $row->read = 0;
             $row->last_fetched = $timestampNow;
 
             $row->save();
