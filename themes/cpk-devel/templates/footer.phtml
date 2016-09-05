@@ -52,7 +52,6 @@
     <h2><?=$this->transEsc('Need Help?')?></h2>
     <ul>
       <li><a href='/Portal/Feedback' title='<?=$this->translate('Feedback')?>'><?=$this->translate('Feedback')?></a></li>
-      <li><a target="_blank" href="https://docs.google.com/a/mzk.cz/document/d/1pc1F4tQkkV1-SmnxuBztdfcVAINIfv7TMrkTOIEP5QI/edit?usp=sharing"><?=$this->transEsc('Hint')?></a></li>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'right'): ?>
