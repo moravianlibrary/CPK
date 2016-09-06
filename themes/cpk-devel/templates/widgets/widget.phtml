@@ -56,7 +56,7 @@
       </a>
       <? endforeach; ?>
       <? if ($this->widget->getShowAllRecordsLink()): ?>
-      <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&filter[]=inspiration:"<?=$this->widget->getName()?>"' class="list-group-item clearfix" title='<?=$this->translate('Show all')?>' target='_blank'>
+      <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=10&sort=relevance&filter[]=inspiration:"<?=$this->widget->getName()?>"' class="list-group-item clearfix" title='<?=$this->translate('Show all')?>' target='_blank'>
 	    <div class='row more-info'>
 	      <div class='col-sm-10'>
 	      	<?=$this->translate('Show all')?>
