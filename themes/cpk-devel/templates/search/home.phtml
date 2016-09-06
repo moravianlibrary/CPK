@@ -29,12 +29,12 @@
     </div>
   <? endif; ?>
 
-  <? foreach ($this->widgets as $widget): ?>
+  <? foreach ($this->widgets as $widgetsList): foreach ($widgetsList as $widget): ?>
     <? if ($widget->getName() == 'infobox') : ?>
 	  <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
     <? else: ?>
       <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
     <? endif; ?>
-  <? endforeach; ?>
+  <? endforeach; ?><? endforeach; ?>
 
 </div>

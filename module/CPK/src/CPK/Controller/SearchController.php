@@ -349,7 +349,7 @@ class SearchController extends SearchControllerBase
             } else {
                 $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
             }
-            $widgets[$widgetName] = $widget;
+            $widgets[][$widgetName] = $widget;
         }
 
         $view->widgets = $widgets;
@@ -1221,7 +1221,7 @@ class SearchController extends SearchControllerBase
             } else {
                 $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
             }
-            $widgets[$widgetName] = $widget;
+            $widgets[][$widgetName] = $widget;
         }
 
         $view->widgets = $widgets;
