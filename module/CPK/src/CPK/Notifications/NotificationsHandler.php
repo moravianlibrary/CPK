@@ -170,7 +170,7 @@ class NotificationsHandler
 
         if (isset($this->userCardNotificationsRows[$notificationType])) {
 
-            $this->userCardNotificationsRows[$notificationType]->read = true;
+            $this->userCardNotificationsRows[$notificationType]->read = 1;
             $this->userCardNotificationsRows[$notificationType]->save();
 
             return true;
@@ -195,7 +195,7 @@ class NotificationsHandler
 
         if (isset($this->userNotificationsRows[$notificationType])) {
 
-            $this->userNotificationsRows[$notificationType]->read = true;
+            $this->userNotificationsRows[$notificationType]->read = 1;
             $this->userNotificationsRows[$notificationType]->save();
 
             return true;
@@ -382,7 +382,7 @@ class NotificationsHandler
         }
 
         if ($shouldSetUnread) {
-            $notificationsRow->read = false;
+            $notificationsRow->read = 0;
         }
 
         $notificationsRow->shows = ($notificationShows) ? 1 : 0;

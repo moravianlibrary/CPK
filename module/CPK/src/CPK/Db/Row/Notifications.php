@@ -90,7 +90,7 @@ class Notifications extends RowGateway implements DbTableAwareInterface
      */
     public function setNotificationRead($read)
     {
-        $this->read = boolval($read);
+        $this->read = ($read)? 1 : 0;
 
         if (! $this->lastFetchedSet) {
             $this->lastFetchedSet = true;
