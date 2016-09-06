@@ -85,18 +85,18 @@
         	<h2><?=$this->translate('Fourth column');?></h2>
 			<select id='fourth-inspiration-widget'>
 			  <? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($this->inspirationWidgets['fourth_inspiration_widget']==$this->inspirationWidgets['fourth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fourth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'<?=($widget->getName()=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($this->inspirationWidgets['fourth_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('Fifth column');?></h2>
 			<select id='fifth-inspiration-widget'>
 				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($this->inspirationWidgets['fifth_inspiration_widget']==$this->inspirationWidgets['fifth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
+				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fifth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
-			    <option value='conspectus'<?=($widget->getName()=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
+			    <option value='conspectus'<?=($this->inspirationWidgets['fifth_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -174,7 +174,7 @@
 	            cache: false,
 	            dataType: 'json',
 	            data: data,
-	            url: VuFind.getPath() + '/Admin/Widgets/SaveHomePageWidgets',
+	            url: VuFind.getPath() + '/Admin/Widgets/SaveFrontendWidgets',
 	            beforeSend: function() {
 	            },
 	            success: function( response ) {

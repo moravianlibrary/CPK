@@ -97,13 +97,13 @@ class Frontend extends Gateway
     }
 
     /**
-     * Save homepage widgets
+     * Save frontend widgets
      *
      * @param array $data
      *
      * @return void
      */
-    public function saveHomePageWidgets(array $data)
+    public function saveFrontendWidgets(array $data)
     {
         $update = new Update($this->table);
 

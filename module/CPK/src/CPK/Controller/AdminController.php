@@ -346,7 +346,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
          * Handle subactions
          * */
         $subAction = $this->params()->fromRoute('subaction');
-        if ($subAction == 'SaveHomePageWidgets') {
+        if ($subAction == 'SaveFrontendWidgets') {
             $post = $this->params()->fromPost();
 
             $data = [];
@@ -362,7 +362,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $data['sixth_inspiration_widget']  = $post['sixth-inspiration-widget'];
 
             $frontendTable = $this->getTable('frontend');
-            $frontendTable->saveHomePageWidgets($data);
+            $frontendTable->saveFrontendWidgets($data);
 
             $data['status'] = 'OK';
 
