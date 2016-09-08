@@ -720,7 +720,8 @@ class Aleph extends AlephBase implements CPKDriverInterface
                 }
             }
         } else
-            if (! $available && ($status == "On Hold" || $status == "Requested" || $status == "Požadováno")) {
+            if (! $available && ($status == "On Hold" || $status == "Requested" || $status == "Požadováno" ||
+                    $status == "Připraveno k půjčení")) {
                 $duedate_status = "requested";
             }
 
