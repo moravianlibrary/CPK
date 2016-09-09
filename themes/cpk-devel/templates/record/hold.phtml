@@ -30,7 +30,7 @@
       <div class="form-group">
         <label class="col-sm-3 control-label"><?=$this->translate('Institution')?>: </label>
         <div class="col-sm-9">
-           <input disabled type='text' class='form-control' value='<?= (! empty($source)) ? $this->translate('source_'.$source) : ''?> <?= isset($this->pickup[0]['locationDisplay']) ? ', '.$this->pickup[0]['locationDisplay'] : ''?>'>
+           <input disabled type='text' class='form-control' value='<?= (! empty($source)) ? $this->translate('source_'.$source) : ''?> '>
         </div>
       </div>
 
@@ -88,8 +88,6 @@
       <?
         if (isset($this->gatheredDetails['pickUpLocation']) && $this->gatheredDetails['pickUpLocation'] !== "") {
             $selected = $this->gatheredDetails['pickUpLocation'];
-        } elseif (isset($this->homeLibrary) && $this->homeLibrary !== "") {
-            $selected = $this->homeLibrary;
         } else {
             $selected = $this->defaultPickup;
         }
@@ -192,7 +190,12 @@ JS;
     $js = <<<JS
         $( '#pickUpLocation' ).change(function () {
           var id = $(this).val();
-          $('input.showaddress').val( $( '#' + id + ' div#address' ).text() );
+          if (id) {
+            $('input.showaddress').val( $( '#' + id + ' div#address' ).text() );
+          }
+          else {
+            $('input.showaddress').val( '' );
+          }
         }).change();
 JS;
 
