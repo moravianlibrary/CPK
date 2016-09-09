@@ -37,13 +37,12 @@ class XCNCIP2 extends XCNCIP2Base
         $domxml = new \DOMDocument('1.0');
         $domxml->preserveWhiteSpace = false;
         $domxml->formatOutput = true;
-        if (get_class($xml) == 'SimpleXMLElement') {
+        if ((is_object($xml)) && (get_class($xml) == 'SimpleXMLElement')) {
             $domxml->loadXML($xml->asXML());
         }
         else {
             $domxml->loadXML($xml);
         }
-        $domxml->save($newfile);
         return $domxml->saveXML();
     }
 
