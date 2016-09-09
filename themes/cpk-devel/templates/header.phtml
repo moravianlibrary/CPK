@@ -124,7 +124,35 @@
             <? if ($this->layout()->userLang != $langCode): ?>
               <li<?=$this->layout()->userLang == $langCode ? ' class="active"' : ''?>><a href="#" onClick="document.langForm.mylang.value='<?=$langCode?>';document.langForm.submit()"><?=$this->displayLanguageOption($langName)?></a></li>
             <? endif; ?>
-        <? endforeach; ?>
+          <? endforeach; ?>
+          <? if (($this->layout()->userLang == 'dg')): ?>
+            <span class='questionmark-help' data-target='#modal_dg' data-toggle='modal'>
+            <span class='icon'>DG</span>
+            <!-- Modal -->
+            <div class="modal fade" id="modal_dg" tabindex="-1" role="dialog" aria-labelledby="label_dg" style='z-index: 1234;'>
+              <div class="modal-dialog" role="document" style="width: 100%;">
+                <div class="modal-content">
+                  <div class="modal-body">
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('Close')?></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </span>
+            <script>
+            jQuery( document ).ready( function( $ ) {
+                $( '#modal_dg' ).appendTo( 'body' );
+            });
+            </script>
+            <script>
+            function fillDebug(dg) {
+                $('#modal_dg .modal-body').append(dg);
+                $('#modal_dg .modal-body').append('<br><br>');
+            }
+            </script>
+          <? endif; ?>
         <? endif; ?>
 
       </ul>

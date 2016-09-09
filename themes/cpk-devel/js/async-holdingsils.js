@@ -101,6 +101,9 @@ var holdingsILS = {
     processGetHoldingStatusesResponse : function(r) {
 
 	var data = r.data;
+	if (typeof data.dg !== 'undefined') {
+	    fillDebug(data.dg);
+	}
 
 	if (typeof data.statuses !== 'undefined') {
 

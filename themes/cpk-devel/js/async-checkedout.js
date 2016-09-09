@@ -35,6 +35,9 @@ function fetchTransactions(cat_username) {
 function updateTransactions(response) {
     
     var data = response.data, status = response.status;
+    if (typeof data.dg !== 'undefined') {
+        fillDebug(data.dg);
+    }
 
     var cat_username = data.cat_username, html = data.html, overdue = data.overdue;
     // TODO process overdue somehow ..
