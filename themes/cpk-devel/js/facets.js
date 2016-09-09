@@ -334,7 +334,13 @@ jQuery( document ).ready( function( $ ) {
         GEO.getPositionForLoadingInstitutions();
     });
     
-
+    /*
+     * Shake button on institution facet change
+     */
+    $( '#facet_institution' ).on( 'click', '.jstree-checkbox', function( event ) {
+    	$( '.institution-facet-filter-button' ).parent().effect( 'shake', {times:3, distance: 3, direction: 'right'}, 200 );
+    });
+    
     FACETS = {
     			
 		reloadInstitutionsByGeolocation: function( coords ) {
