@@ -179,6 +179,14 @@ class ConfigurationsHandler
         $this->institutionsBeingAdminAt = $this->ctrl->getAccessManager()->getInstitutionsWithAdminRights();
 
         $this->sourceTypes = $this->configLocator->get('MultiBackend')->toArray()['Drivers'];
+
+        if ($this->ctrl->getAccessManager()->isPortalAdmin()) {
+            foreach ($this->sourceTypes as $key => $value) {
+                if ($key == "Dummy") continue;
+                $this->institutionsBeingAdminAt[] = $key;
+            }
+            $this->institutionsBeingAdminAt = array_unique($this->institutionsBeingAdminAt);
+        }
     }
 
     /**
