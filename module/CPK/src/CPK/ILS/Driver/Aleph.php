@@ -924,4 +924,95 @@ class Aleph extends AlephBase implements CPKDriverInterface
         return $url;
 
     }
+
+    /**
+     * Get Patron Holds
+     *
+     * This is responsible for retrieving all holds by a specific patron.
+     *
+     * @param array $user The patron array from patronLogin
+     *
+     * @throws \VuFind\Exception\Date
+     * @throws ILSException
+     * @return array      Array of the patron's holds on success.
+     */
+    public function getMyHolds($user)
+    {
+        $userId = $user['id'];
+        $holdList = array();
+        $xml = $this->alephWebService->doRestDLFRequest(
+                array('patron', $userId, 'circulationActions', 'requests', 'holds'),
+                array('view' => 'full')
+                );
+        foreach ($xml->xpath('//hold-request') as $item) {
+            $status = (string) $item->{'status'};
+            $z37 = $item->z37;
+            $z13 = $item->z13;
+            $z30 = $item->z30;
+            $delete = $item->xpath('@delete');
+            $href = $item->xpath('@href');
+            $item_id = substr($href[0], strrpos($href[0], '/') + 1);
+            if ((string) $z37->{'z37-request-type'} == "Hold Request" || true) {
+                $type = "hold";
+                $seq = null;
+                $item_status = preg_replace("/\s[\s]+/", " ", (string) $item->{'status'});
+                if (preg_match("/Waiting in position ([0-9]+) in queue; current due date ([0-9]+\/[a-z|A-Z]+\/[0-9])+/", $item_status, $matches)) {
+                    $seq = $matches[1];
+                }
+                $location = (string) $z37->{'z37-pickup-location'};
+                $reqnum = (string) $z37->{'z37-doc-number'}
+                . (string) $z37->{'z37-item-sequence'}
+                . (string) $z37->{'z37-sequence'};
+                $expire = (string) $z37->{'z37-end-request-date'};
+                $create = (string) $z37->{'z37-open-date'};
+                $holddate = (string) $z37->{'z37-hold-date'};
+                $title = (string) $z13->{'z13-title'};
+                $author = (string) $z13->{'z13-author'};
+                $isbn = (string) $z13->{'z13-isbn-issn'};
+                $barcode = (string) $z30->{'z30-barcode'};
+                $onHoldUntil = (string) $z37->{'z37-end-hold-date'};
+                $onHoldUntil = ($onHoldUntil == "00000000") ? null : $this->parseDate($onHoldUntil);
+                if ($holddate == "00000000") {
+                    $holddate = null;
+                } else {
+                    $holddate = $this->parseDate($holddate);
+                }
+                $delete = ($delete[0] == "Y");
+                $id = (string) $z13->{'z13-doc-number'};
+                $adm_id = (string) $z30->{'z30-doc-number'};
+                $holdList[] = array(
+                    'id'       => $id,
+                    'adm_id'   => $adm_id,
+                    'type'     => $type,
+                    'item_id'  => $item_id,
+                    'location' => $location,
+                    'title'    => $title,
+                    'author'   => $author,
+                    'isbn'     => array($isbn),
+                    'reqnum'   => $reqnum,
+                    'barcode'  => $barcode,
+                    'expire'   => $this->parseDate($expire),
+                    'holddate' => $holddate,
+                    'delete'   => $delete,
+                    'create'   => $this->parseDate($create),
+                    'status'   => $status,
+                    'position' => $seq,
+                    'on_hold_until' => $onHoldUntil,
+                );
+            }
+        }
+        $this->idResolver->resolveIds($holdList);
+        $ready = array();
+        $waiting = array();
+        foreach ($holdList as $hold) {
+            if ($hold['status'] == 'S') {
+                $ready[] = $hold;
+            } else {
+                $waiting[] = $hold;
+            }
+        }
+        $holdList = array_merge($ready, $waiting);
+        return $holdList;
+    }
+
 }
