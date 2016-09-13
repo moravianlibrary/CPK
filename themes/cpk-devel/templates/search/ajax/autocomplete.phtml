@@ -99,9 +99,23 @@
 					);
                     return false;
 				} else {
-					var url = $( '#run-autocomplete' ).attr( 'href' );
-					$( location ).attr( 'href',  url);
-					return false;
+					query = $( this ).val();
+
+		           	enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
+
+		           	if (enabledKeepFacets) {
+		        			  filters = '';
+		        			  $( '.hidden-filter' ).each(function(){
+		        				  filters += '&filter[]=' + encodeURIComponent( $( this ).val() );
+		        			  });
+		            } else {
+		                filters = '';
+		            }
+
+		        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+		        	  $( ".searchForm" ).attr("action", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+
+					$( location ).( 'href', $( "#run-autocomplete" ).attr( 'href' ));
 				}
             });
 
