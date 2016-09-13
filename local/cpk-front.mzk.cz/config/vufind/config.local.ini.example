@@ -17,7 +17,7 @@ forms = changePassword, email, newAccount, passwordRecovery, sms
 
 [Site]
 url             = https://cpk-front.mzk.cz/
-email           = vufind@mzk.cz
+email           = cpk-support@mzk.cz
 theme		= cpk-devel-green
 defaultCurrency	= CZK
 browserDetectLanguage = false
