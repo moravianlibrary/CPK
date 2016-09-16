@@ -294,7 +294,7 @@ function applyRecordTabHash() {
   // Open tag in url hash
   if (newTab.length == 0 || newTab == '#tabnav') {
     $initiallyActiveTab.click();
-  } else if (newTab.length > 0 && '#' + activeTab != newTab) {
+  } else if (newTab.length > 0 && '#' + (activeTab || '') != newTab) {
     $('.'+newTab.substr(1)).click();
   }
 }
