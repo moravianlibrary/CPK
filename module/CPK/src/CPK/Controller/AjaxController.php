@@ -755,14 +755,9 @@ class AjaxController extends AjaxControllerBase
 
             $userNotifications = [
                 'errors' => [
-                    $e->getMessage()
+                    __METHOD__ . ': ' . $e->getMessage()
                 ],
-                'notifications' => [
-                    [
-                        'clazz' => 'warning',
-                        'message' => $e->getMessage()
-                    ]
-                ]
+                'notifications' => []
             ];
         }
 
@@ -793,14 +788,9 @@ class AjaxController extends AjaxControllerBase
 
             $userNotifications = [
                 'errors' => [
-                    $e->getMessage()
+                    __METHOD__ . ': ' . $e->getMessage()
                 ],
-                'notifications' => [
-                    [
-                        'clazz' => 'warning',
-                        'message' => $e->getMessage()
-                    ]
-                ]
+                'notifications' => []
             ];
         }
 
