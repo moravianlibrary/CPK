@@ -65,8 +65,14 @@
 		    // We need to refresh the view with async job .. use Promise
 		    new Promise(function(resolve, reject) {
 			var id = favorite.created();
+
+			var el = divsAsFavs[id];
 			    
-			divsAsFavs[id].remove();
+			if (window.usesIE) {
+			    el.parentElement.removeChild(el);
+			} else
+			    el.remove();
+			
 			delete divsAsFavs[id];
 			
 			--vm.listLength;
@@ -110,7 +116,13 @@
 	    
 		storage.removeFavorite(id).then(function() {
 		
-		    divsAsFavs[id].remove();
+		    var el = divsAsFavs[id];
+		    
+		    if (window.usesIE) {
+			el.parentElement.removeChild(el);
+		    } else
+			el.remove();
+		    
 		    delete divsAsFavs[id];
 		
 		    --vm.listLength;

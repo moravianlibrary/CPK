@@ -2,6 +2,8 @@
 
 deps="
 
+polyfill/module.js
+
 favorites/module.js
 favorites/favsNotifications.service.js
 favorites/favorite.class.js
@@ -19,8 +21,8 @@ notifications/module.js
 notifications/notif.controller.js
 
 admin/module.js
-ng-cpk/admin/configurations/conf.controller.js
-ng-cpk/admin/translations/trans.controller.js
+admin/configurations/conf.controller.js
+admin/translations/trans.controller.js
 
 history/module.js
 history/checkedouthistory.controller.js

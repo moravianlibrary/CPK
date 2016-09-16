@@ -285,7 +285,7 @@ jQuery( document ).ready( function( $ ) {
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
 		        		
 	        		    	// Let another applications know we are loading new results ..
-	        		        window.dispatchEvent(new Event('searchResultsLoading'));
+	        		        window.dispatchEvent(new CustomEvent('searchResultsLoading'));
 		        	},
 		        	success: function( response ) {
 		        		
@@ -363,7 +363,7 @@ jQuery( document ).ready( function( $ ) {
 			        		}
 
 		        		    	// Let another applications know we have loaded new results ..
-		        		        window.dispatchEvent(new Event('searchResultsLoaded'));
+		        		        window.dispatchEvent(new CustomEvent('searchResultsLoaded'));
 			        		
 		        		} else {
 		        			console.error(response.data);

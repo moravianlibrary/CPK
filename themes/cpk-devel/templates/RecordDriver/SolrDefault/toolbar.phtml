@@ -101,7 +101,7 @@
         	href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
          <? endif; ?>
 
-    title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span add-remove="add"><?=$this->transEsc('Add to favorites')?></span><span add-remove="rem" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
+    title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span data-add-remove-record="add"><?=$this->transEsc('Add to favorites')?></span><span data-add-remove-record="rem" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
   <? endif; ?>
   <? if(! ($this->driver instanceof CPK\RecordDriver\SolrAuthority)): ?>
   <li class="list-group-item" id='citace-pro'>

@@ -80,11 +80,8 @@
           )
         );
 
-        $isIE = preg_match('/Windows/', $_SERVER['HTTP_USER_AGENT']);
-
         // Fix some IE issues
-        if ($isIE) {
-
+        if (USES_IE) {
             $this->headScript()->appendFile('vendor/es6-promise.min.js');
         }
 

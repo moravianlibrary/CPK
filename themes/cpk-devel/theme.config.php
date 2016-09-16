@@ -62,51 +62,53 @@ $toRet = array(
  *
  * @var boolean
  */
-$useCompiledAngular = false;
+$angularForbiddenForIE = true;
 
-if ($useCompiledAngular) {
+if (! ($angularForbiddenForIE && USES_IE)) {
 
-    // Add compiled angular apps
-    array_push($toRet['js'], 'vendor/angular.min.js', 'ng-cpk/ng-cpk.min.js');
+    $useCompiledAngular = false;
 
-} else {
+    if ($useCompiledAngular) {
 
-    $jsToInclude = [
+        // Add compiled angular apps
+        array_push($toRet['js'], 'vendor/angular.min.js', 'ng-cpk/ng-cpk.min.js');
+    } else {
 
-        'vendor/angular.min.js',
+        $jsToInclude = [
 
-        'ng-cpk/favorites/module.js',
-        'ng-cpk/favorites/favsNotifications.service.js',
-        'ng-cpk/favorites/favorite.class.js',
-        'ng-cpk/favorites/favorites.factory.js',
-        'ng-cpk/favorites/storage.service.js',
-        'ng-cpk/favorites/broadcaster.service.js',
-        'ng-cpk/favorites/list.controller.js',
-        'ng-cpk/favorites/record.controller.js',
-        'ng-cpk/favorites/search.controller.js',
+            'vendor/angular.min.js',
 
-        'ng-cpk/federative-login/module.js',
-        'ng-cpk/federative-login/login.controller.js',
+            'ng-cpk/polyfill/module.js',
 
-        'ng-cpk/notifications/module.js',
-        'ng-cpk/notifications/notif.controller.js',
+            'ng-cpk/favorites/module.js',
+            'ng-cpk/favorites/favsNotifications.service.js',
+            'ng-cpk/favorites/favorite.class.js',
+            'ng-cpk/favorites/favorites.factory.js',
+            'ng-cpk/favorites/storage.service.js',
+            'ng-cpk/favorites/broadcaster.service.js',
+            'ng-cpk/favorites/list.controller.js',
+            'ng-cpk/favorites/record.controller.js',
+            'ng-cpk/favorites/search.controller.js',
 
-        'ng-cpk/admin/module.js',
-        'ng-cpk/admin/configurations/conf.controller.js',
-        'ng-cpk/admin/translations/trans.controller.js',
+            'ng-cpk/federative-login/module.js',
+            'ng-cpk/federative-login/login.controller.js',
 
-        'ng-cpk/history/module.js',
-        'ng-cpk/history/checkedouthistory.controller.js',
+            'ng-cpk/notifications/module.js',
+            'ng-cpk/notifications/notif.controller.js',
 
-        'ng-cpk/module.js',
-        'ng-cpk/global.controller.js',
-        'ng-cpk/translate.filter.js',
-    ];
+            'ng-cpk/admin/module.js',
+            'ng-cpk/admin/configurations/conf.controller.js',
+            'ng-cpk/admin/translations/trans.controller.js',
 
-    if (! isset($_SERVER['HTTP_USER_AGENT']) ||
-            (! strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') && ! strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7'))) {
+            'ng-cpk/history/module.js',
+            'ng-cpk/history/checkedouthistory.controller.js',
+
+            'ng-cpk/module.js',
+            'ng-cpk/global.controller.js',
+            'ng-cpk/translate.filter.js'
+        ];
+
         $toRet['js'] = array_merge($toRet['js'], $jsToInclude);
     }
 }
-
 return $toRet;

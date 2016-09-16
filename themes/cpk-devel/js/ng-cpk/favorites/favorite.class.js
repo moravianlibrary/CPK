@@ -51,14 +51,16 @@
 	    
 	    if (typeof searchItems === 'undefined') {
 		searchItems = $('div#result-list-placeholder').children();
+		
+		window.addEventListener('searchResultsLoaded', function() {
+		    searchItems = $('div#result-list-placeholder').children();
+		});
 	    }
 	    
 	    var desiredRecord = searchItems.get(rank);
 	    
 	    desiredRecord = desiredRecord.getElementsByClassName('row')[0];
 	    
-	    
-	    //TODO
 	    vm.title(parseTitleForSearchRecord());
 
 	    vm.author(parseAuthorForSearchRecord());
@@ -186,7 +188,7 @@
 		var expectedSiblingHeader = tablePointer.siblings('h2');
 
 		if (expectedSiblingHeader.length)
-		    return expectedSiblingHeader.text();
+		    return expectedSiblingHeader.find('strong').text();
 		else
 		    console.error('Parsing record title failed!');
 	    }

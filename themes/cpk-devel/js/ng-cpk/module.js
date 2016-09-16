@@ -5,7 +5,8 @@
  * @author Jiří Kozlovský
  */
 (function() {
-    var cpkApp = angular.module('cpk', [ 'favorites', 'notifications', 'federativeLogin', 'admin', 'history' ]);
+    
+    var cpkApp = angular.module('cpk', [ 'polyfill', 'favorites', 'notifications', 'federativeLogin', 'admin', 'history' ]);
     	
     cpkApp.config(['$locationProvider', function($locationProvider) {
 	$locationProvider.html5Mode({

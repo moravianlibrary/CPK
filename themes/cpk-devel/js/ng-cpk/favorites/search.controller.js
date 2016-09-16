@@ -15,7 +15,7 @@
  */
 (function() {
 
-    angular.module('favorites').controller('SearchFavController', SearchController).directive('addRemove', SearchDirective);
+    angular.module('favorites').controller('SearchFavController', SearchController).directive('addRemoveSearch', SearchDirective);
 
     SearchController.$inject = [ '$window', '$scope', '$compile', '$log', 'storage', 'favoritesFactory', 'Favorite', 'favsBroadcaster' ];
 
@@ -193,7 +193,7 @@
 	function getRecordId(fromThis, rank) {
 	    
 	    if (typeof rank !== 'undefined')
-		return rankedItems[rank].querySelector('a.title').getAttribute('href').match(/Record\/(.*)\?/)[1];
+		return rankedItems[rank].querySelector('a.title').getAttribute('href').match(/^\/Record\/([^\?]*)/)[1];
 	    
 	    var fromWhat = (typeof fromThis === "undefined") ? location.pathname : fromThis;
 	    
@@ -240,14 +240,16 @@
 	 */
 	function linker(scope, elements, attrs) {
 	    
-	    var attr = elements.context.getAttribute('add-remove');
+	    var el = elements.context;
+	    
+	    var attr = el.getAttribute('data-add-remove-search');
 	    
 	    var action, rank, attrSplitted = attr.split(':');
 	    
 	    action = attrSplitted[0];
 	    rank = parseInt(attrSplitted[1]);
 	    
-	    if (Number.isNaN(rank))
+	    if (typeof Number.isNaN !== 'undefined' && Number.isNaN(rank))
 		return console.error('No rank provided to a SearchDirective!');
 	    
 	    if (typeof pubElements[rank] === 'undefined')
@@ -260,18 +262,18 @@
 	    if (action === "add") {
 
 		// Store the pointer to this element
-	    	pubElements[rank].addFavBtn = elements.context;
+	    	pubElements[rank].addFavBtn = el;
 
 		// Set it to shown
-	    	elements.context.hidden = false;
+	    	el.hidden = false;
 	    	    
 	    } else if (action === "rem") {
 		    
 		// Store the pointer to this element
-		pubElements[rank].remFavBtn = elements.context;
+		pubElements[rank].remFavBtn = el;
 		    
 		// Set it to hidden
-		elements.context.hidden = true;
+		el.hidden = true;
 		    
 	    }
 	    if (typeof pubElementsLinked[rank] === 'function') {

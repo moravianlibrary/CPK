@@ -15,7 +15,7 @@
  */
 (function() {
 
-    angular.module('favorites').controller('RecordFavController', RecordController).directive('addRemove', RecordDirective);
+    angular.module('favorites').controller('RecordFavController', RecordController).directive('addRemoveRecord', RecordDirective);
 
     RecordController.$inject = [ '$log', 'storage', 'favoritesFactory', 'Favorite', 'favsBroadcaster' ];
 
@@ -157,7 +157,9 @@
 	    
 	    var fromWhat = (typeof fromThis === "undefined") ? location.pathname : fromThis;
 	    
-	    return fromWhat.split('/')[2];
+	    var match = fromWhat.match(/^\/Record\/([^\?]*)/);
+	    
+	    return match ? match[1] : null;
 	}
 	
 	/**
@@ -193,22 +195,26 @@
 	 */
 	function linker(scope, elements, attrs) {
 	    
+	    var el = elements.context;
+	    
+	    var attr = el.getAttribute('data-add-remove-record');
+	    
 	    // Add favorite will be shown by default & remove hidden by def
-	    if (elements.context.getAttribute('add-remove') === "add") {
+	    if (attr === "add") {
 
 		// Store the pointer to this element
-	    	pubElements.addFavBtn = elements.context;
+	    	pubElements.addFavBtn = el;
 
 		// Set it to shown
-	    	elements.context.hidden = false;
+	    	el.hidden = false;
 	    	    
-	    } else if (elements.context.getAttribute('add-remove') === "rem") {
+	    } else if (attr === "rem") {
 		    
 		// Store the pointer to this element
-		pubElements.remFavBtn = elements.context;
+		pubElements.remFavBtn = el;
 		    
 		// Set it to hidden
-		elements.context.hidden = true;
+		el.hidden = true;
 		    
 	    } 
 	    

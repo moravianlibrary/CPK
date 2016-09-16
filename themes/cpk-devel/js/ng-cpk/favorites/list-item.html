@@ -17,7 +17,9 @@
 		</div>
 
 		<div class="resultItemLine2">
-			{{ 'mainAuthor' | translate }} <a data-ng-href="fav.authorLink()">{{ fav.author() }}</a> <br/>
+		    <div data-ng-show="fav.author()">
+			    {{ 'mainAuthor' | translate }} <a data-ng-href="fav.authorLink()">{{ fav.author() }}</a> <br/>
+			</div>
 			<div data-ng-show="fav.published()">
 				{{ 'published' | translate }} {{ fav.published() }}
 			</div>
