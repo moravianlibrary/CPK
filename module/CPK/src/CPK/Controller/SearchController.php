@@ -654,6 +654,54 @@ class SearchController extends SearchControllerBase
 	        $view->offlineFavoritesEnabled = (bool) $this->getConfig()->Site['offlineFavoritesEnabled'];
 	    }
 
+	    /* Set limit and sort */
+	    $searchesConfig = $this->getConfig('searches');
+	    $view->limit = (! empty($request['limit']))
+	    ? $request['limit']
+	    : $searchesConfig->General->default_limit;
+	    $view->sort  = (! empty($request['sort']))
+	    ? $request['sort']
+	    : $searchesConfig->General->default_sort;
+
+	    if (! empty($request['limit'])) {
+	        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $request['limit'];
+	    }
+
+	    if (! empty($request['sort'])) {
+	        $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $request['sort'];
+	    }
+
+	    // If user have preferred limit and sort settings
+	    if ($user = $this->getAuthManager()->isLoggedIn()) {
+	        $userSettingsTable = $this->getTable("usersettings");
+
+	        if (isset($_SESSION['VuFind\Search\Solr\Options']['lastLimit'])) {
+	            $request['limit'] = $_SESSION['VuFind\Search\Solr\Options']['lastLimit'];
+	        } else {
+	            if (! empty($preferredRecordsPerPage)) {
+	                $request['limit'] = $userSettingsTable->getRecordsPerPage($user);
+	            } else {
+	                $request['limit'] = $searchesConfig->General->default_limit;
+	            }
+	        }
+	        $view->limit = $request['limit'];
+
+	        if (isset($_SESSION['VuFind\Search\Solr\Options']['lastSort'])) {
+	            $request['sort'] = $_SESSION['VuFind\Search\Solr\Options']['lastSort'];
+	        } else {
+	            if (! empty($preferredSorting)) {
+	                $request['sort'] = $userSettingsTable->getSorting($user);
+	            } else {
+	                $request['sort'] = $searchesConfig->General->default_sort;
+	            }
+	        }
+	        $view->sort = $request['sort'];
+	    }
+
+	    $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $view->limit;
+	    $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $view->sort;
+	    /**/
+
 	    return $view;
 	}
 
