@@ -28,9 +28,10 @@
 namespace CPK\Controller;
 
 use MZKCommon\Controller\RecordController as RecordControllerBase,
-VuFind\Controller\HoldsTrait as HoldsTraitBase;
-use Zend\Mail\Address;
-use CPK\RecordDriver\SolrAuthority;
+    VuFind\Controller\HoldsTrait as HoldsTraitBase,
+    Zend\Mail\Address,
+    CPK\RecordDriver\SolrAuthority,
+    VuFind\Exception\RecordMissing as RecordMissingException;
 
 /**
  * Redirects the user to the appropriate default VuFind action.
@@ -49,6 +50,13 @@ class RecordController extends RecordControllerBase
     }
 
     protected $recordLoader = null;
+
+    /**
+     * Should we log statistics?
+     *
+     * @var bool
+     */
+    protected $logStatistics = false;
 
     /**
      * Display a particular tab.
@@ -400,5 +408,27 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
 
         // No followup info found?  Send back to record view:
         return $this->redirectToRecord();
+    }
+
+    /**
+     * Home (default) action -- forward to requested (or default) tab.
+     *
+     * @return mixed
+     */
+    public function homeAction()
+    {
+        // Save statistics:
+        if ($this->logStatistics) {
+            $this->getServiceLocator()->get('VuFind\RecordStats')
+                ->log($this->loadRecord(), $this->getRequest());
+        }
+
+        try {
+            return $this->showTab(
+                $this->params()->fromRoute('tab', $this->getDefaultTab())
+            );
+        } catch (RecordMissingException $e) {
+            return $this->notFoundAction();
+        }
     }
 }
