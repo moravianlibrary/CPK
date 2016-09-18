@@ -365,6 +365,34 @@ class SearchController extends SearchControllerBase
 
         $view->language = explode("-", $languageCode)[0];
 
+        $searchesConfig = $this->getConfig('searches');
+        // If user have preferred limit and sort settings
+        if ($user = $this->getAuthManager()->isLoggedIn()) {
+            $userSettingsTable = $this->getTable("usersettings");
+
+            $userSettingsTable = $this->getTable("usersettings");
+            $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
+            $preferredSorting = $userSettingsTable->getSorting($user);
+
+            if ($preferredRecordsPerPage) {
+                $this->layout()->limit = $preferredRecordsPerPage;
+            } else {
+                $this->layout()->limit = $searchesConfig->General->default_limit;
+            }
+
+            if ($preferredSorting) {
+                $this->layout()->sort = $preferredSorting;
+            } else {
+                $this->layout()->sort = $searchesConfig->General->default_sort;
+            }
+        } else {
+            $this->layout()->limit = $searchesConfig->General->default_limit;
+            $this->layout()->sort = $searchesConfig->General->default_sort;
+        }
+
+        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
+        $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
+
 	    return $view;
 	}
 
@@ -582,19 +610,135 @@ class SearchController extends SearchControllerBase
 	        return $this->forwardTo('Tag', 'Home');
 	    }
 
-	    // Special case -- redirect tag searches.
-	    $tag = $this->params()->fromQuery('tag');
-	    if (!empty($tag)) {
-	        $query = $this->getRequest()->getQuery();
-	        $query->set('lookfor', $tag);
-	        $query->set('type', 'tag');
-	    }
-	    if ($this->params()->fromQuery('type') == 'tag') {
-	        return $this->forwardTo('Tag', 'Home');
+	    $view = $this->createViewModel();
+
+	    // Handle saved search requests:
+	    $savedId = $this->params()->fromQuery('saved', false);
+	    if ($savedId !== false) {
+	        return $this->redirectToSavedSearch($savedId);
 	    }
 
-	    // Default case -- standard behavior.
-	    $view = parent::resultsAction();
+	    // Send both GET and POST variables to search class:
+	    $request = $this->getRequest()->getQuery()->toArray()
+	    + $this->getRequest()->getPost()->toArray();
+
+	    /* Set limit and sort */
+	    $searchesConfig = $this->getConfig('searches');
+	    if (! empty($request['limit'])) {
+	       $view->limit = $request['limit'];
+	    } else {
+	       $view->limit = $searchesConfig->General->default_limit;
+	       $request['limit'] = $searchesConfig->General->default_limit;
+	    }
+
+
+	    if (! empty($request['sort'])) {
+	       $view->sort = $request['sort'];
+	    } else {
+	       $view->sort = $searchesConfig->General->default_sort;
+	       $request['sort'] = $searchesConfig->General->default_sort;
+	    }
+
+	    if (! empty($request['limit'])) {
+	        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $request['limit'];
+	    }
+
+	    if (! empty($request['sort'])) {
+	        $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $request['sort'];
+	    }
+
+	    // If user have preferred limit and sort settings
+	    if ($user = $this->getAuthManager()->isLoggedIn()) {
+	        $userSettingsTable = $this->getTable("usersettings");
+
+	        if (isset($_SESSION['VuFind\Search\Solr\Options']['lastLimit'])) {
+	            $request['limit'] = $_SESSION['VuFind\Search\Solr\Options']['lastLimit'];
+	        } else {
+	            if (! empty($preferredRecordsPerPage)) {
+	                $request['limit'] = $userSettingsTable->getRecordsPerPage($user);
+	            } else {
+	                $request['limit'] = $searchesConfig->General->default_limit;
+	            }
+	        }
+	        $view->limit = $request['limit'];
+
+	        if (isset($_SESSION['VuFind\Search\Solr\Options']['lastSort'])) {
+	            $request['sort'] = $_SESSION['VuFind\Search\Solr\Options']['lastSort'];
+	        } else {
+	            if (! empty($preferredSorting)) {
+	                $request['sort'] = $userSettingsTable->getSorting($user);
+	            } else {
+	                $request['sort'] = $searchesConfig->General->default_sort;
+	            }
+	        }
+	        $view->sort = $request['sort'];
+	    }
+
+	    $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit = $view->limit;
+	    $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort = $view->sort;
+	    /**/
+
+	    $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+
+	    $view->results = $results = $runner->run(
+	        $request, $this->searchClassId, $this->getSearchSetupCallback()
+	        );
+	    $view->params = $results->getParams();
+
+	    // If we received an EmptySet back, that indicates that the real search
+	    // failed due to some kind of syntax error, and we should display a
+	    // warning to the user; otherwise, we should proceed with normal post-search
+	    // processing.
+	    if ($results instanceof \VuFind\Search\EmptySet\Results) {
+	        $view->parseError = true;
+	    } else {
+	        // If a "jumpto" parameter is set, deal with that now:
+	        if ($jump = $this->processJumpTo($results)) {
+	            return $jump;
+	        }
+
+	        // Remember the current URL as the last search.
+	        $this->rememberSearch($results);
+
+	        // Add to search history:
+	        if ($this->saveToHistory) {
+	            $user = $this->getUser();
+	            $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')
+	            ->getId();
+	            $history = $this->getTable('Search');
+	            $history->saveSearch(
+	                $this->getResultsManager(), $results, $sessId,
+	                $history->getSearches(
+	                    $sessId, isset($user->id) ? $user->id : null
+	                    )
+	                );
+	        }
+
+	        // Set up results scroller:
+	        if ($this->resultScrollerActive()) {
+	            $this->resultScroller()->init($results);
+	        }
+	    }
+
+	    // Save statistics:
+	    if ($this->logStatistics) {
+	        $this->getServiceLocator()->get('VuFind\SearchStats')
+	        ->log($results, $this->getRequest());
+	    }
+
+	    // Special case: If we're in RSS view, we need to render differently:
+	    if (isset($view->params) && $view->params->getView() == 'rss') {
+	        $response = $this->getResponse();
+	        $response->getHeaders()->addHeaderLine('Content-type', 'text/xml');
+	        $feed = $this->getViewRenderer()->plugin('resultfeed');
+	        $response->setContent($feed($view->results)->export('rss'));
+	        return $response;
+	    }
+
+	    // Search toolbar
+	    $config = $this->getServiceLocator()->get('VuFind\Config')->get('config');
+	    $view->showBulkOptions = isset($config->Site->showBulkOptions)
+	    && $config->Site->showBulkOptions;
 
 	    $view->myLibs = $this->getUsersHomeLibraries();
 	    $view->config = $this->getConfig();
@@ -653,54 +797,6 @@ class SearchController extends SearchControllerBase
 	    if ($this->getConfig()->Site['offlineFavoritesEnabled'] !== null) {
 	        $view->offlineFavoritesEnabled = (bool) $this->getConfig()->Site['offlineFavoritesEnabled'];
 	    }
-
-	    /* Set limit and sort */
-	    $searchesConfig = $this->getConfig('searches');
-	    $view->limit = (! empty($request['limit']))
-	    ? $request['limit']
-	    : $searchesConfig->General->default_limit;
-	    $view->sort  = (! empty($request['sort']))
-	    ? $request['sort']
-	    : $searchesConfig->General->default_sort;
-
-	    if (! empty($request['limit'])) {
-	        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $request['limit'];
-	    }
-
-	    if (! empty($request['sort'])) {
-	        $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $request['sort'];
-	    }
-
-	    // If user have preferred limit and sort settings
-	    if ($user = $this->getAuthManager()->isLoggedIn()) {
-	        $userSettingsTable = $this->getTable("usersettings");
-
-	        if (isset($_SESSION['VuFind\Search\Solr\Options']['lastLimit'])) {
-	            $request['limit'] = $_SESSION['VuFind\Search\Solr\Options']['lastLimit'];
-	        } else {
-	            if (! empty($preferredRecordsPerPage)) {
-	                $request['limit'] = $userSettingsTable->getRecordsPerPage($user);
-	            } else {
-	                $request['limit'] = $searchesConfig->General->default_limit;
-	            }
-	        }
-	        $view->limit = $request['limit'];
-
-	        if (isset($_SESSION['VuFind\Search\Solr\Options']['lastSort'])) {
-	            $request['sort'] = $_SESSION['VuFind\Search\Solr\Options']['lastSort'];
-	        } else {
-	            if (! empty($preferredSorting)) {
-	                $request['sort'] = $userSettingsTable->getSorting($user);
-	            } else {
-	                $request['sort'] = $searchesConfig->General->default_sort;
-	            }
-	        }
-	        $view->sort = $request['sort'];
-	    }
-
-	    $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $view->limit;
-	    $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $view->sort;
-	    /**/
 
 	    return $view;
 	}
@@ -1038,8 +1134,8 @@ class SearchController extends SearchControllerBase
             $viewData['sort'] = $request['sort'];
         }
 
-        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $viewData['limit'];
-        $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $viewData['sort'];
+        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit = $viewData['limit'];
+        $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort = $viewData['sort'];
         /**/
 
         $viewData['results'] = $results = $runner->run(

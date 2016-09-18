@@ -1,3 +1,12 @@
+<?php
+    if (empty($lastLimit)) {
+        $lastLimit = $this->layout()->limit;
+    }
+    if (empty($lastSort)) {
+        $lastSort = $this->layout()->sort;
+    }
+?>
+
   <div id="collapseAdvancedSearch" class="panel-collapse collapse in basic-search-panel<?=(isset($hiddenBasicSearch)) ? ' hidden' : ''?>" role="tabpanel" aria-labelledby="headingAdvancedSearch">
     <div class="panel-body">
 
@@ -28,8 +37,8 @@
           } else {
             filters = '';
           }
-          $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1" + filters);
-          $( ".searchForm" ).attr("action", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1" + filters);
+          $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>" + filters);
+          $( ".searchForm" ).attr("action", "/Search/Results?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>" + filters);
 
           /* Update autocomplete On some change */
           $( ".search-query" ).on( 'change', function( event ) {
@@ -47,8 +56,8 @@
                 filters = '';
             }
 
-        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
-        	  $( ".searchForm" ).attr("action", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+        	  $( ".searchForm" ).attr("action", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters);
 
         	  /* Change first query in advanced search to match value in autocomplete */
         	  ADVSEARCH.clearAdvancedSearchTemplate();
@@ -68,7 +77,7 @@
                     ADVSEARCH.updateSearchResults(
                     	undefined,
                     	{
-                        	queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic&page=1&bool0=AND&join=AND&keepEnabledFilters=' + enabledKeepFacets + ''
+                        	queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic&page=1&bool0=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters=' + enabledKeepFacets + ''
                         },
                     	false
                     );
@@ -93,13 +102,13 @@
                     ADVSEARCH.updateSearchResults(
 						undefined,
 						{
-							queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=AllFields&page=1&bool0=AND&join=AND&keepEnabledFilters='+enabledKeepFacets
+							queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=AllFields&page=1&bool0=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters='+enabledKeepFacets
 						},
 						false
 					);
                     return false;
 				} else {
-					query = $( this ).val();
+					query = $( "#searchForm_lookfor" ).val();
 
 		           	enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
 
@@ -112,10 +121,10 @@
 		                filters = '';
 		            }
 
-		        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
-		        	  $( ".searchForm" ).attr("action", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+		        	  $( "#run-autocomplete" ).attr("href", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+		        	  $( ".searchForm" ).attr("action", "/Search/Results?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters);
 
-					$( location ).( 'href', $( "#run-autocomplete" ).attr( 'href' ));
+					$( location ).attr( 'href', $( "#run-autocomplete" ).attr( 'href' ));
 				}
             });
 
@@ -204,11 +213,11 @@
           </span>
       <? elseif ($this->frontpage): ?>
           <div class='col-md-12 text-center homepage-advanced-search-link'>
-    		<a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=10"><?=$this->translate("Advanced Search")?></a>
+    		<a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
           </div>
       <? else: ?>
           <? if (! $this->layout()->recordView): ?>
-      	      <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=10"><?=$this->translate("Advanced Search")?></a>
+      	      <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
   	      <? endif; ?>
       <? endif; ?>
 	  <?= $this->help()->getQuestionMarkHelp('autocomplete') ?>
