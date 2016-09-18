@@ -781,8 +781,14 @@ jQuery( document ).ready( function( $ ) {
 		var limit = $( this ).attr( 'data-limit' );
 		var text = $( this ).text();
 		$( '.ajax-update-limit' ).find( '.value' ).text( limit );
+		
+		var oldLimit = $( "input[name='limit']" ).val();
+		var oldPage = $( "input[name='page']" ).val();
+		
+		var newPage = Math.floor(((oldPage - 1) * oldLimit) / limit) + 1
+		$( "input[name='page']" ).val( newPage );
 		$( "input[name='limit']" ).val( limit );
-		$( "input[name='page']" ).val( '1' );
+		
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
