@@ -14,7 +14,14 @@ function standardErrorHandler($errno, $errstr, $errfile, $errline) {
 
 
 function fatalErrorHandler() {
-    include(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
+    $error = error_get_last();
+    if (
+        ($error['type'] === E_ERROR) ||
+        ($error['type'] === E_USER_ERROR) ||
+        ($error['type'] === E_USER_NOTICE)
+    ) {
+        include_once(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
+    }
 }
 
 set_error_handler("standardErrorHandler");
