@@ -68,6 +68,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     protected $logo = null;
 
     protected $agency = '';
+    protected $source = '';
 
     protected $translator = false;
 
@@ -131,6 +132,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         if (isset($this->config['Catalog']['agency']))
             $this->agency = $this->config['Catalog']['agency'];
+
+        if (isset($this->config['Availability']['source']))
+            $this->source = $this->config['Availability']['source'];
 
         $this->requests = new NCIPRequests($this->config);
         $this->libsLikeTabor = $this->requests->getLibsLikeTabor();
@@ -1381,6 +1385,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $group = $this->useXPath($response,
                     'LookupUserResponse/UserOptionalFields/UserPrivilege/AgencyUserPrivilegeType');
         }
+        $group = $this->extractData($group);
+        $translatedGroup = $this->translator->translate($this->source . '_' . $group);
+        $group = ($translatedGroup == $this->source . '_' . $group) ? $group : $translatedGroup;
 
         $rawExpire = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
@@ -1436,7 +1443,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'country' => empty($country) ? '' : (string) $country[0],
             'zip' => empty($zip) ? '' : (string) $zip[0],
             'phone' => empty($phone) ? '' : (string) $phone[0],
-            'group' => $this->extractData($group),
+            'group' => $group,
             'blocks' => empty($blocks) ? array() : $blocks,
             'email' => empty($email) ? '' : (string) $email[0],
             'expire' => $expireDate
