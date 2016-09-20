@@ -5,7 +5,7 @@ function notEmpty($arr, $key)
     return isset($arr[$key]) && ! empty($arr[$key]);
 }
 
-defined('USES_IE') || define('USES_IE', preg_match('/Windows/', $_SERVER['HTTP_USER_AGENT']));
+defined('USES_IE') || define('USES_IE', preg_match('/MSIE|Trident/', $_SERVER['HTTP_USER_AGENT']));
 
 function standardErrorHandler($errno, $errstr, $errfile, $errline) {
     echo "<b>Error:</b> [$errno] $errstr<br>";
