@@ -63,7 +63,7 @@ $toRet = array(
  * @var boolean
  */
 $useCompiledAngular = false;
-$angularForbiddenForIE = false;
+$angularForbiddenForIE = true;
 
 if (! ($angularForbiddenForIE && USES_IE)) {
 
