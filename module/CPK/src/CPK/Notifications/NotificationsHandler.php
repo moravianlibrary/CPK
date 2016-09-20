@@ -460,7 +460,7 @@ class NotificationsHandler
 
         unset($fines['source']);
 
-        if (count($fines)) {
+        if ((count($fines)) && (end($fines)['balance'] < 0)) {
 
                 $controlHash = md5(json_encode($fines));
 
