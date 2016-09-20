@@ -1386,8 +1386,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     'LookupUserResponse/UserOptionalFields/UserPrivilege/AgencyUserPrivilegeType');
         }
         $group = $this->extractData($group);
-        $translatedGroup = $this->translator->translate($this->source . '_' . $group);
-        $group = ($translatedGroup == $this->source . '_' . $group) ? $group : $translatedGroup;
+        $translatedGroup = $this->translator->translate($this->source . '_group_' . $group);
+        $group = ($translatedGroup == $this->source . '_group_' . $group) ? $group : $translatedGroup;
 
         $rawExpire = $this->useXPath($response,
             'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
