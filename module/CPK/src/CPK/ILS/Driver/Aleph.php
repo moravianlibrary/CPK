@@ -371,8 +371,8 @@ class Aleph extends AlephBase implements CPKDriverInterface
         $recordList['zip'] = $zip;
         $recordList['phone'] = $phone;
         $recordList['email'] = $email;
-        $recordList['addressValidFrom'] = $this->parseDate($dateFrom);
-        $recordList['addressValidTo'] = $this->parseDate($dateTo);
+        $recordList['addressValidFrom'] = $this->parseDateGreedy($dateFrom);
+        $recordList['addressValidTo'] = $this->parseDateGreedy($dateTo);
         $recordList['id'] = $user['id'];
         $recordList['cat_username'] = $user['id'];
         $xml = $this->alephWebService->doRestDLFRequest(array(
@@ -854,6 +854,23 @@ class Aleph extends AlephBase implements CPKDriverInterface
             'status' => $retStatus
         ];
         return $holding;
+    }
+
+    /**
+     * Parse a date with a fallback to null if an Exception occurs.
+     *
+     * @param string $date
+     *            Date to parse
+     *
+     * @return string
+     */
+    public function parseDateGreedy($date)
+    {
+        try {
+            return $this->parseDate($date);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
