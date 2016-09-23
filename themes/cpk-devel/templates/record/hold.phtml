@@ -111,11 +111,11 @@
         </div>
       <? elseif (count($this->pickup) > 1): ?>
         <div class="form-group">
-          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_location")?>:</label>
+          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_location")?>: *</label>
           <div class="col-sm-9">
             <select id="pickUpLocation" name="gatheredDetails[pickUpLocation]" class="form-control">
-            <? if ($selected === false): ?>
-              <option value="" selected="selected">
+            <? if (($selected === false) || ($selected == 'empty')): ?>
+              <option value="empty" selected="selected">
                 <?=$this->transEsc('select_pickup_location')?>
               </option>
             <? endif; ?>
