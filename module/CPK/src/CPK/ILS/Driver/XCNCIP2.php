@@ -1199,7 +1199,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
             if ($this->isAncientFee($date)) $excluded = true; // exclude old fees
             $date = $this->parseDate($date);
-            $amount_int = (int) $amount[0] * (- 1);
+            $amount_int = (int) $amount[0];
             if ($amount_int == 0) continue; // remove zero fees
             if (! $excluded) $leastOne = true;
             $sum += $amount_int;
