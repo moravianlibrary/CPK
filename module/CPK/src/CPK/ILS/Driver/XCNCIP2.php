@@ -745,6 +745,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $bibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
                 $bibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $bibId);
+                $bibId = str_replace('KlUsCat_', 'kl_us_cat*', $bibId);
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutusesZlg($response);

@@ -22,7 +22,7 @@ class NCIPRequests {
         'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001',
     ];
     protected $libsLikeLiberec = [
-        'LIA001', 'CBA001',
+        'LIA001', 'CBA001', 'KLG001',
     ];
 
     public function __construct($config) {
