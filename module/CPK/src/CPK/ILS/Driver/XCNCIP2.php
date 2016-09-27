@@ -1292,6 +1292,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
                 $bib_id = str_replace('cbvk_us_cat*', 'CbvkUsCat_', $bib_id);
+                $bib_id = str_replace('kl_us_cat*', 'KlUsCat_', $bib_id);
             }
             if ($this->agency === 'ZLG001') { // add record prefix for kfbz
                 $bib_id = 'oai:' . $bib_id;
