@@ -810,6 +810,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $label = $this->determineLabel($status);
             $addLink = $this->isLinkAllowed($status, $itemRestriction);
+            if (in_array($this->agency, $this->libsLikeTabor)) {
+                if ((string) $itemRestriction[0] == 'Orderable') {
+                    $addLink = true;
+                    $itemRestriction = array_pop($itemRestriction);
+                }
+                else {
+                    $addLink = false;
+                }
+            }
 
             $locations = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/Location');
             foreach ($locations as $locElement) {
