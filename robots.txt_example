@@ -1,0 +1,7 @@
+User-agent: *
+# A Crawl-delay: of 30 seconds would allow crawlers to index your entire 1,000 page website in just 8.3 hours
+# A Crawl-delay: of 500 seconds would allow crawlers to index your entire 1,000 page website in 5.8 days
+Crawl-delay: 30
+Disallow: /
+Allow: /robots.txt
+
