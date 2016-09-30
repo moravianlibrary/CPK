@@ -6,5 +6,6 @@ Crawl-delay: 30
 Allow: /
 
 # Configuration for development
+#User-agent: *
 #Disallow: /
 #Allow: /robots.txt

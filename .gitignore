@@ -19,3 +19,4 @@ log
 .settings
 git-3way-merge.local.cfg
 compileMyCss.sh
+public/robots.txt
