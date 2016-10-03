@@ -710,29 +710,33 @@ jQuery( document ).ready( function( $ ) {
 
 		$( "input[name='page']" ).val( '1' );
 
+		if ($('#facet_local_statuses_facet_str_mv').length ) {
+			//remove all statuses
+			var allStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_json('#', {flat: true});
+			$.each(allStatuses, function (index, value) {
+				ADVSEARCH.removeFacetFilter(value['id'], false);
+			});
 
-		//remove all statuses
-		var allStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_json('#', {flat:true});
-		$.each( allStatuses, function( index, value ){
-			ADVSEARCH.removeFacetFilter( value['id'], false );
-		});
-		//remove all conspectus
-		var allConspectus = $('#facet_conspectus_str_mv').jstree(true).get_json('#', {flat:true});
-		$.each( allConspectus, function( index, value ){
-			ADVSEARCH.removeFacetFilter( value['id'], false );
-		});
+			//add selected statuses
+			var selectedStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_bottom_selected();
+			$.each(selectedStatuses, function (index, value) {
+				ADVSEARCH.addFacetFilter(value, false);
+			});
+		};
 
-		//add selected statuses
-		var selectedStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_bottom_selected();
-		$.each( selectedStatuses, function( index, value ){
-			ADVSEARCH.addFacetFilter( value, false );
-		});
+		if ($('#facet_conspectus_str_mv').length ) {
+			//remove all conspectus
+			var allConspectus = $('#facet_conspectus_str_mv').jstree(true).get_json('#', {flat: true});
+			$.each(allConspectus, function (index, value) {
+				ADVSEARCH.removeFacetFilter(value['id'], false);
+			});
 
-		//add selected conspectus
-		var selectedConspectus = $('#facet_conspectus_str_mv').jstree(true).get_bottom_selected();
-		$.each( selectedConspectus, function( index, value ){
-			ADVSEARCH.addFacetFilter( value, false );
-		});
+			//add selected conspectus
+			var selectedConspectus = $('#facet_conspectus_str_mv').jstree(true).get_bottom_selected();
+			$.each(selectedConspectus, function (index, value) {
+				ADVSEARCH.addFacetFilter(value, false);
+			});
+		}
 
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 
