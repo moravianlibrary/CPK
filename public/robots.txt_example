@@ -4,6 +4,19 @@
 User-agent: *
 Crawl-delay: 30
 Allow: /
+Disallow: /Search/Results
+Disallow: /AJAX/JSON?method=getSaveStatuses*
+Disallow: /AJAX/JSON?method=getItemStatuses*
+Disallow: /Record/*/Export*
+Disallow: /Record/*/Save*
+Disallow: /Record/*/Citace
+Disallow: /Record/*/Email
+Disallow: /Record/*/AddTag
+Disallow: /Record/*/UserComments
+Disallow: /Record/*?mylang=*
+Disallow: /Record/*/ExtendedHold*
+Disallow: /Record/*/DigiRequest
+Disallow: /Record/*/Citation
 
 # Configuration for development
 #User-agent: *
