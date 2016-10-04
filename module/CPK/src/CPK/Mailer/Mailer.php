@@ -102,8 +102,10 @@ class Mailer extends BaseMailer
             $templateName = $this->getTemplateNameFor(EmailTypes::IDP_NO_EPPN);
             $body = $renderer->partial($templateName, $templateVars);
 
+            $body .= "\n You might consider contacting technical contacts: " . $technicalContacts;
+
             if (isset($this->idpMail))
-                $this->send($technicalContacts, $this->idpMail, $this->translate('eppn_missing_mail_subject'), $body, $this->idpMail);
+                $this->send($this->idpMail, $this->idpMail, $this->translate('eppn_missing_mail_subject'), $body, $this->idpMail);
             else
                 throw MailException('Missing Mail->idpMail configuration');
         }
