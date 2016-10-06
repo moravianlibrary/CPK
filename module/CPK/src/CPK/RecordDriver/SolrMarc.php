@@ -292,6 +292,28 @@ class SolrMarc extends ParentSolrMarc
             }
         }
 
+        if ((isset($this->fields['format_display_mv'][0])) && ($this->fields['format_display_mv'][0] == '0/PERIODICALS/')) {
+            usort($holdings, function($a, $b) {
+                if (empty($a['description']) || empty($b['description'])) {
+                    return false;
+                }
+                $pattern = '/(\d+)[ ,]+(\d+)(-\d+)?[ ,]*(\d+)?(-\d+)?/';
+                $first = preg_replace($pattern, '$1', $a['description']);
+                $second = preg_replace($pattern, '$1', $b['description']);
+                if ($first != $second) {
+                    return $first < $second;
+                }
+                $first = preg_replace($pattern, '$2', $a['description']);
+                $second = preg_replace($pattern, '$2', $b['description']);
+                if ($first != $second) {
+                    return $first < $second;
+                }
+                $first = preg_replace('/(\d+) (\d+) (\d+)(-\d+)?/', '$3', $a['description']);
+                $second = preg_replace('/(\d+) (\d+) (\d+)(-\d+)?/', '$3', $b['description']);
+                return $first < $second;
+            });
+        }
+
         return $holdings;
     }
 
