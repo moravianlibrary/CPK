@@ -1363,7 +1363,7 @@ class AjaxController extends AjaxControllerBase
 
             $results = $xpath->query('//*[@id="citace"]');
 
-            $citation = $results->item(0)->nodeValue;
+            $citation = $results->item(0)->c14n();
             if (! empty($citation)) {
                 return $this->output($citation, self::STATUS_OK);
             }
