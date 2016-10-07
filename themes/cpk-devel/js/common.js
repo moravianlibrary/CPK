@@ -508,4 +508,10 @@ $(document).ready(function() {
   }).mouseleave( function() {
 	  $( this ).popover( 'hide' );
   });
+  
+  $(document).keyup(function(e) { 
+      if ((e.keyCode == 8) || (e.keyCode == 27)) { 
+          $('.modal').modal('hide');
+      } 
+  });
 });
