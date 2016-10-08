@@ -41,7 +41,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
             html += "";
         }
         else {
-            if (facetName == "facet_conspectus_str_mv" ) {
+            if (facetName == "conspectus_str_mv" ) {
                 html += "";
             }
             else {
@@ -67,21 +67,40 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     if (typeof this.children !== 'undefined' && this.children.length > 0) {
       children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
     }
-    json.push({
-      'id': facetFilter,
-      'text': html,
-      'children': children,
-      'applied': this.isApplied,
-      'state': {
-        'opened': this.hasAppliedChildren,
-        'selected': this.isApplied
-      },
-      'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
-      'a_attr': this.isApplied ? { 'class': 'active facet-filter-or' } :
-          { 'href': window.location.href + "&filter%5B%5D=" + facetFilter ,
-            'class' : 'facet-filter-or'
-          },
-    });
+      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv") {
+          json.push({
+              'id': facetFilter,
+              'text': html,
+              'children': children,
+              'applied': this.isApplied,
+              'state': {
+                  'opened': this.hasAppliedChildren,
+                  'selected': this.isApplied
+              },
+              'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
+              'a_attr': this.isApplied ? { 'class': 'active facet-filter-or' } :
+              { 'href': window.location.href + "&filter%5B%5D=" + facetFilter ,
+                  'class' : 'facet-filter-or'
+              },
+          });
+      }
+      else {
+          json.push({
+              'id': facetFilter,
+              'text': html,
+              'children': children,
+              'applied': this.isApplied,
+              'state': {
+                  'opened': this.hasAppliedChildren,
+                  'selected': this.isApplied
+              },
+              'li_attr': (this.count == 0) ? {'class': 'emptyFacet'} : {},
+              'a_attr': this.isApplied ? {'class': 'active'} :
+              {
+                  'href': window.location.href + "&filter%5B%5D=" + facetFilter,
+              },
+          });
+      };
   });
 
   return json;
