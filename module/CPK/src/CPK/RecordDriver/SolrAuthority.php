@@ -2,9 +2,8 @@
 namespace CPK\RecordDriver;
 
 use CPK\RecordDriver\SolrMarc as ParentSolrMarc;
-use VuFind\XSLT\Import\VuFind;
 use VuFind\RecordDriver\Response;
-use Zend\Http\Client\Adapter\Exception\TimeoutException;
+use Exception;
 
 class SolrAuthority extends ParentSolrMarc
 {
@@ -173,7 +172,7 @@ class SolrAuthority extends ParentSolrMarc
                     $phpResponse = json_decode($responseBody, true);
                     $this->obalky = empty($phpResponse) ? null : $phpResponse;
                 }
-                catch (TimeoutException $e) {
+                catch (Exception $e) {
                     $this->obalky = null;
                 }
             }

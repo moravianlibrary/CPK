@@ -444,7 +444,19 @@ function getCitation( recordId, citationValue , callback ) {
 			console.log( "Request failed: " + textStatus );
 		}
 	});
-};
+}
+
+function selectText( containerid ) {
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(containerid));
+        range.select();
+    } else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(containerid));
+        window.getSelection().addRange(range);
+    }
+}
 
 /**
  * Insert citation
@@ -454,7 +466,7 @@ function getCitation( recordId, citationValue , callback ) {
  * @return	{undefined}
  */
 function insertCitation( citation ) {
-	var html = "<textarea class='selectOnClick form-control' rows='5' cols='50' onclick='this.focus();this.select()' readonly='readonly' style='background-color: #fff;'>"+citation+"</textarea>";
+	var html = "<span id=\"selectable\" onclick=\"selectText('selectable')\">"+citation+"</span>";
 	jQuery( '#citation-placeholder' ).html( html );
 	$( '#citation-style-selector' ).removeClass( 'hidden' );
 }
@@ -469,3 +481,5 @@ jQuery( document ).ready( function( $ ) {
 		$( this ).select();
 	});
 });
+
+

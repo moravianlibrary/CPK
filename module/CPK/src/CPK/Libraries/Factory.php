@@ -32,7 +32,9 @@ class Factory
 {
     public static function getLoader(ServiceManager $sm)
     {
-        return new \CPK\Libraries\Loader();
+        return new \CPK\Libraries\Loader(
+            $sm->get('VuFind\Config')->get('config')
+        );
     }
 
 }

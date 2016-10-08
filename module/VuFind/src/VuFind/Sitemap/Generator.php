@@ -271,15 +271,15 @@ class Generator
     protected function getIdsFromBackendUsingSearch(Backend $backend, $offset)
     {
         $connector = $backend->getConnector();
-        $key = $connector->getUniqueKey();
+        //$key = $connector->getUniqueKey();
+        $key = 'local_ids_str_mv';
         $params = new ParamBag(
             [
-                'q' => '*:*',
+                'q' => $key.':*',
                 'fl' => $key,
                 'rows' => $this->countPerPage,
                 'start' => $offset,
                 'wt' => 'json',
-                'sort' => $key . ' asc',
             ]
         );
         $raw = $connector->search($params);
@@ -287,7 +287,10 @@ class Generator
         $ids = [];
         if (isset($result->response->docs)) {
             foreach ($result->response->docs as $doc) {
-                $ids[] = $doc->$key;
+            $localIds = $doc->$key;
+                if (is_array($localIds)) {
+                    $ids[] = $localIds[0];
+                }
             }
         }
         return $ids;

@@ -108,12 +108,14 @@ class NCIPRequests {
     }
 
     public function cancelRequestItemUsingItemId($patron, $itemId) {
+        $requestType = "Estimate";
+        if (in_array($this->agency, $this->libsLikeTabor)) $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
         $this->insertUserIdTag($patron) .
         $this->insertItemIdTag($itemId, $patron) .
-        $this->insertRequestType("Estimate") .
+        $this->insertRequestType($requestType) .
         $this->insertRequestScopeType("Item") .
         "</ns1:CancelRequestItem>";
         return $this->header() . $body . $this->footer();
