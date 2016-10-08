@@ -110,8 +110,8 @@
 <!-- Facets -->
 <div class='hidden'>
     <? if (! empty($filters)): ?>
-      <input type="hidden" name="limit" value="<?= (! empty($filters['limit']) ? $this->escapeHtmlAttr($filters['limit']) : $lastLimit) ?>">
-      <input type="hidden" name="sort" value="<?= (! empty($filters['sort']) ? $this->escapeHtmlAttr($filters['sort']) : $lastSort) ?>">
+      <input type="hidden" name="limit" value="<?= (! empty($filters['limit']) ? is_array($filters['limit']) ? $this->escapeHtmlAttr($filters['limit'][0]) : $this->escapeHtmlAttr($filters['limit']) : $lastLimit) ?>">
+      <input type="hidden" name="sort" value="<?= (! empty($filters['sort']) ? is_array($filters['sort']) ? $this->escapeHtmlAttr($filters['sort'][0]) : $this->escapeHtmlAttr($filters['sort']) : $lastSort) ?>">
       <input type="hidden" name="page" value="<?= (! empty($filters['page']) ? $this->escapeHtmlAttr($filters['page']) : '1') ?>">
       <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
       <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($filters['lookfor0'][0]) ? $this->escapeHtmlAttr($filters['lookfor0'][0]) : '') ?>">
