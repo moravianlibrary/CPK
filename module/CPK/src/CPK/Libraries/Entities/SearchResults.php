@@ -2,8 +2,6 @@
 
 namespace CPK\Libraries\Entities;
 
-use CPK\Libraries\Loader;
-
 class SearchResults
 {
     //set in constructor
@@ -16,18 +14,36 @@ class SearchResults
 
     private $resultsPerPage = 10;
 
+    /**
+     * Link to API of adresar knihoven.
+     * @var string
+     */
+    protected $adresarKnihovenApiUrl;
+
+    /**
+     * Config
+     * @var \Zend\Config\Config
+     */
+    protected $config;
 
     /**
      * SearchResults constructor.
      * @param $query - null for empty query
      * @param $currentPage
+     * @param \Zend\Config\Config  $config
      */
-    public function __construct($query, $currentPage)
+    public function __construct($query, $currentPage, \Zend\Config\Config $config)
     {
         $this->query = $query;
         if ($currentPage == null)
             throw new \Exception("Invalid argument: currentPage");
         $this->currentPage = $currentPage;
+
+        $this->config = $config;
+
+        $this->adresarKnihovenApiUrl = ! empty($this->config->AdresarKnihoven->apiUrl)
+            ? $this->config->AdresarKnihoven->apiUrl
+            : null;
     }
 
     /**
@@ -48,7 +64,7 @@ class SearchResults
             $params['offset'] = $offset;
         $buildedQuery = http_build_query($params);
 
-        $url = Loader::$infoKnihovnyUrl . 'libraries?' . $buildedQuery;
+        $url = $this->adresarKnihovenApiUrl . '/v1/libraries?' . $buildedQuery;
 
         $client = new \Zend\Http\Client($url, array('timeout' => 60));
         $response = $client->send();

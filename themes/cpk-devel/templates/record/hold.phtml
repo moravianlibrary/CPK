@@ -111,11 +111,11 @@
         </div>
       <? elseif (count($this->pickup) > 1): ?>
         <div class="form-group">
-          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_location")?>:</label>
+          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_location")?>: *</label>
           <div class="col-sm-9">
             <select id="pickUpLocation" name="gatheredDetails[pickUpLocation]" class="form-control">
-            <? if ($selected === false): ?>
-              <option value="" selected="selected">
+            <? if (($selected === false) || ($selected == 'empty')): ?>
+              <option value="empty" selected="selected">
                 <?=$this->transEsc('select_pickup_location')?>
               </option>
             <? endif; ?>
@@ -128,18 +128,22 @@
             <div id="pickUpLocation" class="hidden">
               <? foreach ($this->pickup as $lib): ?>
                 <div id="<?=$this->escapeHtmlAttr($lib['locationID'])?>">
-                  <div id="address"><?=$this->escapeHtml($lib['locationAddress'])?></div>
-          </div>
+                  <? if (isset($lib['locationAddress'])): ?>
+                    <div id="address"><?=$this->escapeHtml($lib['locationAddress'])?></div>
+                  <? endif; ?>
+                </div>
               <? endforeach; ?>
             </div>
           </div>
         </div>
-        <div class="form-group">
-          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_address")?>:</label>
-          <div class="col-sm-9">
-            <input disabled type='text' class='form-control showaddress' value=''>
+        <? if (isset($lib['locationAddress'])): ?>
+          <div class="form-group">
+            <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_address")?>:</label>
+            <div class="col-sm-9">
+              <input disabled type='text' class='form-control showaddress' value=''>
+            </div>
           </div>
-        </div>
+        <? endif; ?>
       <? else: ?>
         <input type="hidden" name="gatheredDetails[pickUpLocation]" value="<?=$this->escapeHtmlAttr($this->defaultPickup)?>" />
       <? endif; ?>

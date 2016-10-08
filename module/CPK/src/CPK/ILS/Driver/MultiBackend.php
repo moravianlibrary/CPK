@@ -279,6 +279,12 @@ class MultiBackend extends MultiBackendBase
     {
         $source = $this->getSource($holdDetails['patron']['cat_username']);
         $driver = $this->getDriver($source);
+        if ($holdDetails['pickUpLocation'] == 'empty') {
+            return [
+                    "success" => false,
+                    "sysMessage" => 'select_pick_up_location'
+                ];
+        }
         if ($driver) {
             if ($this->getSource($holdDetails['id']) != $source) {
                 return [

@@ -38,6 +38,33 @@ class LibrariesController extends AbstractBase
 {
     use LoginTrait;
 
+    /**
+     * Link to API of adresar knihoven.
+     * @var string
+     */
+    protected $adresarKnihovenApiUrl;
+
+    /**
+     * Config
+     * @var \Zend\Config\Config
+     */
+    protected $config;
+
+    /**
+     * Constructor
+     *
+     * @param   \Zend\Config\Config  $config
+     */
+    public function __construct(\Zend\Config\Config $config)
+    {
+        parent::__construct();
+        $this->config = $config;
+
+        $this->adresarKnihovenApiUrl = ! empty($this->config->AdresarKnihoven->apiUrl)
+            ? $this->config->AdresarKnihoven->apiUrl
+            : null;
+    }
+
 	public function listAction()
 	{
 		$view = $this->createViewModel();
@@ -49,7 +76,7 @@ class LibrariesController extends AbstractBase
 
 		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
 
-		$searchresults = new SearchResults($query,$page);
+		$searchresults = new SearchResults($query, $page, $this->config);
 		$libraries = $searchresults->getLibraries();
 		if ($libraries==null) {
 			$view->setTemplate('libraries/not-found');
@@ -95,7 +122,7 @@ class LibrariesController extends AbstractBase
 	{
 		$term = $this->params()->fromQuery('term');
 
-		$apiResponse = file_get_contents("http://info.knihovny.cz/api/autocomplete?q=$term");
+		$apiResponse = file_get_contents($this->adresarKnihovenApiUrl."/autocomplete?q=$term");
 		$dataArray = \Zend\Json\Json::decode($apiResponse, \Zend\Json\Json::TYPE_ARRAY);
 
 		$result = new JsonModel($dataArray);
@@ -109,7 +136,7 @@ class LibrariesController extends AbstractBase
 
         $q = urlencode($query);
 
-        $apiResponse = file_get_contents("http://info.knihovny.cz/api/v1/markers?q=$q");
+        $apiResponse = file_get_contents($this->adresarKnihovenApiUrl."/v1/markers?q=$q");
         $dataArray = \Zend\Json\Json::decode($apiResponse, \Zend\Json\Json::TYPE_ARRAY);
 
         $result = new JsonModel($dataArray);
