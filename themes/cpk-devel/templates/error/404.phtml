@@ -5,6 +5,12 @@
   </div>
   <div style="position:relative; padding-left: 410px; padding-top: 30px; width: 740px; height: 500px;">
     <h2><?=$this->transEsc('You have probably clicked on invalid link or entered defunct URL')?></h2>
+    <? $hrefTags = array(
+         '%s1' => '<a href="/">',
+         '%s2' => '</a>'
+       );
+    ?>
+    <h3><?=$this->translate('Return to homepage', $hrefTags)?></h3>
     <p style="position:absolute; bottom:0px; padding-left: 160px;">406</p>
   </div>
 </div>
