@@ -1560,12 +1560,15 @@ class AjaxController extends AjaxControllerBase
      *
      * @return \Zend\Http\Response
      */
-    public function createLirariesGeolocationsTableAjax()
+    public function createLibrariesGeolocationsTableAjax()
     {
+        $config = $this->getServiceLocator()->get('VuFind\Config')->get('config');
+        $adresarKnihovenApiUrl = $config->AdresarKnihoven->apiUrl;
+
         try {
             $librariesGeolocationTable = $this->getTable("libraries_geolocations");
 
-            $infoApiUrl = 'http://info.knihovny.cz/api/libraries?limit=999999';
+            $infoApiUrl = $this->adresarKnihovenApiUrl.'/libraries?limit=999999';
 
             $libraries = $this->remoteJsonToArray($infoApiUrl);
 

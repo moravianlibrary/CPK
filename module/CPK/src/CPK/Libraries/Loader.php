@@ -16,7 +16,37 @@ use CPK\Libraries\Entities\Website;
 
 class Loader {
 
-    public static $infoKnihovnyUrl = "http://info.knihovny.cz/api/v1/";
+    public $infoKnihovnyUrl;
+
+    /**
+     * Link to API of adresar knihoven.
+     * @var string
+     */
+    protected $adresarKnihovenApiUrl;
+
+    /**
+     * Config
+     * @var \Zend\Config\Config
+     */
+    protected $config;
+
+    /**
+     * Constructor
+     *
+     * @param   Zend\Config\Config  $config
+     */
+    public function __construct(\Zend\Config\Config $config)
+    {
+        $this->config = $config;
+
+        $this->adresarKnihovenApiUrl = ! empty($this->config->AdresarKnihoven->apiUrl)
+        ? $this->config->AdresarKnihoven->apiUrl
+        : null;
+
+        $this->infoKnihovnyUrl = ! empty($this->config->AdresarKnihoven->apiUrl)
+        ? $this->config->AdresarKnihoven->apiUrl.'/v1'
+        : null;
+    }
 
     /**
      * @param $sigla
@@ -24,7 +54,7 @@ class Loader {
      * @return FullLibrary object
      */
     public function LoadLibrary($sigla){
-        $url   = Loader::$infoKnihovnyUrl.'libraries/'.$sigla;
+        $url   = $this->adresarKnihovenApiUrl.'/libraries/'.$sigla;
 
         $client = new \Zend\Http\Client($url);
         $response = $client->send();
@@ -87,7 +117,7 @@ class Loader {
             }
             $library->faxes = $faxes;
         }
-        
+
         if(isset($apilibrary->opening_hours) && ! empty($apilibrary->opening_hours)) {
             $apiOpeningHours = $apilibrary->opening_hours;
             $openingHours = new OpeningHours($apiOpeningHours);
