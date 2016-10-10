@@ -193,27 +193,37 @@ obalky.display_thumbnail_cover_without_links = function (element, bibinfo, query
 obalky.display_authority_cover = function (element, bibinfo, query) {
     var multi = encodeURIComponent(JSON.stringify(bibinfo));
     $(document).ready(function() {
-      var img = new Image();
-      img.onload = function() {
-        if (obalky.imageIsLoaded(img)) {
-          var href = obalky.coverTargetUrl(bibinfo);
-          $(element).html("<div class='cover_thumbnail'><img align='left' src='" + img.src + "' alt='" + obalky.coverText + "'></img></div>");
-        }
-      }
-      img.src = bibinfo.cover_medium_url;
+		var auth_id = bibinfo.auth_id;
+		$.getJSON( "/AJAX/JSON?method=getObalkyKnihAuthorityID", {id: auth_id}, function( data ) {
+			coverurl = data.data;
+			var img = new Image();
+			img.onload = function() {
+				if (obalky.imageIsLoaded(img)) {
+					var href = obalky.coverTargetUrl(bibinfo);
+					$(element).html("<div class='cover_thumbnail'><a href = 'http://www.obalkyknih.cz/view_auth?auth_id=" + auth_id + "'><img align='left' src='" + img.src + "' alt='" + obalky.coverText + "'></a></div>");
+				}
+			}
+			img.src = coverurl;
+
+		});
     });
 }
 
 obalky.display_authority_thumbnail_cover_without_links = function (element, bibinfo, query) {
 	var multi = encodeURIComponent(JSON.stringify(bibinfo));
     $(document).ready(function() {
-      var img = new Image();
-      img.onload = function() {
-        if (obalky.imageIsLoaded(img)) {
-          var href = obalky.coverTargetUrl(bibinfo);
-          $(element).html("<div class='cover_thumbnail'><img align='left' width='65' src='" + img.src + "' alt='" + obalky.coverText + "'></img></div>");
-        }
-      }
-      img.src = bibinfo.cover_medium_url;
+	  var auth_id = bibinfo.auth_id;
+		$.getJSON( "/AJAX/JSON?method=getObalkyKnihAuthorityID", {id: auth_id}, function( data ) {
+			coverurl = data.data;
+			var img = new Image();
+			img.onload = function() {
+				if (obalky.imageIsLoaded(img)) {
+					var href = obalky.coverTargetUrl(bibinfo);
+					$(element).html("<div class='cover_thumbnail'><img align='left' width='65' src='" + img.src + "' alt='" + obalky.coverText + "'></div>");
+				}
+			}
+			img.src = coverurl;
+
+		});
     });
 }

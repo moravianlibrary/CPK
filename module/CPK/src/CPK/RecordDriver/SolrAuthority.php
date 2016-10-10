@@ -89,7 +89,8 @@ class SolrAuthority extends ParentSolrMarc
     public function getBibinfoForObalkyKnihV3()
     {
         $bibinfo = array();
-        $bibinfo['cover_medium_url'] = $this->getAuthorityCover();
+        $field = $this->getMarcRecord()->getField('001');
+        $bibinfo['auth_id'] = empty($field) ? '' : $field->getData();
         return $bibinfo;
     }
 
