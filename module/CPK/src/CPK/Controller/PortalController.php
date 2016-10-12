@@ -96,15 +96,23 @@ class PortalController extends AbstractBase
 	    $config = $this->getConfig();
 
 	    if ($subAction == 'RequestHelp') {
+	        $systemTable = $this->getTable("system");
+	        $lastHelpId = $systemTable->getAmountOfSentHelps();
+	        $helpId = $lastHelpId + 1;
+
 	        $vars['status'] = 'Request for help was sent';
 	        $recipients = explode(",", $config->Feedback->RequestHelpRecipients);
-	        $this->sendMailToPersons('CPK feedback: žádost o pomoc', $post['text'], $recipients, $post['email'], $post['name']);
+	        $this->sendMailToPersons('CPK feedback: žádost o pomoc [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
 	    }
 
 	    if ($subAction == 'ReportBug') {
+	        $systemTable = $this->getTable("system");
+	        $lastHelpId = $systemTable->getAmountOfSentHelps();
+	        $helpId = $lastHelpId + 1;
+
 	        $vars['status'] = 'Bug was reported';
 	        $recipients = explode(",", $config->Feedback->ReportBugRecipients);
-	        $this->sendMailToPersons('CPK feedback: ohlášení chyby', $post['text'], $recipients, $post['email'], $post['name']);
+	        $this->sendMailToPersons('CPK feedback: ohlášení chyby [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
 	    }
 
 	    $view = $this->createViewModel($vars);

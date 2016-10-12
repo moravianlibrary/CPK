@@ -729,3 +729,6 @@ UPDATE `system` SET `value`='50' WHERE `key`='DB_VERSION';
 ALTER TABLE `notifications` ADD `control_hash_md5` VARCHAR(32) NULL DEFAULT NULL COMMENT 'Control hash used to identify differencies between seperate notifications' ;
 
 UPDATE `system` SET `value`='51' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `system` ADD `amount_of_sent_helps` INT NOT NULL ;
+UPDATE `vufind`.`system` SET `value` = '52' WHERE `system`.`id` = 1;
