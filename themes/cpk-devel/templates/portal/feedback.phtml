@@ -24,6 +24,7 @@
     <div class="tab-content">
       <div id="help" class="tab-pane fade in active">
         <h3><?=$this->translate('I need help')?></h3>
+        <p><?=$this->translate('FAQ_first', ['%s1' => "<a href='/Portal/Page/faq'>", '%s2' => "</a>"])?></p>
         <form action='/Portal/Feedback/RequestHelp' class='form' method='post'>
 
         	<div class='row'>
