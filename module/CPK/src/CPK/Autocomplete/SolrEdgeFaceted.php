@@ -78,26 +78,39 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             $params->addFacet($this->facetField);
             $params->setLimit(0);
             $params->setFacetLimit(30);
+            $params->setFacetSort('count');
             $this->searchObject->getParams()->setSort($this->facetField);
             $results = $this->searchObject->getResults();
+            $unsortedResults = [];
             $facets = $this->searchObject->getFacetList();
             if ($this->autocompleteField !== 'author_autocomplete') {
                 if (isset($facets[$this->facetField]['list'])) {
                     $queryWithoutDiacritic = $this->removeDiacritic($query);
                     foreach ($facets[$this->facetField]['list'] as $filter) {
                         if (stripos($this->removeDiacritic($filter['value']), $queryWithoutDiacritic) !== false) {
-                            array_push($results, $filter['value']);
+                            array_push($unsortedResults, ['value' => $filter['value'], 'count' => $filter['count']]);
+                            //array_push($results, $filter['value']);
                         }
                     }
                 }
             } else {
                 foreach ($facets[$this->facetField]['list'] as $filter) {
-                    array_push($results, $filter['value']);
+                    array_push($unsortedResults, ['value' => $filter['value'], 'count' => $filter['count']]);
+                    //array_push($results, $filter['value']);
                 }
             }
         } catch (\Exception $e) {
             // Ignore errors -- just return empty results if we must.
         }
+
+        // Sort result by count DESC
+        usort($unsortedResults, function($a, $b) {
+            return $b['count'] - $a['count'];
+        });
+        foreach ($unsortedResults as $array) {
+            array_push($results, $array['value']);
+        }
+
         return array_unique($results);
     }
 

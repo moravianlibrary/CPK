@@ -72,7 +72,8 @@ $config = array(
                     'widgetcontent' => 'CPK\Db\Table\Factory::getWidgetContent',
                     'infobox' => 'CPK\Db\Table\Factory::getInfobox',
                     'email_delayer' => 'CPK\Db\Table\Factory::getEmailDelayer',
-                    'email_types' => 'CPK\Db\Table\Factory::getEmailTypes'
+                    'email_types' => 'CPK\Db\Table\Factory::getEmailTypes',
+                    'system' => 'CPK\Db\Table\Factory::getSystem'
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session'
