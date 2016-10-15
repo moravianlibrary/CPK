@@ -1668,12 +1668,20 @@ class AjaxController extends AjaxControllerBase
 
             $geoData = json_decode($geocode, true);
 
-            foreach ($geoData['results'][0]['address_components'] as $key => $array) {
-                foreach($array['types'] as $type) {
-                    if($type == 'administrative_area_level_1') {
-                        $region = $geoData['results'][0]['address_components'][$key]['long_name'];
+            $region = null;
+
+            foreach ($geoData['results'] as $index => $data) {
+                foreach ($data['address_components'] as $key => $array) {
+                    foreach ($array['types'] as $type) {
+                        if ($type == 'administrative_area_level_1') {
+                            $region = $data['address_components'][$key]['long_name'];
+                        }
                     }
                 }
+            }
+
+            if (is_null($region)) {
+                throw new \Exception('Region not found.');
             }
 
             $librariesGeolocationsTable = $this->getTable("librariesgeolocations");
