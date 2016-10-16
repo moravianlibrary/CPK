@@ -267,4 +267,19 @@ class Factory
             ->get('VuFind\Config')
             ->get('config'));
     }
+
+    /**
+     * Construct the system table.
+     *
+     * @param ServiceManager $sm
+     *            Service manager.
+     *
+     * @return System
+     */
+    public static function getSystem(ServiceManager $sm)
+    {
+        return new System($sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config'));
+    }
 }
