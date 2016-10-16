@@ -731,7 +731,7 @@ ALTER TABLE `notifications` ADD `control_hash_md5` VARCHAR(32) NULL DEFAULT NULL
 UPDATE `system` SET `value`='51' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `system` ADD `amount_of_sent_helps` INT NOT NULL ;
-UPDATE `system` SET `value` = '52' WHERE `system`.`id` = 1;
+UPDATE `vufind`.`system` SET `value` = '52' WHERE `system`.`id` = 1;
 
 UPDATE `user_settings` SET `records_per_page`=10;
-UPDATE `system` SET `value` = '53' WHERE `system`.`id` = 1;
+UPDATE `vufind`.`system` SET `value` = '53' WHERE `system`.`id` = 1;

@@ -64,7 +64,7 @@ class System extends Gateway
     }
 
     /**
-     * Returns widgets
+     * Returns amount of sent helps
      *
      * @return int
      */
@@ -83,5 +83,22 @@ class System extends Gateway
 
         $amountOfSentHelps = $resultSet->toArray();
         return $amountOfSentHelps[0][$column];
+    }
+
+    /**
+     * Sets amount of sent helps
+     *
+     * @param   int $amount
+     */
+    public function setAmountOfSentHelps($amount)
+    {
+        $update = new Update($this->table);
+        $update->set([
+            'amount_of_sent_helps' => $amount
+        ]);
+
+        $this->getDbConnection()->beginTransaction();
+        $this->sql->prepareStatementForSqlObject($update)->execute();
+        $this->getDbConnection()->commit();
     }
 }

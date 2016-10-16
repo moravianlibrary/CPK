@@ -103,6 +103,7 @@ class PortalController extends AbstractBase
 	        $vars['status'] = 'Request for help was sent';
 	        $recipients = explode(",", $config->Feedback->RequestHelpRecipients);
 	        $this->sendMailToPersons('CPK feedback: žádost o pomoc [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
+	        $systemTable->setAmountOfSentHelps($helpId);
 	    }
 
 	    if ($subAction == 'ReportBug') {
