@@ -1334,7 +1334,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'issn' => '',
                 'oclc' => '',
                 'upc' => '',
-                'cannotcancel' => $cannotCancel
+                'cannotcancel' => $cannotCancel,
+                'fake_id' => $this->source . '.N/A',
             );
         }
         return $retVal;
