@@ -21,3 +21,4 @@ git-3way-merge.local.cfg
 compileMyCss.sh
 public/robots.txt
 public/sitemap*.xml
+fatal-errors.log
