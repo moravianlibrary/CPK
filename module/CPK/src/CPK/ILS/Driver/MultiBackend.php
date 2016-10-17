@@ -167,7 +167,7 @@ class MultiBackend extends MultiBackendBase
      */
     public function getCancelHoldDetails($holdDetails)
     {
-        $source = $this->getSource($holdDetails['id'] ? $holdDetails['id'] : $holdDetails['item_id']);
+        $source = $this->getSource($holdDetails['id'] ? $holdDetails['id'] : $holdDetails['fake_id']);
         $driver = $this->getDriver($source);
         if ($driver) {
             $holdDetails = $this->stripIdPrefixes($holdDetails, $source);

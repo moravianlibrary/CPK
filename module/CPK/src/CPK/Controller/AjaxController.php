@@ -1668,12 +1668,20 @@ class AjaxController extends AjaxControllerBase
 
             $geoData = json_decode($geocode, true);
 
-            foreach ($geoData['results'][0]['address_components'] as $key => $array) {
-                foreach($array['types'] as $type) {
-                    if($type == 'administrative_area_level_1') {
-                        $region = $geoData['results'][0]['address_components'][$key]['long_name'];
+            $region = null;
+
+            foreach ($geoData['results'] as $index => $data) {
+                foreach ($data['address_components'] as $key => $array) {
+                    foreach ($array['types'] as $type) {
+                        if ($type == 'administrative_area_level_1') {
+                            $region = $data['address_components'][$key]['long_name'];
+                        }
                     }
                 }
+            }
+
+            if (is_null($region)) {
+                throw new \Exception('Region not found.');
             }
 
             $librariesGeolocationsTable = $this->getTable("librariesgeolocations");
@@ -1721,4 +1729,43 @@ class AjaxController extends AjaxControllerBase
 
 	    return $childrenIds;
 	}
+
+    public function getObalkyKnihAuthorityIDAjax()
+    {
+        $id = $this->params()->fromQuery('id');
+        $obalky = $this->getAuthorityFromObalkyKnih($id);
+        $coverUrl = empty($obalky[0]['cover_medium_url']) ? '' : $obalky[0]['cover_medium_url'];
+        $coverUrl = str_replace('http://', 'https://', $coverUrl);
+        return $this->output($coverUrl, self::STATUS_OK);
+
+    }
+
+    private function getAuthorityFromObalkyKnih($id)
+    {
+        if (! isset($this->obalky)) {
+
+            $auth_id = $id;
+
+            if (! empty($auth_id)) {
+                try {
+                    $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/auth/meta');
+                    $client->setParameterGet(array(
+                        'auth_id' => $auth_id
+                    ));
+
+                    $response = $client->send();
+                    $responseBody = $response->getBody();
+                    $phpResponse = json_decode($responseBody, true);
+                    $this->obalky = empty($phpResponse) ? null : $phpResponse;
+                }
+                catch (TimeoutException $e) {
+                    $this->obalky = null;
+                }
+            }
+            else {
+                $this->obalky = null;
+            }
+        }
+        return $this->obalky;
+    }
 }

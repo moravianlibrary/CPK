@@ -745,6 +745,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $bibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
                 $bibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $bibId);
+                $bibId = str_replace('KlUsCat_', 'kl_us_cat*', $bibId);
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutusesZlg($response);
@@ -1208,7 +1209,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
             if ($this->isAncientFee($date)) $excluded = true; // exclude old fees
             $date = $this->parseDate($date);
-            $amount_int = (int) $amount[0] * (- 1);
+            $amount_int = (int) $amount[0];
             if ($amount_int == 0) continue; // remove zero fees
             if (! $excluded) $leastOne = true;
             $sum += $amount_int;
@@ -1300,6 +1301,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
                 $bib_id = str_replace('cbvk_us_cat*', 'CbvkUsCat_', $bib_id);
+                $bib_id = str_replace('kl_us_cat*', 'KlUsCat_', $bib_id);
             }
             if ($this->agency === 'ZLG001') { // add record prefix for kfbz
                 $bib_id = 'oai:' . $bib_id;
@@ -1332,7 +1334,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'issn' => '',
                 'oclc' => '',
                 'upc' => '',
-                'cannotcancel' => $cannotCancel
+                'cannotcancel' => $cannotCancel,
+                'fake_id' => $this->source . '.N/A',
             );
         }
         return $retVal;

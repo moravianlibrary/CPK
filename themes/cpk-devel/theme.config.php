@@ -78,8 +78,6 @@ if (! ($angularForbiddenForIE && USES_IE)) {
 
             'vendor/angular.min.js',
 
-            'ng-cpk/polyfill/module.js',
-
             'ng-cpk/favorites/module.js',
             'ng-cpk/favorites/favsNotifications.service.js',
             'ng-cpk/favorites/favorite.class.js',
