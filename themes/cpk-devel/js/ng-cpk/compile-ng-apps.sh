@@ -2,8 +2,6 @@
 
 deps="
 
-polyfill/module.js
-
 favorites/module.js
 favorites/favsNotifications.service.js
 favorites/favorite.class.js
