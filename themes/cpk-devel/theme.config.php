@@ -64,9 +64,7 @@ $toRet = array(
  */
 $useCompiledAngular = false;
 
-// Disable only for non-devel hosts
-$httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-$angularForbiddenForIE = ! preg_match('/devel/', $httpHost);
+$angularForbiddenForIE = true;
 
 if (! ($angularForbiddenForIE && USES_IE)) {
 
@@ -79,8 +77,6 @@ if (! ($angularForbiddenForIE && USES_IE)) {
         $jsToInclude = [
 
             'vendor/angular.min.js',
-
-            'ng-cpk/polyfill/module.js',
 
             'ng-cpk/favorites/module.js',
             'ng-cpk/favorites/favsNotifications.service.js',

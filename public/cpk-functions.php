@@ -14,7 +14,7 @@ function notEmpty($arr, $key)
 $userAgent = isset($_SERVER['HTTP_USER_AGENT'])
     ? strtolower($_SERVER['HTTP_USER_AGENT'])
     : '';
-defined('USES_IE') || define('USES_IE', preg_match('/MSIE|Trident/', $userAgent));
+defined('USES_IE') || define('USES_IE', preg_match('/MSIE|Trident/i', $userAgent));
 
 /**
  * throw exceptions based on E_* error types
@@ -98,6 +98,5 @@ function fatalErrorHandler() {
     exit();
 }
 
+set_error_handler("standardErrorHandler");
 register_shutdown_function('fatalErrorHandler');
-
-//trigger_error("Chyba!");
