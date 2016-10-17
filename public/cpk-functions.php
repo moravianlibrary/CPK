@@ -14,7 +14,7 @@ function notEmpty($arr, $key)
 $userAgent = isset($_SERVER['HTTP_USER_AGENT'])
     ? strtolower($_SERVER['HTTP_USER_AGENT'])
     : '';
-defined('USES_IE') || define('USES_IE', preg_match('/MSIE|Trident/', $userAgent));
+defined('USES_IE') || define('USES_IE', preg_match('/MSIE|Trident/i', $userAgent));
 
 function standardErrorHandler($errno, $errstr, $errfile, $errline) {
     echo "<b>Error:</b> [$errno] $errstr<br>";

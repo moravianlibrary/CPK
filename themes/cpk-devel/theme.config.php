@@ -64,9 +64,7 @@ $toRet = array(
  */
 $useCompiledAngular = false;
 
-// Disable only for non-devel hosts
-$httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-$angularForbiddenForIE = ! preg_match('/devel/', $httpHost);
+$angularForbiddenForIE = true;
 
 if (! ($angularForbiddenForIE && USES_IE)) {
 
