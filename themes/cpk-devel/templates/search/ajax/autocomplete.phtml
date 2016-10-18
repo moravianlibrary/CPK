@@ -131,7 +131,7 @@
         });
         </script>
 
-
+        <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
 
           <input
             class="form-control find-input search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>"
@@ -223,6 +223,7 @@
   	      <? endif; ?>
       <? endif; ?>
 	  <?= $this->help()->getQuestionMarkHelp('autocomplete') ?>
+
       <? if ((isset($hasDefaultsApplied) && $hasDefaultsApplied) || !empty($filterDetails)): ?>
       <div class="checkbox" id='keep-facets-enabled-checkbox'>
       <? else: ?>
