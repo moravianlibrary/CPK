@@ -216,7 +216,8 @@ $this->headTitle($this->driver->getBreadcrumb());
         <? endif; ?>
       </div>
 			</td>
-			<td data-title="<?=$this->transEsc("location / second signature")?>">
+			<td data-title="<?=$this->transEsc("location / second signature")?>"
+			data-type="location">
       <?if (!empty($row['location'])):?>
         <?=$this->escapeHtml($row['location'])?>
       <?endif;?>

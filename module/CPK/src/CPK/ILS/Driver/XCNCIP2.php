@@ -664,6 +664,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
         }
 
+        if ($this->agency === 'ABA008') { // NLK
+            $parts = explode("@", $department);
+            $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
+            $parts = explode(" ", $translate, 2);
+            $department = isset($parts[0]) ? $parts[0] : '';
+            $collection = isset($parts[1]) ? $parts[1] : '';
+        }
+
         $numberOfPieces = $this->useXPath($response,
             'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces');
 
