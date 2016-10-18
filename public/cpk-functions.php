@@ -26,27 +26,27 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
 
     $logDetails = date("Y-m-d H:i:s ");
 
-    switch ($errno) {
+    switch ($err_severity) {
         case E_USER_ERROR:
-            $logDetails .= "ERROR $errno \n";
+            $logDetails .= "ERROR ".friendlyErrorType($err_severity)." \n";
             $logDetails .= "$err_msg\n";
             $logDetails .= "Error on line $err_line in file $err_file\n\n";
             break;
 
         case E_USER_WARNING:
-            $logDetails .= "WARNING $errno \n";
+            $logDetails .= "WARNING ".friendlyErrorType($err_severity)." \n";
             $logDetails .= "$err_msg\n";
             $logDetails .= "Error on line $err_line in file $err_file\n\n";
             break;
 
         case E_USER_NOTICE:
-            $logDetails .= "NOTICE $errno \n";
+            $logDetails .= "NOTICE ".friendlyErrorType($err_severity)." \n";
             $logDetails .= "$err_msg\n";
             $logDetails .= "Error on line $err_line in file $err_file\n\n";
             break;
 
         default:
-            $logDetails .= "UNKNOWN ERROR TYPE $errno \n";
+            $logDetails .= "UNKNOWN ERROR TYPE ".friendlyErrorType($err_severity)." \n";
             $logDetails .= "$err_msg\n";
             $logDetails .= "Error on line $err_line in file $err_file\n\n";
             break;
@@ -95,3 +95,64 @@ class RecoverableErrorException     extends ErrorException {}
 class DeprecatedException           extends ErrorException {}
 class UserDeprecatedException       extends ErrorException {}
 
+//trigger_error('error');
+
+function exceptionHandler($exception) {
+    $logDetails = date("Y-m-d H:i:s ");
+    $logDetails .= "EXCEPTION \n";
+    $logDetails .= $exception->getMessage()."\n";
+    $logDetails .= "Error on line ".$exception->getLine()." in file ".$exception->getFile()."\n\n";
+
+    $logFile = __DIR__."/../fatal-errors.log";
+    $fp = fopen($logFile, "a");
+    fwrite($fp, $logDetails);
+    fwrite($fp, "");
+    fclose($fp);
+
+    /* Redirect to a different page in the current directory that was requested */
+    $host  = $_SERVER['HTTP_HOST'];
+    $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+    $extra = 'error.php';
+    header("Location: http://$host$uri/$extra");
+    exit;
+}
+
+set_exception_handler('exceptionHandler');
+
+function friendlyErrorType($type)
+{
+    switch($type)
+    {
+        case E_ERROR: // 1 //
+            return 'E_ERROR';
+        case E_WARNING: // 2 //
+            return 'E_WARNING';
+        case E_PARSE: // 4 //
+            return 'E_PARSE';
+        case E_NOTICE: // 8 //
+            return 'E_NOTICE';
+        case E_CORE_ERROR: // 16 //
+            return 'E_CORE_ERROR';
+        case E_CORE_WARNING: // 32 //
+            return 'E_CORE_WARNING';
+        case E_COMPILE_ERROR: // 64 //
+            return 'E_COMPILE_ERROR';
+        case E_COMPILE_WARNING: // 128 //
+            return 'E_COMPILE_WARNING';
+        case E_USER_ERROR: // 256 //
+            return 'E_USER_ERROR';
+        case E_USER_WARNING: // 512 //
+            return 'E_USER_WARNING';
+        case E_USER_NOTICE: // 1024 //
+            return 'E_USER_NOTICE';
+        case E_STRICT: // 2048 //
+            return 'E_STRICT';
+        case E_RECOVERABLE_ERROR: // 4096 //
+            return 'E_RECOVERABLE_ERROR';
+        case E_DEPRECATED: // 8192 //
+            return 'E_DEPRECATED';
+        case E_USER_DEPRECATED: // 16384 //
+            return 'E_USER_DEPRECATED';
+    }
+    return "";
+}
