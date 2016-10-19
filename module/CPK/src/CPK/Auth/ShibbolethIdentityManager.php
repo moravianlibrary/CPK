@@ -289,6 +289,10 @@ class ShibbolethIdentityManager extends Shibboleth
             }
 
             if ($currentUser === false) {
+
+                if (! isSet($attributes['email']))
+                    $attributes['email'] = null;
+
                 // We now detected user has no entry with current eppn in our DB, thus append new libCard
                 $userToConnectWith->createLibraryCard($attributes['cat_username'], $homeLibrary, $eppn, $attributes['email'], $this->canConsolidateMoreTimes);
             } else {
@@ -743,6 +747,8 @@ class ShibbolethIdentityManager extends Shibboleth
 
                     $attributes[$attribute] = $value;
                 }
+            } elseif (isset($_SERVER[$attribute])) {
+                $attributes[$attribute] = $_SERVER[$attribute];
             }
         }
 
