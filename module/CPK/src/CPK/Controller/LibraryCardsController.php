@@ -151,7 +151,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
                     $relogUrl = $this->getRelogUrl($authManager);
 
                     // Perform only local logout
-                    $authManager->logout();
+                    $authManager->logout('');
 
                     // Destroy consolidation cookie
                     $this->getUserTable()->deleteConsolidationToken($_COOKIE[ShibbolethIdentityManager::CONSOLIDATION_TOKEN_TAG]);
@@ -203,16 +203,22 @@ class LibraryCardsController extends LibraryCardsControllerBase
     {
         $loginUrl = $authManager->getSessionInitiatorForEntityId($_SESSION['Account']->eidLoggedInWith);
 
-        // Switch the common target with custom target
-        $newTarget = $this->url()->fromRoute('librarycards-home') . '?terms_of_use_accepted=yes';
+        preg_match('/target=([^&]+)/', $loginUrl, $shibTargetRaw);
 
-        $shibTargetRaw = $this->getConfig()->Shibboleth->target;
-        $newShibTargetRaw = preg_replace('/(http[s]?:\/\/[^\/]*).*/', '\1' . $newTarget, $shibTargetRaw);
+        $shibTargetOldRaw = urldecode($shibTargetRaw[1]);
 
-        $shibTarget = urlencode($shibTargetRaw);
-        $newShibTarget = urlencode($newShibTargetRaw);
+        $appendix = '&';
 
-        $loginUrl = str_replace($shibTarget . urlencode('?'), $newShibTarget . urlencode('&'), $loginUrl);
+        if (strpos($shibTargetOldRaw, '?') === false)
+            $appendix .= '?';
+
+            // Switch the common target with custom target
+        $shibTargetNewRaw = $this->url()->fromRoute('librarycards-home') . $appendix . 'terms_of_use_accepted=yes';
+
+        $shibTargetOld = urlencode($shibTargetOldRaw);
+        $shibTargetNew = urlencode($shibTargetNewRaw);
+
+        $loginUrl = str_replace($shibTargetOld, $shibTargetNew, $loginUrl);
 
         return $loginUrl;
     }

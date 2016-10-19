@@ -700,6 +700,9 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function fetchAttributes($config)
     {
+        if (isSet($_SERVER['mail']))
+            $_SERVER['email'] = $_SERVER['mail'];
+
         $attributes = array();
         foreach ($this->attribsToCheck as $attribute) {
             if (isset($config->$attribute)) {
@@ -864,6 +867,9 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function getConsolidationTokenFromCookie()
     {
+        if (! isSet($_COOKIE[static::CONSOLIDATION_TOKEN_TAG]))
+            return null;
+
         $token = $_COOKIE[static::CONSOLIDATION_TOKEN_TAG];
         // unset the cookie ...
         setcookie(static::CONSOLIDATION_TOKEN_TAG, null, - 1, '/');
