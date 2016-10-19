@@ -57,7 +57,11 @@
     <? if ($library->websites!=null):?>
       <h2><i class="pr-web-browseinternetnetwork"></i><?=$this->translate('Web sites')?></h2>
       <? foreach ($library->websites as $website):?>
-        <p><a href="<?=$website->getUrl()?>"><?=$website->getNote()?></a></p>
+        <? if ($website->hasNote()): ?>
+          <p><a href="<?=$website->getUrl()?>"><?=$website->getNote()?></a></p>
+        <? else: ?>
+          <p><a href="<?=$website->getUrl()?>"><?=$website->getUrl()?></a></p>
+        <? endif; ?>
       <? endforeach; ?>
     <? endif; ?>
 
