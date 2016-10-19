@@ -110,10 +110,10 @@ function exceptionHandler($exception) {
     fclose($fp);
 
     /* Redirect to a different page in the current directory that was requested */
-    $host  = $_SERVER['HTTP_HOST'];
+    $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
     $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     $extra = 'error.php';
-    header("Location: http://$host$uri/$extra");
+    @header("Location: http://$host$uri/$extra");
     exit;
 }
 
