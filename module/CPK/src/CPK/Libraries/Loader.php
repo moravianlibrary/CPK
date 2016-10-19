@@ -62,7 +62,7 @@ class Loader {
         // Response head error handling
         $responseStatusCode = $response->getStatusCode();
         if($responseStatusCode !== 200)
-            throw new \Exception("info.knihovny.cz response status code: ".$responseStatusCode);
+            throw new \Exception("AdresarKnihoven API response status code: ".$responseStatusCode);
 
         $output	= $response->getBody();
         $apilibrary = \Zend\Json\Json::decode($output);
@@ -116,6 +116,10 @@ class Loader {
                 $faxes[] = $fax;
             }
             $library->faxes = $faxes;
+        }
+
+        if(isset($apilibrary->description) && ! empty($apilibrary->description)) {
+            $library->description = $apilibrary->description;
         }
 
         if(isset($apilibrary->opening_hours) && ! empty($apilibrary->opening_hours)) {
