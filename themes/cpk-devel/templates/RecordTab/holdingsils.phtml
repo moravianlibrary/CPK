@@ -114,9 +114,7 @@ $this->headTitle($this->driver->getBreadcrumb());
         $rowNo ++;
 
         // Build holding ID to query ILS for status
-        if (isset($row['agency_id']) && isset($row['item_id']))
-            $itemId = $row['agency_id'] . ':' . $row['item_id'];
-        elseif (isset($row['item_id']))
+        if (isset($row['item_id']))
             $itemId = $row['item_id'];
         elseif (! empty($row['w_id']))
             $itemId = $row['w_id'];

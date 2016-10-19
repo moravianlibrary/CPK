@@ -759,9 +759,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             }
 
             if ($this->agency === 'ABA008') { // NLK
+                $bibId = 'MED00'. $bibId;
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
-                return $this->handleStutuses($response);
+                return $this->handleStutusesNlk($response);
             }
 
             if ($this->agency === 'ABG001') { // MKP
@@ -918,6 +919,77 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     }
                 }
             }
+
+            $retVal[] = array(
+                'id' => empty($bib_id) ? "" : (string) $bib_id[0],
+                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
+                'status' => empty($status) ? "" : (string) $status[0],
+                'location' => '',
+                'collection' => $collection,
+                'sub_lib_desc' => '',
+                'department' => $department,
+                'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],
+                'item_id' => empty($item_id) ? "" : (string) $item_id[0],
+                'label' => $label,
+                'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
+                'restrictions' => '',
+                'duedate' => empty($dueDate) ? '' : $dueDate,
+                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0],
+                'addLink' => $addLink,
+            );
+        }
+        return $retVal;
+    }
+
+    private function handleStutusesNlk($response) {
+        $retVal = array();
+
+        $bib_id = $this->useXPath($response,
+                'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+
+        $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
+
+        $holdingSets = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet');
+        foreach ($holdingSets as $holdingSet) {
+            $department = '';
+
+            $item_id = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemId/ItemIdentifierValue');
+
+            $status = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemOptionalFields/CirculationStatus');
+
+            if (! empty($status) && (string) $status[0] == 'On Loan') {
+                $dueDate = $this->useXPath($holdingSet,
+                        'ItemInformation/DateDue');
+                $dueDate = $this->parseDate($dueDate);
+            } else {
+                /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet.*/
+                $dueDate = false;
+            }
+
+            $holdQueue = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemOptionalFields/HoldQueueLength');
+
+            $itemRestriction = $this->useXPath($holdingSet,
+                    'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
+
+            $label = $this->determineLabel($status);
+            $addLink = $this->isLinkAllowed($status, $itemRestriction);
+
+            $locations = $this->useXPath($holdingSet, 'Location');
+            foreach ($locations as $locElement) {
+                $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
+                $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
+                if (! empty($level)) {
+                    if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
+                }
+            }
+            $parts = explode("@", $department);
+            $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
+            $parts = explode(" ", $translate, 2);
+            $department = isset($parts[0]) ? $parts[0] : '';
+            $collection = isset($parts[1]) ? $parts[1] : '';
 
             $retVal[] = array(
                 'id' => empty($bib_id) ? "" : (string) $bib_id[0],
