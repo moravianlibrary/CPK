@@ -23,6 +23,8 @@ class FullLibrary extends SimpleLibrary {
     public $services;
     //array of Branch objects
     public $branches;
+    // string
+    public $description;
 
     /**
      * @return mixed
@@ -112,5 +114,11 @@ class FullLibrary extends SimpleLibrary {
         $this->phones = $phones;
     }
 
-
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
 }

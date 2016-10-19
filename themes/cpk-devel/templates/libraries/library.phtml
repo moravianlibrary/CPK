@@ -54,13 +54,18 @@
     <? endif; ?>
 <!--    <h2><i class="pr-web-linkurl"></i><?=$this->translate('Links')?></h2>-->
 
+    <? if ($library->description!=null):?>
+      <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Description')?></h2>
+	  <p><?=htmlspecialchars($library->description)?></p>
+    <? endif; ?>
+
     <? if ($library->websites!=null):?>
       <h2><i class="pr-web-browseinternetnetwork"></i><?=$this->translate('Web sites')?></h2>
       <? foreach ($library->websites as $website):?>
         <? if ($website->hasNote()): ?>
-          <p><a href="<?=$website->getUrl()?>" title="<?=$website->getNote()?>" target="_blank"><?=$website->getNote()?></a></p>
+          <p><i class="pr-interface-arrowright5"></i><a href="<?=$website->getUrl()?>" title="<?=$website->getNote()?>" target="_blank"><?=$website->getNote()?></a></p>
         <? else: ?>
-          <p><a href="<?=$website->getUrl()?>"><?=$website->getUrl()?></a></p>
+          <p><i class="pr-interface-arrowright5"></i><a href="<?=$website->getUrl()?>"><?=$website->getUrl()?></a></p>
         <? endif; ?>
       <? endforeach; ?>
     <? endif; ?>
@@ -75,7 +80,7 @@
     <? if ($library->projects!=null):?>
       <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Projects')?></h2>
       <? foreach ($library->projects as $project):?>
-        <p><?=$project->getName()?></p>
+        <p><i class="pr-interface-arrowright5"></i><?=$project->getName()?></p>
       <? endforeach; ?>
     <? endif; ?>
 
