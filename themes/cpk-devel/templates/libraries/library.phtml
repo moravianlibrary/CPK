@@ -1,5 +1,5 @@
 <?
-  $title = "Knihovny";
+  $title = $this->translate('Central Library Portal');
   $this->layout()->title = $title;
   $this->headTitle($title);
   $this->layout()->headerType = "libraries";
@@ -19,7 +19,7 @@
     <? endif; ?>
 
     <? if ($library->opening_hours!=null):?>
-    <h2><i class="pr-interface-clocktime"></i>Otevírací doba</h2>
+    <h2><i class="pr-interface-clocktime"></i><?=$this->translate('Opening hours')?></h2>
       <table class="table">
         <tr>
           <td><?=$this->transEsc('Monday')?></td>
@@ -52,31 +52,31 @@
 
       </table>
     <? endif; ?>
-<!--    <h2><i class="pr-web-linkurl"></i>Odkazy</h2>-->
+<!--    <h2><i class="pr-web-linkurl"></i><?=$this->translate('Links')?></h2>-->
 
     <? if ($library->websites!=null):?>
-      <h2><i class="pr-web-browseinternetnetwork"></i>Webové stránky</h2>
+      <h2><i class="pr-web-browseinternetnetwork"></i><?=$this->translate('Web sites')?></h2>
       <? foreach ($library->websites as $website):?>
         <p><a href="<?=$website->getUrl()?>"><?=$website->getNote()?></a></p>
       <? endforeach; ?>
     <? endif; ?>
 
     <? if ($library->services!=null):?>
-      <h2><i class="pr-interface-circlerighttrue"></i>Služby</h2>
+      <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Services')?></h2>
       <? foreach ($library->services as $service):?>
         <p><?=$service->getName()?></p>
       <? endforeach; ?>
     <? endif; ?>
 
     <? if ($library->projects!=null):?>
-      <h2><i class="pr-interface-circlerighttrue"></i>Projekty</h2>
+      <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Projects')?></h2>
       <? foreach ($library->projects as $project):?>
         <p><?=$project->getName()?></p>
       <? endforeach; ?>
     <? endif; ?>
 
     <? if ($library->getPhones()!=null):?>
-      <h2><i class="pr-communication-phonecall"></i>Telefon</h2>
+      <h2><i class="pr-communication-phonecall"></i><?=$this->translate('Telephone')?></h2>
       <? foreach ($library->getFirst2Phones() as $phone):?>
         <p><?=$phone->getPhone()?></p>
       <? endforeach; ?>
@@ -84,7 +84,7 @@
       <? if ($library->hasMoreThan2Phones()):?>
         <p>
           <a data-toggle="collapse" data-target="#collapsePhones" aria-expanded="false" aria-controls="collapsePhones">
-            Zobrazit další <i class="pr-interface-arrowbottom4"></i>
+            <?=$this->translate('show_others')?> <i class="pr-interface-arrowbottom4"></i>
           </a>
         </p>
         <div class="collapse" id="collapsePhones">
@@ -107,7 +107,7 @@
       <? if ($library->hasMoreThan2Emails()):?>
         <p>
           <a data-toggle="collapse" data-target="#collapseEmails" aria-expanded="false" aria-controls="collapseEmails">
-            Zobrazit další <i class="pr-interface-arrowbottom4"></i>
+            <?=$this->translate('show_others')?> <i class="pr-interface-arrowbottom4"></i>
           </a>
         </p>
         <div class="collapse" id="collapseEmails">
@@ -123,7 +123,7 @@
 
 
     <? if ($library->branches!=null):?>
-      <h2><i class="pr-interface-househome"></i>Pobočky</h2>
+      <h2><i class="pr-interface-househome"></i><?=$this->translate('Departments')?></h2>
       <table class="table table-striped">
         <? foreach ($library->branches as $branch):?>
           <tr>
