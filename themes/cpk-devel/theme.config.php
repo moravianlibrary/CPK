@@ -24,7 +24,8 @@ $toRet = array(
         'eu-cookies.js',
         'search-results.js',
         'vendor/jsTree/jstree.min.js',
-        'facets.js'
+        'facets.js',
+        'lz-string.js'
     ),
     'less' => array(
         'active' => false,
