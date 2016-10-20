@@ -7,10 +7,8 @@ use Zend\ModuleManager\ModuleManager,
 class Module
 {
 	public function __construct()
-	{
-		$this->setErrorReporting();
-	}
-	
+	{}
+
     /**
      * Get module configuration
      *
@@ -77,26 +75,5 @@ class Module
 
         // Pass the changed configuration back to the listener:
         $configListener->setMergedConfig($config);
-    }
-    
-    protected function setErrorReporting()
-    {
-    	if ((isset($_SERVER['ERROR_REPORTING']))) {
-    		$levels = explode(",", $_SERVER['ERROR_REPORTING']);
-    		
-    		$value = 0;
-    		
-    		foreach ($levels as $level) {
-    			$value |= (int)constant('E_'.strtoupper($level));
-    		}
-    		
-    		if ($value > 0) {
-    			error_reporting($value);
-    			ini_set("display_errors", 1);
-    		} else {
-    			error_reporting($value);
-    			ini_set("display_errors", 0);
-    		}
-    	}
     }
 }
