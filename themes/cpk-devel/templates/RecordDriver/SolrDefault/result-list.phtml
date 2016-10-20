@@ -1,5 +1,6 @@
 <?
   $recordId = $this->driver->getUniqueID();
+  $recordSource = explode(".", $recordId)[0];
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
   $formats = $this->driver->getFormats();
   $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
@@ -262,7 +263,7 @@
       <? endif; ?>
 
 	  <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
-        <? if ($this->driver->hasPublications() && $source !== 'osobnosti'): ?>
+        <? if ($this->driver->hasPublications() && $recordSource !== 'osobnosti'): ?>
 		  <div>
 			<a title="<?=$this->transEsc('Show publications of this person')?>" href="<?=$this->driver->getPublicationsUrl()?>"><?=$this->translate('Show publications of this person')?></a>
 		  </div>

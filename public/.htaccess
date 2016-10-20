@@ -1,2 +1,27 @@
 Redirect /o-projektu /Portal/Page/o-portalu
 Redirect /jak-se-zapojit /Portal/Page/jak-se-zapojit-pro-knihovny
+
+ErrorDocument 400   error.php
+ErrorDocument 401   error.php
+ErrorDocument 402   error.php
+ErrorDocument 403   error.php
+#ErrorDocument 404  error.php
+ErrorDocument 405   error.php
+ErrorDocument 406   error.php
+ErrorDocument 407   error.php
+ErrorDocument 408   error.php
+ErrorDocument 409   error.php
+ErrorDocument 410   error.php
+ErrorDocument 411   error.php
+ErrorDocument 412   error.php
+ErrorDocument 413   error.php
+ErrorDocument 414   error.php
+ErrorDocument 415   error.php
+ErrorDocument 416   error.php
+ErrorDocument 417   error.php
+ErrorDocument 500   error.php
+ErrorDocument 501   error.php
+ErrorDocument 502   error.php
+ErrorDocument 503   error.php
+ErrorDocument 504   error.php
+ErrorDocument 505   error.php

@@ -27,5 +27,11 @@ class Website {
         return $this->note;
     }
 
-    
+    /**
+     * @return boolean
+     */
+    public function hasNote()
+    {
+        return ! is_null($this->note);
+    }
 }
