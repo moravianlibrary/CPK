@@ -109,7 +109,24 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
     fwrite($fp, "");
     fclose($fp);
 
-    include_once(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
+    if (isset($_SERVER['VUFIND_ENV'])) {
+        if ($_SERVER['VUFIND_ENV'] == 'production') {
+
+            include_once(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
+
+        } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
+
+            // continue with showing stacktrace
+            echo $logDetails;
+
+        } else {
+            exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
+        }
+    } else {
+        exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');
+    }
+
+
 
     switch($err_severity)
     {
