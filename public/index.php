@@ -71,19 +71,31 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
             $logDetails .= "$err_msg\n";
             $logDetails .= "Error on line $err_line in file $err_file\n\n";
             break;
-
+        case E_ERROR:
+            $logDetails .= "ERROR ".friendlyErrorType($err_severity)." \n";
+            $logDetails .= "$err_msg\n";
+            $logDetails .= "Error on line $err_line in file $err_file\n\n";
+            break;
         case E_USER_WARNING:
             $logDetails .= "WARNING ".friendlyErrorType($err_severity)." \n";
             $logDetails .= "$err_msg\n";
             $logDetails .= "Error on line $err_line in file $err_file\n\n";
             break;
-
+        case E_WARNING:
+            $logDetails .= "WARNING ".friendlyErrorType($err_severity)." \n";
+            $logDetails .= "$err_msg\n";
+            $logDetails .= "Error on line $err_line in file $err_file\n\n";
+            break;
         case E_USER_NOTICE:
             $logDetails .= "NOTICE ".friendlyErrorType($err_severity)." \n";
             $logDetails .= "$err_msg\n";
             $logDetails .= "Error on line $err_line in file $err_file\n\n";
             break;
-
+        case E_NOTICE:
+            $logDetails .= "NOTICE ".friendlyErrorType($err_severity)." \n";
+            $logDetails .= "$err_msg\n";
+            $logDetails .= "Error on line $err_line in file $err_file\n\n";
+            break;
         default:
             $logDetails .= "UNKNOWN ERROR TYPE ".friendlyErrorType($err_severity)." \n";
             $logDetails .= "$err_msg\n";
