@@ -11,10 +11,10 @@ if (isset($_SERVER['VUFIND_ENV'])) {
         error_reporting(-1); // Report all PHP errors
         ini_set("display_errors", 1);
     } else {
-        exit('Variable ENVIRONMENT has strange value in Apache config!');
+        exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]\n');
     }
 } else {
-    exit('Variable ENVIRONMENT is not set in Apache config!');
+    exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]\n');
 }
 
 function friendlyErrorType($type)
@@ -165,10 +165,10 @@ function exceptionHandler($exception) {
             echo $logDetails;
 
         } else {
-            exit('Variable VUFIND_ENV has strange value in Apache config!');
+            exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]\n');
         }
     } else {
-        exit('Variable VUFIND_ENV is not set in Apache config!');
+        exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]\n');
     }
 }
 
