@@ -146,6 +146,7 @@ Author:
     - author_find
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
     author_search:
       - [onephrase, 350]
@@ -178,6 +179,7 @@ ISN:
     - issn
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
     issn:
       - [and, 100]
@@ -197,6 +199,7 @@ Subject:
     - genre_viz
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
     topic_unstemmed:
       - [onephrase, 350]
@@ -287,6 +290,7 @@ Title:
     - title_old
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
     title_short:
       - [onephrase, 500]
@@ -351,6 +355,7 @@ AllFields:
     - issn
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
     0:
       0:
