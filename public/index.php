@@ -5,10 +5,10 @@ use Zend\Mvc\Service\ServiceManagerConfig;
 
 if (isset($_SERVER['VUFIND_ENV'])) {
     if ($_SERVER['VUFIND_ENV'] == 'production') {
-        error_reporting(-1); // Report all PHP errors
+        error_reporting(E_ALL); // Report all PHP errors
         ini_set("display_errors", 0);
     } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
-        error_reporting(-1); // Report all PHP errors
+        error_reporting(E_ALL); // Report all PHP errors
         ini_set("display_errors", 1);
     } else {
         exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
@@ -51,6 +51,8 @@ function friendlyErrorType($type)
             return 'E_DEPRECATED';
         case E_USER_DEPRECATED: // 16384 //
             return 'E_USER_DEPRECATED';
+        default:
+            return 'UNKNOWN ERROR TYPE';
     }
     return "";
 }
@@ -65,43 +67,9 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
 
     $logDetails = date("Y-m-d H:i:s ");
 
-    switch ($err_severity) {
-        case E_USER_ERROR:
-            $logDetails .= "ERROR ".friendlyErrorType($err_severity)." \n";
-            $logDetails .= "$err_msg\n";
-            $logDetails .= "Error on line $err_line in file $err_file\n\n";
-            break;
-        case E_ERROR:
-            $logDetails .= "ERROR ".friendlyErrorType($err_severity)." \n";
-            $logDetails .= "$err_msg\n";
-            $logDetails .= "Error on line $err_line in file $err_file\n\n";
-            break;
-        case E_USER_WARNING:
-            $logDetails .= "WARNING ".friendlyErrorType($err_severity)." \n";
-            $logDetails .= "$err_msg\n";
-            $logDetails .= "Error on line $err_line in file $err_file\n\n";
-            break;
-        case E_WARNING:
-            $logDetails .= "WARNING ".friendlyErrorType($err_severity)." \n";
-            $logDetails .= "$err_msg\n";
-            $logDetails .= "Error on line $err_line in file $err_file\n\n";
-            break;
-        case E_USER_NOTICE:
-            $logDetails .= "NOTICE ".friendlyErrorType($err_severity)." \n";
-            $logDetails .= "$err_msg\n";
-            $logDetails .= "Error on line $err_line in file $err_file\n\n";
-            break;
-        case E_NOTICE:
-            $logDetails .= "NOTICE ".friendlyErrorType($err_severity)." \n";
-            $logDetails .= "$err_msg\n";
-            $logDetails .= "Error on line $err_line in file $err_file\n\n";
-            break;
-        default:
-            $logDetails .= "UNKNOWN ERROR TYPE ".friendlyErrorType($err_severity)." \n";
-            $logDetails .= "$err_msg\n";
-            $logDetails .= "Error on line $err_line in file $err_file\n\n";
-            break;
-    }
+    $logDetails .= friendlyErrorType($err_severity)." \n";
+    $logDetails .= "$err_msg\n";
+    $logDetails .= "Error on line $err_line in file $err_file\n\n";
 
     $logFile = __DIR__."/../fatal-errors.log";
     $fp = fopen($logFile, "a");
@@ -112,12 +80,21 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
     if (isset($_SERVER['VUFIND_ENV'])) {
         if ($_SERVER['VUFIND_ENV'] == 'production') {
 
+
+            $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+            $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+            $extra = 'error.php';
+            @header("Location: http://$host$uri/$extra");
+
             include_once(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
+            exit;
 
         } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
 
             // continue with showing stacktrace
             echo $logDetails;
+            //var_dump($err_context);
+            exit();
 
         } else {
             exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
@@ -127,7 +104,7 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
     }
 
 
-
+/*
     switch($err_severity)
     {
         case E_ERROR:               throw new ErrorException            ($err_msg, 0, $err_severity, $err_file, $err_line);
@@ -145,9 +122,9 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
         case E_RECOVERABLE_ERROR:   throw new RecoverableErrorException ($err_msg, 0, $err_severity, $err_file, $err_line);
         case E_DEPRECATED:          throw new DeprecatedException       ($err_msg, 0, $err_severity, $err_file, $err_line);
         case E_USER_DEPRECATED:     throw new UserDeprecatedException   ($err_msg, 0, $err_severity, $err_file, $err_line);
-    }
+    }*/
 });
-
+/*
 class WarningException              extends ErrorException {}
 class ParseException                extends ErrorException {}
 class NoticeException               extends ErrorException {}
@@ -162,9 +139,9 @@ class StrictException               extends ErrorException {}
 class RecoverableErrorException     extends ErrorException {}
 class DeprecatedException           extends ErrorException {}
 class UserDeprecatedException       extends ErrorException {}
-
+*/
 //trigger_error('error');
-
+/*
 function exceptionHandler($exception) {
     $logDetails = date("Y-m-d H:i:s ");
     $logDetails .= "EXCEPTION \n";
@@ -181,7 +158,6 @@ function exceptionHandler($exception) {
     if (isset($_SERVER['VUFIND_ENV'])) {
         if ($_SERVER['VUFIND_ENV'] == 'production') {
 
-            /* Redirect to a different page in the current directory that was requested */
             $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
             $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
             $extra = 'error.php';
@@ -192,6 +168,7 @@ function exceptionHandler($exception) {
 
             // continue with showing stacktrace
             echo $logDetails;
+            exit();
 
         } else {
             exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
@@ -202,7 +179,7 @@ function exceptionHandler($exception) {
 }
 
 set_exception_handler('exceptionHandler');
-
+*/
 // If the XHProf profiler is enabled, set it up now:
 $xhprof = getenv('VUFIND_PROFILER_XHPROF');
 if (!empty($xhprof) && extension_loaded('xhprof')) {
