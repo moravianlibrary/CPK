@@ -52,12 +52,7 @@ function loadMapSelection(params) {
         div: 'geo_search_map',
         projection: dstProj,
         layers: [
-            new OpenLayers.Layer.OSM('MapQuest',[
-                'http://otile1.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png',
-                'http://otile2.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png',
-                'http://otile3.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png',
-                'http://otile4.mqcdn.com/tiles/1.0.0/map/${z}/${x}/${y}.png'
-            ]),
+            new OpenLayers.Layer.OSM(),
             vectorLayer
         ],
         center: [0, 0],
