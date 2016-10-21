@@ -95,8 +95,8 @@
         var contentString = '<div id="content" class="marker-info">'+
             '<div class="marker-title">' + library.name + '</div>'+
             '<div class="marker-subtitle">' + library.address + '</div>' +
-            '<div class="marker-link"><a href="https://cpk-front.mzk.cz/Libraries/Library?sigla=' + library.sigla +
-            '">Detail knihovny</a>' +
+            '<div class="marker-link"><a href="/Libraries/Library?sigla=' + library.sigla +
+            '"><?=$this->translate('Library detail')?></a>' +
             '</div>';
         info.push(contentString);
         var marker = new google.maps.Marker({
