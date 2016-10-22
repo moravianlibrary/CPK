@@ -236,7 +236,6 @@
       <table><?= $this->record($this->driver)->displayField773(); ?></table>
 
       <? $summ = $this->driver->getSummary(); ?>
-      <? if (empty($summ)): ?><? $summ[] = $this->driver->getSummaryObalkyKnih(); ?><? endif; ?>
       <? if (!empty($summ)): ?>
         <? foreach ($summ as $field): ?>
           <? $secondPart = substr($field, 200); ?>
@@ -249,6 +248,13 @@
           <? endif; ?>
           <p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?><? if (! empty($secondPart)): ?>...<? endif; ?></p>
         <? endforeach; ?>
+      <? else: ?>
+          <script type="text/javascript">
+              obalky.display_summary_short(".summ_<?=$recordId?>", <?=$bibinfo?>);
+          </script>
+
+          <span class="summ_<?=$recordId?>"><i class="fa fa-spinner fa-spin"></i><?=$this->transEsc('loading_obalkyknih_summary')?></span>
+
       <? endif; ?>
 
       <? if(!$this->driver->isCollection()): ?>
