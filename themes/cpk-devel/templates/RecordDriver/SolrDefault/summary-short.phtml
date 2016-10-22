@@ -1,0 +1,10 @@
+<? $field = $this->annotation?>
+<? $secondPart = substr($field, 200); ?>
+<? $spacePosition = strpos($secondPart, ' '); ?>
+<? if (empty($spacePosition) && ($spacePosition > 20)): ?>
+    <? $spacePosition = 0; ?>
+<? endif; ?>
+<? if ((! empty($secondPart)) && (preg_match('/[.,?!]/', $field[199 + $spacePosition]))): ?>
+    <? $spacePosition = $spacePosition - 1; ?>
+<? endif; ?>
+<p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?><? if (! empty($secondPart)): ?>...<? endif; ?></p>

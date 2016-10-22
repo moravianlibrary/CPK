@@ -57,11 +57,13 @@
               <? endforeach; ?>
 
             <? else: ?>
-              <? $summOK = $this->driver->getSummaryObalkyKnih(); if (!empty($summOK)): ?>
-                <p><?=$this->escapeHtml($summOK)?></p>
+              <p class="obalkysumm"><i class="fa fa-spinner fa-spin"></i><?=$this->transEsc('loading_obalkyknih_summary')?></p>
 
-              <? endif; ?>
-            <? endif; ?>
+              <script type="text/javascript">
+                obalky.display_summary(".obalkysumm", <?=$bibinfo?>);
+              </script>
+
+          <? endif; ?>
 
             <? if ($this->userlist()->getMode() !== 'disabled'): ?>
               <? /* Display the lists that this record is saved to */ ?>

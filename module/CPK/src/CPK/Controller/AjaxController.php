@@ -1768,4 +1768,76 @@ class AjaxController extends AjaxControllerBase
         }
         return $this->obalky;
     }
+
+
+    /**
+     * Get an array of summary strings for the record.
+     *
+     * @return string
+     */
+    private function getSummaryObalkyKnih($isbnArray)
+    {
+        $isbnJson = json_encode($isbnArray);
+
+        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+        $client->setParameterGet(array(
+            'multi' => '[' . $isbnJson . ']'
+        ));
+
+        try {
+            $response = $client->send();
+        } catch (\Exception $ex) {
+            return null; // TODO what to do when server is not responding
+        }
+
+
+        $responseBody = $response->getBody();
+
+        $phpResponse = json_decode($responseBody, true);
+
+        if (isset($phpResponse[0]['annotation'])) {
+
+            if ($phpResponse[0]['annotation']['html'] == null)
+                return null;
+
+            $anothtml = $phpResponse[0]['annotation']['html'];
+            //obalky knih sends annotation html escaped, we have convert it to string, to be able to escape it
+            $anot = htmlspecialchars_decode($anothtml);
+
+            $source = $phpResponse[0]['annotation']['source'];
+
+            return $anot . " - " . $source;
+        }
+        return null;
+    }
+
+
+    public function getSummaryObalkyKnihAjax()
+    {
+        $bibinfo = $this->params()->fromQuery('bibinfo');
+
+        $annotation = $this->getSummaryObalkyKnih($bibinfo);
+
+        $html = $this->getViewRenderer()->render(
+            'RecordDriver/SolrDefault/summary-full.phtml',
+            [
+                'annotation' => $annotation
+            ]);
+        return $this->output($html, self::STATUS_OK);
+    }
+    public function getSummaryShortObalkyKnihAjax()
+    {
+        $bibinfo = $this->params()->fromQuery('bibinfo');
+
+        $annotation = $this->getSummaryObalkyKnih($bibinfo);
+
+        $html = $this->getViewRenderer()->render(
+            'RecordDriver/SolrDefault/summary-short.phtml',
+            [
+                'annotation' => $annotation
+            ]);
+        return $this->output($html, self::STATUS_OK);
+    }
+
+
 }
