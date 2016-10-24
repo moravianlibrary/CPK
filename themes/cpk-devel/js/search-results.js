@@ -326,8 +326,13 @@ jQuery( document ).ready( function( $ ) {
 			        		/* Update search identificators */
 			        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
 			        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + responseData.searchId );
-			        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + responseData.searchId );
-			        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + responseData.searchId );
+			        		$( '#add-to-saved-searches' ).attr( 'data-search-id', responseData.searchId );
+			        		$( '#remove-from-saved-searches' ).attr( 'data-search-id', responseData.searchId );
+			        		$( '#remove-from-saved-searches' ).attr( 'title', VuFind.translate('Save search'));
+		        			$( '#remove-from-saved-searches' ).text( VuFind.translate('Save search'));
+		        			$( '#remove-from-saved-searches' ).attr( 'id', 'add-to-saved-searches');
+		        			
+		        			$(' #flashedMessage div .alert').hide( 'blind', {}, 500 );
 			        		
 			        		/* Update lookfor inputs in both search type templates to be the same when switching templates*/
 			        		ADVSEARCH.updateSearchTypeTemplates( data );
@@ -813,6 +818,108 @@ jQuery( document ).ready( function( $ ) {
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
+	/*
+	 * Save or remove search
+	 */
+	$( 'body' ).on( 'click', '.save-search-link', function( event ) {
+		event.preventDefault();
+		
+		var action = $( this ).attr( 'id' );
+		
+		if (action == 'add-to-saved-searches') {
+			console.log( 'Saving search.' );
+			
+			var thisElement = this;
+			
+			var data = {};
+			data['searchId'] = $( this ).attr( 'data-search-id' );
+			
+			$.ajax({
+	        	type: 'POST',
+	        	cache: false,
+	        	dataType: 'json',
+	        	url: VuFind.getPath() + '/AJAX/JSON?method=saveSearch',
+	        	data: data,
+	        	success: function( response ) {
+	        		
+	        		scrollToTop();
+	        		
+	        		if (response.status == 'OK') {
+	        			console.log('Search saved.');
+	        			var html = '<div class="alert alert-success"><a href="#" class="close closeFlashedMessage">×</a>'+VuFind.translate('search_save_success')+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        			$( thisElement ).attr( 'title', VuFind.translate('Delete saved search'));
+	        			$( thisElement ).text( VuFind.translate('Delete saved search'));
+	        			$( thisElement ).attr( 'id', 'remove-from-saved-searches');
+	        		} else {
+	        			console.error(response.data);
+	        			var message = '';
+	        			if (response.data.indexOf( 'authentication_error_loggedout' ) >= 0) {
+	        				message = VuFind.translate( 'login_to_use_this' );
+	        			} else {
+	        				message = VuFind.translate( 'reload_or_save_again' );
+	        			}
+	        			var html = '<div class="alert alert-warning"><a href="#" class="close closeFlashedMessage">×</a>'+message+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        		}
+	        	}
+			});
+		}
+		
+		if (action == 'remove-from-saved-searches') {
+			console.log( 'Removing search.' );
+			
+			var thisElement = this;
+			
+			var data = {};
+			data['searchId'] = $( this ).attr( 'data-search-id' );
+			
+			$.ajax({
+	        	type: 'POST',
+	        	cache: false,
+	        	dataType: 'json',
+	        	url: VuFind.getPath() + '/AJAX/JSON?method=removeSearch',
+	        	data: data,
+	        	success: function( response ) {
+	        		
+	        		scrollToTop();
+	        		
+	        		if (response.status == 'OK') {
+	        			console.log('Search removed.');
+	        			var html = '<div class="alert alert-success"><a href="#" class="close closeFlashedMessage">×</a>'+VuFind.translate('search_unsave_success')+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        			$( thisElement ).attr( 'title', VuFind.translate('Save search'));
+	        			$( thisElement ).text( VuFind.translate('Save search'));
+	        			$( thisElement ).attr( 'id', 'add-to-saved-searches');
+	        		} else {
+	        			console.error(response.data);
+	        			var message = '';
+	        			if (response.data.indexOf( 'authentication_error_loggedout' ) >= 0) {
+	        				message = VuFind.translate( 'login_to_use_this' );
+	        			} else {
+	        				message = VuFind.translate( 'reload_or_save_again' );
+	        			}
+	        			var html = '<div class="alert alert-warning"><a href="#" class="close closeFlashedMessage">×</a>'+message+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        		}
+	        	}
+			});
+		}
+		
+	});
+	
+	/*
+	 * Save search
+	 */
+	$( 'body' ).on( 'click', '.closeFlashedMessage', function( event ) {
+		event.preventDefault();
+		$( this ).parent().hide( 'blind', {}, 200);
+	});
+
 	/*
 	 * Switch search type template to basic search (autocomplete) or advanced search
 	 */

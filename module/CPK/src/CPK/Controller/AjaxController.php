@@ -1840,4 +1840,72 @@ class AjaxController extends AjaxControllerBase
     }
 
 
+
+    /**
+     * Save search
+     *
+     * @return \Zend\Http\Response
+     */
+    public function saveSearchAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $searchId = $postParams['searchId'];
+
+        // Fail if saved searches are disabled.
+        $check = $this->getServiceLocator()->get('VuFind\AccountCapabilities');
+        if ($check->getSavedSearchSetting() === 'disabled') {
+            return $this->output(['Saved searches disabled.'], self::STATUS_ERROR);
+        }
+
+        try {
+            $user = $this->getUser();
+            if ($user == false) {
+                //return $this->forceLogin();
+                return $this->forwardTo('MyResearch', 'Login');
+            }
+
+            $search = $this->getTable('Search');
+            if (($id = $this->params()->fromPost('searchId', false)) !== false) {
+                $search->setSavedFlag($id, true, $user->id);
+            } else {
+                return $this->output(['Missing searchId for save search action.'], self::STATUS_ERROR);
+            }
+        } catch (\Exception $e) {
+            return $this->output([$e->getMessage()], self::STATUS_ERROR);
+        }
+        return $this->output([], self::STATUS_OK);
+    }
+
+    /**
+     * Remove search
+     *
+     * @return \Zend\Http\Response
+     */
+    public function removeSearchAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $searchId = $postParams['searchId'];
+
+        // Fail if saved searches are disabled.
+        $check = $this->getServiceLocator()->get('VuFind\AccountCapabilities');
+        if ($check->getSavedSearchSetting() === 'disabled') {
+            throw new \Exception('Saved searches disabled.');
+        }
+
+        $user = $this->getUser();
+        if ($user == false) {
+            //return $this->forceLogin();
+            return $this->forwardTo('MyResearch', 'Login');
+        }
+
+        $search = $this->getTable('Search');
+        if (($id = $this->params()->fromPost('searchId', false)) !== false) {
+            $search->setSavedFlag($id, false);
+        } else {
+            throw new \Exception('Missing searchId for remove search action.');
+        }
+
+        return $this->output([], self::STATUS_OK);
+    }
+
 }

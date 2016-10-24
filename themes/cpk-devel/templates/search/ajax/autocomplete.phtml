@@ -201,13 +201,13 @@
           <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
               <? if (is_numeric($this->results->getSearchId())): ?>
                   <? if ($this->results->isSavedSearch()): ?>
-                      <a class="save-search-link" id='add-to-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Delete saved search')?>'>
+                      <a class="save-search-link" id='remove-from-saved-searches' data-search-id='<?=urlencode($this->results->getSearchId())?>' title='<?=$this->translate('Delete saved search')?>'>
                           <?=$this->translate('Delete saved search')?>
                       </a>
                   <? else: ?>
-                      <a class="save-search-link" id='remove-from-saved-searches' href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>" title='<?=$this->translate('Save search')?>'>
+                      <a class="save-search-link" id='add-to-saved-searches' data-search-id='<?=urlencode($this->results->getSearchId())?>' title='<?=$this->translate('Save search')?>'>
                           <i class="pr-web-downloadarrow"></i>
-                          <?=$this->translate('Save search')?>
+                          <span><?=$this->translate('Save search')?></span>
                       </a>
                   <? endif; ?>
               <? endif; ?>
