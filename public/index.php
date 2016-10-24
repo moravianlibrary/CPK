@@ -71,7 +71,7 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
     $logDetails .= "$err_msg\n";
     $logDetails .= "Error on line $err_line in file $err_file\n\n";
 
-    $logFile = __DIR__."/../fatal-errors.log";
+    $logFile = __DIR__."/../log/fatal-errors.log";
     $fp = fopen($logFile, "a");
     fwrite($fp, $logDetails);
     fwrite($fp, "");
