@@ -2,19 +2,20 @@
 use Zend\Loader\AutoloaderFactory;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Mvc\Service\ServiceManagerConfig;
-
-if (isset($_SERVER['VUFIND_ENV'])) {
-    if ($_SERVER['VUFIND_ENV'] == 'production') {
-        error_reporting(E_ALL); // Report all PHP errors
-        ini_set("display_errors", 0);
-    } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
-        error_reporting(E_ALL); // Report all PHP errors
-        ini_set("display_errors", 1);
+if (! (php_sapi_name() != 'cli' OR defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0))) {
+    if (isset($_SERVER['VUFIND_ENV'])) {
+        if ($_SERVER['VUFIND_ENV'] == 'production') {
+            error_reporting(E_ALL); // Report all PHP errors
+            ini_set("display_errors", 0);
+        } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
+            error_reporting(E_ALL); // Report all PHP errors
+            ini_set("display_errors", 1);
+        } else {
+            exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
+        }
     } else {
-        exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
+        exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');
     }
-} else {
-    exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');
 }
 
 function friendlyErrorType($type)
@@ -77,32 +78,32 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
     fwrite($fp, "");
     fclose($fp);
 
-    if (isset($_SERVER['VUFIND_ENV'])) {
-        if ($_SERVER['VUFIND_ENV'] == 'production') {
+    if (! (php_sapi_name() != 'cli' OR defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0))) {
+        if (isset($_SERVER['VUFIND_ENV'])) {
+            if ($_SERVER['VUFIND_ENV'] == 'production') {
 
+                $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+                $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+                $extra = 'error.php';
+                @header("Location: http://$host$uri/$extra");
 
-            $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
-            $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-            $extra = 'error.php';
-            @header("Location: http://$host$uri/$extra");
+                include_once(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
+                exit;
 
-            include_once(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
-            exit;
+            } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
 
-        } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
+                // continue with showing stacktrace
+                echo $logDetails;
+                //var_dump($err_context);
+                exit();
 
-            // continue with showing stacktrace
-            echo $logDetails;
-            //var_dump($err_context);
-            exit();
-
+            } else {
+                exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
+            }
         } else {
-            exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
+            exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');
         }
-    } else {
-        exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');
     }
-
 
 /*
     switch($err_severity)
