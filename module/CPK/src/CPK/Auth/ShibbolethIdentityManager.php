@@ -539,7 +539,9 @@ class ShibbolethIdentityManager extends Shibboleth
         if (! empty($targetEid))
             $loginRedirect .= '&entityID=' . urlencode($targetEid);
 
-        if ($this->canLogoutSafely()) {
+        $onlyLocalLogoutInConsolidation = true;
+
+        if ($onlyLocalLogoutInConsolidation === false && $this->canLogoutSafely()) {
             return $this->config->Shibboleth->logout . '?return=' . urlencode($loginRedirect);
         } else
             return $loginRedirect;
