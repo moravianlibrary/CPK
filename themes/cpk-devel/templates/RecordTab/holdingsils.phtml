@@ -204,7 +204,11 @@ $this->headTitle($this->driver->getBreadcrumb());
 			    data-type="department">
 				<div>
         <? if(!empty($row['department'])):?>
-          <?=$row['department']?>
+          <?
+            $translation = $this->transEsc($source . '_department_' . $row['department']);
+            $department = ($translation == $source . '_department_' . $row['department']) ? $row['department'] : $translation;
+          ?>
+          <?=$department?>
         <? endif; ?>
       </div>
 			</td>
@@ -212,7 +216,11 @@ $this->headTitle($this->driver->getBreadcrumb());
 			    data-type="collection">
 				<div>
         <? if(!empty($row['collection_desc'])):?>
-          <?=$row['collection_desc']?>
+          <?
+            $translation = $this->transEsc($source . '_collection_' . $row['collection_desc']);
+            $collection = ($translation == $source . '_collection_' . $row['collection_desc']) ? $row['collection_desc'] : $translation;
+          ?>
+          <?=$collection?>
         <? endif; ?>
       </div>
 			</td>

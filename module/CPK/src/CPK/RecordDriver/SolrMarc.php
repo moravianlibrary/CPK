@@ -38,6 +38,9 @@ class SolrMarc extends ParentSolrMarc
         'title_auth', 'author_search', 'publishDate'
     ];
 
+    protected $reverse = false;
+    protected $sortFields = array();
+
     protected function getILSconfig()
     {
         if ($this->ilsConfig === null)
@@ -246,28 +249,7 @@ class SolrMarc extends ParentSolrMarc
 
         }
 
-        if ((isset($this->fields['format_display_mv'][0])) && ($this->fields['format_display_mv'][0] == '0/PERIODICALS/')) {
-            usort($fields, function($a, $b) {
-                $found = false;
-                $sortFields = array('y', 'v', 'i');
-                foreach ($sortFields as $sort) {
-                    if (! isset($a[$sort])) {
-                        $a[$sort] = '';
-                    }
-                    if (! isset($b[$sort])) {
-                        $b[$sort] = '';
-                    }
-                    if ($a[$sort] != $b[$sort]) {
-                        $pattern = '/(\d+)(.+)?/';
-                        $first = preg_replace($pattern, '$1', $a[$sort]);
-                        $second = preg_replace($pattern, '$1', $b[$sort]);
-                        $found = true;
-                        break;
-                    }
-                }
-                return $found ? ($first < $second) : false;
-            });
-        }
+        $this->sortFields($fields, $source);
 
         $holdings = [];
         foreach ($fields as $currentField) {
@@ -809,5 +791,57 @@ class SolrMarc extends ParentSolrMarc
     {
         $issn = $this->getFieldArray('022', array('a'));
         return $issn;
+    }
+
+    /**
+     * There are rules how to sort holdings in some special cases.
+     * Set $this->reverse and $this->sortFields.
+     */
+    private function sortFields(&$fields, $source) {
+        if (($source == 'kfbz') &&
+                (isset($this->fields['format_display_mv'][0])) &&
+                ($this->fields['format_display_mv'][0] == '0/BOOKS/')) {
+            $this->reverse = false;
+            $this->sortFields = array('l',);
+            usort($fields, array($this, 'sortLogic'));
+        }
+
+        if ((isset($this->fields['format_display_mv'][0])) && ($this->fields['format_display_mv'][0] == '0/PERIODICALS/')) {
+            $this->reverse = true;
+            $this->sortFields = array('y', 'v', 'i');
+            usort($fields, array($this, 'sortLogic'));
+        }
+    }
+
+    /**
+     * The comparison function for usort, must return an integer <, =, or > than 0 if the first
+     * argument is <, =, or > than the second argument.
+     *
+     * Uses array $this->sortFields Fields from 996, used to sorting.
+     * Uses @param boolean $this->reverse Reverse the result.
+     *
+     * @param $a, $b
+     *
+     * @return integer
+     */
+    private function sortLogic($a, $b) {
+        $found = false;
+        foreach ($this->sortFields as $sort) {
+            if (! isset($a[$sort])) {
+                $a[$sort] = '';
+            }
+            if (! isset($b[$sort])) {
+                $b[$sort] = '';
+            }
+            if ($a[$sort] != $b[$sort]) {
+                $pattern = '/(\d+)(.+)?/';
+                $first = preg_replace($pattern, '$1', $a[$sort]);
+                $second = preg_replace($pattern, '$1', $b[$sort]);
+                $found = true;
+                break;
+            }
+        }
+        $ret = $this->reverse ? ($first < $second) : ($first > $second);
+        return $found ? $ret : false;
     }
 }
