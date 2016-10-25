@@ -173,8 +173,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                         'timeout' => $this->timeout
                     ));
 
-            if (isset($this->config['Catalog']['username']) &&
-                 isset($this->config['Catalog']['password'])) {
+            if ((! empty($this->config['Catalog']['username'])) &&
+                    (! empty($this->config['Catalog']['password']))) {
 
                 $user = $this->config['Catalog']['username'];
                 $password = $this->config['Catalog']['password'];
