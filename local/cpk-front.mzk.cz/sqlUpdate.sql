@@ -737,5 +737,5 @@ UPDATE `user_settings` SET `records_per_page`=10;
 UPDATE `vufind`.`system` SET `value` = '53' WHERE `system`.`id` = 1;
 
 /* This is a child key, which needs to respect user_id changes instead of refusing them */
-ALTER TABLE `user_settings` DROP FOREIGN KEY `user_settings_ibfk_1`; ALTER TABLE `user_settings` ADD CONSTRAINT `user_settings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `vufind`.`user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-UPDATE `vufind`.`system` SET `value` = '54' WHERE `system`.`id` = 1;
+ALTER TABLE `user_settings` DROP FOREIGN KEY `user_settings_ibfk_1`; ALTER TABLE `user_settings` ADD CONSTRAINT `user_settings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+UPDATE `system` SET `value` = '54' WHERE `system`.`id` = 1;
