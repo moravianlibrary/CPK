@@ -203,9 +203,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
     {
         $loginUrl = $authManager->getSessionInitiatorForEntityId($_SESSION['Account']->eidLoggedInWith);
 
-        preg_match('/target=([^&]+)/', $loginUrl, $shibTargetRaw);
-
-        $shibTargetOldRaw = urldecode($shibTargetRaw[1]);
+        $shibTargetOldRaw = parse_str(parse_url($loginUrl, PHP_URL_QUERY))['target'];
 
         $appendix = '&';
 
