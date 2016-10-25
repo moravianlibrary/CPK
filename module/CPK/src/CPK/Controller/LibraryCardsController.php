@@ -151,7 +151,7 @@ class LibraryCardsController extends LibraryCardsControllerBase
                     $relogUrl = $this->getRelogUrl($authManager);
 
                     // Perform only local logout
-                    $authManager->logout();
+                    $authManager->logout('');
 
                     // Destroy consolidation cookie
                     $this->getUserTable()->deleteConsolidationToken($_COOKIE[ShibbolethIdentityManager::CONSOLIDATION_TOKEN_TAG]);
@@ -203,16 +203,22 @@ class LibraryCardsController extends LibraryCardsControllerBase
     {
         $loginUrl = $authManager->getSessionInitiatorForEntityId($_SESSION['Account']->eidLoggedInWith);
 
-        // Switch the common target with custom target
-        $newTarget = $this->url()->fromRoute('librarycards-home') . '?terms_of_use_accepted=yes';
+        preg_match('/target=([^&]+)/', $loginUrl, $shibTargetRaw);
 
-        $shibTargetRaw = $this->getConfig()->Shibboleth->target;
-        $newShibTargetRaw = preg_replace('/(http[s]?:\/\/[^\/]*).*/', '\1' . $newTarget, $shibTargetRaw);
+        $shibTargetOldRaw = urldecode($shibTargetRaw[1]);
 
-        $shibTarget = urlencode($shibTargetRaw);
-        $newShibTarget = urlencode($newShibTargetRaw);
+        $appendix = '&';
 
-        $loginUrl = str_replace($shibTarget . urlencode('?'), $newShibTarget . urlencode('&'), $loginUrl);
+        if (strpos($shibTargetOldRaw, '?') === false)
+            $appendix .= '?';
+
+            // Switch the common target with custom target
+        $shibTargetNewRaw = $this->url()->fromRoute('librarycards-home') . $appendix . 'terms_of_use_accepted=yes';
+
+        $shibTargetOld = urlencode($shibTargetOldRaw);
+        $shibTargetNew = urlencode($shibTargetNewRaw);
+
+        $loginUrl = str_replace($shibTargetOld, $shibTargetNew, $loginUrl);
 
         return $loginUrl;
     }
@@ -237,43 +243,6 @@ class LibraryCardsController extends LibraryCardsControllerBase
             $msg = 'authentication_error_loggedout';
         }
         $this->flashMessenger()->addMessage($msg, 'error');
-    }
-
-    /**
-     * Overriden onDispatch to process Exceptions used to redirect user somewhere else
-     *
-     * {@inheritDoc}
-     * @see \Zend\Mvc\Controller\AbstractActionController::onDispatch()
-     */
-    public function onDispatch(MvcEvent $e)
-    {
-        $routeMatch = $e->getRouteMatch();
-        if (!$routeMatch) {
-            /**
-             * @todo Determine requirements for when route match is missing.
-             *       Potentially allow pulling directly from request metadata?
-             */
-            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
-        }
-
-        $action = $routeMatch->getParam('action', 'not-found');
-        $method = static::getMethodFromAction($action);
-
-        if (!method_exists($this, $method)) {
-            $method = 'notFoundAction';
-        }
-
-        try {
-
-            $actionResponse = $this->$method();
-
-        } catch(TermsUnaccepted $e) {
-            return $this->redirect()->toUrl('/?AcceptTermsOfUse');
-        }
-
-        $e->setResult($actionResponse);
-
-        return $actionResponse;
     }
 
     /**

@@ -461,6 +461,14 @@ class MyResearchController extends MyResearchControllerBase
                 $user = $this->getAuthManager()->consolidateIdentity();
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
+
+                // Stop now if the user does not have valid catalog credentials available:
+                if (! $user = $this->getAuthManager()->isLoggedIn()) {
+                    $this->flashExceptions($this->flashMessenger());
+                    return $this->forceLogin();
+                }
+
+                return $this->redirect()->toRoute('librarycards-home');
             }
 
             if ($user->consolidationSucceeded)

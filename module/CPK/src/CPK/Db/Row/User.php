@@ -474,35 +474,8 @@ class User extends BaseUser
 
         // Check that the user has only one institution account unless his organization is in $canConsolidateMoreTimes
         if (! in_array($eppnScope, $canConsolidateMoreTimes)) {
-            $hasAccountAlready = false;
-            if ($home_library !== 'Dummy') {
 
-                // Not being Dummy we know home_library is unique across institutions
-                foreach ($libCards as $libCard) {
-                    // Allow connecting two different accounts from one institution only if those have identical cat_username
-                    if ($libCard->home_library === $home_library &&
-                         $libCard->cat_username !== $cat_username) {
-                        $hasAccountAlready = true;
-                        break;
-                    }
-                }
-            } else {
-
-                // Dummy account can be created even from connected institute (if IdP doesn't provide userLibraryId)
-                // We allow creation of more identities in this case (IdP must be defined in shibboleth.ini)
-                $cat_username_unscoped = explode(
-                    ShibbolethIdentityManager::SEPARATOR, $cat_username)[1];
-                if ($cat_username_unscoped === 'Dummy') {
-
-                    // We need to find out the same user's Dummy institution if any, thus compare eppnScope to user's eppns
-                    foreach ($libCards as $libCard) {
-                        if (explode('@', $libCard->eppn)[1] === $eppnScope) {
-                            $hasAccountAlready = true;
-                            break;
-                        }
-                    }
-                }
-            }
+            $hasAccountAlready = $this->hasAnAccountAlready($cat_username, $libCards, $home_library, $eppnScope);
 
             if ($hasAccountAlready) {
                 throw new \VuFind\Exception\LibraryCard(
@@ -708,5 +681,50 @@ class User extends BaseUser
                 $this->save();
             }
         }
+    }
+
+    /**
+     * Check whether this User has an UserCard in an institution defined by eppnScope already
+     *
+     * @param string $cat_username
+     * @param unknown $libCards
+     * @param string $home_library
+     * @param string $eppnScope
+     * @return boolean
+     */
+    protected function hasAnAccountAlready($cat_username, $libCards, $home_library, $eppnScope)
+    {
+        $hasAccountAlready = false;
+
+        if ($home_library !== 'Dummy') {
+
+            // Not being Dummy we know home_library is unique across institutions
+            foreach ($libCards as $libCard) {
+                // Allow connecting two different accounts from one institution only if those have identical cat_username
+                if ($libCard->home_library === $home_library &&
+                    $libCard->cat_username !== $cat_username) {
+                        $hasAccountAlready = true;
+                        break;
+                    }
+            }
+        } else {
+
+            // Dummy account can be created even from connected institute (if IdP doesn't provide userLibraryId)
+            // We allow creation of more identities in this case (IdP must be defined in shibboleth.ini)
+            $cat_username_unscoped = explode(
+                ShibbolethIdentityManager::SEPARATOR, $cat_username)[1];
+                if ($cat_username_unscoped === 'Dummy') {
+
+                    // We need to find out the same user's Dummy institution if any, thus compare eppnScope to user's eppns
+                    foreach ($libCards as $libCard) {
+                        if (explode('@', $libCard->eppn)[1] === $eppnScope) {
+                            $hasAccountAlready = true;
+                            break;
+                        }
+                    }
+                }
+        }
+
+        return $hasAccountAlready;
     }
 }

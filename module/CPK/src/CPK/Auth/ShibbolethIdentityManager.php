@@ -289,6 +289,10 @@ class ShibbolethIdentityManager extends Shibboleth
             }
 
             if ($currentUser === false) {
+
+                if (! isSet($attributes['email']))
+                    $attributes['email'] = null;
+
                 // We now detected user has no entry with current eppn in our DB, thus append new libCard
                 $userToConnectWith->createLibraryCard($attributes['cat_username'], $homeLibrary, $eppn, $attributes['email'], $this->canConsolidateMoreTimes);
             } else {
@@ -696,6 +700,9 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function fetchAttributes($config)
     {
+        if (isSet($_SERVER['mail']))
+            $_SERVER['email'] = $_SERVER['mail'];
+
         $attributes = array();
         foreach ($this->attribsToCheck as $attribute) {
             if (isset($config->$attribute)) {
@@ -743,6 +750,8 @@ class ShibbolethIdentityManager extends Shibboleth
 
                     $attributes[$attribute] = $value;
                 }
+            } elseif (isset($_SERVER[$attribute])) {
+                $attributes[$attribute] = $_SERVER[$attribute];
             }
         }
 
@@ -858,6 +867,9 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected function getConsolidationTokenFromCookie()
     {
+        if (! isSet($_COOKIE[static::CONSOLIDATION_TOKEN_TAG]))
+            return null;
+
         $token = $_COOKIE[static::CONSOLIDATION_TOKEN_TAG];
         // unset the cookie ...
         setcookie(static::CONSOLIDATION_TOKEN_TAG, null, - 1, '/');
