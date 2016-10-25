@@ -168,12 +168,11 @@ class ShibbolethIdentityManager extends Shibboleth
     protected $canConsolidateMoreTimes = null;
 
     /**
-     * This is either false (if not set at all), or contains
-     * array of entityIds which support SingleLogout service.
+     * This is basically array of entityIds which does support SingleLogout service.
      *
-     * @var array $workingLogoutEntityIds
+     * @var array $eidsSupportingSLO
      */
-    protected $workingLogoutEntityIds = null;
+    protected $eidsSupportingSLO = [];
 
     /**
      * Session container
@@ -293,7 +292,7 @@ class ShibbolethIdentityManager extends Shibboleth
                 if (! isSet($attributes['email']))
                     $attributes['email'] = null;
 
-                // We now detected user has no entry with current eppn in our DB, thus append new libCard
+                    // We now detected user has no entry with current eppn in our DB, thus append new libCard
                 $userToConnectWith->createLibraryCard($attributes['cat_username'], $homeLibrary, $eppn, $attributes['email'], $this->canConsolidateMoreTimes);
             } else {
                 // We now detected user has two entries in our user table, thus we need to merge those
@@ -434,43 +433,47 @@ class ShibbolethIdentityManager extends Shibboleth
                 if (! isset($configuration['entityId'])) {
                     throw new AuthException("Shibboleth 'entityId' is missing in your " . static::CONFIG_FILE_NAME . ".ini configuration file for '" . $name . "'");
                 }
-            } else {
+
+                $entityId = $configuration['entityId'];
+
+                if (isSet($configuration['logout']) && $configuration['logout'] === 'local')
+                    $supportsSLO = false;
+                else
+                    $supportsSLO = true;
+
+                if ($supportsSLO)
+                    $this->eidsSupportingSLO[] = $entityId;
+
+            } elseif ($name === 'main') {
                 $this->canConsolidateMoreTimes = $this->shibbolethConfig->main->canConsolidateMoreTimes;
 
                 if ($this->canConsolidateMoreTimes !== null)
                     $this->canConsolidateMoreTimes = $this->canConsolidateMoreTimes->toArray();
-
-                $this->workingLogoutEntityIds = $this->shibbolethConfig->main->workingLogoutEntityIds;
-
-                if ($this->workingLogoutEntityIds !== null)
-                    $this->workingLogoutEntityIds = $this->workingLogoutEntityIds->toArray();
             }
         }
 
         if (empty($this->canConsolidateMoreTimes))
             $this->canConsolidateMoreTimes = false;
-
-        if (empty($this->workingLogoutEntityIds))
-            $this->workingLogoutEntityIds = false;
     }
 
     /**
-     * Checks if User can logout safely.
-     * It basically checks for presence of current
-     * entityID in $this->workingLogoutEntityIds.
+     * Checks if current User's IdP supports SLO (SingleLogoutService).
      *
-     * @return boolean $canLogoutSafely
+     * Returns true if current User's IdP supports SLO.
+     *
+     * Note that this is configurable via shibboleth.ini in each section you can write:
+     *
+     * logout = local
+     *
+     * To make that particular entityId perform only local logout when consolidating identities
+     *
+     * @return boolean $supportsSLO
      */
-    public function canLogoutSafely()
+    public function supportsSLO()
     {
         $currentEntityId = $this->fetchCurrentEntityId();
-        if (array_search(null, [
-            $currentEntityId,
-            $this->workingLogoutEntityIds
-        ]) === false)
-            return in_array($currentEntityId, $this->workingLogoutEntityIds);
-        else
-            return true;
+
+        return in_array($currentEntityId, $this->eidsSupportingSLO);
     }
 
     /**
@@ -539,9 +542,7 @@ class ShibbolethIdentityManager extends Shibboleth
         if (! empty($targetEid))
             $loginRedirect .= '&entityID=' . urlencode($targetEid);
 
-        $onlyLocalLogoutInConsolidation = true;
-
-        if ($onlyLocalLogoutInConsolidation === false && $this->canLogoutSafely()) {
+        if ($this->supportsSLO()) {
             return $this->config->Shibboleth->logout . '?return=' . urlencode($loginRedirect);
         } else
             return $loginRedirect;
@@ -562,15 +563,11 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $hasControllerAttached = preg_match("/\/[^\/]+\//", $_SERVER['REQUEST_URI']);
 
-        $shibTarget =
-            isset($_SERVER['SSL_SESSION_ID']) ? 'https://' : 'http://' . $_SERVER['SERVER_NAME'] .
-            $hasControllerAttached ? $_SERVER['REQUEST_URI'] : '/Search/Home';
+        $shibTarget = isset($_SERVER['SSL_SESSION_ID']) ? 'https://' : 'http://' . $_SERVER['SERVER_NAME'] . $hasControllerAttached ? $_SERVER['REQUEST_URI'] : '/Search/Home';
 
         $append = (strpos($shibTarget, '?') !== false) ? '&' : '?';
 
-        $initiator = $config->Shibboleth->login
-            . '?target=' . urlencode($shibTarget)
-            . urlencode($append . 'auth_method=Shibboleth');
+        $initiator = $config->Shibboleth->login . '?target=' . urlencode($shibTarget) . urlencode($append . 'auth_method=Shibboleth');
 
         if (! empty($entityId))
             $initiator .= '&entityID=' . urlencode($entityId);
