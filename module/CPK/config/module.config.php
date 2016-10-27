@@ -200,6 +200,7 @@ $staticRoutes = array(
     'Statistics/Payments',
     'Statistics/Searches',
     'MyResearch/UserConnect',
+    'MyResearch/UserDelete',
     'MyResearch/Settings',
     'Admin/Configurations',
     'Admin/ConfigurationsApproval',
