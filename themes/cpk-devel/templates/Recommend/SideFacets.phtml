@@ -82,7 +82,9 @@ foreach ($queryParams as $key => $value) {
                 <? endforeach; ?>
             <? endif; ?>
         <? endforeach; ?>
-        <a id='remove-all-filters-async' href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
+        <div class='text-center'>
+          <a id='remove-all-filters-async' href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
+        </div>
     </div>
 <? endif;?>
 
