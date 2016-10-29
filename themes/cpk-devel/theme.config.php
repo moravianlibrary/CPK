@@ -19,6 +19,8 @@ $toRet = array(
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
         'vendor/bootstrap-select.min.js',
+        'vendor/jquery.validate.min.js',
+        'vendor/validation-additional-methods.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
