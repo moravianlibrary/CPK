@@ -68,15 +68,21 @@ foreach ($queryParams as $key => $value) {
                     if ($filter['displayText'] == '[* TO *]') {
                         $filter['displayText'] = $this->translate('filter_wildcard');
                     }
+
                     $dataFacet = $filter['field'].':"'.$filter['value'].'"';
                     ?>
                     <a class="list-group-item active facet-filter" data-facet='<? if($filter['operator'] == 'OR'){echo "~";}?><?=$dataFacet?>' href="<?=$removeLink?>">
                         <span class="pull-right flip"><i class="fa fa-times"></i></span>
-                        <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>:
-                        <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false)
-                            echo explode("/", $this->escapeHtml($filter['displayText']))[1]; //@FIXME QuickFix, fix this problem on higher level
-                        else
-                            echo $this->escapeHtml($filter['displayText']);
+                        <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?>
+                        <? if ($field != 'unrecognized_facet_label'): ?>
+                          <?=$this->transEsc($field)?>:
+                        <? endif; ?>
+
+                        <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false) {
+                            echo explode("/", $this->escapeHtml($filter['displayText']))[1];
+                        } else {
+                            echo $this->transEsc($filter['displayText']);
+                        }
                         ?>
                     </a>
                 <? endforeach; ?>
