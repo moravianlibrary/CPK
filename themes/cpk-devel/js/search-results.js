@@ -1033,7 +1033,7 @@ jQuery( document ).ready( function( $ ) {
   	}
   	
   	/* Search email form client-side validation */
-	$( 'form[name="emailSearch"], #email-search-results' ).validate({ // initialize the plugin
+	$( '#email-search-results' ).validate({ // initialize the plugin
         rules: {
             from: {
                 required: true,
