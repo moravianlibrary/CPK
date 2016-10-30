@@ -79,7 +79,7 @@
           <? endif; ?>
         </div>
 
-		  <div class="col-sm-3 text-right" id='search-results-controls'<?=($recordTotal > 0) ? " style='display: none;'" : "" ?>>
+		  <div class="col-sm-3 text-right" id='search-results-controls'<?=($recordTotal > 0) ? "" : " style='display: none;'" ?>>
             <?=$this->render('search/ajax/controls/sort.phtml')?>
           </div>
       </div>
@@ -88,7 +88,7 @@
 
         <? /* End Listing Options */ ?>
 
-          <div id='no-results-container'<?=($recordTotal < 1) ? " style='display: none;'" : ""?>>
+          <div id='no-results-container'<?=($recordTotal < 1) ? "" : " style='display: none;'"?>>
             <?= $this->context($this)->renderInContext('search/no-results', ['lookfor' => $lookfor]) ?>
           </div>
 

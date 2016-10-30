@@ -91,8 +91,10 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
                     }
                 }
             } else {
-                foreach ($facets[$this->facetField]['list'] as $filter) {
-                    array_push($results, $filter['value']);
+                if (isset($facets[$this->facetField])) {
+                    foreach ($facets[$this->facetField]['list'] as $filter) {
+                        array_push($results, $filter['value']);
+                    }
                 }
             }
         } catch (\Exception $e) {
