@@ -1261,6 +1261,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getMyFines($patron)
     {
+        if ($this->agency === 'ABA008') { // NLK
+            throw new ILSException('driver_no_fines');
+        }
+
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
         $request = $this->requests->patronFiscalAccount($patron);
         $response = $this->sendRequest($request);
