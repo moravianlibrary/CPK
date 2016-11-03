@@ -1,8 +1,11 @@
 var obalky = obalky || {};
-obalky.cacheUrl  = obalky.cacheUrl || "https://cache.obalkyknih.cz";
-obalky.coverUrl  = obalky.cacheUrl + "/api/cover";
-obalky.tocUrl    = obalky.cacheUrl + "/api/toc/thumbnail";
-obalky.pdfUrl    = obalky.cacheUrl + "/api/toc/pdf";
+obalky.setCacheUrl = function(cacheUrl) {
+	obalky.cacheUrl  = cacheUrl;
+	obalky.coverUrl  = obalky.cacheUrl + "/api/cover";
+	obalky.tocUrl    = obalky.cacheUrl + "/api/toc/thumbnail";
+	obalky.pdfUrl    = obalky.cacheUrl + "/api/toc/pdf";
+}
+obalky.setCacheUrl("https://cache.obalkyknih.cz");
 obalky.linkUrl   = "https://www.obalkyknih.cz/view";
 obalky.coverText = "cover";
 obalky.tocText   = "table of content";
