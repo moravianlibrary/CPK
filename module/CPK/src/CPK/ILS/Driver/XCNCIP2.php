@@ -59,6 +59,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     protected $cannotUseLUIS = false;
 
+    protected $hideHoldLinks = false;
+
     protected $hasUntrustedSSL = false;
 
     protected $cacert = null;
@@ -116,6 +118,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (isset($this->config['Catalog']['cannotUseLUIS']) &&
              $this->config['Catalog']['cannotUseLUIS'])
             $this->cannotUseLUIS = true;
+
+        if (! empty($this->config['Catalog']['hideHoldLinks']))
+            $this->hideHoldLinks = true;
 
         if (isset($this->config['Catalog']['hasUntrustedSSL']) &&
              $this->config['Catalog']['hasUntrustedSSL'])
@@ -1912,8 +1917,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if ($this->agency === 'ABG001') {
             return true;
         }
-        // Always hide NLK's hold link, because RequestItem is not implemented.
-        if ($this->agency === 'ABA008') {
+        if (! empty($this->hideHoldLinks)) {
             return false;
         }
         $status = empty($status) ? '' : (string) $status[0];
