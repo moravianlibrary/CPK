@@ -580,49 +580,6 @@ class SolrMarc extends ParentSolrMarc
 
 
     /**
-     * Get an array of summary strings for the record.
-     *
-     * @return string
-     */
-    public function getSummaryObalkyKnih()
-    {
-        $isbnArray = $this->getBibinfoForObalkyKnihV3();
-
-        $isbnJson = json_encode($isbnArray);
-
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
-        $client->setParameterGet(array(
-            'multi' => '[' . $isbnJson . ']'
-        ));
-
-        try {
-            $response = $client->send();
-        } catch (\Exception $ex) {
-            return null; // TODO what to do when server is not responding
-        }
-
-
-        $responseBody = $response->getBody();
-
-        $phpResponse = json_decode($responseBody, true);
-
-        if (isset($phpResponse[0]['annotation'])) {
-
-            if ($phpResponse[0]['annotation']['html'] == null)
-                return null;
-
-            $anothtml = $phpResponse[0]['annotation']['html'];
-            //obalky knih sends annotation html escaped, we have convert it to string, to be able to escape it
-            $anot = htmlspecialchars_decode($anothtml);
-
-            $source = $phpResponse[0]['annotation']['source'];
-
-            return $anot . " - " . $source;
-        }
-        return null;
-    }
-
-    /**
      * Save this record to the user's favorites.
      *
      * @param array               $params Array with some or all of these keys:
