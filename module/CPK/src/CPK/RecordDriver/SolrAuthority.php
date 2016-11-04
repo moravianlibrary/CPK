@@ -163,7 +163,10 @@ class SolrAuthority extends ParentSolrMarc
 
             if (! empty($auth_id)) {
                 try {
-                    $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/auth/meta');
+                    $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+                        ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+                    $metaUrl = $cacheUrl . "/api/auth/meta";
+                    $client = new \Zend\Http\Client($metaUrl);
                     $client->setParameterGet(array(
                         'auth_id' => $auth_id
                     ));

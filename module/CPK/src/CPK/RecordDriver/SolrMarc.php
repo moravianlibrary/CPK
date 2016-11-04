@@ -529,7 +529,10 @@ class SolrMarc extends ParentSolrMarc
 
         $isbnJson = json_encode($isbnArray);
 
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+        $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
         $client->setParameterGet(array(
             'multi' => '[' . $isbnJson . ']'
         ));
@@ -567,7 +570,11 @@ class SolrMarc extends ParentSolrMarc
     {
         $isbnArray = $this->getBibinfoForObalkyKnihV3();
         $isbnJson = json_encode($isbnArray);
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+
+        $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
         $client->setParameterGet(array(
             'multi' => '[' . $isbnJson . ']'
         ));

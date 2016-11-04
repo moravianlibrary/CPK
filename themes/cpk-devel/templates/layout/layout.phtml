@@ -91,7 +91,7 @@
             $this->headScript()->appendFile('vendor/es6-promise.min.js');
         }
 
-        $cacheUrl = "https://cache2.obalkyknih.cz";
+        $cacheUrl = $this->ObalkyKnih()->getCacheUrl();
         $this->headScript()->appendScript("obalky.setCacheUrl(\"{$cacheUrl}\");");
 
         // Deal with cart stuff:

@@ -960,7 +960,10 @@ class AjaxController extends AjaxControllerBase
         // obalky
         $bookid = $this->params()->fromPost('obalkyknihbookid');
         // //////////////////////////////////////////
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/?add_review=true');
+        $cacheUrl = !isset($this->getConfig()->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->getConfig()->ObalkyKnih->cacheUrl;
+        $addReviewUrl = $cacheUrl . "/?add_review=true";
+        $client = new \Zend\Http\Client($addReviewUrl);
         $client->setMethod('POST');
         $client->setParameterGet(
             array(
@@ -1748,7 +1751,10 @@ class AjaxController extends AjaxControllerBase
 
             if (! empty($auth_id)) {
                 try {
-                    $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/auth/meta');
+                    $cacheUrl = !isset($this->getConfig()->ObalkyKnih->cacheUrl)
+                        ? 'https://cache.obalkyknih.cz' : $this->getConfig()->ObalkyKnih->cacheUrl;
+                    $metaUrl = $cacheUrl . "/api/auth/meta";
+                    $client = new \Zend\Http\Client($metaUrl);
                     $client->setParameterGet(array(
                         'auth_id' => $auth_id
                     ));
@@ -1779,7 +1785,10 @@ class AjaxController extends AjaxControllerBase
     {
         $isbnJson = json_encode($isbnArray);
 
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+        $cacheUrl = !isset($this->getConfig()->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->getConfig()->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
         $client->setParameterGet(array(
             'multi' => '[' . $isbnJson . ']'
         ));
