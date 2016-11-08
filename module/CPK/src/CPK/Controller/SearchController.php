@@ -1087,6 +1087,11 @@ class SearchController extends SearchControllerBase
         + $this->getRequest()->getPost()->toArray()
         + $postParams;
 
+        if (! empty($request['filter'])) {
+            $decompressedFilters = \LZCompressor\LZString::decompressFromBase64($request['filter']);
+            $request['filter'] = explode("|", $decompressedFilters);
+        }
+
         /* Prepare referer */
         $viewData['referer'] = $this->base64url_encode($postParams['searchResultsUrl']);
 

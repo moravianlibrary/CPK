@@ -160,6 +160,7 @@ jQuery( document ).ready( function( $ ) {
 			$( '.hidden-filter' ).each( function( index, element ) {
 				filters.push( $( element ).val() );
 			});
+			
 			data['filter'] = filters;
 			
 			if ( dataFromAutocomplete ) {
@@ -244,6 +245,25 @@ jQuery( document ).ready( function( $ ) {
 			/* 
 			 * Live update url.
 			 */
+			
+			console.log( 'Filters:' );
+			console.log( data['filter'] );	
+			
+			console.log( 'Filters as string:' );
+			var filtersAsString = data['filter'].join( '|' );
+			console.log( filtersAsString );
+			
+			console.log( 'Compressed filters:' );
+			var compressedFilters = LZString.compressToBase64( filtersAsString );
+			console.log( compressedFilters );
+			
+			console.log( 'DeCompressed filters:' );
+			var deCompressedFilters = LZString.decompressFromBase64( compressedFilters ).split( "|" );
+			console.log( deCompressedFilters );
+			
+			var dataForAjax = data;
+    		data['filter'] = compressedFilters;
+			
     		if ( dataFromWindowHistory == undefined ) {
     			ADVSEARCH.updateUrl( data );
     		} else { // from history
@@ -269,7 +289,7 @@ jQuery( document ).ready( function( $ ) {
 		        	cache: false,
 		        	dataType: 'json',
 		        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
-		        	data: data,
+		        	data: dataForAjax,
 		        	beforeSend: function() {
 		        		
 		        		scrollToTop();
