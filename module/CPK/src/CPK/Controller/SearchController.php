@@ -329,7 +329,13 @@ class SearchController extends SearchControllerBase
         $view->hierarchicalFacets = $this->getHierarchicalFacets();
         $view->hierarchicalFacetSortOptions = $this->getHierarchicalFacetSortSettings();
 
-        $this->layout()->docCount = $view->results->getResultTotal();
+        $condition = "`key`='DOC_COUNT'";
+        $gw = new \VuFind\Db\Table\Gateway('system');
+        $gw->setAdapter($this->getServiceLocator()->get('VuFind\DbAdapter'));
+        $gw->initialize();
+        $results = $gw->select($condition);
+        $results = $results->toArray();
+        $this->layout()->docCount = (! empty($results[0]['value'])) ? $results[0]['value'] : $view->results->getResultTotal();
 
         $frontendTable = $this->getTable('frontend');
         $widgetNames = $frontendTable->getHomepageWidgets();
@@ -863,6 +869,30 @@ class SearchController extends SearchControllerBase
 	        );
 
 	    return $records->getResults();
+	}
+
+	/**
+	 * Harvest actual count of all records and save it into db.
+	 *
+	 * @return void
+	 */
+	public function harvestDocCountAction()
+	{
+	    $results = $this->getResultsManager()->get('Solr');
+	    $params = $results->getParams();
+	    $params->initHomePageFacets();
+	    $params->setLimit(0);
+	    $results->getResults();
+
+	    $update = new \Zend\Db\Sql\Update('system');
+	    $condition = "`key`='DOC_COUNT'";
+	    $predicate = new \Zend\Db\Sql\Predicate\Expression($condition);
+	    $update->where($predicate);
+	    $gw = new \VuFind\Db\Table\Gateway('system');
+	    $gw->setAdapter($this->getServiceLocator()->get('VuFind\DbAdapter'));
+	    $gw->initialize();
+	    $gw->update(array('value' => $results->getResultTotal()), $condition);
+	    exit();
 	}
 
 	/**
