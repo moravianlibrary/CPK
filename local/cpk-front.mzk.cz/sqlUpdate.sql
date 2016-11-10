@@ -731,14 +731,14 @@ ALTER TABLE `notifications` ADD `control_hash_md5` VARCHAR(32) NULL DEFAULT NULL
 UPDATE `system` SET `value`='51' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `system` ADD `amount_of_sent_helps` INT NOT NULL ;
-UPDATE `vufind`.`system` SET `value` = '52' WHERE `system`.`id` = 1;
+UPDATE `system` SET `value` = '52' WHERE `key`='DB_VERSION';
 
 UPDATE `user_settings` SET `records_per_page`=10;
-UPDATE `vufind`.`system` SET `value` = '53' WHERE `system`.`id` = 1;
+UPDATE `system` SET `value` = '53' WHERE `key`='DB_VERSION';
 
 /* This is a child key, which needs to respect user_id changes instead of refusing them */
 ALTER TABLE `user_settings` DROP FOREIGN KEY `user_settings_ibfk_1`; ALTER TABLE `user_settings` ADD CONSTRAINT `user_settings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-UPDATE `system` SET `value` = '54' WHERE `system`.`id` = 1;
+UPDATE `system` SET `value` = '54' WHERE `key`='DB_VERSION';
 
-INSERT IGNORE INTO `vufind`.`system` (`key`) VALUES ('DOC_COUNT');
-UPDATE `vufind`.`system` SET `value` = '55' WHERE `key`='DB_VERSION';
+INSERT IGNORE INTO `system` (`key`) VALUES ('DOC_COUNT');
+UPDATE `system` SET `value` = '55' WHERE `key`='DB_VERSION';
