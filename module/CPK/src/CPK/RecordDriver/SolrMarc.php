@@ -813,6 +813,7 @@ class SolrMarc extends ParentSolrMarc
      */
     private function sortLogic($a, $b) {
         $found = false;
+        $first = $second = '';
         foreach ($this->sortFields as $sort) {
             if (! isset($a[$sort])) {
                 $a[$sort] = '';
