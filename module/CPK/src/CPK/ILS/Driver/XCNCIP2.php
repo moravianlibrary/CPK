@@ -1391,9 +1391,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $bib_id = str_replace('cbvk_us_cat*', 'CbvkUsCat_', $bib_id);
                 $bib_id = str_replace('kl_us_cat*', 'KlUsCat_', $bib_id);
             }
-            if ($this->agency === 'ZLG001') { // add record prefix for kfbz
-                $bib_id = 'oai:' . $bib_id;
-            }
             $create = $this->parseDate($create);
             $expire = $this->parseDate($expire);
 
