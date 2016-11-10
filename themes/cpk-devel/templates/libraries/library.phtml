@@ -65,7 +65,7 @@
         <? if ($website->hasNote()): ?>
           <p><i class="pr-interface-arrowright5"></i><a href="<?=$website->getUrl()?>" title="<?=$website->getNote()?>" target="_blank"><?=$website->getNote()?></a></p>
         <? else: ?>
-          <p><i class="pr-interface-arrowright5"></i><a href="<?=$website->getUrl()?>" target="_blank"><?=$website->getUrl()?></a></p>
+          <p><i class="pr-interface-arrowright5"></i><a href="<?=$website->getUrl()?>"><?=$website->getUrl()?></a></p>
         <? endif; ?>
       <? endforeach; ?>
     <? endif; ?>

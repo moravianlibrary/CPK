@@ -251,6 +251,29 @@ class SolrMarc extends ParentSolrMarc
 
         $this->sortFields($fields, $source);
 
+        if ((isset($this->fields['format_display_mv'][0])) && ($this->fields['format_display_mv'][0] == '0/PERIODICALS/')) {
+            usort($fields, function($a, $b) {
+                $found = false;
+                $sortFields = array('y', 'v', 'i');
+                foreach ($sortFields as $sort) {
+                    if (! isset($a[$sort])) {
+                        $a[$sort] = '';
+                    }
+                    if (! isset($b[$sort])) {
+                        $b[$sort] = '';
+                    }
+                    if ($a[$sort] != $b[$sort]) {
+                        $pattern = '/(\d+)(.+)?/';
+                        $first = preg_replace($pattern, '$1', $a[$sort]);
+                        $second = preg_replace($pattern, '$1', $b[$sort]);
+                        $found = true;
+                        break;
+                    }
+                }
+                return $found ? ($first < $second) : false;
+            });
+        }
+
         $holdings = [];
         foreach ($fields as $currentField) {
             if (! $this->shouldBeRestricted($currentField, $restrictions)) {
