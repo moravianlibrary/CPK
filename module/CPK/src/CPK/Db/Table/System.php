@@ -71,18 +71,14 @@ class System extends Gateway
     public function getAmountOfSentHelps()
     {
         $select = new Select($this->table);
-
-        $column = 'amount_of_sent_helps';
-        $select->columns([$column]);
-        $select->limit(1);
-
+        $select->where("`key`='SENT_HELPS'");
         $results = $this->executeAnyZendSQLSelect($select);
 
         $resultSet = new \Zend\Db\ResultSet\ResultSet();
         $resultSet->initialize($results);
 
-        $amountOfSentHelps = $resultSet->toArray();
-        return $amountOfSentHelps[0][$column];
+        $resultSet = $resultSet->toArray();
+        return (! empty($resultSet[0]['value'])) ? $resultSet[0]['value'] : 0;
     }
 
     /**
@@ -93,8 +89,9 @@ class System extends Gateway
     public function setAmountOfSentHelps($amount)
     {
         $update = new Update($this->table);
+        $update->where("`key`='SENT_HELPS'");
         $update->set([
-            'amount_of_sent_helps' => $amount
+            'value' => $amount
         ]);
 
         $this->getDbConnection()->beginTransaction();

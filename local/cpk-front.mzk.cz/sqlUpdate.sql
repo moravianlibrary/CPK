@@ -730,7 +730,7 @@ ALTER TABLE `notifications` ADD `control_hash_md5` VARCHAR(32) NULL DEFAULT NULL
 
 UPDATE `system` SET `value`='51' WHERE `key`='DB_VERSION';
 
-ALTER TABLE `system` ADD `amount_of_sent_helps` INT NOT NULL ;
+ALTER TABLE `system` ADD `amount_of_sent_helps` INT NOT NULL;
 UPDATE `system` SET `value` = '52' WHERE `key`='DB_VERSION';
 
 UPDATE `user_settings` SET `records_per_page`=10;
@@ -742,3 +742,7 @@ UPDATE `system` SET `value` = '54' WHERE `key`='DB_VERSION';
 
 INSERT IGNORE INTO `system` (`key`) VALUES ('DOC_COUNT');
 UPDATE `system` SET `value` = '55' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `system` DROP COLUMN `amount_of_sent_helps`;
+UPDATE `system` SET `value` = '56' WHERE `key`='DB_VERSION';
+
