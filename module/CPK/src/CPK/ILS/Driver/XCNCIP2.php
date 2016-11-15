@@ -1384,6 +1384,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 }
             }
 
+            if ($this->agency === 'ABA008') { // NLK
+                $parts = explode("@", (string) $location[0]);
+                $location[0] = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
+                $additId = empty($item_id) ? '' : (string) $item_id[0];
+                $additRequest = $this->requests->lookupItem($additId, $patron);
+                try {
+                    $additResponse = $this->sendRequest($additRequest);
+                    $id = $this->useXPath($additResponse,
+                            'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+                } catch (ILSException $e) {
+                }
+            }
+
             if (! empty($position)) if ((string) $position[0] === '0') $position = null; // hide queue position
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
             if (in_array($this->agency, $this->libsLikeLiberec)) {
