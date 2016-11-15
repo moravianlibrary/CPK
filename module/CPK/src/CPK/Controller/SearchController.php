@@ -622,6 +622,11 @@ class SearchController extends SearchControllerBase
 	    $request = $this->getRequest()->getQuery()->toArray()
 	    + $this->getRequest()->getPost()->toArray();
 
+	    if (! empty($request['filter'])) {
+	        $decompressedFilters = \LZCompressor\LZString::decompressFromBase64(urldecode($request['filter']));
+	        $request['filter'] = explode("|", $decompressedFilters);
+	    }
+
 	    /* Set limit and sort */
 	    $searchesConfig = $this->getConfig('searches');
 	    if (! empty($request['limit'])) {
@@ -1088,7 +1093,7 @@ class SearchController extends SearchControllerBase
         + $postParams;
 
         if (! empty($request['filter'])) {
-            $decompressedFilters = \LZCompressor\LZString::decompressFromBase64($request['filter']);
+            $decompressedFilters = \LZCompressor\LZString::decompressFromBase64(urldecode($request['filter']));
             $request['filter'] = explode("|", $decompressedFilters);
         }
 

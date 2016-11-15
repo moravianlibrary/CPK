@@ -245,7 +245,6 @@ jQuery( document ).ready( function( $ ) {
 			/* 
 			 * Live update url.
 			 */
-			
 			console.log( 'Filters:' );
 			console.log( data['filter'] );	
 			
@@ -254,15 +253,18 @@ jQuery( document ).ready( function( $ ) {
 			console.log( filtersAsString );
 			
 			console.log( 'Compressed filters:' );
-			var compressedFilters = LZString.compressToBase64( filtersAsString );
+			var compressedFilters = encodeURIComponent( LZString.compressToBase64( filtersAsString ) );
 			console.log( compressedFilters );
 			
 			console.log( 'DeCompressed filters:' );
-			var deCompressedFilters = LZString.decompressFromBase64( compressedFilters ).split( "|" );
-			console.log( deCompressedFilters );
+			var deCompressedFilters = LZString.decompressFromBase64( decodeURIComponent( compressedFilters ) );
+			console.log( deCompressedFilters.split( "|" ) );
 			
 			var dataForAjax = data;
-    		data['filter'] = compressedFilters;
+			
+			if (data['filter'].length > 0) {
+	    		data['filter'] = compressedFilters;
+			}
 			
     		if ( dataFromWindowHistory == undefined ) {
     			ADVSEARCH.updateUrl( data );
@@ -628,7 +630,9 @@ jQuery( document ).ready( function( $ ) {
 		if (currentState.searchTypeTemplate) {
 			ADVSEARCH.updateSearchResults( currentState, undefined, currentState.searchTypeTemplate );
 		} else {
-			ADVSEARCH.updateSearchResults( currentState, undefined );
+			var currentUrl = window.location.href;
+			var searchTypeTemplate = getParameterByName( 'searchTypeTemplate', currentUrl );
+			ADVSEARCH.updateSearchResults( currentState, undefined, searchTypeTemplate );
 		}
 	});
 	
