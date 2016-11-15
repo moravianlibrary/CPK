@@ -266,6 +266,12 @@ jQuery( document ).ready( function( $ ) {
 	    		data['filter'] = compressedFilters;
 			}
 			
+			console.log('dataForAjax now:');
+			console.log(dataForAjax)
+			
+			console.log('data now:');
+			console.log(data)
+			
     		if ( dataFromWindowHistory == undefined ) {
     			ADVSEARCH.updateUrl( data );
     		} else { // from history
