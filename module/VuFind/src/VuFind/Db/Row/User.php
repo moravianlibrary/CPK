@@ -424,27 +424,27 @@ class User extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface,
         return isset($this->config->Catalog->library_cards)
             && $this->config->Catalog->library_cards;
     }
-    
+
     /**
      * Checks if user is admin
-     * 
+     *
      * @return bool
      */
     public function isAdmin()
     {
         if (! empty($this->major)) {
-            
+
             return true;
         }
-        
+
         foreach ($this->getLibraryCards(true) as $libCard) {
-            
+
             if (! empty($libCard->major)) {
-                
+
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -534,6 +534,24 @@ class User extends RowGateway implements \VuFind\Db\Table\DbTableAwareInterface,
                 $this->save();
             }
         }
+    }
+
+    /**
+     * Deletes this account including all consolidated accounts
+     *
+     * @throws \VuFind\Exception\LibraryCard
+     * @return number
+     */
+    public function deleteAccout()
+    {
+        if (!$this->libraryCardsEnabled()) {
+            throw new \VuFind\Exception\LibraryCard('Library Cards Disabled');
+        }
+
+        $userCard = $this->getDbTable('UserCard');
+        $userCard->delete(['user_id' => $this->id]);
+
+        return $this->delete();
     }
 
     /**

@@ -59,8 +59,7 @@
 
       </div>
     </div>
-    <div class="row">
-      <div class="<?=$this->layoutClass('mainbody')?>">
+    <div class="row <?=$this->layoutClass('mainbody')?>">
 
       <div class="hidden-print search-controls row">
         <div class="col-sm-3">
@@ -80,11 +79,7 @@
           <? endif; ?>
         </div>
 
-        <? if ($recordTotal > 0): ?>
-          <div class="col-sm-3 text-right" id='search-results-controls'>
-        <? else: ?>
-		  <div class="col-sm-3 text-right" id='search-results-controls' style='display: none;'>
-	    <? endif; ?>
+		  <div class="col-sm-3 text-right" id='search-results-controls'<?=($recordTotal > 0) ? "" : " style='display: none;'" ?>>
             <?=$this->render('search/ajax/controls/sort.phtml')?>
           </div>
       </div>
@@ -93,12 +88,7 @@
 
         <? /* End Listing Options */ ?>
 
-        <? if ($recordTotal < 1): ?>
-          <div id='no-results-container'>
-		<? else: ?>
-          <div id='no-results-container' style='display: none;'>
-        <? endif; ?>
-
+          <div id='no-results-container'<?=($recordTotal < 1) ? "" : " style='display: none;'"?>>
             <?= $this->context($this)->renderInContext('search/no-results', ['lookfor' => $lookfor]) ?>
           </div>
 
@@ -152,7 +142,6 @@
       </div>
     </div>
 </div>
-
 <script>
     jQuery( document ).ready( function( $ ) {
         <? if ($this->extraResults && $this->referer): ?>

@@ -251,6 +251,29 @@ class SolrMarc extends ParentSolrMarc
 
         $this->sortFields($fields, $source);
 
+        if ((isset($this->fields['format_display_mv'][0])) && ($this->fields['format_display_mv'][0] == '0/PERIODICALS/')) {
+            usort($fields, function($a, $b) {
+                $found = false;
+                $sortFields = array('y', 'v', 'i');
+                foreach ($sortFields as $sort) {
+                    if (! isset($a[$sort])) {
+                        $a[$sort] = '';
+                    }
+                    if (! isset($b[$sort])) {
+                        $b[$sort] = '';
+                    }
+                    if ($a[$sort] != $b[$sort]) {
+                        $pattern = '/(\d+)(.+)?/';
+                        $first = preg_replace($pattern, '$1', $a[$sort]);
+                        $second = preg_replace($pattern, '$1', $b[$sort]);
+                        $found = true;
+                        break;
+                    }
+                }
+                return $found ? ($first < $second) : false;
+            });
+        }
+
         $holdings = [];
         foreach ($fields as $currentField) {
             if (! $this->shouldBeRestricted($currentField, $restrictions)) {
@@ -511,7 +534,10 @@ class SolrMarc extends ParentSolrMarc
 
         $isbnJson = json_encode($isbnArray);
 
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+        $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
         $client->setParameterGet(array(
             'multi' => '[' . $isbnJson . ']'
         ));
@@ -549,7 +575,11 @@ class SolrMarc extends ParentSolrMarc
     {
         $isbnArray = $this->getBibinfoForObalkyKnihV3();
         $isbnJson = json_encode($isbnArray);
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+
+        $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
         $client->setParameterGet(array(
             'multi' => '[' . $isbnJson . ']'
         ));
@@ -560,49 +590,6 @@ class SolrMarc extends ParentSolrMarc
         return $bookid;
     }
 
-
-    /**
-     * Get an array of summary strings for the record.
-     *
-     * @return string
-     */
-    public function getSummaryObalkyKnih()
-    {
-        $isbnArray = $this->getBibinfoForObalkyKnihV3();
-
-        $isbnJson = json_encode($isbnArray);
-
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
-        $client->setParameterGet(array(
-            'multi' => '[' . $isbnJson . ']'
-        ));
-
-        try {
-            $response = $client->send();
-        } catch (\Exception $ex) {
-            return null; // TODO what to do when server is not responding
-        }
-
-
-        $responseBody = $response->getBody();
-
-        $phpResponse = json_decode($responseBody, true);
-
-        if (isset($phpResponse[0]['annotation'])) {
-
-            if ($phpResponse[0]['annotation']['html'] == null)
-                return null;
-
-            $anothtml = $phpResponse[0]['annotation']['html'];
-            //obalky knih sends annotation html escaped, we have convert it to string, to be able to escape it
-            $anot = htmlspecialchars_decode($anothtml);
-
-            $source = $phpResponse[0]['annotation']['source'];
-
-            return $anot . " - " . $source;
-        }
-        return null;
-    }
 
     /**
      * Save this record to the user's favorites.
@@ -826,6 +813,7 @@ class SolrMarc extends ParentSolrMarc
      */
     private function sortLogic($a, $b) {
         $found = false;
+        $first = $second = '';
         foreach ($this->sortFields as $sort) {
             if (! isset($a[$sort])) {
                 $a[$sort] = '';

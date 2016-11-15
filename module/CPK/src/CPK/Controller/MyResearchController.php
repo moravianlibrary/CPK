@@ -480,6 +480,32 @@ class MyResearchController extends MyResearchControllerBase
     }
 
     /**
+     * Deletes user account if it is confirmed
+     *
+     * @return mixed|\Zend\Http\Response|\Zend\Http\Response
+     */
+    public function userDeleteAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        $confirm = $this->params()->fromPost('confirm', $this->params()
+            ->fromQuery('confirm'));
+
+        if ($confirm) {
+
+            $user->deleteAccout();
+            return $this->logoutAction();
+        }
+
+        $this->flashMessenger()->addErrorMessage($this->translate('delete-user-account-not-confirmed'));
+        return $this->redirect()->toRoute('librarycards-home');
+    }
+
+    /**
      * Send list of fines to view
      *
      * @return mixed
