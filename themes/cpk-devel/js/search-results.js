@@ -758,7 +758,7 @@ jQuery( document ).ready( function( $ ) {
 				ADVSEARCH.addFacetFilter(value, false);
 			});
 		};
-
+/*
 		if ($('#facet_conspectus_str_mv').length ) {
 			//remove all conspectus
 			var allConspectus = $('#facet_conspectus_str_mv').jstree(true).get_json('#', {flat: true});
@@ -772,7 +772,7 @@ jQuery( document ).ready( function( $ ) {
 				ADVSEARCH.addFacetFilter(value, false);
 			});
 		}
-
+*/
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 
 	});
