@@ -772,7 +772,7 @@ jQuery( document ).ready( function( $ ) {
 				ADVSEARCH.addFacetFilter(value, false);
 			});
 		}
-*/
+
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 
 	});
