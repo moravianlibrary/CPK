@@ -745,7 +745,7 @@ jQuery( document ).ready( function( $ ) {
 
 		$( "input[name='page']" ).val( '1' );
 
-		if ($('#facet_local_statuses_facet_str_mv').length ) {
+		if ($('#facet_local_statuses_facet_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
 			//remove all statuses
 			var allStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_json('#', {flat: true});
 			$.each(allStatuses, function (index, value) {
@@ -758,8 +758,8 @@ jQuery( document ).ready( function( $ ) {
 				ADVSEARCH.addFacetFilter(value, false);
 			});
 		};
-/*
-		if ($('#facet_conspectus_str_mv').length ) {
+
+		if ($('#facet_conspectus_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
 			//remove all conspectus
 			var allConspectus = $('#facet_conspectus_str_mv').jstree(true).get_json('#', {flat: true});
 			$.each(allConspectus, function (index, value) {
