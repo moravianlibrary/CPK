@@ -203,11 +203,19 @@ jQuery( document ).ready( function( $ ) {
 				if (! data.hasOwnProperty( 'limit' )) {
 					var limit = $( "input[name='limit']" ).val();
 					data['limit'] = limit;
+				} else {
+					if ( Object.prototype.toString.call( data['limit'] ) === '[object Array]' ) {
+						data['limit'] = data['limit'][0];
+					}
 				}
 				
 				if (! data.hasOwnProperty( 'sort' )) {
 					var sort = $( "input[name='sort']" ).val();
 					data['sort'] = sort;
+				} else {
+					if ( Object.prototype.toString.call( data['sort'] ) === '[object Array]' ) {
+						data['sort'] = data['sort'][0];
+					}
 				}
 				
 				if (! data.hasOwnProperty( 'page' )) {
