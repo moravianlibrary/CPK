@@ -169,7 +169,6 @@ foreach ($queryParams as $key => $value) {
           $reversed = $this->layout()->rtl ? 'true' : 'false';
           ?>
           <div class="list-group-item">
-            <form action='' name="<?=$this->escapeHtmlAttr($title)?>Filter" id="<?=$this->escapeHtmlAttr($title)?>Filter">
               <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$title}:.*/"))?>
               <input type="hidden" name="<?=$this->escapeHtmlAttr($rangeFacets[$title]['type'])?>range[]" value="<?=$this->escapeHtmlAttr($title)?>"/>
               <div class="row">
@@ -190,8 +189,7 @@ foreach ($queryParams as $key => $value) {
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
                 <div class="slider-container"><input type="text" class="hidden" id="<?=$this->escapeHtmlAttr($title)?><?=$this->escapeHtml($rangeFacets[$title]['type'])?>Slider"/></div>
               <? endif; ?>
-              <input class="btn btn-default" type="submit" value="<?=$this->transEsc('Use')?>"/>
-            </form>
+              <button class="btn btn-default apply-facet-filter-range"><?=$this->transEsc('Use')?></button>
           </div>
           <? if ($rangeFacets[$title]['type'] == 'date'): ?>
             <? $this->headScript()->appendFile('vendor/bootstrap-slider.js'); ?>

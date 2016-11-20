@@ -80,12 +80,25 @@ jQuery( document ).ready( function( $ ) {
 		 * @param {JSON} 	dataFromWindowHistory 
 		 * @param {JSON} 	dataFromAutocomplete
 		 * @param {string}	newSearchTypeTemplate		basic|advanced
+		 * @param {array}	extraData					Associative array
 		 * 
 		 * @return {undefined}
 		 */
-		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate ) {
+		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData ) {
 			
 			var data = {};
+			
+			/* If we need to add some new paramts to URL we can use extraData argument */
+			if (extraData !== undefined ) {
+				for (var key in extraData) {
+					if (extraData.hasOwnProperty(key)) {
+						data[key] = extraData[key];
+					}
+				}
+				console.log( 'Added extraData:' );
+				console.log( data );
+			}
+			
 			var reloadResults = true;
 			
 			if ( dataFromWindowHistory !== undefined ) {
@@ -214,6 +227,21 @@ jQuery( document ).ready( function( $ ) {
 					var page = $( "input[name='page']" ).val();
 					data['page'] = page;
 				}
+				
+				if (! data.hasOwnProperty( 'publishDatefrom' )) {
+					var publishDatefrom = $( "input[name='publishDatefrom']" ).val();
+					data['publishDatefrom'] = publishDatefrom;
+				}
+				
+				if (! data.hasOwnProperty( 'publishDateto' )) {
+					var publishDateto = $( "input[name='publishDateto']" ).val();
+					data['publishDateto'] = publishDateto;
+				}
+				
+				if (! data.hasOwnProperty( 'daterange' )) {
+					var daterange = $( "input[name='daterange']" ).val();
+					data['daterange'] = daterange;
+				}
 			}
 			
 			/* Set last search */
@@ -225,6 +253,15 @@ jQuery( document ).ready( function( $ ) {
 			
 			var searchTypeTemplate = data['searchTypeTemplate'];
 			$( "input[name='searchTypeTemplate']" ).val( searchTypeTemplate );
+			
+			var publishDatefrom = data['publishDatefrom'];
+			$( "input[name='publishDatefrom']" ).val( publishDatefrom );
+			
+			var publishDateto = data['publishDateto'];
+			$( "input[name='publishDateto']" ).val( publishDateto );
+			
+			var daterange = data['daterange'];
+			$( "input[name='daterange']" ).val( daterange );
 			
 			/* 
 			 * If we want to just switch template between basic and advanced search,
@@ -795,6 +832,20 @@ jQuery( document ).ready( function( $ ) {
 		$( "input[name='limit']" ).val( limit );
 		
 		ADVSEARCH.updateSearchResults( undefined, undefined );
+	});
+	
+	/*
+	 * Add data range as facet
+	 */
+	$( 'body' ).on( 'click', '.apply-facet-filter-range', function( event ) {
+		event.preventDefault();
+		
+		var extraData = {};
+		extraData['publishDatefrom'] = $( '#publishDatefrom' ).val();
+		extraData['publishDateto'] = $( '#publishDateto' ).val();
+		extraData['daterange'] = 'publishDate';
+		
+		ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
 	});
 	
 	/*
