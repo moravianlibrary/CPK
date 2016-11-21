@@ -2,8 +2,11 @@
     $id = $this->driver->getUniqueID();
 
     $anchor = htmlspecialchars($this->driver->getF773_display());
-    $prefix = explode(":", $this->driver->getLink773_str())[0];
-    $isn = explode(":", $this->driver->getLink773_str())[1];
+    $link = $this->driver->getLink773_str();
+    if (! empty($link)) {
+        $prefix = explode(":", $link)[0];
+        $isn = explode(":", $link)[1];
+    }
 
     if (! empty($anchor)) {
         if (! empty($prefix) || ! empty($isn) ) {

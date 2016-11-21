@@ -121,7 +121,7 @@ class SolrMarc extends ParentSolrMarc
 
     public function getLink773_str()
     {
-        return isset($this->fields['link773_str']) ? $this->fields['link773_str'] : [];
+        return isset($this->fields['link773_str']) ? $this->fields['link773_str'] : '';
     }
 
 
