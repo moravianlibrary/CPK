@@ -121,10 +121,26 @@
       }
   }
 
+  $sfxes = [];
+  $digitalLibraries = [];
+  foreach ($institutionsFilters as $key => $source) {
+      $sfxes = array_merge(
+          $sfxes,
+          ($this->sfxesForLibraries[$source] !== 'null') ? explode(",", $this->sfxesForLibraries[$source]) : []
+      );
+
+      $digitalLibraries = array_merge(
+          $digitalLibraries,
+          ($this->digitalLibrarieForLibraries[$source] !== 'null') ? explode(",", $this->sfxesForLibraries[$source]) : []
+      );
+  }
+
+  $prependTheseSources = array_merge($sfxes, $digitalLibraries, $institutionsFilters);
+
   $prependedLibraries = [];
-  if (count($foundRecords) && count($institutionsFilters)) {
+  if (count($foundRecords) && count($prependTheseSources)) {
       foreach ($foundRecords as $source => $array) {
-          if (in_array($source, $institutionsFilters)) {
+          if ( in_array($source, $prependTheseSources) ) {
               unset($foundRecords[$source]);
               $prependedLibraries[$source] = $array;
           }
