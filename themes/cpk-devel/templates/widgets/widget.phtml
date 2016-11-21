@@ -1,6 +1,13 @@
   <div class="col-md-4 widget">
     <div class='header'>
-      <h2><?=($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn()?></h2>
+      <? if ($this->widget->getShowAllRecordsLink()): ?>
+        <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter[]=inspiration:"<?=$this->widget->getName()?>"' title='<?=$this->translate('Show all')?>' style='color: #000;'>
+          <h2><?=($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn()?></h2>
+        </a>
+      <? else: ?>
+        <h2><?=($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn()?></h2>
+      <? endif; ?>
+
     </div>
     <div class="list-group">
       <? foreach ($this->widget->getContents() as $item): $id = $this->record($item->getRecordDriver())->getRelevantRecord($item->getValue()); ?>
