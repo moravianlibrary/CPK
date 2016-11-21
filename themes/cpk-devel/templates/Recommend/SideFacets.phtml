@@ -178,19 +178,21 @@ foreach ($queryParams as $key => $value) {
                   <label for="<?=$this->escapeHtmlAttr($title)?>from">
                     <?=$this->transEsc('date_from')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=$min?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=$low?>" <?=$extraInputAttribs?>/>
                 </div>
                 <div class="col-sm-6">
                   <label for="<?=$this->escapeHtmlAttr($title)?>to">
                     <?=$this->transEsc('date_to')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=$max?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=$high?>" <?=$extraInputAttribs?>/>
                 </div>
               </div>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
                 <div class="slider-container"><input type="text" class="hidden" id="<?=$this->escapeHtmlAttr($title)?><?=$this->escapeHtml($rangeFacets[$title]['type'])?>Slider"/></div>
               <? endif; ?>
-              <input class="btn btn-default" type="submit" value="<?=$this->transEsc('Use')?>"/>
+              <div style="text-align: center; margin-top: 10px;">
+                <input class="btn btn-default" type="submit" value="<?=$this->transEsc('Use filters')?>"/>
+              </div>
             </form>
           </div>
           <? if ($rangeFacets[$title]['type'] == 'date'): ?>
