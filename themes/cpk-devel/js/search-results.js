@@ -160,6 +160,7 @@ jQuery( document ).ready( function( $ ) {
 			$( '.hidden-filter' ).each( function( index, element ) {
 				filters.push( $( element ).val() );
 			});
+			
 			data['filter'] = filters;
 			
 			if ( dataFromAutocomplete ) {
@@ -252,6 +253,33 @@ jQuery( document ).ready( function( $ ) {
 			/* 
 			 * Live update url.
 			 */
+			console.log( 'Filters:' );
+			console.log( data['filter'] );	
+			
+			console.log( 'Filters as string:' );
+			var filtersAsString = data['filter'].join( '|' );
+			console.log( filtersAsString );
+			
+			console.log( 'Compressed filters:' );
+			var compressedFilters = encodeURIComponent( LZString.compressToBase64( filtersAsString ) );
+			console.log( compressedFilters );
+			
+			console.log( 'DeCompressed filters:' );
+			var deCompressedFilters = LZString.decompressFromBase64( decodeURIComponent( compressedFilters ) );
+			console.log( deCompressedFilters.split( "|" ) );
+			
+			var dataForAjax = data;
+			
+			if (data['filter'].length > 0) {
+	    		data['filter'] = compressedFilters;
+			}
+			
+			console.log('dataForAjax now:');
+			console.log(dataForAjax)
+			
+			console.log('data now:');
+			console.log(data)
+			
     		if ( dataFromWindowHistory == undefined ) {
     			ADVSEARCH.updateUrl( data );
     		} else { // from history
@@ -277,7 +305,7 @@ jQuery( document ).ready( function( $ ) {
 		        	cache: false,
 		        	dataType: 'json',
 		        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
-		        	data: data,
+		        	data: dataForAjax,
 		        	beforeSend: function() {
 		        		
 		        		scrollToTop();
@@ -616,7 +644,9 @@ jQuery( document ).ready( function( $ ) {
 		if (currentState.searchTypeTemplate) {
 			ADVSEARCH.updateSearchResults( currentState, undefined, currentState.searchTypeTemplate );
 		} else {
-			ADVSEARCH.updateSearchResults( currentState, undefined );
+			var currentUrl = window.location.href;
+			var searchTypeTemplate = getParameterByName( 'searchTypeTemplate', currentUrl );
+			ADVSEARCH.updateSearchResults( currentState, undefined, searchTypeTemplate );
 		}
 	});
 	
@@ -714,7 +744,47 @@ jQuery( document ).ready( function( $ ) {
 		// Clear also autocomplete
 		$( '#searchForm_lookfor' ).val( '' );
 	});
-	
+
+	/*
+	 * Add or remove clicked facet
+	 */
+	$( 'body' ).on( 'click', '.facet-filter-or', function( event ) {
+		event.preventDefault();
+
+		$( "input[name='page']" ).val( '1' );
+
+		if ($('#facet_local_statuses_facet_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
+			//remove all statuses
+			var allStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_json('#', {flat: true});
+			$.each(allStatuses, function (index, value) {
+				ADVSEARCH.removeFacetFilter(value['id'], false);
+			});
+
+			//add selected statuses
+			var selectedStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_bottom_selected();
+			$.each(selectedStatuses, function (index, value) {
+				ADVSEARCH.addFacetFilter(value, false);
+			});
+		};
+
+		if ($('#facet_conspectus_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
+			//remove all conspectus
+			var allConspectus = $('#facet_conspectus_str_mv').jstree(true).get_json('#', {flat: true});
+			$.each(allConspectus, function (index, value) {
+				ADVSEARCH.removeFacetFilter(value['id'], false);
+			});
+
+			//add selected conspectus
+			var selectedConspectus = $('#facet_conspectus_str_mv').jstree(true).get_bottom_selected();
+			$.each(selectedConspectus, function (index, value) {
+				ADVSEARCH.addFacetFilter(value, false);
+			});
+		}
+
+		ADVSEARCH.updateSearchResults( undefined, undefined );
+
+	});
+
 	/*
 	 * Add or remove clicked facet
 	 */
@@ -731,7 +801,7 @@ jQuery( document ).ready( function( $ ) {
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
 	});
-	
+
 	/*
 	 * Remove all institutions facets and add checked ones
 	 */

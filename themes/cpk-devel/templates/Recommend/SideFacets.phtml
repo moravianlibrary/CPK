@@ -129,9 +129,14 @@ foreach ($queryParams as $key => $value) {
                     $urlParams = $results->getUrlQuery()->getParamArray();
                     $newParams = array('type' => 'AllFields');
                     $filtered = array();
-                    if (isset($urlParams['filter'])) foreach ($urlParams['filter'] as $param) {
-                        if (strpos($param, '~institution:') === 0) continue;
-                        $filtered[] = $param;
+                    if (isset($urlParams['filter'])) {
+                        $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(urldecode($urlParams['filter'])));
+                        foreach ($decompressedFilters as $param) {
+                            if (strpos($param, '~institution:') === 0) {
+                                continue;
+                            }
+                            $filtered[] = $param;
+                        }
                     }
                     $newParams = $urlParams;
                     $newParams['filter'] = $filtered;
@@ -234,13 +239,25 @@ $(document).ready(function() {
 JS;
               ?>
               <? else: ?>
-              <?
-              $script = <<<JS
-$(document).ready(function() {
-  initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
-});
+                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")): ?>
+                  <?
+                  $script = <<<JS
+        $(document).ready(function() {
+          initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
+          console.log("or" + '#facet_{$this->escapeHtml($title)}');
+        });
 JS;
-              ?>
+                  ?>
+                  <? else: ?>
+                  <?
+                  $script = <<<JS
+        $(document).ready(function() {
+          initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
+          console.log("and" + '#facet_{$this->escapeHtml($title)}');
+        });
+JS;
+                  ?>
+                  <? endif; ?>
               <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? else: ?>
@@ -253,6 +270,15 @@ $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', funct
 JS;
               ?>
               <? else: ?>
+                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")): ?>
+          <?
+          $script = <<<JS
+$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
+  initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
+});
+JS;
+          ?>
+                  <? else: ?>
               <?
               $script = <<<JS
 $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
@@ -260,6 +286,7 @@ $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', funct
 });
 JS;
               ?>
+                  <? endif; ?>
               <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? endif; ?>

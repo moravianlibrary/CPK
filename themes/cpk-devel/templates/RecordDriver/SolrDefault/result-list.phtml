@@ -111,13 +111,12 @@
   $institutionsFilters = [];
   if (isset($_GET['filter']) || isset($_POST['filter'])) {
       $paramFilter = isset($_GET['filter']) ? $_GET['filter'] : $_POST['filter'];
-      if (count($paramFilter)) {
-          foreach ($paramFilter as $key => $value) {
-              $explodedArray = explode('/', trim($value, '"'));
-              $index = ((count($explodedArray)-2) < 0) ? 0 : (count($explodedArray)-2);
-              $source = strtolower($explodedArray[$index]);
-              $institutionsFilters[] = $source;
-          }
+      $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(urldecode($paramFilter)));
+      foreach ($decompressedFilters as $key => $value) {
+          $explodedArray = explode('/', trim($value, '"'));
+          $index = ((count($explodedArray)-2) < 0) ? 0 : (count($explodedArray)-2);
+          $source = strtolower($explodedArray[$index]);
+          $institutionsFilters[] = $source;
       }
   }
 
