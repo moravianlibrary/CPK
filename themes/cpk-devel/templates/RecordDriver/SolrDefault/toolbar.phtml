@@ -78,6 +78,7 @@
         <?= $this->help()->getElementHelp('element_help_export_record', $titleHtml) ?>
       </a>
       <ul class="dropdown-menu record-export" role="menu">
+        <li><a href="https://www.citacepro.com/nacist-dokument-sysno/<?=$this->driver->getUniqueID()?>?katalog=cpk" title="CitacePRO" target="_blank">CitacePRO</a></li>
         <? foreach ($exportFormats as $exportFormat): ?>
           <li><a <? if ($this->export()->needsRedirect($exportFormat)): ?>target="<?=$this->escapeHtmlAttr($exportFormat)?>Main" <? endif; ?>href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>?style=<?=$this->escapeHtmlAttr($exportFormat)?>" rel="nofollow"><?=$this->transEsc($this->export()->getLabelForFormat($exportFormat))?></a></li>
         <? endforeach; ?>
