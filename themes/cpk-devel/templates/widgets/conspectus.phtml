@@ -8,14 +8,14 @@
             <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
               <i class='fa fa-plus'> </i>&nbsp;&nbsp;
             </a>
-            <a href='/Search/Results?filter[]=conspectus_str_mv:"0/<?=$this->escapeHtml($category)?>/"' title='<?=$this->escapeHtml($category)?>' class='category-text' target='_blank'>
+            <a href='/Search/Results?filter[]=conspectus_str_mv:"0/<?=$this->escapeHtml($category)?>/"' title='<?=$this->escapeHtml($category)?>' class='category-text'>
               <?=$this->escapeHtml($category)?>
             </a>
             <div class='expanded-category hidden' style='padding-left: 40px;'>
     			<? foreach ($subCategories as $subCategory): ?>
     			<div class='subcategory'>
         			<a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'></a>
-        			<a href='/Search/Results?filter[]=conspectus_str_mv:"1/<?=$this->escapeHtml($category)?>/<?=$this->escapeHtml($subCategory)?>/"' title='<?=$this->escapeHtml($subCategory)?>' target='_blank'>
+        			<a href='/Search/Results?filter[]=conspectus_str_mv:"1/<?=$this->escapeHtml($category)?>/<?=$this->escapeHtml($subCategory)?>/"' title='<?=$this->escapeHtml($subCategory)?>'>
         				<?=$this->escapeHtml($subCategory)?>
         			</a>
             	</div>
