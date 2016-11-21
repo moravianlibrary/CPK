@@ -82,24 +82,6 @@ class SolrMarc extends ParentSolrMarc
     	return $field866;
     }
 
-    public function get773()
-    {
-    	$subfields = ['t', 'd', 'x', 'g', 'q', '9'];
-    	$field773 = [];
-    	foreach ($subfields as $subfield) {
-    		$field773[$subfield] = $this->getFieldArray('773', array($subfield));
-    	}
-
-    	$resultArray = [];
-    	foreach ($field773 as $subfieldKey => $subfieldValue) {
-    		foreach ($subfieldValue as $intKey => $value) {
-    			$resultArray[$intKey][$subfieldKey] = $value;
-    		}
-    	}
-
-    	return $resultArray;
-    }
-
     /**
      * Get field of 7xx
      *
@@ -131,6 +113,17 @@ class SolrMarc extends ParentSolrMarc
 
     	return $resultArray;
     }
+
+    public function getF773_display()
+    {
+        return isset($this->fields['f773_display']) ? $this->fields['f773_display'] : '';
+    }
+
+    public function getLink773_str()
+    {
+        return isset($this->fields['link773_str']) ? $this->fields['link773_str'] : [];
+    }
+
 
     protected function getAll996Subfields()
     {
