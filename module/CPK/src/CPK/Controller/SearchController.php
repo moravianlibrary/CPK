@@ -809,6 +809,15 @@ class SearchController extends SearchControllerBase
 	        $view->offlineFavoritesEnabled = (bool) $this->getConfig()->Site['offlineFavoritesEnabled'];
 	    }
 
+	    $facetConfig = $this->getConfig('facets');
+        $view->sfxesForLibraries = isset($facetConfig->SFXesForLibraries)
+    	    ? $facetConfig->SFXesForLibraries->toArray()
+    	    : [];
+
+	    $view->digitalLibrarieForLibraries = isset($facetConfig->DigitalLibrarieForLibraries)
+    	    ? $facetConfig->DigitalLibrarieForLibraries->toArray()
+    	    : [];
+
 	    return $view;
 	}
 
@@ -1246,7 +1255,16 @@ class SearchController extends SearchControllerBase
 	    $viewData['facetConfig'] = $this->getConfig('facets');
 
 	    //
+	    $facetConfig = $this->getConfig('facets');
+	    $viewData['sfxesForLibraries'] = isset($facetConfig->SFXesForLibraries)
+    	    ? $facetConfig->SFXesForLibraries->toArray()
+    	    : [];
 
+	    $viewData['digitalLibrarieForLibraries'] = isset($facetConfig->DigitalLibrarieForLibraries)
+    	    ? $facetConfig->DigitalLibrarieForLibraries->toArray()
+    	    : [];
+
+	    //
 	    $user = $this->getAuthManager()->isLoggedIn();
 
 	    $viewData['isLoggedIn'] = $user;
