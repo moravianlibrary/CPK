@@ -1246,11 +1246,11 @@ class SearchController extends SearchControllerBase
 
 	    //
 	    $facetConfig = $this->getConfig('facets');
-	    $view['sfxesForLibraries'] = isset($facetConfig->SFXesForLibraries)
+	    $viewData['sfxesForLibraries'] = isset($facetConfig->SFXesForLibraries)
     	    ? $facetConfig->SFXesForLibraries->toArray()
     	    : [];
 
-	    $view['digitalLibrarieForLibraries'] = isset($facetConfig->DigitalLibrarieForLibraries)
+	    $viewData['digitalLibrarieForLibraries'] = isset($facetConfig->DigitalLibrarieForLibraries)
     	    ? $facetConfig->DigitalLibrarieForLibraries->toArray()
     	    : [];
 
