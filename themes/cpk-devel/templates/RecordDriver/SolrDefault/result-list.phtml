@@ -131,11 +131,11 @@
 
       $digitalLibraries = array_merge(
           $digitalLibraries,
-          ($this->digitalLibrarieForLibraries[$source] !== 'null') ? explode(",", $this->sfxesForLibraries[$source]) : []
+          ($this->digitalLibrarieForLibraries[$source] !== 'null') ? explode(",", $this->digitalLibrarieForLibraries[$source]) : []
       );
   }
 
-  $prependTheseSources = array_merge($sfxes, $digitalLibraries, $institutionsFilters);
+  $prependTheseSources = array_unique(array_merge($sfxes, $digitalLibraries, $institutionsFilters));
 
   $prependedLibraries = [];
   if (count($foundRecords) && count($prependTheseSources)) {
