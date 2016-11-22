@@ -517,8 +517,8 @@ jQuery( document ).ready( function( $ ) {
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
 			window.history.pushState( stateObject, title, url );
-			//console.log( 'Pushing and replacing state: ' );
-			//console.log( stateObject );
+			console.log( 'Pushing and replacing state: ' );
+			console.log( stateObject );
 			window.history.replaceState( stateObject, title, url );
 		},
 		
