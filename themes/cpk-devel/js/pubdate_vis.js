@@ -118,7 +118,15 @@ function loadVis(facetFields, searchParams, baseURL, zooming) {
         placeholder.bind("plotselected", function (event, ranges) {
           var from = Math.floor(ranges.xaxis.from);
           var to = Math.ceil(ranges.xaxis.to);
-          location.href = val['removalURL'] + '&daterange[]=' + key + '&' + key + 'to=' + PadDigits(to,4) + '&' + key + 'from=' + PadDigits(from,4);
+
+          event.preventDefault();
+          $('#dateVisModal').modal('hide');
+          var extraData = {};
+          extraData['publishDatefrom'] = PadDigits(from,4);
+          extraData['publishDateto'] = PadDigits(to,4);
+          extraData['daterange'] = 'publishDate';
+
+          ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
         });
 
         if (hasFilter) {
