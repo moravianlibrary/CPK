@@ -258,11 +258,6 @@ class ShibbolethIdentityManager extends Shibboleth
 
             if (! $termsAgreed)
                 throw new TermsUnaccepted();
-
-                // Create new consolidation cookie so user can immediately connect new account
-            $createConsolidationCookie = true;
-        } else {
-            $createConsolidationCookie = false;
         }
 
         // Now we need to know if there is a request to connect two identities
@@ -368,8 +363,7 @@ class ShibbolethIdentityManager extends Shibboleth
             }
         }
 
-        if ($createConsolidationCookie)
-            $this->createConsolidationCookie($currentUser->id);
+        $this->createConsolidationCookie($currentUser->id);
 
         $this->setUserName($currentUser);
 
@@ -393,7 +387,10 @@ class ShibbolethIdentityManager extends Shibboleth
         $logoutEndpoint = $this->config->Shibboleth->logout;
 
         if (isset($logoutEndpoint) && ! empty($logoutEndpoint)) {
-            $url = $logoutEndpoint . '?return=' . urlencode($url);
+
+            $returnTo = urlencode($url);
+
+            $url = $logoutEndpoint . '?return=' . $returnTo;
         }
 
         // Send back the redirect URL (possibly modified):
