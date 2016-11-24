@@ -65,20 +65,21 @@
    **/
   function addUrlArrayParamsToJson($jsonVarName, $paramName, $index) {
       if ($index == 0) {
-          echo $jsonVarName."['$paramName.$index'] = [];";
+          echo $jsonVarName."['$paramName{$index}'] = [];";
       }
-      if (isset($_GET[$paramName.$index])) {
-          $paramValues = $this->escapeHtmlAttr($_GET[$paramName.$index]);
+      $fullParamName = $paramName.$index;
+      if (isset($_GET[$fullParamName])) {
+          $paramValues = $_GET[$fullParamName];
           if (is_array($paramValues)) {
               foreach ($paramValues as $value) {
-                  echo $jsonVarName."['$paramName.$index'].push( '$value' );\n";
+                  echo $jsonVarName."['".$paramName.$index."'].push( '".htmlspecialchars($value)."' );\n";
               }
           } else {
-              echo $jsonVarName."['$paramName.$index'].push( '$paramValues' );\n";
+              echo $jsonVarName."['".$paramName.$index."'].push( '".htmlspecialchars($paramValues)."' );\n";
           }
       }
       $index++;
-      if (isset($_GET[$paramName.$index])) {
+      if (isset($_GET[$fullParamName])) {
           addUrlArrayParamsToJson($jsonVarName, $paramName, $index);
       }
   }
@@ -95,7 +96,7 @@
    * @return      string
    **/
   function addUrlScalarParamsToJson($jsonVarName, $paramName, $defaultValue = '') {
-      $paramValue =(! empty($_GET[$paramName])) ? $this->escapeHtmlAttr($_GET[$paramName]) : $defaultValue;
+      $paramValue =(! empty($_GET[$paramName])) ? htmlspecialchars($_GET[$paramName]) : $defaultValue;
       echo $jsonVarName."['$paramName'] = '$paramValue';\n";
   }
 

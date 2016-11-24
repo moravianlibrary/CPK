@@ -126,8 +126,8 @@ jQuery( document ).ready( function( $ ) {
 				
 				data['searchTypeTemplate'] = 'basic';
 				
-				console.log( 'Data fromautocomplete: ' );
-				console.log( data );
+				//console.log( 'Data fromautocomplete: ' );
+				//console.log( data );
 				
 			} else {
 				/* If search started in advanced search, gather data from
@@ -156,12 +156,41 @@ jQuery( document ).ready( function( $ ) {
 
 			}
 			
-			var filters = [];
-			$( '.hidden-filter' ).each( function( index, element ) {
-				filters.push( $( element ).val() );
-			});
+			if (dataFromWindowHistory !== undefined) {
+				ADVSEARCH.removeAllFilters( false );
+				
+				var deCompressedFilters = LZString.decompressFromBase64( decodeURIComponent( data['filter'] ) );	
+				if ((deCompressedFilters != '') && (null != deCompressedFilters)) {
+					if (deCompressedFilters.indexOf( '|' ) > -1) {
+						deCompressedFilters = deCompressedFilters.split( "|" );
+					} else {
+						var onlyFilter = deCompressedFilters;
+						deCompressedFilters = [];
+						deCompressedFilters[0] = onlyFilter;
+					}
+				}
+				
+				if (null != deCompressedFilters) {
+					if (deCompressedFilters[0] != null) {
+						var html = '';
+						deCompressedFilters.forEach( function( filter ) {
+							html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + filter + "'>";
+						});
+						$( '#hiddenFacetFilters' ).append( html );
+					}
+					data['filter'] = deCompressedFilters;
+				}
+				
+			} else {
+				var filters = [];
+				$( '.hidden-filter' ).each( function( index, element ) {
+					filters.push( $( element ).val() );
+				});
+				
+				data['filter'] = filters;
+			}
 			
-			data['filter'] = filters;
+			
 			
 			if ( dataFromAutocomplete ) {
 				var tempData = queryStringToJson( dataFromAutocomplete.queryString );
@@ -253,20 +282,24 @@ jQuery( document ).ready( function( $ ) {
 			/* 
 			 * Live update url.
 			 */
-			console.log( 'Filters:' );
-			console.log( data['filter'] );	
 			
-			console.log( 'Filters as string:' );
-			var filtersAsString = data['filter'].join( '|' );
-			console.log( filtersAsString );
-			
-			console.log( 'Compressed filters:' );
-			var compressedFilters = encodeURIComponent( LZString.compressToBase64( filtersAsString ) );
-			console.log( compressedFilters );
-			
-			console.log( 'DeCompressed filters:' );
-			var deCompressedFilters = LZString.decompressFromBase64( decodeURIComponent( compressedFilters ) );
-			console.log( deCompressedFilters.split( "|" ) );
+			if (data['filter'][0] != null) {
+				//console.log( 'Filters:' );
+				//console.log( data['filter'] );	
+				
+				//console.log( 'Filters as string:' );
+				var filtersAsString = data['filter'].join( '|' );
+				//console.log( filtersAsString );
+				
+				//console.log( 'Compressed filters:' );
+				var compressedFilters = encodeURIComponent( LZString.compressToBase64( filtersAsString ) );
+				//console.log( compressedFilters );
+				
+				//console.log( 'DeCompressed filters:' );
+				var deCompressedFilters = LZString.decompressFromBase64( decodeURIComponent( compressedFilters ) );
+				//console.log( deCompressedFilters.split( "|" ) );
+				
+			}
 			
 			var dataForAjax = data;
 			
@@ -274,16 +307,17 @@ jQuery( document ).ready( function( $ ) {
 	    		data['filter'] = compressedFilters;
 			}
 			
-			console.log('dataForAjax now:');
-			console.log(dataForAjax)
+			//console.log('dataForAjax now:');
+			//console.log(dataForAjax)
 			
-			console.log('data now:');
-			console.log(data)
+			//console.log('data now:');
+			//console.log(data)
 			
     		if ( dataFromWindowHistory == undefined ) {
     			ADVSEARCH.updateUrl( data );
     		} else { // from history
     			ADVSEARCH.replaceUrl( data );
+    			reloadResults = true;
     		}
     		
     		/*
@@ -380,23 +414,23 @@ jQuery( document ).ready( function( $ ) {
 			        			$( '#keep-facets-enabled-checkbox' ).hide( 'blind', {}, 200 );
 			        		}
 			        		
-			        		console.log(' responseData.recordTotal: ');
-		        			console.log( responseData.recordTotal );
-		        			console.log(' Success happened ');
+			        		//console.log(' responseData.recordTotal: ');
+		        			//console.log( responseData.recordTotal );
+		        			//console.log(' Success happened ');
 			        		
 			        		/* Hide no results container when there is more than 0 results */
 			        		if ( responseData.recordTotal > 0 ) {
-			        			console.log(' responseData.recordTotal: ');
-			        			console.log( responseData.recordTotal );
-			        			console.log( 'Hide no resuls, show new results' );
+			        			//console.log(' responseData.recordTotal: ');
+			        			//console.log( responseData.recordTotal );
+			        			//console.log( 'Hide no resuls, show new results' );
 			        			$( '#no-results-container' ).hide( 'blind', {}, 200, function(){
 			        				$( this ).css( 'display', 'none' );
 			        			} );
 			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container' ).show( 'blind', {}, 500 );
 			        		} else {
-			        			console.log(' responseData.recordTotal: ');
-			        			console.log( responseData.recordTotal );
-			        			console.log( 'Show NO results' );
+			        			//console.log(' responseData.recordTotal: ');
+			        			//console.log( responseData.recordTotal );
+			        			//console.log( 'Show NO results' );
 			        			$( '#no-results-container strong' ).text( data.lookfor0[0] );
 			        			
 			        			$( '#no-results-container' ).show( 'blind', {}, 500 );
@@ -437,11 +471,11 @@ jQuery( document ).ready( function( $ ) {
 		            error: function ( xmlHttpRequest, status, error ) {
 		            	$( '#search-results-loader' ).remove();
 		            	console.error(xmlHttpRequest.responseText);
-		            	console.log(xmlHttpRequest);
+		            	//console.log(xmlHttpRequest);
 		            	console.error(status);
 		            	console.error(error);
-		            	console.log( 'Sent data: ' );
-		            	console.log( data );
+		            	//console.log( 'Sent data: ' );
+		            	//console.log( data );
 		            },
 		        });
     		}
@@ -517,8 +551,8 @@ jQuery( document ).ready( function( $ ) {
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
 			window.history.pushState( stateObject, title, url );
-			console.log( 'Pushing and replacing state: ' );
-			console.log( stateObject );
+			//console.log( 'Pushing and replacing state: ' );
+			//console.log( stateObject );
 			window.history.replaceState( stateObject, title, url );
 		},
 		
@@ -533,8 +567,8 @@ jQuery( document ).ready( function( $ ) {
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
 			window.history.replaceState( stateObject, title, url );
-			//console.log( 'Replacing state: ' );
-			//console.log( stateObject );
+			////console.log( 'Replacing state: ' );
+			////console.log( stateObject );
 		},
 		
 		/**
@@ -605,30 +639,30 @@ jQuery( document ).ready( function( $ ) {
 		 */
 		updateSearchTypeTemplates: function( data ) {
 			
-			//console.log( 'Data: ' );
-			//console.log( data );
+			////console.log( 'Data: ' );
+			////console.log( data );
 			
 			if ( (data.hasOwnProperty( 'lookfor1' ) ) || ( data.lookfor0.length > 1 )) {
 				/* Search was made in advanced search */
 				
 				/* Fill autocomplete search form */
-				//console.log( 'Filling autocomplete with' );
-				//console.log( data.lookfor0[0] );
+				////console.log( 'Filling autocomplete with' );
+				////console.log( data.lookfor0[0] );
 				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
 			} else {
 				/* Search was made in autocomplete */
 				
 				/* Fill adv. search form */
 				ADVSEARCH.clearAdvancedSearchTemplate();
-				//console.log( 'Clearing advanced search form' );
+				////console.log( 'Clearing advanced search form' );
 				
-				//console.log( 'Filling advanced search form with ' );
-				//console.log( data.lookfor0[0] );
+				////console.log( 'Filling advanced search form with ' );
+				////console.log( data.lookfor0[0] );
 				
 				$( '#query_0 .query-string' ).val( data.lookfor0[0] );
 				
-				//console.log( 'Filling autocomplete with' );
-				//console.log( data.lookfor0[0] );
+				////console.log( 'Filling autocomplete with' );
+				////console.log( data.lookfor0[0] );
 				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
 			}
 		},
@@ -639,14 +673,19 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( window ).bind( 'popstate', function() {
 		var currentState = history.state;
-		//console.log( 'POPing state: ' );
-		//console.log( currentState );
-		if (currentState.searchTypeTemplate) {
-			ADVSEARCH.updateSearchResults( currentState, undefined, currentState.searchTypeTemplate );
+		////console.log( 'POPing state: ' );
+		////console.log( currentState );
+		if (null != currentState) {
+			if (currentState.searchTypeTemplate) {
+				ADVSEARCH.updateSearchResults( currentState, undefined, currentState.searchTypeTemplate );
+			} else {
+				var currentUrl = window.location.href;
+				var searchTypeTemplate = getParameterByName( 'searchTypeTemplate', currentUrl );
+				ADVSEARCH.updateSearchResults( currentState, undefined, searchTypeTemplate );
+			}
 		} else {
-			var currentUrl = window.location.href;
-			var searchTypeTemplate = getParameterByName( 'searchTypeTemplate', currentUrl );
-			ADVSEARCH.updateSearchResults( currentState, undefined, searchTypeTemplate );
+			//console.warn( 'Current history state is NULL.' );
+			window.history.back();
 		}
 	});
 	
@@ -794,10 +833,10 @@ jQuery( document ).ready( function( $ ) {
 		$( "input[name='page']" ).val( '1' );
 		
 		if ( $( this ).hasClass( 'active' ) ) {
-			console.log( 'Removing facet filter.' );
+			//console.log( 'Removing facet filter.' );
 			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
 		} else {
-			console.log( 'Adding facet filter.' );
+			//console.log( 'Adding facet filter.' );
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
 	});
@@ -905,7 +944,7 @@ jQuery( document ).ready( function( $ ) {
 		var action = $( this ).attr( 'id' );
 		
 		if (action == 'add-to-saved-searches') {
-			console.log( 'Saving search.' );
+			//console.log( 'Saving search.' );
 			
 			var thisElement = this;
 			
@@ -923,7 +962,7 @@ jQuery( document ).ready( function( $ ) {
 	        		scrollToTop();
 	        		
 	        		if (response.status == 'OK') {
-	        			console.log('Search saved.');
+	        			//console.log('Search saved.');
 	        			var html = '<div class="alert alert-success"><a href="#" class="close closeFlashedMessage">×</a>'+VuFind.translate('search_save_success')+'</div>';
 	        			$( '#flashedMessage div' ).html( html );
 	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
@@ -947,7 +986,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 		
 		if (action == 'remove-from-saved-searches') {
-			console.log( 'Removing search.' );
+			//console.log( 'Removing search.' );
 			
 			var thisElement = this;
 			
@@ -965,7 +1004,7 @@ jQuery( document ).ready( function( $ ) {
 	        		scrollToTop();
 	        		
 	        		if (response.status == 'OK') {
-	        			console.log('Search removed.');
+	        			//console.log('Search removed.');
 	        			var html = '<div class="alert alert-success"><a href="#" class="close closeFlashedMessage">×</a>'+VuFind.translate('search_unsave_success')+'</div>';
 	        			$( '#flashedMessage div' ).html( html );
 	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
