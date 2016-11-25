@@ -166,7 +166,11 @@
 
                     <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
                         <script type="text/javascript">
-                            obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+                        obalky.display_authority_results(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? else: ?>
+                        obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? endif; ?>
                         </script>
                     <? endif;?>
                     <? if (! empty($formats)): ?>
