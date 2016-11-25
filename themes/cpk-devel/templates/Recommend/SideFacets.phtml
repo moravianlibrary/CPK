@@ -130,7 +130,7 @@ foreach ($queryParams as $key => $value) {
                     $newParams = array('type' => 'AllFields');
                     $filtered = array();
                     if (isset($urlParams['filter'])) {
-                        $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(urldecode($urlParams['filter'])));
+                        $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($urlParams['filter'])));
                         foreach ($decompressedFilters as $param) {
                             if (strpos($param, '~institution:') === 0) {
                                 continue;

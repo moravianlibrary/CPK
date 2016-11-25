@@ -15,3 +15,29 @@ $userAgent = isset($_SERVER['HTTP_USER_AGENT'])
     ? strtolower($_SERVER['HTTP_USER_AGENT'])
     : '';
 defined('USES_IE') || define('USES_IE', preg_match('/MSIE|Trident/i', $userAgent));
+
+/*
+ * This functions is used like standard urlencode,
+ * but insted of double encode, this creates url friedly string for
+ * base64 encoding/decoding.
+ *
+ * @param   string  $input
+ *
+ * @return  string
+ */
+function specialUrlEncode($input) {
+    return strtr($input, '+/=', '-_.');
+}
+
+/*
+ * This functions is used like standard urldecode,
+ * but insted of double decode, this creates url friedly string for
+ * base64 encoding/decoding.
+ *
+ * @param   string  $input
+ *
+ * @return  string
+ */
+function specialUrlDecode($input) {
+    return strtr($input, '-_.', '+/=');
+}

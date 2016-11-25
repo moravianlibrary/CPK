@@ -1,6 +1,6 @@
   <div class="col-md-4 widget">
     <div class='header'>
-      <? if ($this->widget->getShowAllRecordsLink()): $filter = urlencode(\LZCompressor\LZString::compressToBase64('inspiration:"'.$this->widget->getName().'"')); ?>
+      <? if ($this->widget->getShowAllRecordsLink()): $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('inspiration:"'.$this->widget->getName().'"')); ?>
         <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' title='<?=$this->translate('Show all')?>' style='color: #000;'>
           <h2><?=($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn()?></h2>
         </a>
@@ -62,7 +62,7 @@
         </div>
       </a>
       <? endforeach; ?>
-      <? if ($this->widget->getShowAllRecordsLink()): $filter = urlencode(\LZCompressor\LZString::compressToBase64('inspiration:"'.$this->widget->getName().'"')); ?>
+      <? if ($this->widget->getShowAllRecordsLink()): $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('inspiration:"'.$this->widget->getName().'"')); ?>
       <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' class="list-group-item clearfix" title='<?=$this->translate('Show all')?>'>
 	    <div class='row more-info'>
 	      <div class='col-sm-10'>

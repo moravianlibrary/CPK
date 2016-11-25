@@ -172,7 +172,7 @@ jQuery( document ).ready( function( $ ) {
 			if (dataFromWindowHistory !== undefined) {
 				ADVSEARCH.removeAllFilters( false );
 				
-				var deCompressedFilters = LZString.decompressFromBase64( decodeURIComponent( data['filter'] ) );	
+				var deCompressedFilters = LZString.decompressFromBase64( specialUrlDecode( data['filter'] ) );	
 				if ((deCompressedFilters != '') && (null != deCompressedFilters)) {
 					if (deCompressedFilters.indexOf( '|' ) > -1) {
 						deCompressedFilters = deCompressedFilters.split( "|" );
@@ -329,11 +329,11 @@ jQuery( document ).ready( function( $ ) {
 				//console.log( filtersAsString );
 				
 				//console.log( 'Compressed filters:' );
-				var compressedFilters = encodeURIComponent( LZString.compressToBase64( filtersAsString ) );
+				var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
 				//console.log( compressedFilters );
 				
 				//console.log( 'DeCompressed filters:' );
-				var deCompressedFilters = LZString.decompressFromBase64( decodeURIComponent( compressedFilters ) );
+				var deCompressedFilters = LZString.decompressFromBase64( specialUrlDecode( compressedFilters ) );
 				//console.log( deCompressedFilters.split( "|" ) );
 				
 			}
@@ -1186,6 +1186,43 @@ jQuery( document ).ready( function( $ ) {
   	    });
 
   	    return JSON.parse( JSON.stringify( results ) );
+  	};
+  	
+  	var replaceAll = function ( str, find, replace ) {
+  	  return str.replace( new RegExp( (find+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&") , 'g' ), replace );
+  	};
+  	
+  	/**
+  	 * This functions is used like standard php's urlencode,
+  	 * but insted of double encode, this creates url friedly string for
+  	 * base64 encoding/decoding.
+  	 *
+  	 * @param   {string } input
+  	 *
+  	 * @return  {string}
+  	 */
+  	var specialUrlEncode = function( input ) {
+  		var output = replaceAll( input, '+', '-' );
+  		var output = replaceAll( output, '/', '_' );
+  		var output = replaceAll( output, '=', '.' );
+  		return output;
+  	};
+  	
+  	
+  	/**
+  	 * This functions is used like standard php's urldecode,
+  	 * but insted of double decode, this creates url friedly string for
+  	 * base64 encoding/decoding.
+  	 *
+  	 * @param   {string } input
+  	 *
+  	 * @return  {string}
+  	 */
+  	var specialUrlDecode = function( input ) {
+  		var output = replaceAll( input, '-', '+' );
+  		var output = replaceAll( output, '_', '/' );
+  		var output = replaceAll( output, '.', '=' );
+  		return output;
   	};
   	
   	/**

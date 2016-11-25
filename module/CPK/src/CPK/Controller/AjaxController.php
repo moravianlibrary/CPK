@@ -1944,7 +1944,7 @@ class AjaxController extends AjaxControllerBase
         $params = $results->getParams();
         $params->addFacet($facet, null, $operator === 'OR');
         $requestQuery = $this->getRequest()->getQuery();
-        $requestQuery['filter'] = explode("|", \LZCompressor\LZString::decompressFromBase64(urldecode($requestQuery['filter'])));
+        $requestQuery['filter'] = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($requestQuery['filter'])));
         if( empty($requestQuery['filter'][0])) {
             unset($requestQuery['filter']);
         }

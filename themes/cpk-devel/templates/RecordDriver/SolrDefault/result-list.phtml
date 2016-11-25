@@ -111,7 +111,7 @@
   $institutionsFilters = [];
   if (isset($_GET['filter']) || isset($_POST['filter'])) {
       $paramFilter = isset($_GET['filter']) ? $_GET['filter'] : $_POST['filter'];
-      $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(urldecode($paramFilter)));
+      $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($paramFilter)));
       foreach ($decompressedFilters as $key => $value) {
           $explodedArray = explode('/', trim($value, '"'));
           $index = ((count($explodedArray)-2) < 0) ? 0 : (count($explodedArray)-2);
@@ -123,15 +123,19 @@
   $sfxes = [];
   $digitalLibraries = [];
   foreach ($institutionsFilters as $key => $source) {
-      $sfxes = array_merge(
-          $sfxes,
-          ($this->sfxesForLibraries[$source] !== 'null') ? explode(",", $this->sfxesForLibraries[$source]) : []
-      );
+      if (isset($this->sfxesForLibraries[$source])) {
+          $sfxes = array_merge(
+              $sfxes,
+              ($this->sfxesForLibraries[$source] !== 'null') ? explode(",", $this->sfxesForLibraries[$source]) : []
+          );
+      }
 
-      $digitalLibraries = array_merge(
-          $digitalLibraries,
-          ($this->digitalLibrarieForLibraries[$source] !== 'null') ? explode(",", $this->digitalLibrarieForLibraries[$source]) : []
-      );
+      if (isset($this->digitalLibrarieForLibraries[$source])) {
+          $digitalLibraries = array_merge(
+              $digitalLibraries,
+              ($this->digitalLibrarieForLibraries[$source] !== 'null') ? explode(",", $this->digitalLibrarieForLibraries[$source]) : []
+          );
+      }
   }
 
   $prependTheseSources = array_unique(array_merge($sfxes, $digitalLibraries, $institutionsFilters));
