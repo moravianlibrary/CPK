@@ -744,5 +744,6 @@ INSERT IGNORE INTO `system` (`key`) VALUES ('DOC_COUNT');
 UPDATE `system` SET `value` = '55' WHERE `key`='DB_VERSION';
 
 ALTER TABLE `system` DROP COLUMN `amount_of_sent_helps`;
+INSERT INTO `system` (`key`) VALUES ('SENT_HELPS');
 UPDATE `system` SET `value` = '56' WHERE `key`='DB_VERSION';
 
