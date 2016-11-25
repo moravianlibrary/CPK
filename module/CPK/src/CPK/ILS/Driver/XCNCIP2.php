@@ -592,14 +592,46 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $response = $this->sendRequest($request);
 
         $retVal = array();
-        $locations = $this->useXPath($response, 'LookupAgencyResponse/Ext/LocationName/LocationNameInstance');
+        if ($this->agency === 'ABG001') { // mkp
+            $retVal = $this->parseLocationsMkp($response);
+        }
+        if ($this->agency === 'UOG505') { // tre
+            $retVal = $this->parseLocationsKoha($response);
+        }
+        return $retVal;
+    }
 
+    private function parseLocationsMkp($response)
+    {
+        $retVal = array();
+        $locations = $this->useXPath($response, 'LookupAgencyResponse/Ext/LocationName/LocationNameInstance');
         foreach ($locations as $location) {
             $id = $this->useXPath($location, 'LocationNameLevel');
             $name = $this->useXPath($location, 'LocationNameValue');
             $address = $this->useXPath($location,
                     'Ext/PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
             if (empty($id)) continue;
+
+            $retVal[] = array(
+                'locationID' => empty($id) ? '' : (string) $id[0],
+                'locationDisplay' => empty($name) ? '' : (string) $name[0],
+                'locationAddress' => empty($address) ? '' : (string) $address[0]
+            );
+        }
+        return $retVal;
+    }
+
+    private function parseLocationsKoha($response)
+    {
+        $retVal = array();
+        $locations = $this->useXPath($response, 'LookupAgencyResponse/AgencyAddressInformation');
+        foreach ($locations as $location) {
+            $id = $this->useXPath($location, 'AgencyAddressRoleType');
+            $name = $this->useXPath($location, 'PhysicalAddress/UnstructuredAddress/UnstructuredAddressType');
+            $address = $this->useXPath($location,
+                    'PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
+            if (empty($id)) continue;
+            if (! empty($name) && (string) $name[0] == 'Newline-Delimited Text') continue;
 
             $retVal[] = array(
                 'locationID' => empty($id) ? '' : (string) $id[0],
