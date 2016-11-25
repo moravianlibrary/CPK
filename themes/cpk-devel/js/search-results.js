@@ -721,8 +721,8 @@ jQuery( document ).ready( function( $ ) {
 				ADVSEARCH.updateSearchResults( currentState, undefined, searchTypeTemplate );
 			}
 		} else {
-			//console.warn( 'Current history state is NULL.' );
-			window.history.back();
+			console.warn( 'Current history state is NULL.' );
+			//window.history.back();
 		}
 	});
 	
