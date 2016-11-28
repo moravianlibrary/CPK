@@ -130,7 +130,7 @@ foreach ($queryParams as $key => $value) {
                     $newParams = array('type' => 'AllFields');
                     $filtered = array();
                     if (isset($urlParams['filter'])) {
-                        $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(urldecode($urlParams['filter'])));
+                        $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($urlParams['filter'])));
                         foreach ($decompressedFilters as $param) {
                             if (strpos($param, '~institution:') === 0) {
                                 continue;
@@ -174,7 +174,6 @@ foreach ($queryParams as $key => $value) {
           $reversed = $this->layout()->rtl ? 'true' : 'false';
           ?>
           <div class="list-group-item">
-            <form action='' name="<?=$this->escapeHtmlAttr($title)?>Filter" id="<?=$this->escapeHtmlAttr($title)?>Filter">
               <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$title}:.*/"))?>
               <input type="hidden" name="<?=$this->escapeHtmlAttr($rangeFacets[$title]['type'])?>range[]" value="<?=$this->escapeHtmlAttr($title)?>"/>
               <div class="row">
@@ -183,22 +182,21 @@ foreach ($queryParams as $key => $value) {
                   <label for="<?=$this->escapeHtmlAttr($title)?>from">
                     <?=$this->transEsc('date_from')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=$low?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=$low?>" placeholder="<?=$min?>" <?=$extraInputAttribs?>/>
                 </div>
                 <div class="col-sm-6">
                   <label for="<?=$this->escapeHtmlAttr($title)?>to">
                     <?=$this->transEsc('date_to')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=$high?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=$high?>" placeholder="<?=$max?>" <?=$extraInputAttribs?>/>
                 </div>
               </div>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
                 <div class="slider-container"><input type="text" class="hidden" id="<?=$this->escapeHtmlAttr($title)?><?=$this->escapeHtml($rangeFacets[$title]['type'])?>Slider"/></div>
               <? endif; ?>
               <div style="text-align: center; margin-top: 10px;">
-                <input class="btn btn-default" type="submit" value="<?=$this->transEsc('Use filters')?>"/>
+                <button class="btn btn-default apply-facet-filter-range"><?=$this->transEsc('Use filters')?></button>
               </div>
-            </form>
           </div>
           <? if ($rangeFacets[$title]['type'] == 'date'): ?>
             <? $this->headScript()->appendFile('vendor/bootstrap-slider.js'); ?>

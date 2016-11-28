@@ -231,6 +231,25 @@ obalky.display_authority_thumbnail_cover_without_links = function (element, bibi
     });
 }
 
+obalky.display_authority_results = function (element, bibinfo, query) {
+    var multi = encodeURIComponent(JSON.stringify(bibinfo));
+    $(document).ready(function() {
+      var auth_id = bibinfo.auth_id;
+        $.getJSON( "/AJAX/JSON?method=getObalkyKnihAuthorityID", {id: auth_id}, function( data ) {
+            coverurl = data.data;
+            var img = new Image();
+            img.onload = function() {
+                if (obalky.imageIsLoaded(img)) {
+                    var href = obalky.coverTargetUrl(bibinfo);
+                    $(element).html("<div class='cover_thumbnail'><img align='left' width='100' src='" + img.src + "' alt='" + obalky.coverText + "'></div>");
+                }
+            }
+            img.src = coverurl;
+
+        });
+    });
+}
+
 obalky.display_summary = function (element, bibinfo) {
 	var multi = encodeURIComponent(JSON.stringify(bibinfo));
 	$(document).ready(function() {
