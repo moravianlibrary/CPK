@@ -1137,6 +1137,48 @@ jQuery( document ).ready( function( $ ) {
   	    return JSON.parse( JSON.stringify( results ) );
   	};
   	
+  	var replaceAll = function ( str, find, replace ) {
+  	  return str.replace( new RegExp( (find+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&") , 'g' ), replace );
+  	};
+  	
+  	/**
+  	 * This functions is used like standard php's urlencode,
+  	 * but insted of double encode, this creates url friedly string for
+  	 * base64 encoding/decoding.
+  	 *
+  	 * @param   {string } input
+  	 *
+  	 * @return  {string}
+  	 */
+  	var specialUrlEncode = function( input ) {
+  		if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+  			return '';
+  		}
+  		var output = replaceAll( input, '+', '-' );
+  		output = replaceAll( output, '/', '_' );
+  		output = replaceAll( output, '=', '.' );
+  		return output;
+  	};
+  	
+  	/**
+  	 * This functions is used like standard php's urldecode,
+  	 * but insted of double decode, this creates url friedly string for
+  	 * base64 encoding/decoding.
+  	 *
+  	 * @param   {string } input
+  	 *
+  	 * @return  {string}
+  	 */
+  	var specialUrlDecode = function( input ) {
+  		if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+  			return '';
+  		}
+  		var output = replaceAll( input, '-', '+' );
+  		output = replaceAll( output, '_', '/' );
+  		output = replaceAll( output, '.', '=' );
+  		return output;
+  	};
+  	
   	/**
   	 * Convert html entities to chars 
   	 * 
