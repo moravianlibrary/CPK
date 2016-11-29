@@ -941,9 +941,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $itemRestriction = $this->useXPath($itemInformation,
                     'ItemOptionalFields/ItemUseRestrictionType');
 
-            $label = $this->determineLabel($status);
-            $addLink = $this->isLinkAllowed($status, $itemRestriction);
-
             $locations = $this->useXPath($itemInformation, 'ItemOptionalFields/Location');
             foreach ($locations as $locElement) {
                 $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
@@ -956,6 +953,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     }
                 }
             }
+
+            $label = $this->determineLabel($status);
+            $addLink = $this->isLinkAllowed($status, $itemRestriction, $department);
 
             $retVal[] = array(
                 'id' => empty($bib_id) ? "" : (string) $bib_id[0],
@@ -1956,12 +1956,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * @param SimpleXMLElement $itemRestriction
      * @return boolean $addLink
      */
-    protected function isLinkAllowed($status, $itemRestriction) {
+    protected function isLinkAllowed($status, $itemRestriction, $department = null) {
         // Always show MKP's hold link, because it is hold for record, not item.
         if ($this->agency === 'ABG001') {
             return true;
         }
         if (! empty($this->hideHoldLinks)) {
+            return false;
+        }
+        if ($department == 'Podlesí') {
             return false;
         }
         $status = empty($status) ? '' : (string) $status[0];
