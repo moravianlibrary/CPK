@@ -652,6 +652,60 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         return [];
     }
 
+    public function getMyHistoryPage($patron, $page, $perPage)
+    {
+        if ($this->agency != 'UOG505') {
+            throw new ILSException('driver_no_history');
+        }
+
+        list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
+        $request = $this->requests->patronHistory($patron, $page, $perPage);
+        $response = $this->sendRequest($request);
+
+        $totalPages = $this->useXPath($response, 'LookupUserResponse/Ext/LoanedItemsHistory/LastPage');
+        $items = $this->useXPath($response, 'LookupUserResponse/Ext/LoanedItemsHistory/LoanedItem');
+        $inc = 0;
+
+        foreach ($items as $item) {
+
+            $inc++;
+            $title = $this->useXPath($item, 'Title');
+            $itemId = $this->useXPath($item, 'ItemId/ItemIdentifierValue');
+            $dueDate = $this->useXPath($item, 'DateDue');
+            $dueDate = $this->parseDate($dueDate);
+
+            $additRequest = $this->requests->lookupItem((string) $itemId[0], $patron);
+            try {
+                $additResponse = $this->sendRequest($additRequest);
+                $bib_id = $this->getFirstXPathMatchAsString($additResponse,
+                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+                if (empty($title)) {
+                    $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
+                }
+            } catch (ILSException $e) {
+            }
+
+            $historyPage[] = array(
+                'id' => empty($bib_id) ? '' : $bib_id,
+                'item_id' => empty($itemId) ? '' : (string) $itemId[0],
+                'barcode' => '',
+                'title' => empty($title) ? $this->translator->translate('unknown_title') : (string) $title[0],
+                'author' => '',
+                'reqnum' => '',
+                'loandate' => '',
+                'duedate' => empty($dueDate) ? '' : $dueDate,
+                'returned' => '',
+                'publicationYear' => '',
+                'rowNo' => ($page - 1) * $perPage + $inc,
+            );
+        }
+
+        return [
+            'historyPage' => empty($historyPage) ? [] : $historyPage,
+            'totalPages' => empty($totalPages) ? 0 : (int) $totalPages[0],
+        ];
+    }
+
     /**
      * Get Status
      *
