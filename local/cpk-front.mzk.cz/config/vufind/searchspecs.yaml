@@ -183,10 +183,8 @@ ISN:
   QueryFields:
     issn:
       - [and, 100]
-      - [or, ~]
     isbn:
       - [and, 100]
-      - [or, ~]
 
 Subject:
   DismaxFields:
@@ -204,30 +202,23 @@ Subject:
     topic_unstemmed:
       - [onephrase, 350]
       - [and, 150]
-      - [or, ~]
     topic:
       - [onephrase, 300]
       - [and, 100]
-      - [or, ~]
     geographic:
       - [onephrase, 300]
       - [and, 100]
-      - [or, ~]
     genre:
       - [onephrase, 300]
       - [and, 100]
-      - [or, ~]
     era:
       - [and, 100]
-      - [or, ~]
     subject_viz:
       - [onephrase, 200]
       - [and, 100]
-      - [or, ~]
     genre_viz:
       - [onephrase, 200]
       - [and, 100]
-      - [or, ~]
 Inspiration:
   DismaxFields:
     - inspiration
@@ -317,11 +308,9 @@ Series:
     series:
       - [onephrase, 500]
       - [and, 200]
-      - [or, 100]
     series2:
       - [onephrase, 50]
       - [and, 50]
-      - [or, ~]
 
 AllFields:
   DismaxFields:
@@ -412,13 +401,13 @@ AllFields:
     genre_viz:
       - [onephrase, 200]
     allfields_unstemmed:
-      - [or, 10]
+      - [and, 10]
     fulltext_unstemmed:
-      - [or, 10]
+      - [and, 10]
     allfields:
-      - [or, ~]
+      - [and, ~]
     fulltext:
-      - [or, ~]
+      - [and, ~]
     toc_txt_mv:
       - [onephrase, ~]
     isbn:
@@ -455,7 +444,6 @@ adv_search_title_series:
     titleSeries_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_author_corporation:
   QueryFields:
@@ -474,84 +462,70 @@ adv_search_subject_keywords:
     subjectKeywords_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
     subject_viz:
       - [onephrase, 50]
       - [and, 20]
-      - [or, ~]
     genre_viz:
       - [onephrase, 50]
       - [and, 20]
-      - [or, ~]
       
 adv_search_source_title:
   QueryFields:
     sourceTitle_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_isbn_issn_ismn:
   QueryFields:
     issnIsbnIsmn_search_str_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_call_number:
   QueryFields:
     callNumber_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_publisher:
   QueryFields:
     publisher_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_year_of_publication:
   QueryFields:
     publishDate:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_place_of_publication:
   QueryFields:
     placeOfPublication_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_001:
   QueryFields:
     id001_search:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
     id_authority:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
 
 adv_search_nbn:
   QueryFields:
     cnb_search_str:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
       
 adv_search_fulltext:
   QueryFields:
     fulltext:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
     toc_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
   
