@@ -266,19 +266,30 @@ jQuery( document ).ready( function( $ ) {
 					data['page'] = page;
 				}
 				
-				if (! data.hasOwnProperty( 'publishDatefrom' )) {
-					var publishDatefrom = $( "input[name='publishDatefrom']" ).val();
-					data['publishDatefrom'] = publishDatefrom;
-				}
 				
-				if (! data.hasOwnProperty( 'publishDateto' )) {
-					var publishDateto = $( "input[name='publishDateto']" ).val();
-					data['publishDateto'] = publishDateto;
-				}
+				var isSetDateRange = false;
+				data['filter'].forEach( function( filter ) {
+					if (filter.indexOf('daterange') !== -1) {
+						isSetDateRange = true;
+						return false;
+					}
+				});
 				
-				if (! data.hasOwnProperty( 'daterange' )) {
-					var daterange = $( "input[name='daterange']" ).val();
-					data['daterange'] = daterange;
+				if (isSetDateRange) {
+					if (! data.hasOwnProperty( 'publishDatefrom' )) {
+						var publishDatefrom = $( "input[name='publishDatefrom']" ).val();
+						data['publishDatefrom'] = publishDatefrom;
+					}
+					
+					if (! data.hasOwnProperty( 'publishDateto' )) {
+						var publishDateto = $( "input[name='publishDateto']" ).val();
+						data['publishDateto'] = publishDateto;
+					}
+					
+					if (! data.hasOwnProperty( 'daterange' )) {
+						var daterange = $( "input[name='daterange']" ).val();
+						data['daterange'] = daterange;
+					}
 				}
 			}
 			
@@ -552,14 +563,26 @@ jQuery( document ).ready( function( $ ) {
 		 * @return	{undefined}
 		 */
 		removeFacetFilter: function( value, updateResults ) {
+			
+			var extraData = {};
 			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
 					$( this ).remove();
 				}
+				
+				/* Special if, for publishDate */
+			    var substring = "publishDate";
+			    if ( value.includes(substring) && $( element ).val().includes(substring) ) {
+			    	$( this ).remove();
+			    	extraData['daterange'] = '';
+			    	extraData['publishDatefrom'] = '';
+					extraData['publishDateto'] = '';
+			    }
+			    /**/
 			});
 			
 			if ( updateResults ) {
-				ADVSEARCH.updateSearchResults( undefined, undefined );
+				ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
 			}
 		},
 		
@@ -961,6 +984,9 @@ jQuery( document ).ready( function( $ ) {
 		extraData['publishDatefrom'] = $( '#publishDatefrom' ).val();
 		extraData['publishDateto'] = $( '#publishDateto' ).val();
 		extraData['daterange'] = 'publishDate';
+		
+		var value = 'publishDate:"['+extraData['publishDatefrom']+' TO '+extraData['publishDateto']+']"';
+		ADVSEARCH.addFacetFilter(value, false);
 		
 		ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
 	});
