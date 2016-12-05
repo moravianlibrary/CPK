@@ -1202,12 +1202,14 @@ jQuery( document ).ready( function( $ ) {
   	 * @return  {string}
   	 */
   	var specialUrlEncode = function( input ) {
+  		if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+  			return '';
+  		}
   		var output = replaceAll( input, '+', '-' );
-  		var output = replaceAll( output, '/', '_' );
-  		var output = replaceAll( output, '=', '.' );
+  		output = replaceAll( output, '/', '_' );
+  		output = replaceAll( output, '=', '.' );
   		return output;
   	};
-  	
   	
   	/**
   	 * This functions is used like standard php's urldecode,
@@ -1219,9 +1221,12 @@ jQuery( document ).ready( function( $ ) {
   	 * @return  {string}
   	 */
   	var specialUrlDecode = function( input ) {
+  		if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+  			return '';
+  		}
   		var output = replaceAll( input, '-', '+' );
-  		var output = replaceAll( output, '_', '/' );
-  		var output = replaceAll( output, '.', '=' );
+  		output = replaceAll( output, '_', '/' );
+  		output = replaceAll( output, '.', '=' );
   		return output;
   	};
   	
