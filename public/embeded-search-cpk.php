@@ -1,0 +1,40 @@
+<?php
+    include_once(__DIR__."/../themes/cpk-devel/templates/portal/embeded-search-cpk.phtml");
+    exit();
+?>
+
+<!-- Usage example
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Knihovny.cz</title>
+    <style type="text/css">
+    body {
+        margin: 0 !important;
+        width: 100%;
+    }
+    </style>
+  </head>
+  <body>
+    <iframe
+		allowfullscreen="true"
+		webkitallowfullscreen="true"
+		mozallowfullscreen="true"
+		oallowfullscreen="true"
+		msallowfullscreen="true"
+		frameborder="0"
+		scrolling="no"
+		marginheight="0"
+		marginwidth="0"
+		width="400"
+        height="100"
+        src="https://beta.knihovny.cz/embeded-search-cpk.php">
+    </iframe>
+  </body>
+</html>
+-->
