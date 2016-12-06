@@ -722,6 +722,11 @@ class AjaxController extends AjaxControllerBase
 
             $result['obalky'] = $obalky;
 
+            if (empty($result['historyPage'])) {
+                $result['html'] = $renderer->render('myresearch/no-history.phtml');
+                $result['source'] = $hasPermissions['home_library'];
+            }
+
             return $this->output($result, self::STATUS_OK);
         } else
             return $this->output([

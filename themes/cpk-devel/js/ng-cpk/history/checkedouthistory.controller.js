@@ -141,7 +141,12 @@
 			
 			// Cache the answer ..
 			pagesCache[cacheIndex] = response.data;
-		        
+			
+			if (typeof response.data.html !== 'undefined' && typeof response.data.source !== 'undefined') {
+			    $('div#' + response.data.source).html(response.data.html);
+			    return;
+            }
+
 			return resolve(response.data);
 		    } else {
 			return reject(response.data);

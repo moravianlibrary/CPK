@@ -68,7 +68,8 @@ $this->jsTranslations()->addStrings(array(
       <h3 class="well row blickable" style="margin-bottom: 3px;" id="<?=$source?>">
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
-      <label style="padding-right: 40px;" class="dropdown-select-label pull-right">
+      <!-- The next label contains select box with items per page. It is lame, so it is hidden now. -->
+      <label style="padding-right: 40px;" class="dropdown-select-label pull-right hidden">
       <select data-ng-pages-count="<?=$libraryIdentity['cat_username']?>" data-ng-model="historyCtrl.perPage" data-ng-change="historyCtrl.perPageUpdated()" class="jumpMenu form-control dropdown-select hidden" style="margin-right: -12px;">
         <option value="10" selected="selected">10 <?=$this->translate('records-in-genitive') ?></option>
         <option value="50">50 <?=$this->translate('records-in-genitive') ?></option>
@@ -78,7 +79,7 @@ $this->jsTranslations()->addStrings(array(
       </h3>
       <div data-ng-history-item data-ng-repeat="resource in historyCtrl.historyPage">
       </div>
-      <div data-ng-history-username="<?=$libraryIdentity['cat_username']?>" class="row well text-center" style="margin-bottom: 2px;">
+      <div data-ng-history-username="<?=$libraryIdentity['cat_username']?>" id="<?=$libraryIdentity['home_library']?>" class="row well" style="margin-bottom: 2px;">
         <i class="fa fa-spinner fa-spin"></i>
         <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
       </div>
