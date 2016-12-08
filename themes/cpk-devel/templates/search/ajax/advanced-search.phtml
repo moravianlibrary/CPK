@@ -10,6 +10,24 @@
         <div class='row'>
           <div class='col-md-12 scrollable-search-panel-options'>
     	    <a href="#" class='search-type-template-switch'><?=$this->translate("Basic Search")?></a>
+    	    <? if($this->searchResults): ?>
+              <span class="save-advanced-search-results">
+              <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
+                  <? if (is_numeric($this->results->getSearchId())): ?>
+                      <? if ($this->results->isSavedSearch()): ?>
+                          <a class="save-search-link" id='remove-from-saved-searches' data-search-id='<?=urlencode($this->results->getSearchId())?>' title='<?=$this->translate('Delete saved search')?>'>
+                              <?=$this->translate('Delete saved search')?>
+                          </a>
+                      <? else: ?>
+                          <a class="save-search-link" id='add-to-saved-searches' data-search-id='<?=urlencode($this->results->getSearchId())?>' title='<?=$this->translate('Save search')?>'>
+                              <i class="pr-web-downloadarrow"></i>
+                              <span><?=$this->translate('Save search')?></span>
+                          </a>
+                      <? endif; ?>
+                  <? endif; ?>
+              <? endif; ?>
+              </span>
+         	<? endif; ?>
           </div>
         </div>
 
