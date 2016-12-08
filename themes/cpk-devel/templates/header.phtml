@@ -110,8 +110,8 @@
         <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
           <? if(! $user): ?>
 			<li id="loginOptions">
-              <?=$this->render('Auth/Shibboleth/login.phtml') ?>
-              <?= $this->help()->getQuestionMarkHelp('login') ?>
+               <?=$this->render('Auth/Shibboleth/login.phtml') ?>
+               <?= $this->help()->getQuestionMarkHelp('login') ?>
             </li>
           <? endif; ?>
 		<? endif; ?>
