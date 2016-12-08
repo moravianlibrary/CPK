@@ -12,9 +12,16 @@
 
     function align(input, element) {
       var offset = input[0].getBoundingClientRect();
-      var scrollTop = document.documentElement
-        ? document.documentElement.scrollTop
-        : document.body.scrollTop;
+      var scrollTop;
+      if (document.documentElement) {
+        if (document.documentElement.scrollTop != 0) {
+          scrollTop = document.documentElement.scrollTop;
+        } else {
+          scrollTop = document.body.scrollTop;
+        }
+      } else {
+        scrollTop = document.body.scrollTop;
+      }
       element.css({
         position: 'absolute',
         top: offset.top + offset.height + scrollTop,
