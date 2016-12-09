@@ -284,8 +284,9 @@ jQuery( document ).ready( function( $ ) {
 		        		// Disable submit button until ajax finishes
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
 		        		
-	        		    	// Let another applications know we are loading new results ..
-	        		        window.dispatchEvent(new CustomEvent('searchResultsLoading'));
+        		    	// Let another applications know we are loading new results ..
+		        		var event = document.createEvent("CustomEvent");
+		        		event.initCustomEvent('searchResultsLoading', false, false, {});
 		        	},
 		        	success: function( response ) {
 		        		
@@ -363,7 +364,8 @@ jQuery( document ).ready( function( $ ) {
 			        		}
 
 		        		    	// Let another applications know we have loaded new results ..
-		        		        window.dispatchEvent(new CustomEvent('searchResultsLoaded'));
+		        		        var event = document.createEvent("CustomEvent");
+				        		event.initCustomEvent('searchResultsLoaded', false, false, {});
 			        		
 		        		} else {
 		        			console.error(response.data);
