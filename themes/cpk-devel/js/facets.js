@@ -428,7 +428,7 @@ jQuery( document ).ready( function( $ ) {
     /*
      * Shake button on institution facet change
      */
-    $( '#facet_institution' ).on( 'click', '.jstree-checkbox, .jstree-anchor', function( event ) {
+    $( 'body' ).on( 'click', '.jstree-checkbox, .jstree-anchor', function( event ) {
     	$( '.institution-facet-filter-button' ).parent().effect( 'shake', {times:3, distance: 3, direction: 'right'}, 200 );
     });
     
