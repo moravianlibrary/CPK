@@ -82,6 +82,18 @@
         </tr>
       <? endforeach; ?>
       </table>
+
+      <div class="col-xs-12">
+       <div class="btn-group pull-right">
+         <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-top:20px;" href="#"><?=$this->transEsc("delete-user-account")?></a>
+        </a>
+        <ul class="dropdown-menu">
+         <pre><?=$this->transEsc('delete-user-account-confirm') ?></pre>
+         <li><a href="<?=$this->url('myresearch-userdelete') ?>?confirm=1"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
+         <li><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
+        </ul>
+       </div>
+      </div>
     <? endif; ?>
   </div>
 
@@ -95,6 +107,13 @@
     <div class="modal fade" id="userConnectModal" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content" data-ng-controller="FederativeLoginController as fedLoginCtrl">
+          <div class="modal-header">
+		    <? $consolidationWarning = $this->portalPages()->getPage('identities-consolidation-warning', explode("-", $this->layout()->userLang)[0]); ?>
+		    <h4 class="modal-title"><?=$consolidationWarning['title']?></h4>
+		  </div>
+		  <div class="modal-body">
+		    <?=$consolidationWarning['content'] ?>
+		  </div>
           <div class="modal-header link" data-ng-click="fedLoginCtrl.showHelpContent()" style="cursor: pointer">
 		    <? $portalPage = $this->portalPages()->getPage('napoveda-pro-prihlaseni-a-registraci', explode("-", $this->layout()->userLang)[0]); ?>
 		    <h4 class="modal-title"><?=$portalPage['title']?></h4>

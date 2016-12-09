@@ -247,6 +247,9 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($status['department']))
                     $itemsStatuses[$id]['department'] = $status['department'];
 
+                if (! empty($status['location']))
+                    $itemsStatuses[$id]['location'] = $status['location'];
+
                 $key = array_search(trim($unescId), $ids);
 
                 if ($key !== false) {
@@ -719,6 +722,11 @@ class AjaxController extends AjaxControllerBase
 
             $result['obalky'] = $obalky;
 
+            if (empty($result['historyPage'])) {
+                $result['html'] = $renderer->render('myresearch/no-history.phtml');
+                $result['source'] = $hasPermissions['home_library'];
+            }
+
             return $this->output($result, self::STATUS_OK);
         } else
             return $this->output([
@@ -960,7 +968,10 @@ class AjaxController extends AjaxControllerBase
         // obalky
         $bookid = $this->params()->fromPost('obalkyknihbookid');
         // //////////////////////////////////////////
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/?add_review=true');
+        $cacheUrl = !isset($this->getConfig()->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->getConfig()->ObalkyKnih->cacheUrl;
+        $addReviewUrl = $cacheUrl . "/?add_review=true";
+        $client = new \Zend\Http\Client($addReviewUrl);
         $client->setMethod('POST');
         $client->setParameterGet(
             array(
@@ -1668,12 +1679,20 @@ class AjaxController extends AjaxControllerBase
 
             $geoData = json_decode($geocode, true);
 
-            foreach ($geoData['results'][0]['address_components'] as $key => $array) {
-                foreach($array['types'] as $type) {
-                    if($type == 'administrative_area_level_1') {
-                        $region = $geoData['results'][0]['address_components'][$key]['long_name'];
+            $region = null;
+
+            foreach ($geoData['results'] as $index => $data) {
+                foreach ($data['address_components'] as $key => $array) {
+                    foreach ($array['types'] as $type) {
+                        if ($type == 'administrative_area_level_1') {
+                            $region = $data['address_components'][$key]['long_name'];
+                        }
                     }
                 }
+            }
+
+            if (is_null($region)) {
+                throw new \Exception('Region not found.');
             }
 
             $librariesGeolocationsTable = $this->getTable("librariesgeolocations");
@@ -1721,4 +1740,239 @@ class AjaxController extends AjaxControllerBase
 
 	    return $childrenIds;
 	}
+
+    public function getObalkyKnihAuthorityIDAjax()
+    {
+        $id = $this->params()->fromQuery('id');
+        $obalky = $this->getAuthorityFromObalkyKnih($id);
+        $coverUrl = empty($obalky[0]['cover_medium_url']) ? '' : $obalky[0]['cover_medium_url'];
+        $coverUrl = str_replace('http://', 'https://', $coverUrl);
+        return $this->output($coverUrl, self::STATUS_OK);
+
+    }
+
+    private function getAuthorityFromObalkyKnih($id)
+    {
+        if (! isset($this->obalky)) {
+
+            $auth_id = $id;
+
+            if (! empty($auth_id)) {
+                try {
+                    $cacheUrl = !isset($this->getConfig()->ObalkyKnih->cacheUrl)
+                        ? 'https://cache.obalkyknih.cz' : $this->getConfig()->ObalkyKnih->cacheUrl;
+                    $metaUrl = $cacheUrl . "/api/auth/meta";
+                    $client = new \Zend\Http\Client($metaUrl);
+                    $client->setParameterGet(array(
+                        'auth_id' => $auth_id
+                    ));
+
+                    $response = $client->send();
+                    $responseBody = $response->getBody();
+                    $phpResponse = json_decode($responseBody, true);
+                    $this->obalky = empty($phpResponse) ? null : $phpResponse;
+                }
+                catch (TimeoutException $e) {
+                    $this->obalky = null;
+                }
+            }
+            else {
+                $this->obalky = null;
+            }
+        }
+        return $this->obalky;
+    }
+
+
+    /**
+     * Get an array of summary strings for the record.
+     *
+     * @return string
+     */
+    private function getSummaryObalkyKnih($isbnArray)
+    {
+        $isbnJson = json_encode($isbnArray);
+
+        $cacheUrl = !isset($this->getConfig()->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->getConfig()->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
+        $client->setParameterGet(array(
+            'multi' => '[' . $isbnJson . ']'
+        ));
+
+        try {
+            $response = $client->send();
+        } catch (\Exception $ex) {
+            return null; // TODO what to do when server is not responding
+        }
+
+
+        $responseBody = $response->getBody();
+
+        $phpResponse = json_decode($responseBody, true);
+
+        if (isset($phpResponse[0]['annotation'])) {
+
+            if ($phpResponse[0]['annotation']['html'] == null)
+                return null;
+
+            $anothtml = $phpResponse[0]['annotation']['html'];
+            //obalky knih sends annotation html escaped, we have convert it to string, to be able to escape it
+            $anot = htmlspecialchars_decode($anothtml);
+
+            $source = $phpResponse[0]['annotation']['source'];
+
+            return $anot . " - " . $source;
+        }
+        return null;
+    }
+
+
+    public function getSummaryObalkyKnihAjax()
+    {
+        $bibinfo = $this->params()->fromQuery('bibinfo');
+
+        $annotation = $this->getSummaryObalkyKnih($bibinfo);
+
+        $html = $this->getViewRenderer()->render(
+            'RecordDriver/SolrDefault/summary-full.phtml',
+            [
+                'annotation' => $annotation
+            ]);
+        return $this->output($html, self::STATUS_OK);
+    }
+    public function getSummaryShortObalkyKnihAjax()
+    {
+        $bibinfo = $this->params()->fromQuery('bibinfo');
+
+        $annotation = $this->getSummaryObalkyKnih($bibinfo);
+
+        $html = $this->getViewRenderer()->render(
+            'RecordDriver/SolrDefault/summary-short.phtml',
+            [
+                'annotation' => $annotation
+            ]);
+        return $this->output($html, self::STATUS_OK);
+    }
+
+
+
+    /**
+     * Save search
+     *
+     * @return \Zend\Http\Response
+     */
+    public function saveSearchAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $searchId = $postParams['searchId'];
+
+        // Fail if saved searches are disabled.
+        $check = $this->getServiceLocator()->get('VuFind\AccountCapabilities');
+        if ($check->getSavedSearchSetting() === 'disabled') {
+            return $this->output(['Saved searches disabled.'], self::STATUS_ERROR);
+        }
+
+        try {
+            $user = $this->getUser();
+            if ($user == false) {
+                //return $this->forceLogin();
+                return $this->forwardTo('MyResearch', 'Login');
+            }
+
+            $search = $this->getTable('Search');
+            if (($id = $this->params()->fromPost('searchId', false)) !== false) {
+                $search->setSavedFlag($id, true, $user->id);
+            } else {
+                return $this->output(['Missing searchId for save search action.'], self::STATUS_ERROR);
+            }
+        } catch (\Exception $e) {
+            return $this->output([$e->getMessage()], self::STATUS_ERROR);
+        }
+        return $this->output([], self::STATUS_OK);
+    }
+
+    /**
+     * Remove search
+     *
+     * @return \Zend\Http\Response
+     */
+    public function removeSearchAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $searchId = $postParams['searchId'];
+
+        // Fail if saved searches are disabled.
+        $check = $this->getServiceLocator()->get('VuFind\AccountCapabilities');
+        if ($check->getSavedSearchSetting() === 'disabled') {
+            throw new \Exception('Saved searches disabled.');
+        }
+
+        $user = $this->getUser();
+        if ($user == false) {
+            //return $this->forceLogin();
+            return $this->forwardTo('MyResearch', 'Login');
+        }
+
+        $search = $this->getTable('Search');
+        if (($id = $this->params()->fromPost('searchId', false)) !== false) {
+            $search->setSavedFlag($id, false);
+        } else {
+            throw new \Exception('Missing searchId for remove search action.');
+        }
+
+        return $this->output([], self::STATUS_OK);
+    }
+
+    /**
+     * Get hierarchical facet data for jsTree
+     *
+     * Parameters:
+     * facetName  The facet to retrieve
+     * facetSort  By default all facets are sorted by count. Two values are available
+     * for alternative sorting:
+     *   top = sort the top level alphabetically, rest by count
+     *   all = sort all levels alphabetically
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function getFacetDataAjax()
+    {
+        $this->writeSession();  // avoid session write timing bug
+
+        $facet = $this->params()->fromQuery('facetName');
+        $sort = $this->params()->fromQuery('facetSort');
+        $operator = $this->params()->fromQuery('facetOperator');
+
+        $results = $this->getResultsManager()->get('Solr');
+        $params = $results->getParams();
+        $params->addFacet($facet, null, $operator === 'OR');
+        $requestQuery = $this->getRequest()->getQuery();
+        $requestQuery['filter'] = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($requestQuery['filter'])));
+        if( empty($requestQuery['filter'][0])) {
+            unset($requestQuery['filter']);
+        }
+        $params->initFromRequest($requestQuery);
+
+        $facets = $results->getFullFieldFacets([$facet], false, -1, 'count');
+        if (empty($facets[$facet]['data']['list'])) {
+            return $this->output([], self::STATUS_OK);
+        }
+
+        $facetList = $facets[$facet]['data']['list'];
+
+        $facetHelper = $this->getServiceLocator()
+        ->get('VuFind\HierarchicalFacetHelper');
+        if (!empty($sort)) {
+            $facetHelper->sortFacetList($facetList, $sort == 'top');
+        }
+
+        return $this->output(
+            $facetHelper->buildFacetArray(
+                $facet, $facetList, $results->getUrlQuery()
+                ),
+            self::STATUS_OK
+        );
+    }
 }

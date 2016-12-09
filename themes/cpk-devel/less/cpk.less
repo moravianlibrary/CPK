@@ -18,7 +18,7 @@
 @import "elements/lato";
 @import "elements/pr-icons";
 
-#side-panel-institution {
+#side-panel-institution, #side-panel-local_statuses_facet_str_mv, #side-panel-conspectus_str_mv {
   @import "jstree/style";
 }
 
@@ -59,7 +59,7 @@ body {
   line-height: 1.875;
 }
 
-a.list-group-item .list-group-item-heading {
+a.list-group-item .list-group-item-heading, .infobox .list-group-item .list-group-item-heading {
   color: @brand-primary;
 }
 
@@ -187,7 +187,11 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
 .library-detail > h2 > i {
   color: lightgrey;
   margin-right: 10px;
-  margin-left: -30px;
+}
+
+.library-core #map {
+  margin-left: 10px;
+  margin-top: 30px;
 }
 
 .library-list i {

@@ -114,9 +114,7 @@ $this->headTitle($this->driver->getBreadcrumb());
         $rowNo ++;
 
         // Build holding ID to query ILS for status
-        if (isset($row['agency_id']) && isset($row['item_id']))
-            $itemId = $row['agency_id'] . ':' . $row['item_id'];
-        elseif (isset($row['item_id']))
+        if (isset($row['item_id']))
             $itemId = $row['item_id'];
         elseif (! empty($row['w_id']))
             $itemId = $row['w_id'];
@@ -204,7 +202,11 @@ $this->headTitle($this->driver->getBreadcrumb());
 			    data-type="department">
 				<div>
         <? if(!empty($row['department'])):?>
-          <?=$row['department']?>
+          <?
+            $translation = $this->transEsc($source . '_department_' . $row['department']);
+            $department = ($translation == $source . '_department_' . $row['department']) ? $row['department'] : $translation;
+          ?>
+          <?=$department?>
         <? endif; ?>
       </div>
 			</td>
@@ -212,11 +214,16 @@ $this->headTitle($this->driver->getBreadcrumb());
 			    data-type="collection">
 				<div>
         <? if(!empty($row['collection_desc'])):?>
-          <?=$row['collection_desc']?>
+          <?
+            $translation = $this->transEsc($source . '_collection_' . $row['collection_desc']);
+            $collection = ($translation == $source . '_collection_' . $row['collection_desc']) ? $row['collection_desc'] : $translation;
+          ?>
+          <?=$collection?>
         <? endif; ?>
       </div>
 			</td>
-			<td data-title="<?=$this->transEsc("location / second signature")?>">
+			<td data-title="<?=$this->transEsc("location / second signature")?>"
+			data-type="location">
       <?if (!empty($row['location'])):?>
         <?=$this->escapeHtml($row['location'])?>
       <?endif;?>

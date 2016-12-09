@@ -3,19 +3,24 @@
       <h2><?=$this->translate('Conspectus')?></h2>
     </div>
     <div class="list-group">
-	<? foreach ($conspectus as $category => $subCategories): ?>
+	<? foreach ($conspectus as $category => $subCategories):
+    	$baseUrl = "/Search/Results?lookfor0[]=&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=10&sort=relevance&keepEnabledFilters=true&filter=";
+    	$categoryUrl = $baseUrl.specialUrlEncode(\LZCompressor\LZString::compressToBase64('conspectus_str_mv:"0/'.$category.'/"'));
+	?>
           <div class='category list-group-item clearfix'>
             <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
               <i class='fa fa-plus'> </i>&nbsp;&nbsp;
             </a>
-            <a href='/Search/Results?filter[]=conspectus_str_mv:"0/<?=$this->escapeHtml($category)?>/"' title='<?=$this->escapeHtml($category)?>' class='category-text' target='_blank'>
+            <a href='<?=$categoryUrl?>' title='<?=$this->escapeHtml($category)?>' class='category-text'>
               <?=$this->escapeHtml($category)?>
             </a>
             <div class='expanded-category hidden' style='padding-left: 40px;'>
-    			<? foreach ($subCategories as $subCategory): ?>
+    			<? foreach ($subCategories as $subCategory):
+    			     $subCategoryUrl = $baseUrl.specialUrlEncode(\LZCompressor\LZString::compressToBase64('conspectus_str_mv:"1/'.$category.'/'.$subCategory.'/"'));
+    			?>
     			<div class='subcategory'>
         			<a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'></a>
-        			<a href='/Search/Results?filter[]=conspectus_str_mv:"1/<?=$this->escapeHtml($category)?>/<?=$this->escapeHtml($subCategory)?>/"' title='<?=$this->escapeHtml($subCategory)?>' target='_blank'>
+        			<a href='<?=$subCategoryUrl?>' title='<?=$this->escapeHtml($subCategory)?>'>
         				<?=$this->escapeHtml($subCategory)?>
         			</a>
             	</div>

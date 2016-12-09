@@ -461,6 +461,14 @@ class MyResearchController extends MyResearchControllerBase
                 $user = $this->getAuthManager()->consolidateIdentity();
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
+
+                // Stop now if the user does not have valid catalog credentials available:
+                if (! $user = $this->getAuthManager()->isLoggedIn()) {
+                    $this->flashExceptions($this->flashMessenger());
+                    return $this->forceLogin();
+                }
+
+                return $this->redirect()->toRoute('librarycards-home');
             }
 
             if ($user->consolidationSucceeded)
@@ -469,6 +477,32 @@ class MyResearchController extends MyResearchControllerBase
                 // Show user all his connected identities
             return $this->redirect()->toRoute('librarycards-home');
         }
+    }
+
+    /**
+     * Deletes user account if it is confirmed
+     *
+     * @return mixed|\Zend\Http\Response|\Zend\Http\Response
+     */
+    public function userDeleteAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        $confirm = $this->params()->fromPost('confirm', $this->params()
+            ->fromQuery('confirm'));
+
+        if ($confirm) {
+
+            $user->deleteAccout();
+            return $this->logoutAction();
+        }
+
+        $this->flashMessenger()->addErrorMessage($this->translate('delete-user-account-not-confirmed'));
+        return $this->redirect()->toRoute('librarycards-home');
     }
 
     /**

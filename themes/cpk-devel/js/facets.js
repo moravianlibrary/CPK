@@ -31,9 +31,26 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     var url = currentPath + this.href;
     // Just to be safe
     url.replace("'", "\\'");
-    html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "")
-    + (facetName != "local_institution_facet_str_mv" ? " facet-filter" : "") 
-    + "' title='" + htmlEncode(this.displayText) + "'>";
+    html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "");
+
+    if (facetName == "local_institution_facet_str_mv" ) {
+        html +="";
+    }
+    else {
+        if (facetName == "local_statuses_facet_str_mv" ) {
+            html += "";
+        }
+        else {
+            if (facetName == "conspectus_str_mv" ) {
+                html += "";
+            }
+            else {
+                html += " facet-filter";
+            }
+        }
+    }
+
+    html += "' title='" + htmlEncode(this.displayText) + "'>";
     if (this.operator == 'OR') {
       if (this.isApplied) {
         html += '<i class="fa fa-check-square-o"></i>';
@@ -50,19 +67,40 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     if (typeof this.children !== 'undefined' && this.children.length > 0) {
       children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
     }
-    json.push({
-      'id': facetFilter,
-      'text': html,
-      'children': children,
-      'applied': this.isApplied,
-      'state': {
-        'opened': this.hasAppliedChildren,
-        'selected': this.isApplied
-      },
-      'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
-      'a_attr': this.isApplied ? { 'class': 'active' } :
-          { 'href': window.location.href + "&filter%5B%5D=" + facetFilter },
-    });
+      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv") {
+          json.push({
+              'id': facetFilter,
+              'text': html,
+              'children': children,
+              'applied': this.isApplied,
+              'state': {
+                  'opened': this.hasAppliedChildren,
+                  'selected': this.isApplied
+              },
+              'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
+              'a_attr': this.isApplied ? { 'class': 'active facet-filter-or' } :
+              { 'href': window.location.href + "&filter%5B%5D=" + facetFilter ,
+                  'class' : 'facet-filter-or'
+              },
+          });
+      }
+      else {
+          json.push({
+              'id': facetFilter,
+              'text': html,
+              'children': children,
+              'applied': this.isApplied,
+              'state': {
+                  'opened': this.hasAppliedChildren,
+                  'selected': this.isApplied
+              },
+              'li_attr': (this.count == 0) ? {'class': 'emptyFacet'} : {},
+              'a_attr': this.isApplied ? {'class': 'active'} :
+              {
+                  'href': window.location.href + "&filter%5B%5D=" + facetFilter,
+              },
+          });
+      };
   });
 
   return json;
@@ -113,6 +151,59 @@ function initFacetTree(treeNode, inSidebar)
       }
     }
   );
+}
+
+function initFacetOrTree(treeNode, inSidebar)
+{
+    var loaded = treeNode.data('loaded');
+    if (loaded) {
+        return;
+    }
+    treeNode.data('loaded', true);
+
+    var facet = treeNode.data('facet');
+    var operator = treeNode.data('operator');
+    var currentPath = treeNode.data('path');
+    var allowExclude = treeNode.data('exclude');
+    var excludeTitle = treeNode.data('exclude-title');
+    var sort = treeNode.data('sort');
+    var query = window.location.href.split('?')[1];
+
+    if (inSidebar) {
+        treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
+    } else {
+        treeNode.prepend('<div><i class="fa fa-spinner fa-spin"></i><div>');
+    }
+    $.getJSON(VuFind.getPath() + '/AJAX/JSON?' + query,
+        {
+            method: "getFacetData",
+            facetName: facet,
+            facetSort: sort,
+            facetOperator: operator
+        },
+        function(response, textStatus) {
+            if (response.status == "OK") {
+                var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
+                treeNode.find('.fa-spinner').parent().remove();
+                if (inSidebar) {
+                    treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
+                        treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
+                    });
+                }
+                treeNode.jstree({
+                    'plugins': ["wholerow", "checkbox"],
+                    'core': {
+                        'data': results,
+                        'themes': {
+                            'name': 'proton',
+                            'responsive': true,
+                            "icons":false
+                        }
+                    }
+                });
+            }
+        }
+    );
 }
 
 

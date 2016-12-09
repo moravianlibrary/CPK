@@ -1128,7 +1128,7 @@ class AjaxController extends AbstractBase
         // output HTML encoded in JSON object
         return $this->output($html, self::STATUS_OK);
     }
-    
+
     /**
      * getFacetsAjax()
      *

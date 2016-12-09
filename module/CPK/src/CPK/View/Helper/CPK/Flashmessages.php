@@ -63,6 +63,7 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
                     $logoInstitution = null;
 
                 $html .= '<div class="row"><div class="' . $this->getClassForNamespace($ns) . '">';
+                //$html .= '<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>';
 
                 if (! empty($logoInstitution)) {
                     $imgSource = "<img class=\"logo-error\" src=\"$logoInstitution\" height=\"32\">";
@@ -114,7 +115,7 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
 
         public function getLogo($source)
         {
-            if (isset($this->idpLogos[$source]) 
+            if (isset($this->idpLogos[$source])
                 && $this->idpLogos[$source] !== null
             ) {
                 return $this->idpLogos[$source];

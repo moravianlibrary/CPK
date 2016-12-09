@@ -52,10 +52,62 @@
   // Enable bulk options if appropriate:
   $this->showBulkOptions = $this->params->getOptions()->supportsCart() && $this->showBulkOptions;
 
+  /*
+   * Add Url array params to JSON. This function will return JS.
+   *
+   * @FIXME       Move this function to helper.
+   *
+   * @param       $jsonVarName    string
+   * @param       $paramName      string
+   * @param       $index          int
+   *
+   * @return      string
+   **/
+  function addUrlArrayParamsToJson($jsonVarName, $paramName, $index) {
+      if ($index == 0) {
+          echo $jsonVarName."['$paramName{$index}'] = [];";
+      }
+      $fullParamName = $paramName.$index;
+      if (isset($_GET[$fullParamName])) {
+          $paramValues = $_GET[$fullParamName];
+          if (is_array($paramValues)) {
+              foreach ($paramValues as $value) {
+                  echo $jsonVarName."['".$paramName.$index."'].push( '".htmlspecialchars($value)."' );\n";
+              }
+          } else {
+              echo $jsonVarName."['".$paramName.$index."'].push( '".htmlspecialchars($paramValues)."' );\n";
+          }
+      }
+      $index++;
+      if (isset($_GET[$fullParamName])) {
+          addUrlArrayParamsToJson($jsonVarName, $paramName, $index);
+      }
+  }
+
+  /*
+   * Add Url scalar params to JSON. This function will return JS.
+   *
+   * @FIXME       Move this function to helper.
+   *
+   * @param       $jsonVarName    string
+   * @param       $paramName      string
+   * @param       $index          string
+   *
+   * @return      string
+   **/
+  function addUrlScalarParamsToJson($jsonVarName, $paramName, $defaultValue = '') {
+      $paramValue =(! empty($_GET[$paramName])) ? htmlspecialchars($_GET[$paramName]) : $defaultValue;
+      echo $jsonVarName."['$paramName'] = '$paramValue';\n";
+  }
+
 ?>
 <div id='search-result-list'>
-    <div class="row">
-      <div class="<?=$this->layoutClass('mainbody')?>">
+    <div class='row' id='flashedMessage' style='display: none;'>
+      <div class='col-sm-12'>
+
+      </div>
+    </div>
+    <div class="row <?=$this->layoutClass('mainbody')?>">
 
       <div class="hidden-print search-controls row">
         <div class="col-sm-3">
@@ -75,11 +127,7 @@
           <? endif; ?>
         </div>
 
-        <? if ($recordTotal > 0): ?>
-          <div class="col-sm-3 text-right" id='search-results-controls'>
-        <? else: ?>
-		  <div class="col-sm-3 text-right" id='search-results-controls' style='display: none;'>
-	    <? endif; ?>
+		  <div class="col-sm-3 text-right" id='search-results-controls'<?=($recordTotal > 0) ? "" : " style='display: none;'" ?>>
             <?=$this->render('search/ajax/controls/sort.phtml')?>
           </div>
       </div>
@@ -88,12 +136,7 @@
 
         <? /* End Listing Options */ ?>
 
-        <? if ($recordTotal < 1): ?>
-          <div id='no-results-container'>
-		<? else: ?>
-          <div id='no-results-container' style='display: none;'>
-        <? endif; ?>
-
+          <div id='no-results-container'<?=($recordTotal < 1) ? "" : " style='display: none;'"?>>
             <?= $this->context($this)->renderInContext('search/no-results', ['lookfor' => $lookfor]) ?>
           </div>
 
@@ -147,7 +190,6 @@
       </div>
     </div>
 </div>
-
 <script>
     jQuery( document ).ready( function( $ ) {
         <? if ($this->extraResults && $this->referer): ?>
@@ -159,5 +201,29 @@
                 console.error( 'Sorry! No Web Storage support.' );
             }
         <? endif; ?>
+
+        /* When we want to move in window history, we need to push state into
+           history, when the results page are displayed for the first time,
+           synchronously. */
+        var data = {};
+
+		<?php
+		  $index = 0;
+		  addUrlArrayParamsToJson('data', 'lookfor', $index);
+		  addUrlArrayParamsToJson('data', 'type', $index);
+		  addUrlArrayParamsToJson('data', 'bool', $index);
+
+		  addUrlScalarParamsToJson('data', 'filter');
+		  addUrlScalarParamsToJson('data', 'daterange');
+		  addUrlScalarParamsToJson('data', 'publishDatefrom');
+		  addUrlScalarParamsToJson('data', 'publishDateto');
+		  addUrlScalarParamsToJson('data', 'limit', '10');
+		  addUrlScalarParamsToJson('data', 'sort', 'relevance');
+		  addUrlScalarParamsToJson('data', 'page', '1');
+		  addUrlScalarParamsToJson('data', 'searchTypeTemplate', 'basic');
+		  addUrlScalarParamsToJson('data', 'keepFacetsEnabled', 'true');
+		  addUrlScalarParamsToJson('data', 'join', 'AND');
+		?>
+		ADVSEARCH.updateUrl( data );
     });
 </script>

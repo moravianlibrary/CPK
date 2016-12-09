@@ -231,6 +231,12 @@ var holdingsILS = {
 	    var departmentColumn = tableRow.children('td[data-type=department]').first();
 	    departmentColumn.text(department);
 	}
+	
+	var location = value.location;
+    if (typeof location !== 'undefined' && location) {
+        var locationColumn = tableRow.children('td[data-type=location]').first();
+        locationColumn.text(location);
+    }
 
 	tableRow.removeClass('loading').addClass('loaded');
 

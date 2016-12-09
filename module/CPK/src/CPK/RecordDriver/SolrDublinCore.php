@@ -122,7 +122,11 @@ class SolrDublinCore extends ParentSolrMarc
         $value = $dc->xpath('//dc:subject');
         $ret = [];
         foreach ($value as $part) {
-            $ret[] = (string) $part;
+            if (!preg_match('/^([\W0-9]+|neuvedeno|n[ae]zadáno)$/', $part))
+            {
+                $ret[] = (string) $part;
+            }
+
         }
         return empty($value) ? [] : $ret;
     }

@@ -22,7 +22,7 @@ class NCIPRequests {
         'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001',
     ];
     protected $libsLikeLiberec = [
-        'LIA001', 'CBA001',
+        'LIA001', 'CBA001', 'KLG001',
     ];
 
     public function __construct($config) {
@@ -206,6 +206,21 @@ class NCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function patronHistory($patron, $page, $perPage) {
+        $schemeExtension = "xmlns:ns2=\"https://ncip.knihovny.cz/ILSDI/ncip/2015/extensions\"";
+        $body =
+        "<ns1:LookupUser>" .
+        $this->insertInitiationHeader($patron) .
+        $this->insertUserIdTag($patron) .
+        "<ns1:Ext>" .
+        "<ns2:HistoryDesired>" .
+        "<ns2:Page>" . htmlspecialchars($page) . "</ns2:Page>" .
+        "</ns2:HistoryDesired>" .
+        "</ns1:Ext>" .
+        "</ns1:LookupUser>";
+        return $this->header($schemeExtension) . $body . $this->footer();
+    }
+
     public function getLibsLikeTabor() {
         return $this->libsLikeTabor;
     }
@@ -214,10 +229,15 @@ class NCIPRequests {
         return $this->libsLikeLiberec;
     }
 
-    protected function header() {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
-        "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
-        "ns1:version=\"http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd\">";
+    protected function header($ext = '') {
+        if (! empty($ext)) {
+            $ext .= ' ';
+        }
+        $body = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" .
+            "<ns1:NCIPMessage xmlns:ns1=\"http://www.niso.org/2008/ncip\" " .
+            $ext .
+            "ns1:version=\"http://www.niso.org/schemas/ncip/v2_02/ncip_v2_02.xsd\">";
+        return $body;
     }
 
     protected function footer() {

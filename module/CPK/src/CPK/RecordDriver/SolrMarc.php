@@ -38,6 +38,9 @@ class SolrMarc extends ParentSolrMarc
         'title_auth', 'author_search', 'publishDate'
     ];
 
+    protected $reverse = false;
+    protected $sortFields = array();
+
     protected function getILSconfig()
     {
         if ($this->ilsConfig === null)
@@ -79,24 +82,6 @@ class SolrMarc extends ParentSolrMarc
     	return $field866;
     }
 
-    public function get773()
-    {
-    	$subfields = ['t', 'd', 'x', 'g', 'q', '9'];
-    	$field773 = [];
-    	foreach ($subfields as $subfield) {
-    		$field773[$subfield] = $this->getFieldArray('773', array($subfield));
-    	}
-
-    	$resultArray = [];
-    	foreach ($field773 as $subfieldKey => $subfieldValue) {
-    		foreach ($subfieldValue as $intKey => $value) {
-    			$resultArray[$intKey][$subfieldKey] = $value;
-    		}
-    	}
-
-    	return $resultArray;
-    }
-
     /**
      * Get field of 7xx
      *
@@ -128,6 +113,17 @@ class SolrMarc extends ParentSolrMarc
 
     	return $resultArray;
     }
+
+    public function getF773_display()
+    {
+        return isset($this->fields['f773_display']) ? $this->fields['f773_display'] : '';
+    }
+
+    public function getLink773_str()
+    {
+        return isset($this->fields['link773_str']) ? $this->fields['link773_str'] : '';
+    }
+
 
     protected function getAll996Subfields()
     {
@@ -244,6 +240,31 @@ class SolrMarc extends ParentSolrMarc
                 $toTranslate[$fieldToTranslate] = $prependString;
             }
 
+        }
+
+        $this->sortFields($fields, $source);
+
+        if ((isset($this->fields['format_display_mv'][0])) && ($this->fields['format_display_mv'][0] == '0/PERIODICALS/')) {
+            usort($fields, function($a, $b) {
+                $found = false;
+                $sortFields = array('y', 'v', 'i');
+                foreach ($sortFields as $sort) {
+                    if (! isset($a[$sort])) {
+                        $a[$sort] = '';
+                    }
+                    if (! isset($b[$sort])) {
+                        $b[$sort] = '';
+                    }
+                    if ($a[$sort] != $b[$sort]) {
+                        $pattern = '/(\d+)(.+)?/';
+                        $first = preg_replace($pattern, '$1', $a[$sort]);
+                        $second = preg_replace($pattern, '$1', $b[$sort]);
+                        $found = true;
+                        break;
+                    }
+                }
+                return $found ? ($first < $second) : false;
+            });
         }
 
         $holdings = [];
@@ -506,7 +527,10 @@ class SolrMarc extends ParentSolrMarc
 
         $isbnJson = json_encode($isbnArray);
 
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+        $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
         $client->setParameterGet(array(
             'multi' => '[' . $isbnJson . ']'
         ));
@@ -544,7 +568,11 @@ class SolrMarc extends ParentSolrMarc
     {
         $isbnArray = $this->getBibinfoForObalkyKnihV3();
         $isbnJson = json_encode($isbnArray);
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
+
+        $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+            ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+        $apiBooksUrl = $cacheUrl . "/api/books";
+        $client = new \Zend\Http\Client($apiBooksUrl);
         $client->setParameterGet(array(
             'multi' => '[' . $isbnJson . ']'
         ));
@@ -555,49 +583,6 @@ class SolrMarc extends ParentSolrMarc
         return $bookid;
     }
 
-
-    /**
-     * Get an array of summary strings for the record.
-     *
-     * @return string
-     */
-    public function getSummaryObalkyKnih()
-    {
-        $isbnArray = $this->getBibinfoForObalkyKnihV3();
-
-        $isbnJson = json_encode($isbnArray);
-
-        $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/books');
-        $client->setParameterGet(array(
-            'multi' => '[' . $isbnJson . ']'
-        ));
-
-        try {
-            $response = $client->send();
-        } catch (\Exception $ex) {
-            return null; // TODO what to do when server is not responding
-        }
-
-
-        $responseBody = $response->getBody();
-
-        $phpResponse = json_decode($responseBody, true);
-
-        if (isset($phpResponse[0]['annotation'])) {
-
-            if ($phpResponse[0]['annotation']['html'] == null)
-                return null;
-
-            $anothtml = $phpResponse[0]['annotation']['html'];
-            //obalky knih sends annotation html escaped, we have convert it to string, to be able to escape it
-            $anot = htmlspecialchars_decode($anothtml);
-
-            $source = $phpResponse[0]['annotation']['source'];
-
-            return $anot . " - " . $source;
-        }
-        return null;
-    }
 
     /**
      * Save this record to the user's favorites.
@@ -786,5 +771,58 @@ class SolrMarc extends ParentSolrMarc
     {
         $issn = $this->getFieldArray('022', array('a'));
         return $issn;
+    }
+
+    /**
+     * There are rules how to sort holdings in some special cases.
+     * Set $this->reverse and $this->sortFields.
+     */
+    private function sortFields(&$fields, $source) {
+        if (($source == 'kfbz') &&
+                (isset($this->fields['format_display_mv'][0])) &&
+                ($this->fields['format_display_mv'][0] == '0/BOOKS/')) {
+            $this->reverse = false;
+            $this->sortFields = array('l',);
+            usort($fields, array($this, 'sortLogic'));
+        }
+
+        if ((isset($this->fields['format_display_mv'][0])) && ($this->fields['format_display_mv'][0] == '0/PERIODICALS/')) {
+            $this->reverse = true;
+            $this->sortFields = array('y', 'v', 'i');
+            usort($fields, array($this, 'sortLogic'));
+        }
+    }
+
+    /**
+     * The comparison function for usort, must return an integer <, =, or > than 0 if the first
+     * argument is <, =, or > than the second argument.
+     *
+     * Uses array $this->sortFields Fields from 996, used to sorting.
+     * Uses @param boolean $this->reverse Reverse the result.
+     *
+     * @param $a, $b
+     *
+     * @return integer
+     */
+    private function sortLogic($a, $b) {
+        $found = false;
+        $first = $second = '';
+        foreach ($this->sortFields as $sort) {
+            if (! isset($a[$sort])) {
+                $a[$sort] = '';
+            }
+            if (! isset($b[$sort])) {
+                $b[$sort] = '';
+            }
+            if ($a[$sort] != $b[$sort]) {
+                $pattern = '/(\d+)(.+)?/';
+                $first = preg_replace($pattern, '$1', $a[$sort]);
+                $second = preg_replace($pattern, '$1', $b[$sort]);
+                $found = true;
+                break;
+            }
+        }
+        $ret = $this->reverse ? ($first < $second) : ($first > $second);
+        return $found ? $ret : false;
     }
 }

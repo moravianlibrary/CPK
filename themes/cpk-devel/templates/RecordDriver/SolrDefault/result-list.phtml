@@ -1,5 +1,6 @@
 <?
   $recordId = $this->driver->getUniqueID();
+  $recordSource = explode(".", $recordId)[0];
   $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
   $formats = $this->driver->getFormats();
   $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
@@ -110,20 +111,39 @@
   $institutionsFilters = [];
   if (isset($_GET['filter']) || isset($_POST['filter'])) {
       $paramFilter = isset($_GET['filter']) ? $_GET['filter'] : $_POST['filter'];
-      if (count($paramFilter)) {
-          foreach ($paramFilter as $key => $value) {
-              $explodedArray = explode('/', trim($value, '"'));
-              $index = ((count($explodedArray)-2) < 0) ? 0 : (count($explodedArray)-2);
-              $source = strtolower($explodedArray[$index]);
-              $institutionsFilters[] = $source;
-          }
+      $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($paramFilter)));
+      foreach ($decompressedFilters as $key => $value) {
+          $explodedArray = explode('/', trim($value, '"'));
+          $index = ((count($explodedArray)-2) < 0) ? 0 : (count($explodedArray)-2);
+          $source = strtolower($explodedArray[$index]);
+          $institutionsFilters[] = $source;
       }
   }
 
+  $sfxes = [];
+  $digitalLibraries = [];
+  foreach ($institutionsFilters as $key => $source) {
+      if (isset($this->sfxesForLibraries[$source])) {
+          $sfxes = array_merge(
+              $sfxes,
+              ($this->sfxesForLibraries[$source] !== 'null') ? explode(",", $this->sfxesForLibraries[$source]) : []
+          );
+      }
+
+      if (isset($this->digitalLibrarieForLibraries[$source])) {
+          $digitalLibraries = array_merge(
+              $digitalLibraries,
+              ($this->digitalLibrarieForLibraries[$source] !== 'null') ? explode(",", $this->digitalLibrarieForLibraries[$source]) : []
+          );
+      }
+  }
+
+  $prependTheseSources = array_unique(array_merge($sfxes, $digitalLibraries, $institutionsFilters));
+
   $prependedLibraries = [];
-  if (count($foundRecords) && count($institutionsFilters)) {
+  if (count($foundRecords) && count($prependTheseSources)) {
       foreach ($foundRecords as $source => $array) {
-          if (in_array($source, $institutionsFilters)) {
+          if ( in_array($source, $prependTheseSources) ) {
               unset($foundRecords[$source]);
               $prependedLibraries[$source] = $array;
           }
@@ -150,7 +170,11 @@
 
                     <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
                         <script type="text/javascript">
-                            obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+                        obalky.display_authority_results(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? else: ?>
+                        obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? endif; ?>
                         </script>
                     <? endif;?>
                     <? if (! empty($formats)): ?>
@@ -235,7 +259,6 @@
       <table><?= $this->record($this->driver)->displayField773(); ?></table>
 
       <? $summ = $this->driver->getSummary(); ?>
-      <? if (empty($summ)): ?><? $summ[] = $this->driver->getSummaryObalkyKnih(); ?><? endif; ?>
       <? if (!empty($summ)): ?>
         <? foreach ($summ as $field): ?>
           <? $secondPart = substr($field, 200); ?>
@@ -248,6 +271,13 @@
           <? endif; ?>
           <p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?><? if (! empty($secondPart)): ?>...<? endif; ?></p>
         <? endforeach; ?>
+      <? else: ?>
+          <script type="text/javascript">
+              obalky.display_summary_short(".summ_<?=$recordId?>", <?=$bibinfo?>);
+          </script>
+
+          <span class="summ_<?=$recordId?>"><i class="fa fa-spinner fa-spin"></i><?=$this->transEsc('loading_obalkyknih_summary')?></span>
+
       <? endif; ?>
 
       <? if(!$this->driver->isCollection()): ?>
@@ -262,7 +292,7 @@
       <? endif; ?>
 
 	  <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
-        <? if ($this->driver->hasPublications() && $source !== 'osobnosti'): ?>
+        <? if ($this->driver->hasPublications() && $recordSource !== 'osobnosti'): ?>
 		  <div>
 			<a title="<?=$this->transEsc('Show publications of this person')?>" href="<?=$this->driver->getPublicationsUrl()?>"><?=$this->translate('Show publications of this person')?></a>
 		  </div>

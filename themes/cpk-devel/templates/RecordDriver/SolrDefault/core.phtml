@@ -46,8 +46,7 @@
           <div class="col-sm-12">
           <? endif; ?>
             <h2 class='record-title' property='name'>
-              <? $titleHtml = "<strong>".$this->escapeHtml($this->driver->getTitle())."</strong>"; ?>
-              <?= $this->help()->getElementHelp('element_help_default_message', $titleHtml) ?>
+              <strong><?=$this->escapeHtml($this->driver->getTitle())?></strong>
             </h2>
             <div class='want-it'>
                 <?=$this->translate('Want it')?>
@@ -58,11 +57,13 @@
               <? endforeach; ?>
 
             <? else: ?>
-              <? $summOK = $this->driver->getSummaryObalkyKnih(); if (!empty($summOK)): ?>
-                <p><?=$this->escapeHtml($summOK)?></p>
+              <p class="obalkysumm"><i class="fa fa-spinner fa-spin"></i><?=$this->transEsc('loading_obalkyknih_summary')?></p>
 
-              <? endif; ?>
-            <? endif; ?>
+              <script type="text/javascript">
+                obalky.display_summary(".obalkysumm", <?=$bibinfo?>);
+              </script>
+
+          <? endif; ?>
 
             <? if ($this->userlist()->getMode() !== 'disabled'): ?>
               <? /* Display the lists that this record is saved to */ ?>

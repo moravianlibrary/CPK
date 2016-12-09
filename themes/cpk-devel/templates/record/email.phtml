@@ -1,5 +1,5 @@
 <?=$this->flashmessages()?>
-<form action='/Record/<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>/Email' class="form-horizontal" method="post" name="emailRecord">
+<form action='/Record/<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>/Email' class="form-horizontal" method="post" name="emailRecord" id="email-record">
   <input type="hidden" name="id" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" />
   <input type="hidden" name="source" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" />
   <div class="control-group">

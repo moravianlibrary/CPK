@@ -88,7 +88,8 @@ class SolrAuthority extends ParentSolrMarc
     public function getBibinfoForObalkyKnihV3()
     {
         $bibinfo = array();
-        $bibinfo['cover_medium_url'] = $this->getAuthorityCover();
+        $field = $this->getMarcRecord()->getField('001');
+        $bibinfo['auth_id'] = empty($field) ? '' : $field->getData();
         return $bibinfo;
     }
 
@@ -162,7 +163,10 @@ class SolrAuthority extends ParentSolrMarc
 
             if (! empty($auth_id)) {
                 try {
-                    $client = new \Zend\Http\Client('https://cache.obalkyknih.cz/api/auth/meta');
+                    $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
+                        ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
+                    $metaUrl = $cacheUrl . "/api/auth/meta";
+                    $client = new \Zend\Http\Client($metaUrl);
                     $client->setParameterGet(array(
                         'auth_id' => $auth_id
                     ));

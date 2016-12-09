@@ -19,12 +19,16 @@ $toRet = array(
         'vendor/bootstrap-datepicker.js',
         'vendor/bootstrap-datepicker.cs.js',
         'vendor/bootstrap-select.min.js',
+        'vendor/bootstrap-slider.js',
+        'vendor/jquery.validate.min.js',
+        'vendor/validation-additional-methods.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
         'search-results.js',
         'vendor/jsTree/jstree.min.js',
-        'facets.js'
+        'facets.js',
+        'lz-string.js'
     ),
     'less' => array(
         'active' => false,
@@ -64,9 +68,7 @@ $toRet = array(
  */
 $useCompiledAngular = false;
 
-// Disable only for non-devel hosts
-$httpHost = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-$angularForbiddenForIE = ! preg_match('/devel/', $httpHost);
+$angularForbiddenForIE = true;
 
 if (! ($angularForbiddenForIE && USES_IE)) {
 
@@ -79,8 +81,6 @@ if (! ($angularForbiddenForIE && USES_IE)) {
         $jsToInclude = [
 
             'vendor/angular.min.js',
-
-            'ng-cpk/polyfill/module.js',
 
             'ng-cpk/favorites/module.js',
             'ng-cpk/favorites/favsNotifications.service.js',

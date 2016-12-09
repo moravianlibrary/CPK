@@ -1032,4 +1032,28 @@ class Aleph extends AlephBase implements CPKDriverInterface
         return $holdList;
     }
 
+    /**
+     * Get Patron Fines
+     *
+     * This is responsible for retrieving all fines by a specific patron.
+     *
+     * @param array $user The patron array from patronLogin
+     *
+     * @throws \VuFind\Exception\Date
+     * @throws ILSException
+     * @return mixed      Array of the patron's fines on success.
+     */
+    public function getMyFines($user) {
+        $fineList = parent::getMyFines($user);
+        $retVal = array();
+        // Exclude fines with zero value.
+        foreach ($fineList as $fine) {
+            if ( (int) $fine['amount'] == 0) {
+                continue;
+            }
+            $retVal[] = $fine;
+        }
+        return $retVal;
+    }
+
 }

@@ -13,4 +13,5 @@ return array(
     'LosReCaptcha\\' => array($vendorDir . '/los/losrecaptcha/src'),
     'Behat\\Mink\\Driver\\' => array($vendorDir . '/behat/mink-selenium2-driver/src', $vendorDir . '/behat/mink-zombie-driver/src'),
     'Behat\\Mink\\' => array($vendorDir . '/behat/mink/src'),
+    'LZComporessor\\' => array($vendorDir . '/LZComporessor'),
 );

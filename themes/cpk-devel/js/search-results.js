@@ -80,12 +80,25 @@ jQuery( document ).ready( function( $ ) {
 		 * @param {JSON} 	dataFromWindowHistory 
 		 * @param {JSON} 	dataFromAutocomplete
 		 * @param {string}	newSearchTypeTemplate		basic|advanced
+		 * @param {array}	extraData					Associative array
 		 * 
 		 * @return {undefined}
 		 */
-		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate ) {
+		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData ) {
 			
 			var data = {};
+			
+			/* If we need to add some new paramts to URL we can use extraData argument */
+			if (extraData !== undefined ) {
+				for (var key in extraData) {
+					if (extraData.hasOwnProperty(key)) {
+						data[key] = extraData[key];
+					}
+				}
+				console.log( 'Added extraData:' );
+				console.log( data );
+			}
+			
 			var reloadResults = true;
 			
 			if ( dataFromWindowHistory !== undefined ) {
@@ -126,8 +139,8 @@ jQuery( document ).ready( function( $ ) {
 				
 				data['searchTypeTemplate'] = 'basic';
 				
-				console.log( 'Data fromautocomplete: ' );
-				console.log( data );
+				//console.log( 'Data fromautocomplete: ' );
+				//console.log( data );
 				
 			} else {
 				/* If search started in advanced search, gather data from
@@ -156,11 +169,41 @@ jQuery( document ).ready( function( $ ) {
 
 			}
 			
-			var filters = [];
-			$( '.hidden-filter' ).each( function( index, element ) {
-				filters.push( $( element ).val() );
-			});
-			data['filter'] = filters;
+			if (dataFromWindowHistory !== undefined) {
+				ADVSEARCH.removeAllFilters( false );
+				
+				var deCompressedFilters = LZString.decompressFromBase64( specialUrlDecode( data['filter'] ) );	
+				if ((deCompressedFilters != '') && (null != deCompressedFilters)) {
+					if (deCompressedFilters.indexOf( '|' ) > -1) {
+						deCompressedFilters = deCompressedFilters.split( "|" );
+					} else {
+						var onlyFilter = deCompressedFilters;
+						deCompressedFilters = [];
+						deCompressedFilters[0] = onlyFilter;
+					}
+				}
+				
+				if (null != deCompressedFilters) {
+					if (deCompressedFilters[0] != null) {
+						var html = '';
+						deCompressedFilters.forEach( function( filter ) {
+							html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + filter + "'>";
+						});
+						$( '#hiddenFacetFilters' ).append( html );
+					}
+					data['filter'] = deCompressedFilters;
+				}
+				
+			} else {
+				var filters = [];
+				$( '.hidden-filter' ).each( function( index, element ) {
+					filters.push( $( element ).val() );
+				});
+				
+				data['filter'] = filters;
+			}
+			
+			
 			
 			if ( dataFromAutocomplete ) {
 				var tempData = queryStringToJson( dataFromAutocomplete.queryString );
@@ -203,16 +246,50 @@ jQuery( document ).ready( function( $ ) {
 				if (! data.hasOwnProperty( 'limit' )) {
 					var limit = $( "input[name='limit']" ).val();
 					data['limit'] = limit;
+				} else {
+					if ( Object.prototype.toString.call( data['limit'] ) === '[object Array]' ) {
+						data['limit'] = data['limit'][0];
+					}
 				}
 				
 				if (! data.hasOwnProperty( 'sort' )) {
 					var sort = $( "input[name='sort']" ).val();
 					data['sort'] = sort;
+				} else {
+					if ( Object.prototype.toString.call( data['sort'] ) === '[object Array]' ) {
+						data['sort'] = data['sort'][0];
+					}
 				}
 				
 				if (! data.hasOwnProperty( 'page' )) {
 					var page = $( "input[name='page']" ).val();
 					data['page'] = page;
+				}
+				
+				
+				var isSetDateRange = false;
+				data['filter'].forEach( function( filter ) {
+					if (filter.indexOf('daterange') !== -1) {
+						isSetDateRange = true;
+						return false;
+					}
+				});
+				
+				if (isSetDateRange) {
+					if (! data.hasOwnProperty( 'publishDatefrom' )) {
+						var publishDatefrom = $( "input[name='publishDatefrom']" ).val();
+						data['publishDatefrom'] = publishDatefrom;
+					}
+					
+					if (! data.hasOwnProperty( 'publishDateto' )) {
+						var publishDateto = $( "input[name='publishDateto']" ).val();
+						data['publishDateto'] = publishDateto;
+					}
+					
+					if (! data.hasOwnProperty( 'daterange' )) {
+						var daterange = $( "input[name='daterange']" ).val();
+						data['daterange'] = daterange;
+					}
 				}
 			}
 			
@@ -225,6 +302,15 @@ jQuery( document ).ready( function( $ ) {
 			
 			var searchTypeTemplate = data['searchTypeTemplate'];
 			$( "input[name='searchTypeTemplate']" ).val( searchTypeTemplate );
+			
+			var publishDatefrom = data['publishDatefrom'];
+			$( "input[name='publishDatefrom']" ).val( publishDatefrom );
+			
+			var publishDateto = data['publishDateto'];
+			$( "input[name='publishDateto']" ).val( publishDateto );
+			
+			var daterange = data['daterange'];
+			$( "input[name='daterange']" ).val( daterange );
 			
 			/* 
 			 * If we want to just switch template between basic and advanced search,
@@ -244,10 +330,42 @@ jQuery( document ).ready( function( $ ) {
 			/* 
 			 * Live update url.
 			 */
+			
+			if (data['filter'][0] != null) {
+				//console.log( 'Filters:' );
+				//console.log( data['filter'] );	
+				
+				//console.log( 'Filters as string:' );
+				var filtersAsString = data['filter'].join( '|' );
+				//console.log( filtersAsString );
+				
+				//console.log( 'Compressed filters:' );
+				var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
+				//console.log( compressedFilters );
+				
+				//console.log( 'DeCompressed filters:' );
+				var deCompressedFilters = LZString.decompressFromBase64( specialUrlDecode( compressedFilters ) );
+				//console.log( deCompressedFilters.split( "|" ) );
+				
+			}
+			
+			var dataForAjax = data;
+			
+			if (data['filter'].length > 0) {
+	    		data['filter'] = compressedFilters;
+			}
+			
+			//console.log('dataForAjax now:');
+			//console.log(dataForAjax)
+			
+			//console.log('data now:');
+			//console.log(data)
+			
     		if ( dataFromWindowHistory == undefined ) {
     			ADVSEARCH.updateUrl( data );
     		} else { // from history
     			ADVSEARCH.replaceUrl( data );
+    			reloadResults = true;
     		}
     		
     		/*
@@ -269,7 +387,7 @@ jQuery( document ).ready( function( $ ) {
 		        	cache: false,
 		        	dataType: 'json',
 		        	url: VuFind.getPath() + '/AJAX/JSON?method=updateSearchResults',
-		        	data: data,
+		        	data: dataForAjax,
 		        	beforeSend: function() {
 		        		
 		        		scrollToTop();
@@ -327,8 +445,13 @@ jQuery( document ).ready( function( $ ) {
 			        		/* Update search identificators */
 			        		$( '#rss-link' ).attr( 'href', window.location.href + '&view=rss' );
 			        		$( '.mail-record-link' ).attr( 'id', 'mailSearch' + responseData.searchId );
-			        		$( '#add-to-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?save=' + responseData.searchId );
-			        		$( '#remove-from-saved-searches' ).attr( 'href', 'MyResearch/SaveSearch?delete=' + responseData.searchId );
+			        		$( '#add-to-saved-searches' ).attr( 'data-search-id', responseData.searchId );
+			        		$( '#remove-from-saved-searches' ).attr( 'data-search-id', responseData.searchId );
+			        		$( '#remove-from-saved-searches' ).attr( 'title', VuFind.translate('Save search'));
+		        			$( '#remove-from-saved-searches' ).text( VuFind.translate('Save search'));
+		        			$( '#remove-from-saved-searches' ).attr( 'id', 'add-to-saved-searches');
+		        			
+		        			$(' #flashedMessage div .alert').hide( 'blind', {}, 500 );
 			        		
 			        		/* Update lookfor inputs in both search type templates to be the same when switching templates*/
 			        		ADVSEARCH.updateSearchTypeTemplates( data );
@@ -340,27 +463,27 @@ jQuery( document ).ready( function( $ ) {
 			        			$( '#keep-facets-enabled-checkbox' ).hide( 'blind', {}, 200 );
 			        		}
 			        		
-			        		console.log(' responseData.recordTotal: ');
-		        			console.log( responseData.recordTotal );
-		        			console.log(' Success happened ');
+			        		//console.log(' responseData.recordTotal: ');
+		        			//console.log( responseData.recordTotal );
+		        			//console.log(' Success happened ');
 			        		
 			        		/* Hide no results container when there is more than 0 results */
 			        		if ( responseData.recordTotal > 0 ) {
-			        			console.log(' responseData.recordTotal: ');
-			        			console.log( responseData.recordTotal );
-			        			console.log( 'Hide no resuls, show new results' );
+			        			//console.log(' responseData.recordTotal: ');
+			        			//console.log( responseData.recordTotal );
+			        			//console.log( 'Hide no resuls, show new results' );
 			        			$( '#no-results-container' ).hide( 'blind', {}, 200, function(){
 			        				$( this ).css( 'display', 'none' );
 			        			} );
-			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls' ).show( 'blind', {}, 500 );
+			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container' ).show( 'blind', {}, 500 );
 			        		} else {
-			        			console.log(' responseData.recordTotal: ');
-			        			console.log( responseData.recordTotal );
-			        			console.log( 'Show NO results' );
+			        			//console.log(' responseData.recordTotal: ');
+			        			//console.log( responseData.recordTotal );
+			        			//console.log( 'Show NO results' );
 			        			$( '#no-results-container strong' ).text( data.lookfor0[0] );
 			        			
 			        			$( '#no-results-container' ).show( 'blind', {}, 500 );
-			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls' ).hide( 'blind', {}, 200 );
+			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container' ).hide( 'blind', {}, 200 );
 			        		}
 
 		        		    	// Let another applications know we have loaded new results ..
@@ -398,11 +521,11 @@ jQuery( document ).ready( function( $ ) {
 		            error: function ( xmlHttpRequest, status, error ) {
 		            	$( '#search-results-loader' ).remove();
 		            	console.error(xmlHttpRequest.responseText);
-		            	console.log(xmlHttpRequest);
+		            	//console.log(xmlHttpRequest);
 		            	console.error(status);
 		            	console.error(error);
-		            	console.log( 'Sent data: ' );
-		            	console.log( data );
+		            	//console.log( 'Sent data: ' );
+		            	//console.log( data );
 		            },
 		        });
     		}
@@ -442,14 +565,26 @@ jQuery( document ).ready( function( $ ) {
 		 * @return	{undefined}
 		 */
 		removeFacetFilter: function( value, updateResults ) {
+			
+			var extraData = {};
 			$( '#hiddenFacetFilters input' ).each( function( index, element ) {
 				if( $( element ).val() == value) {
 					$( this ).remove();
 				}
+				
+				/* Special if, for publishDate */
+			    var substring = "publishDate";
+			    if ( value.includes(substring) && $( element ).val().includes(substring) ) {
+			    	$( this ).remove();
+			    	extraData['daterange'] = '';
+			    	extraData['publishDatefrom'] = '';
+					extraData['publishDateto'] = '';
+			    }
+			    /**/
 			});
 			
 			if ( updateResults ) {
-				ADVSEARCH.updateSearchResults( undefined, undefined );
+				ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
 			}
 		},
 		
@@ -494,8 +629,8 @@ jQuery( document ).ready( function( $ ) {
 			var title = 'New search query';
 			var url = '/Search/Results/?' + jQuery.param( data )
 			window.history.replaceState( stateObject, title, url );
-			//console.log( 'Replacing state: ' );
-			//console.log( stateObject );
+			////console.log( 'Replacing state: ' );
+			////console.log( stateObject );
 		},
 		
 		/**
@@ -566,30 +701,30 @@ jQuery( document ).ready( function( $ ) {
 		 */
 		updateSearchTypeTemplates: function( data ) {
 			
-			//console.log( 'Data: ' );
-			//console.log( data );
+			////console.log( 'Data: ' );
+			////console.log( data );
 			
 			if ( (data.hasOwnProperty( 'lookfor1' ) ) || ( data.lookfor0.length > 1 )) {
 				/* Search was made in advanced search */
 				
 				/* Fill autocomplete search form */
-				//console.log( 'Filling autocomplete with' );
-				//console.log( data.lookfor0[0] );
+				////console.log( 'Filling autocomplete with' );
+				////console.log( data.lookfor0[0] );
 				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
 			} else {
 				/* Search was made in autocomplete */
 				
 				/* Fill adv. search form */
 				ADVSEARCH.clearAdvancedSearchTemplate();
-				//console.log( 'Clearing advanced search form' );
+				////console.log( 'Clearing advanced search form' );
 				
-				//console.log( 'Filling advanced search form with ' );
-				//console.log( data.lookfor0[0] );
+				////console.log( 'Filling advanced search form with ' );
+				////console.log( data.lookfor0[0] );
 				
 				$( '#query_0 .query-string' ).val( data.lookfor0[0] );
 				
-				//console.log( 'Filling autocomplete with' );
-				//console.log( data.lookfor0[0] );
+				////console.log( 'Filling autocomplete with' );
+				////console.log( data.lookfor0[0] );
 				$( '#searchForm_lookfor' ).val( data.lookfor0[0] );
 			}
 		},
@@ -600,12 +735,19 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( window ).bind( 'popstate', function() {
 		var currentState = history.state;
-		//console.log( 'POPing state: ' );
-		//console.log( currentState );
-		if (currentState.searchTypeTemplate) {
-			ADVSEARCH.updateSearchResults( currentState, undefined, currentState.searchTypeTemplate );
+		////console.log( 'POPing state: ' );
+		////console.log( currentState );
+		if (null != currentState) {
+			if (currentState.searchTypeTemplate) {
+				ADVSEARCH.updateSearchResults( currentState, undefined, currentState.searchTypeTemplate );
+			} else {
+				var currentUrl = window.location.href;
+				var searchTypeTemplate = getParameterByName( 'searchTypeTemplate', currentUrl );
+				ADVSEARCH.updateSearchResults( currentState, undefined, searchTypeTemplate );
+			}
 		} else {
-			ADVSEARCH.updateSearchResults( currentState, undefined );
+			console.warn( 'Current history state is NULL.' );
+			//window.history.back();
 		}
 	});
 	
@@ -703,7 +845,47 @@ jQuery( document ).ready( function( $ ) {
 		// Clear also autocomplete
 		$( '#searchForm_lookfor' ).val( '' );
 	});
-	
+
+	/*
+	 * Add or remove clicked facet
+	 */
+	$( 'body' ).on( 'click', '.facet-filter-or', function( event ) {
+		event.preventDefault();
+
+		$( "input[name='page']" ).val( '1' );
+
+		if ($('#facet_local_statuses_facet_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
+			//remove all statuses
+			var allStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_json('#', {flat: true});
+			$.each(allStatuses, function (index, value) {
+				ADVSEARCH.removeFacetFilter(value['id'], false);
+			});
+
+			//add selected statuses
+			var selectedStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_bottom_selected();
+			$.each(selectedStatuses, function (index, value) {
+				ADVSEARCH.addFacetFilter(value, false);
+			});
+		};
+
+		if ($('#facet_conspectus_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
+			//remove all conspectus
+			var allConspectus = $('#facet_conspectus_str_mv').jstree(true).get_json('#', {flat: true});
+			$.each(allConspectus, function (index, value) {
+				ADVSEARCH.removeFacetFilter(value['id'], false);
+			});
+
+			//add selected conspectus
+			var selectedConspectus = $('#facet_conspectus_str_mv').jstree(true).get_bottom_selected();
+			$.each(selectedConspectus, function (index, value) {
+				ADVSEARCH.addFacetFilter(value, false);
+			});
+		}
+
+		ADVSEARCH.updateSearchResults( undefined, undefined );
+
+	});
+
 	/*
 	 * Add or remove clicked facet
 	 */
@@ -713,14 +895,14 @@ jQuery( document ).ready( function( $ ) {
 		$( "input[name='page']" ).val( '1' );
 		
 		if ( $( this ).hasClass( 'active' ) ) {
-			console.log( 'Removing facet filter.' );
+			//console.log( 'Removing facet filter.' );
 			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
 		} else {
-			console.log( 'Adding facet filter.' );
+			//console.log( 'Adding facet filter.' );
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
 	});
-	
+
 	/*
 	 * Remove all institutions facets and add checked ones
 	 */
@@ -795,6 +977,23 @@ jQuery( document ).ready( function( $ ) {
 	});
 	
 	/*
+	 * Add data range as facet
+	 */
+	$( 'body' ).on( 'click', '.apply-facet-filter-range', function( event ) {
+		event.preventDefault();
+		
+		var extraData = {};
+		extraData['publishDatefrom'] = $( '#publishDatefrom' ).val();
+		extraData['publishDateto'] = $( '#publishDateto' ).val();
+		extraData['daterange'] = 'publishDate';
+		
+		var value = 'publishDate:"['+extraData['publishDatefrom']+' TO '+extraData['publishDateto']+']"';
+		ADVSEARCH.addFacetFilter(value, false);
+		
+		ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
+	});
+	
+	/*
 	 * Update search results on submiting advanced search form
 	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '#submit-edited-advanced-search', function( event ) {
@@ -815,6 +1014,108 @@ jQuery( document ).ready( function( $ ) {
 		ADVSEARCH.updateSearchResults( undefined, undefined );
 	});
 	
+	/*
+	 * Save or remove search
+	 */
+	$( 'body' ).on( 'click', '.save-search-link', function( event ) {
+		event.preventDefault();
+		
+		var action = $( this ).attr( 'id' );
+		
+		if (action == 'add-to-saved-searches') {
+			//console.log( 'Saving search.' );
+			
+			var thisElement = this;
+			
+			var data = {};
+			data['searchId'] = $( this ).attr( 'data-search-id' );
+			
+			$.ajax({
+	        	type: 'POST',
+	        	cache: false,
+	        	dataType: 'json',
+	        	url: VuFind.getPath() + '/AJAX/JSON?method=saveSearch',
+	        	data: data,
+	        	success: function( response ) {
+	        		
+	        		scrollToTop();
+	        		
+	        		if (response.status == 'OK') {
+	        			//console.log('Search saved.');
+	        			var html = '<div class="alert alert-success"><a href="#" class="close closeFlashedMessage">×</a>'+VuFind.translate('search_save_success')+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        			$( thisElement ).attr( 'title', VuFind.translate('Delete saved search'));
+	        			$( thisElement ).text( VuFind.translate('Delete saved search'));
+	        			$( thisElement ).attr( 'id', 'remove-from-saved-searches');
+	        		} else {
+	        			console.error(response.data);
+	        			var message = '';
+	        			if (response.data.indexOf( 'authentication_error_loggedout' ) >= 0) {
+	        				message = VuFind.translate( 'login_to_use_this' );
+	        			} else {
+	        				message = VuFind.translate( 'reload_or_save_again' );
+	        			}
+	        			var html = '<div class="alert alert-warning"><a href="#" class="close closeFlashedMessage">×</a>'+message+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        		}
+	        	}
+			});
+		}
+		
+		if (action == 'remove-from-saved-searches') {
+			//console.log( 'Removing search.' );
+			
+			var thisElement = this;
+			
+			var data = {};
+			data['searchId'] = $( this ).attr( 'data-search-id' );
+			
+			$.ajax({
+	        	type: 'POST',
+	        	cache: false,
+	        	dataType: 'json',
+	        	url: VuFind.getPath() + '/AJAX/JSON?method=removeSearch',
+	        	data: data,
+	        	success: function( response ) {
+	        		
+	        		scrollToTop();
+	        		
+	        		if (response.status == 'OK') {
+	        			//console.log('Search removed.');
+	        			var html = '<div class="alert alert-success"><a href="#" class="close closeFlashedMessage">×</a>'+VuFind.translate('search_unsave_success')+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        			$( thisElement ).attr( 'title', VuFind.translate('Save search'));
+	        			$( thisElement ).text( VuFind.translate('Save search'));
+	        			$( thisElement ).attr( 'id', 'add-to-saved-searches');
+	        		} else {
+	        			console.error(response.data);
+	        			var message = '';
+	        			if (response.data.indexOf( 'authentication_error_loggedout' ) >= 0) {
+	        				message = VuFind.translate( 'login_to_use_this' );
+	        			} else {
+	        				message = VuFind.translate( 'reload_or_save_again' );
+	        			}
+	        			var html = '<div class="alert alert-warning"><a href="#" class="close closeFlashedMessage">×</a>'+message+'</div>';
+	        			$( '#flashedMessage div' ).html( html );
+	        			$( '#flashedMessage' ).show( 'blind', {}, 500);
+	        		}
+	        	}
+			});
+		}
+		
+	});
+	
+	/*
+	 * Save search
+	 */
+	$( 'body' ).on( 'click', '.closeFlashedMessage', function( event ) {
+		event.preventDefault();
+		$( this ).parent().hide( 'blind', {}, 200);
+	});
+
 	/*
 	 * Switch search type template to basic search (autocomplete) or advanced search
 	 */
@@ -915,6 +1216,48 @@ jQuery( document ).ready( function( $ ) {
   	    return JSON.parse( JSON.stringify( results ) );
   	};
   	
+  	var replaceAll = function ( str, find, replace ) {
+  	  return str.replace( new RegExp( (find+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&") , 'g' ), replace );
+  	};
+  	
+  	/**
+  	 * This functions is used like standard php's urlencode,
+  	 * but insted of double encode, this creates url friedly string for
+  	 * base64 encoding/decoding.
+  	 *
+  	 * @param   {string } input
+  	 *
+  	 * @return  {string}
+  	 */
+  	var specialUrlEncode = function( input ) {
+  		if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+  			return '';
+  		}
+  		var output = replaceAll( input, '+', '-' );
+  		output = replaceAll( output, '/', '_' );
+  		output = replaceAll( output, '=', '.' );
+  		return output;
+  	};
+  	
+  	/**
+  	 * This functions is used like standard php's urldecode,
+  	 * but insted of double decode, this creates url friedly string for
+  	 * base64 encoding/decoding.
+  	 *
+  	 * @param   {string } input
+  	 *
+  	 * @return  {string}
+  	 */
+  	var specialUrlDecode = function( input ) {
+  		if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+  			return '';
+  		}
+  		var output = replaceAll( input, '-', '+' );
+  		output = replaceAll( output, '_', '/' );
+  		output = replaceAll( output, '.', '=' );
+  		return output;
+  	};
+  	
   	/**
   	 * Convert html entities to chars 
   	 * 
@@ -926,4 +1269,28 @@ jQuery( document ).ready( function( $ ) {
   	    txt.innerHTML = html;
   	    return txt.value;
   	}
+  	
+  	/* Search email form client-side validation */
+	$( '#email-search-results' ).validate({ // initialize the plugin
+        rules: {
+            from: {
+                required: true,
+                email: true
+            },
+            to: {
+                required: true,
+                email: true
+            }
+        },
+        messages: {
+        	from: {
+              required: VuFind.translate( 'Enter email' ),
+              email: VuFind.translate( 'Wrong email format' )
+            },
+            to: {
+              required: VuFind.translate( 'Enter email' ),
+              email: VuFind.translate( 'Wrong email format' )
+            }
+          }
+    });
 });
