@@ -21,6 +21,30 @@
 	.jstree-no-icons .jstree-anchor > .jstree-themeicon {
 		display: none;
 	}
+
+	@media (min-width: 768px) {
+		display: flex;
+		.jstree-node {
+			display: flex; //use flexbox
+			flex-wrap: wrap;
+		}
+
+		.jstree-icon {
+			flex: 0 0 22px; //fixed size of opening icon and checkbox
+		}
+
+		.jstree-anchor {
+			flex: 1 0 0; // expand text to remaining space or shrink if long
+			display: flex;
+			min-width: 10%; //ignore long words and shorten them
+		}
+
+		.jstree-children {
+			flex: 0 1 0;
+			min-width: 100%; //show children on new line
+		}
+	}
+
 	.jstree-disabled {
 		background: transparent;
 		color: @disabled-color;
@@ -124,7 +148,7 @@ filter: gray;
 	}
 }
 // mobile theme attempt
-@media (max-width: 768px) {
+@media (max-width: 767px) {
 	#jstree-dnd.jstree-dnd-responsive when (@responsive =true) {
 		line-height: @base-height;
 
