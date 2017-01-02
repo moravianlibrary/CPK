@@ -12,7 +12,7 @@ function notEmpty($arr, $key)
  * as an empty header won't be useful either
  */
 $userAgent = isset($_SERVER['HTTP_USER_AGENT'])
-    ? strtolower($_SERVER['HTTP_USER_AGENT'])
+    ? ! empty($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : ''
     : '';
 defined('USES_IE') || define('USES_IE', preg_match('/MSIE|Trident/i', $userAgent));
 
@@ -39,5 +39,8 @@ function specialUrlEncode($input) {
  * @return  string
  */
 function specialUrlDecode($input) {
+    if (is_array($input)) {
+        $input = $input[0];
+    }
     return strtr($input, '-_.', '+/=');
 }
