@@ -114,6 +114,7 @@ class PortalController extends AbstractBase
 	        $vars['status'] = 'Bug was reported';
 	        $recipients = explode(",", $config->Feedback->ReportBugRecipients);
 	        $this->sendMailToPersons('CPK feedback: ohlášení chyby [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
+	        $systemTable->setAmountOfSentHelps($helpId);
 	    }
 
 	    $view = $this->createViewModel($vars);
