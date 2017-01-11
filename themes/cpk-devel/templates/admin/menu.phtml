@@ -1,10 +1,8 @@
 <aside class="well list-group">
   <a href="/Admin/Configurations" class="list-group-item<?=strtolower($this->layout()->templateName) == "configurations/main" ? ' active' : ''?>"><?=$this->transEsc('configurations')?></a>
-  <a href="/Admin/Translations" class="list-group-item<?=strtolower($this->layout()->templateName) == "translations/main" ? ' active' : ''?>"><?=$this->transEsc('translations')?></a>
 
   <? if ($isPortalAdmin): ?>
     <a href="/Admin/ConfigurationsApproval" class="list-group-item<?=strtolower($this->layout()->templateName) == "configurations/approval" ? ' active' : ''?>"><?=$this->transEsc('configurations_approval')?></a>
-    <a href="/Admin/TranslationsApproval" class="list-group-item<?=strtolower($this->layout()->templateName) == "translations/approval" ? ' active' : ''?>"><?=$this->transEsc('translations_approval')?></a>
     <a href="/Admin/PortalPages" class="list-group-item<?=strtolower($this->layout()->templateName) == "portalpages" ? ' active' : ''?>"><?=$this->transEsc('Portal pages')?></a>
     <a href="/Admin/Widgets" class="list-group-item<?=strtolower($this->layout()->templateName) == "widgets/main" ? ' active' : ''?>"><?=$this->transEsc('Widgets')?></a>
     <div style=" margin-left: 15px; ">
