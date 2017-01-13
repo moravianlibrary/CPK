@@ -20,9 +20,11 @@ jQuery( document ).ready( function( $ ) {
 			if ( groupsCount == 1 ) {
 				$( '.remove-advanced-search-group' ).parent().hide( 'blind', {}, 200);
 				$( '#group-join-type-row' ).hide( 'blind', {}, 200);
+				$( '.not-query' ).attr( 'hidden', 'hidden' );
 			} else {
 				$( '.remove-advanced-search-group' ).parent().show( 'blind', {}, 200);
 				$( '#group-join-type-row' ).show( 'blind', {}, 200);
+				$( '.not-query' ).removeAttr( 'hidden' );
 			}
 		},
 
