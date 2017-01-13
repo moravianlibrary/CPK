@@ -747,3 +747,6 @@ ALTER TABLE `system` DROP COLUMN `amount_of_sent_helps`;
 INSERT INTO `system` (`key`, `value`) VALUES ('SENT_HELPS', '1000');
 UPDATE `system` SET `value` = '56' WHERE `key`='DB_VERSION';
 
+/* feat-298 */
+DROP TABLE `inst_translations`;
+UPDATE `system` SET `value` = '57' WHERE `key`='DB_VERSION';

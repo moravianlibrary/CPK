@@ -64,7 +64,6 @@ $config = array(
                     'portalpages' => 'CPK\Db\Table\Factory::getPortalPages',
                     'notifications' => 'CPK\Db\Table\Factory::getNotifications',
                     'notification_types' => 'CPK\Db\Table\Factory::getNotificationTypes',
-                    'inst_translations' => 'CPK\Db\Table\Factory::getInstitutionsTranslations',
                     'inst_configs' => 'CPK\Db\Table\Factory::getInstitutionsConfigs',
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
@@ -204,8 +203,6 @@ $staticRoutes = array(
     'MyResearch/Settings',
     'Admin/Configurations',
     'Admin/ConfigurationsApproval',
-    'Admin/Translations',
-    'Admin/TranslationsApproval',
     'Admin/PortalPages',
     'Admin/PermissionsManager'
 );
