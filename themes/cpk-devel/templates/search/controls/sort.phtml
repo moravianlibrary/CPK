@@ -1,4 +1,9 @@
-<? $list = $this->params->getSortList(); if (!empty($list)): ?>
+<? $list = $this->params->getSortList(); if (!empty($list)):
+
+    // There was a request to disable sorting by author only within favorites, so:
+    // Note that this cannot be done in any nicer way through config without breaking the conventions
+    unset($list['author']);
+?>
   <form class="form-inline" action="<?=$this->currentPath()?>" method="get" name="sort">
     <?=$this->results->getUrlQuery()->asHiddenFields(array('sort' => '/.*/'));?>
     <label class='dropdown-select-label'>
