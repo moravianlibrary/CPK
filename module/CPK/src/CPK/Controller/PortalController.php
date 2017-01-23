@@ -95,6 +95,8 @@ class PortalController extends AbstractBase
 
 	    $config = $this->getConfig();
 
+	    $template = 'portal/feedback';
+
 	    if ($subAction == 'RequestHelp') {
 	        $systemTable = $this->getTable("system");
 	        $lastHelpId = $systemTable->getAmountOfSentHelps();
@@ -104,6 +106,7 @@ class PortalController extends AbstractBase
 	        $recipients = explode(",", $config->Feedback->RequestHelpRecipients);
 	        $this->sendMailToPersons('CPK feedback: žádost o pomoc [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
 	        $systemTable->setAmountOfSentHelps($helpId);
+	        $template = 'portal/feedback-sent';
 	    }
 
 	    if ($subAction == 'ReportBug') {
@@ -114,10 +117,12 @@ class PortalController extends AbstractBase
 	        $vars['status'] = 'Bug was reported';
 	        $recipients = explode(",", $config->Feedback->ReportBugRecipients);
 	        $this->sendMailToPersons('CPK feedback: ohlášení chyby [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
+	        $systemTable->setAmountOfSentHelps($helpId);
+			$template = 'portal/feedback-sent';
 	    }
 
 	    $view = $this->createViewModel($vars);
-	    $view->setTemplate('portal/feedback');
+	    $view->setTemplate($template);
 
 	    if ($user = $this->getAuthManager()->isLoggedIn()) {
 	        $view->setVariable('userFullName', trim($user['firstname'].' '.$user['lastname']));

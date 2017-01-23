@@ -134,21 +134,6 @@ class Factory
     }
 
     /**
-     * Construct the inst_translations table.
-     *
-     * @param ServiceManager $sm
-     *            Service manager.
-     *
-     * @return InstTranslations
-     */
-    public static function getInstitutionsTranslations(ServiceManager $sm)
-    {
-        return new InstTranslations($sm->getServiceLocator()
-            ->get('VuFind\Config')
-            ->get('config'));
-    }
-
-    /**
      * Construct the inst_configs table.
      *
      * @param ServiceManager $sm
