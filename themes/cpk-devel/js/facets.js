@@ -60,7 +60,11 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     } else if (this.isApplied) {
       html += '<i class="fa fa-check pull-right"></i>';
     }
-    html += ' ' + this.displayText;
+    if (this.displayText == 'online') {
+    	html += ' <b>' + this.displayText + '<b>';
+    } else {
+    	html += ' ' + this.displayText;
+    }
     html += '</span>';
 
     var children = null;
