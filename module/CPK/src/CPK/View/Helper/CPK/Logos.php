@@ -89,26 +89,11 @@ class Logos extends \Zend\View\Helper\AbstractHelper
     public function getLogo($source)
     {
 
-        if (isset($this->idpLogosFromDb[$source])) {
-            return $this->idpLogosFromDb[$source];
-        }
+        $logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/cpk-devel/images/institutions/logos/'.$source.'/'.$source.'.png';
+        $logoPath = __DIR__.'/../../../../../../../themes/cpk-devel/images/institutions/logos/'.$source.'/'.$source.'.png';
 
-        $latestConfigLogo = $this->instConfigsTable->getLatestApprovedLogo($source);
-
-        if ($latestConfigLogo !== false) {
-            $this->idpLogosFromDb[$source] = $latestConfigLogo;
-            return $latestConfigLogo;
-        }
-
-        if (isset($this->idpLogosFromShibConf[$source])) {
-            return $this->idpLogosFromShibConf[$source];
-        }
-
-        $hasDot = ($pos = strpos($source, '.')) !== false;
-
-        if ($hasDot) {
-            $sourceWithoutAdot = substr($source, 0, $pos);
-            return $this->getLogo($sourceWithoutAdot);
+        if (file_exists($logoPath)) {
+            return $logoUrl;
         }
 
         return '';

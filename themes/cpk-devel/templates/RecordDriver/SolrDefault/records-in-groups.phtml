@@ -5,8 +5,11 @@
 
 	  	$recordSource = explode(".", $this->driver->getUniqueId())[0];
 
-	  	$logoUrl = $this->logos()->getLogo($recordSource);
 	  	$currentInstitution = $this->translate('source_'.$recordSource);
+
+	  	$logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/cpk-devel/images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
+	  	$logoPath = __DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
+	  	$logoIsAvailable = file_exists($logoPath);
   	?>
 
 
@@ -20,7 +23,7 @@
 		<h3 style="margin-top: 5px; margin-bottom: 5px; padding: 10px 10px 30px 10px;">
 	<? endif;?>
 
-			<? if ($logoUrl) : ?>
+			<? if ($logoIsAvailable) : ?>
 				<img class='hidden-xs' height='20' src='<?=$logoUrl?>' align='left' style='margin-right: 8px;'>
 			<? endif;?>
 
@@ -61,12 +64,15 @@
 	  				$link = $record['id'];
 	  				$source = $record['source'];
 	  				$sourceWithoutPrefix = substr($source, 7);
-	  				$logoUrl = $this->logos()->getLogo($sourceWithoutPrefix);
 
   					echo "<li><a href='".$this->url('record', array('id' => $link))."?referer=".$this->referer."' title='".$this->translate($source)."'><div class='record-group-list-item'>";
 
-  					if ($logoUrl)
-  					    echo "<img class='hidden-xs pull-right' height='16' src='$logoUrl'>";
+  					$logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/cpk-devel/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
+  					$logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
+  					$logoIsAvailable = file_exists($logoPath);
+
+  					if ($logoIsAvailable)
+  					    echo "<img class='hidden-xs pull-right' height='16' src='".$logoUrl."'>";
 
   					echo "<span>".$this->translate($source)."</span>";
 
