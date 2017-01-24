@@ -1776,9 +1776,13 @@ class AjaxController extends AjaxControllerBase
 	    $recordDriver = $recordLoader->load($recordId);
 
 	    $parentRecordID = $recordDriver->getParentRecordID();
-	    $parentRecordDriver = $recordLoader->load($parentRecordID);
+	    try {
+	       $parentRecordDriver = $recordLoader->load($parentRecordID);
+	    } catch (\Exception $e) {
+	        //ignore exception when there is no record and continue rendering
+	    }
 
-	    $childrenIds = $parentRecordDriver->getChildrenIds();
+	    $childrenIds = $parentRecordDriver ? $parentRecordDriver->getChildrenIds() : [];
 
 	    return $childrenIds;
 	}
