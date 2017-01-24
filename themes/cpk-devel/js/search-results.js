@@ -20,9 +20,11 @@ jQuery( document ).ready( function( $ ) {
 			if ( groupsCount == 1 ) {
 				$( '.remove-advanced-search-group' ).parent().hide( 'blind', {}, 200);
 				$( '#group-join-type-row' ).hide( 'blind', {}, 200);
+				$( '.not-query' ).attr( 'hidden', 'hidden' );
 			} else {
 				$( '.remove-advanced-search-group' ).parent().show( 'blind', {}, 200);
 				$( '#group-join-type-row' ).show( 'blind', {}, 200);
+				$( '.not-query' ).removeAttr( 'hidden' );
 			}
 		},
 
@@ -402,8 +404,9 @@ jQuery( document ).ready( function( $ ) {
 		        		// Disable submit button until ajax finishes
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).attr( 'disabled', true );
 		        		
-	        		    	// Let another applications know we are loading new results ..
-	        		        window.dispatchEvent(new CustomEvent('searchResultsLoading'));
+        		    	// Let another applications know we are loading new results ..
+		        		var event = document.createEvent("CustomEvent");
+		        		event.initCustomEvent('searchResultsLoading', false, false, {});
 		        	},
 		        	success: function( response ) {
 		        		
@@ -474,7 +477,7 @@ jQuery( document ).ready( function( $ ) {
 			        			$( '#no-results-container' ).hide( 'blind', {}, 200, function(){
 			        				$( this ).css( 'display', 'none' );
 			        			} );
-			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container' ).show( 'blind', {}, 500 );
+			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container, .save-advanced-search-results, .save-basic-search-results' ).show( 'blind', {}, 500 );
 			        		} else {
 			        			//console.log(' responseData.recordTotal: ');
 			        			//console.log( responseData.recordTotal );
@@ -482,11 +485,12 @@ jQuery( document ).ready( function( $ ) {
 			        			$( '#no-results-container strong' ).text( data.lookfor0[0] );
 			        			
 			        			$( '#no-results-container' ).show( 'blind', {}, 500 );
-			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container' ).hide( 'blind', {}, 200 );
+			        			$( '.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container, .save-advanced-search-results, .save-basic-search-results' ).hide( 'blind', {}, 200 );
 			        		}
 
 		        		    	// Let another applications know we have loaded new results ..
-		        		        window.dispatchEvent(new CustomEvent('searchResultsLoaded'));
+		        		        var event = document.createEvent("CustomEvent");
+				        		event.initCustomEvent('searchResultsLoaded', false, false, {});
 			        		
 		        		} else {
 		        			console.error(response.data);

@@ -199,6 +199,7 @@
           <span class="pull-right search-box-right">
           <a href="#" class="search-type-template-switch" ><?=$this->translate("Advanced Search")?></a>
           <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
+            <span class='save-basic-search-results'>
               <? if (is_numeric($this->results->getSearchId())): ?>
                   <? if ($this->results->isSavedSearch()): ?>
                       <a class="save-search-link" id='remove-from-saved-searches' data-search-id='<?=urlencode($this->results->getSearchId())?>' title='<?=$this->translate('Delete saved search')?>'>
@@ -211,6 +212,7 @@
                       </a>
                   <? endif; ?>
               <? endif; ?>
+            </span>
           <? endif; ?>
           </span>
       <? elseif ($this->frontpage): ?>

@@ -30,7 +30,6 @@ use MZKCommon\Controller\ExceptionsTrait, CPK\Db\Row\User;
 use VuFind\Exception\Auth as AuthException;
 use Zend\Mvc\MvcEvent;
 use CPK\Service\ConfigurationsHandler;
-use CPK\Service\TranslationsHandler;
 use Zend\View\Model\ViewModel;
 use Zend\View\Model\JsonModel;
 
@@ -132,52 +131,6 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'alephTemplate' => $configHandler->getAlephTemplate(),
             'configs' => $configHandler->getAllRequestConfigsWithActive()
         ], 'admin/configurations/approval.phtml');
-    }
-
-    /**
-     * Action for requesting tranlations changes
-     *
-     * @return mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
-     */
-    public function translationsAction()
-    {
-        if (! $this->accessManager->isLoggedIn())
-            return $this->forceLogin();
-
-        $translationsHandler = new TranslationsHandler($this);
-
-        $translationsHandler->handlePostRequestFromHome();
-
-        return $this->createViewModel([
-            'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
-            'sourcesBeingAdmin' => $this->accessManager->getInstitutionsWithAdminRights(),
-            'translations' => $translationsHandler->getAdminTranslations(),
-            'supportedLanguages' => $translationsHandler::SUPPORTED_TRANSLATIONS
-        ], 'admin/translations/main.phtml');
-    }
-
-    /**
-     * Action for approval of translations change requests
-     *
-     * @return mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
-     */
-    public function translationsApprovalAction()
-    {
-        if (! $this->accessManager->isLoggedIn())
-            return $this->forceLogin();
-
-            // Must be an portal admin ..
-        $this->accessManager->assertIsPortalAdmin();
-
-        $translationsHandler = new TranslationsHandler($this);
-
-        $translationsHandler->handlePostRequestFromApproval();
-
-        return $this->createViewModel([
-            'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
-            'translations' => $translationsHandler->getAllTranslations(),
-            'supportedLanguages' => $translationsHandler::SUPPORTED_TRANSLATIONS
-        ],'admin/translations/approval.phtml');
     }
 
     public function portalPagesAction()

@@ -16,7 +16,7 @@ class SolrMarc extends ParentSolrMarc
      * @var array
      */
     protected $preferredSnippetFields = [
-        'fulltext'
+        'toc_txt_mv', 'fulltext'
     ];
 
     /**

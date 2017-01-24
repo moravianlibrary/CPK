@@ -1,0 +1,15 @@
+<?
+  $portalPage = $this->portalPages()->getPage('dekujeme-vam-za-zpetnou-vazbu', explode("-", $this->layout()->userLang)[0]);
+
+  $title = $portalPage['title'].' | '.$this->translate('Central Library Portal');
+  $this->layout()->title = $title;
+  $this->headTitle($title);
+?>
+<div class='white-box clearfix portal-page'>
+  <div class="title">
+    <h1><?=$portalPage['title']?></h1>
+  </div>
+  <div class='content'>
+    <?=$portalPage['content']?>
+  </div>
+</div>

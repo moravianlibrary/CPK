@@ -100,7 +100,6 @@ if (! ($angularForbiddenForIE && USES_IE)) {
 
             'ng-cpk/admin/module.js',
             'ng-cpk/admin/configurations/conf.controller.js',
-            'ng-cpk/admin/translations/trans.controller.js',
 
             'ng-cpk/history/module.js',
             'ng-cpk/history/checkedouthistory.controller.js',

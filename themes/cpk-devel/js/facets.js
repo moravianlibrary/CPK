@@ -60,7 +60,11 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     } else if (this.isApplied) {
       html += '<i class="fa fa-check pull-right"></i>';
     }
-    html += ' ' + this.displayText;
+    if (this.displayText == 'online') {
+    	html += ' <b>' + this.displayText + '<b>';
+    } else {
+    	html += ' ' + this.displayText;
+    }
     html += '</span>';
 
     var children = null;
@@ -428,7 +432,7 @@ jQuery( document ).ready( function( $ ) {
     /*
      * Shake button on institution facet change
      */
-    $( '#facet_institution' ).on( 'click', '.jstree-checkbox, .jstree-anchor', function( event ) {
+    $( 'body' ).on( 'click', '.jstree-checkbox, .jstree-anchor', function( event ) {
     	$( '.institution-facet-filter-button' ).parent().effect( 'shake', {times:3, distance: 3, direction: 'right'}, 200 );
     });
     

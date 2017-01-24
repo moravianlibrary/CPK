@@ -2,6 +2,7 @@
     $portalPages = $this->portalPages()->getAllPages();
 ?>
 <div class="row">
+  <!--
   <div class="col-sm-3">
     <h2><?=$this->transEsc('Search Options')?></h2>
     <ul>
@@ -23,8 +24,21 @@
       <? endif; ?>
     </ul>
   </div>
+  -->
   <div class="col-sm-3">
     <h2 id='aboutPortalHeader'><?=$this->transEsc('About portal knihovny.cz')?></h2>
+    <ul>
+      <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
+    </ul>
+  </div>
+  <div class="col-sm-3">
+    <h2 id='aboutPortalHeader'><?=$this->transEsc('For libraries')?></h2>
     <ul>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
@@ -33,6 +47,7 @@
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
+      <li><a target='_blank' href='http://projekt.knihovny.cz/' title='<?=$this->translate("More information about CPK project")?>'><?=$this->translate("More information about CPK project")?></a></li>
     </ul>
   </div>
   <div class="col-sm-3">
@@ -45,7 +60,7 @@
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
-      <li><a href="http://www.ptejteseknihovny.cz/"><?=$this->transEsc('Ask a Librarian')?></a></li>
+      <li><a href="http://www.ptejteseknihovny.cz/" target="_blank"><?=$this->transEsc('Ask a Librarian')?></a></li>
     </ul>
   </div>
   <div class="col-sm-3">
@@ -92,7 +107,7 @@
 			<span>&copy; 2015 - <?=date("Y")?></span>
 			<a href='http://mzk.cz/' title='<?=$this->translate('source_mzk');?>' target='_blank'>Moravian Library</a>
 			<br>
-			<span>CPK v1.10.0</span>
+			<span>CPK v1.11.1</span>
 		</p>
 	</div>
   </div>

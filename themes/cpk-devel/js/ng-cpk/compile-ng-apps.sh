@@ -20,7 +20,6 @@ notifications/notif.controller.js
 
 admin/module.js
 admin/configurations/conf.controller.js
-admin/translations/trans.controller.js
 
 history/module.js
 history/checkedouthistory.controller.js
