@@ -665,7 +665,7 @@ class AjaxController extends AjaxControllerBase
                 // Try to get the profile ..
                 $result = $ilsDriver->getMyHistoryPage($patron, $page, $perPage);
             } catch (\Exception $e) {
-                return $this->outputException($e, $cat_username);
+                return $this->outputExceptionWithoutPrefix($e, $cat_username);
             }
 
             $obalky = [];
@@ -1222,6 +1222,48 @@ class AjaxController extends AjaxControllerBase
             // attach the error message into the right table
 
         $message = $this->translate('An error has occurred') . ': ' . $this->translate($e->getMessage());
+
+        if ($cat_username == null) {
+            $cat_username = 'unknown';
+            $source = $cat_username;
+        } else {
+
+            $cat_username = str_replace(':', '\:', $cat_username);
+
+            $splittedCatUsername = explode('.', $cat_username);
+
+            $source = $splittedCatUsername[0];
+
+            $cat_username = join('\.', $splittedCatUsername);
+        }
+
+        $data = [
+            'message' => $message,
+            'cat_username' => $cat_username,
+            'source' => $source
+        ];
+
+        if ($e instanceof VuFind\Exception\ILS) {
+            $data['consideration'] = 'There is a chance you have missing configuration file called "' . §source . '.ini"';
+        }
+
+        return $this->output($data, self::STATUS_ERROR);
+    }
+
+    /**
+     * This function should be provided with cat_username as many of the AJAX implementations
+     * counts on recieving it in order to properly append it to proprietary element.
+     *
+     * @param \Exception $e
+     * @param string $cat_username
+     * @return \Zend\Http\Response
+     */
+    protected function outputExceptionWithoutPrefix(\Exception $e, $cat_username = null) {
+
+        // Something went wrong - include cat_username to properly
+        // attach the error message into the right table
+
+        $message = $this->translate($e->getMessage());
 
         if ($cat_username == null) {
             $cat_username = 'unknown';
