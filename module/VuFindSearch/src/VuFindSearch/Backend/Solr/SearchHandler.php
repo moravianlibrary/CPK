@@ -259,8 +259,11 @@ class SearchHandler
     {
         $dismaxParams = [];
         foreach ($this->specs['DismaxParams'] as $param) {
+            $key = $param[0];
+            $value = $param[1];
+            $value = str_replace('@query', $search, $value);
             $dismaxParams[] = sprintf(
-                "%s='%s'", $param[0], addcslashes($param[1], "'")
+                "%s='%s'", $key, addcslashes($value, "'")
             );
         }
         $dismaxQuery = sprintf(
