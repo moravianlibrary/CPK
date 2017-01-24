@@ -2,6 +2,7 @@
     $portalPages = $this->portalPages()->getAllPages();
 ?>
 <div class="row">
+  <!--
   <div class="col-sm-3">
     <h2><?=$this->transEsc('Search Options')?></h2>
     <ul>
@@ -23,8 +24,21 @@
       <? endif; ?>
     </ul>
   </div>
+  -->
   <div class="col-sm-3">
     <h2 id='aboutPortalHeader'><?=$this->transEsc('About portal knihovny.cz')?></h2>
+    <ul>
+      <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
+    </ul>
+  </div>
+  <div class="col-sm-3">
+    <h2 id='aboutPortalHeader'><?=$this->transEsc('For libraries')?></h2>
     <ul>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
