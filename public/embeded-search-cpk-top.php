@@ -1,5 +1,5 @@
 <?php
-    include_once(__DIR__."/../themes/cpk-devel/templates/portal/embeded-search-cpk.phtml");
+    include_once(__DIR__."/../themes/cpk-devel/templates/portal/embeded-search-cpk-top.phtml");
     exit();
 ?>
 
@@ -25,7 +25,7 @@
 		allowfullscreen="true"
 		webkitallowfullscreen="true"
 		mozallowfullscreen="true"
-		oallowfullscreen="true"
+		allowfullscreen="true"
 		msallowfullscreen="true"
 		frameborder="0"
 		scrolling="no"
@@ -33,7 +33,7 @@
 		marginwidth="0"
 		width="400"
         height="100"
-        src="https://beta.knihovny.cz/embeded-search-cpk.php">
+        src="https://knihovny.cz/embeded-search-cpk-top.php">
     </iframe>
   </body>
 </html>
