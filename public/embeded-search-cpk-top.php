@@ -31,7 +31,7 @@
 		scrolling="no"
 		marginheight="0"
 		marginwidth="0"
-		width="700"
+		width="400"
         height="100"
         src="https://knihovny.cz/embeded-search-cpk-top.php">
     </iframe>
