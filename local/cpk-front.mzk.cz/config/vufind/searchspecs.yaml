@@ -345,6 +345,9 @@ AllFields:
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+  DismaxHandler: edismax
   QueryFields:
     0:
       0:
