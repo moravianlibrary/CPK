@@ -856,6 +856,20 @@ jQuery( document ).ready( function( $ ) {
 
 		$( "input[name='page']" ).val( '1' );
 
+		if ($('#facet_cpk_detected_format_facet_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
+			//remove all statuses
+			var allStatuses = $('#facet_cpk_detected_format_facet_str_mv').jstree(true).get_json('#', {flat: true});
+			$.each(allStatuses, function (index, value) {
+				ADVSEARCH.removeFacetFilter(value['id'], false);
+			});
+
+			//add selected statuses
+			var selectedStatuses = $('#facet_cpk_detected_format_facet_str_mv').jstree(true).get_bottom_selected();
+			$.each(selectedStatuses, function (index, value) {
+				ADVSEARCH.addFacetFilter(value, false);
+			});
+		};
+
 		if ($('#facet_local_statuses_facet_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
 			//remove all statuses
 			var allStatuses = $('#facet_local_statuses_facet_str_mv').jstree(true).get_json('#', {flat: true});

@@ -37,7 +37,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
         html +="";
     }
     else {
-        if (facetName == "local_statuses_facet_str_mv" ) {
+        if (facetName == "local_statuses_facet_str_mv" || facetName == "cpk_detected_format_facet_str_mv") {
             html += "";
         }
         else {
@@ -71,7 +71,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     if (typeof this.children !== 'undefined' && this.children.length > 0) {
       children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
     }
-      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv") {
+      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv" || facetName == "cpk_detected_format_facet_str_mv") {
           json.push({
               'id': facetFilter,
               'text': html,
