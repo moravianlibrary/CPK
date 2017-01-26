@@ -348,7 +348,6 @@ AllFields:
     - [bq, "author_exact:\"@query\"^20000"]
     - [bq, "title_exact:\"@query\"^10000"]
     - [bf, ord(publishDateSort)^1]
-  DismaxHandler: edismax
   QueryFields:
     0:
       0:
