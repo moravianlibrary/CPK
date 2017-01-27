@@ -62,6 +62,8 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forceLogin();
         }
 
+        $this->preSetAutocompleteParams();
+
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
 
@@ -133,6 +135,8 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
+
+        $this->preSetAutocompleteParams();
 
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
@@ -239,6 +243,8 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
+
+        $this->preSetAutocompleteParams();
 
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
@@ -374,6 +380,8 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forceLogin();
         }
 
+        $this->preSetAutocompleteParams();
+
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
             return $this->forwardTo('LibraryCards', 'Home');
@@ -395,6 +403,8 @@ class MyResearchController extends MyResearchControllerBase
         if (! $this->listsEnabled()) {
             throw new \Exception('Lists disabled');
         }
+
+        $this->preSetAutocompleteParams();
 
         $config = $this->getConfig();
 
@@ -517,6 +527,8 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
+
+        $this->preSetAutocompleteParams();
 
         // Forwarding for Dummy connector to Home page ..
         if ($this->isLoggedInWithDummyDriver($user)) {
@@ -658,6 +670,8 @@ class MyResearchController extends MyResearchControllerBase
             return $this->forceLogin();
         }
 
+        $this->preSetAutocompleteParams();
+
         /* Citation style fieldset */
         $citationStyleTable = $this->getTable('citationstyle');
         $availableCitationStyles = $citationStyleTable->getAllStyles();
@@ -709,6 +723,72 @@ class MyResearchController extends MyResearchControllerBase
         //
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
+
+        $searchesConfig = $this->getConfig('searches');
+        // If user have preferred limit and sort settings
+        if ($user = $this->getAuthManager()->isLoggedIn()) {
+            $userSettingsTable = $this->getTable("usersettings");
+
+            $userSettingsTable = $this->getTable("usersettings");
+            $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
+            $preferredSorting = $userSettingsTable->getSorting($user);
+
+            if ($preferredRecordsPerPage) {
+                $this->layout()->limit = $preferredRecordsPerPage;
+            } else {
+                $this->layout()->limit = $searchesConfig->General->default_limit;
+            }
+
+            if ($preferredSorting) {
+                $this->layout()->sort = $preferredSorting;
+            } else {
+                $this->layout()->sort = $searchesConfig->General->default_sort;
+            }
+        } else {
+            $this->layout()->limit = $searchesConfig->General->default_limit;
+            $this->layout()->sort = $searchesConfig->General->default_sort;
+        }
+
+        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
+        $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
+
+
         return $view;
+    }
+
+    /**
+     * Functions presets limit and sort type for autocomplete
+     *
+     * @return  void
+     */
+    protected function preSetAutocompleteParams()
+    {
+        $searchesConfig = $this->getConfig('searches');
+        // If user have preferred limit and sort settings
+        if ($user = $this->getAuthManager()->isLoggedIn()) {
+            $userSettingsTable = $this->getTable("usersettings");
+
+            $userSettingsTable = $this->getTable("usersettings");
+            $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
+            $preferredSorting = $userSettingsTable->getSorting($user);
+
+            if ($preferredRecordsPerPage) {
+                $this->layout()->limit = $preferredRecordsPerPage;
+            } else {
+                $this->layout()->limit = $searchesConfig->General->default_limit;
+            }
+
+            if ($preferredSorting) {
+                $this->layout()->sort = $preferredSorting;
+            } else {
+                $this->layout()->sort = $searchesConfig->General->default_sort;
+            }
+        } else {
+            $this->layout()->limit = $searchesConfig->General->default_limit;
+            $this->layout()->sort = $searchesConfig->General->default_sort;
+        }
+
+        $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
+        $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
     }
 }

@@ -28,6 +28,7 @@ jQuery( document ).ready( function( $ ) {
 			success: function( response ) {
 				$( '.searchForm input[name="limit"]' ).val(value);
 				$( '.records-per-page-status i' ).removeClass('fa-spinner fa-spin').addClass('fa-thumbs-o-up');
+				$( "input[name='limit']" ).val( value );
 			}
 		});
 	});
