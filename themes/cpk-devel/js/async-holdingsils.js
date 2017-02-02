@@ -18,51 +18,79 @@ var holdingsILS = {
     // Async holdings loader
     getHoldingStatuses : function(ids, nit) {
 
-	if (typeof ids !== 'object')
-	    ids = holdingsILS.getHoldingsIds();
+		if (typeof ids !== 'object')
+		    ids = holdingsILS.getHoldingsIds();
+		
+		var siglas = holdingsILS.getHoldingsSiglas( );
+		
+		if (typeof nit === 'undefined') { nit = null; }
 	
-	if (typeof nit === 'undefined') { nit = null; }
-
-	var activeFilter;
-	// If we have active filter, append it to the query
-	if (typeof holdingsILSfilters !== 'undefined') {
-
-	    holdingsILSfilters.init();
-
-	    activeFilter = holdingsILSfilters.activeFilter;
-	}
-
-	if (ids.length != 0) {
-
-	    var data = {
-		ids : ids,
-		bibId : holdingsILS.bibId,
-		next_item_token : nit
-	    };
-
-	    // Append the filter if any
-	    if (typeof activeFilter !== 'undefined')
-		data['activeFilter'] = activeFilter;
-
-	    $.ajax({
-		type : 'POST',
-		url : '/AJAX/JSON?method=getHoldingsStatuses',
-		dataType : 'json',
-		async : true,
-		// json object to sent to the authentication url
-		data : data,
-		success : function(response) {
-		    holdingsILS.processGetHoldingStatusesResponse(response);
-		},
-		error : function(msg) {
-		    
-		    if (typeof msg === "object" && typeof msg.toSource !== "undefined") // Only Mozilla can convert object to source string ..
-			msg = msg.toSource();
-		    
-		    console.error("async-holdingsils.js produced an error while doing AJAX:\n" + msg, arguments);
+		var activeFilter;
+		// If we have active filter, append it to the query
+		if (typeof holdingsILSfilters !== 'undefined') {
+	
+		    holdingsILSfilters.init();
+	
+		    activeFilter = holdingsILSfilters.activeFilter;
 		}
-	    })
-	}
+	
+		if (ids.length != 0) {
+
+		    var data = {
+			ids : ids,
+			bibId : holdingsILS.bibId,
+			next_item_token : nit,
+			siglas : siglas
+		    };
+	
+		    // Append the filter if any
+		    if (typeof activeFilter !== 'undefined')
+			data['activeFilter'] = activeFilter;
+	
+		    var source = data.bibId.split(".")[0];
+		    
+		    
+		    if (source == 'caslin') {
+	    	 $.ajax({
+				type : 'POST',
+				url : '/AJAX/JSON?method=getCaslinHoldingsStatuses',
+				dataType : 'json',
+				async : true,
+				// json object to sent to the authentication url
+				data : data,
+				success : function(response) {
+				    holdingsILS.processGetCaslinHoldingStatusesResponse(response);
+				},
+				error : function(msg) {
+				    
+				    if (typeof msg === "object" && typeof msg.toSource !== "undefined") // Only Mozilla can convert object to source string ..
+					msg = msg.toSource();
+				    
+				    console.error("async-holdingsils.js produced an error while doing caslin AJAX:\n" + msg, arguments);
+				}
+			  });
+		    } else {
+		    	$.ajax({
+					type : 'POST',
+					url : '/AJAX/JSON?method=getHoldingsStatuses',
+					dataType : 'json',
+					async : true,
+					// json object to sent to the authentication url
+					data : data,
+					success : function(response) {
+					    holdingsILS.processGetHoldingStatusesResponse(response);
+					},
+					error : function(msg) {
+					    
+					    if (typeof msg === "object" && typeof msg.toSource !== "undefined") // Only Mozilla can convert object to source string ..
+						msg = msg.toSource();
+					    
+					    console.error("async-holdingsils.js produced an error while doing AJAX:\n" + msg, arguments);
+					}
+				});
+		    }
+	    
+		}
     },
 
     getHoldingsIds : function(includingBeingLoadedIds) {
@@ -80,6 +108,23 @@ var holdingsILS = {
 	});
 
 	return ids;
+    },
+    
+    getHoldingsSiglas : function(includingBeingLoadedIds) {
+
+    	if (typeof includingBeingLoadedIds === 'undefined')
+    	    includingBeingLoadedIds = false;
+
+    	var siglas = [];
+
+    	holdingsILS.getAllNotLoadedHoldings(true).each(function() {
+    		siglas.push($(this).attr('data-sigla'));
+
+    	    // Add loading class so that we know about being it parsed
+    	    $(this).addClass('loading');
+    	});
+
+    	return siglas;
     },
 
     getAllNotLoadedHoldings : function(includingBeingLoaded) {
@@ -126,6 +171,38 @@ var holdingsILS = {
 		holdingsILS.updateHoldingId(this, data, true);
 	    });
 	}
+    },
+    
+    processGetCaslinHoldingStatusesResponse : function(r) {
+
+    	console.log( 'Caslin AJAX successful' );
+    	var data = r.data;
+    	if (typeof data.dg !== 'undefined') {
+    	    fillDebug(data.dg);
+    	}
+
+    	if (typeof data.links !== 'undefined') {
+    		console.log( 'Links' );
+    		console.log( data.links );
+    		
+    		$( '#holdings-tab tr' ).each( function( index, element ) {
+    			$.each( data.links, function( sigla, link ) {
+    				if ( $( element ).attr( 'id' ) == sigla ) {
+    					
+    					var fullLink = link;
+    					
+    					if (fullLink.substring(0, 8) != "https://" && fullLink.substring(0, 7) != "http://") {
+    						fullLink = 'http://'+fullLink;
+    					}
+    					
+        				var htmlLink = '<a href="'+fullLink+'" target="_blank" title="'+VuFind.translate('caslin_tab_link')+'">'+VuFind.translate('caslin_tab_link')+'</a>';
+        				$( element ).find( 'div[data-type="item-status"]' ).html( htmlLink );
+        			}
+    			});
+    		});
+    		
+    	}
+    	
     },
 
     updateHoldingId : function(id, value, setUnknownLabel) {

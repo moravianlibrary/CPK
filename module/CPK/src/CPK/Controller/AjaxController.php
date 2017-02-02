@@ -33,6 +33,8 @@ class AjaxController extends AjaxControllerBase
 {
     use \VuFind\Db\Table\DbTableAwareTrait;
 
+    protected $skcLinks = 'http://aleph.nkp.cz/web/cpk/skc_links';
+
     /**
      * Downloads SFX JIB content for current record.
      *
@@ -276,6 +278,85 @@ class AjaxController extends AjaxControllerBase
                 'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
                 'msg' => "ILS Driver isn't instanceof MultiBackend - ending job now."
             ], self::STATUS_ERROR);
+    }
+
+    public function getCaslinHoldingsStatusesAjax()
+    {
+        $request = $this->getRequest();
+        $ids = $this->params()->fromPost('ids');
+        $siglas = $this->params()->fromPost('siglas');
+        $bibId = $this->params()->fromPost('bibId');
+        $filter = $this->params()->fromPost('activeFilter');
+        $nit = $this->params()->fromPost('next_item_token');
+
+        $viewRend = $this->getViewRenderer();
+
+        if ($siglas === null || ! is_array($siglas) || empty($siglas)) {
+            return $this->output(
+                [
+                    'status' => $this->getTranslatedUnknownStatus($viewRend)
+                ], self::STATUS_ERROR);
+        } elseif ($bibId === null) {
+            return $this->output([
+                'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
+                'msg' => 'No bibId provided !'
+            ], self::STATUS_ERROR);
+        }
+
+        $retVal = [];
+        $records = [];
+
+        if (count($ids)) {
+            foreach ($ids as $key => $id) {
+                $records[$id] = $siglas[$key];
+            }
+        } else {
+            return $this->output([
+                'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
+                'msg' => 'No records available!'
+            ], self::STATUS_ERROR);
+        }
+
+        if (count($records)) {
+
+            try {
+                $ch = curl_init($this->skcLinks);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+                $html = curl_exec($ch);
+                curl_close($ch);
+
+                $lines = explode("\n", $html);
+                $table = [];
+                foreach ($lines as $line) {
+                    $cols = explode(";", $line);
+
+                    $table[] = [
+                        'siglaCol' => $cols[0],
+                        'linkCol' => $cols[3],
+                    ];
+                }
+
+            } catch (\Exception $e) {
+                return $this->output('false', self::STATUS_ERROR);
+            }
+
+            foreach ($records as $id => $sigla) {
+                foreach ($table as $cols) {
+                    if (strpos($cols['siglaCol'], $sigla) !== false) {
+                        $retVal['links'][$id] = $cols['linkCol'].$id;
+                    }
+                }
+
+            }
+        } else {
+            return $this->output([
+                'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
+                'msg' => 'No records available!'
+            ], self::STATUS_ERROR);
+        }
+
+        return $this->output($retVal, self::STATUS_OK);
     }
 
     /**
