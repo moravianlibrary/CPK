@@ -333,6 +333,7 @@ class AjaxController extends AjaxControllerBase
 
                     $table[] = [
                         'siglaCol' => $cols[0],
+                        'param' => $cols[2],
                         'linkCol' => $cols[3],
                     ];
                 }
@@ -344,7 +345,7 @@ class AjaxController extends AjaxControllerBase
             foreach ($records as $id => $sigla) {
                 foreach ($table as $cols) {
                     if (strpos($cols['siglaCol'], $sigla) !== false) {
-                        $retVal['links'][$id] = $cols['linkCol'].$id;
+                        $retVal['links'][$id] = $cols['linkCol'].$cols['param'].$id;
                     }
                 }
 
