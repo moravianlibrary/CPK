@@ -65,7 +65,7 @@
 	  				$source = $record['source'];
 	  				$sourceWithoutPrefix = substr($source, 7);
 
-  					echo "<li><a href='".$this->url('record', array('id' => $link))."?referer=".$this->referer."' title='".$this->translate($source)."'><div class='record-group-list-item'>";
+  					echo "<li><a href='".$this->url('record', array('id' => $link))."?referer=".$this->referer."#records-in-groups' title='".$this->translate($source)."'><div class='record-group-list-item'>";
 
   					$logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/cpk-devel/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
   					$logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
