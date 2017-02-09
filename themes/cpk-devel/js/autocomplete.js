@@ -46,7 +46,7 @@
       $( '.searchForm' ).submit();
     }
 
-    function createListFrom(shell, input, data, category, main) {
+    function createListFrom(shell, input, data, category, main, searchType) {
 
     	if (main) {
     		shell.append($('<div/>')
@@ -67,9 +67,9 @@
             data[i] = {val: data[i]};
           }
           var content = data[i].val;
-          data[i].href = '/Search/Results?lookfor='
+          data[i].href = '/Search/Results?lookfor0[]='
         	  			+ encodeURIComponent(content).replace("/\+/g", "%20")
-        	  			+ '&type=AllFields&limit=10&sort=relevance';
+        	  			+ '&type0[]='+searchType+'&limit=10&sort=relevance&searchTypeTemplate=basic&bool0[]=AND&join=AND';
           if (options.highlight) {
             // escape term for regex
             // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
@@ -95,6 +95,18 @@
           shell.append(item);
         }
     }
+    
+    function createTitlesListFrom(shell, input, data, category, main) {
+    	createListFrom(shell, input, data, VuFind.translate('in_titles'), false, 'adv_search_title_series');
+    }
+    
+    function createAuthorsListFrom(shell, input, data, category, main) {
+    	createListFrom(shell, input, data, VuFind.translate('in_authors'), false, 'adv_search_author_corporation');
+    }
+    
+    function createSubjectsListFrom(shell, input, data, category, main) {
+    	createListFrom(shell, input, data, VuFind.translate('in_subjects'), false, 'adv_search_subject_keywords');
+    }
 
     function createList(data, input) {
       var shell = $('<div/>');
@@ -104,13 +116,13 @@
       }
       
       if(data.byTitle.length > 0) {
-    	  createListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
+    	  createTitlesListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
       }
       if(data.byAuthor.length > 0) {
-    	  createListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'), false);
+    	  createAuthorsListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'), false);
       }
       if(data.bySubject.length > 0) {
-    	  createListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
+    	  createSubjectsListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
       }
 
       $.fn.autocompleteVufind.element.html(shell);
