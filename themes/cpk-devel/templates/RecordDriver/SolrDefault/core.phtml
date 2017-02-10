@@ -114,9 +114,9 @@
                 <th class="col-md-3"><?=$this->transEsc('Main Author')?>: </th>
                 <td property="author">
                   <? if (! empty($localAuthorityId)): ?>
-                  <a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityId?>"><i class="pr-user-single5 author-icon"></i></a>
+                  <a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityId?>"><?=$this->escapeHtml($authors['main'])?></a> |
                   <? endif; ?>
-                  <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a>
+                  <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?></a>
                 </td>
               </tr>
               <? endif; ?>
