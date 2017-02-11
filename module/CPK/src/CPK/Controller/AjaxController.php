@@ -345,7 +345,13 @@ class AjaxController extends AjaxControllerBase
             foreach ($records as $id => $sigla) {
                 foreach ($table as $cols) {
                     if (strpos($cols['siglaCol'], $sigla) !== false) {
-                        $retVal['links'][$id] = $cols['linkCol'].$cols['param'].$id;
+                        $link = $cols['linkCol'].$cols['param'];
+                        if (strpos(strtolower($cols['linkCol']), 'carmen') !== false) { // if Carmen, use last 8 chars of ID
+                            $link .= substr($id, -8);
+                        } else {
+                            $link .= $id;
+                        }
+                        $retVal['links'][$id] = $link;
                     }
                 }
 
