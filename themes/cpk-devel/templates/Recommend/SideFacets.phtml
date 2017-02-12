@@ -107,7 +107,8 @@ foreach ($queryParams as $key => $value) {
         <? else: ?>
         <div class="col-xs-12 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
         <? endif; ?>
-            <i class="pr-institution-arrow"></i>
+            <i class="pr-institution-arrow" title="<?=$this->translate('Expand or collapse')?>"></i>
+            <!--<?= $this->help()->getElementHelp('Expand or collapse', "<i class='pr-institution-arrow'></i>") ?>-->
             <? $titleHtml = $this->transEsc($cluster['label']); ?>
             <?= $this->help()->getElementHelp('element_help_facet_' . $cluster['label'], $titleHtml) ?>
               <? if (isset($rangeFacets[$title])): ?>
