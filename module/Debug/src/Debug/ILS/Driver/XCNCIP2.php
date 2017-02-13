@@ -20,12 +20,12 @@ class XCNCIP2 extends XCNCIP2Base
             catch (ILSException $e) {
                 $requestFormatted = '<pre>' . $this->xml_highlight($this->formatXml($xml)) . '</pre>';
                 $responseFormatted = '<pre>' . $this->xml_highlight($e->getMessage()) . '</pre>';
-                $GLOBALS['dg'] = $requestFormatted . '<br>' . $responseFormatted;
+                $GLOBALS['dg'] .= $requestFormatted . '<br>' . $responseFormatted;
                 throw $e;
             }
             $requestFormatted = '<pre>' . $this->xml_highlight($this->formatXml($xml)) . '</pre>';
             $responseFormatted = '<pre>' . $this->xml_highlight($this->formatXml($response)) . '</pre>';
-            $GLOBALS['dg'] = $requestFormatted . '<br>' . $responseFormatted;
+            $GLOBALS['dg'] .= $requestFormatted . '<br>' . $responseFormatted;
         }
         else {
             $response = parent::sendRequest($xml);
