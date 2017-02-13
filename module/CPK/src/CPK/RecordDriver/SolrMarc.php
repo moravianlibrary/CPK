@@ -309,6 +309,8 @@ class SolrMarc extends ParentSolrMarc
                 }
                 $holding['w_id'] = array_key_exists('w', $currentField) ? $currentField['w'] : null;
 
+                $holding['sigla'] = array_key_exists('e', $currentField) ? $currentField['e'] : null;
+
                 $holdings[] = $holding;
             }
         }

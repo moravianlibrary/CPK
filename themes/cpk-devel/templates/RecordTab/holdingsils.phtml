@@ -113,6 +113,8 @@ $this->headTitle($this->driver->getBreadcrumb());
   <?
         $rowNo ++;
 
+        $sigla = $row['sigla'];
+
         // Build holding ID to query ILS for status
         if (isset($row['item_id']))
             $itemId = $row['item_id'];
@@ -161,6 +163,10 @@ $this->headTitle($this->driver->getBreadcrumb());
         }
 
         $attributes .= 'class="' . $class . '" ';
+
+        if ($sigla) {
+            $attributes .= 'data-sigla="' . $sigla . '" ';
+        }
 
         ?>
   <tr <?=$attributes?>>
