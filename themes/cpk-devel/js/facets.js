@@ -145,6 +145,7 @@ function initFacetTree(treeNode, inSidebar)
         if (inSidebar) {
           treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
             treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
+            treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
           });
         }
         treeNode.jstree({
@@ -192,6 +193,7 @@ function initFacetOrTree(treeNode, inSidebar)
                 if (inSidebar) {
                     treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
                         treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
+                        treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
                     });
                 }
                 treeNode.jstree({
@@ -243,9 +245,11 @@ function initInstitutionsTree(treeNode, inSidebar)
       if (response.status == "OK") {
         var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
         treeNode.find('.fa-spinner').parent().remove();
+        treeNode.parent().parent().find( '.jstree-icon' ).attr( 'title', VuFind.translate( 'Expand or collapse' ) );
         if (inSidebar) {
           treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
             treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
+            treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
           });
         }
         treeNode.jstree({
