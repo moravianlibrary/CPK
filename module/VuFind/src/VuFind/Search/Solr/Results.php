@@ -266,6 +266,12 @@ class Results extends \VuFind\Search\Base\Results
                 $currentSettings['displayText']
                     = $translate
                     ? $this->translate("$translateTextDomain::$value") : $value;
+                $tooltipvalue = "element_help_facet_".$value;
+                $translatedTooltip = $this->translate("$translateTextDomain::$tooltipvalue");
+                if ($tooltipvalue==$translatedTooltip)
+                    $currentSettings['tooltiptext'] = $currentSettings['displayText'];
+                else
+                    $currentSettings['tooltiptext'] = $translatedTooltip;
                 $currentSettings['count'] = $count;
                 $currentSettings['operator']
                     = $this->getParams()->getFacetOperator($field);

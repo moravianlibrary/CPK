@@ -50,7 +50,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
         }
     }
 
-    html += "' title='" + htmlEncode(this.displayText) + "'>";
+    html += "' title='" + htmlEncode(this.tooltiptext) + "'>";
     if (this.operator == 'OR') {
       if (this.isApplied) {
         html += '<i class="fa fa-check-square-o"></i>';
