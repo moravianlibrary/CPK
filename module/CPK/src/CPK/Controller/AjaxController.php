@@ -330,12 +330,13 @@ class AjaxController extends AjaxControllerBase
                 $table = [];
                 foreach ($lines as $line) {
                     $cols = explode(";", $line);
-
-                    $table[] = [
-                        'siglaCol' => $cols[0],
-                        'param' => $cols[2],
-                        'linkCol' => $cols[3],
-                    ];
+                    if (isset($cols[3])) {
+                        $table[] = [
+                            'siglaCol' => $cols[0],
+                            'param' => $cols[2],
+                            'linkCol' => $cols[3],
+                        ];
+                    }
                 }
 
             } catch (\Exception $e) {

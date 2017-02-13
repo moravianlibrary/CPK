@@ -175,15 +175,12 @@ var holdingsILS = {
     
     processGetCaslinHoldingStatusesResponse : function(r) {
 
-    	console.log( 'Caslin AJAX successful' );
     	var data = r.data;
     	if (typeof data.dg !== 'undefined') {
     	    fillDebug(data.dg);
     	}
 
     	if (typeof data.links !== 'undefined') {
-    		console.log( 'Links' );
-    		console.log( data.links );
     		
     		$( '#holdings-tab tr' ).each( function( index, element ) {
     			$.each( data.links, function( sigla, link ) {
@@ -201,6 +198,11 @@ var holdingsILS = {
     			});
     		});
     		
+    		$( '#holdings-tab tr div[data-type="item-status' ).each( function( index, element ) {
+    			if ( ! $( element ).find( 'a' ).length ) {
+    				$( element ).html( '<i class="label label-info">'+VuFind.translate('unknown status')+'</label>' );
+    			}
+    		});
     	}
     	
     },
