@@ -185,7 +185,9 @@
         search(input, element);
       });
       input.focus(function() {
-        search(input, element);
+    	  if (input.val().length == 0) {
+    		  search(input, element);
+    	  }
       });
       input.keyup(function(event) {
         // Ignore navigation keys
