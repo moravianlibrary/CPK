@@ -8,8 +8,8 @@
     	$categoryUrl = $baseUrl.specialUrlEncode(\LZCompressor\LZString::compressToBase64('conspectus_str_mv:"0/'.$category.'/"'));
 	?>
           <div class='category list-group-item clearfix'>
-            <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
-              <i class='fa fa-plus'> </i>&nbsp;&nbsp;
+            <a href='#' title='<?=$this->translate('Expand or collapse')?>' class='expand-category'>
+              <i class='pr-institution-arrow collapsed'> </i>
             </a>
             <a href='<?=$categoryUrl?>' title='<?=$this->escapeHtml($category)?>' class='category-text'>
               <?=$this->escapeHtml($category)?>
@@ -42,10 +42,10 @@ jQuery( document ).ready( function( $ ) {
 		var expandedCategoryElement = $( this ).parent().find( '.expanded-category' );
 		if( expandedCategoryElement.hasClass( 'hidden' ) ) {
 			expandedCategoryElement.removeClass( 'hidden' );
-			expandedCategoryElement.parent().find( 'i.fa' ).removeClass( 'fa-plus' ).addClass( 'fa-minus' );
+			expandedCategoryElement.parent().find( 'i.pr-institution-arrow' ).removeClass( 'collapsed' ).addClass( 'expanded' );
 		} else {
 			expandedCategoryElement.addClass( 'hidden' );
-			expandedCategoryElement.parent().find( 'i.fa' ).removeClass( 'fa-minus' ).addClass( 'fa-plus' );
+			expandedCategoryElement.parent().find( 'i.pr-institution-arrow' ).removeClass( 'expanded' ).addClass( 'collapsed' );
 		}
 	});
 

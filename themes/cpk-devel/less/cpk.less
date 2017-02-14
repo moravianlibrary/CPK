@@ -233,7 +233,7 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
     display: inline-block;
 }    
 
-.jstree-ocl, .pr-institution-arrow {
+.jstree-ocl, .pr-institution-arrow, #conspectus i.pr-institution-arrow {
     -webkit-transition: all 0.5s ease 0s;
     -moz-transition: all 0.5s ease 0s;
     -o-transition: all 0.5s ease 0s;
@@ -241,7 +241,7 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
     transition: all 0.5s ease 0s;
 }
               
-.collapsed .pr-institution-arrow:hover {
+.collapsed .pr-institution-arrow:hover, #conspectus i.pr-institution-arrow.collapsed:hover {
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
@@ -249,12 +249,20 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
     transform: rotate(90deg);
 }
 
- .pr-institution-arrow:hover {
+.pr-institution-arrow:hover {
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
     -ms-transform: rotate(-90deg);
     -o-transform: rotate(-90deg);
     transform: rotate(-90deg);
+}
+
+#conspectus i.pr-institution-arrow.expanded:hover {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
 }
  
 .jstree-open .jstree-ocl:hover {
@@ -265,10 +273,20 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
     transform: rotate(-90deg);
 }
 
- .jstree-ocl:hover {
+.jstree-ocl:hover, #conspectus i.pr-institution-arrow.expanded {
    -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
     -o-transform: rotate(90deg);
     transform: rotate(90deg);
+}
+
+#conspectus i.pr-institution-arrow:before {
+    content: "\ead8";
+    color: #e5004b;
+    font-size: 17px;
+}
+
+#conspectus i.pr-institution-arrow {
+    margin-top: 4px;
 }
