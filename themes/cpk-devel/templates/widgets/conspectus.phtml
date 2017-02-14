@@ -8,8 +8,8 @@
     	$categoryUrl = $baseUrl.specialUrlEncode(\LZCompressor\LZString::compressToBase64('conspectus_str_mv:"0/'.$category.'/"'));
 	?>
           <div class='category list-group-item clearfix'>
-            <a href='#' title='<?=$this->translate('Expand category')?>' class='expand-category'>
-              <i class='fa fa-plus'> </i>&nbsp;&nbsp;
+            <a href='#' title='<?=$this->translate('Expand or collapse')?>' class='expand-category'>
+              <i class='pr-institution-arrow'> </i>
             </a>
             <a href='<?=$categoryUrl?>' title='<?=$this->escapeHtml($category)?>' class='category-text'>
               <?=$this->escapeHtml($category)?>
