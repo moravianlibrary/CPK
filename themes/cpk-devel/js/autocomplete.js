@@ -39,10 +39,17 @@
       $.fn.autocompleteVufind.element.addClass(options.hidingClass);
     }
 
-    function populate(value, input, eventType) {
+    function populate(value, input, eventType, clickedResult, clickedResultId) {
       input.val(value);
       hide();
       input.trigger('autocompleteVufind:select', {value: value, eventType: eventType});
+      
+      if (clickedResult) {
+    	  var href = jQuery( '#'+clickedResultId ).attr( 'href' );
+    	  window.location.href = href;
+    	  return false;
+      }
+      
       $( '.searchForm' ).submit();
     }
 
@@ -82,6 +89,7 @@
             : $('<a/>').attr('href', data[i].href);
           item.attr('data-index', i+0)
               .attr('data-value', data[i].val)
+              .attr('id', 'neco-'+i)
               .addClass('item')
               .html(content)
               .mouseover(function() {
@@ -127,7 +135,7 @@
 
       $.fn.autocompleteVufind.element.html(shell);
       $.fn.autocompleteVufind.element.find('.item').mousedown(function() {
-        populate($(this).attr('data-value'), input, {mouse: true});
+        populate($(this).attr('data-value'), input, {mouse: true}, true, $(this).attr('id'));
       });
       align(input, $.fn.autocompleteVufind.element);
     }
