@@ -229,8 +229,51 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
   border-width: 2px;
 }
 
+.pr-institution-arrow {
+    display: inline-block;
+}    
+
+.jstree-ocl, .pr-institution-arrow {
+    -webkit-transition: all 0.5s ease 0s;
+    -moz-transition: all 0.5s ease 0s;
+    -o-transition: all 0.5s ease 0s;
+    -ms-transition: all 0.5s ease 0s;
+    transition: all 0.5s ease 0s;
+}
+              
+.collapsed .pr-institution-arrow:hover {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+ .pr-institution-arrow:hover {
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+ 
+.jstree-open .jstree-ocl:hover {
+   -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+ .jstree-ocl:hover {
+   -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
 #conspectus i.pr-institution-arrow:before {
     content: "\ead8";
     color: #e5004b;
     font-size: 17px;
-}
