@@ -16,7 +16,12 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
       facetFilter = facetFilterBase;
     }
     if (!this.isApplied && counts) {
-      html = "<span class='badge' style='float: right'>" + this.count.toString().replace(/\B(?=(\d{3})+\b)/g, VuFind.translate("number_thousands_separator"));
+      html = "<span class='badge";
+      if (facetName == "cpk_detected_format_facet_str_mv") {
+          html += " show-numbers";
+      }
+
+      html += "' style='float: right'>" + this.count.toString().replace(/\B(?=(\d{3})+\b)/g, VuFind.translate("number_thousands_separator"));
       if (allowExclude) {
         var excludeURL = currentPath + this.exclude;
         excludeURL.replace("'", "\\'");
