@@ -69,7 +69,7 @@
 
     	var length = Math.min(options.maxResults, data.length);
         input.data('length', length);
-        for (var i=0; i<length; i++) {
+        for (var i=1; i<=length; i++) {
           if (typeof data[i] === 'string') {
             data[i] = {val: data[i]};
           }
@@ -89,7 +89,7 @@
             : $('<a/>').attr('href', data[i].href);
           item.attr('data-index', i+0)
               .attr('data-value', data[i].val)
-              .attr('id', 'neco-'+i)
+              .attr('id', searchType+i)
               .addClass('item')
               .html(content)
               .mouseover(function() {
