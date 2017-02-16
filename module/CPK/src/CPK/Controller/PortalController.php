@@ -98,28 +98,76 @@ class PortalController extends AbstractBase
 	    $template = 'portal/feedback';
 
 	    if ($subAction == 'RequestHelp') {
-	        $systemTable = $this->getTable("system");
-	        $lastHelpId = $systemTable->getAmountOfSentHelps();
-	        $helpId = $lastHelpId + 1;
+	        $recaptcha = json_decode(file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=ITnetwork.cz&response=' . $post['g-recaptcha-response']));
 
-	        $vars['status'] = 'Request for help was sent';
-	        $recipients = explode(",", $config->Feedback->RequestHelpRecipients);
-	        $this->sendMailToPersons('CPK feedback: žádost o pomoc [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
-	        $systemTable->setAmountOfSentHelps($helpId);
-	        $template = 'portal/feedback-sent';
+	        if ($recaptcha->{'success'} == 'false') {
+	            $systemTable = $this->getTable("system");
+    	        $lastHelpId = $systemTable->getAmountOfSentHelps();
+    	        $helpId = $lastHelpId + 1;
+
+    	        $vars['status'] = 'Request for help was sent';
+    	        $recipients = explode(",", $config->Feedback->RequestHelpRecipients);
+    	        $this->sendMailToPersons('CPK feedback: žádost o pomoc [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
+    	        $systemTable->setAmountOfSentHelps($helpId);
+    	        $template = 'portal/feedback-sent';
+	        } else {
+	            if ($recaptcha->{'error-codes'}) {
+	                $vars['captchaError'] = 'captcha_authentication_error_occurred';
+	                if ($recaptcha->{'error-codes'}[0]  == 'missing-input-secret') {
+	                   $vars['captchaErrorLog'] = 'Secret kód nebyl serveru předán';
+	                } elseif ($recaptcha->{'error-codes'}[0]  == 'invalid-input-secret') {
+	                    $vars['captchaErrorLog'] = 'Secret kód je neplatný';
+	                } elseif ($recaptcha->{'error-codes'}[0]  == 'missing-input-response') {
+	                    $vars['captchaErrorLog'] = 'Odpověď klienta nebyla serveru předána';
+	                } elseif ($recaptcha->{'error-codes'}[0]  == 'invalid-input-response') {
+	                    $vars['captchaErrorLog'] = 'Odpověď klienta je neplatná';
+	                }
+	            }
+	            $vars['email'] = $post['email'];
+	            $vars['text'] = $post['text'];
+	            $vars['name'] = $post['name'];
+	            $vars['subAction'] = 'RequestHelp';
+	            $vars['activeTab'] = 'help';
+	        }
 	    }
 
 	    if ($subAction == 'ReportBug') {
-	        $systemTable = $this->getTable("system");
-	        $lastHelpId = $systemTable->getAmountOfSentHelps();
-	        $helpId = $lastHelpId + 1;
+			$recaptcha = json_decode(file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=ITnetwork.cz&response=' . $post['g-recaptcha-response']));
 
-	        $vars['status'] = 'Bug was reported';
-	        $recipients = explode(",", $config->Feedback->ReportBugRecipients);
-	        $this->sendMailToPersons('CPK feedback: ohlášení chyby [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
-	        $systemTable->setAmountOfSentHelps($helpId);
-			$template = 'portal/feedback-sent';
+			if ($recaptcha->{'success'} == 'true') {
+			    $systemTable = $this->getTable("system");
+    	        $lastHelpId = $systemTable->getAmountOfSentHelps();
+    	        $helpId = $lastHelpId + 1;
+
+    	        $vars['status'] = 'Bug was reported';
+    	        $recipients = explode(",", $config->Feedback->ReportBugRecipients);
+    	        $this->sendMailToPersons('CPK feedback: ohlášení chyby [č. '.$helpId.']', $post['text'], $recipients, $post['email'], $post['name']);
+    	        $systemTable->setAmountOfSentHelps($helpId);
+    			$template = 'portal/feedback-sent';
+			} else {
+			    if ($recaptcha->{'error-codes'}) {
+	                $vars['captchaError'] = 'captcha_authentication_error_occurred';
+	                if ($recaptcha->{'error-codes'}  == 'missing-input-secret') {
+	                   $vars['captchaErrorLog'] = 'Secret kód nebyl serveru předán';
+	                } elseif ($recaptcha->{'error-codes'}  == 'invalid-input-secret') {
+	                    $vars['captchaErrorLog'] = 'Secret kód je neplatný';
+	                } elseif ($recaptcha->{'error-codes'}  == 'missing-input-response') {
+	                    $vars['captchaErrorLog'] = 'Odpověď klienta nebyla serveru předána';
+	                } elseif ($recaptcha->{'error-codes'}  == 'invalid-input-response') {
+	                    $vars['captchaErrorLog'] = 'Odpověď klienta je neplatná';
+	                }
+	            }
+	            $vars['email'] = $post['email'];
+	            $vars['text'] = $post['text'];
+	            $vars['name'] = $post['name'];
+	            $vars['subAction'] = 'ReportBug';
+	            $vars['activeTab'] = 'bugreport';
+			}
 	    }
+
+	    $config = $this->getConfig();
+        $siteKey = $config->Captcha->siteKey;
+        $vars['siteKey'] = $siteKey;
 
 	    $view = $this->createViewModel($vars);
 	    $view->setTemplate($template);
