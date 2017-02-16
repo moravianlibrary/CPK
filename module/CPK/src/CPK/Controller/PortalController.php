@@ -126,6 +126,8 @@ class PortalController extends AbstractBase
 	            $vars['email'] = $post['email'];
 	            $vars['text'] = $post['text'];
 	            $vars['name'] = $post['name'];
+	            $vars['subAction'] = 'RequestHelp';
+	            $vars['activeTab'] = 'help';
 	        }
 	    }
 
@@ -158,6 +160,8 @@ class PortalController extends AbstractBase
 	            $vars['email'] = $post['email'];
 	            $vars['text'] = $post['text'];
 	            $vars['name'] = $post['name'];
+	            $vars['subAction'] = 'ReportBug';
+	            $vars['activeTab'] = 'bugreport';
 			}
 	    }
 

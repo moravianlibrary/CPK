@@ -40,7 +40,7 @@
 			  <div class="col-xs-8">
     			<fieldset class="form-group">
                   <label><?=$this->translate('Describe problem')?></label>
-                  <textarea name='text' class='form-control' required><?=$this->text ?: ''?></textarea>
+                  <textarea name='text' class='form-control' required><?=($this->text && $this->subAction == 'RequestHelp') ? $this->text : ''?></textarea>
                 </fieldset>
               </div>
              </div>
@@ -49,8 +49,8 @@
 			   <div class="col-xs-4">
     			  <fieldset class="form-group">
                     <label><?=$this->translate('Your name')?></label>
-                    <? if ($this->userFullName): ?>
-						<input type='text' name='name' class='form-control' value='<?=$this->name ? $this->name : $this->userFullName ?: '' ?>' required>
+                    <? if ($this->userFullName || $this->name): ?>
+						<input type='text' name='name' class='form-control' value='<?=($this->name && $this->subAction == 'RequestHelp') ? $this->name : $this->userFullName ?: '' ?>' required>
                     <? else: ?>
                         <input type='text' name='name' class='form-control' required>
                     <? endif; ?>
@@ -62,8 +62,8 @@
 			  <div class="col-xs-4">
                 <fieldset class="form-group">
                   <label><?=$this->translate('Your email')?></label>
-                  <? if ($this->userEmail): ?>
-						<input type='email' name='email' class='form-control' value='<?=$this->email ? $this->email : $this->userEmail ?: ''?>' required>
+                  <? if ($this->userEmail || $this->email): ?>
+						<input type='email' name='email' class='form-control' value='<?=($this->email && $this->subAction == 'RequestHelp') ? $this->email : $this->userEmail ?: ''?>' required>
                     <? else: ?>
                         <input type='email' name='email' class='form-control' required>
                   <? endif; ?>
@@ -86,7 +86,7 @@
 			  <div class="col-xs-8">
     			<fieldset class="form-group">
                   <label><?=$this->translate('Describe problem')?></label>
-                  <textarea name='text' class='form-control' required><?=$this->text ? $this->text : ''?></textarea>
+                  <textarea name='text' class='form-control' required><?=($this->text && $this->subAction == 'ReportBug') ? $this->text : ''?></textarea>
                 </fieldset>
               </div>
              </div>
@@ -95,8 +95,8 @@
 			   <div class="col-xs-4">
     			  <fieldset class="form-group">
                     <label><?=$this->translate('Your name')?></label>
-                    <? if ($this->userFullName): ?>
-						<input type='text' name='name' class='form-control' value='<?=$this->name ? $this->name : $this->userFullName ?: ''?>' required>
+                    <? if ($this->userFullName || $this->name): ?>
+						<input type='text' name='name' class='form-control' value='<?=($this->name && $this->subAction == 'ReportBug') ? $this->name : $this->userFullName ?: ''?>' required>
                     <? else: ?>
                         <input type='text' name='name' class='form-control' required>
                     <? endif; ?>
@@ -108,8 +108,8 @@
 			  <div class="col-xs-4">
                 <fieldset class="form-group">
                   <label><?=$this->translate('Your email')?></label>
-                  <? if ($this->userEmail): ?>
-						<input type='email' name='email' class='form-control' value='<?=$this->email ? $this->email : $this->userEmail ?: ''?>' required>
+                  <? if ($this->userEmail || $this->email): ?>
+						<input type='email' name='email' class='form-control' value='<?=($this->email && $this->subAction == 'ReportBug') ? $this->email : $this->userEmail ?: ''?>' required>
                     <? else: ?>
                         <input type='email' name='email' class='form-control' required>
                   <? endif; ?>
@@ -149,6 +149,11 @@ jQuery( document ).ready( function(){
     $('.nav-tabs a').on('shown.bs.tab', function (e) {
         window.location.hash = e.target.hash;
     });
+
+    // Open tab, that was opened before captcha or form submit failed
+    <? if ($this->activeTab): ?>
+    $( '.nav-tabs a[href="#<?=$this->activeTab?>"]' ).tab( 'show' );
+    <? endif; ?>
 
 });
 </script>
