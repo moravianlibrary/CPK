@@ -16,6 +16,15 @@
     </div>
   <? endif; ?>
   </div>
+
+  <? if($this->captchaError): ?>
+    <div class="alert alert-danger">
+     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+       <?=$this->translate($this->captchaError)?>
+      <?="<script>console.error('".$this->captchaErrorLog."');</script>"?>
+    </div>
+  <? endif; ?>
+
   <div class='content'>
     <ul class="nav nav-tabs">
       <li class="active"><a data-toggle="tab" href="#help"><?=$this->translate('I need help')?></a></li>
@@ -31,7 +40,7 @@
 			  <div class="col-xs-8">
     			<fieldset class="form-group">
                   <label><?=$this->translate('Describe problem')?></label>
-                  <textarea name='text' class='form-control' required></textarea>
+                  <textarea name='text' class='form-control' required><?=$this->text ?: ''?></textarea>
                 </fieldset>
               </div>
              </div>
@@ -41,7 +50,7 @@
     			  <fieldset class="form-group">
                     <label><?=$this->translate('Your name')?></label>
                     <? if ($this->userFullName): ?>
-						<input type='text' name='name' class='form-control' value='<?=$this->userFullName?>' required>
+						<input type='text' name='name' class='form-control' value='<?=$this->name ? $this->name : $this->userFullName ?: '' ?>' required>
                     <? else: ?>
                         <input type='text' name='name' class='form-control' required>
                     <? endif; ?>
@@ -54,13 +63,15 @@
                 <fieldset class="form-group">
                   <label><?=$this->translate('Your email')?></label>
                   <? if ($this->userEmail): ?>
-						<input type='email' name='email' class='form-control' value='<?=$this->userEmail?>' required>
+						<input type='email' name='email' class='form-control' value='<?=$this->email ? $this->email : $this->userEmail ?: ''?>' required>
                     <? else: ?>
                         <input type='email' name='email' class='form-control' required>
                   <? endif; ?>
                 </fieldset>
               </div>
             </div>
+
+            <div id='RecaptchaField1'></div>
 
 			<fieldset class="form-group">
               <input type='submit' class='btn btn-primary' value='<?=$this->translate('Send form')?>'>
@@ -75,7 +86,7 @@
 			  <div class="col-xs-8">
     			<fieldset class="form-group">
                   <label><?=$this->translate('Describe problem')?></label>
-                  <textarea name='text' class='form-control' required></textarea>
+                  <textarea name='text' class='form-control' required><?=$this->text ? $this->text : ''?></textarea>
                 </fieldset>
               </div>
              </div>
@@ -85,7 +96,7 @@
     			  <fieldset class="form-group">
                     <label><?=$this->translate('Your name')?></label>
                     <? if ($this->userFullName): ?>
-						<input type='text' name='name' class='form-control' value='<?=$this->userFullName?>' required>
+						<input type='text' name='name' class='form-control' value='<?=$this->name ? $this->name : $this->userFullName ?: ''?>' required>
                     <? else: ?>
                         <input type='text' name='name' class='form-control' required>
                     <? endif; ?>
@@ -98,13 +109,15 @@
                 <fieldset class="form-group">
                   <label><?=$this->translate('Your email')?></label>
                   <? if ($this->userEmail): ?>
-						<input type='email' name='email' class='form-control' value='<?=$this->userEmail?>' required>
+						<input type='email' name='email' class='form-control' value='<?=$this->email ? $this->email : $this->userEmail ?: ''?>' required>
                     <? else: ?>
                         <input type='email' name='email' class='form-control' required>
                   <? endif; ?>
                 </fieldset>
               </div>
             </div>
+
+            <div id='RecaptchaField2'></div>
 
 			<fieldset class="form-group">
               <input type='submit' class='btn btn-primary' value='<?=$this->translate('Send form')?>'>
@@ -115,7 +128,15 @@
 
   </div>
 </div>
+<script src="https://www.google.com/recaptcha/api.js?onload=CaptchaCallback&render=explicit" async defer></script>
 <script>
+
+    //Enable more chaptchas on one site
+    var CaptchaCallback = function() {
+        grecaptcha.render('RecaptchaField1', {'sitekey' : '<?=$this->siteKey?>'});
+        grecaptcha.render('RecaptchaField2', {'sitekey' : '<?=$this->siteKey?>'});
+    };
+
 jQuery( document ).ready( function(){
 
     //Javascript to enable link to tab
