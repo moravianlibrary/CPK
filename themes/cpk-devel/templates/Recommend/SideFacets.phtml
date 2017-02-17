@@ -310,7 +310,41 @@ JS;
               <a id="more-narrowGroupHidden-<?=$this->escapeHtmlAttr($title)?>" class="list-group-item narrow-toggle" href="javascript:moreFacets('narrowGroupHidden-<?=$title ?>')"><?=$this->transEsc('More options')?>...</a>
             <? endif; ?>
             <? if ($thisFacet['isApplied']): ?>
-              <a class="list-group-item active<? if ($i >= $facets_before_more): ?><?=$moreClass ?><?endif ?><? if ($thisFacet['operator'] == 'OR'): ?> facetOR applied<? endif ?>" href="<?=$results->getUrlQuery()->removeFacet($title, $thisFacet['value'], true, $thisFacet['operator']) ?>">
+            <?
+            $urlQueryHelper = $results->getUrlQuery();
+            $addUrlParams = $urlQueryHelper->getParamArray();
+            unset($addUrlParams['filter']);
+            $removedFacetFilterUrl = '?' . buildQueryString($addUrlParams);
+
+            // Find and define applied facetFilters
+            $appliedFacetFilters = [];
+            foreach ($filterList as $filtersArray) {
+                foreach ($filtersArray as $array) {
+                    $currentFacetFilter = '';
+                    $currentFacetFilter .= $array['operator'] == 'OR' ? '~' : '';
+                    $currentFacetFilter .= $array['field'] . ':"' . $array['value'] . '"';
+                    $appliedFacetFilters[] = $currentFacetFilter;
+                }
+            }
+
+            // Add current facetFilter to applied facetFilters
+            $currentFacetFilter = '';
+            $currentFacetFilter .= $thisFacet['operator'] == 'OR' ? '~' : '';
+            $currentFacetFilter .= $title . ':"' . $thisFacet['value'] . '"';
+
+            foreach($appliedFacetFilters as $key => $cff) {
+                if ($cff == $currentFacetFilter) {
+                    unset($appliedFacetFilters[$key]);
+                }
+            }
+
+            $appliedFacetFiltersAsString = join("|", $appliedFacetFilters);
+            $compressedFacetFilters = specialUrlEncode(\LZCompressor\LZString::compressToBase64($appliedFacetFiltersAsString));
+
+            $removedFacetFilterUrl .= '&filter='.$compressedFacetFilters;
+
+            ?>
+              <a class="list-group-item active<? if ($i >= $facets_before_more): ?><?=$moreClass ?><?endif ?><? if ($thisFacet['operator'] == 'OR'): ?> facetOR applied<? endif ?>" href="<?=$removedFacetFilterUrl?>">
                 <? if ($thisFacet['operator'] == 'OR'): ?>
                   <i class="fa fa-check-square-o"></i>
                 <? else: ?>
@@ -319,7 +353,34 @@ JS;
                 <?=$this->transEsc($thisFacet['displayText'])?>
               </a>
             <? else: ?>
-              <? $addURL = $results->getUrlQuery()->addFacet($title, $thisFacet['value'], $thisFacet['operator']); ?>
+              <?
+                $urlQueryHelper = $results->getUrlQuery();
+                $addUrlParams = $urlQueryHelper->getParamArray();
+                unset($addUrlParams['filter']);
+                $addURL = '?' . buildQueryString($addUrlParams);
+
+                // Find and define applied facetFilters
+                $appliedFacetFilters = [];
+                foreach ($filterList as $filtersArray) {
+                    foreach ($filtersArray as $array) {
+                        $currentFacetFilter = '';
+                        $currentFacetFilter .= $array['operator'] == 'OR' ? '~' : '';
+                        $currentFacetFilter .= $array['field'] . ':"' . $array['value'] . '"';
+                        $appliedFacetFilters[] = $currentFacetFilter;
+                    }
+                }
+
+                // Add current facetFilter to applied facetFilters
+                $currentFacetFilter = '';
+                $currentFacetFilter .= $thisFacet['operator'] == 'OR' ? '~' : '';
+                $currentFacetFilter .= $title . ':"' . $thisFacet['value'] . '"';
+                $appliedFacetFilters[] = $currentFacetFilter;
+
+                $appliedFacetFiltersAsString = join("|", $appliedFacetFilters);
+                $compressedFacetFilters = specialUrlEncode(\LZCompressor\LZString::compressToBase64($appliedFacetFiltersAsString));
+
+                $addURL .= '&filter='.$compressedFacetFilters;
+              ?>
               <? if ($allowExclude): ?>
                 <div class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? else: ?>
@@ -382,4 +443,36 @@ $('[data-toggle="tooltip"]').tooltip()
 <?=$this->render("Recommend/SideFacets/timelineModal.phtml")?>
 
 <?=$this->render("Recommend/SideFacets/saveTheseInstitutionsConfirmationModal.phtml")?>
+
+<?php
+
+ /**
+     * Turn an array into a properly URL-encoded query string.  This is
+     * equivalent to the built-in PHP http_build_query function, but it handles
+     * arrays in a more compact way and ensures that ampersands don't get
+     * messed up based on server-specific settings.
+     *
+     * @param array $a      Array of parameters to turn into a GET string
+     * @param bool  $escape Should we escape the string for use in the view?
+     *
+     * @return string
+     */
+    function buildQueryString($a, $escape = true)
+    {
+        $parts = [];
+        foreach ($a as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $current) {
+                    $parts[] = urlencode($key . '[]') . '=' . urlencode($current);
+                }
+            } else {
+                $parts[] = urlencode($key) . '=' . urlencode($value);
+            }
+        }
+        $retVal = implode('&', $parts);
+        return $escape ? htmlspecialchars($retVal) : $retVal;
+    }
+
+
+?>
 
