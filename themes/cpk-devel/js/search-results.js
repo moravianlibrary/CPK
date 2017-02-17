@@ -1,5 +1,5 @@
 /**
- * Async search-results.js v 0.2
+ * Async search-results.js v 0.8
  * @Author Martin Kravec <martin.kravec@mzk.cz>
  */
 jQuery( document ).ready( function( $ ) {
