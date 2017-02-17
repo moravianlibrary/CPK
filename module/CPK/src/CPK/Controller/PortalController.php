@@ -98,7 +98,9 @@ class PortalController extends AbstractBase
 	    $template = 'portal/feedback';
 
 	    if ($subAction == 'RequestHelp') {
-	        $recaptcha = json_decode(file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=ITnetwork.cz&response=' . $post['g-recaptcha-response']));
+	        $secretKey = $config->Captcha->secretKey;
+
+	        $recaptcha = json_decode(file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secretKey.'&response=' . $post['g-recaptcha-response']));
 
 	        if ($recaptcha->{'success'} == 'false') {
 	            $systemTable = $this->getTable("system");
@@ -132,7 +134,9 @@ class PortalController extends AbstractBase
 	    }
 
 	    if ($subAction == 'ReportBug') {
-			$recaptcha = json_decode(file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret=ITnetwork.cz&response=' . $post['g-recaptcha-response']));
+			$secretKey = $config->Captcha->secretKey;
+
+	        $recaptcha = json_decode(file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secretKey.'&response=' . $post['g-recaptcha-response']));
 
 			if ($recaptcha->{'success'} == 'true') {
 			    $systemTable = $this->getTable("system");
