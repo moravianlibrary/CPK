@@ -69,7 +69,7 @@
 
     	var length = Math.min(options.maxResults, data.length);
         input.data('length', length);
-        for (var i=1; i<=length; i++) {
+        for (var i=0; i<length; i++) {
           if (typeof data[i] === 'string') {
             data[i] = {val: data[i]};
           }
