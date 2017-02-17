@@ -508,10 +508,14 @@ $(document).ready(function() {
   }).mouseleave( function() {
 	  $( this ).popover( 'hide' );
   });
-  
-  $(document).keyup(function(e) { 
-      if ((e.keyCode == 8) || (e.keyCode == 27)) { 
-          $('.modal').modal('hide');
-      } 
-  });
+
+	$( document ).keydown( function( event ) {
+		if ( (event.keyCode == 8) || (event.keyCode == 27) ) {
+			if ($('.modal').is(':visible')) {
+				if (! $( '.modal input, .modal textarea, .modal select' ).is( ':focus' )) {
+					$('.modal').modal('hide');
+				}
+			}
+		}
+	});
 });
