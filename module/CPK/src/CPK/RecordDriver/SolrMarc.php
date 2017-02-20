@@ -827,4 +827,27 @@ class SolrMarc extends ParentSolrMarc
         $ret = $this->reverse ? ($first < $second) : ($first > $second);
         return $found ? $ret : false;
     }
+
+    public function getScales()
+    {
+        $scales = $this->getFieldArray('255', array('a'));
+        return $scales;
+    }
+
+    public function getMpts()
+    {
+        $field024s = $this->getFieldArray('024', array('a', '2'), false); // Mezinárodní patentové třídění
+        $mpts = [];
+        $count = count($field024s);
+        if ($count) {
+            for ($i = 0; $i < $count; $i++) {
+                if (isset($field024s[$i+1])) {
+                    if ($field024s[$i+1] == 'MPT') {
+                        $mpts[] = $field024s[$i];
+                    }
+                }
+            }
+        }
+        return $mpts;
+    }
 }

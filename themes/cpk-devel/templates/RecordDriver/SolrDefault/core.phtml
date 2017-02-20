@@ -407,6 +407,28 @@
             </tr>
           <? endif; ?>
 
+          <? $scales = $this->driver->getScales(); if (!empty($scales)): ?>
+            <tr>
+              <th><?=$this->transEsc('Scale')?>: </th>
+              <td>
+                <? foreach ($scales as $scale): ?>
+                  <?=$this->escapeHtml($scale)?><br/>
+                <? endforeach; ?>
+              </td>
+            </tr>
+          <? endif; ?>
+
+          <? $mpts = $this->driver->getMpts(); if (!empty($mpts)): ?>
+            <tr>
+              <th><?=$this->transEsc('MPT')?>: </th>
+              <td>
+                <? foreach ($mpts as $mpt): ?>
+                  <?=$this->escapeHtml($mpt)?><br/>
+                <? endforeach; ?>
+              </td>
+            </tr>
+          <? endif; ?>
+
           <? $nonStandardISBN = $this->driver->getNonStandardISBN(); if (! empty($nonStandardISBN)): ?>
             <? $contentDisplayed = true; ?>
             <tr>
