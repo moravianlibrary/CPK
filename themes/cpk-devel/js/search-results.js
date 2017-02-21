@@ -853,6 +853,12 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( 'body' ).on( 'click', '.facet-filter-or', function( event ) {
 		event.preventDefault();
+		
+		if ( event.ctrlKey ){
+		     window.open( $( this ).attr( 'href' ), '_blank' );
+		     $( this ).removeClass( 'jstree-clicked active' );
+		     return false;
+		}
 
 		$( "input[name='page']" ).val( '1' );
 
@@ -907,6 +913,11 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( 'body' ).on( 'click', '.facet-filter', function( event ) {
 		event.preventDefault();
+		
+		if ( event.ctrlKey ){
+		     window.open( $( this ).attr( 'href' ), '_blank' );
+		     return false;
+		}
 		
 		$( "input[name='page']" ).val( '1' );
 		
