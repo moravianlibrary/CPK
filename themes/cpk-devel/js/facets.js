@@ -76,6 +76,26 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     if (typeof this.children !== 'undefined' && this.children.length > 0) {
       children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
     }
+    
+    var appliedFacetFilters = [];
+    
+    $( '#hiddenFacetFilters .hidden-filter' ).each( function( index, element ) {
+		//if( $( element ).val() != facetFilter) {
+			appliedFacetFilters.push($( element ).val());
+		//}
+    });
+    
+    var filters = appliedFacetFilters;
+    
+    // Add current facetFilter to applied facetFilters
+    filters.push(facetFilter);
+    
+    //console.log( 'Compressed facetFilters:' );
+    var filtersAsString = filters.join( '|' );
+    
+    //console.log( 'Compressed facetFilters:' );
+    var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
+    
       if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv" || facetName == "cpk_detected_format_facet_str_mv") {
           json.push({
               'id': facetFilter,
@@ -88,7 +108,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
               },
               'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
               'a_attr': this.isApplied ? { 'class': 'active facet-filter-or' } :
-              { 'href': window.location.href + "&filter%5B%5D=" + facetFilter ,
+              { 'href': window.location.href + "&filter%5B%5D=" + compressedFilters ,
                   'class' : 'facet-filter-or'
               },
           });
@@ -106,7 +126,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
               'li_attr': (this.count == 0) ? {'class': 'emptyFacet'} : {},
               'a_attr': this.isApplied ? {'class': 'active'} :
               {
-                  'href': window.location.href + "&filter%5B%5D=" + facetFilter,
+                  'href': window.location.href + "&filter%5B%5D=" + compressedFilters,
               },
           });
       };
@@ -509,3 +529,45 @@ jQuery( document ).ready( function( $ ) {
     	
 
 });
+
+var replaceAll = function ( str, find, replace ) {
+	  return str.replace( new RegExp( (find+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&") , 'g' ), replace );
+};
+
+/**
+ * This functions is used like standard php's urlencode,
+ * but insted of double encode, this creates url friedly string for
+ * base64 encoding/decoding.
+ *
+ * @param   {string } input
+ *
+ * @return  {string}
+ */
+var specialUrlEncode = function( input ) {
+	if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+		return '';
+	}
+	var output = replaceAll( input, '+', '-' );
+	output = replaceAll( output, '/', '_' );
+	output = replaceAll( output, '=', '.' );
+	return output;
+};
+
+/**
+ * This functions is used like standard php's urldecode,
+ * but insted of double decode, this creates url friedly string for
+ * base64 encoding/decoding.
+ *
+ * @param   {string } input
+ *
+ * @return  {string}
+ */
+var specialUrlDecode = function( input ) {
+	if ( typeof input[0] == 'undefined' || input[0] == null || !input ) {
+		return '';
+	}
+	var output = replaceAll( input, '-', '+' );
+	output = replaceAll( output, '_', '/' );
+	output = replaceAll( output, '.', '=' );
+	return output;
+};
