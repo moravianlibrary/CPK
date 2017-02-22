@@ -339,7 +339,7 @@ AllFields:
     - fulltext_unstemmed^10
     - allfields
     - fulltext
-    - toc_txt_mv
+    - toc_txt_mv^15
     - isbn
     - issn
   DismaxParams:
