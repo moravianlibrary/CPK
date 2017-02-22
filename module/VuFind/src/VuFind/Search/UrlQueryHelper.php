@@ -582,4 +582,22 @@ class UrlQueryHelper
         $retVal = implode('&', $parts);
         return $escape ? htmlspecialchars($retVal) : $retVal;
     }
+
+    /**
+     * Get the current search parameters as a GET query from compressed facetFilters string.
+     *
+     * @param bool $escape Should we escape the string for use in the view?
+     *
+     * @return string
+     */
+    public function getParamsFromCompressedFacetFilters($escape = true)
+    {
+        $paramArray = $this->getParamArray();
+        if (isset($paramArray['filter'])) {
+            $compressedFacetFilters = specialUrlDecode(\LZCompressor\LZString::compressToBase64(join("|", $paramArray['filter'])));
+            $paramArray['filter'] = $compressedFacetFilters;
+        }
+
+        return '?' . $this->buildQueryString($paramArray, $escape);
+    }
 }
