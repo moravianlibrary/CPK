@@ -416,7 +416,7 @@ function keyboardShortcuts() {
     }
 }
 
-$(document).ready(function() {
+jQuery( document ).ready( function( $ ){
   // Setup search autocomplete
   setupAutocomplete();
   // Setup highlighting of backlinks
@@ -518,4 +518,25 @@ $(document).ready(function() {
 			}
 		}
 	});
+  
+    /* Change language */
+	$( 'nav' ).on( 'click', '.change-language', function( event ){
+		event.preventDefault();
+		
+		var language = $( this ).attr( 'data-lang' );
+		
+		if ( event.ctrlKey ){
+			var currentUrl = window.location.href;
+			window.open( $( this ).attr( 'href' ), '_blank' );
+			return false;
+		}
+		
+		changeLanguage(language);
+	}); 
+	
+	var changeLanguage = function(language) {
+		document.langForm.mylang.value = language;
+		document.langForm.submit();
+	}
+	
 });

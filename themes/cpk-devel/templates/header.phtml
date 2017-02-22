@@ -122,7 +122,7 @@
           </form>
           <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
             <? if ($this->layout()->userLang != $langCode): ?>
-              <li<?=$this->layout()->userLang == $langCode ? ' class="active"' : ''?>><a href="#" onClick="document.langForm.mylang.value='<?=$langCode?>';document.langForm.submit()"><?=$this->displayLanguageOption($langName)?></a></li>
+              <li<?=$this->layout()->userLang == $langCode ? ' class="active"' : ''?>><a href="#" data-lang="<?=$langCode?>" class="change-language"><?=$this->displayLanguageOption($langName)?></a></li>
             <? endif; ?>
           <? endforeach; ?>
           <? if (($this->layout()->userLang == 'dg')): ?>
