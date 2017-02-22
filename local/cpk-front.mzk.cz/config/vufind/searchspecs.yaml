@@ -325,7 +325,7 @@ AllFields:
     - author^500
     - author2^400
     - author_viz^300
-    - coporation_viz^300
+    - corporation_viz^300
     - author_fuller^150
     - contents^10
     - topic_unstemmed^550
