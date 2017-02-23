@@ -1,6 +1,6 @@
 <?php
 $toRet = array(
-    'extends' => 'common-bootstrap3',
+    'extends' => 'bootstrap3',
     'css' => array(
         // 'vendor/bootstrap.min.css',
         // 'vendor/bootstrap-accessibility.css',
@@ -28,7 +28,8 @@ $toRet = array(
         'search-results.js',
         'vendor/jsTree/jstree.min.js',
         'facets.js',
-        'lz-string.js'
+        'lz-string.js',
+		'obalkyknih.js'
     ),
     'less' => array(
         'active' => false,
@@ -45,7 +46,8 @@ $toRet = array(
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
             'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
             'identityProviders' => 'CPK\View\Helper\CPK\Factory::getIdentityProviders',
-            'help' => 'CPK\View\Helper\CPK\Factory::getHelp'
+            'help' => 'CPK\View\Helper\CPK\Factory::getHelp',
+			'obalkyknih' => 'ObalkyKnihV3\View\Helper\ObalkyKnih\Factory::getObalkyKnih'
         ),
         'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',
