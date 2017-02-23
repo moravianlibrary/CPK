@@ -88,11 +88,9 @@ function phoneNumberFormHandler(numID, regionCode) {
     }
     $(phoneInput).siblings('.help-block.with-errors').html(valid);
     $(phoneInput).closest('.form-group').addClass('sms-error');
-    return false;
   } else {
     $(phoneInput).closest('.form-group').removeClass('sms-error');
     $(phoneInput).siblings('.help-block.with-errors').html('');
-    return true;
   }
 }
 
@@ -302,36 +300,64 @@ function setupBacklinks() {
     });
 }
 
+function getURLParam(key,target) {
+    var values = [];
+    if (!target) {
+        target = location.href;
+    }
+
+	key = key.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    
+    var pattern = key + '=([^&#]+)';
+    var o_reg = new RegExp(pattern,'ig');
+	while (true) {
+		var matches = o_reg.exec(target);
+		if (matches && matches[1]) {
+			values.push(matches[1]);
+		}
+		else {
+			break;
+		}
+	}
+    if (!values.length) {
+         return 'null';   
+    }
+    else {
+        return values.length == 1 ? values[0] : values;
+    }
+}
+
 function setupAutocomplete() {
   // Search autocomplete
   $('.autocomplete').each(function(i, op) {
-    $(op).autocomplete({
-      maxResults: 10,
+    $(op).autocompleteVufind({
+      maxResults: 6,
       loadingString: VuFind.translate('loading')+'...',
       handler: function(query, cb) {
         var searcher = extractClassParams(op);
-        var hiddenFilters = [];
-        $(op).closest('.searchForm').find('input[name="hiddenFilters[]"]').each(function() {
-          hiddenFilters.push($(this).val());
-        });
-        $.fn.autocomplete.ajax({
+        var currentUrl = decodeURIComponent($(location).attr('search'));
+        //console.log('CurrentUrl: '+currentUrl);
+        var filters = $( '.searchFormKeepFilters' ).is(':checked') 
+        	? getURLParam('filter[]', currentUrl) 
+        	: 'null';
+        $.fn.autocompleteVufind.ajax({
           url: VuFind.getPath() + '/AJAX/JSON',
           data: {
             q:query,
             method:'getACSuggestions',
+            filters: filters,
             searcher:searcher['searcher'],
-            type:searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val(),
-            hiddenFilters:hiddenFilters
+            type:searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val()
           },
           dataType:'json',
           success: function(json) {
-        	  if (json.status == 'OK' && json.data.length > 0) {
-                var datums = [];
-                for (var i=0;i<json.data.length;i++) {
-                  datums.push(json.data[i]);
-                }
-        		cb(datums);
-        		
+            if (json.status == 'OK'
+            	&& (json.data.byAuthor.length > 0
+            		|| json.data.byTitle.length > 0
+            		|| json.data.bySubject.length > 0
+            	)
+            ) {
+              cb(json.data);
             } else {
               cb([]);
             }
@@ -343,7 +369,7 @@ function setupAutocomplete() {
   // Update autocomplete on type change
   $('.searchForm_type').change(function() {
     var $lookfor = $(this).closest('.searchForm').find('.searchForm_lookfor[name]');
-    $lookfor.autocomplete('clear cache');
+    $lookfor.autocompleteVufind('clear cache');
     $lookfor.focus();
   });
 }
@@ -390,7 +416,7 @@ function keyboardShortcuts() {
     }
 }
 
-$(document).ready(function() {
+jQuery( document ).ready( function( $ ){
   // Setup search autocomplete
   setupAutocomplete();
   // Setup highlighting of backlinks
@@ -401,7 +427,7 @@ $(document).ready(function() {
   keyboardShortcuts();
 
   // support "jump menu" dropdown boxes
-  $('select.jumpMenu').change(function(){ $(this).parent('form').submit(); });
+  $('select.jumpMenu').change(function(){ $(this).parents('form').submit(); });
 
   // Checkbox select all
   $('.checkbox-select-all').change(function() {
@@ -457,4 +483,60 @@ $(document).ready(function() {
     // Add useful information
     $(this).attr("clicked", "true");
   });
+
+  $('input#requiredByDate, input#last-interest-date').datepicker({
+    format: "dd.mm.yyyy",
+    weekStart: 1,
+    language: "cs"
+  });
+
+  $(window).on("scroll touchmove", function () {
+//	    $('.top-header').toggleClass('hidden', $(document).scrollTop() <= 50).toggleClass('tiny', $(document).scrollTop() > 50);
+//	    $('.top-header').toggleClass('full-width', $(document).scrollTop() > 88);
+
+  }); 
+  
+  $( '.element-help' ).hover( function() {
+	  var html = $( this ).find( '.help-text' ).html();
+	  $( this ).popover({
+		  trigger: 'manual',
+		  content: html,
+		  placement: 'top',
+		  html: true
+	  });
+	  $( this ).popover( 'show' );
+  }).mouseleave( function() {
+	  $( this ).popover( 'hide' );
+  });
+
+	$( document ).keydown( function( event ) {
+		if ( (event.keyCode == 8) || (event.keyCode == 27) ) {
+			if ($('.modal').is(':visible')) {
+				if (! $( '.modal input, .modal textarea, .modal select' ).is( ':focus' )) {
+					$('.modal').modal('hide');
+				}
+			}
+		}
+	});
+  
+    /* Change language */
+	$( 'nav' ).on( 'click', '.change-language', function( event ){
+		event.preventDefault();
+		
+		var language = $( this ).attr( 'data-lang' );
+		
+		if ( event.ctrlKey ){
+			var currentUrl = window.location.href;
+			window.open( $( this ).attr( 'href' ), '_blank' );
+			return false;
+		}
+		
+		changeLanguage(language);
+	}); 
+	
+	var changeLanguage = function(language) {
+		document.langForm.mylang.value = language;
+		document.langForm.submit();
+	}
+	
 });

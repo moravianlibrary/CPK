@@ -1,12 +1,23 @@
 <?
   $links = $this->recommend->getLinks();
+  $lookFor = '';
+  if (! empty($_GET['lookfor']))
+      $lookFor = $_GET['lookfor'];
+  else if(! empty($_GET['lookfor0'])) 
+      $lookFor = $_GET['lookfor0'][0];
 ?>
 <? if (count($links) > 0) :?>
   <div class="info">
     <?=$this->transEsc('recommend_links_text')?>
-      <? foreach($links as $title => $href): ?>
+      <? foreach($links as $title => $href): $randomString = md5('CPK'.date("Y-m-d H:i:s"));?>
         <p>
-          <a href="<?=$href?>"><?=$this->transEsc($title)?></a>
+        	<? if ($href === 'http://www.jib.cz') : ?>
+          		<a target='_blank' href="<?=$href.'/V/'.$randomString.'-'.rand(10000, 99999).'?func=quick-1-check1&mode=simple&find_request_1='.addslashes($lookFor)?>"><?=$this->transEsc($title)?></a>
+          	<? elseif ($href === 'https://www.google.cz') : ?>
+          		<a target='_blank' href="<?=$href.'?q='.addslashes($lookFor)?>"><?=$this->transEsc($title)?></a>
+          	<? else : ?>
+          		<a target='_blank' href="<?=$href?>"><?=$this->transEsc($title)?></a>
+          	<? endif; ?>
         </p>
       <? endforeach; ?>
   </div>

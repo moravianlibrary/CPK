@@ -1,1 +1,14 @@
-@import "bootstrap";
+@import "cpk";
+
+/**
+ * This file prevents multiple instances of the Bootstrap library from
+ * being included by utilizing the theme inheritance feature of Vufind.
+ *
+ *    bootstrap.less <--- compiled.less
+ *          ^                    ^
+ *          |                    |
+ *          |                    X
+ *          |                    |
+ *      cpk.less    <---   compiled.less
+ *
+ */

@@ -6,30 +6,49 @@
     $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '</li> ')
         . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> '
         . '<li class="active">' . $this->transEsc('request_place_text') . '</li>';
+
+    $id = $this->driver->getUniqueID();
+    $source = explode(".", $id)[0];
 ?>
-<h2><?=$this->transEsc('request_place_text')?></h2>
+<h2>
+    <?=$this->transEsc('request_place_text')?>
+    <?= $this->help()->getQuestionMarkHelp('request-place', $source) ?>
+</h2>
 <? if ($this->helpText): ?>
 <p class="helptext"><?=$this->helpText?></p>
 <? endif; ?>
-
 <?=$this->flashmessages()?>
 <div class="hold-form">
-  <form class="form-horizontal" method="post" name="placeHold">
-    <? if (in_array("comments", $this->extraHoldFields)): ?>
+  <form action='' class="form-horizontal" method="post" name="placeHold">
       <div class="form-group">
-        <label class="col-sm-3 control-label"><?=$this->transEsc("Comments")?>:</label>
+        <label class="col-sm-3 control-label"><?=$this->translate('Title')?>: </label>
         <div class="col-sm-9">
-          <textarea rows="3" cols="20" name="gatheredDetails[comment]" class="form-control"><?=isset($this->gatheredDetails['comment']) ? $this->escapeHtml($this->gatheredDetails['comment']) : ''?></textarea>
+           <input disabled type='text' class='form-control' value='<?=$this->driver->getTitle()?>'>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-3 control-label"><?=$this->translate('Institution')?>: </label>
+        <div class="col-sm-9">
+           <input disabled type='text' class='form-control' value='<?= (! empty($source)) ? $this->translate('source_'.$source) : ''?> '>
+        </div>
+      </div>
+
+    <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
+      <div class="form-group">
+        <label class="col-sm-3 control-label"><?=$this->transEsc("hold_required_by")?>: *</label>
+        <div class="col-sm-2">
+          <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
+          (<?=$this->dateTime()->getDisplayDateFormat()?>)
         </div>
       </div>
     <? endif; ?>
 
-    <? if (in_array("requiredByDate", $this->extraHoldFields)): ?>
+    <? if (in_array("comments", $this->extraHoldFields)): ?>
       <div class="form-group">
-        <label class="col-sm-3 control-label"><?=$this->transEsc("hold_required_by")?>:</label>
+        <label class="col-sm-3 control-label"><?=$this->transEsc("Note")?>:</label>
         <div class="col-sm-9">
-          <input id="requiredByDate" type="text" name="gatheredDetails[requiredBy]" value="<?=(isset($this->gatheredDetails['requiredBy']) && !empty($this->gatheredDetails['requiredBy'])) ? $this->escapeHtmlAttr($this->gatheredDetails['requiredBy']) : $this->escapeHtmlAttr($this->defaultRequiredDate)?>" size="8" class="form-control"/>
-          (<?=$this->dateTime()->getDisplayDateFormat()?>)
+          <textarea rows="3" cols="20" name="gatheredDetails[comment]" class="form-control"><?=isset($this->gatheredDetails['comment']) ? $this->escapeHtml($this->gatheredDetails['comment']) : ''?></textarea>
         </div>
       </div>
     <? endif; ?>
@@ -69,8 +88,6 @@
       <?
         if (isset($this->gatheredDetails['pickUpLocation']) && $this->gatheredDetails['pickUpLocation'] !== "") {
             $selected = $this->gatheredDetails['pickUpLocation'];
-        } elseif (isset($this->homeLibrary) && $this->homeLibrary !== "") {
-            $selected = $this->homeLibrary;
         } else {
             $selected = $this->defaultPickup;
         }
@@ -94,11 +111,11 @@
         </div>
       <? elseif (count($this->pickup) > 1): ?>
         <div class="form-group">
-          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_location")?>:</label>
+          <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_location")?>: *</label>
           <div class="col-sm-9">
             <select id="pickUpLocation" name="gatheredDetails[pickUpLocation]" class="form-control">
-            <? if ($selected === false): ?>
-              <option value="" selected="selected">
+            <? if (($selected === false) || ($selected == 'empty')): ?>
+              <option value="empty" selected="selected">
                 <?=$this->transEsc('select_pickup_location')?>
               </option>
             <? endif; ?>
@@ -108,12 +125,48 @@
               </option>
             <? endforeach; ?>
             </select>
+            <div id="pickUpLocation" class="hidden">
+              <? foreach ($this->pickup as $lib): ?>
+                <div id="<?=$this->escapeHtmlAttr($lib['locationID'])?>">
+                  <? if (isset($lib['locationAddress'])): ?>
+                    <div id="address"><?=$this->escapeHtml($lib['locationAddress'])?></div>
+                  <? endif; ?>
+                </div>
+              <? endforeach; ?>
+            </div>
           </div>
         </div>
+        <? if (isset($lib['locationAddress'])): ?>
+          <div class="form-group">
+            <label class="col-sm-3 control-label"><?=$this->transEsc("pick_up_address")?>:</label>
+            <div class="col-sm-9">
+              <input disabled type='text' class='form-control showaddress' value=''>
+            </div>
+          </div>
+        <? endif; ?>
       <? else: ?>
         <input type="hidden" name="gatheredDetails[pickUpLocation]" value="<?=$this->escapeHtmlAttr($this->defaultPickup)?>" />
       <? endif; ?>
     <? endif; ?>
+
+    <? if ($this->isLend): ?>
+        <div class="form-group">
+          <label class="col-sm-3 control-label"></label>
+          <div class="col-sm-9">
+            <?=$this->translate('Document is lend').'.'?>
+          </div>
+        </div>
+    <? endif; ?>
+
+    <? if (! empty($this->holdQueue)): ?>
+        <div class="form-group">
+          <label class="col-sm-3 control-label"><?=$this->transEsc("hold_queue")?>:</label>
+          <div class="col-sm-9">
+            <input disabled type='text' class='form-control' value='<?=$this->holdQueue . "."?>'>
+          </div>
+        </div>
+    <? endif; ?>
+
     <div class="form-group">
       <div class="col-sm-9 col-sm-offset-3">
         <input class="btn btn-primary" type="submit" name="placeHold" value="<?=$this->transEsc('request_submit_text')?>"/>
@@ -134,6 +187,20 @@
                 setUpHoldRequestForm("{$this->escapeHtml($this->driver->getUniqueId())}");
             });
         }
+JS;
+
+    echo $this->inlineScript()->appendScript($js);
+
+    $js = <<<JS
+        $( '#pickUpLocation' ).change(function () {
+          var id = $(this).val();
+          if (id) {
+            $('input.showaddress').val( $( '#' + id + ' div#address' ).text() );
+          }
+          else {
+            $('input.showaddress').val( '' );
+          }
+        }).change();
 JS;
 
     echo $this->inlineScript()->appendScript($js);

@@ -1,4 +1,9 @@
 <?
+if ($this->loggedIn === false) {
+    // Load mylist-notlogged.phtml if not logged in ..
+    print $this->render("myresearch/mylist-notlogged.phtml");
+} else {
+
   // Grab list object from search results (if applicable):
   $list = $this->results->getListObject();
 
@@ -20,11 +25,14 @@
 ?>
 
 <?=$this->flashmessages()?>
-
+<!--<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>-->
 <div class="row">
   <div class="<?=$this->layoutClass('mainbody')?>">
     <div class="clearfix hidden-print">
-      <h2 class="pull-left flip"><?=$list ? $this->escapeHtml($list->title) : $this->transEsc("Your Favorites")?></h2>
+      <h2 class="pull-left flip">
+        <?=$list ? $this->escapeHtml($list->title) : $this->transEsc("Your Favorites")?>
+        <?= $this->help()->getQuestionMarkHelp('my-list') ?>
+      </h2>
       <div class="pull-right flip">
         <? if (isset($list)): ?>
           <? if ($list->editAllowed($account->isLoggedIn())): ?>
@@ -74,3 +82,4 @@
     <? endforeach; ?>
   </div>
 </div>
+<? } ?>

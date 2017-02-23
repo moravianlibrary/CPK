@@ -23,6 +23,9 @@ function checkSaveStatuses() {
           $('.savedLists > ul').empty();
           $.each(response.data, function(i, result) {
             var $container = $('#result'+result.record_number).find('.savedLists');
+            var $link = $('#result'+result.record_number).find('.save-record');
+            var $icon = $('#result'+result.record_number).find('.fa-star-o');
+
             if ($container.length == 0) { // Record view
               $container = $('.savedLists');
             }
@@ -34,7 +37,10 @@ function checkSaveStatuses() {
             var html = '<li><a href="' + VuFind.getPath() + '/MyResearch/MyList/' + result.list_id + '">'
                      + result.list_title + '</a></li>';
             $ul.append(html);
-            $container.removeClass('hidden');
+            $link.html("Editovat oblíbené");
+            $icon.removeClass('fa-star-o');
+            $icon.addClass('fa-star');
+            //$container.removeClass('hidden');
           });
         }
       }

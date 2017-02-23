@@ -3,12 +3,10 @@
   <ul class="list-unstyled">
   <? foreach ($records as $i => $record): ?>
     <li>
-      <div class="checkbox">
-        <label>
-          <?=$this->record($record)->getCheckbox('cart')?>
-          <a title="<?=$this->transEsc('View Record')?>" href="<?=$this->recordLink()->getUrl($record)?>"><?=$this->escapeHtml($record->getBreadcrumb())?></a>
-        </label>
-      </div>
+      <label class="checkbox">
+        <?=$this->record($record)->getCheckboxWithoutAutoAddingToCart('cart')?>
+        <a title="<?=$this->transEsc('View Record')?>" href="<?=$this->recordLink()->getUrl($record)?>"><?=$this->escapeHtml($record->getBreadcrumb())?></a>
+      </label>
     </li>
   <? endforeach; ?>
   </ul>

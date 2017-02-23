@@ -1,52 +1,113 @@
 <?
     // Set up page title:
-    $this->headTitle($this->translate('My Fines'));
+    $this->headTitle($this->translate('Fines and Charges'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Fines') . '</li>';
-?>
-<div class="<?=$this->layoutClass('mainbody')?>">
-  <h2><?=$this->transEsc('Your Fines')?></h2>
+    $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> '.
+    '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a>' . '</li>'
+        . '<li class="active">' . $this->transEsc('Fines') . '</li>';
 
-  <?=$this->context($this)->renderInContext('librarycards/selectcard.phtml', array('user' => $this->auth()->isLoggedIn())); ?>
+    $isSynchronous = $this->isSynchronous;
+
+    if (! $isSynchronous)
+        $this->headScript()->appendFile("async-fines.js");
+?>
+<!--<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>-->
+<div class="row">
+<div class="<?=$this->layoutClass('mainbody')?>">
+  <h2>
+    <?=$this->transEsc('Your Fines')?>
+    <?= $this->help()->getQuestionMarkHelp('fines') ?>
+  </h2>
+
+  <?=$this->flashmessages()?>
+
+  <? if (isset($this->paymentUrl)):?>
+    <p>
+      <a href="<?=$this->paymentUrl?>"><?=$this->transEsc('fines_online_payment_url')?></a>
+    </p>
+  <? endif; ?>
 
   <? if (empty($this->fines)): ?>
     <?=$this->transEsc('You do not have any fines')?>
   <? else: ?>
-    <table class="table table-striped" summary="<?=$this->transEsc('Your Fines')?>">
-    <tr>
-      <th><?=$this->transEsc('Title')?></th>
-      <th><?=$this->transEsc('Checked Out')?></th>
-      <th><?=$this->transEsc('Due Date')?></th>
-      <th><?=$this->transEsc('Fine')?></th>
-      <th><?=$this->transEsc('Fee')?></th>
-      <th><?=$this->transEsc('Balance')?></th>
-    </tr>
-    <? $totalDue = 0; ?>
-    <? foreach ($this->fines as $record): ?>
-      <tr>
-        <td>
-          <? if (empty($record['title'])): ?>
-            <?=$this->transEsc('not_applicable')?>
-          <? elseif (!isset($record['driver']) || !is_object($record['driver'])): ?>
-            <?=$this->escapeHtml(trim($record['title'], '/:'))?>
-          <? else: ?>
-            <a href="<?=$this->recordLink()->getUrl($record['driver'])?>"><?=$this->escapeHtml(trim($record['title'], '/:'))?></a>
-          <? endif; ?>
-        </td>
-        <td><?=isset($record['checkout']) ? $this->escapeHtml($record['checkout']) : ''?></td>
-        <td><?=isset($record['duedate']) ? $this->escapeHtml($record['duedate']) : ''?></td>
-        <td><?=isset($record['fine']) ? $this->escapeHtml($record['fine']) : ''?></td>
-        <td><?=isset($record['amount']) ? $this->safeMoneyFormat($record['amount']/100.00) : ''?></td>
-        <td><?=isset($record['balance']) ? $this->safeMoneyFormat($record['balance']/100.00) : ''?></td>
-      </tr>
-      <? $totalDue += $record['balance']; ?>
-    <? endforeach; ?>
-      <tr style="font-weight:bold"><td colspan="5"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue/100.00) ?></td></tr>
-    </table>
-  <? endif; ?>
+    <? foreach($this->fines as $eppn => $identityFines):
+        $source = explode('.', $identityFines['cat_username'])[0]; ?>
+
+    <div class="well row blickable" id="<?=$source?>">
+    <h3>
+      <?=$this->transEsc("source_$source", null, $source) ?>
+      <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
+      </h3>
+    <? if ($isSynchronous): ?>
+
+        <? if (empty($identityFines)): ?>
+            <div class="label label-info">
+            <?=$this->transEsc('You do not have any fines in this institution')?>.
+            </div>
+        <? else: ?>
+            <table class="table table-striped" summary="<?=$this->transEsc('Your Fines')?>">
+            <tr>
+              <th><?=$this->transEsc('Fine description')?></th>
+              <th><?=$this->transEsc('Title')?></th>
+              <th><?=$this->transEsc('Fine genesis date')?></th>
+              <th><?=$this->transEsc('Fee')?></th>
+            </tr>
+            <? $totalDue = 0; ?>
+
+                <? foreach ($identityFines as $record): ?>
+                  <tr>
+                    <td><?=isset($record['fine']) ? $this->escapeHtml($record['fine']) : ''?></td>
+                    <td>
+                      <? if (empty($record['title'])): ?>
+                        <?=$this->transEsc('not_applicable')?>
+                      <? elseif (!isset($record['id'])): ?>
+                        <?=$this->escapeHtml(trim($record['title'], '/:'))?>
+                      <? else: ?>
+                        <a href="<?=$this->url('record', array('id' => $record['id']))?>"><?=$this->escapeHtml(trim($record['title'], '/:'))?></a>
+                      <? endif; ?>
+                    </td>
+                    <td><?=isset($record['checkout']) ? $this->escapeHtml($record['checkout']) : ''?></td>
+                    <td><?=isset($record['amount']) ? $this->safeMoneyFormat($record['amount']/100.00) : ''?></td>
+                  </tr>
+                  <? $totalDue += $record['amount']; ?>
+                <? endforeach; ?>
+              <tr style="font-weight:bold"><td colspan="3"><?=$this->transEsc('Total Balance Due')?></td><td><?=$this->safeMoneyFormat($totalDue/100.00) ?></td></tr>
+            </table>
+        <? endif; ?>
+    <? else: // We have some async deal here .. ?>
+    <table id="<?=$identityFines['cat_username']?>" class="table table-striped">
+        <caption>
+            <div data-type="loading-info">
+                <i class="fa fa-spinner fa-spin"></i>
+                <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
+            </div>
+            <div data-type="without-fines-info" hidden="hidden">
+                <?=$this->transEsc('You do not have any fines in this institution')?>.
+            </div>
+        </caption>
+        <tbody hidden="hidden" data-money-format="<?=$this->transEsc('__MONEY_FORMAT__', null, '$ VALUE') ?>" data-title-unknown="<?=$this->transEsc('unknown') ?>">
+        <tr>
+              <th data-key='fine'><?=$this->transEsc('Fine description')?></th>
+              <th data-key='title'><?=$this->transEsc('Title')?></th>
+              <th data-key='checkout'><?=$this->transEsc('Fine genesis date')?></th>
+              <th data-key='amount'><?=$this->transEsc('Fee')?></th>
+        </tr>
+        <tr style="font-weight:bold"><td colspan="3"><?=$this->transEsc('Total Balance Due')?></td><td data-type="sum"></td></tr>
+        </tbody>
+      </table>
+    <? endif; ?>
+    </div>
+   <? endforeach; ?>
+
+   <? if (isset($this->paymentUrl)):?>
+     <a href="<?=$this->paymentUrl?>"><?=$this->transEsc('Online payment of fines')?></a>
+   <? endif; ?>
+
+ <? endif; ?>
 </div>
 
 <div class="<?=$this->layoutClass('sidebar')?>">
   <?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'fines'))?>
+</div>
 </div>

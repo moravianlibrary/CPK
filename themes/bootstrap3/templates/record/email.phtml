@@ -1,15 +1,64 @@
-<?
-  // Set page title.
-  $this->headTitle($this->translate('Email Record'));
-
-  // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li>' . $this->getLastSearchLink($this->transEsc('Search'), '', '</li> ')
-    . '<li>' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> '
-    . '<li class="active">' . $this->transEsc('Email Record') . '</li>';
-?>
 <?=$this->flashmessages()?>
-<form class="form-horizontal" method="post" name="emailRecord">
+<form action='/Record/<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>/Email' class="form-horizontal" method="post" name="emailRecord" id="email-record">
   <input type="hidden" name="id" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" />
-  <input type="hidden" name="source" value="<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?>" />
-  <?=$this->render('Helpers/email-form-fields.phtml')?>
+  <input type="hidden" name="source" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" />
+  <div class="control-group">
+    <label class="control-label" for="email_to"><?=$this->transEsc('Email to')?> <?='('.$this->translate("required").')'?>:</label>
+    <div class="controls">
+      <input type="email" id="email_to" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="to" value="<?=isset($this->to) ? $this->to : ''?>" placeholder='<?=$this->translate('Enter email')?>' required>
+    </div>
+  </div>
+  <? if (!$this->disableFrom): ?>
+    <div class="control-group">
+      <label class="control-label" for="email_from"><?=$this->transEsc('From')?> <?='('.$this->translate("required").')'?>:</label>
+      <div class="controls">
+        <input type="email" id="email_from" class="input-xlarge form-control" oninvalid="$('#modal .icon-spinner').remove()" name="from" value="<?=isset($this->from) ? $this->from : ''?>" size="40" placeholder='<?=$this->translate('Enter email')?>' required>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="controls checkbox">
+        <label class="">
+          <input type="checkbox" name="ccself"/> <?=$this->translate('send_an_email_copy'); ?>
+        </label>
+      </div>
+    </div>
+  <? endif; ?>
+ <? if ($this->export && is_array($this->export)): ?>
+  <div class="control-group">
+    <label class="control-label" for="export_format"><?=$this->transEsc('Send As')?>:</label>
+    <div class="controls">
+      <select name="export_format" class="jumpMenu">
+        <? foreach ($this->export as $format => $value): ?>
+          <? if ($value): ?>
+            <option value="<?=$this->escapeHtml(str_replace(' ', '', $format))?>"><?=$this->transEsc($format)?></option>
+          <? endif; ?>
+        <? endforeach; ?>
+      </select>
+    </div>
+  </div>
+  <? endif; ?>
+  <div class="control-group">
+    <label class="control-label" for="email_message"><?=$this->transEsc('Message')?>:</label>
+    <div class="controls">
+      <textarea id="email_message" class="input-xlarge form-control" name="message" rows="4"><?=isset($this->message) ? $this->message : ''?></textarea>
+    </div>
+  </div>
+  <? if ($this->disableFrom && $this->userEmailInFrom): ?>
+    <div class="control-group">
+      <div class="controls">
+        <label class="checkbox">
+          <input type="checkbox" name="ccself"/> <?=$this->translate('send_email_copy_to_me'); ?>
+        </label>
+      </div>
+    </div>
+  <? endif ?>
+  <br>
+  <?=$this->recaptcha()->html(true) ?>
+  <div class="control-group">
+    <div class="controls">
+      <input class="btn btn-primary pull-right" type="submit" name="submit" value="<?=$this->transEsc('Send Email')?>"/>
+      <br><br>
+    </div>
+  </div>
+
 </form>

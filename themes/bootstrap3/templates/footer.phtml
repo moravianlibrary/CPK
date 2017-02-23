@@ -1,27 +1,115 @@
-<hr/>
+<?
+    $portalPages = $this->portalPages()->getAllPages();
+?>
 <div class="row">
-  <div class="col-sm-4">
-    <p><strong><?=$this->transEsc('Search Options')?></strong></p>
+  <!--
+  <div class="col-sm-3">
+    <h2><?=$this->transEsc('Search Options')?></h2>
     <ul>
-      <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
-      <li><a href="<?=$this->url('search-advanced')?>"><?=$this->transEsc('Advanced Search')?></a></li>
+      <?
+      if(isset($_SERVER['REDIRECT_URL'])) :
+          $redirectUrl = $_SERVER['REDIRECT_URL'];
+          $redirectUrlArray = explode("/", $redirectUrl);
+          $controller = $redirectUrlArray[1];
+          $action = (isset($redirectUrlArray[2])) ? $redirectUrlArray[2] : '';
+      ?>
+      <? endif; ?>
+        <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
+     <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
     </ul>
   </div>
-  <div class="col-sm-4">
-    <p><strong><?=$this->transEsc('Find More')?></strong></p>
+  -->
+  <div class="col-sm-3">
+    <h2 id='aboutPortalHeader'><?=$this->transEsc('About portal knihovny.cz')?></h2>
     <ul>
-      <li><a href="<?=$this->url('browse-home')?>"><?=$this->transEsc('Browse the Catalog')?></a></li>
-      <li><a href="<?=$this->url('alphabrowse-home')?>"><?=$this->transEsc('Browse Alphabetically')?></a></li>
-      <li><a href="<?=$this->url('search-reserves')?>"><?=$this->transEsc('Course Reserves')?></a></li>
-      <li><a href="<?=$this->url('search-newitem')?>"><?=$this->transEsc('New Items')?></a></li>
+      <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
     </ul>
   </div>
-  <div class="col-sm-4">
-    <p><strong><?=$this->transEsc('Need Help?')?></strong></p>
+  <div class="col-sm-3">
+    <h2 id='aboutPortalHeader'><?=$this->transEsc('For libraries')?></h2>
     <ul>
-      <li><a href="<?=$this->url('help-home')?>?topic=search" class="help-link" title="<?=$this->transEsc('Search Tips')?>"><?=$this->transEsc('Search Tips')?></a></li>
-      <li><a href="#"><?=$this->transEsc('Ask a Librarian')?></a></li>
-      <li><a href="#"><?=$this->transEsc('FAQs')?></a></li>
+      <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-left'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
+      <li><a target='_blank' href='http://projekt.knihovny.cz/' title='<?=$this->translate("More information about CPK project")?>'><?=$this->translate("More information about CPK project")?></a></li>
+    </ul>
+  </div>
+  <div class="col-sm-3">
+    <h2 id='aboutPortalHeader'><?=$this->transEsc('About libraries')?></h2>
+    <ul>
+      <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-right'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
+      <li><a href="http://www.ptejteseknihovny.cz/" target="_blank"><?=$this->transEsc('Ask a Librarian')?></a></li>
+    </ul>
+  </div>
+  <div class="col-sm-3">
+    <h2><?=$this->transEsc('Need Help?')?></h2>
+    <ul>
+      <li><a href='/Portal/Feedback' title='<?=$this->translate('Feedback')?>'><?=$this->translate('Feedback')?></a></li>
+      <? if (count($portalPages)): ?>
+        <? foreach ($portalPages as $page): ?>
+          <? if ($page['placement'] === 'footer' && $page['position'] === 'right'): ?>
+            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+          <? endif; ?>
+        <? endforeach; ?>
+      <? endif; ?>
     </ul>
   </div>
 </div>
+<div class='row'>
+  <div class='col-sm-6' style='padding-right: 20px;'>
+	<h2><?=$this->translate('Footer header')?></h2>
+	<p class='info'>
+	<?=$this->translate('Footer text')?>
+	</p>
+  </div>
+  <div class='col-sm-3'>
+    <h2><?=$this->translate('Develops')?></h2>
+	 <a href='http://mzk.cz/' title='<?=$this->translate('source_mzk');?>' target='_blank'>
+	 	<img class='logo' height='40' style='margin-left: 20px;' src='https://www.mzk.cz/sites/mzk.cz/themes/mzk/logo.png'>
+	 </a>
+	 <img class='logo' height='60' style='margin-left: 17px; margin-top: 30px;' src='/themes/cpk-devel/images/logo-mkcr-300x97.png'>
+  </div>
+  <div class='col-sm-3'>
+    <h2><?=$this->translate('Follow us')?></h2>
+	<div class='social'>
+    	<a href='https://www.facebook.com/Knihovny.cz/' title='Facebook - Knihovny.cz' target='_blank'>
+        	<img alt='Facebook - Knihovny.cz' class='social-icon' width='64' src='https://cdn0.iconfinder.com/data/icons/flat-social-media-icons-set-round-style-1/550/facebook-128.png'>
+        </a>
+
+        <a href='https://github.com/moravianlibrary/VuFind-2.x' title='Github - Knihovny.cz' target='_blank'>
+        	<img alt='Github - Knihovny.cz' class='social-icon' width='64' src='https://cdn0.iconfinder.com/data/icons/flat-social-media-icons-set-round-style-1/550/github-128.png'>
+        </a>
+    </div>
+	<div class='copyright'>
+		<p>
+			<span>&copy; 2015 - <?=date("Y")?></span>
+			<a href='http://mzk.cz/' title='<?=$this->translate('source_mzk');?>' target='_blank'>Moravian Library</a>
+			<br>
+			<span>CPK v1.14.0</span>
+		</p>
+	</div>
+  </div>
+</div>
+

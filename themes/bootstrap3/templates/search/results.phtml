@@ -1,3 +1,6 @@
+<? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
+<? endif; ?>
+
 <?
   // Set up page title:
   $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
@@ -6,6 +9,17 @@
   } else {
       $this->headTitle($this->translate('Search Results') . (empty($lookfor) ? '' : " - {$lookfor}"));
   }
+
+  // Load Javascript dependencies into header:
+  //$this->headScript()->appendFile("check_item_statuses.js");
+  $this->headScript()->appendFile("check_save_statuses.js");
+  $this->headScript()->appendFile("jquery-ui.min.js");
+
+  $this->headScript()->appendFile('vendor/prism.js');
+  $this->headScript()->appendFile('vendor/chosen.jquery.js');
+
+  $this->headLink()->appendStylesheet('vendor/prism.css');
+  $this->headLink()->appendStylesheet('vendor/chosen.css');
 
   // Set up search box:
   $this->layout()->searchbox = $this->context($this)->renderInContext(
@@ -19,11 +33,14 @@
         'checkboxFilters' => $this->params->getCheckboxFacets(),
         'filterList' => $this->params->getFilters(),
         'hasDefaultsApplied' => $this->params->hasDefaultsApplied(),
-        'selectedShards' => $this->params->getSelectedShards()
+        'selectedShards' => $this->params->getSelectedShards(),
+        'params' => $this->params,
       )
   );
 
   // Set up breadcrumbs:
+
+  $this->layout()->breadcrumbs .= '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ';
   if (isset($this->overrideTitle)) {
     $this->layout()->breadcrumbs .= '<li class="active">' . $this->escapeHtml($this->overrideTitle) . '</li>';
   } else {
@@ -35,102 +52,179 @@
   // Enable bulk options if appropriate:
   $this->showBulkOptions = $this->params->getOptions()->supportsCart() && $this->showBulkOptions;
 
-  // Load Javascript dependencies into header:
-  $this->headScript()->appendFile("check_item_statuses.js");
-  $this->headScript()->appendFile("check_save_statuses.js");
+  /*
+   * Add Url array params to JSON. This function will return JS.
+   *
+   * @FIXME       Move this function to helper.
+   *
+   * @param       $jsonVarName    string
+   * @param       $paramName      string
+   * @param       $index          int
+   *
+   * @return      string
+   **/
+  function addUrlArrayParamsToJson($jsonVarName, $paramName, $index) {
+      if ($index == 0) {
+          echo $jsonVarName."['$paramName{$index}'] = [];";
+      }
+      $fullParamName = $paramName.$index;
+      if (isset($_GET[$fullParamName])) {
+          $paramValues = $_GET[$fullParamName];
+          if (is_array($paramValues)) {
+              foreach ($paramValues as $value) {
+                  echo $jsonVarName."['".$paramName.$index."'].push( '".htmlspecialchars($value)."' );\n";
+              }
+          } else {
+              echo $jsonVarName."['".$paramName.$index."'].push( '".htmlspecialchars($paramValues)."' );\n";
+          }
+      }
+      $index++;
+      if (isset($_GET[$fullParamName])) {
+          addUrlArrayParamsToJson($jsonVarName, $paramName, $index);
+      }
+  }
+
+  /*
+   * Add Url scalar params to JSON. This function will return JS.
+   *
+   * @FIXME       Move this function to helper.
+   *
+   * @param       $jsonVarName    string
+   * @param       $paramName      string
+   * @param       $index          string
+   *
+   * @return      string
+   **/
+  function addUrlScalarParamsToJson($jsonVarName, $paramName, $defaultValue = '') {
+      $paramValue =(! empty($_GET[$paramName])) ? htmlspecialchars($_GET[$paramName]) : $defaultValue;
+      echo $jsonVarName."['$paramName'] = '$paramValue';\n";
+  }
+
 ?>
+<div id='search-result-list'>
+    <div class='row' id='flashedMessage' style='display: none;'>
+      <div class='col-sm-12'>
 
-<div class="row">
-  <div class="<?=$this->layoutClass('mainbody')?>">
-    <? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
-      <? foreach ($this->results->getRecommendations('top') as $current): ?>
-        <?=$this->recommend($current)?>
-      <? endforeach; ?>
-    <? endif; ?>
-    <?=$this->flashmessages()?>
-    <div class="hidden-print search-controls row">
-      <div class="col-sm-6">
-        <? if ($recordTotal > 0): ?>
-          <?=$this->transEsc("Showing")?>
-          <strong><?=$this->localizedNumber($this->results->getStartRecord())?></strong> - <strong><?=$this->localizedNumber($this->results->getEndRecord())?></strong>
-          <? if (!isset($this->skipTotalCount)): ?>
-            <?=$this->transEsc('of')?> <strong><?=$this->localizedNumber($recordTotal)?></strong>
-          <? endif; ?>
-          <? if (isset($this->overrideSearchHeading)): ?>
-            <?=$this->overrideSearchHeading?>
-          <? elseif ($this->params->getSearchType() == 'basic'): ?>
-            <?=$this->transEsc('for search')?>: <strong>'<?=$this->escapeHtml($lookfor)?>'</strong>,
-          <? endif; ?>
-          <? if ($qtime = $this->results->getQuerySpeed()): ?>
-            <?=$this->transEsc('query time')?>: <?=$this->localizedNumber($qtime, 2).$this->transEsc('seconds_abbrev')?>
-          <? endif; ?>
-        <? else: ?>
-          <h2><?=$this->transEsc('nohit_heading')?></h2>
-        <? endif; ?>
       </div>
-
-      <? if ($recordTotal > 0): ?>
-        <div class="col-sm-6 text-right">
-          <?=$this->render('search/controls/limit.phtml')?>
-          <?=$this->render('search/controls/sort.phtml')?>
-          <?=$this->render('search/controls/view.phtml')?>
-        </div>
-      <? endif; ?>
     </div>
-    <? /* End Listing Options */ ?>
+    <div class="row <?=$this->layoutClass('mainbody')?>">
 
-    <? if ($recordTotal < 1): ?>
-      <p>
-        <? if (isset($this->overrideEmptyMessage)): ?>
-          <?=$this->overrideEmptyMessage?>
-        <? else: ?>
-          <?=$this->transEsc('nohit_prefix')?> - <strong><?=$this->escapeHtml($lookfor)?></strong> - <?=$this->transEsc('nohit_suffix')?>
-        <? endif; ?>
-      </p>
-      <? if (isset($this->parseError)): ?>
-        <p class="alert alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
-      <? endif; ?>
-      <? foreach (($top = $this->results->getRecommendations('top')) as $current): ?>
-        <?=$this->recommend($current)?>
-      <? endforeach; ?>
-      <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
-        <? if (!in_array($current, $top)): ?>
-          <?=$this->recommend($current)?>
-        <? endif; ?>
-      <? endforeach; ?>
-    <? else: ?>
-      <form class="form-inline" method="post" name="bulkActionForm" action="<?=$this->url('cart-home')?>">
-        <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
-        <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
-        <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => 'bottom_'))?>
-        <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results, 'options' => isset($this->paginationOptions) ? $this->paginationOptions : []))?>
-      </form>
-
-      <div class="searchtools hidden-print">
-        <strong><?=$this->transEsc('Search Tools')?>:</strong>
-        <a href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>"><i class="fa fa-bell"></i> <?=$this->transEsc('Get RSS Feed')?></a>
-        &mdash;
-        <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><i class="fa fa-envelope"></i> <?=$this->transEsc('Email this Search')?></a>
-        <? if ($this->accountCapabilities()->getSavedSearchSetting() === 'enabled'): ?>
-          &mdash;
-          <? if (is_numeric($this->results->getSearchId())): ?>
-            <? if ($this->results->isSavedSearch()): ?>
-              <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><i class="fa fa-remove"></i> <?=$this->transEsc('save_search_remove')?></a>
-            <? else: ?>
-              <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><i class="fa fa-save"></i> <?=$this->transEsc('save_search')?></a>
-            <? endif; ?>
+      <div class="hidden-print search-controls row">
+        <div class="col-sm-3">
+          <? if ($recordTotal > 0): ?>
+            <?=$this->render('search/ajax/controls/limit.phtml')?>
           <? endif; ?>
-        <? endif; ?>
-      </div>
-    <? endif; ?>
-  </div>
-  <? /* End Main Listing */ ?>
+        </div>
 
-  <? /* Narrow Search Options */ ?>
-  <div class="<?=$this->layoutClass('sidebar')?>">
-    <? foreach ($this->results->getRecommendations('side') as $current): ?>
-      <?=$this->recommend($current)?>
-    <? endforeach; ?>
-  </div>
-  <? /* End Narrow Search Options */ ?>
+        <div class='col-sm-6  text-center' id='results-amount-info-placeholder'>
+          <? if ($recordTotal > 0): ?>
+            <?=$this->localizedNumber($this->results->getStartRecord())?> - <?=$this->localizedNumber($this->results->getEndRecord())?>
+            <? if (!isset($this->skipTotalCount)): ?>
+              <?=$this->transEsc('of')?> <?=$this->localizedNumber($recordTotal)?>
+            <? endif; ?>
+          <? else: ?>
+            <h2><?=$this->transEsc('nohit_heading')?></h2>
+          <? endif; ?>
+        </div>
+
+		  <div class="col-sm-3 text-right" id='search-results-controls'<?=($recordTotal > 0) ? "" : " style='display: none;'" ?>>
+            <?=$this->render('search/ajax/controls/sort.phtml')?>
+          </div>
+      </div>
+
+        <?=$this->flashmessages()?>
+
+        <? /* End Listing Options */ ?>
+
+          <div id='no-results-container'<?=($recordTotal < 1) ? "" : " style='display: none;'"?>>
+            <?= $this->context($this)->renderInContext('search/no-results', ['lookfor' => $lookfor]) ?>
+          </div>
+
+		 <div id='result-list-placeholder' data-ng-controller="SearchFavController as searchFavCtrl">
+		   <? if ($recordTotal > 0): ?>
+             <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
+		   <? endif; ?>
+		 </div>
+
+	     <? if ($recordTotal > 0): ?>
+          <div id='bulk-action-buttons-placeholder'>
+         <? else: ?>
+           <div id='bulk-action-buttons-placeholder' style='display: none;'>
+		 <? endif; ?>
+		     <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
+		   </div>
+
+		 <div id='pagination-placeholder'>
+            <? if ($recordTotal > 0): ?>
+              <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results, 'options' => isset($this->paginationOptions) ? $this->paginationOptions : []))?>
+            <? endif; ?>
+		 </div>
+
+      </div>
+      <? /* End Main Listing */ ?>
+
+      <? /* Narrow Search Options */ ?>
+      <div class="<?=$this->layoutClass('sidebar')?>" id='side-facets-placeholder'>
+        <? foreach ($this->results->getRecommendations('side') as $current): ?>
+          <?=$this->recommend($current)?>
+        <? endforeach; ?>
+      </div>
+      <? /* End Narrow Search Options */ ?>
+    </div>
+    <div class='row' id='search-result-list'>
+      <div class='col-sm-12 pull-right'>
+        <? if ($recordTotal > 0): ?>
+          	<div class="result-list-toolbar hidden-print" style='font-size: 120%;'>
+          	    <a href="<?=$this->url('search-history')?>" title='<?=$this->transEsc('Search History')?>'><i class="pr-interface-search"></i> <?=$this->transEsc('Search History')?></a>
+        		&nbsp;|&nbsp;
+                <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link mail-record-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>">
+                	<i class="icon-poslat-emailem"></i> <?=$this->transEsc('Email this Search')?>
+                </a>
+                &nbsp;|&nbsp;
+                <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
+                	<i class="fa fa-feed pointer"></i> <?=$this->translate('RSS')?>
+                </a>
+                &nbsp;
+                <?= $this->help()->getQuestionMarkHelp('search-results-rss') ?>
+              </div>
+    	  <? endif; ?>
+      </div>
+    </div>
 </div>
+<script>
+    jQuery( document ).ready( function( $ ) {
+        <? if ($this->extraResults && $this->referer): ?>
+        	/* Save results to local storage for swithing to next/previous record of search results */
+        	if ( typeof(Storage) !== 'undefined' ) {
+        		var extraResults = ["<?=implode("\", \"", $this->extraResults)?>"];
+        		localStorage.setItem( '<?=$this->referer?>', JSON.stringify( extraResults ) );
+            } else {
+                console.error( 'Sorry! No Web Storage support.' );
+            }
+        <? endif; ?>
+
+        /* When we want to move in window history, we need to push state into
+           history, when the results page are displayed for the first time,
+           synchronously. */
+        var data = {};
+
+		<?php
+		  $index = 0;
+		  addUrlArrayParamsToJson('data', 'lookfor', $index);
+		  addUrlArrayParamsToJson('data', 'type', $index);
+		  addUrlArrayParamsToJson('data', 'bool', $index);
+
+		  addUrlScalarParamsToJson('data', 'filter');
+		  addUrlScalarParamsToJson('data', 'daterange');
+		  addUrlScalarParamsToJson('data', 'publishDatefrom');
+		  addUrlScalarParamsToJson('data', 'publishDateto');
+		  addUrlScalarParamsToJson('data', 'limit', '10');
+		  addUrlScalarParamsToJson('data', 'sort', 'relevance');
+		  addUrlScalarParamsToJson('data', 'page', '1');
+		  addUrlScalarParamsToJson('data', 'searchTypeTemplate', 'basic');
+		  addUrlScalarParamsToJson('data', 'keepFacetsEnabled', 'true');
+		  addUrlScalarParamsToJson('data', 'join', 'AND');
+		?>
+		ADVSEARCH.updateUrl( data );
+    });
+</script>

@@ -11,10 +11,8 @@
   <? foreach ($visFacets as $facetField=>$facetRange): ?>
     <div class="authorbox">
       <div id="datevis<?=$this->escapeHtml($facetField)?>xWrapper" class="hidden">
-        <strong><?=$this->transEsc($facetRange['label']) ?></strong>
         <? /* space the flot visualisation */ ?>
-        <div id="datevis<?=$facetField ?>x" style="margin:0 10px;width:auto;height:80px;cursor:crosshair;"></div>
-        <div id="clearButtonText" style="display: none"><?=$this->transEsc('Clear') ?></div>
+        <div id="datevis<?=$facetField ?>x" style="margin:10px;width:568px;height:80px;cursor:crosshair;"></div>
       </div>
     </div>
   <? endforeach; ?>
@@ -23,7 +21,17 @@
     $js = "loadVis('" . $this->recommend->getFacetFields() . "', '"
         . $this->recommend->getSearchParams() . "', VuFind.getPath(), "
         . $this->recommend->getZooming() . ");";
-    echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $js, 'SET');
   ?>
+
+  <script>
+    $('#dateVisModal').on('show.bs.modal', function (event) {
+
+      <?
+    echo $js;
+    ?>
+
+    })
+
+  </script>
 
 <? endif; ?>

@@ -1,46 +1,255 @@
-<div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-11">
-  <div class="row">
-    <div>
-      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
-      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?>" class="hiddenSource" />
-    </div>
-    <? if ($cover = $this->record($this->driver)->getCover('result-list', 'medium', $this->recordLink()->getUrl($this->driver))): ?>
-      <div class="col-sm-2 col-xs-3 left"><?=$cover ?></div>
-    <? endif ?>
-    <div class="<?=$cover ? 'col-sm-7 col-xs-6' : 'col-sm-9 col-xs-9'?> middle">
-      <div>
-        <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title">
-          <?=$this->record($this->driver)->getTitleHtml()?>
+<?
+  $recordId = $this->driver->getUniqueID();
+  $recordSource = explode(".", $recordId)[0];
+  $backLink = $this->serverUrl($this->recordLink()->getUrl($this->driver));
+  $formats = $this->driver->getFormats();
+  $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
+  if (empty($lookfor)) {
+      $lookfor = $this->record($this->driver)->getObalkyKnihAdvert('results');
+  }
+
+  /* Display information on duplicate records if available */
+  $records = $this->driver->getDedupData();
+
+  // Sort records in libraries
+  $countRecords = count($records);
+
+  if ($countRecords) {
+      // put caslin at the end and cnb before caslin, when available
+      // but keep at the front when is set in facet params
+      $filters = $params->getFilters();
+
+      $caslinFoundInFilters = 0;
+      $cnbFoundInFilters = 0;
+
+      $institutionsInFilters = [];
+      if (isset($filters['~institution'])) {
+          $institutionsInFilters = $filters['~institution'];
+      } else if (isset($filters['institution'])) {
+          $institutionsInFilters = $filters['institution'];
+      }
+
+      if(count($institutionsInFilters)) {
+          foreach($institutionsInFilters as $institution) {
+              if (strpos($institution,'CASLIN') !== false) {
+                  $caslinFoundInFilters++;
+              }
+              if (strpos($institution,'CNB') !== false) {
+                  $cnbFoundInFilters++;
+              }
+          }
+      }
+
+      if ($cnbFoundInFilters == 0) {
+          if (isset($records['cnb'])) {
+              $cnb = $records['cnb'];
+              unset($records['cnb']);
+              $records['cnb'] = $cnb;
+          }
+      }
+
+      if ($caslinFoundInFilters == 0) {
+          if (isset($records['caslin'])) {
+              $caslin = $records['caslin'];
+              unset($records['caslin']);
+              $records['caslin'] = $caslin;
+          }
+      }
+
+      // Institutes in filters will be on top of the list
+      $institutionsMappings = [];
+      if ($this->institutionsMappings) {
+          foreach ($this->institutionsMappings as $key => $value) {
+              $institutionsMappings[md5($value)] = $key;
+          }
+      }
+
+      foreach ($institutionsInFilters as $institution) {
+          if (isset($institutionsMappings[md5($institution)])) {
+              if (array_key_exists($institutionsMappings[md5($institution)], $records)) {
+                  $tempValue = $records[$institutionsMappings[md5($institution)]];
+                  $tempKey = $institutionsMappings[md5($institution)];
+                  $tempArray[$tempKey] = $tempValue;
+                  unset($records[$institutionsMappings[md5($institution)]]);
+                  $records = $tempArray + $records;
+                  unset($tempArray);
+              }
+          }
+      }
+
+      // When selected town, select all intitutes in that town and put theme in
+      // the front of the list
+      $institutionsInTowns = [];
+      foreach ($institutionsInFilters as $institution) {
+          $parts = explode("/", $institution);
+          if(empty($parts[3])) {
+              if(! empty($parts[2])) {
+                  foreach ($this->institutionsMappings as $key => $value) {
+                      if(strpos($value, $parts[1]."/".$parts[2]) !== false) {
+                          $institutionsInTowns[] = $value;
+                      }
+                  }
+              }
+          }
+      }
+
+      foreach ($institutionsInTowns as $value) {
+          $recordKey = $institutionsMappings[md5($value)];
+          if (isset($records[$recordKey])) {
+              $tempKey = $institutionsMappings[md5($value)];
+              $tempValue = $records[$tempKey];
+              $tempArray[$tempKey] = $tempValue;
+              unset($records[$tempKey]);
+              $records = $tempArray + $records;
+          }
+      }
+  }
+  //
+
+  // sort records in libraries, put institutions in filters to the beginning
+  $foundRecords = $records;
+  $institutionsFilters = [];
+  if (isset($_GET['filter']) || isset($_POST['filter'])) {
+      $paramFilter = isset($_GET['filter']) ? $_GET['filter'] : $_POST['filter'];
+      $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($paramFilter)));
+      foreach ($decompressedFilters as $key => $value) {
+          $explodedArray = explode('/', trim($value, '"'));
+          $index = ((count($explodedArray)-2) < 0) ? 0 : (count($explodedArray)-2);
+          $source = strtolower($explodedArray[$index]);
+          $institutionsFilters[] = $source;
+      }
+  }
+
+  $sfxes = [];
+  $digitalLibraries = [];
+  foreach ($institutionsFilters as $key => $source) {
+      if (isset($this->sfxesForLibraries[$source])) {
+          $sfxes = array_merge(
+              $sfxes,
+              ($this->sfxesForLibraries[$source] !== 'null') ? explode(",", $this->sfxesForLibraries[$source]) : []
+          );
+      }
+
+      if (isset($this->digitalLibrarieForLibraries[$source])) {
+          $digitalLibraries = array_merge(
+              $digitalLibraries,
+              ($this->digitalLibrarieForLibraries[$source] !== 'null') ? explode(",", $this->digitalLibrarieForLibraries[$source]) : []
+          );
+      }
+  }
+
+  $prependTheseSources = array_unique(array_merge($sfxes, $digitalLibraries, $institutionsFilters));
+
+  $prependedLibraries = [];
+  if (count($foundRecords) && count($prependTheseSources)) {
+      foreach ($foundRecords as $source => $array) {
+          if ( in_array($source, $prependTheseSources) ) {
+              unset($foundRecords[$source]);
+              $prependedLibraries[$source] = $array;
+          }
+      }
+  }
+
+  $recordsInLibraries = $prependedLibraries + $foundRecords;
+
+  $firstRecordInInstitutions = reset($recordsInLibraries);
+
+?>
+<div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
+    <div class="white-box clearfix">
+    <div class="row">
+        <div class="col-sm-2 col-xs-3 left">
+            <? $recordId =  preg_replace("/\./", "", $recordId)?>
+            <? $recordId =  preg_replace("/:/", "", $recordId)?>
+            <? if ($this->params->getSearchType() == 'advanced'): ?>
+            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <? else: ?>
+            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <? endif;?>
+            	<div class="coverThumbnail cover_<?=$recordId?>">
+
+                    <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
+                        <script type="text/javascript">
+                        <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+                        obalky.display_authority_results(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? else: ?>
+                        obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
+                        <? endif; ?>
+                        </script>
+                    <? endif;?>
+                    <? if (! empty($formats)): ?>
+                        <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-<?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
+                    <? elseif ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
+                        <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                    <? else: ?>
+                        <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                    <? endif; ?>
+                </div>
+            </a>
+            <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
+            <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
+        </div>
+    <div class="col-sm-7 col-xs-7 middle search-result-container">
+      <div class="root-title">
+        <? if ($this->params->getSearchType() == 'advanced'): ?>
+        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
+        <? else: ?>
+        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
+        <? endif;?>
+        <?
+          $summHighlightedTitle = $this->driver->getHighlightedTitle();
+          $summTitle = $this->driver->getTitle();
+          if (!empty($summHighlightedTitle)) {
+            echo $this->highlight($this->addEllipsis($summHighlightedTitle, $summTitle));
+          } else if (!empty($summTitle)) {
+            echo $this->escapeHtml($this->truncate($summTitle, 180));
+          } else {
+            echo $this->transEsc('Title not available');
+          }
+        ?>
         </a>
       </div>
 
       <div>
         <? if($this->driver->isCollection()): ?>
-          <?=implode('<br>', array_map(array($this, 'escapeHtml'), $this->driver->getSummary())); ?>
+          <?=implode('<br>', $this->driver->getSummary()); ?>
         <? else: ?>
-          <? $summAuthor = $this->driver->getPrimaryAuthor(); if (!empty($summAuthor)): ?>
-          <?=$this->transEsc('by')?>
-          <a href="<?=$this->record($this->driver)->getLink('author', $summAuthor)?>"><?
+          <? $summAuthor = $this->driver->getPrimaryAuthor();
+            if (!empty($summAuthor)):
             $summHighlightedAuthor = $this->driver->getHighlightedAuthor();
-            echo !empty($summHighlightedAuthor)
+            $author = !empty($summHighlightedAuthor)
                 ? $this->highlight($summHighlightedAuthor)
                 : $this->escapeHtml($summAuthor);
-          ?></a>
+          ?>
+          <?
+            $authors = $this->driver->getDeduplicatedAuthors();
+            $authorityId = $this->driver->getMainAuthorAuthorityId();
+            $secondaryAuthoritiesIds = $this->driver->getSecondaryAuthoritiesIds();
+          ?>
+          <?
+            if (isset($authors['main']) && !empty($authors['main'])) {
+                $localAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($authorityId);
+            }
+          ?>
+          <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' class='author-info' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($author)?>">
+          <?=$author?>
+          </a>
+          <? if (! empty($localAuthorityId)): ?>
+              &nbsp;<a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityId?>"><i class="pr-user-single5 author-icon"></i></a>
           <? endif; ?>
-
+          <? endif; ?>
+		<span class='summDate'>
           <? $journalTitle = $this->driver->getContainerTitle(); $summDate = $this->driver->getPublicationDates(); ?>
           <? if (!empty($journalTitle)): ?>
             <?=!empty($summAuthor) ? '<br />' : ''?>
-            <?=$this->transEsc('Published in')?>
-            <? $containerSource = $this->driver->getSourceIdentifier(); ?>
-            <? $containerID = $this->driver->getContainerRecordID(); ?>
-            <? /* TODO: handle highlighting more elegantly here: */?>
-            <a href="<?=($containerID ? $this->recordLink()->getUrl("$containerSource|$containerID") : $this->record($this->driver)->getLink('journaltitle', str_replace(array('{{{{START_HILITE}}}}', '{{{{END_HILITE}}}}'), '', $journalTitle)))?>"><?=$this->highlight($journalTitle) ?></a>
+            <?=/* TODO: handle highlighting more elegantly here */ $this->transEsc('Published in') . ' <a href="' . $this->record($this->driver)->getLink('journaltitle', str_replace(array('{{{{START_HILITE}}}}', '{{{{END_HILITE}}}}'), '', $journalTitle)) . '">' . $this->highlight($journalTitle) . '</a>';?>
             <?=!empty($summDate) ? ' (' . $this->escapeHtml($summDate[0]) . ')' : ''?>
           <? elseif (!empty($summDate)): ?>
-            <?=!empty($summAuthor) ? '<br />' : ''?>
-            <?=$this->transEsc('Published') . ' ' . $this->escapeHtml($summDate[0])?>
+            <?=!empty($summAuthor) ? '<br>' : ''?>
+            <?='' . $this->escapeHtml($summDate[0])?>
           <? endif; ?>
+		</span>
+
           <? $summInCollection = $this->driver->getContainingCollections(); if (!empty($summInCollection)): ?>
             <? foreach ($summInCollection as $collId => $collText): ?>
               <div>
@@ -52,60 +261,56 @@
             <? endforeach; ?>
           <? endif; ?>
         <? endif; ?>
+      <? foreach ($this->driver->getExternalLinks() as $current): ?> <br/>
+         <? if (isset($current['url']) && !empty($current['url'])): ?>
+           <?='<br />' . $this->transEsc('Institution') . ': ' ?>
+             <a href="<?=$current['url']?>" class="fulltext external-search-link" target="new"><i class="icon-external-link"></i><?=$this->transEsc(strtoupper($current['institution']))?></a>
+          <? endif; ?>
+        <? endforeach;?>
       </div>
+
+      <table><?= $this->record($this->driver)->displayField773(); ?></table>
+
+      <? $summ = $this->driver->getSummary(); ?>
+      <? if (!empty($summ)): ?>
+        <? foreach ($summ as $field): ?>
+          <? $secondPart = substr($field, 200); ?>
+          <? $spacePosition = strpos($secondPart, ' '); ?>
+          <? if (empty($spacePosition) && ($spacePosition > 20)): ?>
+            <? $spacePosition = 0; ?>
+          <? endif; ?>
+          <? if ((! empty($secondPart)) && (preg_match('/[.,?!]/', $field[199 + $spacePosition]))): ?>
+            <? $spacePosition = $spacePosition - 1; ?>
+          <? endif; ?>
+          <p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?><? if (! empty($secondPart)): ?>...<? endif; ?></p>
+        <? endforeach; ?>
+      <? else: ?>
+          <script type="text/javascript">
+              obalky.display_summary_short(".summ_<?=$recordId?>", <?=$bibinfo?>);
+          </script>
+
+          <span class="summ_<?=$recordId?>"><i class="fa fa-spinner fa-spin"></i><?=$this->transEsc('loading_obalkyknih_summary')?></span>
+
+      <? endif; ?>
 
       <? if(!$this->driver->isCollection()): ?>
         <? if ($snippet = $this->driver->getHighlightedSnippet()): ?>
           <? if (!empty($snippet['caption'])): ?>
-            <strong><?=$this->transEsc($snippet['caption']) ?>:</strong> ';
+            <strong><?=$this->transEsc($snippet['caption']) ?>:</strong>
           <? endif; ?>
           <? if (!empty($snippet['snippet'])): ?>
-            <span class="quotestart">&#8220;</span>...<?=$this->highlight($snippet['snippet']) ?>...<span class="quoteend">&#8221;</span><br/>
+            <span class='snippetQuote'><span class="quotestart">&#8220;</span>...<?=$this->highlight($snippet['snippet']) ?>...<span class="quoteend">&#8221;</span></span><br/>
           <? endif; ?>
         <? endif; ?>
       <? endif; ?>
 
-      <?
-      /* Display information on duplicate records if available */
-      if ($dedupData = $this->driver->getDedupData()): ?>
-        <div class="dedupInformation">
-        <?
-          $i = 0;
-          foreach ($dedupData as $source => $current) {
-            if (++$i == 1) {
-              ?><span class="currentSource"><a href="<?=$this->recordLink()->getUrl($this->driver)?>"><?=$this->transEsc("source_$source", array(), $source)?></a></span><?
-            } else {
-              if ($i == 2) {
-                ?> <span class="otherSources">(<?=$this->transEsc('Other Sources')?>: <?
-              } else {
-                ?>, <?
-              }
-              ?><a href="<?=$this->recordLink()->getUrl($current['id'])?>"><?=$this->transEsc("source_$source", array(), $source)?></a><?
-            }
-          }
-          if ($i > 1) {
-            ?>)</span><?
-          }?>
-        </div>
-      <? endif; ?>
-
-      <div class="callnumAndLocation ajax-availability hidden">
-        <? if ($this->driver->supportsAjaxStatus()): ?>
-          <strong class="hideIfDetailed"><?=$this->transEsc('Call Number')?>:</strong>
-          <span class="callnumber ajax-availability hidden">
-            <?=$this->transEsc('Loading')?>...<br/>
-          </span>
-          <strong><?=$this->transEsc('Located')?>:</strong>
-          <span class="location ajax-availability hidden">
-            <?=$this->transEsc('Loading')?>...
-          </span>
-          <div class="locationDetails"></div>
-        <? else: ?>
-          <? $summCallNo = $this->driver->getCallNumber(); if (!empty($summCallNo)): ?>
-            <strong><?=$this->transEsc('Call Number')?>:</strong> <?=$this->escapeHtml($summCallNo)?>
-          <? endif; ?>
+	  <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+        <? if ($this->driver->hasPublications() && $recordSource !== 'osobnosti'): ?>
+		  <div>
+			<a title="<?=$this->transEsc('Show publications of this person')?>" href="<?=$this->driver->getPublicationsUrl()?>"><?=$this->translate('Show publications of this person')?></a>
+		  </div>
         <? endif; ?>
-      </div>
+      <? endif; ?>
 
       <? /* We need to find out if we're supposed to display an OpenURL link ($openUrlActive),
             but even if we don't plan to display the link, we still want to get the $openUrl
@@ -121,24 +326,53 @@
           <br/>
           <?=$openUrl->renderTemplate()?>
         <? endif; ?>
-        <? if (!is_array($urls)) $urls = array();
-          if(!$this->driver->isCollection()):
-            foreach ($urls as $current): ?>
-              <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="new"><i class="fa fa-external-link"></i> <?=($current['url'] == $current['desc']) ? $this->transEsc('Get full text') : $this->escapeHtml($current['desc'])?></a><br/>
-          <? endforeach; ?>
-        <? endif; ?>
       <? endif; ?>
 
-      <?=str_replace('class="', 'class="label label-info ', $this->record($this->driver)->getFormatList())?>
-
-      <? if (!$openUrlActive && empty($urls) && $this->driver->supportsAjaxStatus()): ?>
-        <span class="status ajax-availability hidden">
-          <span class="label label-default"><?=$this->transEsc('Loading')?>...</span>
-        </span>
-      <? endif; ?>
       <?=$this->record($this->driver)->getPreviews()?>
+
+		<div class='row'>
+		  <div class='col-md-8'>
+			<div class="format-list pull-left inline-block">
+        	  <?=$this->record($this->driver)->getFormatList()?>
+      		</div>
+		  </div>
+		  <div class='col-md-4 search-results-favorite-button hidden pull-right'>
+    		<? if ($this->userlist()->getMode() !== 'disabled'):
+                $controllerClass = 'controller:' . $this->record($this->driver)->getController();
+                $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled; ?>
+        	<li class="list-group-item">
+			<a id="save-record" class="modal-link <?=$controllerClass?>"
+
+  	         <? if ($handleOfflineFavorites) : ?>
+        		href="#" data-ng-click="searchFavCtrl.addOrRemoveFavorite(<?=isset($_ENV['currentRecordNo']) ? $_ENV['currentRecordNo'] : '' ?>)"
+    	    <? else: ?>
+        		href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
+            <? endif; ?>
+
+    		title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i>
+    		<span data-add-remove-search="add<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>"><?=$this->transEsc('Add to favorites')?></span>
+    		<span data-add-remove-search="rem<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span>
+    		</a></li>
+      	  <? endif; ?>
+		  </div>
+		</div>
+
     </div>
-    <div class="col-xs-3 right hidden-print">
+    <div class="col-sm-3 col-xs-12 right">
+    <?
+     if ($records) {
+         echo $this->context($this)->renderInContext(
+             'RecordDriver/SolrDefault/records-in-libraries.phtml',
+             array(
+                'records' => $records,
+                'config' => $this->config,
+                'countRecords' => $countRecords,
+                'recordsInLibraries' => $recordsInLibraries
+             )
+         );
+     }
+
+     ?>
       <? /* Display qrcode if appropriate: */ ?>
       <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
         <?
@@ -146,23 +380,11 @@
           $this->jsTranslations()->addStrings(array('qrcode_hide' => 'qrcode_hide', 'qrcode_show' => 'qrcode_show'));
         ?>
         <span class="hidden-xs">
-          <i class="fa fa-fw fa-qrcode"></i> <a href="<?=$this->escapeHtmlAttr($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
+          <i class="fa fa-qrcode"></i> <a href="<?=$this->escapeHtmlAttr($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
           <div class="qrcode hidden">
-            <script type="text/template" class="qrCodeImgTag">
-              <img alt="<?=$this->transEsc('QR Code')?>" src="<?=$this->escapeHtmlAttr($QRCode);?>"/>
-            </script>
+            <img alt="<?=$this->transEsc('QR Code')?>" src="<?=$this->escapeHtmlAttr($QRCode);?>"/>
           </div><br/>
         </span>
-      <? endif; ?>
-
-      <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-        <? /* Add to favorites */ ?>
-        <i class="fa fa-fw fa-star"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" data-id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
-
-        <? /* Saved lists */ ?>
-        <div class="savedLists alert alert-info hidden">
-          <strong><?=$this->transEsc("Saved in")?>:</strong>
-        </div>
       <? endif; ?>
 
       <? /* Hierarchy tree link */ ?>
@@ -170,7 +392,7 @@
         <? foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
           <div class="hierarchyTreeLink">
             <input type="hidden" value="<?=$this->escapeHtmlAttr($hierarchyID)?>" class="hiddenHierarchyId" />
-            <i class="fa fa-fw fa-sitemap"></i>
+            <i class="fa fa-sitemap"></i>
             <a class="hierarchyTreeLinkText modal-link" href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>">
               <?=$this->transEsc('hierarchy_view_context')?><? if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><? endif; ?>
             </a>
@@ -181,4 +403,6 @@
       <?=$this->driver->supportsCoinsOpenUrl()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenUrl()).'"></span>':''?>
     </div>
   </div>
+  </div>
+
 </div>

@@ -1,3 +1,0 @@
-<? foreach ($this->driver->getFormats() as $format): ?>
-  <div class="iconlabel" style='color: #777;'><i class="small-format-icon pr-format-<?=$this->record($this->driver)->getFormatClass($format)?>"></i><span data-orig="<?=$format?>" class="format-text"><?=$this->transEsc($format)?></span></div>
-<? endforeach; ?>

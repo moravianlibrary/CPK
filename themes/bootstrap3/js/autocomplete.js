@@ -1,78 +1,143 @@
 /*global console*/
 /**
- * vufind.typeahead.js 0.10
+ * vufind.typeahead.js 0.8
  * ~ @crhallberg
  */
 (function ( $ ) {
   var xhr = false;
 
-  $.fn.autocomplete = function(settings) {
+  $.fn.autocompleteVufind = function(settings) {
 
-    var options = $.extend( {}, $.fn.autocomplete.options, settings );
+    var options = $.extend( {}, $.fn.autocompleteVufind.options, settings );
 
     function align(input, element) {
-      var position = input.offset();
+      var offset = input[0].getBoundingClientRect();
+      var scrollTop;
+      if (document.documentElement) {
+        if (document.documentElement.scrollTop != 0) {
+          scrollTop = document.documentElement.scrollTop;
+        } else {
+          scrollTop = document.body.scrollTop;
+        }
+      } else {
+        scrollTop = document.body.scrollTop;
+      }
       element.css({
         position: 'absolute',
-        top: position.top + input.outerHeight(),
-        left: position.left,
-        minWidth: input.width(),
-        maxWidth: Math.max(input.width(), input.closest('form').width()),
-        zIndex: 50
+        top: offset.top + offset.height + scrollTop,
+        left: offset.left,
+        minWidth: offset.width - 24,
+        maxWidth: input.closest('form').width(),
+        zIndex: 5000
       });
     }
 
     function show() {
-      $.fn.autocomplete.element.removeClass(options.hidingClass);
+      $.fn.autocompleteVufind.element.removeClass(options.hidingClass);
     }
     function hide() {
-      $.fn.autocomplete.element.addClass(options.hidingClass);
+      $.fn.autocompleteVufind.element.addClass(options.hidingClass);
     }
 
-    function populate(value, input, eventType) {
+    function populate(value, input, eventType, clickedResult, clickedResultId) {
       input.val(value);
       hide();
-      input.trigger('autocomplete:select', {value: value, eventType: eventType});
+      input.trigger('autocompleteVufind:select', {value: value, eventType: eventType});
+      
+      if (clickedResult) {
+    	  var href = jQuery( '#'+clickedResultId ).attr( 'href' );
+    	  window.location.href = href;
+    	  return false;
+      }
+      
+      $( '.searchForm' ).submit();
+    }
+
+    function createListFrom(shell, input, data, category, main, searchType) {
+
+    	if (main) {
+    		shell.append($('<div/>')
+        		.addClass('autocomplete-results-category-main')
+                .html(category)
+            );
+    	} else {
+    		shell.append($('<div/>')
+        		.addClass('autocomplete-results-category')
+                .html(category)
+            );
+    	}
+
+    	var length = Math.min(options.maxResults, data.length);
+        input.data('length', length);
+        for (var i=0; i<length; i++) {
+          if (typeof data[i] === 'string') {
+            data[i] = {val: data[i]};
+          }
+          var content = data[i].val;
+          data[i].href = '/Search/Results?lookfor0[]='
+        	  			+ encodeURIComponent(content).replace("/\+/g", "%20")
+        	  			+ '&type0[]='+searchType+'&limit=10&sort=relevance&searchTypeTemplate=basic&bool0[]=AND&join=AND';
+          if (options.highlight) {
+            // escape term for regex
+            // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
+            var escapedTerm = input.val().replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+            var regex = new RegExp('('+escapedTerm+')', 'ig');
+            content = content.replace(regex, '<b>$1</b>');
+          }
+          var item = typeof data[i].href === 'undefined'
+            ? $('<div/>')
+            : $('<a/>').attr('href', data[i].href);
+          item.attr('data-index', i+0)
+              .attr('data-value', data[i].val)
+              .attr('id', searchType+i)
+              .addClass('item')
+              .html(content)
+              .mouseover(function() {
+                $.fn.autocompleteVufind.element.find('.item.selected').removeClass('selected');
+                $(this).addClass('selected');
+                input.data('selected', $(this).data('index'));
+              });
+          if (typeof data[i].description !== 'undefined') {
+            item.append($('<small/>').text(data[i].description));
+          }
+          shell.append(item);
+        }
+    }
+    
+    function createTitlesListFrom(shell, input, data, category, main) {
+    	createListFrom(shell, input, data, VuFind.translate('in_titles'), false, 'adv_search_title_series');
+    }
+    
+    function createAuthorsListFrom(shell, input, data, category, main) {
+    	createListFrom(shell, input, data, VuFind.translate('in_authors'), false, 'adv_search_author_corporation');
+    }
+    
+    function createSubjectsListFrom(shell, input, data, category, main) {
+    	createListFrom(shell, input, data, VuFind.translate('in_subjects'), false, 'adv_search_subject_keywords');
     }
 
     function createList(data, input) {
       var shell = $('<div/>');
-      var length = Math.min(options.maxResults, data.length);
-      input.data('length', length);
-      for (var i=0; i<length; i++) {
-        if (typeof data[i] === 'string') {
-          data[i] = {val: data[i]};
-        }
-        var content = data[i].val;
-        if (options.highlight) {
-          // escape term for regex
-          // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
-          var escapedTerm = input.val().replace(/[|\\{}()\[\]\^$+*?.]/g, '\\$&');
-          var regex = new RegExp('('+escapedTerm+')', 'ig');
-          content = content.replace(regex, '<b>$1</b>');
-        }
-        var item = typeof data[i].href === 'undefined'
-          ? $('<div/>')
-          : $('<a/>').attr('href', data[i].href);
-        item.attr('data-index', i+0)
-            .attr('data-value', data[i].val)
-            .addClass('item')
-            .html(content)
-            .mouseover(function() {
-              $.fn.autocomplete.element.find('.item.selected').removeClass('selected');
-              $(this).addClass('selected');
-              input.data('selected', $(this).data('index'));
-            });
-        if (typeof data[i].description !== 'undefined') {
-          item.append($('<small/>').text(data[i].description));
-        }
-        shell.append(item);
+
+      if((data.byTitle.length > 0) || (data.byAuthor.length > 0) || (data.bySubject.length > 0)) {
+    	  createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":", true);
       }
-      $.fn.autocomplete.element.html(shell);
-      $.fn.autocomplete.element.find('.item').mousedown(function() {
-        populate($(this).attr('data-value'), input, {mouse: true});
+      
+      if(data.byTitle.length > 0) {
+    	  createTitlesListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
+      }
+      if(data.byAuthor.length > 0) {
+    	  createAuthorsListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'), false);
+      }
+      if(data.bySubject.length > 0) {
+    	  createSubjectsListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
+      }
+
+      $.fn.autocompleteVufind.element.html(shell);
+      $.fn.autocompleteVufind.element.find('.item').mousedown(function() {
+        populate($(this).attr('data-value'), input, {mouse: true}, true, $(this).attr('id'));
       });
-      align(input, $.fn.autocomplete.element);
+      align(input, $.fn.autocompleteVufind.element);
     }
 
     function search(input, element) {
@@ -80,18 +145,19 @@
       if (input.val().length >= options.minLength) {
         element.html('<i class="item loading">'+options.loadingString+'</i>');
         show();
-        align(input, $.fn.autocomplete.element);
+        align(input, $.fn.autocompleteVufind.element);
         var term = input.val();
         var cid = input.data('cache-id');
-        if (options.cache && typeof $.fn.autocomplete.cache[cid][term] !== "undefined") {
-          if ($.fn.autocomplete.cache[cid][term].length === 0) {
+        if (options.cache && typeof $.fn.autocompleteVufind.cache[cid][term] !== "undefined" && ($.fn.autocompleteVufind.cache['facetsEnabled'] == $( '.searchFormKeepFilters' ).is(':checked'))) {
+          if ($.fn.autocompleteVufind.cache[cid][term].length === 0) {
             hide();
           } else {
-            createList($.fn.autocomplete.cache[cid][term], input, element);
+            createList($.fn.autocompleteVufind.cache[cid][term], input, element);
           }
         } else if (typeof options.handler !== "undefined") {
           options.handler(input.val(), function(data) {
-            $.fn.autocomplete.cache[cid][term] = data;
+            $.fn.autocompleteVufind.cache[cid][term] = data;
+            $.fn.autocompleteVufind.cache['facetsEnabled'] = $( '.searchFormKeepFilters' ).is(':checked');
             if (data.length === 0) {
               hide();
             } else {
@@ -113,7 +179,10 @@
           .addClass('autocomplete-results hidden')
           .html('<i class="item loading">'+options.loadingString+'</i>');
         align(input, element);
-        $(document.body).append(element);
+        $('body').append(element);
+        $(window).resize(function() {
+          align(input, element);
+        });
       }
 
       input.data('selected', -1);
@@ -122,7 +191,7 @@
       if (options.cache) {
         var cid = Math.floor(Math.random()*1000);
         input.data('cache-id', cid);
-        $.fn.autocomplete.cache[cid] = {};
+        $.fn.autocompleteVufind.cache[cid] = {};
       }
 
       input.blur(function(e) {
@@ -136,7 +205,9 @@
         search(input, element);
       });
       input.focus(function() {
-        search(input, element);
+    	  if (input.val().length == 0) {
+    		  search(input, element);
+    	  }
       });
       input.keyup(function(event) {
         // Ignore navigation keys
@@ -172,11 +243,12 @@
         }
       });
       input.keydown(function(event) {
-        var element = $.fn.autocomplete.element;
+        var element = $.fn.autocompleteVufind.element;
         var position = $(this).data('selected');
+        var linescount = $('.autocomplete-results .item').length;
         switch (event.which) {
           // arrow keys through items
-          case 38:
+          case 38: {
             event.preventDefault();
             element.find('.item.selected').removeClass('selected');
             if (position > 0) {
@@ -184,23 +256,32 @@
               element.find('.item:eq('+position+')').addClass('selected');
               $(this).data('selected', position);
             } else {
-              $(this).data('selected', -1);
+            	position = linescount - 1;
+            	element.find('.item:eq('+position+')').addClass('selected');
+            	$(this).data('selected', position);
             }
             break;
-          case 40:
+          }
+          case 40: {
             event.preventDefault();
-            if ($.fn.autocomplete.element.hasClass(options.hidingClass)) {
+            if ($.fn.autocompleteVufind.element.hasClass(options.hidingClass)) {
               search(input, element);
-            } else if (position < input.data('length')-1) {
+            } else if (position < linescount -1) {
               position++;
               element.find('.item.selected').removeClass('selected');
               element.find('.item:eq('+position+')').addClass('selected');
               $(this).data('selected', position);
+            } else {
+            	position = 0;
+            	element.find('.item.selected').removeClass('selected');
+            	element.find('.item:eq('+position+')').addClass('selected');
+            	$(this).data('selected', position);
             }
             break;
+          }
           // enter to nav or populate
           case 9:
-          case 13:
+          case 13: {
             var selected = element.find('.item.selected');
             if (selected.length > 0) {
               event.preventDefault();
@@ -212,12 +293,22 @@
                 $(this).data('selected', -1);
               }
             }
-            break;
-          // hide on escape
-          case 27:
+            
+            /* Hit esc after enter to hide list */
             hide();
             $(this).data('selected', -1);
+            element.addClass('autocomplete-results hidden');
+            /**/
+            
             break;
+          }
+          // hide on escape
+          case 27: {
+            hide();
+            $(this).data('selected', -1);
+            element.addClass('autocomplete-results hidden');
+            break;
+          }
         }
       });
 
@@ -230,8 +321,6 @@
         return input;
       }
 
-      window.addEventListener("resize", hide, false);
-
       return element;
     }
 
@@ -242,19 +331,19 @@
       if (typeof settings === "string") {
         if (settings === "show") {
           show();
-          align(input, $.fn.autocomplete.element);
+          align(input, $.fn.autocompleteVufind.element);
         } else if (settings === "hide") {
           hide();
         } else if (settings === "clear cache" && options.cache) {
-          var cid = parseInt(input.data('cache-id'), 10);
-          $.fn.autocomplete.cache[cid] = {};
+          var cid = parseInt(input.data('cache-id'));
+          $.fn.autocompleteVufind.cache[cid] = {};
         }
         return input;
       } else {
-        if (!$.fn.autocomplete.element) {
-          $.fn.autocomplete.element = setup(input);
+        if (!$.fn.autocompleteVufind.element) {
+          $.fn.autocompleteVufind.element = setup(input);
         } else {
-          setup(input, $.fn.autocomplete.element);
+          setup(input, $.fn.autocompleteVufind.element);
         }
       }
 
@@ -264,26 +353,26 @@
   };
 
   var timer = false;
-  if (typeof $.fn.autocomplete.cache === 'undefined') {
-    $.fn.autocomplete.cache = {};
-    $.fn.autocomplete.element = false;
-    $.fn.autocomplete.options = {
+  if (typeof $.fn.autocompleteVufind.cache === 'undefined') {
+    $.fn.autocompleteVufind.cache = {};
+    $.fn.autocompleteVufind.element = false;
+    $.fn.autocompleteVufind.options = {
       ajaxDelay: 200,
       cache: true,
       hidingClass: 'hidden',
       highlight: true,
       loadingString: 'Loading...',
-      maxResults: 20,
+      maxResults: 15,
       minLength: 3
     };
-    $.fn.autocomplete.ajax = function(ops) {
-      if (timer) { clearTimeout(timer); }
+    $.fn.autocompleteVufind.ajax = function(ops) {
+      if (timer) clearTimeout(timer);
       if (xhr) { xhr.abort(); }
       timer = setTimeout(
         function() { xhr = $.ajax(ops); },
-        $.fn.autocomplete.options.ajaxDelay
+        $.fn.autocompleteVufind.options.ajaxDelay
       );
-    };
+    }
   }
 
 }( jQuery ));

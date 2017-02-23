@@ -1,16 +1,21 @@
 <?
   // Set page title.
-  $this->headTitle($this->translate('Search History'));
+  $this->headTitle($this->translate('Search history and saved searches'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a href="' .  $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'
+  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> '
+      .'<li><a href="' .  $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'
     . '<li class="active">' . $this->transEsc('History') . '</li>';
 
   $saveSupported = $this->accountCapabilities()->getSavedSearchSetting() === 'enabled';
 ?>
-
+<!--<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>-->
 <div class="row">
-  <div class="<?=$this->layoutClass('mainbody')?>">
+  <? if ($this->auth()->isLoggedIn()): ?>
+    <div class="<?=$this->layoutClass('mainbody')?>">
+  <? else: ?>
+    <div class="col-sm-12">
+  <? endif; ?>
     <? if ($saveSupported && !empty($this->saved)): ?>
       <h2><?=$this->transEsc("history_saved_searches")?></h2>
       <?=$this->context()->renderInContext('search/history-table.phtml', array('showSaved' => true));?>
@@ -25,14 +30,16 @@
     <? endif; ?>
   </div>
 
-  <? if ($saveSupported): ?>
-    <div class="<?=$this->layoutClass('sidebar')?>">
-      <?=$this->context($this)->renderInContext(
-          "myresearch/menu.phtml",
-          // Only activate search history in account menu if user is logged in.
-          $this->auth()->isLoggedIn() ? array('active' => 'history') : array()
-       );
-       ?>
-    </div>
+  <? if ($this->auth()->isLoggedIn()): ?>
+      <? if ($saveSupported): ?>
+        <div class="<?=$this->layoutClass('sidebar')?>">
+          <?=$this->context($this)->renderInContext(
+              "myresearch/menu.phtml",
+              // Only activate search history in account menu if user is logged in.
+              $this->auth()->isLoggedIn() ? array('active' => 'history') : array()
+           );
+           ?>
+        </div>
+      <? endif; ?>
   <? endif; ?>
 </div>

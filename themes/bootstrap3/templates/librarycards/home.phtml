@@ -1,59 +1,100 @@
 <?
     // Set up page title:
-    $this->headTitle($this->translate('Library Cards'));
+    $this->headTitle($this->translate('Linked accounts'));
 
     // Set up breadcrumbs:
-    $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Library Cards') . '</li>';
+    $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> '.
+    '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Library Cards') . '</li>';
+
+    $deleted = [];
 ?>
+<!--<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>-->
 <div class="row">
   <div class="<?=$this->layoutClass('mainbody')?>">
 
     <?=$this->flashmessages()?>
 
-    <h2><?=$this->transEsc('Library Cards')?></h2>
-    <? if ($this->libraryCards->count() == 0): ?>
+    <div class="row">
+     <div class="col-xs-6">
+      <h2>
+        <?=$this->transEsc('Linked accounts')?>
+        <?= $this->help()->getQuestionMarkHelp('library-cards') ?>
+      </h2>
+     </div>
+     <div class="col-xs-6">
+      <a class="btn btn-default pull-right" style="margin-top:20px;" href="#" onclick='$("div#userConnectModal").modal("show")'><?=$this->transEsc("Connect another account")?></a>
+     </div>
+    </div>
+    <? if (empty($this->libraryCards)): ?>
       <div><?=$this->transEsc('You do not have any library cards')?></div>
     <? else: ?>
       <table class="table table-striped" summary="<?=$this->transEsc('Library Cards')?>">
       <tr>
-        <th><?=$this->transEsc('Library Card Name')?></th>
-        <? if ($this->multipleTargets): ?>
-        <th><?=$this->transEsc('login_target')?></th>
-        <? endif; ?>
-        <th><?=$this->transEsc('Username')?></th>
-        <th>&nbsp;</th>
+        <th width="15%">&nbsp;</th>
+        <th><?=$this->transEsc('Identity')?></th>
+        <th><?=$this->transEsc('Associated email')?></th>
+        <th width="30%">&nbsp;</th>
       </tr>
-      <? foreach ($this->libraryCards as $record): ?>
+      <? foreach ($this->libraryCards as $record):
+            $source = explode('.', $record['cat_username'])[0];
+      if ($source === 'Dummy') {
+
+          $source = explode('.', $record['cat_username'])[1];
+
+          if ($record['home_library'] === 'Dummy.deleted') {
+              $deleted[$source] = $record;
+              continue;
+          }
+      }
+
+      ?>
         <tr>
-          <td><?=$this->escapeHtml($record['card_name'])?></td>
-          <? $username = $record['cat_username']; if ($this->multipleTargets): ?>
-            <? $target = ''; ?>
-            <? if (strstr($username, '.')): ?>
-              <? list($target, $username) = explode('.', $username, 2); ?>
-            <? endif; ?>
-            <td><?=$target ? $this->transEsc("source_$target", null, $target) : '&nbsp;' ?></td>
-          <? endif; ?>
-          <td><?=$this->escapeHtml($username)?></td>
+          <td style="text-align: center;">
+            <img height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
+          </td>
+          <td><?=$this->transEsc("source_$source", null, $source) ?></td>
+          <td title="<?=$record['eppn'] ?>"><?=$record['card_name'] ?></td>
           <td>
+          <? /* Do not create a choice for deletion if this is the only card */ if(count($this->libraryCards) !== 1): ?>
             <div class="btn-group">
-              <a class="btn btn-link" href="<?=$this->url('editLibraryCard') . $this->escapeHtmlAttr($record['id']) ?>" title="<?=$this->transEsc('Edit Library Card')?>"><i class="fa fa-edit"></i> <?=$this->transEsc('Edit')?></a>
               <a class="btn btn-link dropdown-toggle" data-toggle="dropdown" href="<?=$this->url('librarycards-deletecard') ?>?cardID=<?=urlencode($record['id'])?>">
-                <i class="fa fa-trash-o"></i> <?=$this->transEsc('Delete')?>
+                <i class="fa fa-trash-o"></i> <?=$this->transEsc('Disconnect identity')?>
               </a>
               <ul class="dropdown-menu">
                 <li><a href="<?=$this->url('librarycards-deletecard') ?>?cardID=<?=urlencode($record['id'])?>&amp;confirm=1"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
                 <li><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
               </ul>
             </div>
+          <? endif; ?>
+          </td>
+        </tr>
+      <? endforeach; ?>
+      <? foreach ($deleted as $source => $record):?>
+        <tr style="color: gray">
+          <td style="text-align: center;">
+            <img style="filter: grayscale(100%);" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
+          </td>
+          <td><?=$this->transEsc("source_$source", null, $source) ?></td>
+          <td title="<?=$record['eppn'] ?>"><?=$record['card_name'] ?></td>
+          <td title="<?=$this->translate('identity_deleted_description')?>">
+            <?=$this->translate('identity_deleted')?>
           </td>
         </tr>
       <? endforeach; ?>
       </table>
-    <? endif; ?>
 
-    <div class="btn-group">
-      <a href="<?=$this->url('editLibraryCard') ?>NEW" class="btn btn-link" title="<?=$this->transEsc('Add a Library Card')?>"><i class="fa fa-edit"></i> <?=$this->transEsc('Add a Library Card')?></a>
-    </div>
+      <div class="col-xs-12">
+       <div class="btn-group pull-right">
+         <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-top:20px;" href="#"><?=$this->transEsc("delete-user-account")?></a>
+        </a>
+        <ul class="dropdown-menu">
+         <pre><?=$this->transEsc('delete-user-account-confirm') ?></pre>
+         <li><a href="<?=$this->url('myresearch-userdelete') ?>?confirm=1"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
+         <li><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
+        </ul>
+       </div>
+      </div>
+    <? endif; ?>
   </div>
 
   <div class="<?=$this->layoutClass('sidebar')?>">
@@ -61,3 +102,46 @@
   </div>
 
 </div>
+
+<!-- Modal for connecting identities -->
+    <div class="modal fade" id="userConnectModal" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content" data-ng-controller="FederativeLoginController as fedLoginCtrl">
+          <div class="modal-header">
+		    <? $consolidationWarning = $this->portalPages()->getPage('identities-consolidation-warning', explode("-", $this->layout()->userLang)[0]); ?>
+		    <h4 class="modal-title"><?=$consolidationWarning['title']?></h4>
+		  </div>
+		  <div class="modal-body">
+		    <?=$consolidationWarning['content'] ?>
+		  </div>
+          <div class="modal-header link" data-ng-click="fedLoginCtrl.showHelpContent()" style="cursor: pointer">
+		    <? $portalPage = $this->portalPages()->getPage('napoveda-pro-prihlaseni-a-registraci', explode("-", $this->layout()->userLang)[0]); ?>
+		    <h4 class="modal-title"><?=$portalPage['title']?></h4>
+		  </div>
+		  <div class="modal-body" data-ng-help-content hidden="hidden">
+		    <?=$portalPage['content'] ?>
+		  </div>
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><?=$this->translate('connect_with')?></h4>
+          </div>
+          <div class="modal-body">
+          	<?=$this->render('login/identity-providers.phtml', [
+          	    'idps' => $this->identityProviders()->getLibraries()
+          	]) ?>
+		  </div>
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"><?=$this->translate('login_other')?></h4>
+          </div>
+          <div class="modal-body">
+          	<?=$this->render('login/identity-providers.phtml', [
+          	    'idps' => $this->identityProviders()->getOthers()
+          	]) ?>
+		  </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
+          </div>
+        </div>
+      </div>
+    </div>

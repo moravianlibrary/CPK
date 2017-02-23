@@ -76,6 +76,27 @@ function refreshCommentList($target, recordId, recordSource) {
   });
 }
 
+function refreshCommentListObalkyKnih(recordId, recordSource) {
+  var url = path + '/AJAX/JSON?' + $.param({method:'getRecordCommentsObalkyKnihAsHTML',id:recordId,'source':recordSource});
+  $.ajax({
+    dataType: 'json',
+    url: url,
+    success: function(response) {
+      // Update HTML
+      if (response.status == 'OK') {
+        $('#commentList').empty();
+        $('#commentList').append(response.data);
+        $('input[type="submit"]').button('reset');
+        $('.delete').unbind('click').click(function() {
+          var commentId = $(this).attr('id').substr('recordComment'.length);
+          deleteRecordComment(this, recordId, recordSource, commentId);
+          return false;
+        });
+      }
+    }
+  });
+}
+
 function registerAjaxCommentRecord() {
   // Form submission
   $('form.comment-form').unbind('submit').submit(function() {
@@ -114,9 +135,47 @@ function registerAjaxCommentRecord() {
   });
 }
 
+
+function registerAjaxCommentRecordObalkyKnih() {
+  // Form submission
+  $('form[name="commentRecordObalkyKnih"]').unbind('submit').submit(function(){
+    var form = this;
+    var id = form.id.value;
+    var recordSource = form.source.value;
+    var obalkyknihbookid = form.obalkyknihbookid.value;
+    var url = path + '/AJAX/JSON?' + $.param({method:'commentRecordObalkyKnih'});
+    var data = {
+      comment:form.comment.value,
+      id:id,
+      source:recordSource,
+      obalkyknihbookid:obalkyknihbookid
+    };
+    $.ajax({
+      type: 'POST',
+      url:  url,
+      data: data,
+      dataType: 'json',
+      success: function(response) {
+        var form = 'form[name="commentRecord"]';
+        if (response.status == 'OK') {
+          refreshCommentListObalkyKnih(id, recordSource);
+          $(form).find('textarea[name="comment"]').val('');
+          $(form).find('input[type="submit"]').button('loading');
+        } else {
+          Lightbox.displayError(response.data);
+        }
+      }
+    });
+    return false;
+  });
+  // Delete links
+  $('.delete').click(function(){deleteRecordComment(this, $('.hiddenId').val(), $('.hiddenSource').val(), this.id.substr(13));return false;});
+}
+
 function registerTabEvents() {
   // register the record comment form to be submitted via AJAX
   registerAjaxCommentRecord();
+  registerAjaxCommentRecordObalkyKnih();
 
   setUpCheckRequest();
 
@@ -144,7 +203,9 @@ function ajaxLoadTab($newTab, tabid, setHash) {
   if (path === '') {
     // special case -- VuFind installed at site root:
     var chunks = urlWithoutFragment.split('/');
+
     urlroot = '/' + chunks[3] + '/' + chunks[4];
+
   } else {
     // standard case -- VuFind has its own path under site:
     var pathInUrl = urlWithoutFragment.indexOf(path);
@@ -233,7 +294,7 @@ function applyRecordTabHash() {
   // Open tag in url hash
   if (newTab.length == 0 || newTab == '#tabnav') {
     $initiallyActiveTab.click();
-  } else if (newTab.length > 0 && '#' + activeTab != newTab) {
+  } else if (newTab.length > 0 && '#' + (activeTab || '') != newTab) {
     $('.'+newTab.substr(1)).click();
   }
 }
@@ -307,10 +368,10 @@ function recordDocReady() {
   });
   Lightbox.addFormCallback('placeHold', function(html) {
     Lightbox.checkForError(html, function(html) {
-      var divPattern = '<div class="alert alert-success">';
+      var divPattern = '<div class="alert alert-info">';
       var fi = html.indexOf(divPattern);
       var li = html.indexOf('</div>', fi+divPattern.length);
-      Lightbox.success(html.substring(fi+divPattern.length, li).replace(/^[\s<>]+|[\s<>]+$/g, ''));
+      Lightbox.confirm(html.substring(fi+divPattern.length, li).replace(/^[\s<>]+|[\s<>]+$/g, ''));
     });
   });
   Lightbox.addFormCallback('placeILLRequest', function() {
@@ -335,3 +396,112 @@ function recordDocReady() {
     Lightbox.confirm(VuFind.translate('add_tag_success'));
   });
 }
+
+/**
+ * Dispay citation
+ * 
+ * @author	Martin Kravec <martin.kravec@mzk.cz>
+ * 
+ * @return	{undefined}
+ */
+function displayCitationLink() {
+	jQuery( '#citace-pro > a' ).addClass( 'citations-link' );
+	jQuery( '#citace-pro > a' ).removeClass( 'disabled-link' );
+	jQuery( '#citation-link-spinner' ).addClass( 'hidden' );
+}
+
+/**
+ * Get citation
+ * 
+ * @author	Martin Kravec <martin.kravec@mzk.cz>
+ * 
+ * @param	{string}	recordId
+ * @param	{function}	callback
+ * @return	{undefined}
+ */
+function getCitation( recordId, citationValue , callback ) {
+	$( '.citation-loader' ).removeClass( 'hidden' );
+	$( '#citation-style-selector' ).addClass( 'hidden' );
+	$( '#citation-placeholder' ).addClass( 'hidden' );
+	$.ajax({
+		dataType: 'json',
+		async: true,
+		type: 'POST',
+		url: '/AJAX/JSON?method=getCitation',
+		data: { recordId: recordId, citationValue: citationValue },
+		success: function( result ) {
+			if( result.status !== 'OK' ) {
+				$( "#ajax-error-info" ).empty().append( result.data );
+				$( '#citation-link-spinner' ).addClass( 'hidden' );
+			} else {
+				callback( result.data );
+				displayCitationLink();
+				$( '.citation-loader' ).addClass( 'hidden' );
+				$( '#citation-placeholder' ).removeClass( 'hidden' );
+			}
+		},
+		fail: function( jqXHR, textStatus ) {
+			console.log( "Request failed: " + textStatus );
+		}
+	});
+}
+
+function selectText( containerid ) {
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(containerid));
+        range.select();
+    } else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(containerid));
+        window.getSelection().addRange(range);
+    }
+}
+
+/**
+ * Insert citation
+ * 
+ * @author	Martin Kravec <martin.kravec@mzk.cz>
+ * 
+ * @return	{undefined}
+ */
+function insertCitation( citation ) {
+	var html = "<span id=\"selectable\" onclick=\"selectText('selectable')\">"+citation+"</span>";
+	jQuery( '#citation-placeholder' ).html( html );
+	$( '#citation-style-selector' ).removeClass( 'hidden' );
+}
+
+jQuery( document ).ready( function( $ ) {
+	$( '.style' ).on( 'change', function() {
+		var recordId = $( this ).attr( 'id' ).replace( 'record_', '' );
+		getCitation( recordId, $( this ).val(), insertCitation);
+	});
+	
+	$( '.selectOnClick' ).on( 'click', function() {
+		$( this ).select();
+	});
+	
+	/* Record email form client-side validation */
+	$( '#email-record' ).validate({ // initialize the plugin
+        rules: {
+            from: {
+                required: true,
+                email: true
+            },
+            to: {
+                required: true,
+                email: true
+            }
+        },
+        messages: {
+        	from: {
+              required: VuFind.translate( 'Enter email' ),
+              email: VuFind.translate( 'Wrong email format' )
+            },
+            to: {
+                required: VuFind.translate( 'Enter email' ),
+                email: VuFind.translate( 'Wrong email format' )
+              }
+          }
+    });
+});

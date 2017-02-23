@@ -18,10 +18,10 @@ forms = changePassword, email, newAccount, passwordRecovery, sms
 [Site]
 url             = https://cpk-front.mzk.cz/
 email           = cpk-support@mzk.cz
-theme		= cpk-devel-green
 defaultCurrency	= CZK
 browserDetectLanguage = false
 defaultAccountPage = CheckedOut
+theme		= bootstrap3
 
 notificationsEnabled = true
 ;notificationsEnabled = false

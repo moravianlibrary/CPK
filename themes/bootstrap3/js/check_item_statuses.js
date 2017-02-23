@@ -2,13 +2,13 @@
 
 function checkItemStatuses() {
   var id = $.map($('.ajaxItem'), function(i) {
-    return $(i).find('.hiddenId')[0].value;
+    return $(i).find('.availabilityId').text();
   });
   if (!id.length) {
     return;
   }
-
-  $(".ajax-availability").removeClass('hidden');
+  
+  $(".ajax-availability").show();
   $.ajax({
     dataType: 'json',
     url: VuFind.getPath() + '/AJAX/JSON?method=getItemStatuses',
@@ -18,43 +18,35 @@ function checkItemStatuses() {
         $.each(response.data, function(i, result) {
           var item = $($('.ajaxItem')[result.record_number]);
 
-          item.find('.status').empty().append(result.availability_message);
+          item.find('.status').removeClass("hide").empty().append(result.availability_message);
           if (typeof(result.full_status) != 'undefined'
             && result.full_status.length > 0
-            && item.find('.callnumAndLocation').length > 0
           ) {
             // Full status mode is on -- display the HTML and hide extraneous junk:
-            item.find('.callnumAndLocation').empty().append(result.full_status);
-            item.find('.callnumber').addClass('hidden');
-            item.find('.location').addClass('hidden');
-            item.find('.hideIfDetailed').addClass('hidden');
-            item.find('.status').addClass('hidden');
+            item.find('.callnumAndLocation').hide();
+            item.find('.callnumber').hide();
+            item.find('.location').hide();
+            item.find('.hideIfDetailed').hide();
+            item.find('.fullstatus').empty().append(result.full_status);
           } else if (typeof(result.missing_data) != 'undefined'
             && result.missing_data
           ) {
             // No data is available -- hide the entire status area:
-            item.find('.callnumAndLocation').addClass('hidden');
-            item.find('.status').addClass('hidden');
+            item.find('.callnumAndLocation').hide();
+            item.find('.status').hide();
           } else if (result.locationList) {
             // We have multiple locations -- build appropriate HTML and hide unwanted labels:
-            item.find('.callnumber').addClass('hidden');
-            item.find('.hideIfDetailed').addClass('hidden');
-            item.find('.location').addClass('hidden');
+            item.find('.callnumber').hide();
+            item.find('.hideIfDetailed').hide();
+            item.find('.location').hide();
             var locationListHTML = "";
             for (var x=0; x<result.locationList.length; x++) {
               locationListHTML += '<div class="groupLocation">';
               if (result.locationList[x].availability) {
-                locationListHTML += '<i class="fa fa-ok text-success"></i> <span class="text-success">'
+                locationListHTML += '<i class="icon-ok text-success"></i> <span class="text-success">'
                   + result.locationList[x].location + '</span> ';
-              } else if (typeof(result.locationList[x].status_unknown) !== 'undefined'
-                  && result.locationList[x].status_unknown
-              ) {
-                if (result.locationList[x].location) {
-                  locationListHTML += '<i class="fa fa-status-unknown text-warning"></i> <span class="text-warning">' 
-                    + result.locationList[x].location + '</span> ';
-                }
               } else {
-                locationListHTML += '<i class="fa fa-remove text-error"></i> <span class="text-error"">'
+                locationListHTML += '<i class="icon-remove text-error"></i> <span class="text-error"">'
                   + result.locationList[x].location + '</span> ';
               }
               locationListHTML += '</div>';
@@ -63,7 +55,7 @@ function checkItemStatuses() {
                    ?  result.locationList[x].callnumbers : '';
               locationListHTML += '</div>';
             }
-            item.find('.locationDetails').removeClass('hidden');
+            item.find('.locationDetails').show();
             item.find('.locationDetails').empty().append(locationListHTML);
           } else {
             // Default case -- load call number and location into appropriate containers:

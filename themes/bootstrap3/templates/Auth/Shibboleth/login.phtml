@@ -1,3 +1,1 @@
-<? $account = $this->auth()->getManager(); ?>
-<? $sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home'))); ?>
-<a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>"><?=$this->transEsc("Institutional Login")?></a>
+<span onclick='$("div#loginModal").modal("show")'><i class="pr-user-passwordlock"></i> <?=$this->transEsc("Institutional Login")?></span>

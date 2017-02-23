@@ -1,27 +1,75 @@
 <? if ($this->pageCount): ?>
-  <ul class="pagination">
-    <? if (isset($this->previous)): ?>
-      <? if (!isset($this->options['disableFirst']) || !$this->options['disableFirst']): ?>
-        <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage(1)?>">[1]</a></li>
-      <? endif; ?>
-      <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->previous)?>">&laquo; <?=$this->transEsc('Prev')?></a></li>
-    <? endif; ?>
 
-    <? if (count($this->pagesInRange) > 1): ?>
-      <? foreach ($this->pagesInRange as $page): ?>
-        <? if ($page != $this->current): ?>
-          <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($page)?>"><?=$page?></a></li>
-        <? else: ?>
-          <li class="active"><span><?=$page?></span></li>
-        <? endif; ?>
-      <? endforeach; ?>
-    <? endif; ?>
+<? if (count($this->pagesInRange) > 1):
+    $arrayKeys = array_keys($this->pagesInRange);
 
-    <? if (isset($this->next)): ?>
-      <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->next)?>"><?=$this->transEsc('Next');?> &raquo;</a></li>
-      <? if (!isset($this->options['disableLast']) || !$this->options['disableLast']): ?>
-        <li><a href="<?=$this->currentPath() . $this->results->getUrlQuery()->setPage($this->pageCount)?>">[<?=$this->pageCount?>]</a></li>
-      <? endif; ?>
-    <? endif; ?>
-  </ul>
+    $first_key = current($arrayKeys);
+    $lastArrayKey = array_pop($arrayKeys);
+?>
+
+<div class='col-md-12'>
+    <div class='row'>
+
+      <div class='col-md-2'>
+          <ul class="pagination" style='float: left;'>
+            <? if (isset($this->previous)): ?>
+              <li><a class='ajax-update-page' href="<?=$this->previous?>"><i class="pr-interface-arrowleft"></i>
+     <?=$this->transEsc('Prev')?></a></li>
+            <? endif; ?>
+          </ul>
+      </div>
+
+      <div class='col-md-8' style='text-align: center'>
+          <ul class="pagination" align='center'>
+            <? if (isset($this->previous)): ?>
+              <? if (!isset($this->options['disableFirst']) || !$this->options['disableFirst']): ?>
+                <? if (! isset($this->pagesInRange[1])): ?>
+                  <li><a class='ajax-update-page' href="1">1</a></li>
+                <? endif; ?>
+              <? endif; ?>
+            <? endif; ?>
+
+              <? foreach ($this->pagesInRange as $key => $page): ?>
+
+                <? if ($key == ($first_key)): ?>
+                  <? if ($first_key > 2): ?>
+                    <li class='disabled'><span>...</span></li>
+                  <? endif; ?>
+                <? endif; ?>
+
+                <? if ($page != $this->current): ?>
+                  <li><a class='ajax-update-page' href="<?=$page?>"><?=$this->localizedNumber($page)?></a></li>
+                <? else: ?>
+                  <li class="active"><span><?=$page?></span></li>
+                <? endif; ?>
+
+                <? if ($key == ($lastArrayKey)): ?>
+                  <? if (($this->pageCount != $lastArrayKey) > 0): ?>
+                    <li class='disabled'><span>...</span></li>
+                  <? endif; ?>
+                <? endif; ?>
+
+              <? endforeach; ?>
+
+            <? if (isset($this->next)): ?>
+              <? if (!isset($this->options['disableLast']) || !$this->options['disableLast']): ?>
+                <? if (! isset($this->pagesInRange[$this->pageCount])): ?>
+                  <li><a class='ajax-update-page' href="<?=$this->pageCount?>"><?=$this->localizedNumber($this->pageCount)?></a></li>
+                <? endif; ?>
+              <? endif; ?>
+            <? endif; ?>
+          </ul>
+      </div>
+
+      <div class='col-md-2'>
+          <ul class="pagination" style='float: right'>
+            <? if (isset($this->next)): ?>
+              <li style='float: right;'><a class='ajax-update-page' href="<?=$this->next?>"><?=$this->transEsc('Next');?> <i class="pr-interface-arrowright"></i>
+    </a></li>
+            <? endif; ?>
+          </ul>
+      </div>
+    </div>
+</div>
+<? endif; ?>
 <? endif; ?>

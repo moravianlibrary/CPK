@@ -1,9 +1,7 @@
 <? $results = $this->recommend->getResults(); ?>
-<? if ($results->getResultTotal() > 0): ?>
-  <h4><?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?></h4>
-<? endif; ?>
 <? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
 <?
+
   $html = '';
   $shown = 0;
   foreach ($checkboxFilters as $current) {
@@ -24,47 +22,159 @@
 <? $collapsedFacets = $this->recommend->getCollapsedFacets() ?>
 <? $hierarchicalFacetSortOptions = $this->recommend->getHierarchicalFacetSortOptions() ?>
 <? $hierarchicalFacets = $this->recommend->getHierarchicalFacets() ?>
-<? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
-  <div class="list-group filters">
-    <div class="list-group-item title"><?=$this->transEsc('Remove Filters')?></div>
-    <? foreach ($filterList as $field => $filters): ?>
-      <? foreach ($filters as $i => $filter): ?>
-        <?
-          $index = isset($filter['field']) ? array_search($filter['field'], $collapsedFacets) : false;
-          if ($index !== false) {
-              unset($collapsedFacets[$index]); // Open if we have a match
-          }
-          if (isset($filter['specialType']) && $filter['specialType'] == 'keyword') {
-            $removeLink = $this->currentPath().$results->getUrlQuery()->replaceTerm($filter['value'], '');
-          } else {
-            $removeLink = $this->currentPath().$results->getUrlQuery()->removeFacet($filter['field'], $filter['value'], true, $filter['operator']);
-          }
-          if ($filter['displayText'] == '[* TO *]') {
-            $filter['displayText'] = $this->translate('filter_wildcard');
-          }
-        ?>
-        <a class="list-group-item active" href="<?=$removeLink?>">
-          <span class="pull-right flip"><i class="fa fa-times"></i></span>
-          <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?><?=$this->transEsc($field)?>: <?=$this->escapeHtml($filter['displayText'])?>
-        </a>
-      <? endforeach; ?>
-    <? endforeach; ?>
-  </div>
+<?
+$queryParams = $results->getUrlQuery()->getParamArray();
+unset($queryParams['filter']);
+
+$i = '?';
+$removeFilterUrl = '/Search/Results';
+foreach ($queryParams as $key => $value) {
+
+    if (is_array($value)) {
+        $value = $value[0];
+        $key .= "[]";
+    }
+    $removeFilterUrl .= $i . $key . '=' . urlencode($value);
+
+    if ($i === '?')
+        $i = '&';
+}
+
+
+?>
+
+<? if ($results->getResultTotal() > 0): ?>
+    <h3 class='side-facets-header'>
+      <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
+      <?= $this->help()->getQuestionMarkHelp('facets') ?>
+    </h3>
 <? endif; ?>
+<? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
+    <div class="list-group filters">
+
+        <? foreach ($filterList as $field => $filters): ?>
+            <? if ($field !== 'Institution'): ?>
+                <? foreach ($filters as $i => $filter): ?>
+                    <?
+                    $index = isset($filter['field']) ? array_search($filter['field'], $collapsedFacets) : false;
+                    if ($index !== false) {
+                        unset($collapsedFacets[$index]); // Open if we have a match
+                    }
+                    if (isset($filter['specialType']) && $filter['specialType'] == 'keyword') {
+                        $removeLink = $results->getUrlQuery()->replaceTerm($filter['value'], '');
+                    } else {
+                        $removeLink = $results->getUrlQuery()->removeFacet($filter['field'], $filter['value'], true, $filter['operator']);
+                    }
+                    if ($filter['displayText'] == '[* TO *]') {
+                        $filter['displayText'] = $this->translate('filter_wildcard');
+                    }
+
+                    $dataFacet = $filter['field'].':"'.$filter['value'].'"';
+                    ?>
+                    <a class="list-group-item active facet-filter" data-facet='<? if($filter['operator'] == 'OR'){echo "~";}?><?=$dataFacet?>' href="<?=$removeLink?>">
+                        <span class="pull-right flip"><i class="fa fa-times"></i></span>
+                        <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?>
+                        <? if ($field != 'unrecognized_facet_label'): ?>
+                          <?=$this->transEsc($field)?>:
+                        <? endif; ?>
+
+                        <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false) {
+                            echo explode("/", $this->escapeHtml($filter['displayText']))[1];
+                        } else {
+                            echo $this->transEsc($filter['displayText']);
+                        }
+                        ?>
+                    </a>
+                <? endforeach; ?>
+            <? endif; ?>
+        <? endforeach; ?>
+        <div class='text-center'>
+          <a id='remove-all-filters-async' href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
+        </div>
+    </div>
+<? endif;?>
+
 <?= isset($this->sideFacetExtraControls) ? $this->sideFacetExtraControls : '' ?>
 <? $sideFacetSet = $this->recommend->getFacetSet(); $rangeFacets = $this->recommend->getAllRangeFacets(); ?>
 <? if (!empty($sideFacetSet) && $results->getResultTotal() > 0): ?>
   <? foreach ($sideFacetSet as $title => $cluster): ?>
     <? $allowExclude = $this->recommend->excludeAllowed($title); ?>
     <? $facets_before_more = $this->recommend->getShowMoreSetting($title); ?>
-    <div class="list-group facet" id="side-panel-<?=$this->escapeHtmlAttr($title) ?>">
-      <div class="list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
-        <?=$this->transEsc($cluster['label'])?>
-      </div>
+    <div class="list-group facet" id="side-panel-<? if($cluster['label'] == 'Institution'): ?>institution<? else: ?><?=$this->escapeHtmlAttr($title) ?><? endif; ?>">
+      <div class='row' style='padding-top: 6px;'>
+        <? if($cluster['label'] == 'Institution'): ?>
+        <div class="col-xs-7 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
+        <? else: ?>
+        <div class="col-xs-12 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
+        <? endif; ?>
+            <i class="pr-institution-arrow" title="<?=$this->translate('Expand or collapse')?>"></i>
+            <!--<?= $this->help()->getElementHelp('Expand or collapse', "<i class='pr-institution-arrow'></i>") ?>-->
+            <? $titleHtml = $this->transEsc($cluster['label']); ?>
+            <?= $this->help()->getElementHelp('element_help_facet_' . $cluster['label'], $titleHtml) ?>
+              <? if (isset($rangeFacets[$title])): ?>
+              <? if ($rangeFacets[$title]['type'] == 'date'): ?>
+              <button type="button" class="btn btn-default btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
+              <? endif; ?>
+              <? endif; ?>
+          </div>
+     	 <? if($cluster['label'] == 'Institution'): ?>
+            <div class='col-xs-5 institutions-loaders'>
+                <? if($this->auth()->isLoggedIn()): ?>
+                <a href='#' title='<?=$this->translate('Load preferred institutions')?>' data-toggle="tooltip" id='load-saved-institutions'>
+                    <i class='pr-web-uploadarrow'> </i>
+                </a>
+                <? endif; ?>
+
+                <? if ($this->recommend instanceof \CPK\Recommend\SideFacets && isset($myLibs) && is_array($myLibs) && count($myLibs) > 0):
+
+                    $urlParams = $results->getUrlQuery()->getParamArray();
+                    $newParams = array('type' => 'AllFields');
+                    $filtered = array();
+                    if (isset($urlParams['filter'])) {
+                        $decompressedFilters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($urlParams['filter'])));
+                        foreach ($decompressedFilters as $param) {
+                            if (strpos($param, '~institution:') === 0) {
+                                continue;
+                            }
+                            $filtered[] = $param;
+                        }
+                    }
+                    $newParams = $urlParams;
+                    $newParams['filter'] = $filtered;
+
+                    $firstLib = true;
+                    $myLibraries = '';
+                    foreach ($myLibs as $myLib) {
+                        $myLibraries .= $this->recommend->getInstutitionMapping($myLib).';';
+                    }
+                    $myLibraries = substr($myLibraries, 0, -1);
+
+                    echo "<div class='hidden' id='my-libraries-container'>$myLibraries</div>";
+
+                ?>
+    			<a href='#' title='<?=$this->translate('Load my institutions')?>' data-toggle="tooltip" id='load-my-institutions'>
+                    <i class='pr-interface-househome2'> </i>
+                </a>
+				<? endif; ?>
+
+                <a href='#' title='<?=$this->translate('Load nearest institutions')?>' data-toggle="tooltip" id='load-nearest-institutions'>
+                    <i class='pr-location-pinmap5'> </i>
+                </a>
+            </div>
+          <? endif; ?>
+		</div>
+
       <div id="side-collapse-<?=$this->escapeHtmlAttr($title) ?>" class="collapse<? if(!in_array($title, $collapsedFacets)): ?> in<? endif ?>">
         <? if (isset($rangeFacets[$title])): ?>
+          <?
+          $min = !empty($rangeFacets[$title]['values'][0]) ? min($rangeFacets[$title]['values'][0], 1400) : 1400;
+          $future = date('Y', time()+31536000);
+          $max = !empty($rangeFacets[$title]['values'][1]) ? max($future, $rangeFacets[$title]['values'][1]) : $future;
+          $low  = !empty($rangeFacets[$title]['values'][0]) ? $rangeFacets[$title]['values'][0] : $min;
+          $high = !empty($rangeFacets[$title]['values'][1]) ? $rangeFacets[$title]['values'][1] : $max;
+          $reversed = $this->layout()->rtl ? 'true' : 'false';
+          ?>
           <div class="list-group-item">
-            <form name="<?=$this->escapeHtmlAttr($title)?>Filter" id="<?=$this->escapeHtmlAttr($title)?>Filter">
               <?=$results->getUrlQuery()->asHiddenFields(array('page' => "/./", 'filter' => "/^{$title}:.*/"))?>
               <input type="hidden" name="<?=$this->escapeHtmlAttr($rangeFacets[$title]['type'])?>range[]" value="<?=$this->escapeHtmlAttr($title)?>"/>
               <div class="row">
@@ -73,30 +183,25 @@
                   <label for="<?=$this->escapeHtmlAttr($title)?>from">
                     <?=$this->transEsc('date_from')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=isset($rangeFacets[$title]['values'][0])?$this->escapeHtmlAttr($rangeFacets[$title]['values'][0]):''?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>from" id="<?=$this->escapeHtmlAttr($title)?>from" value="<?=$low?>" placeholder="<?=$min?>" <?=$extraInputAttribs?>/>
                 </div>
                 <div class="col-sm-6">
                   <label for="<?=$this->escapeHtmlAttr($title)?>to">
                     <?=$this->transEsc('date_to')?>:
                   </label>
-                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=isset($rangeFacets[$title]['values'][1])?$this->escapeHtmlAttr($rangeFacets[$title]['values'][1]):''?>" <?=$extraInputAttribs?>/>
+                  <input type="text" class="form-control" name="<?=$this->escapeHtmlAttr($title)?>to" id="<?=$this->escapeHtmlAttr($title)?>to" value="<?=$high?>" placeholder="<?=$max?>" <?=$extraInputAttribs?>/>
                 </div>
               </div>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
                 <div class="slider-container"><input type="text" class="hidden" id="<?=$this->escapeHtmlAttr($title)?><?=$this->escapeHtml($rangeFacets[$title]['type'])?>Slider"/></div>
               <? endif; ?>
-              <input class="btn btn-default" type="submit" value="<?=$this->transEsc('Set')?>"/>
-            </form>
+              <div style="text-align: center; margin-top: 10px;">
+                <button class="btn btn-default apply-facet-filter-range"><?=$this->transEsc('Use filters')?></button>
+              </div>
           </div>
           <? if ($rangeFacets[$title]['type'] == 'date'): ?>
             <? $this->headScript()->appendFile('vendor/bootstrap-slider.js'); ?>
             <?
-              $min = !empty($rangeFacets[$title]['values'][0]) ? min($rangeFacets[$title]['values'][0], 1400) : 1400;
-              $future = date('Y', time()+31536000);
-              $max = !empty($rangeFacets[$title]['values'][1]) ? max($future, $rangeFacets[$title]['values'][1]) : $future;
-              $low  = !empty($rangeFacets[$title]['values'][0]) ? $rangeFacets[$title]['values'][0] : $min;
-              $high = !empty($rangeFacets[$title]['values'][1]) ? $rangeFacets[$title]['values'][1] : $max;
-              $reversed = $this->layout()->rtl ? 'true' : 'false';
               $script = <<<JS
 $(document).ready(function() {
   var fillTexts = function() {
@@ -122,19 +227,57 @@ JS;
           <? endif; ?>
         <? else: ?>
           <? if (in_array($title, $hierarchicalFacets)): ?>
-            <? $this->headScript()->appendFile('vendor/jsTree/jstree.min.js'); ?>
-            <? $this->headScript()->appendFile('facets.js'); ?>
             <? $sort = isset($hierarchicalFacetSortOptions[$title]) ? $hierarchicalFacetSortOptions[$title] : ''; ?>
             <? if (!in_array($title, $collapsedFacets)): ?>
+              <? if($cluster['label'] == 'Institution'): ?>
               <?
               $script = <<<JS
 $(document).ready(function() {
-  initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
+  initInstitutionsTree($('#facet_institution'), true);
 });
 JS;
               ?>
+              <? else: ?>
+                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")||($title == "cpk_detected_format_facet_str_mv")): ?>
+                  <?
+                  $script = <<<JS
+        $(document).ready(function() {
+          initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
+          console.log("or" + '#facet_{$this->escapeHtml($title)}');
+        });
+JS;
+                  ?>
+                  <? else: ?>
+                  <?
+                  $script = <<<JS
+        $(document).ready(function() {
+          initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
+          console.log("and" + '#facet_{$this->escapeHtml($title)}');
+        });
+JS;
+                  ?>
+                  <? endif; ?>
+              <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? else: ?>
+              <? if($cluster['label'] == 'Institution'): ?>
+              <?
+              $script = <<<JS
+$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
+  initInstitutionsTree($('#facet_institution'), true);
+});
+JS;
+              ?>
+              <? else: ?>
+                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")): ?>
+          <?
+          $script = <<<JS
+$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
+  initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
+});
+JS;
+          ?>
+                  <? else: ?>
               <?
               $script = <<<JS
 $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
@@ -142,9 +285,11 @@ $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', funct
 });
 JS;
               ?>
+                  <? endif; ?>
+              <? endif; ?>
               <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
             <? endif; ?>
-            <li id="facet_<?=$this->escapeHtml($title)?>" class="jstree-facet"
+            <li id="facet_<? if($cluster['label'] == 'Institution'): ?>institution<? else: ?><?=$this->escapeHtml($title)?><? endif; ?>" class="jstree-facet"
                   data-facet="<?=$this->escapeHtmlAttr($title)?>"
                   data-path="<?=$this->currentPath()?>"
                   data-exclude="<?=$allowExclude?>"
@@ -156,34 +301,96 @@ JS;
           <? endif; ?>
           <? foreach ($cluster['list'] as $i=>$thisFacet): ?>
               <?
+              $dataFacet = $title.':"'.$thisFacet['value'].'"';
                 if(strlen($thisFacet['displayText']) == 0) {
                   $thisFacet['displayText'] = "-";
                 }
               ?>
               <? $moreClass = 'narrowGroupHidden-'.$this->escapeHtmlAttr($title).' hidden'; ?>
             <? if ($i == $facets_before_more): ?>
-              <a id="more-narrowGroupHidden-<?=$this->escapeHtmlAttr($title)?>" class="list-group-item narrow-toggle" href="javascript:moreFacets('narrowGroupHidden-<?=$title ?>')"><?=$this->transEsc('more')?> ...</a>
+              <a id="more-narrowGroupHidden-<?=$this->escapeHtmlAttr($title)?>" class="list-group-item narrow-toggle" href="javascript:moreFacets('narrowGroupHidden-<?=$title ?>')"><?=$this->transEsc('More options')?>...</a>
             <? endif; ?>
             <? if ($thisFacet['isApplied']): ?>
-              <a class="list-group-item active<? if ($i >= $facets_before_more): ?><?=$moreClass ?><?endif ?><? if ($thisFacet['operator'] == 'OR'): ?> facetOR applied<? endif ?>" href="<?=$this->currentPath().$results->getUrlQuery()->removeFacet($title, $thisFacet['value'], true, $thisFacet['operator']) ?>">
+            <?
+            $urlQueryHelper = $results->getUrlQuery();
+            $addUrlParams = $urlQueryHelper->getParamArray();
+            unset($addUrlParams['filter']);
+            $removedFacetFilterUrl = '?' . buildQueryString($addUrlParams);
+
+            // Find and define applied facetFilters
+            $appliedFacetFilters = [];
+            foreach ($filterList as $filtersArray) {
+                foreach ($filtersArray as $array) {
+                    $currentFacetFilter = '';
+                    $currentFacetFilter .= $array['operator'] == 'OR' ? '~' : '';
+                    $currentFacetFilter .= $array['field'] . ':"' . $array['value'] . '"';
+                    $appliedFacetFilters[] = $currentFacetFilter;
+                }
+            }
+
+            // Add current facetFilter to applied facetFilters
+            $currentFacetFilter = '';
+            $currentFacetFilter .= $thisFacet['operator'] == 'OR' ? '~' : '';
+            $currentFacetFilter .= $title . ':"' . $thisFacet['value'] . '"';
+
+            foreach($appliedFacetFilters as $key => $cff) {
+                if ($cff == $currentFacetFilter) {
+                    unset($appliedFacetFilters[$key]);
+                }
+            }
+
+            $appliedFacetFiltersAsString = join("|", $appliedFacetFilters);
+            $compressedFacetFilters = specialUrlEncode(\LZCompressor\LZString::compressToBase64($appliedFacetFiltersAsString));
+
+            $removedFacetFilterUrl .= '&filter='.$compressedFacetFilters;
+
+            ?>
+              <a class="list-group-item active<? if ($i >= $facets_before_more): ?><?=$moreClass ?><?endif ?><? if ($thisFacet['operator'] == 'OR'): ?> facetOR applied<? endif ?>" href="<?=$removedFacetFilterUrl?>">
                 <? if ($thisFacet['operator'] == 'OR'): ?>
                   <i class="fa fa-check-square-o"></i>
                 <? else: ?>
                   <span class="pull-right flip"><i class="fa fa-check"></i></span>
                 <? endif; ?>
-                <?=$this->escapeHtml($thisFacet['displayText'])?>
+                <?=$this->transEsc($thisFacet['displayText'])?>
               </a>
             <? else: ?>
-              <? $addURL = $this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], $thisFacet['operator']); ?>
+              <?
+                $urlQueryHelper = $results->getUrlQuery();
+                $addUrlParams = $urlQueryHelper->getParamArray();
+                unset($addUrlParams['filter']);
+                $addURL = '?' . buildQueryString($addUrlParams);
+
+                // Find and define applied facetFilters
+                $appliedFacetFilters = [];
+                foreach ($filterList as $filtersArray) {
+                    foreach ($filtersArray as $array) {
+                        $currentFacetFilter = '';
+                        $currentFacetFilter .= $array['operator'] == 'OR' ? '~' : '';
+                        $currentFacetFilter .= $array['field'] . ':"' . $array['value'] . '"';
+                        $appliedFacetFilters[] = $currentFacetFilter;
+                    }
+                }
+
+                // Add current facetFilter to applied facetFilters
+                $currentFacetFilter = '';
+                $currentFacetFilter .= $thisFacet['operator'] == 'OR' ? '~' : '';
+                $currentFacetFilter .= $title . ':"' . $thisFacet['value'] . '"';
+                $appliedFacetFilters[] = $currentFacetFilter;
+
+                $appliedFacetFiltersAsString = join("|", $appliedFacetFilters);
+                $compressedFacetFilters = specialUrlEncode(\LZCompressor\LZString::compressToBase64($appliedFacetFiltersAsString));
+
+                $addURL .= '&filter='.$compressedFacetFilters;
+              ?>
               <? if ($allowExclude): ?>
                 <div class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? else: ?>
-                <a href="<?=$addURL ?>" class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
+                <a data-facet='<?=$dataFacet?>' href="<?=$addURL ?>" class="list-group-item facet-filter facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? endif; ?>
               <span class="badge">
                 <?=$this->localizedNumber($thisFacet['count'])?>
                 <? if ($allowExclude): ?>
-                  <a href="<?=$this->currentPath().$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="fa fa-times"></i></a>
+                  <a href="<?=$results->getUrlQuery()->addFacet($title, $thisFacet['value'], 'NOT') ?>" title="<?=$this->transEsc('exclude_facet') ?>"><i class="fa fa-times"></i></a>
                 <? endif; ?>
               </span>
               <? if ($allowExclude): ?>
@@ -192,7 +399,11 @@ JS;
               <? if($thisFacet['operator'] == 'OR'): ?>
                 <i class="fa fa-square-o"></i>
               <? endif; ?>
-              <?=$this->escapeHtml($thisFacet['displayText'])?>
+              <? if (($cluster['label'] == 'language') OR ($cluster['label'] == 'country_str')): ?>
+                <?=$this->escapeHtml($thisFacet['value'])?>
+              <? else: ?>
+                <?=$this->transEsc($thisFacet['displayText'])?>
+              <? endif; ?>
               <? if ($allowExclude): ?>
                   </a>
                 </div>
@@ -207,6 +418,62 @@ JS;
           </noscript>
         <? endif; ?>
       </div>
+      <? if($cluster['label'] == 'Institution'): ?>
+        <div style="text-align: center; margin-top: 10px;">
+          <button type="button" class="btn btn-default btn-sm institution-facet-filter-button"><?=$this->translate('Use filters')?></button>
+          <? if($this->auth()->isLoggedIn()): ?>
+            <span>
+                <a href='#' title='<?=$this->translate('Save these institutions as preferred')?>' data-toggle="tooltip" id='save-these-institutions'>
+                    <i class='pr-web-downloadarrow'> </i>
+                </a>
+            </span>
+          <? endif; ?>
+        </div>
+      <? endif; ?>
+      <div class='facet-divider'></div>
     </div>
+
   <? endforeach; ?>
 <? endif; ?>
+<script>
+$(function () {
+$('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+
+<?=$this->render("Recommend/SideFacets/timelineModal.phtml")?>
+
+<?=$this->render("Recommend/SideFacets/saveTheseInstitutionsConfirmationModal.phtml")?>
+
+<?php
+
+ /**
+     * Turn an array into a properly URL-encoded query string.  This is
+     * equivalent to the built-in PHP http_build_query function, but it handles
+     * arrays in a more compact way and ensures that ampersands don't get
+     * messed up based on server-specific settings.
+     *
+     * @param array $a      Array of parameters to turn into a GET string
+     * @param bool  $escape Should we escape the string for use in the view?
+     *
+     * @return string
+     */
+    function buildQueryString($a, $escape = true)
+    {
+        $parts = [];
+        foreach ($a as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $current) {
+                    $parts[] = urlencode($key . '[]') . '=' . urlencode($current);
+                }
+            } else {
+                $parts[] = urlencode($key) . '=' . urlencode($value);
+            }
+        }
+        $retVal = implode('&', $parts);
+        return $escape ? htmlspecialchars($retVal) : $retVal;
+    }
+
+
+?>
+

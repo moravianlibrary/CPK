@@ -1,3 +1,10 @@
+<? if (isset($_SERVER['VUFIND_ENV'])): ?>
+  <? if ($_SERVER['VUFIND_ENV'] == 'production'): ?>
+    <script>
+	  $(location).attr('href', location.protocol+'//'+location.hostname+'/error.php');
+	</script>
+  <? endif; ?>
+<? endif; ?>
 <?
   // Set page title.
   $this->headTitle($this->translate('An error has occurred'));

@@ -48,7 +48,8 @@ function loadVis(facetFields, searchParams, baseURL, zooming) {
     xaxis: { tickDecimals: 0 },
     yaxis: { min: 0, ticks: [] },
     selection: {mode: "x", color: cssColorSettings['outline-color']},
-    grid: { backgroundColor: cssColorSettings['background-color'] }
+    grid: { borderColor: cssColorSettings['background-color']
+    }
   };
 
   // AJAX call
@@ -60,10 +61,10 @@ function loadVis(facetFields, searchParams, baseURL, zooming) {
         if (val['data'] == undefined || val['data'].length == 0) {
           return;
         }
-        $("#datevis" + key + "xWrapper").removeClass('hidden');
+        $("#dateVisModal #datevis" + key + "xWrapper").removeClass('hidden');
 
         // plot graph
-        var placeholder = $("#datevis" + key + "x");
+        var placeholder = $("#dateVisModal #datevis" + key + "x");
 
         //set up the hasFilter variable
         var hasFilter = true;
@@ -117,7 +118,15 @@ function loadVis(facetFields, searchParams, baseURL, zooming) {
         placeholder.bind("plotselected", function (event, ranges) {
           var from = Math.floor(ranges.xaxis.from);
           var to = Math.ceil(ranges.xaxis.to);
-          location.href = val['removalURL'] + '&daterange[]=' + key + '&' + key + 'to=' + PadDigits(to,4) + '&' + key + 'from=' + PadDigits(from,4);
+
+          event.preventDefault();
+          $('#dateVisModal').modal('hide');
+          var extraData = {};
+          extraData['publishDatefrom'] = PadDigits(from,4);
+          extraData['publishDateto'] = PadDigits(to,4);
+          extraData['daterange'] = 'publishDate';
+
+          ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
         });
 
         if (hasFilter) {
