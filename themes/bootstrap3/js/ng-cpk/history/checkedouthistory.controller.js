@@ -345,7 +345,7 @@
     function ngHistoryItemDirective() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/ng-cpk/history/history-item.html'
+	    templateUrl : '/themes/bootstrap3/js/ng-cpk/history/history-item.html'
 	};
     }
     
@@ -355,7 +355,7 @@
     function ngPaginationDirective() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/ng-cpk/pagination.html',
+	    templateUrl : '/themes/bootstrap3/js/ng-cpk/pagination.html',
 	    link : linker
 	};
 	

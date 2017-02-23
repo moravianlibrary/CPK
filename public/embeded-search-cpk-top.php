@@ -1,5 +1,5 @@
 <?php
-    include_once(__DIR__."/../themes/cpk-devel/templates/portal/embeded-search-cpk-top.phtml");
+    include_once(__DIR__."/../themes/bootstrap3/templates/portal/embeded-search-cpk-top.phtml");
     exit();
 ?>
 

@@ -365,7 +365,7 @@
     function favoritesListDirective() {
 	return {
 	    restrict : 'A',
-	    templateUrl : '/themes/cpk-devel/js/ng-cpk/favorites/list-item.html',
+	    templateUrl : '/themes/bootstrap3/js/ng-cpk/favorites/list-item.html',
 	    link : linker
 	};
 	

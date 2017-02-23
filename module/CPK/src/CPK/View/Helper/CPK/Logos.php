@@ -89,8 +89,8 @@ class Logos extends \Zend\View\Helper\AbstractHelper
     public function getLogo($source)
     {
 
-        $logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/cpk-devel/images/institutions/logos/'.$source.'/'.$source.'.png';
-        $logoPath = __DIR__.'/../../../../../../../themes/cpk-devel/images/institutions/logos/'.$source.'/'.$source.'.png';
+        $logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/bootstrap3/images/institutions/logos/'.$source.'/'.$source.'.png';
+        $logoPath = __DIR__.'/../../../../../../../themes/bootstrap3/images/institutions/logos/'.$source.'/'.$source.'.png';
 
         if (file_exists($logoPath)) {
             return $logoUrl;

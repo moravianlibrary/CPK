@@ -87,7 +87,7 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
                 $extra = 'error.php';
                 @header("Location: http://$host$uri/$extra");
 
-                include_once(__DIR__."/../themes/cpk-devel/templates/error/fatal-error.phtml");
+                include_once(__DIR__."/../themes/bootstrap3/templates/error/fatal-error.phtml");
                 exit;
 
             } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT

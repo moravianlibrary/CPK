@@ -67,8 +67,8 @@ $toRet = array(
 /**
  * Implementation of easy switching between ng-apps minified & not minified
  *
- * Don't forget to run the cpk-devel/js/compile-ng-apps.sh script after an change is made to non-compiled code if minified version is desired.
- * <b>But don't also forget to update cpk-devel/js/compile-ng-apps.sh's list of files to compile!</b>
+ * Don't forget to run the bootstrap3/js/compile-ng-apps.sh script after an change is made to non-compiled code if minified version is desired.
+ * <b>But don't also forget to update bootstrap3/js/compile-ng-apps.sh's list of files to compile!</b>
  *
  * @var boolean
  */
