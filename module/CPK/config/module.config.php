@@ -28,6 +28,7 @@ $config = array(
         'plugin_managers' => array(
             'recorddriver' => array(
                 'factories' => array(
+					'solrdefault' => 'MZKCommon\RecordDriver\Factory::getSolrMarc',
                     'solrmarc' => 'CPK\RecordDriver\Factory::getSolrMarc',
                     'solrcpk_mzk' => 'CPK\RecordDriver\Factory::getSolrMarcMZK',
                     'solrcpk_vkol' => 'CPK\RecordDriver\Factory::getSolrMarcVKOL',
@@ -38,16 +39,20 @@ $config = array(
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
+				'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
                 'invokables' => array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
                     'eVersion' => 'CPK\RecordTab\EVersion',
                     'buy' => 'CPK\RecordTab\Buy',
-                    'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore'
+                    'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
+					'holdingsils'     => 'MZKCommon\RecordTab\HoldingsILS',
+                    'tagsandcomments' => 'MZKCommon\RecordTab\TagsAndComments'
                 ), /* invokables */
             ), /* recordtab */
             'recommend' => [
                 'factories' => [
-                    'sidefacets' => 'CPK\Recommend\Factory::getSideFacets'
+                    'sidefacets' => 'CPK\Recommend\Factory::getSideFacets',
+					'specifiablefacets' => 'MZKCommon\Recommend\Factory::getSpecifiableFacets'
                 ], /* factories */
             ], /* recommend */
             'auth' => array(
@@ -75,7 +80,8 @@ $config = array(
                     'system' => 'CPK\Db\Table\Factory::getSystem'
                 ], /* factories */
                 'invokables' => [
-                    'session' => 'VuFind\Db\Table\Session'
+                    'session' => 'VuFind\Db\Table\Session',
+					'recordstatus' => 'MZKCommon\Db\Table\RecordStatus'
                 ]
             ], /* db_table */
             'ils_driver' => [
@@ -155,6 +161,7 @@ $config = array(
             'libraries' => 'CPK\Controller\Factory::getLibrariesController'
         ),
         'invokables' => array(
+			'myresearch' => 'MZKCommon\Controller\MyResearchController',
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
@@ -166,6 +173,7 @@ $config = array(
     'controller_plugins' => [
         'factories' => [
             'holds' => 'CPK\Controller\Plugin\Factory::getHolds',
+			'shortLoanRequests'   => 'MZKCommon\Controller\Plugin\Factory::getShortLoanRequests'
         ],
     ],
     'service_manager' => array(
@@ -176,7 +184,8 @@ $config = array(
             'CPK\SolrEdgeFaceted' => 'CPK\Service\Factory::getSolrEdgeFaceted',
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
             'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
-            'CPK\Mailer' => 'CPK\Mailer\Factory::createService'
+            'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
+			'VuFind\ILSHoldLogic' => 'MZKCommon\ILS\Logic\Factory::getFlatHolds'
         ), // Exceptions throwing system
 
         'invokables' => array(
@@ -204,7 +213,14 @@ $staticRoutes = array(
     'Admin/Configurations',
     'Admin/ConfigurationsApproval',
     'Admin/PortalPages',
-    'Admin/PermissionsManager'
+    'Admin/PermissionsManager',
+	'Search/Conspectus',
+ 	'Search/MostSearched',
+	'Search/NewAcquisitions',
+    'MyResearch/CheckedOutHistory',
+	'MyResearch/ShortLoans',
+    'MyResearch/FavoritesImport',
+	'MyResearch/ProfileChange',
 );
 
 foreach ($staticRoutes as $route) {
@@ -217,6 +233,25 @@ foreach ($staticRoutes as $route) {
             'defaults' => array(
                 'controller' => $controller,
                 'action' => (! empty($action)) ? $action : 'default'
+            )
+        )
+    );
+}
+
+$nonTabRecordActions = array('ShortLoan');
+
+foreach ($nonTabRecordActions as $action) {
+    $config['router']['routes']['record' . '-' . strtolower($action)] = array(
+        'type'    => 'Zend\Mvc\Router\Http\Segment',
+        'options' => array(
+            'route'    => '/' . 'Record' . '/[:id]/' . $action,
+            'constraints' => array(
+                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+            ),
+            'defaults' => array(
+                'controller' => 'Record',
+                'action'     => $action,
             )
         )
     );
