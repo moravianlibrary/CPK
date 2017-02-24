@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://www.vufind.org  Main Page
  */
-namespace MZKCommon\Controller\Plugin;
+namespace CPK\Controller\Plugin;
 use VuFind\Controller\Plugin\AbstractRequestBase;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 

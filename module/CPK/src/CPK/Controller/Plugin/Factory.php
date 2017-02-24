@@ -52,4 +52,16 @@ class Factory
     {
         return new Holds($sm->getServiceLocator()->get('VuFind\HMAC'));
     }
+
+	/**
+     * Construct the Holds plugin.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return Holds
+     */
+	public static function getShortLoanRequests(ServiceManager $sm)
+    {
+        return new ShortLoanRequests($sm->getServiceLocator()->get('VuFind\HMAC'));
+    }
 }

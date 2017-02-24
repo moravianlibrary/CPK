@@ -1,6 +1,6 @@
 <?php
 /**
- * Recommendation Module Factory Class
+ * ILS HoldLogic Driver Factory Class
  *
  * PHP version 5
  *
@@ -20,20 +20,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Recommendations
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @package  ILS_Drivers
+ * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
-namespace MZKCommon\Recommend;
+namespace CPK\ILS\Logic;
 use Zend\ServiceManager\ServiceManager;
 
 /**
- * Recommendation Module Factory Class
+ * ILS Driver Factory Class
  *
  * @category VuFind2
- * @package  Recommendations
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @package  ILS_Drivers
+ * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
@@ -41,16 +41,17 @@ class Factory
 {
 
     /**
-     * Factory for SpecifiableFacets module.
+     * Factory for FlatHolds
      *
      * @param ServiceManager $sm Service manager.
      *
-     * @return AuthorFacets
+     * @return FlatHolds
      */
-    public static function getSpecifiableFacets(ServiceManager $sm)
+    public static function getFlatHolds(ServiceManager $sm)
     {
-        return new SpecifiableFacets(
-            $sm->getServiceLocator()->get('VuFind\Config')
+        return new \CPK\ILS\Logic\FlatHolds(
+            $sm->get('VuFind\ILSAuthenticator'), $sm->get('VuFind\ILSConnection'),
+            $sm->get('VuFind\HMAC'), $sm->get('VuFind\Config')->get('config')
         );
     }
 

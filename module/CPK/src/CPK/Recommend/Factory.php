@@ -57,4 +57,18 @@ class Factory
         );
     }
 
+	/**
+     * Factory for SpecifiableFacets module.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return AuthorFacets
+     */
+    public static function getSpecifiableFacets(ServiceManager $sm)
+    {
+        return new SpecifiableFacets(
+            $sm->getServiceLocator()->get('VuFind\Config')
+        );
+    }
+
 }

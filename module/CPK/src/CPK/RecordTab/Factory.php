@@ -1,5 +1,5 @@
 <?php
-namespace MZKCommon\RecordTab;
+namespace CPK\RecordTab;
 use Zend\ServiceManager\ServiceManager;
 
 class Factory

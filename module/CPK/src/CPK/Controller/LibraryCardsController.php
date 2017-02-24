@@ -27,7 +27,7 @@
  */
 namespace CPK\Controller;
 
-use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\Db\Row\User as UserRow, MZKCommon\Controller\ExceptionsTrait;
+use VuFind\Controller\LibraryCardsController as LibraryCardsControllerBase, CPK\Db\Row\User as UserRow, CPK\Controller\ExceptionsTrait;
 use Zend\Mvc\MvcEvent;
 use CPK\Auth\Manager;
 use CPK\Auth\ShibbolethIdentityManager;

@@ -28,7 +28,7 @@ $config = array(
         'plugin_managers' => array(
             'recorddriver' => array(
                 'factories' => array(
-					'solrdefault' => 'MZKCommon\RecordDriver\Factory::getSolrMarc',
+					'solrdefault' => 'CPK\RecordDriver\Factory::getSolrMarc',
                     'solrmarc' => 'CPK\RecordDriver\Factory::getSolrMarc',
                     'solrcpk_mzk' => 'CPK\RecordDriver\Factory::getSolrMarcMZK',
                     'solrcpk_vkol' => 'CPK\RecordDriver\Factory::getSolrMarcVKOL',
@@ -45,14 +45,14 @@ $config = array(
                     'eVersion' => 'CPK\RecordTab\EVersion',
                     'buy' => 'CPK\RecordTab\Buy',
                     'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
-					'holdingsils'     => 'MZKCommon\RecordTab\HoldingsILS',
-                    'tagsandcomments' => 'MZKCommon\RecordTab\TagsAndComments'
+					'holdingsils'     => 'CPK\RecordTab\HoldingsILS',
+                    'tagsandcomments' => 'CPK\RecordTab\TagsAndComments'
                 ), /* invokables */
             ), /* recordtab */
             'recommend' => [
                 'factories' => [
                     'sidefacets' => 'CPK\Recommend\Factory::getSideFacets',
-					'specifiablefacets' => 'MZKCommon\Recommend\Factory::getSpecifiableFacets'
+					'specifiablefacets' => 'CPK\Recommend\Factory::getSpecifiableFacets'
                 ], /* factories */
             ], /* recommend */
             'auth' => array(
@@ -81,7 +81,7 @@ $config = array(
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session',
-					'recordstatus' => 'MZKCommon\Db\Table\RecordStatus'
+					'recordstatus' => 'CPK\Db\Table\RecordStatus'
                 ]
             ], /* db_table */
             'ils_driver' => [
@@ -161,7 +161,7 @@ $config = array(
             'libraries' => 'CPK\Controller\Factory::getLibrariesController'
         ),
         'invokables' => array(
-			'myresearch' => 'MZKCommon\Controller\MyResearchController',
+			'myresearch' => 'CPK\Controller\MyResearchController',
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
@@ -173,7 +173,7 @@ $config = array(
     'controller_plugins' => [
         'factories' => [
             'holds' => 'CPK\Controller\Plugin\Factory::getHolds',
-			'shortLoanRequests'   => 'MZKCommon\Controller\Plugin\Factory::getShortLoanRequests'
+			'shortLoanRequests'   => 'CPK\Controller\Plugin\Factory::getShortLoanRequests'
         ],
     ],
     'service_manager' => array(
@@ -185,7 +185,7 @@ $config = array(
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
             'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
-			'VuFind\ILSHoldLogic' => 'MZKCommon\ILS\Logic\Factory::getFlatHolds'
+			'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds'
         ), // Exceptions throwing system
 
         'invokables' => array(

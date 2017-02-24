@@ -28,9 +28,15 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\MyResearchController as MyResearchControllerBase, VuFind\Exception\Auth as AuthException, VuFind\Exception\ListPermission as ListPermissionException, VuFind\Exception\RecordMissing as RecordMissingException, Zend\Stdlib\Parameters, MZKCommon\Controller\ExceptionsTrait;
-use CPK\Exception\TermsUnaccepted;
-use Zend\Mvc\MvcEvent;
+use VuFind\Controller\MyResearchController as MyResearchControllerBase,
+ VuFind\Exception\Auth as AuthException,
+ VuFind\Exception\ListPermission as ListPermissionException,
+ VuFind\Exception\RecordMissing as RecordMissingException,
+ Zend\Stdlib\Parameters,
+ CPK\Controller\ExceptionsTrait,
+ CPK\Exception\TermsUnaccepted,
+ Zend\Mvc\MvcEvent,
+ Zend\Session\Container as SessionContainer;
 
 /**
  * Controller for the user account area.
@@ -45,6 +51,19 @@ use Zend\Mvc\MvcEvent;
 class MyResearchController extends MyResearchControllerBase
 {
     use ExceptionsTrait, LoginTrait;
+
+	/**
+     * Login Action
+     *
+     * @return mixed
+     */
+    public function loginAction()
+    {
+        $view = parent::loginAction();
+
+        $this->flashExceptions($this->flashMessenger());
+        return $view;
+    }
 
     public function logoutAction()
     {
@@ -236,6 +255,117 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+	public function profileChangeAction()
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->forceLogin();
+        }
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        $op = $this->params()->fromQuery('op');
+        $catalog = $this->getILS();
+        $fromPost = $this->params()->fromPost('change');
+        $hmac = $this->params()->fromPost('hmac');
+        if ($fromPost) {
+            if ($hmac != $this->getHMAC()) {
+                $this->flashMessenger()->setNamespace('info')->addMessage('request_failed_due_to_hmac');
+            } elseif ($op == 'nickname') {
+                $nickname = trim($this->params()->fromPost('nickname'));
+                if (!empty($nickname)) {
+                    try {
+                        $catalog->changeUserNickname($patron, trim($nickname));
+                        $this->flashMessenger()->setNamespace('info')->addMessage('nickname_change_successful');
+                        return $this->redirect()->toRoute('myresearch-profile');
+                    } catch (\VuFind\Exception\ILS $ex) {
+                        $this->flashMessenger()->setNamespace('error')->addMessage('nickname_change_error');
+                    }
+                } else {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('nickname_empty_error');
+                }
+            } elseif ($op == 'email') {
+                $email = trim($this->params()->fromPost('email'));
+                if (!empty($email)) {
+                    try {
+                        $catalog->changeUserEmailAddress($patron, trim($email));
+                        $this->flashMessenger()->setNamespace('info')->addMessage('email_change_successful');
+                        $user->email = trim($email);
+                        $user->save();
+                        return $this->redirect()->toRoute('myresearch-profile');
+                    } catch (\VuFind\Exception\ILS $ex) {
+                        $this->flashMessenger()->setNamespace('error')->addMessage('email_change_error');
+                    }
+                } else {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('email_empty_error');
+                }
+            } else if ($op == 'password') {
+                $oldPassword = $this->params()->fromPost('old_password');
+                $newPassword = $this->params()->fromPost('new_password');
+                $newPasswordCheck = $this->params()->fromPost('new_password_repeat');
+                if (empty($oldPassword) || empty($newPassword) || empty($newPasswordCheck)) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('password_empty_error');
+                } elseif ($newPassword != $newPasswordCheck) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('password_check_error');
+                } else {
+                    try {
+                        $catalog->changeUserPassword($patron, $oldPassword, $newPassword);
+                        $this->flashMessenger()->setNamespace('info')->addMessage('password_change_successful');
+                        return $this->redirect()->toRoute('myresearch-profile');
+                    } catch (\VuFind\Exception\ILS $ex) {
+                        $this->flashMessenger()->setNamespace('error')->addMessage('password_change_error');
+                    }
+                }
+            }
+        }
+        $view = $this->createViewModel(
+            array(
+                'label'         => 'change_' . $op,
+                'hmac'          => $this->getHMAC(),
+                'profileChange' => true,
+                'op'            => $op,
+            )
+        );
+        if ($op == 'nickname') {
+            $view->nickname = $catalog->getUserNickname($patron);
+        }
+        if ($op == 'email') {
+            $view->email = $user->email;//$patron['email'];
+        }
+        $view->setTemplate('myresearch/profilechange');
+
+        $this->flashExceptions($this->flashMessenger());
+        return $view;
+    }
+
+	public function finesPaymentAction()
+    {
+        $status = $this->params()->fromQuery('status');
+        if ($status == 'ok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_successful');
+        } else if ($status == 'nok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_failed');
+        } else if ($status == 'error') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_error');
+        }
+        return $this->redirect()->toRoute('myresearch-fines');
+    }
+
+    public function prolongationPaymentAction()
+    {
+        $status = $this->params()->fromQuery('status');
+        if ($status == 'ok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_successful');
+        } else if ($status == 'nok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_failed');
+        } else if ($status == 'error') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_error');
+        }
+        return $this->redirect()->toRoute('myresearch-profile');
+    }
+
+
     public function checkedoutAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
@@ -373,6 +503,84 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
+	/**
+     * Get a session namespace specific to the current class.
+     *
+     * @return SessionContainer
+     */
+    public function getSession()
+    {
+        static $session = false;
+        if (!$session) {
+            $session = new SessionContainer(get_class($this));
+        }
+        return $session;
+    }
+
+	/**
+     * Retrieve the last view option used.
+     *
+     * @return string
+     */
+    public function getLastView()
+    {
+        $session = $this->getSession();
+        return isset($session->lastView) ? $session->lastView : null;
+    }
+
+	/**
+     * Adds list and table views to view
+     *
+     * @param $view
+     *
+     * @return mixed
+     */
+    protected function addViews($view)
+    {
+        $defaultView = 'list';
+        $availViews = array('list', 'table');
+        $selectedView;
+        $lastView = $this->getLastView();
+
+        // Check for a view parameter in the url.
+        $viewGet = $this->getRequest()->getQuery()->get('view');
+        if (!empty($viewGet)) {
+            // make sure the url parameter is a valid view
+            if (in_array($viewGet, array_keys($availViews))) {
+                $selectedView = $viewGet;
+                $this->rememberLastView($viewGet);
+            } else {
+                $selectedView = $defaultView;
+            }
+        } else if (!empty($lastView)) {
+            // if there is nothing in the URL, check the Session
+            $selectedView = $lastView;
+        } else {
+            // otherwise load the default
+            $selectedView = $defaultView;
+        }
+
+        $views = array();
+        foreach ($availViews as $availView) {
+            $uri = clone $this->getRequest()->getUri();
+            $uri->setQuery(array('view' => $availView));
+            $views[$availView] = array(
+                'uri' => $uri,
+                'selected' => $availView == $selectedView
+            );
+        }
+
+        $childView = array('selected' => $selectedView, 'views' => $views);
+
+        if ($view instanceof \Zend\View\Model\ViewModel) {
+            $view->view = $childView;
+        } elseif (is_array($view)) {
+            $view['view'] = $childView;
+        }
+
+        return $view;
+    }
+
     public function checkedOutHistoryAction()
     {
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
@@ -390,6 +598,21 @@ class MyResearchController extends MyResearchControllerBase
         return $this->createViewModel([
             'libraryIdentities' => $user->getLibraryCards()
         ]);
+    }
+
+	/**
+     * Remember the last view option used.
+     *
+     * @param string $last Option to remember.
+     *
+     * @return void
+     */
+    public function rememberLastView($last)
+    {
+        $session = $this->getSession();
+        if (!$session->getManager()->getStorage()->isImmutable()) {
+            $session->lastView = $last;
+        }
     }
 
     /**
@@ -431,6 +654,82 @@ class MyResearchController extends MyResearchControllerBase
             // Nope, let's behave the old-style :)
             return parent::mylistAction();
         }
+    }
+
+	public function favoritesImportAction()
+    {
+        // Force login:
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->forceLogin();
+        }
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+        $catalog = $this->getILS();
+        $favorites = $catalog->getMyFavorites($patron);
+        foreach ($favorites as $favorite) {
+            $folder = $favorite['folder'];
+            $id = $favorite['id'];
+            $note = $favorite['note'];
+            $userListTable = $this->getTable('UserList');
+            $list = $userListTable->getByUserAndTitle($user, $folder);
+            if ($list == null) {
+                $list = $userListTable->getNew($user);
+                $list->title = $folder;
+                $list->save($user);
+            }
+            $resourceTable = $this->getTable('Resource');
+            $resource = $resourceTable->findResource($id);
+            $userResourceTable = $this->getTable('UserResource');
+            $userResourceTable->createOrUpdateLink($resource->id, $user->id, $list->id, $note);
+        }
+        $this->flashMessenger()->setNamespace('info')->addMessage('fav_import_successful');
+        return $this->redirect()->toRoute('myresearch-favorites');
+    }
+
+	public function shortLoansAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!is_array($patron = $this->catalogLogin())) {
+            return $patron;
+        }
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        // Process cancel requests if necessary:
+        $cancelStatus = true;
+        $view = $this->createViewModel();
+        try {
+            $view->cancelResults = $cancelStatus
+                ? $this->shortLoanRequests()->cancelShortLoanRequests($catalog, $patron) : array();
+        } catch (\Exception $ex) {
+            $this->flashMessenger()->setNamespace('error')->addMessage('cancel_short_loan_request_error_text');
+        }
+        // If we need to confirm
+        if (!is_array($view->cancelResults)) {
+            return $view->cancelResults;
+        }
+
+        $ilsBookings = $catalog->getMyShortLoanRequests($patron);
+
+        $bookings = array();
+        foreach ($ilsBookings as $current) {
+            $current = $this->shortLoanRequests()->addCancelDetails($catalog, $current);
+            $bookings[] = $this->getDriverForILSRecord($current);
+        }
+
+        $view = $this->createViewModel(
+            array(
+                'bookings' => $bookings,
+                'cancelForm' => true
+            )
+        );
+        $view->setTemplate('myresearch/shortloans');
+
+        $this->flashExceptions($this->flashMessenger());
+        return $view;
     }
 
     public function userConnectAction()
@@ -604,6 +903,102 @@ class MyResearchController extends MyResearchControllerBase
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;
+    }
+
+	protected function getILLRequestFieldsForSerial()
+    {
+        return array(
+            'ill_request_for_serial' => array(
+                'title' => array('label' => 'ill_journal_title', 'type' => 'text', 'required' => true),
+                'issn' => array('label' => 'ill_additional_authors', 'type' => 'text', 'required' => false),
+                'year' => array('label' => 'ill_year', 'type' => 'text', 'required' => true),
+                'volume' => array('label' => 'ill_volume', 'type' => 'text', 'required' => false),
+                'issue' => array('label' => 'ill_issue', 'type' => 'text', 'required' => false),
+                'source' => array('label' => 'ill_source', 'type' => 'text', 'required' => false),
+            ),
+            'ill_article_information' => array(
+                'sub-author' => array('label' => 'ill_article_author', 'type' => 'text', 'required' => false),
+                'sub-title' => array('label' => 'ill_article_title', 'type' => 'text', 'required' => false),
+                'pages' => array('label' => 'ill_pages', 'type' => 'text', 'required' => false),
+                'note' => array('label' => 'Note', 'type' => 'text', 'required' => false),
+            ),
+            'ill_administration_information' => array(
+                'last-interest-date' => array('label' => 'ill_last_interest_date', 'type' => 'date', 'required' => true),
+                'media' => array('label' => 'ill_request_type', 'type' => 'select',  'required' => false,
+                    'options' => array(
+                        'C-COPY' => 'ill_photocopy',
+                        'L-COPY' => 'ill_loan',
+                    ),
+                ),
+            ),
+            'ill_author_rights_restriction' => array(
+                'paragraph' => array('type' => 'paragraph', 'text' => 'ill_author_rights_restriction_text'),
+            ),
+            'ill_payment_options' => array(
+                'payment' => array('label' => 'ill_type', 'type' => 'select',  'required' => false,
+                    'options' => array(
+                        '100-200'   => 'ill_serial_request_from_abroad',
+                        'kopie ČR'  => 'ill_serial_request_from_Czech_Republic',
+                    ),
+                ),
+                'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox'),
+                'hmac' => array('type' => 'hidden', 'value' => $this->getHMAC()),
+            ),
+        );
+    }
+
+	protected function getHMAC()
+    {
+        $config = $this->getConfig();
+        $hmacKey = $config->Security->HMACkey;
+        return hash_hmac('md5', session_id(), $hmacKey);
+    }
+
+	protected function getIllRequestFieldsForMonography()
+    {
+        return array(
+            'new_ill_request_for_monography' => array(
+                'author' => array('label' => 'Author', 'type' => 'text', 'required' => true),
+                'additional_authors' => array('label' => 'ill_additional_authors', 'type' => 'text', 'required' => false),
+                'title' => array('label' => 'Title', 'type' => 'text', 'required' => true),
+                'edition' => array('label' => 'ill_edition', 'type' => 'text', 'required' => false),
+                'place-of-publication' => array('label' => 'ill_place_of_publication', 'type' => 'text', 'required' => false),
+                'isbn' => array('label' => 'ISBN', 'type' => 'text', 'required' => false),
+                'year-of-publication' => array('label' => 'ill_year', 'type' => 'text', 'required' => true),
+                'series' => array('label' => 'Series', 'type' => 'text', 'required' => false),
+                'source' => array('label' => 'ill_source', 'type' => 'text', 'required' => false),
+                'publisher' => array('label' => 'ill_publisher', 'type' => 'text', 'required' => false),
+            ),
+            'ill_part_of_the_monography' => array(
+                'sub-author' => array('label' => 'ill_sub_author', 'type' => 'text', 'required' => false),
+                'sub-title' => array('label' => 'ill_sub_title', 'type' => 'text', 'required' => false),
+                'pages' => array('label' => 'ill_pages', 'type' => 'text', 'required' => false),
+                'note' => array('label' => 'Note', 'type' => 'text', 'required' => false),
+            ),
+            'ill_administration_information' => array(
+                'last-interest-date' => array('label' => 'ill_last_interest_date', 'type' => 'date', 'required' => true),
+                'media' => array('label' => 'ill_request_type', 'type' => 'select',  'required' => false,
+                    'options' => array(
+                        'L-PRINTED' => 'ill_loan',
+                        'C-PRINTED' => 'ill_photocopy',
+                    ),
+                ),
+            ),
+            'ill_author_rights_restriction' => array(
+                'paragraph' => array('type' => 'paragraph', 'text' => 'ill_author_rights_restriction_text'),
+            ),
+            'ill_payment_options' => array(
+                'payment' => array('label' => 'ill_type', 'type' => 'select',  'required' => false,
+                    'options' => array(
+                        '50'   => 'ill_request_from_Czech_Republic',
+                        '300'  => 'ill_request_from_Europe',
+                        '600'  => 'ill_request_from_Great_Britain_or_oversea',
+                    ),
+                ),
+                'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox', 'required' => true),
+                'hmac' => array('type' => 'hidden', value => $this->getHMAC()),
+            ),
+        );
     }
 
     /**

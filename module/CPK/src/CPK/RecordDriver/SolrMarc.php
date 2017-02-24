@@ -1,7 +1,7 @@
 <?php
 namespace CPK\RecordDriver;
 
-use MZKCommon\RecordDriver\SolrMarc as ParentSolrMarc;
+use VuFind\RecordDriver\SolrMarc as ParentSolrMarc;
 use Zend\Http\Client\Adapter\Exception\TimeoutException as TimeoutException;
 
 class SolrMarc extends ParentSolrMarc
@@ -80,6 +80,50 @@ class SolrMarc extends ParentSolrMarc
     {
     	$field866 = $this->getFieldArray('866', array('s', 'x'));
     	return $field866;
+    }
+
+	/**
+    * uses setting from config.ini => External links
+    * @return array  [] => [
+    *          [institution] = institution,
+    *          [url] = external link to catalogue,
+    *          [display] => link to be possibly displayed]
+    *          [id] => local identifier of record
+    *
+    */
+    public function getExternalLinks() {
+
+        list($ins, $id) = explode('.' , $this->getUniqueID());
+        //FIXME temporary
+        if (substr($ins, 0, 4) === "vnf_") $ins = substr($ins, 4);
+	$linkBase = $this->recordConfig->ExternalLinks->$ins;
+
+        if (empty($linkBase)) {
+            return array(
+                       array('institution' => $ins,
+                             'url' => '',
+                             'display' => '',
+                             'id' => $this->getUniqueID()));
+        }
+
+        $finalID = $this->getExternalID();
+        if (!isset($finalID)) {
+            return array(
+                       array('institution' => $ins,
+                             'url' => '',
+                             'display' => '',
+                             'id' => $this->getUniqueID()));
+        }
+
+        $confEnd  = $ins . '_end';
+        $linkEnd  = $this->recordConfig->ExternalLinks->$confEnd;
+        if (!isset($linkEnd) ) $linkEnd = '';
+        $externalLink =  $linkBase . $finalID . $linkEnd;
+        return array(
+                   array('institution' => $ins,
+                         'url' => $externalLink,
+                         'display' => $externalLink,
+                         'id' => $id));
     }
 
     /**
@@ -174,6 +218,16 @@ class SolrMarc extends ParentSolrMarc
     public function getRealTimeHoldings($filters = array())
     {
         return $this->parseHoldingsFrom996field($filters);
+    }
+
+	public function getHoldingFilters()
+    {
+        return array();
+    }
+
+	public function getAvailableHoldingFilters()
+    {
+        return array();
     }
 
     /**
@@ -518,6 +572,24 @@ class SolrMarc extends ParentSolrMarc
     	return isset($this->fields['issnIsbnIsmn_search_str_mv'][0]) ? $this->fields['issnIsbnIsmn_search_str_mv'][0] : false;
     }
 
+	public function getBibinfoForObalkyKnih()
+    {
+        $bibinfo = array(
+            "authors" => array($this->getPrimaryAuthor()),
+            "title" => $this->getTitle(),
+            "ean" => $this->getEAN()
+        );
+        $isbn = $this->getCleanISBN();
+        if (!empty($isbn)) {
+            $bibinfo['isbn'] = $isbn;
+        }
+        $year = $this->getPublicationDates();
+        if (!empty($year)) {
+            $bibinfo['year'] = $year[0];
+        }
+        return $bibinfo;
+    }
+
     /**
      * Get comments on obalkyknih.cz associated with this record.
      *
@@ -708,6 +780,16 @@ class SolrMarc extends ParentSolrMarc
         return false;
     }
 
+	public function getEAN()
+    {
+        return (!empty($this->fields['ean_str_mv']) ? $this->fields['ean_str_mv'][0] : null);
+    }
+
+	protected function getCNB()
+    {
+        return isset($this->fields['nbn']) ? $this->fields['nbn'] : null;
+    }
+
     public function getBibinfoForObalkyKnihV3()
     {
         $bibinfo = array();
@@ -739,6 +821,14 @@ class SolrMarc extends ParentSolrMarc
         $field = $this->getFieldArray('100', array('7'));
         $name = empty($field) ? '' : $field[0];
         return $name;
+    }
+
+	public function getAvailabilityID() {
+        if (isset($this->fields['availability_id_str'])) {
+            return $this->fields['availability_id_str'];
+        } else {
+            return $this->getUniqueID();
+        }
     }
 
     /**

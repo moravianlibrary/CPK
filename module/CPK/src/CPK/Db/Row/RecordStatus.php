@@ -1,10 +1,10 @@
 <?php
 /**
- * ILS HoldLogic Driver Factory Class
+ * Row Definition for record_status
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2014.
+ * Copyright (C) Villanova University 2010.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,39 +20,32 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  ILS_Drivers
- * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
+ * @package  Db_Row
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
+ * @link     http://vufind.org   Main Site
  */
-namespace MZKCommon\ILS\Logic;
-use Zend\ServiceManager\ServiceManager;
+namespace CPK\Db\Row;
+use VuFind\Db\Row\RowGateway;
 
 /**
- * ILS Driver Factory Class
+ * Row Definition for change_tracker
  *
  * @category VuFind2
- * @package  ILS_Drivers
- * @author   Luke O'Sullivan <l.osullivan@swansea.ac.uk>
+ * @package  Db_Row
+ * @author   Vaclav Rosecky <xrosecky@gmail.com>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
+ * @link     http://vufind.org   Main Site
  */
-class Factory
+class RecordStatus extends RowGateway
 {
-
     /**
-     * Factory for FlatHolds
+     * Constructor
      *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return FlatHolds
+     * @param \Zend\Db\Adapter\Adapter $adapter Database adapter
      */
-    public static function getFlatHolds(ServiceManager $sm)
+    public function __construct($adapter)
     {
-        return new \MZKCommon\ILS\Logic\FlatHolds(
-            $sm->get('VuFind\ILSAuthenticator'), $sm->get('VuFind\ILSConnection'),
-            $sm->get('VuFind\HMAC'), $sm->get('VuFind\Config')->get('config')
-        );
+        parent::__construct('id', 'record_status', $adapter);
     }
-
 }

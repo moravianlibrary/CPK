@@ -31,11 +31,42 @@
  */
 namespace CPK\ILS\Driver;
 
-use MZKCommon\ILS\Driver\Aleph as AlephBase;
+use CPK\ILS\Driver\AlephMZK as AlephBase;
 use VuFind\Exception\Date as DateException;
+use VuFind\Exception\ILS as ILSException;
+use Zend\Log\LoggerInterface;
+use VuFindHttp\HttpServiceInterface;
+use DateTime;
 
 class Aleph extends AlephBase implements CPKDriverInterface
 {
+	protected $recordStatus = null;
+
+    protected $availabilitySource = null;
+
+    protected $favoritesUrl = null;
+
+    protected $userCgiUrl = null;
+
+    protected $wwwuser = null;
+
+    protected $wwwpasswd = null;
+
+    protected $hmacKey = null;
+
+    protected $paymentUrl = null;
+
+    protected $prolongRegistrationUrl = null;
+
+    protected $prolongRegistrationStatus = null;
+
+    /*
+    // FIXME: move to configuration file
+    const PAYMENT_URL = 'https://aleph.mzk.cz/cgi-bin/c-gpe1-vufind.pl';
+
+    // FIXME: move to configuration file
+    const PROLONG_REGISTRATION_URL = 'http://aleph.mzk.cz/cgi-bin/prodl_reg.pl';
+    */
 
     const CONFIG_ARRAY_DELIMITER = ',';
 
@@ -60,6 +91,32 @@ class Aleph extends AlephBase implements CPKDriverInterface
     public function init()
     {
         parent::init();
+
+		if (isset($this->config['Availability']['source'])) {
+            $this->availabilitySource = $this->config['Availability']['source'];
+        }
+        if (isset($this->config['Catalog']['fav_cgi_url'])) {
+            $this->favoritesUrl = $this->config['Catalog']['fav_cgi_url'];
+        }
+        if (isset($this->config['Catalog']['user_cgi_url'])) {
+            $this->userCgiUrl = $this->config['Catalog']['user_cgi_url'];
+        }
+        if (isset($this->config['Catalog']['hmac_key'])) {
+            $this->hmacKey = $this->config['Catalog']['hmac_key'];
+        }
+        if (isset($this->config['Catalog']['wwwuser']) && isset($this->config['Catalog']['wwwpasswd'])) {
+            $this->wwwuser = $this->config['Catalog']['wwwuser'];
+            $this->wwwpasswd = $this->config['Catalog']['wwwpasswd'];
+        }
+        if (isset($this->config['Catalog']['payment_url'])) {
+            $this->paymentUrl = $this->config['Catalog']['payment_url'];
+        }
+        if (isset($this->config['Catalog']['prolong_registration_url'])) {
+            $this->prolongRegistrationUrl = $this->config['Catalog']['prolong_registration_url'];
+        }
+        if (isset($this->config['Catalog']['prolong_registration_status'])) {
+            $this->prolongRegistrationStatus = $this->config['Catalog']['prolong_registration_status'];
+        }
 
         if (isset($this->config['Catalog']['available_statuses'])) {
             $this->available_statuses = explode(self::CONFIG_ARRAY_DELIMITER, $this->config['Catalog']['available_statuses']);
@@ -88,6 +145,14 @@ class Aleph extends AlephBase implements CPKDriverInterface
                 $this->addressMappings[$key] = $val;
             }
         }
+    }
+
+	public function __construct(\VuFind\Date\Converter $dateConverter,
+        \VuFind\Cache\Manager $cacheManager = null, \VuFindSearch\Service $searchService = null,
+        \CPK\Db\Table\RecordStatus $recordStatus = null
+    ) {
+        parent::__construct($dateConverter, $cacheManager, $searchService);
+        $this->recordStatus = $recordStatus;
     }
 
     protected function getDefaultMappings()
@@ -415,6 +480,22 @@ class Aleph extends AlephBase implements CPKDriverInterface
     public function getMyTransactions($user, $history = false, $limit = 0)
     {
         $transactions = parent::getMyTransactions($user, $history, $limit);
+        if ($history) {
+            return $transactions;
+        }
+        $patronId = $user['id'];
+        foreach ($transactions as &$transaction) {
+            if (!$transaction['renewable']) {
+                $bibId  = $transaction['id'];
+                $itemId = $transaction['z36_item_id'];
+                try {
+                    $holdingInfo = $this->getHoldingInfoForItem($patronId, $bibId, $itemId);
+                    $transaction['reserved'] = ($holdingInfo['order'] > 1);
+                } catch (ILSException $ex) {
+                    // nothing to do
+                }
+            }
+        }
 
         foreach ($transactions as &$transaction) {
             $transaction['loan_id'] = $transaction['item_id'];
@@ -901,6 +982,119 @@ class Aleph extends AlephBase implements CPKDriverInterface
         } else {
             throw new DateException("Invalid date: $date");
         }
+    }
+
+	public function changeUserRequest($patron, $params, $returnResult = false)
+    {
+        if ($this->userCgiUrl == null) {
+            throw new \Exception('Not supported, missing [Catalog][user_cgi_url] section in config');
+        }
+        $params['id']            = $patron['id'];
+        $params['user_name']     = $this->wwwuser;
+        $params['user_password'] = $this->wwwpasswd;
+        $response = $this->httpService->get($this->userCgiUrl, $params);
+        $answer = $response->getBody();
+        $xml = simplexml_load_string($answer);
+        if ($returnResult) {
+            return $xml;
+        }
+        if ($xml->error) {
+            throw new ILSException($xml->error);
+        } else {
+            return true;
+        }
+    }
+
+	public function getPaymentURL($patron, $fine)
+    {
+        if ($this->paymentUrl == null) {
+            return null;
+        }
+        $params = array (
+            'id'     => $patron['id'],
+            'adm'    => $this->useradm,
+            'amount' => $fine,
+            'time'   => time(),
+        );
+        $query = http_build_query($params);
+        $url = $this->paymentUrl . '?' . $query;
+        return $url;
+    }
+
+	public function getUserNickname($patron)
+    {
+        $params = array(
+            'op'           => 'get_nickname',
+        );
+        $xml = $this->changeUserRequest($patron, $params, true);
+        if ($xml->error) {
+            if ($xml->error == 'no nick') {
+                return null;
+            } else {
+                throw new ILSException($xml->error);
+            }
+        } else {
+            return $xml->nick;
+        }
+    }
+
+    public function changeUserNickname($patron, $newAlias)
+    {
+        $params = array(
+            'op'           => 'change_nickname',
+            'new_nickname' => $newAlias,
+        );
+        return $this->changeUserRequest($patron, $params);
+    }
+
+	public function changeUserPassword($patron, $oldPassword, $newPassword)
+    {
+        $params = array(
+            'op'      => 'change_password',
+            'old_pwd' => $oldPassword,
+            'new_pwd' => $newPassword,
+        );
+        return $this->changeUserRequest($patron, $params);
+    }
+
+    public function changeUserEmailAddress($patron, $newEmailAddress)
+    {
+        $params = array(
+            'op'      => 'change_email',
+            'email' => $newEmailAddress,
+        );
+        return $this->changeUserRequest($patron, $params);
+    }
+
+	/**
+     *
+     * Get Favorite Items from ILS
+     *
+     * @param mixed  $patron  Patron data
+     * @return mixed          An array with favorite items (each item contains id, folder and note)
+     * @access public
+     */
+    public function getMyFavorites($patron)
+    {
+        if ($this->favoritesUrl == null) {
+            return array(); // graceful degradation
+        }
+        $params = array('id' => $patron['id']);
+        $response = $this->httpService->get($this->favoritesUrl, $params);
+        if (!$response->isSuccess()) {
+            throw new ILSException('HTTP error');
+        }
+        $answer = $response->getBody();
+        $xml = simplexml_load_string($answer);
+        $result = array();
+        foreach ($xml->{'favourite'} as $fav) {
+            $result[] = array(
+                'id'     => (string) $fav->{'id'},
+                'folder' => (string) $fav->{'folder'},
+                'note'   => (string) $fav->{'note'}
+            );
+        }
+        return $result;
     }
 
     /**

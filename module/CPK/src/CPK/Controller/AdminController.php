@@ -26,7 +26,7 @@
  */
 namespace CPK\Controller;
 
-use MZKCommon\Controller\ExceptionsTrait, CPK\Db\Row\User;
+use CPK\Controller\ExceptionsTrait, CPK\Db\Row\User;
 use VuFind\Exception\Auth as AuthException;
 use Zend\Mvc\MvcEvent;
 use CPK\Service\ConfigurationsHandler;

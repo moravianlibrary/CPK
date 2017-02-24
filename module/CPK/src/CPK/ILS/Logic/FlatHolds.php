@@ -1,5 +1,5 @@
 <?php
-namespace MZKCommon\ILS\Logic;
+namespace CPK\ILS\Logic;
 use VuFind\ILS\Logic\Holds as Holds;
 use VuFind\ILS\Connection as ILSConnection;
 
