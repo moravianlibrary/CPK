@@ -750,3 +750,9 @@ UPDATE `system` SET `value` = '56' WHERE `key`='DB_VERSION';
 /* feat-298 */
 DROP TABLE `inst_translations`;
 UPDATE `system` SET `value` = '57' WHERE `key`='DB_VERSION';
+
+UPDATE `portal_pages` SET `language_code`='cs' WHERE `language_code`='cs-cpk';
+UPDATE `portal_pages` SET `language_code`='en' WHERE `language_code`='en-cpk';
+UPDATE `modal_specific_contents` SET `language_code`='cs' WHERE `language_code`='cs-cpk';
+UPDATE `modal_specific_contents` SET `language_code`='en' WHERE `language_code`='en-cpk';
+UPDATE `system` SET `value` = '58' WHERE `key`='DB_VERSION';
