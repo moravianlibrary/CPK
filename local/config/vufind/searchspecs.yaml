@@ -444,12 +444,44 @@ AllFields:
 
 
 adv_search_title_series:
+  DismaxFields:
+    - title_short^500
+    - title_full_unstemmed^450
+    - title_full^400
+    - title^300
+    - title_alt^200
+    - title_new^100
+    - title_old
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     titleSeries_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
 
 adv_search_author_corporation:
+  DismaxFields:
+    - author_search^150
+    - author^100
+    - author_fuller^50
+    - author2
+    - author_viz
+    - corporation_viz
+    - author_additional
+    - author_find
+    - authorCorporation_search_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     authorCorporation_search_txt_mv:
       - [onephrase, 100]
@@ -462,6 +494,22 @@ adv_search_author_corporation:
     - [and, 20]  
 
 adv_search_subject_keywords:
+  DismaxFields:
+    - topic_unstemmed^150
+    - topic^100
+    - geographic^50
+    - genre^50
+    - era
+    - subject_viz
+    - genre_viz
+    - subjectKeywords_search_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     subjectKeywords_search_txt_mv:
       - [onephrase, 100]
@@ -474,6 +522,15 @@ adv_search_subject_keywords:
       - [and, 20]
       
 adv_search_source_title:
+  DismaxFiels:
+   - sourceTitle_search_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     sourceTitle_search_txt_mv:
       - [onephrase, 100]
@@ -486,30 +543,76 @@ adv_search_isbn_issn_ismn:
       - [and, 50]
 
 adv_search_call_number:
+  Dismaxfields:
+    - callNumber_search_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     callNumber_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
 
 adv_search_publisher:
+  Dismaxfields:
+    - publisher_search_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     publisher_search_txt_mv:
       - [onephrase, 100]
       - [and, 50]
 
 adv_search_year_of_publication:
+  Dismaxfields:
+     - publishDate
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     publishDate:
       - [onephrase, 100]
       - [and, 50]
 
 adv_search_place_of_publication:
+  Dismaxfields:
+    - placeOfPublication_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     placeOfPublication_txt_mv:
       - [onephrase, 100]
       - [and, 50]
 
 adv_search_001:
+  Dismaxfields:
+    - id001_search
+    - id_authority
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     id001_search:
       - [onephrase, 100]
@@ -519,12 +622,31 @@ adv_search_001:
       - [and, 50]
 
 adv_search_nbn:
+  Dismaxfields:
+    - cnb_search_str
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     cnb_search_str:
       - [onephrase, 100]
       - [and, 50]
       
 adv_search_fulltext:
+  Dismaxfields:
+   - toc_txt_mv^10
+   - fulltext
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
   QueryFields:
     fulltext:
       - [onephrase, 100]
@@ -532,4 +654,3 @@ adv_search_fulltext:
     toc_txt_mv:
       - [onephrase, 100]
       - [and, 50]
-  
