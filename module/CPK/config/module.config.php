@@ -35,7 +35,7 @@ $config = array(
                     'solrcpk_nlk' => 'CPK\RecordDriver\Factory::getSolrMarcNLK',
                     'solrlocal' => 'CPK\RecordDriver\Factory::getSolrMarcLocal',
                     'solrdublincore' => 'CPK\RecordDriver\Factory::getSolrDublinCore',
-                    'solrauthority' => 'CPK\RecordDriver\Factory::getSolrAuthority'
+                    'solrauthority' => 'CPK\RecordDriver\Factory::getSolrAuthority',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
@@ -191,7 +191,7 @@ $config = array(
         'invokables' => array(
             'wantitfactory' => 'CPK\WantIt\Factory',
             'searchController' => 'CPK\Controller\SearchController',
-            'ajaxCtrl' => 'CPK\Controller\AjaxController',
+            'ajaxCtrl' => 'CPK\Controller\AjaxController'
         )
     ),
     'view_manager' => array(

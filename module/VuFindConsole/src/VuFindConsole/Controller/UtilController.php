@@ -653,7 +653,7 @@ class UtilController extends AbstractBase
     public function obalkyKnihAction()
     {
         $argv = $this->consoleOpts->getRemainingArgs();
-        $failover = new \ObalkyKnihV3\Failover(true);
+        $failover = new \CPK\Failover(true);
         $failover->checkAvailability($argv);
         return $this->getSuccessResponse();
     }

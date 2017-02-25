@@ -1,0 +1,12 @@
+#!/bin/sh
+sudo rm -rf /home/kravec/git/VuFind-2.x/local/cache/covers/*
+sudo rm -rf /home/kravec/git/VuFind-2.x/local/cache/objects/* 
+sudo rm -rf /home/kravec/git/VuFind-2.x/local/cache/languages/* 
+sudo rm -rf /home/kravec/git/VuFind-2.x/local/cache/configs/* 
+sudo rm -rf /home/kravec/git/VuFind-2.x/data/cache/cli/covers/*
+sudo rm -rf /home/kravec/git/VuFind-2.x/data/cache/cli/languages/*
+sudo rm -rf /home/kravec/git/VuFind-2.x/data/cache/cli/less/*
+sudo rm -rf /home/kravec/git/VuFind-2.x/data/cache/cli/objects/*
+sudo rm -rf /home/kravec/git/VuFind-2.x/data/cache/cli/searchspecs/*
+sudo rm -rf /home/kravec/git/VuFind-2.x/data/cache/cli/configs/*
+sudo rm -rf /home/kravec/git/VuFind-2.x/data/cache/configs*
