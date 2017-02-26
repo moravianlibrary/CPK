@@ -1186,4 +1186,55 @@ class MyResearchController extends MyResearchControllerBase
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
     }
+
+    /**
+     * Change title request
+     *
+     * @return mixed
+     */
+    public function changetitleAction()
+    {
+    // Fail if saved searches are disabled.
+        $check = $this->getServiceLocator()->get('VuFind\AccountCapabilities');
+        if ($check->getSavedSearchSetting() === 'disabled') {
+            throw new \Exception('Saved searches disabled.');
+        }
+
+        $user = $this->getUser();
+        if ($user == false) {
+            return $this->forceLogin();
+        }
+
+        // Check for the save / delete parameters and process them appropriately:
+        $search = $this->getTable('Search');
+        if (($id = $this->params()->fromQuery('save', false)) !== false) {
+            $user_id = $user->id;
+            $row = $search->getRowById($id);
+            $rowData = $row->toArray();
+            $rowData->saved = true;
+            if ($user_id !== false) {
+                $rowData->user_id = $user_id;
+            }
+            $rowData['title'] = $this->params()->fromQuery('title', '');
+            $row->populate($rowData, true);
+            $row->save();
+            $this->flashMessenger()->addMessage('search_save_success', 'success');
+        } else if (($id = $this->params()->fromQuery('delete', false)) !== false) {
+            $search->setSavedFlag($id, false);
+            $this->flashMessenger()->addMessage('search_unsave_success', 'success');
+        } else {
+            throw new \Exception('Missing save and delete parameters.');
+        }
+
+        // Forward to the appropriate place:
+        if ($this->params()->fromQuery('mode') == 'history') {
+            return $this->redirect()->toRoute('search-history');
+        } else {
+            // Forward to the Search/Results action with the "saved" parameter set;
+            // this will in turn redirect the user to the appropriate results screen.
+            $this->getRequest()->getQuery()->set('saved', $id);
+            return $this->forwardTo('Search', 'Results');
+        }
+    }
+
 }

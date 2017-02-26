@@ -1,15 +1,71 @@
 <? $saveSupported = $this->accountCapabilities()->getSavedSearchSetting() === 'enabled'; ?>
+
+<style type="text/css">
+.edit-input {
+    display:none;
+    width: 140px;
+}
+.savetitle {
+    display:none;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $(document).off().on('click', 'a.edit, a.savetitle', function() {
+        var dad = $(this).closest('tr');
+        var label = $(dad).find('div.control-group > label');
+        var edit = $(dad).find('.edit-input');
+        if ($(label).is(":visible") == true) {
+            $(edit).val($(label).text());
+        }
+        else {
+            $(label).text(edit.val());
+        }
+        $(dad).find('a.edit').toggle();
+        $(dad).find('a.savetitle').toggle();
+        $(label).toggle();
+        $(edit).toggle();
+        $(edit).focus();
+    }),
+    $(document).on('click', 'a.savetitle', function() {
+        var dad = $(this).closest('tr');
+        var edit = $(dad).find('.edit-input');
+        var id = $(dad).find('div.control-group').attr('id');
+        window.location.href='/MyResearch/ChangeTitle?save=' + id + '&mode=history&title=' + $(edit).val();
+    }),
+    $(document).on("keypress", ".edit-input", function(e) {
+        if (e.which == 13) {
+            var dad = $(this).closest('tr');
+            var edit = $(dad).find('.edit-input');
+            var id = $(dad).find('div.control-group').attr('id');
+            window.location.href='/MyResearch/ChangeTitle?save=' + id + '&mode=history&title=' + $(edit).val();
+        }
+   });
+});
+</script>
+
 <table class="table table-striped">
   <tr>
-    <th width="20%"><?=$this->transEsc("history_time")?></th>
+    <th><?=$this->transEsc("history_time")?></th>
+    <th><?=$this->transEsc("history_title")?></th>
     <th><?=$this->transEsc("history_search")?></th>
     <th><?=$this->transEsc("history_limits")?></th>
     <th><?=$this->transEsc("history_results")?></th>
     <? if ($saveSupported): ?><th><?=$this->transEsc($this->showSaved ? "history_delete" : "history_save")?></th><? endif; ?>
   </tr>
-  <? foreach (($this->showSaved ? array_reverse($this->saved) : array_reverse($this->unsaved)) as $iteration => $info): $urlQuery = $info->getUrlQuery();?>
+  <? $iteration = 0;?>
+  <? foreach (($this->showSaved ? array_reverse($this->saved, true) : array_reverse($this->unsaved, true)) as $index => $info): $urlQuery = $info->getUrlQuery();?>
     <tr class="<?=$iteration % 2 == 1 ? 'even' : 'odd'?>row">
+    <? $iteration++;?>
       <td><?=$this->escapeHtml($this->dateTime()->convertToDisplayDateAndTime("U", $info->getStartTime()))?></td>
+      <td>
+        <div class="control-group" id="<?=$index?>">
+          <?$title = $this->titles[$index]['title']?>
+          <label class="editable"><?=$title?></label>
+          <input type="text" class="edit-input" />
+        </div>
+      </td>
       <td>
         <?=$this->historylabel($info->getParams()->getSearchClassId())?>
         <a href="<?=$this->url($info->getOptions()->getSearchAction()) . $urlQuery->getParamsFromCompressedFacetFilters()?>"><?
@@ -29,6 +85,9 @@
       <? if ($saveSupported): ?>
         <td>
           <? if ($this->showSaved): ?>
+            <a href="" class="edit"><i class="fa fa-edit"></i> <?=$this->transEsc("history_rename")?></a>
+            <a href="" class="savetitle"><i class="fa fa-save"></i> <?=$this->transEsc("history_save_link")?></a>
+            <br>
             <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($info->getSearchId())?>&amp;mode=history"><i class="fa fa-remove"></i> <?=$this->transEsc("history_delete_link")?></a>
           <? else: ?>
             <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($info->getSearchId())?>&amp;mode=history"><i class="fa fa-save"></i> <?=$this->transEsc("history_save_link")?></a>

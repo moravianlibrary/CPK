@@ -279,7 +279,7 @@ class SearchController extends SearchControllerBase
 	        );
 
 	    // Build arrays of history entries
-	    $saved = $unsaved = [];
+	    $saved = $unsaved = $titles = [];
 
 	    // Loop through the history
 	    foreach ($searchHistory as $current) {
@@ -287,7 +287,9 @@ class SearchController extends SearchControllerBase
 
 	        // Saved searches
 	        if ($current->saved == 1) {
-	            $saved[] = $minSO->deminify($this->getResultsManager());
+	            $id = $current->toArray()['id'];
+	            $saved[$id] = $minSO->deminify($this->getResultsManager());
+	            $titles[$id] = $current->toArray();
 	        } else {
 	            // All the others...
 
@@ -299,13 +301,15 @@ class SearchController extends SearchControllerBase
 	                $this->getSearchMemory()->forgetSearch();
 	            } else {
 	                // Otherwise add to the list
-	                $unsaved[] = $minSO->deminify($this->getResultsManager());
+	                $id = $current->toArray()['id'];
+	                $unsaved[$id] = $minSO->deminify($this->getResultsManager());
+	                $titles[$id] = $current->toArray();
 	            }
 	        }
 	    }
 
 	    return $this->createViewModel(
-	        ['saved' => $saved, 'unsaved' => $unsaved]
+	        ['saved' => $saved, 'unsaved' => $unsaved, 'titles' => $titles]
 	        );
 	}
 
