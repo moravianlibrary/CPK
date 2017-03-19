@@ -11,10 +11,11 @@
 
 namespace Symfony\Component\CssSelector\Tests\XPath;
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\CssSelector\XPath\Extension\HtmlExtension;
 use Symfony\Component\CssSelector\XPath\Translator;
 
-class TranslatorTest extends \PHPUnit_Framework_TestCase
+class TranslatorTest extends TestCase
 {
     /** @dataProvider getXpathLiteralTestData */
     public function testXpathLiteral($value, $literal)
@@ -74,7 +75,7 @@ class TranslatorTest extends \PHPUnit_Framework_TestCase
         $document = simplexml_import_dom($document);
         $bodies = $document->xpath('//body');
         $elements = $bodies[0]->xpath($translator->cssToXPath($css));
-        $this->assertEquals($count, count($elements));
+        $this->assertCount($count, $elements);
     }
 
     public function getXpathLiteralTestData()
