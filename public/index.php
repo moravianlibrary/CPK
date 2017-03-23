@@ -91,6 +91,17 @@ set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array
     // error was suppressed with the @-operator
     if (0 === error_reporting()) { return false;}
     
+    $logDetails = date("Y-m-d H:i:s ");     
+    $logDetails .= friendlyErrorType($err_severity)." \n";        
+    $logDetails .= "$err_msg\n";      
+    $logDetails .= "Error on line $err_line in file $err_file\n\n";       
+      
+    $logFile = __DIR__."/../log/fatal-errors.log";        
+    $fp = fopen($logFile, "a");       
+    fwrite($fp, $logDetails);     
+    fwrite($fp, "");      
+    fclose($fp);
+    
     $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
     $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
     $extra = 'error.php';
