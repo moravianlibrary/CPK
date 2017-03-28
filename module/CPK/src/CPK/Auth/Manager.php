@@ -54,6 +54,8 @@ class Manager extends BaseManager
      * @var CPK\Db\Table\UserSettings
      */
     protected $userSettingsTable;
+    
+    protected $searchController;
 
     /**
      * Constructor
@@ -63,11 +65,12 @@ class Manager extends BaseManager
      */
     public function __construct(Config $config, UserTable $userTable,
         SessionManager $sessionManager, PluginManager $pm,
-        CookieManager $cookieManager, UserSettings $userSettingsTable)
+        CookieManager $cookieManager, UserSettings $userSettingsTable, $searchController)
     {
         parent::__construct($config, $userTable, $sessionManager, $pm,
             $cookieManager);
         $this->userSettingsTable = $userSettingsTable;
+        $this->searchController = $searchController;
     }
 
     /**
@@ -83,6 +86,16 @@ class Manager extends BaseManager
      */
     public function login($request)
     {
+            $query = $request->getQuery();
+            if ($query->offsetExists('loggedOut')) {
+                $query->offsetUnset('loggedOut');
+                $requestUri = $request->getRequestUri();
+                $requestUri = str_replace("loggedOut=true&", "", $requestUri);
+                $requestUri = str_replace("loggedOut=true", "", $requestUri);
+                $request->setRequestUri($requestUri);
+            }
+            $request->setQuery($query);
+
         // Perform authentication:
         try {
             $hasShibbolethSession = $request->getServer('Shib-Session-ID', false);
@@ -90,7 +103,8 @@ class Manager extends BaseManager
             if ($hasShibbolethSession) {
                 $user = $this->getAuth()->authenticate($request);
             } else {
-                throw new AuthException('authentication_error_loggedout');
+                //throw new AuthException('authentication_error_loggedout');
+                return $this->searchController->homeAction();
             }
         } catch (AuthException $e) {
             // Pass authentication exceptions through unmodified
