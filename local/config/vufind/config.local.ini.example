@@ -120,8 +120,8 @@ user_prolongation_url   = ""
 ;This configuration sets recipients for feedback page. Split values with comma
 ;E.g. "mail@server.cz,mail2@server.cz"
 [Feedback]
-RequestHelpRecipients = "mail@server.cz,mail2@server.cz"
-ReportBugRecipients   = "mail@server.cz,mail2@server.cz,mail3@server.cz"
+RequestHelpRecipients = "cpk-support@mzk.cz"
+ReportBugRecipients   = "cpk-support@mzk.cz"
 
 [AdresarKnihoven]
 ;apiUrl = http://cpk-front.mzk.cz:3000/api
