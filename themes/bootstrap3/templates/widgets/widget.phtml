@@ -2,10 +2,10 @@
     <div class='header'>
       <? if ($this->widget->getShowAllRecordsLink()): $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('inspiration:"'.$this->widget->getName().'"')); ?>
         <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' title='<?=$this->translate('Show all')?>' style='color: #000;'>
-          <h2><?=($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn()?></h2>
+          <h2><?=$this->translate($this->widget->getName())?></h2>
         </a>
       <? else: ?>
-        <h2><?=($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn()?></h2>
+        <h2><?=$this->translate($this->widget->getName())?></h2>
       <? endif; ?>
 
     </div>
@@ -42,7 +42,7 @@
               </div>
               <div class="col-xs-9 content">
           <? else: ?>
-          	  <div class="col-xs-12 content">
+              <div class="col-xs-12 content">
           <? endif; ?>
             <h4 class="list-group-item-heading">
               <? if ($item->getRecordDriver() instanceof \CPK\RecordDriver\SolrAuthority): ?>
@@ -64,15 +64,15 @@
       <? endforeach; ?>
       <? if ($this->widget->getShowAllRecordsLink()): $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('inspiration:"'.$this->widget->getName().'"')); ?>
       <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' class="list-group-item clearfix" title='<?=$this->translate('Show all')?>'>
-	    <div class='row more-info'>
-	      <div class='col-sm-10'>
-	      	<?=$this->translate('Show all')?>
-	      </div>
-	      <div class='col-sm-2' style='text-align: right;'>
-		    <i class="pr-interface-arrowright"></i>
-	      </div>
-	    </div>
-	  </a>
-	  <? endif; ?>
+        <div class='row more-info'>
+          <div class='col-sm-10'>
+            <?=$this->translate('Show all')?>
+          </div>
+          <div class='col-sm-2' style='text-align: right;'>
+            <i class="pr-interface-arrowright"></i>
+          </div>
+        </div>
+      </a>
+      <? endif; ?>
     </div>
   </div>
