@@ -243,8 +243,11 @@
                     <? if(count($field) == 1) $field = explode('--', $field[0]); ?>
                     <? $i = 0; foreach ($field as $subfield): ?>
                       <?=($i++ == 0) ? '' : ' &gt; '?>
-                      <? $subject = trim($subfield); ?>
-                      <a title="<?=$this->escapeHtmlAttr($subject)?>" href="<?=$this->record($this->driver)->getLink('subject', $subject)?>"><?=trim($this->escapeHtml($subfield))?></a>
+                      <?
+                        $subject = trim($subfield);
+                        $href = '/Search/Results/?bool0%5B%5D=AND&type0%5B%5D=adv_search_subject_keywords&lookfor0%5B%5D='.$subject.'&join=AND&searchTypeTemplate=advanced&page=1';
+                      ?>
+                      <a title="<?=$this->escapeHtmlAttr($subject)?>" href="<?=$href?>"><?=trim($this->escapeHtml($subfield))?></a>
                     <? endforeach; ?>
                   </div>
                     <? if (($iteration == $maxSubjectsInCore) && ($maxSubjectsInCore < $subjectsCount)): ?>
