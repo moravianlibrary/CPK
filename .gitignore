@@ -21,3 +21,4 @@ compileMyCss.sh
 public/robots.txt
 public/sitemap*.xml
 fatal-errors.log
+.idea
