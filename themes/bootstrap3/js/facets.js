@@ -460,8 +460,29 @@ jQuery( document ).ready( function( $ ) {
     /*
      * Shake button on institution facet change
      */
-    $( 'body' ).on( 'click', '.jstree-checkbox, .jstree-anchor', function( event ) {
-    	$( '.institution-facet-filter-button' ).parent().effect( 'shake', {times:3, distance: 3, direction: 'right'}, 200 );
+    $( 'body' ).on( 'click', '.jstree-anchor', function( event ) {
+        if ( $( '.institution-facet-filter-button' ).visible( true ) ) {
+            $('.institution-facet-filter-button').parent().effect('shake', {
+                times: 3,
+                distance: 3,
+                direction: 'right'
+            }, 200);
+        } else {
+            $.bootstrapGrowl(VuFind.translate('Do not forget to update search results'), // Messages
+                { // options
+                    type: "info", // info, success, warning and danger
+                    ele: "body", // parent container
+                    offset: {
+                        from: "bottom",
+                        amount: 40
+                    },
+                    align: "left", // right, left or center
+                    width: 300,
+                    delay: 4000,
+                    allow_dismiss: false, // add a close button to the message
+                    stackup_spacing: 10
+                });
+        }
     });
     
     FACETS = {
