@@ -801,6 +801,7 @@ jQuery( document ).ready( function( $ ) {
 		clone.attr( 'id', 'query_' + nextQueryNumber);
 		clone.find( 'select' ).prop( 'selected', false );
 		clone.find( 'select' ).attr( 'name', 'type' + thisGroupNumber + '[]' );
+        clone.find( 'select' ).val( clone.find( 'select' ).find( 'option:first' ).val() );
 		clone.find( 'input:text' ).val( '' );
 		clone.find( 'input:text' ).attr( 'name', 'lookfor' + thisGroupNumber + '[]' );
 		clone.css( 'display', 'none' );
