@@ -33,7 +33,9 @@ $toRet = array(
         'vendor/jsTree/jstree.min.js',
         'facets.js',
         'lz-string.js',
-		'obalkyknih.js'
+		'obalkyknih.js',
+        'vendor/jquery.visible.min.js',
+        'vendor/jquery.bootstrap-growl.js'
     ),
     'less' => array(
         'active' => false,

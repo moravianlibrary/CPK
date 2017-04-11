@@ -3,6 +3,29 @@
  * @Author Martin Kravec <martin.kravec@mzk.cz>
  */
 jQuery( document ).ready( function( $ ) {
+
+    if(typeof Storage == "undefined") {
+        console.error( 'localStorage and sessionStorage  are NOT supported in this browser' );
+    }
+    console.log(localStorage.getItem('facetsApplied'));
+    localStorage.setItem("facetsApplied", parseInt('0'));
+
+    /*
+    @TODO Shake button thaht applies clicked facets or show message 'Do not forget to apply your changes'. This could be done on background using Web Workers.
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    while( true ) {
+        if (localStorage['facetsApplied']) {
+            parseInt(localStorage.getItem("facetsApplied") > 0) {
+                //shake button or show message
+            }
+            sleep(30000); // 0.5 minutes
+        }
+    }
+    */
 	
 	ADVSEARCH = {
 			
@@ -87,7 +110,7 @@ jQuery( document ).ready( function( $ ) {
 		 * @return {undefined}
 		 */
 		updateSearchResults: function( dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData ) {
-			
+
 			var data = {};
 			
 			/* If we need to add some new paramts to URL we can use extraData argument */
@@ -491,9 +514,12 @@ jQuery( document ).ready( function( $ ) {
 		        		    	// Let another applications know we have loaded new results ..
 		        		        var event = document.createEvent("CustomEvent");
 				        		event.initCustomEvent('searchResultsLoaded', false, false, {});
+
+                            			localStorage.setItem("facetsApplied", parseInt('0'));
 			        		
 		        		} else {
 		        			console.error(response.data);
+                            			console.error(response);
 		        		}
 		        		$( '#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort' ).removeAttr( 'selected' );
 		        		
