@@ -18,19 +18,43 @@ class XCNCIP2 extends XCNCIP2Base
                 $response = parent::sendRequest($xml);
             }
             catch (ILSException $e) {
-                $requestFormatted = '<pre>' . $this->xml_highlight($this->formatXml($xml)) . '</pre>';
-                $responseFormatted = '<pre>' . $this->xml_highlight($e->getMessage()) . '</pre>';
-                $GLOBALS['dg'] .= $requestFormatted . '<br>' . $responseFormatted;
+                $this->makeLog($this->formatXml($xml), $e->getMessage());
                 throw $e;
             }
-            $requestFormatted = '<pre>' . $this->xml_highlight($this->formatXml($xml)) . '</pre>';
-            $responseFormatted = '<pre>' . $this->xml_highlight($this->formatXml($response)) . '</pre>';
-            $GLOBALS['dg'] .= $requestFormatted . '<br>' . $responseFormatted;
+            $this->makeLog($this->formatXml($xml), $this->formatXml($response));
         }
         else {
             $response = parent::sendRequest($xml);
         }
         return $response;
+    }
+
+    protected function makeLog($request, $response) {
+        $requestFormatted = '<pre>' . $this->xml_highlight($request) . '</pre>';
+        $responseFormatted = '<pre>' . $this->xml_highlight($response) . '</pre>';
+
+        $logContent = file_get_contents("log/ncip-messages.html");
+
+        $time = strtok($logContent, "\n");
+        if (time() - $time < 5) {
+            $file = fopen("log/ncip-messages.html", "a");
+        }
+        else {
+            $file = fopen("log/ncip-messages.html", "w");
+        }
+
+        fwrite($file, time() . "\n");
+        fwrite($file, $requestFormatted . $responseFormatted);
+        fclose($file);
+
+        $logContent = file_get_contents("log/ncip-messages.html");
+
+        if ($logContent) {
+            $GLOBALS['dg'] = $logContent;
+        }
+        else {
+            $GLOBALS['dg'] .= $requestFormatted . $responseFormatted;
+        }
     }
 
     protected function formatXml($xml) {
