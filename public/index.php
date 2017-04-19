@@ -150,11 +150,13 @@ function cpkErrorHandler($err_severity, $err_msg, $err_file, $err_line, array $e
 
 set_error_handler('cpkErrorHandler');
 
+/*
 $sentryClient = new \Raven_Client('https://'.$_SERVER['SENTRY_SECRET_ID'].'@sentry.io/149541');
 $error_handler = new \Raven_ErrorHandler($sentryClient);
 $error_handler->registerExceptionHandler();
 $error_handler->registerErrorHandler(true, E_ALL);
 $error_handler->registerShutdownFunction();
+*/
 
 // Run the application!
 Zend\Mvc\Application::init(require 'config/application.config.php')->run();
