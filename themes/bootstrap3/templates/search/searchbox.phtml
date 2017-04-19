@@ -31,7 +31,7 @@
         }
 
         if (empty($filterList) && ! empty($filters)) {
-            if (isset($filters['filter'])) {
+            if (isset($filters['filter'])  && is_array($filters['filter'])) {
                 if (! empty($filters['filter'])) {
                     foreach ($filters['filter'] as $filter) {
                         $key = explode(":", $filter, 2)[0];

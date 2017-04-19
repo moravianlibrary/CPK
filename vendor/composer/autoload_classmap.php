@@ -59,9 +59,4 @@ return array(
     'phpCAS' => $vendorDir . '/jasig/phpcas/source/CAS.php',
     'sip2' => $vendorDir . '/cap60552/php-sip2/sip2.class.php',
     'uagent_info' => $vendorDir . '/ahand/mobileesp/PHP/mdetect.php',
-    'LZCompressor\\LZString' => $vendorDir . '/LZCompressor/LZString.php',
-    'LZCompressor\\LZUtil' => $vendorDir . '/LZCompressor/LZUtil.php',
-    'LZCompressor\\LZData' => $vendorDir . '/LZCompressor/LZData.php',
-    'LZCompressor\\LZContext' => $vendorDir . '/LZCompressor/LZContext.php',
-    'LZCompressor\\LZReverseDictionary' => $vendorDir . '/LZCompressor/LZReverseDictionary.php',
 );

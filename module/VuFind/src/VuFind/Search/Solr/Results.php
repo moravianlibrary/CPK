@@ -254,6 +254,7 @@ class Results extends \VuFind\Search\Base\Results
             // Build our array of values for this field
             $list[$field]['list']  = [];
             // Should we translate values for the current facet?
+            $translateTextDomain = '';
             if ($translate = in_array($field, $translatedFacets)) {
                 $translateTextDomain = $this->getOptions()
                     ->getTextDomainForTranslatedFacet($field);

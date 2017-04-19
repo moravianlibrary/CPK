@@ -756,3 +756,7 @@ UPDATE `portal_pages` SET `language_code`='en' WHERE `language_code`='en-cpk';
 UPDATE `modal_specific_contents` SET `language_code`='cs' WHERE `language_code`='cs-cpk';
 UPDATE `modal_specific_contents` SET `language_code`='en' WHERE `language_code`='en-cpk';
 UPDATE `system` SET `value` = '58' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `widget`
+DROP `title_en`;
+UPDATE `system` SET `value` = '59' WHERE `key`='DB_VERSION';

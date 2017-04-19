@@ -221,6 +221,7 @@ $staticRoutes = array(
 	'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
 	'MyResearch/ProfileChange',
+    'MyResearch/ChangeTitle'
 );
 
 foreach ($staticRoutes as $route) {

@@ -18,6 +18,12 @@
 
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ';
 ?>
+<? if($this->loggedOut): ?>
+  <div class="alert alert-info">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <strong><?=$this->translate('authentication_error_loggedout')?>.</strong> <?=$this->translate('Please log in again')?>
+  </div>
+<? endif; ?>
 <div class="searchHomeContent">
   <? if ($this->ils()->getOfflineMode() == "ils-offline"): ?>
     <div class="alert alert-warning">

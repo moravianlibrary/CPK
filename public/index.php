@@ -2,110 +2,6 @@
 use Zend\Loader\AutoloaderFactory;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Mvc\Service\ServiceManagerConfig;
-if (! (php_sapi_name() != 'cli' OR defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0))) {
-    if (isset($_SERVER['VUFIND_ENV'])) {
-        if ($_SERVER['VUFIND_ENV'] == 'production') {
-            error_reporting(E_ALL); // Report all PHP errors
-            ini_set("display_errors", 0);
-        } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
-            error_reporting(E_ALL); // Report all PHP errors
-            ini_set("display_errors", 1);
-        } else {
-            exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
-        }
-    } else {
-        exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');
-    }
-}
-
-function friendlyErrorType($type)
-{
-    switch($type)
-    {
-        case E_ERROR: // 1 //
-            return 'E_ERROR';
-        case E_WARNING: // 2 //
-            return 'E_WARNING';
-        case E_PARSE: // 4 //
-            return 'E_PARSE';
-        case E_NOTICE: // 8 //
-            return 'E_NOTICE';
-        case E_CORE_ERROR: // 16 //
-            return 'E_CORE_ERROR';
-        case E_CORE_WARNING: // 32 //
-            return 'E_CORE_WARNING';
-        case E_COMPILE_ERROR: // 64 //
-            return 'E_COMPILE_ERROR';
-        case E_COMPILE_WARNING: // 128 //
-            return 'E_COMPILE_WARNING';
-        case E_USER_ERROR: // 256 //
-            return 'E_USER_ERROR';
-        case E_USER_WARNING: // 512 //
-            return 'E_USER_WARNING';
-        case E_USER_NOTICE: // 1024 //
-            return 'E_USER_NOTICE';
-        case E_STRICT: // 2048 //
-            return 'E_STRICT';
-        case E_RECOVERABLE_ERROR: // 4096 //
-            return 'E_RECOVERABLE_ERROR';
-        case E_DEPRECATED: // 8192 //
-            return 'E_DEPRECATED';
-        case E_USER_DEPRECATED: // 16384 //
-            return 'E_USER_DEPRECATED';
-        default:
-            return 'UNKNOWN ERROR TYPE';
-    }
-    return "";
-}
-
-/**
- * throw exceptions based on E_* error types
- */
-set_error_handler(function ($err_severity, $err_msg, $err_file, $err_line, array $err_context)
-{
-    // error was suppressed with the @-operator
-    if (0 === error_reporting()) { return false;}
-
-    $logDetails = date("Y-m-d H:i:s ");
-
-    $logDetails .= friendlyErrorType($err_severity)." \n";
-    $logDetails .= "$err_msg\n";
-    $logDetails .= "Error on line $err_line in file $err_file\n\n";
-
-    $logFile = __DIR__."/../log/fatal-errors.log";
-    $fp = fopen($logFile, "a");
-    fwrite($fp, $logDetails);
-    fwrite($fp, "");
-    fclose($fp);
-
-    if (! (php_sapi_name() != 'cli' OR defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0))) {
-        if (isset($_SERVER['VUFIND_ENV'])) {
-            if ($_SERVER['VUFIND_ENV'] == 'production') {
-
-                $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
-                $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-                $extra = 'error.php';
-                @header("Location: http://$host$uri/$extra");
-
-                include_once(__DIR__."/../themes/bootstrap3/templates/error/fatal-error.phtml");
-                exit;
-
-            } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
-
-                // continue with showing stacktrace
-                echo $logDetails;
-                //var_dump($err_context);
-                exit();
-
-            } else {
-                exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');
-            }
-        } else {
-            exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');
-        }
-    }
-
-});
 
 // If the XHProf profiler is enabled, set it up now:
 $xhprof = getenv('VUFIND_PROFILER_XHPROF');
@@ -183,8 +79,84 @@ if (!class_exists('Zend\Loader\AutoloaderFactory')) {
 
 $cpkFunction = __DIR__ . '/cpk-functions.php';
 
-if (file_exists($cpkFunction))
+if (file_exists($cpkFunction)) {
     require_once($cpkFunction);
+}
+
+if (! (php_sapi_name() != 'cli' OR defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0))) {       
+    if (isset($_SERVER['VUFIND_ENV'])) {      
+        if ($_SERVER['VUFIND_ENV'] == 'production') {     
+            error_reporting(E_ALL); // Report all PHP errors      
+            ini_set("display_errors", 0);     
+        } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT      
+            error_reporting(E_ALL); // Report all PHP errors      
+            ini_set("display_errors", 1);     
+        } else {      
+            exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');        
+        }     
+    } else {      
+        exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');       
+    }     
+}
+
+/**
+ * throw exceptions based on E_* error types
+ */
+function cpkErrorHandler($err_severity, $err_msg, $err_file, $err_line, array $err_context)
+{
+    // error was suppressed with the @-operator
+    if (0 === error_reporting()) { return false;}
+    
+    $logDetails = date("Y-m-d H:i:s ");     
+    $logDetails .= friendlyErrorType($err_severity)." \n";        
+    $logDetails .= "$err_msg\n";      
+    $logDetails .= "Error on line $err_line in file $err_file\n\n";       
+
+    $logFile = __DIR__."/../log/fatal-errors.log";        
+    $fp = fopen($logFile, "a");       
+    fwrite($fp, $logDetails);     
+    fwrite($fp, "");      
+    fclose($fp);   
+    
+    if (php_sapi_name() != 'cli' || defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0)) {   
+        if (isset($_SERVER['VUFIND_ENV'])) {      
+            if ($_SERVER['VUFIND_ENV'] == 'production') {     
+      
+                $host  = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';      
+                $uri   = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');     
+                $extra = 'error.php';     
+                @header("Location: http://$host$uri/$extra");     
+      
+                include_once(__DIR__."/../themes/bootstrap3/templates/error/fatal-error-redirect.phtml");      
+                exit;     
+      
+            } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT      
+      
+                // continue with showing stacktrace      
+                echo "Error!<br>\n"; 
+                echo $logDetails;     
+                //var_dump($err_context);     
+                exit();       
+      
+            } else {      
+                exit('Variable VUFIND_ENV has strange value in Apache config! [Ignore this message when in CLI]');        
+            }     
+        } else {      
+            exit('Variable VUFIND_ENV is not set in Apache config! [Ignore this message when in CLI]');       
+        }     
+    }
+
+};
+
+set_error_handler('cpkErrorHandler');
+
+/*
+$sentryClient = new \Raven_Client('https://'.$_SERVER['SENTRY_SECRET_ID'].'@sentry.io/149541');
+$error_handler = new \Raven_ErrorHandler($sentryClient);
+$error_handler->registerExceptionHandler();
+$error_handler->registerErrorHandler(true, E_ALL);
+$error_handler->registerShutdownFunction();
+*/
 
 // Run the application!
 Zend\Mvc\Application::init(require 'config/application.config.php')->run();

@@ -11,7 +11,7 @@ return array(
     'Symfony\\Component\\Process\\' => array($vendorDir . '/symfony/process'),
     'Symfony\\Component\\CssSelector\\' => array($vendorDir . '/symfony/css-selector'),
     'LosReCaptcha\\' => array($vendorDir . '/los/losrecaptcha/src'),
+    'LZCompressor\\' => array($vendorDir . '/nullpunkt/lz-string-php/src/LZCompressor'),
     'Behat\\Mink\\Driver\\' => array($vendorDir . '/behat/mink-selenium2-driver/src', $vendorDir . '/behat/mink-zombie-driver/src'),
     'Behat\\Mink\\' => array($vendorDir . '/behat/mink/src'),
-    'LZComporessor\\' => array($vendorDir . '/LZComporessor'),
 );

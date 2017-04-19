@@ -16,6 +16,7 @@ return array(
     'Validate' => array($vendorDir . '/pear/validate', $vendorDir . '/pear/validate_ispn'),
     'SerialsSolutions' => array($vendorDir . '/serialssolutions/summon'),
     'Rbac\\' => array($vendorDir . '/zfr/rbac/src'),
+    'Raven_' => array($vendorDir . '/sentry/sentry/lib'),
     'ProxyManager\\' => array($vendorDir . '/ocramius/proxy-manager/src'),
     'PHPQRCode' => array($vendorDir . '/aferrandini/phpqrcode/lib'),
     'PEAR' => array($vendorDir . '/pear/pear_exception'),

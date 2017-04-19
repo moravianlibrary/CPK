@@ -7,7 +7,7 @@
 
 	  	$currentInstitution = $this->translate('source_'.$recordSource);
 
-	  	$logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/bootstrap3/images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
+	  	$logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
 	  	$logoPath = __DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
 	  	$logoIsAvailable = file_exists($logoPath);
   	?>
@@ -67,7 +67,7 @@
 
   					echo "<li><a href='".$this->url('record', array('id' => $link))."?referer=".$this->referer."#records-in-groups' title='".$this->translate($source)."'><div class='record-group-list-item'>";
 
-  					$logoUrl = 'https://'.$_SERVER['SERVER_NAME'].'/themes/bootstrap3/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
+  					$logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
   					$logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
   					$logoIsAvailable = file_exists($logoPath);
 
