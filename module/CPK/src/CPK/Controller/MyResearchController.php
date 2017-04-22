@@ -1211,9 +1211,9 @@ class MyResearchController extends MyResearchControllerBase
             $user_id = $user->id;
             $row = $search->getRowById($id);
             $rowData = $row->toArray();
-            $rowData->saved = true;
+            $rowData['saved'] = true;
             if ($user_id !== false) {
-                $rowData->user_id = $user_id;
+                $rowData['user_id'] = $user_id;
             }
             $rowData['title'] = $this->params()->fromQuery('title', '');
             $row->populate($rowData, true);
