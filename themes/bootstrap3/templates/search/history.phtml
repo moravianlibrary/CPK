@@ -18,12 +18,12 @@
   <? endif; ?>
     <? if ($saveSupported && !empty($this->saved)): ?>
       <h2><?=$this->transEsc("history_saved_searches")?></h2>
-      <?=$this->context()->renderInContext('search/history-table.phtml', array('showSaved' => true));?>
+      <?=$this->context()->renderInContext('search/history-table.phtml', array('showSaved' => true, 'tableClass' => 'history-saved-searches'));?>
     <? endif; ?>
 
     <h2><?=$this->transEsc("history_recent_searches")?></h2>
     <? if (!empty($this->unsaved)): ?>
-      <?=$this->context()->renderInContext('search/history-table.phtml', array('showSaved' => false));?>
+      <?=$this->context()->renderInContext('search/history-table.phtml', array('showSaved' => false, 'tableClass' => 'history-recent-searches'));?>
       <a href="?purge=true"><i class="fa fa-remove"></i> <?=$this->transEsc("history_purge")?></a>
     <? else: ?>
       <?=$this->transEsc("history_no_searches")?>
@@ -43,3 +43,39 @@
       <? endif; ?>
   <? endif; ?>
 </div>
+
+    <script type="text/javascript">
+        jQuery(document).ready(function( $ ) {
+            $('.history-saved-searches').on('click', '.history-item.edit, .history-item.savetitle', function( event ) {
+                event.preventDefault();
+                var dad = $(this).closest('tr');
+                var label = $(dad).find('div.control-group > label');
+                var edit = $(dad).find('.edit-input');
+                if ($(label).is(":visible") == true) {
+                    $(edit).val($(label).text());
+                }
+                else {
+                    $(label).text(edit.val());
+                }
+                $(dad).find('.history-item.edit').toggle();
+                $(dad).find('.history-item.savetitle').toggle();
+                $(label).toggle();
+                $(edit).toggle();
+                $(edit).focus();
+            }),
+                $('.history-saved-searches').on('click', '.history-item.savetitle', function() {
+                    var dad = $(this).closest('tr');
+                    var edit = $(dad).find('.edit-input');
+                    var id = $(dad).find('div.control-group').attr('id');
+                    window.location.href='/MyResearch/ChangeTitle?save=' + id + '&mode=history&title=' + $(edit).val();
+                }),
+                $('.history-saved-searches .edit-input').keypress(function( event ) {
+                    if (event.which == 13) {
+                        var dad = $(this).closest('tr');
+                        var edit = $(dad).find('.edit-input');
+                        var id = $(dad).find('div.control-group').attr('id');
+                        window.location.href='/MyResearch/ChangeTitle?save=' + id + '&mode=history&title=' + $(edit).val();
+                    }
+                });
+        });
+    </script>
