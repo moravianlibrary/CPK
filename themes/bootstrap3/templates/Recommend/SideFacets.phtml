@@ -385,7 +385,7 @@ JS;
               <? if ($allowExclude): ?>
                 <div class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? else: ?>
-                <a data-facet='<?=$dataFacet?>' href="<?=$addURL ?>" class="list-group-item facet-filter facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
+                <a data-facet="<?=htmlspecialchars($dataFacet)?>" href="<?=$addURL ?>" class="list-group-item facet-filter facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
               <? endif; ?>
               <span class="badge">
                 <?=$this->localizedNumber($thisFacet['count'])?>

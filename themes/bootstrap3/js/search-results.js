@@ -576,7 +576,7 @@ jQuery( document ).ready( function( $ ) {
 			});
 
 			if ( enabledFacets == 0 ) { /* This filter not applied yet, apply it now */
-				var html = "<input type='hidden' class='hidden-filter' name='filter[]' value='" + value + "'>";
+				var html = '<input type="hidden" class="hidden-filter" name="filter[]" value="' + escapeHtml(value) + '">';
 				$( '#hiddenFacetFilters' ).append( html );
 			}
 			
@@ -1347,3 +1347,15 @@ jQuery( document ).ready( function( $ ) {
           }
     });
 });
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
