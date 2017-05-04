@@ -851,7 +851,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
             'item_id' => $item_id,
             'availability' => $availability,
             'status' => $status,
-            'location' => $sub_library_code,
+            'location' => (string) $z30->{'z30-call-no-2'},
             'reserve' => 'N',
             'callnumber' => (string) $z30->{'z30-call-no'},
             'duedate' => $duedate,
