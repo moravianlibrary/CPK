@@ -199,10 +199,17 @@
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
           $summTitle = $this->driver->getTitle();
+        ?>
+        <? if ($this->driver instanceof CPK\RecordDriver\SolrLibrary): ?>
+            <?  $libraryTitle = $this->driver->getLibraryNames();?>
+        <? endif; ?>
+            <?
           if (!empty($summHighlightedTitle)) {
             echo $this->highlight($this->addEllipsis($summHighlightedTitle, $summTitle));
           } else if (!empty($summTitle)) {
-            echo $this->escapeHtml($this->truncate($summTitle, 180));
+              echo $this->escapeHtml($this->truncate($summTitle, 180));
+          } else if (!empty($libraryTitle)) {
+              echo $this->escapeHtml($this->truncate($libraryTitle, 180));
           } else {
             echo $this->transEsc('Title not available');
           }
@@ -249,6 +256,14 @@
             <?='' . $this->escapeHtml($summDate[0])?>
           <? endif; ?>
 		</span>
+            <? if ($this->driver instanceof CPK\RecordDriver\SolrLibrary): ?>
+
+                    <? $addresses = $this->driver->getLibraryAddress(); if (!empty($addresses)): ?>
+                    <p><i class="pr-location-pinmap5"></i>
+                        <? foreach ($addresses as $address): ?><?= $this->escapeHtml($address)?><br/><? endforeach; ?>
+                    </p>
+                    <? endif; ?>
+            <? endif; ?>
 
           <? $summInCollection = $this->driver->getContainingCollections(); if (!empty($summInCollection)): ?>
             <? foreach ($summInCollection as $collId => $collText): ?>

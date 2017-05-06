@@ -1,0 +1,220 @@
+<?
+$id = $this->driver->getUniqueID();
+$recordSource = $source = explode(".", $id)[0];
+$maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
+$this->headScript()->appendFile("jquery-ui.min.js");
+?>
+<div class="row">
+    <div class="col-md-6 library-detail">
+<!-- Library name -->
+        <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getLibraryNames())?></strong></h2>
+<!-- AlternativeNamesFormated -->
+
+<!-- Address-->
+      <h2><i class="pr-location-pinmap5"></i>    <? $addresses = $this->driver->getLibraryAddress(); if (!empty($addresses)): ?>
+            <? foreach ($addresses as $address): ?><?= $this->escapeHtml($address)?><br/><? endforeach; ?>
+          <? endif; ?></h2>
+<!-- Opening hours-->
+          <? $hours = $this->driver->getLibraryHours(); if (!empty($hours)): ?>
+              <h2><i class="pr-interface-clocktime"></i><?=$this->translate('Opening hours')?></h2>
+              <p>
+                  <?=$this->escapeHtml($hours)?>
+              </p>
+          <? endif; ?>
+
+
+
+<!-- Description-->
+        <? $libnote = $this->driver->getLibNote(); if (!empty($libnote)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Description')?></h2>
+
+            <p></p><?=$this->escapeHtml($libnote)?></p>
+        <? endif; ?>
+
+<!-- Websites-->
+
+        <? $urls = $this->driver->getLibUrl(); if (!empty($urls)): ?>
+            <h2><i class="pr-web-browseinternetnetwork"></i><?=$this->translate('Web sites')?></h2>
+
+            <? foreach ($urls as $url): ?>
+
+                <p><i class="pr-interface-arrowright5"></i><a href="<?=$url?>"><?=$url?></a></p>
+
+            <? endforeach; ?>
+
+        <? endif; ?>
+
+        <!-- Services -->
+        <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Services')?></h2>
+
+        <!-- Projects-->
+        <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Projects')?></h2>
+
+        <!-- Phones-->
+        <h2><i class="pr-communication-phonecall"></i><?=$this->translate('Telephone')?></h2>
+
+        <!-- Emails-->
+        <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
+
+        <!-- Branches-->
+        <h2><i class="pr-interface-househome"></i><?=$this->translate('Departments')?></h2>
+
+
+        <table class='table'  style="display: none;" summary="<?=$this->transEsc('Bibliographic Details')?>">
+
+          <? $sigla = $this->driver->getSigla(); if (!empty($sigla)): ?>
+            <tr>
+              <th class='col-md-2'><?=$this->transEsc('Sigla')?>: </th>
+              <td><?=$this->escapeHtml($sigla)?></td>
+            </tr>
+          <? endif; ?>
+
+
+
+          <? $type = $this->driver->getLibType(); if (!empty($type)): ?>
+            <tr>
+              <th><?=$this->transEsc('Type')?>: </th>
+              <td><?=$this->escapeHtml($type)?></td>
+            </tr>
+          <? endif; ?>
+
+
+          <? $libnote = $this->driver->getLibNote(); if (!empty($libnote)): ?>
+            <tr>
+              <th><?=$this->transEsc('Note')?>: </th>
+              <td><?=$this->escapeHtml($libnote)?></td>
+            </tr>
+          <? endif; ?>
+
+
+
+          <? $libnote2 = $this->driver->getLibNote2(); if (!empty($libnote2)): ?>
+            <tr>
+              <th><?=$this->transEsc('Note2')?>: </th>
+              <td><?=$this->escapeHtml($libnote2)?></td>
+            </tr>
+          <? endif; ?>
+
+
+
+
+
+          <? $mvses = $this->driver->getMvsNote(); if (!empty($mvses)): ?>
+            <tr>
+              <th><?=$this->transEsc('MVS')?>: </th>
+              <td><? foreach ($mvses as $mvs): ?><?= $this->escapeHtml($mvs)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $ico = $this->driver->getIco(); if (!empty($ico)): ?>
+            <tr>
+              <th><?=$this->transEsc('Ico - Dic')?>: </th>
+              <td><?=$this->escapeHtml($ico)?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $branches = $this->driver->getLibBranch(); if (!empty($branches)): ?>
+            <tr>
+              <th><?=$this->transEsc('Branches')?>: </th>
+              <td><? foreach ($branches as $branch): ?><?= $this->escapeHtml($branch)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $services = $this->driver->getService(); if (!empty($services)): ?>
+            <tr>
+              <th><?=$this->transEsc('Services')?>: </th>
+              <td><? foreach ($services as $service): ?><?= $this->escapeHtml($service)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $functions = $this->driver->getFunction(); if (!empty($functions)): ?>
+            <tr>
+              <th><?=$this->transEsc('Function')?>: </th>
+              <td><? foreach ($functions as $function): ?><?= $this->escapeHtml($function)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $projects = $this->driver->getProject(); if (!empty($projects)): ?>
+            <tr>
+              <th><?=$this->transEsc('Projects')?>: </th>
+              <td><? foreach ($projects as $project): ?><?= $this->escapeHtml($project)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $phones = $this->driver->getPhone(); if (!empty($phones)): ?>
+            <tr>
+              <th><?=$this->transEsc('Phones')?>: </th>
+              <td><? foreach ($phones as $phone): ?><?= $this->escapeHtml($phone)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $faxes = $this->driver->getFax(); if (!empty($faxes)): ?>
+            <tr>
+              <th><?=$this->transEsc('Faxes')?>: </th>
+              <td><? foreach ($faxes as $fax): ?><?= $this->escapeHtml($fax)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $emailes = $this->driver->getEmail(); if (!empty($emailes)): ?>
+            <tr>
+              <th><?=$this->transEsc('Emailes')?>: </th>
+              <td><? foreach ($emailes as $email): ?><?= $this->escapeHtml($email)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $responsibilities = $this->driver->getLibResponsibility(); if (!empty($responsibilities)): ?>
+            <tr>
+              <th><?=$this->transEsc('Responsibility')?>: </th>
+
+              <td><? foreach ($responsibilities as $responsibility): ?><?= $this->escapeHtml($responsibility)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $altnames = $this->driver->getLibNameAlt(); if (!empty($altnames)): ?>
+            <tr>
+              <th><?=$this->transEsc('Alt Names')?>: </th>
+              <td><? foreach ($altnames as $altname): ?><?= $this->escapeHtml($altname)?><br/><? endforeach; ?></td>
+            </tr>
+          <? endif; ?>
+
+          <? $lastupdated = $this->driver->getLastUpdated(); if (!empty($lastupdated)): ?>
+            <tr>
+              <th><?=$this->transEsc('LastUpdated')?>: </th>
+              <td><?=$this->escapeHtml($lastupdated)?></td>
+            </tr>
+          <? endif; ?>
+
+
+        </table>
+
+    </div>
+
+    <? $lat = 49.78; ?>
+    <? $long = 15.39; ?>
+
+    <div class="col-sm-6">
+        <style>
+            #map {height: 600px;}
+        </style>
+        <div id="map"></div>
+
+        <script>
+            function initMap() {
+                var myLatLng = {lat: 49.78, lng: 15.39};
+
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 7,
+                    center: myLatLng
+                });
+                var position = {lat: <?=$lat ?>, lng: <?=$long ?>};
+                var marker = new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: 'name of library'
+                });
+            }
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=initMap"
+                async defer></script>
+    </div>
+</div>
