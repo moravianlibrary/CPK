@@ -45,19 +45,37 @@ $this->headScript()->appendFile("jquery-ui.min.js");
         <? endif; ?>
 
         <!-- Services -->
-        <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Services')?></h2>
+        <? $services = $this->driver->getService(); if (!empty($services)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Services')?></h2>
+            <? foreach ($services as $service): ?><?= $this->escapeHtml($service)?><br/><? endforeach; ?>
+        <? endif; ?>
 
         <!-- Projects-->
-        <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Projects')?></h2>
+        <? $projects = $this->driver->getProject(); if (!empty($projects)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Projects')?></h2>
+                <? foreach ($projects as $project): ?><?= $this->escapeHtml($project)?><br/><? endforeach; ?>
+        <? endif; ?>
 
         <!-- Phones-->
-        <h2><i class="pr-communication-phonecall"></i><?=$this->translate('Telephone')?></h2>
+        <? $phones = $this->driver->getPhone(); if (!empty($phones)): ?>
+            <h2><i class="pr-communication-phonecall"></i><?=$this->translate('Telephone')?></h2>
+
+            <? foreach ($phones as $phone): ?><?= $this->escapeHtml($phone)?><br/><? endforeach; ?>
+        <? endif; ?>
 
         <!-- Emails-->
-        <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
+
+        <? $emailes = $this->driver->getEmail(); if (!empty($emailes)): ?>
+            <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
+                <? foreach ($emailes as $email): ?><?= $this->escapeHtml($email)?><br/><? endforeach; ?>
+        <? endif; ?>
+
 
         <!-- Branches-->
-        <h2><i class="pr-interface-househome"></i><?=$this->translate('Departments')?></h2>
+        <? $branches = $this->driver->getLibBranch(); if (!empty($branches)): ?>
+            <h2><i class="pr-interface-househome"></i><?=$this->translate('Departments')?></h2>
+            <? foreach ($branches as $branch): ?><?= $this->escapeHtml($branch)?><br/><? endforeach; ?>
+        <? endif; ?>
 
 
         <table class='table'  style="display: none;" summary="<?=$this->transEsc('Bibliographic Details')?>">
@@ -75,14 +93,6 @@ $this->headScript()->appendFile("jquery-ui.min.js");
             <tr>
               <th><?=$this->transEsc('Type')?>: </th>
               <td><?=$this->escapeHtml($type)?></td>
-            </tr>
-          <? endif; ?>
-
-
-          <? $libnote = $this->driver->getLibNote(); if (!empty($libnote)): ?>
-            <tr>
-              <th><?=$this->transEsc('Note')?>: </th>
-              <td><?=$this->escapeHtml($libnote)?></td>
             </tr>
           <? endif; ?>
 
@@ -113,19 +123,9 @@ $this->headScript()->appendFile("jquery-ui.min.js");
             </tr>
           <? endif; ?>
 
-          <? $branches = $this->driver->getLibBranch(); if (!empty($branches)): ?>
-            <tr>
-              <th><?=$this->transEsc('Branches')?>: </th>
-              <td><? foreach ($branches as $branch): ?><?= $this->escapeHtml($branch)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
 
-          <? $services = $this->driver->getService(); if (!empty($services)): ?>
-            <tr>
-              <th><?=$this->transEsc('Services')?>: </th>
-              <td><? foreach ($services as $service): ?><?= $this->escapeHtml($service)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
+
+
 
           <? $functions = $this->driver->getFunction(); if (!empty($functions)): ?>
             <tr>
@@ -134,19 +134,9 @@ $this->headScript()->appendFile("jquery-ui.min.js");
             </tr>
           <? endif; ?>
 
-          <? $projects = $this->driver->getProject(); if (!empty($projects)): ?>
-            <tr>
-              <th><?=$this->transEsc('Projects')?>: </th>
-              <td><? foreach ($projects as $project): ?><?= $this->escapeHtml($project)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
 
-          <? $phones = $this->driver->getPhone(); if (!empty($phones)): ?>
-            <tr>
-              <th><?=$this->transEsc('Phones')?>: </th>
-              <td><? foreach ($phones as $phone): ?><?= $this->escapeHtml($phone)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
+
+
 
           <? $faxes = $this->driver->getFax(); if (!empty($faxes)): ?>
             <tr>
@@ -155,12 +145,7 @@ $this->headScript()->appendFile("jquery-ui.min.js");
             </tr>
           <? endif; ?>
 
-          <? $emailes = $this->driver->getEmail(); if (!empty($emailes)): ?>
-            <tr>
-              <th><?=$this->transEsc('Emailes')?>: </th>
-              <td><? foreach ($emailes as $email): ?><?= $this->escapeHtml($email)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
+
 
           <? $responsibilities = $this->driver->getLibResponsibility(); if (!empty($responsibilities)): ?>
             <tr>
