@@ -1217,6 +1217,10 @@ jQuery( document ).ready( function( $ ) {
     $( 'body' ).on( 'click', '#set-database li a', function( event ) {
         event.preventDefault();
 
+        if ($( this ).parent().hasClass( 'active' )) {
+        	return false;
+		}
+
         var extraData = {};
         var database = $( this ).attr( 'data-value' )
         extraData['database'] = database;
