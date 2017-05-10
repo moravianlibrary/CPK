@@ -192,6 +192,16 @@ jQuery( document ).ready( function( $ ) {
 					}	
 				}
 
+                if (! data.hasOwnProperty( 'database' )) {
+                    var database = $( "input[name='database']" ).val();
+
+                    if (database) {
+                        data['database'] = database;
+                    } else {
+                        data['database'] = 'Solr';
+                    }
+                }
+
 			}
 			
 			if (dataFromWindowHistory !== undefined) {
@@ -327,6 +337,9 @@ jQuery( document ).ready( function( $ ) {
 			
 			var searchTypeTemplate = data['searchTypeTemplate'];
 			$( "input[name='searchTypeTemplate']" ).val( searchTypeTemplate );
+
+            var database = data['database'];
+            $( "input[name='database']" ).val( database );
 			
 			var publishDatefrom = data['publishDatefrom'];
 			$( "input[name='publishDatefrom']" ).val( publishDatefrom );
@@ -1197,6 +1210,24 @@ jQuery( document ).ready( function( $ ) {
 	$( 'body' ).on( 'mouseleave', '.result', function( event ) {
 		$( this ).find( '.search-results-favorite-button' ).addClass( 'hidden' );
 	});
+
+	/*
+	* Load search results from selected database
+	* */
+    $( 'body' ).on( 'click', '#set-database li a', function( event ) {
+        event.preventDefault();
+
+        var extraData = {};
+        var database = $( this ).attr( 'data-value' )
+        extraData['database'] = database;
+
+        $( 'input[name=database]' ).val(database);
+
+        $( this ).parent().parent().find( 'li' ).removeClass( 'active' );
+        $( this ).parent().addClass( 'active' );
+
+        ADVSEARCH.updateSearchResults( undefined, undefined, false, extraData);
+    });
 
 	/**
 	 * Get param from url

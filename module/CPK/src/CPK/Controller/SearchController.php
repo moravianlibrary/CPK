@@ -701,8 +701,10 @@ class SearchController extends SearchControllerBase
 
 	    $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
 
+	    $database = ! empty($request['database']) ? $request['database'] : $this->searchClassId;
+
 	    $view->results = $results = $runner->run(
-	        $request, 'EDS', $this->getSearchSetupCallback()
+	        $request, $database, $this->getSearchSetupCallback()
 	        );
 	    $view->params = $results->getParams();
 
@@ -799,8 +801,9 @@ class SearchController extends SearchControllerBase
 	    $searchesConfig = $this->getConfig('searches');
 	    $extraRequest['limit'] = $searchesConfig->General->records_switching_limit;
 	    $extraRequest['page'] = 1;
+        $database = ! empty($request['database']) ? $request['database'] : $this->searchClassId;
 	    $extraResultsForSwitching = $runner->run(
-	        $extraRequest, $this->searchClassId, $this->getSearchSetupCallback()
+	        $extraRequest, $database, $this->getSearchSetupCallback()
 	    );
 	    $extraResults = [];
 	    foreach($extraResultsForSwitching->getResults() as $record) {
@@ -1197,8 +1200,9 @@ class SearchController extends SearchControllerBase
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort = $viewData['sort'];
         /**/
 
+        $database = ! empty($request['database']) ? $request['database'] : $this->searchClassId;
         $viewData['results'] = $results = $runner->run(
-            $request, $this->searchClassId, $this->getSearchSetupCallback()
+            $request, $database, $this->getSearchSetupCallback()
         );
         $viewData['params'] = $results->getParams();
 
