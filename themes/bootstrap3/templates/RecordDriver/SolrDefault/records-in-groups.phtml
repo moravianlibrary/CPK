@@ -1,15 +1,17 @@
 <div style='padding: 0px !important;'>
 
   	<?php
-	  	$dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
-
-	  	$recordSource = explode(".", $this->driver->getUniqueId())[0];
-
-	  	$currentInstitution = $this->translate('source_'.$recordSource);
-
-	  	$logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
-	  	$logoPath = __DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
-	  	$logoIsAvailable = file_exists($logoPath);
+        $dedupedRecords = array();
+        $logoIsAvailable = false;
+        $currentInstitution = '';
+        if (isset($this->tabs['DedupedRecords'])) {
+            $dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
+            $recordSource = explode(".", $this->driver->getUniqueId())[0];
+            $currentInstitution = $this->translate('source_' . $recordSource);
+            $logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
+            $logoPath = __DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png';
+            $logoIsAvailable = file_exists($logoPath);
+        }
   	?>
 
 

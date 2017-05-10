@@ -702,7 +702,7 @@ class SearchController extends SearchControllerBase
 	    $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
 
 	    $view->results = $results = $runner->run(
-	        $request, $this->searchClassId, $this->getSearchSetupCallback()
+	        $request, 'EDS', $this->getSearchSetupCallback()
 	        );
 	    $view->params = $results->getParams();
 

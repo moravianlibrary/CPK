@@ -73,17 +73,19 @@
               	  <i class="fa fa-2x fa-spinner fa-spin"></i>
               	</div>
               </div>
-			  <div id='citation-placeholder'></div>
-			  <div id='citation-style-selector'>
-			    <select class='style' id='record_<?=$id?>'>
-			      <? foreach($this->availableCitationStyles as $style): ?>
-			      <option value='<?=$style['value']?>'<?= ($style['value'] == $this->selectedCitationStyle) ? 'selected="selected"' : '' ?>><?=$style['description']?></option>
-			      <? endforeach; ?>
-			    </select>
-			    <a href="http://www.citacepro.com/nacist-dokument-sysno/<?=$id?>?katalog=cpk" target="_blank">
-			      <img src="/themes/bootstrap3/images/logoCitacePROkatalog.png" alt="Citace PRO">
-			    </a>
-			  </div>
+              <? if (isset($this->availableCitationStyles)) :?>
+			    <div id='citation-placeholder'></div>
+			    <div id='citation-style-selector'>
+			      <select class='style' id='record_<?=$id?>'>
+                    <? foreach($this->availableCitationStyles as $style): ?>
+			          <option value='<?=$style['value']?>'<?= ($style['value'] == $this->selectedCitationStyle) ? 'selected="selected"' : '' ?>><?=$style['description']?></option>
+			        <? endforeach; ?>
+			      </select>
+			      <a href="http://www.citacepro.com/nacist-dokument-sysno/<?=$id?>?katalog=cpk" target="_blank">
+			        <img src="/themes/bootstrap3/images/logoCitacePROkatalog.png" alt="Citace PRO">
+			      </a>
+			    </div>
+			  <? endif; ?>
 		  </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
@@ -262,7 +264,7 @@
 
             	//
             	var recordID = '<?= $this->driver->getUniqueID() ?>';
-            	var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
+                var parentRecordID = '<?= $this->driver->tryMethod("getParentRecordID"); ?>';
 
             	var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );
 
