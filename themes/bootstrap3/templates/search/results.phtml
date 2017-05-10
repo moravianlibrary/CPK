@@ -1,9 +1,9 @@
 <ul class="nav nav-tabs" id="set-database">
     <li<?=! empty($_GET['database']) ? $_GET['database'] == 'Solr' ? ' class="active"' : '' : 'Solr'?>>
-        <a href="#" data-value="Solr"><?=$this->translate('Institutions')?></a>
+        <a href="#" data-value="Solr" class="pointer"><?=$this->translate('Institutions')?></a>
     </li>
     <li<?=! empty($_GET['database']) ? $_GET['database'] == 'Solr' ? ' class="active"' : '' : ''?>>
-        <a href="#" data-value="EDS"><?=$this->translate('EBSCO')?></a>
+        <a href="#" data-value="EDS" class="pointer"><?=$this->translate('central_index')?></a>
     </li>
 </ul>
 
