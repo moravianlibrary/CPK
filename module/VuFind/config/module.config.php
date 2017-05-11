@@ -617,7 +617,7 @@ $config = [
             'VuFind\RecordDriver\EDS' => [
                 'tabs' => [
                     'Description' => 'Description',
-                    'TOC' => 'TOC', 'UserComments' => 'UserComments',
+                    'TOC' => 'TOC',
                     'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
                     'Preview' => 'preview',
                     'Details' => 'StaffViewArray',
