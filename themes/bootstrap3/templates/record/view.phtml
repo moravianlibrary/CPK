@@ -112,32 +112,34 @@
       </div>
     </div>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
-			<div class='row records-in-groups-container' id='records-in-groups-container'>
-			  <div class='col-md-2 text-center'>
-				<h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
-			  </div>
-		      <? if($this->sigla): ?>
-			  <div class='col-md-8'>
-			  <? else: ?>
-			  <div class='col-md-10'>
-			  <? endif; ?>
-				<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
-			  </div>
-			  <? if($this->sigla): ?>
-			  <div class='col-md-2 information'>
-				<a href='/Libraries/Library?sigla=<?=$this->sigla?>' target='_blank' title='<?=$this->translate('Information about library')?>'>
-				  <div class='row'>
-				    <div class='col-md-3 information-icon'>
-				      <i class='cpk-icon'>i</i>
-				    </div>
-				    <div class='col-md-9'>
-				      <span><?=$this->translate('Information about library')?></span>
-				    </div>
-				  </div>
-				</a>
-			  </div>
-			  <? endif; ?>
-			</div>
+            <? if ($this->driver instanceof CPK\RecordDriver\SolrMarc && !($this->driver instanceof CPK\RecordDriver\SolrAuthority)): ?>
+                <div class='row records-in-groups-container' id='records-in-groups-container'>
+                  <div class='col-md-2 text-center'>
+                    <h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
+                  </div>
+                  <? if($this->sigla): ?>
+                  <div class='col-md-8'>
+                  <? else: ?>
+                  <div class='col-md-10'>
+                  <? endif; ?>
+                    <?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
+                  </div>
+                  <? if($this->sigla): ?>
+                  <div class='col-md-2 information'>
+                    <a href='/Libraries/Library?sigla=<?=$this->sigla?>' target='_blank' title='<?=$this->translate('Information about library')?>'>
+                      <div class='row'>
+                        <div class='col-md-3 information-icon'>
+                          <i class='cpk-icon'>i</i>
+                        </div>
+                        <div class='col-md-9'>
+                          <span><?=$this->translate('Information about library')?></span>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                  <? endif; ?>
+                </div>
+            <? endif; ?>
 			<div>
 
             <? if (count($this->tabs) > 0): ?>
