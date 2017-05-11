@@ -1227,6 +1227,8 @@ jQuery( document ).ready( function( $ ) {
 
         $( 'input[name=database]' ).val(database);
 
+        ADVSEARCH.removeAllFilters();
+
         $( this ).parent().parent().find( 'li' ).removeClass( 'active' );
         $( this ).parent().addClass( 'active' );
 
