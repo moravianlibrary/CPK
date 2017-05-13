@@ -6,18 +6,45 @@ $pubType = $this->driver->getPubType();
 $customLinks = $this->driver->getCustomLinks();
 $accessLevel = $this->driver->getAccessLevel();
 $restrictedView = empty($accessLevel) ? false : true;
+$id = $this->driver->getUniqueID();
+$source = explode(".", $id)[0];
+$maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 ?>
+
+<? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
+
+<? endif; ?>
+
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
     <div class="col-sm-3">
-        <? if ($thumb): ?>
-            <img src="<?=$this->escapeHtmlAttr($thumb)?>" class="recordcover" alt="<?=$this->transEsc('Cover Image')?>"/>
-        <? else: ?>
-            <div class="clearfix">
-                <span class="recordcover pt-icon pt-<?=$this->driver->getPubTypeId()?>"></span>
-            </div>
-        <? endif; ?>
-        <? if ($pubType): ?>
-            <p><?=$this->transEsc($pubType)?></p>
+        <? $QRCode = $this->record($this->driver)->getQRCode("core");
+        $cover = $this->record($this->driver)->getCover('core', 'medium', $this->record($this->driver)->getThumbnail('large'));
+        $preview = $this->record($this->driver)->getPreviews(); ?>
+        <? if ($QRCode || $cover || $preview): ?>
+        <div class="row text-center #cover" id="cover">
+            <? $formats = $this->driver->getFormats(); ?>
+            <? if (! empty($formats)): ?>
+                <div class="iconlabel col-md-12"><i style="font-size: 70px; color: #cccccc;" class="pr-format-<?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
+            <? else: ?>
+                <img class="recordcover col-md-12" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+            <? endif; ?>
+            <script type="text/javascript">
+                obalky.display_cover_without_links("#cover", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert("record"))?>);
+            </script>
+            <? /* Display qrcode if appropriate: */ ?>
+            <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
+            <? if($QRCode): ?>
+                <span class="hidden-xs">
+                      <br/><img alt="<?=$this->transEsc('QR Code')?>" class="qrcode" src="<?=$this->escapeHtmlAttr($QRCode);?>"/>
+                    </span>
+            <? endif; ?>
+        </div>
+
+            <? // if you have a preview tab but want to move or remove the preview link
+            // from this area of the record view, this can be split into
+            // getPreviewData() (should stay here) and
+            // getPreviewLink() (can go in your desired tab) ?>
+            <? if ($preview): ?><?=$preview?><? endif; ?>
         <? endif; ?>
 
         <div class="external-links">
