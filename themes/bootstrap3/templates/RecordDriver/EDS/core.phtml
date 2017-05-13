@@ -15,7 +15,7 @@ $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 
 <? endif; ?>
 
-<div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
+<div class="clearfix well border table-core" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
     <div class="col-sm-3">
         <? $QRCode = $this->record($this->driver)->getQRCode("core");
         $cover = $this->record($this->driver)->getCover('core', 'medium', $this->record($this->driver)->getThumbnail('large'));
@@ -74,13 +74,14 @@ $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
         </div>
     </div>
     <div class="col-sm-9">
-        <h3 property="name"><?=$this->driver->getTitle()?></h3>
+        <h3 class='record-title' property='name'><?=$this->driver->getTitle()?></h3>
 
-        <table class="table table-striped" summary="<?=$this->transEsc('Bibliographic Details')?>">
+
+        <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
             <? foreach ($items as $key => $item): ?>
                 <? if (!empty($item['Data'])): ?>
                     <tr>
-                        <th><?=$this->transEsc($item['Label'])?>:</th>
+                        <th class="col-md-3"><?=$this->transEsc($item['Label'])?>:</th>
                         <td><?=$this->driver->linkUrls($item['Data'])?></td>
                     </tr>
                 <? endif; ?>
