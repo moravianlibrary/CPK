@@ -12,6 +12,8 @@
 
   $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled;
 
+  $source = explode(".", $id)[0];
+
 ?>
 <ul class="list-group record-toolbar">
   <li class="list-group-item">
@@ -110,6 +112,25 @@
     <i id='citation-link-spinner' class="fa fa-spinner fa-spin"></i>
   </li>
   <? endif; ?>
+    <? if($controllerClass == 'controller:Edsrecord'): ?>
+        <li class="list-group-item">
+            <? $customLinks = array_merge($this->driver->getFTCustomLinks(), $this->driver->getCustomLinks());
+            if (!empty($customLinks)): ?>
+                <? foreach ($customLinks as $customLink): ?>
+                    <? $url = isset($customLink['Url']) ? $customLink['Url'] : '';
+                    $mot = isset($customLink['MouseOverText'])? $customLink['MouseOverText'] : '';
+                    $icon = isset ($customLink['Icon']) ? $customLink['Icon'] : '';
+                    $name = isset($customLink['Text']) ? $customLink['Text'] : '';
+                    ?>
+                    <span>
+                    <a href="<?=$this->escapeHtmlAttr($url)?>" target="_blank" title="<?=$this->escapeHtmlAttr($mot)?>" class="custom-link">
+                      <i class="pr-web-linkurl"> </i><?=$this->escapeHtml(ucfirst($name))?>
+                    </a>
+                  </span>
+                <? endforeach; ?>
+            <? endif; ?>
+        </li>
+    <? endif; ?>
   <? if (!empty($addThis)): ?>
     <li><a class="addThis addthis_button list-group-item" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-fw fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
   <? endif; ?>
