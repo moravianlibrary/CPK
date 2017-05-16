@@ -163,6 +163,24 @@ jQuery( document ).ready( function( $ ) {
 				}
 				
 				data['searchTypeTemplate'] = 'basic';
+
+				var database = '';
+                if (data.hasOwnProperty( 'database' )) {
+                    if( data['database'].constructor === Array ) {
+						database = data['database'][0];
+
+                    } else {
+                        database = data['database'];
+                    }
+                } else {
+                    database = $( "input[name='database']" ).val();
+                }
+
+                if (database) {
+                    data['database'] = database;
+                } else {
+                    data['database'] = 'Solr';
+                }
 				
 				//console.log( 'Data fromautocomplete: ' );
 				//console.log( data );
@@ -300,8 +318,7 @@ jQuery( document ).ready( function( $ ) {
 					var page = $( "input[name='page']" ).val();
 					data['page'] = page;
 				}
-				
-				
+
 				var isSetDateRange = false;
 				data['filter'].forEach( function( filter ) {
 					if (filter.indexOf('daterange') !== -1) {
