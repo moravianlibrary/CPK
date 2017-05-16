@@ -165,7 +165,8 @@ class RecordController extends RecordControllerBase
         $view->availableCitationStyles = $availableCitationStyles;
         //
 
-        $view->config = $this->getConfig();
+        $config = $this->getConfig();
+        $view->config = $config;
         $view->maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 
         /* Handle view template */
