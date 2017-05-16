@@ -106,7 +106,7 @@
 
     title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span data-add-remove-record="add"><?=$this->transEsc('Add to favorites')?></span><span data-add-remove-record="rem" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
   <? endif; ?>
-  <? if(! ($this->driver instanceof CPK\RecordDriver\SolrAuthority)): ?>
+  <? if(! ($this->driver instanceof CPK\RecordDriver\SolrAuthority) && ($controllerClass != 'controller:Edsrecord')): ?>
   <li class="list-group-item" id='citace-pro'>
     <a class="modal-link disabled-link" title="<?=$this->transEsc('Show citations')?>" ><i class="pr-communication-bubblechattalkconversationline"> </i> <?=$this->transEsc('Show citations')?></a>
     <i id='citation-link-spinner' class="fa fa-spinner fa-spin"></i>
