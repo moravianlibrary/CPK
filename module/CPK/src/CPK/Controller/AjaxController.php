@@ -1673,6 +1673,30 @@ class AjaxController extends AjaxControllerBase
         return $this->output(['savedInstitutions' => $savedInstitutions], self::STATUS_OK);
     }
 
+    public function getAllAdvancedHandlersAjax()
+    {
+        $renderer = $this->getViewRenderer();
+
+        $solrOptions = $renderer->searchOptions('Solr');
+        $edsOptions = $renderer->searchOptions('EDS');
+
+        $solrAdvancedHandlers = $solrOptions->getAdvancedHandlers();
+        $edsAdvancedHandlers = $edsOptions->getAdvancedHandlers();
+
+        foreach($solrAdvancedHandlers as $key => $value) {
+            $solrAdvancedHandlers[$key] = $renderer->translate($value);
+        }
+
+        foreach($edsAdvancedHandlers as $key => $value) {
+            $edsAdvancedHandlers[$key] = $renderer->translate($value);
+        }
+
+        $advancedHandlers['Solr'] = $solrAdvancedHandlers;
+        $advancedHandlers['EDS'] = $edsAdvancedHandlers;
+
+        return $this->output($advancedHandlers, self::STATUS_OK);
+    }
+
     /**
      * Harvest most wanted records and favorite authors from MySql to Solr.
      *
