@@ -687,6 +687,7 @@ class AbstractRecord extends AbstractBase
         $view->loadInitialTabWithAjax
             = isset($config->Site->loadInitialTabWithAjax)
             ? (bool) $config->Site->loadInitialTabWithAjax : false;
+        $view->maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 
         // Set up next/previous record links (if appropriate)
         if ($this->resultScrollerActive()) {

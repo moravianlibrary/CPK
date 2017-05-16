@@ -8,7 +8,6 @@ $accessLevel = $this->driver->getAccessLevel();
 $restrictedView = empty($accessLevel) ? false : true;
 $id = $this->driver->getUniqueID();
 $source = explode(".", $id)[0];
-$maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 ?>
 
 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>

@@ -166,6 +166,7 @@ class RecordController extends RecordControllerBase
         //
 
         $view->config = $this->getConfig();
+        $view->maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 
         /* Handle view template */
 	    if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){

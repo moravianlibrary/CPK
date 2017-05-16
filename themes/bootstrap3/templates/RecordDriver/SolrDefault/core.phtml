@@ -2,7 +2,6 @@
     // Get source of the record to print it to h3 header
     $id = $this->driver->getUniqueID();
     $source = explode(".", $id)[0];
-    $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 ?>
 
 <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
@@ -250,7 +249,7 @@
                       <a title="<?=$this->escapeHtmlAttr($subject)?>" href="<?=$href?>"><?=trim($this->escapeHtml($subfield))?></a>
                     <? endforeach; ?>
                   </div>
-                    <? if (($iteration == $maxSubjectsInCore) && ($maxSubjectsInCore < $subjectsCount)): ?>
+                    <? if (($iteration == $this->maxSubjectsInCore) && ($this->maxSubjectsInCore < $subjectsCount)): ?>
                       <a class="modal-link" id='show-all-subjects' title="<?=$this->translate('Show all subjects')?>" >
                         <b><?=$this->translate('Show all subjects')?></b>&nbsp;<i class='fa fa-caret-down'></i>
                       </a>
