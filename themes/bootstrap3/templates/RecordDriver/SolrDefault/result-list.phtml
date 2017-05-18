@@ -15,7 +15,7 @@
   $countRecords = count($records);
 
   if ($countRecords) {
-      // put caslin at the end and cnb before caslin, when available
+      // put caslin at the end and anl before caslin, when available
       // but keep at the front when is set in facet params
       $filters = $params->getFilters();
 
@@ -34,17 +34,17 @@
               if (strpos($institution,'CASLIN') !== false) {
                   $caslinFoundInFilters++;
               }
-              if (strpos($institution,'CNB') !== false) {
-                  $cnbFoundInFilters++;
+              if (strpos($institution,'ANL') !== false) {
+                  $anlFoundInFilters++;
               }
           }
       }
 
       if ($cnbFoundInFilters == 0) {
-          if (isset($records['cnb'])) {
-              $cnb = $records['cnb'];
-              unset($records['cnb']);
-              $records['cnb'] = $cnb;
+          if (isset($records['anl'])) {
+              $anl = $records['anl'];
+              unset($records['anl']);
+              $records['anl'] = $anl;
           }
       }
 
