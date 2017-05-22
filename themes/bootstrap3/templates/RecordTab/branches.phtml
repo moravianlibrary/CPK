@@ -1,0 +1,11 @@
+<?
+    // Set page title.
+    $this->headTitle($this->translate('Branches') . ': ' . $this->driver->getBreadcrumb());
+
+?>
+
+  <!-- Branches-->
+<? $branches = $this->driver->getLibBranch(); if (!empty($branches)): ?>
+  <h2><i class="pr-interface-househome"></i><?=$this->translate('Departments')?></h2>
+  <? foreach ($branches as $branch): ?><?= $this->escapeHtml($branch)?><br/><? endforeach; ?>
+<? endif; ?>

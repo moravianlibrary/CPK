@@ -1,0 +1,11 @@
+<?
+    // Set page title.
+    $this->headTitle($this->translate('Branches') . ': ' . $this->driver->getBreadcrumb());
+
+?>
+
+<!-- Services -->
+<? $services = $this->driver->getService(); if (!empty($services)): ?>
+    <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Services')?></h2>
+    <? foreach ($services as $service): ?><?= $this->escapeHtml($service)?><br/><? endforeach; ?>
+<? endif; ?>

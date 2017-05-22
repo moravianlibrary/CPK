@@ -44,11 +44,6 @@ $this->headScript()->appendFile("jquery-ui.min.js");
 
         <? endif; ?>
 
-        <!-- Services -->
-        <? $services = $this->driver->getService(); if (!empty($services)): ?>
-            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Services')?></h2>
-            <? foreach ($services as $service): ?><?= $this->escapeHtml($service)?><br/><? endforeach; ?>
-        <? endif; ?>
 
         <!-- Projects-->
         <? $projects = $this->driver->getProject(); if (!empty($projects)): ?>
@@ -56,121 +51,11 @@ $this->headScript()->appendFile("jquery-ui.min.js");
                 <? foreach ($projects as $project): ?><?= $this->escapeHtml($project)?><br/><? endforeach; ?>
         <? endif; ?>
 
-        <!-- Phones-->
-        <? $phones = $this->driver->getPhone(); if (!empty($phones)): ?>
-            <h2><i class="pr-communication-phonecall"></i><?=$this->translate('Telephone')?></h2>
-
-            <? foreach ($phones as $phone): ?><?= $this->escapeHtml($phone)?><br/><? endforeach; ?>
-        <? endif; ?>
-
-        <!-- Emails-->
-
-        <? $emailes = $this->driver->getEmail(); if (!empty($emailes)): ?>
-            <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
-                <? foreach ($emailes as $email): ?><?= $this->escapeHtml($email)?><br/><? endforeach; ?>
-        <? endif; ?>
-
-
-        <!-- Branches-->
-        <? $branches = $this->driver->getLibBranch(); if (!empty($branches)): ?>
-            <h2><i class="pr-interface-househome"></i><?=$this->translate('Departments')?></h2>
-            <? foreach ($branches as $branch): ?><?= $this->escapeHtml($branch)?><br/><? endforeach; ?>
-        <? endif; ?>
-
-
-        <table class='table'  style="display: none;" summary="<?=$this->transEsc('Bibliographic Details')?>">
-
-          <? $sigla = $this->driver->getSigla(); if (!empty($sigla)): ?>
-            <tr>
-              <th class='col-md-2'><?=$this->transEsc('Sigla')?>: </th>
-              <td><?=$this->escapeHtml($sigla)?></td>
-            </tr>
-          <? endif; ?>
-
-
-
-          <? $type = $this->driver->getLibType(); if (!empty($type)): ?>
-            <tr>
-              <th><?=$this->transEsc('Type')?>: </th>
-              <td><?=$this->escapeHtml($type)?></td>
-            </tr>
-          <? endif; ?>
-
-
-
-          <? $libnote2 = $this->driver->getLibNote2(); if (!empty($libnote2)): ?>
-            <tr>
-              <th><?=$this->transEsc('Note2')?>: </th>
-              <td><?=$this->escapeHtml($libnote2)?></td>
-            </tr>
-          <? endif; ?>
 
 
 
 
 
-          <? $mvses = $this->driver->getMvsNote(); if (!empty($mvses)): ?>
-            <tr>
-              <th><?=$this->transEsc('MVS')?>: </th>
-              <td><? foreach ($mvses as $mvs): ?><?= $this->escapeHtml($mvs)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
-
-          <? $ico = $this->driver->getIco(); if (!empty($ico)): ?>
-            <tr>
-              <th><?=$this->transEsc('Ico - Dic')?>: </th>
-              <td><?=$this->escapeHtml($ico)?></td>
-            </tr>
-          <? endif; ?>
-
-
-
-
-
-          <? $functions = $this->driver->getFunction(); if (!empty($functions)): ?>
-            <tr>
-              <th><?=$this->transEsc('Function')?>: </th>
-              <td><? foreach ($functions as $function): ?><?= $this->escapeHtml($function)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
-
-
-
-
-
-          <? $faxes = $this->driver->getFax(); if (!empty($faxes)): ?>
-            <tr>
-              <th><?=$this->transEsc('Faxes')?>: </th>
-              <td><? foreach ($faxes as $fax): ?><?= $this->escapeHtml($fax)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
-
-
-
-          <? $responsibilities = $this->driver->getLibResponsibility(); if (!empty($responsibilities)): ?>
-            <tr>
-              <th><?=$this->transEsc('Responsibility')?>: </th>
-
-              <td><? foreach ($responsibilities as $responsibility): ?><?= $this->escapeHtml($responsibility)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
-
-          <? $altnames = $this->driver->getLibNameAlt(); if (!empty($altnames)): ?>
-            <tr>
-              <th><?=$this->transEsc('Alt Names')?>: </th>
-              <td><? foreach ($altnames as $altname): ?><?= $this->escapeHtml($altname)?><br/><? endforeach; ?></td>
-            </tr>
-          <? endif; ?>
-
-          <? $lastupdated = $this->driver->getLastUpdated(); if (!empty($lastupdated)): ?>
-            <tr>
-              <th><?=$this->transEsc('LastUpdated')?>: </th>
-              <td><?=$this->escapeHtml($lastupdated)?></td>
-            </tr>
-          <? endif; ?>
-
-
-        </table>
 
     </div>
 

@@ -47,7 +47,11 @@ $config = array(
                     'buy' => 'CPK\RecordTab\Buy',
                     'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
 					'holdingsils'     => 'CPK\RecordTab\HoldingsILS',
-                    'tagsandcomments' => 'CPK\RecordTab\TagsAndComments'
+                    'tagsandcomments' => 'CPK\RecordTab\TagsAndComments',
+                    'branches' => 'CPK\RecordTab\Branches',
+                    'services' => 'CPK\RecordTab\Services',
+                    'addInfo' => 'CPK\RecordTab\AddInfo',
+                    'contacts' => 'CPK\RecordTab\Contacts',
                 ), /* invokables */
             ), /* recordtab */
             'recommend' => [
@@ -155,15 +159,14 @@ $config = array(
             ],
             'CPK\RecordDriver\SolrLibrary' => [
                 'tabs' => [
-                    'EVersion' => 'EVersion',
+                    'Branches' => 'Branches',
                     'Contacts' => 'Contacts',
                     'Services' => 'Services',
                     'AddInfo' => 'AddInfo',
-                    'Branches' => 'Branches',
                     'Details' => 'StaffViewMARC',
                     'DedupedRecords' => 'DedupedRecords'
                 ],
-                'defaultTab' => 'EVersion'
+                'defaultTab' => 'branches'
             ]
         ]
     ), /* vufind */
