@@ -574,6 +574,38 @@ jQuery( document ).ready( function( $ ) {
                         $('.ajax-update-sort option[value="' + data.sort + '"]').attr('selected', 'selected');
                         $('.ajax-update-sort option[value="' + data.sort + '"]').attr('selected', true);
 
+                        /* Load limit and sort options for EDS */
+                        if (data['database'] == 'EDS') {
+                            var limits = JSON.parse(responseData.edsLimits).data;
+                            var sorts = JSON.parse(responseData.edsDefaultSorts).data;
+                        } else if(data['database'] == 'Solr') {
+                            var limits = JSON.parse(responseData.solrLimits).data;
+                            var sorts = JSON.parse(responseData.solrDefaultSorts).data;
+                        }
+                        if (limits) {
+                            var $limitsSelect = $('.apply-limit').parent().parent();
+                            $limitsSelect.empty();
+                            limits.forEach(function(limit){
+                                $limitsSelect.append("<li><a href='#' class='apply-limit' data-limit='"+limit+"'>"+limit+"</a></li>");
+                            });
+                        }
+
+                        if (responseData.edsMaxLimit) {
+                            console.log(JSON.parse(responseData.edsMaxLimit).data);
+                        }
+
+                        if (responseData.edsDefaultSorts) {
+                            console.log(JSON.parse(responseData.edsDefaultSorts).data);
+                        }
+
+                        if (sorts) {
+                            var $sortsSelect = $('.apply-sort').parent().parent();
+                            $sortsSelect .empty();
+                            sorts.forEach(function(sort){
+                                $sortsSelect .append("<li><a href='#' class='apply-sort' data-sort='"+sort.key+"'>"+sort.value+"</a></li>");
+                            });
+                        }
+
                     },
                     error: function (xmlHttpRequest, status, error) {
                         $('#search-results-loader').remove();
@@ -1260,7 +1292,18 @@ jQuery( document ).ready( function( $ ) {
         var extraData = {};
         var database = $( this ).attr( 'data-value' )
         extraData['database'] = database;
-
+/*
+ @TODO: Something like this should be called before calling searchResultsAjax action.
+ When we have limit set in e.g. 80 in Solr, we should check, whether it is allowed value in EDS.ini config.
+ The same from the other site, from EDS to Solr.
+ This ajax prepreparation needs to know all the correct values, so they have to be stored somewhere,
+ to be able to foreach them.
+        if (database == 'EDS') {
+            extraData['limit'] = $( "input[name='edsDefaultLimit']" ).val();
+        } else if (database == 'Solr') {
+            extraData['limit'] = $( "input[name='solrDefaultLimit']" ).val();
+        }
+*/
         $( 'input[name=database]' ).val(database);
 
         ADVSEARCH.removeAllFilters();

@@ -124,6 +124,8 @@
       <input type="hidden" name="publishDatefrom" value="<?= (! empty($filters['publishDatefrom']) ? $this->escapeHtmlAttr($filters['publishDatefrom']) : '') ?>">
       <input type="hidden" name="publishDateto" value="<?= (! empty($filters['publishDateto']) ? $this->escapeHtmlAttr($filters['publishDateto']) : '') ?>">
       <input type="hidden" name="daterange" value="<?= (! empty($filters['daterange']) ? $this->escapeHtmlAttr($filters['daterange']) : '') ?>">
+      <input type="hidden" name="solrDefaultLimit" value="<?=$this->solrDefaultLimit ?>">
+      <input type="hidden" name="edsDefaultLimit" value="<?=$this->edsDefaultLimit ?>">
     <? else: /* Search Results page */ ?>
       <input type="hidden" name="limit" value="<?= (! empty($_GET['limit']) ? $this->escapeHtmlAttr($_GET['limit']) : $lastLimit) ?>">
       <input type="hidden" name="sort" value="<?= (! empty($_GET['sort']) ? $this->escapeHtmlAttr($_GET['sort']) : $lastSort) ?>">
@@ -137,6 +139,8 @@
       <input type="hidden" name="publishDatefrom" value="<?= (! empty($_GET['publishDatefrom']) ? $this->escapeHtmlAttr($_GET['publishDatefrom']) : '') ?>">
       <input type="hidden" name="publishDateto" value="<?= (! empty($_GET['publishDateto']) ? $this->escapeHtmlAttr($_GET['publishDateto']) : '') ?>">
       <input type="hidden" name="daterange" value="<?= (! empty($_GET['daterange']) ? $this->escapeHtmlAttr($_GET['daterange']) : '') ?>">
+      <input type="hidden" name="solrDefaultLimit" value="<?=$this->solrDefaultLimit ?>">
+      <input type="hidden" name="edsDefaultLimit" value="<?=$this->edsDefaultLimit ?>">
     <? endif; ?>
 </div>
 
