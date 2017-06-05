@@ -20,7 +20,7 @@
             <a href="/Search/Inspiration" title="<?=$this->translate('Inspiration')?>"><?=$this->translate('Inspiration')?></a>
         </li>
         <li <? if ($this->layout()->headerType == "libraries"): ?>class="active"<? endif; ?> >
-            <a href="/Libraries/List/">
+            <a href="/Search/Results/?bool0[]=AND&type0[]=AllFields&lookfor0[]=&join=AND&searchTypeTemplate=basic&filter=H4Gw9gxghiD6CWA7AzgF3qgrusjYDMoIBTVWNAJ1gFsA3ALgCIBGAegHlUALYi5VgDIBJAEIAlAIJiAmq0ZA&limit=10&sort=relevance&page=1">
                 <? $titleHtml = $this->translate('Libraries') ?>
                 <?= $this->help()->getElementHelp('element_help_header_libraries', $titleHtml) ?>
             </a>
