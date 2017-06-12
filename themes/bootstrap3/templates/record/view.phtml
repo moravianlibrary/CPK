@@ -93,6 +93,24 @@
     </div>
 
     <!-- Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="shareLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="shareLabel"><?=$this->translate('Share this')?></h4>
+          </div>
+          <div class="modal-body">
+	  	<div class="fb-share-button" data-href="<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>" data-layout="button" data-size="large" data-mobile-iframe="false"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>&src=sdkpreparse">Sdílet na Facebook</a></div>
+	  </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
     <div class="modal fade" id="permalinkModal" tabindex="-1" role="dialog" aria-labelledby="permalinkLabel">
       <div class="modal-dialog" role="document">
         <div class="modal-content">

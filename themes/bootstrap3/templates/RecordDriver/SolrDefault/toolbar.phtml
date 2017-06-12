@@ -110,6 +110,11 @@
     <i id='citation-link-spinner' class="fa fa-spinner fa-spin"></i>
   </li>
   <? endif; ?>
+  <li class="list-group-item" id='shareItem'>
+    <a class="modal-link" id='shareAnchor' title="<?=$this->translate('Share this')?>" >
+      <i class="pr-web-linkurl"> </i> <?=$this->translate('Share this')?>
+    </a>
+  </li>
   <? if (!empty($addThis)): ?>
     <li><a class="addThis addthis_button list-group-item" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-fw fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
   <? endif; ?>
@@ -142,5 +147,9 @@ jQuery( document ).ready(function( $ ) {
 	$( '.record-toolbar' ).on('click', '#mail-record', function(){
 		$( '#mailRecordModal' ).modal( 'show' );
 	});
+	$( '#shareItem' ).on('click', '#shareAnchor', function(){
+		$( '#shareModal' ).modal( 'show' );
+	});
+
 });
 </script>
