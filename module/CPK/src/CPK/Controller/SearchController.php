@@ -634,7 +634,14 @@ class SearchController extends SearchControllerBase
 	        return $this->redirectToSavedSearch($savedId);
 	    }
 
-	    // Send both GET and POST variables to search class:
+        $view->librarySearch = false;
+        $searchType = $this->params()->fromQuery('type0')[0];
+        if ($searchType == 'Libraries') {
+            $view->librarySearch = true;
+        }
+
+
+        // Send both GET and POST variables to search class:
 	    $request = $this->getRequest()->getQuery()->toArray()
 	    + $this->getRequest()->getPost()->toArray();
 
