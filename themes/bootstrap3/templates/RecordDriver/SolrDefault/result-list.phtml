@@ -158,9 +158,12 @@
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
     <div class="white-box clearfix">
     <div class="row">
+        <? $recordId =  preg_replace("/\./", "", $recordId)?>
+        <? $recordId =  preg_replace("/:/", "", $recordId)?>
+        <? $bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()?>
+        <? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
         <div class="col-sm-2 col-xs-3 left">
-            <? $recordId =  preg_replace("/\./", "", $recordId)?>
-            <? $recordId =  preg_replace("/:/", "", $recordId)?>
+
             <? if ($this->params->getSearchType() == 'advanced'): ?>
             <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
@@ -189,7 +192,8 @@
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
         </div>
-    <div class="col-sm-7 col-xs-7 middle search-result-container">
+        <? endif; ?>
+    <div class="<? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>col-sm-7 col-xs-7<? endif; ?> middle search-result-container">
       <div class="root-title">
         <? if ($this->params->getSearchType() == 'advanced'): ?>
         <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
@@ -373,6 +377,7 @@
 		</div>
 
     </div>
+    <? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
     <div class="col-sm-3 col-xs-12 right">
     <?
      if ($records) {
@@ -417,6 +422,7 @@
 
       <?=$this->driver->supportsCoinsOpenUrl()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenUrl()).'"></span>':''?>
     </div>
+    <? endif; ?>
   </div>
   </div>
 
