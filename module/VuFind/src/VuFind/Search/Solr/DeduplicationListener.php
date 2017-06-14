@@ -173,10 +173,6 @@ class DeduplicationListener
                 if ($this->enabled) {
                     $params->set('uniqueId', 'local_ids_str_mv');
                     $fq = '-merged_child_boolean:true';
-                    if ($context == 'similar' && $id = $event->getParam('id')) {
-                        $fq .= ' AND -local_ids_str_mv:"'
-                            . addcslashes($id, '"') . '"';
-                    }
                 } else {
                     $fq = '-merged_boolean:true';
                 }
