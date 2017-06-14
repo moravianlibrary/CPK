@@ -690,3 +690,4 @@ Libraries:
     - branch_search_txt
     - sigla_search_txt
     - cpk_code_search_txt_mv
+  FilterQuery: "recordtype:library"
