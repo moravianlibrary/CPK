@@ -638,6 +638,7 @@ class SearchController extends SearchControllerBase
         $searchType = $this->params()->fromQuery('type0')[0];
         if ($searchType == 'Libraries') {
             $view->librarySearch = true;
+            $view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
         }
 
 
