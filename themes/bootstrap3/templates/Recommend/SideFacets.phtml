@@ -100,6 +100,13 @@ foreach ($queryParams as $key => $value) {
 
 <? if (!empty($sideFacetSet) && $results->getResultTotal() > 0): ?>
   <? foreach ($sideFacetSet as $title => $cluster): ?>
+    <?  $showThisFacet = true;
+        if ($librarySearch == true){
+            if($cluster['label'] == 'Institution') $showThisFacet = false;
+            if($cluster['label'] == 'Availability') $showThisFacet = false;
+        }
+    ?>
+    <? if($showThisFacet == true): ?>
     <? $allowExclude = $this->recommend->excludeAllowed($title); ?>
     <? $facets_before_more = $this->recommend->getShowMoreSetting($title); ?>
 <!--Begin of Facet div-->
@@ -468,7 +475,7 @@ JS;
       <div class='facet-divider'></div>
     </div>
 <!--End of Facet div-->
-
+  <? endif; ?>
   <? endforeach; ?>
 <? endif; ?>
 <script>
