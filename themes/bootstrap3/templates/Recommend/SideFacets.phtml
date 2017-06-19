@@ -261,7 +261,7 @@ JS;
               ?>
 <!--End of Institution facet-->
               <? else: ?>
-                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")||($title == "cpk_detected_format_facet_str_mv")): ?>
+                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")||($title == "cpk_detected_format_facet_str_mv")||($title == "region_disctrict_facet_str_mv")): ?>
 <!--Availability, Conspectus, Format facet-->
                   <?
                   $script = <<<JS
@@ -300,7 +300,7 @@ JS;
               ?>
 <!--End of Collapsed Institution facet-->
               <? else: ?>
-                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")): ?>
+                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")||($title == "region_disctrict_facet_str_mv")): ?>
 <!--Collapsed Availability, Conspectus facet-->
           <?
           $script = <<<JS
