@@ -1157,6 +1157,13 @@ class SearchController extends SearchControllerBase
         /* Prepare referer */
         $viewData['referer'] = $this->base64url_encode($postParams['searchResultsUrl']);
 
+        $viewData['librarySearch'] = false;
+        $searchType = $request['type0'][0];
+        if ($searchType == 'Libraries') {
+            $viewData['librarySearch']  = true;
+            $viewData['apikey'] = (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
+        }
+
         /* Set limit and sort */
         $searchesConfig = $this->getConfig('searches');
         $viewData['limit'] = (! empty($request['limit']))
