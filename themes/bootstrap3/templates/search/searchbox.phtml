@@ -100,10 +100,19 @@
         $arrayOfVariablesForBasicSearch['hiddenBasicSearch'] = true;
     }
 
-    echo $this->context($this)->renderInContext(
-        "search/ajax/autocomplete.phtml",
-        $arrayOfVariablesForBasicSearch
-    );
+    if ($this->librarySearch == true)
+    {
+        echo $this->context($this)->renderInContext(
+            "search/ajax/library-search.phtml",
+            $arrayOfVariablesForBasicSearch
+        );
+    }
+    else {
+        echo $this->context($this)->renderInContext(
+            "search/ajax/autocomplete.phtml",
+            $arrayOfVariablesForBasicSearch
+        );
+    };
 
 ?>
 
