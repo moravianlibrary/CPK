@@ -15,12 +15,75 @@ $this->headScript()->appendFile("jquery-ui.min.js");
             <? foreach ($addresses as $address): ?><?= $this->escapeHtml($address)?><br/><? endforeach; ?>
           <? endif; ?></h2>
 <!-- Opening hours-->
-          <? $hours = $this->driver->getLibraryHours(); if (!empty($hours)): ?>
+          <? $hours = $this->driver->getLibraryHoursArray(); if (!empty($hours)): ?>
               <h2><i class="pr-interface-clocktime"></i><?=$this->translate('Opening hours')?></h2>
-              <p>
-                  <?=$this->escapeHtml($hours)?>
-              </p>
-          <? endif; ?>
+              <table class="table">
+                  <? if (!empty($hours['mo'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Monday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['mo'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['tu'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Tuesday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['tu'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['we'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Wednesday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['we'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['th'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Thursday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['th'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['fr'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Friday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['fr'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['sa'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Saturday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['sa'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['su'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Sunday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['su'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['for'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Next')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['for'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                </table>
+         <? endif; ?>
 
 
 

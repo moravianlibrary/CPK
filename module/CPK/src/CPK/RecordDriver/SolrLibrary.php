@@ -49,6 +49,24 @@ class SolrLibrary extends ParentSolrMarc
     }
 
     /**
+     * Get an array of note about the libraryhours
+     *
+     * @return array
+     */
+    public function getLibraryHoursArray()
+    {
+        $string = isset($this->fields['hours_display']) ? $this->fields['hours_display'] : [];
+        $days = explode("|", $string);
+        $result = array();
+        foreach ($days as $day)
+        {
+            $parts = explode(" ", trim($day),2);
+            $result[$parts[0]] = $parts[1];
+        }
+        return $result;
+    }
+
+    /**
      * Get an array of note about the
      *
      * @return array
