@@ -96,12 +96,12 @@ $this->headScript()->appendFile("jquery-ui.min.js");
 
 <!-- Websites-->
 
-        <? $urls = $this->driver->getLibUrl(); if (!empty($urls)): ?>
+        <? $urls = $this->driver->getLibUrlArray(); if (!empty($urls)): ?>
             <h2><i class="pr-web-browseinternetnetwork"></i><?=$this->translate('Web sites')?></h2>
 
             <? foreach ($urls as $url): ?>
 
-                <p><i class="pr-interface-arrowright5"></i><a href="<?=$url?>"><?=$url?></a></p>
+                <p><i class="pr-interface-arrowright5"></i><a href="<?=$url['url']?>"><?=$url['name']?></a></p>
 
             <? endforeach; ?>
 

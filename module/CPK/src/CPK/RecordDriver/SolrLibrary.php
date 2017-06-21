@@ -147,6 +147,34 @@ class SolrLibrary extends ParentSolrMarc
         return isset($this->fields['url_display_mv']) ? $this->fields['url_display_mv'] :'';
     }
 
+    /**
+     *
+     * @return array
+     */
+    public function getLibUrlArray()
+    {
+        $result = array();
+
+        if (isset($this->fields['url_display_mv'])) {
+            $urls = $this->fields['url_display_mv'];
+
+            foreach ($urls as $url)
+            {
+                $parts = explode("|", trim($url),2);
+                $link = array();
+                if (isset($parts[0]))
+                    $link['url'] = trim($parts[0]);
+                if (isset($parts[1]))
+                    $link['name'] = trim($parts[1]);
+                else
+                    $link['name'] = trim($parts[0]);
+                array_push($result, $link);
+            }
+        }
+        return $result;
+
+    }
+
 
     /**
      *
