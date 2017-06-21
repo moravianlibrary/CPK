@@ -9,3 +9,15 @@
     <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Services')?></h2>
     <? foreach ($services as $service): ?><?= $this->escapeHtml($service)?><br/><? endforeach; ?>
 <? endif; ?>
+
+<!-- Functions -->
+<? $functions = $this->driver->getFunction(); if (!empty($functions)): ?>
+    <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Functions')?></h2>
+    <? foreach ($functions as $function): ?><?= $this->escapeHtml($function)?><br/><? endforeach; ?>
+<? endif; ?>
+
+<!-- Projects -->
+<? $projects = $this->driver->getProject(); if (!empty($projects)): ?>
+    <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Projects')?></h2>
+    <? foreach ($projects as $project): ?><?= $this->escapeHtml($project)?><br/><? endforeach; ?>
+<? endif; ?>
