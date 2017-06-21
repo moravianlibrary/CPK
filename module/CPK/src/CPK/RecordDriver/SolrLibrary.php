@@ -245,6 +245,26 @@ class SolrLibrary extends ParentSolrMarc
         return isset($this->fields['gps_str']) ? $this->fields['gps_str'] : '';
     }
 
+    public function getGpsLat()
+    {
+        if ($this->getGps()!="")
+        {
+            $parts = explode(" ", $this->getGps(),2);
+            return $parts[0];
+        }
+        return "";
+    }
+
+    public function getGpsLng()
+    {
+        if ($this->getGps()!="")
+        {
+            $parts = explode(" ", $this->getGps(),2);
+            return $parts[1];
+        }
+        return "";
+    }
+
 
 
 

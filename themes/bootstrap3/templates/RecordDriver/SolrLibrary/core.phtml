@@ -122,9 +122,8 @@ $this->headScript()->appendFile("jquery-ui.min.js");
 
     </div>
 
-    <? $lat = 49.78; ?>
-    <? $long = 15.39; ?>
-    <? $apikey = "apikey"; ?>
+    <? $lat = $this->driver->getGpsLat() ?>
+    <? $long = $this->driver->getGpsLng() ?>
 
     <div class="col-sm-6">
         <style>
