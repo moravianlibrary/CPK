@@ -17,3 +17,10 @@
     <h2><i class="pr-communication-emailenvelope"></i>E-mail</h2>
     <? foreach ($emailes as $email): ?><?= $this->escapeHtml($email)?><br/><? endforeach; ?>
 <? endif; ?>
+
+<!-- LibResponsibility-->
+
+<? $libresponsibilities = $this->driver->getLibResponsibility(); if (!empty($libresponsibilities)): ?>
+    <h2><i class="pr-interface-circlerighttrue"></i>LibResponsibility</h2>
+    <? foreach ($libresponsibilities as $libresponsibility): ?><?= $this->escapeHtml($libresponsibility)?><br/><? endforeach; ?>
+<? endif; ?>
