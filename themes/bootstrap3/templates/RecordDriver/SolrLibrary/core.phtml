@@ -108,18 +108,6 @@ $this->headScript()->appendFile("jquery-ui.min.js");
         <? endif; ?>
 
 
-        <!-- Projects-->
-        <? $projects = $this->driver->getProject(); if (!empty($projects)): ?>
-            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Projects')?></h2>
-                <? foreach ($projects as $project): ?><?= $this->escapeHtml($project)?><br/><? endforeach; ?>
-        <? endif; ?>
-
-
-
-
-
-
-
     </div>
 
     <? $lat = $this->driver->getGpsLat() ?>
