@@ -99,8 +99,8 @@
     if ($this->searchTypeTemplate == 'advanced') {
         $arrayOfVariablesForBasicSearch['hiddenBasicSearch'] = true;
     }
-
-    if ($this->librarySearch == true)
+    $headerType = $this->layout()->headerType;
+    if ($this->librarySearch == true || $headerType == "newlibraries")
     {
         echo $this->context($this)->renderInContext(
             "search/ajax/library-search.phtml",

@@ -3,6 +3,7 @@ $id = $this->driver->getUniqueID();
 $recordSource = $source = explode(".", $id)[0];
 $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 $this->headScript()->appendFile("jquery-ui.min.js");
+$this->layout()->headerType = "newlibraries";
 ?>
 <div class="row">
     <div class="col-md-6 library-detail">
