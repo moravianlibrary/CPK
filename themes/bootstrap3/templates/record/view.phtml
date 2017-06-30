@@ -110,6 +110,7 @@
       </div>
     </div>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
+        <? if($source != "library"): ?>
 			<div class='row records-in-groups-container' id='records-in-groups-container'>
 			  <div class='col-md-2 text-center'>
 				<h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
@@ -136,6 +137,7 @@
 			  </div>
 			  <? endif; ?>
 			</div>
+        <? endif; ?>
 			<div>
 
             <? if (count($this->tabs) > 0): ?>
