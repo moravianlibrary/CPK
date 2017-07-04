@@ -637,6 +637,14 @@ class SearchController extends SearchControllerBase
 	    // Send both GET and POST variables to search class:
 	    $request = $this->getRequest()->getQuery()->toArray()
 	    + $this->getRequest()->getPost()->toArray();
+	    
+	    // EDS can't search with emtpy lookfor string,
+	    // so we set it to 'FT Y OR FT N' for all results
+	    if($request['database'] == 'EDS'){
+		    if (empty($request['lookfor0'][0])){
+			$request['lookfor0'][0]='FT Y OR FT N';		
+		    }
+	    }
 
 	    if (! empty($request['filter'])) {
 	        $decompressedFilters = \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($request['filter']));

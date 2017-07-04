@@ -288,8 +288,13 @@ jQuery( document ).ready( function( $ ) {
                     data['lookfor0'] = [];
                     data['lookfor0'].push(lookfor0);
                 }
-
-                if (!data.hasOwnProperty('type0')) {
+		
+		// EDS can't empty search, so we put string for show everythink
+		if (data['lookfor0'] == '' && data['database'] == 'EDS'){	
+			data['lookfor0'].push('FT Y OR FT N');
+		}
+                
+		if (!data.hasOwnProperty('type0')) {
                     var type = $("input[name='last_searched_type0']").val();
                     data['type0'] = [];
                     data['type0'].push(type);
