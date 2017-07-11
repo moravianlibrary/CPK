@@ -418,6 +418,7 @@ AllFields:
       - [onephrase, ~]
     issn:
       - [onephrase, ~]
+  FilterQuery: "NOT recordtype:library"
 #  ExactSettings:
 #    DismaxFields:
 #      - title_full_unstemmed^600
