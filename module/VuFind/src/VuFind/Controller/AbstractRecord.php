@@ -391,7 +391,12 @@ class AbstractRecord extends AbstractBase
         }
 
         // Retrieve the record driver:
-        $driver = $this->loadRecord();
+        $database = $this->params()->fromPost('source');
+        if ($database == 'EDS') {
+            $driver = $this->loadEdsRecord();
+        } else {
+            $driver = $this->loadRecord();
+        }
 
         // Create view
         $mailer = $this->getServiceLocator()->get('VuFind\Mailer');
@@ -406,11 +411,21 @@ class AbstractRecord extends AbstractBase
         if ($this->formWasSubmitted('submit', $view->useRecaptcha)) {
             // Attempt to send the email and show an appropriate flash message:
             try {
+		$subject = $driver->getTitle();
                 $cc = $this->params()->fromPost('ccself') && $view->from != $view->to
-                    ? $view->from : null;
+                ? $view->from : null;
+                $sender = new \Zend\Mail\Address(
+                    $view->from,
+                    $this->translate('Central Library Portal')
+                );
                 $mailer->sendRecord(
-                    $view->to, $view->from, $view->message, $driver,
-                    $this->getViewRenderer(), $view->subject, $cc
+                    $view->to,
+                    $sender,
+                    $view->message,
+                    $driver,
+                    $this->getViewRenderer(),
+                    $subject,
+                    $cc
                 );
                 $this->flashMessenger()->addMessage('email_success', 'success');
                 return $this->redirectToRecord();
@@ -418,10 +433,7 @@ class AbstractRecord extends AbstractBase
                 $this->flashMessenger()->addMessage($e->getMessage(), 'error');
             }
         }
-
-        // Display the template:
-        $view->setTemplate('record/email');
-        return $view;
+        return $this->redirectToRecord();
     }
 
     /**
