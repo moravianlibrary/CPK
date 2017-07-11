@@ -159,10 +159,10 @@ $config = array(
             ],
             'CPK\RecordDriver\SolrLibrary' => [
                 'tabs' => [
-                    'Branches' => 'Branches',
+                    'AddInfo' => 'AddInfo',
                     'Contacts' => 'Contacts',
                     'Services' => 'Services',
-                    'AddInfo' => 'AddInfo',
+                    'Branches' => 'Branches',
                     'Details' => 'StaffViewMARC',
                     'DedupedRecords' => 'DedupedRecords'
                 ],
