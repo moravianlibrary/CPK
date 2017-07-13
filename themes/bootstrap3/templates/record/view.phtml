@@ -124,7 +124,7 @@
 			  </div>
 			  <? if($this->sigla): ?>
 			  <div class='col-md-2 information'>
-				<a href='/Libraries/Library?sigla=<?=$this->sigla?>' target='_blank' title='<?=$this->translate('Information about library')?>'>
+				<a href='/Search/Results/?lookfor0[]=<?=$this->sigla?>&type0[]=Libraries&bool0[]=AND&filter=&daterange=&publishDatefrom=&publishDateto=&limit=10&sort=relevance&page=1&searchTypeTemplate=basic&keepFacetsEnabled=true&join=AND' target='_blank' title='<?=$this->translate('Information about library')?>'>
 				  <div class='row'>
 				    <div class='col-md-3 information-icon'>
 				      <i class='cpk-icon'>i</i>
