@@ -41,6 +41,12 @@
                     	title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($format)?>)'>
                     <strong><?=$this->escapeHtml($similarRecordDriver->getTitle())?></strong>
                   </a>
+                  <? if ($similarRecordDriver instanceof CPK\RecordDriver\SolrLibrary): ?>
+                  <a href='<?=$similarRecordUrl?>'
+                     title='<?=$this->escapeHtml($similarRecordDriver->getLibraryNames())?> (<?=$this->escapeHtml($similarRecordDriver->getSigla())?>)'>
+                      <strong><?=$this->escapeHtml($similarRecordDriver->getLibraryNames())?></strong>
+                  </a>
+                  <? endif; ?>
                 </h5>
                 <p class="list-group-item-text">
                   <!--
@@ -50,6 +56,11 @@
                   -->
                   <? $author = $similarRecordDriver->getPrimaryAuthor(); if (!empty($author)): ?>
                     <?=$this->escapeHtml($author)?>
+                  <? endif; ?>
+                  <? if ($similarRecordDriver instanceof CPK\RecordDriver\SolrLibrary): ?>
+                  <? $addresses = $similarRecordDriver->getLibraryAddress(); if (!empty($addresses)): ?>
+                      <? foreach ($addresses as $address): ?><?= $this->escapeHtml($address)?><br/><? endforeach; ?>
+                  <? endif; ?>
                   <? endif; ?>
                 </p>
               </div>
