@@ -833,7 +833,11 @@ jQuery( document ).ready( function( $ ) {
                        	$( '.query-type' ).each( function( index, element ) {
 							$( element ).empty();
                             $.each(results.data[data['database']], function(key,value) {
-                                $( element ).append( $( "<option></option>" ).attr( "value", key ).text( value ));
+				if(key == data.type0[index]){
+					$( element ).append( $( "<option></option>" ).attr({ "value":key,"selected":"selected" }).text( value ));
+				}else{
+        	                        $( element ).append( $( "<option></option>" ).attr( "value", key ).text( value ));
+				}
                             });
                         });
                     } else {
