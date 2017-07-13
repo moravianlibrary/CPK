@@ -47,6 +47,7 @@ use VuFindSearch\Backend\Solr\QueryBuilder;
 use VuFindSearch\Backend\Solr\HandlerMap;
 use VuFindSearch\Backend\Solr\Connector;
 use VuFindSearch\Backend\Solr\Backend;
+use VuFindSearch\Backend\Solr\PerformanceLogger;
 
 use Zend\Config\Config;
 
@@ -373,6 +374,9 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         $connector->setTimeout(
             isset($config->Index->timeout) ? $config->Index->timeout : 30
         );
+        if (isset($config->Index->perf_log)) {
+            $connector->setPerformanceLogger(new PerformanceLogger($config->Index->perf_log));
+        }
 
         if ($this->logger) {
             $connector->setLogger($this->logger);

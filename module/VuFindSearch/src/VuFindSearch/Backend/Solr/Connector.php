@@ -115,6 +115,15 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     protected $adapter = 'Zend\Http\Client\Adapter\Socket';
 
     /**
+     * HTTP client adapter.
+     *
+     * Either the class name or a adapter instance.
+     *
+     * @var PerformanceLogger
+     */
+    protected $performanceLogger;
+
+    /**
      * Constructor
      *
      * @param string|array $url       SOLR core URL or an array of alternative URLs
@@ -338,6 +347,10 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $this->adapter = $adapter;
     }
 
+    public function setPerformanceLogger($logger) {
+        $this->performanceLogger = $logger;
+    }
+
     /// Internal API
 
     /**
@@ -431,6 +444,23 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 $response->getReasonPhrase()
             ), ['time' => $time]
         );
+
+        if ($this->performanceLogger != null) {
+            $cache = null;
+            if ($response->getHeaders()->has("X-Cache")) {
+                $cache = $response->getHeaders()->get("X-Cache")->getFieldValue();
+            }
+            $perfEntry = [
+                'time'       => date('c'),
+                'ip'         => $_SERVER['REMOTE_ADDR'],
+                'session'    => session_id(),
+                'vufind_url' => $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+                'solr_url'   => (string) $client->getUri(),
+                'query_time' => $time,
+                'cache'      => (isset($cache)) ? $cache : '?',
+            ];
+            $this->performanceLogger->write($perfEntry);
+        }
 
         if (!$response->isSuccess()) {
             throw HttpErrorException::createFromResponse($response);
