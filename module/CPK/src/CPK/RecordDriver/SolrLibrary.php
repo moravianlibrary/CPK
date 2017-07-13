@@ -295,7 +295,38 @@ class SolrLibrary extends ParentSolrMarc
     }
 
 
+    public function AddInfoItemsCount()
+    {
+        $result = 0;
+        if (!empty($this->getSigla())) $result++;
+        if (!empty($this->getLastUpdated())) $result++;
+        return $result;
+    }
 
+    public function ContactsItemsCount()
+    {
+        $result = 0;
+        if (!empty($this->getPhone())) $result++;
+        if (!empty($this->getEmail())) $result++;
+        if (!empty($this->getLibResponsibility())) $result++;
+        return $result;
+    }
+
+    public function ServicesItemsCount()
+    {
+        $result = 0;
+        if (!empty($this->getService())) $result++;
+        if (!empty($this->getFunction())) $result++;
+        if (!empty($this->getProject())) $result++;
+        return $result;
+    }
+
+    public function BranchesItemsCount()
+    {
+        $result = 0;
+        if (!empty($this->getLibBranch())) $result++;
+        return $result;
+    }
 
 }
 
