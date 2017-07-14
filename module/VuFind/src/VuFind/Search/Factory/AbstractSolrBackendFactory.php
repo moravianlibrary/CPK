@@ -375,7 +375,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             isset($config->Index->timeout) ? $config->Index->timeout : 30
         );
         if (isset($config->Index->perf_log)) {
-            $connector->setPerformanceLogger(new PerformanceLogger($config->Index->perf_log));
+            $connector->setPerformanceLogger(new PerformanceLogger($config->Index->perf_log, $config->Site->url));
         }
 
         if ($this->logger) {

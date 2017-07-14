@@ -46,26 +46,57 @@ class PerformanceLogger {
     protected $file;
 
     /**
+     * Holds the verbosity level
+     *
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
      * Constructor
      *
-     * @param  string| $file File to write to
+     * @param  string $file File to write to
+     * @param  string $baseUrl VuFind base url
      */
-    public function __construct($file)
+    public function __construct($file, $baseUrl)
     {
         $this->file = $file;
+        $this->baseUrl = $baseUrl;
     }
 
     /**
      * Write a message to the log.
      *
-     * @param array $data data
+     * @param \Zend\Http\Response $response response
+     * @param strint $url Solr url
      *
      * @return void
      * @throws \Zend\Log\Exception\RuntimeException
      */
-    public function write(array $data)
+    public function write(\Zend\Http\Response $response, $solrUrl, $time)
     {
-        $json = json_encode($data, JSON_UNESCAPED_SLASHES) . "\n";
+        $cache = null;
+        $solrTime = null;
+        if ($response->getHeaders()->has("X-Cache")) {
+            $cache = $response->getHeaders()->get("X-Cache")->getFieldValue();
+        }
+        if ($response->getHeaders()->has("X-Generated-In")) {
+            $solrTime = $response->getHeaders()->get("X-Generated-In")->getFieldValue();
+        }
+        $url = rtrim($this->baseUrl, '/') . $_SERVER['REQUEST_URI'];
+        $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+        $perfEntry = [
+            'time'       => date('c'),
+            'ip'         => $_SERVER['REMOTE_ADDR'],
+            'session'    => session_id(),
+            'vufind_url' => $url,
+            'referer'    => $referer,
+            'solr_url'   => (string) $solrUrl,
+            'query_time' => $time,
+            'solr_time'  => $solrTime,
+            'cache'      => $cache,
+        ];
+        $json = json_encode($perfEntry, JSON_UNESCAPED_SLASHES) . "\n";
         file_put_contents($this->file, $json, FILE_APPEND);
     }
 
