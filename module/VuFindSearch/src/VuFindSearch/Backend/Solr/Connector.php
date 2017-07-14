@@ -447,17 +447,25 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
         if ($this->performanceLogger != null) {
             $cache = null;
+            $solrTime = null;
             if ($response->getHeaders()->has("X-Cache")) {
                 $cache = $response->getHeaders()->get("X-Cache")->getFieldValue();
             }
+            if ($response->getHeaders()->has("X-Generated-In")) {
+                $solrTime = $response->getHeaders()->get("X-Generated-In")->getFieldValue();
+            }
+            $url = (isset($_SERVER['HTTPS']) ? "https" : "http") . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $referer = $_SERVER['HTTP_REFERER'];
             $perfEntry = [
                 'time'       => date('c'),
                 'ip'         => $_SERVER['REMOTE_ADDR'],
                 'session'    => session_id(),
-                'vufind_url' => $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+                'vufind_url' => $url,
+                'referer'    => $referer,
                 'solr_url'   => (string) $client->getUri(),
                 'query_time' => $time,
-                'cache'      => (isset($cache)) ? $cache : '?',
+                'solr_time'  => $solrTime,
+                'cache'      => $cache,
             ];
             $this->performanceLogger->write($perfEntry);
         }

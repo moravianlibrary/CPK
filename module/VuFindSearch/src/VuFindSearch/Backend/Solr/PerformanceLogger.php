@@ -65,7 +65,7 @@ class PerformanceLogger {
      */
     public function write(array $data)
     {
-        $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "\n";
+        $json = json_encode($data, JSON_UNESCAPED_SLASHES) . "\n";
         file_put_contents($this->file, $json, FILE_APPEND);
     }
 
