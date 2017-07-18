@@ -4,6 +4,15 @@
 
 ?>
 
+
+<!-- BranchUrl-->
+<? $branchurls = $this->driver->getBranchUrl(); if (!empty($branchurls)): ?>
+    <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Branch info')?></h2>
+    <? foreach ($branchurls as $branchurl): ?>
+      <p><a href="<?=$this->escapeHtml($branchurl)?>" target="_blank"><?=$this->escapeHtml($branchurl)?></a></p>
+    <? endforeach; ?>
+<? endif; ?>
+
   <!-- Branches-->
 <? $branches = $this->driver->getLibBranch(); if (!empty($branches)): ?>
   <h2><i class="pr-interface-househome"></i><?=$this->translate('Departments')?></h2>

@@ -292,6 +292,15 @@ class SolrLibrary extends ParentSolrMarc
         return isset($this->fields['mvs_display_mv']) ? $this->fields['mvs_display_mv'] :[];
     }
 
+    /**
+     *
+     * @return string
+     */
+    public function getBranchUrl()
+    {
+        return isset($this->fields['branchurl_display_mv']) ? $this->fields['branchurl_display_mv'] :'';
+    }
+
     public function getGpsLat()
     {
         if ($this->getGps()!="")
