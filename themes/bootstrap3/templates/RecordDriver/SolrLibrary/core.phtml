@@ -109,6 +109,24 @@ $this->layout()->headerType = "newlibraries";
         <? endif; ?>
 
 
+
+        <!-- Library type-->
+        <? $types = $this->driver->getType(); if (!empty($types)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Type')?></h2>
+            <? foreach ($types as $type): ?>
+                <p><?=$this->escapeHtml($type)?></p>
+            <? endforeach; ?>
+
+        <? endif; ?>
+
+        <!-- Mvs-->
+        <? $mvses = $this->driver->getMvs(); if (!empty($mvses)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Interlibrary loan')?></h2>
+            <? foreach ($mvses as $mvs): ?>
+                <p><?=$this->escapeHtml($mvs)?></p>
+            <? endforeach; ?>
+        <? endif; ?>
+
     </div>
 
     <? $lat = $this->driver->getGpsLat() ?>
