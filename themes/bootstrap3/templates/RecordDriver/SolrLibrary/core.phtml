@@ -90,7 +90,7 @@ $this->layout()->headerType = "newlibraries";
 
 <!-- Description-->
         <? $libnote = $this->driver->getLibNote(); if (!empty($libnote)): ?>
-            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Description')?></h2>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Additional information')?></h2>
 
             <p><?=$this->escapeHtml($libnote)?></p>
         <? endif; ?>
