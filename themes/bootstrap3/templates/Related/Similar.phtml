@@ -15,6 +15,7 @@
               $similarRecordUrl = $this->recordLink()->getUrl($similarRecordDriver)."?referer=".$this->referer;
             ?>
         	<div class="row list-group-item clearfix">
+              <? if(! ($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
               <div class="col-md-3 ">
     			<? $recordId =  preg_replace("/\./", "", $recordId)?>
                     <? $recordId =  preg_replace("/:/", "", $recordId)?>
@@ -35,6 +36,7 @@
 
                     </a>
               </div>
+              <? endif; ?>
               <div class="col-md-9 content">
                 <h5 class="list-group-item-heading">
                   <a href='<?=$similarRecordUrl?>'
