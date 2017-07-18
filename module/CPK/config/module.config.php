@@ -166,7 +166,7 @@ $config = array(
                     'Details' => 'StaffViewMARC',
                     'DedupedRecords' => 'DedupedRecords'
                 ],
-                'defaultTab' => 'branches'
+                'defaultTab' => 'AddInfo'
             ]
         ]
     ), /* vufind */
