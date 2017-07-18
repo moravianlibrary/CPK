@@ -73,6 +73,6 @@ class Services extends AbstractBase
      */
     public function getDescription()
     {
-        return 'Services';
+        return 'Services, projects and function';
     }
 }
