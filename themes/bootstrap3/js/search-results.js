@@ -467,6 +467,10 @@ jQuery( document ).ready( function( $ ) {
                     },
                     success: function (response) {
 
+                        if ($('#set-database li.active a').attr('data-value') != data['database']) {
+                            return;
+                        }
+
                         scrollToTop();
 
                         if (response.status == 'OK') {
