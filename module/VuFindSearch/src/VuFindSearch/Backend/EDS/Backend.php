@@ -207,8 +207,13 @@ class Backend extends AbstractBackend
         if (null !== $params && true == $params->get('setuponly')) {
             return false;
         }
-
-        // create query parameters from VuFind data
+	
+	// EDS can't empty query, so fill it for all results	
+	if(empty($query->getString())){
+		$query->setString('FT Y OR FT N');
+	}
+        
+	// create query parameters from VuFind data
         $queryString = !empty($query) ? $query->getAllTerms() : '';
         $paramsStr = implode('&', null !== $params ? $params->request() : []);
         $this->debugPrint(
