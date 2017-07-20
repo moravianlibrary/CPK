@@ -1045,6 +1045,21 @@ jQuery( document ).ready( function( $ ) {
 		}
 	});
 
+    /*
+     * Add or remove clicked facet
+     */
+    $( 'body' ).on( 'click', '.checkbox input', function( event ) {
+        event.preventDefault();
+
+        $( "input[name='page']" ).val( '1' );
+
+        if ( $( this ).is(':checked' )) {
+            ADVSEARCH.addFacetFilter( $( this ).attr( 'value' ), true );
+        } else {
+            ADVSEARCH.removeFacetFilter( $( this ).attr( 'value' ), true );
+        }
+    });
+
 	/*
 	 * Remove all institutions facets and add checked ones
 	 */
