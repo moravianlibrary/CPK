@@ -175,8 +175,9 @@ class SearchRequestModel
             case 'filters':
                 $cnt = 1;
                 foreach ($values as $filter) {
-                    if (substr($filter, 0, 6) == 'LIMIT|') {
-                        $this->addLimiter(substr($filter, 6));
+                    if (substr($filter, 0, 6) == 'LIMIT!') {
+                        $limiter = str_replace('\:', ':', substr($filter, 6));
+                        $this->addLimiter($limiter);
                     } else if (substr($filter, 0, 7) == 'EXPAND:') {
                         $this->addExpander(substr($filter, 7));
                     } else if (substr($filter, 0, 11) == 'SEARCHMODE:') {
@@ -379,7 +380,7 @@ class SearchRequestModel
     {
         return addcslashes($value, ":,");
     }
-    
+
      /**
      * Escape characters that may be present in the action parameter syntax
      *

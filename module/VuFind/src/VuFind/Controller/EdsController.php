@@ -162,7 +162,7 @@ class EdsController extends AbstractSearch
                     // facet has been applied to the search, we should store it as
                     // the selected facet for the current control.
                     if ($searchObject) {
-                        $limitFilt = 'LIMIT|' . $fullFilter;
+                        $limitFilt = 'LIMIT:' . $fullFilter;
                         if ($searchObject->getParams()->hasFilter($limitFilt)) {
                             $facetList[$facet]['LimiterValues'][$key]['selected']
                                 = true;
