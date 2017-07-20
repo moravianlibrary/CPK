@@ -32,6 +32,7 @@ use Exception;
 use VuFindSearch\Backend\EDS\Zend2 as ApiClient;
 
 use VuFindSearch\Query\AbstractQuery;
+use VuFindSearch\Query\Query;
 
 use VuFindSearch\ParamBag;
 
@@ -207,13 +208,13 @@ class Backend extends AbstractBackend
         if (null !== $params && true == $params->get('setuponly')) {
             return false;
         }
-	
-	// EDS can't empty query, so fill it for all results	
-	if(empty($query->getString())){
-		$query->setString('FT Y OR FT N');
-	}
-        
-	// create query parameters from VuFind data
+
+        // EDS can't empty query, so fill it for all results
+        if ($query instanceof Query && empty($query->getString())) {
+            $query->setString('FT Y OR FT N');
+        }
+
+        // create query parameters from VuFind data
         $queryString = !empty($query) ? $query->getAllTerms() : '';
         $paramsStr = implode('&', null !== $params ? $params->request() : []);
         $this->debugPrint(
