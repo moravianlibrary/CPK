@@ -132,6 +132,16 @@ jQuery( document ).ready( function( $ ) {
 				 * instead of gather some form.
 				 */
                 data = dataFromWindowHistory;
+                var activeDatabase = $('#set-database li.active a').attr('data-value');
+                if (data['database'] != activeDatabase) {
+                    if (data['database'] && data['database'] == 'EDS') {
+                        $("#set-database li a[data-value='Solr']").parent().removeClass('active');
+                        $("#set-database li a[data-value='EDS']").parent().addClass('active');
+                    } else {
+                        $("#set-database li a[data-value='EDS']").parent().removeClass('active');
+                        $("#set-database li a[data-value='Solr']").parent().addClass('active');
+                    }
+                }
 
             } else if (dataFromAutocomplete) {
 				/* 
@@ -164,23 +174,8 @@ jQuery( document ).ready( function( $ ) {
 
                 data['searchTypeTemplate'] = 'basic';
 
-                var database = '';
-                if (data.hasOwnProperty('database')) {
-                    if (data['database'].constructor === Array) {
-                        database = data['database'][0];
-
-                    } else {
-                        database = data['database'];
-                    }
-                } else {
-                    database = $("input[name='database']").val();
-                }
-
-                if (database) {
-                    data['database'] = database;
-                } else {
-                    data['database'] = 'Solr';
-                }
+                var database = $('#set-database li.active a').attr('data-value');
+                data['database'] = database;
 
                 //console.log( 'Data fromautocomplete: ' );
                 //console.log( data );
@@ -210,15 +205,8 @@ jQuery( document ).ready( function( $ ) {
                     }
                 }
 
-                if (!data.hasOwnProperty('database')) {
-                    var database = $("input[name='database']").val();
-
-                    if (database) {
-                        data['database'] = database;
-                    } else {
-                        data['database'] = 'Solr';
-                    }
-                }
+                var database = $('#set-database li.active a').attr('data-value');
+                data['database'] = database;
 
             }
 
