@@ -102,6 +102,13 @@ $this->layout()->headerType = "newlibraries";
             <p><?=$this->escapeHtml($libnote)?></p>
         <? endif; ?>
 
+<!-- Description2-->
+        <? $libnote2 = $this->driver->getLibNote2(); if (!empty($libnote2)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Additional information2')?></h2>
+
+            <p><?=$this->escapeHtml($libnote2)?></p>
+        <? endif; ?>
+
 <!-- Websites-->
 
         <? $urls = $this->driver->getLibUrlArray(); if (!empty($urls)): ?>
