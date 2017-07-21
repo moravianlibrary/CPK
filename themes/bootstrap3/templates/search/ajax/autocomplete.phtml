@@ -153,7 +153,7 @@
           <span style="margin-right: -4px;">&nbsp;<i class="fa fa-times" id="searchclear"></i></span>
 
         <input type='hidden' name='searchTypeTemplate' value='basic'>
-        <input type="hidden" name="database" value="Solr">
+        <input type="hidden" name="database" value="<?=$this->escapeHtmlAttr($this->searchClassId)?>">
         <input type="hidden" name="type0[]" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>">
 	    <input type='hidden' name='join' value='AND'>
 	    <input type='hidden' name='bool0[]' value='AND'>
