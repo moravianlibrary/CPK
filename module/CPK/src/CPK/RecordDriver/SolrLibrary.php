@@ -9,12 +9,14 @@ class SolrLibrary extends ParentSolrMarc
 {
     private $searchController = null;
     private $searchRunner = null;
+    protected $facetsConfig = null;
 
     public function __construct($mainConfig = null, $recordConfig = null,
-                                $searchSettings = null, $searchController = null, $searchRunner = null
+                                $searchSettings = null, $searchController = null, $searchRunner = null, $facetsConfig = null
     ) {
         $this->searchController = $searchController;
         $this->searchRunner = $searchRunner;
+        $this->facetsConfig = $facetsConfig;
         parent::__construct($mainConfig, $recordConfig, $searchSettings);
     }
 
@@ -299,6 +301,17 @@ class SolrLibrary extends ParentSolrMarc
     public function getBranchUrl()
     {
         return isset($this->fields['branchurl_display_mv']) ? $this->fields['branchurl_display_mv'] :'';
+    }
+
+    public function getBookSearchFilter(){
+        $institution = isset($this->fields['cpk_code_search_txt']) ? $this->fields['cpk_code_search_txt'] :'';
+        $institutionsMappings = $this->facetsConfig->InstitutionsMappings->toArray();
+
+        if (isset($institutionsMappings[$institution]))
+            return $institutionsMappings[$institution];
+
+        return null;
+
     }
 
     public function getGpsLat()

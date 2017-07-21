@@ -126,7 +126,8 @@ class Factory
             null,
             $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
             $sm->getServiceLocator()->get('searchController'),
-            $sm->getServiceLocator()->get('VuFind\SearchRunner')
+            $sm->getServiceLocator()->get('VuFind\SearchRunner'),
+            $sm->getServiceLocator()->get('VuFind\Config')->get('facets')
         );
         $driver->attachILS(
             $sm->getServiceLocator()->get('VuFind\ILSConnection'),
