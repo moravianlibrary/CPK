@@ -690,6 +690,6 @@ Libraries:
     - sigla_search_txt
     - cpk_code_search_txt_mv
   FilterQuery: "recordtype:library"
-    DismaxParams:
+  DismaxParams:
     - [bf, ord(library_relevance_str)^9999]
   DismaxHandler: edismax
