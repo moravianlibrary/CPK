@@ -101,9 +101,15 @@ foreach ($queryParams as $key => $value) {
 <? if (!empty($sideFacetSet) && $results->getResultTotal() > 0): ?>
   <? foreach ($sideFacetSet as $title => $cluster): ?>
     <?  $showThisFacet = true;
-        if ($librarySearch == true){
+        if ($librarySearch == true) {
             if($cluster['label'] == 'Institution') $showThisFacet = false;
             if($cluster['label'] == 'Availability') $showThisFacet = false;
+            if($cluster['label'] == 'Document Type') $showThisFacet = false;
+            if($cluster['label'] == 'Conspectus') $showThisFacet = false;
+            if($cluster['label'] == 'adv_search_year') $showThisFacet = false;
+        }
+        if (!(isset($cluster))) {
+            $showThisFacet = false;
         }
     ?>
     <? if($showThisFacet == true): ?>
@@ -337,7 +343,7 @@ JS;
 <!--End of hierarchical facets-->
           <? endif; ?>
 <!--Begin of non - hierarchical facets-->
-          <? foreach ($cluster['list'] as $i=>$thisFacet): ?>
+          <? foreach ((isset($cluster['list']) ? $cluster['list'] : []) as $i=>$thisFacet): ?>
               <?
               $dataFacet = $title.':"'.$thisFacet['value'].'"';
                 if(strlen($thisFacet['displayText']) == 0) {
