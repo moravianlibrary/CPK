@@ -418,6 +418,7 @@ AllFields:
       - [onephrase, ~]
     issn:
       - [onephrase, ~]
+  FilterQuery: "NOT recordtype:library"
 #  ExactSettings:
 #    DismaxFields:
 #      - title_full_unstemmed^600
@@ -670,3 +671,25 @@ adv_search_ipc:
     ipc_search_txt_mv:
       - [onephrase, 100]
       - [and, 50] 
+
+Libraries:
+  DismaxFields:
+    - name_search_txt^500
+    - name_alt_search_txt_mv^400
+    - code_search_txt^300
+    - town_search_txt^100
+    - address_search_txt_mv
+    - note_search_txt
+    - type_search_txt
+    - function_search_txt_mv
+    - responsibility_search_txt_mv
+    - services_search_txt_mv
+    - projects_search_txt_mv
+    - note2_search_txt
+    - branch_search_txt
+    - sigla_search_txt
+    - cpk_code_search_txt_mv
+  FilterQuery: "recordtype:library"
+  DismaxParams:
+    - [bf, ord(library_relevance_str)^9999]
+  DismaxHandler: edismax

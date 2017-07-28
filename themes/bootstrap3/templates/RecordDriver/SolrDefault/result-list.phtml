@@ -158,9 +158,12 @@
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
     <div class="white-box clearfix">
     <div class="row">
+        <? $recordId =  preg_replace("/\./", "", $recordId)?>
+        <? $recordId =  preg_replace("/:/", "", $recordId)?>
+        <? $bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()?>
+        <? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
         <div class="col-sm-2 col-xs-3 left">
-            <? $recordId =  preg_replace("/\./", "", $recordId)?>
-            <? $recordId =  preg_replace("/:/", "", $recordId)?>
+
             <? if ($this->params->getSearchType() == 'advanced'): ?>
             <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
@@ -189,7 +192,8 @@
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>" class="hiddenSource" />
         </div>
-    <div class="col-sm-7 col-xs-7 middle search-result-container">
+        <? endif; ?>
+    <div class="<? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>col-sm-7 col-xs-7<? else: ?>library-result<? endif; ?> middle search-result-container">
       <div class="root-title">
         <? if ($this->params->getSearchType() == 'advanced'): ?>
         <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
@@ -199,10 +203,17 @@
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
           $summTitle = $this->driver->getTitle();
+        ?>
+        <? if ($this->driver instanceof CPK\RecordDriver\SolrLibrary): ?>
+            <?  $libraryTitle = $this->driver->getLibraryNames();?>
+        <? endif; ?>
+            <?
           if (!empty($summHighlightedTitle)) {
             echo $this->highlight($this->addEllipsis($summHighlightedTitle, $summTitle));
           } else if (!empty($summTitle)) {
-            echo $this->escapeHtml($this->truncate($summTitle, 180));
+              echo $this->escapeHtml($this->truncate($summTitle, 180));
+          } else if (!empty($libraryTitle)) {
+              echo $this->escapeHtml($this->truncate($libraryTitle, 180));
           } else {
             echo $this->transEsc('Title not available');
           }
@@ -249,6 +260,21 @@
             <?='' . $this->escapeHtml($summDate[0])?>
           <? endif; ?>
 		</span>
+            <? if ($this->driver instanceof CPK\RecordDriver\SolrLibrary): ?>
+
+                    <? $addresses = $this->driver->getLibraryAddress(); if (!empty($addresses)): ?>
+                    <p><i class="pr-location-pinmap5"></i>
+                        <? foreach ($addresses as $address): ?><?= $this->escapeHtml($address)?><br/><? endforeach; ?>
+                    </p>
+                    <? endif; ?>
+
+                <? $bookSearch = $this->driver->getBookSearchFilter(); if (!empty($bookSearch)): ?>
+                    <? $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('local_institution_facet_str_mv:"'.$this->driver->getBookSearchFilter().'"')); ?>
+                    <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' title='<?=$this->translate('Search in library')?>' >
+                        <?=$this->transEsc('Search in library')?>
+                    </a>
+                <? endif; ?>
+            <? endif; ?>
 
           <? $summInCollection = $this->driver->getContainingCollections(); if (!empty($summInCollection)): ?>
             <? foreach ($summInCollection as $collId => $collText): ?>
@@ -358,6 +384,7 @@
 		</div>
 
     </div>
+    <? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
     <div class="col-sm-3 col-xs-12 right">
     <?
      if ($records) {
@@ -402,6 +429,7 @@
 
       <?=$this->driver->supportsCoinsOpenUrl()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenUrl()).'"></span>':''?>
     </div>
+    <? endif; ?>
   </div>
   </div>
 

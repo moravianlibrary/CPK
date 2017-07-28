@@ -96,7 +96,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     //console.log( 'Compressed facetFilters:' );
     var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
     
-      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv" || facetName == "cpk_detected_format_facet_str_mv") {
+      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv" || facetName == "cpk_detected_format_facet_str_mv" || facetName == "region_disctrict_facet_str_mv") {
           json.push({
               'id': facetFilter,
               'text': html,

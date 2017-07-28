@@ -1,0 +1,174 @@
+<?
+$id = $this->driver->getUniqueID();
+$recordSource = $source = explode(".", $id)[0];
+$maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
+$this->headScript()->appendFile("jquery-ui.min.js");
+$this->layout()->headerType = "newlibraries";
+?>
+<div class="row">
+    <div class="col-md-6 library-detail">
+<!-- Library name -->
+        <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getLibraryNames())?></strong></h2>
+<!-- AlternativeNamesFormated -->
+
+    <? $bookSearch = $this->driver->getBookSearchFilter(); if (!empty($bookSearch)): ?>
+        <? $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('local_institution_facet_str_mv:"'.$this->driver->getBookSearchFilter().'"')); ?>
+        <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' title='<?=$this->translate('Search in library')?>' >
+            <?=$this->transEsc('Search in library')?>
+        </a>
+    <? endif; ?>
+
+<!-- Address-->
+      <h2><i class="pr-location-pinmap5"></i>    <? $addresses = $this->driver->getLibraryAddress(); if (!empty($addresses)): ?>
+            <? foreach ($addresses as $address): ?><?= $this->escapeHtml($address)?><br/><? endforeach; ?>
+          <? endif; ?></h2>
+<!-- Opening hours-->
+          <? $hours = $this->driver->getLibraryHoursArray(); if (!empty($hours)): ?>
+              <h2><i class="pr-interface-clocktime"></i><?=$this->translate('Opening hours')?></h2>
+              <table class="table">
+                  <? if (!empty($hours['mo'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Monday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['mo'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['tu'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Tuesday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['tu'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['we'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Wednesday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['we'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['th'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Thursday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['th'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['fr'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Friday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['fr'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['sa'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Saturday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['sa'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['su'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Sunday')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['su'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                  <? if (!empty($hours['for'])): ?>
+                      <tr>
+                          <td><?=$this->transEsc('Next')?></td>
+                          <td>
+                              <?=$this->escapeHtml($hours['for'])?>
+                          </td>
+                      </tr>
+                  <? endif; ?>
+                </table>
+         <? endif; ?>
+
+
+
+<!-- Description-->
+        <? $libnote = $this->driver->getLibNote(); if (!empty($libnote)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Additional information')?></h2>
+
+            <p><?=$this->escapeHtml($libnote)?></p>
+        <? endif; ?>
+
+<!-- Description2-->
+        <? $libnote2 = $this->driver->getLibNote2(); if (!empty($libnote2)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Additional information2')?></h2>
+
+            <p><?=$this->escapeHtml($libnote2)?></p>
+        <? endif; ?>
+
+<!-- Websites-->
+
+        <? $urls = $this->driver->getLibUrlArray(); if (!empty($urls)): ?>
+            <h2><i class="pr-web-browseinternetnetwork"></i><?=$this->translate('Web sites')?></h2>
+
+            <? foreach ($urls as $url): ?>
+
+                <p><a href="<?=$url['url']?>"><?=$url['name']?></a></p>
+
+            <? endforeach; ?>
+
+        <? endif; ?>
+
+
+
+        <!-- Library type-->
+        <? $types = $this->driver->getType(); if (!empty($types)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Type')?></h2>
+            <? foreach ($types as $type): ?>
+                <p><?=$this->escapeHtml($type)?></p>
+            <? endforeach; ?>
+
+        <? endif; ?>
+
+        <!-- Mvs-->
+        <? $mvses = $this->driver->getMvs(); if (!empty($mvses)): ?>
+            <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Interlibrary loan')?></h2>
+            <? foreach ($mvses as $mvs): ?>
+                <p><?=$this->escapeHtml($mvs)?></p>
+            <? endforeach; ?>
+        <? endif; ?>
+
+    </div>
+
+    <? $lat = $this->driver->getGpsLat() ?>
+    <? $long = $this->driver->getGpsLng() ?>
+
+    <div class="col-sm-6">
+        <style>
+            #map {height: 600px;}
+        </style>
+        <div id="map"></div>
+
+        <script>
+            function initMap() {
+                var myLatLng = {lat: 49.78, lng: 15.39};
+
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 7,
+                    center: myLatLng
+                });
+                var position = {lat: <?=$lat ?>, lng: <?=$long ?>};
+                var marker = new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: 'name of library'
+                });
+            }
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=initMap"
+                async defer></script>
+    </div>
+</div>

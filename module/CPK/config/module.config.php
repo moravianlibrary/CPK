@@ -36,6 +36,7 @@ $config = array(
                     'solrlocal' => 'CPK\RecordDriver\Factory::getSolrMarcLocal',
                     'solrdublincore' => 'CPK\RecordDriver\Factory::getSolrDublinCore',
                     'solrauthority' => 'CPK\RecordDriver\Factory::getSolrAuthority',
+                    'solrlibrary' => 'CPK\RecordDriver\Factory::getSolrLibrary',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
@@ -46,7 +47,11 @@ $config = array(
                     'buy' => 'CPK\RecordTab\Buy',
                     'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
 					'holdingsils'     => 'CPK\RecordTab\HoldingsILS',
-                    'tagsandcomments' => 'CPK\RecordTab\TagsAndComments'
+                    'tagsandcomments' => 'CPK\RecordTab\TagsAndComments',
+                    'branches' => 'CPK\RecordTab\Branches',
+                    'services' => 'CPK\RecordTab\Services',
+                    'addInfo' => 'CPK\RecordTab\AddInfo',
+                    'contacts' => 'CPK\RecordTab\Contacts',
                 ), /* invokables */
             ), /* recordtab */
             'recommend' => [
@@ -151,6 +156,17 @@ $config = array(
                     'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => 'EVersion'
+            ],
+            'CPK\RecordDriver\SolrLibrary' => [
+                'tabs' => [
+                    'AddInfo' => 'AddInfo',
+                    'Contacts' => 'Contacts',
+                    'Services' => 'Services',
+                    'Branches' => 'Branches',
+                    'Details' => 'StaffViewMARC',
+                    'DedupedRecords' => 'DedupedRecords'
+                ],
+                'defaultTab' => 'AddInfo'
             ]
         ]
     ), /* vufind */

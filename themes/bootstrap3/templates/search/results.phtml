@@ -20,6 +20,9 @@
 
   $this->headLink()->appendStylesheet('vendor/prism.css');
   $this->headLink()->appendStylesheet('vendor/chosen.css');
+  if ($this->librarySearch == true) {
+    $this->layout()->headerType = "newlibraries";
+  }
 
   // Set up search box:
   $this->layout()->searchbox = $this->context($this)->renderInContext(

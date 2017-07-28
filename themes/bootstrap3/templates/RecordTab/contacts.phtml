@@ -1,0 +1,26 @@
+<?
+    // Set page title.
+    $this->headTitle($this->translate('Branches') . ': ' . $this->driver->getBreadcrumb());
+
+?>
+
+    <!-- Phones-->
+<? $phones = $this->driver->getPhone(); if (!empty($phones)): ?>
+    <h2><i class="pr-communication-phonecall"></i><?=$this->translate('Telephone')?></h2>
+
+    <? foreach ($phones as $phone): ?><?= $this->escapeHtml($phone)?><br/><? endforeach; ?>
+<? endif; ?>
+
+    <!-- Emails-->
+
+<? $emailes = $this->driver->getEmail(); if (!empty($emailes)): ?>
+    <h2><i class="pr-communication-emailenvelope"></i><?=$this->translate('E-mail')?></h2>
+    <? foreach ($emailes as $email): ?><?= $this->escapeHtml($email)?><br/><? endforeach; ?>
+<? endif; ?>
+
+<!-- LibResponsibility-->
+
+<? $libresponsibilities = $this->driver->getLibResponsibility(); if (!empty($libresponsibilities)): ?>
+    <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('LibResponsibility')?></h2>
+    <? foreach ($libresponsibilities as $libresponsibility): ?><?= $this->escapeHtml($libresponsibility)?><br/><? endforeach; ?>
+<? endif; ?>

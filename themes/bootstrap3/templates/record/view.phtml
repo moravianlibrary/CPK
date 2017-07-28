@@ -110,6 +110,7 @@
       </div>
     </div>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
+        <? if($source != "library"): ?>
 			<div class='row records-in-groups-container' id='records-in-groups-container'>
 			  <div class='col-md-2 text-center'>
 				<h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
@@ -123,7 +124,7 @@
 			  </div>
 			  <? if($this->sigla): ?>
 			  <div class='col-md-2 information'>
-				<a href='/Libraries/Library?sigla=<?=$this->sigla?>' target='_blank' title='<?=$this->translate('Information about library')?>'>
+				<a href='/Search/Results/?lookfor0[]=<?=$this->sigla?>&type0[]=Libraries&bool0[]=AND&filter=&daterange=&publishDatefrom=&publishDateto=&limit=10&sort=relevance&page=1&searchTypeTemplate=basic&keepFacetsEnabled=true&join=AND' target='_blank' title='<?=$this->translate('Information about library')?>'>
 				  <div class='row'>
 				    <div class='col-md-3 information-icon'>
 				      <i class='cpk-icon'>i</i>
@@ -136,6 +137,7 @@
 			  </div>
 			  <? endif; ?>
 			</div>
+        <? endif; ?>
 			<div>
 
             <? if (count($this->tabs) > 0): ?>
@@ -261,7 +263,48 @@
             	}
 
             	//
-            	var recordID = '<?= $this->driver->getUniqueID() ?>';
+
+                // Disable AddInfo tab
+                <?   $addInfoItemsCount = 1;
+                if(method_exists($this->driver, "AddInfoItemsCount"))
+                    $addInfoItemsCount = $this->driver->AddInfoItemsCount();
+                ?>
+                var addInfoItemsCount = <?=$addInfoItemsCount?>;
+                if ( addInfoItemsCount == 0 ) {
+                    $( '#addinfo' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                // Disable Contacts tab
+                <?   $ContactsItemsCount = 1;
+                if(method_exists($this->driver, "ContactsItemsCount"))
+                    $ContactsItemsCount = $this->driver->ContactsItemsCount();
+                ?>
+                var ContactsItemsCount = <?=$ContactsItemsCount?>;
+                if ( ContactsItemsCount == 0 ) {
+                    $( '#contacts' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                // Disable Servics tab
+                <?   $ServicesItemsCount = 1;
+                if(method_exists($this->driver, "ServicesItemsCount"))
+                    $ServicesItemsCount = $this->driver->ServicesItemsCount();
+                ?>
+                var ServicesItemsCount = <?=$ServicesItemsCount?>;
+                if ( ServicesItemsCount == 0 ) {
+                    $( '#services' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                // Disable Branches tab
+                <?   $BranchesItemsCount = 1;
+                if(method_exists($this->driver, "BranchesItemsCount"))
+                    $BranchesItemsCount = $this->driver->BranchesItemsCount();
+                ?>
+                var BranchesItemsCount = <?=$BranchesItemsCount?>;
+                if ( BranchesItemsCount == 0) {
+                    $( '#branches' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                var recordID = '<?= $this->driver->getUniqueID() ?>';
             	var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
 
             	var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );

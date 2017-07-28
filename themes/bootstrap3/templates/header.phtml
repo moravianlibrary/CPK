@@ -13,14 +13,14 @@
 <? if (!isset($this->layout()->renderingError)): ?>
   <div class="collapse navbar-collapse" id="header-collapse">
     <ul class="nav navbar-nav">
-        <li <? if (($this->layout()->headerType != "libraries") && ($this->layout()->headerType != "inspiration")): ?>class="active"<? endif; ?> >
+        <li <? if (($this->layout()->headerType != "newlibraries") && ($this->layout()->headerType != "inspiration")): ?>class="active"<? endif; ?> >
             <a href="<?=$this->url('home')?>"><?=$this->translate('Catalog')?><span class="sr-only">(current)</span></a>
         </li>
         <li <? if ($this->layout()->headerType == "inspiration"): ?>class="active"<? endif; ?> >
             <a href="/Search/Inspiration" title="<?=$this->translate('Inspiration')?>"><?=$this->translate('Inspiration')?></a>
         </li>
-        <li <? if ($this->layout()->headerType == "libraries"): ?>class="active"<? endif; ?> >
-            <a href="/Libraries/List/">
+        <li <? if ($this->layout()->headerType == "newlibraries"): ?>class="active"<? endif; ?> >
+            <a href="/Search/Results/?lookfor0[]=*&type0[]=Libraries&bool0[]=AND&filter=&daterange=&publishDatefrom=&publishDateto=&limit=10&sort=relevance&page=1&searchTypeTemplate=basic&keepFacetsEnabled=true&join=AND">
                 <? $titleHtml = $this->translate('Libraries') ?>
                 <?= $this->help()->getElementHelp('element_help_header_libraries', $titleHtml) ?>
             </a>

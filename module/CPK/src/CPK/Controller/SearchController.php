@@ -634,7 +634,15 @@ class SearchController extends SearchControllerBase
 	        return $this->redirectToSavedSearch($savedId);
 	    }
 
-	    // Send both GET and POST variables to search class:
+        $view->librarySearch = false;
+        $searchType = $this->params()->fromQuery('type0')[0];
+        if ($searchType == 'Libraries') {
+            $view->librarySearch = true;
+            $view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
+        }
+
+
+        // Send both GET and POST variables to search class:
 	    $request = $this->getRequest()->getQuery()->toArray()
 	    + $this->getRequest()->getPost()->toArray();
 
@@ -1148,6 +1156,13 @@ class SearchController extends SearchControllerBase
 
         /* Prepare referer */
         $viewData['referer'] = $this->base64url_encode($postParams['searchResultsUrl']);
+
+        $viewData['librarySearch'] = false;
+        $searchType = $request['type0'][0];
+        if ($searchType == 'Libraries') {
+            $viewData['librarySearch']  = true;
+            $viewData['apikey'] = (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
+        }
 
         /* Set limit and sort */
         $searchesConfig = $this->getConfig('searches');
