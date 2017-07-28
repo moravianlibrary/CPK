@@ -46,6 +46,13 @@ class SideFacets extends SideFacetsBase
     protected $institutionsMappings = [];
 
     /**
+     * Checkbox facet configuration
+     *
+     * @var array
+     */
+    protected $ajaxFacets = [];
+
+    /**
      * Store the configuration of the recommendation module.
      *
      * @param string $settings Settings from searches.ini.
@@ -67,6 +74,8 @@ class SideFacets extends SideFacetsBase
         // All standard facets to display:
         $this->mainFacets = isset($config->$mainSection) ?
             $config->$mainSection->toArray() : [];
+
+
 
         // Load boolean configurations:
         $this->loadBooleanConfigs($config, array_keys($this->mainFacets));
@@ -118,16 +127,58 @@ class SideFacets extends SideFacetsBase
         }
         // End of version from module VuFind
 
+        if (isset($config->SpecialFacets->ajax)) {
+            $this->ajaxFacets = $config->SpecialFacets->ajax->toArray();
+        }
+
         if (isset($config->InstitutionsMappings)) {
             $this->institutionsMappings = $config->InstitutionsMappings->toArray();
         }
     }
 
-    public function getInstutitionMapping($institution) {
+    /**
+     * Called at the end of the Search Params objects' initFromRequest() method.
+     * This method is responsible for setting search parameters needed by the
+     * recommendation module and for reading any existing search parameters that may
+     * be needed.
+     *
+     * @param \VuFind\Search\Base\Params $params  Search parameter object
+     * @param \Zend\StdLib\Parameters    $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    public function init($params, $request)
+    {
+        // Turn on side facets in the search results:
+        foreach ($this->mainFacets as $name => $desc) {
+            if (!in_array($name, $this->ajaxFacets)) {
+                $params->addFacet($name, $desc, in_array($name, $this->orFacets));
+            }
+        }
+        foreach ($this->checkboxFacets as $name => $desc) {
+            $params->addCheckboxFacet($name, $desc);
+        }
+    }
 
+    public function getFacetSet()
+    {
+        $facetSet = parent::getFacetSet();
+        $newFacetSet = [];
+        foreach ($this->mainFacets as $name => $desc) {
+            if (in_array($name, $this->ajaxFacets)) {
+                $newFacetSet[$name] = ['label' => $desc, 'list' => [], 'ajax' => true ];
+            } else {
+                $newFacetSet[$name] = &$facetSet[$name];
+            }
+        }
+        return $newFacetSet;
+    }
+
+    public function getInstutitionMapping($institution) {
         if (isset($this->institutionsMappings[$institution]))
             return $this->institutionsMappings[$institution];
-
         return $institution;
     }
+
 }
