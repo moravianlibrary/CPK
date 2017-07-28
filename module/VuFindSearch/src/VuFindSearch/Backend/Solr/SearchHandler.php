@@ -424,7 +424,7 @@ class SearchHandler
             }
         }
         if ($this->hasFilterQuery()) {
-            $query = sprintf('(%s) AND (%s)', $query, $this->getFilterQuery());
+            $query = sprintf('(%s) AND %s', $query, $this->getFilterQuery());
         }
         return "($query)";
     }
