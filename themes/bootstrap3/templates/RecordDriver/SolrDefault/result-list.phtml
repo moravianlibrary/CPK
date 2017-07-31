@@ -362,7 +362,7 @@
         	  <?=$this->record($this->driver)->getFormatList()?>
       		</div>
 		  </div>
-		  <div class='col-md-4 search-results-favorite-button hidden pull-right'>
+		  <div class='col-md-4 search-results-favorite-button transparent-color pull-right'>
     		<? if ($this->userlist()->getMode() !== 'disabled'):
                 $controllerClass = 'controller:' . $this->record($this->driver)->getController();
                 $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled; ?>
