@@ -692,4 +692,5 @@ Libraries:
   FilterQuery: "recordtype:library"
   DismaxParams:
     - [bf, ord(library_relevance_str)^9999]
+    - [bq, "inspiration:top_results^1"]
   DismaxHandler: edismax
