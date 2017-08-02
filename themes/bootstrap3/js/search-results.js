@@ -1193,11 +1193,11 @@ jQuery( document ).ready( function( $ ) {
 	
 	$( 'body' ).on( 'mouseover', '.result', function( event ) {
 	
-		$( this ).find( '.search-results-favorite-button' ).removeClass( 'transparent-color' );
+		$( this ).find( '.search-results-favorite-button' ).removeClass( 'hidden' );
 	});
 	
 	$( 'body' ).on( 'mouseleave', '.result', function( event ) {
-		$( this ).find( '.search-results-favorite-button' ).addClass( 'transparent-color' );
+		$( this ).find( '.search-results-favorite-button' ).addClass( 'hidden' );
 	});
 
 	/**
