@@ -690,6 +690,11 @@ jQuery( document ).ready( function( $ ) {
          * @return    {undefined}
          */
         updateUrl: function (data) {
+	    if (window.location.href.indexOf('/EDS/') != -1){
+		data['database'] = 'EDS';
+		$("#set-database li a[data-value='EDS']").parent().addClass("active");
+		$("#set-database li a[data-value='Solr']").parent().removeClass("active");
+	    }
             var stateObject = data;
             var title = 'New search query';
             var url = '/Search/Results/?' + jQuery.param(data)
