@@ -250,6 +250,14 @@
     </header>
 
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
+      <script>
+        dataLayer.push({
+          'page': {
+            'title': '<?=$this->headTitle()->renderTitle()?>',
+            'language': '<?=$this->layout()->userLang?>'
+          }
+        });
+      </script>
       <div class="container">
         <? if ($this->layout()->frontpage != true): ?>
           <? if ($this->layout()->headerType != "libraries"): ?>

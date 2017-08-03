@@ -5,6 +5,18 @@ $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 $this->headScript()->appendFile("jquery-ui.min.js");
 $this->layout()->headerType = "newlibraries";
 ?>
+<!-- Sigla-->
+<? $sigla = $this->driver->getSigla(); if (!empty($sigla)): ?>
+    <script>
+        dataLayer.push({
+            'page': {
+                'library': '<?=$this->escapeHtml($sigla)?>'
+            }
+        });
+    </script>
+<? endif; ?>
+
+
 <div class="row">
     <div class="col-md-6 library-detail">
 <!-- Library name -->
