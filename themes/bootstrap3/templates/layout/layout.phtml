@@ -24,6 +24,14 @@
         )
       );
     ?>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TXJ544');</script>
+    <!-- End Google Tag Manager -->
+
     <!-- RTL styling -->
     <? if ($this->layout()->rtl) {
       $this->headLink()->appendStylesheet('vendor/bootstrap-rtl.min.css');
@@ -191,6 +199,11 @@
     <?=$this->headScript()->appendFile("geolocation.js");?>
   </head>
   <body data-ng-app="cpk" data-ng-controller="GlobalController as ctrl" class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?>">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXJ544"
+                      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
     <?=$this->render('cookies-agreement.phtml')?>
     <?=$this->render('info.phtml')?>
     <? // Set up the search box -- there are three possible cases:
@@ -337,14 +350,5 @@
       </div>
     </div>
     <? endif; ?>
-    <!-- Google Tag Manager -->
-    <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-TXJ544"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-TXJ544');</script>
-    <!-- End Google Tag Manager -->
   </body>
 </html>
