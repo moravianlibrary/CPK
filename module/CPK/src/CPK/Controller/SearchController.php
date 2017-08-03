@@ -639,12 +639,12 @@ class SearchController extends SearchControllerBase
 	    + $this->getRequest()->getPost()->toArray();
 	    
 	    // EDS can't search with emtpy lookfor string,
-	    // so we set it to 'FT Y OR FT N' for all results
+	    /* so we set it to 'FT Y OR FT N' for all results
 	    if($request['database'] == 'EDS'){
 		    if (empty($request['lookfor0'][0])){
 			$request['lookfor0'][0]='FT Y OR FT N';		
 		    }
-	    }
+	    }*/
 
 	    if (! empty($request['filter'])) {
 	        $decompressedFilters = \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($request['filter']));
