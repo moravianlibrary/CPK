@@ -1328,28 +1328,28 @@ jQuery( document ).ready( function( $ ) {
 */
 	var previousSort = $( "input[name='sort']" ).val();
 	var text_sort = null;
-	if (database == 'EDS'){
+	if (database == 'EDS') {
 		if (previousSort == 'publishDateSort desc'){
-			extraData['sort'] = 'date';
-			text_sort = VuFind.translate('date_newest');
-		}else if (previousSort == 'publishDateSort asc'){
-			extraData['sort'] = 'date2';
-			text_sort = VuFind.translate('date_oldest');
-		}else{
+		    extraData['sort'] = 'date';
+            text_sort = VuFind.translate('date_newest');
+		} else if (previousSort == 'publishDateSort asc'){
+		    extraData['sort'] = 'date2';
+            text_sort = VuFind.translate('date_oldest');
+		} else{
 			extraData['sort'] = 'relevance';
 			text_sort = VuFind.translate('sort_relevance');
 		}
-	}else if (database == 'Solr'){
-		if (previousSort == 'date'){
-                        extraData['sort'] = 'publishDateSort desc';
-			text_sort = VuFind.translate('date_newest');
-                }else if (previousSort == 'date2'){
-                        extraData['sort'] = 'publishDateSort asc';
-			text_sort = VuFind.translate('date_oldest');
-                }else{
-                        extraData['sort'] = 'relevance';
-			text_sort = VuFind.translate('sort_relevance');
-                }	
+	} else if (database == 'Solr') {
+        if (previousSort == 'date') {
+            extraData['sort'] = 'publishDateSort desc';
+            text_sort = VuFind.translate('date_newest');
+        } else if (previousSort == 'date2') {
+            extraData['sort'] = 'publishDateSort asc';
+            text_sort = VuFind.translate('date_oldest');
+        } else {
+            extraData['sort'] = 'relevance';
+            text_sort = VuFind.translate('sort_relevance');
+        }
 	}
 	$( '.ajax-update-sort' ).find( '.value' ).text( text_sort );
         
