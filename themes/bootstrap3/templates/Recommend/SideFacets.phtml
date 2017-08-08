@@ -3,6 +3,12 @@
 <? $filterClass = (!isset($this->searchClassId) || $this->searchClassId == 'Solr') ? 'facet-filter' : 'facet-filter-central-index';?>
 <?
 
+    $filterTranslations = [
+        'eds_limiter_FT'        => 'find_fulltext_documents_only',
+        'eds_limiter_RV'        => 'find_reviewed_documents_only',
+        'eds_expander_fulltext' => 'serach_also_fulltexts_of_documents',
+    ];
+
   $html = '';
   $shown = 0;
   foreach ($checkboxFilters as $current) {
@@ -12,11 +18,13 @@
     } else {
       $shown ++;
     }
-    $html .= '"><input type="checkbox" name="filter[]" value="'.$this->escapeHtmlAttr($current['filter']).'"
-      '. ($current['selected'] ? 'checked="checked"' : '') .' id="'.$this->escapeHtmlAttr(str_replace(' ', '', $current['desc'])).'"/>'.$this->transEsc($current['desc']).'</label>';
+    $html .= '"><input type="checkbox" class="jsTreeLikeCheckbox" name="filter[]" value="'.$this->escapeHtmlAttr($current['filter']).'"
+      '. ($current['selected'] ? 'checked="checked"' : '') .' id="'.$this->escapeHtmlAttr(str_replace(' ', '', $current['desc'])).'"/>';
+    $html .= '<span class="jsTreeLikeCheckboxDescription">'.$this->translate($filterTranslations[$current['desc']]).'</span>';
+    $html .= '</label>';
   }
 ?>
-  <div class="checkboxFilter<?if($shown == 0):?> hidden<? endif; ?>"><?=$html ?></div>
+
 <? endif; ?>
 <? $extraFilters = isset($this->extraSideFacetFilters) ? $this->extraSideFacetFilters : array(); ?>
 <? $collapsedFacets = $this->recommend->getCollapsedFacets() ?>
@@ -49,6 +57,7 @@ foreach ($queryParams as $key => $value) {
       <?= $this->help()->getQuestionMarkHelp('facets') ?>
     </h3>
 <? endif; ?>
+
 <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
     <div class="list-group filters">
 
@@ -75,7 +84,7 @@ foreach ($queryParams as $key => $value) {
                         <span class="pull-right flip"><i class="fa fa-times"></i></span>
                         <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?>
                         <? if ($field != 'unrecognized_facet_label'): ?>
-                          <?=$this->transEsc($field)?>:
+                            <?=$this->transEsc($field)?>:
                         <? endif; ?>
 
                         <? if (strpos($this->escapeHtml($filter['displayText']), "Library/") !== false) {
@@ -89,10 +98,16 @@ foreach ($queryParams as $key => $value) {
             <? endif; ?>
         <? endforeach; ?>
         <div class='text-center'>
-          <a id='remove-all-filters-async' href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
+            <a id='remove-all-filters-async' href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
         </div>
     </div>
 <? endif;?>
+
+<div class="checkboxFilter<?if($shown == 0):?> hidden<? endif; ?>">
+    <div id="side-panel-eds-filters">
+        <?=$html?>
+    </div>
+</div>
 
 <?= isset($this->sideFacetExtraControls) ? $this->sideFacetExtraControls : '' ?>
 <? $sideFacetSet = $this->recommend->getFacetSet(); $rangeFacets = $this->recommend->getAllRangeFacets(); ?>
@@ -448,6 +463,7 @@ JS;
 $(function () {
 $('[data-toggle="tooltip"]').tooltip()
 })
+
 </script>
 
 <?=$this->render("Recommend/SideFacets/timelineModal.phtml")?>

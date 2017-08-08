@@ -5,6 +5,7 @@ $recordId = $this->driver->getUniqueID();
 $recordSource = explode(".", $recordId)[0];
 $formats = $this->driver->getFormats();
 $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
+
 if (empty($lookfor)) {
     $lookfor = $this->record($this->driver)->getObalkyKnihAdvert('results');
 }
