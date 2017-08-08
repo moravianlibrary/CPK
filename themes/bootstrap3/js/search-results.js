@@ -1145,8 +1145,11 @@ jQuery( document ).ready( function( $ ) {
 		
 		var value = 'publishDate:"['+extraData['publishDatefrom']+' TO '+extraData['publishDateto']+']"';
 		ADVSEARCH.addFacetFilter(value, false);
-		
-		ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
+		if ($( "input[name='database']" ).val() == 'EDS'){	
+			window.location.href = '/EDS/Search?lookfor=&type=AllFields&searchTypeTemplate=basic&page=1&database=EDS&limit=&sort=&PublicationDatefrom='+extraData['publishDatefrom']+'&PublicationDateto='+extraData['publishDateto']+'&daterange=PublicationDate';
+		}else{	
+			ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
+		}
 	});
 	
 	/*
