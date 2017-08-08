@@ -203,7 +203,18 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXJ544"
                       height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+    <script>
+      dataLayer.push({
+        'page': {
+          'title': '<?=$this->headTitle()->renderTitle()?>',
+          'language': '<?=$this->layout()->userLang?>',
+          'category': 'undefined',
+          'type': 'undefined',
+          'library': 'undefined'
 
+        }
+      });
+    </script>
     <?=$this->render('cookies-agreement.phtml')?>
     <?=$this->render('info.phtml')?>
     <? // Set up the search box -- there are three possible cases:
@@ -250,14 +261,6 @@
     </header>
 
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
-      <script>
-        dataLayer.push({
-          'page': {
-            'title': '<?=$this->headTitle()->renderTitle()?>',
-            'language': '<?=$this->layout()->userLang?>'
-          }
-        });
-      </script>
       <div class="container">
         <? if ($this->layout()->frontpage != true): ?>
           <? if ($this->layout()->headerType != "libraries"): ?>
