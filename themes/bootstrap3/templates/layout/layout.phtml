@@ -203,6 +203,12 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXJ544"
                       height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+    <?
+    $loggedIn = "Ne";
+    if($user) {
+      $loggedIn = "Ano";
+    }
+    ?>
     <script>
       dataLayer.push({
         'page': {
@@ -211,8 +217,11 @@
           'category': undefined,
           'type': undefined,
           'library': undefined
-
+        },
+        'user': {
+          'loggedIn': '<?=$loggedIn ?>'
         }
+
       });
     </script>
     <?=$this->render('cookies-agreement.phtml')?>
