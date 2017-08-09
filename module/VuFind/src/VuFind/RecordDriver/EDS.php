@@ -510,7 +510,7 @@ class EDS extends SolrDefault
                     $link_xml = '/<searchLink fieldCode="([^\"]*)" '
                         . 'term="%22([^\"]*)%22">/';
                     $link_html
-                        = "<a href=\"../EDS/Search?lookfor=$2&amp;type={$type}\">";
+                        = "<a href=\"../../EDS/Search?lookfor=$2&amp;type={$type}\">";
                     $data = preg_replace($link_xml, $link_html, $data);
                     $data = str_replace('</searchLink>', '</a>', $data);
                 }
