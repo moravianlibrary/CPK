@@ -5,6 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) Villanova University 2011.
+ * Copyright (C) Moravian Library 2017.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,9 +26,21 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
+
 namespace CPK\ILS\Driver;
 
+use CPK\XmlTransformation\NCIPNormalizer;
+use CPK\XmlTransformation\NCIPDenormalizer;
+use CPK\XmlTransformation\SimpleXMLElementEnhanced;
+use \XSLTProcessor as XSLTProcessor;
 use VuFind\Exception\ILS as ILSException, DOMDocument;
+use VuFind\I18n\Translator\TranslatorAwareInterface;
+use VuFind\ILS\Driver\AbstractBase;
+use VuFindHttp\HttpServiceAwareInterface;
+use VuFindHttp\HttpServiceInterface;
+use Zend\I18n\Translator\TranslatorInterface;
+use Zend\Log\LoggerAwareInterface;
+use Zend\Log\LoggerInterface;
 
 /**
  * XC NCIP Toolkit (v2) ILS Driver
@@ -39,43 +52,79 @@ use VuFind\Exception\ILS as ILSException, DOMDocument;
  *          License
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
-    \VuFindHttp\HttpServiceAwareInterface, \VuFind\I18n\Translator\TranslatorAwareInterface, CPKDriverInterface
+class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, TranslatorAwareInterface, CPKDriverInterface, LoggerAwareInterface
 {
 
     const AGENCY_ID_DELIMITER = ':';
+
     const CANCEL_REQUEST_PREFIX = 'req';
 
+    /**
+     * @var int
+     */
     protected $maximumItemsCount = null;
 
     /**
      * HTTP service
      *
-     * @var \VuFindHttp\HttpServiceInterface
+     * @var HttpServiceInterface
      */
     protected $httpService = null;
 
+    /**
+     * @var NCIPRequests
+     */
     protected $requests = null;
 
+    /**
+     * @var bool
+     */
     protected $cannotUseLUIS = false;
 
+    /**
+     * @var bool
+     */
     protected $hideHoldLinks = false;
 
+    /**
+     * @var bool
+     */
     protected $hasUntrustedSSL = false;
 
+    /**
+     * @var string
+     */
     protected $cacert = null;
 
+    /**
+     * @var int
+     */
     protected $timeout = null;
 
+    /**
+     * @var string
+     */
     protected $logo = null;
 
+    /**
+     * @var string
+     */
     protected $agency = '';
+
+    /**
+     * @var string
+     */
     protected $source = '';
 
+    /**
+     * @var bool
+     */
     protected $translator = false;
 
-    protected $libsLikeTabor = null;
-    protected $libsLikeLiberec = null;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger = null;
 
     /**
      * Set the HTTP service to be used for HTTP requests.
@@ -85,7 +134,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *
      * @return void
      */
-    public function setHttpService(\VuFindHttp\HttpServiceInterface $service)
+    public function setHttpService(HttpServiceInterface $service)
     {
         $this->httpService = $service;
     }
@@ -104,26 +153,24 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (empty($this->config)) {
             $message = 'Configuration needs to be set.';
 
-            $this->addEnviromentalException($message);
+            $this->addEnvironmentalException($message);
             throw new ILSException($message);
         }
 
         $maximumItemsCount = $this->config['Catalog']['maximumItemsCount'];
 
-        if (! empty($maximumItemsCount))
+        if (!empty($maximumItemsCount))
             $this->maximumItemsCount = intval($maximumItemsCount);
         else
             $this->maximumItemsCount = 20;
 
-        if (isset($this->config['Catalog']['cannotUseLUIS']) &&
-             $this->config['Catalog']['cannotUseLUIS'])
+        if (isset($this->config['Catalog']['cannotUseLUIS']) && $this->config['Catalog']['cannotUseLUIS'])
             $this->cannotUseLUIS = true;
 
-        if (! empty($this->config['Catalog']['hideHoldLinks']))
+        if (!empty($this->config['Catalog']['hideHoldLinks']))
             $this->hideHoldLinks = true;
 
-        if (isset($this->config['Catalog']['hasUntrustedSSL']) &&
-             $this->config['Catalog']['hasUntrustedSSL'])
+        if (isset($this->config['Catalog']['hasUntrustedSSL']) && $this->config['Catalog']['hasUntrustedSSL'])
             $this->hasUntrustedSSL = true;
 
         if (isset($this->config['Catalog']['cacert']))
@@ -142,13 +189,30 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $this->source = $this->config['Availability']['source'];
 
         $this->requests = new NCIPRequests($this->config);
-        $this->libsLikeTabor = $this->requests->getLibsLikeTabor();
-        $this->libsLikeLiberec = $this->requests->getLibsLikeLiberec();
     }
 
-    public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
+    /**
+     * @param TranslatorInterface $translator
+     * @return void
+     */
+    public function setTranslator(TranslatorInterface $translator)
     {
-        $this->translator = $translator->getTranslator();
+        if (method_exists($translator, "getTranslator")) {
+            $this->translator = $translator->getTranslator();
+        } else {
+            $this->logger->err("Error setting up translator");
+        }
+    }
+
+    /**
+     * Set logger instance
+     *
+     * @param LoggerInterface $logger
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -156,15 +220,16 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *
      * @param string $xml
      *            XML request document
-     *
-     * @return \SimpleXMLElement parsed from response
+     * @return SimpleXMLElementEnhanced parsed from response
+     * @throws ILSException
      */
     protected function sendRequest($xml)
     {
+        $this->denormalizeRequest($xml);
+
         // Make the NCIP request:
         try {
-            $client = $this->httpService->createClient(
-                $this->config['Catalog']['url']);
+            $client = $this->httpService->createClient($this->config['Catalog']['url']);
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
@@ -173,13 +238,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             ));
 
             if (isset($this->timeout))
-                $client->setOptions(
-                    array(
-                        'timeout' => $this->timeout
-                    ));
+                $client->setOptions(array(
+                    'timeout' => $this->timeout
+                ));
 
-            if ((! empty($this->config['Catalog']['username'])) &&
-                    (! empty($this->config['Catalog']['password']))) {
+            if ((!empty($this->config['Catalog']['username'])) && (!empty($this->config['Catalog']['password']))) {
 
                 $user = $this->config['Catalog']['username'];
                 $password = $this->config['Catalog']['password'];
@@ -188,62 +251,62 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             if ($this->hasUntrustedSSL) {
                 // Do not verify SSL certificate
-                $client->setOptions(
-                    array(
-                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                        'curloptions' => array(
-                            CURLOPT_SSL_VERIFYHOST => false,
-                            CURLOPT_SSL_VERIFYPEER => false
-                        )
-                    ));
+                $client->setOptions(array(
+                    'adapter' => 'Zend\Http\Client\Adapter\Curl',
+                    'curloptions' => array(
+                        CURLOPT_SSL_VERIFYHOST => false,
+                        CURLOPT_SSL_VERIFYPEER => false
+                    )
+                ));
             } elseif (isset($this->cacert)) {
-                $client->setOptions(
-                    array(
-                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                        'curloptions' => array(
-                            CURLOPT_FOLLOWLOCATION => true,
-                            CURLOPT_CAINFO => $this->cacert
-                        )
-                    ));
+                $client->setOptions(array(
+                    'adapter' => 'Zend\Http\Client\Adapter\Curl',
+                    'curloptions' => array(
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_CAINFO => $this->cacert
+                    )
+                ));
             }
 
             $result = $client->send();
         } catch (\Exception $e) {
             $message = $e->getMessage();
 
-            $this->addEnviromentalException($message);
+            $this->addEnvironmentalException($message);
             throw new ILSException($message);
         }
 
-        if (! $result->isSuccess()) {
+        if (!$result->isSuccess()) {
             $message = 'HTTP error: ' . $result->getStatusCode();
 
-            $this->addEnviromentalException($message);
+            $this->addEnvironmentalException($message);
             throw new ILSException($message);
         }
 
         // Process the NCIP response:
         $body = $result->getBody();
-        $response = @simplexml_load_string($body);
+        $response = @simplexml_load_string($body, 'CPK\XmlTransformation\SimpleXMLElementEnhanced');
 
-        if (! is_a($response, 'SimpleXMLElement')) {
+        if (get_class($response) === 'SimpleXMLElementEnhanced') {
             $message = "Problem parsing XML";
 
-            $this->addEnviromentalException($message);
+            $this->addEnvironmentalException($message);
             throw new ILSException($message);
         }
         $response->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
 
         if ($problem = $this->getProblem($response)) {
-            // TODO chcek problem type
+            // TODO check problem type
 
-            $message = 'Problem recieved in XCNCIP2 Driver. Content:' .
-                 str_replace('\n', '<br/>', $problem);
+            $message = 'Problem recieved in XCNCIP2 Driver. Content:' . str_replace('\n', '<br/>', $problem);
 
-            //$this->addEnviromentalException($message); TODO must be moved to particular method
+            // $this->addEnviromentalException($message); TODO must be moved to particular method
 
             throw new ILSException($message);
         }
+
+        $this->normalizeResponse($response);
+
         return $response;
     }
 
@@ -276,8 +339,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
                     $desiredRequestFound = true;
 
-                    $request = $this->requests->cancelRequestItemUsingItemId($patron,
-                        $recent);
+                    $request = $this->requests->cancelRequestItemUsingItemId($patron, $recent);
                     try {
                         $response = $this->sendRequest($request);
                     } catch (ILSException $e) {
@@ -286,23 +348,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     }
 
                     break;
-
                 } else
                     if ($hold['reqnum'] == $recent) { // Biblio-leveled cancel request
 
                         $request_id = substr($hold['reqnum'], strlen(static::CANCEL_REQUEST_PREFIX));
 
-                        if (! $request_id > 0) {
+                        if (!$request_id > 0) {
                             $message = 'XCNCIP2 Driver cannot cancel biblio-leveled request without request id!';
 
-                            $this->addEnviromentalException($message);
+                            $this->addEnvironmentalException($message);
                             throw new ILSException($message);
                         }
 
                         $desiredRequestFound = true;
 
-                        $request = $this->requests->cancelRequestItemUsingRequestId(
-                            $patron, $request_id);
+                        $request = $this->requests->cancelRequestItemUsingRequestId($patron, $request_id);
                         try {
                             $response = $this->sendRequest($request);
                         } catch (ILSException $e) {
@@ -314,8 +374,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                     }
             }
 
-            $didWeTheJob = $desiredRequestFound && ! $problemOccurred;
-            if (! $didWeTheJob) $this->addEnviromentalException("Item has not been canceled.");
+            $didWeTheJob = $desiredRequestFound && !$problemOccurred;
+            if (!$didWeTheJob)
+                $this->addEnvironmentalException("Item has not been canceled.");
 
             $items[$recent] = array(
                 'success' => $didWeTheJob,
@@ -374,6 +435,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         );
     }
 
+    /**
+     * Returns payment URL from config
+     *
+     * @return string | null
+     */
     public function getPaymentURL()
     {
         if (isset($this->config['paymentUrl']))
@@ -418,7 +484,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (strpos($holdDetails['item_id'], '.') != null) {
             $holdDetails['item_id'] = substr($holdDetails['item_id'], strpos($holdDetails['item_id'], '.') + 1); // strip prefix
         }
-        if ($holdDetails['item_id'] == 'N/A') $holdDetails['item_id'] = '';
+        if ($holdDetails['item_id'] == 'N/A')
+            $holdDetails['item_id'] = '';
         return empty($holdDetails['reqnum']) ? $holdDetails['item_id'] : $holdDetails['reqnum'];
     }
 
@@ -426,83 +493,70 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * Given a chunk of the availability response, extract the values needed
      * by VuFind.
      *
-     * @param array $current
+     * @param SimpleXMLElementEnhanced $current
      *            Current XCItemAvailability chunk.
      *            array $bibinfo Information about record.
      *
+     * @param $bibInfo
      * @return array
      */
-    protected function getHoldingsForChunk($current, $bibinfo)
+    protected function getHoldingsForChunk($current, $bibInfo)
     {
         // Extract details from the XML:
-        $status = (string) $this->useXPath($current,
-            'ItemOptionalFields/CirculationStatus')[0];
+        $status = (string)$this->useXPath($current, 'ItemOptionalFields/CirculationStatus')[0];
 
-        $id = (string) $this->useXPath($bibinfo,
-            'BibliographicId/BibliographicItemId/BibliographicItemIdentifier')[0];
-        $itemIdentifierCode = (string) $this->useXPath($current,
-            'ItemId/ItemIdentifierType')[0];
-
-        $parsingLoans = $this->useXPath($current, 'LoanedItem') != null;
+        $id = (string)$this->useXPath($bibInfo, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier')[0];
+        $itemIdentifierCode = (string)$this->useXPath($current, 'ItemId/ItemIdentifierType')[0];
 
         if ($itemIdentifierCode == 'Accession Number') {
 
-            $item_id = (string) $this->useXPath($current,
-                'ItemId/ItemIdentifierValue')[0];
+            $item_id = (string)$this->useXPath($current, 'ItemId/ItemIdentifierValue')[0];
         }
 
-        // Pick out the permanent location (TODO: better smarts for dealing with
-        // temporary locations and multi-level location names):
-
-        $locationNameInstance = $this->useXPath($current,
-            'ItemOptionalFields/Location/LocationName/LocationNameInstance');
+        $locationNameInstance = $this->useXPath($current, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
 
         foreach ($locationNameInstance as $recent) {
             // FIXME: Create config to map location abbreviations of each institute into human readable values
 
-            $locationLevel = (string) $this->useXPath($recent, 'LocationNameLevel')[0];
+            $locationLevel = (string)$this->useXPath($recent, 'LocationNameLevel')[0];
 
             if ($locationLevel == 4) {
-                $department = (string) $this->useXPath($recent, 'LocationNameValue')[0];
+                $department = (string)$this->useXPath($recent, 'LocationNameValue')[0];
             } else
                 if ($locationLevel == 3) {
-                    $sublibrary = (string) $this->useXPath($recent,
-                        'LocationNameValue')[0];
+                    $subLibrary = (string)$this->useXPath($recent, 'LocationNameValue')[0];
                 } else {
-                    $locationInBuilding = (string) $this->useXPath($recent,
-                        'LocationNameValue')[0];
+                    $locationInBuilding = (string)$this->useXPath($recent, 'LocationNameValue')[0];
                 }
         }
+
+        $bibliographicItemIdentifierCode = (string)$this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifierCode')[0];
+
+        if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
+            $barcode = (string)$this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier')[0];
+        }
+
+        $numberOfPieces = (string)$this->useXPath($current, 'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
+
+        $holdQueue = (string)$this->useXPath($current, 'ItemOptionalFields/HoldQueueLength')[0];
+
+        $available = $status === 'Available On Shelf';
+
+        /* Why bother php interpreter with unused variables?
+
+        $parsingLoans = $this->useXPath($current, 'LoanedItem') != null;
 
         // Get both holdings and item level call numbers; we'll pick the most
         // specific available value below.
         // $holdCallNo = $this->useXPath($current, 'HoldingsSet/CallNumber');
-        $itemCallNo = (string) $this->useXPath($current,
-            'ItemOptionalFields/ItemDescription/CallNumber')[0];
+        $itemCallNo = (string)$this->useXPath($current, 'ItemOptionalFields/ItemDescription/CallNumber')[0];
         // $itemCallNo = (string)$itemCallNo[0];
 
-        $bibliographicItemIdentifierCode = (string) $this->useXPath($current,
-            'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifierCode')[0];
-
-        if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
-            $barcode = (string) $this->useXPath($current,
-                'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier')[0];
-        }
-
-        $numberOfPieces = (string) $this->useXPath($current,
-            'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
-
-        $holdQueue = (string) $this->useXPath($current,
-            'ItemOptionalFields/HoldQueueLength')[0];
-
-        $itemRestriction = (string) $this->useXPath($current,
-            'ItemOptionalFields/ItemUseRestrictionType')[0];
-
-        $available = $status === 'Available On Shelf';
+        $itemRestriction = (string)$this->useXPath($current, 'ItemOptionalFields/ItemUseRestrictionType')[0];
 
         // TODO Exists any clean way to get the due date without additional request?
 
-        if (! empty($locationInBuilding))
+        if (!empty($locationInBuilding))
             $onStock = substr($locationInBuilding, 0, 5) == 'Stock';
         else
             $onStock = false;
@@ -511,15 +565,15 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
 
-        $monthLoanPeriod = ($itemRestriction ==
-             'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
+        $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
+        */
 
         return array(
             'id' => empty($id) ? "" : $id,
             'availability' => empty($available) ? false : $available ? true : false,
             'status' => empty($status) ? "" : $status,
             'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
-            'sub_lib_desc' => empty($sublibrary) ? '' : $sublibrary,
+            'sub_lib_desc' => empty($subLibrary) ? '' : $subLibrary,
             'department' => empty($department) ? '' : $department,
             'reserve' => "",
             'callnumber' => "",
@@ -536,7 +590,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'is_holdable' => "",
             'holdtype' => "",
             'addLink' => "",
-            'link' => $link,
+            'link' => "",
             'item_id' => empty($item_id) ? "" : $item_id,
             'holdOverride' => "",
             'addStorageRetrievalRequestLink' => "",
@@ -544,6 +598,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         );
     }
 
+    /**
+     * @param $holdDetails
+     * @return array
+     */
     public function placeHold($holdDetails)
     {
         $patron = $holdDetails['patron'];
@@ -560,7 +618,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         return array(
             'success' => $status,
             'sysMessage' => $message,
-            'source' => $patron['agency'],
+            'source' => $patron['agency']
         );
     }
 
@@ -608,14 +666,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         foreach ($locations as $location) {
             $id = $this->useXPath($location, 'LocationNameLevel');
             $name = $this->useXPath($location, 'LocationNameValue');
-            $address = $this->useXPath($location,
-                    'Ext/PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
-            if (empty($id)) continue;
+            $address = $this->useXPath($location, 'Ext/PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
+            if (empty($id))
+                continue;
 
             $retVal[] = array(
-                'locationID' => empty($id) ? '' : (string) $id[0],
-                'locationDisplay' => empty($name) ? '' : (string) $name[0],
-                'locationAddress' => empty($address) ? '' : (string) $address[0]
+                'locationID' => empty($id) ? '' : (string)$id[0],
+                'locationDisplay' => empty($name) ? '' : (string)$name[0],
+                'locationAddress' => empty($address) ? '' : (string)$address[0]
             );
         }
         return $retVal;
@@ -628,15 +686,16 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         foreach ($locations as $location) {
             $id = $this->useXPath($location, 'AgencyAddressRoleType');
             $name = $this->useXPath($location, 'PhysicalAddress/UnstructuredAddress/UnstructuredAddressType');
-            $address = $this->useXPath($location,
-                    'PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
-            if (empty($id)) continue;
-            if (! empty($name) && (string) $name[0] == 'Newline-Delimited Text') continue;
+            $address = $this->useXPath($location, 'PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
+            if (empty($id))
+                continue;
+            if (!empty($name) && (string)$name[0] == 'Newline-Delimited Text')
+                continue;
 
             $retVal[] = array(
-                'locationID' => empty($id) ? '' : (string) $id[0],
-                'locationDisplay' => empty($name) ? '' : (string) $name[0],
-                'locationAddress' => empty($address) ? '' : (string) $address[0]
+                'locationID' => empty($id) ? '' : (string)$id[0],
+                'locationDisplay' => empty($name) ? '' : (string)$name[0],
+                'locationAddress' => empty($address) ? '' : (string)$address[0]
             );
         }
         return $retVal;
@@ -674,11 +733,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $dueDate = $this->useXPath($item, 'DateDue');
             $dueDate = $this->parseDate($dueDate);
 
-            $additRequest = $this->requests->lookupItem((string) $itemId[0], $patron);
+            $additRequest = $this->requests->lookupItem((string)$itemId[0], $patron);
             try {
                 $additResponse = $this->sendRequest($additRequest);
-                $bib_id = $this->getFirstXPathMatchAsString($additResponse,
-                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+                $bib_id = $this->getFirstXPathMatchAsString($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
                 if (empty($title)) {
                     $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
                 }
@@ -687,22 +745,22 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $historyPage[] = array(
                 'id' => empty($bib_id) ? '' : $bib_id,
-                'item_id' => empty($itemId) ? '' : (string) $itemId[0],
+                'item_id' => empty($itemId) ? '' : (string)$itemId[0],
                 'barcode' => '',
-                'title' => empty($title) ? $this->translator->translate('unknown_title') : (string) $title[0],
+                'title' => empty($title) ? $this->translator->translate('unknown_title') : (string)$title[0],
                 'author' => '',
                 'reqnum' => '',
                 'loandate' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
                 'returned' => '',
                 'publicationYear' => '',
-                'rowNo' => ($page - 1) * $perPage + $inc,
+                'rowNo' => ($page - 1) * $perPage + $inc
             );
         }
 
         return [
             'historyPage' => empty($historyPage) ? [] : $historyPage,
-            'totalPages' => empty($totalPages) ? 0 : (int) $totalPages[0],
+            'totalPages' => empty($totalPages) ? 0 : (int)$totalPages[0]
         ];
     }
 
@@ -722,14 +780,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getStatus($id, $patron = [])
     {
-        // id may have the form of "patronId:agencyId"
+        // id may have the form of "Id:agencyId"
         list ($id, $agencyId) = $this->splitAgencyId($id);
 
         $request = $this->requests->lookupItem($id, $patron);
         try {
             $response = $this->sendRequest($request);
-        }
-        catch (ILSException $e) {
+        } catch (ILSException $e) {
             return array(
                 'item_id' => $id,
                 'usedGetStatus' => true
@@ -738,7 +795,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if ($response == null)
             return null;
 
-            // Merge it back if the agency was specified before ..
+        // Merge it back if the agency was specified before ..
         $id = $this->joinAgencyId($id, $agencyId);
 
         // Extract details from the XML:
@@ -749,9 +806,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         foreach ($locations as $locElement) {
             $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
             $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-            if (! empty($level)) {
-                if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
-                if ((string) $level[0] == '2') if (! empty($locationName)) $collection = (string) $locationName[0];
+            if (!empty($level)) {
+                if ((string)$level[0] == '1')
+                    if (!empty($locationName))
+                        $department = (string)$locationName[0];
+                if ((string)$level[0] == '2')
+                    if (!empty($locationName))
+                        $collection = (string)$locationName[0];
             }
         }
 
@@ -763,15 +824,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $collection = isset($parts[1]) ? $parts[1] : '';
         }
 
-        $numberOfPieces = $this->useXPath($response,
-            'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces');
+        $numberOfPieces = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces');
 
-        $holdQueue = (string) $this->useXPath($response,
-            'LookupItemResponse/ItemOptionalFields/HoldQueueLength')[0];
+        $holdQueue = (string)$this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/HoldQueueLength')[0];
 
-        $itemRestriction = $this->useXPath($response,
-            'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType');
-        if (! empty($status) && (string) $status[0] == 'On Loan') {
+        $itemRestriction = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType');
+        if (!empty($status) && (string)$status[0] == 'On Loan') {
             $dueDate = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/DateDue');
             $dueDate = $this->parseDate($dueDate);
         } else {
@@ -783,13 +841,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         return array(
             'id' => empty($id) ? "" : $id,
-            'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-            'status' => empty($status) ? '' : (string) $status[0],
+            'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
+            'status' => empty($status) ? '' : (string)$status[0],
             'location' => '',
             'sub_lib_desc' => '',
             'collection' => isset($collection) ? $collection : '',
             'department' => isset($department) ? $department : '',
-            'number' => empty($numberOfPieces) ? '' : (string) $numberOfPieces[0],
+            'number' => empty($numberOfPieces) ? '' : (string)$numberOfPieces[0],
             'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
             'item_id' => empty($id) ? "" : $id,
             'label' => $label,
@@ -802,7 +860,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         );
     }
 
-    public function getItemStatus($id, $bibId, $patron) {
+    public function getItemStatus($id, $bibId, $patron)
+    {
         return $this->getStatus($id, $patron);
     }
 
@@ -819,15 +878,16 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getStatuses($ids, $patron = [], $filter = [], $bibId = [], $nextItemToken = null)
     {
-        if (empty($bibId)) $this->cannotUseLUIS = true;
-        if (! empty($filter) && in_array($this->agency, $this->libsLikeLiberec)) $this->cannotUseLUIS = true;
+        if (empty($bibId))
+            $this->cannotUseLUIS = true;
+        if (!empty($filter) && in_array($this->agency, $this->libsLikeLiberec))
+            $this->cannotUseLUIS = true;
         if ($this->cannotUseLUIS) {
             // If we cannot use LUIS we will parse only the first one
             $retVal = [];
             $retVal[] = $this->getStatus(reset($ids), $patron);
             return $retVal;
-        }
-        else {
+        } else {
             if (in_array($this->agency, $this->libsLikeTabor)) {
                 if ($this->agency === 'SOG504') {
                 $bibId = '00124' . sprintf('%010d', $bibId);
@@ -880,8 +940,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     {
         $retVal = array();
 
-        $bib_id = $this->useXPath($response,
-                'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+        $bib_id = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
 
         $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
 
@@ -889,38 +948,32 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         foreach ($holdingSets as $holdingSet) {
             $department = '';
 
-            $item_id = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemId/ItemIdentifierValue');
+            $item_id = $this->useXPath($holdingSet, 'ItemInformation/ItemId/ItemIdentifierValue');
             if ($this->agency === 'ULG001') {
-                $item_id[0] = str_replace('31480', '', $item_id[0]);
+                $item_id[0] = preg_replace('^31480', '', $item_id[0]);
             }
 
-            $status = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemOptionalFields/CirculationStatus');
+            $status = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/CirculationStatus');
 
-            if (! empty($status) && (string) $status[0] == 'On Loan') {
-                $dueDate = $this->useXPath($holdingSet,
-                        'ItemInformation/DateDue');
+            if (!empty($status) && (string)$status[0] == 'On Loan') {
+                $dueDate = $this->useXPath($holdingSet, 'ItemInformation/DateDue');
                 $dueDate = $this->parseDate($dueDate);
             } else {
-                /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet.*/
+                /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet. */
                 $dueDate = false;
             }
 
-            $holdQueue = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemOptionalFields/HoldQueueLength');
+            $holdQueue = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/HoldQueueLength');
 
-            $itemRestriction = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
+            $itemRestriction = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
 
             $label = $this->determineLabel($status);
             $addLink = $this->isLinkAllowed($status, $itemRestriction);
             if (in_array($this->agency, $this->libsLikeTabor)) {
-                if ((string) $itemRestriction[0] == 'Orderable') {
+                if ((string)$itemRestriction[0] == 'Orderable') {
                     $addLink = true;
                     $itemRestriction = array_pop($itemRestriction);
-                }
-                else {
+                } else {
                     $addLink = false;
                 }
             }
@@ -929,27 +982,29 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             foreach ($locations as $locElement) {
                 $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
                 $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-                if (! empty($level)) {
-                    if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
+                if (!empty($level)) {
+                    if ((string)$level[0] == '1')
+                        if (!empty($locationName))
+                            $department = (string)$locationName[0];
                 }
             }
 
             $retVal[] = array(
-                'id' => empty($bib_id) ? "" : (string) $bib_id[0],
-                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-                'status' => empty($status) ? "" : (string) $status[0],
+                'id' => empty($bib_id) ? "" : (string)$bib_id[0],
+                'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
+                'status' => empty($status) ? "" : (string)$status[0],
                 'location' => '',
                 'collection' => '',
                 'sub_lib_desc' => '',
                 'department' => $department,
-                'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],
-                'item_id' => empty($item_id) ? "" : (string) $item_id[0],
+                'requests_placed' => !isset($holdQueue) ? "" : (string)$holdQueue[0],
+                'item_id' => empty($item_id) ? "" : (string)$item_id[0],
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0],
-                'addLink' => $addLink,
+                'next_item_token' => empty($nextItemToken) ? '' : (string)$nextItemToken[0],
+                'addLink' => $addLink
             );
         }
         return $retVal;
@@ -959,8 +1014,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     {
         $retVal = array();
 
-        $bib_id = $this->useXPath($response,
-                'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+        $bib_id = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
 
         $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
 
@@ -969,46 +1023,44 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $collection = '';
             $department = '';
 
-            $item_id = $this->useXPath($itemInformation,
-                    'ItemId/ItemIdentifierValue');
+            $item_id = $this->useXPath($itemInformation, 'ItemId/ItemIdentifierValue');
             if (in_array($this->agency, $this->libsLikeLiberec)) {
                 if (empty($item_id)) {
-                    $item_id = $this->useXPath($itemInformation,
-                            'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
+                    $item_id = $this->useXPath($itemInformation, 'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
                 }
                 if (empty($item_id) || empty($item_id[0])) { // this is for LIA's periodicals (without item_id)
-                    $item_id = $this->useXPath($itemInformation,
-                            'ItemOptionalFields/ItemDescription/CopyNumber');
+                    $item_id = $this->useXPath($itemInformation, 'ItemOptionalFields/ItemDescription/CopyNumber');
                 }
             }
 
-            $status = $this->useXPath($itemInformation,
-                    'ItemOptionalFields/CirculationStatus');
+            $status = $this->useXPath($itemInformation, 'ItemOptionalFields/CirculationStatus');
             $status = $this->convertStatus($status);
 
-            if (! empty($status) && (string) $status[0] == 'On Loan') {
-                $dueDate = $this->useXPath($itemInformation,
-                        'ItemOptionalFields/DateDue');
+            if (!empty($status) && (string)$status[0] == 'On Loan') {
+                $dueDate = $this->useXPath($itemInformation, 'ItemOptionalFields/DateDue');
                 $dueDate = $this->parseDate($dueDate);
             } else {
                 $dueDate = false;
             }
 
-            $holdQueue = $this->useXPath($itemInformation,
-                    'ItemOptionalFields/HoldQueueLength');
+            $holdQueue = $this->useXPath($itemInformation, 'ItemOptionalFields/HoldQueueLength');
 
-            $itemRestriction = $this->useXPath($itemInformation,
-                    'ItemOptionalFields/ItemUseRestrictionType');
+            $itemRestriction = $this->useXPath($itemInformation, 'ItemOptionalFields/ItemUseRestrictionType');
 
             $locations = $this->useXPath($itemInformation, 'ItemOptionalFields/Location');
             foreach ($locations as $locElement) {
                 $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
                 $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-                if (! empty($level)) {
-                    if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
-                    if ((string) $level[0] == '2') if (! empty($locationName)) $collection = (string) $locationName[0];
-                    if (empty($department) && (string) $level[0] == '4') {
-                        if (! empty($locationName)) $department = (string) $locationName[0];
+                if (!empty($level)) {
+                    if ((string)$level[0] == '1')
+                        if (!empty($locationName))
+                            $department = (string)$locationName[0];
+                    if ((string)$level[0] == '2')
+                        if (!empty($locationName))
+                            $collection = (string)$locationName[0];
+                    if (empty($department) && (string)$level[0] == '4') {
+                        if (!empty($locationName))
+                            $department = (string)$locationName[0];
                     }
                 }
             }
@@ -1017,31 +1069,31 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $addLink = $this->isLinkAllowed($status, $itemRestriction, $department);
 
             $retVal[] = array(
-                'id' => empty($bib_id) ? "" : (string) $bib_id[0],
-                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-                'status' => empty($status) ? "" : (string) $status[0],
+                'id' => empty($bib_id) ? "" : (string)$bib_id[0],
+                'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
+                'status' => empty($status) ? "" : (string)$status[0],
                 'location' => '',
                 'collection' => $collection,
                 'sub_lib_desc' => '',
                 'department' => $department,
-                'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],
-                'item_id' => empty($item_id) ? "" : (string) $item_id[0],
+                'requests_placed' => !isset($holdQueue) ? "" : (string)$holdQueue[0],
+                'item_id' => empty($item_id) ? "" : (string)$item_id[0],
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0],
-                'addLink' => $addLink,
+                'next_item_token' => empty($nextItemToken) ? '' : (string)$nextItemToken[0],
+                'addLink' => $addLink
             );
         }
         return $retVal;
     }
 
-    private function handleStutusesNlk($response) {
+    private function handleStutusesNlk($response)
+    {
         $retVal = array();
 
-        $bib_id = $this->useXPath($response,
-                'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+        $bib_id = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
 
         $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
 
@@ -1049,26 +1101,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         foreach ($holdingSets as $holdingSet) {
             $department = '';
 
-            $item_id = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemId/ItemIdentifierValue');
+            $item_id = $this->useXPath($holdingSet, 'ItemInformation/ItemId/ItemIdentifierValue');
 
-            $status = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemOptionalFields/CirculationStatus');
+            $status = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/CirculationStatus');
 
-            if (! empty($status) && (string) $status[0] == 'On Loan') {
-                $dueDate = $this->useXPath($holdingSet,
-                        'ItemInformation/DateDue');
+            if (!empty($status) && (string)$status[0] == 'On Loan') {
+                $dueDate = $this->useXPath($holdingSet, 'ItemInformation/DateDue');
                 $dueDate = $this->parseDate($dueDate);
             } else {
-                /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet.*/
+                /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet. */
                 $dueDate = false;
             }
 
-            $holdQueue = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemOptionalFields/HoldQueueLength');
+            $holdQueue = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/HoldQueueLength');
 
-            $itemRestriction = $this->useXPath($holdingSet,
-                    'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
+            $itemRestriction = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
 
             $label = $this->determineLabel($status);
             $addLink = $this->isLinkAllowed($status, $itemRestriction);
@@ -1077,8 +1124,10 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             foreach ($locations as $locElement) {
                 $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
                 $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-                if (! empty($level)) {
-                    if ((string) $level[0] == '1') if (! empty($locationName)) $department = (string) $locationName[0];
+                if (!empty($level)) {
+                    if ((string)$level[0] == '1')
+                        if (!empty($locationName))
+                            $department = (string)$locationName[0];
                 }
             }
             $parts = explode("@", $department);
@@ -1088,21 +1137,21 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $collection = isset($parts[1]) ? $parts[1] : '';
 
             $retVal[] = array(
-                'id' => empty($bib_id) ? "" : (string) $bib_id[0],
-                'availability' => empty($itemRestriction) ? '' : (string) $itemRestriction[0],
-                'status' => empty($status) ? "" : (string) $status[0],
+                'id' => empty($bib_id) ? "" : (string)$bib_id[0],
+                'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
+                'status' => empty($status) ? "" : (string)$status[0],
                 'location' => '',
                 'collection' => $collection,
                 'sub_lib_desc' => '',
                 'department' => $department,
-                'requests_placed' => ! isset($holdQueue) ? "" : (string) $holdQueue[0],
-                'item_id' => empty($item_id) ? "" : (string) $item_id[0],
+                'requests_placed' => !isset($holdQueue) ? "" : (string)$holdQueue[0],
+                'item_id' => empty($item_id) ? "" : (string)$item_id[0],
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : (string) $nextItemToken[0],
-                'addLink' => $addLink,
+                'next_item_token' => empty($nextItemToken) ? '' : (string)$nextItemToken[0],
+                'addLink' => $addLink
             );
         }
         return $retVal;
@@ -1111,19 +1160,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     /**
      * Determines the color of item status' frame.
      *
-     * @param SimpleXMLElement $status
+     * @param SimpleXMLElementEnhanced $status
      * @return string $label
      */
-    protected function determineLabel($status) {
-        $status = empty($status) ? '' : (string) $status[0];
+    protected function determineLabel($status)
+    {
+        $status = empty($status) ? '' : (string)$status[0];
         $label = 'label-danger';
         if (($status === 'Available On Shelf') || ($status === 'Available For Pickup'))
             $label = 'label-success';
-        elseif (($status === 'On Loan') || ($status === 'On Order') || ($status === 'In Process') ||
-                    ($status === 'In Transit Between Library Locations'))
-                $label = 'label-warning';
+        elseif (($status === 'On Loan') || ($status === 'On Order') || ($status === 'In Process') || ($status === 'In Transit Between Library Locations'))
+            $label = 'label-warning';
         elseif (($status === 'Circulation Status Undefined'))
-                $label = 'label-unknown';
+            $label = 'label-unknown';
         return $label;
     }
 
@@ -1150,39 +1199,34 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         // id may have the form of "patronId:agencyId"
         list ($id, $agencyId) = $this->splitAgencyId($id);
 
-        // FIXME: Is this not async iteration useful??
         do {
             if (isset($nextItemToken[0]))
-                $request = $this->requests->LUISBibItem(
-                    array(
-                        $id
-                    ), (string) $nextItemToken[0], $this, $patron);
+                $request = $this->requests->LUISBibItem(array(
+                    $id
+                ), (string)$nextItemToken[0], $this, $patron);
             else {
-                $request = $this->requests->LUISBibItem(
-                    array(
-                        $id
-                    ), null, $this, $patron);
-                $all_iteminfo = [];
+                $request = $this->requests->LUISBibItem(array(
+                    $id
+                ), null, $this, $patron);
+                $all_item_info = [];
             }
 
             $response = $this->sendRequest($request);
             if ($response == null)
                 return null;
 
-            $new_iteminfo = $this->useXPath($response,
-                'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
-            $all_iteminfo = array_merge($all_iteminfo, $new_iteminfo);
+            $new_item_info = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
+            $all_item_info = array_merge($all_item_info, $new_item_info);
 
-            $nextItemToken = $this->useXPath($response,
-                'LookupItemSetResponse/NextItemToken');
+            $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
         } while ($this->isValidToken($nextItemToken));
-        $bibinfo = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
-        $bibinfo = $bibinfo[0];
+        $bib_info = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
+        $bib_info = $bib_info[0];
 
         // Build the array of holdings:
         $holdings = array();
-        foreach ($all_iteminfo as $current) {
-            $holdings[] = $this->getHoldingsForChunk($current, $bibinfo);
+        foreach ($all_item_info as $current) {
+            $holdings[] = $this->getHoldingsForChunk($current, $bib_info);
         }
         return $holdings;
     }
@@ -1198,7 +1242,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *
      * @throws ILSException
      * @return array An array with the acquisitions data on success.
-     *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getPurchaseHistory($id)
     {
@@ -1232,23 +1276,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         $request = $this->requests->patronLogin($username, $password);
         $response = $this->sendRequest($request);
-        $id = $this->useXPath($response,
-            'LookupUserResponse/UserId/UserIdentifierValue');
-        $firstname = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
+        $id = $this->useXPath($response, 'LookupUserResponse/UserId/UserIdentifierValue');
+        $firstname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
 
-        $lastname = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
-        $email = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
-        if (! empty($id)) {
+        $lastname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
+        $email = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
+        if (!empty($id)) {
             $patron = array(
-                'id' => empty($id) ? '' : (string) $id[0],
-                'firstname' => empty($firstname) ? '' : (string) $firstname[0],
-                'lastname' => empty($lastname) ? '' : (string) $lastname[0],
+                'id' => empty($id) ? '' : (string)$id[0],
+                'firstname' => empty($firstname) ? '' : (string)$firstname[0],
+                'lastname' => empty($lastname) ? '' : (string)$lastname[0],
                 'cat_username' => $username,
                 'cat_password' => $password,
-                'email' => empty($email) ? '' : (string) $email[0],
+                'email' => empty($email) ? '' : (string)$email[0],
                 'major' => null,
                 'college' => null
             );
@@ -1271,6 +1311,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getMyTransactions($patron)
     {
+        $_ENV['processing'] = 'loaned-items';
+
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
         $request = $this->requests->patronLoanedItems($patron);
         $response = $this->sendRequest($request);
@@ -1285,10 +1327,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
         foreach ($list as $current) {
             $isbn = $bib_id = $author = $mediumType = null;
-            $item_id = $this->getFirstXPathMatchAsString($current,
-                'ItemId/ItemIdentifierValue');
+            $item_id = $this->getFirstXPathMatchAsString($current, 'ItemId/ItemIdentifierValue');
 
-            if (! $item_id) {
+            if (!$item_id) {
                 // MKP, in house loans (present loans) has no item_id
                 continue;
             }
@@ -1296,24 +1337,19 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $dateDue = $this->useXPath($current, 'DateDue');
             $title = $this->useXPath($current, 'Title');
             $publicationYear = $this->useXPath($current, 'Ext/BibliographicDescription/PublicationDate');
-            $dueStatus =$this->hasOverdue($dateDue);
+            $dueStatus = $this->hasOverdue($dateDue);
             $dateDue = $this->parseDate($dateDue);
             $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
-            $renewable = empty($renewalNotPermitted)? true : false;
+            $renewable = empty($renewalNotPermitted) ? true : false;
             $additRequest = $this->requests->lookupItem($item_id, $patron);
             try {
                 $additResponse = $this->sendRequest($additRequest);
-                $isbn = $this->useXPath($additResponse,
-                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
-                $bib_id = $this->getFirstXPathMatchAsString($additResponse,
-                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-                $author = $this->useXPath($additResponse,
-                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
+                $isbn = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
+                $bib_id = $this->getFirstXPathMatchAsString($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+                $author = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
                 if (empty($title) || $title[0] == '')
                     $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
-                $mediumType = $this->useXPath($additResponse,
-                        'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
-
+                $mediumType = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
             } catch (ILSException $e) {
             }
 
@@ -1328,18 +1364,18 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'duedate' => empty($dateDue) ? '' : $dateDue,
                 'id' => $bib_id,
                 'barcode' => $item_id,
-                                 // 'renew' => '', // TODO
-                                 // 'renewLimit' => '', // TODO
-                'request' => empty($request) ? '' : (string) $request[0],
+                // 'renew' => '', // TODO
+                // 'renewLimit' => '', // TODO
+                'request' => empty($request) ? '' : (string)$request[0],
                 'volume' => '',
-                'author' => empty($author) ? '' : (string) $author[0],
-                'publication_year' => empty($publicationYear) ? '' : (string) $publicationYear[0],
+                'author' => empty($author) ? '' : (string)$author[0],
+                'publication_year' => empty($publicationYear) ? '' : (string)$publicationYear[0],
                 'renewable' => $renewable,
                 'message' => '',
-                'title' => empty($title) ? '' : (string) $title[0],
+                'title' => empty($title) ? '' : (string)$title[0],
                 'item_id' => $item_id,
                 'institution_name' => '',
-                'isbn' => empty($isbn) ? '' : (string) $isbn[0],
+                'isbn' => empty($isbn) ? '' : (string)$isbn[0],
                 'issn' => '',
                 'oclc' => '',
                 'upc' => '',
@@ -1363,6 +1399,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getMyFines($patron)
     {
+        $_ENV['processing'] = 'fines';
+
         if ($this->agency === 'ABA008') { // NLK
             throw new ILSException('driver_no_fines');
         }
@@ -1372,52 +1410,53 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         $response = $this->sendRequest($request);
         $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
-        $list = $this->useXPath($response,
-            'LookupUserResponse/UserFiscalAccount/AccountDetails');
-        $monetaryValue = $this->useXPath($response,
-            'LookupUserResponse/UserFiscalAccount/AccountBalance/MonetaryValue');
+        $list = $this->useXPath($response, 'LookupUserResponse/UserFiscalAccount/AccountDetails');
+        $monetaryValue = $this->useXPath($response, 'LookupUserResponse/UserFiscalAccount/AccountBalance/MonetaryValue');
 
         $fines = array();
         $sum = 0;
         $leastOne = false;
         foreach ($list as $current) {
             $excluded = false;
-            $amount = $this->useXPath($current,
-                'FiscalTransactionInformation/Amount/MonetaryValue');
-            $action = $this->useXPath($current,
-                    'FiscalTransactionInformation/FiscalActionType');
-            $type = $this->useXPath($current,
-                'FiscalTransactionInformation/FiscalTransactionType');
+            $amount = $this->useXPath($current, 'FiscalTransactionInformation/Amount/MonetaryValue');
+            $action = $this->useXPath($current, 'FiscalTransactionInformation/FiscalActionType');
+            $type = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionType');
             $date = $this->useXPath($current, 'AccrualDate');
-            $desc = $this->useXPath($current,
-                'FiscalTransactionInformation/FiscalTransactionDescription');
+            $desc = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionDescription');
             $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
-            if ($this->isAncientFee($date)) $excluded = true; // exclude old fees
+            if ($this->isAncientFee($date))
+                $excluded = true; // exclude old fees
             $date = $this->parseDate($date);
-            $amount_int = (int) $amount[0];
-            if ($amount_int == 0) continue; // remove zero fees
-            if (! $excluded) $leastOne = true;
+            $amount_int = (int)$amount[0];
+            if ($amount_int == 0)
+                continue; // remove zero fees
+            if (!$excluded)
+                $leastOne = true;
             $sum += $amount_int;
 
-            if ($this->agency == 'ZLG001') $desc = $action;
-            if (empty($desc)) $desc = $type;
+            if ($this->agency == 'ZLG001')
+                $desc = $action;
+            if (empty($desc))
+                $desc = $type;
 
             $fines[] = array(
-                'amount' => (string) $amount_int,
+                'amount' => (string)$amount_int,
                 'checkout' => $date,
-                'fine' => $this->translator->translate((string) $type[0]),
-                'balance' => (string) $sum,
+                'fine' => $this->translator->translate((string)$type[0]),
+                'balance' => (string)$sum,
                 'createdate' => '',
                 'duedate' => '',
-                'id' => (string) $desc[0],
+                'id' => (string)$desc[0],
                 'excluded' => $excluded
             );
         }
-        if (empty($fines) && ! empty($monetaryValue) && (int) $monetaryValue[0] != 0) $fines[] = array(
-                'amount' => (string) $monetaryValue[0],
-                'balance' => (string) $monetaryValue[0]
+        if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue[0] != 0)
+            $fines[] = array(
+                'amount' => (string)$monetaryValue[0],
+                'balance' => (string)$monetaryValue[0]
             );
-        if (! empty($fines) && ! $leastOne) $fines[count($fines) - 1]['excluded'] = false;
+        if (!empty($fines) && !$leastOne)
+            $fines[count($fines) - 1]['excluded'] = false;
         return $fines;
     }
 
@@ -1443,8 +1482,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $cannotCancel = false;
             $type = $this->useXPath($current, 'RequestType');
             $requestStatusType = $this->useXPath($current, 'RequestStatusType');
-            $id = $this->useXPath($current,
-                'BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+            $id = $this->useXPath($current, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
             $location = $this->useXPath($current, 'PickupLocation');
             $reqnum = $this->useXPath($current, 'RequestId/RequestIdentifierValue');
             $expire = $this->useXPath($current, 'PickupExpiryDate');
@@ -1455,47 +1493,50 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $extTitle = $this->useXPath($current, 'Ext/BibliographicDescription/Title');
 
             // Deal with Zlin.
-            if (empty($id)) $id = $this->useXPath($current,
-                    'Ext/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-            if (empty($title)) $title = $extTitle;
+            if (empty($id))
+                $id = $this->useXPath($current, 'Ext/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+            if (empty($title))
+                $title = $extTitle;
             if ($this->agency === 'ZLG001') {
                 // $type == 'Hold' => rezervace; $type == 'Loan' => objednavka
             }
 
             // Deal with Liberec.
-            if (empty($position)) $position = $this->useXPath($current,
-                    'Ext/HoldQueueLength');
+            if (empty($position))
+                $position = $this->useXPath($current, 'Ext/HoldQueueLength');
             if (in_array($this->agency, $this->libsLikeLiberec)) {
-                $title = $extTitle; // TODO temporary solution for periodics
-                if ((! empty($type)) && ((string) $type[0] == 'w')) $cannotCancel = true;
+                $title = $extTitle; // TODO temporary solution for periodicals
+                if ((!empty($type)) && ((string)$type[0] == 'w'))
+                    $cannotCancel = true;
             }
 
             // Deal with Tabor.
             if (in_array($this->agency, $this->libsLikeTabor)) {
                 // $type == 'Hold' => rezervace; $type == 'Stack Retrieval' => objednavka
-                if (empty($expire)) $expire = $this->useXPath($current,
-                        'Ext/NeedBeforeDate');
-                if ((! empty($type)) && ((string) $type[0] == 'Stack Retrieval')) {
+                if (empty($expire))
+                    $expire = $this->useXPath($current, 'Ext/NeedBeforeDate');
+                if ((!empty($type)) && ((string)$type[0] == 'Stack Retrieval')) {
                     $cannotCancel = true;
                     $position = null; // hide queue position
                 }
             }
 
             if ($this->agency === 'ABA008') { // NLK
-                $parts = explode("@", (string) $location[0]);
+                $parts = explode("@", (string)$location[0]);
                 $location[0] = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
-                $additId = empty($item_id) ? '' : (string) $item_id[0];
+                $additId = empty($item_id) ? '' : (string)$item_id[0];
                 $additRequest = $this->requests->lookupItem($additId, $patron);
                 try {
                     $additResponse = $this->sendRequest($additRequest);
-                    $id = $this->useXPath($additResponse,
-                            'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+                    $id = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
                 } catch (ILSException $e) {
                 }
             }
 
-            if (! empty($position)) if ((string) $position[0] === '0') $position = null; // hide queue position
-            $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
+            if (!empty($position))
+                if ((string)$position[0] === '0')
+                    $position = null; // hide queue position
+            $bib_id = empty($id) ? null : explode('-', (string)$id[0])[0];
             if (in_array($this->agency, $this->libsLikeLiberec)) {
                 $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
                 $bib_id = str_replace('cbvk_us_cat*', 'CbvkUsCat_', $bib_id);
@@ -1505,32 +1546,31 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $expire = $this->parseDate($expire);
 
             $available = false;
-            if ((! empty($requestStatusType)) &&
-                        ((string) $requestStatusType[0] == 'Available For Pickup')) {
+            if ((!empty($requestStatusType)) && ((string)$requestStatusType[0] == 'Available For Pickup')) {
                 $available = true;
                 $cannotCancel = true;
             }
 
             $retVal[] = array(
-                'type' => empty($type) ? '' : (string) $type[0],
+                'type' => empty($type) ? '' : (string)$type[0],
                 'id' => empty($bib_id) ? '' : $bib_id,
-                'location' => empty($location) ? '' : (string) $location[0],
-                'reqnum' => empty($reqnum) ? '' : static::CANCEL_REQUEST_PREFIX . (string) $reqnum[0],
+                'location' => empty($location) ? '' : (string)$location[0],
+                'reqnum' => empty($reqnum) ? '' : static::CANCEL_REQUEST_PREFIX . (string)$reqnum[0],
                 'expire' => empty($expire) ? '' : $expire,
                 'create' => empty($create) ? '' : $create,
-                'position' => empty($position) ? null : (string) $position[0],
+                'position' => empty($position) ? null : (string)$position[0],
                 'available' => $available, // true means item is ready for check out
-                'item_id' => empty($item_id) ? '' : (string) $item_id[0],
-                'barcode' => empty($item_id) ? '' : (string) $item_id[0],
+                'item_id' => empty($item_id) ? '' : (string)$item_id[0],
+                'barcode' => empty($item_id) ? '' : (string)$item_id[0],
                 'volume' => '',
                 'publication_year' => '',
-                'title' => empty($title) ? '' : (string) $title[0],
+                'title' => empty($title) ? '' : (string)$title[0],
                 'isbn' => '',
                 'issn' => '',
                 'oclc' => '',
                 'upc' => '',
                 'cannotcancel' => $cannotCancel,
-                'fake_id' => $this->source . '.N/A',
+                'fake_id' => $this->source . '.N/A'
             );
         }
         return $retVal;
@@ -1549,6 +1589,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getMyProfile($patron)
     {
+        $_ENV['processing'] = 'profile';
+
         // id may have the form of "patronId:agencyId"
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
 
@@ -1558,26 +1600,17 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         // Merge it back if the agency was specified before ..
         $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
-        $name = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
-        $surname = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
-        $address1 = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Street');
-        $address2 = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/HouseName');
-        $city = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Locality');
-        $country = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Country');
-        $zip = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostalCode');
+        $name = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
+        $surname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
+        $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Street');
+        $address2 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/HouseName');
+        $city = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Locality');
+        $country = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Country');
+        $zip = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostalCode');
         if (empty($zip)) {
-            $zip = $this->useXPath($response,
-                    'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostOfficeBox');
+            $zip = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostOfficeBox');
         }
-        $electronicAddress = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress');
+        $electronicAddress = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress');
         foreach ($electronicAddress as $recent) {
             if ($this->useXPath($recent, 'ElectronicAddressType')[0] == 'tel') {
                 $phone = $this->useXPath($recent, 'ElectronicAddressData');
@@ -1590,30 +1623,26 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $email = $this->useXPath($response,
                     'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/ElectronicAddressData');
         }
-        $group = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
+        $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
         if (empty($group)) {
-            $group = $this->useXPath($response,
-                    'LookupUserResponse/UserOptionalFields/UserPrivilege/AgencyUserPrivilegeType');
+            $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/AgencyUserPrivilegeType');
         }
         $group = $this->extractData($group);
         $translatedGroup = $this->translator->translate($this->source . '_group_' . $group);
         $group = ($translatedGroup == $this->source . '_group_' . $group) ? $group : $translatedGroup;
 
-        $rawExpire = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
+        $rawExpire = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
 
         $expireDate = $this->parseDate($rawExpire);
 
-        $blocksParsed = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
+        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
         $logo = $this->logo;
 
         foreach ($blocksParsed as $block) {
-            $block = $this->translator->translate((string) $block);
-            if (! empty($logo)) {
-                if (! empty($blocks[$logo]))
+            $block = $this->translator->translate((string)$block);
+            if (!empty($logo)) {
+                if (!empty($blocks[$logo]))
                     $blocks[$logo] .= ", " . $block;
                 else
                     $blocks[$logo] = $block;
@@ -1622,41 +1651,35 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         }
 
         if (empty($name) && empty($surname)) {
-            $name = $this->useXPath($response,
-                'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/UnstructuredPersonalUserName');
+            $name = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/UnstructuredPersonalUserName');
         }
         if (empty($address1)) {
-            $address1 = $this->useXPath($response,
-                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line1');
+            $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line1');
         }
         if (empty($city)) {
-            $city = $this->useXPath($response,
-                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line2');
+            $city = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line2');
         }
         if (empty($address1)) {
-            $address1 = $this->useXPath($response,
-                    'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/District');
+            $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/District');
         }
         if (empty($address1)) {
-            $address1 = $this->useXPath($response,
-                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/' .
-                'UnstructuredAddress/UnstructuredAddressData');
+            $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/' . 'UnstructuredAddress/UnstructuredAddressData');
         }
 
         $patron = array(
             'cat_username' => $patron['id'],
             'id' => $patron['id'],
-            'firstname' => empty($name) ? '' : (string) $name[0],
-            'lastname' => empty($surname) ? '' : (string) $surname[0],
-            'address1' => empty($address1) ? '' : (string) $address1[0],
-            'address2' => empty($address2) ? '' : (string) $address2[0],
-            'city' => empty($city) ? '' : (string) $city[0],
-            'country' => empty($country) ? '' : (string) $country[0],
-            'zip' => empty($zip) ? '' : (string) $zip[0],
-            'phone' => empty($phone) ? '' : (string) $phone[0],
+            'firstname' => empty($name) ? '' : (string)$name[0],
+            'lastname' => empty($surname) ? '' : (string)$surname[0],
+            'address1' => empty($address1) ? '' : (string)$address1[0],
+            'address2' => empty($address2) ? '' : (string)$address2[0],
+            'city' => empty($city) ? '' : (string)$city[0],
+            'country' => empty($country) ? '' : (string)$country[0],
+            'zip' => empty($zip) ? '' : (string)$zip[0],
+            'phone' => empty($phone) ? '' : (string)$phone[0],
             'group' => $group,
             'blocks' => empty($blocks) ? array() : $blocks,
-            'email' => empty($email) ? '' : (string) $email[0],
+            'email' => empty($email) ? '' : (string)$email[0],
             'expire' => $expireDate
         );
         return $patron;
@@ -1675,24 +1698,26 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getBlocks($cat_username)
     {
+        $_ENV['processing'] = 'blocks';
+
         $patron = array(
             'id' => $cat_username
-            );
+        );
         $request = $this->requests->patronBlocks($patron);
         $response = $this->sendRequest($request);
 
-        $blocksParsed = $this->useXPath($response,
-            'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
+        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
 
-        $i = - 1;
+        $i = -1;
         foreach ($blocksParsed as $block) {
-            $blocks[++ $i] = (string) $block;
+            $blocks[++$i] = (string)$block;
         }
 
         return $blocks;
     }
 
-    public function getAccruedOverdue($user) {
+    public function getAccruedOverdue($user)
+    {
         // TODO
         return array();
     }
@@ -1722,7 +1747,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *
      * @throws ILSException
      * @return array Associative array with 'count' and 'results' keys
-     *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getNewItems($page, $limit, $daysOld, $fundId = null)
     {
@@ -1801,7 +1826,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      *
      * @throws ILSException
      * @return array An array of associative arrays representing reserve items.
-     *         @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function findReserves($course, $inst, $dept)
     {
@@ -1874,26 +1899,24 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * Validate XML against XSD schema.
      *
      * @param string $XML
-     *            or SimpleXMLElement $XML
-     * @param
-     *            $path_to_XSD
+     *            or SimpleXMLElementEnhanced $XML
+     * @param string $path_to_XSD
      *
      * @throws ILSException
      * @return boolean Returns true, if XML is valid.
      */
-    protected function isValidXMLAgainstXSD($XML,
-        $path_to_XSD = './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
+    protected function isValidXMLAgainstXSD($XML, $path_to_XSD = './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
     {
         $doc = new DOMDocument();
         libxml_use_internal_errors(true); // Begin - Disable xml error messages.
         if (is_string($XML))
             $doc->loadXML($XML);
         else
-            if (get_class($XML) == 'SimpleXMLElement')
+            if (get_class($XML) == 'SimpleXMLElementEnhanced')
                 $doc->loadXML($XML->asXML());
             else {
-                $message = 'Expected SimpleXMLElement or string containing XML.';
-                $this->addEnviromentalException($message);
+                $message = 'Expected SimpleXMLElementEnhanced or string containing XML.';
+                $this->addEnvironmentalException($message);
                 throw new ILSException($message);
             }
 
@@ -1905,7 +1928,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * Check response from NCIP responder.
      * Check if $response is not containing problem tag.
      *
-     * @param $response SimpleXMLElement
+     * @param $response SimpleXMLElementEnhanced
      *            Object
      *
      * @return mixed string Problem | boolean Returns false, if response is without problem.
@@ -1920,12 +1943,12 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         return $problem[0]->AsXML();
     }
 
-    protected function addEnviromentalException($message)
+    protected function addEnvironmentalException($message)
     {
         $_ENV['exceptions']['ncip'] = $message;
     }
 
-    protected function useXPath(\SimpleXMLElement $xmlObject, $xPath)
+    protected function useXPath(SimpleXMLElementEnhanced $xmlObject, $xPath)
     {
         $arrayXPath = explode('/', $xPath);
         $newXPath = "";
@@ -1944,18 +1967,17 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     /**
      *
-     * @param \SimpleXMLElement $xmlObject
+     * @param SimpleXMLElementEnhanced $xmlObject
      * @param string $xPath
      * @return boolean false || string
      */
-    protected function getFirstXPathMatchAsString(\SimpleXMLElement $xmlObject,
-        $xPath)
+    protected function getFirstXPathMatchAsString(SimpleXMLElementEnhanced $xmlObject, $xPath)
     {
         $xPathMatch = $this->useXPath($xmlObject, $xPath);
 
         if ($xPathMatch !== false && is_array($xPathMatch)) {
             if (count($xPathMatch) > 0) {
-                return (string) $xPathMatch[0];
+                return (string)$xPathMatch[0];
             }
         }
         return false;
@@ -1966,14 +1988,14 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      * Check if $nextItemToken was set and contains data.
      *
      * @param
-     *            array, at index [0] SimpleXMLElement Object
+     *            array, at index [0] SimpleXMLElementEnhanced Object
      *
      * @return boolean Returns true, if token is valid.
      */
     protected function isValidToken($nextItemToken)
     {
         if (isset($nextItemToken[0])) {
-            return ! empty((string) $nextItemToken[0]);
+            return !empty((string)$nextItemToken[0]);
         }
         return false;
     }
@@ -2021,61 +2043,172 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     /**
      * Determines if item's hold link is available.
      *
-     * @param SimpleXMLElement $status
-     * @param SimpleXMLElement $itemRestriction
+     * @param SimpleXMLElementEnhanced $status
+     * @param SimpleXMLElementEnhanced $itemRestriction
      * @return boolean $addLink
      */
-    protected function isLinkAllowed($status, $itemRestriction, $department = null) {
+    protected function isLinkAllowed($status, $itemRestriction, $department = null)
+    {
         // Always show MKP's hold link, because it is hold for record, not item.
         if ($this->agency === 'ABG001') {
             return true;
         }
-        if (! empty($this->hideHoldLinks)) {
+        if (!empty($this->hideHoldLinks)) {
             return false;
         }
         if ($department == 'Podlesí') {
             return false;
         }
-        $status = empty($status) ? '' : (string) $status[0];
-        $itemRestriction = empty($itemRestriction) ? '' : (string) $itemRestriction[0];
+        $status = empty($status) ? '' : (string)$status[0];
+        $itemRestriction = empty($itemRestriction) ? '' : (string)$itemRestriction[0];
         $addLink = true;
-        if ($itemRestriction === 'Not For Loan') $addLink = false;
-        if (($status === 'Circulation Status Undefined') || ($status === 'Not Available') ||
-                ($status === 'Lost')) $addLink = false;
+        if ($itemRestriction === 'Not For Loan')
+            $addLink = false;
+        if (($status === 'Circulation Status Undefined') || ($status === 'Not Available') || ($status === 'Lost'))
+            $addLink = false;
         return $addLink;
     }
 
     /**
      * Converts status to expected value.
      *
-     * @param SimpleXMLElement $status
-     * @return SimpleXMLElement $status
+     * @param SimpleXMLElementEnhanced $status
+     * @return SimpleXMLElementEnhanced $status
      */
-    protected function convertStatus($status) {
-        if (! empty($status) && (string) $status[0] === 'Available on Shelf') $status[0] = 'Available On Shelf';
-        if (! empty($status) && (string) $status[0] === 'Not available') $status[0] = 'Not Available';
-        if (! empty($status) && (string) $status[0] === 'Available for Pickup') $status[0] = 'On Order';
-        if (! empty($status) && (string) $status[0] === 'Available For Pickup') $status[0] = 'On Order';
-        if (! empty($status) && (string) $status[0] === 'Waiting To Be Reshelved') $status[0] = 'In Process';
+    protected function convertStatus($status)
+    {
+        if (!empty($status) && (string)$status[0] === 'Available on Shelf')
+            $status[0] = 'Available On Shelf';
+        if (!empty($status) && (string)$status[0] === 'Not available')
+            $status[0] = 'Not Available';
+        if (!empty($status) && (string)$status[0] === 'Available for Pickup')
+            $status[0] = 'On Order';
+        if (!empty($status) && (string)$status[0] === 'Available For Pickup')
+            $status[0] = 'On Order';
+        if (!empty($status) && (string)$status[0] === 'Waiting To Be Reshelved')
+            $status[0] = 'In Process';
         return $status;
     }
 
     /**
-     * Extract the first data from array of SimpleXMLElements.
+     * Extract the first data from array of SimpleXMLElementEnhanced.
      *
-     * @param array of SimpleXMLElements $elements
+     * @param array of SimpleXMLElementEnhanced $elements
      * @return string $data
      */
-    protected function extractData($elements) {
+    protected function extractData($elements)
+    {
         $data = '';
-        if (! empty($elements)) {
+        if (!empty($elements)) {
             foreach ($elements as $element) {
-                if (! empty($element)) {
-                    $data = (string) $element;
+                if (!empty($element)) {
+                    $data = (string)$element;
                     break;
                 }
             }
         }
         return $data;
+    }
+
+    /**
+     * "Denormalizes" outbound NCIP request.
+     *
+     * This is needed because every library have implemented NCIP their way.
+     *
+     * @param string $ncipRequest
+     */
+    private function denormalizeRequest(string &$ncipRequest)
+    {
+        try {
+            $method = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4)[3]['function'];
+            $this->logger->debug("Denormalizing NCIP request for " . $method . ": " . $ncipRequest);
+
+            // TODO: Delete this before release
+            $before = $ncipRequest;
+
+            $ncipRequest = (new NCIPDenormalizer($method, $this->source))->denormalize($ncipRequest);
+
+            // TODO: Delete this before release
+            $this->logger->info("NCIP: Denormalizer converted from BEFORE, to AFTER:\n" . $before . "\nEND_BEFORE\n\nAFTER:\n" . $ncipRequest . "\nEND_AFTER");
+
+        } catch (\Exception $e) {
+            $this->logger->crit("NCIP: Failed to denormalize the request.");
+            $this->logger->crit($e->getMessage());
+            $this->logger->crit($e->getTraceAsString());
+        }
+    }
+
+    /**
+     * Normalizes incoming NCIP message
+     *
+     * @param SimpleXMLElementEnhanced $inboundResponse
+     */
+    private function normalizeResponse(SimpleXMLElementEnhanced &$inboundResponse)
+    {
+        try {
+            $method = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4)[3]['function'];
+            $this->logger->debug("Normalizing NCIP request for " . $method . ": " . $inboundResponse->asXML());
+
+            // TODO: Delete this before release
+            $before = $inboundResponse->asXML();
+
+            $inboundResponse = $this->getNewNCIPNormalizer($method)->normalize($inboundResponse);
+
+            // TODO: Delete this before release
+            $this->logger->info("NCIP: Normalizer converted from BEFORE, to AFTER:\n" . $before . "\nEND_BEFORE\n\nAFTER:\n" . $inboundResponse->asXML() . "\nEND_AFTER");
+
+        } catch (\Exception $e) {
+            $this->logger->crit("NCIP: Failed to normalize the response.");
+            $this->logger->crit($e->getMessage());
+            $this->logger->crit($e->getTraceAsString());
+        }
+    }
+
+    /**
+     * @param $method
+     * @return NCIPNormalizer
+     */
+    private function getNewNCIPNormalizer($method)
+    {
+        $normalizer = new NCIPNormalizer($method, $this->source, $this->requests);
+
+        $normalizer->setLogger($this->logger);
+
+        return $normalizer;
+    }
+
+
+    /**
+     * Returns new instance of XSLTProcessor if XSLT with specified name exists. Else returns FALSE.
+     *
+     * @param string $xsltName
+     * @return bool|XSLTProcessor
+     * @throws \Exception
+     */
+    private function getXSLTProcessor(string $xsltName)
+    {
+        $xsltFileName = getcwd() . '/xslt/' . $xsltName; // Use full path for better debugging from logs
+
+        if (!file_exists($xsltFileName)) {
+            $this->logger->debug("XSLT file '" . $xsltFileName . "' doesn't exist");
+            return FALSE;
+        }
+
+        $xslt_processor = new XSLTProcessor();
+        $inboundXslt = new DOMDocument();
+
+        $xsltLoaded = $inboundXslt->load($xsltFileName);
+
+        if ($xsltLoaded === FALSE) {
+            throw new \Exception("NCIP: Failed to load XSLT '" . $xsltFileName . "'");
+        }
+
+        $xsltImported = $xslt_processor->importStylesheet($inboundXslt);
+
+        if ($xsltImported === FALSE) {
+            throw new \Exception("NCIP: Failed to import XSLT '" . $xsltFileName . "' ... wrong syntax ?");
+        }
+
+        return $xslt_processor;
     }
 }
