@@ -91,7 +91,7 @@ jQuery( document ).ready( function( $ ) {
                 ADVSEARCH.updateSearchTypeTemplates(data);
 
                 $('.search-panel').show('blind', {}, 500, function() {
-                    if (callbacks['afterSwitchSearchTemplate']) {
+                    if (callbacks !== undefined && callbacks['afterSwitchSearchTemplate']) {
                         callbacks.afterSwitchSearchTemplate();
                     }
                 });
