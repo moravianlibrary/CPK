@@ -75,7 +75,7 @@ jQuery( document ).ready( function( $ ) {
          * @param    {object}        data    Object with lookFor, bool, etc.
          * @return    {undefined}
          */
-        switchSearchTemplate: function (data) {
+        switchSearchTemplate: function (data, callbacks) {
             $('.search-panel').hide('blind', {}, 500, function () {
 
                 if (data.searchTypeTemplate == 'advanced') {
@@ -90,7 +90,11 @@ jQuery( document ).ready( function( $ ) {
 
                 ADVSEARCH.updateSearchTypeTemplates(data);
 
-                $('.search-panel').show('blind', {}, 500);
+                $('.search-panel').show('blind', {}, 500, function() {
+                    if (callbacks['afterSwitchSearchTemplate']) {
+                        callbacks.afterSwitchSearchTemplate();
+                    }
+                });
             });
         },
 
@@ -104,12 +108,13 @@ jQuery( document ).ready( function( $ ) {
          *
          * @param {JSON}    dataFromWindowHistory
          * @param {JSON}    dataFromAutocomplete
-         * @param {string}    newSearchTypeTemplate        basic|advanced
-         * @param {array}    extraData                    Associative array
+         * @param {string}  newSearchTypeTemplate        basic|advanced
+         * @param {array}   extraData                    Associative array
+         * @param {array}   callbacks
          *
          * @return {undefined}
          */
-        updateSearchResults: function (dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData) {
+        updateSearchResults: function (dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData, callbacks) {
 
             var data = {};
 
@@ -277,7 +282,7 @@ jQuery( document ).ready( function( $ ) {
                     data['lookfor0'].push(lookfor0);
                 }
                 
-		if (!data.hasOwnProperty('type0')) {
+                if (!data.hasOwnProperty('type0')) {
                     var type = $("input[name='last_searched_type0']").val();
                     data['type0'] = [];
                     data['type0'].push(type);
@@ -364,7 +369,7 @@ jQuery( document ).ready( function( $ ) {
 
                 data['searchTypeTemplate'] = newSearchTypeTemplate;
 
-                ADVSEARCH.switchSearchTemplate(data);
+                ADVSEARCH.switchSearchTemplate(data, callbacks);
 
                 reloadResults = false;
             }
@@ -814,30 +819,19 @@ jQuery( document ).ready( function( $ ) {
                 $('#searchForm_lookfor').val(data.lookfor0[0]);
             }
 
-            $.ajax({
-                type: 'POST',
-                cache: false,
-                dataType: 'json',
-                url: VuFind.getPath() + '/AJAX/JSON?method=getAllAdvancedHandlers',
-                data: {'database': data.database},
-                success: function (results) {
-                    if (results.status == 'OK') {
-                       	$( '.query-type' ).each( function( index, element ) {
-							$( element ).empty();
-                            $.each(results.data[data['database']], function(key,value) {
-				if(key == data.type0[index]){
-					$( element ).append( $( "<option></option>" ).attr({ "value":key,"selected":"selected" }).text( value ));
-				}else{
-        	                        $( element ).append( $( "<option></option>" ).attr( "value", key ).text( value ));
-				}
-                            });
-                        });
+            $( '.query-type' ).each( function( index, element ) {
+                $( element ).empty();
+                $.each(ADVSEARCH_CONFIG.data[data['database']], function(key, value) {
+                    if (key == data.type0[index]) {
+                        $( element ).append( $( "<option></option>" ).attr({ "value":key,"selected":"selected" }).text( value ));
                     } else {
-                        console.error(results.data);
+                        $( element ).append( $( "<option></option>" ).attr( "value", key ).text( value ));
                     }
-                },
+                });
             });
-        }
+
+        },
+
     }
 	
 	/**
@@ -1364,7 +1358,16 @@ jQuery( document ).ready( function( $ ) {
         $( this ).parent().parent().find( 'li' ).removeClass( 'active' );
         $( this ).parent().addClass( 'active' );
 
-        ADVSEARCH.updateSearchResults( undefined, undefined, false, extraData);
+        if ( $( '.basic-search-panel' ).hasClass( 'hidden' ) ) {
+            callbacks = {};
+            callbacks.afterSwitchSearchTemplate = function() {
+                ADVSEARCH.updateSearchResults( undefined, undefined, false, extraData);
+            };
+            extraData['searchTypeTemplate'] = 'advanced';
+            ADVSEARCH.updateSearchResults( undefined, undefined, 'advanced', extraData, callbacks);
+        } else {
+            ADVSEARCH.updateSearchResults( undefined, undefined, false, extraData);
+        }
     });
 
 	/**

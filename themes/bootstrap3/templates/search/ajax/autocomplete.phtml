@@ -6,6 +6,8 @@
         $lastSort = $this->layout()->sort;
     }
     $searchUrl = $this->url($basicSearch);
+
+    $advancedHandlers = $this->advancedHandler(['Solr', 'EDS']);
 ?>
 
   <div id="collapseAdvancedSearch" class="panel-collapse collapse in basic-search-panel<?=(isset($hiddenBasicSearch)) ? ' hidden' : ''?>" role="tabpanel" aria-labelledby="headingAdvancedSearch">
@@ -251,3 +253,6 @@
   </div>
 
 <script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
+<script type="text/javascript">
+  ADVSEARCH_CONFIG = <?=json_encode($advancedHandlers, JSON_PRETTY_PRINT)?>;
+</script>

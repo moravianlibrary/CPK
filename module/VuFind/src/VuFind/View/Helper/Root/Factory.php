@@ -57,6 +57,20 @@ class Factory
     }
 
     /**
+     * Construct the AdvancedHandlers helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return AdvancedHandler
+     */
+    public static function getAdvancedHandler(ServiceManager $sm)
+    {
+        return new AdvancedHandler(
+            $sm->getServiceLocator()->get('VuFind\SearchOptionsPluginManager')
+        );
+    }
+
+    /**
      * Construct the AccountCapabilities helper.
      *
      * @param ServiceManager $sm Service manager.

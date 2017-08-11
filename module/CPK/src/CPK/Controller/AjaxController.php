@@ -1673,6 +1673,14 @@ class AjaxController extends AjaxControllerBase
         return $this->output(['savedInstitutions' => $savedInstitutions], self::STATUS_OK);
     }
 
+    /**
+     *
+     * Get advanced handlers
+     *
+     * @deprecated
+     *
+     * @return \Zend\Http\Response
+     */
     public function getAllAdvancedHandlersAjax()
     {
         $renderer = $this->getViewRenderer();
