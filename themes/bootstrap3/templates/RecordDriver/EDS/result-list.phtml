@@ -26,8 +26,8 @@ if (empty($lookfor)) {
                         <? endif; ?>
                     </script>
                 <? endif;?>
-                <? if (! empty($formats)): ?>
-                    <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-<?=$this->record($this->driver)->getPubTypeId()?>"></i></div>
+                <? if (! empty($format)): ?>
+                    <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-eds-<?=$format?>"></i></div>
                 <? elseif ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
                     <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
                 <? else: ?>
