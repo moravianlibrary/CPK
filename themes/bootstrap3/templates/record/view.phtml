@@ -252,11 +252,13 @@
             jQuery( document ).ready( function( $ ) {
 
             	// Disable eversion tab
+                <? if($this->eVersionLinksCount): ?>
             	var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
             	if ( eVersionLinksCount === 0 ) {
             		$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );
             		$( "#e-version-table" ).addClass( 'hidden' );
             	}
+                <? endif; ?>
 
             	// Disable holdings tab
             	var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
