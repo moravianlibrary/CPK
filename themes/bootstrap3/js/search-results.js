@@ -142,9 +142,11 @@ jQuery( document ).ready( function( $ ) {
                     if (data['database'] && data['database'] == 'EDS') {
                         $("#set-database li a[data-value='Solr']").parent().removeClass('active');
                         $("#set-database li a[data-value='EDS']").parent().addClass('active');
+                        $('#searchForm_lookfor').removeClass('autocomplete');
                     } else {
                         $("#set-database li a[data-value='EDS']").parent().removeClass('active');
                         $("#set-database li a[data-value='Solr']").parent().addClass('active');
+                        $('#searchForm_lookfor').addClass('autocomplete');
                     }
                 }
 
@@ -1311,6 +1313,11 @@ jQuery( document ).ready( function( $ ) {
         var extraData = {};
         var database = $( this ).attr( 'data-value' )
         extraData['database'] = database;
+        if (database == 'Solr') {
+            $('#searchForm_lookfor').addClass('autocomplete');
+        } else {
+            $('#searchForm_lookfor').removeClass('autocomplete');
+        }
 /*
  @TODO: Something like this should be called before calling searchResultsAjax action.
  When we have limit set in e.g. 80 in Solr, we should check, whether it is allowed value in EDS.ini config.

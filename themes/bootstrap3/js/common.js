@@ -332,11 +332,15 @@ function setupAutocomplete() {
   $('.autocomplete').each(function(i, op) {
     $(op).autocompleteVufind({
       maxResults: 6,
+      cache: false,
       loadingString: VuFind.translate('loading')+'...',
       handler: function(query, cb) {
-        var searcher = extractClassParams(op);
+        var searcher = $( 'input[name=database]' ).val();
+        if (!$(op).hasClass('autocomplete')) {
+            cb([]);
+            return;
+        }
         var currentUrl = decodeURIComponent($(location).attr('search'));
-        //console.log('CurrentUrl: '+currentUrl);
         var filters = $( '.searchFormKeepFilters' ).is(':checked') 
         	? getURLParam('filter[]', currentUrl) 
         	: 'null';
@@ -344,10 +348,10 @@ function setupAutocomplete() {
           url: VuFind.getPath() + '/AJAX/JSON',
           data: {
             q:query,
-            method:'getACSuggestions',
+            method: 'getACSuggestions',
             filters: filters,
-            searcher:searcher['searcher'],
-            type:searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val()
+            searcher: searcher,
+            type: $(op).closest('.searchForm').find('.searchForm_type').val()
           },
           dataType:'json',
           success: function(json) {
