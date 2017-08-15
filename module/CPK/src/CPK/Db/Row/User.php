@@ -334,6 +334,36 @@ class User extends BaseUser
     }
 
     /**
+     * Returns id for purposes of google analytics
+     *
+     *
+     */
+    public function getHashedId() {
+        return $this->id;
+    }
+
+    /**
+     * Returns string with connected institutions for purposes of google analytics
+     * Institutions are separated by commas
+     * For no institutions returns null
+     *
+     */
+    public function getStringOfConnectedInstitutions() {
+        $allLibCards = $this->getAllUserLibraryCards();
+        $string = null;
+
+        foreach ($allLibCards as $libCard) {
+            if ($string == null) {
+                $string = $libCard->home_library;
+            }
+            else {
+                $string = $string.",".$libCard->home_library;
+            }
+        }
+        return $string;
+    }
+
+    /**
      * Get all User's non-dummy connected institutions.
      *
      * @return array

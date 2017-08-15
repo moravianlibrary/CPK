@@ -172,6 +172,11 @@
 
         $libraryCards = [];
 
+        //variables for purposes of google analytics
+        $hashedUserId = null;
+        $listOfIdentityProviders = null;
+        $loggedIn = "Ne";
+
         $notificationsEnabled = false;
 
         if ($authManager instanceof \CPK\Auth\Manager) {
@@ -179,7 +184,10 @@
         }
 
         if ($user) {
+            $loggedIn = "Ano";
             $libraryCards = $user->getLibraryCards(false);
+            $hashedUserId = $user->getHashedId();
+            $listOfIdentityProviders = $user->getAllUserLibraryCards();
         }
 
         $headerParams = [
@@ -203,12 +211,6 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXJ544"
                       height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <?
-    $loggedIn = "Ne";
-    if($user) {
-      $loggedIn = "Ano";
-    }
-    ?>
     <script>
       dataLayer.push({
         'page': {
@@ -219,7 +221,9 @@
           'library': undefined
         },
         'user': {
-          'loggedIn': '<?=$loggedIn ?>'
+          'loggedIn': '<?=$loggedIn ?>',
+          'userId': <?= empty($hashedUserId) ? "undefined" :  "'".$hashedUserId."'" ?>,
+          'loginType': <?= empty($listOfIdentityProviders) ? "undefined" :  "'".$listOfIdentityProviders."'" ?>
         }
 
       });
