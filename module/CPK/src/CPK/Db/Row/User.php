@@ -334,12 +334,12 @@ class User extends BaseUser
     }
 
     /**
-     * Returns id for purposes of google analytics
+     * Returns sha1 hashed id for purposes of google analytics
      *
      *
      */
     public function getHashedId() {
-        return $this->id;
+        return sha1($this->id);
     }
 
     /**
