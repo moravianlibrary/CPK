@@ -1,20 +1,19 @@
 <?
 $items = $this->driver->getItems();
 $dbLabel = $this->driver->getDbLabel();
-$thumb = $this->driver->getThumbnail('medium');
-$pubType = $this->driver->getPubType();
 $format = $this->driver->getPubTypeId();
-$customLinks = $this->driver->getCustomLinks();
 $accessLevel = $this->driver->getAccessLevel();
 $restrictedView = empty($accessLevel) ? false : true;
 $id = $this->driver->getUniqueID();
-$source = explode(".", $id)[0];
+//var_dump($this->driver); exit();
+//var_dump($items); exit();
 ?>
 
 <div class="clearfix well border table-core" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
+
     <div class="col-sm-3 text-center">
 
-        <div class="coverThumbnail cover_<?=$recordId?>">
+        <div class="coverThumbnail cover_<?=$id?>">
             <? if (! empty($format)): ?>
                 <div class="iconlabel"><i style="font-size: 140px; color: #cccccc; padding-right: 20px;" class="pr-format-eds-<?=$format?>"></i></div>
             <? else: ?>
@@ -22,41 +21,10 @@ $source = explode(".", $id)[0];
             <? endif; ?>
         </div>
 
-        <? // if you have a preview tab but want to move or remove the preview link
-        // from this area of the record view, this can be split into
-        // getPreviewData() (should stay here) and
-        // getPreviewLink() (can go in your desired tab) ?>
-        <? if ($preview): ?><?=$preview?><? endif; ?>
-
-        <!--<div class="external-links">
-            <? $pLink = $this->driver->getPLink();
-            if($pLink): ?>
-                <span>
-          <a href="<?=$this->escapeHtmlAttr($pLink)?>">
-            <?=$this->transEsc('View in EDS')?>
-          </a>
-        </span><br />
-            <? endif; ?>
-            <? $pdfLink = $this->driver->getPdfLink();
-            if ($pdfLink): ?>
-                <span>
-          <a href="<?=$pdfLink?>" class="icon pdf fulltext">
-            <?=$this->transEsc('PDF Full Text')?>
-          </a>
-        </span><br />
-            <? endif; ?>
-            <? if ($this->driver->hasHTMLFullTextAvailable()): ?>
-                <span>
-          <a href="<?=$this->recordLink()->getUrl($this->driver, 'fulltext')?>#html" class="icon html fulltext">
-            <?=$this->transEsc('HTML Full Text')?>
-          </a>
-        </span><br />
-            <? endif; ?>
-        </div>-->
     </div>
+
     <div class="col-sm-9">
         <h3 class='record-title' property='name'><?=$this->driver->getTitle()?></h3>
-
 
         <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
             <? foreach ($items as $key => $item): ?>
@@ -109,4 +77,5 @@ $source = explode(".", $id)[0];
         </table>
 
     </div>
+
 </div>

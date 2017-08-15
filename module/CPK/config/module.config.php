@@ -44,6 +44,7 @@ $config = array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
                     'eVersion' => 'CPK\RecordTab\EVersion',
                     'buy' => 'CPK\RecordTab\Buy',
+                    'edsavailability' => 'CPK\RecordTab\EdsAvailability',
                     'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
 					'holdingsils'     => 'CPK\RecordTab\HoldingsILS',
                     'tagsandcomments' => 'CPK\RecordTab\TagsAndComments'
@@ -151,6 +152,17 @@ $config = array(
                     'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => 'EVersion'
+            ],
+            'VuFind\RecordDriver\EDS' => [
+                'tabs' => [
+                    'Description' => 'Description',
+                    'TOC' => 'TOC',
+                    'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
+                    'Preview' => 'preview',
+                    'Details' => 'StaffViewArray',
+                    'EdsAvailability' => 'EdsAvailability',
+                ],
+                'defaultTab' => null
             ]
         ]
     ), /* vufind */
