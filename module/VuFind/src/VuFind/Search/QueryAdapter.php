@@ -209,7 +209,7 @@ abstract class QueryAdapter
 
         return (count($groups) > 0)
             ? new QueryGroup($request->get('join'), $groups)
-            : new Query();
+            : new Query(null, (($type = $request->get('type0')) != null) ? $type[0] : null);
     }
 
     /**
