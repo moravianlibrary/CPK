@@ -29,10 +29,12 @@ $id = $this->driver->getUniqueID();
         <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
             <? foreach ($items as $key => $item): ?>
                 <? if (!empty($item['Data'])): ?>
+                    <? if($item['Group'] !== 'Ti'): ?>
                     <tr>
                         <th class="col-md-3"><?=$this->transEsc($item['Label'])?>:</th>
                         <td><?=$this->driver->linkUrls($item['Data'])?></td>
                     </tr>
+                    <? endif; ?>
                 <? endif; ?>
             <? endforeach; ?>
 
