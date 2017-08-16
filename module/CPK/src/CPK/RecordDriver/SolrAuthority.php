@@ -47,17 +47,19 @@ class SolrAuthority extends ParentSolrMarc
      *
      * @return array
      */
-    public function getPseudonyms()
-    {
-        $array = [];
-        $array['a'] = $this->getFieldArray('500', array('a'), false);
-        $array['d'] = $this->getFieldArray('500', array('d'), false);
-        $array['7'] = $this->getFieldArray('500', array('7'), false);
-
-        if (empty($array['a']) || empty($array['d']) || empty($array['7'])) {
-            return [];
+    public function getPseudonyms() {
+        $array = array();
+        $fields = $this->getMarcRecord()->getFields('500');
+        if (is_array($fields)) {
+            foreach($fields as $currentField) {
+                foreach (array('a', 'd', '7') as $subfield ) {
+                    if (!isset($array[$subfield])) $array[$subfield] = array();
+                    $currentVal = $currentField->getSubfield($subfield);
+                    $currentVal = is_object($currentVal) ? $currentVal->getData() : "";
+                    array_push($array[$subfield], $currentVal);
+                }
+            }
         }
-
         return $array;
     }
 
