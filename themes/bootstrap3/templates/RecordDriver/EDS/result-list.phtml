@@ -176,41 +176,35 @@ $volume = $this->driver->getVolume();
 </div>
 
 <script>
-    var edsLinks = 0;
-    var recordData = {
-        <? if (! empty($issns)): ?> <?= "'issns': '".implode(", ", $issns)."'," ?> <? endif; ?>
-        <? if (! empty($isbns)): ?> <?= "'isbns': '".implode(", ", $isbns)."'," ?> <? endif; ?>
-        <? if (! empty($publishDate)): ?> <?= "'publishDate': '".$publishDate."'," ?> <? endif; ?>
-        <? if (! empty($titles)): ?> <?= "'titles': \"".implode(", ", $titles)."\"," ?> <? endif; ?>
-        <? if (! empty($authors)): ?> <?= "'authors': \"".implode(", ", $authors)."\"," ?> <? endif; ?>
-        <? if (! empty($sourceTitle)): ?> <?= "'sourceTitle': \"".$sourceTitle."\"," ?> <? endif; ?>
-        <? if (! empty($volume)): ?> <?= "'volume': '".$volume."'," ?> <? endif; ?>
-    };
     jQuery( document ).ready( function( $ ) {
 
         $.ajax({
             method: 'POST',
             dataType: 'json',
             async: true,
-            url: '/AJAX/JSON?method=getEdsFulltextLink&recordIdHash=<?=$recordIdHash?>',
+            url: '/AJAX/JSON?method=getEdsFulltextLinkInResults&recordIdHash=<?=$recordIdHash?>',
             data: {
-                recordData: recordData
+                recordData: {
+                    <? if (! empty($recordId)): ?> <?= "'recordId': '".$recordId."'," ?> <? endif; ?>
+                }
             },
             beforeSend: function () {
-                console.info( 'Calling getEdsFulltextLink for recordId <?=$recordIdHash?>..' );
+                console.info( 'Calling getEdsFulltextLinkInResults for recordId <?=$recordIdHash?>..' );
                 $('#eds-links-placeholder-<?=$recordIdHash?>').append("<div class='eds-links-loader text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>");
             },
             success: function (response) {
 
                 if (response.status == 'OK') {
+                    console.log( '' );
                     console.log( 'Eds fulltext links FOUND for recordId <?=$recordIdHash?>.' );
+                    console.log( 'Solr url: ' + response.data.url );
 
                     var links = response.data.links;
-                    edsLinks += links.length;
+                    var edsLinks = links.length;
 
-                    var html = "";
+                    var ebscoHtml = "";
                     links.forEach( function( link ) {
-                        html += "<tr style='display: none;'><td>" + link + "</td></tr>";
+                        ebscoHtml += "<tr style='display: none;'><td>" + link + "</td></tr>";
                     });
 
                     if (edsLinks == 1) {
@@ -223,21 +217,23 @@ $volume = $this->driver->getVolume();
                         $( '#many-eds-links-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
                     }
 
-                    $('#eds-links-placeholder-<?=$recordIdHash?>').append( html );
+                    $('#eds-links-placeholder-<?=$recordIdHash?>').append( ebscoHtml );
                     $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
                 }
 
                 if (response.status == 'NOT FOUND') {
-                    console.log( 'Eds fulltext links NOT FOUND for recordId <?=$recordIdHash?>.' );
+                    console.log( '' );
+                    console.warn( 'Eds fulltext links NOT FOUND for recordId <?=$recordIdHash?>.' );
                     if (response.data.url) {
-                        console.log(response.data.url);
+                        console.log('Solr url: ' + response.data.url);
                     }
                 }
 
                 if (response.status == 'FOUND INVALID LINKS') {
+                    console.log( '' );
                     console.warn( 'Eds fulltext links FOUND but links are INVALID for recordId <?=$recordIdHash?>.' );
                     if (response.data.url) {
-                        console.log(response.data.url);
+                        console.log('Solr url: ' + response.data.url);
                     }
                 }
 

@@ -2335,4 +2335,119 @@ class AjaxController extends AjaxControllerBase
 
         return $this->output($output, self::STATUS_OK);
     }
+
+    public function getEdsFulltextLinkInResultsAjax()
+    {
+        $linkServers = $this->getConfig('MultiBackend')->LinkServerSMapping->toArray();
+
+        $solrUrl = $this->getConfig()->Index->url;
+        $solrCore = $this->getConfig()->Index->default_core;
+
+        $htmlLinks = [];
+
+        // get and prepare data
+        $recordData = $this->params()->fromPost('recordData');
+        $recordId = isset($recordData['recordId']) ? $recordData['recordId'] : false;
+
+        $recordLoader = $this->getRecordLoader();
+        $recordDriver = $recordLoader->load($recordId, 'EDS',
+                true);
+
+        if (! $recordDriver) {
+            return $this->output(['recordId' => $recordId], 'NOT LOADED');
+        }
+
+        $issns = $recordDriver->getIssns();
+        $isbns = $recordDriver->getIsbns();
+        $publishDate = $recordDriver->getPublishDate();
+        $titles = $recordDriver->getTitles();
+        $authors = $recordDriver->getAuthors();
+        $sourceTitle = $recordDriver->getSourceTitle();
+        $volume = $recordDriver->getVolume();
+
+        // build query
+        $url  = "$solrUrl/$solrCore/select?";
+        $url .= "q=recordtype:sfx";
+
+        if ($issns || $isbns) {
+
+            if ($issns) {
+                $url .= "%0A";
+                $url .= 'issn:("'.implode('"+OR+"', $issns).'")';
+
+                if ($publishDate) {
+                    $url .= "%0A";
+                    $url .= 'publishDate_txt_mv:("'.$publishDate.'")';
+                } elseif ($volume) {
+                    $url .= "%0A";
+                    $url .= 'volume_txt_mv:("'.$volume.'")';
+                }
+            }
+
+            if ($isbns) {
+                $url .= "%0A";
+                $url .= 'isbn:("'.implode('"+OR+"', $isbns).'")';
+            }
+
+        } else {
+            if ($sourceTitle && $authors) {
+                $url .= "%0A";
+                $url .= 'sfx_title_txt_mv:("'.$sourceTitle.'")';
+                $url .= "%0A";
+                $url .= 'author_txt_mv:("'.implode('"+OR+"', $authors).'")';
+            }
+        }
+
+        $url .= "&fl=sfx_source_txt,sfx_id_txt";
+        $url .= "&wt=json";
+        $url .= "&indent=true";
+
+        // run Solr query
+        try {
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+            $html = curl_exec($ch);
+            curl_close($ch);
+
+        } catch (\Exception $e) {
+            return $this->output(['url' => $url], self::STATUS_ERROR);
+        }
+
+        // get response
+        $json = json_decode($html, true);
+
+        if (empty($json['response']['docs'])) {
+            return $this->output(['url' => $url], 'NOT FOUND');
+        }
+
+        foreach ($json['response']['docs'] as $record) {
+
+            if ( (! empty($record['sfx_source_txt'])) && (! empty($record['sfx_id_txt'])) ) {
+                $sfxSource = $record['sfx_source_txt'];
+                $sfxId = $record['sfx_id_txt'];
+                $embargo = (! empty($record['embargo_str']) ? ' '.htmlspecialchars($record['embargo_str']) : '');
+
+                $sfxUrl = $linkServers[$sfxSource];
+                $sfxUrl .= '?url_ver=Z39.88-2004';
+                $sfxUrl .= '&sfx.ignore_date_threshold=1';
+                $sfxUrl .= '&rft.object_id='.$sfxId;
+                $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+
+                $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
+            }
+
+        }
+
+        if (empty($htmlLinks)) {
+            return $this->output(['url' => $url], 'FOUND INVALID LINKS');
+        }
+
+        $output = [
+            'links' => $htmlLinks,
+            'url'   => $url
+        ];
+
+        return $this->output($output, self::STATUS_OK);
+    }
 }
