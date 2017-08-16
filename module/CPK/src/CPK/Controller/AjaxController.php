@@ -2278,9 +2278,9 @@ class AjaxController extends AjaxControllerBase
         } else {
             if ($sourceTitle && $authors) {
                 $url .= "%0A";
-                $url .= 'Sfx_title_txt_mv:("'.$sourceTitle.'")';
+                $url .= 'sfx_title_txt_mv:("'.$sourceTitle.'")';
                 $url .= "%0A";
-                $url .= 'Author_txt_mv:("'.implode('"+OR+"', $authors).'")';
+                $url .= 'author_txt_mv:("'.implode('"+OR+"', $authors).'")';
             }
         }
 
