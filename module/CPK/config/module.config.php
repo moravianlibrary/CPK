@@ -155,12 +155,12 @@ $config = array(
             ],
             'VuFind\RecordDriver\EDS' => [
                 'tabs' => [
-                    'Description' => 'Description',
+                    //'Description' => 'Description',
                     'TOC' => 'TOC',
                     'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
                     'Preview' => 'preview',
-                    'Details' => 'StaffViewArray',
                     'EdsAvailability' => 'EdsAvailability',
+                    'Details' => 'StaffViewArray',
                 ],
                 'defaultTab' => null
             ]

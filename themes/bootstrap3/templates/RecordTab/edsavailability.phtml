@@ -31,16 +31,6 @@
     <script src="/themes/bootstrap3/js/ajax-record-tabs.js"></script>
 
     <script>
-        var edsLinks = 0;
-        var recordData = {
-            <? if (! empty($issns)): ?> <?= "'issns': '".implode(", ", $issns)."'," ?> <? endif; ?>
-            <? if (! empty($isbns)): ?> <?= "'isbns': '".implode(", ", $isbns)."'," ?> <? endif; ?>
-            <? if (! empty($publishDate)): ?> <?= "'publishDate': '".$publishDate."'," ?> <? endif; ?>
-            <? if (! empty($titles)): ?> <?= "'titles': \"".implode(", ", $titles)."\"," ?> <? endif; ?>
-            <? if (! empty($authors)): ?> <?= "'authors': \"".implode(", ", $authors)."\"," ?> <? endif; ?>
-            <? if (! empty($sourceTitle)): ?> <?= "'sourceTitle': \"".$sourceTitle."\"," ?> <? endif; ?>
-            <? if (! empty($volume)): ?> <?= "'volume': '".$volume."'," ?> <? endif; ?>
-        };
         jQuery( document ).ready( function( $ ) {
 
             $.ajax({
@@ -49,7 +39,15 @@
                 async: true,
                 url: '/AJAX/JSON?method=getEdsFulltextLink',
                 data: {
-                    recordData: recordData
+                    recordData: {
+                        <? if (! empty($issns)): ?> <?= "'issns': '".implode(", ", $issns)."'," ?> <? endif; ?>
+                        <? if (! empty($isbns)): ?> <?= "'isbns': '".implode(", ", $isbns)."'," ?> <? endif; ?>
+                        <? if (! empty($publishDate)): ?> <?= "'publishDate': '".$publishDate."'," ?> <? endif; ?>
+                        <? if (! empty($titles)): ?> <?= "'titles': \"".implode(", ", $titles)."\"," ?> <? endif; ?>
+                        <? if (! empty($authors)): ?> <?= "'authors': \"".implode(", ", $authors)."\"," ?> <? endif; ?>
+                        <? if (! empty($sourceTitle)): ?> <?= "'sourceTitle': \"".$sourceTitle."\"," ?> <? endif; ?>
+                        <? if (! empty($volume)): ?> <?= "'volume': '".$volume."'," ?> <? endif; ?>
+                    }
                 },
                 beforeSend: function () {
                     console.info( 'Calling getEdsFulltextLink..' );
@@ -61,7 +59,7 @@
                         console.log( 'Eds fulltext links FOUND.' );
 
                         var links = response.data.links;
-                        edsLinks += links.length;
+                        var edsLinks = links.length;
 
                         var html = "";
                         links.forEach( function( link ) {
@@ -83,6 +81,9 @@
                     }
 
                     if (response.status == 'NOT FOUND') {
+                        $( '#edsavailability' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                        $('#eds-links-placeholder').append( '<?= $this->translate('Fulltext not found') ?>.' );
+
                         console.log( 'Eds fulltext links NOT FOUND.' );
                         if (response.data.url) {
                             console.log(response.data.url);
@@ -90,6 +91,9 @@
                     }
 
                     if (response.status == 'FOUND INVALID LINKS') {
+                        $( '#edsavailability' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                        $('#eds-links-placeholder').append( '<?= $this->translate('Fulltext not found') ?>.' );
+
                         console.warn( 'Eds fulltext links FOUND but links are INVALID.' );
                         if (response.data.url) {
                             console.log(response.data.url);
