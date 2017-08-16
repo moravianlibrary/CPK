@@ -294,6 +294,12 @@
             	    }, 1000);
             	});
 
+                $( 'body' ).on('click', '.eds-want-it', function(){
+                    $( 'html,body' ).animate( {
+                        scrollTop: $( '#edsavailability' ).offset().top
+                    }, 1000);
+                });
+
             });
             </script>
 		</div>

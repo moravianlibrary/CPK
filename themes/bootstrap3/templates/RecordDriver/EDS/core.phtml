@@ -25,7 +25,9 @@ $id = $this->driver->getUniqueID();
 
     <div class="col-sm-9">
         <h3 class='record-title' property='name'><?=$this->driver->getTitle()?></h3>
-
+        <div class='eds-want-it'>
+            <?=$this->translate('Availability information')?>
+        </div>
         <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
             <? foreach ($items as $key => $item): ?>
                 <? if (!empty($item['Data'])): ?>
