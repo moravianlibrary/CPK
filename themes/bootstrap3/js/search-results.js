@@ -179,7 +179,7 @@ jQuery( document ).ready( function( $ ) {
 					data[key].push( $( element ).val() );
 				});
 				
-				var allGroupsOperator = $( 'input[name="join"]' ).val();
+				var allGroupsOperator = $( '#group-join-type' ).val();
 				data['join'] = allGroupsOperator;
 				
 				if (! data.hasOwnProperty( 'searchTypeTemplate' )) {
