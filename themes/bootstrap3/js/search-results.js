@@ -821,15 +821,24 @@ jQuery( document ).ready( function( $ ) {
                 $('#searchForm_lookfor').val(data.lookfor0[0]);
             }
 
+            var groupId = 0;
+            var subIndex = 0;
             $( '.query-type' ).each( function( index, element ) {
                 $( element ).empty();
+                var type = $( element ).attr('name').slice(0, -2);
+                var newGroupId = $( element ).closest('div .group').attr('id');
+                if (newGroupId != groupId) {
+                    subIndex = 0;
+                    groupId = newGroupId;
+                }
                 $.each(ADVSEARCH_CONFIG.data[data['database']], function(key, value) {
-                    if (key == data.type0[index]) {
+                    if (key == data[type][subIndex]) {
                         $( element ).append( $( "<option></option>" ).attr({ "value":key,"selected":"selected" }).text( value ));
                     } else {
                         $( element ).append( $( "<option></option>" ).attr( "value", key ).text( value ));
                     }
                 });
+                subIndex++;
             });
 
         },
