@@ -127,17 +127,8 @@ foreach ($queryParams as $key => $value) {
             <? $titleHtml = $this->transEsc($cluster['label']); ?>
             <?= $this->help()->getElementHelp('element_help_facet_' . $cluster['label'], $titleHtml) ?>
               <? if (isset($rangeFacets[$title])): ?>
-              <? if ($rangeFacets[$title]['type'] == 'date'): ?><?=$this->searchClassId?>
-              <script>
-		var activeDatabase = $('#set-database li.active a').attr('data-value');
-		if (activeDatabase == 'EDS' ){
-			$('#showmodal').addClass('hidden');
-		}
-	      </script>
-		<? if ($this->searchClassId == 'EDS'): ?>
-		<? else: ?>
-			<button type="button" class="btn btn-default btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
-		<? endif; ?>
+              <? if ($rangeFacets[$title]['type'] == 'date'): ?>
+              <button type="button" class="btn btn-default btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
               <? endif; ?>
               <? endif; ?>
           </div>
