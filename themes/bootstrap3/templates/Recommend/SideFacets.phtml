@@ -127,7 +127,7 @@ foreach ($queryParams as $key => $value) {
             <? $titleHtml = $this->transEsc($cluster['label']); ?>
             <?= $this->help()->getElementHelp('element_help_facet_' . $cluster['label'], $titleHtml) ?>
               <? if (isset($rangeFacets[$title])): ?>
-              <? if ($rangeFacets[$title]['type'] == 'date'): ?>
+              <? if ($rangeFacets[$title]['type'] == 'date'): ?><?=$this->searchClassId?>
               <script>
 		var activeDatabase = $('#set-database li.active a').attr('data-value');
 		if (activeDatabase == 'EDS' ){
