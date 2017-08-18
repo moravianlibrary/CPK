@@ -1139,13 +1139,7 @@ jQuery( document ).ready( function( $ ) {
 		
 		var extraData = {};
 		extraData['publishDatefrom'] = $( '#publishDatefrom' ).val();
-		if ($( '#publishDatefrom' ).val() == undefined){
-			extraData['publishDatefrom'] = $( '#PublicationDatefrom' ).val();
-		}
 		extraData['publishDateto'] = $( '#publishDateto' ).val();
-		if ($( '#publishDateto' ).val() == undefined){
-			extraData['publishDateto'] = $( '#PublicationDateto' ).val();
-		}
 		extraData['daterange'] = 'publishDate';
 		
 		var value = 'publishDate:"['+extraData['publishDatefrom']+' TO '+extraData['publishDateto']+']"';
