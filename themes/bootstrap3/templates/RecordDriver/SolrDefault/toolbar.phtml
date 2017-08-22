@@ -65,48 +65,52 @@
     </div>
   <? endif; ?>
   </li>
-  <li class="list-group-item">
-    <a id="mail-record" class="modal-link <?=$controllerClass?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow">
-      <? $titleHtml = "<i class=\"pr-communication-emailenvelopemail\"> </i>" . $this->transEsc('Email this') ?>
-      <?= $this->help()->getElementHelp('element_help_email_this', $titleHtml) ?>
-    </a>
-  </li>
 
-  <? $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>
-  <? if(count($exportFormats) > 0): ?>
-    <li class="dropdown list-group-item">
-      <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>" rel="nofollow">
-        <? $titleHtml = "<i class=\"pr-web-uploadarrow\"> </i>" . $this->transEsc('Export Record') ?>
-        <?= $this->help()->getElementHelp('element_help_export_record', $titleHtml) ?>
+  <? if($this->driver->getRecordType() != "library"): ?>
+    <li class="list-group-item">
+      <a id="mail-record" class="modal-link <?=$controllerClass?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow">
+        <? $titleHtml = "<i class=\"pr-communication-emailenvelopemail\"> </i>" . $this->transEsc('Email this') ?>
+        <?= $this->help()->getElementHelp('element_help_email_this', $titleHtml) ?>
       </a>
-      <ul class="dropdown-menu record-export" role="menu">
-        <li><a href="https://www.citacepro.com/nacist-dokument-sysno/<?=$this->driver->getUniqueID()?>?katalog=cpk" title="CitacePRO" target="_blank">CitacePRO</a></li>
-        <? foreach ($exportFormats as $exportFormat): ?>
-          <li><a <? if ($this->export()->needsRedirect($exportFormat)): ?>target="<?=$this->escapeHtmlAttr($exportFormat)?>Main" <? endif; ?>href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>?style=<?=$this->escapeHtmlAttr($exportFormat)?>" rel="nofollow"><?=$this->transEsc($this->export()->getLabelForFormat($exportFormat))?></a></li>
-        <? endforeach; ?>
-      </ul>
     </li>
-  <? endif; ?>
 
+    <? $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>
+    <? if(count($exportFormats) > 0): ?>
+      <li class="dropdown list-group-item">
+        <a class="export-toggle dropdown-toggle" data-toggle="dropdown" href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>" rel="nofollow">
+          <? $titleHtml = "<i class=\"pr-web-uploadarrow\"> </i>" . $this->transEsc('Export Record') ?>
+          <?= $this->help()->getElementHelp('element_help_export_record', $titleHtml) ?>
+        </a>
+        <ul class="dropdown-menu record-export" role="menu">
+          <li><a href="https://www.citacepro.com/nacist-dokument-sysno/<?=$this->driver->getUniqueID()?>?katalog=cpk" title="CitacePRO" target="_blank">CitacePRO</a></li>
+          <? foreach ($exportFormats as $exportFormat): ?>
+            <li><a <? if ($this->export()->needsRedirect($exportFormat)): ?>target="<?=$this->escapeHtmlAttr($exportFormat)?>Main" <? endif; ?>href="<?=$this->recordLink()->getActionUrl($this->driver, 'Export')?>?style=<?=$this->escapeHtmlAttr($exportFormat)?>" rel="nofollow"><?=$this->transEsc($this->export()->getLabelForFormat($exportFormat))?></a></li>
+          <? endforeach; ?>
+        </ul>
+      </li>
+    <? endif; ?>
+  <? endif; ?>
   <li class="list-group-item" id='permalinkItem'>
     <a class="modal-link" id='permalinkAnchor' title="<?=$this->translate('Permalink')?>" >
       <i class="pr-web-linkurl"> </i> <?=$this->translate('Permalink')?>
     </a>
   </li>
 
-  <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-    <li class="list-group-item">
-    	<a id="save-record" class="modal-link <?=$controllerClass?>"
+  <? if($this->driver->getRecordType() != "library"): ?>
+    <? if ($this->userlist()->getMode() !== 'disabled'): ?>
+      <li class="list-group-item">
+      	<a id="save-record" class="modal-link <?=$controllerClass?>"
 
-  	     <? if ($handleOfflineFavorites) : ?>
-        	href="#" data-ng-controller="RecordFavController as recFavCtrl" data-ng-click="recFavCtrl.addOrRemoveFavorite()"
-    	 <? else: ?>
-        	href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
-         <? endif; ?>
+    	     <? if ($handleOfflineFavorites) : ?>
+          	href="#" data-ng-controller="RecordFavController as recFavCtrl" data-ng-click="recFavCtrl.addOrRemoveFavorite()"
+      	 <? else: ?>
+          	href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
+           <? endif; ?>
 
-    title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span data-add-remove-record="add"><?=$this->transEsc('Add to favorites')?></span><span data-add-remove-record="rem" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
+      title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span data-add-remove-record="add"><?=$this->transEsc('Add to favorites')?></span><span data-add-remove-record="rem" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
+    <? endif; ?>
   <? endif; ?>
-  <? if(! ($this->driver instanceof CPK\RecordDriver\SolrAuthority) && ($controllerClass != 'controller:Edsrecord')): ?>
+  <? if(! (($this->driver instanceof CPK\RecordDriver\SolrAuthority) || ($this->driver->getRecordType() == "library") || ($controllerClass == 'controller:Edsrecord'))): ?>
   <li class="list-group-item" id='citace-pro'>
     <a class="modal-link disabled-link" title="<?=$this->transEsc('Show citations')?>" ><i class="pr-communication-bubblechattalkconversationline"> </i> <?=$this->transEsc('Show citations')?></a>
     <i id='citation-link-spinner' class="fa fa-spinner fa-spin"></i>
@@ -131,6 +135,11 @@
             <? endif; ?>
         </li>
     <? endif; ?>
+  <li class="list-group-item" id='shareItem'>
+    <a class="modal-link" id='shareAnchor' title="<?=$this->translate('Share this')?>" >
+      <i class="pr-web-sharenetwork"> </i> <?=$this->translate('Share this')?>
+    </a>
+  </li>
   <? if (!empty($addThis)): ?>
     <li><a class="addThis addthis_button list-group-item" href="https://www.addthis.com/bookmark.php?v=250&amp;pub=<?=urlencode($addThis)?>"><i class="fa fa-fw fa-bookmark"></i> <?=$this->transEsc('Bookmark')?></a></li>
   <? endif; ?>
@@ -163,5 +172,9 @@ jQuery( document ).ready(function( $ ) {
 	$( '.record-toolbar' ).on('click', '#mail-record', function(){
 		$( '#mailRecordModal' ).modal( 'show' );
 	});
+	$( '#shareItem' ).on('click', '#shareAnchor', function(){
+		$( '#shareModal' ).modal( 'show' );
+	});
+
 });
 </script>

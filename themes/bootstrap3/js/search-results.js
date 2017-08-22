@@ -199,7 +199,7 @@ jQuery( document ).ready( function( $ ) {
                     data[key].push($(element).val());
                 });
 
-                var allGroupsOperator = $('input[name="join"]').val();
+                var allGroupsOperator = $( '#group-join-type' ).val();
                 data['join'] = allGroupsOperator;
 
                 if (!data.hasOwnProperty('searchTypeTemplate')) {
@@ -660,7 +660,7 @@ jQuery( document ).ready( function( $ ) {
                     $(this).remove();
                 }
 
-				/* Special if, for publishDate */
+                /* Special if, for publishDate */
                 var substring = "publishDate";
                 if (value.includes(substring) && $(element).val().includes(substring)) {
                     $(this).remove();
@@ -668,7 +668,7 @@ jQuery( document ).ready( function( $ ) {
                     extraData['publishDatefrom'] = '';
                     extraData['publishDateto'] = '';
                 }
-				/**/
+                /**/
             });
 
             if (updateResults) {
@@ -889,6 +889,7 @@ jQuery( document ).ready( function( $ ) {
 		clone.find( 'select' ).prop( 'selected', false );
 		clone.find( 'select.group-operator' ).attr( 'name', 'bool' + nextGroupNumber + '[]' );
 		clone.find( 'select.query-type' ).attr( 'name', 'type' + nextGroupNumber + '[]' );
+        clone.find( 'select.query-type' ).val( clone.find( 'select.query-type' ).find( 'option:first' ).val() );
 		clone.find( '.queries:not(:first)').remove();
 		clone.find( 'input:text' ).val( '' );
 		clone.find( 'input:text' ).attr( 'name', 'lookfor' + nextGroupNumber + '[]' );
@@ -914,6 +915,7 @@ jQuery( document ).ready( function( $ ) {
 		clone.attr( 'id', 'query_' + nextQueryNumber);
 		clone.find( 'select' ).prop( 'selected', false );
 		clone.find( 'select' ).attr( 'name', 'type' + thisGroupNumber + '[]' );
+        clone.find( 'select' ).val( clone.find( 'select' ).find( 'option:first' ).val() );
 		clone.find( 'input:text' ).val( '' );
 		clone.find( 'input:text' ).attr( 'name', 'lookfor' + thisGroupNumber + '[]' );
 		clone.css( 'display', 'none' );
@@ -1526,3 +1528,15 @@ jQuery( document ).ready( function( $ ) {
           }
     });
 });
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}

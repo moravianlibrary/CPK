@@ -1,14 +1,6 @@
-[![Build Status](https://travis-ci.org/vufind-org/vufind.svg?branch=master)](https://travis-ci.org/vufind-org/vufind)
-VuFind
-======
+CPK - Knihovny.cz
+=================
 
 Introduction
 ------------
-VuFind is an open source discovery environment for searching a collection of
-records.  To learn more, visit http://vufind.org.
-
-
-Installation
-------------
-
-See online documentation at http://vufind.org/wiki/vufind2:installation_notes
+This software is a source code for the Knihovny.cz portal - discovery portal of Czech libraries, developed by the Moravian Library in Brno. It is based on VuFind open source discovery environment. To learn more about the portal, visit https://www.knihovny.cz. To learn more about VuFind, visit http://vufind.org.

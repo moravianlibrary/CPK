@@ -95,6 +95,34 @@
     </div>
 
     <!-- Modal -->
+    <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="shareLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="shareLabel"><?=$this->translate('Share this')?></h4>
+          </div>
+          <div class="modal-body">
+		<center>
+	  	<div style="display:inline-block;" class="fb-share-button" data-href="<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>" data-layout="button" data-size="large" data-mobile-iframe="false"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>&src=sdkpreparse"><img alt="Facebook - Knihovny.cz" class="social-icon" width="64" src="https://cdn0.iconfinder.com/data/icons/flat-social-media-icons-set-round-style-1/550/facebook-128.png"></a></div>
+		<div style="display:inline-block;margin-left:30px;">
+	<a target="_blank" href="https://plus.google.com/share?url=<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>"><img src="https://cdn1.iconfinder.com/data/icons/logotypes/32/circle-google-plus-128.png" width="60"></a>
+	  	</div>
+		<div style="display:inline-block;margin-left:30px;">
+		<a target="_blank" href="https://twitter.com/intent/tweet?url=<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>">
+			<img src="https://cdn1.iconfinder.com/data/icons/logotypes/32/circle-twitter-128.png" width="60">
+		</a>
+		</div>
+		</center>
+	  </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
     <div class="modal fade" id="permalinkModal" tabindex="-1" role="dialog" aria-labelledby="permalinkLabel">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -112,6 +140,7 @@
       </div>
     </div>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
+<<<<<<< HEAD
             <? if ($this->driver instanceof CPK\RecordDriver\SolrMarc && !($this->driver instanceof CPK\RecordDriver\SolrAuthority)): ?>
                 <div class='row records-in-groups-container' id='records-in-groups-container'>
                   <div class='col-md-2 text-center'>
@@ -140,6 +169,36 @@
                   <? endif; ?>
                 </div>
             <? endif; ?>
+=======
+        <? if($source != "library"): ?>
+			<div class='row records-in-groups-container' id='records-in-groups-container'>
+			  <div class='col-md-2 text-center'>
+				<h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
+			  </div>
+		      <? if($this->sigla): ?>
+			  <div class='col-md-8'>
+			  <? else: ?>
+			  <div class='col-md-10'>
+			  <? endif; ?>
+				<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
+			  </div>
+			  <? if($this->sigla): ?>
+			  <div class='col-md-2 information'>
+				<a href='/Search/Results/?lookfor0[]=<?=$this->sigla?>&type0[]=Libraries&bool0[]=AND&filter=&daterange=&publishDatefrom=&publishDateto=&limit=10&sort=relevance&page=1&searchTypeTemplate=basic&keepFacetsEnabled=true&join=AND' target='_blank' title='<?=$this->translate('Information about library')?>'>
+				  <div class='row'>
+				    <div class='col-md-3 information-icon'>
+				      <i class='cpk-icon'>i</i>
+				    </div>
+				    <div class='col-md-9'>
+				      <span><?=$this->translate('Information about library')?></span>
+				    </div>
+				  </div>
+				</a>
+			  </div>
+			  <? endif; ?>
+			</div>
+        <? endif; ?>
+>>>>>>> master
 			<div>
 
             <? if (count($this->tabs) > 0): ?>
@@ -267,8 +326,49 @@
             	}
 
             	//
-            	var recordID = '<?= $this->driver->getUniqueID() ?>';
-                var parentRecordID = '<?= $this->driver->tryMethod("getParentRecordID"); ?>';
+
+                // Disable AddInfo tab
+                <?   $addInfoItemsCount = 1;
+                if(method_exists($this->driver, "AddInfoItemsCount"))
+                    $addInfoItemsCount = $this->driver->AddInfoItemsCount();
+                ?>
+                var addInfoItemsCount = <?=$addInfoItemsCount?>;
+                if ( addInfoItemsCount == 0 ) {
+                    $( '#addinfo' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                // Disable Contacts tab
+                <?   $ContactsItemsCount = 1;
+                if(method_exists($this->driver, "ContactsItemsCount"))
+                    $ContactsItemsCount = $this->driver->ContactsItemsCount();
+                ?>
+                var ContactsItemsCount = <?=$ContactsItemsCount?>;
+                if ( ContactsItemsCount == 0 ) {
+                    $( '#contacts' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                // Disable Servics tab
+                <?   $ServicesItemsCount = 1;
+                if(method_exists($this->driver, "ServicesItemsCount"))
+                    $ServicesItemsCount = $this->driver->ServicesItemsCount();
+                ?>
+                var ServicesItemsCount = <?=$ServicesItemsCount?>;
+                if ( ServicesItemsCount == 0 ) {
+                    $( '#services' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                // Disable Branches tab
+                <?   $BranchesItemsCount = 1;
+                if(method_exists($this->driver, "BranchesItemsCount"))
+                    $BranchesItemsCount = $this->driver->BranchesItemsCount();
+                ?>
+                var BranchesItemsCount = <?=$BranchesItemsCount?>;
+                if ( BranchesItemsCount == 0) {
+                    $( '#branches' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                }
+
+                var recordID = '<?= $this->driver->getUniqueID() ?>';
+            	var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
 
             	var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );
 

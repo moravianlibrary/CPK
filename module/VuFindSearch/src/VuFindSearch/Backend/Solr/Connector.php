@@ -115,6 +115,15 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     protected $adapter = 'Zend\Http\Client\Adapter\Socket';
 
     /**
+     * HTTP client adapter.
+     *
+     * Either the class name or a adapter instance.
+     *
+     * @var PerformanceLogger
+     */
+    protected $performanceLogger;
+
+    /**
      * Constructor
      *
      * @param string|array $url       SOLR core URL or an array of alternative URLs
@@ -338,6 +347,10 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $this->adapter = $adapter;
     }
 
+    public function setPerformanceLogger($logger) {
+        $this->performanceLogger = $logger;
+    }
+
     /// Internal API
 
     /**
@@ -431,6 +444,10 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 $response->getReasonPhrase()
             ), ['time' => $time]
         );
+
+        if ($this->performanceLogger != null) {
+            $this->performanceLogger->write($response, $client->getUri(), $time);
+        }
 
         if (!$response->isSuccess()) {
             throw HttpErrorException::createFromResponse($response);

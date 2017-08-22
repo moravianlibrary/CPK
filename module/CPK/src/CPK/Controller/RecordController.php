@@ -184,6 +184,8 @@ class RecordController extends RecordControllerBase
             $view->refererUrl = $this->base64url_decode($referer);
         }
 
+        $view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
+
         $this->layout()->recordView = true;
 
         /* Get sigla */
@@ -275,6 +277,8 @@ class RecordController extends RecordControllerBase
     protected function loadTabDetails()
     {
         parent::loadTabDetails();
+
+        if ($this->driver instanceof \CPK\RecordDriver\SolrLibrary) return;
 
         if (empty($this->driver->getRealTimeHoldings())) {
 

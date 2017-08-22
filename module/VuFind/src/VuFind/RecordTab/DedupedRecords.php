@@ -71,7 +71,10 @@ class DedupedRecords extends AbstractBase
         $records = [];
         $record = $this->getRecordDriver();
         $query = new \VuFindSearch\Query\Query("local_ids_str_mv:" . '"' . addcslashes($record->getUniqueID(), '":') . '"');
-        $docs = $this->searchService->search($record->getSourceIdentifier(), $query);
+        $params = new \VuFindSearch\ParamBag();
+        $params->set('hl', 'false');
+        $params->set('spellcheck', 'false');
+        $docs = $this->searchService->search($record->getSourceIdentifier(), $query, 0, 20, $params);
         foreach ($docs->getRecords() as $record) {
             $fields = $record->getRawData();
             foreach ($fields['local_ids_str_mv'] as $id) {
