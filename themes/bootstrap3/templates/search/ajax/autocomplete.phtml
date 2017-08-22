@@ -66,7 +66,16 @@
 
 			$( 'body' ).on( 'click', '#run-autocomplete', function( event ) {
 				event.preventDefault();
-
+                dataLayer.push({
+                    'event': 'action.search',
+                    'actionContext': {
+                        'eventCategory': 'search',
+                        'eventAction': 'fulltext',
+                        'eventLabel': query,
+                        'eventValue': undefined,
+                        'nonInteraction': undefined
+                    }
+                });
                 /* if autocomplete used in Search/Results, load results async */
                 var href = $( '#run-autocomplete' ).attr( 'href' );
                 var currentUrl = window.location.pathname;
@@ -93,6 +102,17 @@
 			 */
             $( '.searchForm' ).submit( function( event ) {
                 event.preventDefault();
+                query = $( "#searchForm_lookfor" ).val();
+                dataLayer.push({
+                    'event': 'action.search',
+                    'actionContext': {
+                        'eventCategory': 'search',
+                        'eventAction': 'fulltext',
+                        'eventLabel': query,
+                        'eventValue': undefined,
+                        'nonInteraction': undefined
+                    }
+                });
             	var currentUrl = window.location.pathname;
                 var controller = currentUrl.split('/')[1];
                 var action = currentUrl.split('/')[2];

@@ -135,6 +135,16 @@
 
       $.fn.autocompleteVufind.element.html(shell);
       $.fn.autocompleteVufind.element.find('.item').mousedown(function() {
+        dataLayer.push({
+          'event': 'action.search',
+          'actionContext': {
+            'eventCategory': 'search',
+            'eventAction': 'fulltext',
+            'eventLabel': $(this).attr('data-value'),
+            'eventValue': undefined,
+            'nonInteraction': undefined
+          }
+        });
         populate($(this).attr('data-value'), input, {mouse: true}, true, $(this).attr('id'));
       });
       align(input, $.fn.autocompleteVufind.element);
@@ -286,6 +296,16 @@
             if (selected.length > 0) {
               event.preventDefault();
               if (event.which === 13 && selected.attr('href')) {
+                dataLayer.push({
+                  'event': 'action.search',
+                  'actionContext': {
+                    'eventCategory': 'search',
+                    'eventAction': 'fulltext',
+                    'eventLabel': selected.attr('data-value'),
+                    'eventValue': undefined,
+                    'nonInteraction': undefined
+                  }
+                });
                 location.assign(selected.attr('href'));
               } else {
                 populate(selected.attr('data-value'), $(this), element, {key: true});
