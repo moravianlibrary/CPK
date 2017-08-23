@@ -1319,6 +1319,8 @@ jQuery( document ).ready( function( $ ) {
             $('#searchForm_lookfor').addClass('autocomplete');
         } else {
             $('#searchForm_lookfor').removeClass('autocomplete');
+            $('#librariesSearchLink').removeClass('active');
+            $('#catalogSearchLink').addClass('active');
         }
 /*
  @TODO: Something like this should be called before calling searchResultsAjax action.
