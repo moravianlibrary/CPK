@@ -114,13 +114,14 @@ $accessUrl = $this->driver->getAccessUrl();
         <div class="col-sm-3 col-xs-12 right">
             <div id="eds-links">
 
-                <span id="only-one-eds-link-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</span>
-                <span id="many-eds-links-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</span>
-                <span id="free-eds-link-available-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->translate('Fulltext is free') ?></span>
+                <span id="only-one-eds-link-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</span>
+                <span id="many-eds-links-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</span>
+                <span id="free-eds-link-available-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is free') ?></span>
 
                 <table class="table table-striped">
                     <tbody>
                         <div id="eds-links-placeholder-<?=$recordIdHash?>">
+                            <span id="no-eds-links-<?=$recordIdHash?>" style="display: none;"><?= $this->help()->getQuestionMarkHelp('eds-links-not-found') ?></span>
                             <!-- Ajax Placeholder -->
                         </div>
                     </tbody>
@@ -278,6 +279,7 @@ $accessUrl = $this->driver->getAccessUrl();
 
                         $('#eds-links-placeholder-<?=$recordIdHash?>').append( '<div class="text-center"><?= $this->translate('Fulltext not found') ?></div>' );
                         $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
+                        $( '#no-eds-links-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
                     }
 
                 },

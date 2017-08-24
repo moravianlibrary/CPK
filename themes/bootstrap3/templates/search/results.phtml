@@ -5,6 +5,9 @@
     <li<?=! empty($_GET['database']) && $_GET['database'] == 'EDS' ? ' class="active"' : '' ?>>
         <a href="#" data-value="EDS" class="pointer"><i class="pr-misc-globe"></i> <?=$this->translate('foreign-sources')?></a>
     </li>
+    <li class="disabled">
+        <span style="margin-left: 6px;"><?= $this->help()->getQuestionMarkHelp('foreign-sources') ?></span>
+    </li>
 </ul>
 
 <? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
