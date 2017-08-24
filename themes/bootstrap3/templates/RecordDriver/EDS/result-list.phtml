@@ -233,14 +233,7 @@ $accessUrl = $this->driver->getAccessUrl();
                             $( '#many-eds-links-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
                         }
 
-                        var maxLinksShown = 2;
-                        if (edsLinks <= 2) {
-                            maxLinksShown = 2;
-                        } else if (edsLinks === 3) {
-                            maxLinksShown = 3;
-                        } else if (edsLinks >= 4) {
-                            maxLinksShown = 2;
-                        }
+                        var maxLinksShown = 3;
 
                         var ebscoHtml = "";
 
