@@ -238,12 +238,11 @@ $volume = $this->driver->getVolume();
                         ebscoHtml += '<b class="caret"></b></span>';
                         ebscoHtml += '<ul class="dropdown-menu scrollable-menu" role="menu">';
 
-
-                        links.forEach( function( link ) {
+                        for (var i = maxLinksShown; i < edsLinks; i++) {
                             ebscoHtml += '<li>';
-                            ebscoHtml += link;
+                            ebscoHtml += links[i];
                             ebscoHtml += '</li>';
-                        });
+                        }
 
                         ebscoHtml += '</ul>';
                         ebscoHtml += '</div>';
