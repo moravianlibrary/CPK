@@ -27,7 +27,7 @@
  * @link     https://vufind.org
  */
 namespace VuFindTest\Formatter;
-use VuFindApi\Formatter\RecordFormatter;
+use VuFindApi\Formatter\ItemFormatter;
 use VuFind\I18n\TranslatableString;
 
 /**
@@ -93,11 +93,11 @@ class RecordFormatterTest extends \VuFindTest\Unit\TestCase
      *
      * @param array $defs Configuration for formatter
      *
-     * @return RecordFormatter
+     * @return ItemFormatter
      */
     protected function getFormatter($defs = null)
     {
-        return new RecordFormatter(
+        return new ItemFormatter(
             $defs ?: $this->getDefaultDefs(), $this->getHelperPluginManager()
         );
     }
