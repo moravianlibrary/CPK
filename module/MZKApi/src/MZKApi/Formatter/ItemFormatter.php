@@ -25,7 +25,9 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-namespace VuFindApi\Formatter;
+
+namespace MZKApi\Formatter;
+
 use VuFind\I18n\TranslatableString;
 use Zend\View\HelperPluginManager;
 
@@ -38,7 +40,7 @@ use Zend\View\HelperPluginManager;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-class RecordFormatter extends BaseFormatter
+class ItemFormatter extends BaseFormatter
 {
     /**
      * Record field definitions
@@ -57,11 +59,12 @@ class RecordFormatter extends BaseFormatter
     /**
      * Constructor
      *
-     * @param array               $recordFields  Record field definitions
+     * @param array $recordFields Record field definitions
      * @param HelperPluginManager $helperManager View helper plugin manager
      */
     public function __construct($recordFields, HelperPluginManager $helperManager
-    ) {
+    )
+    {
         $this->recordFields = $recordFields;
         $this->helperManager = $helperManager;
     }
@@ -156,14 +159,17 @@ class RecordFormatter extends BaseFormatter
     protected function getURLs($record)
     {
         $recordHelper = $this->helperManager->get('Record');
-        return $recordHelper($record)->getLinkDetails();
+        if (is_callable($recordHelper)) {
+            return $recordHelper($record)->getLinkDetails();
+        }
+        return [];
     }
 
     /**
      * Get fields from a record as an array
      *
      * @param \VuFind\RecordDriver\AbstractBase $record Record driver
-     * @param array                             $fields Fields to get
+     * @param array $fields Fields to get
      *
      * @return array
      */
@@ -208,7 +214,7 @@ class RecordFormatter extends BaseFormatter
      *
      * @return array
      */
-    public function getRecordFields()
+    public function getItemFields()
     {
         return $this->recordFields;
     }
@@ -237,7 +243,7 @@ class RecordFormatter extends BaseFormatter
     /**
      * Format the results.
      *
-     * @param array $results         Results to process (array of record drivers)
+     * @param array $results Results to process (array of record drivers)
      * @param array $requestedFields Fields to include in response
      *
      * @return array

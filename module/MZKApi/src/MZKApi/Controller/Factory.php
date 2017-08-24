@@ -19,23 +19,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * @category VuFind
+ * @category MZK
  * @package  Controller
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Jiri Kozlovsky <Jiri.Kozlovsky@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-namespace VuFindApi\Controller;
-use VuFindApi\Formatter\FacetFormatter;
-use VuFindApi\Formatter\ItemFormatter;
+namespace MZKApi\Controller;
+use MZKApi\Formatter\ItemFormatter;
 use Zend\ServiceManager\ServiceManager;
 
 /**
  * Factory for controllers.
  *
- * @category VuFind
+ * @category MZK
  * @package  Controller
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Jiri Kozlovsky <Jiri.Kozlovsky@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  *
@@ -54,6 +53,7 @@ class Factory
     {
         $controller = new ApiController($sm);
         $controller->addApi($sm->get('SearchApi'));
+        $controller->addApi($sm->get('ItemApi'));
         return $controller;
     }
 
@@ -62,15 +62,17 @@ class Factory
      *
      * @param ServiceManager $sm Service manager.
      *
-     * @return SearchApiController
+     * @return ItemApiController
      */
-    public static function getSearchApiController(ServiceManager $sm)
+    public static function getItemApiController(ServiceManager $sm)
     {
-        $recordFields = $sm->getServiceLocator()
-            ->get('VuFind\YamlReader')->get('SearchApiRecordFields.yaml');
+        $itemFields = $sm->getServiceLocator()
+            ->get('VuFind\YamlReader')->get('ItemApiFields.yaml');
+
         $helperManager = $sm->getServiceLocator()->get('ViewHelperManager');
-        $rf = new ItemFormatter($recordFields, $helperManager);
-        $controller = new SearchApiController($sm, $rf, new FacetFormatter());
+
+        $if = new ItemFormatter($itemFields, $helperManager);
+        $controller = new ItemApiController($sm, $if);
         return $controller;
     }
 }

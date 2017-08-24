@@ -28,7 +28,7 @@
 namespace VuFindApi\Controller;
 
 use VuFindApi\Formatter\FacetFormatter;
-use VuFindApi\Formatter\RecordFormatter;
+use VuFindApi\Formatter\ItemFormatter;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
@@ -50,7 +50,7 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
     /**
      * Record formatter
      *
-     * @var RecordFormatter
+     * @var ItemFormatter
      */
     protected $recordFormatter;
 
@@ -86,16 +86,16 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
      * Constructor
      *
      * @param ServiceLocatorInterface $sm Service manager
-     * @param RecordFormatter         $rf Record formatter
+     * @param ItemFormatter         $rf Record formatter
      * @param FacetFormatter          $ff Facet formatter
      */
-    public function __construct(ServiceLocatorInterface $sm, RecordFormatter $rf,
-        FacetFormatter $ff
+    public function __construct(ServiceLocatorInterface $sm, ItemFormatter $rf,
+                                FacetFormatter $ff
     ) {
         parent::__construct($sm);
         $this->recordFormatter = $rf;
         $this->facetFormatter = $ff;
-        foreach ($rf->getRecordFields() as $fieldName => $fieldSpec) {
+        foreach ($rf->getItemFields() as $fieldName => $fieldSpec) {
             if (!empty($fieldSpec['vufind.default'])) {
                 $this->defaultRecordFields[] = $fieldName;
             }
