@@ -222,8 +222,11 @@ $volume = $this->driver->getVolume();
                     }
 
                     var ebscoHtml = "";
+                    
                     for (var i = 0; i < maxLinksShown; i++) {
-                        ebscoHtml += "<tr style='display: none;'><td>" + links[i] + "</td></tr>";
+                        if (undefined !== links[i]) {
+                            ebscoHtml += "<tr style='display: none;'><td>" + links[i] + "</td></tr>";
+                        }
                     }
 
                     if (edsLinks > maxLinksShown) {
