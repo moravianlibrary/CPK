@@ -598,39 +598,72 @@ class EDS extends SolrDefault
      *
      * @return mixed
      */
-    public function getParsedData($group, $delimeter = false, $positionIndex = false, $trimCharacters = false)
+    public function getParsedData($group, $label = false, $delimeter = false, $positionIndex = false, $trimCharacters = false)
     {
         if (isset($this->fields['Items'])) {
             foreach ($this->fields['Items'] as $item) {
-                if ($item['Group'] == $group) {
+                if ($label) {
+                    if ($item['Group'] == $group && $item['Label'] == $label) {
+                        $itemData = trim($item['Data'], ". ");
 
-                    $itemData = trim($item['Data'], ". ");
+                        if ($delimeter) {
+                            $data = array_map('trim', explode($delimeter, $itemData));
 
-                    if ($delimeter) {
-                        $data = array_map('trim', explode($delimeter, $itemData));
-
-                        if ($trimCharacters) {
-                            foreach ($data as $key => $value) {
-                                $string = trim($value, $trimCharacters);
-                                if (! empty($string)) {
-                                    $data[$key] = $string;
+                            if ($trimCharacters) {
+                                foreach ($data as $key => $value) {
+                                    $string = trim($value, $trimCharacters);
+                                    if (! empty($string)) {
+                                        $data[$key] = $string;
+                                    }
                                 }
                             }
-                        }
 
-                        if ($positionIndex) {
-                            $data = $data[$positionIndex-1];
-                        }
+                            if ($positionIndex) {
+                                $data = $data[$positionIndex-1];
+                            }
 
+                        }
+                        else {
+                            $data = $itemData;
+                        }
+                        break;
                     }
-                    else {
-                        $data = $itemData;
+                } else {
+                    if ($item['Group'] == $group) {
+
+                        $itemData = trim($item['Data'], ". ");
+
+                        if ($delimeter) {
+                            $data = array_map('trim', explode($delimeter, $itemData));
+
+                            if ($trimCharacters) {
+                                foreach ($data as $key => $value) {
+                                    $string = trim($value, $trimCharacters);
+                                    if (! empty($string)) {
+                                        $data[$key] = $string;
+                                    }
+                                }
+                            }
+
+                            if ($positionIndex) {
+                                $data = $data[$positionIndex-1];
+                            }
+
+                        }
+                        else {
+                            $data = $itemData;
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
         return (! is_null($data)) ? $data : false;
+    }
+
+    protected function neco()
+    {
+
     }
 
     /**
@@ -642,7 +675,7 @@ class EDS extends SolrDefault
     {
         $group = "ISSN";
         $delimeter = "&lt;br /&gt;";
-        return $this->getParsedData($group, $delimeter);
+        return $this->getParsedData($group, false, $delimeter);
     }
 
     /**
@@ -654,7 +687,7 @@ class EDS extends SolrDefault
     {
         $group = "ISBN";
         $delimeter = ".";
-        return $this->getParsedData($group, $delimeter);
+        return $this->getParsedData($group, false, $delimeter);
     }
 
     protected function findeClosestDelimeter($possibleDelimeters, $string){
@@ -777,5 +810,22 @@ class EDS extends SolrDefault
             }
         }
         return (! is_null($data)) ? $data[0] : false;
+    }
+
+    /**
+     * Get access url
+     *
+     * @return string
+     */
+    public function getAccessUrl()
+    {
+        $group = "URL";
+        $label = "Access URL";
+
+        $data = $this->getParsedData($group, $label);
+
+        $url = strip_tags(html_entity_decode($data));
+
+        return filter_var($url, FILTER_VALIDATE_URL);
     }
 }

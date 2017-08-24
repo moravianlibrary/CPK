@@ -21,7 +21,8 @@ $titles = $this->driver->getTitles();
 $authors = $this->driver->getAuthors();
 $sourceTitle = $this->driver->getSourceTitle();
 $volume = $this->driver->getVolume();
-//var_dump($issns);exit();
+$accessUrl = $this->driver->getAccessUrl();
+//var_dump($accessUrl);exit();
 ?>
 <div class="white-box clearfix">
     <div class="row col-xs-12 source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> recordId<?=$this->driver->supportsAjaxStatus()?' ajaxItemId':''?>">
@@ -115,6 +116,7 @@ $volume = $this->driver->getVolume();
 
                 <span id="only-one-eds-link-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</span>
                 <span id="many-eds-links-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</span>
+                <span id="free-eds-link-available-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->translate('Fulltext is free') ?></span>
 
                 <table class="table table-striped">
                     <tbody>
@@ -178,103 +180,124 @@ $volume = $this->driver->getVolume();
 <script>
     jQuery( document ).ready( function( $ ) {
 
-        $.ajax({
-            method: 'POST',
-            dataType: 'json',
-            async: true,
-            url: '/AJAX/JSON?method=getEdsFulltextLinkInResults&recordIdHash=<?=$recordIdHash?>',
-            data: {
-                recordData: {
-                    <? if (! empty($recordId)): ?> <?= "'recordId': '".$recordId."'," ?> <? endif; ?>
-                }
-            },
-            beforeSend: function () {
-                console.info( 'Calling getEdsFulltextLinkInResults for recordId <?=$recordIdHash?>..' );
-                $('#eds-links-placeholder-<?=$recordIdHash?>').append("<div class='eds-links-loader text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>");
-            },
-            success: function (response) {
+        <?= ($accessUrl) ? "var accessUrl = '$accessUrl';" : "var accessUrl = false;" ?>
 
-                if (response.status == 'OK') {
-                    console.log( '' );
-                    console.log( 'Eds fulltext links FOUND for recordId <?=$recordIdHash?>.' );
-                    console.log( 'Solr url: ' + response.data.url );
+        if (accessUrl) {
+            console.log( 'Eds fulltext link FOUND in metadata in AccessUrl.' );
 
-                    var links = response.data.links;
-                    var edsLinks = links.length;
+            var ebscoHtml = "<tr style='display: none;'><td><a href='" + accessUrl + "' target='_blank' title='<?=$this->translate('Fulltext')?>'><?=$this->translate('Fulltext')?></a></td></tr>";
 
-                    if (edsLinks == 1) {
-                        $( '#many-eds-links-header-<?=$recordIdHash?>' ).hide( 'blind', {}, 200 );
-                        $( '#only-one-eds-link-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+            $('#eds-links-placeholder-<?=$recordIdHash?>').append( ebscoHtml );
+            $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
+
+            $( '#free-eds-link-available-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+
+        } else {
+
+            $.ajax({
+                method: 'POST',
+                dataType: 'json',
+                async: true,
+                url: '/AJAX/JSON?method=getEdsFulltextLinkInResults&recordIdHash=<?=$recordIdHash?>',
+                data: {
+                    recordData: {
+                        <? if (! empty($recordId)): ?> <?= "'recordId': '".$recordId."'," ?> <? endif; ?>
                     }
+                },
+                beforeSend: function () {
+                    console.info( 'Calling getEdsFulltextLinkInResults for recordId <?=$recordIdHash?>..' );
+                    $('#eds-links-placeholder-<?=$recordIdHash?>').append("<div class='eds-links-loader text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>");
+                },
+                success: function (response) {
 
-                    if (edsLinks > 1) {
-                        $( '#only-one-eds-link-header-<?=$recordIdHash?>' ).hide( 'blind', {}, 200 );
-                        $( '#many-eds-links-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
-                    }
+                    if (response.status == 'OK') {
+                        console.log( '' );
+                        console.log( 'Eds fulltext links FOUND for recordId <?=$recordIdHash?>.' );
+                        console.log( 'Solr url: ' + response.data.url );
 
-                    var maxLinksShown = 2;
-                    if (edsLinks <= 2) {
-                        maxLinksShown = 2;
-                    } else if (edsLinks === 3) {
-                        maxLinksShown = 3;
-                    } else if (edsLinks >= 4) {
-                        maxLinksShown = 2;
-                    }
+                        var links = response.data.links;
+                        var edsLinks = links.length;
 
-                    var ebscoHtml = "";
-                    
-                    for (var i = 0; i < maxLinksShown; i++) {
-                        if (undefined !== links[i]) {
-                            ebscoHtml += "<tr style='display: none;'><td>" + links[i] + "</td></tr>";
-                        }
-                    }
+                        if (edsLinks == 1) {
+                            if( links[0].indexOf('free-eds-link-special-class') >= 0) {
 
-                    if (edsLinks > maxLinksShown) {
-                        ebscoHtml += '<tr><td>';
-                        ebscoHtml += '<div class="margin-bottom">';
-                        ebscoHtml += '<div class="btn-group">';
-                        ebscoHtml += '<span type="button" class="show-next-links dropdown-toggle" data-toggle="dropdown">';
-                        ebscoHtml += '<?=$this->translate("Show next links")?>';
-                        ebscoHtml += '<b class="caret"></b></span>';
-                        ebscoHtml += '<ul class="dropdown-menu scrollable-menu" role="menu">';
+                                console.log( 'Eds fulltext link FOUND for record <?=$recordIdHash?> in Solr in param sfx_source_txt:free.' );
+                                $( '#free-eds-link-available-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
 
-                        for (var i = maxLinksShown; i < edsLinks; i++) {
-                            ebscoHtml += '<li>';
-                            ebscoHtml += links[i];
-                            ebscoHtml += '</li>';
+                            } else {
+                                $( '#only-one-eds-link-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+                            }
                         }
 
-                        ebscoHtml += '</ul>';
-                        ebscoHtml += '</div>';
-                        ebscoHtml += '</div>';
-                        ebscoHtml += '</td></tr>';
+                        if (edsLinks > 1) {
+                            $( '#many-eds-links-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+                        }
+
+                        var maxLinksShown = 2;
+                        if (edsLinks <= 2) {
+                            maxLinksShown = 2;
+                        } else if (edsLinks === 3) {
+                            maxLinksShown = 3;
+                        } else if (edsLinks >= 4) {
+                            maxLinksShown = 2;
+                        }
+
+                        var ebscoHtml = "";
+
+                        for (var i = 0; i < maxLinksShown; i++) {
+                            if (undefined !== links[i]) {
+                                ebscoHtml += "<tr style='display: none;'><td>" + links[i] + "</td></tr>";
+                            }
+                        }
+
+                        if (edsLinks > maxLinksShown) {
+                            ebscoHtml += '<tr><td>';
+                            ebscoHtml += '<div class="margin-bottom">';
+                            ebscoHtml += '<div class="btn-group">';
+                            ebscoHtml += '<span type="button" class="show-next-links dropdown-toggle" data-toggle="dropdown">';
+                            ebscoHtml += '<?=$this->translate("Show next links")?>';
+                            ebscoHtml += '<b class="caret"></b></span>';
+                            ebscoHtml += '<ul class="dropdown-menu scrollable-menu" role="menu">';
+
+                            for (var i = maxLinksShown; i < edsLinks; i++) {
+                                ebscoHtml += '<li>';
+                                ebscoHtml += links[i];
+                                ebscoHtml += '</li>';
+                            }
+
+                            ebscoHtml += '</ul>';
+                            ebscoHtml += '</div>';
+                            ebscoHtml += '</div>';
+                            ebscoHtml += '</td></tr>';
+                        }
+
+                        $('#eds-links-placeholder-<?=$recordIdHash?>').append( ebscoHtml );
+                        $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
                     }
 
-                    $('#eds-links-placeholder-<?=$recordIdHash?>').append( ebscoHtml );
-                    $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
-                }
+                    if (response.status == 'NOT_OK') {
+                        console.log( '' );
+                        console.warn( 'Response message for recordId <?=$recordIdHash?>:' + response.data.message );
 
-                if (response.status == 'NOT_OK') {
-                    console.log( '' );
-                    console.warn( 'Response message for recordId <?=$recordIdHash?>:' + response.data.message );
+                        if (response.data.url) {
+                            console.log('Solr url: ' + response.data.url);
+                        }
 
-                    if (response.data.url) {
-                        console.log('Solr url: ' + response.data.url);
+                        $('#eds-links-placeholder-<?=$recordIdHash?>').append( '<div class="text-center"><?= $this->translate('Fulltext not found') ?></div>' );
+                        $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
                     }
 
-                    $('#eds-links-placeholder-<?=$recordIdHash?>').append( '<div class="text-center"><?= $this->translate('Fulltext not found') ?></div>' );
-                    $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
+                },
+                complete: function () {
+                    $( '#eds-links-placeholder-<?=$recordIdHash?> .eds-links-loader' ).remove();
+                },
+                error: function ( jqXHR, textStatus, errorThrown ) {
+                    console.error( JSON.stringify( jqXHR ) );
+                    console.error( 'AJAX error: ' + textStatus + ' : ' + errorThrown );
                 }
+            });
 
-            },
-            complete: function () {
-                $( '#eds-links-placeholder-<?=$recordIdHash?> .eds-links-loader' ).remove();
-            },
-            error: function ( jqXHR, textStatus, errorThrown ) {
-                console.error( JSON.stringify( jqXHR ) );
-                console.error( 'AJAX error: ' + textStatus + ' : ' + errorThrown );
-            }
-        });
+        }
 
     });
 </script>

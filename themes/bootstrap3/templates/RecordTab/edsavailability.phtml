@@ -9,6 +9,8 @@
   $authors = $this->driver->getAuthors();
   $sourceTitle = $this->driver->getSourceTitle();
   $volume = $this->driver->getVolume();
+  $accessUrl = $this->driver->getAccessUrl();
+  //var_dump($accessUrl); exit();
 ?>
 
 <div class="list-group">
@@ -17,6 +19,7 @@
 
         <h3 id="only-one-eds-link-header" style="display: none;"><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</h3>
         <h3 id="many-eds-links-header" style="display: none;"><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</h3>
+        <h3 id="free-eds-link-available" style="display: none;"><?= $this->translate('Fulltext is free') ?></h3>
 
         <table class="table table-striped">
             <tbody>
@@ -33,82 +36,98 @@
     <script>
         jQuery( document ).ready( function( $ ) {
 
-            $.ajax({
-                method: 'POST',
-                dataType: 'json',
-                async: true,
-                url: '/AJAX/JSON?method=getEdsFulltextLink',
-                data: {
-                    recordData: {
-                        <? if (! empty($issns)): ?> <?= "'issns': '".implode(", ", $issns)."'," ?> <? endif; ?>
-                        <? if (! empty($isbns)): ?> <?= "'isbns': '".implode(", ", $isbns)."'," ?> <? endif; ?>
-                        <? if (! empty($publishDate)): ?> <?= "'publishDate': '".$publishDate."'," ?> <? endif; ?>
-                        <? if (! empty($titles)): ?> <?= "'titles': \"".implode(", ", $titles)."\"," ?> <? endif; ?>
-                        <? if (! empty($authors)): ?> <?= "'authors': \"".implode(", ", $authors)."\"," ?> <? endif; ?>
-                        <? if (! empty($sourceTitle)): ?> <?= "'sourceTitle': \"".$sourceTitle."\"," ?> <? endif; ?>
-                        <? if (! empty($volume)): ?> <?= "'volume': '".$volume."'," ?> <? endif; ?>
-                    }
-                },
-                beforeSend: function () {
-                    console.info( 'Calling getEdsFulltextLink..' );
-                    $('#eds-links-placeholder').append("<div class='eds-links-loader text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>");
-                },
-                success: function (response) {
+            <?= ($accessUrl) ? "var accessUrl = '$accessUrl';" : "var accessUrl = false;" ?>
 
-                    if (response.status == 'OK') {
-                        console.log( 'Eds fulltext links FOUND.' );
+            if (accessUrl) {
+                console.log( 'Eds fulltext link FOUND in metadata in AccessUrl.' );
 
-                        var links = response.data.links;
-                        var edsLinks = links.length;
+                var html = "<tr style='display: none;'><td><a href='" + accessUrl + "' target='_blank' title='<?=$this->translate('Fulltext')?>'><?=$this->translate('Fulltext')?></a></td></tr>";
 
-                        var html = "";
-                        links.forEach( function( link ) {
-                            html += "<tr style='display: none;'><td>" + link + "</td></tr>";
-                        });
+                $( '#eds-links-placeholder' ).append( html );
+                $( '#eds-links-placeholder tr' ).show( 'blind', {}, 200 );
 
-                        if (edsLinks == 1) {
-                            $( '#many-eds-links-header' ).hide( 'blind', {}, 200 );
-                            $( '#only-one-eds-link-header' ).show( 'blind', {}, 200 );
+                $( '#free-eds-link-available' ).show( 'blind', {}, 200 );
+
+                $( '.eds-want-it' ).show( 'blind', {}, 200 );
+
+            } else {
+
+                $.ajax({
+                    method: 'POST',
+                    dataType: 'json',
+                    async: true,
+                    url: '/AJAX/JSON?method=getEdsFulltextLink',
+                    data: {
+                        recordData: {
+                            <? if (! empty($issns)): ?> <?= "'issns': '".implode(", ", $issns)."'," ?> <? endif; ?>
+                            <? if (! empty($isbns)): ?> <?= "'isbns': '".implode(", ", $isbns)."'," ?> <? endif; ?>
+                            <? if (! empty($publishDate)): ?> <?= "'publishDate': '".$publishDate."'," ?> <? endif; ?>
+                            <? if (! empty($titles)): ?> <?= "'titles': \"".implode(", ", $titles)."\"," ?> <? endif; ?>
+                            <? if (! empty($authors)): ?> <?= "'authors': \"".implode(", ", $authors)."\"," ?> <? endif; ?>
+                            <? if (! empty($sourceTitle)): ?> <?= "'sourceTitle': \"".$sourceTitle."\"," ?> <? endif; ?>
+                            <? if (! empty($volume)): ?> <?= "'volume': '".$volume."'," ?> <? endif; ?>
+                        }
+                    },
+                    beforeSend: function () {
+                        console.info( 'Calling getEdsFulltextLink..' );
+                        $('#eds-links-placeholder').append("<div class='eds-links-loader text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>");
+                    },
+                    success: function (response) {
+
+                        if (response.status == 'OK') {
+                            console.log( 'Eds fulltext links FOUND.' );
+
+                            var links = response.data.links;
+                            var edsLinks = links.length;
+
+                            var html = "";
+                            links.forEach( function( link ) {
+                                html += "<tr style='display: none;'><td>" + link + "</td></tr>";
+                            });
+
+                            if (edsLinks == 1) {
+                                if( links[0].indexOf('free-eds-link-special-class') >= 0) {
+
+                                    console.log( 'Eds fulltext link FOUND in Solr in param sfx_source_txt:free.' );
+                                    $( '#free-eds-link-available' ).show( 'blind', {}, 200 );
+
+                                } else {
+                                    $( '#only-one-eds-link-header' ).show( 'blind', {}, 200 );
+                                }
+                            }
+
+                            if (edsLinks > 1) {
+                                $( '#many-eds-links-header' ).show( 'blind', {}, 200 );
+                            }
+
+                            $( '#eds-links-placeholder' ).append( html );
+                            $( '#eds-links-placeholder tr' ).show( 'blind', {}, 200 );
+
+                            $( '.eds-want-it' ).show( 'blind', {}, 200 );
                         }
 
-                        if (edsLinks > 1) {
-                            $( '#only-one-eds-link-header' ).hide( 'blind', {}, 200 );
-                            $( '#many-eds-links-header' ).show( 'blind', {}, 200 );
+                        if (response.status == 'NOT_OK') {
+                            console.log( '' );
+                            console.warn( 'Response message:' + response.data.message );
+
+                            if (response.data.url) {
+                                console.log(response.data.url);
+                            }
+
+                            $( '#edsavailability' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                            $( '#eds-links-placeholder' ).append( '<?= $this->translate('Fulltext not found') ?>.' );
                         }
-
-                        $('#eds-links-placeholder').append( html );
-                        $('#eds-links-placeholder tr').show( 'blind', {}, 200 );
+                    },
+                    complete: function () {
+                        $( '.eds-links-loader' ).remove();
+                    },
+                    error: function ( jqXHR, textStatus, errorThrown ) {
+                        console.error( JSON.stringify( jqXHR ) );
+                        console.error( 'AJAX error: ' + textStatus + ' : ' + errorThrown );
                     }
+                });
 
-                    if (response.status == 'NOT FOUND') {
-                        $( '#edsavailability' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-                        $('#eds-links-placeholder').append( '<?= $this->translate('Fulltext not found') ?>.' );
-
-                        console.log( 'Eds fulltext links NOT FOUND.' );
-                        if (response.data.url) {
-                            console.log(response.data.url);
-                        }
-                    }
-
-                    if (response.status == 'FOUND INVALID LINKS') {
-                        $( '#edsavailability' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-                        $('#eds-links-placeholder').append( '<?= $this->translate('Fulltext not found') ?>.' );
-
-                        console.warn( 'Eds fulltext links FOUND but links are INVALID.' );
-                        if (response.data.url) {
-                            console.log(response.data.url);
-                        }
-                    }
-
-                },
-                complete: function () {
-                    $( '.eds-links-loader' ).remove();
-                },
-                error: function ( jqXHR, textStatus, errorThrown ) {
-                    console.error( JSON.stringify( jqXHR ) );
-                    console.error( 'AJAX error: ' + textStatus + ' : ' + errorThrown );
-                }
-            });
+            }
 
         });
     </script>

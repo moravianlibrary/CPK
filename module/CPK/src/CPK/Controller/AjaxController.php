@@ -2236,7 +2236,7 @@ class AjaxController extends AjaxControllerBase
 
     public function getEdsFulltextLinkAjax()
     {
-        $linkServers = $this->getConfig('MultiBackend')->LinkServerSMapping->toArray();
+        $linkServers = $this->getConfig('MultiBackend')->LinkServersMapping->toArray();
 
         $solrUrl = $this->getConfig()->Index->url;
         $solrCore = $this->getConfig()->Index->default_core;
@@ -2312,21 +2312,34 @@ class AjaxController extends AjaxControllerBase
         }
 
         foreach ($json['response']['docs'] as $record) {
-
             if ( (! empty($record['sfx_source_txt'])) && (! empty($record['sfx_id_txt'])) ) {
+
                 $sfxSource = $record['sfx_source_txt'];
                 $sfxId = $record['sfx_id_txt'];
                 $embargo = (! empty($record['embargo_str']) ? ' '.htmlspecialchars($record['embargo_str']) : '');
 
-                $sfxUrl = $linkServers[$sfxSource];
+                if ($record['sfx_source_txt'] == 'free') {
+                    $sfxUrl = $linkServers['any'];
+                } else {
+                    $sfxUrl = $linkServers[$sfxSource];
+                }
+
                 $sfxUrl .= '?url_ver=Z39.88-2004';
                 $sfxUrl .= '&sfx.ignore_date_threshold=1';
                 $sfxUrl .= '&rft.object_id='.$sfxId;
                 $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
 
-                $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
-            }
+                if ($record['sfx_source_txt'] == 'free') {
+                    $sfxUrl .= '&sfx.institute=ANY';
+                    $htmlLinks = [];
+                    $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext').$embargo."</a>";
+                    break;
+                } else {
+                    $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                    $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
+                }
 
+            }
         }
 
         if (empty($htmlLinks)) {
@@ -2342,7 +2355,7 @@ class AjaxController extends AjaxControllerBase
 
     public function getEdsFulltextLinkInResultsAjax()
     {
-        $linkServers = $this->getConfig('MultiBackend')->LinkServerSMapping->toArray();
+        $linkServers = $this->getConfig('MultiBackend')->LinkServersMapping->toArray();
 
         $solrUrl = $this->getConfig()->Index->url;
         $solrCore = $this->getConfig()->Index->default_core;
@@ -2427,7 +2440,7 @@ class AjaxController extends AjaxControllerBase
         $json = json_decode($html, true);
 
         if (empty($json['response']['docs'])) {
-            return $this->output(['url' => $url], 'NOT FOUND');
+            return $this->output(['url' => $url, 'message' => 'NOT FOUND'], self::STATUS_NOT_OK);
         }
 
         foreach ($json['response']['docs'] as $record) {
@@ -2437,15 +2450,31 @@ class AjaxController extends AjaxControllerBase
                 $sfxId = $record['sfx_id_txt'];
                 $embargo = (! empty($record['embargo_str']) ? ' '.htmlspecialchars($record['embargo_str']) : '');
 
-                $sfxUrl = $linkServers[$sfxSource];
+                if ($record['sfx_source_txt'] == 'free') {
+                    $sfxUrl = $linkServers['any'];
+                } else {
+                    $sfxUrl = $linkServers[$sfxSource];
+                }
+
                 $sfxUrl .= '?url_ver=Z39.88-2004';
                 $sfxUrl .= '&sfx.ignore_date_threshold=1';
                 $sfxUrl .= '&rft.object_id='.$sfxId;
                 $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
 
-                $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
-                    .$this->translate(strtoupper($sfxSource)).$embargo
-                    ."</a>";
+                if ($record['sfx_source_txt'] == 'free') {
+                    $sfxUrl .= '&sfx.institute=ANY';
+                    $htmlLinks = [];
+                    $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>"
+                        .$this->translate('Fulltext').$embargo
+                        ."</a>";
+                    break;
+                } else {
+                    $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                    $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
+                        .$this->translate(strtoupper($sfxSource)).$embargo
+                        ."</a>";
+                }
+
             }
 
         }
