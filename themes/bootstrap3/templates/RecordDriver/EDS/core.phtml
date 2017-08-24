@@ -11,13 +11,13 @@ $id = $this->driver->getUniqueID();
 
 <div class="clearfix well border table-core" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
 
-    <div class="col-sm-3 text-center">
+    <div class="col-md-3 col-sm-3 text-center">
 
         <div class="coverThumbnail cover_<?=$id?>">
             <? if (! empty($format)): ?>
-                <div class="iconlabel"><i style="font-size: 140px; color: #cccccc; padding-right: 20px;" class="pr-format-eds-<?=$format?>"></i></div>
+                <div class="iconlabel"><i class="eds-cover-icon pr-format-eds-<?=$format?>"></i></div>
             <? else: ?>
-                <div class="iconlabel"><i style="font-size: 140px; color: #cccccc; padding-right: 20px;" class="pr-format-eds-unknown"></i></div>
+                <div class="iconlabel"><i class="eds-cover-icon pr-format-eds-unknown"></i></div>
             <? endif; ?>
         </div>
 
