@@ -1319,9 +1319,16 @@ jQuery( document ).ready( function( $ ) {
             $('#searchForm_lookfor').addClass('autocomplete');
         } else {
             $('#searchForm_lookfor').removeClass('autocomplete');
-            $('#librariesSearchLink').removeClass('active');
-            $('#catalogSearchLink').addClass('active');
+            if ($('#librariesSearchLink').hasClass('active')) {
+                $('#librariesSearchLink').removeClass('active');
+                $('#catalogSearchLink').addClass('active');
+                extraData['type0[]'] = [ 'AllFields' ];
+            }
         }
+        if ($('#advancedSearchLink').hasClass('hidden')) {
+            $('#advancedSearchLink').removeClass('hidden');
+        }
+
 /*
  @TODO: Something like this should be called before calling searchResultsAjax action.
  When we have limit set in e.g. 80 in Solr, we should check, whether it is allowed value in EDS.ini config.

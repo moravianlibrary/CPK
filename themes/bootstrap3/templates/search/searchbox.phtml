@@ -94,25 +94,16 @@
         'filterList' => $filterList,
         'handlers' => $handlers,
         'filterDetails' => $filterDetails,
+        'catalog' => ($this->librarySearch == true || $headerType == "newlibraries") ? 'library' : 'catalog'
     ];
 
     if ($this->searchTypeTemplate == 'advanced') {
         $arrayOfVariablesForBasicSearch['hiddenBasicSearch'] = true;
     }
-    $headerType = $this->layout()->headerType;
-    if ($this->librarySearch == true || $headerType == "newlibraries")
-    {
-        echo $this->context($this)->renderInContext(
-            "search/ajax/library-search.phtml",
-            $arrayOfVariablesForBasicSearch
-        );
-    }
-    else {
-        echo $this->context($this)->renderInContext(
-            "search/ajax/autocomplete.phtml",
-            $arrayOfVariablesForBasicSearch
-        );
-    };
+    echo $this->context($this)->renderInContext(
+        "search/ajax/autocomplete.phtml",
+        $arrayOfVariablesForBasicSearch
+    );
 
 ?>
 

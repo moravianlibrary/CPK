@@ -78,12 +78,13 @@
                 var controller = currentUrl.split('/')[1];
                 var action = currentUrl.split('/')[2];
                 var database = $( 'input[name="database"]' ).val();
+                var type = $('#librariesSearchLink').hasClass('active') ? 'Libraries' : 'AllFields';
 
                 if ( controller == 'Search' && action == 'Results' ) {
                     ADVSEARCH.updateSearchResults(
                     	undefined,
                     	{
-                        	queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=AllFields&searchTypeTemplate=basic&database='+database+'&page=1&bool0=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters=' + enabledKeepFacets + ''
+                            queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=' + type + '&searchTypeTemplate=basic&database='+database+'&page=1&bool0=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters=' + enabledKeepFacets + ''
                         },
                     	false
                     );
@@ -106,13 +107,14 @@
                 var limit = $( 'input[name="limit"]' ).val();
                 var sort = $( 'input[name="sort"]' ).val();
                 var database = $( 'input[name="database"]' ).val();
+                var type = $('#librariesSearchLink').hasClass('active') ? 'Libraries' : 'AllFields';
 
                 if ( controller == 'Search' && action == 'Results' ) {
                   	event.preventDefault();
                     ADVSEARCH.updateSearchResults(
 						undefined,
 						{
-							queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=AllFields&page=1&bool0=AND&join=AND&limit='+limit+'&sort='+sort+'&keepEnabledFilters='+enabledKeepFacets+'&database='+database
+							queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=' + type + '&page=1&bool0=AND&join=AND&limit=' + limit + '&sort=' + sort + '&keepEnabledFilters=' + enabledKeepFacets + '&database=' + database
 						},
 						false
 					);
@@ -131,8 +133,8 @@
 		                filters = '';
 		            }
 
-                    $( "#run-autocomplete" ).attr("href", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters + "&database=" +database);
-                    $( ".searchForm" ).attr("action", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters + "&database=" + database);
+                    $( "#run-autocomplete" ).attr("href", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=" + type + "&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters + "&database=" +database);
+                    $( ".searchForm" ).attr("action", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=" + type + "&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters + "&database=" + database);
 
 					$( location ).attr( 'href', $( "#run-autocomplete" ).attr( 'href' ));
 				}
@@ -208,7 +210,7 @@
         ?>
       <? if($this->searchResults): ?>
           <span class="pull-right search-box-right">
-          <a href="#" class="search-type-template-switch" ><?=$this->translate("Advanced Search")?></a>
+          <a href="#" class="search-type-template-switch<?=($catalog == 'catalog') ? '' : ' hidden'?>" id="advancedSearchLink" ><?=$this->translate("Advanced Search")?></a>
           <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
             <span class='save-basic-search-results'>
               <? if (is_numeric($this->results->getSearchId())): ?>
