@@ -42,6 +42,8 @@ class AjaxController extends AjaxControllerBase
 {
     use \VuFind\Db\Table\DbTableAwareTrait;
 
+    const STATUS_NOT_OK = 'NOT_OK';    // must login first
+
     protected $skcLinks = 'http://aleph.nkp.cz/web/cpk/skc_links';
 
     /**
@@ -2281,6 +2283,8 @@ class AjaxController extends AjaxControllerBase
                 $url .= 'sfx_title_txt_mv:("'.$sourceTitle.'")';
                 $url .= "%0A";
                 $url .= 'author_txt_mv:("'.implode('"+OR+"', $authors).'")';
+            } else {
+                return $this->output(['url' => $url, 'message' => 'NO USABLE METADATA FOUND'], self::STATUS_NOT_OK);
             }
         }
 
@@ -2304,7 +2308,7 @@ class AjaxController extends AjaxControllerBase
         $json = json_decode($html, true);
 
         if (empty($json['response']['docs'])) {
-            return $this->output(['url' => $url], 'NOT FOUND');
+            return $this->output(['url' => $url, 'message' => 'NOT FOUND'], self::STATUS_NOT_OK);
         }
 
         foreach ($json['response']['docs'] as $record) {
@@ -2326,7 +2330,7 @@ class AjaxController extends AjaxControllerBase
         }
 
         if (empty($htmlLinks)) {
-            return $this->output(['url' => $url], 'FOUND INVALID LINKS');
+            return $this->output(['url' => $url, 'message' => 'Eds fulltext links FOUND but links are INVALID'], self::STATUS_NOT_OK);
         }
 
         $output = [
@@ -2354,7 +2358,7 @@ class AjaxController extends AjaxControllerBase
                 true);
 
         if (! $recordDriver) {
-            return $this->output(['recordId' => $recordId], 'NOT LOADED');
+            return $this->output(['recordId' => $recordId, 'message' => 'RECORD NOT LOADED'], self::STATUS_NOT_OK);
         }
 
         $issns = $recordDriver->getIssns();
@@ -2395,6 +2399,11 @@ class AjaxController extends AjaxControllerBase
                 $url .= 'sfx_title_txt_mv:("'.$sourceTitle.'")';
                 $url .= "%0A";
                 $url .= 'author_txt_mv:("'.implode('"+OR+"', $authors).'")';
+            } else {
+                return $this->output([
+                    'url' => $url,
+                    'message' => 'NO USABLE METADATA FOUND'
+                ], self::STATUS_NOT_OK);
             }
         }
 
@@ -2434,13 +2443,15 @@ class AjaxController extends AjaxControllerBase
                 $sfxUrl .= '&rft.object_id='.$sfxId;
                 $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
 
-                $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
+                $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
+                    .$this->translate(strtoupper($sfxSource)).$embargo
+                    ."</a>";
             }
 
         }
 
         if (empty($htmlLinks)) {
-            return $this->output(['url' => $url], 'FOUND INVALID LINKS');
+            return $this->output(['url' => $url, 'message' => 'FOUND INVALID LINKS'], self::STATUS_NOT_OK);
         }
 
         $output = [
