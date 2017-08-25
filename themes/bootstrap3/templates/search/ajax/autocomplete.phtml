@@ -22,6 +22,34 @@
               $(this).hide();
           });
 
+          /*Google tag manager - send event 2 seconds after stop typing */
+            var typingTimer;
+            var doneTypingInterval = 2000;
+            var $input = $('#searchForm_lookfor');
+
+            $input.on('keyup', function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(doneTyping, doneTypingInterval);
+            });
+
+            $input.on('keydown', function () {
+                clearTimeout(typingTimer);
+            });
+
+            function doneTyping () {
+                dataLayer.push({
+                    'event': 'action.search',
+                    'actionContext': {
+                        'eventCategory': 'search',
+                        'eventAction': 'whisperer',
+                        'eventLabel': $( "#searchForm_lookfor" ).val(),
+                        'eventValue': undefined,
+                        'nonInteraction': false
+                    }
+                });
+            }
+          /* end google tag manager */
+
           /* Set autocomplete On page load */
           var query = $( ".search-query" ).val();
 
