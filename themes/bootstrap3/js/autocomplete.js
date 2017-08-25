@@ -142,7 +142,7 @@
             'eventAction': 'fulltext',
             'eventLabel': $(this).attr('data-value'),
             'eventValue': undefined,
-            'nonInteraction': undefined
+            'nonInteraction': false
           }
         });
         populate($(this).attr('data-value'), input, {mouse: true}, true, $(this).attr('id'));
@@ -303,7 +303,7 @@
                     'eventAction': 'fulltext',
                     'eventLabel': selected.attr('data-value'),
                     'eventValue': undefined,
-                    'nonInteraction': undefined
+                    'nonInteraction': false
                   }
                 });
                 location.assign(selected.attr('href'));
