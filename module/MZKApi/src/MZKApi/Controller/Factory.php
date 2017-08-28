@@ -66,13 +66,6 @@ class Factory
      */
     public static function getItemApiController(ServiceManager $sm)
     {
-        $itemFields = $sm->getServiceLocator()
-            ->get('VuFind\YamlReader')->get('ItemApiFields.yaml');
-
-        $helperManager = $sm->getServiceLocator()->get('ViewHelperManager');
-
-        $if = new ItemFormatter($itemFields, $helperManager);
-        $controller = new ItemApiController($sm, $if);
-        return $controller;
+        return new ItemApiController($sm);
     }
 }
