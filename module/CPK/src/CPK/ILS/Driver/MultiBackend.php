@@ -599,7 +599,7 @@ class MultiBackend extends MultiBackendBase
     public function getItemStatus($id, $bibId, $patron)
     {
         if ($bibId === null)
-            return $this->getEmptyStatuses($ids);
+            return $this->getEmptyStatuses([$id]);
 
         $source = $this->getSource($bibId);
         $driver = $this->getDriver($source);
