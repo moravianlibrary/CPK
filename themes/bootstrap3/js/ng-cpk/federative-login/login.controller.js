@@ -41,6 +41,18 @@
 		idp = JSON.parse(idp);
 
 	    if (!idp.isConsolidation) {
+			console.log("not consolidated");
+			console.log(idp.name)
+			dataLayer.push({
+				'event': 'action.login',
+				'actionContext': {
+					'eventCategory': 'login',
+					'eventAction': undefined,
+					'eventLabel': idp.name,
+					'eventValue': undefined,
+					'nonInteraction': false
+				}
+			});
 
 		getLastIdps();
 		
@@ -68,7 +80,22 @@
 		var source = JSON.stringify(lastIdps);
 
 		localStorage.setItem(lastIdpsTag, source);
-	    }
+	    } else {
+			console.log("consolidated");
+			console.log(idp.name)
+			dataLayer.push({
+				'event': 'action.account',
+				'actionContext': {
+					'eventCategory': 'account',
+					'eventAction': 'connectedAccount',
+					'eventLabel': idp.name,
+					'eventValue': undefined,
+					'nonInteraction': false
+				}
+			});
+		};
+
+
 
 	    window.location = idp.href;
 	}
