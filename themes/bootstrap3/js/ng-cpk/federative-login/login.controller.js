@@ -42,12 +42,16 @@
 
 	    if (!idp.isConsolidation) {
 			console.log("not consolidated");
-			console.log(idp.name)
+			var action = 'library';
+			if (idp.name == "MojeID | Google+ | Facebook | LinkedIn")
+				action = 'social';
+			console.log(idp.name);
+			console.log(action);
 			dataLayer.push({
 				'event': 'action.login',
 				'actionContext': {
 					'eventCategory': 'login',
-					'eventAction': undefined,
+					'eventAction': action,
 					'eventLabel': idp.name,
 					'eventValue': undefined,
 					'nonInteraction': false
