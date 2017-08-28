@@ -1043,6 +1043,7 @@ jQuery( document ).ready( function( $ ) {
 		extraData['daterange'] = 'publishDate';
 		
 		var value = 'publishDate:"['+extraData['publishDatefrom']+' TO '+extraData['publishDateto']+']"';
+		ADVSEARCH.removeFacetFilter(value, false);
 		ADVSEARCH.addFacetFilter(value, false);
 		
 		ADVSEARCH.updateSearchResults( undefined, undefined, undefined, extraData );
