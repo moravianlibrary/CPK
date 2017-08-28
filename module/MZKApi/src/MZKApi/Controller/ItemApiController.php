@@ -1,10 +1,10 @@
 <?php
 /**
- * Search API Controller
+ * Item API Controller
  *
- * PHP Version 5
+ * PHP Version 7
  *
- * Copyright (C) The National Library of Finland 2015-2016.
+ * Copyright (C) Moravian Library in Brno 2017.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -21,16 +21,16 @@
  *
  * @category VuFind
  * @package  Controller
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Jiri Kozlovsky <Jiri.Kozlovsky@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
 
 namespace MZKApi\Controller;
 
+use CPK\ILS\Driver\MultiBackend;
 use VuFindApi\Controller\ApiInterface;
 use VuFindApi\Controller\ApiTrait;
-use MZKApi\Formatter\ItemFormatter;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
@@ -40,7 +40,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  *
  * @category VuFind
  * @package  Service
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Jiri Kozlovsky <Jiri.Kozlovsky@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
@@ -49,12 +49,7 @@ class ItemApiController extends \VuFind\Controller\AbstractSearch
 {
     use ApiTrait;
 
-    /**
-     * Record formatter
-     *
-     * @var ItemFormatter
-     */
-    protected $itemFormatter;
+    const ERR_MSG_NOT_FOUND = 'This item identifier was not found';
 
     /**
      * Default record fields to return if a request does not define the fields
@@ -74,17 +69,22 @@ class ItemApiController extends \VuFind\Controller\AbstractSearch
      * Constructor
      *
      * @param ServiceLocatorInterface $sm Service manager
-     * @param ItemFormatter $if
      */
-    public function __construct(ServiceLocatorInterface $sm, ItemFormatter $if)
+    public function __construct(ServiceLocatorInterface $sm)
     {
         parent::__construct($sm);
-        $this->itemFormatter = $if;
-        foreach ($if->getItemFields() as $fieldName => $fieldSpec) {
-            if (!empty($fieldSpec['vufind.default'])) {
-                $this->defaultItemFields[] = $fieldName;
-            }
-        }
+    }
+
+    /**
+     * Returns error response
+     *
+     * @param string $message
+     * @param int $http_status
+     * @return \Zend\Http\Response
+     */
+    protected function errorResponse($message, $http_status = 404)
+    {
+        return $this->output([], self::STATUS_ERROR, $http_status, $message);
     }
 
     /**
@@ -170,11 +170,16 @@ class ItemApiController extends \VuFind\Controller\AbstractSearch
             + $this->getRequest()->getPost()->toArray();
 
         if (!isset($request['id'])) {
-            return $this->output([], self::STATUS_ERROR, 400, 'Missing id');
+            return $this->errorResponse('Missing id', 400);
         }
 
         $ils = $this->getILS();
+
         $driver = $ils->getDriver();
+
+        if (!$driver instanceof MultiBackend) {
+            return $this->errorResponse('Configuration error.', 500);
+        }
 
         /**
          * Parse input ID in this format:
@@ -186,17 +191,74 @@ class ItemApiController extends \VuFind\Controller\AbstractSearch
          * SIGLA.BIB_ID.ITEM_ID
          */
 
-        list ($sigla, $item_id) = explode('.', $request['id'], 2);
+        $original_id = $request['id'];
 
-        // TODO: is sigla Aleph? Parse bibId then
+        # Check there is at least one dot (separating SIGLA)
+        if (!strpos($original_id, '.', 1))
+            return $this->errorResponse(self::ERR_MSG_NOT_FOUND);
 
-        // TODO: get item's status & unify the response message
+        list ($sigla, $item_id) = explode('.', $original_id, 2);
 
-        $response = [
-            'resultCount' => 0,
-            'sorry_message' => 'Method not fully implemented yet'
+        $source = $driver->siglaToSource($sigla);
+
+        if ($source === null)
+            return $this->errorResponse(self::ERR_MSG_NOT_FOUND);
+
+        $driverName = $driver->getDriverName($source);
+
+        if ($driverName === null)
+            return $this->errorResponse(self::ERR_MSG_NOT_FOUND);
+
+        if ($driverName === 'Aleph') {
+
+            # Check there is at least one dot (separating bib id from item id)
+            if (!strpos($item_id, '.', 1))
+                return $this->errorResponse(self::ERR_MSG_NOT_FOUND);
+
+            list ($bib_id, $item_id) = explode('.', $item_id, 2);
+
+            $statuses = $driver->getStatuses([$item_id], $source . '.' . $bib_id);
+
+            // Assert something returned ..
+            if (count($statuses) == 0 || !isset($statuses[0]['label']))
+                return $this->errorResponse(self::ERR_MSG_NOT_FOUND);
+
+            $status = reset($statuses);
+
+
+        } else {
+
+            // Fetch the status
+            $status = $driver->getStatus($source . '.' . $item_id);
+        }
+
+
+        if (!isset($status['label'])) {
+            return $this->errorResponse(self::ERR_MSG_NOT_FOUND);
+        }
+
+        $availability = [
+            'label-success' => 'available',
+            'label-warning' => 'circulating',
+            'label-danger' => 'unavailable',
+            'label-unknown' => 'unknown'
         ];
 
+        $response = [
+            'id' => $original_id,
+            'availability' => $availability[$status['label']],
+            'availability_note' => isset($status['availability']) ? $status['availability'] : null
+        ];
+
+        if (isset($request['ext'])) {
+            $response['ext'] = [
+                'duedate' => isset($status['duedate']) ? $status['duedate'] : null,
+                'opac_status' => isset($status['status']) ? $status['status'] : null,
+                'location' => isset($status['location']) ? $status['location'] : null,
+                'department' => isset($status['department']) ? $status['department'] : null,
+                'collection' => isset($status['collection']) ? $status['collection'] : null
+            ];
+        }
 
         return $this->output($response, self::STATUS_OK);
     }

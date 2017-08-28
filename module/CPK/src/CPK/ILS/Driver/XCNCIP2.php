@@ -55,6 +55,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     protected $httpService = null;
 
+    /**
+     * @var NCIPRequests
+     */
     protected $requests = null;
 
     protected $cannotUseLUIS = false;

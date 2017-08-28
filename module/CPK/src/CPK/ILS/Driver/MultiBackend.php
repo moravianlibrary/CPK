@@ -578,7 +578,20 @@ class MultiBackend extends MultiBackendBase
      */
     public function getDriverName($source)
     {
-        return $this->drivers[$source];
+        if (isset($this->drivers[$source]))
+            return $this->drivers[$source];
+        return null;
+    }
+
+    public function siglaToSource($sigla)
+    {
+        $source = null;
+        foreach ($this->config['SiglaMapping'] as $source => $paired_sigla) {
+            if ($sigla === $paired_sigla)
+                return $source;
+        }
+
+        return $source;
     }
 
     protected function getDetailsFromCurrentSource($source, $details)
