@@ -111,17 +111,26 @@ $accessUrl = $this->driver->getAccessUrl();
           
         </div>
 
-        <div class="col-sm-3 col-xs-12 right">
+        <div class="col-sm-3 col-xs-12 right" style="display: table;">
             <div id="eds-links">
 
-                <span id="only-one-eds-link-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</span>
-                <span id="many-eds-links-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</span>
-                <span id="free-eds-link-available-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is free') ?></span>
+                <div id="only-one-eds-link-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;">
+                    <div class="eds-results-questionmarkhelp"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+                    <?= $this->translate('Fulltext is avalable for users of this institution') ?>:
+                </div>
+                <div id="many-eds-links-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;">
+                    <div class="eds-results-questionmarkhelp"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+                    <?= $this->translate('Fulltext is avalable for users of these institutions') ?>:
+                </div>
+                <div id="free-eds-link-available-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;">
+                    <div class="eds-results-questionmarkhelp"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+                    <?= $this->translate('Fulltext is free') ?>
+                </div>
 
                 <table class="table table-striped">
                     <tbody>
                         <div id="eds-links-placeholder-<?=$recordIdHash?>">
-                            <span id="no-eds-links-<?=$recordIdHash?>" style="display: none;"><?= $this->help()->getQuestionMarkHelp('eds-links-not-found') ?></span>
+                            <div class="eds-results-questionmarkhelp" id="no-eds-links-<?=$recordIdHash?>"><?= $this->help()->getQuestionMarkHelp('eds-links-not-found') ?></div>
                             <!-- Ajax Placeholder -->
                         </div>
                     </tbody>
@@ -267,6 +276,7 @@ $accessUrl = $this->driver->getAccessUrl();
 
                         $('#eds-links-placeholder-<?=$recordIdHash?>').append( ebscoHtml );
                         $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
+
                     }
 
                     if (response.status == 'NOT_OK') {
@@ -280,6 +290,12 @@ $accessUrl = $this->driver->getAccessUrl();
                         $('#eds-links-placeholder-<?=$recordIdHash?>').append( '<div class="text-center"><?= $this->translate('Fulltext not found') ?></div>' );
                         $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
                         $( '#no-eds-links-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+                    }
+
+                    if (undefined != response.data.not_ok_messages) {
+                        response.data.not_ok_messages.forEach( function( message ) {
+                            console.warn( message );
+                        });
                     }
 
                 },

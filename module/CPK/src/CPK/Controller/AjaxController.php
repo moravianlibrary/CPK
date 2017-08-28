@@ -80,7 +80,7 @@ class AjaxController extends AjaxControllerBase
             $instituteLsLink = explode("|", $linkServer)[1];
 
             if (! array_key_exists($instituteLsShortcut, $linkServers))
-            $linkServers[$instituteLsShortcut] = $instituteLsLink;
+                $linkServers[$instituteLsShortcut] = $instituteLsLink;
         }
 
         $isn = $parentRecordDriver->getIsn();
@@ -120,7 +120,7 @@ class AjaxController extends AjaxControllerBase
         foreach ($linkServers as $shortcut => $link) {
             $allParams['sfx.institute'] = $shortcut;
             $sfxResult[] = $electronicChoiceHandler->getRequestDataResponseAsArray(
-            $link, $allParams);
+                $link, $allParams);
         }
 
         $vars[] = array(
@@ -252,7 +252,7 @@ class AjaxController extends AjaxControllerBase
 
                 if (! empty($status['availability']))
                     $itemsStatuses[$id]['availability'] = $viewRend->transEsc(
-                            'availability_' . $status['availability'], null, $status['availability']);
+                        'availability_' . $status['availability'], null, $status['availability']);
 
                 if (! empty($status['collection']))
                     $itemsStatuses[$id]['collection'] = $status['collection'];
@@ -275,11 +275,11 @@ class AjaxController extends AjaxControllerBase
                 $retVal['next_item_token'] = $nextItemToken;
             }
             else {
-               foreach ($ids as $id) {
-                   $itemsStatuses[$id]['availability'] = $viewRend->transEsc('availability_Not For Loan');
-                   $itemsStatuses[$id]['status'] = $viewRend->transEsc('status_Unknown Status');
-                   $itemsStatuses[$id]['label'] = 'label-unknown';
-               }
+                foreach ($ids as $id) {
+                    $itemsStatuses[$id]['availability'] = $viewRend->transEsc('availability_Not For Loan');
+                    $itemsStatuses[$id]['status'] = $viewRend->transEsc('status_Unknown Status');
+                    $itemsStatuses[$id]['label'] = 'label-unknown';
+                }
             }
 
             $retVal['statuses'] = $itemsStatuses;
@@ -409,7 +409,7 @@ class AjaxController extends AjaxControllerBase
 
     public function getMyProfileAjax()
     {
-            // Get the cat_username being requested
+        // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
 
         $hasPermissions = $this->hasPermissions($cat_username);
@@ -437,7 +437,7 @@ class AjaxController extends AjaxControllerBase
                             'message' => $this->translate(
                                 'profile_fetch_problem'),
                             'consideration' => 'There is a chance you have missing configuration file called "' .
-                                 explode('.', $cat_username)[0] . '.ini"'
+                                explode('.', $cat_username)[0] . '.ini"'
                         ], self::STATUS_ERROR);
                 }
             } catch (\Exception $e) {
@@ -470,7 +470,7 @@ class AjaxController extends AjaxControllerBase
 
     public function getMyHoldsAjax()
     {
-            // Get the cat_username being requested
+        // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
 
         $hasPermissions = $this->hasPermissions($cat_username);
@@ -495,7 +495,7 @@ class AjaxController extends AjaxControllerBase
                 // Try to get the profile ..
                 $holds = $catalog->getMyHolds($patron);
             } catch (\Exception $e) {
-               return $this->outputException($e, $cat_username);
+                return $this->outputException($e, $cat_username);
             }
 
             $recordList = $obalky = [];
@@ -512,7 +512,7 @@ class AjaxController extends AjaxControllerBase
                 $hold = $this->holds()->addCancelDetails($catalog, $hold,
                     $cancelStatus);
                 if ($cancelStatus && $cancelStatus['function'] != "getCancelHoldLink" &&
-                     isset($hold['cancel_details'])) {
+                    isset($hold['cancel_details'])) {
                     // Enable cancel form if necessary:
                     $libraryIdentity->cancelForm = true;
                 }
@@ -672,7 +672,7 @@ class AjaxController extends AjaxControllerBase
                     $renewStatus);
 
                 if ($canRenew === false && isset($current['renewable']) &&
-                     $current['renewable'] && isset($current['loan_id'])) {
+                    $current['renewable'] && isset($current['loan_id'])) {
 
                     $canRenew = true;
                 }
@@ -699,7 +699,7 @@ class AjaxController extends AjaxControllerBase
 
                 $ilsDetails = $resource->getExtraDetail('ils_details');
                 if (isset($ilsDetails['dueStatus']) &&
-                     $ilsDetails['dueStatus'] == "overdue") {
+                    $ilsDetails['dueStatus'] == "overdue") {
                     $showOverdueMessage = true;
                 }
 
@@ -736,7 +736,7 @@ class AjaxController extends AjaxControllerBase
 
     public function getMyHistoryPageAjax()
     {
-            // Get the cat_username being requested
+        // Get the cat_username being requested
         $post = $this->params()->fromPost();
         $cat_username = $post['cat_username'];
 
@@ -779,45 +779,45 @@ class AjaxController extends AjaxControllerBase
                     $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                 } else try {
 
-                        $displayAuthor = $resource->getDisplayAuthor();
+                    $displayAuthor = $resource->getDisplayAuthor();
 
-                        if ($displayAuthor)
-                            $historyItem['author'] = $displayAuthor;
+                    if ($displayAuthor)
+                        $historyItem['author'] = $displayAuthor;
 
-                        // We need to let JS know what to opt for ...
-                        $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
-                        $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+                    // We need to let JS know what to opt for ...
+                    $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
+                    $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
 
-                        if ($bibInfo) {
+                    if ($bibInfo) {
 
-                            $recordId = preg_replace("/[\.:]/", "", $recordId);
+                        $recordId = preg_replace("/[\.:]/", "", $recordId);
 
-                            $historyItem['uniqueId'] = $recordId;
+                        $historyItem['uniqueId'] = $recordId;
 
-                            $recordId = "#cover_$recordId";
+                        $recordId = "#cover_$recordId";
 
-                            $bibInfo = json_decode($bibInfo);
+                        $bibInfo = json_decode($bibInfo);
 
-                            $obalky[$recordId] = [
-                                'bibInfo' => $bibInfo,
-                                'advert' => $renderer->record($resource)->getObalkyKnihAdvert('checkedouthistory')
-                            ];
-                        } else {
-                            $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
-                        }
-
-                        $formats = $resource->getFormats();
-                        if (count($formats) > 0) {
-                            $historyItem['formats'] = array_map(function($item) {
-                                return [
-                                    'orig' => $item,
-                                    'format' => preg_replace('/[^a-z]/', '', strtolower($item))
-                                ];
-                            }, $formats);
-                        }
-                    } catch (\Exception $e) {
+                        $obalky[$recordId] = [
+                            'bibInfo' => $bibInfo,
+                            'advert' => $renderer->record($resource)->getObalkyKnihAdvert('checkedouthistory')
+                        ];
+                    } else {
                         $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                     }
+
+                    $formats = $resource->getFormats();
+                    if (count($formats) > 0) {
+                        $historyItem['formats'] = array_map(function($item) {
+                            return [
+                                'orig' => $item,
+                                'format' => preg_replace('/[^a-z]/', '', strtolower($item))
+                            ];
+                        }, $formats);
+                    }
+                } catch (\Exception $e) {
+                    $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
+                }
             }
 
             $result['obalky'] = $obalky;
@@ -879,7 +879,7 @@ class AjaxController extends AjaxControllerBase
      */
     public function getMyNotificationsForUserAjax() {
 
-            // Check user's logged in
+        // Check user's logged in
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
@@ -971,7 +971,7 @@ class AjaxController extends AjaxControllerBase
      */
     public function notificationReadAjax()
     {
-            // Check user is logged in ..
+        // Check user is logged in ..
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
@@ -1318,8 +1318,8 @@ class AjaxController extends AjaxControllerBase
      */
     protected function outputException(\Exception $e, $cat_username = null) {
 
-            // Something went wrong - include cat_username to properly
-            // attach the error message into the right table
+        // Something went wrong - include cat_username to properly
+        // attach the error message into the right table
 
         $message = $this->translate('An error has occurred') . ': ' . $this->translate($e->getMessage());
 
@@ -1438,7 +1438,7 @@ class AjaxController extends AjaxControllerBase
         $this->writeSession();  // avoid session write timing bug
         $query = $this->getRequest()->getQuery();
         $autocompleteManager = $this->getServiceLocator()
-        ->get('CPK\AutocompletePluginManager');
+            ->get('CPK\AutocompletePluginManager');
         $facetFilters = $this->params()->fromQuery('filters');
         return $this->output(
             $autocompleteManager->getSuggestions(
@@ -1467,7 +1467,7 @@ class AjaxController extends AjaxControllerBase
         $format = $parentRecordDriver->getRecordType();
         if ($format === 'marc')
             $format .= '21';
-            $recordXml = $parentRecordDriver->getXml($format);
+        $recordXml = $parentRecordDriver->getXml($format);
 
         if (strpos($recordXml, "datafield") === false)
             return $this->output($statusCode, self::STATUS_ERROR);
@@ -1477,14 +1477,14 @@ class AjaxController extends AjaxControllerBase
             $user = $this->getAuthManager()->isLoggedIn();
             if (! $user) {
                 $preferredCitationStyle = $this->getConfig()
-                ->Record->default_citation_style;
+                    ->Record->default_citation_style;
             } else {
                 $userSettingsTable = $this->getTable("usersettings");
                 $citationStyleTable = $this->getTable("citationstyle");
                 $preferredCitationStyleId = $userSettingsTable
-                ->getUserCitationStyle($user);
+                    ->getUserCitationStyle($user);
                 $preferredCitationStyle = $citationStyleTable
-                ->getCitationValueById($preferredCitationStyleId);
+                    ->getCitationValueById($preferredCitationStyleId);
             }
         } else {
             $preferredCitationStyle = $changedCitationValue;
@@ -1780,70 +1780,70 @@ class AjaxController extends AjaxControllerBase
         return $this->output('', self::STATUS_OK);
     }
 
-/**
-	 * Returns content from url coverted from JSON to array
-	 *
-	 * CURLOPT_HEADER - Include header in result? (0 = yes, 1 = no)
-	 * CURLOPT_RETURNTRANSFER - (true = return, false = print) data
-	 *
-	 * @param  string  $infoApiUrl
-	 *
-	 * @throws	\Exception when cURL us not installed
-	 * @throws	\Exception when Json cannot be decoded
-	 * 			or the encoded data is deeper than the recursion limit.
-	 * @throws	\Exception when response body contains error element
-	 * @throws	\Exception when reponse status code is not 200
-	 * @return	mixed
-	 */
-	private function remoteJsonToArray($infoApiUrl)
-	{
-		if (! function_exists('curl_init'))
-			throw new \Exception('cURL is not installed!');
+    /**
+     * Returns content from url coverted from JSON to array
+     *
+     * CURLOPT_HEADER - Include header in result? (0 = yes, 1 = no)
+     * CURLOPT_RETURNTRANSFER - (true = return, false = print) data
+     *
+     * @param  string  $infoApiUrl
+     *
+     * @throws	\Exception when cURL us not installed
+     * @throws	\Exception when Json cannot be decoded
+     * 			or the encoded data is deeper than the recursion limit.
+     * @throws	\Exception when response body contains error element
+     * @throws	\Exception when reponse status code is not 200
+     * @return	mixed
+     */
+    private function remoteJsonToArray($infoApiUrl)
+    {
+        if (! function_exists('curl_init'))
+            throw new \Exception('cURL is not installed!');
 
-		$curlAdapterConfig = array(
-			'adapter'     => '\Zend\Http\Client\Adapter\Curl',
-			'curloptions' => array(
-				CURLOPT_FOLLOWLOCATION 	=> true,
-				CURLOPT_USERAGENT		=> "Mozilla/5.0",
-				CURLOPT_HEADER			=> 0,
-				CURLOPT_RETURNTRANSFER	=> true,
-				CURLOPT_TIMEOUT			=> 120,
-				CURLOPT_SSL_VERIFYHOST	=> 0,
-				CURLOPT_SSL_VERIFYPEER	=> 0,
-			),
-		);
+        $curlAdapterConfig = array(
+            'adapter'     => '\Zend\Http\Client\Adapter\Curl',
+            'curloptions' => array(
+                CURLOPT_FOLLOWLOCATION 	=> true,
+                CURLOPT_USERAGENT		=> "Mozilla/5.0",
+                CURLOPT_HEADER			=> 0,
+                CURLOPT_RETURNTRANSFER	=> true,
+                CURLOPT_TIMEOUT			=> 120,
+                CURLOPT_SSL_VERIFYHOST	=> 0,
+                CURLOPT_SSL_VERIFYPEER	=> 0,
+            ),
+        );
 
-		$client = new \Zend\Http\Client($infoApiUrl, $curlAdapterConfig);
-		$response = $client->send();
+        $client = new \Zend\Http\Client($infoApiUrl, $curlAdapterConfig);
+        $response = $client->send();
 
-		// Response head error handling
-		$responseStatusCode = $response->getStatusCode();
-		if($responseStatusCode !== 200)
-			throw new \Exception("Response status code: ".$responseStatusCode);
-		//
+        // Response head error handling
+        $responseStatusCode = $response->getStatusCode();
+        if($responseStatusCode !== 200)
+            throw new \Exception("Response status code: ".$responseStatusCode);
+        //
 
-		$output	= $response->getBody();
+        $output	= $response->getBody();
 
-		// Response body error handling
-		$dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
+        // Response body error handling
+        $dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
 
-		if ($dataArray === NULL)
-			throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
+        if ($dataArray === NULL)
+            throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
 
-		if ((isset($dataArray['result']) && ($dataArray['result'] == 'error')))
-			throw new \Exception($dataArray['message']);
-		//
+        if ((isset($dataArray['result']) && ($dataArray['result'] == 'error')))
+            throw new \Exception($dataArray['message']);
+        //
 
-		return $dataArray;
-	}
+        return $dataArray;
+    }
 
-	/**
-	 * Get towns by region
-	 *
-	 * @return string
-	 */
-	public function getTownsByRegionAjax()
-	{
+    /**
+     * Get towns by region
+     *
+     * @return string
+     */
+    public function getTownsByRegionAjax()
+    {
         try {
             $coords = $this->params()->fromPost();
             $latitude = $coords['latitude'];
@@ -1879,45 +1879,45 @@ class AjaxController extends AjaxControllerBase
         $output = ['region' => $region, 'towns' => $towns];
 
         return $this->output($output, self::STATUS_OK);
-	}
+    }
 
-	/**
-	 * Return conspectus subcategories
-	 *
-	 * @return \Zend\Http\Response
-	 */
-	public function getConspectusSubCategoriesAjax()
-	{
-	    $postParams = $this->params()->fromPost();
-	    $searchController = $this->getServiceLocator()->get('searchController');
-	    $viewData = $searchController->getConspectusSubCategoriesAction($postParams);
+    /**
+     * Return conspectus subcategories
+     *
+     * @return \Zend\Http\Response
+     */
+    public function getConspectusSubCategoriesAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $searchController = $this->getServiceLocator()->get('searchController');
+        $viewData = $searchController->getConspectusSubCategoriesAction($postParams);
 
-	    return $this->output($viewData, self::STATUS_OK);
-	}
+        return $this->output($viewData, self::STATUS_OK);
+    }
 
-	/**
-	 * Return siblings of record
-	 *
-	 * @param  string  $recordId
-	 *
-	 * @return array
-	 */
-	public function getRecordSiblings($recordId)
-	{
-	    $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-	    $recordDriver = $recordLoader->load($recordId);
+    /**
+     * Return siblings of record
+     *
+     * @param  string  $recordId
+     *
+     * @return array
+     */
+    public function getRecordSiblings($recordId)
+    {
+        $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        $recordDriver = $recordLoader->load($recordId);
 
-	    $parentRecordID = $recordDriver->getParentRecordID();
-	    try {
-	       $parentRecordDriver = $recordLoader->load($parentRecordID);
-	    } catch (\Exception $e) {
-	        //ignore exception when there is no record and continue rendering
-	    }
+        $parentRecordID = $recordDriver->getParentRecordID();
+        try {
+            $parentRecordDriver = $recordLoader->load($parentRecordID);
+        } catch (\Exception $e) {
+            //ignore exception when there is no record and continue rendering
+        }
 
-	    $childrenIds = $parentRecordDriver ? $parentRecordDriver->getChildrenIds() : [];
+        $childrenIds = $parentRecordDriver ? $parentRecordDriver->getChildrenIds() : [];
 
-	    return $childrenIds;
-	}
+        return $childrenIds;
+    }
 
     public function getObalkyKnihAuthorityIDAjax()
     {
@@ -2141,7 +2141,7 @@ class AjaxController extends AjaxControllerBase
         $facetList = $facets[$facet]['data']['list'];
 
         $facetHelper = $this->getServiceLocator()
-        ->get('VuFind\HierarchicalFacetHelper');
+            ->get('VuFind\HierarchicalFacetHelper');
         if (!empty($sort)) {
             $facetHelper->sortFacetList($facetList, $sort == 'top');
         }
@@ -2149,12 +2149,12 @@ class AjaxController extends AjaxControllerBase
         return $this->output(
             $facetHelper->buildFacetArray(
                 $facet, $facetList, $results->getUrlQuery()
-                ),
+            ),
             self::STATUS_OK
         );
     }
 
-	/**
+    /**
      * Get Item Statuses
      *
      * This is responsible for printing the holdings information for a
@@ -2203,7 +2203,7 @@ class AjaxController extends AjaxControllerBase
                 array('status' => $current));
             $message =  $messages['unavailable'];
             if (isset($current['absent_total']) && isset($current['present_total']) &&
-                    $current['absent_total'] + $current['present_total'] == 0) {
+                $current['absent_total'] + $current['present_total'] == 0) {
                 $message = $messages['no-items'];
             } else if ($current['availability']) {
                 $message = $messages['available'];
@@ -2242,6 +2242,7 @@ class AjaxController extends AjaxControllerBase
         $solrCore = $this->getConfig()->Index->default_core;
 
         $htmlLinks = [];
+        $not_ok_messages = [];
 
         // get and prepare data
         $recordData = $this->params()->fromPost('recordData');
@@ -2284,7 +2285,7 @@ class AjaxController extends AjaxControllerBase
                 $url .= "%0A";
                 $url .= 'author_txt_mv:("'.implode('"+OR+"', $authors).'")';
             } else {
-                return $this->output(['url' => $url, 'message' => 'NO USABLE METADATA FOUND'], self::STATUS_NOT_OK);
+                return $this->output(['url' => $url, 'message' => 'NO USABLE METADATA FOUND', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
             }
         }
 
@@ -2301,14 +2302,14 @@ class AjaxController extends AjaxControllerBase
             curl_close($ch);
 
         } catch (\Exception $e) {
-            return $this->output(['url' => $url], self::STATUS_ERROR);
+            return $this->output(['url' => $url, 'not_ok_messages' => $not_ok_messages], self::STATUS_ERROR);
         }
 
         // get response
         $json = json_decode($html, true);
 
         if (empty($json['response']['docs'])) {
-            return $this->output(['url' => $url, 'message' => 'NOT FOUND'], self::STATUS_NOT_OK);
+            return $this->output(['url' => $url, 'message' => 'NOT FOUND', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
         }
 
         foreach ($json['response']['docs'] as $record) {
@@ -2318,36 +2319,58 @@ class AjaxController extends AjaxControllerBase
                 $sfxId = $record['sfx_id_txt'];
                 $embargo = (! empty($record['embargo_str']) ? ' '.htmlspecialchars($record['embargo_str']) : '');
 
-                if ($record['sfx_source_txt'] == 'free') {
-                    $sfxUrl = $linkServers['any'];
-                } else {
-                    $sfxUrl = $linkServers[$sfxSource];
-                }
+                if (! empty($record['sfx_url_txt'])) {
 
-                $sfxUrl .= '?url_ver=Z39.88-2004';
-                $sfxUrl .= '&sfx.ignore_date_threshold=1';
-                $sfxUrl .= '&rft.object_id='.$sfxId;
-                $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                    if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
+                        $htmlLinks[] = $record['sfx_url_txt'];
+                    } else {
+                        $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
+                    }
 
-                if ($record['sfx_source_txt'] == 'free') {
-                    $sfxUrl .= '&sfx.institute=ANY';
-                    $htmlLinks = [];
-                    $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext').$embargo."</a>";
-                    break;
                 } else {
+
+                    if ($sfxSource == 'nlk') {
+                        continue;
+                    }
+
+                    if (! isset($linkServers[$sfxSource])) {
+                        $not_ok_messages[] = 'Record with sfx_source_txt: '.$sfxSource.' has no Link server mapped in MultiBackend.ini.';
+                        continue;
+                    }
+
+                    if ($record['sfx_source_txt'] == 'free') {
+                        $sfxUrl = $linkServers['any'];
+                    } else {
+                        $sfxUrl = $linkServers[$sfxSource];
+                    }
+
+                    $sfxUrl .= '?url_ver=Z39.88-2004';
+                    $sfxUrl .= '&sfx.ignore_date_threshold=1';
+                    $sfxUrl .= '&rft.object_id='.$sfxId;
                     $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
-                    $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
+
+                    if ($record['sfx_source_txt'] == 'free') {
+                        $sfxUrl .= '&sfx.institute=ANY';
+                        $htmlLinks = [];
+                        $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext').$embargo."</a>";
+                        break;
+                    } else {
+                        $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                        $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
+                    }
+
                 }
 
             }
         }
 
         if (empty($htmlLinks)) {
-            return $this->output(['url' => $url, 'message' => 'Eds fulltext links FOUND but links are INVALID'], self::STATUS_NOT_OK);
+            return $this->output(['url' => $url, 'message' => 'Eds fulltext links FOUND but links are INVALID', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
         }
 
         $output = [
-            'links' => $htmlLinks
+            'links' => $htmlLinks,
+            'not_ok_messages' => $not_ok_messages,
         ];
 
         return $this->output($output, self::STATUS_OK);
@@ -2361,6 +2384,7 @@ class AjaxController extends AjaxControllerBase
         $solrCore = $this->getConfig()->Index->default_core;
 
         $htmlLinks = [];
+        $not_ok_messages = [];
 
         // get and prepare data
         $recordData = $this->params()->fromPost('recordData');
@@ -2368,10 +2392,10 @@ class AjaxController extends AjaxControllerBase
 
         $recordLoader = $this->getRecordLoader();
         $recordDriver = $recordLoader->load($recordId, 'EDS',
-                true);
+            true);
 
         if (! $recordDriver) {
-            return $this->output(['recordId' => $recordId, 'message' => 'RECORD NOT LOADED'], self::STATUS_NOT_OK);
+            return $this->output(['recordId' => $recordId, 'message' => 'RECORD NOT LOADED', 'not_ok_messages' => $not_ok_messages,], self::STATUS_NOT_OK);
         }
 
         $issns = $recordDriver->getIssns();
@@ -2415,7 +2439,8 @@ class AjaxController extends AjaxControllerBase
             } else {
                 return $this->output([
                     'url' => $url,
-                    'message' => 'NO USABLE METADATA FOUND'
+                    'message' => 'NO USABLE METADATA FOUND',
+                    'not_ok_messages' => $not_ok_messages,
                 ], self::STATUS_NOT_OK);
             }
         }
@@ -2433,14 +2458,14 @@ class AjaxController extends AjaxControllerBase
             curl_close($ch);
 
         } catch (\Exception $e) {
-            return $this->output(['url' => $url], self::STATUS_ERROR);
+            return $this->output(['url' => $url, 'not_ok_messages' => $not_ok_messages,], self::STATUS_ERROR);
         }
 
         // get response
         $json = json_decode($html, true);
 
         if (empty($json['response']['docs'])) {
-            return $this->output(['url' => $url, 'message' => 'NOT FOUND'], self::STATUS_NOT_OK);
+            return $this->output(['url' => $url, 'message' => 'NOT FOUND', 'not_ok_messages' => $not_ok_messages,], self::STATUS_NOT_OK);
         }
 
         foreach ($json['response']['docs'] as $record) {
@@ -2450,29 +2475,50 @@ class AjaxController extends AjaxControllerBase
                 $sfxId = $record['sfx_id_txt'];
                 $embargo = (! empty($record['embargo_str']) ? ' '.htmlspecialchars($record['embargo_str']) : '');
 
-                if ($record['sfx_source_txt'] == 'free') {
-                    $sfxUrl = $linkServers['any'];
-                } else {
-                    $sfxUrl = $linkServers[$sfxSource];
-                }
+                if (! empty($record['sfx_url_txt'])) {
 
-                $sfxUrl .= '?url_ver=Z39.88-2004';
-                $sfxUrl .= '&sfx.ignore_date_threshold=1';
-                $sfxUrl .= '&rft.object_id='.$sfxId;
-                $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                    if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
+                        $htmlLinks[] = $record['sfx_url_txt'];
+                    } else {
+                        $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
+                    }
 
-                if ($record['sfx_source_txt'] == 'free') {
-                    $sfxUrl .= '&sfx.institute=ANY';
-                    $htmlLinks = [];
-                    $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>"
-                        .$this->translate('Fulltext').$embargo
-                        ."</a>";
-                    break;
                 } else {
+
+                    if ($sfxSource == 'nlk') {
+                        continue;
+                    }
+
+                    if (! isset($linkServers[$sfxSource])) {
+                        $not_ok_messages[] = 'Record with sfx_source_txt: '.$sfxSource.' has no Link server mapped in MultiBackend.ini.';
+                        continue;
+                    }
+
+                    if ($record['sfx_source_txt'] == 'free') {
+                        $sfxUrl = $linkServers['any'];
+                    } else {
+                        $sfxUrl = $linkServers[$sfxSource];
+                    }
+
+                    $sfxUrl .= '?url_ver=Z39.88-2004';
+                    $sfxUrl .= '&sfx.ignore_date_threshold=1';
+                    $sfxUrl .= '&rft.object_id='.$sfxId;
                     $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
-                    $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
-                        .$this->translate(strtoupper($sfxSource)).$embargo
-                        ."</a>";
+
+                    if ($record['sfx_source_txt'] == 'free') {
+                        $sfxUrl .= '&sfx.institute=ANY';
+                        $htmlLinks = [];
+                        $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>"
+                            .$this->translate('Fulltext').$embargo
+                            ."</a>";
+                        break;
+                    } else {
+                        $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                        $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
+                            .$this->translate(strtoupper($sfxSource)).$embargo
+                            ."</a>";
+                    }
+
                 }
 
             }
@@ -2480,12 +2526,14 @@ class AjaxController extends AjaxControllerBase
         }
 
         if (empty($htmlLinks)) {
-            return $this->output(['url' => $url, 'message' => 'FOUND INVALID LINKS'], self::STATUS_NOT_OK);
+            return $this->output(['url' => $url, 'message' => 'FOUND INVALID LINKS', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
         }
 
         $output = [
             'links' => $htmlLinks,
-            'url'   => $url
+            'url'   => $url,
+            'message' => '',
+            'not_ok_messages' => $not_ok_messages,
         ];
 
         return $this->output($output, self::STATUS_OK);

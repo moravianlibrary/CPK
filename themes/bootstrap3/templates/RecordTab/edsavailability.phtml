@@ -17,14 +17,23 @@
 
     <div id="eds-links">
 
-        <h3 id="only-one-eds-link-header" style="display: none;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</h3>
-        <h3 id="many-eds-links-header" style="display: none;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</h3>
-        <h3 id="free-eds-link-available" style="display: none;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?><?= $this->translate('Fulltext is free') ?></h3>
+        <div id="only-one-eds-link-header" style="display: none;">
+            <div style=" margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+            <h3><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</h3>
+        </div>
+        <div id="many-eds-links-header" style="display: none;">
+            <div style=" margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+            <h3><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</h3>
+        </div>
+        <div id="free-eds-link-available" style="display: none;">
+            <div style=" margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+            <h3><?= $this->translate('Fulltext is free') ?></h3>
+        </div>
 
         <table class="table table-striped">
             <tbody>
                 <div id="eds-links-placeholder">
-                    <span id="no-eds-links" style="display: none;"><?= $this->help()->getQuestionMarkHelp('eds-links-not-found') ?></span>
+                    <div id="no-eds-links" style="display: none; margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-not-found') ?></div>
                     <!-- Ajax Placeholder -->
                 </div>
             </tbody>
@@ -119,6 +128,12 @@
                             $( '#eds-links-placeholder' ).append( '<?= $this->translate('Fulltext not found') ?>.' );
                             $( '#no-eds-links' ).show( 'blind', {}, 200 );
 
+                        }
+
+                        if (undefined != response.data.not_ok_messages) {
+                            response.data.not_ok_messages.forEach( function( message ) {
+                                console.warn( message );
+                            });
                         }
                     },
                     complete: function () {

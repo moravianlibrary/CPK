@@ -658,7 +658,7 @@ class EDS extends SolrDefault
                 }
             }
         }
-        return (! is_null($data)) ? $data : false;
+        return (isset($data)) ? $data : false;
     }
 
     protected function neco()
@@ -769,7 +769,15 @@ class EDS extends SolrDefault
     public function getPublishDate()
     {
         $group = "Date";
-        return $this->getParsedData($group);
+        $publishDate = $this->getParsedData($group);
+
+        if (! $publishDate) {
+            $group = '';
+            $label = 'Publication Year';
+            $publishDate = $this->getParsedData($group, $label);
+        }
+
+        return $publishDate;
     }
 
     /**
