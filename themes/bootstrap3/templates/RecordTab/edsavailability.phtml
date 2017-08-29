@@ -3,6 +3,7 @@
   $this->headTitle($this->driver->getBreadcrumb());
   $this->headScript()->appendFile("jquery-ui.min.js");
   $issns = $this->driver->getIssns();
+  $electronicIssns = $this->driver->getElectronicIssns();
   $isbns = $this->driver->getIsbns();
   $publishDate = $this->driver->getPublishDate();
   $titles = $this->driver->getTitles();
@@ -70,6 +71,7 @@
                     data: {
                         recordData: {
                             <? if (! empty($issns)): ?> <?= "'issns': '".implode(", ", $issns)."'," ?> <? endif; ?>
+                            <? if (! empty($electronicIssns)): ?> <?= "'electronicIssns': '".implode(", ", $electronicIssns)."'," ?> <? endif; ?>
                             <? if (! empty($isbns)): ?> <?= "'isbns': '".implode(", ", $isbns)."'," ?> <? endif; ?>
                             <? if (! empty($publishDate)): ?> <?= "'publishDate': '".$publishDate."'," ?> <? endif; ?>
                             <? if (! empty($titles)): ?> <?= "'titles': \"".implode(", ", $titles)."\"," ?> <? endif; ?>

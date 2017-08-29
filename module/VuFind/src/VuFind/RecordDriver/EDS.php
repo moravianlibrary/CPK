@@ -679,6 +679,32 @@ class EDS extends SolrDefault
     }
 
     /**
+     * Get electronic ISSNs
+     *
+     * @return array
+     */
+    public function getElectronicIssns()
+    {
+        $group = "Src";
+        $label = "Journal Info";
+        //$delimeter = "&lt;br /&gt;";
+
+        $data = strip_tags(html_entity_decode($this->getParsedData($group, $label)));
+
+        $issns = [];
+        preg_match_all("/\d{4}-\d{4}/",
+            $data, $issns);
+
+        if (is_array($issns) && ! empty($issns)) {
+            if (!empty($issns[0])) {
+                return $issns[0];
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get ISBNs
      *
      * @return array

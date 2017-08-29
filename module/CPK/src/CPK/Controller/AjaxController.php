@@ -2246,13 +2246,17 @@ class AjaxController extends AjaxControllerBase
 
         // get and prepare data
         $recordData = $this->params()->fromPost('recordData');
-        $issns = isset($recordData['issns']) ? explode(", ", $recordData['issns']) : false;
+
+        $issns = isset($recordData['issns']) ? explode(", ", $recordData['issns']) : [];
+        $electronicIssns = isset($recordData['electronicIssns']) ? explode(", ", $recordData['electronicIssns']) : [];
+        $issns = array_merge($issns, $electronicIssns);
+        $issns = (! empty($issns)) ? $issns : false;
+
         $isbns = isset($recordData['isbns']) ? explode(", ", $recordData['isbns']) : false;
         $publishDate = isset($recordData['publishDate']) ? $recordData['publishDate'] : false;
         $titles = isset($recordData['titles']) ? explode(", ", $recordData['titles']) : false;
         $authors = isset($recordData['authors']) ? explode(", ", $recordData['authors']) : false;
         $sourceTitle = isset($recordData['sourceTitle']) ? $recordData['sourceTitle'] : false;
-        $volume = isset($recordData['volume']) ? $recordData['volume'] : false;
 
         // build query
         $url  = "$solrUrl/$solrCore/select?";
@@ -2273,9 +2277,6 @@ class AjaxController extends AjaxControllerBase
             if ($publishDate) {
                 $url .= "%0A";
                 $url .= 'publishDate_txt_mv:("'.$publishDate.'")';
-            } elseif ($volume) {
-                $url .= "%0A";
-                $url .= 'volume_txt_mv:("'.$volume.'")';
             }
 
         } else {
@@ -2329,7 +2330,7 @@ class AjaxController extends AjaxControllerBase
 
                 } else {
 
-                    if ($sfxSource == 'nlk') {
+                    if (in_array($sfxSource, ['nlk', 'muni'])) {
                         continue;
                     }
 
@@ -2347,7 +2348,7 @@ class AjaxController extends AjaxControllerBase
                     $sfxUrl .= '?url_ver=Z39.88-2004';
                     $sfxUrl .= '&sfx.ignore_date_threshold=1';
                     $sfxUrl .= '&rft.object_id='.$sfxId;
-                    $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                    $sfxUrl .= '&rows=20';
 
                     if ($record['sfx_source_txt'] == 'free') {
                         $sfxUrl .= '&sfx.institute=ANY';
@@ -2398,13 +2399,16 @@ class AjaxController extends AjaxControllerBase
             return $this->output(['recordId' => $recordId, 'message' => 'RECORD NOT LOADED', 'not_ok_messages' => $not_ok_messages,], self::STATUS_NOT_OK);
         }
 
-        $issns = $recordDriver->getIssns();
+        $issns = $recordDriver->getIssns() != false ? $recordDriver->getIssns() : [];
+        $electronicIssns = $recordDriver->getElectronicIssns() != false ? $recordDriver->getElectronicIssns() : [];
+        $issns = array_merge($issns, $electronicIssns);
+        $issns = (! empty($issns)) ? $issns : false;
+
         $isbns = $recordDriver->getIsbns();
         $publishDate = $recordDriver->getPublishDate();
         $titles = $recordDriver->getTitles();
         $authors = $recordDriver->getAuthors();
         $sourceTitle = $recordDriver->getSourceTitle();
-        $volume = $recordDriver->getVolume();
 
         // build query
         $url  = "$solrUrl/$solrCore/select?";
@@ -2419,9 +2423,6 @@ class AjaxController extends AjaxControllerBase
                 if ($publishDate) {
                     $url .= "%0A";
                     $url .= 'publishDate_txt_mv:("'.$publishDate.'")';
-                } elseif ($volume) {
-                    $url .= "%0A";
-                    $url .= 'volume_txt_mv:("'.$volume.'")';
                 }
             }
 
@@ -2485,7 +2486,7 @@ class AjaxController extends AjaxControllerBase
 
                 } else {
 
-                    if ($sfxSource == 'nlk') {
+                    if (in_array($sfxSource, ['nlk', 'muni'])) {
                         continue;
                     }
 
@@ -2503,7 +2504,7 @@ class AjaxController extends AjaxControllerBase
                     $sfxUrl .= '?url_ver=Z39.88-2004';
                     $sfxUrl .= '&sfx.ignore_date_threshold=1';
                     $sfxUrl .= '&rft.object_id='.$sfxId;
-                    $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
+                    $sfxUrl .= '&rows=20';
 
                     if ($record['sfx_source_txt'] == 'free') {
                         $sfxUrl .= '&sfx.institute=ANY';
