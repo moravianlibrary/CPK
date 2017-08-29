@@ -131,7 +131,12 @@ class QueryBuilder
                     if ($params->isNegated()) {
                         $op = 'NOT';
                     }
-                    $grp  = $this->queryToEdsQuery($q, ($index == 0) ? $topOperator : $op);
+                    $operator = ($index == 0) ? $topOperator : $op;
+                    if ($index == 0 && $params->isNegated()) {
+                        $groups[] = $topOperator . ',' . 'FT Y OR FT N';
+                        $operator = $op;
+                    }
+                    $grp  = $this->queryToEdsQuery($q, $operator);
                     $groups[] = $grp;
                     $index++;
                 }
