@@ -2293,8 +2293,7 @@ class AjaxController extends AjaxControllerBase
         $url .= "&fl=sfx_source_txt,sfx_id_txt";
         $url .= "&wt=json";
         $url .= "&indent=true";
-        $url .= "%0A";
-        $url .= 'rows:20';
+        $url .= '&rows=20';
 
         // run Solr query
         try {
@@ -2452,8 +2451,7 @@ class AjaxController extends AjaxControllerBase
         $url .= "&fl=sfx_source_txt,sfx_id_txt";
         $url .= "&wt=json";
         $url .= "&indent=true";
-        $url .= "%0A";
-        $url .= 'rows:20';
+        $url .= '&rows=20';
 
         // run Solr query
         try {
