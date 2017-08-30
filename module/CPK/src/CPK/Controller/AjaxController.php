@@ -2293,6 +2293,8 @@ class AjaxController extends AjaxControllerBase
         $url .= "&fl=sfx_source_txt,sfx_id_txt";
         $url .= "&wt=json";
         $url .= "&indent=true";
+        $url .= "%0A";
+        $url .= 'rows:20';
 
         // run Solr query
         try {
@@ -2348,7 +2350,6 @@ class AjaxController extends AjaxControllerBase
                     $sfxUrl .= '?url_ver=Z39.88-2004';
                     $sfxUrl .= '&sfx.ignore_date_threshold=1';
                     $sfxUrl .= '&rft.object_id='.$sfxId;
-                    $sfxUrl .= '&rows=20';
 
                     if ($sfxSource == 'free') {
                         $sfxUrl .= '&sfx.institute=ANY';
@@ -2451,6 +2452,8 @@ class AjaxController extends AjaxControllerBase
         $url .= "&fl=sfx_source_txt,sfx_id_txt";
         $url .= "&wt=json";
         $url .= "&indent=true";
+        $url .= "%0A";
+        $url .= 'rows:20';
 
         // run Solr query
         try {
@@ -2506,7 +2509,6 @@ class AjaxController extends AjaxControllerBase
                     $sfxUrl .= '?url_ver=Z39.88-2004';
                     $sfxUrl .= '&sfx.ignore_date_threshold=1';
                     $sfxUrl .= '&rft.object_id='.$sfxId;
-                    $sfxUrl .= '&rows=20';
 
                     if ($sfxSource == 'free') {
                         $sfxUrl .= '&sfx.institute=ANY';
