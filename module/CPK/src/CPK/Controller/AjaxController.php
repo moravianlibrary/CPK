@@ -2583,7 +2583,7 @@ class AjaxController extends AjaxControllerBase
                 }
             }
             $htmlLinks = array_values(array_merge($prefeferredLinks, $otherLinks));
-            return $htmlLinks;
         }
+        return array_values($htmlLinks);
     }
 }
