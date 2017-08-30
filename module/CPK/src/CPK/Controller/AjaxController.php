@@ -2334,12 +2334,12 @@ class AjaxController extends AjaxControllerBase
                         continue;
                     }
 
-                    if (! isset($linkServers[$sfxSource])) {
+                    if (! in_array($sfxSource, array_merge(array_keys($linkServers), ['free']))) {
                         $not_ok_messages[] = 'Record with sfx_source_txt: '.$sfxSource.' has no Link server mapped in MultiBackend.ini.';
                         continue;
                     }
 
-                    if ($record['sfx_source_txt'] == 'free') {
+                    if ($sfxSource == 'free') {
                         $sfxUrl = $linkServers['any'];
                     } else {
                         $sfxUrl = $linkServers[$sfxSource];
@@ -2350,14 +2350,14 @@ class AjaxController extends AjaxControllerBase
                     $sfxUrl .= '&rft.object_id='.$sfxId;
                     $sfxUrl .= '&rows=20';
 
-                    if ($record['sfx_source_txt'] == 'free') {
+                    if ($sfxSource == 'free') {
                         $sfxUrl .= '&sfx.institute=ANY';
                         $htmlLinks = [];
-                        $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext').$embargo."</a>";
+                        $htmlLinks['any'] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext').$embargo."</a>";
                         break;
                     } else {
                         $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
-                        $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
+                        $htmlLinks[$sfxSource] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
                     }
 
                 }
@@ -2368,6 +2368,8 @@ class AjaxController extends AjaxControllerBase
         if (empty($htmlLinks)) {
             return $this->output(['url' => $url, 'message' => 'Eds fulltext links FOUND but links are INVALID', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
         }
+
+        $htmlLinks = $this->sortLinksByMyLibraries($htmlLinks);
 
         $output = [
             'links' => $htmlLinks,
@@ -2490,12 +2492,12 @@ class AjaxController extends AjaxControllerBase
                         continue;
                     }
 
-                    if (! isset($linkServers[$sfxSource])) {
+                    if (! in_array($sfxSource, array_merge(array_keys($linkServers), ['free']))) {
                         $not_ok_messages[] = 'Record with sfx_source_txt: '.$sfxSource.' has no Link server mapped in MultiBackend.ini.';
                         continue;
                     }
 
-                    if ($record['sfx_source_txt'] == 'free') {
+                    if ($sfxSource == 'free') {
                         $sfxUrl = $linkServers['any'];
                     } else {
                         $sfxUrl = $linkServers[$sfxSource];
@@ -2506,16 +2508,16 @@ class AjaxController extends AjaxControllerBase
                     $sfxUrl .= '&rft.object_id='.$sfxId;
                     $sfxUrl .= '&rows=20';
 
-                    if ($record['sfx_source_txt'] == 'free') {
+                    if ($sfxSource == 'free') {
                         $sfxUrl .= '&sfx.institute=ANY';
                         $htmlLinks = [];
-                        $htmlLinks[] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>"
+                        $htmlLinks[$sfxSource] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>"
                             .$this->translate('Fulltext').$embargo
                             ."</a>";
                         break;
                     } else {
                         $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
-                        $htmlLinks[] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
+                        $htmlLinks[$sfxSource] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
                             .$this->translate(strtoupper($sfxSource)).$embargo
                             ."</a>";
                     }
@@ -2530,6 +2532,8 @@ class AjaxController extends AjaxControllerBase
             return $this->output(['url' => $url, 'message' => 'FOUND INVALID LINKS', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
         }
 
+        $htmlLinks = $this->sortLinksByMyLibraries($htmlLinks);
+
         $output = [
             'links' => $htmlLinks,
             'url'   => $url,
@@ -2538,5 +2542,48 @@ class AjaxController extends AjaxControllerBase
         ];
 
         return $this->output($output, self::STATUS_OK);
+    }
+
+    /**
+     * User's Library cards (home_library values)
+     *
+     * @return array
+     */
+    public function getUsersHomeLibraries()
+    {
+        $account = $this->getAuthManager();
+        if ($account->isLoggedIn()) { // is loggedIn
+
+            $user = $this->getUser();
+
+            if ($user instanceof \CPK\Db\Row\User)
+                return $user->getNonDummyInstitutions();
+        } else
+            return [];
+    }
+
+    /**
+     * Sort links by my libraries
+     *
+     * @param   array Associative array
+     *
+     * @return  array
+     */
+    protected function sortLinksByMyLibraries($htmlLinks)
+    {
+        $myLibs = $this->getUsersHomeLibraries();
+        if (! empty($myLibs)) {
+            $prefeferredLinks = [];
+            $otherLinks = [];
+            foreach($htmlLinks as $source => $link) {
+                if (in_array($source, $myLibs)) {
+                    $prefeferredLinks[$source] = $link;
+                } else {
+                    $otherLinks[$source] = $link;
+                }
+            }
+            $htmlLinks = array_values(array_merge($prefeferredLinks, $otherLinks));
+            return $htmlLinks;
+        }
     }
 }
