@@ -2290,7 +2290,7 @@ class AjaxController extends AjaxControllerBase
             }
         }
 
-        $url .= "&fl=sfx_source_txt,sfx_id_txt";
+        $url .= "&fl=sfx_source_txt,sfx_id_txt,sfx_url_txt";
         $url .= "&wt=json";
         $url .= "&indent=true";
         $url .= '&rows=20';
@@ -2324,7 +2324,17 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($record['sfx_url_txt'])) {
 
                     if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
-                        $htmlLinks[$sfxSource] = $record['sfx_url_txt'];
+                        if (! isset($htmlLinks[$sfxSource])) {
+                            $htmlLinks[$sfxSource] = [];
+                        }
+
+                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource));
+                        if ($embargo) {
+                            $link .= " ($embargo)";
+                        }
+                        $link .= "</a>";
+
+                        $htmlLinks[$sfxSource][] = $link;
                     } else {
                         $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
                     }
@@ -2349,10 +2359,29 @@ class AjaxController extends AjaxControllerBase
 
                     if ($sfxSource == 'free') {
                         $htmlLinks = [];
-                        $htmlLinks['any'] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext').$embargo."</a>";
+                        $htmlLinks['any'] = [];
+
+                        $link = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext');
+                        if ($embargo) {
+                            $link .= " ($embargo)";
+                        }
+                        $link .= "</a>";
+
+                        $htmlLinks['any'][] = $link;
                         break;
+
                     } else {
-                        $htmlLinks[$sfxSource] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
+                        if (! isset($htmlLinks[$sfxSource])) {
+                            $htmlLinks[$sfxSource] = [];
+                        }
+
+                        $link = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource));
+                        if ($embargo) {
+                            $link .= " ($embargo)";
+                        }
+                        $link .= "</a>";
+
+                        $htmlLinks[$sfxSource][] = $link;
                     }
 
                 }
@@ -2364,6 +2393,7 @@ class AjaxController extends AjaxControllerBase
             return $this->output(['url' => $url, 'message' => 'Eds fulltext links FOUND but links are INVALID', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
         }
 
+        $htmlLinks = $this->keepOnlyFreeLinkIfAvailable($htmlLinks);
         $htmlLinks = $this->sortLinksByMyLibraries($htmlLinks);
 
         $output = [
@@ -2444,7 +2474,7 @@ class AjaxController extends AjaxControllerBase
             }
         }
 
-        $url .= "&fl=sfx_source_txt,sfx_id_txt";
+        $url .= "&fl=sfx_source_txt,sfx_id_txt,sfx_url_txt";
         $url .= "&wt=json";
         $url .= "&indent=true";
         $url .= '&rows=20';
@@ -2478,7 +2508,17 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($record['sfx_url_txt'])) {
 
                     if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
-                        $htmlLinks[$sfxSource] = $record['sfx_url_txt'];
+                        if (! isset($htmlLinks[$sfxSource])) {
+                            $htmlLinks[$sfxSource] = [];
+                        }
+
+                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource));
+                        if ($embargo) {
+                            $link .= " ($embargo)";
+                        }
+                        $link .= "</a>";
+
+                        $htmlLinks[$sfxSource][] = $link;
                     } else {
                         $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
                     }
@@ -2504,14 +2544,28 @@ class AjaxController extends AjaxControllerBase
 
                     if ($sfxSource == 'free') {
                         $htmlLinks = [];
-                        $htmlLinks[$sfxSource] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>"
-                            .$this->translate('Fulltext').$embargo
-                            ."</a>";
+                        $htmlLinks['any'] = [];
+
+                        $link = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext');
+                        if ($embargo) {
+                            $link .= " ($embargo)";
+                        }
+                        $link .= "</a>";
+
+                        $htmlLinks['any'][] = $link;
                         break;
                     } else {
-                        $htmlLinks[$sfxSource] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
-                            .$this->translate(strtoupper($sfxSource)).$embargo
-                            ."</a>";
+                        if (! isset($htmlLinks[$sfxSource])) {
+                            $htmlLinks[$sfxSource] = [];
+                        }
+
+                        $link = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource));
+                        if ($embargo) {
+                            $link .= " ($embargo)";
+                        }
+                        $link .= "</a>";
+
+                        $htmlLinks[$sfxSource][] = $link;
                     }
 
                 }
@@ -2524,6 +2578,7 @@ class AjaxController extends AjaxControllerBase
             return $this->output(['url' => $url, 'message' => 'FOUND INVALID LINKS', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
         }
 
+        $htmlLinks = $this->keepOnlyFreeLinkIfAvailable($htmlLinks);
         $htmlLinks = $this->sortLinksByMyLibraries($htmlLinks);
 
         $output = [
@@ -2564,19 +2619,31 @@ class AjaxController extends AjaxControllerBase
     protected function sortLinksByMyLibraries($htmlLinks)
     {
         $myLibs = $this->getUsersHomeLibraries();
+
         if (! empty($myLibs)) {
             $prefeferredLinks = [];
             $otherLinks = [];
-            foreach($htmlLinks as $source => $link) {
+            foreach($htmlLinks as $source => $links) {
                 if (in_array($source, $myLibs)) {
-                    $prefeferredLinks[$source] = $link;
+                    $prefeferredLinks[$source] = $links;
                 } else {
-                    $otherLinks[$source] = $link;
+                    $otherLinks[$source] = $links;
                 }
             }
-            $htmlLinks = array_values(array_merge($prefeferredLinks, $otherLinks));
+
+            $links = [];
+            foreach (array_values(array_merge($prefeferredLinks, $otherLinks)) as $lib) {
+                $links = array_merge($links, array_values($lib));
+            }
+
+        } else {
+            $links = [];
+            foreach (array_values($htmlLinks) as $array) {
+                $links = array_merge($links, array_values($array));
+            }
         }
-        return array_values($htmlLinks);
+
+        return $links;
     }
 
     /**
@@ -2590,5 +2657,21 @@ class AjaxController extends AjaxControllerBase
     {
         $shortcutsMapping = $this->getConfig('MultiBackend')->SfxInstitutionsMapping->toArray();
         return isset($shortcutsMapping[$libShortcut]) ? $shortcutsMapping[$libShortcut] : $libShortcut;
+    }
+
+    /**
+     * Return array with free link only, if free link is available, otherwise return full array
+     *
+     * @param   array  $htmlLinks   Associative array
+     *
+     * @return  array               Associative array
+     */
+    protected function keepOnlyFreeLinkIfAvailable($htmlLinks)
+    {
+        $allowed = ['any'];
+
+        $intersection = array_intersect_key($htmlLinks, array_flip($allowed));
+
+        return (! empty($intersection)) ? $intersection : $htmlLinks;
     }
 }
