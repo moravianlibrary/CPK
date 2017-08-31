@@ -569,4 +569,18 @@ jQuery( document ).ready( function( $ ) {
       }
     });
   });
+
+  $('#e-version-table a').on('click', function() {
+    dataLayer.push({
+      'event': 'action.record',
+      'actionContext': {
+        'eventCategory': 'record',
+        'eventAction': 'ebook',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
 });
