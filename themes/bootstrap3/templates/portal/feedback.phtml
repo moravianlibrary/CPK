@@ -162,5 +162,31 @@ jQuery( document ).ready( function(){
     $( '.nav-tabs a[href="#<?=$this->activeTab?>"]' ).tab( 'show' );
     <? endif; ?>
 
+    $('#help .btn-primary').on('click', function() {
+        dataLayer.push({
+            'event': 'action.contact',
+            'actionContext': {
+                'eventCategory': 'contact',
+                'eventAction': 'feedback',
+                'eventLabel': 'help',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    });
+
+    $('#bugreport .btn-primary').on('click', function() {
+        dataLayer.push({
+            'event': 'action.contact',
+            'actionContext': {
+                'eventCategory': 'contact',
+                'eventAction': 'feedback',
+                'eventLabel': 'bugreport',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    });
+
 });
 </script>
