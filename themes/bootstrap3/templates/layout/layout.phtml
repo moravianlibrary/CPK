@@ -322,8 +322,24 @@
 		    <? $portalPage = $this->portalPages()->getPage('moznosti-prihlaseni-a-registrace', explode("-", $this->layout()->userLang)[0]); ?>
 		    <h4 class="modal-title"><?=$portalPage['title']?></h4>
 		  </div>
-		  <div class="modal-body" data-ng-help-content hidden="hidden">
+		  <div class="modal-body" id="preregistration" data-ng-help-content hidden="hidden">
 		    <?=$portalPage['content'] ?>
+            <script>
+              $(document).ready(function () {
+                $('#preregistration a').on('click', function () {
+                  dataLayer.push({
+                    'event': 'action.account',
+                    'actionContext': {
+                      'eventCategory': 'account',
+                      'eventAction': 'register',
+                      'eventLabel': $(this).attr('href'),
+                      'eventValue': undefined,
+                      'nonInteraction': false
+                    }
+                  });
+                })
+              });
+            </script>
 		  </div>
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
