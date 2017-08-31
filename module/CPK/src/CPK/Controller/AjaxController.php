@@ -2330,7 +2330,7 @@ class AjaxController extends AjaxControllerBase
 
                         $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource))."</a>";
                         if ($embargo) {
-                            $link .= " ($embargo)";
+                            $link .= " (".$this->translate(explode(' ', trim($embargo))[0])." ".explode(' ', trim($embargo))[1].")";
                         }
 
                         $htmlLinks[$sfxSource][] = $link;
@@ -2362,7 +2362,7 @@ class AjaxController extends AjaxControllerBase
 
                         $link = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext')."</a>";
                         if ($embargo) {
-                            $link .= " ($embargo)";
+                            $link .= " (".$this->translate(explode(' ', trim($embargo))[0])." ".explode(' ', trim($embargo))[1].")";
                         }
 
                         $htmlLinks['any'][] = $link;
@@ -2375,7 +2375,7 @@ class AjaxController extends AjaxControllerBase
 
                         $link = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource))."</a>";
                         if ($embargo) {
-                            $link .= " ($embargo)";
+                            $link .= " (".$this->translate(explode(' ', trim($embargo))[0])." ".explode(' ', trim($embargo))[1].")";
                         }
 
                         $htmlLinks[$sfxSource][] = $link;
@@ -2511,7 +2511,7 @@ class AjaxController extends AjaxControllerBase
 
                         $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource))."</a>";
                         if ($embargo) {
-                            $link .= " ($embargo)";
+                            $link .= " *";
                         }
 
                         $htmlLinks[$sfxSource][] = $link;
@@ -2544,7 +2544,7 @@ class AjaxController extends AjaxControllerBase
 
                         $link = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext')."</a>";
                         if ($embargo) {
-                            $link .= " ($embargo)";
+                            $link .= " *";
                         }
 
                         $htmlLinks['any'][] = $link;
@@ -2556,7 +2556,7 @@ class AjaxController extends AjaxControllerBase
 
                         $link = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource))."</a>";
                         if ($embargo) {
-                            $link .= " ($embargo)";
+                            $link .= " *";
                         }
 
                         $htmlLinks[$sfxSource][] = $link;
