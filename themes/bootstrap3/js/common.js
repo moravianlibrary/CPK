@@ -538,5 +538,18 @@ jQuery( document ).ready( function( $ ){
 		document.langForm.mylang.value = language;
 		document.langForm.submit();
 	}
+
+  $('.questionmark-help').on('click', function() {
+    dataLayer.push({
+      'event': 'action.help',
+      'actionContext': {
+        'eventCategory': 'help',
+        'eventAction': 'click',
+        'eventLabel': $(this).attr('data-target'),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
 	
 });
