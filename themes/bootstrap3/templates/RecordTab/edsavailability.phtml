@@ -122,14 +122,14 @@
                             console.log( '' );
                             console.warn( 'Response message:' + response.data.message );
 
-                            if (response.data.url) {
-                                console.log(response.data.url);
-                            }
-
                             $( '#edsavailability' ).parent().removeClass( 'active' ).addClass( 'disabled' );
                             $( '#eds-links-placeholder' ).append( '<?= $this->translate('Fulltext not found') ?>.' );
                             $( '#no-eds-links' ).show( 'blind', {}, 200 );
 
+                        }
+
+                        if (response.data.url) {
+                            console.log(response.data.url);
                         }
 
                         if (undefined != response.data.not_ok_messages) {

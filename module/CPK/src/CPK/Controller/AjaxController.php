@@ -2324,7 +2324,7 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($record['sfx_url_txt'])) {
 
                     if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
-                        $htmlLinks[] = $record['sfx_url_txt'];
+                        $htmlLinks[$sfxSource] = $record['sfx_url_txt'];
                     } else {
                         $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
                     }
@@ -2340,23 +2340,18 @@ class AjaxController extends AjaxControllerBase
                         continue;
                     }
 
-                    if ($sfxSource == 'free') {
-                        $sfxUrl = $linkServers['any'];
-                    } else {
-                        $sfxUrl = $linkServers[$sfxSource];
-                    }
-
+                    $sfxUrl = $linkServers[$sfxSource];
                     $sfxUrl .= '?url_ver=Z39.88-2004';
                     $sfxUrl .= '&sfx.ignore_date_threshold=1';
                     $sfxUrl .= '&rft.object_id='.$sfxId;
 
+                    $sfxUrl .= '&sfx.institute='.strtoupper($this->getSfxInstitutionShortcut($sfxSource));
+
                     if ($sfxSource == 'free') {
-                        $sfxUrl .= '&sfx.institute=ANY';
                         $htmlLinks = [];
                         $htmlLinks['any'] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate('Fulltext').$embargo."</a>";
                         break;
                     } else {
-                        $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
                         $htmlLinks[$sfxSource] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource)).$embargo."</a>";
                     }
 
@@ -2373,6 +2368,7 @@ class AjaxController extends AjaxControllerBase
 
         $output = [
             'links' => $htmlLinks,
+            'url' => $url,
             'not_ok_messages' => $not_ok_messages,
         ];
 
@@ -2482,7 +2478,7 @@ class AjaxController extends AjaxControllerBase
                 if (! empty($record['sfx_url_txt'])) {
 
                     if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
-                        $htmlLinks[] = $record['sfx_url_txt'];
+                        $htmlLinks[$sfxSource] = $record['sfx_url_txt'];
                     } else {
                         $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
                     }
@@ -2498,25 +2494,21 @@ class AjaxController extends AjaxControllerBase
                         continue;
                     }
 
-                    if ($sfxSource == 'free') {
-                        $sfxUrl = $linkServers['any'];
-                    } else {
-                        $sfxUrl = $linkServers[$sfxSource];
-                    }
+                    $sfxUrl = $linkServers[$sfxSource];
 
                     $sfxUrl .= '?url_ver=Z39.88-2004';
                     $sfxUrl .= '&sfx.ignore_date_threshold=1';
                     $sfxUrl .= '&rft.object_id='.$sfxId;
 
+                    $sfxUrl .= '&sfx.institute='.strtoupper($this->getSfxInstitutionShortcut($sfxSource));
+
                     if ($sfxSource == 'free') {
-                        $sfxUrl .= '&sfx.institute=ANY';
                         $htmlLinks = [];
                         $htmlLinks[$sfxSource] = "<a href='$sfxUrl' class='free-eds-link-special-class' target='_blank' title='".$this->translate('Fulltext')."'>"
                             .$this->translate('Fulltext').$embargo
                             ."</a>";
                         break;
                     } else {
-                        $sfxUrl .= '&sfx.institute='.strtoupper($sfxSource);
                         $htmlLinks[$sfxSource] = "<a href='$sfxUrl' target='_blank' title='".$this->translate('Fulltext')."'>"
                             .$this->translate(strtoupper($sfxSource)).$embargo
                             ."</a>";
@@ -2585,5 +2577,18 @@ class AjaxController extends AjaxControllerBase
             $htmlLinks = array_values(array_merge($prefeferredLinks, $otherLinks));
         }
         return array_values($htmlLinks);
+    }
+
+    /**
+     * Return sfx institution shortcut by local library shortcut (source)
+     *
+     * @param   string  $libShortcut
+     *
+     * @return  string
+     */
+    protected function getSfxInstitutionShortcut($libShortcut)
+    {
+        $shortcutsMapping = $this->getConfig('MultiBackend')->SfxInstitutionsMapping->toArray();
+        return isset($shortcutsMapping[$libShortcut]) ? $shortcutsMapping[$libShortcut] : $libShortcut;
     }
 }

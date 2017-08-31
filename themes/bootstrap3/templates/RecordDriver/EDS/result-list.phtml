@@ -283,13 +283,13 @@ $accessUrl = $this->driver->getAccessUrl();
                         console.log( '' );
                         console.warn( 'Response message for recordId <?=$recordIdHash?>:' + response.data.message );
 
-                        if (response.data.url) {
-                            console.log('Solr url: ' + response.data.url);
-                        }
-
                         $('#eds-links-placeholder-<?=$recordIdHash?>').append( '<div class="text-center"><?= $this->translate('Fulltext not found') ?></div>' );
                         $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
                         $( '#no-eds-links-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+                    }
+
+                    if (response.data.url) {
+                        console.log('Solr url: ' + response.data.url);
                     }
 
                     if (undefined != response.data.not_ok_messages) {
