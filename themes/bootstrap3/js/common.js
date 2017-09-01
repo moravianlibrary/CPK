@@ -565,6 +565,20 @@ jQuery( document ).ready( function( $ ){
     });
   });
 
+  $(document).on('click','input[name=renewSelected],input[name=renewAll]', function() {
+    dataLayer.push({
+      'event': 'action.account',
+      'actionContext': {
+        'eventCategory': 'account',
+        'eventAction': 'prolongItem',
+        'eventLabel': undefined,
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+
   $('input[name=placeHold]').on('click', function() {
     dataLayer.push({
       'event': 'action.account',
