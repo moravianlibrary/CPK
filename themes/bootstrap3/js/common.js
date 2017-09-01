@@ -552,7 +552,7 @@ jQuery( document ).ready( function( $ ){
     });
   });
 
-  $('#pay-button').on('click', function() {
+  $(document).on('click','#pay-button', function() {
     dataLayer.push({
       'event': 'action.account',
       'actionContext': {
