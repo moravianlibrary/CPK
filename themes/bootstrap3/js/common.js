@@ -551,5 +551,18 @@ jQuery( document ).ready( function( $ ){
       }
     });
   });
+
+  $('#pay-button').on('click', function() {
+    dataLayer.push({
+      'event': 'action.account',
+      'actionContext': {
+        'eventCategory': 'account',
+        'eventAction': 'payment',
+        'eventLabel': 'fines',
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
 	
 });
