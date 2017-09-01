@@ -585,7 +585,7 @@ jQuery( document ).ready( function( $ ){
       'actionContext': {
         'eventCategory': 'account',
         'eventAction': 'order',
-        'eventLabel': 'fines',
+        'eventLabel': $('input.hiddenId').val(),
         'eventValue': undefined,
         'nonInteraction': false
       }
