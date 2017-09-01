@@ -564,5 +564,18 @@ jQuery( document ).ready( function( $ ){
       }
     });
   });
+
+  $('input[name=placeHold]').on('click', function() {
+    dataLayer.push({
+      'event': 'action.account',
+      'actionContext': {
+        'eventCategory': 'account',
+        'eventAction': 'order',
+        'eventLabel': 'fines',
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
 	
 });
