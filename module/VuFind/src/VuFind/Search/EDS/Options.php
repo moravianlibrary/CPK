@@ -598,7 +598,7 @@ class Options extends \VuFind\Search\Base\Options
             foreach ($this->commonLimiters as $key) {
                 $limiter = $this->limiterOptions[$key];
                 $ssLimiterOptions[$key] = [
-                    'selectedvalue' => 'LIMIT|' . $key . ':y',
+                    'selectedvalue' => 'LIMIT!' . $key . ':y',
                     'description' => $this->getLabelForCheckboxFilter(
                         'eds_limiter_' . $key, $limiter['Label']
                     ),
@@ -664,7 +664,7 @@ class Options extends \VuFind\Search\Base\Options
                     // only select limiters can be defaulted on limiters can be
                     // defaulted
                     $val = $value['LimiterValues'][0]['Value'];
-                    $this->defaultFilters[] = 'LIMIT|' . $key . ':' . $val;
+                    $this->defaultFilters[] = 'LIMIT!' . $key . ':' . $val;
                 }
             }
         }

@@ -77,8 +77,8 @@ getAssertion    = 1
 database        = mysql://user:pw@localhost/dbName
 
 [Logging]
-file            = /home/vufind/git/VuFind/messages-front.log:alert,error
-;file            = /home/vufind/git/VuFind/messages-front.log:alert,error,notice,debug
+file            = /home/vufind/git/VuFind/fatal-errors.log:alert,error
+;file            = /home/vufind/git/VuFind/fatal-errors.log:alert,error,notice,debug
 
 [ExternalLinks]
 BOA001		= "https://vufind.mzk.cz/Record/"

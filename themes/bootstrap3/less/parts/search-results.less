@@ -3,6 +3,10 @@
 */
 @import url("//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css");
 
+.search-result-list {
+  margin-top: 10px;
+}
+
 .authorbox{
   margin-top: -20px;
 }
@@ -110,9 +114,20 @@
 }
 
 .author-info {
-    font-weight: bold; font-size: 120%;
+    font-weight: bold;
     color: #444;
     font-size: 120%;
+}
+
+.eds-author-info {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.eds-author-info a {
+  font-weight: bold;
+  color: #444 !important;
+  font-size: 110%;
 }
 
 .author-icon {
@@ -157,6 +172,7 @@
 .records-in-libraries-title {
     font-weight: bold;
     margin-left: 4px;
+    font-color: #444;
 }
 
 .scrollable-menu {
@@ -275,6 +291,23 @@
     text-decoration: underline;
 }
 
+#eds-links td {
+  padding: 4px;
+}
+
 .library-result {
   padding-left: 14px;
+}
+
+.eds-tabs li{
+  margin-bottom: -2px;
+}
+
+.eds-results-questionmarkhelp {
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  margin-bottom: 10px;
+  width: auto;
+  display: table-cell;
 }

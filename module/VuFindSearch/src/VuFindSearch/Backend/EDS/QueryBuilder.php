@@ -119,18 +119,26 @@ class QueryBuilder
     protected function queryGroupToArray(QueryGroup $query)
     {
         $groups =  [];
+        $topOperator = $query->getOperator();
         foreach ($query->getQueries() as $params) {
             // Advanced Search
             if ($params instanceof QueryGroup) {
+                $op = $params->getOperator();
                 // Process each search group
+                $index = 0;
                 foreach ($params->getQueries() as $q) {
                     // Build this group individually as a basic search
-                    $op = $q->getOperator();
                     if ($params->isNegated()) {
                         $op = 'NOT';
                     }
-                    $grp  = $this->queryToEdsQuery($q, $op);
+                    $operator = ($index == 0) ? $topOperator : $op;
+                    if ($index == 0 && $params->isNegated()) {
+                        $groups[] = $topOperator . ',' . 'FT Y OR FT N';
+                        $operator = $op;
+                    }
+                    $grp  = $this->queryToEdsQuery($q, $operator);
                     $groups[] = $grp;
+                    $index++;
                 }
             } else {
                 // Basic Search

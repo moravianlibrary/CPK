@@ -12,6 +12,8 @@
 
   $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled;
 
+  $source = explode(".", $id)[0];
+
 ?>
 <ul class="list-group record-toolbar">
   <li class="list-group-item">
@@ -64,7 +66,7 @@
   <? endif; ?>
   </li>
 
-  <? if($this->driver->getRecordType() != "library"): ?>
+  <? if(method_exists($this->driver, "getRecordType") && $this->driver->getRecordType() != "library"): ?>
     <li class="list-group-item">
       <a id="mail-record" class="modal-link <?=$controllerClass?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow">
         <? $titleHtml = "<i class=\"pr-communication-emailenvelopemail\"> </i>" . $this->transEsc('Email this') ?>
@@ -94,7 +96,7 @@
     </a>
   </li>
 
-  <? if($this->driver->getRecordType() != "library"): ?>
+  <? if(method_exists($this->driver, "getRecordType") && $this->driver->getRecordType() != "library"): ?>
     <? if ($this->userlist()->getMode() !== 'disabled'): ?>
       <li class="list-group-item">
       	<a id="save-record" class="modal-link <?=$controllerClass?>"
@@ -108,13 +110,31 @@
       title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i><span data-add-remove-record="add"><?=$this->transEsc('Add to favorites')?></span><span data-add-remove-record="rem" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span></a></li>
     <? endif; ?>
   <? endif; ?>
-
-  <? if(! (($this->driver instanceof CPK\RecordDriver\SolrAuthority) || ($this->driver->getRecordType() == "library"))): ?>
+  <? if(! (($this->driver instanceof CPK\RecordDriver\SolrAuthority) || ($controllerClass == 'controller:Edsrecord') || ($this->driver->getRecordType() == "library") )): ?>
   <li class="list-group-item" id='citace-pro'>
     <a class="modal-link disabled-link" title="<?=$this->transEsc('Show citations')?>" ><i class="pr-communication-bubblechattalkconversationline"> </i> <?=$this->transEsc('Show citations')?></a>
     <i id='citation-link-spinner' class="fa fa-spinner fa-spin"></i>
   </li>
   <? endif; ?>
+    <? if($controllerClass == 'controller:Edsrecord'): ?>
+        <li class="list-group-item">
+            <? $customLinks = array_merge($this->driver->getFTCustomLinks(), $this->driver->getCustomLinks());
+            if (!empty($customLinks)): ?>
+                <? foreach ($customLinks as $customLink): ?>
+                    <? $url = isset($customLink['Url']) ? $customLink['Url'] : '';
+                    $mot = isset($customLink['MouseOverText'])? $customLink['MouseOverText'] : '';
+                    $icon = isset ($customLink['Icon']) ? $customLink['Icon'] : '';
+                    $name = isset($customLink['Text']) ? $customLink['Text'] : '';
+                    ?>
+                    <span>
+                    <a href="<?=$this->escapeHtmlAttr($url)?>" target="_blank" title="<?=$this->escapeHtmlAttr($mot)?>" class="custom-link">
+                      <i class="pr-web-linkurl"> </i><?=$this->escapeHtml(ucfirst($name))?>
+                    </a>
+                  </span>
+                <? endforeach; ?>
+            <? endif; ?>
+        </li>
+    <? endif; ?>
   <li class="list-group-item" id='shareItem'>
     <a class="modal-link" id='shareAnchor' title="<?=$this->translate('Share this')?>" >
       <i class="pr-web-sharenetwork"> </i> <?=$this->translate('Share this')?>

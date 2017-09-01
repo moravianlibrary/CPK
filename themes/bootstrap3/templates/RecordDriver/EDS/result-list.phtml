@@ -1,120 +1,314 @@
 <?
-  $this->headLink()->appendStylesheet('EDS.css');
-  $accessLevel = $this->driver->getAccessLevel();
-  $restrictedView = empty($accessLevel) ? false : true;
+$accessLevel = $this->driver->getAccessLevel();
+$restrictedView = empty($accessLevel) ? false : true;
+$recordId = $this->driver->getUniqueID();
+$recordSource = explode(".", $recordId)[0];
+$format = $this->driver->getPubTypeId();
+$items = $this->driver->getItems();
+$lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
+//var_dump($this->driver); exit();
+//var_dump($items); exit();
+if (empty($lookfor)) {
+    $lookfor = $this->record($this->driver)->getObalkyKnihAdvert('results');
+}
+
+$recordIdHash = md5($recordId);
+$this->headScript()->appendFile("jquery-ui.min.js");
+$issns = $this->driver->getIssns();
+$isbns = $this->driver->getIsbns();
+$publishDate = $this->driver->getPublishDate();
+$titles = $this->driver->getTitles();
+$authors = $this->driver->getAuthors();
+$sourceTitle = $this->driver->getSourceTitle();
+$volume = $this->driver->getVolume();
+$accessUrl = $this->driver->getAccessUrl();
+//var_dump($accessUrl);exit();
 ?>
-<div class="row col-xs-11 source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> recordId<?=$this->driver->supportsAjaxStatus()?' ajaxItemId':''?>">
-  <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
-  <div class="col-sm-2 left">
-    <? if ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
-        <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="_record_link">
-        <img src="<?=$this->escapeHtmlAttr($summThumb)?>" class="recordcover" alt="<?=$this->transEsc('Cover Image')?>"/>
-        </a>
-    <? else: ?>
-        <span class="recordcover pt-icon pt-<?=$this->driver->getPubTypeId()?>"></span>
-        <div><?=$this->driver->getPubType()?></div>
-    <? endif; ?>
-  </div>
-  <div class="col-sm-7 middle">
-    <?  $items  =  $this->driver->getItems();
-      if (isset($items) && !empty($items)) :
-        foreach ($items as $item):
-          if (!empty($item)): ?>
-            <div class="resultItemLine1">
-              <?if('Ti' == $item['Group']): ?>
-                <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title _record_link" >
-                <?=$item['Data']?> </a>
-              <?else:?>
-                <p>
-                  <b><?=$this->transEsc($item['Label'])?>:</b>
-                  <?=$item['Data']?>
-                </p>
-              <?endif;?>
+<div class="white-box clearfix">
+    <div class="row col-xs-12 source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> recordId<?=$this->driver->supportsAjaxStatus()?' ajaxItemId':''?>">
+        <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
+        <div class="col-sm-2 col-xs-3 left">
+
+            <div class="coverThumbnail cover_<?=$id?>">
+                <? if (! empty($format)): ?>
+                    <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-eds-<?=$format?>"></i></div>
+                <? else: ?>
+                    <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-eds-unknown"></i></div>
+                <? endif; ?>
             </div>
-          <? endif;
-        endforeach;
-      elseif ($restrictedView): ?>
-        <div class="resultItemLine1">
-          <p>
-            <?=$this->transEsc('This result is not displayed to guests')?>
-            <br />
-            <a class="login" href="<?=$this->url('myresearch-home')?>">
-              <strong><?=$this->transEsc('Login for full access')?></strong>
-            </a>
-          </p>
-        </div>
-      <? endif; ?>
 
-  <div class="resultItemLine4 custom-links">
-    <? $customLinks = array_merge($this->driver->getFTCustomLinks(), $this->driver->getCustomLinks());
-    if (!empty($customLinks)): ?>
-      <? foreach ($customLinks as $customLink): ?>
-      <? $url = isset($customLink['Url']) ? $customLink['Url'] : '';
-          $mot = isset($customLink['MouseOverText'])? $customLink['MouseOverText'] : '';
-          $icon = isset ($customLink['Icon']) ? $customLink['Icon'] : '';
-          $name = isset($customLink['Text']) ? $customLink['Text'] : '';
-      ?>
-      <span>
-        <a href="<?=$this->escapeHtmlAttr($url)?>" target="_blank" title="<?=$this->escapeHtmlAttr($mot)?>" class="custom-link">
-          <? if ($icon): ?><img src="<?=$this->escapeHtmlAttr($icon)?>" /> <? endif; ?><?=$this->escapeHtml($name)?>
-        </a>
-      </span>
-      <? endforeach; ?>
-    <? endif; ?>
+        </div>
+        <div class="col-sm-7 col-xs-7 middle search-result-container">
+            <?  $items  =  $this->driver->getItems();
+            if (isset($items) && !empty($items)) :
+                foreach ($items as $item):
+                    if (!empty($item)): ?>
+                        <div class="resultItemLine1">
+                            <? if ('Ti' == $item['Group']): ?>
+                                <div class="root-title">
+                                    <a href="<?=$this->recordLink()->getUrl($this->driver)?>" class="title _record_link">
+                                        <?=$item['Data']?>
+                                    </a>
+                                </div>
+                            <? elseif ('Au' == $item['Group']): $author = $item['Data'];?>
+                                <span title='<?=$this->translate('Show publications by')?> <?=strip_tags($author)?>' class='eds-author-info'>
+                                    <?=$author?>
+                                </span>
+                            <? else: ?>
+                                <p>
+                                    <b><?=$this->transEsc($item['Label'])?>:</b>
+                                    <?=$item['Data']?>
+                                </p>
+                            <? endif; ?>
+                        </div>
+                    <? endif;
+                endforeach;
+            elseif ($restrictedView): ?>
+                <div class="resultItemLine1">
+                    <p>
+                        <?=$this->transEsc('This result is not displayed to guests')?>
+                        <br />
+                        <a class="login" href="<?=$this->url('myresearch-home')?>">
+                            <strong><?=$this->transEsc('Login for full access')?></strong>
+                        </a>
+                    </p>
+                </div>
+            <? endif; ?>
+
+            <div class='row'>
+                <div class='col-md-8'>
+                    <div class="format-list pull-left inline-block">
+                        <? if (! empty($format)): ?>
+                            <div class="iconlabel" style="color: #777;">
+                                <i class="small-format-icon pr-format-eds-<?=$format?>"></i>
+                                <span class="format-text">
+                                    <?= $this->translate($format) ?>
+                                </span>
+                            </div>
+                        <? endif; ?>
+                    </div>
+                </div>
+                <div class='col-md-4 search-results-favorite-button hidden pull-right'>
+                    <? if ($this->userlist()->getMode() !== 'disabled'):
+                        $controllerClass = 'controller:' . $this->record($this->driver)->getController();
+                        $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled; ?>
+                        <li class="list-group-item">
+                            <a id="save-record" class="modal-link <?=$controllerClass?>"
+
+                                <? if ($handleOfflineFavorites) : ?>
+                                    href="#" data-ng-click="searchFavCtrl.addOrRemoveFavorite(<?=isset($_ENV['currentRecordNo']) ? $_ENV['currentRecordNo'] : '' ?>)"
+                                <? else: ?>
+                                    href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
+                                <? endif; ?>
+
+                               title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i>
+                                <span data-add-remove-search="add<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>"><?=$this->transEsc('Add to favorites')?></span>
+                                <span data-add-remove-search="rem<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span>
+                            </a></li>
+                    <? endif; ?>
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="col-sm-3 col-xs-12 right" style="display: table;">
+            <div id="eds-links">
+
+                <div id="only-one-eds-link-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;">
+                    <div class="eds-results-questionmarkhelp"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+                    <?= $this->translate('Fulltext is avalable for users of this institution') ?>:
+                </div>
+                <div id="many-eds-links-header-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;">
+                    <div class="eds-results-questionmarkhelp"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+                    <?= $this->translate('Fulltext is avalable for users of these institutions') ?>:
+                </div>
+                <div id="free-eds-link-available-<?=$recordIdHash?>" class="records-in-libraries-title" style="display: none; font-size: 110%;">
+                    <div class="eds-results-questionmarkhelp"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+                    <?= $this->translate('Fulltext is free') ?>
+                </div>
+
+                <table class="table table-striped">
+                    <tbody>
+                        <div id="eds-links-placeholder-<?=$recordIdHash?>">
+                            <div class="eds-results-questionmarkhelp" id="no-eds-links-<?=$recordIdHash?>"><?= $this->help()->getQuestionMarkHelp('eds-links-not-found') ?></div>
+                            <!-- Ajax Placeholder -->
+                        </div>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <!--<div class="col-sm-2 right hidden-print">
+            <? /* Display qrcode if appropriate: */ ?>
+            <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
+                <?
+                // Add JS Variables for QrCode
+                $this->jsTranslations()->addStrings(array('qrcode_hide' => 'qrcode_hide', 'qrcode_show' => 'qrcode_show'));
+                ?>
+                <span class="hidden-xs">
+            <i class="fa fa-fw fa-qrcode"></i> <a href="<?=$this->escapeHtmlAttr($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
+            <div class="qrcode hidden">
+              <script type="text/template" class="qrCodeImgTag">
+                <img alt="<?=$this->transEsc('QR Code')?>" src="<?=$this->escapeHtmlAttr($QRCode);?>"/>
+              </script>
+            </div><br/>
+          </span>
+            <? endif; ?>
+
+            <? if ($this->userlist()->getMode() !== 'disabled'): ?>
+                <? /* Add to favorites */ ?>
+                <i class="fa fa-fw fa-star"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
+
+                <? /* Saved lists */ ?>
+                <div class="savedLists alert alert-info hidden">
+                    <strong><?=$this->transEsc("Saved in")?>:</strong>
+                </div>
+            <? endif; ?>
+
+            <? /* Hierarchy tree link */ ?>
+            <? $trees = $this->driver->tryMethod('getHierarchyTrees'); if (!empty($trees)): ?>
+                <? foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
+                    <div class="hierarchyTreeLink">
+                        <input type="hidden" value="<?=$this->escapeHtmlAttr($hierarchyID)?>" class="hiddenHierarchyId" />
+                        <i class="fa fa-fw fa-sitemap"></i>
+                        <a class="hierarchyTreeLinkText modal-link" href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>">
+                            <?=$this->transEsc('hierarchy_view_context')?><? if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><? endif; ?>
+                        </a>
+                    </div>
+                <? endforeach; ?>
+            <? endif; ?>
+        </div>-->
+
+        <!--<div class="format-list pull-left inline-block">
+            <?=$this->record($this->driver)->getFormatList()?>
+        </div>-->
+
     </div>
-
-    <? if ($this->driver->hasHTMLFullTextAvailable()): ?>
-      <a href="<?= $this->recordLink()->getUrl($this->driver, 'fulltext') ?>#html" class="icon html fulltext _record_link" target="_blank">
-        <?=$this->transEsc('HTML Full Text')?>
-      </a>
-      &nbsp; &nbsp;
-    <? endif; ?>
-
-    <? if ($this->driver->hasPdfAvailable()): ?>
-      <a href="<?= $this->recordLink()->getUrl($this->driver).'/PDF'; ?>" class="icon pdf fulltext" target="_blank">
-        <?=$this->transEsc('PDF Full Text')?>
-      </a>
-    <? endif; ?>
-  </div>
-
-  <div class="col-sm-2 right hidden-print">
-    <? /* Display qrcode if appropriate: */ ?>
-    <? if ($QRCode = $this->record($this->driver)->getQRCode("results")): ?>
-      <?
-        // Add JS Variables for QrCode
-        $this->jsTranslations()->addStrings(array('qrcode_hide' => 'qrcode_hide', 'qrcode_show' => 'qrcode_show'));
-      ?>
-      <span class="hidden-xs">
-        <i class="fa fa-fw fa-qrcode"></i> <a href="<?=$this->escapeHtmlAttr($QRCode);?>" class="qrcodeLink"><?=$this->transEsc('qrcode_show')?></a>
-        <div class="qrcode hidden">
-          <script type="text/template" class="qrCodeImgTag">
-            <img alt="<?=$this->transEsc('QR Code')?>" src="<?=$this->escapeHtmlAttr($QRCode);?>"/>
-          </script>
-        </div><br/>
-      </span>
-    <? endif; ?>
-
-    <? if ($this->userlist()->getMode() !== 'disabled'): ?>
-      <? /* Add to favorites */ ?>
-      <i class="fa fa-fw fa-star"></i> <a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" class="save-record modal-link" id="<?=$this->driver->getUniqueId() ?>" title="<?=$this->transEsc('Add to favorites')?>"><?=$this->transEsc('Add to favorites')?></a><br/>
-
-      <? /* Saved lists */ ?>
-      <div class="savedLists alert alert-info hidden">
-        <strong><?=$this->transEsc("Saved in")?>:</strong>
-      </div>
-    <? endif; ?>
-
-    <? /* Hierarchy tree link */ ?>
-    <? $trees = $this->driver->tryMethod('getHierarchyTrees'); if (!empty($trees)): ?>
-      <? foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
-        <div class="hierarchyTreeLink">
-          <input type="hidden" value="<?=$this->escapeHtmlAttr($hierarchyID)?>" class="hiddenHierarchyId" />
-          <i class="fa fa-fw fa-sitemap"></i>
-          <a class="hierarchyTreeLinkText modal-link" href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>">
-            <?=$this->transEsc('hierarchy_view_context')?><? if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><? endif; ?>
-          </a>
-        </div>
-      <? endforeach; ?>
-    <? endif; ?>
-  </div>
 </div>
+
+<script>
+    jQuery( document ).ready( function( $ ) {
+
+        <?= ($accessUrl) ? "var accessUrl = '$accessUrl';" : "var accessUrl = false;" ?>
+
+        if (accessUrl) {
+            console.log( 'Eds fulltext link FOUND in metadata in AccessUrl.' );
+
+            var ebscoHtml = "<tr style='display: none;'><td><a href='" + accessUrl + "' target='_blank' title='<?=$this->translate('Fulltext')?>'><?=$this->translate('Fulltext')?></a></td></tr>";
+
+            $('#eds-links-placeholder-<?=$recordIdHash?>').append( ebscoHtml );
+            $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
+
+            $( '#free-eds-link-available-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+
+        } else {
+
+            $.ajax({
+                method: 'POST',
+                dataType: 'json',
+                async: true,
+                url: '/AJAX/JSON?method=getEdsFulltextLinkInResults&recordIdHash=<?=$recordIdHash?>',
+                data: {
+                    recordData: {
+                        <? if (! empty($recordId)): ?> <?= "'recordId': '".$recordId."'," ?> <? endif; ?>
+                    }
+                },
+                beforeSend: function () {
+                    console.info( 'Calling getEdsFulltextLinkInResults for recordId <?=$recordIdHash?>..' );
+                    $('#eds-links-placeholder-<?=$recordIdHash?>').append("<div class='eds-links-loader text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>");
+                },
+                success: function (response) {
+
+                    if (response.status == 'OK') {
+                        console.log( '' );
+                        console.log( 'Eds fulltext links FOUND for recordId <?=$recordIdHash?>.' );
+                        console.log( 'Solr url: ' + response.data.url );
+
+                        var links = response.data.links;
+                        var edsLinks = links.length;
+
+                        if (edsLinks == 1) {
+                            if( links[0].indexOf('free-eds-link-special-class') >= 0) {
+
+                                console.log( 'Eds fulltext link FOUND for record <?=$recordIdHash?> in Solr in param sfx_source_txt:free.' );
+                                $( '#free-eds-link-available-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+
+                            } else {
+                                $( '#only-one-eds-link-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+                            }
+                        }
+
+                        if (edsLinks > 1) {
+                            $( '#many-eds-links-header-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+                        }
+
+                        var maxLinksShown = 3;
+
+                        var ebscoHtml = "";
+
+                        for (var i = 0; i < maxLinksShown; i++) {
+                            if (undefined !== links[i]) {
+                                ebscoHtml += "<tr style='display: none;'><td>" + links[i] + "</td></tr>";
+                            }
+                        }
+
+                        if (edsLinks > maxLinksShown) {
+                            ebscoHtml += '<tr><td>';
+                            ebscoHtml += '<div class="margin-bottom">';
+                            ebscoHtml += '<div class="btn-group">';
+                            ebscoHtml += '<span type="button" class="show-next-links dropdown-toggle" data-toggle="dropdown">';
+                            ebscoHtml += '<?=$this->translate("Show next links")?>';
+                            ebscoHtml += '<b class="caret"></b></span>';
+                            ebscoHtml += '<ul class="dropdown-menu scrollable-menu" role="menu">';
+
+                            for (var i = maxLinksShown; i < edsLinks; i++) {
+                                ebscoHtml += '<li>';
+                                ebscoHtml += links[i];
+                                ebscoHtml += '</li>';
+                            }
+
+                            ebscoHtml += '</ul>';
+                            ebscoHtml += '</div>';
+                            ebscoHtml += '</div>';
+                            ebscoHtml += '</td></tr>';
+                        }
+
+                        $('#eds-links-placeholder-<?=$recordIdHash?>').append( ebscoHtml );
+                        $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
+
+                    }
+
+                    if (response.status == 'NOT_OK') {
+                        console.log( '' );
+                        console.warn( 'Response message for recordId <?=$recordIdHash?>:' + response.data.message );
+
+                        $('#eds-links-placeholder-<?=$recordIdHash?>').append( '<div class="text-center"><?= $this->translate('Fulltext not found') ?></div>' );
+                        $('#eds-links-placeholder-<?=$recordIdHash?> tr').show( 'blind', {}, 200 );
+                        $( '#no-eds-links-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+                    }
+
+                    if (response.data.url) {
+                        console.log('Solr url: ' + response.data.url);
+                    }
+
+                    if (undefined != response.data.not_ok_messages) {
+                        response.data.not_ok_messages.forEach( function( message ) {
+                            console.warn( message );
+                        });
+                    }
+
+                },
+                complete: function () {
+                    $( '#eds-links-placeholder-<?=$recordIdHash?> .eds-links-loader' ).remove();
+                },
+                error: function ( jqXHR, textStatus, errorThrown ) {
+                    console.error( JSON.stringify( jqXHR ) );
+                    console.error( 'AJAX error: ' + textStatus + ' : ' + errorThrown );
+                }
+            });
+
+        }
+
+    });
+</script>

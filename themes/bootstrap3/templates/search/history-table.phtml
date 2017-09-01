@@ -33,7 +33,7 @@
       </td>
       <td>
         <?=$this->historylabel($info->getParams()->getSearchClassId())?>
-        <a href="<?=$this->url($info->getOptions()->getSearchAction()) . $urlQuery->getParamsFromCompressedFacetFilters()?>"><?
+        <a href="<?=$this->url($info->getOptions()->getSearchAction()) . $urlQuery->getParams()?>"><?
           $desc = $info->getParams()->getDisplayQuery();
           echo empty($desc) ? $this->transEsc("history_empty_search") : $this->escapeHtml($desc);
         ?></a>

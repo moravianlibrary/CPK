@@ -45,6 +45,7 @@ $config = array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
                     'eVersion' => 'CPK\RecordTab\EVersion',
                     'buy' => 'CPK\RecordTab\Buy',
+                    'edsavailability' => 'CPK\RecordTab\EdsAvailability',
                     'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
 					'holdingsils'     => 'CPK\RecordTab\HoldingsILS',
                     'tagsandcomments' => 'CPK\RecordTab\TagsAndComments',
@@ -157,6 +158,17 @@ $config = array(
                 ],
                 'defaultTab' => 'EVersion'
             ],
+            'VuFind\RecordDriver\EDS' => [
+                'tabs' => [
+                    //'Description' => 'Description',
+                    'TOC' => 'TOC',
+                    'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
+                    'Preview' => 'preview',
+                    'EdsAvailability' => 'EdsAvailability',
+                    'Details' => 'StaffViewArray',
+                ],
+                'defaultTab' => null
+            ],
             'CPK\RecordDriver\SolrLibrary' => [
                 'tabs' => [
                     'AddInfo' => 'AddInfo',
@@ -167,8 +179,8 @@ $config = array(
                     'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => 'AddInfo'
-            ]
-        ]
+            ],
+        ],
     ), /* vufind */
     'controllers' => array(
         'factories' => array(

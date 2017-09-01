@@ -96,6 +96,14 @@
             "'Phone number too short after IDD'" => 'libphonenumber_tooshortidd'
           )
         );
+        // Add translation for sorting
+        $this->jsTranslations()->addStrings(
+          array(
+            'date_newest' => 'date_newest',
+            'date_oldest' => 'date_oldest',
+            'sort_relevance' => 'sort_relevance',
+          )
+        );
 
         // Fix some IE issues
         if (USES_IE) {
@@ -246,7 +254,7 @@
                 <?=$this->render('shib-assertion.phtml')?>
               </div>
             </div>
-            <hr/>
+            <br/>
           <? endif; ?>
         <? endif; ?>
         <?=$this->layout()->content ?>

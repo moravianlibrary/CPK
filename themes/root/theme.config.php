@@ -5,6 +5,7 @@ return array(
         'factories' => array(
             'accountcapabilities' => 'VuFind\View\Helper\Root\Factory::getAccountCapabilities',
             'addthis' => 'VuFind\View\Helper\Root\Factory::getAddThis',
+            'advancedhandler' => 'VuFind\View\Helper\Root\Factory::getAdvancedHandler',
             'alphabrowse' => 'VuFind\View\Helper\Root\Factory::getAlphaBrowse',
             'auth' => 'VuFind\View\Helper\Root\Factory::getAuth',
             'authornotes' => 'VuFind\View\Helper\Root\Factory::getAuthorNotes',

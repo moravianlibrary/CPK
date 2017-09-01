@@ -1,0 +1,155 @@
+<?
+  // Set page title.
+  $this->headTitle($this->driver->getBreadcrumb());
+  $this->headScript()->appendFile("jquery-ui.min.js");
+  $issns = $this->driver->getIssns();
+  $electronicIssns = $this->driver->getElectronicIssns();
+  $isbns = $this->driver->getIsbns();
+  $publishDate = $this->driver->getPublishDate();
+  $titles = $this->driver->getTitles();
+  $authors = $this->driver->getAuthors();
+  $sourceTitle = $this->driver->getSourceTitle();
+  $volume = $this->driver->getVolume();
+  $accessUrl = $this->driver->getAccessUrl();
+  //var_dump($accessUrl); exit();
+?>
+
+<div class="list-group">
+
+    <div id="eds-links">
+
+        <div id="only-one-eds-link-header" style="display: none;">
+            <div style=" margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+            <h3><?= $this->translate('Fulltext is avalable for users of this institution') ?>:</h3>
+        </div>
+        <div id="many-eds-links-header" style="display: none;">
+            <div style=" margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+            <h3><?= $this->translate('Fulltext is avalable for users of these institutions') ?>:</h3>
+        </div>
+        <div id="free-eds-link-available" style="display: none;">
+            <div style=" margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-found') ?></div>
+            <h3><?= $this->translate('Fulltext is free') ?></h3>
+        </div>
+
+        <table class="table table-striped">
+            <tbody>
+                <div id="eds-links-placeholder">
+                    <div id="no-eds-links" style="display: none; margin-bottom: 10px;"><?= $this->help()->getQuestionMarkHelp('eds-links-not-found') ?></div>
+                    <!-- Ajax Placeholder -->
+                </div>
+            </tbody>
+        </table>
+
+    </div>
+
+    <script src="/themes/bootstrap3/js/ajax-record-tabs.js"></script>
+
+    <script>
+        jQuery( document ).ready( function( $ ) {
+
+            <?= ($accessUrl) ? "var accessUrl = '$accessUrl';" : "var accessUrl = false;" ?>
+
+            if (accessUrl) {
+                console.log( 'Eds fulltext link FOUND in metadata in AccessUrl.' );
+
+                var html = "<tr style='display: none;'><td><a href='" + accessUrl + "' target='_blank' title='<?=$this->translate('Fulltext')?>'><?=$this->translate('Fulltext')?></a></td></tr>";
+
+                $( '#eds-links-placeholder' ).append( html );
+                $( '#eds-links-placeholder tr' ).show( 'blind', {}, 200 );
+
+                $( '#free-eds-link-available' ).show( 'blind', {}, 200 );
+
+                $( '.eds-want-it' ).show( 'blind', {}, 200 );
+
+            } else {
+
+                $.ajax({
+                    method: 'POST',
+                    dataType: 'json',
+                    async: true,
+                    url: '/AJAX/JSON?method=getEdsFulltextLink',
+                    data: {
+                        recordData: {
+                            <? if (! empty($issns)): ?> <?= "'issns': '".implode(", ", $issns)."'," ?> <? endif; ?>
+                            <? if (! empty($electronicIssns)): ?> <?= "'electronicIssns': '".implode(", ", $electronicIssns)."'," ?> <? endif; ?>
+                            <? if (! empty($isbns)): ?> <?= "'isbns': '".implode(", ", $isbns)."'," ?> <? endif; ?>
+                            <? if (! empty($publishDate)): ?> <?= "'publishDate': '".$publishDate."'," ?> <? endif; ?>
+                            <? if (! empty($titles)): ?> <?= "'titles': \"".implode(", ", $titles)."\"," ?> <? endif; ?>
+                            <? if (! empty($authors)): ?> <?= "'authors': \"".implode(", ", $authors)."\"," ?> <? endif; ?>
+                            <? if (! empty($sourceTitle)): ?> <?= "'sourceTitle': \"".$sourceTitle."\"," ?> <? endif; ?>
+                            <? if (! empty($volume)): ?> <?= "'volume': '".$volume."'," ?> <? endif; ?>
+                        }
+                    },
+                    beforeSend: function () {
+                        console.info( 'Calling getEdsFulltextLink..' );
+                        $('#eds-links-placeholder').append("<div class='eds-links-loader text-center'><i class='fa fa-2x fa-refresh fa-spin'></i></div>");
+                    },
+                    success: function (response) {
+
+                        if (response.status == 'OK') {
+                            console.log( 'Eds fulltext links FOUND.' );
+
+                            var links = response.data.links;
+                            var edsLinks = links.length;
+
+                            var html = "";
+                            links.forEach( function( link ) {
+                                html += "<tr style='display: none;'><td>" + link + "</td></tr>";
+                            });
+
+                            if (edsLinks == 1) {
+                                if( links[0].indexOf('free-eds-link-special-class') >= 0) {
+
+                                    console.log( 'Eds fulltext link FOUND in Solr in param sfx_source_txt:free.' );
+                                    $( '#free-eds-link-available' ).show( 'blind', {}, 200 );
+
+                                } else {
+                                    $( '#only-one-eds-link-header' ).show( 'blind', {}, 200 );
+                                }
+                            }
+
+                            if (edsLinks > 1) {
+                                $( '#many-eds-links-header' ).show( 'blind', {}, 200 );
+                            }
+
+                            $( '#eds-links-placeholder' ).append( html );
+                            $( '#eds-links-placeholder tr' ).show( 'blind', {}, 200 );
+
+                            $( '.eds-want-it' ).show( 'blind', {}, 200 );
+                        }
+
+                        if (response.status == 'NOT_OK') {
+                            console.log( '' );
+                            console.warn( 'Response message:' + response.data.message );
+
+                            $( '#edsavailability' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                            $( '#eds-links-placeholder' ).append( '<?= $this->translate('Fulltext not found') ?>.' );
+                            $( '#no-eds-links' ).show( 'blind', {}, 200 );
+
+                        }
+
+                        if (response.data.url) {
+                            console.log(response.data.url);
+                        }
+
+                        if (undefined != response.data.not_ok_messages) {
+                            response.data.not_ok_messages.forEach( function( message ) {
+                                console.warn( message );
+                            });
+                        }
+                    },
+                    complete: function () {
+                        $( '.eds-links-loader' ).remove();
+                    },
+                    error: function ( jqXHR, textStatus, errorThrown ) {
+                        console.error( JSON.stringify( jqXHR ) );
+                        console.error( 'AJAX error: ' + textStatus + ' : ' + errorThrown );
+                    }
+                });
+
+            }
+
+        });
+    </script>
+
+</div>

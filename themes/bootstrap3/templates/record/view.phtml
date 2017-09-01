@@ -73,17 +73,19 @@
               	  <i class="fa fa-2x fa-spinner fa-spin"></i>
               	</div>
               </div>
-			  <div id='citation-placeholder'></div>
-			  <div id='citation-style-selector'>
-			    <select class='style' id='record_<?=$id?>'>
-			      <? foreach($this->availableCitationStyles as $style): ?>
-			      <option value='<?=$style['value']?>'<?= ($style['value'] == $this->selectedCitationStyle) ? 'selected="selected"' : '' ?>><?=$style['description']?></option>
-			      <? endforeach; ?>
-			    </select>
-			    <a href="http://www.citacepro.com/nacist-dokument-sysno/<?=$id?>?katalog=cpk" target="_blank">
-			      <img src="/themes/bootstrap3/images/logoCitacePROkatalog.png" alt="Citace PRO">
-			    </a>
-			  </div>
+              <? if (isset($this->availableCitationStyles)) :?>
+			    <div id='citation-placeholder'></div>
+			    <div id='citation-style-selector'>
+			      <select class='style' id='record_<?=$id?>'>
+                    <? foreach($this->availableCitationStyles as $style): ?>
+			          <option value='<?=$style['value']?>'<?= ($style['value'] == $this->selectedCitationStyle) ? 'selected="selected"' : '' ?>><?=$style['description']?></option>
+			        <? endforeach; ?>
+			      </select>
+			      <a href="http://www.citacepro.com/nacist-dokument-sysno/<?=$id?>?katalog=cpk" target="_blank">
+			        <img src="/themes/bootstrap3/images/logoCitacePROkatalog.png" alt="Citace PRO">
+			      </a>
+			    </div>
+			  <? endif; ?>
 		  </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
@@ -103,7 +105,7 @@
           <div class="modal-body">
 		<center>
 	  	<div style="display:inline-block;" class="fb-share-button" data-href="<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>" data-layout="button" data-size="large" data-mobile-iframe="false"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>&src=sdkpreparse"><img alt="Facebook - Knihovny.cz" class="social-icon" width="64" src="https://cdn0.iconfinder.com/data/icons/flat-social-media-icons-set-round-style-1/550/facebook-128.png"></a></div>
-		<div style="display:inline-block;margin-left:30px;">	  
+		<div style="display:inline-block;margin-left:30px;">
 	<a target="_blank" href="https://plus.google.com/share?url=<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>"><img src="https://cdn1.iconfinder.com/data/icons/logotypes/32/circle-google-plus-128.png" width="60"></a>
 	  	</div>
 		<div style="display:inline-block;margin-left:30px;">
@@ -138,34 +140,34 @@
       </div>
     </div>
 			<?=$this->record($this->driver)->getCoreMetadata()?>
-        <? if($source != "library"): ?>
-			<div class='row records-in-groups-container' id='records-in-groups-container'>
-			  <div class='col-md-2 text-center'>
-				<h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
-			  </div>
-		      <? if($this->sigla): ?>
-			  <div class='col-md-8'>
-			  <? else: ?>
-			  <div class='col-md-10'>
-			  <? endif; ?>
-				<?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
-			  </div>
-			  <? if($this->sigla): ?>
-			  <div class='col-md-2 information'>
-				<a href='/Search/Results/?lookfor0[]=<?=$this->sigla?>&type0[]=Libraries&bool0[]=AND&filter=&daterange=&publishDatefrom=&publishDateto=&limit=10&sort=relevance&page=1&searchTypeTemplate=basic&keepFacetsEnabled=true&join=AND' target='_blank' title='<?=$this->translate('Information about library')?>'>
-				  <div class='row'>
-				    <div class='col-md-3 information-icon'>
-				      <i class='cpk-icon'>i</i>
-				    </div>
-				    <div class='col-md-9'>
-				      <span><?=$this->translate('Information about library')?></span>
-				    </div>
-				  </div>
-				</a>
-			  </div>
-			  <? endif; ?>
-			</div>
-        <? endif; ?>
+            <? if ($this->driver instanceof CPK\RecordDriver\SolrMarc && !($this->driver instanceof CPK\RecordDriver\SolrAuthority) && $source != "library"): ?>
+                <div class='row records-in-groups-container' id='records-in-groups-container'>
+                  <div class='col-md-2 text-center'>
+                    <h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
+                  </div>
+                  <? if($this->sigla): ?>
+                  <div class='col-md-8'>
+                  <? else: ?>
+                  <div class='col-md-10'>
+                  <? endif; ?>
+                    <?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
+                  </div>
+                  <? if($this->sigla): ?>
+                  <div class='col-md-2 information'>
+                    <a href='/Libraries/Library?sigla=<?=$this->sigla?>' target='_blank' title='<?=$this->translate('Information about library')?>'>
+                      <div class='row'>
+                        <div class='col-md-3 information-icon'>
+                          <i class='cpk-icon'>i</i>
+                        </div>
+                        <div class='col-md-9'>
+                          <span><?=$this->translate('Information about library')?></span>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                  <? endif; ?>
+                </div>
+            <? endif; ?>
 			<div>
 
             <? if (count($this->tabs) > 0): ?>
@@ -278,11 +280,13 @@
             jQuery( document ).ready( function( $ ) {
 
             	// Disable eversion tab
+                <? if($this->eVersionLinksCount): ?>
             	var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
             	if ( eVersionLinksCount === 0 ) {
             		$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );
             		$( "#e-version-table" ).addClass( 'hidden' );
             	}
+                <? endif; ?>
 
             	// Disable holdings tab
             	var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
@@ -333,7 +337,7 @@
                 }
 
                 var recordID = '<?= $this->driver->getUniqueID() ?>';
-            	var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
+                var parentRecordID = '<?= method_exists($this->driver, "getParentRecordID") ? $this->driver->getParentRecordID() : null ?>';
 
             	var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );
 
@@ -358,6 +362,12 @@
             	        scrollTop: $( '#records-in-groups-container' ).offset().top
             	    }, 1000);
             	});
+
+                $( 'body' ).on('click', '.eds-want-it', function(){
+                    $( 'html,body' ).animate( {
+                        scrollTop: $( '#edsavailability' ).offset().top
+                    }, 1000);
+                });
 
             });
             </script>

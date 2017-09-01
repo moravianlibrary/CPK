@@ -321,10 +321,10 @@ class Params extends \VuFind\Search\Base\Params
     {
         //Also store Limiter/Search Mode IDs/Values in the config file
         $facetId = $field;
-        if (substr($field, 0, 6) == 'LIMIT|') {
+        if (substr($field, 0, 6) == 'LIMIT:') {
             $facetId = substr($field, 6);
         }
-        if (substr($field, 0, 11) == 'SEARCHMODE|') {
+        if (substr($field, 0, 11) == 'SEARCHMODE:') {
             $facetId = substr($field, 11);
         }
         return isset($this->facetConfig[$facetId])

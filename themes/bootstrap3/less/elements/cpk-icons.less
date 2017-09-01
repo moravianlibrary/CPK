@@ -6,28 +6,28 @@
   margin-right: 4px;
 }
 
-.pr-format-books:before {
+.pr-format-books:before, .pr-format-eds-book:before, .pr-format-eds-ebook:before, .pr-format-eds-dissertation:before {
   content: "\ebb3";
 }
 .pr-format-electronicsource:before, .pr-format-othercomputercarrier:before {
   content: "\e98d";
 }
-.pr-format-other:before, .pr-format-otherunspecified:before {
+.pr-format-other:before, .pr-format-otherunspecified:before, .pr-format-eds-newspaperArticle:before, .pr-format-eds-conference:before, .pr-format-eds-report:before, .pr-format-eds-primarySource:before, .pr-format-eds-review:before {
   content: "\ec24";
 }
 .pr-format-otherobject:before {
   content: "\ec24";
 }
-.pr-format-periodicals:before {
+.pr-format-periodicals:before, .pr-format-eds-serialPeriodical:before, .pr-format-eds-newspaperArticle:before {
   content: "\ebaa";
 }
 .pr-format-visualdocuments:before {
   content: "\ec0f";
 }
-.pr-format-articles:before, .pr-format-manuscripts:before {
+.pr-format-articles:before, .pr-format-manuscripts:before, .pr-format-eds-academicJournal:before{
   content: "\ebac";
 }
-.pr-format-audio:before, .pr-format-audiocd:before, .pr-format-audioother:before, .pr-format-audiocassette:before, .pr-format-audiolp:before, .pr-format-audiodvd:before {
+.pr-format-audio:before, .pr-format-audiocd:before, .pr-format-audioother:before, .pr-format-audiocassette:before, .pr-format-audiolp:before, .pr-format-audiodvd:before, .pr-format-eds-audio:before {
   content: "\e99d";
 }
 .pr-format-musicalscores:before {
@@ -59,6 +59,15 @@
 }
 .pr-format-norms:before {
   content: "\ebd8";
+}
+.pr-format-eds-electronicResource:before {
+  content: "\e98d";
+}
+.pr-format-eds-unknown:before {
+  content: "\ec24";
+}
+.pr-format-eds-biography:before {
+  content: "\e95c";
 }
 
 [class^="pr-format-legislative"]:before, [class*=" pr-format-legislative"]:before {

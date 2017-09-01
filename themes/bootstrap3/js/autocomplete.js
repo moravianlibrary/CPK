@@ -156,7 +156,9 @@
           }
         } else if (typeof options.handler !== "undefined") {
           options.handler(input.val(), function(data) {
-            $.fn.autocompleteVufind.cache[cid][term] = data;
+            if (options.cache) {
+              $.fn.autocompleteVufind.cache[cid][term] = data;
+            }
             $.fn.autocompleteVufind.cache['facetsEnabled'] = $( '.searchFormKeepFilters' ).is(':checked');
             if (data.length === 0) {
               hide();

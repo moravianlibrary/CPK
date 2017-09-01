@@ -1,3 +1,15 @@
+<ul class="nav nav-tabs eds-tabs" id="set-database">
+    <li<?= empty($_GET['database']) || $_GET['database'] == 'Solr' ? ' class="active"' : '' ?>>
+        <a href="#" data-value="Solr" class="pointer"><i class="pr-web-flagreport"></i> <?=$this->translate('national-sources')?></a>
+    </li>
+    <li<?=! empty($_GET['database']) && $_GET['database'] == 'EDS' ? ' class="active"' : '' ?>>
+        <a href="#" data-value="EDS" class="pointer"><i class="pr-misc-globe"></i> <?=$this->translate('foreign-sources')?></a>
+    </li>
+    <li class="disabled">
+        <span style="margin-left: 6px;"><?= $this->help()->getQuestionMarkHelp('foreign-sources') ?></span>
+    </li>
+</ul>
+
 <? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
 <? endif; ?>
 
@@ -104,7 +116,7 @@
   }
 
 ?>
-<div id='search-result-list'>
+<div id='search-result-list' class="search-result-list">
     <div class='row' id='flashedMessage' style='display: none;'>
       <div class='col-sm-12'>
 
@@ -225,6 +237,7 @@
 		  addUrlScalarParamsToJson('data', 'sort', 'relevance');
 		  addUrlScalarParamsToJson('data', 'page', '1');
 		  addUrlScalarParamsToJson('data', 'searchTypeTemplate', 'basic');
+          addUrlScalarParamsToJson('data', 'database', 'Solr');
 		  addUrlScalarParamsToJson('data', 'keepFacetsEnabled', 'true');
 		  addUrlScalarParamsToJson('data', 'join', 'AND');
 		?>

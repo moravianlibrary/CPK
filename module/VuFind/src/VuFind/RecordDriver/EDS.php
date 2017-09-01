@@ -271,7 +271,7 @@ class EDS extends SolrDefault
             foreach ($this->fields['FullText']['Links'] as $link) {
                 if (isset($link['Type'])
                     && in_array($link['Type'], $this->pdfTypes)
-                ) {
+                    && isset($link['Url'])) {
                     return $link['Url']; // return PDF link
                 }
             }
@@ -510,7 +510,7 @@ class EDS extends SolrDefault
                     $link_xml = '/<searchLink fieldCode="([^\"]*)" '
                         . 'term="%22([^\"]*)%22">/';
                     $link_html
-                        = "<a href=\"../EDS/Search?lookfor=$2&amp;type={$type}\">";
+                        = "<a href=\"../../EDS/Search?lookfor=$2&amp;type={$type}\">";
                     $data = preg_replace($link_xml, $link_html, $data);
                     $data = str_replace('</searchLink>', '</a>', $data);
                 }
@@ -580,5 +580,286 @@ class EDS extends SolrDefault
     {
         // EDS is not export-friendly; disable all formats.
         return true;
+    }
+
+    public function getFields() {
+        return $this->fields;
+    }
+
+    /**
+     * Get parsed data
+     * Returns array or string or false if no data found.
+     *
+     * @param   $group  string
+     * @param   $delimeter  string
+     * @param   $positionIndex  int PositionIndex 1 is meaned to get first array value,
+     *          2 measn 1, etc.
+     * @param   $strimCharacters    string  Characters, that shoul be trimmed. E.g. "()[],. "
+     *
+     * @return mixed
+     */
+    public function getParsedData($group, $label = false, $delimeter = false, $positionIndex = false, $trimCharacters = false)
+    {
+        if (isset($this->fields['Items'])) {
+            foreach ($this->fields['Items'] as $item) {
+                if ($label) {
+                    if ($item['Group'] == $group && $item['Label'] == $label) {
+                        $itemData = trim($item['Data'], ". ");
+
+                        if ($delimeter) {
+                            $data = array_map('trim', explode($delimeter, $itemData));
+
+                            if ($trimCharacters) {
+                                foreach ($data as $key => $value) {
+                                    $string = trim($value, $trimCharacters);
+                                    if (! empty($string)) {
+                                        $data[$key] = $string;
+                                    }
+                                }
+                            }
+
+                            if ($positionIndex) {
+                                $data = $data[$positionIndex-1];
+                            }
+
+                        }
+                        else {
+                            $data = $itemData;
+                        }
+                        break;
+                    }
+                } else {
+                    if ($item['Group'] == $group) {
+
+                        $itemData = trim($item['Data'], ". ");
+
+                        if ($delimeter) {
+                            $data = array_map('trim', explode($delimeter, $itemData));
+
+                            if ($trimCharacters) {
+                                foreach ($data as $key => $value) {
+                                    $string = trim($value, $trimCharacters);
+                                    if (! empty($string)) {
+                                        $data[$key] = $string;
+                                    }
+                                }
+                            }
+
+                            if ($positionIndex) {
+                                $data = $data[$positionIndex-1];
+                            }
+
+                        }
+                        else {
+                            $data = $itemData;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return (isset($data)) ? $data : false;
+    }
+
+    protected function neco()
+    {
+
+    }
+
+    /**
+     * Get ISSNs
+     *
+     * @return array
+     */
+    public function getIssns()
+    {
+        $group = "ISSN";
+        $delimeter = "&lt;br /&gt;";
+        return $this->getParsedData($group, false, $delimeter);
+    }
+
+    /**
+     * Get electronic ISSNs
+     *
+     * @return array
+     */
+    public function getElectronicIssns()
+    {
+        $group = "Src";
+        $label = "Journal Info";
+        //$delimeter = "&lt;br /&gt;";
+
+        $data = strip_tags(html_entity_decode($this->getParsedData($group, $label)));
+
+        $issns = [];
+        preg_match_all("/\d{4}-\d{4}/",
+            $data, $issns);
+
+        if (is_array($issns) && ! empty($issns)) {
+            if (!empty($issns[0])) {
+                return $issns[0];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get ISBNs
+     *
+     * @return array
+     */
+    public function getIsbns()
+    {
+        $group = "ISBN";
+        $delimeter = ".";
+        return $this->getParsedData($group, false, $delimeter);
+    }
+
+    protected function findeClosestDelimeter($possibleDelimeters, $string){
+        $delimeter = false;
+
+        $results = [];
+        foreach ($possibleDelimeters as $key => $char) {
+            if (strpos($string, $char, 0 != false)) {
+                $results[$key] = strpos($string, $char, 0);
+            }
+        }
+
+        if (empty($results)) return false;
+
+        $minKey = min(array_keys($results, min($results)));
+
+        return $possibleDelimeters[$minKey];
+    }
+
+    /**
+     * Get source title
+     *
+     * @return array
+     */
+    public function getSourceTitle()
+    {
+        $group = "Src";
+        $possibleDelimeters = [",", ".", ";"];
+        $trimCharacters = "()[]'";
+        $positionIndex = 1;
+
+        if (isset($this->fields['Items'])) {
+            foreach ($this->fields['Items'] as $item) {
+                if ($item['Group'] == $group) {
+
+                    $string = $item['Data'];
+                    // remove HTML entities
+                    $string = strip_tags(html_entity_decode($string));
+
+                    // find some delimeter
+                    $delimeter = $this->findeClosestDelimeter($possibleDelimeters, $string);
+
+                    // split string by delimeter
+                    if ($delimeter) {
+                        $data = array_map('trim', explode($delimeter, $string));
+
+                        // if we want to return n-th occurence
+                        if ($positionIndex) {
+                            $data = $data[$positionIndex-1];
+                        }
+
+                    } // or return full string
+                    else {
+                        $data = $string;
+                    }
+
+                    // trim selected chars from start and end of string
+                    if ($trimCharacters) {
+                        if (is_array($data)) {
+                            foreach ($data as $key => $value) {
+                                $data[$key] = trim($value, $trimCharacters);
+                            }
+                        } else {
+                            $data = trim($data, $trimCharacters);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return (! is_null($data)) ? $data : false;
+    }
+
+    /**
+     * Get date
+     *
+     * @return string
+     */
+    public function getPublishDate()
+    {
+        $group = "Date";
+        $publishDate = $this->getParsedData($group);
+
+        if (! $publishDate) {
+            $group = '';
+            $label = 'Publication Year';
+            $publishDate = $this->getParsedData($group, $label);
+        }
+
+        return $publishDate;
+    }
+
+    /**
+     * Obtain the titles of the record from the record info section
+     *
+     * @return array
+     */
+    public function getTitles()
+    {
+        if (isset($this->fields['RecordInfo']['BibRecord']['BibEntity']['Titles'])) {
+            foreach ($this->fields['RecordInfo']['BibRecord']['BibEntity']['Titles']
+                     as $titleRecord
+            ) {
+                $data[] = $titleRecord['TitleFull'];
+            }
+        }
+        return (! is_null($data)) ? $data : false;
+    }
+
+    /**
+     * Obtain the volume of the record from the record info section
+     *
+     * @return string
+     */
+    public function getVolume()
+    {
+        if (isset($this->fields['RecordInfo']['BibRecord']['BibRelationships']['IsPartOfRelationships'])) {
+            foreach ($this->fields['RecordInfo']['BibRecord']['BibRelationships']['IsPartOfRelationships']
+                     as $titleRecord
+            ) {
+                if (isset($titleRecord['BibEntity']['Numbering'])) {
+                    foreach($titleRecord['BibEntity']['Numbering'] as $numbering) {
+                        if ($numbering['Type'] == 'volume') {
+                            $data[] = $numbering['Value'];
+                        }
+                    }
+                }
+            }
+        }
+        return (! is_null($data)) ? $data[0] : false;
+    }
+
+    /**
+     * Get access url
+     *
+     * @return string
+     */
+    public function getAccessUrl()
+    {
+        $group = "URL";
+        $label = "Access URL";
+
+        $data = $this->getParsedData($group, $label);
+
+        $url = strip_tags(html_entity_decode($data));
+
+        return filter_var($url, FILTER_VALIDATE_URL);
     }
 }
