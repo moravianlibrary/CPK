@@ -242,7 +242,7 @@
                 $localAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($authorityId);
             }
           ?>
-          <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' class='author-info' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($author)?>">
+          <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' class='author-info' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>">
           <?=$author?>
           </a>
           <? if (! empty($localAuthorityId)): ?>
