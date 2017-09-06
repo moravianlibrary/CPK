@@ -31,14 +31,48 @@
   <div class="col-sm-9">
     <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h2>
     <?/* Display Main Details */?>
-    <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
-      <? $details = $this->driver->getBibliographicDetails(); ?>
-      <? if (! empty($details)): ?>
+    <table class="table">
+
+      <? $alternatives = $this->driver->getAlternatives(); if (!empty($alternatives)): ?>
       <tr>
-        <th class="col-md-3"><?=$this->transEsc('Bibliographic Details')?>: </th>
-        <td>
-          <div><?=$details?></div>
-        </td>
+         <th class="col-md-3"><?=$this->transEsc('alternative_term')?>: </th>
+         <td>
+             <? foreach ($alternatives as $alternative): ?>
+                 <?=$alternative?><br/>
+             <? endforeach; ?>
+         </td>
+      </tr>
+      <? endif; ?>
+
+      <? $english = $this->driver->getEnglish(); if (!empty($english)): ?>
+      <tr>
+         <th class="col-md-3"><?=$this->transEsc('english_term')?>: </th>
+         <td><?=$english?></td>
+      </tr>
+      <? endif; ?>
+
+      <? $explanation = $this->driver->getExplanation(); if (!empty($explanation)): ?>
+      <tr>
+         <th class="col-md-3"><?=$this->transEsc('explanation_term')?>: </th>
+         <td><?=$explanation?></td>
+      </tr>
+      <? endif; ?>
+
+      <? $relatives = $this->driver->getRelatives(); if (!empty($relatives)): ?>
+      <tr>
+         <th class="col-md-3"><?=$this->transEsc('relative_term')?>: </th>
+         <td>
+             <? foreach ($relatives as $relative): ?>
+                 <?=$relative?><br/>
+             <? endforeach; ?>
+         </td>
+      </tr>
+      <? endif; ?>
+
+      <? $source = $this->driver->getSource(); if (!empty($source)): ?>
+      <tr>
+         <th class="col-md-3"><?=$this->transEsc('source_term')?>: </th>
+         <td><?=$source?></td>
       </tr>
       <? endif; ?>
 

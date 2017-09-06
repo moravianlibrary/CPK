@@ -1,4 +1,5 @@
 <?php
+
 namespace CPK\RecordDriver;
 
 use CPK\RecordDriver\SolrMarc as ParentSolrMarc;
@@ -19,40 +20,75 @@ class SolrDictionary extends ParentSolrMarc
     }
 
     /**
-     * Get the authority's bibliographic details.
+     * Get explanation.
      *
      * @return array $field
      */
     public function getSummary()
     {
-        $field = $this->getFieldArray('678', array('a'));
-        return empty($field) ? '' : $field;
+        return isset ($this->fields ['explanation_display']) ? array($this->fields ['explanation_display']) : [];
     }
 
     /**
-     * Get the authority's name, shown as title of record.
+     * Get name, shown as title of record.
      *
      * @return string
      */
     public function getTitle()
     {
-        $field = $this->getFieldArray('150', array('a', 'd'));
-        $name = empty($field) ? '' : $field[0];
-        return $name;
+        return isset ($this->fields ['title']) ? $this->fields ['title'] : [];
     }
 
     /**
-     * Get the bibliographic details of authority.
+     * Get english term.
      *
-     * @return string $details
+     * @return string
      */
-    public function getBibliographicDetails()
+    public function getEnglish()
     {
-        $field = $this->getFieldArray('678', array('a'));
-        $details = empty($field) ? '' : $field[0];
-        return $details;
+        return isset ($this->fields ['english_display']) ? $this->fields ['english_display'] : [];
     }
-    
+
+    /**
+     * Get explanation.
+     *
+     * @return string
+     */
+    public function getExplanation()
+    {
+        return isset ($this->fields ['explanation_display']) ? $this->fields ['explanation_display'] : [];
+    }
+
+    /**
+     * Get relative terms.
+     *
+     * @return array
+     */
+    public function getRelatives()
+    {
+        return isset ($this->fields ['relative_display_mv']) ? $this->fields ['relative_display_mv'] : [];
+    }
+
+    /**
+     * Get alternative terms.
+     *
+     * @return array
+     */
+    public function getAlternatives()
+    {
+        return isset ($this->fields ['alternative_display_mv']) ? $this->fields ['alternative_display_mv'] : [];
+    }
+
+    /**
+     * Get source.
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        return isset ($this->fields ['source_display']) ? $this->fields ['source_display'] : [];
+    }
+
     /**
      * Get an array of all the formats associated with the record.
      *
