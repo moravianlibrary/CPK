@@ -279,6 +279,7 @@ Title:
     - title_alt^200
     - title_new^100
     - title_old
+    - term_exact
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -335,6 +336,7 @@ AllFields:
     - subject_viz^100
     - genre_viz^100
     - publishDate_txt_mv^50
+    - term_exact
     - allfields_unstemmed^10
     - fulltext_unstemmed^10
     - allfields
@@ -347,6 +349,7 @@ AllFields:
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
     - [bq, "author_exact:\"@query\"^20000"]
     - [bq, "title_exact:\"@query\"^10000"]
+    - [bq, "term_exact:\"@query\"^30000"]
     - [bf, ord(publishDateSort)^1]
   DismaxHandler: edismax
   QueryFields:
@@ -454,11 +457,13 @@ adv_search_title_series:
     - title_new^100
     - title_old
     - titleSeries_search_txt_mv
+    - term_exact
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
     - [bq, "author_exact:\"@query\"^20000"]
     - [bq, "title_exact:\"@query\"^10000"]
+    - [bq, "term_exact:\"@query\"^30000"]
     - [bf, ord(publishDateSort)^1]
   DismaxHandler: edismax
   QueryFields:
