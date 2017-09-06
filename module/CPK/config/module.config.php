@@ -195,7 +195,8 @@ $config = array(
             'search' => 'CPK\Controller\SearchController',
             'ajax' => 'CPK\Controller\AjaxController',
             'status' => 'CPK\Controller\StatusController',
-            'admin' => 'CPK\Controller\AdminController'
+            'admin' => 'CPK\Controller\AdminController',
+            'edsrecord' => 'CPK\Controller\EdsrecordController',
         ), /* invokables */
     ), /* controllers */
     'controller_plugins' => [
