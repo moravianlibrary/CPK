@@ -929,7 +929,7 @@ class SearchController extends SearchControllerBase
 	{
 	    $results = $this->getResultsManager()->get('Solr');
 	    $params = $results->getParams();
-	    $params->initHomePageFacets();
+	    $params->setBasicSearch("");
 	    $params->setLimit(0);
 	    $results->getResults();
 

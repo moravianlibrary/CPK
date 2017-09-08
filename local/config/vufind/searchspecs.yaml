@@ -421,7 +421,7 @@ AllFields:
       - [onephrase, ~]
     issn:
       - [onephrase, ~]
-  FilterQuery: "NOT recordtype:library"
+  FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
 #    DismaxFields:
 #      - title_full_unstemmed^600
