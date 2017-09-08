@@ -26,7 +26,6 @@
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
 namespace MZKApi\Controller;
-use MZKApi\Formatter\ItemFormatter;
 use Zend\ServiceManager\ServiceManager;
 
 /**

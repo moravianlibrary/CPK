@@ -873,7 +873,8 @@ class Aleph extends AlephBase implements CPKDriverInterface
             'no_of_loans' => (string) $z30->{'$no_of_loans'},
             'requested' => (string) $requested,
             // Customized from here
-            'label' => $label
+            'label' => $label,
+            'queue' => (string) $item->{'queue'}
         ];
     }
 

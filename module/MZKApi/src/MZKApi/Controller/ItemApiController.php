@@ -239,7 +239,7 @@ class ItemApiController extends \VuFind\Controller\AbstractSearch
 
         $availability = [
             'label-success' => 'available',
-            'label-warning' => 'circulating',
+            'label-warning' => 'on-loan',
             'label-danger' => 'unavailable',
             'label-unknown' => 'unknown'
         ];
@@ -247,16 +247,17 @@ class ItemApiController extends \VuFind\Controller\AbstractSearch
         $response = [
             'id' => $original_id,
             'availability' => $availability[$status['label']],
-            'availability_note' => isset($status['availability']) ? $status['availability'] : null
+            'availability_note' => isset($status['availability']) ? $status['availability'] : null,
+            'duedate' => isset($status['duedate']) ? $status['duedate'] : null,
+            'queue' => isset($status['queue']) ? $status['queue'] : null,
         ];
 
         if (isset($request['ext'])) {
             $response['ext'] = [
-                'duedate' => isset($status['duedate']) ? $status['duedate'] : null,
                 'opac_status' => isset($status['status']) ? $status['status'] : null,
-                'location' => isset($status['location']) ? $status['location'] : null,
-                'department' => isset($status['department']) ? $status['department'] : null,
-                'collection' => isset($status['collection']) ? $status['collection'] : null
+                //'location' => isset($status['location']) ? $status['location'] : null,
+                //'department' => isset($status['department']) ? $status['department'] : null,
+                //'collection' => isset($status['collection']) ? $status['collection'] : null
             ];
         }
 
