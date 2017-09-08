@@ -1314,7 +1314,8 @@ jQuery( document ).ready( function( $ ) {
 		}
 
         var extraData = {};
-        var database = $( this ).attr( 'data-value' )
+        var database = $( this ).attr( 'data-value' );
+        var isAdvancedSearch = $( '.basic-search-panel' ).hasClass( 'hidden' );
         extraData['database'] = database;
         if (database == 'Solr') {
             $('#searchForm_lookfor').addClass('autocomplete');
@@ -1328,6 +1329,9 @@ jQuery( document ).ready( function( $ ) {
         }
         if ($('#advancedSearchLink').hasClass('hidden')) {
             $('#advancedSearchLink').removeClass('hidden');
+        }
+        if (!isAdvancedSearch) {
+            extraData['type0[]'] = [ 'AllFields' ];
         }
 
 /*
@@ -1377,7 +1381,7 @@ jQuery( document ).ready( function( $ ) {
         $( this ).parent().parent().find( 'li' ).removeClass( 'active' );
         $( this ).parent().addClass( 'active' );
 
-        if ( $( '.basic-search-panel' ).hasClass( 'hidden' ) ) {
+        if ( isAdvancedSearch ) {
             callbacks = {};
             callbacks.afterSwitchSearchTemplate = function() {
                 ADVSEARCH.updateSearchResults( undefined, undefined, false, extraData);
