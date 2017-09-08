@@ -146,7 +146,7 @@
         <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
 
           <input
-            class="form-control find-input search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>"
+            class="form-control find-input search-query autocomplete <? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>"
             id="searchForm_lookfor"
             type="text"
             name="lookfor0[]"

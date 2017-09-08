@@ -336,7 +336,7 @@ function setupAutocomplete() {
       loadingString: VuFind.translate('loading')+'...',
       handler: function(query, cb) {
         var searcher = $( 'input[name=database]' ).val();
-        if (!$(op).hasClass('autocomplete')) {
+        if (!$(op).hasClass('autocomplete') || searcher == 'EDS') {
             cb([]);
             return;
         }
