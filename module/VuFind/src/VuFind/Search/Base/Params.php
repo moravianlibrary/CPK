@@ -1057,16 +1057,7 @@ class Params implements ServiceLocatorAwareInterface
      */
     protected function formatYearForDateRange($year)
     {
-        // Make sure parameter is set and numeric; default to wildcard otherwise:
-        $year = preg_match('/\d{2,4}/', $year) ? $year : '*';
-
-        // Pad to four digits:
-        if (strlen($year) == 2) {
-            $year = '19' . $year;
-        } else if (strlen($year) == 3) {
-            $year = '0' . $year;
-        }
-
+        $year = preg_match('/\d{1,4}/', $year) ? $year : '*';
         return $year;
     }
 
@@ -1189,13 +1180,6 @@ class Params implements ServiceLocatorAwareInterface
      */
     protected function buildNumericRangeFilter($field, $from, $to)
     {
-        // Make sure that $to is less than $from:
-        if ($to != '*' && $from != '*' && $to < $from) {
-            $tmp = $to;
-            $to = $from;
-            $from = $tmp;
-        }
-
         return $this->buildGenericRangeFilter($field, $from, $to);
     }
 
