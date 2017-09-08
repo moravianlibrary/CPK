@@ -299,17 +299,23 @@
 
       <? $summ = $this->driver->getSummary(); ?>
       <? if (!empty($summ)): ?>
-        <? foreach ($summ as $field): ?>
-          <? $secondPart = substr($field, 200); ?>
-          <? $spacePosition = strpos($secondPart, ' '); ?>
-          <? if (empty($spacePosition) && ($spacePosition > 20)): ?>
-            <? $spacePosition = 0; ?>
-          <? endif; ?>
-          <? if ((! empty($secondPart)) && (preg_match('/[.,?!]/', $field[199 + $spacePosition]))): ?>
-            <? $spacePosition = $spacePosition - 1; ?>
-          <? endif; ?>
-          <p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?><? if (! empty($secondPart)): ?>...<? endif; ?></p>
-        <? endforeach; ?>
+        <? if ($this->driver instanceof CPK\RecordDriver\SolrDictionary): ?>
+          <? foreach ($summ as $field): ?>
+            <p><?=$this->escapeHtml($field)?></p>
+          <? endforeach; ?>
+        <? else: ?>
+          <? foreach ($summ as $field): ?>
+            <? $secondPart = substr($field, 200); ?>
+            <? $spacePosition = strpos($secondPart, ' '); ?>
+            <? if (empty($spacePosition) && ($spacePosition > 20)): ?>
+              <? $spacePosition = 0; ?>
+            <? endif; ?>
+            <? if ((! empty($secondPart)) && (preg_match('/[.,?!]/', $field[199 + $spacePosition]))): ?>
+              <? $spacePosition = $spacePosition - 1; ?>
+            <? endif; ?>
+            <p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?><? if (! empty($secondPart)): ?>...<? endif; ?></p>
+          <? endforeach; ?>
+        <? endif; ?>
       <? else: ?>
           <script type="text/javascript">
               obalky.display_summary_short(".summ_<?=$recordId?>", <?=$bibinfo?>);

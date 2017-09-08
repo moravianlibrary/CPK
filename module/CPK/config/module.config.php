@@ -37,6 +37,7 @@ $config = array(
                     'solrdublincore' => 'CPK\RecordDriver\Factory::getSolrDublinCore',
                     'solrauthority' => 'CPK\RecordDriver\Factory::getSolrAuthority',
                     'solrlibrary' => 'CPK\RecordDriver\Factory::getSolrLibrary',
+                    'solrdictionary' => 'CPK\RecordDriver\Factory::getSolrDictionary',
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
@@ -149,6 +150,16 @@ $config = array(
                 'defaultTab' => 'EVersion'
             ],
             'CPK\RecordDriver\SolrAuthority' => [
+                'tabs' => [
+                    'EVersion' => 'EVersion',
+                    'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
+                    'Reviews' => 'Reviews',
+                    'Details' => 'StaffViewMARC',
+                    'DedupedRecords' => 'DedupedRecords'
+                ],
+                'defaultTab' => 'EVersion'
+            ],
+            'CPK\RecordDriver\SolrDictionary' => [
                 'tabs' => [
                     'EVersion' => 'EVersion',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',

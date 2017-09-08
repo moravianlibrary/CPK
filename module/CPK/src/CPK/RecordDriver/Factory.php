@@ -119,6 +119,23 @@ class Factory
         return $driver;
     }
 
+    public static function getSolrDictionary(ServiceManager $sm)
+    {
+        $driver = new \CPK\RecordDriver\SolrDictionary(
+                $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
+                null,
+                $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+                $sm->getServiceLocator()->get('searchController'),
+                $sm->getServiceLocator()->get('VuFind\SearchRunner')
+        );
+        $driver->attachILS(
+                $sm->getServiceLocator()->get('VuFind\ILSConnection'),
+                $sm->getServiceLocator()->get('VuFind\ILSHoldLogic'),
+                $sm->getServiceLocator()->get('VuFind\ILSTitleHoldLogic')
+        );
+        return $driver;
+    }
+
     public static function getSolrLibrary(ServiceManager $sm)
     {
         $driver = new \CPK\RecordDriver\SolrLibrary(
