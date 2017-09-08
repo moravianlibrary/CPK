@@ -794,6 +794,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'department' => isset($department) ? $department : '',
             'number' => empty($numberOfPieces) ? '' : (string) $numberOfPieces[0],
             'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
+            'queue' => isset($holdQueue) ? $holdQueue : '',
             'item_id' => empty($id) ? "" : $id,
             'label' => $label,
             'holdOverride' => "",
