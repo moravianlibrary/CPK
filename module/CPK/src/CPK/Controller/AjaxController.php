@@ -1495,7 +1495,9 @@ class AjaxController extends AjaxControllerBase
                 ->Record->default_citation_style;
         }
 
-        $citationLocalDomain = $this->getConfig()->Record->citation_local_domain;
+        $citationLocalDomain = $this->getConfig()->Site->url;
+        $citationLocalDomain = parse_url($citationLocalDomain, PHP_URL_HOST);
+        $citationLocalDomain = str_replace("www.", "", $citationLocalDomain);
 
         $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
             .$recordId
