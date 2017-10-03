@@ -84,3 +84,20 @@ function friendlyErrorType($type)
     }		
     return "";		
 }
+
+/**
+ * Dump and die
+ * @param mixed $var
+ */
+function dd($var) {
+    var_dump($var);
+    exit();
+}
+
+/**
+ * Die
+ * @param mixed $var
+ */
+function d($var) {
+    var_dump($var);
+}

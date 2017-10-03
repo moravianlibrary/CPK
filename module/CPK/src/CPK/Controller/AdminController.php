@@ -411,8 +411,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $viewModel->setVariable('inspirationWidgets', $frontendTable->getInspirationWidgets());
 
         $widgetsTable = $this->getTable('widget');
-        $widgets = $widgetsTable->getWidgets();
 
+        $widgets = $widgetsTable->getWidgets(true);
         $viewModel->setVariable('widgets', $widgets);
 
         return $viewModel;

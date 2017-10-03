@@ -9,6 +9,10 @@
       '<li class="active">'.$this->transEsc('Widgets').'</li>';
 
   $this->layout()->title = $this->translate('Widgets');
+
+  $this->headStyle()->appendStyle('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css');
+  $this->headScript()->appendFile('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js');
+  //$this->headScript()->appendFile('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/i18n/defaults-*.min.js');
 ?>
 <div class="row clearfix">
   <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
@@ -23,7 +27,7 @@
 	  <div class='row'>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('First column');?></h2>
-			<select id='first-homepage-widget'>
+			<select id='first-homepage-widget' class="form-control selectpicker">
 			  <? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -32,7 +36,7 @@
         </div>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('Second column');?></h2>
-			<select id='second-homepage-widget'>
+			<select id='second-homepage-widget' class="form-control selectpicker">
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -41,7 +45,7 @@
         </div>
         <div class='col-md-4 text-center'>
         	<h2><?=$this->translate('Third column');?></h2>
-			<select id='third-homepage-widget'>
+			<select id='third-homepage-widget' class="form-control selectpicker">
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -53,10 +57,14 @@
 
 	<h2><?=$this->translate('Inspiration widgets')?></h2>
     <div class='well'>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-primary pull-right" id="save-inspirations-widgets" style="padding-bottom: 10px;"><?=$this->translate('Save')?></button>
+            </div>
+        </div>
 	  <div class='row'>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('First column');?></h2>
-			<select id='first-inspiration-widget'>
+			<select id='first-inspiration-widget' class="form-control selectpicker">
 			  <? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['first_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -64,8 +72,7 @@
 			</select>
         </div>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Second column');?></h2>
-			<select id='second-inspiration-widget'>
+			<select id='second-inspiration-widget' class="form-control selectpicker">
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['second_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -73,8 +80,7 @@
 			</select>
         </div>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Third column');?></h2>
-			<select id='third-inspiration-widget'>
+			<select id='third-inspiration-widget' class="form-control selectpicker">
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['third_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -82,8 +88,7 @@
 			</select>
         </div>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Fourth column');?></h2>
-			<select id='fourth-inspiration-widget'>
+			<select id='fourth-inspiration-widget' class="form-control selectpicker">
 			  <? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fourth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -91,17 +96,16 @@
 			</select>
         </div>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Fifth column');?></h2>
-			<select id='fifth-inspiration-widget'>
+			<select id='fifth-inspiration-widget' class="form-control selectpicker">
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fifth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
 			    <option value='conspectus'<?=($this->inspirationWidgets['fifth_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			</select>
         </div>
+
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Sixth column');?></h2>
-			<select id='sixth-inspiration-widget'>
+			<select id='sixth-inspiration-widget' class="form-control selectpicker">
 				<? foreach($widgets as $widget): ?>
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['sixth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
@@ -109,7 +113,20 @@
 			</select>
         </div>
       </div>
+        <div class="row">
+            <div class="col-md-4 text-center empty-widget-box">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </div>
+            <div class="col-md-4 text-center empty-widget-box">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </div>
+            <div class="col-md-4 text-center empty-widget-box">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </div>
+        </div>
 	</div>
+
+
 
 	<h2><?=$this->translate('Widget list')?></h2>
     <div class='well'>
@@ -203,6 +220,11 @@
 	            }
 	        });
 		});
+
+        $('.selectpicker').selectpicker({
+            style: 'btn-info',
+            size: 8
+        });
 	});
 </script>
 
