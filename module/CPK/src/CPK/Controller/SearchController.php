@@ -1483,15 +1483,12 @@ class SearchController extends SearchControllerBase
     {
         $view = $this->createViewModel();
 
-        $frontendTable = $this->getTable('frontend');
-
         $widgetTable = $this->getTable('widget');
 
-        $inspirationsWidgets = $widgetTable->getWidgets(true, true);
+        $sortedInspirationsWidgets = $widgetTable->getWidgets(true, true, true);
+        $lastInspirationsWidgetsPosition = $widgetTable->getLastInspirationsWidgetsPosition();
 
-        $widgets = [];
-
-        foreach ($inspirationsWidgets as $inspirationsWidget) {
+        foreach ($sortedInspirationsWidgets as $inspirationsWidget) {
             if ($inspirationsWidget->getName() == 'infobox') {
                 $infoboxTable = $this->getTable("infobox");
                 $infoboxItems = $infoboxTable->getActualItems($inspirationsWidget->getShownRecordsNumber());
@@ -1499,10 +1496,10 @@ class SearchController extends SearchControllerBase
             } else {
                 $inspirationsWidget->setContents($this->getWidgetContent($inspirationsWidget->getName(), $inspirationsWidget->getShownRecordsNumber()));
             }
-            $widgets[][$inspirationsWidget->getWidgetPosition()] = $inspirationsWidget;
         }
 
-        $view->widgets = $widgets;
+        $view->lastInspirationsWidgetsPosition = $lastInspirationsWidgetsPosition;
+        $view->sortedInspirationsWidgets = $sortedInspirationsWidgets;
 
         if (! empty($this->params()->fromPost('mylang'))) {
             $languageCode = $this->params()->fromPost('mylang');

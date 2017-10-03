@@ -7,21 +7,27 @@
   $this->layout()->headerType = "inspiration";
 
 ?>
-<? $i = 0; foreach ($this->widgets as $widgetsList): ?>
-    <? foreach ($widgetsList as $widget): $i++;?>
-      <? if (($i % 3) == 0): ?>
-        <div class='row'>
-      <? endif; ?>
-        <? if ($widget->getName() == 'infobox') : ?>
-          <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
-        <? elseif ($widget->getName() == 'conspectus'): ?>
-          <?=$this->render('widgets/conspectus.phtml')?>
-        <? else: ?>
-          <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
-        <? endif; ?>
-      <? if (($i % 3) == 0): ?>
-        </div>
-      <? endif; ?>
-    <? endforeach; ?>
+<div class="row">
+    <? $row = 0; ?>
+    <? for ($i = 1; $i <= $lastInspirationsWidgetsPosition; $i++): $inspirationsWidget = isset($sortedInspirationsWidgets[$i]) ? $sortedInspirationsWidgets[$i] : false;?>
 
-<? endforeach; ?>
+        <? if (($row % 3) == 0): ?>
+            </div><div class='row'>
+        <? endif; ?>
+
+        <? if ($inspirationsWidget): ?>
+            <? if ($inspirationsWidget->getName() == 'infobox') : ?>
+                <?=$this->render('widgets/infobox.phtml', ['widget' => $inspirationsWidget, 'language' => $language])?>
+            <? elseif ($inspirationsWidget->getName() == 'conspectus'): ?>
+                <?=$this->render('widgets/conspectus.phtml')?>
+            <? else: ?>
+                <?=$this->render('widgets/widget.phtml', ['widget' => $inspirationsWidget, 'language' => $language])?>
+            <? endif; ?>
+        <? else: ?>
+            <div class="col-md-4">
+            </div>
+        <? endif; ?>
+
+    <? $row++; ?>
+    <? endfor; ?>
+</div>
