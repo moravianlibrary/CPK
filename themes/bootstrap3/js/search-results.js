@@ -954,6 +954,9 @@ jQuery( document ).ready( function( $ ) {
 		var queryRow = thisElement.parent().parent();
 		var thisGroupSelector = queryRow.parent().parent();
 		queryRow.hide( 'blind', {},  400, function() {
+		    if (queryRow.attr('id') == 'query_0') {
+		        queryRow.siblings().first().attr('id', 'query_0')
+		    }
 			queryRow.remove();
 			ADVSEARCH.updateQueriesDOMState( '#' + thisGroupSelector.attr( 'id' ) );
 		});
