@@ -76,27 +76,6 @@ class Frontend extends Gateway
     }
 
     /**
-     * Returns inspiration widgets
-     *
-     * @return array
-     */
-    public function getInspirationWidgets()
-    {
-        $select = new Select($this->table);
-        $select->columns([
-            'first_inspiration_widget',
-            'second_inspiration_widget',
-            'third_inspiration_widget',
-            'fourth_inspiration_widget',
-            'fifth_inspiration_widget',
-            'sixth_inspiration_widget'
-        ]);
-
-        $result = $this->executeAnyZendSQLSelect($select)->current();
-        return $result;
-    }
-
-    /**
      * Save frontend widgets
      *
      * @param array $data

@@ -798,4 +798,12 @@ SELECT  '6', `widget`.`id`
 FROM    `widget`
 WHERE   `widget`.`name` ='conspectus'
 
+ALTER TABLE `frontend`
+DROP `first_inspiration_widget`,
+DROP `second_inspiration_widget`,
+DROP `third_inspiration_widget`,
+DROP `fourth_inspiration_widget`,
+DROP `fifth_inspiration_widget`,
+DROP `sixth_inspiration_widget`;
+
 UPDATE `system` SET `value` = '60' WHERE `key`='DB_VERSION';

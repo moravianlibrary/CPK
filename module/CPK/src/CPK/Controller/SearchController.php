@@ -1484,7 +1484,6 @@ class SearchController extends SearchControllerBase
         $view = $this->createViewModel();
 
         $frontendTable = $this->getTable('frontend');
-        $widgetNames = $frontendTable->getInspirationWidgets();
 
         $widgetTable = $this->getTable('widget');
 

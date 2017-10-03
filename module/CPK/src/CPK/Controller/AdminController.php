@@ -307,13 +307,6 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $data['second_homepage_widget'] = $post['second-homepage-widget'];
             $data['third_homepage_widget']  = $post['third-homepage-widget'];
 
-            $data['first_inspiration_widget']  = $post['first-inspiration-widget'];
-            $data['second_inspiration_widget'] = $post['second-inspiration-widget'];
-            $data['third_inspiration_widget']  = $post['third-inspiration-widget'];
-            $data['fourth_inspiration_widget']  = $post['fourth-inspiration-widget'];
-            $data['fifth_inspiration_widget'] = $post['fifth-inspiration-widget'];
-            $data['sixth_inspiration_widget']  = $post['sixth-inspiration-widget'];
-
             $frontendTable = $this->getTable('frontend');
             $frontendTable->saveFrontendWidgets($data);
 
@@ -408,7 +401,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $frontendTable = $this->getTable('frontend');
         $viewModel->setVariable('homePageWidgets', $frontendTable->getHomepageWidgets());
-        $viewModel->setVariable('inspirationWidgets', $frontendTable->getInspirationWidgets());
+        //$viewModel->setVariable('inspirationWidgets', $frontendTable->getInspirationWidgets());
 
         $widgetsTable = $this->getTable('widget');
 

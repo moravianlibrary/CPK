@@ -59,59 +59,24 @@
     <div class='well'>
         <div class="row">
             <div class="col-md-12">
-                <button class="btn btn-primary pull-right" id="save-inspirations-widgets" style="padding-bottom: 10px;"><?=$this->translate('Save')?></button>
+                <button class="btn btn-primary pull-right" id="save-inspirations-widgets" style="margin-bottom: 10px;"><?=$this->translate('Save')?></button>
             </div>
         </div>
-	  <div class='row'>
-        <div class='col-md-4 text-center'>
-			<select id='first-inspiration-widget' class="form-control selectpicker">
-			  <? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['first_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->inspirationWidgets['first_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
-        </div>
-        <div class='col-md-4 text-center'>
-			<select id='second-inspiration-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['second_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->inspirationWidgets['second_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
-        </div>
-        <div class='col-md-4 text-center'>
-			<select id='third-inspiration-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['third_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->inspirationWidgets['third_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
-        </div>
-        <div class='col-md-4 text-center'>
-			<select id='fourth-inspiration-widget' class="form-control selectpicker">
-			  <? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fourth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->inspirationWidgets['fourth_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
-        </div>
-        <div class='col-md-4 text-center'>
-			<select id='fifth-inspiration-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['fifth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->inspirationWidgets['fifth_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
-        </div>
+	  <div class='row' id="inspirations-widgets">
 
-        <div class='col-md-4 text-center'>
-			<select id='sixth-inspiration-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->inspirationWidgets['sixth_inspiration_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->inspirationWidgets['sixth_inspiration_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
-        </div>
+          <? $i = 0; foreach ($widgets as $inspirationsWidget): $i++;?>
+              <? if (! is_null($inspirationsWidget->getWidgetPosition())): ?>
+                  <div class='col-md-4 text-center'>
+                      <select id='inspiration-widget-<?=$i?>' class="form-control selectpicker">
+                          <? foreach($widgets as $widget): ?>
+                              <option value="0"><?=$this->translate('Delete')?></option>
+                              <option value='<?=$widget->getName()?>'<?=($widget->getName()==$inspirationsWidget->getName() ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
+                          <? endforeach; ?>
+                      </select>
+                  </div>
+              <? endif; ?>
+          <? endforeach; ?>
+
       </div>
         <div class="row">
             <div class="col-md-4 text-center empty-widget-box">

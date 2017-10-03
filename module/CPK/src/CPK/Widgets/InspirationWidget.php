@@ -36,11 +36,11 @@ class InspirationWidget extends Widget {
 
     /**
      * Position of widget (in Inspirations)
-     * @var int
+     * @var int|null
      */
     public $widget_position;
 
-    public function getWidgetPosition() : int {
+    public function getWidgetPosition() {
         return $this->widget_position;
     }
 
