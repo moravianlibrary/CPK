@@ -1487,22 +1487,20 @@ class SearchController extends SearchControllerBase
         $widgetNames = $frontendTable->getInspirationWidgets();
 
         $widgetTable = $this->getTable('widget');
+
+        $inspirationsWidgets = $widgetTable->getWidgets(true, true);
+
         $widgets = [];
 
-        foreach ($widgetNames as $key => $widgetName) {
-            $widget = $widgetTable->getWidgetByName($widgetName);
-            if ($widgetName == 'infobox') {
+        foreach ($inspirationsWidgets as $inspirationsWidget) {
+            if ($inspirationsWidget->getName() == 'infobox') {
                 $infoboxTable = $this->getTable("infobox");
-                $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
-                $widget->setContents($infoboxItems);
-            } else if ($widgetName == 'conspectus') {
-                // do nothing, there is view prepared for it.
-                $widget = new \CPK\Widgets\Widget();
-                $widget->setName($widgetName);
+                $infoboxItems = $infoboxTable->getActualItems($inspirationsWidget->getShownRecordsNumber());
+                $inspirationsWidget->setContents($infoboxItems);
             } else {
-                $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
+                $inspirationsWidget->setContents($this->getWidgetContent($inspirationsWidget->getName(), $inspirationsWidget->getShownRecordsNumber()));
             }
-            $widgets[][$widgetName] = $widget;
+            $widgets[][$inspirationsWidget->getWidgetPosition()] = $inspirationsWidget;
         }
 
         $view->widgets = $widgets;

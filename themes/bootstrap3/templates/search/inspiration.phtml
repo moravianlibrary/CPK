@@ -7,18 +7,21 @@
   $this->layout()->headerType = "inspiration";
 
 ?>
-<? $i = 0; foreach ($this->widgets as $widgetsList): foreach ($widgetsList as $widget): $i++;?>
-  <? if (($i % 3) == 0): ?>
-    <div class='row'>
-  <? endif; ?>
-    <? if ($widget->getName() == 'infobox') : ?>
-	  <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
-	<? elseif ($widget->getName() == 'conspectus'): ?>
-      <?=$this->render('widgets/conspectus.phtml')?>
-    <? else: ?>
-      <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
-    <? endif; ?>
-  <? if (($i % 3) == 0): ?>
-    </div>
-  <? endif; ?>
-<? endforeach; ?><? endforeach; ?>
+<? $i = 0; foreach ($this->widgets as $widgetsList): ?>
+    <? foreach ($widgetsList as $widget): $i++;?>
+      <? if (($i % 3) == 0): ?>
+        <div class='row'>
+      <? endif; ?>
+        <? if ($widget->getName() == 'infobox') : ?>
+          <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
+        <? elseif ($widget->getName() == 'conspectus'): ?>
+          <?=$this->render('widgets/conspectus.phtml')?>
+        <? else: ?>
+          <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
+        <? endif; ?>
+      <? if (($i % 3) == 0): ?>
+        </div>
+      <? endif; ?>
+    <? endforeach; ?>
+
+<? endforeach; ?>

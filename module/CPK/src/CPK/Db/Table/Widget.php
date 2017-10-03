@@ -75,18 +75,18 @@ class Widget extends Gateway
      *
      * @return array
      */
-    public function getWidgets($withInspirationsPositions = false) : array
+    public function getWidgets($withInspirationsPositions = false, $withInspirationsPositionsOnly = false) : array
     {
         $select = new Select($this->table);
-//dd($withInspirationsPositions);
+
         if ($withInspirationsPositions) {
             $select->join(
                 ['i' => 'inspirations'],
                 'i.widget_id = '.$this->table.'.id',
                 ['widget_position'],
-                'left'
+                ((! $withInspirationsPositionsOnly) ? 'left' : '')
             );
-            $select->order('widget_position DESC');
+            $select->order('widget_position ASC');
         }
 
         $results= $this->executeAnyZendSQLSelect($select);
@@ -105,6 +105,11 @@ class Widget extends Gateway
         }
 
         return $widgets;
+    }
+
+    public function getNumberOfInspirationsWidgets() : int
+    {
+        return count($this->getWidgets(true, true));
     }
 
     /**
