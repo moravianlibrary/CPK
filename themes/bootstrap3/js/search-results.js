@@ -797,7 +797,7 @@ jQuery( document ).ready( function( $ ) {
             ////console.log( 'Data: ' );
             ////console.log( data );
 
-            if ((data.hasOwnProperty('lookfor1') ) || ( data.lookfor0.length > 1 )) {
+            if (data.hasOwnProperty('lookfor0')) {
 				/* Search was made in advanced search */
 
 				/* Fill autocomplete search form */
