@@ -64,34 +64,33 @@
                 <button class="btn btn-primary pull-right" id="save-inspirations-widgets" style="margin-bottom: 10px;"><?=$this->translate('Save')?></button>
             </div>
         </div>
-	  <div class='row'>
+	  <div class='row' id="inspirations-placeholder">
 
-          <? $i = 0; foreach ($widgets as $inspirationsWidget): ?>
-              <? if (! is_null($inspirationsWidget->getWidgetPosition())): $i++; ?>
-                  <div class='col-md-4 text-center' data-position="<?=$i?>">
-                      <select id='inspiration-widget-<?=$i?>' class="form-control selectpicker">
-                          <option value="0"><?=$this->translate('Delete')?></option>
-                          <option value=""><?=$this->translate('Select widget')?></option>
+          <? for ($i = 1; $i <= $lastInspirationsWidgetsPosition; $i++) : $inspirationsWidget = isset($inspirationsWidgets[$i]) ? $inspirationsWidgets[$i] : false; ?>
+              <div class='col-md-4 text-center inspiration-widget' data-position="<?=$i?>">
+                  <select id='inspiration-widget-<?=$i?>' class="form-control selectpicker">
+                      <? if ($inspirationsWidget): ?>
+                          <option value=""></option>
                           <? foreach($widgets as $widget): ?>
                               <option value='<?=$widget->getName()?>'<?=($widget->getName()==$inspirationsWidget->getName() ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
                           <? endforeach; ?>
-                      </select>
-                  </div>
-              <? endif; ?>
-          <? endforeach; ?>
+                      <? else: ?>
+                          <option value="" selected> </option>
+                          <? foreach($widgets as $widget): ?>
+                              <option value='<?=$widget->getName()?>'><?=$this->translate($widget->getTitleCs())?></option>
+                          <? endforeach; ?>
+                      <? endif; ?>
+                  </select>
+              </div>
+          <? endfor; ?>
 
-      </div>
+          </div>
         <div class="row">
-            <? $i++; $nextThree = $i + 3; ?>
-            <? for ($i = $i; $i < $nextThree; $i++ ): ?>
-            <div class="col-md-4 text-center empty-widget-box" data-position="<?=$i?>">
-                <i class="fa fa-plus" aria-hidden="true"></i>
+            <div class="col-md-12">
+                <button class="btn btn-primary pull-right" id="add-more-inspirations-widgets" style="margin-bottom: 10px;"><?=$this->translate('Add more')?></button>
             </div>
-            <? endfor; ?>
         </div>
 	</div>
-
-
 
 	<h2><?=$this->translate('Widget list')?></h2>
     <div class='well'>
@@ -188,11 +187,13 @@
 	        });
 		});
 
+		/* Inspirations widgets */
+        nextPosition = '<?=$i?>';
+
 		var widgetSelect = "<select class=\"form-control selectpicker\">\n" +
-            "                 <option value=\"0\"><?=$this->translate('Delete')?></option>\n" +
-            "                 <option value=\"\"><?=$this->translate('Select widget')?></option>\n" +
+            "                 <option value=\"\"> </option>\n" +
             "                 <? foreach($widgets as $widget): ?>\n" +
-            "                   <option value='<?=$widget->getName()?>'<?=($widget->getName() == $inspirationsWidget->getName() ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>\n" +
+            "                   <option value='<?=$widget->getName()?>'><?=$this->translate($widget->getTitleCs())?></option>\n" +
             "                 <? endforeach; ?>\n" +
             "               </select>";
 
@@ -203,34 +204,72 @@
             var widgetName = $( this ).val();
             var position = $( this ).attr( 'id' ).split( "inspiration-widget-" )[1];
             console.log( 'Changing inspiration widget at position ' + position + ' to widget ' + widgetName);
-
-            if (widgetName == '0') {
-                $( this ).parent().parent().addClass( 'empty-widget-box' );
-                $( this ).parent().parent().html( '<i class="fa fa-plus" aria-hidden="true"></i>' );
-            }
-
         });
 
-        $( '#inspirations-widgets' ).on( 'click', '.empty-widget-box', function( event ) {
-           var position = $( this ).attr( 'data-position' );
-           console.log( 'Putting widget select at position: ' + position );
+        $( '#inspirations-widgets' ).on( 'click', '#add-more-inspirations-widgets', function( event ) {
+            console.log( 'Adding empty widget at position: ' + nextPosition );
 
-           $( this ).html( widgetSelect );
-           $( this ).removeClass( 'empty-widget-box' );
-           $( this ).find( 'select' ).attr( 'id', 'inspiration-widget-' + position ).val( '' );
+            var html = '<div class="col-md-4 text-center inspiration-widget" data-position="' + nextPosition + '">' + widgetSelect + '</div>';
+
+            $( '#inspirations-placeholder' ).append( html );
+            $( '#inspirations-placeholder' ).find( 'inspiration-widget' ).last().attr( 'id', 'inspiration-widget-' + nextPosition ).val( '' );
 
             $('.selectpicker').selectpicker({
                 style: 'btn-info',
                 size: 8
             });
+            nextPosition++;
         });
 
+        $( '#inspirations-widgets' ).on( 'click', '#save-inspirations-widgets', function( event ) {
+
+            var data = {};
+
+            $( '#homepage-widgets select' ).each(function( index, element ) {
+                data[$( element ).attr( 'id' )] = $( element ).val();
+            });
+
+            $.ajax({
+                type: 'POST',
+                cache: false,
+                dataType: 'json',
+                data: data,
+                url: VuFind.getPath() + '/Admin/Widgets/SaveInspirationsWidgets',
+                beforeSend: function() {
+                },
+                success: function( response ) {
+
+                    if (response.status == 'OK') {
+
+                        $( '#save-widgets-confirmation' ).modal( 'show' );
+
+                        setTimeout( function() {
+                            $( '#save-widgets-confirmation' ).modal( 'hide' );
+                        }, 1200 );
+
+                    } else {
+                        console.error(response.data);
+                    }
+
+                },
+                error: function ( xmlHttpRequest, status, error ) {
+                    $( '#search-results-loader' ).remove();
+                    console.error(xmlHttpRequest.responseText);
+                    console.error(xmlHttpRequest);
+                    console.error(status);
+                    console.error(error);
+                },
+                complete: function ( xmlHttpRequest, textStatus ) {
+                }
+            });
+        });
 
         $('.selectpicker').selectpicker({
             style: 'btn-info',
             size: 8
         });
 	});
+
 </script>
 
 <div class="modal fade" id="save-widgets-confirmation" tabindex="-1" role="dialog" aria-labelledby="save-widgets-confirmation-label" style='margin-top: 150px;'>

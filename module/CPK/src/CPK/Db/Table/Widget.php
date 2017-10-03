@@ -75,7 +75,7 @@ class Widget extends Gateway
      *
      * @return array
      */
-    public function getWidgets($withInspirationsPositions = false, $withInspirationsPositionsOnly = false) : array
+    public function getWidgets($withInspirationsPositions = false, $withInspirationsPositionsOnly = false, $usePositionAsArrayIndex = false) : array
     {
         $select = new Select($this->table);
 
@@ -104,12 +104,28 @@ class Widget extends Gateway
             }
         }
 
+        if ($usePositionAsArrayIndex) {
+            $reIndexedWidgets = [];
+            foreach ($widgets as $widget) {
+                $position = $widget->getWidgetposition();
+                $reIndexedWidgets[$position] = $widget;
+            }
+            $widgets = $reIndexedWidgets;
+        }
+
         return $widgets;
     }
 
-    public function getNumberOfInspirationsWidgets() : int
+    public function getLastInspirationsWidgetsPosition() : int
     {
-        return count($this->getWidgets(true, true));
+        $max = 0;
+        $widgets = $this->getWidgets(true, true);
+        foreach ($widgets as $widget) {
+            $position = $widget->getWidgetPosition();
+            $max = (! (is_null($position)) && ($position > $max)) ? $position : $max;
+        }
+
+        return $max;
     }
 
     /**
