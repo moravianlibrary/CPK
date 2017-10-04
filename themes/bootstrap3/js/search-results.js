@@ -933,12 +933,14 @@ jQuery( document ).ready( function( $ ) {
 	$( '#editable-advanced-search-form' ).on( 'click', '.remove-advanced-search-group', function( event ) {
 		event.preventDefault();
 		var group = $( this ).parent().parent();
-		if ( group.attr( 'id' ) == 'group_0' ) {
-		    group.siblings().first().attr( 'id' , 'group_0' );
-		    group.siblings().first().find( '.query-type' ).attr( 'name' , 'type0[]' );
-		    group.siblings().first().find( '.query-string' ).attr( 'name' , 'lookfor0[]' );
-		    group.siblings().first().find( '.group-operator' ).attr( 'name' , 'bool0[]' );
-		}
+		var groupId =  group.attr( 'id' ).match( /\d+/ );
+		group.nextAll().each( function() {
+		    $(this).attr( 'id' , 'group_' + groupId );
+		    $(this).find( '.query-type' ).attr( 'name' , 'type' + groupId + '[]' );
+		    $(this).find( '.query-string' ).attr( 'name' , 'lookfor' + groupId + '[]' );
+		    $(this).find( '.group-operator' ).attr( 'name' , 'bool' + groupId + '[]' );
+		    groupId++;
+		});
 		$( this ).parent().parent().hide( 'blind', {}, 400, function() {
 			$( this ).remove();
 			ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
