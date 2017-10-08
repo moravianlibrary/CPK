@@ -94,7 +94,7 @@
         'filterList' => $filterList,
         'handlers' => $handlers,
         'filterDetails' => $filterDetails,
-        'catalog' => ($this->librarySearch == true || $headerType == "newlibraries") ? 'library' : 'catalog'
+        'catalog' => ($this->librarySearch == true || (isset($headerType) && ($headerType == "newlibraries"))) ? 'library' : 'catalog'
     ];
 
     if ($this->searchTypeTemplate == 'advanced') {
