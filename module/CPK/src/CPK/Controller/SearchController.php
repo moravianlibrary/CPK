@@ -1543,8 +1543,6 @@ class SearchController extends SearchControllerBase
         // If user have preferred limit and sort settings
         if ($user = $this->getAuthManager()->isLoggedIn()) {
             $userSettingsTable = $this->getTable("usersettings");
-
-            $userSettingsTable = $this->getTable("usersettings");
             $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
             $preferredSorting = $userSettingsTable->getSorting($user);
 

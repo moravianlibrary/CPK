@@ -72,12 +72,12 @@
                       <? if ($inspirationsWidget): ?>
                           <option value=""></option>
                           <? foreach($widgets as $widget): ?>
-                              <option value='<?=$widget->getName()?>'<?=($widget->getName()==$inspirationsWidget->getName() ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
+                              <option value='<?=$widget->getId()?>'<?=($widget->getName()==$inspirationsWidget->getName() ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
                           <? endforeach; ?>
                       <? else: ?>
                           <option value="" selected> </option>
                           <? foreach($widgets as $widget): ?>
-                              <option value='<?=$widget->getName()?>'><?=$this->translate($widget->getTitleCs())?></option>
+                              <option value='<?=$widget->getId()?>'><?=$this->translate($widget->getTitleCs())?></option>
                           <? endforeach; ?>
                       <? endif; ?>
                   </select>
@@ -193,7 +193,7 @@
 		var widgetSelect = "<select class=\"form-control selectpicker\">\n" +
             "                 <option value=\"\"> </option>\n" +
             "                 <? foreach($widgets as $widget): ?>\n" +
-            "                   <option value='<?=$widget->getName()?>'><?=$this->translate($widget->getTitleCs())?></option>\n" +
+            "                   <option value='<?=$widget->getId()?>'><?=$this->translate($widget->getTitleCs())?></option>\n" +
             "                 <? endforeach; ?>\n" +
             "               </select>";
 
@@ -202,7 +202,7 @@
             event.preventDefault();
 
             var widgetName = $( this ).val();
-            var position = $( this ).attr( 'id' ).split( "inspiration-widget-" )[1];
+            var position = $( this ).parent().parent().attr( 'data-position' );
             console.log( 'Changing inspiration widget at position ' + position + ' to widget ' + widgetName);
         });
 
@@ -224,9 +224,13 @@
         $( '#inspirations-widgets' ).on( 'click', '#save-inspirations-widgets', function( event ) {
 
             var data = {};
+            data['widgets'] = [];
 
-            $( '#homepage-widgets select' ).each(function( index, element ) {
-                data[$( element ).attr( 'id' )] = $( element ).val();
+            $( '.inspiration-widget' ).each(function( index, element ) {
+                var position = $( element ).attr( 'data-position' );
+                var value = $( element ).find( 'select' ).val();
+
+                data['widgets'][position] = value;
             });
 
             $.ajax({

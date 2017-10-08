@@ -317,6 +317,22 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $viewModel;
         }
 
+        if ($subAction == 'SaveInspirationsWidgets') {
+            $post = $this->params()->fromPost();
+
+            $data = [];
+            $data['status'] = 'OK';
+
+            if (! empty($post['widgets'])) {
+                $frontendTable = $this->getTable('frontend');
+                $frontendTable->saveInspirationsWidgets($post['widgets']);
+            } else {
+                $data['status'] = 'ERROR';
+            }
+
+            return new JsonModel($data);
+        }
+
         if ($subAction == 'CreateWidget') {
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
