@@ -83,13 +83,19 @@ if (file_exists($cpkFunction)) {
     require_once($cpkFunction);
 }
 
-if (! (php_sapi_name() != 'cli' OR defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0))) {
+if (
+    (
+    (!(php_sapi_name() != 'cli' || defined('STDIN')))
+    ||
+    (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0)
+    )
+    == false) {
     if (isset($_SERVER['VUFIND_ENV'])) {
         if ($_SERVER['VUFIND_ENV'] == 'production') {
-            error_reporting(E_ALL); // Report all PHP errors
+            error_reporting(E_ALL & ~E_NOTICE); // Report all PHP errors
             ini_set("display_errors", 0);
         } else if ($_SERVER['VUFIND_ENV'] == 'development') { // DEVELOPMENT
-            error_reporting(E_ALL); // Report all PHP errors
+            error_reporting(E_ALL & ~E_NOTICE); // Report all PHP errors
             ini_set('display_startup_errors', 1);
             ini_set("display_errors", 1);
         } else {
