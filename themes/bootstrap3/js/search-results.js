@@ -1048,6 +1048,26 @@ jQuery( document ).ready( function( $ ) {
     /*
      * Add or remove clicked facet
      */
+    $( 'body' ).on( 'click', '.applied-filter', function( event ) {
+        event.preventDefault();
+
+        if ( event.ctrlKey ){
+             window.open( $( this ).attr( 'href' ), '_blank' );
+             return false;
+        }
+
+        $( "input[name='page']" ).val( '1' );
+
+        if ( $( this ).hasClass( 'active' ) ) {
+            ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
+        } else {
+            ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
+        }
+    });
+
+    /*
+     * Add or remove clicked facet
+     */
     $( 'body' ).on( 'click', '.checkbox input', function( event ) {
         event.preventDefault();
 
