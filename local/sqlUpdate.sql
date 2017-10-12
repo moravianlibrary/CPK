@@ -760,3 +760,50 @@ UPDATE `system` SET `value` = '58' WHERE `key`='DB_VERSION';
 ALTER TABLE `widget`
 DROP `title_en`;
 UPDATE `system` SET `value` = '59' WHERE `key`='DB_VERSION';
+
+/* Inspirations like CMS */
+/* feature-606 */
+CREATE TABLE `inspirations` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `widget_position` int unsigned NOT NULL,
+  `widget_id` int(11) NOT NULL,
+  FOREIGN KEY (`widget_id`) REFERENCES `widget` (`id`) ON DELETE NO ACTION
+);
+
+INSERT INTO `system` (`key`, `value`)
+VALUES ('INSPIRATIONS_WIDGETS_AMOUNT', '6');
+
+ALTER TABLE `widget`
+CHANGE `display` `display` varchar(32) COLLATE 'utf8_unicode_ci' NULL AFTER `name`,
+CHANGE `show_all_records_link` `show_all_records_link` tinyint(1) NULL AFTER `title_cs`,
+CHANGE `shown_records_number` `shown_records_number` int(11) NULL AFTER `show_all_records_link`,
+CHANGE `show_cover` `show_cover` tinyint(1) NULL AFTER `shown_records_number`,
+CHANGE `description` `description` varchar(32) COLLATE 'utf8_unicode_ci' NULL AFTER `show_cover`;
+
+INSERT INTO `widget` (`name`, `display`, `title_cs`, `show_all_records_link`, `shown_records_number`, `show_cover`, `description`)
+VALUES ('conspectus', NULL, 'Obor', NULL, NULL, NULL, NULL);
+
+INSERT INTO `inspirations` (`widget_position`, `widget_id`)
+VALUES ('1', '9');
+INSERT INTO `inspirations` (`widget_position`, `widget_id`)
+VALUES ('2', '17');
+INSERT INTO `inspirations` (`widget_position`, `widget_id`)
+VALUES ('3', '7');
+INSERT INTO `inspirations` (`widget_position`, `widget_id`)
+VALUES ('4', '8');
+INSERT INTO `inspirations` (`widget_position`, `widget_id`)
+VALUES ('5', '5');
+INSERT INTO `inspirations` (`widget_position`, `widget_id`)
+SELECT  '6', `widget`.`id`
+FROM    `widget`
+WHERE   `widget`.`name` ='conspectus'
+
+ALTER TABLE `frontend`
+DROP `first_inspiration_widget`,
+DROP `second_inspiration_widget`,
+DROP `third_inspiration_widget`,
+DROP `fourth_inspiration_widget`,
+DROP `fifth_inspiration_widget`,
+DROP `sixth_inspiration_widget`;
+
+UPDATE `system` SET `value` = '60' WHERE `key`='DB_VERSION';

@@ -307,13 +307,6 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $data['second_homepage_widget'] = $post['second-homepage-widget'];
             $data['third_homepage_widget']  = $post['third-homepage-widget'];
 
-            $data['first_inspiration_widget']  = $post['first-inspiration-widget'];
-            $data['second_inspiration_widget'] = $post['second-inspiration-widget'];
-            $data['third_inspiration_widget']  = $post['third-inspiration-widget'];
-            $data['fourth_inspiration_widget']  = $post['fourth-inspiration-widget'];
-            $data['fifth_inspiration_widget'] = $post['fifth-inspiration-widget'];
-            $data['sixth_inspiration_widget']  = $post['sixth-inspiration-widget'];
-
             $frontendTable = $this->getTable('frontend');
             $frontendTable->saveFrontendWidgets($data);
 
@@ -322,6 +315,22 @@ class AdminController extends \VuFind\Controller\AbstractBase
             $viewModel = new JsonModel($data);
 
             return $viewModel;
+        }
+
+        if ($subAction == 'SaveInspirationsWidgets') {
+            $post = $this->params()->fromPost();
+
+            $data = [];
+            $data['status'] = 'OK';
+
+            if (! empty($post['widgets'])) {
+                $frontendTable = $this->getTable('frontend');
+                $frontendTable->saveInspirationsWidgets($post['widgets']);
+            } else {
+                $data['status'] = 'ERROR';
+            }
+
+            return new JsonModel($data);
         }
 
         if ($subAction == 'CreateWidget') {
@@ -408,12 +417,16 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $frontendTable = $this->getTable('frontend');
         $viewModel->setVariable('homePageWidgets', $frontendTable->getHomepageWidgets());
-        $viewModel->setVariable('inspirationWidgets', $frontendTable->getInspirationWidgets());
+        //$viewModel->setVariable('inspirationWidgets', $frontendTable->getInspirationWidgets());
 
         $widgetsTable = $this->getTable('widget');
-        $widgets = $widgetsTable->getWidgets();
 
+        $widgets = $widgetsTable->getWidgets(true);
+        $inspirationsWidgets = $widgetsTable->getWidgets(true, true, true);
+        $lastInspirationsWidgetsPosition = $widgetsTable->getLastInspirationsWidgetsPosition();
         $viewModel->setVariable('widgets', $widgets);
+        $viewModel->setVariable('lastInspirationsWidgetsPosition', $lastInspirationsWidgetsPosition);
+        $viewModel->setVariable('inspirationsWidgets', $inspirationsWidgets);
 
         return $viewModel;
     }
