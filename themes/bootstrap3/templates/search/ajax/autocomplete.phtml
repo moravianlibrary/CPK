@@ -142,7 +142,6 @@
 
         });
         </script>
-
         <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
 
           <input
@@ -152,7 +151,7 @@
             name="lookfor0[]"
             value="<?=(isset($_GET['lookfor0'][0])) ? $this->escapeHtmlAttr($_GET['lookfor0'][0]) : ''?>"
             autofocus
-            placeholder="<?=$this->translate('autocomplete-placeholder')?>"
+            placeholder="<?=$this->librarySearch ? $this->translate('autocomplete-placeholder-libraries') : $this->translate('autocomplete-placeholder'); ?>"
           />
           <span style="margin-right: -4px;">&nbsp;<i class="fa fa-times" id="searchclear"></i></span>
 
