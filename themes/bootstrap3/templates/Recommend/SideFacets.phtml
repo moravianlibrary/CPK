@@ -146,7 +146,7 @@ foreach ($queryParams as $key => $value) {
             <?= $this->help()->getElementHelp('element_help_facet_' . $cluster['label'], $titleHtml) ?>
               <? if (isset($rangeFacets[$title])): ?>
               <? if ($rangeFacets[$title]['type'] == 'date'): ?>
-              <button type="button" class="btn btn-default btn-sm" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
+              <button type="button" class="btn btn-default btn-sm<?=in_array($title, $this->recommend->getTimelineFacets())?'' : ' hidden'?>" id="showmodal"  ><?=$this->transEsc('Show timeline') ?></button>
               <? endif; ?>
               <? endif; ?>
           </div>
