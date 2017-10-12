@@ -8,6 +8,9 @@
     <h1><?=$this->translate('Feedback')?></h1>
   </div>
   <p><?=$this->translate('FAQ_first', ['%s1' => "<a href='/Portal/Page/faq'>", '%s2' => "</a>"])?></p>
+    <? if (explode("-", $this->layout()->userLang)[0] == 'cs'): ?>
+    <p><?=$this->translate('FAQ_first_for_libs', ['%s1' => "<a href='/Portal/Page/faq-pro-knihovny'>", '%s2' => "</a>"])?></p>
+    <? endif; ?>
   <div>
   <? if($this->status): ?>
 	<div class="alert alert-success">
