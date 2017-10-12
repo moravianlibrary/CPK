@@ -1,5 +1,5 @@
 <div class="form-group">
-  <label class="col-sm-3 control-label" for="email_to"><?=$this->transEsc('To')?>:</label>
+  <label class="col-sm-3 control-label" for="email_to"><?=$this->transEsc('Email to')?>:</label>
   <div class="col-sm-9">
     <input type="<?=$this->maxRecipients != 1 ? 'text' : 'email'?>" id="email_to" class="form-control" oninvalid="$('#modal .fa-spinner').remove()" name="to" value="<?=isset($this->to) ? $this->to : ''?>"/>
     <? if ($this->maxRecipients != 1): ?>
