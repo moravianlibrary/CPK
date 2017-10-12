@@ -1049,7 +1049,7 @@ jQuery( document ).ready( function( $ ) {
      * Add or remove clicked facet
      */
     $( 'body' ).on( 'click', '.checkbox input', function( event ) {
-        if ( !$("input[name='selectAll favorites']") ) {
+        if ( !$(".checkbox-select-all.favorites") ) {
             event.preventDefault();
 
             $("input[name='page']").val('1');
