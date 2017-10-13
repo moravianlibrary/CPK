@@ -277,24 +277,35 @@
             		$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
             }
 
+            /**
+             * Disables tab
+             *
+             * @param tabId Id tab which will be disabled
+             */
+            function disableTab(tabId) {
+                //disable redirect event on click to eversion link
+                tabId.click(function (event) {
+                    event.preventDefault();
+                });
+                tabId.parent().removeClass( 'active' ).addClass( 'disabled' );
+            }
+
             jQuery( document ).ready( function( $ ) {
 
-            	// Disable eversion tab
-                <? if($this->eVersionLinksCount): ?>
-            	var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
-            	if ( eVersionLinksCount === 0 ) {
-            		$( '#eversion' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-            		$( "#e-version-table" ).addClass( 'hidden' );
-            	}
-                <? endif; ?>
+                // Disable eversion tab
+                var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
+                console.log("kek");
+                if (!eVersionLinksCount) {
+                    disableTab($( '#eversion' ));
+                    //hide table inside the tab
+                    $( "#e-version-table" ).addClass( 'hidden' );
+                }
 
-            	// Disable holdings tab
-            	var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
-            	if ( holdingsCount === 0 ) {
-            		$( '#holdings' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-            	}
-
-            	//
+                // Disable holdings tab
+                var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
+                if (!holdingsCount) {
+                    disableTab($( '#holdings' ));
+                }
 
                 // Disable AddInfo tab
                 <?   $addInfoItemsCount = 1;
@@ -302,8 +313,8 @@
                     $addInfoItemsCount = $this->driver->AddInfoItemsCount();
                 ?>
                 var addInfoItemsCount = <?=$addInfoItemsCount?>;
-                if ( addInfoItemsCount == 0 ) {
-                    $( '#addinfo' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                if (!addInfoItemsCount) {
+                    disableTab($( '#addinfo' ));
                 }
 
                 // Disable Contacts tab
@@ -312,18 +323,18 @@
                     $ContactsItemsCount = $this->driver->ContactsItemsCount();
                 ?>
                 var ContactsItemsCount = <?=$ContactsItemsCount?>;
-                if ( ContactsItemsCount == 0 ) {
-                    $( '#contacts' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                if (!ContactsItemsCount) {
+                    disableTab($( '#contacts' ));
                 }
 
-                // Disable Servics tab
+                // Disable Services tab
                 <?   $ServicesItemsCount = 1;
                 if(method_exists($this->driver, "ServicesItemsCount"))
                     $ServicesItemsCount = $this->driver->ServicesItemsCount();
                 ?>
                 var ServicesItemsCount = <?=$ServicesItemsCount?>;
-                if ( ServicesItemsCount == 0 ) {
-                    $( '#services' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                if (!ServicesItemsCount) {
+                    disableTab($( '#services' ));
                 }
 
                 // Disable Branches tab
@@ -332,8 +343,8 @@
                     $BranchesItemsCount = $this->driver->BranchesItemsCount();
                 ?>
                 var BranchesItemsCount = <?=$BranchesItemsCount?>;
-                if ( BranchesItemsCount == 0) {
-                    $( '#branches' ).parent().removeClass( 'active' ).addClass( 'disabled' );
+                if (!BranchesItemsCount) {
+                    disableTab($( '#branches' ));
                 }
 
                 var recordID = '<?= $this->driver->getUniqueID() ?>';
