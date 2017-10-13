@@ -159,7 +159,7 @@ obalky.display_cover_without_links = function (element, bibinfo, query) {
 	    img.onload = function() {
 	      if (obalky.imageIsLoaded(img)) {
 	        var href = obalky.pdfTargetUrl(bibinfo);
-	        $(element).append("<div class='toc_thumbnail'><a href='" + href + "' class='title'><img align='left' src='" + img.src + "' alt='" + obalky.tocText + "'></img></a></div>");
+	        $(element).append("<div class='toc_thumbnail'><a target='_blank' href='" + href + "' class='title'><img align='left' src='" + img.src + "' alt='" + obalky.tocText + "'></img></a></div>");
 	      }
 	    }
 	    img.src = obalky.tocUrl + "?multi=" + multi + "&type=medium&keywords=" + encodeURIComponent(query);
