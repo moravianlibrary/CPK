@@ -11,17 +11,17 @@ if (is_array($pubPlaces) && is_array($pubDates) && is_array($pubNames)) {
     }
     for ($i = 0; $i < $total; $i++) {
         if (isset($pubNames[$i])) {
-            echo $this->transEsc('adv_search_publisher') . ": " . rtrim($pubNames[$i], ", ") . "\n";
+            echo $this->transEsc('adv_search_publisher') . ": " . rtrim($pubNames[$i], ", ") . "\r\n";
         }
         $date = trim($pubDates[$i], '[]. ');
         if (strlen($date) > 4) {
             $date = $this->dateTime()->extractYear($date);
         }
         if ($date) {
-            echo $this->transEsc('Published') . ": $date\n";
+            echo $this->transEsc('Published') . ": $date\r\n";
         }
         if (isset($pubPlaces[$i])) {
-            echo $this->transEsc('Published in') . ": " . rtrim(str_replace(array('[', ']'), '', $pubPlaces[$i]), ': '). "\n";
+            echo $this->transEsc('Published in') . ": " . rtrim(str_replace(array('[', ']'), '', $pubPlaces[$i]), ': '). "\r\n";
         }
     }
 }
@@ -29,58 +29,58 @@ if (is_array($pubPlaces) && is_array($pubDates) && is_array($pubNames)) {
 $languages = $this->driver->tryMethod('getLanguages');
 if (is_array($languages)) {
     foreach ($languages as $lang) {
-        echo $this->transEsc('Language') . ": $lang\n";
+        echo $this->transEsc('Language') . ": $lang\r\n";
     }
 }
 
 $series = $this->driver->tryMethod('getSeries');
 if (is_array($series)) {
     foreach ($series as $current) {
-        echo $this->transEsc('Series') . ': ' . (is_array($current) ? $current['name'] : $current) . "\n";
+        echo $this->transEsc('Series') . ': ' . (is_array($current) ? $current['name'] : $current) . "\r\n";
     }
 }
 
 $isbns = $this->driver->tryMethod('getISBNs');
 if (is_array($isbns)) {
     foreach ($isbns as $isbn) {
-        echo $this->transEsc('ISBN') . ": $isbn\n";
+        echo $this->transEsc('ISBN') . ": $isbn\r\n";
     }
 }
 
 $issns = $this->driver->tryMethod('getISSNs');
 if (is_array($issns)) {
     foreach ($issns as $issn) {
-        echo $this->transEsc('ISSN') . ": $issn\n";
+        echo $this->transEsc('ISSN') . ": $issn\r\n";
     }
 }
 
 $subjects = $this->driver->tryMethod('getAllSubjectHeadings');
 if (is_array($subjects)) {
-    echo $this->transEsc('Subjects') . ":\n";
+    echo $this->transEsc('Subjects') . ":\r\n";
     foreach ($subjects as $subject) {
         if (is_array($subject)) {
-            echo '  ' . $subject[0] . "\n";
+            echo '  ' . $subject[0] . "\r\n";
         } else {
-            echo '  ' . $subject . "\n";
+            echo '  ' . $subject . "\r\n";
         }
     }
 }
 
 $callNumbers = $this->driver->getCallNumber();
 if (is_array($callNumbers)) {
-    echo $this->transEsc('Callnumber') . ":\n";
+    echo $this->transEsc('Callnumber') . ":\r\n";
     foreach ($callNumbers as $callNumber) {
-        echo '  ' . $callNumber . "\n";
+        echo '  ' . $callNumber . "\r\n";
     }
 }
 
 $physicalDescr = $this->driver->getPhysicalDescriptions();
 if (is_array($physicalDescr)) {
     foreach ($physicalDescr as $descr) {
-        echo $this->transEsc('Physical Description') . ": $descr\n";
+        echo $this->transEsc('Physical Description') . ": $descr\r\n";
     }
 }
 
 // Record separator:
-echo "\n";
+echo "\r\n";
 ?>
