@@ -11,20 +11,11 @@
 
   $this->layout()->title = $this->translate('Portal pages');
 ?>
-<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+
+<script src="https://cdn.ckeditor.com/4.7.3/full-all/ckeditor.js"></script>
 <script>
 	jQuery( document ).ready( function( $ ) {
-		tinymce.init({
-			selector:'.editor',
-			toolbar: [
-			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright | bullist numlist | image | link | table | preview | code'
-			],
-			plugins: "image imagetools link preview table code",
-			menubar: "edit insert view format",
-			invalid_styles: {
-			    '*': 'font-family font-size'
-			}
-		});
+        CKEDITOR.replace( 'content' );
 
 		$( '#deletePage' ).on( 'click', function( event ) {
 			event.preventDefault();
