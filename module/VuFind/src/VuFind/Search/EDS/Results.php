@@ -78,9 +78,9 @@ class Results extends \VuFind\Search\Base\Results
 
             //Add a publication date facet
             $this->responseFacets[] = [
-                        'fieldName' => 'PublicationDate',
-                        'displayName' => 'PublicationDate',
-                        'displayText' => 'Publication Date',
+                        'fieldName' => 'publishDate',
+                        'displayName' => 'publishDate',
+                        'displayText' => 'publishDate',
                         'counts' => []
             ];
 

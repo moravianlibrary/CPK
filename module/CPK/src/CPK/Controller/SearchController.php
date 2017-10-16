@@ -1483,29 +1483,23 @@ class SearchController extends SearchControllerBase
     {
         $view = $this->createViewModel();
 
-        $frontendTable = $this->getTable('frontend');
-        $widgetNames = $frontendTable->getInspirationWidgets();
-
         $widgetTable = $this->getTable('widget');
-        $widgets = [];
 
-        foreach ($widgetNames as $key => $widgetName) {
-            $widget = $widgetTable->getWidgetByName($widgetName);
-            if ($widgetName == 'infobox') {
+        $sortedInspirationsWidgets = $widgetTable->getWidgets(true, true, true);
+        $lastInspirationsWidgetsPosition = $widgetTable->getLastInspirationsWidgetsPosition();
+
+        foreach ($sortedInspirationsWidgets as $inspirationsWidget) {
+            if ($inspirationsWidget->getName() == 'infobox') {
                 $infoboxTable = $this->getTable("infobox");
-                $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
-                $widget->setContents($infoboxItems);
-            } else if ($widgetName == 'conspectus') {
-                // do nothing, there is view prepared for it.
-                $widget = new \CPK\Widgets\Widget();
-                $widget->setName($widgetName);
+                $infoboxItems = $infoboxTable->getActualItems($inspirationsWidget->getShownRecordsNumber());
+                $inspirationsWidget->setContents($infoboxItems);
             } else {
-                $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
+                $inspirationsWidget->setContents($this->getWidgetContent($inspirationsWidget->getName(), $inspirationsWidget->getShownRecordsNumber()));
             }
-            $widgets[][$widgetName] = $widget;
         }
 
-        $view->widgets = $widgets;
+        $view->lastInspirationsWidgetsPosition = $lastInspirationsWidgetsPosition;
+        $view->sortedInspirationsWidgets = $sortedInspirationsWidgets;
 
         if (! empty($this->params()->fromPost('mylang'))) {
             $languageCode = $this->params()->fromPost('mylang');
@@ -1548,8 +1542,6 @@ class SearchController extends SearchControllerBase
         $searchesConfig = $this->getConfig('searches');
         // If user have preferred limit and sort settings
         if ($user = $this->getAuthManager()->isLoggedIn()) {
-            $userSettingsTable = $this->getTable("usersettings");
-
             $userSettingsTable = $this->getTable("usersettings");
             $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
             $preferredSorting = $userSettingsTable->getSorting($user);

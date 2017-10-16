@@ -33,41 +33,41 @@ namespace CPK\Widgets;
  * @license  http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  */
 class Widget {
-    private $id;
-    private $name;
-    private $display;
-    private $title_cs;
-    private $title_en;
+    public $id;
+    public $name;
+    public $display;
+    public $title_cs;
+    public $title_en;
 
     /*
      * Widget contents
      * @var array Array of CPK\Widgets\WidgetContents
      */
-    private $contents;
+    public $contents;
 
     /*
      * Show link in widget for showing all widget contents
      * @var boolean $show_all_records_link
      **/
-    private $show_all_records_link;
+    public $show_all_records_link;
 
     /*
      * How many contents to show in widget
      * @var int $shown_records_number
      **/
-    private $shown_records_number;
+    public $shown_records_number;
 
     /*
      * Show cover?
      * var boolean showCover
      */
-    private $show_cover;
+    public $show_cover;
 
     /*
      * What to show as description (author, description)
      * @var string
      */
-    private $description;
+    public $description;
 
     public function getId() {
         return $this->id;

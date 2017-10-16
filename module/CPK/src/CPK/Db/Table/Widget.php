@@ -32,7 +32,12 @@ use CPK\Db\Table\Gateway,
     Zend\Db\Sql\Select,
     Zend\Db\Sql\Insert,
     Zend\Db\Sql\Update,
-    Zend\Db\Sql\Delete;
+    Zend\Db\Sql\Delete,
+    Zend\Db\Adapter\Driver\ResultInterface,
+    Zend\Db\ResultSet\HydratingResultSet,
+    Zend\Stdlib\Hydrator\ObjectProperty,
+    CPK\Widgets\Widget as WidgetModel,
+    CPK\Widgets\InspirationWidget as InspirationWidgetModel;
 
 /**
  * Table Definition for Widget
@@ -64,20 +69,63 @@ class Widget extends Gateway
     }
 
     /**
-     * Returns widgets
+     * Returns array of Objects representing Widgets
+     *
+     * @param bool $withInspirationsPositions This will return extended Widget
      *
      * @return array
      */
-    public function getWidgets()
+    public function getWidgets($withInspirationsPositions = false, $withInspirationsPositionsOnly = false, $usePositionAsArrayIndex = false) : array
     {
         $select = new Select($this->table);
+
+        if ($withInspirationsPositions) {
+            $select->join(
+                ['i' => 'inspirations'],
+                'i.widget_id = '.$this->table.'.id',
+                ['widget_position'],
+                ((! $withInspirationsPositionsOnly) ? 'left' : '')
+            );
+            $select->order('widget_position ASC');
+        }
+
         $results= $this->executeAnyZendSQLSelect($select);
-        $widgets = $this->resultsToArrayOfSpecifiObjects(
-            $results,
-            '\CPK\Widgets\Widget'
-        );
+
+        $widgets = [];
+        if ($results instanceof ResultInterface && $results->isQueryResult()) {
+            $resultSet = new HydratingResultSet(
+                new ObjectProperty,
+                (($withInspirationsPositions) ? new \CPK\Widgets\InspirationWidget() : new \CPK\Widgets\Widget())
+            );
+            $resultSet->initialize($results);
+
+            foreach ($resultSet as $object) {
+                array_push($widgets, $object);
+            }
+        }
+
+        if ($usePositionAsArrayIndex) {
+            $reIndexedWidgets = [];
+            foreach ($widgets as $widget) {
+                $position = $widget->getWidgetposition();
+                $reIndexedWidgets[$position] = $widget;
+            }
+            $widgets = $reIndexedWidgets;
+        }
 
         return $widgets;
+    }
+
+    public function getLastInspirationsWidgetsPosition() : int
+    {
+        $max = 0;
+        $widgets = $this->getWidgets(true, true);
+        foreach ($widgets as $widget) {
+            $position = $widget->getWidgetPosition();
+            $max = (! (is_null($position)) && ($position > $max)) ? $position : $max;
+        }
+
+        return $max;
     }
 
     /**
