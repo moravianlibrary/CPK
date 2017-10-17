@@ -248,6 +248,13 @@ class ResultFeed extends AbstractHelper implements TranslatorAwareInterface
         if (!empty($author)) {
             $entry->addAuthor(['name' => $author]);
         }
+
+        //Get annotations for items
+        $annotation = $record->tryMethod('getAnnotation');
+        if ($annotation) {
+            $entry->setAnnotation($annotation);
+        }
+
         $formats = $record->tryMethod('getFormats');
         if (is_array($formats)) {
             foreach ($formats as $format) {

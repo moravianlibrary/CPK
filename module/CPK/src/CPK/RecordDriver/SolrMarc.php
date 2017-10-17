@@ -49,6 +49,16 @@ class SolrMarc extends ParentSolrMarc
         return $this->ilsConfig;
     }
 
+    /**
+     * Get an annotation
+     *
+     * @return string
+     */
+    public function getAnnotation() {
+        $annotation = $this->getFieldArray('520', array('a'));
+        return !empty($annotation) ? $annotation[0] : false;
+    }
+
     public function getLocalId()
     {
         list ($source, $localId) = explode('.', $this->getUniqueID());
