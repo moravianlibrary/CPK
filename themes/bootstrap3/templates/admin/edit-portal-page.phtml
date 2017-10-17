@@ -15,7 +15,9 @@
 <script src="https://cdn.ckeditor.com/4.7.3/full-all/ckeditor.js"></script>
 <script>
 	jQuery( document ).ready( function( $ ) {
-        CKEDITOR.replace( 'content' );
+        CKEDITOR.replace( 'content', {
+            entities_latin: false,
+        } );
 
 		$( '#deletePage' ).on( 'click', function( event ) {
 			event.preventDefault();
