@@ -245,12 +245,12 @@ class UrlQueryHelper
      *
      * @return string
      */
-    public function replaceTerm($from, $to)
+    public function replaceTerm($from, $to, $escape = true)
     {
         $newParams = clone($this->params);
         $newParams->getQuery()->replaceTerm($from, $to);
         $helper = new static($newParams);
-        return $helper->getParams();
+        return $helper->getParams($escape);
     }
 
     /**
@@ -600,4 +600,23 @@ class UrlQueryHelper
 
         return '?' . $this->buildQueryString($paramArray, $escape);
     }
+
+    /**
+     * Get the current search parameters as a GET query from compressed facetFilters string.
+     *
+     * @param bool $escape Should we escape the string for use in the view?
+     *
+     * @return string
+     */
+    public function compressFiltersInQuery($query, $escape = true)
+    {
+        $params = array();
+        parse_str(ltrim($query, '?'), $params);
+        if (isset($params['filter'])) {
+            $filters = $params['filter'];
+            $params['filter'] = specialUrlDecode(\LZCompressor\LZString::compressToBase64(join("|", $filters)));
+        }
+        return '?' . http_build_query($params);
+    }
+
 }

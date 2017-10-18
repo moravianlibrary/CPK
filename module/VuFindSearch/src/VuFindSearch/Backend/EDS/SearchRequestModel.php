@@ -145,7 +145,7 @@ class SearchRequestModel
     protected function formatDateLimiter($filter)
     {
         // PublicationDate:[xxxx TO xxxx]
-        $dates = substr($filter, 17);
+        $dates = substr($filter, strpos($filter, ':') + 2);
         $dates = substr($dates, 0, strlen($dates) - 1);
         $parts = explode(' TO ', $dates, 2);
         if (count($parts) == 2) {
@@ -183,6 +183,8 @@ class SearchRequestModel
                     } else if (substr($filter, 0, 11) == 'SEARCHMODE:') {
                         $this->searchMode = substr($filter, 11, null);
                     } else if (substr($filter, 0, 15) == 'PublicationDate') {
+                        $this->addLimiter($this->formatDateLimiter($filter));
+                    } else if (substr($filter, 0, 11) == 'publishDate') {
                         $this->addLimiter($this->formatDateLimiter($filter));
                     } else {
                         $this->addFilter("$cnt,$filter");

@@ -797,7 +797,7 @@ jQuery( document ).ready( function( $ ) {
             ////console.log( 'Data: ' );
             ////console.log( data );
 
-            if ((data.hasOwnProperty('lookfor1') ) || ( data.lookfor0.length > 1 )) {
+            if (data.hasOwnProperty('lookfor0')) {
 				/* Search was made in advanced search */
 
 				/* Fill autocomplete search form */
@@ -932,6 +932,15 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	$( '#editable-advanced-search-form' ).on( 'click', '.remove-advanced-search-group', function( event ) {
 		event.preventDefault();
+		var group = $( this ).parent().parent();
+		var groupId =  group.attr( 'id' ).match( /\d+/ );
+		group.nextAll().each( function() {
+		    $(this).attr( 'id' , 'group_' + groupId );
+		    $(this).find( '.query-type' ).attr( 'name' , 'type' + groupId + '[]' );
+		    $(this).find( '.query-string' ).attr( 'name' , 'lookfor' + groupId + '[]' );
+		    $(this).find( '.group-operator' ).attr( 'name' , 'bool' + groupId + '[]' );
+		    groupId++;
+		});
 		$( this ).parent().parent().hide( 'blind', {}, 400, function() {
 			$( this ).remove();
 			ADVSEARCH.updateGroupsDOMState( '#editable-advanced-search-form' );
@@ -947,6 +956,9 @@ jQuery( document ).ready( function( $ ) {
 		var queryRow = thisElement.parent().parent();
 		var thisGroupSelector = queryRow.parent().parent();
 		queryRow.hide( 'blind', {},  400, function() {
+		    if (queryRow.attr('id') == 'query_0') {
+		        queryRow.siblings().first().attr('id', 'query_0')
+		    }
 			queryRow.remove();
 			ADVSEARCH.updateQueriesDOMState( '#' + thisGroupSelector.attr( 'id' ) );
 		});
@@ -1044,6 +1056,26 @@ jQuery( document ).ready( function( $ ) {
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
 	});
+
+    /*
+     * Add or remove clicked facet
+     */
+    $( 'body' ).on( 'click', '.applied-filter', function( event ) {
+        event.preventDefault();
+
+        if ( event.ctrlKey ){
+             window.open( $( this ).attr( 'href' ), '_blank' );
+             return false;
+        }
+
+        $( "input[name='page']" ).val( '1' );
+
+        if ( $( this ).hasClass( 'active' ) ) {
+            ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
+        } else {
+            ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
+        }
+    });
 
     /*
      * Add or remove clicked facet

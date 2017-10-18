@@ -53,6 +53,13 @@ class SideFacets extends SideFacetsBase
     protected $ajaxFacets = [];
 
     /**
+     * Facets with timeline
+     *
+     * @var array
+     */
+    protected $timelineFacets = [];
+
+    /**
      * Store the configuration of the recommendation module.
      *
      * @param string $settings Settings from searches.ini.
@@ -134,6 +141,12 @@ class SideFacets extends SideFacetsBase
         if (isset($config->InstitutionsMappings)) {
             $this->institutionsMappings = $config->InstitutionsMappings->toArray();
         }
+
+        // Facets with timeline
+        if (isset($config->SpecialFacets->timeline)) {
+            $this->timelineFacets = $config->SpecialFacets->timeline->toArray();
+        }
+
     }
 
     /**
@@ -179,6 +192,16 @@ class SideFacets extends SideFacetsBase
         if (isset($this->institutionsMappings[$institution]))
             return $this->institutionsMappings[$institution];
         return $institution;
+    }
+
+    /**
+     * Return the list of facets with timeline
+     *
+     * @return array
+     */
+    public function getTimelineFacets()
+    {
+        return $this->timelineFacets;
     }
 
 }

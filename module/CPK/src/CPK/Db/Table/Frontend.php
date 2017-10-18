@@ -30,6 +30,8 @@ namespace CPK\Db\Table;
 use CPK\Db\Table\Gateway,
     Zend\Config\Config,
     Zend\Db\Sql\Update,
+    Zend\Db\Sql\Insert,
+    Zend\Db\Sql\Delete,
     Zend\Db\Sql\Select;
 
 /**
@@ -76,27 +78,6 @@ class Frontend extends Gateway
     }
 
     /**
-     * Returns inspiration widgets
-     *
-     * @return array
-     */
-    public function getInspirationWidgets()
-    {
-        $select = new Select($this->table);
-        $select->columns([
-            'first_inspiration_widget',
-            'second_inspiration_widget',
-            'third_inspiration_widget',
-            'fourth_inspiration_widget',
-            'fifth_inspiration_widget',
-            'sixth_inspiration_widget'
-        ]);
-
-        $result = $this->executeAnyZendSQLSelect($select)->current();
-        return $result;
-    }
-
-    /**
      * Save frontend widgets
      *
      * @param array $data
@@ -110,5 +91,35 @@ class Frontend extends Gateway
         $update->set($data);
 
         $this->executeAnyZendSQLUpdate($update);
+    }
+
+    /**
+     * Save inspirations widgets
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public function saveInspirationsWidgets(array $data)
+    {
+        $this->truncateInspirationsTable();
+
+        foreach ($data as $widgetPosition => $widgetId) {
+            if (($widgetPosition != 0) && (! empty($widgetId))) {
+                $insert = new Insert('inspirations');
+                $insert->values([
+                    'widget_position' => $widgetPosition,
+                    'widget_id' => $widgetId,
+                ]);
+
+                $this->executeAnyZendSQLInsert($insert);
+            }
+        }
+    }
+
+    private function truncateInspirationsTable()
+    {
+        $delete = new Delete('inspirations');
+        $this->executeAnyZendSQLDelete($delete);
     }
 }
