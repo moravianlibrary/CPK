@@ -82,7 +82,9 @@ foreach ($queryParams as $key => $value) {
                     ?>
                     <a class="list-group-item applied-filter active <?=$filterClass?>" data-facet='<? if($filter['operator'] == 'OR'){echo "~";}?><?=htmlspecialchars($dataFacet)?>' href="<?=$removeLink?>">
                         <span class="pull-right flip"><i class="fa fa-times"></i></span>
-                        <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?>
+                        <? if ($filter['field'] == $oldFaset): ?>
+                            <? if ($filter['operator'] == 'NOT') echo $this->transEsc('NOT') . ' '; if ($filter['operator'] == 'OR' && $i > 0) echo $this->transEsc('OR') . ' '; ?>
+                        <? endif; $oldFaset =  $filter['field']; ?>
                         <? if ($field != 'unrecognized_facet_label'): ?>
                             <?=$this->transEsc($field)?>:
                         <? endif; ?>
