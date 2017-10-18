@@ -19,7 +19,7 @@ class NCIPRequests {
     protected $sendUserId = null;
 
     protected $libsLikeTabor = [
-        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'SOG504',
+        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'SOG504', 'PBG001',
     ];
 
     protected $libsLikeLiberec = [
