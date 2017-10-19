@@ -1,18 +1,48 @@
-<table>
-<tbody>
-<? foreach($idps as $idp):
-$json = json_encode($idp);
+<?
+$libraries = array('National Library of the Czech Republic',
+  'National Library of Technology',
+  'Academy of Sciences Library',
+  'Research Library in Olomouc',
+  'The Research Library in Hradec Králové',
+  'Municipal Library of Prague',
+  "MojeID | Google+ | Facebook | LinkedIn"
+);
 ?>
-  <tr class="link idp-record" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
-    <td class="col-sm-3">
-      <? if($idp['logo']):?>
-        <img height='30' src="<?=$idp['logo']?>">
-      <? endif; ?>
-    </td>
-    <td>
-      <a href="<?=$idp['href']?>"><?=$idp['name']?></a>
-    </td>
-  </tr>
-<? endforeach; ?>
-</tbody>
+<table>
+  <tbody>
+  <? foreach($idps as $idp):
+    $json = json_encode($idp);
+    ?>
+    <? if(in_array($idp['name_en'], $libraries)): ?>
+    <tr class="link idp-record login-warn" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')" onclick="approve('<?=$idp['href']?>//')">
+      <td class="col-sm-3">
+        <? if($idp['logo']):?>
+          <img height='30' src="<?=$idp['logo']?>">
+        <? endif; ?>
+      </td>
+      <td>
+        <a href="<?=$idp['href']?>"><?=$idp['name']?></a>
+      </td>
+    </tr>
+    <? else:; ?>
+    <tr class="link idp-record" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
+      <td class="col-sm-3">
+        <? if($idp['logo']):?>
+          <img height='30' src="<?=$idp['logo']?>">
+        <? endif; ?>
+      </td>
+      <td>
+        <a href="<?=$idp['href']?>"><?=$idp['name']?></a>
+      </td>
+    </tr>
+    <? endif; ?>
+  <? endforeach; ?>
+  </tbody>
 </table>
+
+<script>
+  function approve(link) {
+    alert('<?=$this->transEsc("warning_safety_login")?>');
+    window.location.replace(link);
+  }
+</script>
