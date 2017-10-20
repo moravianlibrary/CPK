@@ -1,3 +1,4 @@
+/*global VuFind*/
 /**
  * Federative Login controller.
  * 
@@ -39,7 +40,6 @@
 
 	    if (typeof idp === 'string')
 		idp = JSON.parse(idp);
-
 	    if (!idp.isConsolidation) {
 
 		getLastIdps();
@@ -69,8 +69,10 @@
 
 		localStorage.setItem(lastIdpsTag, source);
 	    }
-
-	    window.location = idp.href;
+    if (idp.warn_msg) {
+      alert(VuFind.translate('warning_safety_login'))
+    }
+    window.location.replace(idp.href);
 	}
 
 	function hasLastIdps() {
