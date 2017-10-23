@@ -75,7 +75,7 @@ class AdvancedHandler extends \Zend\View\Helper\AbstractHelper
                     $advancedHandlers[$type][$key] = $this->view->translate($value);
                 }
             } catch (ServiceNotCreatedException $exception) {
-                return ['data' => $advancedHandlers];
+                continue;
             }
         }
         return ['data' => $advancedHandlers];
