@@ -69,14 +69,13 @@ class AdvancedHandler extends \Zend\View\Helper\AbstractHelper
         $translator = $this->getView()->plugin('translate');
         $advancedHandlers = [];
         foreach ($types as $type) {
-            $advancedHandlers[$type] = [];
             try {
                 $options = $this->manager->get($type);
                 foreach ($options->getAdvancedHandlers() as $key => $value) {
                     $advancedHandlers[$type][$key] = $this->view->translate($value);
                 }
             } catch (ServiceNotCreatedException $exception) {
-                return [];
+                return ['data' => $advancedHandlers];
             }
         }
         return ['data' => $advancedHandlers];
