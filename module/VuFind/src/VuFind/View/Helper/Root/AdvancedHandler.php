@@ -27,6 +27,7 @@
  */
 namespace VuFind\View\Helper\Root;
 use VuFind\Search\Options\PluginManager;
+use Zend\ServiceManager\Exception\ServiceNotCreatedException;
 
 /**
  * "Advanced handler" view helper
@@ -69,9 +70,13 @@ class AdvancedHandler extends \Zend\View\Helper\AbstractHelper
         $advancedHandlers = [];
         foreach ($types as $type) {
             $advancedHandlers[$type] = [];
-            $options = $this->manager->get($type);
-            foreach ($options->getAdvancedHandlers() as $key => $value) {
-                $advancedHandlers[$type][$key] = $this->view->translate($value);
+            try {
+                $options = $this->manager->get($type);
+                foreach ($options->getAdvancedHandlers() as $key => $value) {
+                    $advancedHandlers[$type][$key] = $this->view->translate($value);
+                }
+            } catch (ServiceNotCreatedException $exception) {
+                return [];
             }
         }
         return ['data' => $advancedHandlers];
