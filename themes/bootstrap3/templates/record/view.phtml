@@ -131,7 +131,11 @@
             <h4 class="modal-title" id="permalinkLabel"><?=$this->translate('Permalink')?></h4>
           </div>
           <div class="modal-body">
-            <input class='selectOnClick form-control' value='<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>'>
+            <? if ($this->driver instanceof VuFind\RecordDriver\EDS): ?>
+              <input class='selectOnClick form-control' value='<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/EdsRecord/".$id)?>'>
+            <? else: ?>
+              <input class='selectOnClick form-control' value='<?=htmlspecialchars("https://".$_SERVER['SERVER_NAME']."/Record/".$id)?>'>
+            <? endif; ?>
 		  </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('close')?></button>
