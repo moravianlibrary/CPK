@@ -1,3 +1,7 @@
+<?
+    $this->headScript()->appendFile("markerclusterer.js");
+?>
+
 <ul class="nav nav-tabs eds-tabs" id="set-database">
     <li<?= empty($_GET['database']) || $_GET['database'] == 'Solr' ? ' class="active"' : '' ?>>
         <a href="#" data-value="Solr" class="pointer"><i class="pr-web-flagreport"></i> <?=$this->translate('national-sources')?></a>
@@ -122,6 +126,11 @@
 
       </div>
     </div>
+    <? if(isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries'): ?>
+    <div class="row">
+        <div id="map" style="height: 600px;"></div>
+    </div>
+    <? endif; ?>
     <div class="row <?=$this->layoutClass('mainbody')?>">
 
       <div class="hidden-print search-controls row">
@@ -242,5 +251,53 @@
 		  addUrlScalarParamsToJson('data', 'join', 'AND');
 		?>
 		ADVSEARCH.updateUrl( data );
+
     });
+
+    <? if(isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries'): ?>
+    function getData() {
+        var url = "/Libraries/markersJson?q=<?=$this->query?>";
+        $.getJSON(url, function(data) {
+            initialize(data);
+        });
+    }
+    function initialize(libraries) {
+        var myLatLng = {lat: 49.78, lng: 15.39};
+        var markers = [];
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 7,
+            center: myLatLng
+        });
+        var bounds = new google.maps.LatLngBounds();
+        var infoWindow = new google.maps.InfoWindow();
+        var info = [];
+        for(var i = 0; i < libraries.length; i++) {
+            var library = libraries[i];
+            var contentString = '<div id="content" class="marker-info">'+
+                '<div class="marker-title">' + library.name + '</div>'+
+                '<div class="marker-subtitle">' + library.address + '</div>' +
+                '<div class="marker-link"><a href="/Libraries/Library?sigla=' + library.sigla +
+                '"><?=$this->translate('Library detail')?></a>' +
+                '</div>';
+            info.push(contentString);
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng (library.latitude, library.longitude),
+                map: map,
+                title: library.name
+            });
+            bounds.extend(marker.getPosition());
+            markers.push(marker);
+            google.maps.event.addListener(marker, 'click', (function(marker, index) {
+                return function() {
+                    infoWindow.setContent(info[index]);
+                    infoWindow.open(map, marker);
+                }
+            })(marker, i));
+        }
+
+        var mcOptions = {gridSize: 75, maxZoom: 10, imagePath: "/themes/bootstrap3/images/markerclusterer/m"};
+        var mc = new MarkerClusterer(map, markers, mcOptions);
+    }
+    <? endif; ?>
 </script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=getData"></script>

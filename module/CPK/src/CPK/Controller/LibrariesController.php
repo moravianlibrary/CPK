@@ -132,20 +132,48 @@ class LibrariesController extends AbstractBase
 
     public function markersJsonAction()
     {
-        $query = $this->params()->fromQuery('q');
+        $query = urlencode($this->params()->fromQuery('q'));
+        $query = (! empty($query)) ? $query : "*";
 
-        $q = urlencode($query);
+        $url = $this->config->Index->url."/".$this->config->Index->default_core."/select?";
+        $url .= "q=recordtype:library";
 
-        $apiResponse = file_get_contents($this->adresarKnihovenApiUrl."/v1/markers?q=$q");
-        $dataArray = \Zend\Json\Json::decode($apiResponse, \Zend\Json\Json::TYPE_ARRAY);
+        $url .= "%0A";
+        $url .= "allLibraryFields_txt_mv:($query)";
 
-        $result = new JsonModel($dataArray);
+        $url .= "%0A";
+        $url .= "portal_facet_str:(KNIHOVNYCZ_YES)";
 
-        return $result;
+        $url .= "%0A";
+        $url .= "merged_child_boolean:(true)";
+
+        $url .= "&fl=name_search_txt,address_search_txt_mv,reg_lib_search_txt_mv,gps_str";
+        $url .= "&wt=json";
+        $url .= "&indent=true";
+        $url .= '&rows=20000';
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        $solrResponse = curl_exec($ch);
+        curl_close($ch);
+        $results = \Zend\Json\Json::decode($solrResponse, \Zend\Json\Json::TYPE_ARRAY);
+
+        $data = [];
+        if (isset($results['response']['numFound']) && $results['response']['numFound'] > 0) {
+            foreach ($results['response']['docs'] as $library) {
+                if (! empty($library['gps_str'])) {
+                    $data[] = [
+                        'name' => $library['name_search_txt'] ?: '',
+                        'address' => $library['address_search_txt_mv'][0] ?: '',
+                        'sigla' => $library['reg_lib_search_txt_mv'][0] ?: '',
+                        'latitude' => explode(" ", $library['gps_str'])[0],
+                        'longitude' => explode(" ", $library['gps_str'])[1],
+                    ];
+                }
+            }
+        }
+
+        return new JsonModel($data);
     }
-
-
-
-
-
 }
