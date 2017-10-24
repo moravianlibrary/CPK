@@ -541,6 +541,18 @@ jQuery( document ).ready( function( $ ){
 	var changeLanguage = function(language) {
 		document.langForm.mylang.value = language;
 		document.langForm.submit();
-	}
-	
+	};
+
+  $('.show-next-institutions').click( function () {
+    var currentMenu = $(this).siblings('.scrollable-menu');
+    var windowsize = $(window).width();
+    if (windowsize < 480) {
+      if (currentMenu.is(':visible')) {
+        currentMenu.slideUp()
+      }
+      else {
+        currentMenu.slideDown()
+      }
+    }
+  })
 });
