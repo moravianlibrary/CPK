@@ -19,11 +19,11 @@
     <? endforeach; ?>
 <? endif; ?>
 
-<? $comments = $this->driver->getObalkyKnihComments(); ?>
-<? if (empty($comments) || count($comments) == 0): ?>
+<? $obalkyComments = $this->driver->getObalkyKnihComments(); ?>
+<? if ((empty($obalkyComments) || count($obalkyComments) == 0) && (empty($comments) || count($comments) == 0)): ?>
   <div class="alert alert-info"><?=$this->transEsc('Be the first to leave a comment')?>!</div>
 <? else: ?>
-  <? foreach ($comments as $comment): ?>
+  <? foreach ($obalkyComments as $comment): ?>
     <div class="comment row">
       <div class="col-sm-3 name">
         <strong><?=$this->escapeHtml(trim($comment->library))?></strong><br/>

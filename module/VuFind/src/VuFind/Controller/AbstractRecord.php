@@ -135,7 +135,7 @@ class AbstractRecord extends AbstractBase
             $this->flashMessenger()->addMessage('add_comment_fail_blank', 'error');
         }
 
-        return $this->redirectToRecord('', 'UserComments');
+        return $this->redirectToRecord('', 'UserCommentsObalkyKnih');
     }
 
     /**
