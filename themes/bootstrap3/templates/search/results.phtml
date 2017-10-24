@@ -1,5 +1,4 @@
-<? if($_GET['type0'][0] != 'Libraries'): ?>
-<ul class="nav nav-tabs eds-tabs" id="set-database">
+<ul class="nav nav-tabs eds-tabs <?= ($_GET['type0'][0] == 'Libraries') ? ' hidden' : '' ?>" id="set-database">
     <li<?= empty($_GET['database']) || $_GET['database'] == 'Solr' ? ' class="active"' : '' ?>>
         <a href="#" data-value="Solr" class="pointer"><i class="pr-web-flagreport"></i> <?=$this->translate('national-sources')?></a>
     </li>
@@ -10,7 +9,6 @@
         <span style="margin-left: 6px;"><?= $this->help()->getQuestionMarkHelp('foreign-sources') ?></span>
     </li>
 </ul>
-<? endif; ?>
 
 <? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
 <? endif; ?>
