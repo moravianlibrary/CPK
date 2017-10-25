@@ -34,12 +34,13 @@ jQuery( document ).ready( function( $ ) {
 	};
 	
 	function geo_error( error ) {
-		var errors = { 
+		var errors = {
 			1: VuFind.translate('Permission denied'),
 		    2: VuFind.translate('Position unavailable'),
 		    3: VuFind.translate('Request timeout')
 		};
-		alert( errors[error.code] );
-	};
+		//show error message
+		$(".geo-denied").css('display', 'block').html(errors[error.code]);
+	}
 	
 });
