@@ -1081,14 +1081,16 @@ jQuery( document ).ready( function( $ ) {
      * Add or remove clicked facet
      */
     $( 'body' ).on( 'click', '.checkbox input', function( event ) {
-        event.preventDefault();
+        if ( !$(".checkbox-select-all.favorites") ) {
+            event.preventDefault();
 
-        $( "input[name='page']" ).val( '1' );
+            $("input[name='page']").val('1');
 
-        if ( $( this ).is(':checked' )) {
-            ADVSEARCH.addFacetFilter( $( this ).attr( 'value' ), true );
-        } else {
-            ADVSEARCH.removeFacetFilter( $( this ).attr( 'value' ), true );
+            if ($(this).is(':checked')) {
+                ADVSEARCH.addFacetFilter($(this).attr('value'), true);
+            } else {
+                ADVSEARCH.removeFacetFilter($(this).attr('value'), true);
+            }
         }
     });
 
@@ -1327,7 +1329,7 @@ jQuery( document ).ready( function( $ ) {
 	});
 	
 	$( 'body' ).on( 'mouseover', '.result', function( event ) {
-	
+
 		$( this ).find( '.search-results-favorite-button' ).removeClass( 'hidden' );
 	});
 	
