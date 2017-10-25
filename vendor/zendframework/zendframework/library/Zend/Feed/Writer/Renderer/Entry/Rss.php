@@ -53,6 +53,7 @@ class Rss extends Renderer\AbstractRenderer implements Renderer\RendererInterfac
         $this->_setEnclosure($this->dom, $entry);
         $this->_setCommentLink($this->dom, $entry);
         $this->_setCategories($this->dom, $entry);
+        $this->_setAnnotation($this->dom, $entry);
         foreach ($this->extensions as $ext) {
             $ext->setType($this->getType());
             $ext->setRootElement($this->getRootElement());
@@ -61,6 +62,25 @@ class Rss extends Renderer\AbstractRenderer implements Renderer\RendererInterfac
         }
 
         return $this;
+    }
+
+    /**
+     * Set an annotation
+     *
+     * @param DOMDocument $dom
+     * @param DOMElement $root
+     */
+    protected function _setAnnotation(DOMDocument $dom, DOMElement $root) {
+        $annotations = $this->getDataContainer()->getAnnotation();
+        if (!$annotations || empty($annotations)) {
+            return;
+        }
+        $updated = $dom->createElement('annotation');
+        $root->appendChild($updated);
+        $text = $dom->createTextNode(
+            $this->getDataContainer()->getAnnotation()
+        );
+        $updated->appendChild($text);
     }
 
     /**
