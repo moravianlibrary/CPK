@@ -76,7 +76,7 @@
               </div>
 
               <div class='col-md-7'>
-                <input name='lookfor<?=$groups?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
+                <input name='lookfor<?=$groups?>[]' type='text' class='form-control query-string' value='<?=$queryString != "FT Y OR FT N" ? $this->escapeHtmlAttr($queryString) : ''?>' placeholder='<?=$this->translate('enter-search-query')?>'>
               </div>
 
               <div class="col-md-1">
@@ -130,7 +130,7 @@
               </div>
 
               <div class='col-md-7'>
-                <input name='lookfor<?=$groups?>[]' type='text' class='form-control query-string' value='<?=$this->escapeHtmlAttr($queryString)?>' placeholder='<?=$this->translate('enter-search-query')?>'>
+                <input name='lookfor<?=$groups?>[]' type='text' class='form-control query-string' value='<?=$queryString != "FT Y OR FT N" ? $this->escapeHtmlAttr($queryString) : ''?>' placeholder='<?=$this->translate('enter-search-query')?>'>
               </div>
 
               <div class="col-md-1">

@@ -803,7 +803,9 @@ jQuery( document ).ready( function( $ ) {
 				/* Fill autocomplete search form */
                 ////console.log( 'Filling autocomplete with' );
                 ////console.log( data.lookfor0[0] );
-                $('#searchForm_lookfor').val(data.lookfor0[0]);
+                if (data.lookfor0[0] != "FT Y OR FT N") {
+                    $('#searchForm_lookfor').val(data.lookfor0[0]);
+                }
             } else {
 				/* Search was made in autocomplete */
 
@@ -814,11 +816,15 @@ jQuery( document ).ready( function( $ ) {
                 ////console.log( 'Filling advanced search form with ' );
                 ////console.log( data.lookfor0[0] );
 
-                $('#query_0 .query-string').val(data.lookfor0[0]);
+                if (data.lookfor0[0] != "FT Y OR FT N") {
+                    $('#query_0 .query-string').val(data.lookfor0[0]);
+                }
 
                 ////console.log( 'Filling autocomplete with' );
                 ////console.log( data.lookfor0[0] );
-                $('#searchForm_lookfor').val(data.lookfor0[0]);
+                if (data.lookfor0[0] != "FT Y OR FT N") {
+                    $('#searchForm_lookfor').val(data.lookfor0[0]);
+                }
             }
 
             var groupId = 0;
