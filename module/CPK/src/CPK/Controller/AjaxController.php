@@ -2326,7 +2326,13 @@ class AjaxController extends AjaxControllerBase
                             $htmlLinks[$sfxSource] = [];
                         }
 
-                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource))."</a>";
+                        if ($sfxSource == 'free') {
+                            $anchor = $this->translate('Free fulltext');
+                        } else {
+                            $anchor = $this->translate(strtoupper($sfxSource));
+                        }
+
+                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$anchor."</a>";
                         if ($embargo) {
                             $link .= " (".$this->translate(explode(' ', trim($embargo))[0])." ".explode(' ', trim($embargo))[1].")";
                         }
@@ -2460,7 +2466,13 @@ class AjaxController extends AjaxControllerBase
                             $htmlLinks[$sfxSource] = [];
                         }
 
-                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$this->translate(strtoupper($sfxSource))."</a>";
+                        if ($sfxSource == 'free') {
+                            $anchor = $this->translate('Free fulltext');
+                        } else {
+                            $anchor = $this->translate(strtoupper($sfxSource));
+                        }
+
+                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$anchor."</a>";
                         if ($embargo) {
                             $link .= " *";
                         }
@@ -2570,7 +2582,7 @@ class AjaxController extends AjaxControllerBase
      */
     protected function keepOnlyFreeLinkIfAvailable($htmlLinks)
     {
-        $allowed = ['any'];
+        $allowed = ['free'];
 
         $intersection = array_intersect_key($htmlLinks, array_flip($allowed));
 
