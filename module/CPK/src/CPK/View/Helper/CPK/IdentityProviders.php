@@ -102,6 +102,7 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
      * Adds a href to redirect user to in order to authenticate him with Shibboleth
      *
      * @param array $institutions
+     * @return array of parsed institutions
      */
     protected function produceListForTemplate(array $institutions, $isConsolidation)
     {
@@ -120,7 +121,8 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
                 'name_cs' => $institution['name_cs'],
                 'name_en' => $institution['name_en'],
                 'logo' => $this->logosHelper->getLogo($source),
-                'isConsolidation' => $isConsolidation
+                'isConsolidation' => $isConsolidation,
+                'warn_msg' => $institution['warn_msg']
             ];
 
             array_push($idps, $idp);
