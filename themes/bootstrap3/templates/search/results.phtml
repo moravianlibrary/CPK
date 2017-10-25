@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs eds-tabs" id="set-database">
+<ul class="nav nav-tabs eds-tabs <?= ($_GET['type0'][0] == 'Libraries') ? ' hidden' : '' ?>" id="set-database">
     <li<?= empty($_GET['database']) || $_GET['database'] == 'Solr' ? ' class="active"' : '' ?>>
         <a href="#" data-value="Solr" class="pointer"><i class="pr-web-flagreport"></i> <?=$this->translate('national-sources')?></a>
     </li>
