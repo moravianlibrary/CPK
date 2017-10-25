@@ -55,6 +55,17 @@ class SolrMarcLocal extends ParentSolrMarc
     }
 
     /**
+     * Get the corporate author of the record.
+     *
+     * @return string
+     */
+    public function getCorporateAuthor()
+    {
+        return isset($this->fields['corp_author_display']) ?
+            $this->fields['corp_author_display'] : '';
+    }
+
+    /**
      * Get the publication dates of the record.  See also getDateSpan().
      *
      * @return array
