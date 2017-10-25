@@ -132,16 +132,18 @@
                 <th class="col-md-3"><?=$this->transEsc('Other Authors')?>: </th>
                 <td>
                   <? $i = 0; foreach ($authors['secondary'] as $field): ?>
+                    <span property="contributor">
+                      <? if (! empty($secondaryAuthoritiesIds[$i])): $secondaryAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($secondaryAuthoritiesIds[$i]);?>
+                          <? if (! empty($secondaryAuthorityId)): ?>
+                              <a title="<?=$this->translate('Show person')?> <?=$authors['secondary'][0]?>" href="/Record/<?=$secondaryAuthorityId?>"><i class="pr-user-single5 author-icon" ></i></a>
+                          <? endif; ?>
+                      <? endif; ?>
+                    </span>
                   <?=($i++ == 0)?'':', '?>
                   <span property="contributor">
                     <a title='<?=$this->translate('Show publications by')?> <?=$field?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($field)?>">
                       <?=$this->escapeHtml($field)?>
                     </a>
-                    <? if (! empty($secondaryAuthoritiesIds[$i-1])): $secondaryAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($secondaryAuthoritiesIds[$i-1]);?>
-                      <? if (! empty($secondaryAuthorityId)): ?>
-                        <a title="<?=$this->translate('Show person')?> <?=$field?>" href="/Record/<?=$secondaryAuthorityId?>"><i class="pr-user-single5 author-icon" ></i></a>
-                      <? endif; ?>
-                    <? endif; ?>
                   </span>
                   <? endforeach; ?>
                 </td>
