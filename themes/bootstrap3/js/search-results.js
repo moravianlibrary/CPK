@@ -114,8 +114,7 @@ jQuery( document ).ready( function( $ ) {
          *
          * @return {undefined}
          */
-        updateSearchResults: function (dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData, callbacks) {
-
+        updateSearchResults: function (dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData, callbacks, newTab) {
             var data = {};
 
 			/* If we need to add some new paramts to URL we can use extraData argument */
@@ -421,6 +420,11 @@ jQuery( document ).ready( function( $ ) {
 			 * Send current url (for link in full view Go back to search results)
 			 * */
             data['searchResultsUrl'] = window.location.href;
+
+            if (newTab) {
+                window.open(data['searchResultsUrl'], '_blank');
+                return false;
+            }
 
 			/*
 			 * Get search results from Solr and display them
@@ -1130,7 +1134,11 @@ jQuery( document ).ready( function( $ ) {
 		event.preventDefault();
 		var page = $( this ).attr( 'href' );
 		$( "input[name='page']" ).val( page );
-		ADVSEARCH.updateSearchResults( undefined, undefined );
+		if (event.ctrlKey) {
+		    ADVSEARCH.updateSearchResults( undefined, undefined, undefined, undefined, undefined, true );
+        } else {
+            ADVSEARCH.updateSearchResults( undefined, undefined);
+        }
 	});
 	
 	/*
@@ -1143,7 +1151,11 @@ jQuery( document ).ready( function( $ ) {
 		$( '.ajax-update-sort' ).find( '.value' ).text( text );
 		$( "input[name='sort']" ).val( sort );
 		$( "input[name='page']" ).val( '1' );
-		ADVSEARCH.updateSearchResults( undefined, undefined );
+		if(event.ctrlKey) {
+		    ADVSEARCH.updateSearchResults( undefined, undefined, undefined, undefined, undefined, true );
+        } else {
+            ADVSEARCH.updateSearchResults( undefined, undefined );
+        }
 	});
 	
 	/*
@@ -1161,8 +1173,12 @@ jQuery( document ).ready( function( $ ) {
 		var newPage = Math.floor(((oldPage - 1) * oldLimit) / limit) + 1
 		$( "input[name='page']" ).val( newPage );
 		$( "input[name='limit']" ).val( limit );
-		
-		ADVSEARCH.updateSearchResults( undefined, undefined );
+
+        if(event.ctrlKey) {
+            ADVSEARCH.updateSearchResults( undefined, undefined, undefined, undefined, undefined, true );
+        } else {
+            ADVSEARCH.updateSearchResults( undefined, undefined );
+        }
 	});
 	
 	/*
@@ -1201,7 +1217,11 @@ jQuery( document ).ready( function( $ ) {
 
 		$( "input[name='page']" ).val( '1' );
 		$( "input[name='searchTypeTemplate']" ).val( 'advanced' );
-		ADVSEARCH.updateSearchResults( undefined, undefined );
+		if (event.ctrlKey) {
+		    ADVSEARCH.updateSearchResults( undefined, undefined, undefined, undefined, undefined, true);
+        } else {
+            ADVSEARCH.updateSearchResults( undefined, undefined);
+        }
 	});
 	
 	/*
@@ -1320,20 +1340,23 @@ jQuery( document ).ready( function( $ ) {
 		if (searchTypeTemplate == 'basic') {
 			newSearchTypeTemplate = 'advanced';
 		}
+
+		if (event.ctrlKey) {
+		    window.open(currentUrl.replace(/(searchTypeTemplate=).*?(&)/,'$1' + newSearchTypeTemplate + '$2'), '_blank');
+		    return false;
+        }
 		
 		$( 'input[name=searchTypeTemplate]' ).val(newSearchTypeTemplate);
-		
+
 		ADVSEARCH.updateSearchResults( undefined, undefined, newSearchTypeTemplate );
 	});
-	
-	$( 'body' ).on( 'mouseover', '.result', function( event ) {
-	
-		$( this ).find( '.search-results-favorite-button' ).removeClass( 'hidden' );
-	});
-	
-	$( 'body' ).on( 'mouseleave', '.result', function( event ) {
-		$( this ).find( '.search-results-favorite-button' ).addClass( 'hidden' );
-	});
+
+	//Show/hide 'To favorites' button on result book
+	$( 'body' ).find('.result').hover(function () {
+        $( this ).find( '.search-results-favorite-button' ).removeClass( 'hidden' );
+    }, function () {
+        $( this ).find( '.search-results-favorite-button' ).addClass( 'hidden' );
+    });
 
 	/*
 	* Load search results from selected database
