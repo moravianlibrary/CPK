@@ -1,5 +1,11 @@
 <?=$this->render('RecordDriver/AbstractBase/export-printbase.phtml')?>
 <?
+//render patent info
+$patentInfoText = $this->driver->tryMethod('getPatentInfo');
+if($patentInfoText) {
+    echo $patentInfoText;
+}
+
 // Record separator:
 echo "\r\n";
 ?>
