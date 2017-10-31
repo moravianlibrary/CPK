@@ -630,7 +630,7 @@ adv_search_001:
 
 adv_search_nbn:
   Dismaxfields:
-    - cnb_search_str
+    - cnb_isn_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -639,7 +639,7 @@ adv_search_nbn:
     - [bf, ord(publishDateSort)^1]
   DismaxHandler: edismax
   QueryFields:
-    cnb_search_str:
+    cnb_isn_mv:
       - [onephrase, 100]
       - [and, 50]
       
