@@ -579,7 +579,10 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getIsn()
     {
-    	return isset($this->fields['issnIsbnIsmn_search_str_mv'][0]) ? $this->fields['issnIsbnIsmn_search_str_mv'][0] : false;
+        foreach (array('isbn', 'issn', 'ismn_int_mv') as $field) {
+            if (isset($this->fields[$field][0])) return $this->fields[$field][0];
+        }
+        return false;
     }
 
 	public function getBibinfoForObalkyKnih()
