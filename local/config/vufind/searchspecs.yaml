@@ -544,8 +544,18 @@ adv_search_source_title:
       - [and, 50]
 
 adv_search_isbn_issn_ismn:
+  DismaxFields:
+    - isbn
+    - issn
+    - ismn_isn_mv
   QueryFields:
-    issnIsbnIsmn_search_str_mv:
+    isbn:
+      - [onephrase, 100]
+      - [and, 50]
+    issn:
+      - [onephrase, 100]
+      - [and, 50]
+    ismn_isn_mv:
       - [onephrase, 100]
       - [and, 50]
 
