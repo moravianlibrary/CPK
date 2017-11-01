@@ -180,6 +180,7 @@
   max-height: 200px;
   //width: 300px;
   overflow-x: hidden;
+  overflow-y: scroll;
   padding: 6px;
   @media (min-width: @screen-sm) {
     left: auto;
@@ -196,24 +197,29 @@
   }
 }
 
-.scrollable-menu::-webkit-scrollbar-thumb {
-  border: 2px solid white;
-  background-color: #ccc;
-}
 .scrollable-menu::-webkit-scrollbar {
-  -webkit-appearance: none;
+  -moz-appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 10px !important;
 }
 
-.scrollable-menu::-webkit-scrollbar:vertical {
-  height: 13px;
+.scrollable-menu::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3) !important;
+  -webkit-border-radius: 10px !important;
+  border-radius: 10px !important;
 }
 
 .scrollable-menu::-webkit-scrollbar-thumb {
-  border-radius: 6px;
-  border: 2px solid white;
-  background-color: rgba(0, 0, 0, .5);
+  -webkit-border-radius: 10px !important;
+  border-radius: 10px !important;
+  background: #9f9f9f !important;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5) !important;
+
 }
 
+.scrollable-menu::-webkit-scrollbar-thumb:window-inactive {
+  background: #9f9f9f !important;
+}
 
 .scrollable-menu li {
     padding: 0px 10px 0px 10px;
