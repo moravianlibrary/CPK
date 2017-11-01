@@ -1086,17 +1086,15 @@ jQuery( document ).ready( function( $ ) {
     /*
      * Add or remove clicked facet
      */
-    $( 'body' ).on( 'click', '.checkbox input', function( event ) {
-        if ( !$(".checkbox-select-all.favorites") ) {
-            event.preventDefault();
+    $( 'body' ).on( 'click', '#side-panel-eds-filters .checkbox input', function( event ) {
+        event.preventDefault();
 
-            $("input[name='page']").val('1');
+        $("input[name='page']").val('1');
 
-            if ($(this).is(':checked')) {
-                ADVSEARCH.addFacetFilter($(this).attr('value'), true);
-            } else {
-                ADVSEARCH.removeFacetFilter($(this).attr('value'), true);
-            }
+        if ($(this).is(':checked')) {
+            ADVSEARCH.addFacetFilter($(this).attr('value'), true);
+        } else {
+            ADVSEARCH.removeFacetFilter($(this).attr('value'), true);
         }
     });
 
