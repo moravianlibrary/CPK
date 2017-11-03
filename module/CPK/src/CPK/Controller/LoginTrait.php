@@ -25,7 +25,16 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
+
 namespace CPK\Controller;
+
+use CPK\Exception\TermsUnaccepted;
+use DomainException;
+use VuFind\Exception\Auth as AuthException;
+use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Mvc\MvcEvent;
+
+const ACCEPT_TERMS_OF_USE_QUERY = 'AcceptTermsOfUse';
 
 /**
  * Login trait (for automatic login within every controller)
@@ -40,7 +49,9 @@ namespace CPK\Controller;
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link http://vufind.org Main Site
  */
-trait LoginTrait {
+trait LoginTrait
+{
+
 
     /**
      * Overriden onDispatch to process Exceptions used to redirect user somewhere else
@@ -49,33 +60,33 @@ trait LoginTrait {
      *
      * @see \Zend\Mvc\Controller\AbstractActionController::onDispatch()
      */
-    public function onDispatch(\Zend\Mvc\MvcEvent $e)
+    public function onDispatch(MvcEvent $e)
     {
-        if (! $this instanceof \Zend\Mvc\Controller\AbstractActionController)
+        if (!$this instanceof AbstractActionController)
             throw new \Exception('LoginTrait must be used in class derived from \Zend\Mvc\Controller\AbstractActionController');
 
         $routeMatch = $e->getRouteMatch();
-        if (! $routeMatch) {
+        if (!$routeMatch) {
             /**
              *
              * @todo Determine requirements for when route match is missing.
              *       Potentially allow pulling directly from request metadata?
              */
-            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
+            throw new DomainException('Missing route matches; unsure how to retrieve action');
         }
 
         $action = $routeMatch->getParam('action', 'not-found');
         $method = static::getMethodFromAction($action);
 
-        if (! method_exists($this, $method)) {
+        if (!method_exists($this, $method)) {
             $method = 'notFoundAction';
         }
 
         try {
             $this->checkShibbolethLogin();
             $actionResponse = $this->$method();
-        } catch (\CPK\Exception\TermsUnaccepted $e) {
-            return $this->redirect()->toUrl('/?AcceptTermsOfUse');
+        } catch (TermsUnaccepted $e) {
+            return $this->redirect()->toUrl('/?' . ACCEPT_TERMS_OF_USE_QUERY);
         }
 
         $e->setResult($actionResponse);
@@ -85,10 +96,27 @@ trait LoginTrait {
 
     protected function checkShibbolethLogin()
     {
-        // Check shibboleth login
-        if ($this->params()->fromPost('processLogin') || $this->params()->fromPost('auth_method') || $this->params()->fromQuery('auth_method')) {
+
+        $acceptingTermsOfUse = $this->params()->fromQuery(ACCEPT_TERMS_OF_USE_QUERY) !== null;
+
+        // This will effectively disallow the so called "buggy local logout" state
+        $honorServiceProviderAuthState = true;
+
+        // This is here for cases when we migrate honoring SP auth state to config .. not needed nor planned yet
+        if (!$honorServiceProviderAuthState) {
+            // Check shibboleth login
+            $honorServiceProviderAuthState =
+                $this->params()->fromPost('processLogin') ||
+                $this->params()->fromPost('auth_method') ||
+                $this->params()->fromQuery('auth_method');
+        }
+
+        // When accepting terms of use, don't honor service provider's authentication state
+        $honorServiceProviderAuthState = $honorServiceProviderAuthState && !$acceptingTermsOfUse;
+
+        if ($honorServiceProviderAuthState) {
             try {
-                if (! $this->getAuthManager()->isLoggedIn()) {
+                if (!$this->getAuthManager()->isLoggedIn()) {
                     $this->getAuthManager()->login($this->getRequest());
                 }
             } catch (AuthException $e) {
