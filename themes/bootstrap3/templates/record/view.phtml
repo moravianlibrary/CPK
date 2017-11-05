@@ -146,24 +146,24 @@
 			<?=$this->record($this->driver)->getCoreMetadata()?>
             <? if ($this->driver instanceof CPK\RecordDriver\SolrMarc && !($this->driver instanceof CPK\RecordDriver\SolrAuthority) && $source != "library"): ?>
                 <div class='row records-in-groups-container' id='records-in-groups-container'>
-                  <div class='col-md-2 text-center'>
+                  <div class='col-md-12 col-lg-2 text-center'>
                     <h3 id='records-in-groups'><strong><?=$this->translate('Select institution')?></strong>: </h3>
                   </div>
                   <? if($this->sigla): ?>
-                  <div class='col-md-8'>
+                  <div class='col-xs-12 col-lg-8'>
                   <? else: ?>
-                  <div class='col-md-10'>
+                  <div class='col-xs-12 col-lg-8'>
                   <? endif; ?>
                     <?= $this->render('RecordDriver/SolrDefault/records-in-groups.phtml'); ?>
                   </div>
                   <? if($this->sigla): ?>
-                  <div class='col-md-2 information'>
+                  <div class='col-xs-12 col-lg-2 information'>
                     <a href='/Libraries/Library?sigla=<?=$this->sigla?>' target='_blank' title='<?=$this->translate('Information about library')?>'>
                       <div class='row'>
-                        <div class='col-md-3 information-icon'>
+                        <div class='col-xs-1 col-xs-offset-4 col-lg-3 col-lg-offset-0'>
                           <i class='cpk-icon'>i</i>
                         </div>
-                        <div class='col-md-9'>
+                        <div class='col-xs-6 col-lg-9'>
                           <span><?=$this->translate('Information about library')?></span>
                         </div>
                       </div>
