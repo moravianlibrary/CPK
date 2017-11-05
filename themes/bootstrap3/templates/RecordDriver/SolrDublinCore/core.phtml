@@ -11,7 +11,7 @@
 
 <div class="well">
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
-  <div class="col-sm-3">
+  <div class="col-xs-12 col-xs-offset-3 col-sm-12 col-sm-offset-3 col-md-3 col-md-offset-0">
     <div class="text-center #cover" id="cover">
         <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
         <script type="text/javascript">
@@ -35,8 +35,10 @@
 
   <div class="col-sm-9">
     <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h2>
-	<div class='want-it'>
-        <?=$this->translate('Want it')?>
+    <div class="row">
+      <div class='col-xs-12 col-lg-4 want-it'>
+          <?=$this->translate('Want it')?>
+      </div>
     </div>
     <? $summary = $this->driver->getSummary(); $summary = isset($summary[0]) ? $this->escapeHtml($summary[0]) : false; ?>
     <? if ($summary): ?>

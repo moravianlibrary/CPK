@@ -13,7 +13,7 @@
              $cover = $this->record($this->driver)->getCover('core', 'medium', $this->record($this->driver)->getThumbnail('large'));
              $preview = $this->record($this->driver)->getPreviews(); ?>
           <? if ($QRCode || $cover || $preview): ?>
-          <div class="col-sm-3">
+          <div class="col-xs-12 col-xs-offset-3 col-sm-12 col-sm-offset-3 col-md-3 col-md-offset-0">
             <div class="row text-center #cover" id="cover">
                 <? $formats = $this->driver->getFormats(); ?>
                 <? if (! empty($formats)): ?>
@@ -47,9 +47,12 @@
             <h2 class='record-title' property='name'>
               <strong><?=$this->escapeHtml($this->driver->getTitle())?></strong>
             </h2>
-            <div class='want-it'>
-                <?=$this->translate('Want it')?>
+            <div class="row">
+              <div class='col-xs-12 col-lg-4 want-it'>
+                  <?=$this->translate('Want it')?>
+              </div>
             </div>
+
             <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
               <? foreach ($summ as $field): ?>
                 <p><?=$this->escapeHtml($field)?></p>
