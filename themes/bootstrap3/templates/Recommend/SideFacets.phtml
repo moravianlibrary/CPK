@@ -52,9 +52,9 @@ foreach ($queryParams as $key => $value) {
 ?>
 
 <? if ($results->getResultTotal() > 0): ?>
-    <h3 class='side-facets-header'>
+    <h3 class='side-facets-header facets-questionmark-help'>
       <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
-      <?= $this->help()->getQuestionMarkHelp('facets') ?>
+        <?= $this->help()->getQuestionMarkHelp('facets') ?>
     </h3>
 <? endif; ?>
 
@@ -138,7 +138,7 @@ foreach ($queryParams as $key => $value) {
       <div class='row' style='padding-top: 6px;'>
 <!--Begin of Facet title div-->
         <? if($cluster['label'] == 'Institution'): ?>
-        <div class="col-xs-7 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
+        <div class="col-xs-7 col-sm-12 col-lg-7 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
         <? else: ?>
         <div class="col-xs-12 list-group-item title<? if(in_array($title, $collapsedFacets)): ?> collapsed<? endif ?>" data-toggle="collapse" href="#side-collapse-<?=$this->escapeHtmlAttr($title) ?>" >
         <? endif; ?>
@@ -155,7 +155,7 @@ foreach ($queryParams as $key => $value) {
 <!--End of Facet title div-->
 <!--Begin of Institution loaders div-->
             <? if($cluster['label'] == 'Institution'): ?>
-            <div class='col-xs-5 institutions-loaders'>
+            <div class='col-xs-5 col-sm-12 col-lg-5 institutions-loaders'>
                 <? if($this->auth()->isLoggedIn()): ?>
                 <a href='#' title='<?=$this->translate('Load preferred institutions')?>' data-toggle="tooltip" id='load-saved-institutions'>
                     <i class='pr-web-uploadarrow'> </i>
