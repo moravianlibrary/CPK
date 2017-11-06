@@ -185,9 +185,9 @@
 	function saveFavorite(favorite) {
 	    return new Promise(function(resolve, reject) {
 
-		favorites.push(favorite.toObject());
+			favorites.push(favorite.toObject());
 
-		saveFavorites().then(resolve).catch(reject);
+			saveFavorites().then(resolve).catch(reject);
 	    });
 	}
 

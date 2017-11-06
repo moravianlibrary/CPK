@@ -74,15 +74,15 @@
 	    return vm;
 	    
 	    function parseTitleForSearchRecord() {
-		var anchor = desiredRecord.querySelector('a.title');
+            var anchor = desiredRecord.querySelector('a.to-favorites-link');
 		
-		if (anchor) {
-		    vm.titleLink(anchor.getAttribute('href'));
-		    
-		    return anchor.textContent.trim();
-		}
-		
-		console.error('Parsing search record title and link failed!');
+			if (anchor) {
+				vm.titleLink(anchor.getAttribute('href'));
+
+                return desiredRecord.querySelector('a.title').textContent.trim();
+			}
+
+			console.error('Parsing search record title and link failed!');
 	    }
 
 	    function parseAuthorForSearchRecord() {

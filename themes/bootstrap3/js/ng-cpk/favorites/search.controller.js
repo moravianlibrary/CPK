@@ -134,14 +134,13 @@
 	    
 	    storage.addFavorite(favs[rank]).then(function() {
 		
-		switchAddRemoveSpanVisibility(rank);
-		
-		// Broadcast this event across all tabs
-		favsBroadcaster.broadcastAdded(favs[rank]);
+			switchAddRemoveSpanVisibility(rank);
+
+			// Broadcast this event across all tabs
+			favsBroadcaster.broadcastAdded(favs[rank]);
 		
 	    }).catch(function(reason) {
-		
-		$log.error(reason);
+			$log.error(reason);
 	    });
 	};
 	
@@ -153,14 +152,14 @@
 	    
 	    storage.removeFavorite(id).then(function() {
 		
-		switchAddRemoveSpanVisibility(rank);
-		
-		// Broadcast this event across all tabs
-		favsBroadcaster.broadcastRemoved(favs[rank]);
+			switchAddRemoveSpanVisibility(rank);
+
+			// Broadcast this event across all tabs
+			favsBroadcaster.broadcastRemoved(favs[rank]);
 		
 	    }).catch(function(reason) {
 		
-		$log.error(reason);
+			$log.error(reason);
 	    });
 	}
 	
