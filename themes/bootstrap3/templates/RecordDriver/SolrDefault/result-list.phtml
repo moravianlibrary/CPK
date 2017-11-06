@@ -153,7 +153,6 @@
   $recordsInLibraries = $prependedLibraries + $foundRecords;
 
   $firstRecordInInstitutions = reset($recordsInLibraries);
-
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
     <div class="white-box clearfix">
@@ -164,8 +163,8 @@
         <? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
         <div class="col-sm-2 col-xs-3 left">
 
-            <? if ($this->params->getSearchType() == 'advanced'): ?>
-            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <? if ($this->fromEmailSearch): ?>
+            <a href='/Record/<?=$this->driver->getUniqueID()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
             <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? endif;?>
@@ -195,11 +194,12 @@
         <? endif; ?>
     <div class="<? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>col-sm-7 col-xs-7<? else: ?>library-result<? endif; ?> middle search-result-container">
       <div class="root-title">
-        <? if ($this->params->getSearchType() == 'advanced'): ?>
-        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
+        <? if ($this->fromEmailSearch): ?>
+            <a href="/Record/<?=$this->driver->getUniqueID()?>" class="title">
         <? else: ?>
-        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
+            <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
         <? endif;?>
+
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
           $summTitle = $this->driver->getTitle();
