@@ -727,4 +727,23 @@ class User extends BaseUser
 
         return $hasAccountAlready;
     }
+
+    /**
+     * Checks if user is authorised through social network account
+     *
+     * @return bool
+     */
+    public function isSocialUser() {
+        return ($this->cat_username === "Dummy.social");
+    }
+
+    /**
+     * Get name of user`s social network which he have come from
+     *
+     * @return bool
+     */
+    public function getSource() {
+        $pattern = '/^[_a-zA-Z0-9-.]+@([a-zA-Z0-9]+)\.(.)+/i';
+        return preg_match($pattern, $this->username, $matches) ? $matches[1] : false;
+    }
 }
