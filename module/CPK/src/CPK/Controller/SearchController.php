@@ -1348,7 +1348,9 @@ class SearchController extends SearchControllerBase
 
 	    $recordTotal = $viewData['results']->getResultTotal();
 
-	    $title = $results->getUrlQuery()->isQuerySuppressed() ? '' : $results->getParams()->getDisplayQuery();
+        $lookfor = $results->getUrlQuery()->isQuerySuppressed() ? '' : $results->getParams()->getDisplayQuery();
+        $viewRender = $this->getServiceLocator()->get('ViewRenderer');
+        $title = $viewRender->translate('Search Results') . (empty($lookfor) ? '' : " - {$lookfor}");
 
 	    $data = [
             'title' => $title,
