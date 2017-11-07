@@ -1348,7 +1348,10 @@ class SearchController extends SearchControllerBase
 
 	    $recordTotal = $viewData['results']->getResultTotal();
 
+	    $title = $results->getUrlQuery()->isQuerySuppressed() ? '' : $results->getParams()->getDisplayQuery();
+
 	    $data = [
+            'title' => $title,
             'viewData' => $viewData,
 	        'resultsHtml' => json_encode(['html' => $sanitizedResultsHtml]),
             'paginationHtml' => json_encode(['html' => $paginationHtml]),

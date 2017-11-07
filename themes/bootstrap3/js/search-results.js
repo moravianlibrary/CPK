@@ -471,6 +471,7 @@ jQuery( document ).ready( function( $ ) {
                             }
 
                             var responseData = response.data;
+                            var title = response.data.title;
                             var resultsHtml = JSON.parse(responseData.resultsHtml);
                             var facetsHtml = JSON.parse(responseData.sideFacets);
                             var resultsAmountInfoHtml = JSON.parse(responseData.resultsAmountInfoHtml);
@@ -484,6 +485,8 @@ jQuery( document ).ready( function( $ ) {
                             } else {
                                 console.error('Sorry! No Web Storage support.');
                             }
+
+                            document.title = title;
 
 							/* Ux content replacement */
                             $('#search-results-loader').remove();
