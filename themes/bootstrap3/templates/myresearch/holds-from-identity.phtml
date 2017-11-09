@@ -15,6 +15,8 @@
                 <input form="cancelHold" type="checkbox" name="cancelSelectedIDS[]" value="<?=$this->escapeHtmlAttr($ilsDetails['cancel_details']) ?>" id="checkbox_<?=$safeId?>" />
               <? endif; ?>
             </div>
+          <? else: ?>
+            <div class="col-xs-1"></div>
           <? endif; ?>
           <div class="col-md-2 text-center">
             <?
