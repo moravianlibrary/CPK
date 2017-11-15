@@ -1,4 +1,5 @@
 <? $list = $this->params->getSortList(); if (!empty($list)): ?>
+  <? if(!$this->librarySearch): ?>
     <div class="dropdown" id="sort-container">
       <button class="btn btn-default dropdown-toggle ajax-update-sort" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
         <span><?=$this->translate('Sort')." "?></span>
@@ -19,4 +20,5 @@
         <? endforeach; ?>
       </ul>
     </div>
+  <? endif; ?>
 <? endif; ?>
