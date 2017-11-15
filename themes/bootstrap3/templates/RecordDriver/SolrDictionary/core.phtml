@@ -2,13 +2,23 @@
     $id = $this->driver->getUniqueID();
     $recordSource = $source = explode(".", $id)[0];
     $maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
+
+    $formats = $this->driver->getFormats();
 ?>
 
 <div class="well">
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
   <div class="col-sm-3">
     <div class="text-center #cover" id="cover">
-        <img src="<?=$this->url('cover-unavailable')?>" class="recordcover" alt="<?=$this->transEsc('No Cover Image')?>"/>
+
+        <? if (! empty($formats)): ?>
+            <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-<?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
+        <? elseif ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
+            <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+        <? else: ?>
+            <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+        <? endif; ?>
+
         <script type="text/javascript">
             obalky.display_authority_cover("#cover", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert("record"))?>);
         </script>
@@ -76,7 +86,7 @@
       </tr>
       <? endif; ?>
 
-      <? $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
+      <? if (!empty($formats)): ?>
       <tr>
          <th class="col-md-3"><?=$this->transEsc('Format')?>: </th>
          <td><?=$this->record($this->driver)->getFormatList()?></td>
