@@ -651,7 +651,13 @@ class AlephWebServices {
         foreach ($path_elements as $path_element) {
             $path .= $path_element . "/";
         }
-        $url = "http://$this->host:$this->dlfport/rest-dlf/" . $path;
+
+        $url = "$this->host:$this->dlfport/rest-dlf/" . $path;
+        //if url has https protocol, don`t add http before url
+        if(strpos($url, 'https://') === false) {
+            $url = 'http://'.$url;
+        }
+
         $headers = ["accept" => "application/xml"];
         if ($this->language) {
             $params['lang'] = $this->language;
