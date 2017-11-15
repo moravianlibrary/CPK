@@ -164,9 +164,9 @@
         <div class="col-sm-2 col-xs-3 left">
 
             <? if ($this->fromEmailSearch): ?>
-            <a href='/Record/<?=$this->driver->getUniqueID()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <a href='/Record/<?=$this->driver->getUniqueID()?>' title='<?=htmlspecialchars($this->driver->getTitle())?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
-            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=htmlspecialchars($this->driver->getTitle())?>' tabindex='-1' style='cursor: pointer;'>
             <? endif;?>
             	<div class="coverThumbnail cover_<?=$recordId?>">
 
