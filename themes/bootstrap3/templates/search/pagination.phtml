@@ -10,7 +10,7 @@
 <div class='col-md-12'>
     <div class='row'>
 
-      <div class='col-md-2'>
+      <div class='col-lg-2'>
           <ul class="pagination" style='float: left;'>
             <? if (isset($this->previous)): ?>
               <li><a class='ajax-update-page' href="<?=$this->previous?>"><i class="pr-interface-arrowleft"></i>
@@ -19,7 +19,7 @@
           </ul>
       </div>
 
-      <div class='col-md-8' style='text-align: center'>
+      <div class='col-lg-8 pagination-numbers' style='text-align: center'>
           <ul class="pagination" align='center'>
             <? if (isset($this->previous)): ?>
               <? if (!isset($this->options['disableFirst']) || !$this->options['disableFirst']): ?>
@@ -61,7 +61,7 @@
           </ul>
       </div>
 
-      <div class='col-md-2'>
+      <div class='col-lg-2'>
           <ul class="pagination" style='float: right'>
             <? if (isset($this->next)): ?>
               <li style='float: right;'><a class='ajax-update-page' href="<?=$this->next?>"><?=$this->transEsc('Next');?> <i class="pr-interface-arrowright"></i>

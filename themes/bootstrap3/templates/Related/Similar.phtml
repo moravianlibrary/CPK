@@ -16,7 +16,7 @@
             ?>
         	<div class="row list-group-item clearfix">
               <? if(! ($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
-              <div class="col-md-3 ">
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-3 similar-item">
     			<? $recordId =  preg_replace("/\./", "", $recordId)?>
                     <? $recordId =  preg_replace("/:/", "", $recordId)?>
               		<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?><?="?referer=".$this->referer?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($format)?>)' class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
@@ -37,7 +37,7 @@
                     </a>
               </div>
               <? endif; ?>
-              <div class="col-md-9 content">
+              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-9 similar-item content">
                 <h5 class="list-group-item-heading">
                   <a href='<?=$similarRecordUrl?>'
                     	title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($format)?>)'>
