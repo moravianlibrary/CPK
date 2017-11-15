@@ -88,11 +88,11 @@ class SolrMarc extends ParentSolrMarc
         $patentInfoText = '';
         $patentInfoText .= $this->translate('Patent') . ': ' . $patentInfo['country'] . ', ';
         switch ($patentInfo['type']) {
-            case $this->translate('patent_file_b6'):
+            case 'B6':
                 $patentInfoText .= $this->translate('patent_file'); break;
-            case $this->translate('app_invention_a3'):
+            case 'A3':
                 $patentInfoText .= $this->translate('app_invention'); break;
-            case $this->translate('utility_model_u1'):
+            case 'U1':
                 $patentInfoText .= $this->translate('utility_model'); break;
             default:
                 $patentInfoText .= $this->translate('unknown_patent_type'); break;
