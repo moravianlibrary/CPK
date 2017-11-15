@@ -26,11 +26,21 @@
 	});
 </script>
 
-<? if($this->refererUrl): ?>
+<? if($this->refererUrl){ ?>
 	<a class='back-to-search-link' href='<?=$this->refererUrl?>' title='<?=$this->translate('Back to search results')?>'>
 		<i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
 	</a>
-<? endif; ?>
+<? } else { ?>
+
+    <a class='back-to-search-link' href='' title='<?=$this->translate('Back to search results')?>'>
+        <i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
+    </a>
+    <script>
+        $(".back-to-search-link").attr("href", document.referrer);
+    </script>
+
+<? } ?>
+
 
 <? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
   <ul class="pager hidden-print">
