@@ -28,6 +28,7 @@
  */
 namespace CPK\Controller;
 
+use CPK\Auth\Manager as AuthManager;
 use VuFind\Controller\MyResearchController as MyResearchControllerBase,
  VuFind\Exception\Auth as AuthException,
  VuFind\Exception\ListPermission as ListPermissionException,
@@ -757,6 +758,10 @@ class MyResearchController extends MyResearchControllerBase
 
         $authManager = $this->getAuthManager();
 
+        if (! $authManager instanceof AuthManager) {
+            throw new AuthException("ERROR: authManager is not CPK\\Manager");
+        }
+
         if (empty($entityIdInitiatedWith)) {
 
             return $this->redirect()->toRoute('librarycards-home');
@@ -767,7 +772,7 @@ class MyResearchController extends MyResearchControllerBase
                 $this->clearFollowupUrl();
 
             try {
-                $user = $this->getAuthManager()->consolidateIdentity();
+                $user = $authManager->consolidateIdentity();
             } catch (AuthException $e) {
                 $this->processAuthenticationException($e);
 
