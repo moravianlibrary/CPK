@@ -180,11 +180,45 @@
   max-height: 200px;
   //width: 300px;
   overflow-x: hidden;
+  overflow-y: scroll;
   padding: 6px;
   @media (min-width: @screen-sm) {
     left: auto;
     right: 0px;
   }
+  //@media (max-width: @screen-sm) {
+  //  .box-shadow(inset 0px -24px 50px -41px rgba(8,8,8,1));
+  //}
+}
+
+.dropdown-menu.scrollable-menu {
+  @media (max-width: @screen-xs) {
+    position: relative;
+  }
+}
+
+.scrollable-menu::-webkit-scrollbar {
+  -moz-appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 10px !important;
+}
+
+.scrollable-menu::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3) !important;
+  -webkit-border-radius: 10px !important;
+  border-radius: 10px !important;
+}
+
+.scrollable-menu::-webkit-scrollbar-thumb {
+  -webkit-border-radius: 10px !important;
+  border-radius: 10px !important;
+  background: #9f9f9f !important;
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5) !important;
+
+}
+
+.scrollable-menu::-webkit-scrollbar-thumb:window-inactive {
+  background: #9f9f9f !important;
 }
 
 .scrollable-menu li {
