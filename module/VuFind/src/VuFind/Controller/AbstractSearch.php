@@ -69,6 +69,13 @@ class AbstractSearch extends AbstractBase
     protected $rememberSearch = true;
 
     /**
+     * Is this search from email message?
+     *
+     * @var bool
+     */
+    protected $fromEmailSearch = false;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -338,6 +345,9 @@ class AbstractSearch extends AbstractBase
         $config = $this->getServiceLocator()->get('VuFind\Config')->get('config');
         $view->showBulkOptions = isset($config->Site->showBulkOptions)
           && $config->Site->showBulkOptions;
+
+        //if we show results from email message
+        $view->fromEmailSearch = $this->fromEmailSearch;
 
         return $view;
     }

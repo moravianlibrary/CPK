@@ -184,8 +184,6 @@ class CartController extends AbstractBase
         // Retrieve follow-up information if necessary:
         if (!is_array($ids) || empty($ids)) {
             $ids = $this->followup()->retrieveAndClear('cartIds');
-        }
-        if (!is_array($ids) || empty($ids)) {
             return $this->redirectToSource('error', 'bulk_noitems_advice');
         }
 
@@ -213,7 +211,7 @@ class CartController extends AbstractBase
             foreach ($ids as $current) {
                 $params[] = urlencode('id[]') . '=' . urlencode($current);
             }
-            $url = $this->getServerUrl('records-home') . '?' . implode('&', $params);
+            $url = $this->getServerUrl('records-home') . '?email=1&' . implode('&', $params);
 
             // Attempt to send the email and show an appropriate flash message:
             try {

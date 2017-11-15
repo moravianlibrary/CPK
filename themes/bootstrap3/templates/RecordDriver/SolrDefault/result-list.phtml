@@ -153,7 +153,6 @@
   $recordsInLibraries = $prependedLibraries + $foundRecords;
 
   $firstRecordInInstitutions = reset($recordsInLibraries);
-
 ?>
 <div class="<?=$this->driver->supportsAjaxStatus()?'ajaxItem ':''?>col-xs-12">
     <div class="white-box clearfix">
@@ -164,8 +163,8 @@
         <? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>
         <div class="col-sm-2 col-xs-3 left">
 
-            <? if ($this->params->getSearchType() == 'advanced'): ?>
-            <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
+            <? if ($this->fromEmailSearch): ?>
+            <a href='/Record/<?=$this->driver->getUniqueID()?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? else: ?>
             <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=$this->driver->getTitle()?>' tabindex='-1' style='cursor: pointer;'>
             <? endif;?>
@@ -195,11 +194,12 @@
         <? endif; ?>
     <div class="<? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>col-sm-7 col-xs-7<? else: ?>library-result<? endif; ?> middle search-result-container">
       <div class="root-title">
-        <? if ($this->params->getSearchType() == 'advanced'): ?>
-        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
+        <? if ($this->fromEmailSearch): ?>
+            <a href="/Record/<?=$this->driver->getUniqueID()?>" class="title">
         <? else: ?>
-        <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
+            <a href="/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>" class="title">
         <? endif;?>
+
         <?
           $summHighlightedTitle = $this->driver->getHighlightedTitle();
           $summTitle = $this->driver->getTitle();
@@ -374,18 +374,18 @@
                     $controllerClass = 'controller:' . $this->record($this->driver)->getController();
                     $handleOfflineFavorites = ! $this->isLoggedIn && $this->offlineFavoritesEnabled; ?>
                 <li class="list-group-item">
-                <a id="save-record" class="modal-link <?=$controllerClass?>"
+                    <a id="save-record" class="to-favorites-link modal-link <?=$controllerClass?>"
+                     <? if ($handleOfflineFavorites) : ?>
+                        href="/Record/<?=$this->driver->getUniqueID()?>" onclick="return false;" data-ng-click="searchFavCtrl.addOrRemoveFavorite(<?=isset($_ENV['currentRecordNo']) ? $_ENV['currentRecordNo'] : '' ?>)"
+                    <? else: ?>
+                        href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
+                    <? endif; ?>
 
-                 <? if ($handleOfflineFavorites) : ?>
-                    href="#" data-ng-click="searchFavCtrl.addOrRemoveFavorite(<?=isset($_ENV['currentRecordNo']) ? $_ENV['currentRecordNo'] : '' ?>)"
-                <? else: ?>
-                    href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>"
-                <? endif; ?>
-
-                title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i>
-                <span data-add-remove-search="add<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>"><?=$this->transEsc('Add to favorites')?></span>
-                <span data-add-remove-search="rem<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span>
-                </a></li>
+                    title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="pr-interface-favoritestar"> </i>
+                    <span data-add-remove-search="add<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>"><?=$this->transEsc('Add to favorites')?></span>
+                    <span data-add-remove-search="rem<?=isset($_ENV['currentRecordNo']) ? ':' . $_ENV['currentRecordNo'] : '' ?>" hidden ><b><?=$this->transEsc('remove_from_favorites')?></b></span>
+                    </a>
+                </li>
               <? endif; ?>
               </div>
             <? endif; ?>

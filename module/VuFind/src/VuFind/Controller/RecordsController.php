@@ -65,6 +65,10 @@ class RecordsController extends AbstractSearch
             return $this->redirect()->toUrl($target . $params);
         }
 
+        if($this->params()->fromQuery('email')) {
+            $this->fromEmailSearch = true;
+        }
+
         // Not exactly one record -- show search results:
         return $this->resultsAction();
     }
