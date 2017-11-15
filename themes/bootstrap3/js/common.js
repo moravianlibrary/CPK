@@ -522,23 +522,21 @@ jQuery( document ).ready( function( $ ){
 			}
 		}
 	});
-  
+
     /* Change language */
 	$( 'nav' ).on( 'click', '.change-language', function( event ){
 		event.preventDefault();
-		
+
 		var language = $( this ).attr( 'data-lang' );
-		
+
 		if ( event.ctrlKey ){
-			var currentUrl = window.location.href;
-			window.open( $( this ).attr( 'href' ), '_blank' );
-			return false;
+            document.langForm.setAttribute('target', '_blank');
 		}
-		
+
 		changeLanguage(language);
-	}); 
-	
-	var changeLanguage = function(language) {
+	});
+
+    var changeLanguage = function(language) {
 		document.langForm.mylang.value = language;
 		document.langForm.submit();
 	}
