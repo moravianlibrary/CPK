@@ -69,7 +69,7 @@ if ($this->loggedIn === false) {
           <?=$this->record($current)->getListEntry($list, $user)?>
         <? endforeach; ?>
       </form>
-      <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination.phtml', array('results' => $this->results))?>
+      <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'myresearch/pagination.phtml', array('results' => $this->results))?>
     <? else: ?>
       <p><?=$this->transEsc('You do not have any saved resources')?></p>
     <? endif; ?>
