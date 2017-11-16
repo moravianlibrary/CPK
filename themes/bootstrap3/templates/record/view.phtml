@@ -307,8 +307,10 @@
             jQuery( document ).ready( function( $ ) {
 
                 // Disable eversion tab
-                var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
-                if (!eVersionLinksCount) {
+                <?if($this->eVersionLinksCount):?>
+                    var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
+                <?endif;?>
+                if (typeof eVersionLinksCount === 'undefined' || !eVersionLinksCount) {
                     disableTab($( '#eversion' ));
                     //hide table inside the tab
                     $( "#e-version-table" ).addClass( 'hidden' );
