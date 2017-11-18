@@ -132,44 +132,85 @@ class LibrariesController extends AbstractBase
 
     public function markersJsonAction()
     {
-        $query = urlencode($this->params()->fromQuery('q'));
-        $query = (! empty($query)) ? $query : "*";
+        $resultsLimit = 7000;
+        $resultsPerIteration = 1000;
+        $iterations = $resultsLimit / $resultsPerIteration;
 
-        $url = $this->config->Index->url."/".$this->config->Index->default_core."/select?";
-        $url .= "q=recordtype:library";
+        $queryParam = urlencode($this->params()->fromQuery('q'));
+        $filterParam = urlencode($this->params()->fromQuery('filter'));
 
-        $url .= "%0A";
-        $url .= "allLibraryFields_txt_mv:($query)";
+        $query = (! empty($queryParam)) ? $queryParam : "*";
 
-        $url .= "%0A";
-        $url .= "portal_facet_str:(KNIHOVNYCZ_YES)";
-
-        $url .= "%0A";
-        $url .= "merged_child_boolean:(true)";
-
-        $url .= "&fl=name_search_txt,address_search_txt_mv,reg_lib_search_txt_mv,gps_str";
-        $url .= "&wt=json";
-        $url .= "&indent=true";
-        $url .= '&rows=20000';
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        $solrResponse = curl_exec($ch);
-        curl_close($ch);
-        $results = \Zend\Json\Json::decode($solrResponse, \Zend\Json\Json::TYPE_ARRAY);
+        $filters = [];
+        if (! empty($filterParam)) {
+            $filters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($filterParam)));
+        }
 
         $data = [];
-        if (isset($results['response']['numFound']) && $results['response']['numFound'] > 0) {
-            foreach ($results['response']['docs'] as $library) {
-                if (! empty($library['gps_str'])) {
-                    $data[] = [
-                        'name' => $library['name_search_txt'] ?: '',
-                        'address' => $library['address_search_txt_mv'][0] ?: '',
-                        'sigla' => $library['reg_lib_search_txt_mv'][0] ?: '',
-                        'latitude' => explode(" ", $library['gps_str'])[0],
-                        'longitude' => explode(" ", $library['gps_str'])[1],
-                    ];
+        for ($i = 0; $i < $iterations; $i++) {
+
+            $offset = $i * $resultsPerIteration;
+
+            $url = $this->config->Index->url."/".$this->config->Index->default_core."/select?";
+
+            /*$url .= "q=$query";
+            $url .= "&fq=NOT+recordtype%3Alibrary+AND+NOT+recordtype%3Asfx";*/
+            
+            //$url .= "q=recordtype:library";
+
+            $url .= "q=recordtype:library";
+            $url .= "%0A";
+            $url .= "merged_child_boolean:(true)";
+
+            foreach ($filters as $filter) {
+                $url .= "%0A";
+                $url .= "$filter";
+            }
+
+            if ($query != '*') {
+
+                //$url .= "allLibraryFields_txt_mv:($query)";
+
+                $reader = $this->getServiceLocator()->get('VuFind\SearchSpecsReader');
+                $specs = $reader->get('searchspecs.yaml');
+                $librariesFields = isset($specs['Author']['DismaxFields']) ? $specs['Libraries']['DismaxFields'] : [];
+
+                if (count($librariesFields)) {
+                    $url .= "&fq=";
+                    foreach ($librariesFields as $libraryField) {
+                        $field = explode("^", $libraryField)[0];
+                        $url .= $field.":($query)+OR+";
+                    }
+
+                    $url = substr($url, 0, -4);
+                }
+            }
+
+            $url .= "&fl=name_search_txt,address_search_txt_mv,reg_lib_search_txt_mv,gps_str,id";
+            $url .= "&wt=json";
+            $url .= "&indent=true";
+            $url .= '&rows=' . $resultsPerIteration;
+
+            $url .= '&start=' . $offset;
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+            $solrResponse = curl_exec($ch);
+            curl_close($ch);
+            $results = \Zend\Json\Json::decode($solrResponse, \Zend\Json\Json::TYPE_ARRAY);
+
+            if (isset($results['response']['numFound']) && $results['response']['numFound'] > 0) {
+                foreach ($results['response']['docs'] as $library) {
+                    if (! empty($library['gps_str'])) {
+                        $data[] = [
+                            'name' => ! empty($library['name_search_txt']) ? $library['name_search_txt'] : '',
+                            'address' => ! empty($library['address_search_txt_mv'][0]) ? $library['address_search_txt_mv'][0] : '',
+                            'id' => $library['id'] ? $library['id'] : '',
+                            'latitude' => explode(" ", $library['gps_str'])[0],
+                            'longitude' => explode(" ", $library['gps_str'])[1],
+                        ];
+                    }
                 }
             }
         }

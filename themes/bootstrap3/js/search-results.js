@@ -441,6 +441,20 @@ jQuery( document ).ready( function( $ ) {
 
                         scrollToTop();
 
+                        if ((data['type0'] == "Libraries") && (undefined != data['lookfor0'][0])) {
+                            console.log( "!!!!!!!Get Map from search-results.js" );
+
+                            //$( '#map' ).hide( 'blind', {}, 200 );
+                            //$( '#map' ).empty();
+
+                            if (data['filter'].length > 1) {
+                                getData(data['lookfor0'][0], data['filter']);
+                            } else {
+                                getData(data['lookfor0'][0]);
+                            }
+                            //$( '#map' ).hide( 'blind', {}, 200 );
+                        }
+
                         var loader = "<div id='search-results-loader' class='text-center'></div>";
                         $('#result-list-placeholder').hide('blind', {}, 200, function () {
                             $('#result-list-placeholder').before(loader);
@@ -544,6 +558,10 @@ jQuery( document ).ready( function( $ ) {
                             event.initCustomEvent('searchResultsLoaded', false, false, {});
 
                             localStorage.setItem("facetsApplied", parseInt('0'));
+
+                            if (data['type0'] == "Libraries") {
+                                $( '#map' ).show('blind', {}, 200);
+                            }
 
                         } else {
                             console.error(response.data);
