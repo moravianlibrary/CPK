@@ -612,6 +612,13 @@ jQuery( document ).ready( function( $ ) {
                             });
                         }
 
+                        if (data['database'] == 'Solr') {
+                            $("#ci-autocomplete-help").attr('class', 'hidden')
+                            $("#autocomplete-help").removeAttr('class')
+                        } else if (data['database'] == "EDS") {
+                            $("#autocomplete-help").attr('class', 'hidden');
+                            $("#ci-autocomplete-help").removeAttr('class');
+                        }
                     },
                     error: function (xmlHttpRequest, status, error) {
                         $('#search-results-loader').remove();
