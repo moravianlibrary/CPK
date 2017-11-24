@@ -162,11 +162,6 @@ class LibrariesController extends AbstractBase
             $url .= "%0A";
             $url .= "merged_child_boolean:(true)";
 
-            foreach ($filters as $filter) {
-                $url .= "%0A";
-                $url .= "$filter";
-            }
-
             if ($query != '*') {
 
                 //$url .= "allLibraryFields_txt_mv:($query)";
@@ -186,6 +181,37 @@ class LibrariesController extends AbstractBase
                 }
             }
 
+            $andFacets = [];
+            $orFacets = [];
+
+            foreach ($filters as $filter) {
+                if ($filter[0] == '~') {
+                    $facetName = str_replace("~", "", explode(":", $filter)[0]);
+                    $facet = str_replace("~", "", $filter);
+                    if (! isset($orFacets[$facetName])) {
+                        $orFacets[$facetName] = [];
+                        $orFacets[$facetName][] = $facet;
+                    } else {
+                        $orFacets[$facetName][] = $facet;
+                    }
+
+                } else {
+                    $andFacets[] = $filter;
+                }
+            }
+
+            foreach ($andFacets as $facet) {
+                $url .= "&fq=".urlencode($facet);
+            }
+
+            foreach ($orFacets as $facetNames) {
+                $url .= "&fq=";
+                foreach ($facetNames as $facet) {
+                    $url .= urlencode($facet)."+OR+";
+                }
+                $url = substr($url, 0, -4);
+            }
+
             $url .= "&fl=name_search_txt,address_search_txt_mv,reg_lib_search_txt_mv,gps_str,id";
             $url .= "&wt=json";
             $url .= "&indent=true";
@@ -198,7 +224,12 @@ class LibrariesController extends AbstractBase
             curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
             $solrResponse = curl_exec($ch);
             curl_close($ch);
-            $results = \Zend\Json\Json::decode($solrResponse, \Zend\Json\Json::TYPE_ARRAY);
+
+            try {
+                $results = \Zend\Json\Json::decode($solrResponse, \Zend\Json\Json::TYPE_ARRAY);
+            } catch (\Exception $e) {
+                return new JsonModel(['error' => 'Map cannot be loaded. Bad Solr response.']);
+            }
 
             if (isset($results['response']['numFound']) && $results['response']['numFound'] > 0) {
                 foreach ($results['response']['docs'] as $library) {

@@ -264,9 +264,14 @@
         if (undefined != query) {
             var url = "/Libraries/markersJson?q="+query+"&filter="+filter;
             $.getJSON(url, function(data) {
-                initialize(data);
-                $( '#map-loader' ).parent().addClass( 'hidden' );
-                $( '#map' ).css( 'height', '600px').removeClass( 'hidden' );
+                if (data.error) {
+                    $( '#map-loader' ).parent().addClass( 'hidden' );
+                    console.error( data.error );
+                } else {
+                    initialize(data);
+                    $( '#map-loader' ).parent().addClass( 'hidden' );
+                    $( '#map' ).css( 'height', '600px').removeClass( 'hidden' );
+                }
             });
         }
     }
