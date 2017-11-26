@@ -6,7 +6,7 @@
  * Time: 19:49
  */
 
-namespace CPK\XmlTransformation;
+namespace CPK\ILS\Logic\XmlTransformation;
 
 
 /**
@@ -16,7 +16,7 @@ namespace CPK\XmlTransformation;
  *
  * It should enhance XML manipulation & make programmer's life much much easier :)
  *
- * @package CPK\XmlTransformation
+ * @package CPK\ILS\Logic\XmlTransformation
  */
 class SimpleXMLElementEnhanced extends \SimpleXMLElement
 {

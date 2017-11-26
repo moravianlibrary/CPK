@@ -233,7 +233,7 @@ $config = array(
             'wantitfactory' => 'CPK\WantIt\Factory',
             'searchController' => 'CPK\Controller\SearchController',
             'ajaxCtrl' => 'CPK\Controller\AjaxController',
-            'CPK\NCIPNormalizer' => 'CPK\XmlTransformation\NCIPNormalizer'
+            'CPK\NCIPNormalizer' => 'CPK\ILS\Logic\XmlTransformation\NCIPNormalizer'
         )
     ),
     'view_manager' => array(

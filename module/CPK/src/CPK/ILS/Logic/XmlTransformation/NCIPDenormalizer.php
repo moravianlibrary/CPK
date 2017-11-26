@@ -6,13 +6,13 @@
  * Time: 18:25
  */
 
-namespace CPK\XmlTransformation;
+namespace CPK\ILS\Logic\XmlTransformation;
 
 
 /**
  * Class NCIPDenormalizer
  *
- * @package CPK\XmlTransformation
+ * @package CPK\ILS\Logic\XmlTransformation
  */
 class NCIPDenormalizer
 {
@@ -44,7 +44,7 @@ class NCIPDenormalizer
     }
 
     /**
-     * Returns normalized NCIP request with respect to source & method.
+     * Returns denormalized NCIP request with respect to source & method.
      *
      * @param string $request
      * @return string

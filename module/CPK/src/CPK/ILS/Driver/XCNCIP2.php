@@ -29,9 +29,9 @@
 
 namespace CPK\ILS\Driver;
 
-use CPK\XmlTransformation\NCIPNormalizer;
-use CPK\XmlTransformation\NCIPDenormalizer;
-use CPK\XmlTransformation\SimpleXMLElementEnhanced;
+use CPK\ILS\Logic\XmlTransformation\NCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\NCIPDenormalizer;
+use CPK\ILS\Logic\XmlTransformation\SimpleXMLElementEnhanced;
 use \XSLTProcessor as XSLTProcessor;
 use VuFind\Exception\ILS as ILSException, DOMDocument;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
@@ -285,7 +285,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
         // Process the NCIP response:
         $body = $result->getBody();
-        $response = @simplexml_load_string($body, 'CPK\XmlTransformation\SimpleXMLElementEnhanced');
+        $response = @simplexml_load_string($body, 'CPK\ILS\Logic\XmlTransformation\SimpleXMLElementEnhanced');
 
         if (get_class($response) === 'SimpleXMLElementEnhanced') {
             $message = "Problem parsing XML";

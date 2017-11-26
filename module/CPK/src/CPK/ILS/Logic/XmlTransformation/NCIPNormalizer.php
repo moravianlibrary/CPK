@@ -6,7 +6,7 @@
  * Time: 18:25
  */
 
-namespace CPK\XmlTransformation;
+namespace CPK\ILS\Logic\XmlTransformation;
 
 use CPK\ILS\Driver\NCIPRequests;
 use Zend\Log\LoggerAwareInterface;
@@ -15,7 +15,7 @@ use Zend\Log\LoggerInterface;
 /**
  * Class NCIPNormalizer
  *
- * @package CPK\XmlTransformation
+ * @package CPK\ILS\Logic\XmlTransformation
  */
 class NCIPNormalizer implements LoggerAwareInterface
 {
