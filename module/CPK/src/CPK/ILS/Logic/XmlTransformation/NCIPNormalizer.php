@@ -9,6 +9,7 @@
 namespace CPK\ILS\Logic\XmlTransformation;
 
 use CPK\ILS\Driver\NCIPRequests;
+use VuFind\SimpleXML;
 use Zend\Log\LoggerAwareInterface;
 use Zend\Log\LoggerInterface;
 
@@ -19,6 +20,11 @@ use Zend\Log\LoggerInterface;
  */
 class NCIPNormalizer implements LoggerAwareInterface
 {
+    const NAMESPACES = array(
+        'ns2' => 'https://ncip.knihovny.cz/ILSDI/ncip/2015/extensions',
+        'ns1' => 'http://www.niso.org/2008/ncip',
+    );
+
     /**
      * Name of the XCNCIP2 method that has been used
      *
@@ -77,16 +83,18 @@ class NCIPNormalizer implements LoggerAwareInterface
     /**
      * Returns normalized NCIP request with respect to source & method.
      *
-     * @param SimpleXMLElementEnhanced $response
-     * @return SimpleXMLElementEnhanced
+     * @param string $stringXml
+     * @return \SimpleXMLElement
      */
-    public function normalize(SimpleXMLElementEnhanced $response)
+    public function normalize(string $stringXml)
     {
+        $jsonXml = JsonXML::fabricateFromXmlString($stringXml, self::NAMESPACES);
+
         switch ($this->methodName) {
             case 'getMyFines':
                 break;
             case 'getMyHolds':
-                $response = $this->normalizeRequestedItems($response);
+                $this->normalizeRequestedItems($jsonXml);
                 break;
             case 'cancelHolds':
                 break;
@@ -110,17 +118,31 @@ class NCIPNormalizer implements LoggerAwareInterface
                 break;
         }
 
-        return $response;
+        $problem = array(
+            'ns1:Problem' => array(
+                'ns1:Type' => 'Serious Testing Problem!',
+                'ns1:Value' => ' Oh no !! :\'(',
+            )
+        );
+
+        $jsonXml['ns1:LookupUserResponse'] = array_merge($jsonXml['ns1:LookupUserResponse'], $problem);
+
+        $normalizedXml = $jsonXml->toSimpleXml();
+
+        return $normalizedXml;
     }
 
     /**
-     * @param SimpleXMLElementEnhanced $response
-     * @return SimpleXMLElementEnhanced
+     * @param JsonXML $jsonXmlResponse
+     * @return JsonXML
      */
-    protected function normalizeRequestedItems(SimpleXMLElementEnhanced $response)
+    protected function normalizeRequestedItems(JsonXML $jsonXmlResponse)
     {
+        $normalizedJsonXmlResponse = clone $jsonXmlResponse;
+
         // TODO: Rewrite all useXPath (even in XCNCIP2) to this nicer API ...
-        $requestedItems = $response->first("LookupUserResponse")->all("RequestedItem");
+
+        $requestedItems = $jsonXmlResponse->first("LookupUserResponse")->all("RequestedItem");
 
 
         foreach ($requestedItems as $requestedItem) {
@@ -155,7 +177,7 @@ class NCIPNormalizer implements LoggerAwareInterface
                 $extTitle = $requestedItem->first('Ext', 'BibliographicDescription', 'Title');
 
                 if (!$extTitle)
-                    $this->logger->err("Could not normalize NCIP inbound for method " . $this->methodName, [ "! Missing 'Title' ..." ]);
+                    $this->logger->err("Could not normalize NCIP inbound for method " . $this->methodName, ["! Missing 'Title' ..."]);
                 else {
                     // Move ext Title to normal Title ..
                     $requestedItem->addChild('Title', $extTitle[0]);
@@ -163,7 +185,7 @@ class NCIPNormalizer implements LoggerAwareInterface
 
             }
 
-            return $response;
+            return $normalizedJsonXmlResponse;
 
             //TODO
 
@@ -217,7 +239,7 @@ class NCIPNormalizer implements LoggerAwareInterface
             $bib_id = str_replace('kl_us_cat*', 'KlUsCat_', $bib_id);
         }
 
-        return $response;
+        return $jsonXmlResponse;
     }
 
     /**

@@ -29,9 +29,9 @@
 
 namespace CPK\ILS\Driver;
 
+use CPK\ILS\Logic\XmlTransformation\JsonXML;
 use CPK\ILS\Logic\XmlTransformation\NCIPNormalizer;
 use CPK\ILS\Logic\XmlTransformation\NCIPDenormalizer;
-use CPK\ILS\Logic\XmlTransformation\SimpleXMLElementEnhanced;
 use \XSLTProcessor as XSLTProcessor;
 use VuFind\Exception\ILS as ILSException, DOMDocument;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
@@ -220,7 +220,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      *
      * @param string $xml
      *            XML request document
-     * @return SimpleXMLElementEnhanced parsed from response
+     * @return \SimpleXMLElement parsed from response
      * @throws ILSException
      */
     protected function sendRequest($xml)
@@ -285,9 +285,10 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
         // Process the NCIP response:
         $body = $result->getBody();
-        $response = simplexml_load_string($body, 'CPK\ILS\Logic\XmlTransformation\SimpleXMLElementEnhanced');
 
-        if (get_class($response) === 'SimpleXMLElementEnhanced') {
+        $response = $this->normalizeResponse($body);
+
+        if (get_class($response) === '\SimpleXMLElement') {
             $message = "Problem parsing XML";
 
             $this->addEnvironmentalException($message);
@@ -304,8 +305,6 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
             throw new ILSException($message);
         }
-
-        $this->normalizeResponse($response);
 
         return $response;
     }
@@ -493,7 +492,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * Given a chunk of the availability response, extract the values needed
      * by VuFind.
      *
-     * @param SimpleXMLElementEnhanced $current
+     * @param \SimpleXMLElement $current
      *            Current XCItemAvailability chunk.
      *            array $bibinfo Information about record.
      *
@@ -890,9 +889,9 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         } else {
             if (in_array($this->agency, $this->libsLikeTabor)) {
                 if ($this->agency === 'SOG504') {
-                $bibId = '00124' . sprintf('%010d', $bibId);
+                    $bibId = '00124' . sprintf('%010d', $bibId);
                 } elseif  ($this->agency === 'KHG001' ) {
-                $bibId = '00160' . sprintf('%010d', $bibId);
+                    $bibId = '00160' . sprintf('%010d', $bibId);
                 }
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
@@ -1160,7 +1159,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     /**
      * Determines the color of item status' frame.
      *
-     * @param SimpleXMLElementEnhanced $status
+     * @param \SimpleXMLElement $status
      * @return string $label
      */
     protected function determineLabel($status)
@@ -1353,13 +1352,13 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
             } catch (ILSException $e) {
             }
 
-          if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
+            if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
                 $dateDue = $this->useXPath($current, 'dateDue');
-                $dueStatus =$this->hasOverdue($dateDue);
+                $dueStatus = $this->hasOverdue($dateDue);
                 $dateDue = $this->parseDate($dateDue);
-            } 
+            }
 
-	  $retVal[] = array(
+            $retVal[] = array(
                 'cat_username' => $patron['cat_username'],
                 'duedate' => empty($dateDue) ? '' : $dateDue,
                 'id' => $bib_id,
@@ -1621,7 +1620,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         }
         if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
             $email = $this->useXPath($response,
-                    'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/ElectronicAddressData');
+                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/ElectronicAddressData');
         }
         $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
         if (empty($group)) {
@@ -1899,7 +1898,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * Validate XML against XSD schema.
      *
      * @param string $XML
-     *            or SimpleXMLElementEnhanced $XML
+     *            or \SimpleXMLElement $XML
      * @param string $path_to_XSD
      *
      * @throws ILSException
@@ -1912,10 +1911,10 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         if (is_string($XML))
             $doc->loadXML($XML);
         else
-            if (get_class($XML) == 'SimpleXMLElementEnhanced')
+            if (get_class($XML) == '\SimpleXMLElement')
                 $doc->loadXML($XML->asXML());
             else {
-                $message = 'Expected SimpleXMLElementEnhanced or string containing XML.';
+                $message = 'Expected \SimpleXMLElement or string containing XML.';
                 $this->addEnvironmentalException($message);
                 throw new ILSException($message);
             }
@@ -1928,7 +1927,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * Check response from NCIP responder.
      * Check if $response is not containing problem tag.
      *
-     * @param $response SimpleXMLElementEnhanced
+     * @param $response \Traversable
      *            Object
      *
      * @return mixed string Problem | boolean Returns false, if response is without problem.
@@ -1948,7 +1947,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         $_ENV['exceptions']['ncip'] = $message;
     }
 
-    protected function useXPath(SimpleXMLElementEnhanced $xmlObject, $xPath)
+    protected function useXPath(\SimpleXMLElement $xmlObject, $xPath)
     {
         $arrayXPath = explode('/', $xPath);
         $newXPath = "";
@@ -1962,16 +1961,17 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
                 $newXPath .= '/';
         }
         // var_dump($newXPath);
+
         return $xmlObject->xpath($newXPath);
     }
 
     /**
      *
-     * @param SimpleXMLElementEnhanced $xmlObject
+     * @param \SimpleXMLElement $xmlObject
      * @param string $xPath
      * @return boolean false || string
      */
-    protected function getFirstXPathMatchAsString(SimpleXMLElementEnhanced $xmlObject, $xPath)
+    protected function getFirstXPathMatchAsString(\SimpleXMLElement $xmlObject, $xPath)
     {
         $xPathMatch = $this->useXPath($xmlObject, $xPath);
 
@@ -1988,7 +1988,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * Check if $nextItemToken was set and contains data.
      *
      * @param
-     *            array, at index [0] SimpleXMLElementEnhanced Object
+     *            array, at index [0] \SimpleXMLElement Object
      *
      * @return boolean Returns true, if token is valid.
      */
@@ -2043,8 +2043,8 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     /**
      * Determines if item's hold link is available.
      *
-     * @param SimpleXMLElementEnhanced $status
-     * @param SimpleXMLElementEnhanced $itemRestriction
+     * @param \SimpleXMLElement $status
+     * @param \SimpleXMLElement $itemRestriction
      * @return boolean $addLink
      */
     protected function isLinkAllowed($status, $itemRestriction, $department = null)
@@ -2072,8 +2072,8 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     /**
      * Converts status to expected value.
      *
-     * @param SimpleXMLElementEnhanced $status
-     * @return SimpleXMLElementEnhanced $status
+     * @param \SimpleXMLElement $status
+     * @return \SimpleXMLElement $status
      */
     protected function convertStatus($status)
     {
@@ -2091,9 +2091,9 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     }
 
     /**
-     * Extract the first data from array of SimpleXMLElementEnhanced.
+     * Extract the first data from array of \SimpleXMLElement.
      *
-     * @param array of SimpleXMLElementEnhanced $elements
+     * @param array of \SimpleXMLElement $elements
      * @return string $data
      */
     protected function extractData($elements)
@@ -2141,26 +2141,34 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     /**
      * Normalizes incoming NCIP message
      *
-     * @param SimpleXMLElementEnhanced $inboundResponse
+     * @param string $inboundResponse
+     * @return \SimpleXMLElement
      */
-    private function normalizeResponse(SimpleXMLElementEnhanced &$inboundResponse)
+    private function normalizeResponse(string $inboundResponse)
     {
         try {
             $method = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4)[3]['function'];
-            $this->logger->debug("Normalizing NCIP request for " . $method . ": " . $inboundResponse->asXML());
 
             // TODO: Delete this before release
-            $before = $inboundResponse->asXML();
-
-            $inboundResponse = $this->getNewNCIPNormalizer($method)->normalize($inboundResponse);
+            $this->logger->debug("Normalizing NCIP request for " . $method . ": " . $inboundResponse);
 
             // TODO: Delete this before release
-            $this->logger->info("NCIP: Normalizer converted from BEFORE, to AFTER:\n" . $before . "\nEND_BEFORE\n\nAFTER:\n" . $inboundResponse->asXML() . "\nEND_AFTER");
+            $before = $inboundResponse;
+
+            $normalizedXmlResponse = $this->getNewNCIPNormalizer($method)->normalize($inboundResponse);
+
+            // TODO: Delete this before release
+            $this->logger->info("NCIP: Normalizer converted from BEFORE, to AFTER:\n" . $before . "\nEND_BEFORE\n\nAFTER:\n" . $inboundResponse . "\nEND_AFTER");
+
+            return $normalizedXmlResponse;
 
         } catch (\Exception $e) {
             $this->logger->crit("NCIP: Failed to normalize the response.");
             $this->logger->crit($e->getMessage());
             $this->logger->crit($e->getTraceAsString());
+
+            // Return unchanged, yet parsed
+            return JsonXML::fabricateFromXmlString($inboundResponse)->toSimpleXml();
         }
     }
 
