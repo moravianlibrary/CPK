@@ -285,7 +285,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
         // Process the NCIP response:
         $body = $result->getBody();
-        $response = @simplexml_load_string($body, 'CPK\ILS\Logic\XmlTransformation\SimpleXMLElementEnhanced');
+        $response = simplexml_load_string($body, 'CPK\ILS\Logic\XmlTransformation\SimpleXMLElementEnhanced');
 
         if (get_class($response) === 'SimpleXMLElementEnhanced') {
             $message = "Problem parsing XML";
