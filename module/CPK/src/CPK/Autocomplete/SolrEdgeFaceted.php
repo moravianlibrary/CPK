@@ -54,16 +54,23 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
      *
      * @return array        The suggestions for the provided query
      */
-    public function getSuggestionsWithFilters($query, $facetFilters = null)
+    public function getSuggestionsWithFilters($query, $facetFilters = null, $libraries = false)
     {
         if (!is_object($this->searchObject)) {
             throw new \Exception('Please set configuration first.');
         }
         $results = array();
         try {
-            $this->searchObject->getParams()->setBasicSearch(
-                $this->autocompleteField.':('.$this->mungeQuery($query).')'
-            );
+            if ($libraries) {
+                $this->searchObject->getParams()->setBasicSearch(
+                    $this->autocompleteField.':('.$this->mungeQuery($query).')',
+                    'Libraries'
+                );
+            } else {
+                $this->searchObject->getParams()->setBasicSearch(
+                    $this->autocompleteField.':('.$this->mungeQuery($query).')'
+                );
+            }
             $params = $this->searchObject->getParams();
             $options = $this->searchObject->getOptions();
             if ($facetFilters != 'null') {

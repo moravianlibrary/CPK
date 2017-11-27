@@ -88,7 +88,6 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
             ->get($options->getSearchIni());
         $types = isset($config->Autocomplete_Types) ?
             $config->Autocomplete_Types->toArray() : [];
-
         // Figure out which handler to use:
         // Handler
         // solr field with "text_autocomplete" type
@@ -96,6 +95,8 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
         $titleModule   = "SolrEdgeFaceted:title_autocomplete:title_auto_str";
         $authorModule  = "SolrEdgeFaceted:author_autocomplete:author_str_mv";
         $subjectModule = "SolrEdgeFaceted:subject_autocomplete:subject_str_mv";
+        $libNameModule = "SolrEdgeFaceted:name_autocomplete:name_str";
+        $townModule = "SolrEdgeFaceted:town_autocomplete:town_str";
 
         // Get suggestions:
         if ($titleModule) {
@@ -129,6 +130,24 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
             $subjectHandler->setConfig($subjectParams);
         }
 
+        if ($libNameModule) {
+            if (strpos($libNameModule, ':') === false) {
+                $libNameModule .= ':'; // force colon to avoid warning in explode below
+            }
+            list($libNameName, $libNameParams) = explode(':', $libNameModule, 2);
+            $libNameHandler = clone $this->get($libNameName);
+            $libNameHandler->setConfig($libNameParams);
+        }
+
+        if ($townModule) {
+            if (strpos($townModule, ':') === false) {
+                $townModule .= ':'; // force colon to avoid warning in explode below
+            }
+            list($townName, $townParams) = explode(':', $townModule, 2);
+            $townHandler = clone $this->get($townName);
+            $townHandler->setConfig($townParams);
+        }
+
         $titleSuggestions = (isset($titleHandler) && is_object($titleHandler))
             ? array_values($titleHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
 
@@ -138,9 +157,17 @@ class PluginManager extends \VuFind\ServiceManager\AbstractPluginManager
         $subjectSuggestions = (isset($subjectHandler) && is_object($subjectHandler))
             ? array_values($subjectHandler->getSuggestionsWithFilters($query, $facetFilters)) : [];
 
+        $libNameSuggestions = (isset($libNameHandler) && is_object($libNameHandler))
+            ? array_values($libNameHandler->getSuggestionsWithFilters($query, $facetFilters, true)) : [];
+
+        $townSuggestions = (isset($townHandler) && is_object($townHandler))
+            ? array_values($townHandler->getSuggestionsWithFilters($query, $facetFilters, true)) : [];
+
         $suggestions['byTitle'] = $titleSuggestions;
         $suggestions['byAuthor'] = $authorSuggestions;
         $suggestions['bySubject'] = $subjectSuggestions;
+        $suggestions['byLibName'] = $libNameSuggestions;
+        $suggestions['byTown'] = $townSuggestions;
 
         return $suggestions;
     }

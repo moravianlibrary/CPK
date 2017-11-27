@@ -336,7 +336,7 @@ function setupAutocomplete() {
       loadingString: VuFind.translate('loading')+'...',
       handler: function(query, cb) {
         var searcher = $( 'input[name=database]' ).val();
-        if (!$(op).hasClass('autocomplete') || searcher == 'EDS') {
+        if (!$(op).hasClass('autocomplete') || searcher === 'EDS') {
             cb([]);
             return;
         }
@@ -355,10 +355,12 @@ function setupAutocomplete() {
           },
           dataType:'json',
           success: function(json) {
-            if (json.status == 'OK'
+            if (json.status === 'OK'
             	&& (json.data.byAuthor.length > 0
             		|| json.data.byTitle.length > 0
             		|| json.data.bySubject.length > 0
+            		|| json.data.byLibName.length > 0
+            		|| json.data.byTown.length > 0
             	)
             ) {
               cb(json.data);
