@@ -98,6 +98,8 @@ jQuery( document ).ready( function( $ ) {
             });
         },
 
+
+
         /**
          * This function gathers data from autocomplete|advancedSearch|windowHistory.
          * The data are sent via ajax to Solr, which returns results.
@@ -111,10 +113,12 @@ jQuery( document ).ready( function( $ ) {
          * @param {string}  newSearchTypeTemplate        basic|advanced
          * @param {array}   extraData                    Associative array
          * @param {array}   callbacks
+         * @param {bool}    newTab                       flag to open updated search in new tab
+         * @param {object}  selectedValue                value which added or removed (contains flags of action types (added or removed))
          *
          * @return {undefined}
          */
-        updateSearchResults: function (dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData, callbacks, newTab) {
+        updateSearchResults: function (dataFromWindowHistory, dataFromAutocomplete, newSearchTypeTemplate, extraData, callbacks, newTab, selectedValue) {
             var data = {};
 
 			/* If we need to add some new paramts to URL we can use extraData argument */
@@ -217,6 +221,7 @@ jQuery( document ).ready( function( $ ) {
             }
 
             if (dataFromWindowHistory !== undefined) {
+
                 ADVSEARCH.removeAllFilters(false);
 
                 var deCompressedFilters = LZString.decompressFromBase64(specialUrlDecode(data['filter']));
@@ -250,6 +255,9 @@ jQuery( document ).ready( function( $ ) {
                 data['filter'] = filters;
             }
 
+            if (data['database'] === 'EDS') {
+                data['filter'] = EDS_MODULE.updateEdsFacets(data['filter'], data['database'], selectedValue);
+            }
 
             if (dataFromAutocomplete) {
                 var tempData = queryStringToJson(dataFromAutocomplete.queryString);
@@ -647,8 +655,16 @@ jQuery( document ).ready( function( $ ) {
                 $('#hiddenFacetFilters').append(html);
             }
 
+            //Set object with added value and type of action (remove or add)
+            //depend of types we will do different actions in updateSearchResults method
+            var givenValue = {
+                value    : value,
+                isRemove : false,
+                isAdd    : true
+            };
+
             if (updateResults) {
-                ADVSEARCH.updateSearchResults(undefined, undefined);
+                ADVSEARCH.updateSearchResults(undefined, undefined, undefined, undefined, undefined, undefined, givenValue);
             }
         },
 
@@ -660,7 +676,6 @@ jQuery( document ).ready( function( $ ) {
          * @return    {undefined}
          */
         removeFacetFilter: function (value, updateResults) {
-
             var extraData = {};
             $('#hiddenFacetFilters input').each(function (index, element) {
                 if ($(element).val() == value) {
@@ -678,8 +693,14 @@ jQuery( document ).ready( function( $ ) {
                 /**/
             });
 
+            var givenValue = {
+                value    : value,
+                isRemove : true,
+                isAdd    : false
+            };
+
             if (updateResults) {
-                ADVSEARCH.updateSearchResults(undefined, undefined, undefined, extraData);
+                ADVSEARCH.updateSearchResults(undefined, undefined, undefined, extraData, undefined, undefined, givenValue);
             }
         },
 

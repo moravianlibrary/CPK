@@ -111,6 +111,11 @@
             $this->headScript()->appendFile('vendor/es6-promise.min.js');
         }
 
+        //init eds module script
+        if (!empty($_GET['database'])) {
+            $this->headScript()->appendFile("edsModule.js");
+        }
+
         $cacheUrl = $this->ObalkyKnih()->getCacheUrl();
         $this->headScript()->appendScript("obalky.setCacheUrl(\"{$cacheUrl}\");");
 
