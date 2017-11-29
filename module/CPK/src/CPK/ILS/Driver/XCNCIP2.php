@@ -831,14 +831,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             if (in_array($this->agency, $this->libsLikeTabor)) {
                 if ($this->agency === 'SOG504') {
                 $bibId = '00124' . sprintf('%010d', $bibId);
+                } elseif  ($this->agency === 'KHG001' ) {
+                $bibId = '00160' . sprintf('%010d', $bibId);
                 }
-                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
-                $response = $this->sendRequest($request);
-                return $this->handleStutuses($response);
-            }
-
-            if ($this->agency === 'AAA001' || $this->agency === 'SOG504') {
-                $bibId = '0002' . sprintf('%011d', $bibId);
                 $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
                 $response = $this->sendRequest($request);
                 return $this->handleStutuses($response);
@@ -1322,7 +1317,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             } catch (ILSException $e) {
             }
 
-          if ($this->agency === 'AAA001' || $this->agency === 'SOG504') {
+          if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
                 $dateDue = $this->useXPath($current, 'dateDue');
                 $dueStatus =$this->hasOverdue($dateDue);
                 $dateDue = $this->parseDate($dateDue);
@@ -1591,7 +1586,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $email = $this->useXPath($recent, 'ElectronicAddressData');
             }
         }
-        if ($this->agency === 'AAA001' || $this->agency === 'SOG504') {
+        if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
             $email = $this->useXPath($response,
                     'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/ElectronicAddressData');
         }
