@@ -13,7 +13,6 @@
 
 <p>
   <?= $this->translate('nohit_recommendation') ?>
-
 </p>
 
 <? if (isset($this->parseError)): ?>
@@ -29,6 +28,5 @@
 <?endif;?>
 
 <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
-
   <?=$this->recommend($current)?>
 <? endforeach; ?>
