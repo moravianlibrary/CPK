@@ -99,7 +99,9 @@ class EdsController extends AbstractSearch
      */
     public function searchAction()
     {
-        return $this->resultsAction();
+        $params = $this->params()->fromQuery();
+        $params['database'] = 'EDS';
+        return $this->redirect()->toRoute('search-results', array(), array('query' => $params));
     }
 
     /**
