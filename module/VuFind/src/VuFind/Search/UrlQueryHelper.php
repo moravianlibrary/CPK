@@ -145,6 +145,7 @@ class UrlQueryHelper
         if (!$this->suppressQuery) {
             if ($this->params->getSearchType() == 'advanced') {
                 $query = $this->params->getQuery();
+                $params['searchTypeTemplate'] = 'advanced';
                 if ($query instanceof QueryGroup) {
                     $params['join'] = $query->getOperator();
                     foreach ($query->getQueries() as $i => $current) {
