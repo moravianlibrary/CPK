@@ -132,20 +132,120 @@ class LibrariesController extends AbstractBase
 
     public function markersJsonAction()
     {
-        $query = $this->params()->fromQuery('q');
+        $resultsLimit = 7000;
+        $resultsPerIteration = 1000;
+        $iterations = $resultsLimit / $resultsPerIteration;
 
-        $q = urlencode($query);
+        $queryParam = urlencode($this->params()->fromQuery('q'));
+        $filterParam = urlencode($this->params()->fromQuery('filter'));
 
-        $apiResponse = file_get_contents($this->adresarKnihovenApiUrl."/v1/markers?q=$q");
-        $dataArray = \Zend\Json\Json::decode($apiResponse, \Zend\Json\Json::TYPE_ARRAY);
+        $query = (! empty($queryParam)) ? $queryParam : "*";
 
-        $result = new JsonModel($dataArray);
+        $filters = [];
+        if (! empty($filterParam)) {
+            $filters = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($filterParam)));
+        }
 
-        return $result;
+        $data = [];
+        for ($i = 0; $i < $iterations; $i++) {
+
+            $offset = $i * $resultsPerIteration;
+
+            $url = $this->config->Index->url."/".$this->config->Index->default_core."/select?";
+
+            /*$url .= "q=$query";
+            $url .= "&fq=NOT+recordtype%3Alibrary+AND+NOT+recordtype%3Asfx";*/
+            
+            //$url .= "q=recordtype:library";
+
+            $url .= "q=recordtype:library";
+            $url .= "%0A";
+            $url .= "merged_child_boolean:(true)";
+
+            if ($query != '*') {
+
+                //$url .= "allLibraryFields_txt_mv:($query)";
+
+                $reader = $this->getServiceLocator()->get('VuFind\SearchSpecsReader');
+                $specs = $reader->get('searchspecs.yaml');
+                $librariesFields = isset($specs['Author']['DismaxFields']) ? $specs['Libraries']['DismaxFields'] : [];
+
+                if (count($librariesFields)) {
+                    $url .= "&fq=";
+                    foreach ($librariesFields as $libraryField) {
+                        $field = explode("^", $libraryField)[0];
+                        $url .= $field.":($query)+OR+";
+                    }
+
+                    $url = substr($url, 0, -4);
+                }
+            }
+
+            $andFacets = [];
+            $orFacets = [];
+
+            foreach ($filters as $filter) {
+                if ($filter[0] == '~') {
+                    $facetName = str_replace("~", "", explode(":", $filter)[0]);
+                    $facet = str_replace("~", "", $filter);
+                    if (! isset($orFacets[$facetName])) {
+                        $orFacets[$facetName] = [];
+                        $orFacets[$facetName][] = $facet;
+                    } else {
+                        $orFacets[$facetName][] = $facet;
+                    }
+
+                } else {
+                    $andFacets[] = $filter;
+                }
+            }
+
+            foreach ($andFacets as $facet) {
+                $url .= "&fq=".urlencode($facet);
+            }
+
+            foreach ($orFacets as $facetNames) {
+                $url .= "&fq=";
+                foreach ($facetNames as $facet) {
+                    $url .= urlencode($facet)."+OR+";
+                }
+                $url = substr($url, 0, -4);
+            }
+
+            $url .= "&fl=name_search_txt,address_search_txt_mv,reg_lib_search_txt_mv,gps_str,id";
+            $url .= "&wt=json";
+            $url .= "&indent=true";
+            $url .= '&rows=' . $resultsPerIteration;
+
+            $url .= '&start=' . $offset;
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+            $solrResponse = curl_exec($ch);
+            curl_close($ch);
+
+            try {
+                $results = \Zend\Json\Json::decode($solrResponse, \Zend\Json\Json::TYPE_ARRAY);
+            } catch (\Exception $e) {
+                return new JsonModel(['error' => 'Map cannot be loaded. Bad Solr response.']);
+            }
+
+            if (isset($results['response']['numFound']) && $results['response']['numFound'] > 0) {
+                foreach ($results['response']['docs'] as $library) {
+                    if (! empty($library['gps_str'])) {
+                        $data[] = [
+                            'name' => ! empty($library['name_search_txt']) ? $library['name_search_txt'] : '',
+                            'address' => ! empty($library['address_search_txt_mv'][0]) ? $library['address_search_txt_mv'][0] : '',
+                            'id' => $library['id'] ? $library['id'] : '',
+                            'latitude' => explode(" ", $library['gps_str'])[0],
+                            'longitude' => explode(" ", $library['gps_str'])[1],
+                        ];
+                    }
+                }
+            }
+        }
+
+        return new JsonModel($data);
     }
-
-
-
-
-
 }

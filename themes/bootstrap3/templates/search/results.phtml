@@ -1,3 +1,7 @@
+<?
+$this->headScript()->appendFile("markerclusterer.js");
+?>
+
 <ul class="nav nav-tabs eds-tabs <?= ($_GET['type0'][0] == 'Libraries') ? ' hidden' : '' ?>" id="set-database">
     <li<?= empty($_GET['database']) || $_GET['database'] == 'Solr' ? ' class="active"' : '' ?>>
         <a href="#" data-value="Solr" class="pointer"><i class="pr-web-flagreport"></i> <?=$this->translate('national-sources')?></a>
@@ -125,6 +129,7 @@
 
       </div>
     </div>
+
     <div class="row <?=$this->layoutClass('mainbody')?>">
 
       <div class="hidden-print search-controls row">
@@ -158,7 +163,17 @@
             <?= $this->context($this)->renderInContext('search/no-results', ['lookfor' => $lookfor]) ?>
           </div>
 
-		 <div id='result-list-placeholder' data-ng-controller="SearchFavController as searchFavCtrl">
+        <? if(isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries'): ?>
+            <div class="row">
+                <div id="map-loader" class="col-xs-12 text-center">
+                    <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 10px;">
+                <div id="map" class="hidden"></div>
+            </div>
+        <? endif; ?>
+		 <div id='result-list-placeholder' <? if(isset($_GET['type0'][0]) && $_GET['type0'][0] != 'Libraries'): ?>data-ng-controller="SearchFavController as searchFavCtrl"<? endif; ?>>
 		   <? if ($recordTotal > 0): ?>
              <?=$this->render('search/list-' . $this->params->getView() . '.phtml')?>
 		   <? endif; ?>
@@ -245,5 +260,79 @@
 		  addUrlScalarParamsToJson('data', 'join', 'AND');
 		?>
 		ADVSEARCH.updateUrl( data );
+
     });
+
+    function getData(query, filter = '') {
+        if (undefined != query) {
+            var url = "/Libraries/markersJson?q="+query+"&filter="+filter;
+            $.getJSON(url, function(data) {
+                if (data.error) {
+                    $( '#map-loader' ).parent().addClass( 'hidden' );
+                    console.error( data.error );
+                } else {
+                    initialize(data);
+                    $( '#map-loader' ).parent().addClass( 'hidden' );
+                    $( '#map' ).css( 'height', '600px').removeClass( 'hidden' );
+                }
+            });
+        }
+    }
+    function initialize(libraries) {
+        console.log('###Map initialized');
+        var myLatLng = {lat: 49.78, lng: 15.39};
+        var markers = [];
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 7,
+            center: myLatLng
+        });
+        var bounds = new google.maps.LatLngBounds();
+        var infoWindow = new google.maps.InfoWindow();
+        var info = [];
+
+        for(var i = 0; i < libraries.length; i++) {
+            var library = libraries[i];
+            var contentString = '<div id="content" class="marker-info">'+
+                '<div class="marker-title">' + library.name + '</div>'+
+                '<div class="marker-subtitle">' + library.address + '</div>' +
+                '<div class="marker-link"><a href="/Record/' + library.id +
+                '"><?=$this->translate('Library detail')?></a>' +
+                '</div>';
+            info.push(contentString);
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng (library.latitude, library.longitude),
+                map: map,
+                title: library.name
+            });
+            bounds.extend(marker.getPosition());
+            markers.push(marker);
+            google.maps.event.addListener(marker, 'click', (function(marker, index) {
+                return function() {
+                    infoWindow.setContent(info[index]);
+                    infoWindow.open(map, marker);
+                }
+            })(marker, i));
+        }
+
+        var mcOptions = {gridSize: 75, maxZoom: 10, imagePath: "/themes/bootstrap3/images/markerclusterer/m"};
+        var mc = new MarkerClusterer(map, markers, mcOptions);
+    }
+
 </script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=getData"></script>
+
+<? if(isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries'): ?>
+    <script>
+        jQuery( document ).ready( function( $ ) {
+            console.log( "Rendering map" );
+            console.log("Query: <?=$this->query?>");
+            console.log("Filter: <?=$_GET['filter']?>");
+            console.log( 'Get Map from results.phtml' );
+            getData("<?=$this->query?>", "<?=$_GET['filter']?>");
+        });
+    </script>
+<? endif; ?>
+
+<Script>
+    console.log('results.phtml fired');
+</Script>
