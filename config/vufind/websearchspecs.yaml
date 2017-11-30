@@ -5,35 +5,19 @@
 
 AllFields:
   DismaxFields:
-    - title_unstemmed^800
     - title^750
-    - description_unstemmed^350
     - description^300
-    - keywords_unstemmed^250
     - keywords^200
     - url_keywords^50
-    - fulltext_unstemmed^10
     - fulltext
   QueryFields:
-    title_unstemmed:
-      - [onephrase, 1200]
-      - [and, 800]
-      - [or, 15]
     title:
       - [onephrase, 1000]
       - [and, 750]
       - [or, 10]
-    description_unstemmed:
-      - [onephrase, 400]
-      - [and, 350]
-      - [or, ~]
     description:
       - [onephrase, 350]
       - [and, 300]
-      - [or, ~]
-    keywords_unstemmed:
-      - [onephrase, 300]
-      - [and, 250]
       - [or, ~]
     keywords:
       - [onephrase, 250]
@@ -42,10 +26,6 @@ AllFields:
     url_keywords:
       - [onephrase, 100]
       - [and, 50]
-      - [or, ~]
-    fulltext_unstemmed:
-      - [onephrase, 50]
-      - [and, 10]
       - [or, ~]
     fulltext:
       - [onephrase, 25]
