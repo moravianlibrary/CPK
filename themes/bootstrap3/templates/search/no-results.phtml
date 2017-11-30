@@ -1,3 +1,8 @@
+<?
+    if(!empty($_GET['database']))
+        $database = $_GET['database'];
+?>
+
 <p>
 <? if (isset($this->overrideEmptyMessage)): ?>
   <?=$this->overrideEmptyMessage?>
@@ -13,6 +18,14 @@
 <? if (isset($this->parseError)): ?>
   <p class="alert alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
 <? endif; ?>
+
+<? if (isset($database) && $database == 'Solr') :?>
+  <?=$this->transEsc('recommend_our_index');?>
+  <a href="<?=str_replace('database=Solr', 'database=EDS', $_SERVER['REQUEST_URI'])?>"><?=$this->transEsc('try_search_in_foreign')?></a>
+<?elseif (isset($database) && $database == 'EDS'):?>
+  <?=$this->transEsc('recommend_our_index');?>
+  <a href="<?=str_replace('database=EDS', 'database=Solr', $_SERVER['REQUEST_URI'])?>"><?=$this->transEsc('try_search_in_home')?></a>
+<?endif;?>
 
 <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
   <?=$this->recommend($current)?>
