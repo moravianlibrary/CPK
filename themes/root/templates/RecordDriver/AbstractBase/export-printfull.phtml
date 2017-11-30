@@ -26,6 +26,12 @@ if (is_array($pubPlaces) && is_array($pubDates) && is_array($pubNames)) {
     }
 }
 
+//render patent info
+$patentInfoText = $this->driver->tryMethod('getPatentInfo');
+if($patentInfoText) {
+    echo $patentInfoText;
+}
+
 $languages = $this->driver->tryMethod('getLanguages');
 if (is_array($languages)) {
     foreach ($languages as $lang) {
