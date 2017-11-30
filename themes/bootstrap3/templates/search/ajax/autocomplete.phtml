@@ -140,6 +140,7 @@
 				}
             });
 
+//            $("#set-database li").hasClass("active").select("#modal_autocomplete")
         });
         </script>
         <? $defaultFilterState = $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
@@ -238,8 +239,21 @@
             <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&database=EDS&limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
   	      <? endif; ?>
       <? endif; ?>
-	  <?= $this->help()->getQuestionMarkHelp('autocomplete') ?>
-
+      <? if($this->searchClassId == 'Solr'): ?>
+          <span id="autocomplete-help">
+              <?= $this->help()->getQuestionMarkHelp('autocomplete') ?>
+          </span>
+          <span id="ci-autocomplete-help" class="hidden">
+              <?= $this->help()->getQuestionMarkHelp('ci-autocomplete') ?>
+          </span>
+      <? elseif ($this->searchClassId == 'EDS'): ?>
+          <span id="autocomplete-help" class="hidden">
+              <?= $this->help()->getQuestionMarkHelp('autocomplete') ?>
+          </span>
+          <span id="ci-autocomplete-help">
+              <?= $this->help()->getQuestionMarkHelp('ci-autocomplete') ?>
+          </span>
+      <? endif; ?>
       <? if ((isset($hasDefaultsApplied) && $hasDefaultsApplied) || !empty($filterDetails)): ?>
       <div class="checkbox" id='keep-facets-enabled-checkbox'>
       <? else: ?>

@@ -54,7 +54,13 @@ foreach ($queryParams as $key => $value) {
 <? if ($results->getResultTotal() > 0): ?>
     <h3 class='side-facets-header facets-questionmark-help'>
       <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
-        <?= $this->help()->getQuestionMarkHelp('facets') ?>
+      <? if($this->librarySearch): ?>
+        <?= $this->help()->getQuestionMarkHelp('adr-facets') ?>
+      <? elseif($filterClass): ?>
+          <?= $this->help()->getQuestionMarkHelp('ci-facets') ?>
+      <? else: ?>
+          <?= $this->help()->getQuestionMarkHelp('facets') ?>
+      <? endif; ?>
     </h3>
 <? endif; ?>
 
