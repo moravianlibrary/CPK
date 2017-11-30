@@ -103,59 +103,34 @@
           shell.append(item);
         }
     }
-
+    
     function createTitlesListFrom(shell, input, data, category, main) {
     	createListFrom(shell, input, data, VuFind.translate('in_titles'), false, 'adv_search_title_series');
     }
-
+    
     function createAuthorsListFrom(shell, input, data, category, main) {
     	createListFrom(shell, input, data, VuFind.translate('in_authors'), false, 'adv_search_author_corporation');
     }
-
+    
     function createSubjectsListFrom(shell, input, data, category, main) {
     	createListFrom(shell, input, data, VuFind.translate('in_subjects'), false, 'adv_search_subject_keywords');
     }
 
-    function createLibNamesListFrom(shell, input, data, category, main) {
-    	createListFrom(shell, input, data, VuFind.translate('in_lib_names'), false, 'Libraries');
-    }
-
-    function createTownsListFrom(shell, input, data, category, main) {
-    	createListFrom(shell, input, data, VuFind.translate('in_towns'), false, 'Libraries');
-    }
-
     function createList(data, input) {
       var shell = $('<div/>');
-      var type = $('#librariesSearchLink').hasClass('active') ? 'Libraries' : '';
 
-      if (type == 'Libraries') {
-        if((data.byLibName.length > 0) || (data.byTown.length > 0)) {
-            createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":", true);
-        }
-
-        if(data.byLibName.length > 0) {
-            createLibNamesListFrom(shell, input, data.byLibName, VuFind.translate('in_lib_names'), false);
-        }
-
-        if(data.byTown.length > 0) {
-            createTownsListFrom(shell, input, data.byTown, VuFind.translate('in_towns'), false);
-        }
-      } else {
-        if((data.byTitle.length > 0) || (data.byAuthor.length > 0) || (data.bySubject.length > 0)) {
-            createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":", true);
-        }
-
-        if(data.byTitle.length > 0) {
-            createTitlesListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
-        }
-
-        if(data.byAuthor.length > 0) {
-            createAuthorsListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'), false);
-        }
-
-        if(data.bySubject.length > 0) {
-            createSubjectsListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
-        }
+      if((data.byTitle.length > 0) || (data.byAuthor.length > 0) || (data.bySubject.length > 0)) {
+    	  createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":", true);
+      }
+      
+      if(data.byTitle.length > 0) {
+    	  createTitlesListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
+      }
+      if(data.byAuthor.length > 0) {
+    	  createAuthorsListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'), false);
+      }
+      if(data.bySubject.length > 0) {
+    	  createSubjectsListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
       }
 
       $.fn.autocompleteVufind.element.html(shell);
@@ -320,13 +295,13 @@
                 $(this).data('selected', -1);
               }
             }
-
+            
             /* Hit esc after enter to hide list */
             hide();
             $(this).data('selected', -1);
             element.addClass('autocomplete-results hidden');
             /**/
-
+            
             break;
           }
           // hide on escape
