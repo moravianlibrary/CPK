@@ -308,7 +308,8 @@ class SearchController extends SearchControllerBase
 	        }
 	    }
 
-	    return $this->createViewModel(
+        $this->layout()->history = true;
+        return $this->createViewModel(
 	        ['saved' => $saved, 'unsaved' => $unsaved, 'titles' => $titles]
 	        );
 	}
