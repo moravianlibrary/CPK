@@ -1069,13 +1069,13 @@ jQuery( document ).ready( function( $ ) {
 			});
 		}
         if ($('#facet_region_disctrict_facet_str_mv').hasClass( "jstree-proton" ) ) { //only when facet initialized
-            //remove all conspectus
+            //remove all region disctrict
             var allDisctrict = $('#facet_region_disctrict_facet_str_mv').jstree(true).get_json('#', {flat: true});
             $.each(allDisctrict, function (index, value) {
                 ADVSEARCH.removeFacetFilter(value['id'], false);
             });
 
-            //add selected conspectus
+            //add selected region disctrict
             var selectedDisctrict = $('#facet_region_disctrict_facet_str_mv').jstree(true).get_bottom_selected();
             $.each(selectedDisctrict, function (index, value) {
                 ADVSEARCH.addFacetFilter(value, false);
