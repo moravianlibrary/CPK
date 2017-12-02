@@ -321,6 +321,10 @@ class SolrDefault extends AbstractBase
         $isbns = $this->getISBNs();
         $isbn13 = false;
 
+        if($isbns == null || !$isbns) {
+            return $isbn13;
+        }
+
         // Loop through the ISBNs:
         foreach ($isbns as $isbn) {
             // Strip off any unwanted notes:
