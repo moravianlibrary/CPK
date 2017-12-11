@@ -460,7 +460,7 @@ jQuery( document ).ready( function( $ ) {
     /*
      * Shake button on institution facet change
      */
-    $( 'body' ).on( 'click', '.jstree-anchor', function( event ) {
+    $( 'body' ).on( 'click', '#facet_institution .jstree-anchor', function( event ) {
         if (localStorage['facetsApplied']) {
             localStorage.setItem("facetsApplied", parseInt(parseInt(localStorage.getItem("facetsApplied")) + 1));
         }
@@ -470,6 +470,7 @@ jQuery( document ).ready( function( $ ) {
                 distance: 3,
                 direction: 'right'
             }, 200);
+        } else {
             if ($(".bootstrap-growl").length === 0) {
                 var isMobile = false; //initiate as false
                 // device detection
