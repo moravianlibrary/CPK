@@ -30,15 +30,6 @@
 	<a class='back-to-search-link' href='<?=$this->refererUrl?>' title='<?=$this->translate('Back to search results')?>'>
 		<i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
 	</a>
-<? } else { ?>
-
-    <a class='back-to-search-link' href='' title='<?=$this->translate('Back to search results')?>'>
-        <i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
-    </a>
-    <script>
-        $(".back-to-search-link").attr("href", document.referrer);
-    </script>
-
 <? } ?>
 
 
