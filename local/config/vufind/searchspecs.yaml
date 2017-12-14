@@ -673,19 +673,18 @@ adv_search_fulltext:
       - [and, 50]
 
 adv_search_ipc:
-  Dismaxfields:
-    - ipc_search_txt_mv
-  DismaxParams:
-    - [bq, "inspiration:top_results^1"]
-    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
-    - [bq, "author_exact:\"@query\"^20000"]
-    - [bq, "title_exact:\"@query\"^10000"]
-    - [bf, ord(publishDateSort)^1]
-  DismaxHandler: edismax
+  CustomMunge:
+    withoutWhiteSpaces:
+      - [uppercase]
+      - [preg_replace, '/[\s]+/m', ""]
+    withoutWhiteSpacesSlash:
+      - [uppercase]
+      - [preg_replace, '/[\s\/]+/m', ""]
   QueryFields:
-    ipc_search_txt_mv:
-      - [onephrase, 100]
-      - [and, 50] 
+    upv_ipc_search:
+      - [onephrase, 10000]
+      - [withoutWhiteSpaces, 1000]
+      - [withoutWhiteSpacesSlash, ~]
 
 Libraries:
   DismaxFields:
