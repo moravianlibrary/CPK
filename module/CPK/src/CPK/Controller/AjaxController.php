@@ -2474,7 +2474,8 @@ class AjaxController extends AjaxControllerBase
 
                         $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$anchor."</a>";
                         if ($embargo) {
-                            $link .= " *";
+                            $embargoText = $this->translate(explode(' ', trim($embargo))[0])." ".explode(' ', trim($embargo))[1];
+                            $link .= "<span class='eds-results-embargo'  data-toggle='tooltip' title='$embargoText'> *</span>";
                         }
 
                         $htmlLinks[$sfxSource][] = $link;
