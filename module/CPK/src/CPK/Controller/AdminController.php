@@ -639,6 +639,45 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $viewModel;
         }
 
+        if ($action == 'ImportItems') {
+            $user = $this->accessManager->getUser();
+
+            $widgetTable = $this->getTable('widget');
+            $widget = $widgetTable->getWidgetById($widgetId);
+
+            $viewModel = $this->createViewModel();
+            $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('user', $user);
+            $viewModel->setVariable('widgetId', $widgetId);
+            $viewModel->setVariable('widgetTitle', $widgetName);
+            $viewModel->setTemplate('admin/widgets/widget/import-items');
+            $viewModel->setVariable('widget', $widget);
+            $this->layout()->searchbox = false;
+
+            return $viewModel;
+        }
+
+        if ($action == 'ImportItemsAction') {
+            $post = $this->params()->fromPost();
+
+            $widgetContentTable = $this->getTable('widgetcontent');
+
+            if (! empty($post['ids'])) {
+                $ids = explode(",", $post['ids']);
+                foreach($ids as $id) {
+                    $widgetContent = new \CPK\Widgets\WidgetContent();
+                    $widgetContent->setWidgetId($post['widget_id']);
+                    $widgetContent->setValue(trim($id));
+                    $widgetContent->setPreferredValue(0);
+                    $widgetContent->setDescriptionCs(null);
+                    $widgetContent->setDescriptionEn(null);
+
+                    $widgetContentTable->addWidgetContent($widgetContent);
+                }
+            }
+
+        }
+
         if ($action == 'AddItem') {
             $post = $this->params()->fromPost();
 
