@@ -123,6 +123,14 @@ $this->headScript()->appendFile("markerclusterer.js");
   }
 
 ?>
+<script>
+    dataLayer.push({
+        'page': {
+            'category': 'search',
+            'type': 'list'
+        }
+    });
+</script>
 <div id='search-result-list' class="search-result-list">
     <div class='row' id='flashedMessage' style='display: none;'>
       <div class='col-sm-12'>

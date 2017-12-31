@@ -3,6 +3,13 @@
   $this->layout()->title = $title;
   $this->headTitle($title);
 ?>
+<script>
+    dataLayer.push({
+        'page': {
+            'category': 'info',
+        }
+    });
+</script>
 <div class='white-box clearfix portal-page'>
   <div class="title">
     <h1><?=$this->translate('Feedback')?></h1>
@@ -157,6 +164,32 @@ jQuery( document ).ready( function(){
     <? if ($this->activeTab): ?>
     $( '.nav-tabs a[href="#<?=$this->activeTab?>"]' ).tab( 'show' );
     <? endif; ?>
+
+    $('#help .btn-primary').on('click', function() {
+        dataLayer.push({
+            'event': 'action.contact',
+            'actionContext': {
+                'eventCategory': 'contact',
+                'eventAction': 'feedback',
+                'eventLabel': 'help',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    });
+
+    $('#bugreport .btn-primary').on('click', function() {
+        dataLayer.push({
+            'event': 'action.contact',
+            'actionContext': {
+                'eventCategory': 'contact',
+                'eventAction': 'feedback',
+                'eventLabel': 'bugreport',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    });
 
 });
 </script>
