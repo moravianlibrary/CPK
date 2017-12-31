@@ -158,6 +158,10 @@ jQuery( document ).ready(function( $ ) {
         pushRecordEventToGTM('export');
     });
 
+    $( '.record-toolbar' ).on('click', '#save-record', function(){
+        pushRecordEventToGTM('favourite');
+    });
+
     function pushRecordEventToGTM(eventAction) {
         dataLayer.push({
             'event': 'action.record',
