@@ -1081,17 +1081,6 @@ jQuery( document ).ready( function( $ ) {
 			//console.log( 'Saving search.' );
 			
 			var thisElement = this;
-
-			dataLayer.push({
-				'event': 'action.search',
-				'actionContext': {
-					'eventCategory': 'search',
-					'eventAction': 'saveSearch',
-					'eventLabel': $( this ).attr( 'data-search-id' ),
-					'eventValue': undefined,
-					'nonInteraction': false
-				}
-			});
 			
 			var data = {};
 			data['searchId'] = $( this ).attr( 'data-search-id' );
@@ -1114,6 +1103,18 @@ jQuery( document ).ready( function( $ ) {
 	        			$( thisElement ).attr( 'title', VuFind.translate('Delete saved search'));
 	        			$( thisElement ).text( VuFind.translate('Delete saved search'));
 	        			$( thisElement ).attr( 'id', 'remove-from-saved-searches');
+
+                        dataLayer.push({
+                            'event': 'action.search',
+                            'actionContext': {
+                                'eventCategory': 'search',
+                                'eventAction': 'saveSearch',
+                                'eventLabel': response.data.searchTerms.join(),
+                                'eventValue': undefined,
+                                'nonInteraction': false
+                            }
+                        });
+
 	        		} else {
 	        			console.error(response.data);
 	        			var message = '';
