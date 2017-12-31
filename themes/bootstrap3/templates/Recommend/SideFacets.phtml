@@ -490,25 +490,19 @@ $('[data-toggle="tooltip"]').tooltip()
 })
 
 $(document).off("click", ".jstree-anchor").on("click", ".jstree-anchor", function() {
+
+    var useFacet = 0;
+    if ( $( this ).hasClass( 'jstree-clicked' ) ) {
+        useFacet = 1;
+    }
+
     dataLayer.push({
         'event': 'action.facet',
         'actionContext': {
             'eventCategory': 'facet',
             'eventAction': $(this).find('.main').attr('data-facet').split(':')[0],
             'eventLabel': $(this).find('.main').attr('data-facet').split(':')[1],
-            'eventValue': undefined,
-            'nonInteraction': false
-        }
-    });
-});
-$(document).off("click", ".facet-filter").on("click", ".facet-filter", function() {
-    dataLayer.push({
-        'event': 'action.facet',
-        'actionContext': {
-            'eventCategory': 'facet',
-            'eventAction': $(this).attr('data-facet').split(':')[0],
-            'eventLabel': $(this).attr('data-facet').split(':')[1],
-            'eventValue': undefined,
+            'eventValue': useFacet,
             'nonInteraction': false
         }
     });

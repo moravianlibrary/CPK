@@ -948,14 +948,27 @@ jQuery( document ).ready( function( $ ) {
 		}
 		
 		$( "input[name='page']" ).val( '1' );
-		
+
+		var useFacet = 1;
 		if ( $( this ).hasClass( 'active' ) ) {
 			//console.log( 'Removing facet filter.' );
+			useFacet = 0;
 			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
 		} else {
 			//console.log( 'Adding facet filter.' );
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
+
+        dataLayer.push({
+            'event': 'action.facet',
+            'actionContext': {
+                'eventCategory': 'facet',
+                'eventAction': $(this).attr('data-facet').split(':')[0],
+                'eventLabel': $(this).attr('data-facet').split(':')[1],
+                'eventValue': useFacet,
+                'nonInteraction': false
+            }
+        });
 	});
 
 	/*
