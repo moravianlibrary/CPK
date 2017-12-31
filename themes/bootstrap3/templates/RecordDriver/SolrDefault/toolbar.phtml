@@ -138,14 +138,34 @@
 </ul>
 <script>
 jQuery( document ).ready(function( $ ) {
+
 	$( '#citace-pro' ).on('click', '.citations-link', function(){
 		$( '#citationsModal' ).modal( 'show' );
+        pushRecordEventToGTM('showCitation');
 	});
+
 	$( '#permalinkItem' ).on('click', '#permalinkAnchor', function(){
 		$( '#permalinkModal' ).modal( 'show' );
+        pushRecordEventToGTM('permalink');
 	});
+
 	$( '.record-toolbar' ).on('click', '#mail-record', function(){
 		$( '#mailRecordModal' ).modal( 'show' );
+        pushRecordEventToGTM('sendEmail');
 	});
+
+    function pushRecordEventToGTM(eventAction) {
+        dataLayer.push({
+            'event': 'action.record',
+            'actionContext': {
+                'eventCategory': 'record',
+                'eventAction': eventAction,
+                'eventLabel': '<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    }
+
 });
 </script>
