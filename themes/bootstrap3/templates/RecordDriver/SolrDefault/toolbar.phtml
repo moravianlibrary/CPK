@@ -154,6 +154,10 @@ jQuery( document ).ready(function( $ ) {
         pushRecordEventToGTM('sendEmail');
 	});
 
+    $( '.record-toolbar' ).on('click', '.export-toggle', function(){
+        pushRecordEventToGTM('export');
+    });
+
     function pushRecordEventToGTM(eventAction) {
         dataLayer.push({
             'event': 'action.record',
