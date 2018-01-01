@@ -38,7 +38,7 @@ use Zend\Log\LoggerInterface;
 use VuFindHttp\HttpServiceInterface;
 use DateTime;
 
-class Aleph extends AlephBase implements CPKDriverInterface
+class Aleph extends AlephBase implements DriverInterface
 {
 	protected $recordStatus = null;
 

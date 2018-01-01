@@ -643,9 +643,9 @@ class MultiBackend extends MultiBackendBase
      * Sends an mail informating about API error to an administrator email of
      * provided driver instance.
      *
-     * @param CPKDriverInterface $driver
+     * @param DriverInterface $driver
      */
-    protected function sendMailApiError(CPKDriverInterface $driver, $source, \Exception $e)
+    protected function sendMailApiError(DriverInterface $driver, $source, \Exception $e)
     {
         $adminMail = $driver->getAdministratorEmail();
 

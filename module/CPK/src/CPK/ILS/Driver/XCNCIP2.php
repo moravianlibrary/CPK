@@ -30,10 +30,10 @@
 namespace CPK\ILS\Driver;
 
 use CPK\ILS\Logic\XmlTransformation\JsonXML;
+use CPK\ILS\Logic\XmlTransformation\JsonXMLException;
 use CPK\ILS\Logic\XmlTransformation\NCIPNormalizer;
 use CPK\ILS\Logic\XmlTransformation\NCIPDenormalizer;
-use \XSLTProcessor as XSLTProcessor;
-use VuFind\Exception\ILS as ILSException, DOMDocument;
+use VuFind\Exception\ILS as ILSException;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
 use VuFind\ILS\Driver\AbstractBase;
 use VuFindHttp\HttpServiceAwareInterface;
@@ -52,7 +52,8 @@ use Zend\Log\LoggerInterface;
  *          License
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, TranslatorAwareInterface, CPKDriverInterface, LoggerAwareInterface
+class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, TranslatorAwareInterface, DriverInterface,
+    LoggerAwareInterface, MultiBackendInterface
 {
 
     const AGENCY_ID_DELIMITER = ':';
@@ -117,7 +118,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     protected $source = '';
 
     /**
-     * @var bool
+     * @var \Zend\I18n\Translator\Translator
      */
     protected $translator = false;
 
@@ -216,20 +217,41 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     }
 
     /**
+     * @param string $id
+     * @param array|null $patron
+     * @return array|mixed
+     * @throws JsonXMLException
+     */
+    public function getHolding($id, array $patron = null)
+    {
+        return $this->getStatus($id, $patron);
+    }
+
+    /**
+     * @param string $id
+     * @return array
+     */
+    public function getPurchaseHistory($id)
+    {
+        return array();
+    }
+
+    /**
      * Send an NCIP request.
      *
-     * @param string $xml
-     *            XML request document
-     * @return \SimpleXMLElement parsed from response
+     * @param string $xml NCIP request
+     * @return JsonXML
      * @throws ILSException
      */
     protected function sendRequest($xml)
     {
         $this->denormalizeRequest($xml);
 
+
         // Make the NCIP request:
         try {
             $client = $this->httpService->createClient($this->config['Catalog']['url']);
+            //$client->setRawBody($jsonXML->toXmlString());
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
@@ -277,7 +299,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         }
 
         if (!$result->isSuccess()) {
-            $message = 'HTTP error: ' . $result->getStatusCode();
+            $message = 'HTTP error: ' . $result->getStatusCode() . ' ' . $result->getReasonPhrase();
 
             $this->addEnvironmentalException($message);
             throw new ILSException($message);
@@ -288,20 +310,9 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
         $response = $this->normalizeResponse($body);
 
-        if (get_class($response) === '\SimpleXMLElement') {
-            $message = "Problem parsing XML";
-
-            $this->addEnvironmentalException($message);
-            throw new ILSException($message);
-        }
-        $response->registerXPathNamespace('ns1', 'http://www.niso.org/2008/ncip');
-
         if ($problem = $this->getProblem($response)) {
-            // TODO check problem type
 
             $message = 'Problem recieved in XCNCIP2 Driver. Content:' . str_replace('\n', '<br/>', $problem);
-
-            // $this->addEnviromentalException($message); TODO must be moved to particular method
 
             throw new ILSException($message);
         }
@@ -311,7 +322,6 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
     /**
      * Cancel Holds
-     *
      * Cancels a list of holds for a specific patron.
      *
      * @param array $cancelDetails
@@ -320,6 +330,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      *
      * @throws ILSException
      * @return array Status of canceled holds.
+     * @throws JsonXMLException
      */
     public function cancelHolds($cancelDetails)
     {
@@ -340,7 +351,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
                     $request = $this->requests->cancelRequestItemUsingItemId($patron, $recent);
                     try {
-                        $response = $this->sendRequest($request);
+                        $this->sendRequest($request);
                     } catch (ILSException $e) {
                         $problemOccurred = true;
                         $problemValue = $e->getMessage();
@@ -363,7 +374,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
                         $request = $this->requests->cancelRequestItemUsingRequestId($patron, $request_id);
                         try {
-                            $response = $this->sendRequest($request);
+                            $this->sendRequest($request);
                         } catch (ILSException $e) {
                             $problemOccurred = true;
                             $problemValue = $e->getMessage();
@@ -400,7 +411,6 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * @param array $renewDetails
      *            Two keys patron and details.
      *
-     * @throws ILSException
      * @return array An associative array with two keys: blocks and details.
      */
     public function renewMyItems($renewDetails)
@@ -412,7 +422,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
             try {
                 $request = $this->requests->renewItem($patron, $item);
                 $response = $this->sendRequest($request);
-                $rawDate = $this->useXPath($response, 'RenewItemResponse/DateForReturn');
+                $rawDate = $response->get('RenewItemResponse', 'DateForReturn');
                 $date = $this->parseDate($rawDate);
                 $result[$item] = array(
                     'success' => true,
@@ -421,7 +431,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
                     'item_id' => $item,
                     'sysMessage' => ''
                 );
-            } catch (ILSException $e) {
+            } catch (ILSException | JsonXMLException $e) {
                 $result[$item] = array(
                     'success' => false,
                     'sysMessage' => 'renew_fail'
@@ -437,9 +447,11 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     /**
      * Returns payment URL from config
      *
+     * @param string $patron
+     * @param float $fine
      * @return string | null
      */
-    public function getPaymentURL()
+    public function getPaymentURL(string $patron, float $fine)
     {
         if (isset($this->config['paymentUrl']))
             return $this->config['paymentUrl'];
@@ -455,7 +467,6 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * @param array $checkOutDetails
      *            - One of the individual item arrays returned by the getMyTransactions method.
      *
-     * @throws ILSException
      * @return string Used as the input form value for renewing each item;
      *         you can pass any data that is needed by your ILS to identify the transaction to renew –
      *         the output of this method will be used as part of the input to the renewMyItems method.
@@ -473,7 +484,6 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * @param array $holdDetails
      *            - One of the individual item arrays returned by the getMyHolds method.
      *
-     * @throws ILSException
      * @return string Used as the input value for cancelling each hold item;
      *         any data needed to identify the hold –
      *         the output will be used as part of the input to the cancelHolds method.
@@ -489,115 +499,6 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     }
 
     /**
-     * Given a chunk of the availability response, extract the values needed
-     * by VuFind.
-     *
-     * @param \SimpleXMLElement $current
-     *            Current XCItemAvailability chunk.
-     *            array $bibinfo Information about record.
-     *
-     * @param $bibInfo
-     * @return array
-     */
-    protected function getHoldingsForChunk($current, $bibInfo)
-    {
-        // Extract details from the XML:
-        $status = (string)$this->useXPath($current, 'ItemOptionalFields/CirculationStatus')[0];
-
-        $id = (string)$this->useXPath($bibInfo, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier')[0];
-        $itemIdentifierCode = (string)$this->useXPath($current, 'ItemId/ItemIdentifierType')[0];
-
-        if ($itemIdentifierCode == 'Accession Number') {
-
-            $item_id = (string)$this->useXPath($current, 'ItemId/ItemIdentifierValue')[0];
-        }
-
-        $locationNameInstance = $this->useXPath($current, 'ItemOptionalFields/Location/LocationName/LocationNameInstance');
-
-        foreach ($locationNameInstance as $recent) {
-            // FIXME: Create config to map location abbreviations of each institute into human readable values
-
-            $locationLevel = (string)$this->useXPath($recent, 'LocationNameLevel')[0];
-
-            if ($locationLevel == 4) {
-                $department = (string)$this->useXPath($recent, 'LocationNameValue')[0];
-            } else
-                if ($locationLevel == 3) {
-                    $subLibrary = (string)$this->useXPath($recent, 'LocationNameValue')[0];
-                } else {
-                    $locationInBuilding = (string)$this->useXPath($recent, 'LocationNameValue')[0];
-                }
-        }
-
-        $bibliographicItemIdentifierCode = (string)$this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifierCode')[0];
-
-        if ($bibliographicItemIdentifierCode == 'Legal Deposit Number') {
-            $barcode = (string)$this->useXPath($current, 'ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier')[0];
-        }
-
-        $numberOfPieces = (string)$this->useXPath($current, 'ItemOptionalFields/ItemDescription/NumberOfPieces')[0];
-
-        $holdQueue = (string)$this->useXPath($current, 'ItemOptionalFields/HoldQueueLength')[0];
-
-        $available = $status === 'Available On Shelf';
-
-        /* Why bother php interpreter with unused variables?
-
-        $parsingLoans = $this->useXPath($current, 'LoanedItem') != null;
-
-        // Get both holdings and item level call numbers; we'll pick the most
-        // specific available value below.
-        // $holdCallNo = $this->useXPath($current, 'HoldingsSet/CallNumber');
-        $itemCallNo = (string)$this->useXPath($current, 'ItemOptionalFields/ItemDescription/CallNumber')[0];
-        // $itemCallNo = (string)$itemCallNo[0];
-
-        $itemRestriction = (string)$this->useXPath($current, 'ItemOptionalFields/ItemUseRestrictionType')[0];
-
-        // TODO Exists any clean way to get the due date without additional request?
-
-        if (!empty($locationInBuilding))
-            $onStock = substr($locationInBuilding, 0, 5) == 'Stock';
-        else
-            $onStock = false;
-
-        $onStock = true;
-
-        $restrictedToLibrary = ($itemRestriction == 'In Library Use Only');
-
-        $monthLoanPeriod = ($itemRestriction == 'Limited Circulation, Normal Loan Period') || empty($itemRestriction);
-        */
-
-        return array(
-            'id' => empty($id) ? "" : $id,
-            'availability' => empty($available) ? false : $available ? true : false,
-            'status' => empty($status) ? "" : $status,
-            'location' => empty($locationInBuilding) ? "" : $locationInBuilding,
-            'sub_lib_desc' => empty($subLibrary) ? '' : $subLibrary,
-            'department' => empty($department) ? '' : $department,
-            'reserve' => "",
-            'callnumber' => "",
-            'collection_desc' => "",
-            'duedate' => empty($dueDate) ? "" : $dueDate,
-            'returnDate' => false,
-            'number' => empty($numberOfPieces) ? "" : $numberOfPieces,
-            'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
-            'barcode' => empty($barcode) ? "" : $barcode,
-            'notes' => "",
-            'summary' => "",
-            'supplements' => "",
-            'indexes' => "",
-            'is_holdable' => "",
-            'holdtype' => "",
-            'addLink' => "",
-            'link' => "",
-            'item_id' => empty($item_id) ? "" : $item_id,
-            'holdOverride' => "",
-            'addStorageRetrievalRequestLink' => "",
-            'addILLRequestLink' => ""
-        );
-    }
-
-    /**
      * @param $holdDetails
      * @return array
      */
@@ -609,7 +510,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         $message = '';
         $request = $this->requests->requestItem($patron, $holdDetails);
         try {
-            $response = $this->sendRequest($request);
+            $this->sendRequest($request);
         } catch (ILSException $ex) {
             $status = false;
             $message = 'hold_error_fail';
@@ -642,6 +543,13 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         }
     }
 
+    /**
+     * @param null $patron
+     * @param null $holdInformation
+     * @return array
+     * @throws ILSException
+     * @throws JsonXMLException
+     */
     public function getPickUpLocations($patron = null, $holdInformation = null)
     {
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
@@ -649,52 +557,36 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         $response = $this->sendRequest($request);
 
         $retVal = array();
-        if ($this->agency === 'ABG001') { // mkp
-            $retVal = $this->parseLocationsMkp($response);
-        }
-        if ($this->agency === 'UOG505') { // tre
-            $retVal = $this->parseLocationsKoha($response);
-        }
-        return $retVal;
-    }
 
-    private function parseLocationsMkp($response)
-    {
-        $retVal = array();
-        $locations = $this->useXPath($response, 'LookupAgencyResponse/Ext/LocationName/LocationNameInstance');
+        $locations = $response->getArray('LookupAgencyResponse', 'AgencyAddressInformation');
         foreach ($locations as $location) {
-            $id = $this->useXPath($location, 'LocationNameLevel');
-            $name = $this->useXPath($location, 'LocationNameValue');
-            $address = $this->useXPath($location, 'Ext/PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
-            if (empty($id))
-                continue;
 
-            $retVal[] = array(
-                'locationID' => empty($id) ? '' : (string)$id[0],
-                'locationDisplay' => empty($name) ? '' : (string)$name[0],
-                'locationAddress' => empty($address) ? '' : (string)$address[0]
+            $id = $response->getRelative(
+                $location,
+                'AgencyAddressRoleType'
             );
-        }
-        return $retVal;
-    }
 
-    private function parseLocationsKoha($response)
-    {
-        $retVal = array();
-        $locations = $this->useXPath($response, 'LookupAgencyResponse/AgencyAddressInformation');
-        foreach ($locations as $location) {
-            $id = $this->useXPath($location, 'AgencyAddressRoleType');
-            $name = $this->useXPath($location, 'PhysicalAddress/UnstructuredAddress/UnstructuredAddressType');
-            $address = $this->useXPath($location, 'PhysicalAddress/UnstructuredAddress/UnstructuredAddressData');
-            if (empty($id))
-                continue;
-            if (!empty($name) && (string)$name[0] == 'Newline-Delimited Text')
+            $name = $response->getRelative(
+                $location,
+                'PhysicalAddress',
+                'UnstructuredAddress',
+                'UnstructuredAddressType'
+            );
+
+            $address = $response->getRelative(
+                $location,
+                'PhysicalAddress',
+                'UnstructuredAddress',
+                'UnstructuredAddressData'
+            );
+
+            if ($name !== null && $name == 'Newline-Delimited Text')
                 continue;
 
             $retVal[] = array(
-                'locationID' => empty($id) ? '' : (string)$id[0],
-                'locationDisplay' => empty($name) ? '' : (string)$name[0],
-                'locationAddress' => empty($address) ? '' : (string)$address[0]
+                'locationID' => empty($id) ? '' : $id,
+                'locationDisplay' => empty($name) ? '' : $name,
+                'locationAddress' => empty($address) ? '' : $address
             );
         }
         return $retVal;
@@ -710,43 +602,62 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         return [];
     }
 
+    /**
+     * @param $patron
+     * @param $page
+     * @param $perPage
+     * @return array
+     * @throws ILSException
+     * @throws JsonXMLException
+     */
     public function getMyHistoryPage($patron, $page, $perPage)
     {
-        if ($this->agency != 'UOG505') {
-            throw new ILSException('driver_no_history');
-        }
-
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
         $request = $this->requests->patronHistory($patron, $page, $perPage);
         $response = $this->sendRequest($request);
 
-        $totalPages = $this->useXPath($response, 'LookupUserResponse/Ext/LoanedItemsHistory/LastPage');
-        $items = $this->useXPath($response, 'LookupUserResponse/Ext/LoanedItemsHistory/LoanedItem');
+        $totalPages = $response->get('LookupUserResponse', 'Ext', 'LoanedItemsHistory', 'LastPage');
+        $items = $response->getArray('LookupUserResponse', 'Ext', 'LoanedItemsHistory', 'LoanedItem');
         $inc = 0;
+
+        $historyPage = array();
 
         foreach ($items as $item) {
 
             $inc++;
-            $title = $this->useXPath($item, 'Title');
-            $itemId = $this->useXPath($item, 'ItemId/ItemIdentifierValue');
-            $dueDate = $this->useXPath($item, 'DateDue');
+
+            $title = $response->getRelative(
+                $item,
+                'Title'
+            );
+
+            $itemId = $response->getRelative(
+                $item,
+                'ItemId',
+                'ItemIdentifierValue'
+            );
+
+            $dueDate = $response->getRelative(
+                $item,
+                'DateDue'
+            );
             $dueDate = $this->parseDate($dueDate);
 
-            $additRequest = $this->requests->lookupItem((string)$itemId[0], $patron);
+            $additRequest = $this->requests->lookupItem($itemId, $patron);
             try {
                 $additResponse = $this->sendRequest($additRequest);
-                $bib_id = $this->getFirstXPathMatchAsString($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
+                $bib_id = $additResponse->get('LookupItemResponse', 'ItemOptionalFields', 'BibliographicDescription', 'BibliographicItemId', 'BibliographicItemIdentifier');
                 if (empty($title)) {
-                    $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
+                    $title = $additResponse->get('LookupItemResponse', 'ItemOptionalFields', 'BibliographicDescription', 'Title');
                 }
             } catch (ILSException $e) {
             }
 
             $historyPage[] = array(
                 'id' => empty($bib_id) ? '' : $bib_id,
-                'item_id' => empty($itemId) ? '' : (string)$itemId[0],
+                'item_id' => empty($itemId) ? '' : $itemId,
                 'barcode' => '',
-                'title' => empty($title) ? $this->translator->translate('unknown_title') : (string)$title[0],
+                'title' => empty($title) ? $this->translator->translate('unknown_title') : $title,
                 'author' => '',
                 'reqnum' => '',
                 'loandate' => '',
@@ -759,7 +670,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
         return [
             'historyPage' => empty($historyPage) ? [] : $historyPage,
-            'totalPages' => empty($totalPages) ? 0 : (int)$totalPages[0]
+            'totalPages' => empty($totalPages) ? 0 : (int)$totalPages
         ];
     }
 
@@ -772,10 +683,11 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * @param string $id
      *            The record id to retrieve the holdings for
      *
-     * @throws ILSException
+     * @param array $patron
      * @return mixed On success, an associative array with the following keys:
      *         id, availability (boolean), status, location, reserve,
      *         callnumber.
+     * @throws JsonXMLException
      */
     public function getStatus($id, $patron = [])
     {
@@ -798,55 +710,45 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         $id = $this->joinAgencyId($id, $agencyId);
 
         // Extract details from the XML:
-        $status = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/CirculationStatus');
-        $status = $this->convertStatus($status);
+        $status = $response->get('LookupItemResponse', 'ItemOptionalFields', 'CirculationStatus');
 
-        $locations = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/Location');
+        $locations = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'Location');
         foreach ($locations as $locElement) {
-            $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
-            $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-            if (!empty($level)) {
-                if ((string)$level[0] == '1')
-                    if (!empty($locationName))
-                        $department = (string)$locationName[0];
-                if ((string)$level[0] == '2')
-                    if (!empty($locationName))
-                        $collection = (string)$locationName[0];
+            $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
+            $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
+            if ($value !== null) {
+                if ($level == '1')
+                    $department = $value;
+                if ($level == '2')
+                    $collection = $value;
             }
         }
 
-        if ($this->agency === 'ABA008') { // NLK
-            $parts = explode("@", $department);
-            $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
-            $parts = explode(" ", $translate, 2);
-            $department = isset($parts[0]) ? $parts[0] : '';
-            $collection = isset($parts[1]) ? $parts[1] : '';
-        }
+        $numberOfPieces = $response->get('LookupItemResponse', 'ItemOptionalFields', 'ItemDescription', 'NumberOfPieces');
 
-        $numberOfPieces = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/ItemDescription/NumberOfPieces');
+        $holdQueue = $response->get('LookupItemResponse', 'ItemOptionalFields', 'HoldQueueLength');
 
-        $holdQueue = (string)$this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/HoldQueueLength')[0];
-
-        $itemRestriction = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/ItemUseRestrictionType');
-        if (!empty($status) && (string)$status[0] == 'On Loan') {
-            $dueDate = $this->useXPath($response, 'LookupItemResponse/ItemOptionalFields/DateDue');
+        if ($status == 'On Loan') {
+            $dueDate = $response->get('LookupItemResponse', 'ItemOptionalFields', 'DateDue');
             $dueDate = $this->parseDate($dueDate);
         } else {
             $dueDate = false;
         }
 
         $label = $this->determineLabel($status);
+
+        $itemRestriction = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'ItemUseRestrictionType');
         $addLink = $this->isLinkAllowed($status, $itemRestriction);
 
         return array(
             'id' => empty($id) ? "" : $id,
-            'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
-            'status' => empty($status) ? '' : (string)$status[0],
+            'availability' => empty($itemRestriction) ? '' : $itemRestriction,
+            'status' => empty($status) ? '' : $status,
             'location' => '',
             'sub_lib_desc' => '',
             'collection' => isset($collection) ? $collection : '',
             'department' => isset($department) ? $department : '',
-            'number' => empty($numberOfPieces) ? '' : (string)$numberOfPieces[0],
+            'number' => empty($numberOfPieces) ? '' : $numberOfPieces,
             'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
             'item_id' => empty($id) ? "" : $id,
             'label' => $label,
@@ -859,6 +761,13 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         );
     }
 
+    /**
+     * @param $id
+     * @param $bibId
+     * @param $patron
+     * @return mixed
+     * @throws JsonXMLException
+     */
     public function getItemStatus($id, $bibId, $patron)
     {
         return $this->getStatus($id, $patron);
@@ -869,287 +778,99 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      *
      * This method calls getStatus for an array of records.
      *
-     * @param
-     *            array Array of bibliographic record IDs.
-     *
+     * @param array $ids
+     * @param array $patron
+     * @param array $filter
+     * @param array $bibId
+     * @param null $nextItemToken
+     * @return array
      * @throws ILSException
-     * @return array Array of return values from getStatus.
+     * @throws JsonXMLException
      */
     public function getStatuses($ids, $patron = [], $filter = [], $bibId = [], $nextItemToken = null)
     {
         if (empty($bibId))
             $this->cannotUseLUIS = true;
-        if (!empty($filter) && in_array($this->agency, $this->libsLikeLiberec))
-            $this->cannotUseLUIS = true;
+
         if ($this->cannotUseLUIS) {
             // If we cannot use LUIS we will parse only the first one
             $retVal = [];
             $retVal[] = $this->getStatus(reset($ids), $patron);
             return $retVal;
         } else {
-            if (in_array($this->agency, $this->libsLikeTabor)) {
-                if ($this->agency === 'SOG504') {
-                    $bibId = '00124' . sprintf('%010d', $bibId);
-                } elseif  ($this->agency === 'KHG001' ) {
-                    $bibId = '00160' . sprintf('%010d', $bibId);
-                }
-                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
-                $response = $this->sendRequest($request);
-                return $this->handleStutuses($response);
-            }
+            $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
+            $response = $this->sendRequest($request);
+            return $this->handleStatuses($response);
 
-            if ($this->agency === 'ZLG001') {
-                $bibId = str_replace('oai:', '', $bibId);
-                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
-                $response = $this->sendRequest($request);
-                return $this->handleStutusesZlg($response);
-            }
-
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
-                $bibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
-                $bibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $bibId);
-                $bibId = str_replace('KlUsCat_', 'kl_us_cat*', $bibId);
-                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
-                $response = $this->sendRequest($request);
-                return $this->handleStutusesZlg($response);
-            }
-
-            if ($this->agency === 'ABA008') { // NLK
-                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
-                $response = $this->sendRequest($request);
-                return $this->handleStutusesNlk($response);
-            }
-
-            if ($this->agency === 'ABG001') { // MKP
-                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
-                $response = $this->sendRequest($request);
-                return $this->handleStutusesZlg($response);
-            }
-
-            if ($this->agency === 'UOG505') { // tre
-                $request = $this->requests->LUISBibItem($bibId, $nextItemToken, $this, $patron);
-                $response = $this->sendRequest($request);
-                return $this->handleStutusesZlg($response);
-            }
         }
-        return [];
     }
 
-    private function handleStutuses($response)
+    /**
+     * @param JsonXML $response
+     * @return array
+     * @throws JsonXMLException
+     */
+    private function handleStatuses(JsonXML $response)
     {
         $retVal = array();
 
-        $bib_id = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
+        $bib_id = $response->get('LookupItemSetResponse', 'BibInformation', 'BibliographicId', 'BibliographicItemId', 'BibliographicItemIdentifier');
 
-        $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
+        $nextItemToken = $response->get('LookupItemSetResponse', 'NextItemToken');
 
-        $holdingSets = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet');
-        foreach ($holdingSets as $holdingSet) {
+        $items = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet', 'ItemInformation');
+        foreach ($items as $itemInformation) {
+            $collection = '';
             $department = '';
 
-            $item_id = $this->useXPath($holdingSet, 'ItemInformation/ItemId/ItemIdentifierValue');
-            if ($this->agency === 'ULG001') {
-                $item_id[0] = preg_replace('^31480', '', $item_id[0]);
-            }
+            $item_id = $response->getRelative($itemInformation, 'ItemId', 'ItemIdentifierValue');
+            $status = $response->getRelative($itemInformation, 'ItemOptionalFields', 'CirculationStatus');
 
-            $status = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/CirculationStatus');
-
-            if (!empty($status) && (string)$status[0] == 'On Loan') {
-                $dueDate = $this->useXPath($holdingSet, 'ItemInformation/DateDue');
+            if ($status == 'On Loan') {
+                $dueDate = $response->getRelative($itemInformation, 'DateDue');
                 $dueDate = $this->parseDate($dueDate);
             } else {
                 /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet. */
                 $dueDate = false;
             }
 
-            $holdQueue = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/HoldQueueLength');
+            $holdQueue = $response->getRelative($itemInformation, 'ItemOptionalFields', 'HoldQueueLength');
 
-            $itemRestriction = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
-
-            $label = $this->determineLabel($status);
-            $addLink = $this->isLinkAllowed($status, $itemRestriction);
-            if (in_array($this->agency, $this->libsLikeTabor)) {
-                if ((string)$itemRestriction[0] == 'Orderable') {
-                    $addLink = true;
-                    $itemRestriction = array_pop($itemRestriction);
-                } else {
-                    $addLink = false;
-                }
-            }
-
-            $locations = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/Location');
+            $locations = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'Location');
             foreach ($locations as $locElement) {
-                $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
-                $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-                if (!empty($level)) {
-                    if ((string)$level[0] == '1')
-                        if (!empty($locationName))
-                            $department = (string)$locationName[0];
-                }
-            }
-
-            $retVal[] = array(
-                'id' => empty($bib_id) ? "" : (string)$bib_id[0],
-                'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
-                'status' => empty($status) ? "" : (string)$status[0],
-                'location' => '',
-                'collection' => '',
-                'sub_lib_desc' => '',
-                'department' => $department,
-                'requests_placed' => !isset($holdQueue) ? "" : (string)$holdQueue[0],
-                'item_id' => empty($item_id) ? "" : (string)$item_id[0],
-                'label' => $label,
-                'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
-                'restrictions' => '',
-                'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : (string)$nextItemToken[0],
-                'addLink' => $addLink
-            );
-        }
-        return $retVal;
-    }
-
-    private function handleStutusesZlg($response)
-    {
-        $retVal = array();
-
-        $bib_id = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
-
-        $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
-
-        $items = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
-        foreach ($items as $itemInformation) {
-            $collection = '';
-            $department = '';
-
-            $item_id = $this->useXPath($itemInformation, 'ItemId/ItemIdentifierValue');
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
-                if (empty($item_id)) {
-                    $item_id = $this->useXPath($itemInformation, 'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
-                }
-                if (empty($item_id) || empty($item_id[0])) { // this is for LIA's periodicals (without item_id)
-                    $item_id = $this->useXPath($itemInformation, 'ItemOptionalFields/ItemDescription/CopyNumber');
-                }
-            }
-
-            $status = $this->useXPath($itemInformation, 'ItemOptionalFields/CirculationStatus');
-            $status = $this->convertStatus($status);
-
-            if (!empty($status) && (string)$status[0] == 'On Loan') {
-                $dueDate = $this->useXPath($itemInformation, 'ItemOptionalFields/DateDue');
-                $dueDate = $this->parseDate($dueDate);
-            } else {
-                $dueDate = false;
-            }
-
-            $holdQueue = $this->useXPath($itemInformation, 'ItemOptionalFields/HoldQueueLength');
-
-            $itemRestriction = $this->useXPath($itemInformation, 'ItemOptionalFields/ItemUseRestrictionType');
-
-            $locations = $this->useXPath($itemInformation, 'ItemOptionalFields/Location');
-            foreach ($locations as $locElement) {
-                $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
-                $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-                if (!empty($level)) {
-                    if ((string)$level[0] == '1')
-                        if (!empty($locationName))
-                            $department = (string)$locationName[0];
-                    if ((string)$level[0] == '2')
-                        if (!empty($locationName))
-                            $collection = (string)$locationName[0];
-                    if (empty($department) && (string)$level[0] == '4') {
-                        if (!empty($locationName))
-                            $department = (string)$locationName[0];
+                $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
+                $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
+                if (!empty($value)) {
+                    if ($level == '1')
+                        $department = $value;
+                    if ($level == '2')
+                        $collection = $value;
+                    if (empty($department) && $level == '4') {
+                        $department = $value;
                     }
                 }
             }
 
             $label = $this->determineLabel($status);
-            $addLink = $this->isLinkAllowed($status, $itemRestriction, $department);
 
-            $retVal[] = array(
-                'id' => empty($bib_id) ? "" : (string)$bib_id[0],
-                'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
-                'status' => empty($status) ? "" : (string)$status[0],
-                'location' => '',
-                'collection' => $collection,
-                'sub_lib_desc' => '',
-                'department' => $department,
-                'requests_placed' => !isset($holdQueue) ? "" : (string)$holdQueue[0],
-                'item_id' => empty($item_id) ? "" : (string)$item_id[0],
-                'label' => $label,
-                'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
-                'restrictions' => '',
-                'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : (string)$nextItemToken[0],
-                'addLink' => $addLink
-            );
-        }
-        return $retVal;
-    }
-
-    private function handleStutusesNlk($response)
-    {
-        $retVal = array();
-
-        $bib_id = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
-
-        $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
-
-        $holdingSets = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet');
-        foreach ($holdingSets as $holdingSet) {
-            $department = '';
-
-            $item_id = $this->useXPath($holdingSet, 'ItemInformation/ItemId/ItemIdentifierValue');
-
-            $status = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/CirculationStatus');
-
-            if (!empty($status) && (string)$status[0] == 'On Loan') {
-                $dueDate = $this->useXPath($holdingSet, 'ItemInformation/DateDue');
-                $dueDate = $this->parseDate($dueDate);
-            } else {
-                /* 'On Order' means that item is ordered from stock and will be loaned, but we don't know dueDate yet. */
-                $dueDate = false;
-            }
-
-            $holdQueue = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/HoldQueueLength');
-
-            $itemRestriction = $this->useXPath($holdingSet, 'ItemInformation/ItemOptionalFields/ItemUseRestrictionType');
-
-            $label = $this->determineLabel($status);
+            $itemRestriction = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
             $addLink = $this->isLinkAllowed($status, $itemRestriction);
 
-            $locations = $this->useXPath($holdingSet, 'Location');
-            foreach ($locations as $locElement) {
-                $level = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameLevel');
-                $locationName = $this->useXPath($locElement, 'LocationName/LocationNameInstance/LocationNameValue');
-                if (!empty($level)) {
-                    if ((string)$level[0] == '1')
-                        if (!empty($locationName))
-                            $department = (string)$locationName[0];
-                }
-            }
-            $parts = explode("@", $department);
-            $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
-            $parts = explode(" ", $translate, 2);
-            $department = isset($parts[0]) ? $parts[0] : '';
-            $collection = isset($parts[1]) ? $parts[1] : '';
-
             $retVal[] = array(
-                'id' => empty($bib_id) ? "" : (string)$bib_id[0],
-                'availability' => empty($itemRestriction) ? '' : (string)$itemRestriction[0],
-                'status' => empty($status) ? "" : (string)$status[0],
+                'id' => empty($bib_id) ? "" : $bib_id,
+                'availability' => empty($itemRestriction) ? '' : $itemRestriction[0],
+                'status' => empty($status) ? "" : $status,
                 'location' => '',
                 'collection' => $collection,
                 'sub_lib_desc' => '',
                 'department' => $department,
-                'requests_placed' => !isset($holdQueue) ? "" : (string)$holdQueue[0],
-                'item_id' => empty($item_id) ? "" : (string)$item_id[0],
+                'requests_placed' => !isset($holdQueue) ? "" : $holdQueue,
+                'item_id' => empty($item_id) ? "" : $item_id,
                 'label' => $label,
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : (string)$nextItemToken[0],
+                'next_item_token' => empty($nextItemToken) ? '' : $nextItemToken,
                 'addLink' => $addLink
             );
         }
@@ -1164,7 +885,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      */
     protected function determineLabel($status)
     {
-        $status = empty($status) ? '' : (string)$status[0];
+        $status = empty($status) ? '' : $status;
         $label = 'label-danger';
         if (($status === 'Available On Shelf') || ($status === 'Available For Pickup'))
             $label = 'label-success';
@@ -1173,127 +894,6 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         elseif (($status === 'Circulation Status Undefined'))
             $label = 'label-unknown';
         return $label;
-    }
-
-    /**
-     * Get Holding
-     *
-     * This is responsible for retrieving the holding information of a certain
-     * record.
-     *
-     * @param string $id
-     *            The record id to retrieve the holdings.
-     * @param array $patron
-     *            Patron data.
-     *
-     * @throws \VuFind\Exception\Date
-     * @throws ILSException
-     * @return array On success, an associative array with the following
-     *         keys: id, availability (boolean), status, location, reserve,
-     *         callnumber,
-     *         duedate, number, barcode.
-     */
-    public function getHolding($id, array $patron = null)
-    {
-        // id may have the form of "patronId:agencyId"
-        list ($id, $agencyId) = $this->splitAgencyId($id);
-
-        do {
-            if (isset($nextItemToken[0]))
-                $request = $this->requests->LUISBibItem(array(
-                    $id
-                ), (string)$nextItemToken[0], $this, $patron);
-            else {
-                $request = $this->requests->LUISBibItem(array(
-                    $id
-                ), null, $this, $patron);
-                $all_item_info = [];
-            }
-
-            $response = $this->sendRequest($request);
-            if ($response == null)
-                return null;
-
-            $new_item_info = $this->useXPath($response, 'LookupItemSetResponse/BibInformation/HoldingsSet/ItemInformation');
-            $all_item_info = array_merge($all_item_info, $new_item_info);
-
-            $nextItemToken = $this->useXPath($response, 'LookupItemSetResponse/NextItemToken');
-        } while ($this->isValidToken($nextItemToken));
-        $bib_info = $this->useXPath($response, 'LookupItemSetResponse/BibInformation');
-        $bib_info = $bib_info[0];
-
-        // Build the array of holdings:
-        $holdings = array();
-        foreach ($all_item_info as $current) {
-            $holdings[] = $this->getHoldingsForChunk($current, $bib_info);
-        }
-        return $holdings;
-    }
-
-    /**
-     * Get Purchase History
-     *
-     * This is responsible for retrieving the acquisitions history data for the
-     * specific record (usually recently received issues of a serial).
-     *
-     * @param string $id
-     *            The record id to retrieve the info for
-     *
-     * @throws ILSException
-     * @return array An array with the acquisitions data on success.
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getPurchaseHistory($id)
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Patron Login
-     *
-     * This is responsible for authenticating a patron against the catalog.
-     *
-     * @param string $username
-     *            The patron username
-     * @param string $password
-     *            The patron's password
-     *
-     * @throws ILSException
-     * @return mixed Associative array of patron info on successful login,
-     *         null on unsuccessful login.
-     */
-    public function patronLogin($username, $password)
-    {
-        // If password is null, than is user already logged in ..
-        if ($password == null) {
-            $temp = array(
-                'id' => $username
-            );
-            return $this->getMyProfile($temp);
-        }
-
-        $request = $this->requests->patronLogin($username, $password);
-        $response = $this->sendRequest($request);
-        $id = $this->useXPath($response, 'LookupUserResponse/UserId/UserIdentifierValue');
-        $firstname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
-
-        $lastname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
-        $email = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress/ElectronicAddressData');
-        if (!empty($id)) {
-            $patron = array(
-                'id' => empty($id) ? '' : (string)$id[0],
-                'firstname' => empty($firstname) ? '' : (string)$firstname[0],
-                'lastname' => empty($lastname) ? '' : (string)$lastname[0],
-                'cat_username' => $username,
-                'cat_password' => $password,
-                'email' => empty($email) ? '' : (string)$email[0],
-                'major' => null,
-                'college' => null
-            );
-            return $patron;
-        }
-        return null;
     }
 
     /**
@@ -1307,6 +907,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * @throws ILSException
      * @return array Array of arrays, one for each item checked out by the
      *         specified account.
+     * @throws JsonXMLException
      */
     public function getMyTransactions($patron)
     {
@@ -1319,62 +920,104 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         return $this->handleTransactions($response, $patron);
     }
 
-    private function handleTransactions($response, $patron)
+    /**
+     * @param JsonXML $response
+     * @param $patron
+     * @return array
+     * @throws JsonXMLException
+     */
+    private function handleTransactions(JsonXML $response, $patron)
     {
         $retVal = array();
-        $list = $this->useXPath($response, 'LookupUserResponse/LoanedItem');
+        $loanedItems = $response->getArray('LookupUserResponse', 'LoanedItem');
 
-        foreach ($list as $current) {
+        foreach ($loanedItems as $loanedItem) {
             $isbn = $bib_id = $author = $mediumType = null;
-            $item_id = $this->getFirstXPathMatchAsString($current, 'ItemId/ItemIdentifierValue');
+            $item_id = $response->getRelative(
+                $loanedItem,
+                'ItemId',
+                'ItemIdentifierValue'
+            );
 
-            if (!$item_id) {
-                // MKP, in house loans (present loans) has no item_id
-                continue;
-            }
+            $dateDue = $response->getRelative(
+                $loanedItem,
+                'DateDue'
+            );
 
-            $dateDue = $this->useXPath($current, 'DateDue');
-            $title = $this->useXPath($current, 'Title');
-            $publicationYear = $this->useXPath($current, 'Ext/BibliographicDescription/PublicationDate');
+            $title = $response->getRelative(
+                $loanedItem,
+                'Title'
+            );
+
+            $publicationYear = $response->getRelative(
+                $loanedItem,
+                'Ext',
+                'BibliographicDescription',
+                'PublicationDate'
+            );
+
             $dueStatus = $this->hasOverdue($dateDue);
             $dateDue = $this->parseDate($dateDue);
-            $renewalNotPermitted = $this->useXPath($current, 'Ext/RenewalNotPermitted');
-            $renewable = empty($renewalNotPermitted) ? true : false;
+
+            $renewalNotPermitted = $response->getRelative(
+                $loanedItem,
+                'Ext',
+                'RenewalNotPermitted'
+            );
+
+            $renewable = $renewalNotPermitted === null;
+
             $additRequest = $this->requests->lookupItem($item_id, $patron);
             try {
                 $additResponse = $this->sendRequest($additRequest);
-                $isbn = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicRecordId/BibliographicRecordIdentifier');
-                $bib_id = $this->getFirstXPathMatchAsString($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-                $author = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Author');
-                if (empty($title) || $title[0] == '')
-                    $title = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/Title');
-                $mediumType = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/MediumType');
-            } catch (ILSException $e) {
-            }
 
-            if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
-                $dateDue = $this->useXPath($current, 'dateDue');
-                $dueStatus = $this->hasOverdue($dateDue);
-                $dateDue = $this->parseDate($dateDue);
+                $bibliographicDescription = $additResponse->get(
+                    'LookupItemResponse',
+                    'ItemOptionalFields',
+                    'BibliographicDescription'
+                );
+
+                $isbn = $additResponse->getRelative(
+                    $bibliographicDescription,
+                    'BibliographicRecordId',
+                    'BibliographicRecordIdentifier'
+                );
+
+                $bib_id = $additResponse->getRelative(
+                    $bibliographicDescription,
+                    'BibliographicItemId',
+                    'BibliographicItemIdentifier'
+                );
+
+                $author = $additResponse->getRelative(
+                    $bibliographicDescription,
+                    'Author'
+                );
+
+                if (empty($title))
+                    $title = $additResponse->getRelative(
+                        $bibliographicDescription,
+                        'Title'
+                    );
+            } catch (ILSException $e) {
+                // Silent catch
             }
 
             $retVal[] = array(
                 'cat_username' => $patron['cat_username'],
-                'duedate' => empty($dateDue) ? '' : $dateDue,
+                'duedate' => $dateDue,
                 'id' => $bib_id,
                 'barcode' => $item_id,
-                // 'renew' => '', // TODO
-                // 'renewLimit' => '', // TODO
-                'request' => empty($request) ? '' : (string)$request[0],
+                'request' => '',
                 'volume' => '',
-                'author' => empty($author) ? '' : (string)$author[0],
-                'publication_year' => empty($publicationYear) ? '' : (string)$publicationYear[0],
+                'author' => $author,
+                'publication_year' => $publicationYear,
                 'renewable' => $renewable,
                 'message' => '',
-                'title' => empty($title) ? '' : (string)$title[0],
+                'title' => $title,
                 'item_id' => $item_id,
                 'institution_name' => '',
-                'isbn' => empty($isbn) ? '' : (string)$isbn[0],
+                'isbn' => $isbn,
                 'issn' => '',
                 'oclc' => '',
                 'upc' => '',
@@ -1395,67 +1038,95 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      *            The patron array
      *
      * @return array Array of arrays containing fines information.
+     * @throws ILSException
+     * @throws JsonXMLException
      */
     public function getMyFines($patron)
     {
-        $_ENV['processing'] = 'fines';
-
-        if ($this->agency === 'ABA008') { // NLK
-            throw new ILSException('driver_no_fines');
-        }
-
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
         $request = $this->requests->patronFiscalAccount($patron);
         $response = $this->sendRequest($request);
         $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
-        $list = $this->useXPath($response, 'LookupUserResponse/UserFiscalAccount/AccountDetails');
-        $monetaryValue = $this->useXPath($response, 'LookupUserResponse/UserFiscalAccount/AccountBalance/MonetaryValue');
+        $accountDetails = $response->getArray('LookupUserResponse', 'UserFiscalAccount', 'AccountDetails');
+        $monetaryValue = $response->get('LookupUserResponse', 'UserFiscalAccount', 'AccountBalance', 'MonetaryValue');
 
         $fines = array();
         $sum = 0;
         $leastOne = false;
-        foreach ($list as $current) {
+        foreach ($accountDetails as $accountDetail) {
             $excluded = false;
-            $amount = $this->useXPath($current, 'FiscalTransactionInformation/Amount/MonetaryValue');
-            $action = $this->useXPath($current, 'FiscalTransactionInformation/FiscalActionType');
-            $type = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionType');
-            $date = $this->useXPath($current, 'AccrualDate');
-            $desc = $this->useXPath($current, 'FiscalTransactionInformation/FiscalTransactionDescription');
-            $item_id = $this->useXPath($current, 'FiscalTransactionInformation/ItemDetails/ItemId/ItemIdentifierValue');
+
+            $date = $response->getRelative(
+                $accountDetail,
+                'AccrualDate'
+            );
+
+            $amount = $response->getRelative(
+                $accountDetail,
+                'FiscalTransactionInformation',
+                'Amount',
+                'MonetaryValue'
+            );
+
+            $desc = $response->getRelative(
+                $accountDetail,
+                'FiscalTransactionInformation',
+                'FiscalTransactionDescription'
+            );
+
+            $type = $response->getRelative(
+                $accountDetail,
+                'FiscalTransactionInformation',
+                'FiscalTransactionType'
+            );
+
+            $item_id = $response->getRelative(
+                $accountDetail,
+                'FiscalTransactionInformation',
+                'ItemDetails',
+                'ItemId',
+                'ItemIdentifierValue'
+            );
+
             if ($this->isAncientFee($date))
                 $excluded = true; // exclude old fees
+
             $date = $this->parseDate($date);
-            $amount_int = (int)$amount[0];
+
+            $amount_int = (int)$amount;
             if ($amount_int == 0)
                 continue; // remove zero fees
+
             if (!$excluded)
                 $leastOne = true;
+
             $sum += $amount_int;
 
-            if ($this->agency == 'ZLG001')
-                $desc = $action;
             if (empty($desc))
                 $desc = $type;
 
             $fines[] = array(
                 'amount' => (string)$amount_int,
                 'checkout' => $date,
-                'fine' => $this->translator->translate((string)$type[0]),
+                'fine' => $this->translator->translate($type),
                 'balance' => (string)$sum,
                 'createdate' => '',
                 'duedate' => '',
-                'id' => (string)$desc[0],
-                'excluded' => $excluded
+                'id' => $desc,
+                'excluded' => $excluded,
+                'item_id' => $item_id
             );
         }
-        if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue[0] != 0)
+        if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue != 0)
             $fines[] = array(
-                'amount' => (string)$monetaryValue[0],
-                'balance' => (string)$monetaryValue[0]
+                'amount' => $monetaryValue,
+                'balance' => $monetaryValue
             );
+
         if (!empty($fines) && !$leastOne)
             $fines[count($fines) - 1]['excluded'] = false;
+
         return $fines;
     }
 
@@ -1466,6 +1137,8 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      *            The patron array
      *
      * @return array Array of arrays, one for each hold.
+     * @throws ILSException
+     * @throws JsonXMLException
      */
     public function getMyHolds($patron)
     {
@@ -1475,95 +1148,125 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
         $retVal = array();
-        $list = $this->useXPath($response, 'LookupUserResponse/RequestedItem');
+        $requestedItems = $response->getArray('LookupUserResponse', 'RequestedItem');
 
-        foreach ($list as $current) {
-            $cannotCancel = false;
-            $type = $this->useXPath($current, 'RequestType');
-            $requestStatusType = $this->useXPath($current, 'RequestStatusType');
-            $id = $this->useXPath($current, 'BibliographicId/BibliographicItemId/BibliographicItemIdentifier');
-            $location = $this->useXPath($current, 'PickupLocation');
-            $reqnum = $this->useXPath($current, 'RequestId/RequestIdentifierValue');
-            $expire = $this->useXPath($current, 'PickupExpiryDate');
-            $create = $this->useXPath($current, 'DatePlaced');
-            $position = $this->useXPath($current, 'HoldQueuePosition');
-            $item_id = $this->useXPath($current, 'ItemId/ItemIdentifierValue');
-            $title = $this->useXPath($current, 'Title');
-            $extTitle = $this->useXPath($current, 'Ext/BibliographicDescription/Title');
+        foreach ($requestedItems as $requestedItem) {
 
-            // Deal with Zlin.
-            if (empty($id))
-                $id = $this->useXPath($current, 'Ext/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-            if (empty($title))
-                $title = $extTitle;
-            if ($this->agency === 'ZLG001') {
-                // $type == 'Hold' => rezervace; $type == 'Loan' => objednavka
+            $type = $response->getRelative(
+                $requestedItem,
+                'RequestType'
+            );
+
+            $requestStatusType = $response->getRelative(
+                $requestedItem,
+                'RequestStatusType'
+            );
+
+            $item_id = $response->getRelative(
+                $requestedItem,
+                'ItemId',
+                'ItemIdentifierValue'
+            );
+
+            $bibliographicIds = $response->getArrayRelative(
+                $requestedItem,
+                'BibliographicId'
+            );
+
+            $id = null;
+            foreach ($bibliographicIds as $bibliographicId) {
+                $id = $response->getRelative(
+                    $bibliographicId,
+                    'BibliographicItemId',
+                    'BibliographicItemIdentifier'
+                );
+
+                if ($id !== null)
+                    break;
             }
 
-            // Deal with Liberec.
-            if (empty($position))
-                $position = $this->useXPath($current, 'Ext/HoldQueueLength');
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
-                $title = $extTitle; // TODO temporary solution for periodicals
-                if ((!empty($type)) && ((string)$type[0] == 'w'))
-                    $cannotCancel = true;
+            // We need to make sure we have ID ...
+            if ($id === null) {
+
+                if ($item_id === null)
+                    // No bibliographic ID nor item ID provided, cannot look it up! So just skip this one
+                    continue;
+
+                $idRequest = $this->requests->lookupItem($item_id, $patron);
+                $idResponse = $this->sendRequest($idRequest);
+                $id = $idResponse->get(
+                    'LookupItemResponse',
+                    'ItemOptionalFields',
+                    'BibliographicDescription',
+                    'BibliographicItemId',
+                    'BibliographicItemIdentifier'
+                );
             }
 
-            // Deal with Tabor.
-            if (in_array($this->agency, $this->libsLikeTabor)) {
-                // $type == 'Hold' => rezervace; $type == 'Stack Retrieval' => objednavka
-                if (empty($expire))
-                    $expire = $this->useXPath($current, 'Ext/NeedBeforeDate');
-                if ((!empty($type)) && ((string)$type[0] == 'Stack Retrieval')) {
-                    $cannotCancel = true;
-                    $position = null; // hide queue position
-                }
-            }
+            $title = $response->getRelative(
+                $requestedItem,
+                'Title'
+            );
 
-            if ($this->agency === 'ABA008') { // NLK
-                $parts = explode("@", (string)$location[0]);
-                $location[0] = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
-                $additId = empty($item_id) ? '' : (string)$item_id[0];
-                $additRequest = $this->requests->lookupItem($additId, $patron);
-                try {
-                    $additResponse = $this->sendRequest($additRequest);
-                    $id = $this->useXPath($additResponse, 'LookupItemResponse/ItemOptionalFields/BibliographicDescription/BibliographicItemId/BibliographicItemIdentifier');
-                } catch (ILSException $e) {
-                }
-            }
+            $location = $response->getRelative(
+                $requestedItem,
+                'PickupLocation'
+            );
 
-            if (!empty($position))
-                if ((string)$position[0] === '0')
-                    $position = null; // hide queue position
-            $bib_id = empty($id) ? null : explode('-', (string)$id[0])[0];
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
-                $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
-                $bib_id = str_replace('cbvk_us_cat*', 'CbvkUsCat_', $bib_id);
-                $bib_id = str_replace('kl_us_cat*', 'KlUsCat_', $bib_id);
-            }
+            $reqnum = $response->getRelative(
+                $requestedItem,
+                'RequestId',
+                'RequestIdentifierValue'
+            );
+
+            $expire = $response->getRelative(
+                $requestedItem,
+                'PickupExpiryDate'
+            );
+
+            $create = $response->getRelative(
+                $requestedItem,
+                'DatePlaced'
+            );
+
+            $position = $response->getRelative(
+                $requestedItem,
+                'HoldQueuePosition'
+            );
+
+            $cannotCancel = $response->getRelative(
+                    $requestedItem,
+                    'Ext',
+                    'NonReturnableFlag'
+                ) || false;
+
+            if ($position === '0')
+                $position = null; // hide queue position
+
+            $bib_id = empty($id) ? null : explode('-', $id)[0];
             $create = $this->parseDate($create);
             $expire = $this->parseDate($expire);
 
             $available = false;
-            if ((!empty($requestStatusType)) && ((string)$requestStatusType[0] == 'Available For Pickup')) {
+            if ($requestStatusType === 'Available For Pickup') {
                 $available = true;
                 $cannotCancel = true;
             }
 
             $retVal[] = array(
-                'type' => empty($type) ? '' : (string)$type[0],
-                'id' => empty($bib_id) ? '' : $bib_id,
-                'location' => empty($location) ? '' : (string)$location[0],
-                'reqnum' => empty($reqnum) ? '' : static::CANCEL_REQUEST_PREFIX . (string)$reqnum[0],
-                'expire' => empty($expire) ? '' : $expire,
-                'create' => empty($create) ? '' : $create,
-                'position' => empty($position) ? null : (string)$position[0],
+                'type' => $type,
+                'id' => $bib_id,
+                'location' => $location,
+                'reqnum' => empty($reqnum) ? '' : static::CANCEL_REQUEST_PREFIX . $reqnum,
+                'expire' => $expire,
+                'create' => $create,
+                'position' => $position,
                 'available' => $available, // true means item is ready for check out
-                'item_id' => empty($item_id) ? '' : (string)$item_id[0],
-                'barcode' => empty($item_id) ? '' : (string)$item_id[0],
+                'item_id' => $item_id,
+                'barcode' => $item_id,
                 'volume' => '',
                 'publication_year' => '',
-                'title' => empty($title) ? '' : (string)$title[0],
+                'title' => $title,
                 'isbn' => '',
                 'issn' => '',
                 'oclc' => '',
@@ -1585,11 +1288,10 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      *
      * @throws ILSException
      * @return array Array of the patron's profile data on success.
+     * @throws JsonXMLException
      */
     public function getMyProfile($patron)
     {
-        $_ENV['processing'] = 'profile';
-
         // id may have the form of "patronId:agencyId"
         list ($patron['id'], $patron['agency']) = $this->splitAgencyId($patron['id']);
 
@@ -1599,250 +1301,186 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
         // Merge it back if the agency was specified before ..
         $patron['id'] = $this->joinAgencyId($patron['id'], $patron['agency']);
 
-        $name = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/GivenName');
-        $surname = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/StructuredPersonalUserName/Surname');
-        $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Street');
-        $address2 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/HouseName');
-        $city = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Locality');
-        $country = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Country');
-        $zip = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostalCode');
-        if (empty($zip)) {
-            $zip = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/PostOfficeBox');
-        }
-        $electronicAddress = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/ElectronicAddress');
-        foreach ($electronicAddress as $recent) {
-            if ($this->useXPath($recent, 'ElectronicAddressType')[0] == 'tel') {
-                $phone = $this->useXPath($recent, 'ElectronicAddressData');
-            }
-            if ($this->useXPath($recent, 'ElectronicAddressType')[0] == 'mailto') {
-                $email = $this->useXPath($recent, 'ElectronicAddressData');
-            }
-        }
-        if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
-            $email = $this->useXPath($response,
-                'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/ElectronicAddressData');
-        }
-        $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/UserPrivilegeDescription');
-        if (empty($group)) {
-            $group = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/AgencyUserPrivilegeType');
-        }
-        $group = $this->extractData($group);
-        $translatedGroup = $this->translator->translate($this->source . '_group_' . $group);
-        $group = ($translatedGroup == $this->source . '_group_' . $group) ? $group : $translatedGroup;
 
-        $rawExpire = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserPrivilege/ValidToDate');
+        $uof = $response->get(
+            'LookupUserResponse',
+            'UserOptionalFields'
+        );
+
+        $structuredName = $response->getRelative(
+            $uof,
+            'NameInformation',
+            'PersonalNameInformation',
+            'StructuredPersonalUserName',
+            'GivenName'
+        );
+
+        $structuredSurname = $response->getRelative(
+            $uof,
+            'NameInformation',
+            'PersonalNameInformation',
+            'StructuredPersonalUserName',
+            'Surname'
+        );
+
+        if (empty($structuredName) && empty($structuredSurname)) {
+            $structuredName = $response->getRelative(
+                $uof,
+                'NameInformation',
+                'PersonalNameInformation',
+                'UnstructuredPersonalUserName'
+            );
+        }
+
+        $physicalAddress = $response->getRelative(
+            $uof,
+            'UserAddressInformation',
+            'PhysicalAddress'
+        );
+
+
+        if (!is_null($physicalAddress)) {
+
+            $address1 = $response->getRelative(
+                $physicalAddress,
+                'StructuredAddress',
+                'Street|Line1|District'
+            );
+
+            if ($address1 === null) {
+                $address1 = $response->getRelative(
+                    $physicalAddress,
+                    'UnstructuredAddress',
+                    'UnstructuredAddressData'
+                );
+            }
+
+            $address2 = $response->getRelative(
+                $physicalAddress,
+                'StructuredAddress',
+                'HouseName'
+            );
+
+            $city = $response->getRelative(
+                $physicalAddress,
+                'StructuredAddress',
+                'Locality|Line2'
+            );
+
+            $country = $response->getRelative(
+                $physicalAddress,
+                'StructuredAddress',
+                'Country'
+            );
+
+            $zip = $response->getRelative(
+                $physicalAddress,
+                'StructuredAddress',
+                'PostalCode|PostOfficeBox'
+            );
+        } else {
+            $address1 = $address2 = $city = $country = $zip = null;
+        }
+
+        $uai = $response->getArrayRelative(
+            $uof,
+            'UserAddressInformation'
+        );
+
+        $phone = $email = null;
+
+        foreach ($uai as $userAddressInformation) {
+
+            $type = $response->getRelative(
+                $userAddressInformation,
+                'ElectronicAddress',
+                'ElectronicAddressType'
+            );
+
+            if ($type === null)
+                continue;
+
+            $data = $response->getRelative(
+                $userAddressInformation,
+                'ElectronicAddress',
+                'ElectronicAddressData'
+            );
+
+            switch ($type) {
+                case 'tel':
+                    $phone = $data;
+                    break;
+                case 'mailto':
+                    $email = $data;
+                    break;
+            }
+        }
+
+        $group = $response->getRelative(
+            $uof,
+            'UserPrivilege',
+            'UserPrivilegeDescription|AgencyUserPrivilegeType'
+        );
+
+        if ($group !== null) {
+            $institutionGroupTranslateKey = $this->source . '_group_' . $group;
+            $institutionGroupTranslation = $this->translator->translate($institutionGroupTranslateKey);
+
+            if ($institutionGroupTranslation != $institutionGroupTranslateKey)
+                $group = $institutionGroupTranslation;
+        }
+
+        $rawExpire = $response->getRelative(
+            $uof,
+            'UserPrivilege',
+            'ValidToDate'
+        );
 
         $expireDate = $this->parseDate($rawExpire);
 
-        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
+        $blocksOrTraps = $response->getArrayRelative(
+            $uof,
+            'BlockOrTrap'
+        );
 
         $logo = $this->logo;
 
-        foreach ($blocksParsed as $block) {
-            $block = $this->translator->translate((string)$block);
+        $blocks = array();
+
+        foreach ($blocksOrTraps as $blockOrTrap) {
+
+            $blockOrTrapVal = $response->getRelative(
+                $blockOrTrap,
+                'BlockOrTrapType'
+            );
+            $blockOrTrapVal = $this->translator->translate($blockOrTrapVal);
+
             if (!empty($logo)) {
                 if (!empty($blocks[$logo]))
-                    $blocks[$logo] .= ", " . $block;
+                    $blocks[$logo] .= ", " . $blockOrTrapVal;
                 else
-                    $blocks[$logo] = $block;
+                    $blocks[$logo] = $blockOrTrapVal;
             } else
-                $blocks[] = $block;
-        }
-
-        if (empty($name) && empty($surname)) {
-            $name = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/NameInformation/PersonalNameInformation/UnstructuredPersonalUserName');
-        }
-        if (empty($address1)) {
-            $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line1');
-        }
-        if (empty($city)) {
-            $city = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/Line2');
-        }
-        if (empty($address1)) {
-            $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/StructuredAddress/District');
-        }
-        if (empty($address1)) {
-            $address1 = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/UserAddressInformation/PhysicalAddress/' . 'UnstructuredAddress/UnstructuredAddressData');
+                $blocks[] = $blockOrTrapVal;
         }
 
         $patron = array(
             'cat_username' => $patron['id'],
             'id' => $patron['id'],
-            'firstname' => empty($name) ? '' : (string)$name[0],
-            'lastname' => empty($surname) ? '' : (string)$surname[0],
-            'address1' => empty($address1) ? '' : (string)$address1[0],
-            'address2' => empty($address2) ? '' : (string)$address2[0],
-            'city' => empty($city) ? '' : (string)$city[0],
-            'country' => empty($country) ? '' : (string)$country[0],
-            'zip' => empty($zip) ? '' : (string)$zip[0],
-            'phone' => empty($phone) ? '' : (string)$phone[0],
+            'firstname' => $structuredName,
+            'lastname' => $structuredSurname,
+            'address1' => $address1,
+            'address2' => $address2,
+            'city' => $city,
+            'country' => $country,
+            'zip' => $zip,
+            'phone' => $phone,
             'group' => $group,
-            'blocks' => empty($blocks) ? array() : $blocks,
-            'email' => empty($email) ? '' : (string)$email[0],
+            'blocks' => $blocks,
+            'email' => $email,
             'expire' => $expireDate
         );
         return $patron;
-    }
-
-    /**
-     * Get Patron BlocksOrTraps
-     *
-     * This is responsible for retrieving blocks of a specific patron.
-     *
-     * @param array $cat_username
-     *            String of userId
-     *
-     * @throws ILSException
-     * @return array Array of the patron's blocks in string.
-     */
-    public function getBlocks($cat_username)
-    {
-        $_ENV['processing'] = 'blocks';
-
-        $patron = array(
-            'id' => $cat_username
-        );
-        $request = $this->requests->patronBlocks($patron);
-        $response = $this->sendRequest($request);
-
-        $blocksParsed = $this->useXPath($response, 'LookupUserResponse/UserOptionalFields/BlockOrTrap/BlockOrTrapType');
-
-        $i = -1;
-        foreach ($blocksParsed as $block) {
-            $blocks[++$i] = (string)$block;
-        }
-
-        return $blocks;
-    }
-
-    public function getAccruedOverdue($user)
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Get New Items
-     *
-     * Retrieve the IDs of items recently added to the catalog.
-     *
-     * @param int $page
-     *            Page number of results to retrieve (counting starts at 1)
-     * @param int $limit
-     *            The size of each page of results to retrieve
-     * @param int $daysOld
-     *            The maximum age of records to retrieve in days (max. 30)
-     * @param int $fundId
-     *            optional fund ID to use for limiting results (use a value
-     *            returned by getFunds, or exclude for no limit); note that
-     *            "fund" may be a
-     *            misnomer - if funds are not an appropriate way to limit your
-     *            new item
-     *            results, you can return a different set of values from
-     *            getFunds. The
-     *            important thing is that this parameter supports an ID returned
-     *            by getFunds,
-     *            whatever that may mean.
-     *
-     * @throws ILSException
-     * @return array Associative array with 'count' and 'results' keys
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function getNewItems($page, $limit, $daysOld, $fundId = null)
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Get Funds
-     *
-     * Return a list of funds which may be used to limit the getNewItems list.
-     *
-     * @throws ILSException
-     * @return array An associative array with key = fund ID, value = fund name.
-     */
-    public function getFunds()
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Get Departments
-     *
-     * Obtain a list of departments for use in limiting the reserves list.
-     *
-     * @throws ILSException
-     * @return array An associative array with key = dept. ID, value = dept.
-     *         name.
-     */
-    public function getDepartments()
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Get Instructors
-     *
-     * Obtain a list of instructors for use in limiting the reserves list.
-     *
-     * @throws ILSException
-     * @return array An associative array with key = ID, value = name.
-     */
-    public function getInstructors()
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Get Courses
-     *
-     * Obtain a list of courses for use in limiting the reserves list.
-     *
-     * @throws ILSException
-     * @return array An associative array with key = ID, value = name.
-     */
-    public function getCourses()
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Find Reserves
-     *
-     * Obtain information on course reserves.
-     *
-     * @param string $course
-     *            ID from getCourses (empty string to match all)
-     * @param string $inst
-     *            ID from getInstructors (empty string to match all)
-     * @param string $dept
-     *            ID from getDepartments (empty string to match all)
-     *
-     * @throws ILSException
-     * @return array An array of associative arrays representing reserve items.
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function findReserves($course, $inst, $dept)
-    {
-        // TODO
-        return array();
-    }
-
-    /**
-     * Get suppressed records.
-     *
-     * @throws ILSException
-     * @return array ID numbers of suppressed records in the system.
-     */
-    public function getSuppressedRecords()
-    {
-        // TODO
-        return array();
     }
 
     /**
@@ -1895,92 +1533,29 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     }
 
     /**
-     * Validate XML against XSD schema.
-     *
-     * @param string $XML
-     *            or \SimpleXMLElement $XML
-     * @param string $path_to_XSD
-     *
-     * @throws ILSException
-     * @return boolean Returns true, if XML is valid.
-     */
-    protected function isValidXMLAgainstXSD($XML, $path_to_XSD = './module/VuFind/tests/fixtures/ils/xcncip2/schemas/v2.02.xsd')
-    {
-        $doc = new DOMDocument();
-        libxml_use_internal_errors(true); // Begin - Disable xml error messages.
-        if (is_string($XML))
-            $doc->loadXML($XML);
-        else
-            if (get_class($XML) == '\SimpleXMLElement')
-                $doc->loadXML($XML->asXML());
-            else {
-                $message = 'Expected \SimpleXMLElement or string containing XML.';
-                $this->addEnvironmentalException($message);
-                throw new ILSException($message);
-            }
-
-        libxml_clear_errors(); // End - Disable xml error messages.
-        return $doc->schemaValidate($path_to_XSD);
-    }
-
-    /**
      * Check response from NCIP responder.
      * Check if $response is not containing problem tag.
      *
-     * @param $response \Traversable
-     *            Object
+     * @param $response JsonXML
      *
      * @return mixed string Problem | boolean Returns false, if response is without problem.
      */
     protected function getProblem($response)
     {
-        $problem = $this->useXPath($response, '//Problem');
-
-        if ($problem == null)
-            return false;
-
-        return $problem[0]->AsXML();
+        foreach ($response as $elementName => $elementValue) {
+            if (is_array($elementValue)) {
+                foreach ($elementValue as $subelementName => $subelementValue)
+                    if (strpos($subelementName, 'Problem') !== false) {
+                        return json_encode($subelementValue);
+                    }
+            }
+        }
+        return false;
     }
 
     protected function addEnvironmentalException($message)
     {
         $_ENV['exceptions']['ncip'] = $message;
-    }
-
-    protected function useXPath(\SimpleXMLElement $xmlObject, $xPath)
-    {
-        $arrayXPath = explode('/', $xPath);
-        $newXPath = "";
-        foreach ($arrayXPath as $key => $part) {
-            if ($part == null) {
-                $newXPath .= "/";
-                continue;
-            }
-            $newXPath .= "*[local-name()='" . $part . "']";
-            if ($key != (sizeof($arrayXPath) - 1))
-                $newXPath .= '/';
-        }
-        // var_dump($newXPath);
-
-        return $xmlObject->xpath($newXPath);
-    }
-
-    /**
-     *
-     * @param \SimpleXMLElement $xmlObject
-     * @param string $xPath
-     * @return boolean false || string
-     */
-    protected function getFirstXPathMatchAsString(\SimpleXMLElement $xmlObject, $xPath)
-    {
-        $xPathMatch = $this->useXPath($xmlObject, $xPath);
-
-        if ($xPathMatch !== false && is_array($xPathMatch)) {
-            if (count($xPathMatch) > 0) {
-                return (string)$xPathMatch[0];
-            }
-        }
-        return false;
     }
 
     /**
@@ -2020,13 +1595,13 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
     protected function parseDate($date)
     {
-        $parsedDate = empty($date) ? null : strtotime($date[0]);
+        $parsedDate = empty($date) ? null : strtotime($date);
         return ($parsedDate == null) ? '' : date('j. n. Y', $parsedDate);
     }
 
     protected function hasOverdue($dateDue)
     {
-        $parsedDate = empty($dateDue) ? '' : strtotime($dateDue[0]);
+        $parsedDate = empty($dateDue) ? '' : strtotime($dateDue);
         $today_time = strtotime(date("Y-m-d"));
         $expire_time = strtotime(date('Y-m-d', $parsedDate));
         return ($expire_time < $today_time) ? 'overdue' : false;
@@ -2034,7 +1609,7 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
 
     protected function isAncientFee($date)
     {
-        $parsedDate = empty($date) ? '' : strtotime($date[0]);
+        $parsedDate = empty($date) ? '' : strtotime($date);
         $fee_time = strtotime(date('Y-m-d', $parsedDate));
         $filter_time = strtotime(date("Y-m-d") . ' -1 year');
         return ($fee_time < $filter_time) ? true : false;
@@ -2043,51 +1618,26 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     /**
      * Determines if item's hold link is available.
      *
-     * @param \SimpleXMLElement $status
-     * @param \SimpleXMLElement $itemRestriction
+     * @param string $status
+     * @param array $itemRestriction
      * @return boolean $addLink
      */
-    protected function isLinkAllowed($status, $itemRestriction, $department = null)
+    protected function isLinkAllowed($status, $itemRestriction)
     {
-        // Always show MKP's hold link, because it is hold for record, not item.
-        if ($this->agency === 'ABG001') {
-            return true;
-        }
         if (!empty($this->hideHoldLinks)) {
             return false;
         }
-        if ($department == 'Podlesí') {
-            return false;
-        }
-        $status = empty($status) ? '' : (string)$status[0];
-        $itemRestriction = empty($itemRestriction) ? '' : (string)$itemRestriction[0];
-        $addLink = true;
-        if ($itemRestriction === 'Not For Loan')
-            $addLink = false;
-        if (($status === 'Circulation Status Undefined') || ($status === 'Not Available') || ($status === 'Lost'))
-            $addLink = false;
-        return $addLink;
-    }
 
-    /**
-     * Converts status to expected value.
-     *
-     * @param \SimpleXMLElement $status
-     * @return \SimpleXMLElement $status
-     */
-    protected function convertStatus($status)
-    {
-        if (!empty($status) && (string)$status[0] === 'Available on Shelf')
-            $status[0] = 'Available On Shelf';
-        if (!empty($status) && (string)$status[0] === 'Not available')
-            $status[0] = 'Not Available';
-        if (!empty($status) && (string)$status[0] === 'Available for Pickup')
-            $status[0] = 'On Order';
-        if (!empty($status) && (string)$status[0] === 'Available For Pickup')
-            $status[0] = 'On Order';
-        if (!empty($status) && (string)$status[0] === 'Waiting To Be Reshelved')
-            $status[0] = 'In Process';
-        return $status;
+        foreach ($itemRestriction as $item) {
+            if ($item === 'Not For Loan') {
+                return false;
+            }
+        }
+
+        if (($status === 'Circulation Status Undefined') || ($status === 'Not Available') || ($status === 'Lost'))
+            return false;
+
+        return true;
     }
 
     /**
@@ -2119,22 +1669,21 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      */
     private function denormalizeRequest(string &$ncipRequest)
     {
+        $backup_copy_request = $ncipRequest;
         try {
             $method = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4)[3]['function'];
             $this->logger->debug("Denormalizing NCIP request for " . $method . ": " . $ncipRequest);
 
-            // TODO: Delete this before release
-            $before = $ncipRequest;
+            $denormalizedJsonXmlRequest = $this->getNewNCIPDenormalizer($method)->denormalize($ncipRequest);
+            $ncipRequest = $denormalizedJsonXmlRequest->toXmlString();
 
-            $ncipRequest = (new NCIPDenormalizer($method, $this->source))->denormalize($ncipRequest);
-
-            // TODO: Delete this before release
-            $this->logger->info("NCIP: Denormalizer converted from BEFORE, to AFTER:\n" . $before . "\nEND_BEFORE\n\nAFTER:\n" . $ncipRequest . "\nEND_AFTER");
-
-        } catch (\Exception $e) {
+        } catch (JsonXMLException $e) {
             $this->logger->crit("NCIP: Failed to denormalize the request.");
             $this->logger->crit($e->getMessage());
             $this->logger->crit($e->getTraceAsString());
+
+            // Restore the backup copy ..
+            $ncipRequest = $backup_copy_request;
         }
     }
 
@@ -2142,34 +1691,44 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      * Normalizes incoming NCIP message
      *
      * @param string $inboundResponse
-     * @return \SimpleXMLElement
+     * @return JsonXML
+     * @throws ILSException
      */
     private function normalizeResponse(string $inboundResponse)
     {
         try {
             $method = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4)[3]['function'];
 
-            // TODO: Delete this before release
-            $this->logger->debug("Normalizing NCIP request for " . $method . ": " . $inboundResponse);
+            $normalizedJsonXmlResponse = $this->getNewNCIPNormalizer($method)->normalize($inboundResponse);
 
-            // TODO: Delete this before release
-            $before = $inboundResponse;
+            return $normalizedJsonXmlResponse;
 
-            $normalizedXmlResponse = $this->getNewNCIPNormalizer($method)->normalize($inboundResponse);
-
-            // TODO: Delete this before release
-            $this->logger->info("NCIP: Normalizer converted from BEFORE, to AFTER:\n" . $before . "\nEND_BEFORE\n\nAFTER:\n" . $inboundResponse . "\nEND_AFTER");
-
-            return $normalizedXmlResponse;
-
-        } catch (\Exception $e) {
+        } catch (JsonXMLException $e) {
             $this->logger->crit("NCIP: Failed to normalize the response.");
             $this->logger->crit($e->getMessage());
             $this->logger->crit($e->getTraceAsString());
 
             // Return unchanged, yet parsed
-            return JsonXML::fabricateFromXmlString($inboundResponse)->toSimpleXml();
+            try {
+                return JsonXML::fabricateFromXmlString($inboundResponse);
+            } catch (JsonXMLException $e) {
+                throw new ILSException("Malformed XML came from the NCIP server!");
+            }
+
         }
+    }
+
+    /**
+     * @param $method
+     * @return NCIPDenormalizer
+     */
+    private function getNewNCIPDenormalizer($method)
+    {
+        $denormalizer = new NCIPDenormalizer($method, $this->source, $this->agency, $this->requests, $this->translator);
+
+        $denormalizer->setLogger($this->logger);
+
+        return $denormalizer;
     }
 
     /**
@@ -2178,45 +1737,16 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
      */
     private function getNewNCIPNormalizer($method)
     {
-        $normalizer = new NCIPNormalizer($method, $this->source, $this->requests);
+        $normalizer = new NCIPNormalizer($method, $this->source, $this->agency, $this->requests, $this->translator);
 
         $normalizer->setLogger($this->logger);
 
         return $normalizer;
     }
 
-
-    /**
-     * Returns new instance of XSLTProcessor if XSLT with specified name exists. Else returns FALSE.
-     *
-     * @param string $xsltName
-     * @return bool|XSLTProcessor
-     * @throws \Exception
-     */
-    private function getXSLTProcessor(string $xsltName)
+    public function getProlongRegistrationUrl(array $patron)
     {
-        $xsltFileName = getcwd() . '/xslt/' . $xsltName; // Use full path for better debugging from logs
-
-        if (!file_exists($xsltFileName)) {
-            $this->logger->debug("XSLT file '" . $xsltFileName . "' doesn't exist");
-            return FALSE;
-        }
-
-        $xslt_processor = new XSLTProcessor();
-        $inboundXslt = new DOMDocument();
-
-        $xsltLoaded = $inboundXslt->load($xsltFileName);
-
-        if ($xsltLoaded === FALSE) {
-            throw new \Exception("NCIP: Failed to load XSLT '" . $xsltFileName . "'");
-        }
-
-        $xsltImported = $xslt_processor->importStylesheet($inboundXslt);
-
-        if ($xsltImported === FALSE) {
-            throw new \Exception("NCIP: Failed to import XSLT '" . $xsltFileName . "' ... wrong syntax ?");
-        }
-
-        return $xslt_processor;
+        // Required for MultiBackend
+        return null;
     }
 }

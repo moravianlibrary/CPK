@@ -27,7 +27,7 @@
  */
 namespace CPK\ILS\Driver;
 
-use VuFind\ILS\Driver\DriverInterface;
+use VuFind\ILS\Driver\DriverInterface as BaseDriverInterface;
 
 /**
  * Catalog Specific Driver Class
@@ -46,7 +46,7 @@ use VuFind\ILS\Driver\DriverInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-interface CPKDriverInterface extends DriverInterface
+interface DriverInterface extends BaseDriverInterface
 {
 
     /**

@@ -35,7 +35,7 @@ namespace CPK\ILS\Driver;
 
 use VuFind\ILS\Driver\AbstractBase;
 
-class Dummy extends AbstractBase implements CPKDriverInterface
+class Dummy extends AbstractBase implements DriverInterface
 {
 
     /**

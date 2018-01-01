@@ -69,6 +69,7 @@ class Manager extends BaseManager
     {
         parent::__construct($config, $userTable, $sessionManager, $pm,
             $cookieManager);
+        $this->userTable = $userTable;
         $this->userSettingsTable = $userSettingsTable;
         $this->searchController = $searchController;
     }
@@ -103,18 +104,8 @@ class Manager extends BaseManager
             if ($hasShibbolethSession) {
                 $user = $this->getAuth()->authenticate($request);
             } else {
-                //throw new AuthException('authentication_error_loggedout');
                 return $this->searchController->homeAction();
             }
-        } catch (AuthException $e) {
-            // Pass authentication exceptions through unmodified
-            throw $e;
-        } catch (\VuFind\Exception\PasswordSecurity $e) {
-            // Pass password security exceptions through unmodified
-            throw $e;
-        } catch (\CPK\Exception\TermsUnaccepted $e) {
-            // Pass terms of use exceptions through unmodified
-            throw $e;
         } catch (\Exception $e) {
             // Catch other exceptions, log verbosely, and treat them as technical
             // difficulties
@@ -138,6 +129,25 @@ class Manager extends BaseManager
         $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $sort;
 
         return $user;
+    }
+
+    public function isLoggedIn()
+    {
+        // Dynamic user login (for cases when Shibboleth is down and you need to test)
+        // On production simply disable this by unsetting the loginAsSecret config.
+        if (isset($this->config['Site']['loginAsSecret'])
+            && isset($_REQUEST[$this->config['Site']['loginAsSecret']])) {
+
+            $eppn = $_REQUEST[$this->config['Site']['loginAsSecret']];
+            $this->currentUser = $this->userTable->getUserRowByEppn($eppn);
+
+            $_ENV['justLoggedIn'] = true;
+
+            // Store the user in the session and send it back to the caller:
+            $this->updateSession($this->currentUser);
+        }
+
+        return parent::isLoggedIn();
     }
 
     /**

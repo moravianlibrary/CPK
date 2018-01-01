@@ -598,7 +598,9 @@ class AjaxController extends AjaxControllerBase
 
                 $data['cat_username'] = $cat_username;
                 $data['fines'] = $fines;
-                $data['source'] = $fines['source'];
+
+                if (isset($fines['source']))
+                    $data['source'] = $fines['source'];
 
                 $totalFine = 0;
                 if (! empty($fines)) {
