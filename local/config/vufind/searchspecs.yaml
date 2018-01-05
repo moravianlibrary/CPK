@@ -344,6 +344,7 @@ AllFields:
     - toc_txt_mv^15
     - isbn
     - issn
+    - upv_ipc_search
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -420,6 +421,8 @@ AllFields:
     isbn:
       - [onephrase, ~]
     issn:
+      - [onephrase, ~]
+    upv_ipc_search:
       - [onephrase, ~]
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
