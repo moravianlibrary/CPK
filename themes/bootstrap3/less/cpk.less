@@ -290,3 +290,41 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
 #conspectus i.pr-institution-arrow {
     margin-top: 4px;
 }
+
+//Styling feedback button which opens feedback modal
+.feedback-link {
+    bottom: 100px;
+    height: 50px;
+    position: fixed;
+    right: 30px;
+    width: 50px;
+    opacity: 0.4;
+    transition: 0.3s;
+    z-index: 100;
+}
+
+.feedback-link:hover {
+    opacity: 1;
+}
+
+.feedback-link span {
+    cursor: pointer;
+    display: block;
+    color: @brand-primary;
+}
+
+.feedback-link span.pr-communication-bubblehelpquestionsupport2:before {
+    font-size: 50px;
+}
+
+//Styling rendered feedback page into modal window (common styling in portal.less)
+#feedback-modal .feedback-form {
+    input[type=text],
+    input[type=email] {
+        width: 100%;
+    }
+
+    textarea {
+        height: 100px;
+    }
+}

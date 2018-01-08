@@ -1,162 +1,90 @@
 <?
-  $title = $this->translate('Feedback').' | '.$this->translate('Central Library Portal');
-  $this->layout()->title = $title;
-  $this->headTitle($title);
+$title = $this->translate('Feedback') . ' | ' . $this->translate('Central Library Portal');
+$this->headTitle($title);
+
+//Hide feedback modal window in Feedback page (uses in layout.phtml to render modal)
+$this->feedback()->hideFeedbackModalButton = true;
 ?>
-<div class='white-box clearfix portal-page'>
+<div class='clearfix portal-page'>
   <div class="title">
-    <h1><?=$this->translate('Feedback')?></h1>
+    <h1><?=$this->translate('Feedback') ?></h1>
   </div>
-  <p><?=$this->translate('FAQ_first', ['%s1' => "<a href='/Portal/Page/faq'>", '%s2' => "</a>"])?></p>
+
+  <p><?= $this->translate('FAQ_first', [
+          '%s1' => "<a href='/Portal/Page/faq'>",
+          '%s2' => "</a>"
+      ]) ?>
+  </p>
+
     <? if (explode("-", $this->layout()->userLang)[0] == 'cs'): ?>
-    <p><?=$this->translate('FAQ_first_for_libs', ['%s1' => "<a href='/Portal/Page/faq-pro-knihovny'>", '%s2' => "</a>"])?></p>
+      <p><?= $this->translate('FAQ_first_for_libs', [
+              '%s1' => "<a href='/Portal/Page/faq-pro-knihovny'>",
+              '%s2' => "</a>"
+          ]) ?>
+      </p>
     <? endif; ?>
-  <div>
-  <? if($this->status): ?>
-	<div class="alert alert-success">
-	  <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-  	  <?=$this->translate($this->status)?>
-    </div>
-  <? endif; ?>
-  </div>
 
-  <? if($this->captchaError): ?>
-    <div class="alert alert-danger">
-     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-       <?=$this->translate($this->captchaError)?>
-      <?="<script>console.error('".$this->captchaErrorLog."');</script>"?>
-    </div>
-  <? endif; ?>
-
-  <div class='content'>
-    <ul class="nav nav-tabs">
-      <li class="active"><a data-toggle="tab" href="#help"><?=$this->translate('I need help')?></a></li>
-      <li><a data-toggle="tab" href="#bugreport"><?=$this->translate('I want to report bug')?></a></li>
-    </ul>
-
-    <div class="tab-content">
-      <div id="help" class="tab-pane fade in active">
-        <h3><?=$this->translate('I need help')?></h3>
-        <form action='/Portal/Feedback/RequestHelp' class='form' method='post'>
-
-        	<div class='row'>
-			  <div class="col-xs-8">
-    			<fieldset class="form-group">
-                  <label><?=$this->translate('Describe problem')?></label>
-                  <textarea name='text' class='form-control' required><?=($this->text && $this->subAction == 'RequestHelp') ? $this->text : ''?></textarea>
-                </fieldset>
-              </div>
-             </div>
-
-			 <div class='row'>
-			   <div class="col-xs-4">
-    			  <fieldset class="form-group">
-                    <label><?=$this->translate('Your name')?></label>
-                    <? if ($this->userFullName || $this->name): ?>
-						<input type='text' name='name' class='form-control' value='<?=($this->name && $this->subAction == 'RequestHelp') ? $this->name : $this->userFullName ?: '' ?>' required>
-                    <? else: ?>
-                        <input type='text' name='name' class='form-control' required>
-                    <? endif; ?>
-                  </fieldset>
-               </div>
-             </div>
-
-			<div class='row'>
-			  <div class="col-xs-4">
-                <fieldset class="form-group">
-                  <label><?=$this->translate('Your email')?></label>
-                  <? if ($this->userEmail || $this->email): ?>
-						<input type='email' name='email' class='form-control' value='<?=($this->email && $this->subAction == 'RequestHelp') ? $this->email : $this->userEmail ?: ''?>' required>
-                    <? else: ?>
-                        <input type='email' name='email' class='form-control' required>
-                  <? endif; ?>
-                </fieldset>
-              </div>
-            </div>
-
-            <div id='RecaptchaField1'></div>
-
-			<fieldset class="form-group">
-              <input type='submit' class='btn btn-primary' value='<?=$this->translate('Send form')?>'>
-            </fieldset>
-        </form>
+    <? if ($this->captchaError): ?>
+      <div class="alert alert-danger">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+          <?= $this->translate($this->captchaError) ?>
       </div>
-      <div id="bugreport" class="tab-pane fade in">
-        <h3><?=$this->translate('I want to report bug')?></h3>
-        <form action='/Portal/Feedback/ReportBug' class='form' method='post'>
+    <? endif; ?>
 
-        	<div class='row'>
-			  <div class="col-xs-8">
-    			<fieldset class="form-group">
-                  <label><?=$this->translate('Describe problem')?></label>
-                  <textarea name='text' class='form-control' required><?=($this->text && $this->subAction == 'ReportBug') ? $this->text : ''?></textarea>
-                </fieldset>
-              </div>
-             </div>
-
-			 <div class='row'>
-			   <div class="col-xs-4">
-    			  <fieldset class="form-group">
-                    <label><?=$this->translate('Your name')?></label>
-                    <? if ($this->userFullName || $this->name): ?>
-						<input type='text' name='name' class='form-control' value='<?=($this->name && $this->subAction == 'ReportBug') ? $this->name : $this->userFullName ?: ''?>' required>
-                    <? else: ?>
-                        <input type='text' name='name' class='form-control' required>
-                    <? endif; ?>
-                  </fieldset>
-               </div>
-             </div>
-
-			<div class='row'>
-			  <div class="col-xs-4">
-                <fieldset class="form-group">
-                  <label><?=$this->translate('Your email')?></label>
-                  <? if ($this->userEmail || $this->email): ?>
-						<input type='email' name='email' class='form-control' value='<?=($this->email && $this->subAction == 'ReportBug') ? $this->email : $this->userEmail ?: ''?>' required>
-                    <? else: ?>
-                        <input type='email' name='email' class='form-control' required>
-                  <? endif; ?>
-                </fieldset>
-              </div>
-            </div>
-
-            <div id='RecaptchaField2'></div>
-
-			<fieldset class="form-group">
-              <input type='submit' class='btn btn-primary' value='<?=$this->translate('Send form')?>'>
-            </fieldset>
-        </form>
-      </div>
+  <form action='/Portal/Feedback' class='form feedback-form' method='post'>
+    <div class='row'>
+      <fieldset class="form-group">
+        <label for="feedback_text"><?= $this->translate('Describe problem') ?></label>
+        <textarea id="feedback_text"
+                  name='text'
+                  class='form-control'
+                  required><?= ($this->text) ? htmlspecialchars($this->text) : '' ?></textarea>
+      </fieldset>
+    </div>
+    <div class='row'>
+      <fieldset class="form-group">
+        <label for="feedback_name"><?= $this->translate('Your name') ?></label>
+          <? if ($this->userFullName || $this->name): ?>
+            <input id="feedback_name" type='text' name='name' class='form-control'
+                   value='<?= ($this->name) ? htmlspecialchars($this->name) : htmlspecialchars($this->userFullName) ?: '' ?>'
+                   required>
+          <? else: ?>
+            <input id="feedback_name" type='text' name='name' class='form-control' required>
+          <? endif; ?>
+      </fieldset>
     </div>
 
-  </div>
+    <div class='row'>
+      <fieldset class="form-group">
+        <label for="feedback_email"><?= $this->translate('Your email') ?></label>
+          <? if ($this->userEmail || $this->email): ?>
+            <input id="feedback_email" type='email' name='email'
+                   class='form-control'
+                   value='<?= ($this->email) ? htmlspecialchars($this->email) : htmlspecialchars($this->userEmail) ?: '' ?>'
+                   required>
+          <? else: ?>
+            <input id="feedback_email" type='email' name='email' class='form-control' required>
+          <? endif; ?>
+      </fieldset>
+    </div>
+
+    <div id='RecaptchaField'></div>
+
+    <input type="hidden" name="page_path" value="<?= $this->feedback()->actualLink ?>">
+
+    <fieldset class="form-group">
+      <input type='submit'
+             name="submitted"
+             class='btn btn-primary'
+             value='<?= $this->translate('Send form') ?>'>
+    </fieldset>
+  </form>
 </div>
-<script src="https://www.google.com/recaptcha/api.js?onload=CaptchaCallback&render=explicit" async defer></script>
+<script src="https://www.google.com/recaptcha/api.js?onload=CaptchaCallback&amp;render=explicit" async defer></script>
 <script>
-
-    //Enable more chaptchas on one site
-    var CaptchaCallback = function() {
-        grecaptcha.render('RecaptchaField1', {'sitekey' : '<?=$this->siteKey?>'});
-        grecaptcha.render('RecaptchaField2', {'sitekey' : '<?=$this->siteKey?>'});
-    };
-
-jQuery( document ).ready( function(){
-
-    //Javascript to enable link to tab
-    var url = document.location.toString();
-    if (url.match('#')) {
-        $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
-    }
-
-    // Change hash for page-reload
-    $('.nav-tabs a').on('shown.bs.tab', function (e) {
-        window.location.hash = e.target.hash;
+  var CaptchaCallback = function () {
+    grecaptcha.render('RecaptchaField', {
+      'sitekey': '<?=$this->feedback()->siteKey?>'
     });
-
-    // Open tab, that was opened before captcha or form submit failed
-    <? if ($this->activeTab): ?>
-    $( '.nav-tabs a[href="#<?=$this->activeTab?>"]' ).tab( 'show' );
-    <? endif; ?>
-
-});
+  };
 </script>
