@@ -279,7 +279,6 @@ Title:
     - title_alt^200
     - title_new^100
     - title_old
-    - term_exact
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -336,7 +335,6 @@ AllFields:
     - subject_viz^100
     - genre_viz^100
     - publishDate_txt_mv^50
-    - term_exact
     - allfields_unstemmed^10
     - fulltext_unstemmed^10
     - allfields
@@ -457,7 +455,6 @@ adv_search_title_series:
     - title_new^100
     - title_old
     - titleSeries_search_txt_mv
-    - term_exact
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
