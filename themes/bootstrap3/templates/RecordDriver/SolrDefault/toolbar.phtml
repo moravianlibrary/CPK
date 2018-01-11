@@ -25,12 +25,19 @@
           var referer = '<?=$this->referer?>';
           var previousRecordText = '<?=$this->translate('Switch to previous record')?>';
           var nextRecordText = '<?=$this->translate('Switch to next record')?>';
-          var extraRecords = JSON.parse( localStorage.getItem( referer ) );
-          var extraRecordsCount = extraRecords.length;
+
+          try {
+            var extraRecords = JSON.parse( localStorage.getItem( referer ) );
+            var extraRecordsCount = extraRecords.length;
+          } catch (e) {
+            extraRecordsCount = [];
+            extraRecords = {};
+          }
+
           var currentPosition = arraySearch( extraRecords, id );
           var html = '';
 
-          if ( extraRecordsCount > 1 ) {
+          if ( typeof extraRecordsCount !== 'undefined' && extraRecordsCount > 1 ) {
 
             if ( currentPosition > 0 ) {
               var previousRecord = extraRecords[currentPosition-1];
@@ -41,7 +48,7 @@
 
             html += "<span> "+(currentPosition+1)+". <?=$this->translate('record')?></span>";
 
-            if ( currentPosition < extraRecordsCount ) {
+            if ( typeof extraRecordsCount !== 'undefined' && currentPosition < extraRecordsCount ) {
               var nextRecord = extraRecords[currentPosition+1];
               html += "<a href='/Record/"+nextRecord+"?referer="+referer+"' title='"+nextRecordText+"'>";
               html += "  <i class='pr-interface-arrowright2'></i>";
