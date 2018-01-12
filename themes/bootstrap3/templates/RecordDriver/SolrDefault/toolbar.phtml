@@ -30,14 +30,14 @@
             var extraRecords = JSON.parse( localStorage.getItem( referer ) );
             var extraRecordsCount = extraRecords.length;
           } catch (e) {
-            extraRecordsCount = [];
+            extraRecordsCount = 0;
             extraRecords = {};
           }
 
           var currentPosition = arraySearch( extraRecords, id );
           var html = '';
 
-          if ( typeof extraRecordsCount !== 'undefined' && extraRecordsCount > 1 ) {
+          if ( extraRecordsCount > 1 ) {
 
             if ( currentPosition > 0 ) {
               var previousRecord = extraRecords[currentPosition-1];
@@ -48,7 +48,7 @@
 
             html += "<span> "+(currentPosition+1)+". <?=$this->translate('record')?></span>";
 
-            if ( typeof extraRecordsCount !== 'undefined' && currentPosition < extraRecordsCount ) {
+            if ( currentPosition < extraRecordsCount ) {
               var nextRecord = extraRecords[currentPosition+1];
               html += "<a href='/Record/"+nextRecord+"?referer="+referer+"' title='"+nextRecordText+"'>";
               html += "  <i class='pr-interface-arrowright2'></i>";
