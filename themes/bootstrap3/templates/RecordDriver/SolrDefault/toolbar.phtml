@@ -27,12 +27,16 @@
           var nextRecordText = '<?=$this->translate('Switch to next record')?>';
 
           try {
-            var extraRecords = JSON.parse( localStorage.getItem( referer ) );
-            var extraRecordsCount = extraRecords.length;
+            if(localStorage.getItem( referer ) !== null) {
+              var extraRecords = JSON.parse( localStorage.getItem( referer ) );
+            } else {
+              throw true;
+            }
           } catch (e) {
-            extraRecordsCount = 0;
-            extraRecords = {};
+            extraRecords = [];
           }
+
+          var extraRecordsCount = extraRecords.length;
 
           var currentPosition = arraySearch( extraRecords, id );
           var html = '';
