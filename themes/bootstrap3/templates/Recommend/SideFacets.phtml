@@ -34,21 +34,7 @@
 $queryParams = $results->getUrlQuery()->getParamArray();
 unset($queryParams['filter']);
 
-$i = '?';
-$removeFilterUrl = '/Search/Results';
-foreach ($queryParams as $key => $value) {
-
-    if (is_array($value)) {
-        $value = $value[0];
-        $key .= "[]";
-    }
-    $removeFilterUrl .= $i . $key . '=' . urlencode($value);
-
-    if ($i === '?')
-        $i = '&';
-}
-
-
+$removeFilterUrl = '/Search/Results?' . http_build_query($queryParams);
 ?>
 
 <? if ($results->getResultTotal() > 0): ?>
@@ -448,6 +434,10 @@ JS;
                 $compressedFacetFilters = specialUrlEncode(\LZCompressor\LZString::compressToBase64($appliedFacetFiltersAsString));
 
                 $addURL .= '&filter='.$compressedFacetFilters;
+
+                if($this->searchClassId === 'EDS') {
+                  $addURL .= '&database=EDS';
+                }
               ?>
               <? if ($allowExclude): ?>
                 <div class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
