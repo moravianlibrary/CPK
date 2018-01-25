@@ -693,15 +693,16 @@ Libraries:
     - name_alt_search_txt_mv^400
     - code_search_txt^300
     - town_search_txt^100
+    - region_search_txt
     - address_search_txt_mv
     - note_search_txt
-    - type_search_txt
+    - type_search_txt_mv
     - function_search_txt_mv
     - responsibility_search_txt_mv
     - services_search_txt_mv
     - projects_search_txt_mv
     - note2_search_txt
-    - branch_search_txt
+    - branch_search_txt_mv
     - sigla_search_txt
     - cpk_code_search_txt_mv
   FilterQuery: "recordtype:library"
