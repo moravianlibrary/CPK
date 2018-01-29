@@ -1253,7 +1253,7 @@ class SearchController extends SearchControllerBase
         $extraRequest['limit'] = $searchesConfig->General->records_switching_limit;
         $extraRequest['page'] = 1;
         $extraResultsForSwitching = $runner->run(
-            $extraRequest, $this->searchClassId, $this->getSearchSetupCallback()
+            $extraRequest, $database, $this->getSearchSetupCallback()
         );
         $extraResults = [];
         foreach($extraResultsForSwitching->getResults() as $record) {

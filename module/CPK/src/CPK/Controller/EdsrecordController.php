@@ -41,4 +41,47 @@ use VuFind\Controller\EdsrecordController as EdsrecordControllerBase;
 class EdsrecordController extends EdsrecordControllerBase
 {
     use LoginTrait;
+
+    public function showTab($tab, $ajax = false)
+    {
+        // Special case -- handle login request (currently needed for holdings
+        // tab when driver-based holds mode is enabled, but may also be useful
+        // in other circumstances):
+        if ($this->params()->fromQuery('login', 'false') == 'true'
+            && !$this->getUser()
+        ) {
+            return $this->forceLogin(null);
+        } else if ($this->params()->fromQuery('catalogLogin', 'false') == 'true'
+            && !is_array($patron = $this->catalogLogin())
+        ) {
+            return $patron;
+        }
+
+        $config = $this->getConfig();
+
+        $view = $this->createViewModel();
+
+        $referer = $this->params()->fromQuery('referer', false);
+        if ($referer) {
+            $view->referer = $referer;
+        }
+
+        $view->isEdsDatabase = true;
+        $view->tabs = $this->getAllTabs();
+        $view->activeTab = strtolower($tab);
+        $view->defaultTab = strtolower($this->getDefaultTab());
+        $view->loadInitialTabWithAjax
+            = isset($config->Site->loadInitialTabWithAjax)
+            ? (bool) $config->Site->loadInitialTabWithAjax : false;
+        $view->maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
+
+        // Set up next/previous record links (if appropriate)
+        if ($this->resultScrollerActive()) {
+            $driver = $this->loadRecord();
+            $view->scrollData = $this->resultScroller()->getScrollData($driver);
+        }
+
+        $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
+        return $view;
+    }
 }
