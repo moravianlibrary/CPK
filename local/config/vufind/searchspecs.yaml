@@ -335,6 +335,9 @@ AllFields:
     - placeOfPublication_txt_mv^10
     - country_str_mv
     - upv_ipc_search
+    - country_search_txt_mv
+    - language_search_txt_mv
+    - format_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
