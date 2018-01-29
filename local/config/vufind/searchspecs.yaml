@@ -188,7 +188,6 @@ ISN:
 
 Subject:
   DismaxFields:
-    - topic_unstemmed^150
     - topic^100
     - geographic^50
     - genre^50
@@ -199,9 +198,6 @@ Subject:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
-    topic_unstemmed:
-      - [onephrase, 350]
-      - [and, 150]
     topic:
       - [onephrase, 300]
       - [and, 100]
@@ -234,7 +230,6 @@ Inspiration:
 JournalTitle:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - container_title^250
@@ -246,9 +241,6 @@ JournalTitle:
   QueryFields:
     title_short:
       - [onephrase, 500]
-    title_full_unstemmed:
-      - [onephrase, 450]
-      - [and, 400]
     title_full:
       - [onephrase, 400]
     title:
@@ -273,7 +265,6 @@ JournalTitle:
 Title:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - title_alt^200
@@ -286,9 +277,6 @@ Title:
   QueryFields:
     title_short:
       - [onephrase, 500]
-    title_full_unstemmed:
-      - [onephrase, 450]
-      - [and, 400]
     title_full:
       - [onephrase, 400]
     title:
@@ -316,7 +304,6 @@ Series:
 AllFields:
   DismaxFields:
     - title_short^750
-    - title_full_unstemmed^600
     - title_full^400
     - title^500
     - title_alt^200
@@ -329,7 +316,6 @@ AllFields:
     - corporation_viz^300
     - author_fuller^150
     - contents^10
-    - topic_unstemmed^550
     - topic^500
     - geographic^300
     - genre^300
@@ -337,8 +323,6 @@ AllFields:
     - genre_viz^100
     - publishDate_txt_mv^50
     - term_exact
-    - allfields_unstemmed^10
-    - fulltext_unstemmed^10
     - allfields
     - fulltext
     - toc_txt_mv^15
@@ -366,9 +350,6 @@ AllFields:
         - 50
       title_short:
         - [onephrase, 750]
-      title_full_unstemmed:
-        - [onephrase, 600]
-        - [and, 500]
       title_full:
         - [onephrase, 400]
       title:
@@ -401,9 +382,6 @@ AllFields:
       - [and, 50]
     contents:
       - [and, 10]
-    topic_unstemmed:
-      - [onephrase, 550]
-      - [and, 500]
     topic:
       - [onephrase, 500]
     geographic:
@@ -414,10 +392,6 @@ AllFields:
       - [onephrase, 200]
     genre_viz:
       - [onephrase, 200]
-    allfields_unstemmed:
-      - [and, 10]
-    fulltext_unstemmed:
-      - [and, 10]
     allfields:
       - [and, ~]
     fulltext:
@@ -443,23 +417,9 @@ AllFields:
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
 #    DismaxFields:
-#      - title_full_unstemmed^600
-#      - topic_unstemmed^550
-#      - allfields_unstemmed^10
-#      - fulltext_unstemmed^10
 #      - isbn
 #      - issn
 #    QueryFields:
-#      title_full_unstemmed:
-#        - [onephrase, 600]
-#        - [and, 500]
-#      topic_unstemmed:
-#        - [onephrase, 550]
-#        - [and, 500]
-#      allfields_unstemmed:
-#        - [or, 10]
-#      fulltext_unstemmed:
-#        - [or, 10]
 #      isbn:
 #        - [onephrase, ~]
 #      issn:
@@ -469,7 +429,6 @@ AllFields:
 adv_search_title_series:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - title_alt^200
@@ -521,7 +480,6 @@ adv_search_author_corporation:
 
 adv_search_subject_keywords:
   DismaxFields:
-    - topic_unstemmed^150
     - topic^100
     - geographic^50
     - genre^50

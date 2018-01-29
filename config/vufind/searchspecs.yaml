@@ -189,16 +189,11 @@ ISN:
 
 Subject:
   DismaxFields:
-    - topic_unstemmed^150
     - topic^100
     - geographic^50
     - genre^50
     - era
   QueryFields:
-    topic_unstemmed:
-      - [onephrase, 350]
-      - [and, 150]
-      - [or, ~]
     topic:
       - [onephrase, 300]
       - [and, 100]
@@ -214,14 +209,6 @@ Subject:
     era:
       - [and, 100]
       - [or, ~]
-#  ExactSettings:
-#    DismaxFields:
-#      - topic_unstemmed^150
-#    QueryFields:
-#      - topic_unstemmed:
-#        - [onephrase, 350]
-#        - [and, 150]
-#        - [or, ~]
 
 # This field definition is a compromise that supports both journal-level and
 # article-level data.  The disadvantage is that hits in article titles will
@@ -231,7 +218,6 @@ Subject:
 JournalTitle:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - container_title^250
@@ -243,9 +229,6 @@ JournalTitle:
   QueryFields:
     title_short:
       - [onephrase, 500]
-    title_full_unstemmed:
-      - [onephrase, 450]
-      - [and, 400]
     title_full:
       - [onephrase, 400]
     title:
@@ -267,19 +250,10 @@ JournalTitle:
       - [onephrase, 50]
       - [and , ~]
   FilterQuery: "format:Journal OR format:Article"
-#  ExactSettings:
-#    DismaxFields:
-#      - title_full_unstemmed^450
-#    QueryFields:
-#      - title_full_unstemmed:
-#        - [onephrase, 450]
-#        - [and, 400]
-#    FilterQuery: "format:Journal OR format:Article"
 
 Title:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - title_alt^200
@@ -290,9 +264,6 @@ Title:
   QueryFields:
     title_short:
       - [onephrase, 500]
-    title_full_unstemmed:
-      - [onephrase, 450]
-      - [and, 400]
     title_full:
       - [onephrase, 400]
     title:
@@ -310,13 +281,6 @@ Title:
     series2:
       - [onephrase, 50]
       - [and , ~]
-#  ExactSettings:
-#    DismaxFields:
-#      - title_full_unstemmed^450
-#    QueryFields:
-#      - title_full_unstemmed:
-#        - [onephrase, 450]
-#        - [and, 400]
 
 Series:
   DismaxFields:
@@ -335,7 +299,6 @@ Series:
 AllFields:
   DismaxFields:
     - title_short^750
-    - title_full_unstemmed^600
     - title_full^400
     - title^500
     - title_alt^200
@@ -345,12 +308,9 @@ AllFields:
     - author^300
     - author_fuller^150
     - contents^10
-    - topic_unstemmed^550
     - topic^500
     - geographic^300
     - genre^300
-    - allfields_unstemmed^10
-    - fulltext_unstemmed^10
     - allfields
     - fulltext
     - description
@@ -363,9 +323,6 @@ AllFields:
         - 50
       title_short:
         - [onephrase, 750]
-      title_full_unstemmed:
-        - [onephrase, 600]
-        - [and, 500]
       title_full:
         - [onephrase, 400]
       title:
@@ -391,19 +348,12 @@ AllFields:
       - [and, 50]
     contents:
       - [and, 10]
-    topic_unstemmed:
-      - [onephrase, 550]
-      - [and, 500]
     topic:
       - [onephrase, 500]
     geographic:
       - [onephrase, 300]
     genre:
       - [onephrase, 300]
-    allfields_unstemmed:
-      - [or, 10]
-    fulltext_unstemmed:
-      - [or, 10]
     allfields:
       - [or, ~]
     fulltext:
@@ -416,23 +366,9 @@ AllFields:
       - [onephrase, ~]
 #  ExactSettings:
 #    DismaxFields:
-#      - title_full_unstemmed^600
-#      - topic_unstemmed^550
-#      - allfields_unstemmed^10
-#      - fulltext_unstemmed^10
 #      - isbn
 #      - issn
 #    QueryFields:
-#      title_full_unstemmed:
-#        - [onephrase, 600]
-#        - [and, 500]
-#      topic_unstemmed:
-#        - [onephrase, 550]
-#        - [and, 500]
-#      allfields_unstemmed:
-#        - [or, 10]
-#      fulltext_unstemmed:
-#        - [or, 10]
 #      isbn:
 #        - [onephrase, ~]
 #      issn:
