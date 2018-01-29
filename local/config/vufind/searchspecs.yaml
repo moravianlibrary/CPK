@@ -687,7 +687,7 @@ Libraries:
     - note2_search_txt
     - branch_search_txt
     - sigla_search_txt
-    - cpk_code_search_txt_mv
+    - cpk_code_search_txt
   FilterQuery: "recordtype:library"
   DismaxParams:
     - [bf, ord(library_relevance_str)^9999]
