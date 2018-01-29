@@ -25,8 +25,19 @@
           var referer = '<?=$this->referer?>';
           var previousRecordText = '<?=$this->translate('Switch to previous record')?>';
           var nextRecordText = '<?=$this->translate('Switch to next record')?>';
-          var extraRecords = JSON.parse( localStorage.getItem( referer ) );
+
+          try {
+            if(localStorage.getItem( referer ) !== null) {
+              var extraRecords = JSON.parse( localStorage.getItem( referer ) );
+            } else {
+              throw true;
+            }
+          } catch (e) {
+            extraRecords = [];
+          }
+
           var extraRecordsCount = extraRecords.length;
+
           var currentPosition = arraySearch( extraRecords, id );
           var html = '';
           var isEdsDatabase = '<?=$this->isEdsDatabase?>';
