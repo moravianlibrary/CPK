@@ -359,6 +359,8 @@ function setupAutocomplete() {
             	&& (json.data.byAuthor.length > 0
             		|| json.data.byTitle.length > 0
             		|| json.data.bySubject.length > 0
+                    || json.data.byLibName.length > 0
+                    || json.data.byTown.length > 0
             	)
             ) {
               cb(json.data);
