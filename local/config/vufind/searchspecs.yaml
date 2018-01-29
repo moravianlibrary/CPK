@@ -344,6 +344,9 @@ AllFields:
     - toc_txt_mv^15
     - isbn
     - issn
+    - publisher_search_txt_mv^50
+    - placeOfPublication_txt_mv^10
+    - country_str_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -421,6 +424,10 @@ AllFields:
       - [onephrase, ~]
     issn:
       - [onephrase, ~]
+    publisher_search_txt_mv:
+      - [onephrase, 50]
+    placeOfPublication_txt_mv:
+      - [onephrase, 10]
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
 #    DismaxFields:
@@ -607,6 +614,8 @@ adv_search_year_of_publication:
 adv_search_place_of_publication:
   Dismaxfields:
     - placeOfPublication_txt_mv
+    - country_str_mv
+    - country_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -617,7 +626,10 @@ adv_search_place_of_publication:
   QueryFields:
     placeOfPublication_txt_mv:
       - [onephrase, 100]
-      - [and, 50]
+    country_str_mv:
+      - [onephrase, 100]
+    country_search_txt_mv:
+      - [onephrase, 100]
 
 adv_search_001:
   Dismaxfields:
