@@ -837,7 +837,7 @@ class SolrMarc extends ParentSolrMarc
 
 	public function getEAN()
     {
-        return (!empty($this->fields['ean_str_mv']) ? $this->fields['ean_str_mv'][0] : null);
+        return (!empty($this->fields['ean_isn_mv']) ? $this->fields['ean_isn_mv'][0] : null);
     }
 
 	protected function getCNB()

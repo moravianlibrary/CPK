@@ -342,8 +342,11 @@ AllFields:
     - allfields
     - fulltext
     - toc_txt_mv^15
-    - isbn
-    - issn
+    - isbn^15
+    - issn^15
+    - ismn_isn_mv^15
+    - cnb_isn_mv^15
+    - ean_isn_mv^15
     - publisher_search_txt_mv^50
     - placeOfPublication_txt_mv^10
     - country_str_mv
@@ -428,6 +431,12 @@ AllFields:
       - [onephrase, 50]
     placeOfPublication_txt_mv:
       - [onephrase, 10]
+    ismn_isn_mv:
+      - [onephrase, ~]
+    cnb_isn_mv:
+      - [onephrase, ~]
+    ean_isn_mv:
+      - [onephrase, ~]
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
 #    DismaxFields:
@@ -652,7 +661,7 @@ adv_search_001:
 
 adv_search_nbn:
   Dismaxfields:
-    - cnb_search_str
+    - cnb_isn_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -661,7 +670,7 @@ adv_search_nbn:
     - [bf, ord(publishDateSort)^1]
   DismaxHandler: edismax
   QueryFields:
-    cnb_search_str:
+    cnb_isn_mv:
       - [onephrase, 100]
       - [and, 50]
       
