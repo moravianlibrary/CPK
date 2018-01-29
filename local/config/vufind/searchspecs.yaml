@@ -331,8 +331,6 @@ AllFields:
     - ean_isn_mv^15
     - publisher_search_txt_mv^50
     - placeOfPublication_txt_mv^10
-    - country_str_mv
-    - upv_ipc_search
     - country_search_txt_mv
     - language_search_txt_mv
     - format_search_txt_mv
