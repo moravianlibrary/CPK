@@ -296,16 +296,25 @@ class Service
      * @param string   $backend Search backend identifier
      * @param string   $id      Id of record to compare with
      * @param ParamBag $params  Search backend parameters
+     * @param array    $handlerParams Params for handler
+     *  [
+     *      'filter' => 'qt',
+     *      'handlerName' => 'morelikethis'
+     *  ]
      *
      * @return RecordCollectionInterface
      */
-    public function similar($backend, $id, ParamBag $params = null)
+    public function similar($backend, $id, $handlerParams, ParamBag $params = null)
     {
         $params  = $params ?: new ParamBag();
+        $filter = $handlerParams['filter'] ? $handlerParams['filter'] : 'qt';
+        $handlerName = $handlerParams['handlerName'] ? $handlerParams['handlerName'] : 'morelikethis';
         $context = __FUNCTION__;
         $args = compact('backend', 'id', 'params', 'context');
         $backendInstance = $this->resolve($backend, $args);
         $args['backend_instance'] = $backendInstance;
+
+        $params->set($filter, $handlerName);
 
         $this->triggerPre($backendInstance, $args);
         try {

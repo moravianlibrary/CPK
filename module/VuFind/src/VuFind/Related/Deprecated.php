@@ -45,10 +45,15 @@ class Deprecated implements RelatedInterface
      *
      * @param string                            $settings Settings from config.ini
      * @param \VuFind\RecordDriver\AbstractBase $driver   Record driver object
+     * @param array                             $handlerParams Params for handler
+     *  [
+     *      'filter' => 'qt',
+     *      'handlerName' => 'morelikethis'
+     *  ]
      *
      * @return void
      */
-    public function init($settings, $driver)
+    public function init($settings, $driver, $handlerParams)
     {
     }
 }

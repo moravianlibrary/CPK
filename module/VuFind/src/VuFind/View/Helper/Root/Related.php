@@ -62,11 +62,13 @@ class Related extends AbstractHelper
      *
      * @param \VuFind\RecordDriver\AbstractBase $driver Record driver
      *
+     * @param $handlerParams
      * @return array
+     * @throws \Exception
      */
-    public function getList(\VuFind\RecordDriver\AbstractBase $driver)
+    public function getList(\VuFind\RecordDriver\AbstractBase $driver, $handlerParams = null)
     {
-        return $driver->getRelated($this->pluginManager);
+        return $driver->getRelated($this->pluginManager, $handlerParams);
     }
 
     /**

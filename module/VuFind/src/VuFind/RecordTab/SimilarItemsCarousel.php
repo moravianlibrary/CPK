@@ -76,14 +76,17 @@ class SimilarItemsCarousel extends AbstractBase
      * Get an array of Record Driver objects representing items similar to the one
      * passed to the constructor.
      *
-     * @return array
+     * @param null $handlerParams
+     * @return \VuFindSearch\Response\RecordCollectionInterface
+     * @throws \Exception
      */
-    public function getResults()
+    public function getResults($handlerParams = null)
     {
+        $handlerParams = $handlerParams ? $handlerParams : ['filter' => 'qt', 'handlerName' => 'morelikethis'];
         $record = $this->getRecordDriver();
         $params = new \VuFindSearch\ParamBag(['rows' => 40]);
         return $this->searchService->similar(
-            $record->getSourceIdentifier(), $record->getUniqueId(), $params
+            $record->getSourceIdentifier(), $record->getUniqueId(), $handlerParams, $params
         );
     }
 }

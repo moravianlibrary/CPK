@@ -364,6 +364,11 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
      * \VuFind\Related\RelatedInterface) based on the current record.
      *
      * @param \VuFind\Related\PluginManager $factory Related module plugin factory
+     * @param array                         $handlerParams Params for handler
+     *  [
+     *      'filter' => 'qt',
+     *      'handlerName' => 'morelikethis'
+     *  ]
      * @param array                         $types   Array of relationship types to
      * load; each entry should be a service name (i.e. 'Similar' or 'Editions')
      * optionally followed by a colon-separated list of parameters to pass to the
@@ -371,8 +376,9 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
      * settings will be loaded from config.ini.
      *
      * @return array
+     * @throws \Exception
      */
-    public function getRelated(\VuFind\Related\PluginManager $factory, $types = null)
+    public function getRelated(\VuFind\Related\PluginManager $factory, $handlerParams, $types = null)
     {
         if (is_null($types)) {
             $types = isset($this->recordConfig->Record->related) ?
@@ -385,7 +391,7 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
             $params = isset($parts[1]) ? $parts[1] : null;
             if ($factory->has($type)) {
                 $plugin = $factory->get($type);
-                $plugin->init($params, $this);
+                $plugin->init($params, $this, $handlerParams);
                 $retVal[] = $plugin;
             } else {
                 throw new \Exception("Related module {$type} does not exist.");

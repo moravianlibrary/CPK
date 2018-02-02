@@ -3,7 +3,11 @@
 </div>
 <?
     $related = $this->related();
-    $list = $related->getList($this->driver);
+    if (! ($this->driver->getAllSubjectHeadings() && $this->driver->getDeduplicatedAuthors())) {
+        $list = $related->getList($this->driver, ['filter' => 'qf']);
+    } else {
+        $list = $related->getList($this->driver);
+    }
     foreach ($list as $current) {
         echo $related->render($current);
     }
