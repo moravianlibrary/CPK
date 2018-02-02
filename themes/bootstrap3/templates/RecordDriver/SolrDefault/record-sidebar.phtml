@@ -3,8 +3,11 @@
 </div>
 <?
     $related = $this->related();
-    if (! ($this->driver->getAllSubjectHeadings() && $this->driver->getDeduplicatedAuthors())) {
-        $list = $related->getList($this->driver, ['filter' => 'qf']);
+    if (! ($this->driver->getAllSubjectHeadings()
+        && $this->driver->getDeduplicatedAuthors()
+        && $this->driver->getConspectus())
+    ) {
+        $list = $related->getList($this->driver, ['filter' => 'qf', 'handlerName' => 'morelikethis']);
     } else {
         $list = $related->getList($this->driver);
     }
