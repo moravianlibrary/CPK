@@ -1001,4 +1001,10 @@ class SolrMarc extends ParentSolrMarc
         $conspectus = $this->getFieldArray('072', array('a', 'x', '2', '9'));
         return $conspectus;
     }
+
+    public function getRegion()
+    {
+        $region = $this->getFieldArray('KRJ', array('a', 'b'));
+        return $region;
+    }
 }

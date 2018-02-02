@@ -3,14 +3,25 @@
 </div>
 <?
     $related = $this->related();
-    if (! ($this->driver->getAllSubjectHeadings()
-        && $this->driver->getDeduplicatedAuthors()
-        && $this->driver->getConspectus())
-    ) {
-        $list = $related->getList($this->driver, ['filter' => 'qf', 'handlerName' => 'morelikethis']);
-    } else {
-        $list = $related->getList($this->driver);
+    if (! ($this->driver instanceof CPK\RecordDriver\SolrLibrary)) {
+        if (! ($this->driver->getAllSubjectHeadings()
+            && $this->driver->getDeduplicatedAuthors()
+            && $this->driver->getConspectus())
+        ) {
+            $list = $related->getList($this->driver, ['filter' => 'qf', 'handlerName' => 'morelikethis']);
+        } else {
+            $list = $related->getList($this->driver);
+        }
     }
+
+    if ($this->driver instanceof CPK\RecordDriver\SolrLibrary) {
+        if (!$this->driver->getRegion()) {
+            $list = $related->getList($this->driver, ['filter' => 'qf', 'handlerName' => 'morelikethis']);
+        } else {
+            $list = $related->getList($this->driver);
+        }
+    }
+
     foreach ($list as $current) {
         echo $related->render($current);
     }
