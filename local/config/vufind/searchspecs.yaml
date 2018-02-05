@@ -188,7 +188,6 @@ ISN:
 
 Subject:
   DismaxFields:
-    - topic_unstemmed^150
     - topic^100
     - geographic^50
     - genre^50
@@ -199,9 +198,6 @@ Subject:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
-    topic_unstemmed:
-      - [onephrase, 350]
-      - [and, 150]
     topic:
       - [onephrase, 300]
       - [and, 100]
@@ -234,7 +230,6 @@ Inspiration:
 JournalTitle:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - container_title^250
@@ -246,9 +241,6 @@ JournalTitle:
   QueryFields:
     title_short:
       - [onephrase, 500]
-    title_full_unstemmed:
-      - [onephrase, 450]
-      - [and, 400]
     title_full:
       - [onephrase, 400]
     title:
@@ -273,22 +265,17 @@ JournalTitle:
 Title:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - title_alt^200
     - title_new^100
     - title_old
-    - term_exact
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
   QueryFields:
     title_short:
       - [onephrase, 500]
-    title_full_unstemmed:
-      - [onephrase, 450]
-      - [and, 400]
     title_full:
       - [onephrase, 400]
     title:
@@ -316,7 +303,6 @@ Series:
 AllFields:
   DismaxFields:
     - title_short^750
-    - title_full_unstemmed^600
     - title_full^400
     - title^500
     - title_alt^200
@@ -329,21 +315,25 @@ AllFields:
     - corporation_viz^300
     - author_fuller^150
     - contents^10
-    - topic_unstemmed^550
     - topic^500
     - geographic^300
     - genre^300
     - subject_viz^100
     - genre_viz^100
     - publishDate_txt_mv^50
-    - term_exact
-    - allfields_unstemmed^10
-    - fulltext_unstemmed^10
     - allfields
     - fulltext
     - toc_txt_mv^15
-    - isbn
-    - issn
+    - isbn^15
+    - issn^15
+    - ismn_isn_mv^15
+    - cnb_isn_mv^15
+    - ean_isn_mv^15
+    - publisher_search_txt_mv^50
+    - placeOfPublication_txt_mv^10
+    - country_search_txt_mv
+    - language_search_txt_mv
+    - format_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -359,9 +349,6 @@ AllFields:
         - 50
       title_short:
         - [onephrase, 750]
-      title_full_unstemmed:
-        - [onephrase, 600]
-        - [and, 500]
       title_full:
         - [onephrase, 400]
       title:
@@ -394,9 +381,6 @@ AllFields:
       - [and, 50]
     contents:
       - [and, 10]
-    topic_unstemmed:
-      - [onephrase, 550]
-      - [and, 500]
     topic:
       - [onephrase, 500]
     geographic:
@@ -407,10 +391,6 @@ AllFields:
       - [onephrase, 200]
     genre_viz:
       - [onephrase, 200]
-    allfields_unstemmed:
-      - [and, 10]
-    fulltext_unstemmed:
-      - [and, 10]
     allfields:
       - [and, ~]
     fulltext:
@@ -421,26 +401,24 @@ AllFields:
       - [onephrase, ~]
     issn:
       - [onephrase, ~]
+    publisher_search_txt_mv:
+      - [onephrase, 50]
+    placeOfPublication_txt_mv:
+      - [onephrase, 10]
+    ismn_isn_mv:
+      - [onephrase, ~]
+    cnb_isn_mv:
+      - [onephrase, ~]
+    ean_isn_mv:
+      - [onephrase, ~]
+    upv_ipc_search:
+      - [onephrase, ~]
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
 #    DismaxFields:
-#      - title_full_unstemmed^600
-#      - topic_unstemmed^550
-#      - allfields_unstemmed^10
-#      - fulltext_unstemmed^10
 #      - isbn
 #      - issn
 #    QueryFields:
-#      title_full_unstemmed:
-#        - [onephrase, 600]
-#        - [and, 500]
-#      topic_unstemmed:
-#        - [onephrase, 550]
-#        - [and, 500]
-#      allfields_unstemmed:
-#        - [or, 10]
-#      fulltext_unstemmed:
-#        - [or, 10]
 #      isbn:
 #        - [onephrase, ~]
 #      issn:
@@ -450,14 +428,12 @@ AllFields:
 adv_search_title_series:
   DismaxFields:
     - title_short^500
-    - title_full_unstemmed^450
     - title_full^400
     - title^300
     - title_alt^200
     - title_new^100
     - title_old
     - titleSeries_search_txt_mv
-    - term_exact
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -502,7 +478,6 @@ adv_search_author_corporation:
 
 adv_search_subject_keywords:
   DismaxFields:
-    - topic_unstemmed^150
     - topic^100
     - geographic^50
     - genre^50
@@ -607,6 +582,8 @@ adv_search_year_of_publication:
 adv_search_place_of_publication:
   Dismaxfields:
     - placeOfPublication_txt_mv
+    - country_str_mv
+    - country_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -617,7 +594,10 @@ adv_search_place_of_publication:
   QueryFields:
     placeOfPublication_txt_mv:
       - [onephrase, 100]
-      - [and, 50]
+    country_str_mv:
+      - [onephrase, 100]
+    country_search_txt_mv:
+      - [onephrase, 100]
 
 adv_search_001:
   Dismaxfields:
@@ -640,7 +620,7 @@ adv_search_001:
 
 adv_search_nbn:
   Dismaxfields:
-    - cnb_search_str
+    - cnb_isn_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -649,7 +629,7 @@ adv_search_nbn:
     - [bf, ord(publishDateSort)^1]
   DismaxHandler: edismax
   QueryFields:
-    cnb_search_str:
+    cnb_isn_mv:
       - [onephrase, 100]
       - [and, 50]
       
@@ -673,19 +653,18 @@ adv_search_fulltext:
       - [and, 50]
 
 adv_search_ipc:
-  Dismaxfields:
-    - ipc_search_txt_mv
-  DismaxParams:
-    - [bq, "inspiration:top_results^1"]
-    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
-    - [bq, "author_exact:\"@query\"^20000"]
-    - [bq, "title_exact:\"@query\"^10000"]
-    - [bf, ord(publishDateSort)^1]
-  DismaxHandler: edismax
+  CustomMunge:
+    withoutWhiteSpaces:
+      - [uppercase]
+      - [preg_replace, '/[\s]+/m', ""]
+    withoutWhiteSpacesSlash:
+      - [uppercase]
+      - [preg_replace, '/[\s\/]+/m', ""]
   QueryFields:
-    ipc_search_txt_mv:
-      - [onephrase, 100]
-      - [and, 50] 
+    upv_ipc_search:
+      - [onephrase, 10000]
+      - [withoutWhiteSpaces, 1000]
+      - [withoutWhiteSpacesSlash, ~]
 
 Libraries:
   DismaxFields:
@@ -703,7 +682,7 @@ Libraries:
     - note2_search_txt
     - branch_search_txt
     - sigla_search_txt
-    - cpk_code_search_txt_mv
+    - cpk_code_search_txt
   FilterQuery: "recordtype:library"
   DismaxParams:
     - [bf, ord(library_relevance_str)^9999]

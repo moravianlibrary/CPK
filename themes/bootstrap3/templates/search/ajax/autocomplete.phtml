@@ -151,7 +151,6 @@
             type="text"
             name="lookfor0[]"
             value="<?=(isset($_GET['lookfor0'][0])) ? $this->escapeHtmlAttr($_GET['lookfor0'][0]) : ''?>"
-            autofocus
             placeholder="<?=$this->librarySearch ? $this->translate('autocomplete-placeholder-libraries') : $this->translate('autocomplete-placeholder'); ?>"
           />
           <span style="margin-right: -4px;">&nbsp;<i class="fa fa-times" id="searchclear"></i></span>
@@ -269,7 +268,6 @@
     </div>
   </div>
 
-<script type="text/javascript">$(".searchForm_lookfor:visible").focus()</script>
 <script type="text/javascript">
   ADVSEARCH_CONFIG = <?=json_encode($advancedHandlers, JSON_PRETTY_PRINT)?>;
 </script>

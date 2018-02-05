@@ -29,7 +29,7 @@ class SolrMarc extends ParentSolrMarc
      */
     protected $forbiddenSnippetFields = [
         'author', 'author-letter', 'title', 'title_short', 'title_full',
-        'title_full_unstemmed', 'title_auth', 'title_sub', 'spelling', 'id',
+        'title_auth', 'title_sub', 'spelling', 'id',
         'ctrlnum', 'title_autocomplete', 'author_autocomplete',
         'titleSeries_search_txt_mv', 'authorCorporation_search_txt_mv',
         'author_display', 'title_display', 'author_facet_str_mv', 'author-letter',
@@ -837,7 +837,7 @@ class SolrMarc extends ParentSolrMarc
 
 	public function getEAN()
     {
-        return (!empty($this->fields['ean_str_mv']) ? $this->fields['ean_str_mv'][0] : null);
+        return (!empty($this->fields['ean_isn_mv']) ? $this->fields['ean_isn_mv'][0] : null);
     }
 
 	protected function getCNB()
