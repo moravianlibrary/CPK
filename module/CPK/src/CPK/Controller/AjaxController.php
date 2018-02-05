@@ -2471,11 +2471,22 @@ class AjaxController extends AjaxControllerBase
                         } else {
                             $anchor = $this->translate(strtoupper($sfxSource));
                         }
+                        
 
-                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$anchor."</a>";
+                        $link = sprintf(
+                            '<a href="%s" target="_blank" title="%s">%s</a>',
+                            $record['sfx_url_txt'],
+                            $this->translate('Fulltext'),
+                            $anchor
+                        );
+
                         if ($embargo) {
-                            $embargoText = $this->translate(explode(' ', trim($embargo))[0])." ".explode(' ', trim($embargo))[1];
-                            $link .= "<span class='eds-results-embargo'  data-toggle='tooltip' title='$embargoText'> *</span>";
+                            $embargoText = $this->translate(explode(' ', trim($embargo))[0]).
+                                " ".explode(' ', trim($embargo))[1];
+                            $link .= sprintf(
+                                '<span class="eds-results-embargo" data-toggle="tooltip" title="%s"> *</span>',
+                                $embargoText
+                            );
                         }
 
                         $htmlLinks[$sfxSource][] = $link;
