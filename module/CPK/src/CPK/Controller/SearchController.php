@@ -1567,25 +1567,22 @@ class SearchController extends SearchControllerBase
         $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')->getId();
         $user = $this->getUser();
         $userId = $user ? $user->id : false;
-        if ($search->session_id == $sessId || $search->user_id === $userId) {
-            // They do, deminify it to a new object.
-            $minSO = $search->getSearchObject();
-            $savedSearch = $minSO->deminify($this->getResultsManager());
 
-            $searchTerms = [];
-            foreach($savedSearch->searchTerms as $searchGroup) {
-                foreach($searchGroup['g'] as $searchQuery) {
-                    $searchTerms[] = $searchQuery['l'];
-                }
-            }
-
-            return $searchTerms;
-        } else {
-            // They don't
-            // TODO : Error handling -
-            //    User is trying to view a saved search from another session
-            //    (deliberate or expired) or associated with another user.
+        if ($search->session_id != $sessId && $search->user_id !== $userId) {
             throw new \Exception("Attempt to access invalid search ID");
         }
+
+        // They do, deminify it to a new object.
+        $minSO = $search->getSearchObject();
+        $savedSearch = $minSO->deminify($this->getResultsManager());
+
+        $searchTerms = [];
+        foreach($savedSearch->searchTerms as $searchGroup) {
+            foreach($searchGroup['g'] as $searchQuery) {
+                $searchTerms[] = $searchQuery['l'];
+            }
+        }
+
+        return $searchTerms;
     }
 }
