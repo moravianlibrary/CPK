@@ -339,7 +339,7 @@ class User extends BaseUser
      * @return String
      */
     public function getHashedId() {
-        return hash('sha1', $this->id.$this->username);
+        return hash('sha1', $this->id . $this->config->GoogleAnalytics->salt);
     }
 
     /**
