@@ -30,7 +30,7 @@
     <i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
 </a>
 <script>
-    if (document.referrer.search("Search") !== -1){
+    if (document.referrer.search("/Search/") !== -1){
         document.getElementById("back-to-search-link-ID").classList.remove("hide");
         document.getElementById("back-to-search-link-ID").setAttribute("href",document.referrer);
     } else {
