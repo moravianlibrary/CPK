@@ -84,7 +84,7 @@
                     ADVSEARCH.updateSearchResults(
                     	undefined,
                     	{
-                            queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=' + type + '&searchTypeTemplate=basic&database='+database+'&page=1&bool0=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters=' + enabledKeepFacets + ''
+                            queryString: '?lookfor0=' + encodeURIComponent($( "#searchForm_lookfor" ).val()) + '&type0=' + type + '&searchTypeTemplate=basic&database='+database+'&page=1&bool0=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters=' + enabledKeepFacets + ''
                         },
                     	false
                     );
@@ -114,7 +114,7 @@
                     ADVSEARCH.updateSearchResults(
 						undefined,
 						{
-							queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=' + type + '&page=1&bool0=AND&join=AND&limit=' + limit + '&sort=' + sort + '&keepEnabledFilters=' + enabledKeepFacets + '&database=' + database
+							queryString: '?lookfor0=' + encodeURIComponent($( "#searchForm_lookfor" ).val()) + '&searchTypeTemplate=basic&type0=' + type + '&page=1&bool0=AND&join=AND&limit=' + limit + '&sort=' + sort + '&keepEnabledFilters=' + enabledKeepFacets + '&database=' + database
 						},
 						false
 					);
