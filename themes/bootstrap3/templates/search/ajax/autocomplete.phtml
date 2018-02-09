@@ -29,7 +29,9 @@
           var query = $( ".search-query" ).val();
 
           var enabledKeepFacets = $( '.searchFormKeepFilters' ).is(':checked');
-
+          /* Set up limit and sort search variables for making search query */
+          var limit = $( "input[name='limit']" ).val();
+          var sort = $( "input[name='sort']" ).val();
           var filters = '';
 
           if (enabledKeepFacets) {
@@ -40,8 +42,13 @@
           } else {
             filters = '';
           }
-          $( "#run-autocomplete" ).attr("href", "<?=$searchUrl?>?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1&database=Solr&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>" + filters);
-          $( ".searchForm" ).attr("action", "<?=$searchUrl?>?lookfor=" + encodeURIComponent( query ) + "&type=AllFields&searchTypeTemplate=basic&page=1&database=Solr&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>" + filters);
+          /* Set up URL for search  */
+          var urlWthoutFacets = "<?=$searchUrl?>?lookfor=" + encodeURIComponent( query )
+                              + "&type=AllFields&searchTypeTemplate=basic&page=1&database=Solr&limit="
+                              + limit + "&sort=" + sort + "" + filters + "";
+
+          $( "#run-autocomplete" ).attr("href", urlWthoutFacets);
+          $( ".searchForm" ).attr("action", urlWthoutFacets);
 
           /* Update autocomplete On some change */
           $( ".search-query" ).on( 'change', function( event ) {
@@ -61,8 +68,13 @@
 
             var database = $( 'input[name="database"]' ).val();
 
-            $( "#run-autocomplete" ).attr("href", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&database="+database+"&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters);
-            $( ".searchForm" ).attr("action", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&database="+database+"&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters);
+            var urlWithFacets = "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query )
+                              + "&type0[]=AllFields&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&database="
+                              + database + "&limit=" + limit + "&sort=" + sort + "&keepEnabledFilters="
+                              + enabledKeepFacets + "" + filters + "";
+
+            $( "#run-autocomplete" ).attr("href", urlWithFacets);
+            $( ".searchForm" ).attr("action", urlWithFacets);
 
         	  /* Change first query in advanced search to match value in autocomplete */
         	  ADVSEARCH.clearAdvancedSearchTemplate();
@@ -73,6 +85,8 @@
 				event.preventDefault();
 
                 /* if autocomplete used in Search/Results, load results async */
+                limit = $( 'input[name="limit"]' ).val();
+                sort = $( 'input[name="sort"]' ).val();
                 var href = $( '#run-autocomplete' ).attr( 'href' );
                 var currentUrl = window.location.pathname;
                 var controller = currentUrl.split('/')[1];
@@ -84,8 +98,11 @@
                     ADVSEARCH.updateSearchResults(
                     	undefined,
                     	{
-                            queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0=' + type + '&searchTypeTemplate=basic&database='+database+'&page=1&bool0=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters=' + enabledKeepFacets + ''
-                        },
+                            queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0='
+                                        + type + '&searchTypeTemplate=basic&database=' + database
+                                        + '&page=1&bool0=AND&join=AND&limit=' + limit +'&sort=' + sort
+                                        + '&keepEnabledFilters=' + enabledKeepFacets + ''
+                      },
                     	false
                     );
                     return false;
@@ -100,22 +117,31 @@
 			 */
             $( '.searchForm' ).submit( function( event ) {
                 event.preventDefault();
-            	var currentUrl = window.location.pathname;
+                limit = $( 'input[name="limit"]' ).val();
+                sort = $( 'input[name="sort"]' ).val();
+                var currentUrl = window.location.pathname;
                 var controller = currentUrl.split('/')[1];
                 var action = currentUrl.split('/')[2];
 
-                var limit = $( 'input[name="limit"]' ).val();
-                var sort = $( 'input[name="sort"]' ).val();
                 var database = $( 'input[name="database"]' ).val();
                 var type = $('#librariesSearchLink').hasClass('active') ? 'Libraries' : 'AllFields';
+                /* Set up URL for search  */
+                var url = "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=" + type
+                        + "&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=" + limit
+                        + "&sort=" + sort + "&keepEnabledFilters=" + enabledKeepFacets
+                        + "" + filters + "&database=" + database + "";
+
 
                 if ( controller == 'Search' && action == 'Results' ) {
                   	event.preventDefault();
                     ADVSEARCH.updateSearchResults(
 						undefined,
 						{
-							queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&searchTypeTemplate=basic&type0=' + type + '&page=1&bool0=AND&join=AND&limit=' + limit + '&sort=' + sort + '&keepEnabledFilters=' + enabledKeepFacets + '&database=' + database
-						},
+              queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val()
+                          + '&searchTypeTemplate=basic&type0=' + type
+                          + '&page=1&bool0=AND&join=AND&limit=' + limit + '&sort=' + sort
+                          + '&keepEnabledFilters=' + enabledKeepFacets + '&database=' + database
+            },
 						false
 					);
                     return false;
@@ -133,8 +159,8 @@
 		                filters = '';
 		            }
 
-                    $( "#run-autocomplete" ).attr("href", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=" + type + "&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters + "&database=" +database);
-                    $( ".searchForm" ).attr("action", "<?=$searchUrl?>?lookfor0[]=" + encodeURIComponent( query ) + "&type0[]=" + type + "&searchTypeTemplate=basic&page=1&bool0[]=AND&join=AND&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&keepEnabledFilters="+enabledKeepFacets+"" + filters + "&database=" + database);
+                    $( "#run-autocomplete" ).attr("href", url);
+                    $( ".searchForm" ).attr("action", url);
 
 					$( location ).attr( 'href', $( "#run-autocomplete" ).attr( 'href' ));
 				}
