@@ -81,6 +81,7 @@ $config = array(
                     'portalpages' => 'CPK\Db\Table\Factory::getPortalPages',
                     'notification_types' => 'CPK\Db\Table\Factory::getNotificationTypes',
                     'inst_configs' => 'CPK\Db\Table\Factory::getInstitutionsConfigs',
+                    'koha_tokens' => 'CPK\Db\Table\Factory::getKohaTokens',
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
                     'widget' => 'CPK\Db\Table\Factory::getWidget',
@@ -103,7 +104,8 @@ $config = array(
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
-                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
+                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
+                    'koharest' => 'CPK\ILS\Driver\Factory::getKohaRest',
                 ), /* factories */
             ], /* ils_driver */
                 'autocomplete' => [
@@ -235,8 +237,9 @@ $config = array(
             'CPK\SolrEdgeFaceted' => 'CPK\Service\Factory::getSolrEdgeFaceted',
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
-			'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
+            'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
             'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory'
+            'CPK\KohaOAUTH2Service' => 'CPK\Auth\Factory::getKohaOAUTH2Service',
         ), // Exceptions throwing system
 
         'invokables' => array(
