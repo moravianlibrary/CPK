@@ -44,6 +44,7 @@ $toRet = array(
     'favicon' => 'favicon.ico',
     'helpers' => array(
         'factories' => array(
+        	'themeConfiguration' => 'CPK\View\Helper\CPK\Factory::getThemeConfiguration',
             'record' => 'CPK\View\Helper\CPK\Factory::getRecord',
             'flashmessages' => 'CPK\View\Helper\CPK\Factory::getFlashmessages',
             'logos' => 'CPK\View\Helper\CPK\Factory::getLogos',

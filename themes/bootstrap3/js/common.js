@@ -420,6 +420,11 @@ function keyboardShortcuts() {
     }
 }
 
+function fillDebug(dg) {
+    $('#modal_dg .modal-body').append(dg);
+    $('#modal_dg .modal-body').append('<br><br>');
+}
+
 jQuery( document ).ready( function( $ ){
   // Setup search autocomplete
   setupAutocomplete();
@@ -553,4 +558,6 @@ jQuery( document ).ready( function( $ ){
       }
     }
   })
+
+    $( '#modal_dg' ).appendTo( 'body' );
 });
