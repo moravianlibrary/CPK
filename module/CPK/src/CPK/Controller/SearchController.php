@@ -27,6 +27,7 @@ namespace CPK\Controller;
 use VuFind\Controller\SearchController as SearchControllerBase;
 use VuFind\Exception\Mail as MailException;
 use VuFind\Exception\RecordMissing as RecordMissingException;
+use \CPK\Widgets\WidgetContent;
 
 /**
  * SearchController
@@ -1602,5 +1603,76 @@ class SearchController extends SearchControllerBase
 
     public function getSearchSetupCallback() {
         return parent::getSearchSetupCallback();
+    }
+
+    /**
+     * Harvest ebooks from Solr
+     *
+     * @return void
+     */
+    public function harvestEbooksAction()
+    {
+        $widgetName = 'eknihy_ke_stazeni';
+        $ebooks     = $this->getEbooks();
+
+        if (empty($ebooks)) {
+            exit();
+        }
+
+        $widget        = $this->getTable('Widget')->getWidgetByName($widgetName);
+        $widgetContent = $this->getTable('WidgetContent')->getContentsByName($widgetName);
+
+        $widgetContentValues = [];
+        foreach ($widgetContent as $content) {
+            $widgetContentValues[] = $content->getValue();
+        }
+
+        $data = [];
+        foreach ($ebooks as $ebook) {
+            if (! in_array($ebook['id'], $widgetContentValues)) {
+                $widgetContent = (new WidgetContent());
+                $widgetContent->setWidgetId($widget->getId());
+                $widgetContent->setValue(trim($ebook['id']));
+                $widgetContent->setPreferredValue(0);
+                $data[] = $widgetContent;
+            }
+        }
+
+        // @FIXME Bulk insert is not implemented in ZF2 because not all RDBMS support bulk Insert, Insert only missing
+        foreach ($data as $widgetContent) {
+            $this->getTable('WidgetContent')->addWidgetContent($widgetContent);
+        }
+
+        exit();
+    }
+
+    /**
+     * Get ebooks from Solr
+     *
+     * @return array
+     */
+    private function getEbooks()
+    {
+        $solrUrl = $this->getConfig()->Index->url;
+        $solrCore = $this->getConfig()->Index->default_core;
+
+        $url  = "$solrUrl/$solrCore/select?";
+        $url .= "q=id:mkpe.*";
+
+        $url .= "&fl=id";
+        $url .= "&wt=json";
+        $url .= "&indent=true";
+        $url .= "&start=0";
+        $url .= '&rows=3000';
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        $html = curl_exec($ch);
+        curl_close($ch);
+
+        $json = json_decode($html, true);
+
+        return $json['response']['docs'];
     }
 }
