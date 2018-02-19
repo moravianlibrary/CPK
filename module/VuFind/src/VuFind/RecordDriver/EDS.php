@@ -862,4 +862,17 @@ class EDS extends SolrDefault
 
         return filter_var($url, FILTER_VALIDATE_URL);
     }
+
+    /**
+     * Returns bool value whether EdsRecord contains plain fulltext or not.
+     *
+     * @return bool
+     */
+    public function containsFulltext()
+    {
+        return isset($this->fields['FullText']['Text']['Availability'])
+               && $this->fields['FullText']['Text']['Availability'] == 1
+               && isset($this->fields['FullText']['Text']['Value'])
+               && strlen($this->fields['FullText']['Text']['Value']) > 500;
+    }
 }

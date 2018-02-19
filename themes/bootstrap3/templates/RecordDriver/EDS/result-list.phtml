@@ -22,9 +22,9 @@ $authors = $this->driver->getAuthors();
 $sourceTitle = $this->driver->getSourceTitle();
 $volume = $this->driver->getVolume();
 $accessUrl = $this->driver->getAccessUrl();
-//var_dump($accessUrl);exit();
+//var_dump($containsFulltext);exit();
 ?>
-<div class="white-box clearfix">
+<div class="white-box clearfix eds-record-container">
     <div class="row col-xs-12 source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> recordId<?=$this->driver->supportsAjaxStatus()?' ajaxItemId':''?>">
         <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
         <div class="col-sm-2 col-xs-3 left">
@@ -191,6 +191,7 @@ $accessUrl = $this->driver->getAccessUrl();
     jQuery( document ).ready( function( $ ) {
 
         <?= ($accessUrl) ? "var accessUrl = '$accessUrl';" : "var accessUrl = false;" ?>
+        <?= ($containsFulltext) ? "var containsFulltext = '$containsFulltext';" : "var containsFulltext = false;" ?>
 
         if (accessUrl) {
             console.log( 'Eds fulltext link FOUND in metadata in AccessUrl.' );
@@ -221,6 +222,21 @@ $accessUrl = $this->driver->getAccessUrl();
                 success: function (response) {
 
                     if (response.status == 'OK') {
+
+                        if (response.data.message == 'Record contains free fulltext') {
+                            console.log( 'Record contains free fulltext' );
+
+                            var link = $( '#eds-links-placeholder-<?=$recordIdHash?>' ).parents( '.eds-record-container' ).find( '._record_link' ).attr( 'href' ) + '#html';
+                            var plainFulltextLink = "<tr style='display: none;'><td><a href='" + link + "' target='_blank' title='<?=$this->translate('Free fulltext')?>'><?=$this->translate('Free fulltext')?></a></td></tr>";
+
+                            $( '#eds-links-placeholder-<?=$recordIdHash?>' ).append( plainFulltextLink );
+                            $( '#eds-links-placeholder-<?=$recordIdHash?> tr' ).show( 'blind', {}, 200 );
+
+                            $( '#free-eds-link-available-<?=$recordIdHash?>' ).show( 'blind', {}, 200 );
+
+                            return;
+                        }
+
                         console.log( '' );
                         console.log( 'Eds fulltext links FOUND for recordId <?=$recordIdHash?>.' );
                         console.log( 'Solr url: ' + response.data.url );
