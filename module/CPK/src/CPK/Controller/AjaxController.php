@@ -2484,7 +2484,7 @@ class AjaxController extends AjaxControllerBase
                             $embargoText = $this->translate(explode(' ', trim($embargo))[0]).
                                 " ".explode(' ', trim($embargo))[1];
                             $link .= sprintf(
-                                '<span class="eds-results-embargo" data-toggle="tooltip" title="%s"> *</span>',
+                                '<span class="eds-results-embargo" data-toggle="tooltip" title="%s">&nbsp;*</span>',
                                 $embargoText
                             );
                         }
