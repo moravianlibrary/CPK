@@ -414,7 +414,7 @@ AllFields:
       - [onephrase, ~]
     upv_ipc_search:
       - [onephrase, ~]
-    people_search_txt_mv
+    people_search_txt_mv:
       - [onephrase, 50]
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
