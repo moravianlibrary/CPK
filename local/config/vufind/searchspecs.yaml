@@ -334,7 +334,7 @@ AllFields:
     - country_search_txt_mv
     - language_search_txt_mv
     - format_search_txt_mv
-    - people_search_txt_mv^500
+    - people_search_txt_mv^650
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -415,7 +415,7 @@ AllFields:
     upv_ipc_search:
       - [onephrase, ~]
     people_search_txt_mv:
-      - [onephrase, 50]
+      - [and, 650]
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
 #    DismaxFields:
