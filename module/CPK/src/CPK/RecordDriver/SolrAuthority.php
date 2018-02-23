@@ -31,13 +31,11 @@ class SolrAuthority extends ParentSolrMarc
     /**
      * Get the alternatives of the full name.
      *
-     * @return aray
+     * @return array of alternative names
      */
     public function getAddedEntryPersonalNames()
     {
-        $field = $this->getFieldArray('400', array('a', 'd'));
-        $name = empty($field) ? '' : $field;
-        return $name;
+        return isset($this->fields['alternative_name_display_mv']) ? $this->fields['alternative_name_display_mv'] : [];
     }
 
     /**
