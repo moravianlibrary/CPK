@@ -117,8 +117,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getSummary()
     {
-        $field = $this->getFieldArray('678', array('a'));
-        return empty($field) ? '' : $field;
+        return isset($this->fields['bibliographic_details_display_mv']) ? $this->fields['bibliographic_details_display_mv'] : [];
     }
 
     /**
@@ -152,9 +151,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getBibliographicDetails()
     {
-        $field = $this->getFieldArray('678', array('a'));
-        $details = empty($field) ? '' : $field[0];
-        return $details;
+        return isset($this->fields['bibliographic_details_display_mv']) ? $this->fields['bibliographic_details_display_mv'][0] : '';
     }
 
     private function getAuthorityFromObalkyKnih()
