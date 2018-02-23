@@ -192,6 +192,8 @@ class RecordController extends RecordControllerBase
         $multiBackendConfig = $this->getConfig('MultiBackend');
         $recordSource = explode(".", $this->driver->getUniqueId())[0];
         $view->sigla = $multiBackendConfig->SiglaMapping->$recordSource;
+        // Get Library ID
+        $view->libraryID = $multiBackendConfig->LibraryIDMapping->$recordSource;
 
         $searchesConfig = $this->getConfig('searches');
         // If user have preferred limit and sort settings
