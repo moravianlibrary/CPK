@@ -405,7 +405,7 @@
           <? $autoConspectus = $this->driver->getAutoConspectus(); if (!empty($autoConspectus)): ?>
               <? $contentDisplayed = true; ?>
             <tr>
-              <th><?=$this->transEsc('Conspectus')?>: </th>
+              <th><?=$this->transEsc('auto_conspectus')?>: </th>
               <td>
                   <? foreach ($autoConspectus as $field): ?>
                       <?=$this->escapeHtml($field)?><br />
