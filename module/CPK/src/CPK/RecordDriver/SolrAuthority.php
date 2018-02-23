@@ -25,9 +25,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getPersonalName()
     {
-        $field = $this->getFieldArray('100', array('a', 'd'));
-        $name = empty($field) ? '' : $field[0];
-        return $name;
+        return isset($this->fields['personal_name_display']) ? $this->fields['personal_name_display'] : '';
     }
 
     /**
