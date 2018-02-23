@@ -160,7 +160,7 @@ class SolrAuthority extends ParentSolrMarc
     private function getAuthorityFromObalkyKnih()
     {
         if (! isset($this->obalky)) {
-            $field = $this->getMarcRecord()->getField('001');
+            $field = $this->getAuthorityId();
             $auth_id = empty($field) ? '' : $field->getData();
 
             if (! empty($auth_id)) {
@@ -226,9 +226,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getAuthorityId()
     {
-        $id = $this->getMarcRecord()->getField('001', [])->getData();
-
-        return (! empty($id)) ? $id : '';
+        return isset($this->fields['authority_id_display']) ? $this->fields['authority_id_display'] : '';
     }
 
     /**
