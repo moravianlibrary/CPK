@@ -995,4 +995,14 @@ class SolrMarc extends ParentSolrMarc
         }
         return $mpts;
     }
+
+    /**
+     * Get conspectus from Solr auto_conspectus_display_mv field
+     *
+     * @return array
+     */
+    public function getAutoConspectus()
+    {
+        return isset($this->fields['auto_conspectus_display_mv']) ? $this->fields['auto_conspectus_display_mv'] : [];
+    }
 }
