@@ -1416,11 +1416,28 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
             }
         }
 
-        $group = $response->getRelative(
+        $userPrivileges = $response->getArrayRelative(
             $uof,
-            'UserPrivilege',
-            'UserPrivilegeDescription|AgencyUserPrivilegeType'
+            'UserPrivilege'
         );
+
+        $group = null;
+        foreach($userPrivileges as $userPrivilege) {
+            $privilegeDescription = $response->getRelative(
+                $userPrivilege,
+                'UserPrivilegeDescription'
+            );
+
+            $privilegeType = $response->getRelative(
+                $userPrivilege,
+                'AgencyUserPrivilegeType'
+            );
+
+            $group = $privilegeDescription;
+
+            if ($privilegeType == "Category")
+                break;
+        }
 
         if ($group !== null) {
             $institutionGroupTranslateKey = $this->source . '_group_' . $group;
