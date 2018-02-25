@@ -447,11 +447,11 @@ class XCNCIP2 extends AbstractBase implements HttpServiceAwareInterface, Transla
     /**
      * Returns payment URL from config
      *
-     * @param string $patron
-     * @param float $fine
+     * @param $patron
+     * @param $fine
      * @return string | null
      */
-    public function getPaymentURL(string $patron, float $fine)
+    public function getPaymentURL($patron, $fine)
     {
         if (isset($this->config['paymentUrl']))
             return $this->config['paymentUrl'];

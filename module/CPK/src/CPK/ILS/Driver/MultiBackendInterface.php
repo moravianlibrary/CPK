@@ -12,5 +12,5 @@ namespace CPK\ILS\Driver;
 interface MultiBackendInterface
 {
     public function getProlongRegistrationUrl(array $patron);
-    public function getPaymentURL(string $patron, float $fine);
+    public function getPaymentURL($patron, $fine);
 }
