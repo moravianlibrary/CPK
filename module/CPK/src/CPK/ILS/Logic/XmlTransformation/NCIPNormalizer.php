@@ -704,7 +704,7 @@ class NCIPNormalizer implements LoggerAwareInterface
             || $this->agency === 'AAA001'
             || $this->agency === 'SOG504'
         ) {
-            $holdingSets = $response->get('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
+            $holdingSets = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
             $response->unsetDataValue('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
 
             // Rewind holdingSets to ItemInformation ..
