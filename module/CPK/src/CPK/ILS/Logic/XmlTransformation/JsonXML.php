@@ -577,16 +577,7 @@ class JsonXML implements \ArrayAccess, \Iterator
      */
     public function getArray(...$absolutePaths)
     {
-        $data = $this->get(...$absolutePaths);
-
-        if ($data === null)
-            return array();
-
-        // If it's value & we're expecting array, let's make it an array ..
-        if (!is_array($data))
-            return array($data);
-
-        return $data;
+        return $this->getArrayRelative($this->representation, ...$absolutePaths);
     }
 
     /**
@@ -604,8 +595,19 @@ class JsonXML implements \ArrayAccess, \Iterator
     public function getArrayRelative($rootElement, ...$relativePathParts)
     {
         $data = $this->getRelativeObject($rootElement, ...$relativePathParts);
-        if (!is_array($data))
+
+        if ($data === null)
             return array();
+
+        // If it's value & we're expecting array, let's make it an array ..
+        if (!is_array($data))
+            return array($data);
+
+        reset($data);
+        // Or it already may be an associative array, but that's considered an element in JsonXML, so cast to an array
+        if (! is_numeric(key($data)))
+            return array($data);
+
         return $data;
     }
 
