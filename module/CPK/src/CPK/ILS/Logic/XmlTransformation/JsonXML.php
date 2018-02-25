@@ -477,7 +477,14 @@ class JsonXML implements \ArrayAccess, \Iterator
             foreach ($currentChildren as $currentChildrenElement) {
                 // We can have logical OR operator inside name
                 foreach (explode('|', $relativePathPart) as $relativePathOr) {
-                    if ($this->hasAnyKnownNamespace($relativePathOr, $namespacedRelativePath, $currentChildrenElement)) {
+                    if (
+                        $this->hasAnyKnownNamespace($relativePathOr, $namespacedRelativePath, $currentChildrenElement)
+                        || (
+                            $this->existsExactElementName($relativePathOr, $currentChildrenElement)
+                            && ($namespacedRelativePath = $relativePathOr)
+                        )
+                    ) {
+
                         $currentChildren = $currentChildrenElement[$namespacedRelativePath];
 
                         // This should never happen, but one never knows ..
@@ -515,6 +522,10 @@ class JsonXML implements \ArrayAccess, \Iterator
      */
     protected function getRelativeMetadata($metadata, $mustExist, $rootElement, ...$relativePathParts)
     {
+        // Root element must be an array, not a value!
+        if (!is_array($rootElement))
+            return null;
+
         $element = $this->getRelativeObject($rootElement, ...$relativePathParts);
 
         if (is_array($element)) {
