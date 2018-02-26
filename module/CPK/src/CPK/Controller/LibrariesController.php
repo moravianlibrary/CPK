@@ -67,54 +67,66 @@ class LibrariesController extends AbstractBase
 
 	public function listAction()
 	{
-		$view = $this->createViewModel();
-
-		$getParameters = $this->getRequest()->getQuery()->toArray();
-		$query = (isset($getParameters['query']) && ! empty($getParameters['query'])) ? $getParameters['query'] : null;
-		$page = (isset($getParameters['page']) && ! empty($getParameters['page'])) ? $getParameters['page'] : null;
-		if($page==null) $page = 1;
-
-		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
-
-		$searchresults = new SearchResults($query, $page, $this->config);
-		$libraries = $searchresults->getLibraries();
-		if ($libraries==null) {
-			$view->setTemplate('libraries/not-found');
-			return $view;
-		}
-		$resultsCount = $searchresults->getNumberOfResults();
-		$view->page = $page;
-		$view->resultsCount = $resultsCount;
-		$view->from = (($page-1)*10)+1;
-		$view->to = min($page * 10,$resultsCount);
-
-		$view->query = $query;
-		$view->pagination = $searchresults->GetPagination();
-		$view->libraries = $libraries;
-		$view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
-		$view->setTemplate('libraries/list');
-		return $view;
+        return $this->redirect()->toRoute(
+            'default',
+            array(
+                'controller' => 'Search',
+                'action' => 'Results',
+            ),
+            array('query' => array(
+                'type0[]' => 'Libraries'
+            ))
+        );
+//		$view = $this->createViewModel();
+//
+//		$getParameters = $this->getRequest()->getQuery()->toArray();
+//		$query = (isset($getParameters['query']) && ! empty($getParameters['query'])) ? $getParameters['query'] : null;
+//		$page = (isset($getParameters['page']) && ! empty($getParameters['page'])) ? $getParameters['page'] : null;
+//		if($page==null) $page = 1;
+//
+//		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
+//
+//		$searchresults = new SearchResults($query, $page, $this->config);
+//		$libraries = $searchresults->getLibraries();
+//		if ($libraries==null) {
+//			$view->setTemplate('libraries/not-found');
+//			return $view;
+//		}
+//		$resultsCount = $searchresults->getNumberOfResults();
+//		$view->page = $page;
+//		$view->resultsCount = $resultsCount;
+//		$view->from = (($page-1)*10)+1;
+//		$view->to = min($page * 10,$resultsCount);
+//
+//		$view->query = $query;
+//		$view->pagination = $searchresults->GetPagination();
+//		$view->libraries = $libraries;
+//		$view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
+//		$view->setTemplate('libraries/list');
+//
+//		return $view;
 
 	}
 
 	public function libraryAction()
 	{
-		$view = $this->createViewModel();
-
-		$getParameters = $this->getRequest()->getQuery()->toArray();
-		$sigla = $getParameters['sigla'];
-
-		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
-
-		$library = $librariesLoader->LoadLibrary($sigla);
-
-		$view->library = $library;
-
-		$view->apikey= empty($this->getConfig()->GoogleMaps) ? '' : $this->getConfig()->GoogleMaps->apikey;
-
-		$view->setTemplate('libraries/library');
-
-		return $view;
+	     return $this->redirect()->toRoute('default');
+//		$view = $this->createViewModel();
+//
+//		$getParameters = $this->getRequest()->getQuery()->toArray();
+//		$sigla = $getParameters['sigla'];
+//
+//		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
+//
+//		$library = $librariesLoader->LoadLibrary($sigla);
+//
+//		$view->library = $library;
+//
+//		$view->apikey= empty($this->getConfig()->GoogleMaps) ? '' : $this->getConfig()->GoogleMaps->apikey;
+//
+//		$view->setTemplate('libraries/library');
+//
+//		return $view;
 
 	}
 
