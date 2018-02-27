@@ -66,8 +66,7 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getSource()
     {
-        $field = $this->getFieldArray('670');
-        return $field;
+        return isset($this->fields['source_display_mv']) ? $this->fields['source_display_mv'] : [];
     }
 
     /**
