@@ -1383,4 +1383,14 @@ class AjaxController extends AbstractBase
     {
         return $this->getServiceLocator()->get('VuFind\SearchResultsPluginManager');
     }
+
+    /**
+     * Check whether user is logged in
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function isLoggedInAjax()
+    {
+        return $this->output([], $this->getUser() ? self::STATUS_OK : self::STATUS_NEED_AUTH);
+    }
 }
