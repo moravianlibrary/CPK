@@ -77,26 +77,20 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             }
             $params->addFacet($this->facetField);
             $params->setLimit(0);
-            $params->setFacetLimit(30);
+            $params->setFacetLimit(90);
             $this->searchObject->getParams()->setSort($this->facetField);
             $results = $this->searchObject->getResults();
             $facets = $this->searchObject->getFacetList();
-            if ($this->autocompleteField !== 'author_autocomplete') {
-                if (isset($facets[$this->facetField]['list'])) {
-                    $queryWithoutDiacritic = $this->removeDiacritic($query);
-                    foreach ($facets[$this->facetField]['list'] as $filter) {
-                        if (stripos($this->removeDiacritic($filter['value']), $queryWithoutDiacritic) !== false) {
-                            array_push($results, $filter['value']);
-                        }
-                    }
-                }
-            } else {
-                if (isset($facets[$this->facetField])) {
-                    foreach ($facets[$this->facetField]['list'] as $filter) {
+
+            if (isset($facets[$this->facetField]['list'])) {
+                $queryWithoutDiacritic = $this->removeDiacritic($query);
+                foreach ($facets[$this->facetField]['list'] as $filter) {
+                    if (stripos($this->removeDiacritic($filter['value']), $queryWithoutDiacritic) !== false) {
                         array_push($results, $filter['value']);
                     }
                 }
             }
+
         } catch (\Exception $e) {
             // Ignore errors -- just return empty results if we must.
         }
