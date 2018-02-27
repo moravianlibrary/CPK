@@ -116,30 +116,6 @@ class SolrAuthority extends ParentSolrMarc
     }
 
     /**
-     * Get authority's e-version links.
-     *
-     * @return array
-     */
-    public function getLinks()
-    {
-        $links = array();
-        $field998 = $this->getFieldArray('998', array('a'));
-        foreach ($field998 as $part) {
-            $links[] = 'auth|online|' . $part;
-        }
-
-        $field856 = $this->getFieldArray('856', array('u'));
-        foreach ($field856 as $part) {
-            if (strpos($part, 'osobnostiregionu') !== false) {
-                $links[] = 'osobnostiregionu|online|' . $part;
-            } else {
-                $links[] = 'auth|online|' . $part;
-            }
-        }
-        return $links;
-    }
-
-    /**
      * Get the bibliographic details of authority.
      *
      * @return string $details
