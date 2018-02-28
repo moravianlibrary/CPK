@@ -6,8 +6,7 @@ $recordSource = explode(".", $recordId)[0];
 $format = $this->driver->getPubTypeId();
 $items = $this->driver->getItems();
 $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
-//var_dump($this->driver); exit();
-//var_dump($items); exit();
+
 if (empty($lookfor)) {
     $lookfor = $this->record($this->driver)->getObalkyKnihAdvert('results');
 }
@@ -22,7 +21,6 @@ $authors = $this->driver->getAuthors();
 $sourceTitle = $this->driver->getSourceTitle();
 $volume = $this->driver->getVolume();
 $accessUrl = $this->driver->getAccessUrl();
-//var_dump($containsFulltext);exit();
 ?>
 <div class="white-box clearfix eds-record-container">
     <div class="row col-xs-12 source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> recordId<?=$this->driver->supportsAjaxStatus()?' ajaxItemId':''?>">

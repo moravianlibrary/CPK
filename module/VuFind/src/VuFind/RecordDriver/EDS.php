@@ -38,6 +38,8 @@ namespace VuFind\RecordDriver;
  */
 class EDS extends SolrDefault
 {
+    const MINIMAL_FULLTEXT_LENGTH = 500;
+
     /**
      * Document types that are treated as PDF links.
      *
@@ -873,6 +875,6 @@ class EDS extends SolrDefault
         return isset($this->fields['FullText']['Text']['Availability'])
                && $this->fields['FullText']['Text']['Availability'] == 1
                && isset($this->fields['FullText']['Text']['Value'])
-               && strlen($this->fields['FullText']['Text']['Value']) > 500;
+               && strlen($this->fields['FullText']['Text']['Value']) > MINIMAL_FULLTEXT_LENGTH;
     }
 }
