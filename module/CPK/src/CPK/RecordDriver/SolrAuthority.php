@@ -76,18 +76,12 @@ class SolrAuthority extends ParentSolrMarc
      */
     public function getHighlightedTitle()
     {
-        $field = $this->getFieldArray('100', array('a', 'd'));
-        $name = empty($field) ? '' : $field[0];
-        if (substr($name, -1) == ',') $name = substr($name, 0, -1);
-        return $name;
+        return rtrim($this->getPersonalName(), ',');
     }
 
     public function getBibinfoForObalkyKnihV3()
     {
-        $bibinfo = array();
-        $field = $this->getMarcRecord()->getField('001');
-        $bibinfo['auth_id'] = empty($field) ? '' : $field->getData();
-        return $bibinfo;
+        return ['auth_id' => $this->getAuthorityId()];
     }
 
     /**
@@ -128,8 +122,7 @@ class SolrAuthority extends ParentSolrMarc
     private function getAuthorityFromObalkyKnih()
     {
         if (! isset($this->obalky)) {
-            $field = $this->getAuthorityId();
-            $auth_id = empty($field) ? '' : $field->getData();
+            $auth_id = $this->getAuthorityId();
 
             if (! empty($auth_id)) {
                 try {
