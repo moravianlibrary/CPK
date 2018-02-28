@@ -85,21 +85,6 @@ class SolrAuthority extends ParentSolrMarc
     }
 
     /**
-     * Get the url of authority's cover from obalkyknih.
-     *
-     * Example of return value https://cache.obalkyknih.cz/file/cover/1376898/medium
-     *
-     * @return string $coverUrl
-     */
-    public function getAuthorityCover()
-    {
-        $obalky = $this->getAuthorityFromObalkyKnih();
-        $coverUrl = empty($obalky[0]['cover_medium_url']) ? '' : $obalky[0]['cover_medium_url'];
-        $coverUrl = str_replace('http://', 'https://', $coverUrl);
-        return $coverUrl;
-    }
-
-    /**
      * Get the authority's bibliographic details.
      *
      * @return array $field
@@ -117,37 +102,6 @@ class SolrAuthority extends ParentSolrMarc
     public function getBibliographicDetails()
     {
         return isset($this->fields['bibliographic_details_display_mv']) ? $this->fields['bibliographic_details_display_mv'][0] : '';
-    }
-
-    private function getAuthorityFromObalkyKnih()
-    {
-        if (! isset($this->obalky)) {
-            $auth_id = $this->getAuthorityId();
-
-            if (! empty($auth_id)) {
-                try {
-                    $cacheUrl = !isset($this->mainConfig->ObalkyKnih->cacheUrl)
-                        ? 'https://cache.obalkyknih.cz' : $this->mainConfig->ObalkyKnih->cacheUrl;
-                    $metaUrl = $cacheUrl . "/api/auth/meta";
-                    $client = new \Zend\Http\Client($metaUrl);
-                    $client->setParameterGet(array(
-                        'auth_id' => $auth_id
-                    ));
-
-                    $response = $client->send();
-                    $responseBody = $response->getBody();
-                    $phpResponse = json_decode($responseBody, true);
-                    $this->obalky = empty($phpResponse) ? null : $phpResponse;
-                }
-                catch (Exception $e) {
-                    $this->obalky = null;
-                }
-            }
-            else {
-                $this->obalky = null;
-            }
-        }
-        return $this->obalky;
     }
 
     /**
