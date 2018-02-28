@@ -15,7 +15,13 @@
               <pre><?=$this->escapeHtml($json_output)?></pre>
             <? else: ?>
               <? foreach ($value as $key => $val): ?>
-                <b><?=$this->escapeHtml(htmlspecialchars_decode($key))?>: </b><?=$this->escapeHtml(htmlspecialchars_decode($val))?><br />
+                <? if (!is_array($val)): ?>
+                  <b><?=$this->escapeHtml(htmlspecialchars_decode($key))?>: </b><?=$this->escapeHtml(htmlspecialchars_decode($val))?><br />
+                <? else: ?>
+                  <? foreach ($val as $k => $v): ?>
+                    <b><?=$this->escapeHtml(htmlspecialchars_decode($k))?>: </b><?=$this->escapeHtml(htmlspecialchars_decode($v))?><br />
+                  <? endforeach; ?>
+                <? endif; ?>
               <? endforeach; ?>
             <? endif; ?>
           <? else: ?>
