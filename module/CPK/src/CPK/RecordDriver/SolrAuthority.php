@@ -96,36 +96,6 @@ class SolrAuthority extends ParentSolrMarc
     }
 
     /**
-     * Get short note for authority (not record)
-     *
-     * @return string
-     */
-    public function getShortNoteEn()
-    {
-        return isset($this->fields['short_note_en_display']) ? $this->fields['short_note_en_display'] : '';
-    }
-
-    /**
-     * Get short note for authority (not record)
-     *
-     * @return string
-     */
-    public function getShortNoteCs()
-    {
-        return isset($this->fields['short_note_cs_display']) ? $this->fields['short_note_cs_display'] : '';
-    }
-
-    /**
-     * Get heading for authority (not record)
-     *
-     * @return string
-     */
-    public function getHeading()
-    {
-        return isset($this->fields['heading_display']) ? $this->fields['heading_display'] : '';
-    }
-
-    /**
      * Get id_authority.
      *
      * @return string
