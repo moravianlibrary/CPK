@@ -78,16 +78,16 @@
       </tr>
       <? endif; ?>
 
-      <? $pseudonyms = $this->driver->getPseudonyms(); if (!empty($pseudonyms)): $subjectsCount = count($pseudonyms['a']);?>
+      <? $pseudonyms = $this->driver->getPseudonyms(); if (!empty($pseudonyms)): ?>
       <tr>
         <th><?=$this->transEsc('Published also like')?>: </th>
         <td>
-          <? for($i = 0; $i < $subjectsCount; $i++): $pseudonym = trim($this->escapeHtml($pseudonyms['a'][$i].' '.$pseudonyms['d'][$i])); $pseudonymId = $this->record($this->driver)->getRecordIdByAuthority($pseudonyms['7'][$i]); ?>
+          <? foreach ($pseudonyms as $name => $authId): $pseudonymId = $this->record($this->driver)->getRecordIdByAuthority($authId); ?>
           <div>
-            <a title="<?=$this->translate('Show person')?> <?=$pseudonym?>" href="/Record/<?=$pseudonymId?>"><i class="pr-user-single5 author-icon"></i></a>
-            <a title="<?=$this->translate('Show publications by')?> <?=$pseudonym?>" href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=$pseudonym?>"><?=$pseudonym?></a>
+            <a title="<?=$this->translate('Show person')?> <?=$name?>" href="/Record/<?=$pseudonymId?>"><i class="pr-user-single5 author-icon"></i></a>
+            <a title="<?=$this->translate('Show publications by')?> <?=$name?>" href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=$name?>"><?=$name?></a>
           </div>
-          <? endfor; ?>
+          <? endforeach; ?>
         </td>
       </tr>
       <? endif; ?>
