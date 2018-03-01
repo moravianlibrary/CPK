@@ -2,8 +2,6 @@
 namespace CPK\RecordDriver;
 
 use CPK\RecordDriver\SolrMarc as ParentSolrMarc;
-use VuFind\RecordDriver\Response;
-use Exception;
 
 class SolrAuthority extends ParentSolrMarc
 {
