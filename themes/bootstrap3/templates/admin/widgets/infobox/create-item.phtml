@@ -69,7 +69,7 @@
 	</div>
   </div>
 </div>
-<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+<script src="https://cdn.ckeditor.com/4.7.3/full-all/ckeditor.js"></script>
 <script>
 
 	jQuery( document ).ready( function( $ ) {
@@ -99,17 +99,8 @@
 			dateFormat: "yy-mm-dd"
 		});
 
-		tinymce.init({
-			selector:'.editor',
-			toolbar: [
-			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright | bullist numlist | image | link | table | preview'
-			],
-			plugins: "image imagetools link preview table",
-			menubar: "edit insert view format",
-			invalid_styles: {
-			    '*': 'font-family font-size'
-			}
-		});
+        CKEDITOR.replace( 'text_cs' );
+        CKEDITOR.replace( 'text_en' );
 	});
 
 </script>
