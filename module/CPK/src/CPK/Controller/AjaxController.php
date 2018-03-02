@@ -2387,6 +2387,17 @@ class AjaxController extends AjaxControllerBase
             return $this->output(['recordId' => $recordId, 'message' => 'RECORD NOT LOADED', 'not_ok_messages' => $not_ok_messages,], self::STATUS_NOT_OK);
         }
 
+        $containsFulltext = $recordDriver->containsFulltext();
+
+        if ($containsFulltext) {
+            $output = [
+                'message' => 'Record contains free fulltext',
+                'not_ok_messages' => $not_ok_messages,
+            ];
+
+            return $this->output($output, self::STATUS_OK);
+        }
+
         $issns = $recordDriver->getIssns() != false ? $recordDriver->getIssns() : [];
         $electronicIssns = $recordDriver->getElectronicIssns() != false ? $recordDriver->getElectronicIssns() : [];
         $issns = array_merge($issns, $electronicIssns);

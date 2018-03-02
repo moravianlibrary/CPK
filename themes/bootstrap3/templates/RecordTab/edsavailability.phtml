@@ -11,7 +11,7 @@
   $sourceTitle = $this->driver->getSourceTitle();
   $volume = $this->driver->getVolume();
   $accessUrl = $this->driver->getAccessUrl();
-  //var_dump($accessUrl); exit();
+  $containsFulltext = $this->driver->containsFulltext();
 ?>
 
 <div class="list-group">
@@ -48,11 +48,25 @@
         jQuery( document ).ready( function( $ ) {
 
             <?= ($accessUrl) ? "var accessUrl = '$accessUrl';" : "var accessUrl = false;" ?>
+            <?= ($containsFulltext) ? "var containsFulltext = '$containsFulltext';" : "var containsFulltext = false;" ?>
 
             if (accessUrl) {
                 console.log( 'Eds fulltext link FOUND in metadata in AccessUrl.' );
 
                 var html = "<tr style='display: none;'><td><a href='" + accessUrl + "' target='_blank' title='<?=$this->translate('Fulltext')?>'><?=$this->translate('Fulltext')?></a></td></tr>";
+
+                $( '#eds-links-placeholder' ).append( html );
+                $( '#eds-links-placeholder tr' ).show( 'blind', {}, 200 );
+
+                $( '#free-eds-link-available' ).show( 'blind', {}, 200 );
+
+                $( '.eds-want-it' ).show( 'blind', {}, 200 );
+
+            } else if (containsFulltext) {
+
+                console.log( 'Eds fulltext link FOUND in metadata in FullText and is Available.' );
+
+                var html = "<tr style='display: none;'><td><a id='scrollToFulltext' href='#html' target='_blank' title='<?=$this->translate('Free fulltext')?>'><?=$this->translate('Free fulltext')?></a></td></tr>";
 
                 $( '#eds-links-placeholder' ).append( html );
                 $( '#eds-links-placeholder tr' ).show( 'blind', {}, 200 );
@@ -148,6 +162,11 @@
                 });
 
             }
+
+            $( document ).on( 'click', '#scrollToFulltext', function( event ) {
+                event.preventDefault();
+                smoothScrollToElement( '#html' );
+            });
 
         });
     </script>
