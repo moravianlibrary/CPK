@@ -1,6 +1,5 @@
 jQuery( document ).ready( function( $ ) {
 	$( 'select[name="citation-style"]' ).on( 'change', function() {
-		$( '.citation-style-status' ).html( "<i class='fa fa-spinner fa-spin'></i>" );
 		$.ajax({
 			type: 'POST',
 			url: '/AJAX/JSON?method=setCitationStyle',
@@ -8,14 +7,17 @@ jQuery( document ).ready( function( $ ) {
 			async: true,
 			data: {
 			    citationStyleValue: $( this ).val()
+
 			},
+            beforeSend: function () {
+                $( "body" ).addClass( "loading" );
+            },
 			success: function( response ) {
-			    $( '.citation-style-status i' ).removeClass('fa-spinner fa-spin').addClass('fa-thumbs-o-up');
+                $( "body" ).removeClass( "loading" );
 			}
 		});
 	});
 	$( 'select[name="records-per-page"]' ).on( 'change', function() {
-		$( '.records-per-page-status' ).html( "<i class='fa fa-spinner fa-spin'></i>" );
 		var value = $( this ).val();
 		$.ajax({
 			type: 'POST',
@@ -25,15 +27,17 @@ jQuery( document ).ready( function( $ ) {
 			data: {
 			    recordsPerPage: value
 			},
+            beforeSend: function () {
+                $( "body" ).addClass("loading");
+            },
 			success: function( response ) {
-				$( '.searchForm input[name="limit"]' ).val(value);
-				$( '.records-per-page-status i' ).removeClass('fa-spinner fa-spin').addClass('fa-thumbs-o-up');
+				$( '.searchForm input[name="limit"]' ).val( value );
 				$( "input[name='limit']" ).val( value );
+                $( "body" ).removeClass( "loading" );
 			}
 		});
 	});
 	$( 'select[name="preferred-sorting"]' ).on( 'change', function() {
-		$( '.preferred-sorting-status' ).html( "<i class='fa fa-spinner fa-spin'></i>" );
 		var value = $( this ).val();
 		$.ajax({
 			type: 'POST',
@@ -43,9 +47,12 @@ jQuery( document ).ready( function( $ ) {
 			data: {
 			    preferredSorting: value
 			},
+            beforeSend: function () {
+                $( "body" ).addClass("loading");
+            },
 			success: function( response ) {
-				$( '.searchForm input[name="sort"]' ).val(value);
-				$( '.preferred-sorting-status i' ).removeClass('fa-spinner fa-spin').addClass('fa-thumbs-o-up');
+				$( '.searchForm input[name="sort"]' ).val( value );
+                $( "body" ).removeClass( "loading" );
 			}
 		});
 	});

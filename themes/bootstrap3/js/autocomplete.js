@@ -74,10 +74,13 @@
             data[i] = {val: data[i]};
           }
           var content = data[i].val;
+          var limit = $( "input[name='limit']" ).val();
+          var sort = $( "input[name='sort']" ).val();
           data[i].href = '/Search/Results?lookfor0[]='
         	  			+ encodeURIComponent(content).replace("/\+/g", "%20")
-        	  			+ '&type0[]='+searchType+'&limit=10&sort=relevance&searchTypeTemplate=basic&bool0[]=AND&join=AND';
-          if (options.highlight) {
+                        + '&type0[]='+searchType+'&limit=' + limit + '&sort=' + sort
+                        + '&searchTypeTemplate=basic&bool0[]=AND&join=AND';
+            if (options.highlight) {
             // escape term for regex
             // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
             var escapedTerm = input.val().replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');

@@ -15,7 +15,7 @@
     <div class='well'>
       <fieldset>
         <legend><?=$this->translate('Citations style') ?></legend>
-        <select name='citation-style'>
+        <select name='citation-style' class="form-control">
         <? foreach ($this->availableCitationStyles as $style): ?>
         <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected="selected"' : '' ?> value='<?=$style['id']?>'><?=$style['description']?></option>
         <? endforeach; ?>
@@ -24,7 +24,7 @@
       </fieldset>
       <fieldset>
         <legend><?=$this->translate('Records per page') ?></legend>
-        <select name='records-per-page'>
+        <select name='records-per-page' class="form-control">
         <? foreach ($this->recordsPerPageOptions as $option): ?>
         <option<?= ($this->selectedRecordsPerPageOption == $option) ? ' selected="selected"' : '' ?> value='<?=$option?>'><?=$option?></option>
         <? endforeach; ?>
@@ -33,7 +33,7 @@
       </fieldset>
       <fieldset>
         <legend><?=$this->translate('Default sorting') ?></legend>
-        <select name='preferred-sorting'>
+        <select name='preferred-sorting' class="form-control">
         <? foreach ($this->sortingOptions as $key => $option): ?>
         <option<?= ($this->selectedSorting == $key) ? ' selected="selected"' : '' ?> value='<?=$key?>'><?=$this->transEsc($option)?></option>
         <? endforeach; ?>
@@ -43,6 +43,7 @@
     </div>
   </div>
 
+  <div class="modal-loading"></div>
   <div class="<?=$this->layoutClass('sidebar')?>">
     <?=$this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'settings'))?>
   </div>
