@@ -11,6 +11,13 @@
 
   $this->layout()->breadcrumbs = '<li class="active">Error</li>';
 ?>
+<script>
+  dataLayer.push({
+    'page': {
+      'category': 'error'
+    }
+  });
+</script>
 <div class="alert alert-danger">
   <p><?=$this->transEsc('An error has occurred')?></p>
   <p><?=$this->transEsc($this->message)?></p>

@@ -177,18 +177,46 @@
 </ul>
 <script>
 jQuery( document ).ready(function( $ ) {
+
 	$( '#citace-pro' ).on('click', '.citations-link', function(){
 		$( '#citationsModal' ).modal( 'show' );
+        pushRecordEventToGTM('showCitation');
 	});
+
 	$( '#permalinkItem' ).on('click', '#permalinkAnchor', function(){
 		$( '#permalinkModal' ).modal( 'show' );
+        pushRecordEventToGTM('permalink');
 	});
+
 	$( '.record-toolbar' ).on('click', '#mail-record', function(){
 		$( '#mailRecordModal' ).modal( 'show' );
+        pushRecordEventToGTM('sendEmail');
 	});
-	$( '#shareItem' ).on('click', '#shareAnchor', function(){
+
+    $( '#shareItem' ).on('click', '#shareAnchor', function(){
 		$( '#shareModal' ).modal( 'show' );
 	});
+
+    $( '.record-toolbar' ).on('click', '.export-toggle', function(){
+        pushRecordEventToGTM('export');
+    });
+
+    $( '.record-toolbar' ).on('click', '#save-record', function(){
+        pushRecordEventToGTM('favourite');
+    });
+
+    function pushRecordEventToGTM(eventAction) {
+        dataLayer.push({
+            'event': 'action.record',
+            'actionContext': {
+                'eventCategory': 'record',
+                'eventAction': eventAction,
+                'eventLabel': '<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    }
 
 });
 </script>

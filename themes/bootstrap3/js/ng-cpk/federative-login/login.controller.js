@@ -41,6 +41,19 @@
 	    if (typeof idp === 'string')
 		idp = JSON.parse(idp);
 	    if (!idp.isConsolidation) {
+			var action = 'library';
+			if (idp.name == "MojeID | Google+ | Facebook | LinkedIn")
+				action = 'social';
+			dataLayer.push({
+				'event': 'action.login',
+				'actionContext': {
+					'eventCategory': 'login',
+					'eventAction': action,
+					'eventLabel': idp.name,
+					'eventValue': undefined,
+					'nonInteraction': false
+				}
+			});
 
 		getLastIdps();
 		
@@ -68,11 +81,23 @@
 		var source = JSON.stringify(lastIdps);
 
 		localStorage.setItem(lastIdpsTag, source);
-	    }
-    if (idp.warn_msg) {
-      alert(VuFind.translate('warning_safety_login'))
-    }
-    window.location.replace(idp.href);
+	    } else {
+			dataLayer.push({
+				'event': 'action.account',
+				'actionContext': {
+					'eventCategory': 'account',
+					'eventAction': 'connectedAccount',
+					'eventLabel': idp.name,
+					'eventValue': undefined,
+					'nonInteraction': false
+				}
+			});
+		};
+
+	    if (idp.warn_msg) {
+            alert(VuFind.translate('warning_safety_login'))
+        }
+        window.location.replace(idp.href);
 	}
 
 	function hasLastIdps() {

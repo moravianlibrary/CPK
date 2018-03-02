@@ -1603,4 +1603,39 @@ class SearchController extends SearchControllerBase
     public function getSearchSetupCallback() {
         return parent::getSearchSetupCallback();
     }
+
+    /**
+     * Given a saved search ID, get search keywords.
+     *
+     * @param int $id ID from search history
+     *
+     * @return array
+     */
+    public function getSearchTermsFromSearch($searchId)
+    {
+        $table = $this->getTable('Search');
+        $search = $table->getRowById($searchId);
+
+        // Found, make sure the user has the rights to view this search
+        $sessId = $this->getServiceLocator()->get('VuFind\SessionManager')->getId();
+        $user = $this->getUser();
+        $userId = $user ? $user->id : false;
+
+        if ($search->session_id != $sessId && $search->user_id !== $userId) {
+            throw new \Exception("Attempt to access invalid search ID");
+        }
+
+        // They do, deminify it to a new object.
+        $minSO = $search->getSearchObject();
+        $savedSearch = $minSO->deminify($this->getResultsManager());
+
+        $searchTerms = [];
+        foreach($savedSearch->searchTerms as $searchGroup) {
+            foreach($searchGroup['g'] as $searchQuery) {
+                $searchTerms[] = $searchQuery['l'];
+            }
+        }
+
+        return $searchTerms;
+    }
 }

@@ -1098,14 +1098,27 @@ jQuery( document ).ready( function( $ ) {
 		}
 		
 		$( "input[name='page']" ).val( '1' );
-		
+
+		var useFacet = 1;
 		if ( $( this ).hasClass( 'active' ) ) {
 			//console.log( 'Removing facet filter.' );
+			useFacet = 0;
 			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
 		} else {
 			//console.log( 'Adding facet filter.' );
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
+
+        dataLayer.push({
+            'event': 'action.facet',
+            'actionContext': {
+                'eventCategory': 'facet',
+                'eventAction': $(this).attr('data-facet').split(':')[0],
+                'eventLabel': $(this).attr('data-facet').split(':')[1],
+                'eventValue': useFacet,
+                'nonInteraction': false
+            }
+        });
 	});
 
     /*
@@ -1305,6 +1318,18 @@ jQuery( document ).ready( function( $ ) {
 	        			$( thisElement ).attr( 'title', VuFind.translate('Delete saved search'));
 	        			$( thisElement ).text( VuFind.translate('Delete saved search'));
 	        			$( thisElement ).attr( 'id', 'remove-from-saved-searches');
+
+                        dataLayer.push({
+                            'event': 'action.search',
+                            'actionContext': {
+                                'eventCategory': 'search',
+                                'eventAction': 'saveSearch',
+                                'eventLabel': response.data.searchTerms.join(),
+                                'eventValue': undefined,
+                                'nonInteraction': false
+                            }
+                        });
+
 	        		} else {
 	        			console.error(response.data);
 	        			var message = '';

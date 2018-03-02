@@ -2064,13 +2064,17 @@ class AjaxController extends AjaxControllerBase
             $search = $this->getTable('Search');
             if (($id = $this->params()->fromPost('searchId', false)) !== false) {
                 $search->setSavedFlag($id, true, $user->id);
+
+                $searchController = $this->getServiceLocator()->get('searchController');
+                $searchTerms = $searchController->getSearchTermsFromSearch($searchId);
+
             } else {
                 return $this->output(['Missing searchId for save search action.'], self::STATUS_ERROR);
             }
         } catch (\Exception $e) {
             return $this->output([$e->getMessage()], self::STATUS_ERROR);
         }
-        return $this->output([], self::STATUS_OK);
+        return $this->output(['searchTerms' => $searchTerms], self::STATUS_OK);
     }
 
     /**
