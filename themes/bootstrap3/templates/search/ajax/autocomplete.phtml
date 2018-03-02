@@ -92,6 +92,7 @@
         			  });
             } else {
                 filters = '';
+                ADVSEARCH.removeAllFilters( true );
             }
 
             var database = $( 'input[name="database"]' ).val();
@@ -327,12 +328,12 @@
           </span>
       <? endif; ?>
       <? if ((isset($hasDefaultsApplied) && $hasDefaultsApplied) || !empty($filterDetails)): ?>
-      <div class="checkbox" id='keep-facets-enabled-checkbox'>
+      <div id='keep-facets-enabled-checkbox'>
       <? else: ?>
-      <div class="checkbox" id='keep-facets-enabled-checkbox' style='display: none;'>
+      <div id='keep-facets-enabled-checkbox' style='display: none;'>
       <? endif; ?>
           <label>
-              <input onChange="$('.applied-filter').click(); $( '.search-query' ).trigger( 'change' );" type="checkbox"<?=$defaultFilterState?> class="searchFormKeepFilters"/>
+              <input class="checkbox searchFormKeepFilters" onChange="$('.applied-filter').click(); $( '.search-query' ).trigger( 'change' );" type="checkbox"<?=$defaultFilterState?>/>
               <?=$this->transEsc("basic_search_keep_filters")?>
           </label>
       </div>

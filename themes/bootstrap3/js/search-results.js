@@ -1013,6 +1013,19 @@ jQuery( document ).ready( function( $ ) {
 		$( '#searchForm_lookfor' ).val( '' );
 	});
 
+// Search with current filters
+    $( "#side-facets-placeholder").on( "click", ".list-group-item", function( event ) {
+        if (!$(this).is(':checked')) {
+            $(".searchFormKeepFilters").prop("checked", true)
+        } else {
+            $(".searchFormKeepFilters").prop("checked", false)
+        }
+    });
+    $( ".searchForm" ).on( "click", ".searchFormKeepFilters", function( event ) {
+        $(".searchFormKeepFilters").prop("checked", false);
+        ADVSEARCH.removeAllFilters( true );
+    });
+
 	/*
 	 * Add or remove clicked facet
 	 */
