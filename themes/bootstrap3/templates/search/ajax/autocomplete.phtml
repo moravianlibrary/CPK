@@ -136,11 +136,11 @@
                     ADVSEARCH.updateSearchResults(
                     	undefined,
                     	{
-                            queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val() + '&type0='
+                            queryString: '?lookfor0=' + encodeURIComponent($( "#searchForm_lookfor" ).val()) + '&type0='
                                         + type + '&searchTypeTemplate=basic&database=' + database
                                         + '&page=1&bool0=AND&join=AND&limit=' + limit +'&sort=' + sort
                                         + '&keepEnabledFilters=' + enabledKeepFacets + ''
-                      },
+                        },
                     	false
                     );
                     return false;
@@ -185,7 +185,7 @@
                     ADVSEARCH.updateSearchResults(
 						undefined,
 						{
-              queryString: '?lookfor0=' + $( "#searchForm_lookfor" ).val()
+              queryString: '?lookfor0=' + encodeURIComponent($( "#searchForm_lookfor" ).val())
                           + '&searchTypeTemplate=basic&type0=' + type
                           + '&page=1&bool0=AND&join=AND&limit=' + limit + '&sort=' + sort
                           + '&keepEnabledFilters=' + enabledKeepFacets + '&database=' + database
