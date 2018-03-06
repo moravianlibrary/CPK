@@ -2,8 +2,6 @@
 namespace CPK\RecordDriver;
 
 use CPK\RecordDriver\SolrMarc as ParentSolrMarc;
-use VuFind\RecordDriver\Response;
-use Exception;
 
 class SolrLibrary extends ParentSolrMarc
 {
@@ -20,34 +18,29 @@ class SolrLibrary extends ParentSolrMarc
         parent::__construct($mainConfig, $recordConfig, $searchSettings);
     }
 
-
-
-
     public function getParentRecordID()
     {
-        return isset($this->fields['id']) ? $this->fields['id'] : [];
+        return isset($this->fields['id']) ? $this->fields['id'] : '';
     }
-
-
 
     /**
      * Get an array of note about the libraryname
      *
-     * @return array
+     * @return string
      */
     public function getLibraryNames()
     {
-        return isset($this->fields['name_display']) ? $this->fields['name_display'] : [];
+        return isset($this->fields['name_display']) ? $this->fields['name_display'] : '';
     }
 
     /**
      * Get an array of note about the libraryhours
      *
-     * @return array
+     * @return string
      */
     public function getLibraryHours()
     {
-        return isset($this->fields['hours_display']) ? $this->fields['hours_display'] : [];
+        return isset($this->fields['hours_display']) ? $this->fields['hours_display'] : '';
     }
 
     /**
@@ -58,7 +51,7 @@ class SolrLibrary extends ParentSolrMarc
     public function getLibraryHoursArray()
     {
         $string = $this->getLibraryHours();
-        if ($string == []) return [];
+        if (empty($string)) return [];
         $days = explode("|", $string);
         $result = array();
         foreach ($days as $day)
@@ -79,8 +72,6 @@ class SolrLibrary extends ParentSolrMarc
         return isset($this->fields['lastupdated_display']) ? $this->fields['lastupdated_display'] : '';
     }
 
-
-
     /**
      * Get an array of note about the libraryname
      *
@@ -91,53 +82,51 @@ class SolrLibrary extends ParentSolrMarc
         return isset($this->fields['address_display_mv']) ? $this->fields['address_display_mv'] : [];
     }
 
-
     /**
      * Get an array of library ico and dicn
      *
-     * @return array
+     * @return string
      */
     public function getIco()
     {
-        return isset($this->fields['ico_display']) ? $this->fields['ico_display'] :'';
+        return isset($this->fields['ico_display']) ? $this->fields['ico_display'] : '';
     }
 
     /**
      * Get an array of library ico and dicn
      *
-     * @return array
+     * @return string
      */
     public function getLibNote()
     {
-        return isset($this->fields['note_display']) ? $this->fields['note_display'] :'';
+        return isset($this->fields['note_display']) ? $this->fields['note_display'] : '';
     }
-
 
     /**
      *
-     * @return array
+     * @return string
      */
     public function getLibNote2()
     {
-        return isset($this->fields['note2_display']) ? $this->fields['note2_display'] :'';
+        return isset($this->fields['note2_display']) ? $this->fields['note2_display'] : '';
     }
 
     /**
      *
-     * @return array
+     * @return string
      */
     public function getSigla()
     {
-        return isset($this->fields['sigla_display']) ? $this->fields['sigla_display'] :'';
+        return isset($this->fields['sigla_display']) ? $this->fields['sigla_display'] : '';
     }
 
     /**
      *
-     * @return array
+     * @return string
      */
     public function getLibType()
     {
-        return isset($this->fields['type_display']) ? $this->fields['type_display'] :'';
+        return isset($this->fields['type_display']) ? $this->fields['type_display'] : '';
     }
 
     /**
@@ -147,7 +136,7 @@ class SolrLibrary extends ParentSolrMarc
     public function getLibUrl()
     {
 
-        return isset($this->fields['url_display_mv']) ? $this->fields['url_display_mv'] :'';
+        return isset($this->fields['url_display_mv']) ? $this->fields['url_display_mv'] : [];
     }
 
     /**
@@ -178,7 +167,6 @@ class SolrLibrary extends ParentSolrMarc
 
     }
 
-
     /**
      *
      * @return array
@@ -194,7 +182,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getLibBranch()
     {
-        return isset($this->fields['branch_display_mv']) ? $this->fields['branch_display_mv'] :'';
+        return isset($this->fields['branch_display_mv']) ? $this->fields['branch_display_mv'] : [];
     }
 
     /**
@@ -203,7 +191,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getLibNameAlt()
     {
-        return isset($this->fields['name_alt_display_mv']) ? $this->fields['name_alt_display_mv'] :'';
+        return isset($this->fields['name_alt_display_mv']) ? $this->fields['name_alt_display_mv'] : [];
     }
 
     /**
@@ -212,7 +200,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getLibResponsibility()
     {
-        return isset($this->fields['responsibility_display_mv']) ? $this->fields['responsibility_display_mv'] :'';
+        return isset($this->fields['responsibility_display_mv']) ? $this->fields['responsibility_display_mv'] : [];
     }
 
     /**
@@ -221,7 +209,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getPhone()
     {
-        return isset($this->fields['phone_display_mv']) ? $this->fields['phone_display_mv'] :'';
+        return isset($this->fields['phone_display_mv']) ? $this->fields['phone_display_mv'] : [];
     }
 
     /**
@@ -230,7 +218,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getEmail()
     {
-        return isset($this->fields['email_display_mv']) ? $this->fields['email_display_mv'] :'';
+        return isset($this->fields['email_display_mv']) ? $this->fields['email_display_mv'] : [];
     }
 
     /**
@@ -239,7 +227,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getFax()
     {
-        return isset($this->fields['fax_display_mv']) ? $this->fields['fax_display_mv'] :'';
+        return isset($this->fields['fax_display_mv']) ? $this->fields['fax_display_mv'] : [];
     }
 
     /**
@@ -248,8 +236,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getService()
     {
-        return isset($this->fields['services_display_mv']) ? $this->fields['services_display_mv'] :'';
-
+        return isset($this->fields['services_display_mv']) ? $this->fields['services_display_mv'] : [];
     }
 
     /**
@@ -258,7 +245,7 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getFunction()
     {
-        return isset($this->fields['function_display_mv']) ? $this->fields['function_display_mv'] :'';
+        return isset($this->fields['function_display_mv']) ? $this->fields['function_display_mv'] : [];
     }
 
     /**
@@ -267,9 +254,8 @@ class SolrLibrary extends ParentSolrMarc
      */
     public function getProject()
     {
-        return isset($this->fields['projects_display_mv']) ? $this->fields['projects_display_mv'] :'';
+        return isset($this->fields['projects_display_mv']) ? $this->fields['projects_display_mv'] : [];
     }
-
 
     public function getGps()
     {
@@ -296,11 +282,11 @@ class SolrLibrary extends ParentSolrMarc
 
     /**
      *
-     * @return string
+     * @return array
      */
     public function getBranchUrl()
     {
-        return isset($this->fields['branchurl_display_mv']) ? $this->fields['branchurl_display_mv'] :'';
+        return isset($this->fields['branchurl_display_mv']) ? $this->fields['branchurl_display_mv'] :[];
     }
 
     public function getBookSearchFilter(){
@@ -333,7 +319,6 @@ class SolrLibrary extends ParentSolrMarc
         }
         return "";
     }
-
 
     public function AddInfoItemsCount()
     {
