@@ -70,13 +70,13 @@ class SolrLibrary extends ParentSolrMarc
     }
 
     /**
-     * Get an array of note about the
+     * Get date
      *
-     * @return array
+     * @return String
      */
     public function getLastUpdated()
     {
-        return isset($this->fields['lastupdated_str']) ? $this->fields['lastupdated_str'] : [];
+        return isset($this->fields['lastupdated_display']) ? $this->fields['lastupdated_display'] : '';
     }
 
 
@@ -273,7 +273,7 @@ class SolrLibrary extends ParentSolrMarc
 
     public function getGps()
     {
-        return isset($this->fields['gps_str']) ? $this->fields['gps_str'] : '';
+        return isset($this->fields['gps_display']) ? $this->fields['gps_display'] : '';
     }
 
     /**
@@ -304,7 +304,7 @@ class SolrLibrary extends ParentSolrMarc
     }
 
     public function getBookSearchFilter(){
-        $institution = isset($this->fields['cpk_code_search_txt']) ? $this->fields['cpk_code_search_txt'] :'';
+        $institution = isset($this->fields['cpk_code_display']) ? $this->fields['cpk_code_display'] : '';
         $institutionsMappings = $this->facetsConfig->InstitutionsMappings->toArray();
 
         if (isset($institutionsMappings[$institution]))
