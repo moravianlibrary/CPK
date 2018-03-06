@@ -212,9 +212,10 @@ class LibrariesController extends AbstractBase
                 $url = substr($url, 0, -4);
             }
 
-            $url .= "&fl=name_search_txt,address_search_txt_mv,reg_lib_search_txt_mv,gps_str,id";
+            $url .= "&fl=name_display,address_map_display_mv,gps_display,id";
             $url .= "&wt=json";
             $url .= "&indent=true";
+            $url .= "&sort=library_relevance_str+asc";
             $url .= '&rows=' . $resultsPerIteration;
 
             $url .= '&start=' . $offset;
@@ -233,13 +234,13 @@ class LibrariesController extends AbstractBase
 
             if (isset($results['response']['numFound']) && $results['response']['numFound'] > 0) {
                 foreach ($results['response']['docs'] as $library) {
-                    if (! empty($library['gps_str'])) {
+                    if (! empty($library['gps_display'])) {
                         $data[] = [
-                            'name' => ! empty($library['name_search_txt']) ? $library['name_search_txt'] : '',
-                            'address' => ! empty($library['address_search_txt_mv'][0]) ? $library['address_search_txt_mv'][0] : '',
+                            'name' => ! empty($library['name_display']) ? $library['name_display'] : '',
+                            'address' => ! empty($library['address_map_display_mv'][0]) ? $library['address_map_display_mv'][0] : '',
                             'id' => $library['id'] ? $library['id'] : '',
-                            'latitude' => explode(" ", $library['gps_str'])[0],
-                            'longitude' => explode(" ", $library['gps_str'])[1],
+                            'latitude' => explode(" ", $library['gps_display'])[0],
+                            'longitude' => explode(" ", $library['gps_display'])[1],
                         ];
                     }
                 }
