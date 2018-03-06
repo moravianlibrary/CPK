@@ -26,6 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace VuFind\RecordDriver;
+use CPK\RecordDriver\SolrLibrary;
 use VuFind\Exception\LoginRequired as LoginRequiredException,
     VuFind\XSLT\Import\VuFind as ArticleStripper;
 use VuFind\Record\Cache;
@@ -364,11 +365,6 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
      * \VuFind\Related\RelatedInterface) based on the current record.
      *
      * @param \VuFind\Related\PluginManager $factory Related module plugin factory
-     * @param array                         $handlerParams Params for handler
-     *  [
-     *      'filter' => 'qt',
-     *      'handlerName' => 'morelikethis'
-     *  ]
      * @param array                         $types   Array of relationship types to
      * load; each entry should be a service name (i.e. 'Similar' or 'Editions')
      * optionally followed by a colon-separated list of parameters to pass to the
@@ -378,12 +374,25 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
      * @return array
      * @throws \Exception
      */
-    public function getRelated(\VuFind\Related\PluginManager $factory, $handlerParams, $types = null)
+    public function getRelated(\VuFind\Related\PluginManager $factory, $types = null)
     {
         if (is_null($types)) {
             $types = isset($this->recordConfig->Record->related) ?
                 $this->recordConfig->Record->related : [];
         }
+
+        $filter = 'qt';
+        if ($this instanceof SolrLibrary) {
+            if (!$this->getRegion()) {
+                $filter = 'qf';
+            }
+        } else {
+            if (! ($this->getAllSubjectHeadings() && $this->getDeduplicatedAuthors() && $this->getConspectus())
+            ) {
+                $filter = 'qf';
+            }
+        }
+
         $retVal = [];
         foreach ($types as $current) {
             $parts = explode(':', $current);
@@ -391,7 +400,7 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
             $params = isset($parts[1]) ? $parts[1] : null;
             if ($factory->has($type)) {
                 $plugin = $factory->get($type);
-                $plugin->init($params, $this, $handlerParams);
+                $plugin->init($params, $this, $filter);
                 $retVal[] = $plugin;
             } else {
                 throw new \Exception("Related module {$type} does not exist.");

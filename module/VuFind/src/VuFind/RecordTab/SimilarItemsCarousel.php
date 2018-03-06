@@ -80,13 +80,12 @@ class SimilarItemsCarousel extends AbstractBase
      * @return \VuFindSearch\Response\RecordCollectionInterface
      * @throws \Exception
      */
-    public function getResults($handlerParams = null)
+    public function getResults()
     {
-        $handlerParams = $handlerParams ? $handlerParams : ['filter' => 'qt', 'handlerName' => 'morelikethis'];
         $record = $this->getRecordDriver();
         $params = new \VuFindSearch\ParamBag(['rows' => 40]);
         return $this->searchService->similar(
-            $record->getSourceIdentifier(), $record->getUniqueId(), $handlerParams, $params
+            $record->getSourceIdentifier(), $record->getUniqueId(), null, $params
         );
     }
 }

@@ -293,28 +293,21 @@ class Service
     /**
      * Return similar records.
      *
-     * @param string   $backend Search backend identifier
-     * @param string   $id      Id of record to compare with
-     * @param ParamBag $params  Search backend parameters
-     * @param array    $handlerParams Params for handler
-     *  [
-     *      'filter' => 'qt',
-     *      'handlerName' => 'morelikethis'
-     *  ]
-     *
+     * @param string $backend Search backend identifier
+     * @param string $id Id of record to compare with
+     * @param string $filter for handler in Solr
+     * @param ParamBag $params Search backend parameters
      * @return RecordCollectionInterface
      */
-    public function similar($backend, $id, $handlerParams, ParamBag $params = null)
+    public function similar($backend, $id, $filter, ParamBag $params = null)
     {
         $params  = $params ?: new ParamBag();
-        $filter = $handlerParams['filter'] ? $handlerParams['filter'] : 'qt';
-        $handlerName = $handlerParams['handlerName'] ? $handlerParams['handlerName'] : 'morelikethis';
         $context = __FUNCTION__;
         $args = compact('backend', 'id', 'params', 'context');
         $backendInstance = $this->resolve($backend, $args);
         $args['backend_instance'] = $backendInstance;
 
-        $params->set($filter, $handlerName);
+        $params->set($filter, 'morelikethis');
 
         $this->triggerPre($backendInstance, $args);
         try {
