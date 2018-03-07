@@ -160,7 +160,7 @@ class LibrariesController extends AbstractBase
 
             $url .= "q=recordtype:library";
             $url .= "%0A";
-            $url .= "merged_child_boolean:(true)";
+            $url .= "merged_boolean:(true)";
 
             if ($query != '*') {
 
