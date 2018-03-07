@@ -21,26 +21,58 @@
 ?>
 
 <script>
-	jQuery( document ).ready( function( $ ) {
-		getCitation( '<?=$this->driver->getUniqueID()?>', false, insertCitation );
-	});
+    dataLayer.push({
+        'page': {
+            'type': 'detail'
+        }
+    });
 </script>
 
-<? if($this->refererUrl){ ?>
-	<a class='back-to-search-link' href='<?=$this->refererUrl?>' title='<?=$this->translate('Back to search results')?>'>
-		<i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
-	</a>
-<? } else { ?>
-
-    <a class='back-to-search-link' href='' title='<?=$this->translate('Back to search results')?>'>
-        <i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
-    </a>
+<? if($source != "library"): ?>
     <script>
-        $(".back-to-search-link").attr("href", document.referrer);
+        dataLayer.push({
+            'page': {
+                'category': 'record'
+            }
+        });
     </script>
+    <? if($source != "auth"): ?>
+        <script>
+            dataLayer.push({
+                'page': {
+                    'library': '<?=$source?>'
+                }
+            });
+        </script>
+    <? endif; ?>
+<? else: ?>
+    <script>
+        dataLayer.push({
+            'page': {
+                'category': 'library'
+            }
+        });
+    </script>
+<? endif; ?>
 
-<? } ?>
 
+<script>
+	jQuery( document ).ready( function( $ ) {
+		getCitation( '<?=$this->driver->getUniqueID()?>', false, insertCitation );
+    });
+</script>
+
+<a id="back-to-search-link-ID" class='back-to-search-link' href="" title='<?=$this->translate('Back to search results')?>'>
+    <i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
+</a>
+<script>
+    if (document.referrer.search("/Search/") !== -1){
+        document.getElementById("back-to-search-link-ID").classList.remove("hide");
+        document.getElementById("back-to-search-link-ID").setAttribute("href",document.referrer);
+    } else {
+        document.getElementById("back-to-search-link-ID").classList.add("hide");
+    }
+</script>
 
 <? if (isset($this->scrollData) && ($this->scrollData['previousRecord'] || $this->scrollData['nextRecord'])): ?>
   <ul class="pager hidden-print">

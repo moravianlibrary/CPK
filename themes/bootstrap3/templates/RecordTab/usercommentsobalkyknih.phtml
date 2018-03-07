@@ -24,3 +24,18 @@
     <? endif; ?>
   </div>
 </form>
+
+<script>
+    $('form[name=commentRecordObalkyKnih] .btn-primary').on('click', function() {
+        dataLayer.push({
+            'event': 'action.record',
+            'actionContext': {
+                'eventCategory': 'record',
+                'eventAction': 'comment',
+                'eventLabel': '<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    });
+</script>

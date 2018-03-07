@@ -25,16 +25,30 @@
           var referer = '<?=$this->referer?>';
           var previousRecordText = '<?=$this->translate('Switch to previous record')?>';
           var nextRecordText = '<?=$this->translate('Switch to next record')?>';
-          var extraRecords = JSON.parse( localStorage.getItem( referer ) );
+
+          try {
+            if(localStorage.getItem( referer ) !== null) {
+              var extraRecords = JSON.parse( localStorage.getItem( referer ) );
+            } else {
+              throw true;
+            }
+          } catch (e) {
+            extraRecords = [];
+          }
+
           var extraRecordsCount = extraRecords.length;
+
           var currentPosition = arraySearch( extraRecords, id );
           var html = '';
+          var isEdsDatabase = '<?=$this->isEdsDatabase?>';
+          var recordType = isEdsDatabase ? '/EdsRecord/' : '/Record/';
 
           if ( extraRecordsCount > 1 ) {
 
             if ( currentPosition > 0 ) {
-              var previousRecord = extraRecords[currentPosition-1];
-              html += "<a href='/Record/"+previousRecord+"?referer="+referer+"' title='"+previousRecordText+"'>";
+              var previousRecordId = extraRecords[currentPosition-1];
+              //create link to prev record with right record type
+              html += "<a href='" + recordType + previousRecordId + "?referer=" + referer + "' title='" + previousRecordText + "'>";
               html += "  <i class='pr-interface-arrowleft2'></i>";
               html += "</a>";
             }
@@ -42,8 +56,9 @@
             html += "<span> "+(currentPosition+1)+". <?=$this->translate('record')?></span>";
 
             if ( currentPosition < extraRecordsCount ) {
-              var nextRecord = extraRecords[currentPosition+1];
-              html += "<a href='/Record/"+nextRecord+"?referer="+referer+"' title='"+nextRecordText+"'>";
+              var nextRecordId = extraRecords[currentPosition+1];
+                //create link to next record with right record type
+              html += "<a href='" + recordType + nextRecordId + "?referer=" + referer + "' title='" + nextRecordText + "'>";
               html += "  <i class='pr-interface-arrowright2'></i>";
               html += "</a>";
             }
@@ -162,18 +177,46 @@
 </ul>
 <script>
 jQuery( document ).ready(function( $ ) {
+
 	$( '#citace-pro' ).on('click', '.citations-link', function(){
 		$( '#citationsModal' ).modal( 'show' );
+        pushRecordEventToGTM('showCitation');
 	});
+
 	$( '#permalinkItem' ).on('click', '#permalinkAnchor', function(){
 		$( '#permalinkModal' ).modal( 'show' );
+        pushRecordEventToGTM('permalink');
 	});
+
 	$( '.record-toolbar' ).on('click', '#mail-record', function(){
 		$( '#mailRecordModal' ).modal( 'show' );
+        pushRecordEventToGTM('sendEmail');
 	});
-	$( '#shareItem' ).on('click', '#shareAnchor', function(){
+
+    $( '#shareItem' ).on('click', '#shareAnchor', function(){
 		$( '#shareModal' ).modal( 'show' );
 	});
+
+    $( '.record-toolbar' ).on('click', '.export-toggle', function(){
+        pushRecordEventToGTM('export');
+    });
+
+    $( '.record-toolbar' ).on('click', '#save-record', function(){
+        pushRecordEventToGTM('favourite');
+    });
+
+    function pushRecordEventToGTM(eventAction) {
+        dataLayer.push({
+            'event': 'action.record',
+            'actionContext': {
+                'eventCategory': 'record',
+                'eventAction': eventAction,
+                'eventLabel': '<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>',
+                'eventValue': undefined,
+                'nonInteraction': false
+            }
+        });
+    }
 
 });
 </script>

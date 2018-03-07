@@ -549,7 +549,7 @@ jQuery( document ).ready( function( $ ) {
                                 $('#no-results-container').hide('blind', {}, 200, function () {
                                     $(this).css('display', 'none');
                                 });
-                                $('.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container, .save-advanced-search-results, .save-basic-search-results').show('blind', {}, 500);
+                                $('#limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container, .save-advanced-search-results, .save-basic-search-results').show('blind', {}, 500);
                             } else {
                                 //console.log(' responseData.recordTotal: ');
                                 //console.log( responseData.recordTotal );
@@ -557,7 +557,7 @@ jQuery( document ).ready( function( $ ) {
                                 $('#no-results-container strong').text(data.lookfor0[0]);
 
                                 $('#no-results-container').show('blind', {}, 500);
-                                $('.result-list-toolbar, #limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container, .save-advanced-search-results, .save-basic-search-results').hide('blind', {}, 200);
+                                $('#limit, #sort_options_1, #bulk-action-buttons-placeholder, #search-results-controls, #limit-container, .save-advanced-search-results, .save-basic-search-results').hide('blind', {}, 200);
                             }
 
                             // Let another applications know we have loaded new results ..
@@ -1013,6 +1013,19 @@ jQuery( document ).ready( function( $ ) {
 		$( '#searchForm_lookfor' ).val( '' );
 	});
 
+// Search with current filters
+    $( "#side-facets-placeholder").on( "click", ".list-group-item", function( event ) {
+        if (!$(this).is(':checked')) {
+            $(".searchFormKeepFilters").prop("checked", true)
+        } else {
+            $(".searchFormKeepFilters").prop("checked", false)
+        }
+    });
+    $( ".searchForm" ).on( "click", ".searchFormKeepFilters", function( event ) {
+        $(".searchFormKeepFilters").prop("checked", false);
+        ADVSEARCH.removeAllFilters( true );
+    });
+
 	/*
 	 * Add or remove clicked facet
 	 */
@@ -1098,14 +1111,27 @@ jQuery( document ).ready( function( $ ) {
 		}
 		
 		$( "input[name='page']" ).val( '1' );
-		
+
+		var useFacet = 1;
 		if ( $( this ).hasClass( 'active' ) ) {
 			//console.log( 'Removing facet filter.' );
+			useFacet = 0;
 			ADVSEARCH.removeFacetFilter( $( this ).attr( 'data-facet' ), true );
 		} else {
 			//console.log( 'Adding facet filter.' );
 			ADVSEARCH.addFacetFilter( $( this ).attr( 'data-facet' ), true );
 		}
+
+        dataLayer.push({
+            'event': 'action.facet',
+            'actionContext': {
+                'eventCategory': 'facet',
+                'eventAction': $(this).attr('data-facet').split(':')[0],
+                'eventLabel': $(this).attr('data-facet').split(':')[1],
+                'eventValue': useFacet,
+                'nonInteraction': false
+            }
+        });
 	});
 
     /*
@@ -1305,6 +1331,18 @@ jQuery( document ).ready( function( $ ) {
 	        			$( thisElement ).attr( 'title', VuFind.translate('Delete saved search'));
 	        			$( thisElement ).text( VuFind.translate('Delete saved search'));
 	        			$( thisElement ).attr( 'id', 'remove-from-saved-searches');
+
+                        dataLayer.push({
+                            'event': 'action.search',
+                            'actionContext': {
+                                'eventCategory': 'search',
+                                'eventAction': 'saveSearch',
+                                'eventLabel': response.data.searchTerms.join(),
+                                'eventValue': undefined,
+                                'nonInteraction': false
+                            }
+                        });
+
 	        		} else {
 	        			console.error(response.data);
 	        			var message = '';

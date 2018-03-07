@@ -359,6 +359,8 @@ function setupAutocomplete() {
             	&& (json.data.byAuthor.length > 0
             		|| json.data.byTitle.length > 0
             		|| json.data.bySubject.length > 0
+                    || json.data.byLibName.length > 0
+                    || json.data.byTown.length > 0
             	)
             ) {
               cb(json.data);
@@ -540,6 +542,59 @@ jQuery( document ).ready( function( $ ){
 		document.langForm.mylang.value = language;
 		document.langForm.submit();
 	};
+
+    $('.questionmark-help').on('click', function() {
+    dataLayer.push({
+      'event': 'action.help',
+      'actionContext': {
+        'eventCategory': 'help',
+        'eventAction': 'click',
+        'eventLabel': $(this).attr('data-target'),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+  $(document).on('click','#pay-button', function() {
+    dataLayer.push({
+      'event': 'action.account',
+      'actionContext': {
+        'eventCategory': 'account',
+        'eventAction': 'payment',
+        'eventLabel': 'fines',
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+  $(document).on('click','input[name=renewSelected],input[name=renewAll]', function() {
+    dataLayer.push({
+      'event': 'action.account',
+      'actionContext': {
+        'eventCategory': 'account',
+        'eventAction': 'prolongItem',
+        'eventLabel': undefined,
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+
+  $('input[name=placeHold]').on('click', function() {
+    dataLayer.push({
+      'event': 'action.account',
+      'actionContext': {
+        'eventCategory': 'account',
+        'eventAction': 'order',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
 
   $('.show-next-institutions').click( function () {
     var currentMenu = $(this).siblings('.scrollable-menu');

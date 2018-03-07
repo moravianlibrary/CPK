@@ -497,6 +497,7 @@ abstract class Results implements ServiceLocatorAwareInterface
         $this->queryStartTime = $minified->i;
         $this->queryTime = $minified->s;
         $this->resultTotal = $minified->r;
+        $this->searchTerms = $minified->t;
     }
 
     /**

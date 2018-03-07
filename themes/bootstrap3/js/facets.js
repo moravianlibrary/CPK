@@ -460,7 +460,7 @@ jQuery( document ).ready( function( $ ) {
     /*
      * Shake button on institution facet change
      */
-    $( 'body' ).on( 'click', '.jstree-anchor', function( event ) {
+    $( 'body' ).on( 'click', '#facet_institution .jstree-anchor', function( event ) {
         if (localStorage['facetsApplied']) {
             localStorage.setItem("facetsApplied", parseInt(parseInt(localStorage.getItem("facetsApplied")) + 1));
         }
@@ -471,7 +471,7 @@ jQuery( document ).ready( function( $ ) {
                 direction: 'right'
             }, 200);
         } else {
-            if (parseInt(localStorage.getItem("facetsApplied")) <= 1) {
+            if ($(".bootstrap-growl").length === 0) {
                 var isMobile = false; //initiate as false
                 // device detection
                 if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)

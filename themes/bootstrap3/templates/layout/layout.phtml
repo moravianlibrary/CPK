@@ -25,6 +25,14 @@
         )
       );
     ?>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-TXJ544');</script>
+    <!-- End Google Tag Manager -->
+
     <!-- RTL styling -->
     <? if ($this->layout()->rtl) {
       $this->headLink()->appendStylesheet('vendor/bootstrap-rtl.min.css');
@@ -55,6 +63,8 @@
             'in_titles' => 'in_titles',
             'in_authors' => 'in_authors',
             'in_subjects' => 'in_subjects',
+            'in_lib_names' => 'in_lib_names',
+            'in_towns' => 'in_towns',
             'citation_set_permanently' => 'citation_set_permanently',
             'records_per_page_set_permanently' => 'records_per_page_set_permanently',
             'default_sorting_set_permanently' => 'default_sorting_set_permanently',
@@ -174,6 +184,11 @@
 
         $libraryCards = [];
 
+        //variables for purposes of google analytics
+        $hashedUserId = null;
+        $listOfIdentityProviders = null;
+        $loggedIn = "Ne";
+
         $notificationsEnabled = false;
 
         if ($authManager instanceof \CPK\Auth\Manager) {
@@ -181,7 +196,10 @@
         }
 
         if ($user) {
+            $loggedIn = "Ano";
             $libraryCards = $user->getLibraryCards(false);
+            $hashedUserId = $user->getHashedId();
+            $listOfIdentityProviders = $user->getStringOfConnectedInstitutions();
         }
 
         $headerParams = [
@@ -220,6 +238,29 @@
 &noscript=1"/>
   </noscript>
   <!-- End Facebook Pixel Code -->
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXJ544"
+                      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <script>
+      dataLayer.push({
+        'page': {
+          'title': '<?=$this->headTitle()->renderTitle()?>',
+          'language': '<?=$this->layout()->userLang?>',
+          'category': undefined,
+          'type': undefined,
+          'library': undefined
+        },
+        'user': {
+          'loggedIn': '<?=$loggedIn ?>',
+          'userId': <?= empty($hashedUserId) ? "undefined" :  "'".$hashedUserId."'" ?>,
+          'loginType': <?= empty($listOfIdentityProviders) ? "undefined" :  "'".$listOfIdentityProviders."'" ?>
+        }
+
+      });
+    </script>
+
   <?=$this->render('cookies-agreement.phtml')?>
     <?=$this->render('info.phtml')?>
     <? // Set up the search box -- there are three possible cases:
@@ -314,8 +355,24 @@
 		    <? $portalPage = $this->portalPages()->getPage('moznosti-prihlaseni-a-registrace', explode("-", $this->layout()->userLang)[0]); ?>
 		    <h4 class="modal-title"><?=$portalPage['title']?></h4>
 		  </div>
-		  <div class="modal-body" data-ng-help-content hidden="hidden">
+		  <div class="modal-body" id="preregistration" data-ng-help-content hidden="hidden">
 		    <?=$portalPage['content'] ?>
+            <script>
+              $(document).ready(function () {
+                $('#preregistration a').on('click', function () {
+                  dataLayer.push({
+                    'event': 'action.account',
+                    'actionContext': {
+                      'eventCategory': 'account',
+                      'eventAction': 'register',
+                      'eventLabel': $(this).attr('href'),
+                      'eventValue': undefined,
+                      'nonInteraction': false
+                    }
+                  });
+                })
+              });
+            </script>
 		  </div>
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -366,14 +423,5 @@
       </div>
     </div>
     <? endif; ?>
-    <!-- Google Tag Manager -->
-    <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-TXJ544"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-TXJ544');</script>
-    <!-- End Google Tag Manager -->
   </body>
 </html>

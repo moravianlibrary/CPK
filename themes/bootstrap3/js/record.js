@@ -504,4 +504,95 @@ jQuery( document ).ready( function( $ ) {
               }
           }
     });
+
+  $('#mail-record').on('click', function() {
+    dataLayer.push({
+      'event': 'action.record',
+      'actionContext': {
+        'eventCategory': 'record',
+        'eventAction': 'sendEmail',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+  $('.export-toggle').on('click', function() {
+    dataLayer.push({
+      'event': 'action.record',
+      'actionContext': {
+        'eventCategory': 'record',
+        'eventAction': 'export',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+  $('#permalinkAnchor').on('click', function() {
+    dataLayer.push({
+      'event': 'action.record',
+      'actionContext': {
+        'eventCategory': 'record',
+        'eventAction': 'permalink',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+  $('#save-record').on('click', function() {
+    dataLayer.push({
+      'event': 'action.record',
+      'actionContext': {
+        'eventCategory': 'record',
+        'eventAction': 'favourite',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+  $('#citace-pro').on('click', function() {
+    dataLayer.push({
+      'event': 'action.record',
+      'actionContext': {
+        'eventCategory': 'record',
+        'eventAction': 'showCitation',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
+  $('#e-version-table a').on('click', function() {
+    dataLayer.push({
+      'event': 'action.record',
+      'actionContext': {
+        'eventCategory': 'record',
+        'eventAction': 'ebook',
+        'eventLabel': $('input.hiddenId').val(),
+        'eventValue': undefined,
+        'nonInteraction': false
+      }
+    });
+  });
+
 });
+
+/**
+ * Smooth scroll to the top of the element
+ *
+ * @param	{string}	elementId
+ * @return	{undefined}
+ */
+var smoothScrollToElement = function( elementId ) {
+    $( 'html,body' ).animate( {
+        scrollTop: $( elementId ).offset().top
+    }, 1000);
+};

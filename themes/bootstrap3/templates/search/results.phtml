@@ -123,6 +123,14 @@ $this->headScript()->appendFile("markerclusterer.js");
   }
 
 ?>
+<script>
+    dataLayer.push({
+        'page': {
+            'category': 'search',
+            'type': 'list'
+        }
+    });
+</script>
 <div id='search-result-list' class="search-result-list">
     <div class='row' id='flashedMessage' style='display: none;'>
       <div class='col-sm-12'>
@@ -204,23 +212,22 @@ $this->headScript()->appendFile("markerclusterer.js");
       </div>
       <? /* End Narrow Search Options */ ?>
     </div>
+
     <div class='row' id='search-result-list'>
       <div class='col-sm-12 pull-right'>
-        <? if ($recordTotal > 0): ?>
-          	<div class="result-list-toolbar hidden-print" style='font-size: 120%;'>
-          	    <a href="<?=$this->url('search-history')?>" title='<?=$this->transEsc('Search History')?>'><i class="pr-interface-search"></i> <?=$this->transEsc('Search History')?></a>
-        		&nbsp;|&nbsp;
-                <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link mail-record-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>">
-                	<i class="icon-poslat-emailem"></i> <?=$this->transEsc('Email this Search')?>
-                </a>
-                &nbsp;|&nbsp;
-                <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
-                	<i class="fa fa-feed pointer"></i> <?=$this->translate('RSS')?>
-                </a>
-                &nbsp;
-                <?= $this->help()->getQuestionMarkHelp('search-results-rss') ?>
-              </div>
-    	  <? endif; ?>
+          <div class="result-list-toolbar hidden-print" style='font-size: 120%;'>
+              <a href="<?=$this->url('search-history')?>" title='<?=$this->transEsc('Search History')?>'><i class="pr-interface-search"></i> <?=$this->transEsc('Search History')?></a>
+              &nbsp;|&nbsp;
+              <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link mail-record-link" id="mailSearch<?=$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>">
+                  <i class="icon-poslat-emailem"></i> <?=$this->transEsc('Email this Search')?>
+              </a>
+              &nbsp;|&nbsp;
+              <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
+                  <i class="fa fa-feed pointer"></i> <?=$this->translate('RSS')?>
+              </a>
+              &nbsp;
+              <?= $this->help()->getQuestionMarkHelp('search-results-rss') ?>
+          </div>
       </div>
     </div>
 </div>

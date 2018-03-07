@@ -74,9 +74,10 @@
             data[i] = {val: data[i]};
           }
           var content = data[i].val;
+          var searchUrlType = (searchType == 'Libraries_towns') ? 'Libraries' : searchType;
           data[i].href = '/Search/Results?lookfor0[]='
         	  			+ encodeURIComponent(content).replace("/\+/g", "%20")
-        	  			+ '&type0[]='+searchType+'&limit=10&sort=relevance&searchTypeTemplate=basic&bool0[]=AND&join=AND';
+        	  			+ '&type0[]='+searchUrlType+'&limit=10&sort=relevance&searchTypeTemplate=basic&bool0[]=AND&join=AND';
           if (options.highlight) {
             // escape term for regex
             // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
@@ -116,25 +117,60 @@
     	createListFrom(shell, input, data, VuFind.translate('in_subjects'), false, 'adv_search_subject_keywords');
     }
 
+    function createLibNamesListFrom(shell, input, data, category, main) {
+        createListFrom(shell, input, data, VuFind.translate('in_lib_names'), false, 'Libraries');
+    }
+
+    function createTownsListFrom(shell, input, data, category, main) {
+        createListFrom(shell, input, data, VuFind.translate('in_towns'), false, 'Libraries_towns');
+    }
+
     function createList(data, input) {
       var shell = $('<div/>');
+      var type = $('#librariesSearchLink').hasClass('active') ? 'Libraries' : '';
 
-      if((data.byTitle.length > 0) || (data.byAuthor.length > 0) || (data.bySubject.length > 0)) {
-    	  createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":", true);
-      }
-      
-      if(data.byTitle.length > 0) {
-    	  createTitlesListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
-      }
-      if(data.byAuthor.length > 0) {
-    	  createAuthorsListFrom(shell, input, data.byAuthor,VuFind.translate('in_authors'), false);
-      }
-      if(data.bySubject.length > 0) {
-    	  createSubjectsListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
+      if (type == 'Libraries') {
+        if((data.byLibName.length > 0) || (data.byTown.length > 0)) {
+            createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring')+":", true);
+        }
+
+        if(data.byLibName.length > 0) {
+            createLibNamesListFrom(shell, input, data.byLibName, VuFind.translate('in_lib_names'), false);
+        }
+
+        if(data.byTown.length > 0) {
+            createTownsListFrom(shell, input, data.byTown, VuFind.translate('in_towns'), false);
+        }
+      } else {
+        if ((data.byTitle.length > 0) || (data.byAuthor.length > 0) || (data.bySubject.length > 0)) {
+            createListFrom(shell, input, {}, VuFind.translate('The most commonly occurring') + ":", true);
+        }
+
+        if (data.byTitle.length > 0) {
+            createTitlesListFrom(shell, input, data.byTitle, VuFind.translate('in_titles'), false);
+        }
+
+        if (data.byAuthor.length > 0) {
+            createAuthorsListFrom(shell, input, data.byAuthor, VuFind.translate('in_authors'), false);
+        }
+
+        if (data.bySubject.length > 0) {
+            createSubjectsListFrom(shell, input, data.bySubject, VuFind.translate('in_subjects'), false);
+        }
       }
 
       $.fn.autocompleteVufind.element.html(shell);
       $.fn.autocompleteVufind.element.find('.item').mousedown(function() {
+        dataLayer.push({
+          'event': 'action.search',
+          'actionContext': {
+            'eventCategory': 'search',
+            'eventAction': 'fulltext',
+            'eventLabel': $(this).attr('data-value'),
+            'eventValue': undefined,
+            'nonInteraction': false
+          }
+        });
         populate($(this).attr('data-value'), input, {mouse: true}, true, $(this).attr('id'));
       });
       align(input, $.fn.autocompleteVufind.element);
@@ -288,6 +324,16 @@
             if (selected.length > 0) {
               event.preventDefault();
               if (event.which === 13 && selected.attr('href')) {
+                dataLayer.push({
+                  'event': 'action.search',
+                  'actionContext': {
+                    'eventCategory': 'search',
+                    'eventAction': 'fulltext',
+                    'eventLabel': selected.attr('data-value'),
+                    'eventValue': undefined,
+                    'nonInteraction': false
+                  }
+                });
                 location.assign(selected.attr('href'));
               } else {
                 populate(selected.attr('data-value'), $(this), element, {key: true});

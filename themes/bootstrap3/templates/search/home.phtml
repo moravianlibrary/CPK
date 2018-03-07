@@ -34,7 +34,13 @@
       <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
     </div>
   <? endif; ?>
-
+  <script>
+    dataLayer.push({
+      'page': {
+        'category': 'frontpage'
+      }
+    });
+  </script>
   <? foreach ($this->widgets as $widgetsList): foreach ($widgetsList as $widget): ?>
     <? if ($widget->getName() == 'infobox') : ?>
 	  <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>

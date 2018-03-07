@@ -2064,13 +2064,17 @@ class AjaxController extends AjaxControllerBase
             $search = $this->getTable('Search');
             if (($id = $this->params()->fromPost('searchId', false)) !== false) {
                 $search->setSavedFlag($id, true, $user->id);
+
+                $searchController = $this->getServiceLocator()->get('searchController');
+                $searchTerms = $searchController->getSearchTermsFromSearch($searchId);
+
             } else {
                 return $this->output(['Missing searchId for save search action.'], self::STATUS_ERROR);
             }
         } catch (\Exception $e) {
             return $this->output([$e->getMessage()], self::STATUS_ERROR);
         }
-        return $this->output([], self::STATUS_OK);
+        return $this->output(['searchTerms' => $searchTerms], self::STATUS_OK);
     }
 
     /**
@@ -2383,6 +2387,17 @@ class AjaxController extends AjaxControllerBase
             return $this->output(['recordId' => $recordId, 'message' => 'RECORD NOT LOADED', 'not_ok_messages' => $not_ok_messages,], self::STATUS_NOT_OK);
         }
 
+        $containsFulltext = $recordDriver->containsFulltext();
+
+        if ($containsFulltext) {
+            $output = [
+                'message' => 'Record contains free fulltext',
+                'not_ok_messages' => $not_ok_messages,
+            ];
+
+            return $this->output($output, self::STATUS_OK);
+        }
+
         $issns = $recordDriver->getIssns() != false ? $recordDriver->getIssns() : [];
         $electronicIssns = $recordDriver->getElectronicIssns() != false ? $recordDriver->getElectronicIssns() : [];
         $issns = array_merge($issns, $electronicIssns);
@@ -2471,10 +2486,22 @@ class AjaxController extends AjaxControllerBase
                         } else {
                             $anchor = $this->translate(strtoupper($sfxSource));
                         }
+                        
 
-                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$anchor."</a>";
+                        $link = sprintf(
+                            '<a href="%s" target="_blank" title="%s">%s</a>',
+                            $record['sfx_url_txt'],
+                            $this->translate('Fulltext'),
+                            $anchor
+                        );
+
                         if ($embargo) {
-                            $link .= " *";
+                            $embargoText = $this->translate(explode(' ', trim($embargo))[0]).
+                                " ".explode(' ', trim($embargo))[1];
+                            $link .= sprintf(
+                                '<span class="eds-results-embargo" data-toggle="tooltip" title="%s"> *</span>',
+                                $embargoText
+                            );
                         }
 
                         $htmlLinks[$sfxSource][] = $link;

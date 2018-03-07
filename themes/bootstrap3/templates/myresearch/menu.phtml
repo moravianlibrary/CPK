@@ -1,3 +1,10 @@
+<script>
+    dataLayer.push({
+        'page': {
+            'category': 'account'
+        }
+    });
+</script>
 <h4><?=$this->transEsc('Your Account')?></h4>
 <ul class="list-group">
   <? $user = $this->auth()->isLoggedIn(); if ($user['home_library'] !== 'Dummy'): ?>
