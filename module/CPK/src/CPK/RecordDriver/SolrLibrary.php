@@ -122,15 +122,6 @@ class SolrLibrary extends ParentSolrMarc
 
     /**
      *
-     * @return string
-     */
-    public function getLibType()
-    {
-        return isset($this->fields['type_display']) ? $this->fields['type_display'] : '';
-    }
-
-    /**
-     *
      * @return array
      */
     public function getLibUrl()
@@ -165,15 +156,6 @@ class SolrLibrary extends ParentSolrMarc
         }
         return $result;
 
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getMvsNote()
-    {
-        return isset($this->fields['mvs_display_mv']) ? $this->fields['mvs_display_mv'] :[];
     }
 
     /**
@@ -219,15 +201,6 @@ class SolrLibrary extends ParentSolrMarc
     public function getEmail()
     {
         return isset($this->fields['email_display_mv']) ? $this->fields['email_display_mv'] : [];
-    }
-
-    /**
-     *
-     * @return array
-     */
-    public function getFax()
-    {
-        return isset($this->fields['fax_display_mv']) ? $this->fields['fax_display_mv'] : [];
     }
 
     /**
