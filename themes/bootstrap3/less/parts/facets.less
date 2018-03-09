@@ -24,7 +24,7 @@
     margin-left: -18px;
     font-size: 20px;
     margin-top: -5px;
-    color: #e5004b
+    color: @brand-primary;
   }
 
   .btn-default {
@@ -85,12 +85,12 @@
 
   #side-panel-institution {
     background-color: @light-grey;
-    color: #111;
+    color: @lightbg-text;
   }
 
   #side-panel-eds-filters {
     background-color: @light-grey;
-    color: #111;
+    color: @lightbg-text;
     padding: 4px 10px 4px 10px;
 
     label {
@@ -124,11 +124,11 @@ li.jstree-facet ul {
 .sidebar .list-group:not(.filters) {
   .title::after {
       content: none;
-      color: #e5004b !important;
+      color: @brand-primary !important;
   }
 
   .title.collapsed::after {
-      color: #e5004b !important;
+      color: @brand-primary !important;
       content: none;
   }
 
@@ -187,8 +187,8 @@ li.jstree-facet ul {
 .geo-denied {
   display: none;
   text-align: center;
-  color: #ca1010;
-  border: 1px solid red;
+  color: @brand-danger;
+  border: 1px solid @brand-danger;
   padding: 10px;
   font-size: 20px;
 }
