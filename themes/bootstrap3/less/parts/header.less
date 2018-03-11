@@ -136,14 +136,50 @@ tr.link {
   cursor: pointer;
 }
 
-#loginOptions {
-  padding-top: 12px !important;
+/*.loginOptions {
+  padding-top: 15px;
   padding-bottom: 14.5px;
   line-height: 21px;
   position: relative;
   display: block;
-  padding: 10px 15px;
+  //padding: 10px 15px;
   cursor: pointer;
   color: @brand-primary;
   text-decoration: none;
+  .questionmark-help {
+    margin-right: 15px;
+    //position: relative;
+    //bottom: 3px;
+  }
+  .icon {
+    color: white;
+  }
+  .login-button {
+    margin-left: 15px;
+    margin-right: 5px;
+  }
+
+}*/
+.loginOptions {
+  line-height: 21px;
+  height: 48px;
+  position: relative;
+  display: inline-block;
+  color: @brand-primary;
+  text-decoration: none;
+}
+#login-button {
+  padding: 15px 14.5px;
+  padding-right: 5px;
+  float: left;
+  cursor: pointer;
+  &:hover {
+    color: black;
+  }
+}
+#login-help3 {
+  float: right;
+  padding: 0;
+  margin-right: 15px;
+  margin-top: 11.5px;
 }

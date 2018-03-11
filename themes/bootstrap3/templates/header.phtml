@@ -109,9 +109,13 @@
 
         <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
           <? if(! $user): ?>
-			<li id="loginOptions">
+            <li class="loginOptions">
+			<div id="login-button" onclick='$("div#loginModal").modal("show")'>
                <?=$this->render('Auth/Shibboleth/login.phtml') ?>
-               <?= $this->help()->getQuestionMarkHelp('login') ?>
+            </div>
+            <div id='login-help3'>
+                <?= $this->help()->getQuestionMarkHelp('login') ?>
+            </div>
             </li>
           <? endif; ?>
 		<? endif; ?>

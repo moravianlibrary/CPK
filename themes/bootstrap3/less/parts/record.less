@@ -121,9 +121,15 @@ body .well.similar-item {
     }
     .information {
         display: inline-block;
-        padding: 4px 5px 4px 5px;
-        border: 1px solid @grey-color;
-        margin-top: 10px;
+        padding: 4px 4px 4px 5px;
+        //border: 1px solid @grey-color;
+        margin-top: 9px;
+      background-color: @body-bg;
+      border: 1px solid @light-grey;
+      &:hover, &:focus {
+        background-color: white;
+        border: 1px solid @light-grey;
+      }
     }
     a {
         line-height: 19px;
@@ -172,12 +178,17 @@ body .well.similar-item {
     font-size: 120%;
     li.active {
         font-weight: bold;
+        background-color: white;
+        border: 1px solid @border-color;
+        border-bottom: none;
         a {
-            border: none;
+          background-color: white;
+          border: none;
         }
-        a:hover{
-            border: none;
-        }
+      a:hover {
+        background-color: white;
+        border: none;
+      }
     }
     li a:hover{
         background: none;
@@ -192,11 +203,16 @@ body .well.similar-item {
     font-size: 110%;
     cursor: pointer;
     text-align: center;
-    border: 2px solid @brand-primary;
+    border: 2px solid @primary-darken;
     padding: 7px 0px 4px 0px;
     margin: 0px 4px 10px 4px;
     text-transform: uppercase;
     font-weight: bold;
+  &:hover, &:focus {
+    color: #fff;
+    background-color: @primary-darken;
+    border: 2px solid @primary-darken;
+  }
 }
 
 @media only screen and (max-width: 768px) {
@@ -211,13 +227,6 @@ body .well.similar-item {
   .eds-want-it {
     width: 280px;
   }
-}
-
-
-
-.want-it:hover, .eds-want-it:hover {
-    background-color: #fff;
-    color: @brand-primary;
 }
 
 .eds-cover-icon {
