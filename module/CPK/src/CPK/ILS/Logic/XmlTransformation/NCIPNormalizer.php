@@ -771,6 +771,23 @@ class NCIPNormalizer implements LoggerAwareInterface
 
             $items = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet', 'ItemInformation');
 
+
+            // Just make sure it is an array before the manipulation
+            $response->unsetDataValue(
+                'ns1:LookupItemSetResponse',
+                'ns1:BibInformation',
+                'ns1:HoldingsSet',
+                'ns1:ItemInformation'
+            );
+
+            $response->setDataValue(
+                $items,
+                'ns1:LookupItemSetResponse',
+                'ns1:BibInformation',
+                'ns1:HoldingsSet',
+                'ns1:ItemInformation'
+            );
+
             foreach ($items as $i => $itemInformation) {
 
                 // Fix the status if needed ..
