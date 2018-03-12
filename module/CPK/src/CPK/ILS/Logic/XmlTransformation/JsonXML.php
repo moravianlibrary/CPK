@@ -594,7 +594,7 @@ class JsonXML implements \ArrayAccess, \Iterator
      */
     public function getArrayRelative($rootElement, ...$relativePathParts)
     {
-        $data = $this->getRelativeObject($rootElement, ...$relativePathParts);
+        $data = $this->getRelative($rootElement, ...$relativePathParts);
 
         if ($data === null)
             return array();
