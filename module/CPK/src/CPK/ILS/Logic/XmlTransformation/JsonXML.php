@@ -378,6 +378,30 @@ class JsonXML implements \ArrayAccess, \Iterator
         if (sizeof($absolutePathParts) === 0)
             throw new JsonXMLException('You must specify the path');
 
+        $foundRoot = FALSE;
+        foreach(array_keys($this->representation) as $rootElement) {
+            $colonIndex = strpos($rootElement, ':');
+
+            if ($colonIndex === FALSE)
+                continue;
+
+            if (
+                substr($rootElement, 0, $colonIndex) === substr($absolutePathParts[0], 0, $colonIndex)
+                && $rootElement === $absolutePathParts[0]
+            )
+                $foundRoot = TRUE;
+        }
+
+        // Remove the namespace if not operating in any ..
+        if (!$foundRoot) {
+            $newAbsolutePathParts = array();
+            foreach ($absolutePathParts as $absolutePathPart) {
+                $colonIndex = strpos($absolutePathPart, ':');
+                $newAbsolutePathParts[] = substr($absolutePathPart, ++$colonIndex);
+            }
+            $absolutePathParts = $newAbsolutePathParts;
+        }
+
         // Setting data value to null means we want to unset that path
         if ($dataValue === null) {
             return $this->unsetDataValue(...$absolutePathParts);
