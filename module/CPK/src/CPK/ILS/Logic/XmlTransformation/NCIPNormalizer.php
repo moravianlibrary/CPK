@@ -905,7 +905,6 @@ class NCIPNormalizer implements LoggerAwareInterface
                         }
                     }
 
-
                     if ($department !== null) {
 
                         // parse department properly
@@ -958,6 +957,43 @@ class NCIPNormalizer implements LoggerAwareInterface
 
 
         } // End of NLK (ABA008)
+
+        if ($this->agency === 'ABG001') { // mkp
+
+            $itemInformations = $response->get(
+                'LookupItemSetResponse', 'BibInformation', 'HoldingsSet', 'ItemInformation'
+            );
+
+            foreach ($itemInformations as $i => $itemInformation) {
+                $dateDue = $response->getRelative($itemInformation, 'ItemOptionalFields', 'DateDue');
+                $status = $response->getRelative($itemInformation, 'ItemOptionalFields', 'CirculationStatus');
+
+                if ($status) {
+                    $newStatus = $this->normalizeStatus($status);
+                    $response->setDataValue(
+                        $newStatus,
+                        'ns1:LookupItemSetResponse',
+                        'ns1:BibInformation',
+                        'ns1:HoldingsSet',
+                        "ns1:ItemInformation[$i]",
+                        'ns1:ItemOptionalFields',
+                        'ns1:CirculationStatus'
+                    );
+                }
+
+                if ($dateDue) {
+                    $response->setDataValue(
+                        $dateDue,
+                        'ns1:LookupItemSetResponse',
+                        'ns1:BibInformation',
+                        'ns1:HoldingsSet',
+                        "ns1:ItemInformation[$i]",
+                        'ns1:DateDue'
+                    );
+                }
+            }
+
+        } // End of MKP
     }
 
     /**
