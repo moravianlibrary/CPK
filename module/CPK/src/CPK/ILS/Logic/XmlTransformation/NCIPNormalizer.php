@@ -1038,12 +1038,22 @@ class NCIPNormalizer implements LoggerAwareInterface
                     'dateDue'
                 );
 
-                $response->setDataValue(
-                    $dateDue,
-                    'ns1:LookupUserResponse',
-                    "ns1:LoanedItem[$i]",
-                    'ns1:DateDue'
-                );
+                $usesNamespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject());
+
+                if ($usesNamespace)
+                    $response->setDataValue(
+                        $dateDue,
+                        'ns1:LookupUserResponse',
+                        "ns1:LoanedItem[$i]",
+                        'ns1:DateDue'
+                    );
+                else
+                    $response->setDataValue(
+                        $dateDue,
+                        'LookupUserResponse',
+                        "LoanedItem[$i]",
+                        'DateDue'
+                    );
             }
         }
     }
