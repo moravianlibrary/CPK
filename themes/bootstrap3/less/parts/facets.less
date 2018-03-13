@@ -20,12 +20,6 @@
     color: grey;
     background-color: transparent;
   }
-  .jstree-ocl:before {
-    margin-left: -18px;
-    font-size: 20px;
-    margin-top: -5px;
-    color: @brand-primary;
-  }
 
   .btn-default {
     color: @brand-primary;
@@ -134,24 +128,60 @@ li.jstree-facet ul {
 
 }
 
-.sidebar .facet .jstree-default{
-  .jstree-ocl:before {
-    font-family: 'pr-icons' !important;
+.sidebar .facet .jstree-facet{
+  .jstree-icon {
+    font-family: 'pr-icons';
+    color: @brand-primary;
+    font-size: 18px;
+  }
+  .jstree-icon:before {
+    font-family: 'pr-icons';
+    color: @brand-primary;
+    font-size: 16px;
+    font-style: normal;
+  }
+  a:hover {
+    font-weight: bold;
+  }
+  .jstree-ocl:before  {
+    margin-left: 5px;
     font-size: inherit;
-    margin-top: 0px;
+    margin-top: 0;
   }
   .jstree-open > .jstree-ocl:before {
-    // pr-interface-arrowbottom4
     content: "\ead9";
-    font-size: 20px;
-    margin-top: -3px;
-    margin-left: -20px;
+    margin-top: 0;
   }
   .jstree-closed > .jstree-ocl:before {
-    // pr-interface-arrowright5
     content: "\ead8";
-    font-size: 20px;
-    margin-top: -3px;
+  }
+
+  //checkbox nezakliknut
+  // eae2
+  .jstree-checkbox:before {
+    content: "\ebd4";
+    color: grey;
+  }
+
+  //checkbox zakliknut
+  .active .jstree-checkbox:before, .jstree-clicked .jstree-checkbox:before {
+    content: "\eb06";
+    color: @brand-primary
+  }
+
+  //checkbox castecne
+  .jstree-undetermined:before {
+    content: "\e92c";
+    color: @brand-primary
+  }
+  span {
+    font-family: @font-family-sans-serif !important;
+  }
+  .main {
+    padding-top: 2px;
+  }
+  .badge {
+    padding-top: 4px;
   }
 }
 

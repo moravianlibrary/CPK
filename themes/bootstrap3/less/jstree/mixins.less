@@ -42,9 +42,12 @@
 	}
 
 	.jstree-node,
-	.jstree-icon {
-		background-size: 320px 96px;
-		background-image:url("@{image}.png");
+	.jstree-icon:before {
+		//background-size: 320px 96px;
+		//background-color: #0e9932;
+		//font-family: 'pr-icons' !important;
+		//font-size: inherit;
+		//content: "\ead8";
 	}
 	.jstree-node {
 		background-position:-(@image-height * 9 + @correction) -@correction;
