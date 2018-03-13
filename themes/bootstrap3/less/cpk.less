@@ -283,10 +283,31 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
 
 #conspectus i.pr-institution-arrow:before {
     content: "\ead8";
-    color: #e5004b;
+    color: @brand-primary;
     font-size: 17px;
 }
 
 #conspectus i.pr-institution-arrow {
     margin-top: 4px;
+}
+
+code {
+  color: @brand-primary;
+  background: @primary-lighten;
+}
+
+.primary-darken-text {
+  color: @primary-darken !important;
+}
+
+.primary-darken-bg {
+  background-color: @primary-darken !important;
+}
+
+.primary-lighten-text {
+  color: @primary-lighten !important;
+}
+
+.primary-lighten-bg {
+  background-color: @primary-lighten !important;
 }

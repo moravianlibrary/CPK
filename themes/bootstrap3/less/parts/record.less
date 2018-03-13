@@ -253,3 +253,13 @@ body .well.similar-item {
   }
 }
 
+#email-record input[type=submit], #help input[type=submit], #bugreport input[type=submit], .modal input[type=submit] {
+  background-color: @primary;
+  color: white;
+  border: 2px solid @primary-darken;
+  &:hover, &:focus {
+    color: #fff;
+    background-color: @primary-darken;
+    border: 2px solid @primary-darken;
+  }
+}

@@ -10,14 +10,14 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     var facetName = lastFacetInString.split( '%3A' ).shift().substring(1);
     var facetFilterBase = facetName + ':"' + this.value + '"';
     var facetFilter;
-    if (this.operator == 'OR') {
+    if (this.operator === 'OR') {
       facetFilter = '~' + facetFilterBase;
     } else {
       facetFilter = facetFilterBase;
     }
     if (!this.isApplied && counts) {
       html = "<span class='badge";
-      if (facetName == "cpk_detected_format_facet_str_mv") {
+      if (facetName === "cpk_detected_format_facet_str_mv") {
           html += " show-numbers";
       }
 
@@ -38,15 +38,15 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     url.replace("'", "\\'");
     html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "");
 
-    if (facetName == "local_institution_facet_str_mv" ) {
+    if (facetName === "local_institution_facet_str_mv" ) {
         html +="";
     }
     else {
-        if (facetName == "local_statuses_facet_str_mv" || facetName == "cpk_detected_format_facet_str_mv") {
+        if (facetName === "local_statuses_facet_str_mv" || facetName === "cpk_detected_format_facet_str_mv") {
             html += "";
         }
         else {
-            if (facetName == "conspectus_str_mv" ) {
+            if (facetName === "conspectus_str_mv" ) {
                 html += "";
             }
             else {
@@ -56,7 +56,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     }
 
     html += "' title='" + htmlEncode(this.tooltiptext) + "'>";
-    if (this.operator == 'OR') {
+    if (this.operator === 'OR') {
       if (this.isApplied) {
         html += '<i class="fa fa-check-square-o"></i>';
       } else {
@@ -65,7 +65,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     } else if (this.isApplied) {
       html += '<i class="fa fa-check pull-right"></i>';
     }
-    if (this.displayText == 'online') {
+    if (this.displayText === 'online') {
     	html += ' <b>' + this.displayText + '<b>';
     } else {
     	html += ' ' + this.displayText;
@@ -76,27 +76,27 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     if (typeof this.children !== 'undefined' && this.children.length > 0) {
       children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
     }
-    
+
     var appliedFacetFilters = [];
-    
+
     $( '#hiddenFacetFilters .hidden-filter' ).each( function( index, element ) {
 		//if( $( element ).val() != facetFilter) {
 			appliedFacetFilters.push($( element ).val());
 		//}
     });
-    
+
     var filters = appliedFacetFilters;
-    
+
     // Add current facetFilter to applied facetFilters
     filters.push(facetFilter);
-    
+
     //console.log( 'Compressed facetFilters:' );
     var filtersAsString = filters.join( '|' );
-    
+
     //console.log( 'Compressed facetFilters:' );
     var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
-    
-      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv" || facetName == "cpk_detected_format_facet_str_mv" || facetName == "region_disctrict_facet_str_mv") {
+
+      if (facetName === "local_statuses_facet_str_mv" || facetName === "conspectus_str_mv" || facetName === "cpk_detected_format_facet_str_mv" || facetName === "region_disctrict_facet_str_mv") {
           json.push({
               'id': facetFilter,
               'text': html,
@@ -106,7 +106,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
                   'opened': this.hasAppliedChildren,
                   'selected': this.isApplied
               },
-              'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
+              'li_attr': (this.count === 0) ? { 'class': 'emptyFacet' } : {},
               'a_attr': this.isApplied ? { 'class': 'active facet-filter-or' } :
               { 'href': window.location.href + "&filter%5B%5D=" + compressedFilters ,
                   'class' : 'facet-filter-or'
@@ -123,7 +123,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
                   'opened': this.hasAppliedChildren,
                   'selected': this.isApplied
               },
-              'li_attr': (this.count == 0) ? {'class': 'emptyFacet'} : {},
+              'li_attr': (this.count === 0) ? {'class': 'emptyFacet'} : {},
               'a_attr': this.isApplied ? {'class': 'active'} :
               {
                   'href': window.location.href + "&filter%5B%5D=" + compressedFilters,
@@ -164,7 +164,7 @@ function initFacetTree(treeNode, inSidebar)
       facetOperator: operator
     },
     function(response, textStatus) {
-      if (response.status == "OK") {
+      if (response.status === "OK") {
         var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
         treeNode.find('.fa-spinner').parent().remove();
         if (inSidebar) {
@@ -198,7 +198,6 @@ function initFacetOrTree(treeNode, inSidebar)
     var excludeTitle = treeNode.data('exclude-title');
     var sort = treeNode.data('sort');
     var query = window.location.href.split('?')[1];
-
     if (inSidebar) {
         treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
     } else {
@@ -212,7 +211,7 @@ function initFacetOrTree(treeNode, inSidebar)
             facetOperator: operator
         },
         function(response, textStatus) {
-            if (response.status == "OK") {
+            if (response.status === "OK") {
                 var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
                 treeNode.find('.fa-spinner').parent().remove();
                 if (inSidebar) {
@@ -267,7 +266,7 @@ function initInstitutionsTree(treeNode, inSidebar)
       facetOperator: operator
     },
     function(response, textStatus) {
-      if (response.status == "OK") {
+      if (response.status === "OK") {
         var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
         treeNode.find('.fa-spinner').parent().remove();
         if (inSidebar) {
