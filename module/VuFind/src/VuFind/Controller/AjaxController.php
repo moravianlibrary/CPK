@@ -1391,6 +1391,7 @@ class AjaxController extends AbstractBase
      */
     protected function isLoggedInAjax()
     {
+        $this->writeSession();  // avoid session write timing bug
         return $this->output([], $this->getUser() ? self::STATUS_OK : self::STATUS_NEED_AUTH);
     }
 }
