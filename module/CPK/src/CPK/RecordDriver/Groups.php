@@ -37,12 +37,12 @@ class Groups
     }
 
     public function getInternalMultiplicity($dedupedRecords, $institution){
-        $Records = array();
+        $records = array();
         foreach ($dedupedRecords as $key => $record) {
             if (strpos('.'.$institution,substr($record['source'], 7)) && $institution !== $record['id']) {
-                array_push($Records, $record['id']);
+                array_push($records, $record['id']);
             }
         }
-        return $Records;
+        return $records;
     }
 }

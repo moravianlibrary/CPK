@@ -2,13 +2,13 @@
 
   	<?php
         $dedupedRecords = array();
-        $InternalMultiplicity = array();
+        $internalMultiplicity = array();
         if (isset($this->tabs['DedupedRecords'])) {
             $dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
             $currentInstitution = $this->driver->getUniqueId();
             $groups = new \CPK\RecordDriver\Groups();
             $dedupedRecords = $groups->getSortRecords($dedupedRecords);
-            $InternalMultiplicity = $groups->getInternalMultiplicity($dedupedRecords, $currentInstitution);
+            $internalMultiplicity = $groups->getInternalMultiplicity($dedupedRecords, $currentInstitution);
             $recordSource = explode(".", $currentInstitution)[0];
             $currentInstitutionName = "source_".$recordSource;
         }
@@ -62,11 +62,11 @@
             }
             ?>
         </ul>
-        <? if (count($InternalMultiplicity) > 0): ?>
+        <? if (count($internalMultiplicity) > 0): ?>
             <?=
             $this->translate('The library has another record(s) for this publication');
             ?>
-            <? foreach ($InternalMultiplicity as $key => $UID):?>
+            <? foreach ($internalMultiplicity as $key => $UID):?>
                 <? if($key > 0): ?>
                     <?=
                     $this->translate('conjunction_or');
