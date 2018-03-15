@@ -182,7 +182,11 @@
                     <? if (! empty($formats)): ?>
                         <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-format-<?=$this->record($this->driver)->getFormatClass($formats[0])?>"></i></div>
                     <? elseif ($summThumb = $this->record($this->driver)->getThumbnail()): ?>
-                        <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                        <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+                            <div class="iconlabel"><i style="font-size: 70px; color: #cccccc;" class="pr-user-single5"></i></div>
+                        <? else: ?>
+                            <img class="recordcover" src="<?=$this->escapeHtmlAttr($summThumb)?>" alt="<?=$this->transEsc('Cover Image')?>"/>
+                        <? endif; ?>
                     <? else: ?>
                         <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
                     <? endif; ?>
