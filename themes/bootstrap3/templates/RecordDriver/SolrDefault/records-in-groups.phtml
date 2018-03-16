@@ -1,82 +1,65 @@
 <div style='padding: 0px !important;'>
-
-  	<?php
-        $dedupedRecords = array();
-        $internalMultiplicity = array();
-        if (isset($this->tabs['DedupedRecords'])) {
-            $dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
-            $currentInstitution = $this->driver->getUniqueId();
-            $groups = new \CPK\RecordDriver\Groups();
-            $dedupedRecords = $groups->getSortRecords($dedupedRecords);
-            $internalMultiplicity = $groups->getInternalMultiplicity($dedupedRecords, $currentInstitution);
-            $recordSource = explode(".", $currentInstitution)[0];
-            $currentInstitutionName = "source_".$recordSource;
-        }
-  	?>
-
-
-	<? if (count($dedupedRecords) !== 1) :?>
-	<div class="dropdown">
-		<div class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' style='width: 100%;' id='records-in-groups-nav'>
-		<h3 style="margin-top: 5px; margin-bottom: 5px; padding: 0px 0px 20px 0px">
-	<? else : ?>
-	<div>
-		<div class='single-institution' style='width: 100%;'>
-		<h3 style="margin-top: 5px; margin-bottom: 5px; padding: 10px 10px 30px 10px;">
-	<? endif;?>
-
-			<? if (file_exists(__DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png')) : ?>
-				<img class='hidden-xs' height='20' src='<?='/themes/bootstrap3/images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png'?>' align='left' style='margin-right: 8px;'>
-			<? endif;?>
-
-			<span>
-				<span class='pull-left' style='padding-bottom: 6px;'><?=$this->translate($currentInstitutionName)?></span>
-
-				<? if (count($dedupedRecords) !== 1) : ?>
-					<i class='pr-interface-arrowbottom4 pull-right' align='right' style='display: block;'></i>
-				<? endif;?>
-			</span>
-			</h3>
-
-		</div>
-		<ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
-			<?
-            foreach ($dedupedRecords as $record) {
-                $link = $record['id'];
-                $source = $record['source'];
-                $sourceWithoutPrefix = substr($source, 7);
-
-                echo "<li><a href='".$this->url('record', array('id' => $link))."?referer=".$this->referer."#records-in-groups' title='".$this->translate($source)."'><div class='record-group-list-item'>";
-
-                $logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
-                $logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
-                $logoIsAvailable = file_exists($logoPath);
-
-                if ($logoIsAvailable)
-                    echo "<img class='hidden-xs pull-right' height='16' src='".$logoUrl."'>";
-
-                $color = ($currentInstitution == $link)? "style='font-weight: bold !important;'" : "";
-                echo "<span " .$color. ">".$this->translate($source)."</span>";
-
-                echo "</div></a></li>";
-            }
-            ?>
-        </ul>
-        <? if (count($internalMultiplicity) > 0): ?>
-            <?=
-            $this->translate('The library has another record(s) for this publication');
-            ?>
-            <? foreach ($internalMultiplicity as $key => $UID):?>
-                <? if($key > 0): ?>
-                    <?=
-                    $this->translate('conjunction_or');
-                    ?>
-                <? endif; ?>
-                <?=
-                "<a href='" . $UID . "?referer=" . $this->referer . "#records-in-groups title='" . $this->translate($currentInstitutionName)."'>" . $this->translate('here_link') . "</a>";
-                ?>
-            <? endforeach; ?>
-        <? endif; ?>
-		</ul>
-	</div>
+<?$dedupedRecords = array();
+$internalMultiplicity = array();
+if (isset($this->tabs['DedupedRecords'])) {
+  $dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
+  $currentInstitution = $this->driver->getUniqueId();
+  $groups = new \CPK\RecordDriver\Groups();
+  $dedupedRecords = $groups->getSortRecords($dedupedRecords);
+  $internalMultiplicity = $groups->getInternalMultiplicity($dedupedRecords, $currentInstitution);
+  $recordSource = explode(".", $currentInstitution)[0];
+  $currentInstitutionName = "source_".$recordSource;
+}?>
+  <? if (count($dedupedRecords) !== 1):?>
+  <div class="dropdown">
+    <div class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' style='width: 100%;' id='records-in-groups-nav'>
+      <h3 style="margin-top: 5px; margin-bottom: 5px; padding: 0px 0px 20px 0px">
+  <? else:?>
+  <div>
+    <div class='single-institution' style='width: 100%;'>
+      <h3 style="margin-top: 5px; margin-bottom: 5px; padding: 10px 10px 30px 10px;">
+  <? endif;?>
+      <? if (file_exists(__DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png')) : ?>
+        <img class='hidden-xs' height='20' src='/themes/bootstrap3/images/institutions/logos/<?=$recordSource?>/<?=$recordSource?>.png' align='left' style='margin-right: 8px;'>
+      <? endif;?>
+        <span>
+          <span class='pull-left' style='padding-bottom: 6px;'><?=$this->translate($currentInstitutionName)?></span>
+          <? if (count($dedupedRecords) !== 1):?>
+            <i class='pr-interface-arrowbottom4 pull-right' align='right' style='display: block;'></i>
+          <? endif;?>
+        </span>
+      </h3>
+    </div>
+    <ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
+    <? foreach ($dedupedRecords as $record):
+      $link = $record['id'];
+      $source = $record['source'];
+      $sourceWithoutPrefix = substr($source, 7);?>
+      <li>
+        <a href='<?=$this->url('record', array('id' => $link))?>?referer=<?=$this->referer?>#records-in-groups' title='><?=$this->translate($source)?>'>
+          <div class='record-group-list-item'>
+          <? $logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
+          $logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
+          $logoIsAvailable = file_exists($logoPath);?>
+          <? if ($logoIsAvailable):?>
+            <img class='hidden-xs pull-right' height='16' src='<?=$logoUrl?>'>
+          <? endif;?>
+            <span style="<?=($currentInstitution == $link)? 'font-weight: bold !important;' : ''?>"><?=$this->translate($source)?></span>
+          </div>
+        </a>
+      </li>
+    <? endforeach;?>
+    </ul>
+  </div>
+</div>
+<div>
+<? if (count($internalMultiplicity) > 0):?>
+  <span>
+  <?= $this->translate('The library has another record(s) for this publication'); ?>
+  <? foreach ($internalMultiplicity as $key => $recordMultiplicity):?>
+    <?= ($key > 0)?$this->translate('conjunction_or'):'';?>
+    <a href='<?=$recordMultiplicity?>?referer=<?=$this->referer?>#records-in-groups' title='<?=$this->translate($currentInstitutionName)?>'><?=$this->translate('here_link')?></a>
+  <? endforeach;?>
+  </span>
+<? endif;?>
 </div>
