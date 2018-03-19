@@ -82,10 +82,10 @@
       <tr>
         <th><?=$this->transEsc('Published also like')?>: </th>
         <td>
-          <? foreach ($pseudonyms as $name => $authId): $pseudonymId = $this->record($this->driver)->getRecordIdByAuthority($authId); ?>
+          <? foreach ($pseudonyms as $name => $authId): $pseudonymId = $this->record($this->driver)->getRecordIdByAuthority($authId); $escapedName = $this->escapeHtml($name); ?>
           <div>
-            <a title="<?=$this->translate('Show person')?> <?=$name?>" href="/Record/<?=$pseudonymId?>"><i class="pr-user-single5 author-icon"></i></a>
-            <a title="<?=$this->translate('Show publications by')?> <?=$name?>" href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=$name?>"><?=$name?></a>
+            <a title="<?=$this->translate('Show person')?> <?=$escapedName?>" href="/Record/<?=urlencode($pseudonymId)?>"><i class="pr-user-single5 author-icon"></i></a>
+            <a title="<?=$this->translate('Show publications by')?> <?=$escapedName?>" href="/Search/Results?sort=relevance&amp;join=AND&amp;type0[]=adv_search_author_corporation&amp;bool0[]=AND&amp;searchTypeTemplate=advanced&amp;lookfor0[]=<?=urlencode($name)?>"><?=$escapedName?></a>
           </div>
           <? endforeach; ?>
         </td>
