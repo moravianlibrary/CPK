@@ -1,0 +1,133 @@
+<?
+$lang = ($_GET['lang'] == "en") ? "en" : "cs";
+$position = ($_GET['position'] == "top") ? "top" : "left";
+
+
+//echo $this->layout()->userLang;
+
+// TODO volba jazyka
+
+/*if (! empty($this->params()->fromPost('mylang'))) {
+    $languageCode = $this->params()->fromPost('mylang');
+} else if (! empty($_COOKIE['language'])) {
+    $languageCode = $_COOKIE['language'];
+} else {
+    $config = $this->getConfig();
+    $languageCode = $config->Site->language;
+}*/
+
+?>
+<!DOCTYPE html>
+<html lang="<? echo $lang ?>">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" media="all" rel="stylesheet"
+          type="text/css">
+    <style>
+        form {
+            width: 100% !important;
+            white-space: nowrap;
+            display: inline-block;
+            vertical-align: middle;
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+        .lookfor {
+            border-radius: 50px 0px 0px 50px;
+            border-right: 0px;
+            padding-left: 20px;
+            display: inline;
+            max-width: 80% !important;
+            border: 2px solid #ccc;
+        }
+        .find-button {
+            border-radius: 0px 50px 50px 0px;
+            border: 2px solid #b71b4b;
+            margin-left: -6px;
+            margin-bottom: 2px;
+            padding: 0 22px 0 12px;
+            color: #fff;
+            background-color: #e5004b;
+            width: auto;
+            max-width: 20%;
+            vertical-align: middle;
+        }
+        .find-button:hover {
+            background-color: #b71b4b;
+        }
+        <?
+        if ($position == "left"){
+            echo "
+            .lookfor {
+                max-width: 60% !important;
+            }
+            .logo-left {
+                margin-right: 8px;
+            }";
+        }
+        ?>
+    </style>
+</head>
+<body>
+<? if ($position == "left"){ ?>
+<form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+    <div class='row'>
+        <div class='col-sm-12 text-center'>
+            <a href="https://knihovny.cz" title="Knihovny.cz"></a>
+            <img src='https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png' alt='Knihovny.cz'
+                 height='47' class='logo-left'>
+            </a>
+            <? } else { ?>
+            <div class='row'>
+                <div class='col-sm-12 text-center'>
+                    <a href="https://knihovny.cz" title="Knihovny.cz"></a>
+                    <img src='https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png'
+                         alt='Knihovny.cz'
+                         height='47'>
+                    </a>
+                </div>
+            </div>
+
+            <form class="navbar-left flip text-center" method="get"
+                  action="https://knihovny.cz/Search/Results" target="_top">
+                <? } ?>
+
+
+                <input class="form-control lookfor" type="text" name="lookfor0[]" value=""
+                       placeholder="<?= ($lang == "cs") ? "Zadejte hledaný dotaz, např. název knihy" : "Enter the search query, eg. book title"; ?>">
+                <input type="hidden" name="searchTypeTemplate" value="basic">
+                <input type="hidden" name="database"
+                       value="<? if (strtoupper($_GET['database']) == "EDS") echo "EDS"; else echo ""; ?>">
+                <input type="hidden" name="type0[]" value="AllFields">
+                <input type="hidden" name="join" value="AND">
+                <input type="hidden" name="bool0[]" value="AND">
+                <input type="hidden" name="page" value="1">
+                <input type="hidden" name="keepEnabledFilters" value="true">
+
+                <input class="form-control btn btn-primary find-button" type="submit" value="<?= ($lang == "cs") ? "Hledat " : "Find "; ?>">
+
+        </div>
+    </div>
+</form>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+<!--
+<iframe
+    allowfullscreen="true"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
+    allowfullscreen="true"
+    msallowfullscreen="true"
+    frameborder="0"
+    scrolling="no"
+    marginheight="0"
+    marginwidth="0"
+    width="700"
+    height="1000"
+    src="https://beta.knihovny.cz/embedded?lang=en">
+</iframe>
+-->

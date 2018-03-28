@@ -1,5 +1,9 @@
 Redirect /o-projektu /Portal/Page/o-portalu
 Redirect /jak-se-zapojit /Portal/Page/jak-se-zapojit-pro-knihovny
+Redirect /embeded-search-cpk-left /embedded?position=left
+Redirect /embeded-search-cpk-left-en /embedded?position=left&lang=en
+Redirect /embeded-search-cpk-top /embedded?position=top
+Redirect /embeded-search-cpk-top-en /embedded?position=top&lang=en
 
 ErrorDocument 400   error.php
 ErrorDocument 401   error.php

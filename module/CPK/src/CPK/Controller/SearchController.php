@@ -1638,4 +1638,10 @@ class SearchController extends SearchControllerBase
 
         return $searchTerms;
     }
+
+    public function embeddedAction() {
+
+        $this->layout()->setTemplate('portal/embedded-search-cpk');
+
+    }
 }
