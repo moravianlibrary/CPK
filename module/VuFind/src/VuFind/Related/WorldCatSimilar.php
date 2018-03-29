@@ -44,10 +44,9 @@ class WorldCatSimilar extends Similar
      * @param string $settings Settings from config.ini
      * @param \VuFind\RecordDriver\AbstractBase $driver Record driver object
      *
-     * @param $filter
      * @return void
      */
-    public function init($settings, $driver, $filter = null)
+    public function init($settings, $driver)
     {
         // Create array of query parts:
         $parts = [];

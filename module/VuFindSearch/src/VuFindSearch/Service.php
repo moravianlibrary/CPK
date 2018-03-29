@@ -295,19 +295,16 @@ class Service
      *
      * @param string $backend Search backend identifier
      * @param string $id Id of record to compare with
-     * @param string $filter for handler in Solr
      * @param ParamBag $params Search backend parameters
      * @return RecordCollectionInterface
      */
-    public function similar($backend, $id, $filter, ParamBag $params = null)
+    public function similar($backend, $id, ParamBag $params = null)
     {
         $params  = $params ?: new ParamBag();
         $context = __FUNCTION__;
         $args = compact('backend', 'id', 'params', 'context');
         $backendInstance = $this->resolve($backend, $args);
         $args['backend_instance'] = $backendInstance;
-
-        $params->set($filter, 'morelikethis');
 
         $this->triggerPre($backendInstance, $args);
         try {

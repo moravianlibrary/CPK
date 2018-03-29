@@ -26,7 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace VuFind\RecordDriver;
-use CPK\RecordDriver\SolrLibrary;
+
 use VuFind\Exception\LoginRequired as LoginRequiredException,
     VuFind\XSLT\Import\VuFind as ArticleStripper;
 use VuFind\Record\Cache;
@@ -380,19 +380,6 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
             $types = isset($this->recordConfig->Record->related) ?
                 $this->recordConfig->Record->related : [];
         }
-
-        $filter = 'qt';
-        if ($this instanceof SolrLibrary) {
-            if (!$this->getRegion()) {
-                $filter = 'qf';
-            }
-        } else {
-            if (! ($this->getAllSubjectHeadings() && $this->getDeduplicatedAuthors() && $this->getConspectus())
-            ) {
-                $filter = 'qf';
-            }
-        }
-
         $retVal = [];
         foreach ($types as $current) {
             $parts = explode(':', $current);
@@ -400,7 +387,7 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
             $params = isset($parts[1]) ? $parts[1] : null;
             if ($factory->has($type)) {
                 $plugin = $factory->get($type);
-                $plugin->init($params, $this, $filter);
+                $plugin->init($params, $this);
                 $retVal[] = $plugin;
             } else {
                 throw new \Exception("Related module {$type} does not exist.");
@@ -520,5 +507,15 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
         return is_callable([$this, $method])
             ? call_user_func_array([$this, $method], $params)
             : null;
+    }
+
+    /**
+     * Get handler for related
+     *
+     * @return array
+     */
+    public function getFilterParamsForRelated()
+    {
+        return array('handler' => 'morelikethis');
     }
 }

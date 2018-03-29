@@ -1002,9 +1002,21 @@ class SolrMarc extends ParentSolrMarc
         return $conspectus;
     }
 
-    public function getRegion()
+
+    /**
+     * Get handler and filter for related
+     * @return array
+     */
+    public function getFilterParamsForRelated()
     {
-        $region = $this->getFieldArray('KRJ', array('a', 'b'));
-        return $region;
+        $filter = 'qt';
+        if (!($this->getAllSubjectHeadings() && $this->getDeduplicatedAuthors() && $this->getConspectus())) {
+            $filter = 'qf';
+        }
+
+        return array(
+            'handler' => 'morelikethis',
+            'filter' => $filter
+        );
     }
 }
