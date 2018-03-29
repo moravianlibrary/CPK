@@ -293,9 +293,10 @@ class Service
     /**
      * Return similar records.
      *
-     * @param string $backend Search backend identifier
-     * @param string $id Id of record to compare with
-     * @param ParamBag $params Search backend parameters
+     * @param string   $backend Search backend identifier
+     * @param string   $id      Id of record to compare with
+     * @param ParamBag $params  Search backend parameters
+     *
      * @return RecordCollectionInterface
      */
     public function similar($backend, $id, ParamBag $params = null)

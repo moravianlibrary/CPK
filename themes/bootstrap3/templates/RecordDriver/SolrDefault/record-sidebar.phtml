@@ -4,7 +4,6 @@
 <?
     $related = $this->related();
     $list = $related->getList($this->driver);
-
     foreach ($list as $current) {
         echo $related->render($current);
     }
