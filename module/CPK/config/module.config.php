@@ -26,16 +26,13 @@ $config = array(
             'embedded' => array(
                 'type'    => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
-                    'route'    => '/embedded[/:action]',//[/:style][/:database][/:pos]',
+                    'route'    => '/embedded[/:action]',
                     'constraints' => array(
                         'action'  => '[a-zA-Z][a-zA-Z0-9_-]*'
                     ),
                     'defaults' => array(
                         'controller' => 'search',
-                        'action'     => 'embedded',
-                        /*'style'      => '1',
-                        'database'   => 'def',
-                        'pos'        => 'left',*/
+                        'action'     => 'embedded'
                     ),
                 ),
             ),
