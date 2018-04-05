@@ -1,41 +1,11 @@
 @import "cpk";
 
-@brand-primary: #1264AD;
-@brand-primary-hover:   #363972;
+@brand-primary:         #1264AD;
+//@brand-primary:         #e5004b;
+
+
+@primary:               @brand-primary;
+@primary-darken:        darken(@primary, 10%);
+@primary-lighten:       lighten(@primary, 50%);
 
 //Find button in searchbox
-.find-button {
-    background: @brand-primary;
-    border: 2px solid @brand-primary;
-    border-radius: 0 50px 50px 0;
-    margin-left: -4px;
-    padding: 7px 20px 7px 10px;
-
-    @media (max-width: 767px) {
-        & > span {
-            display: none;
-        }
-    }
-
-    &:hover, &:focus {
-        background-color: @brand-primary-hover;
-        border: 2px solid @brand-primary-hover;
-        color: #fff;
-    }
-}
-
-//login button
-#loginOptions {
-    color: @brand-primary!important;
-}
-#loginOptions:hover {
-    color: @brand-primary-hover!important;
-}
-//main header
-header h1 {
-    color: @brand-primary;
-}
-//headers in widgets
-.widget h2 {
-    color: @brand-primary;
-}

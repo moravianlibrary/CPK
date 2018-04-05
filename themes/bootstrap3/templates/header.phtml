@@ -158,10 +158,14 @@
 
                 <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
                     <? if (!$user): ?>
-                        <li id="loginOptions">
-                            <?= $this->render('Auth/Shibboleth/login.phtml') ?>
-                            <?= $this->help()->getQuestionMarkHelp('login') ?>
-                        </li>
+                    <li class="loginOptions">
+                      <div id="login-button" onclick='$("div#loginModal").modal("show")'>
+                        <?=$this->render('Auth/Shibboleth/login.phtml') ?>
+                      </div>
+                      <div id='login-help'>
+                        <?= $this->help()->getQuestionMarkHelp('login') ?>
+                      </div>
+                    </li>
                     <? endif; ?>
                 <? endif; ?>
 

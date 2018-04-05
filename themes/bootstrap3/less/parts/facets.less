@@ -5,168 +5,208 @@
 //part with cpk custom changes
 //////////////////////////////
 .sidebar .facet {
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
 
-  a {
-    //color: #8a8a8a;
-    color: #333;
-    &:hover {
-      text-decoration: underline;
+    a {
+        //color: #8a8a8a;
+        color: #333;
+        &:hover {
+            text-decoration: underline;
+        }
     }
-  }
-  .badge {
-    font-weight: normal;
-    color: grey;
-    background-color: transparent;
-  }
-  .jstree-ocl:before {
+    .badge {
+        font-weight: normal;
+        color: grey;
+        background-color: transparent;
+    }
+
+    /*.jstree-ocl:before {
     margin-left: -18px;
     font-size: 20px;
     margin-top: -5px;
     color: #e5004b
-  }
+  }*/
 
-  .btn-default {
-    color: @brand-primary;
-    font-size: 15px;
-    &:hover, &:focus, &:active {
-      background-color: #DDD;
-    }
-
-  }
-}
-.sidebar {
-  .list-group-item {
-    padding: 2px 16px 2px 26px;
-    background-color: inherit;
-    border: 0px;
-
-    &.facetAND {
-      word-wrap: break-word;
-    }
-
-    i.pr-institution-arrow:before {
-      // pr-interface-arrowbottom4
-      content: "\ead9";
-      color: @brand-primary;
-      font-size: 20px;
-    }
-
-    &.collapsed {
-      i.pr-institution-arrow:before {
-        // pr-interface-arrowright5
-        content: "\ead8";
+    .btn-default {
         color: @brand-primary;
-        font-size: 20px;
-      }
+        font-size: 15px;
+        &:hover, &:focus, &:active {
+            background-color: #DDD;
+        }
+
+    }
+}
+
+.sidebar {
+    .list-group-item {
+        padding: 2px 16px 2px 26px;
+        background-color: inherit;
+        border: 0px;
+
+        &.facetAND {
+            word-wrap: break-word;
+        }
+
+        i.pr-institution-arrow:before {
+            // pr-interface-arrowbottom4
+            content: "\ead9";
+            color: @brand-primary;
+            font-size: 20px;
+        }
+
+        &.collapsed {
+            i.pr-institution-arrow:before {
+                // pr-interface-arrowright5
+                content: "\ead8";
+                color: @brand-primary;
+                font-size: 20px;
+            }
+        }
+
     }
 
-  }
-
-  .list-group-item.active {
-    color: @brand-primary;
-    font-weight: bold;
-    &:hover, &:focus {
-      background-color: transparent;
-      color: @brand-primary;
-      text-decoration: underline;
-      outline: none;
+    .list-group-item.active {
+        color: @brand-primary;
+        font-weight: bold;
+        &:hover, &:focus {
+            background-color: transparent;
+            color: @brand-primary;
+            text-decoration: underline;
+            outline: none;
+        }
     }
-  }
-  .list-group, .tt-dropdown-menu {
-      background-color: inherit;
-  }
-
-  .list-group-item.title {
-      font-size: 120%;
-      font-weight: normal;
-  }
-
-  #side-panel-institution {
-    background-color: @light-grey;
-    color: #111;
-  }
-
-  #side-panel-eds-filters {
-    background-color: @light-grey;
-    color: #111;
-    padding: 4px 10px 4px 10px;
-
-    label {
-      font-weight: normal;
+    .list-group, .tt-dropdown-menu {
+        background-color: inherit;
     }
 
-    .jsTreeLikeCheckbox {
-      width: 16px;
-      height: 16px;
+    .list-group-item.title {
+        font-size: 120%;
+        font-weight: normal;
     }
 
-    .jsTreeLikeCheckboxDescription {
-      margin-left: 4px;
+    #side-panel-institution {
+        background-color: @light-grey;
+        color: @lightbg-text;
     }
-  }
+
+    #side-panel-eds-filters {
+        background-color: @light-grey;
+        color: @lightbg-text;
+        padding: 4px 10px 4px 10px;
+
+        label {
+            font-weight: normal;
+        }
+
+        .jsTreeLikeCheckbox {
+            width: 16px;
+            height: 16px;
+        }
+
+        .jsTreeLikeCheckboxDescription {
+            margin-left: 4px;
+        }
+    }
 
 }
 
 .jstree-facet .jstree-container-ul {
-  & > li.active,
-  & > li.active a.jstree-anchor {
-    background-color: transparent;
-    color: @brand-primary;
-  }
+    & > li.active,
+    & > li.active a.jstree-anchor {
+        background-color: transparent;
+        color: @brand-primary;
+    }
 }
 
 li.jstree-facet ul {
-  padding-left: 21px;
+    padding-left: 21px;
 }
 
 .sidebar .list-group:not(.filters) {
-  .title::after {
-      content: none;
-      color: #e5004b !important;
-  }
+    .title::after {
+        content: none;
+        color: @brand-primary !important;
+    }
 
-  .title.collapsed::after {
-      color: #e5004b !important;
-      content: none;
-  }
+    .title.collapsed::after {
+        color: @brand-primary !important;
+        content: none;
+    }
 
 }
 
-.sidebar .facet .jstree-default{
-  .jstree-ocl:before {
-    font-family: 'pr-icons' !important;
-    font-size: inherit;
-    margin-top: 0px;
-  }
-  .jstree-open > .jstree-ocl:before {
-    // pr-interface-arrowbottom4
-    content: "\ead9";
-    font-size: 20px;
-    margin-top: -3px;
-    margin-left: -20px;
-  }
-  .jstree-closed > .jstree-ocl:before {
-    // pr-interface-arrowright5
-    content: "\ead8";
-    font-size: 20px;
-    margin-top: -3px;
-  }
+.sidebar .facet .jstree-facet {
+    .jstree-icon {
+        font-family: pr-icons;
+        color: @brand-primary;
+        font-size: 18px;
+    }
+    .jstree-icon:before {
+        font-family: pr-icons;
+        color: @brand-primary;
+        font-size: 16px;
+        font-style: normal;
+    }
+    a:hover {
+        font-weight: bold;
+    }
+    .jstree-ocl:before {
+        margin-left: 5px;
+        font-size: inherit;
+        margin-top: 0;
+    }
+    .jstree-open > .jstree-ocl:before {
+        content: "\ead9";
+        margin-top: 0;
+    }
+    .jstree-closed > .jstree-ocl:before {
+        content: "\ead8";
+    }
+
+    //checkbox nezakliknut
+    .jstree-checkbox:before {
+        content: "\ebd4";
+        color: grey;
+    }
+
+    .jstree-clicked {
+        font-weight: bold;
+    }
+
+    //checkbox zakliknut
+    .jstree-clicked .jstree-checkbox:before {
+        content: "\eb06";
+        color: @brand-primary;
+    }
+
+    //checkbox castecne
+    .jstree-undetermined:before {
+        content: "\e92c";
+        color: @brand-primary;
+    }
+    span {
+        font-family: @font-family-sans-serif !important;
+    }
+    .main {
+        padding-top: 2px;
+    }
+    .badge {
+        padding-top: 4px;
+    }
 }
 
 .emptyFacet {
-  color: grey;
+    color: grey;
 }
-
 
 //date visualization
 ////////////////////
 #dateVisColorSettings {
-  background-color: #FFF;
-  fill: #eaeaea;
-  outline-color: lighten(@brand-primary, 20%);
-  stroke: #333;
+    background-color: #FFF;
+    fill: #eaeaea;
+    outline-color: lighten(@brand-primary, 20%);
+    stroke: #333;
 }
 
 .institutions-loaders {
@@ -175,6 +215,7 @@ li.jstree-facet ul {
     font-size: 120%;
     text-align: right;
 }
+
 .institutions-loaders a {
     margin-left: 4px;
 }
@@ -185,10 +226,35 @@ li.jstree-facet ul {
 }
 
 .geo-denied {
-  display: none;
-  text-align: center;
-  color: #ca1010;
-  border: 1px solid red;
-  padding: 10px;
-  font-size: 20px;
+    display: none;
+    text-align: center;
+    color: @brand-danger;
+    border: 1px solid @brand-danger;
+    padding: 10px;
+    font-size: 20px;
+}
+
+#del-all-facets {
+    margin-top: 10px;
+    #remove-all-filters-async div {
+        border: 2px solid @primary-darken;
+        &:hover, &:focus {
+            color: #fff;
+            background-color: @primary-darken;
+            border: 2px solid @primary-darken;
+        }
+    }
+}
+
+.institution-facet-filter-button {
+    color: #fff !important;
+    background-color: @primary !important;
+    border: 2px solid @primary-darken !important;
+    font-weight: bold;
+    &:hover, &:focus {
+        color: #fff !important;;
+        background-color: @primary-darken !important;
+        border: 2px solid @primary-darken !important;
+        font-weight: bold;
+    }
 }

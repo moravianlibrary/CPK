@@ -28,8 +28,8 @@
 }
 
 .records-in-libraries-divider{
-	margin-top: 10px;
-	margin-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .list-group, .tt-dropdown-menu {
@@ -141,7 +141,7 @@
 }
 
 .pagination > li > a, .pagination > li > span {
-    color: #e5004b;
+  color: @brand-primary;
     border: none;
     background: inherit;
 }
@@ -172,7 +172,7 @@
 .records-in-libraries-title {
     font-weight: bold;
     margin-left: 4px;
-    font-color: #444;
+    color: #444;
 }
 
 .scrollable-menu {
@@ -280,11 +280,11 @@
     background-color: transparent !important;
     color: inherit !important;
     outline: none;
-    
+
     .btn.active:focus, .btn.focus, .btn.focus:active, .btn.active.focus {
         outline: none !important;
     }
-    
+
     .btn:active, .btn.active {
         box-shadow: none;
     }
@@ -296,11 +296,11 @@
     background-color: transparent !important;
     color: inherit !important;
     outline: none;
-    
+
     .btn.active:focus, .btn.focus, .btn.focus:active, .btn.active.focus {
         outline: none !important;
     }
-    
+
     .btn:active, .btn.active {
         box-shadow: none;
     }
@@ -341,11 +341,18 @@
   padding-left: 14px;
 }
 
-.sources-tabs li {
-    margin-bottom: -2px;
-
-    &.sources-tabs-question-marc {
-        margin-left: 6px;
+.eds-tabs {
+    li {
+        margin-bottom: -2px;
+        &:hover {
+            background-color: @body-bg;
+        }
+        a:hover {
+           background-color: @body-bg;
+        }
+    }
+    .active {
+        font-weight: bold;
     }
 }
 
@@ -365,4 +372,9 @@
   .facets-questionmark-help {
     text-align: center;
   }
+}
+
+.eds-results-embargo {
+  font-weight: bold;
+  cursor: pointer;
 }

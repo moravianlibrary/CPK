@@ -4,150 +4,146 @@
 
 //cookies
 /////////
-.eu-cookies, .portal-info {
-    background-color: #666;
-    color: white;
+.eu-cookies, .portal-info{
+    background-color: @brand-info;
+    color: @darkbg-text;
     padding: 4px;
 
     //cookies are shown on bottom of browser window to avoid collision with header
     position: fixed;
-    bottom: 0;
-    left: 0;
+    bottom: 0px;
+    left: 0px;
     width: 100%;
     z-index: 1030;
     & > a {
-        color: white;
+        color: @darkbg-text;
         text-decoration: underline;
     }
 }
 
 //header
 ////////
-header {
-    background-color: #fff;
-    box-shadow: 2px 2px 2px #ccc;
-    margin-bottom: 20px;
 
-    &.header-container {
-        position: relative;
-        z-index: 2;
-
-        @media (min-width: 1460px) {
-            .container-fixed();
-            width: 1440px;
-        }
+.header-container {
+    position: relative;
+    z-index: 2;
+    @media (min-width: 1460px) {
+        .container-fixed();
+        width: 1440px;
     }
+}
 
+
+header {
+    margin-bottom: 20px;
+    background-color: @darkbg-text;
+    box-shadow: 2px 2px 2px @grey-color;
     @media (min-width: @screen-lg-min) {
         &.frontpage {
-            background-image: url("/themes/bootstrap3/images/book-colage-left.png"), url("/themes/bootstrap3/images/book-colage-right.png");
+            background-image: url("/themes/bootstrap3/images/book-colage-left.png"),url("/themes/bootstrap3/images/book-colage-right.png");
             height: 492px;
             background-position: left bottom, right bottom;
             background-repeat: no-repeat;
         }
     }
-
-    h1, h2, h3, h4 {
+    h1,h2,h3,h4 {
         text-align: center;
     }
-
     & > .navbar {
-        border: none;
-        margin-bottom: 0;
         padding-top: 30px;
         padding-bottom: 30px;
-        transition: width 500ms, background 500ms;
-
-        //vertical line after knihovny.cz logo
-        .navbar-header {
-            border-right: 1px solid rgb(204, 204, 204);
-            padding-right: 30px;
-
-            //styling of knihovny.cz logo
-            .navbar-brand {
-                height: auto;
-                //logo is in square, we have to set no overflow, to avoid overflowing
-                //outside the header
-                overflow: hidden;
-                padding: 0;
-                div {
-                    height: 50px;
-                    i {
-                        color: inherit;
-                        cursor: pointer;
-                    }
-                }
-            }
-
-            .slogan {
-                color: #333;
-                font-family: LatoWebBold;
-                position: absolute;
-                left: 86px;
-                top: 64px;
-            }
-        }
-
-        .navbar-collapse {
-            .nav > li > a:hover, .nav > li > a:focus {
-                background-color: #fff;
-                outline: none;
-            }
-
-            nav .navbar-right {
-                #loginOptions {
-                    color: #e5004b;
-                    cursor: pointer;
-                    display: block;
-                    line-height: 21px;
-                    padding: 12px 15px 14.5px;
-                    position: relative;
-                    text-decoration: none;
-                }
-            }
-        }
-
         #notif_icon {
-            padding-bottom: 13px;
             padding-top: 14px;
+            padding-bottom: 13px;
         }
     }
-
     .arrow-link {
         font-size: 23px;
         font-weight: 600;
-        margin: -10px 14px 24px 0;
+        margin: -10px 14px 24px 0px;
         i {
             font-weight: 600;
         }
     }
 }
 
-.beta-logo {
-    color: #333;
-    font-family: LatoWebBold;
-    left: 86px;
-    position: absolute;
-    top: 64px;
-    &:hover {
-        text-decoration: underline;;
-    }
 
+//styling of knihovny.cz logo
+.navbar-brand {
+    padding: 0px;
+    //logo is in square, we have to set no overflow, to avoid overflowing
+    //outside the header
+    overflow: hidden;
+    div {
+        height: 50px;
+        i {
+            cursor: pointer;
+            color: inherit;
+        }
+    }
+}
+
+//vertical line after knihovny.cz logo
+.navbar-header{
+    border-right: 1px solid rgb(204, 204, 204);
+    padding-right: 30px;
+}
+
+.nav > li > a:hover, .nav > li > a:focus {
+    outline: none;
+    background-color: #fff;
+}
+
+.navbar{
+    margin-bottom: 0px;
+    border: none;
+    transition: width 500ms, background 500ms;
+}
+.navbar-brand {
+    height: auto;
+}
+
+.slogan{
+    font-family: LatoWebBold;
+    position: absolute;
+    left: 86px;
+    top: 64px;
+    color: @link-hover-color;
+}
+.navbar-brand
+{
+    //smaller padding because of BETA logo
+    padding-bottom: 13px;
 }
 
 .full-width.navbar {
-    padding: 0;
-    width: 100%;
+    width:100%;
+    padding:0px;
 }
 
 tr.link {
     cursor: pointer;
 }
-
-#modal_dg {
-    z-index: 1234;
-
-    .modal-dialog {
-        width: 100%;
+.loginOptions {
+    line-height: 21px;
+    height: 48px;
+    position: relative;
+    display: inline-block;
+    color: @brand-primary;
+    text-decoration: none;
+}
+#login-button {
+    padding: 15px 14.5px;
+    padding-right: 5px;
+    float: left;
+    cursor: pointer;
+    &:hover {
+        color: @link-hover-color;
     }
+}
+#login-help {
+    float: right;
+    padding: 0;
+    margin-right: 15px;
+    margin-top: 11.5px;
 }
