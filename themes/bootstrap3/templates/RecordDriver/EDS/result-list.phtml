@@ -263,7 +263,7 @@ $accessUrl = $this->driver->getAccessUrl();
                             ebscoHtml += '<ul class="dropdown-menu scrollable-menu" role="menu">';
 
                             for (var i = maxLinksShown; i < edsLinks; i++) {
-                                ebscoHtml += '<li>';
+                                ebscoHtml += '<li class="show-next-links-dropdown-item">';
                                 ebscoHtml += links[i];
                                 ebscoHtml += '</li>';
                             }
