@@ -30,6 +30,7 @@ use File_MARC, File_MARCXML, VuFind\Sitemap\Generator as Sitemap;
 use VuFindSearch\Backend\Solr\Document\UpdateDocument;
 use VuFindSearch\Backend\Solr\Record\SerializableRecord;
 use Zend\Console\Console;
+use \CPK\Widgets\WidgetContent;
 
 /**
  * This controller handles various command-line tools
@@ -723,37 +724,24 @@ class UtilController extends AbstractBase
         $ebooks     = $this->getEbooks();
 
         if (empty($ebooks)) {
-            die('Nothing to import.');
+            die(Console::writeLine('Nothing to import.'));
         }
 
-        $widget        = $this->getTable('Widget')->getWidgetByName($widgetName);
-        $widgetContent = $this->getTable('WidgetContent')->getContentsByName($widgetName);
-
-        $widgetContentValues = [];
-        foreach ($widgetContent as $content) {
-            $widgetContentValues[] = $content->getValue();
-        }
+        $widget = $this->getTable('Widget')->getWidgetByName($widgetName);
 
         // Remove all data first
         $this->getTable('WidgetContent')->truncateWidgetContent($widget);
 
-        $data = [];
         foreach ($ebooks as $ebook) {
-            if (! in_array($ebook['id'], $widgetContentValues)) {
-                $widgetContent = (new WidgetContent());
-                $widgetContent->setWidgetId($widget->getId());
-                $widgetContent->setValue(trim($ebook['id']));
-                $widgetContent->setPreferredValue(0);
-                $data[] = $widgetContent;
-            }
-        }
+            $widgetContent = (new WidgetContent());
+            $widgetContent->setWidgetId($widget->getId());
+            $widgetContent->setValue(trim($ebook['id']));
+            $widgetContent->setPreferredValue(0);
 
-        // @FIXME Bulk insert is not implemented in ZF2 yet because not all RDBMS support bulk Insert
-        foreach ($data as $widgetContent) {
             $this->getTable('WidgetContent')->addWidgetContent($widgetContent);
         }
 
-        die('Done');
+        Console::writeLine('Added ' . number_format(count($ebooks), 0, ',', ' ') . ' records.');
     }
 
     /**
