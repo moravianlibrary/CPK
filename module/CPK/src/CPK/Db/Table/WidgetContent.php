@@ -33,7 +33,8 @@ use CPK\Db\Table\Gateway,
     Zend\Db\Sql\Insert,
     Zend\Db\Sql\Update,
     Zend\Db\Sql\Delete,
-    Zend\Db\Sql\Expression;
+    Zend\Db\Sql\Expression,
+    CPK\Db\Table\Widget;
 
 /**
  * Table Definition for WidgetContent
@@ -216,6 +217,22 @@ class WidgetContent extends Gateway
         ]);
 
         $this->executeAnyZendSQLDelete($delete);
+    }
+
+    /**
+     * Truncate widget content
+     *
+     * @param \CPK\Db\Table\Widget $widget
+     *
+     * @return void
+     */
+    public function truncateWidget(\CPK\Db\Table\Widget $widget)
+    {
+        $this->executeAnyZendSQLDelete(
+            (new Delete($this->table))->where([
+                'widget_id' => $widget->getId()
+            ])
+        );
     }
 
     /**

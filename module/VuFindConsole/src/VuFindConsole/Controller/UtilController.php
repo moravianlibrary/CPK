@@ -42,6 +42,12 @@ use Zend\Console\Console;
  */
 class UtilController extends AbstractBase
 {
+    /*public function __construct($namespace = 'VuFindConsole')
+    {
+        //dd($namespace);
+       // parent::__construct();
+    }*/
+
     /**
      * Display help for the index reserves action.
      *
@@ -704,5 +710,81 @@ class UtilController extends AbstractBase
         $search->delete($query);
         Console::writeLine(str_replace('%%count%%', $count, $successString));
         return $this->getSuccessResponse();
+    }
+
+    /**
+     * Harvest ebooks from Solr
+     *
+     * @return void
+     */
+    public function harvestEbooksAction()
+    {
+        $widgetName = 'eknihy_ke_stazeni';
+        $ebooks     = $this->getEbooks();
+
+        if (empty($ebooks)) {
+            die('Nothing to import.');
+        }
+
+        $widget        = $this->getTable('Widget')->getWidgetByName($widgetName);
+        $widgetContent = $this->getTable('WidgetContent')->getContentsByName($widgetName);
+
+        $widgetContentValues = [];
+        foreach ($widgetContent as $content) {
+            $widgetContentValues[] = $content->getValue();
+        }
+
+        // Remove all data first
+        $this->getTable('WidgetContent')->truncateWidgetContent($widget);
+
+        $data = [];
+        foreach ($ebooks as $ebook) {
+            if (! in_array($ebook['id'], $widgetContentValues)) {
+                $widgetContent = (new WidgetContent());
+                $widgetContent->setWidgetId($widget->getId());
+                $widgetContent->setValue(trim($ebook['id']));
+                $widgetContent->setPreferredValue(0);
+                $data[] = $widgetContent;
+            }
+        }
+
+        // @FIXME Bulk insert is not implemented in ZF2 yet because not all RDBMS support bulk Insert
+        foreach ($data as $widgetContent) {
+            $this->getTable('WidgetContent')->addWidgetContent($widgetContent);
+        }
+
+        die('Done');
+    }
+
+    /**
+     * Get ebooks from Solr
+     *
+     * @return array
+     */
+    private function getEbooks()
+    {
+        $configLoader = $this->getServiceLocator()->get('VuFind\Config');
+
+        $solrUrl = $configLoader->get('config')->Index->url;
+        $solrCore = $configLoader->get('config')->Index->default_core;
+
+        $url  = "$solrUrl/$solrCore/select?";
+        $url .= "q=id:mkpe.*";
+
+        $url .= "&fl=id";
+        $url .= "&wt=json";
+        $url .= "&indent=true";
+        $url .= "&start=0";
+        $url .= '&rows=' . $configLoader->get('config')->Index->harvest_ebooks_limit;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        $html = curl_exec($ch);
+        curl_close($ch);
+
+        $json = json_decode($html, true);
+
+        return $json['response']['docs'];
     }
 }
