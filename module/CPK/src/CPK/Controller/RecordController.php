@@ -235,20 +235,14 @@ class RecordController extends RecordControllerBase
      */
     protected function get856Links()
     {
-        if ($this->driver instanceof SolrAuthority) {
-            $links = $this->driver->getLinks();
-        }
-        else {
-            $parentRecordID = $this->driver->getParentRecordID();
+        $parentRecordID = $this->driver->getParentRecordID();
 
-            if ($this->recordLoader === null)
-                $this->recordLoader = $this->getServiceLocator()
-                ->get('VuFind\RecordLoader');
-
-            $recordDriver = $this->recordLoader->load($parentRecordID);
-            $links = $recordDriver->get856Links();
+        if ($this->recordLoader === null) {
+            $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
         }
-        return $links;
+
+        $recordDriver = $this->recordLoader->load($parentRecordID);
+        return $recordDriver->get856Links();
     }
 
     /**
