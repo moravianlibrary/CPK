@@ -815,6 +815,8 @@ class SearchController extends SearchControllerBase
 
 	    $view->referer = $referer;
 
+	    $view->searchClassId = $database;
+
 	    /* Get more results for swithing to next/previous record of search results */
 	    $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
 
@@ -1338,6 +1340,8 @@ class SearchController extends SearchControllerBase
 	    $facetConfig = $this->getConfig('facets');
 	    $institutionsMappings = $facetConfig->InstitutionsMappings->toArray();
 	    $viewData['institutionsMappings'] = $institutionsMappings;
+
+	    $this->searchClassId = $database;
 
 	    $resultsHtml = $this->getResultListHtml($viewData);
 	    $sanitizedResultsHtml = htmlentities($resultsHtml, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, "UTF-8");
