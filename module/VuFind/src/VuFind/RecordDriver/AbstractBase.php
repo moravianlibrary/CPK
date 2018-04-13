@@ -515,6 +515,6 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
      */
     public function getFilterParamsForRelated()
     {
-        return array('handler' => 'morelikethis');
+        return ['handler' => 'morelikethis'];
     }
 }

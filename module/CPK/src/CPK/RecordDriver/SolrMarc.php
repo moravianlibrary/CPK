@@ -998,8 +998,7 @@ class SolrMarc extends ParentSolrMarc
 
     public function getConspectus()
     {
-        $conspectus = $this->getFieldArray('072', array('a', 'x', '2', '9'));
-        return $conspectus;
+        return $this->getFieldArray('072', ['a', 'x', '2', '9']);
     }
 
 
@@ -1014,9 +1013,9 @@ class SolrMarc extends ParentSolrMarc
             $filter = 'qf';
         }
 
-        return array(
+        return [
             'handler' => 'morelikethis',
             'filter' => $filter
-        );
+        ];
     }
 }

@@ -370,18 +370,16 @@ class SolrLibrary extends ParentSolrMarc
 
     public function getRegion()
     {
-        $region = $this->getFieldArray('KRJ', array('a', 'b'));
-        return $region;
+        return $this->getFieldArray('KRJ', ['a', 'b']);
     }
 
     public function getFilterParamsForRelated()
     {
         $filter = !$this->getRegion() ? 'qf' : 'qt';
-
-        return array(
+        return [
             'handler' => 'morelikethis',
             'filter' => $filter
-        );
+        ];
     }
 }
 
