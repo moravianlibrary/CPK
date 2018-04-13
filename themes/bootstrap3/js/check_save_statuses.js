@@ -48,4 +48,14 @@ function checkSaveStatuses() {
   }
 }
 
-$(document).ready(checkSaveStatuses);
+$(document).ready(function() {
+    $.ajax({
+        dataType: 'json',
+        url: VuFind.getPath() + '/AJAX/JSON?method=isLoggedIn',
+        success: function (response) {
+            if (response.status == 'OK') {
+                checkSaveStatuses();
+            }
+        }
+    });
+});
