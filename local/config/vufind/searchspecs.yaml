@@ -684,6 +684,7 @@ Libraries:
     - branch_search_txt_mv
     - sigla_search_txt
     - cpk_code_search_txt
+    - ils_search_txt
   FilterQuery: "recordtype:library"
   DismaxParams:
     - [bf, ord(library_relevance_str)^9999]
