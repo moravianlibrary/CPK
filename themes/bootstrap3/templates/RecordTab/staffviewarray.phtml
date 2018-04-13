@@ -9,7 +9,25 @@
       <td>
         <? if (!is_array($values)) { $values = array($values); } ?>
         <? foreach ($values as $value): ?>
-          <?=$this->escapeHtml(is_array($value) ? print_r($value, true) : $value)?><br />
+          <? if(is_array($value)): ?>
+            <? if ($field == 'RecordInfo'): ?>
+              <? $json_output = json_encode($value, JSON_PRETTY_PRINT) ?>
+              <pre><?=$this->escapeHtml($json_output)?></pre>
+            <? else: ?>
+              <? foreach ($value as $key => $val): ?>
+                <? if (!is_array($val)): ?>
+                  <b><?=$this->escapeHtml(htmlspecialchars_decode($key))?>: </b><?=$this->escapeHtml(htmlspecialchars_decode($val))?><br />
+                <? else: ?>
+                  <? foreach ($val as $k => $v): ?>
+                    <b><?=$this->escapeHtml(htmlspecialchars_decode($k))?>: </b><?=$this->escapeHtml(htmlspecialchars_decode($v))?><br />
+                  <? endforeach; ?>
+                <? endif; ?>
+              <? endforeach; ?>
+            <? endif; ?>
+          <? else: ?>
+            <?=$this->escapeHtml($value)?>
+          <? endif; ?>
+          <br />
         <? endforeach; ?>
       </td>
     </tr>
