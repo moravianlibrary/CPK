@@ -411,8 +411,6 @@ AllFields:
       - [onephrase, ~]
     ean_isn_mv:
       - [onephrase, ~]
-    upv_ipc_search:
-      - [onephrase, ~]
   FilterQuery: "NOT recordtype:library AND NOT recordtype:sfx"
 #  ExactSettings:
 #    DismaxFields:
