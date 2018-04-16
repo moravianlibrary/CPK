@@ -75,7 +75,7 @@ class Similar implements RelatedInterface
     {
         $params = new ParamBag();
         $paramsForRelated = $driver->getFilterParamsForRelated();
-        $params->set($paramsForRelated['filter'], $paramsForRelated['handler']);
+        $params->set('qt', $paramsForRelated['handler']);
 
         $this->results = $this->searchService->similar(
             $driver->getSourceIdentifier(), $driver->getUniqueId(), $params

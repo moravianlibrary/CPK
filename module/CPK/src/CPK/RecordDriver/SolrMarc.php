@@ -1008,14 +1008,11 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getFilterParamsForRelated()
     {
-        $filter = 'qt';
+        $handler = 'morelikethis';
         if (!($this->getAllSubjectHeadings() && $this->getDeduplicatedAuthors() && $this->getConspectus())) {
-            $filter = 'qf';
+            $handler = '';
         }
 
-        return [
-            'handler' => 'morelikethis',
-            'filter' => $filter
-        ];
+        return ['handler' => $handler];
     }
 }

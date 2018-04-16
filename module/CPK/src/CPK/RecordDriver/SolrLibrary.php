@@ -375,11 +375,8 @@ class SolrLibrary extends ParentSolrMarc
 
     public function getFilterParamsForRelated()
     {
-        $filter = !$this->getRegion() ? 'qf' : 'qt';
-        return [
-            'handler' => 'morelikethis',
-            'filter' => $filter
-        ];
+        $handler = !$this->getRegion() ? 'morelikethis' : '';
+        return ['handler' => $handler];
     }
 }
 
