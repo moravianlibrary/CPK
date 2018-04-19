@@ -905,6 +905,22 @@ class AjaxController extends AjaxControllerBase
         return $this->output($userNotifications, self::STATUS_OK);
     }
 
+    public function getAllNotificationsForUserAjax() {
+
+        // Check user's logged in
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            return $this->output('You are not logged in.', self::STATUS_ERROR);
+        }
+
+        $notifHandler = $this->getNotificationsHandler();
+
+        $notifications = [];
+        foreach ($user->getLibraryCards() as $libCard) {
+            $notifications[$libCard->home_library] = $notifHandler->getUserCardNotifications($libCard->cat_username);
+        }
+        return $this->output($notifications, self::STATUS_OK);
+    }
+
     /**
      * Creates new list into which it saves sent favorites.
      *

@@ -1,43 +1,38 @@
-<li class="dropdown" data-ng-controller="NotificationsController as notifCtrl">
-  <a global-notif="warningIcon" style="display: none;" href="#" class="dropdown-toggle" data-toggle="dropdown" id="notif_icon">
+<li class="dropdown" id="cpk-notifications">
+  <a id="cpk-notifications-warning" style="display: none;" href="#" class="dropdown-toggle" data-toggle="dropdown" id="notif_icon">
     <i style="font-size: 20px;" class="pr-web-warningwarnalert"></i>
     <span global-notif="unreadNotifsCount" class="notificationWarning"></span>
   </a>
-  <ul id='notificationsList' class="dropdown-menu">
+  <ul id='cpk-notifications-list' class="dropdown-menu">
   	<li data-ng-init='notifCtrl.initApiNonrelevantNotifications()' global-notif='parent'>
   	  <div class="notif-header"> <?=$this->translate('source_cpk', null, 'Knihovny.cz')?>
-	    <i class="pull-right icon-logo-komplet notif-knihovny-logo"></i>
-	  </div>
-	  <div global-notif='synchronousNotifications' <?=$this->globalNotifications()->isEnabled() || ! $user ? '' : 'hidden="hidden"' ?>>
-	    <?=$this->globalNotifications()->renderAll() ?>
-	  </div>
+	      <i class="pull-right icon-logo-komplet notif-knihovny-logo"></i>
+	    </div>
+	    <div global-notif='synchronousNotifications' <?=$this->globalNotifications()->isEnabled() || ! $user ? '' : 'hidden="hidden"' ?>>
+	      <?=$this->globalNotifications()->renderAll() ?>
+	    </div>
       <div global-notif='loader' class="notif-default" hidden="hidden">
 	    <i class="fa fa-spinner fa-spin"></i>
 	    <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
       </div>
       <div data-ng-repeat='notification in notifCtrl.notifications["noAPI"]["user"]'>
-	     <div class="notif-{{ notification.clazz }}" data-ng-click='notifCtrl.notifClicked(notification,"user")'>
-	       {{ notification.message }}
-	     </div>
-	   </div>
-	</li>
-  <? if ($user): foreach ($libraryCards as $libraryCard):
-	   $source = explode('.', $libraryCard['cat_username'])[0];
-  ?>
-	<li institution-notif='<?=$source?>.parent' id="<?=$source?>" data-ng-init='notifCtrl.initApiRelevantNotificationsForUserCard("<?=$source?>","<?=$libraryCard['cat_username'] ?>")'>
-	   <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
-	     <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
-	     <div institution-notif='<?=$source?>' class="notif-default">
-	       <i class="fa fa-spinner fa-spin"></i>
-	       <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
-         </div>
-	   </div>
-	   <div data-ng-repeat='notification in notifCtrl.notifications["<?=$libraryCard['cat_username'] ?>"]'>
-	     <div class="notif-{{ notification.clazz }}" data-ng-click='notifCtrl.notifClicked(notification,"<?=$source ?>")'>
-	       {{ notification.message }}
-	     </div>
-	   </div>
-	</li>
-     <? endforeach; endif;?>
+	      <div class="notif-{{ notification.clazz }}" data-ng-click='notifCtrl.notifClicked(notification,"user")'>
+	        {{ notification.message }}
+	      </div>
+      </div>
+	  </li>
+    <? if ($user): foreach ($libraryCards as $libraryCard):
+      $source = explode('.', $libraryCard['cat_username'])[0];
+    ?>
+	    <li id='cpk-notifications-<?=$source?>'>
+	       <div class="notif-header"> <?=$this->translate('source_' . $source, null, $source)?>
+	         <img height="20" class="pull-right" src="<?=$this->logos()->getLogo($source) ?>"/>
+	         <div institution-notif='<?=$source?>' class="notif-default">
+	           <i class="fa fa-spinner fa-spin"></i>
+	           <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
+           </div>
+	       </div>
+	    </li>
+    <? endforeach; endif;?>
   </ul>
 </li>

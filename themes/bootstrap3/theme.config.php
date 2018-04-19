@@ -35,7 +35,8 @@ $toRet = array(
         'lz-string.js',
 		'obalkyknih.js',
         'vendor/jquery.visible.min.js',
-        'vendor/jquery.bootstrap-growl.js'
+        'vendor/jquery.bootstrap-growl.js',
+        'jquery.notifications.js',
     ),
     'less' => array(
         'active' => false,
@@ -104,7 +105,6 @@ if (! ($angularForbiddenForIE && USES_IE)) {
             'ng-cpk/federative-login/login.controller.js',
 
             'ng-cpk/notifications/module.js',
-            'ng-cpk/notifications/notif.controller.js',
 
             'ng-cpk/admin/module.js',
             'ng-cpk/admin/configurations/conf.controller.js',
