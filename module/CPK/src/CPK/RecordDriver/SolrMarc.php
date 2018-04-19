@@ -1010,7 +1010,7 @@ class SolrMarc extends ParentSolrMarc
     {
         $handler = 'morelikethis';
         if (!($this->getAllSubjectHeadings() && $this->getDeduplicatedAuthors() && $this->getConspectus())) {
-            $handler = '';
+            $handler = 'morelikethisdictionary';
         }
 
         return ['handler' => $handler];
