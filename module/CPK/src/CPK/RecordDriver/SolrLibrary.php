@@ -368,11 +368,11 @@ class SolrLibrary extends ParentSolrMarc
         return $result;
     }
 
-    public function getRegion()
-    {
-        return $this->getFieldArray('KRJ', ['a', 'b']);
-    }
-
+    /**
+     * Get handler for related
+     *
+     * @return array
+     */
     public function getFilterParamsForRelated()
     {
         return ['handler' => 'morelikethislibrary'];

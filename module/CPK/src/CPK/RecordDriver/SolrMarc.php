@@ -996,23 +996,13 @@ class SolrMarc extends ParentSolrMarc
         return $mpts;
     }
 
-    public function getConspectus()
-    {
-        return $this->getFieldArray('072', ['a', 'x', '2', '9']);
-    }
-
-
     /**
-     * Get handler and filter for related
+     * Get handler for related
+     *
      * @return array
      */
     public function getFilterParamsForRelated()
     {
-        $handler = 'morelikethis';
-        if (!($this->getAllSubjectHeadings() && $this->getDeduplicatedAuthors() && $this->getConspectus())) {
-            $handler = 'morelikethisdictionary';
-        }
-
-        return ['handler' => $handler];
+        return ['handler' => 'morelikethis'];
     }
 }
