@@ -1640,8 +1640,6 @@ class SearchController extends SearchControllerBase
     }
 
     public function embeddedAction() {
-
         $this->layout()->setTemplate('portal/embedded-search-cpk');
-
     }
 }
