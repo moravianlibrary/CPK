@@ -335,6 +335,7 @@ AllFields:
     - language_search_txt_mv
     - format_search_txt_mv
     - people_search_txt_mv^650
+    - upv_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
