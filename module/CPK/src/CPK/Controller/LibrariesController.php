@@ -212,7 +212,7 @@ class LibrariesController extends AbstractBase
                 $url = substr($url, 0, -4);
             }
 
-            $url .= "&fl=name_display,address_map_display_mv,gps_display,id";
+            $url .= "&fl=name_display,address_map_display_mv,gps_display,local_ids_str_mv";
             $url .= "&wt=json";
             $url .= "&indent=true";
             $url .= "&sort=library_relevance_str+asc";
@@ -238,7 +238,7 @@ class LibrariesController extends AbstractBase
                         $data[] = [
                             'name' => ! empty($library['name_display']) ? $library['name_display'] : '',
                             'address' => ! empty($library['address_map_display_mv'][0]) ? $library['address_map_display_mv'][0] : '',
-                            'id' => $library['id'] ? $library['id'] : '',
+                            'id' => $library['local_ids_str_mv'] ? $library['local_ids_str_mv'][0] : '',
                             'latitude' => explode(" ", $library['gps_display'])[0],
                             'longitude' => explode(" ", $library['gps_display'])[1],
                         ];
