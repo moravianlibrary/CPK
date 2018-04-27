@@ -1,9 +1,9 @@
 (function ( $, document ) {
 	"use strict";
 
-	let STORAGE_KEY = "jquery.notifications";
+	let STORAGE_KEY = "cpk.notifications";
 
-	function init() {
+	function init( user ) {
 		let notifications = localStorage.getItem( STORAGE_KEY );
 		if ( notifications == null ) {
 			$.getJSON( "/AJAX/JSON?method=getAllNotificationsForUser", {}, function ( data ) {
@@ -19,12 +19,17 @@
 
 	function show( notifications ) {
 		for ( var source in notifications['data'] ) {
+			var noOfNotifs = 0;
 			for ( var i in notifications['data'][source]['notifications'] ) {
-				let notif = notifications['data'][source]['notifications'] [i];
+				let notif = notifications['data'][source]['notifications'][i];
 				let placeholder = $( "#cpk-notifications-" + source );
 				$( createNotification( notif ) ).appendTo( placeholder );
+				noOfNotifs++;
 			}
 			$( "#cpk-notifications-" + source + " .notif-default" ).hide();
+			if ( noOfNotifs == 0 ) {
+				$( "#cpk-notifications-" + source + " .notif-header" ).hide();
+			}
 		}
 		$( "#cpk-notifications-warning" ).show();
 	}

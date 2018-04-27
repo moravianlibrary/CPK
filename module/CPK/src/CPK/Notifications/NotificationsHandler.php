@@ -122,11 +122,18 @@ class NotificationsHandler
     {
         $source = explode('.', $cat_username)[0];
 
-        $this->getUserCardApiRelevantNotifications($cat_username, $source);
+        $notifications = [];
+        try {
+            $notifications['notifications'] = array_merge(
+                $this->fetchBlocksDetails($cat_username, $source),
+                $this->fetchFinesDetails($cat_username, $source),
+                $this->fetchOverduesDetails($cat_username, $source)
+            );
+        } catch (\Exception $ex) {
+            // FIXME: error handling
+        }
 
-        $this->getUserCardApiNonrelevantNotifications($cat_username, $source);
-
-        return $this->prepareNotificationsRowsForOutput($this->userCardNotificationsRows, $source);
+        return $notifications;
     }
 
     /**
@@ -137,71 +144,17 @@ class NotificationsHandler
      */
     public function getUserNotifications(User $user)
     {
-        $this->getUserApiRelevantNotifications($user);
-
-        $this->getUserApiNonrelevantNotifications($user);
-
-        return $this->prepareNotificationsRowsForOutput($this->userNotificationsRows);
-    }
-
-    /**
-     * Sets an notification type as read for specific user
-     *
-     * @param User $user
-     * @param string $notificationType
-     * @param string $source
-     * @return boolean $success
-     */
-    public function setUserCardNotificationRead(User $user, $notificationType, $source)
-    {
-        NotificationTypes::assertValid($notificationType);
-
-        foreach ($user->getLibraryCards() as $libCard) {
-            if ($libCard->home_library === $source) {
-
-                $notificationRow = $this->notificationsTable->getNotificationsRowFromUserCardUsername($libCard->id, $notificationType);
-
-                if ($notificationRow instanceof NotificationsRow)
-                    $this->userCardNotificationsRows[$notificationType] = $notificationRow;
-
-                break;
-            }
+        $notifications = [ 'notifications' => [] ];
+        $isDummy = $user->home_library === 'Dummy';
+        if ($isDummy) {
+            $notifications['notifications'][] = [
+                'message' => $this->translate("notif_you_have_" . NotificationTypes::USER_DUMMY),
+                'href' => '/LibraryCards/Home?viewModal=help-with-log-in-and-registration',
+                'type' => NotificationTypes::USER_DUMMY,
+                'clazz' => 'warning',
+            ];
         }
-
-        if (isset($this->userCardNotificationsRows[$notificationType])) {
-
-            $this->userCardNotificationsRows[$notificationType]->read = 1;
-            $this->userCardNotificationsRows[$notificationType]->save();
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Sets an notification type as read for specific user
-     *
-     * @param User $user
-     * @param string $notificationType
-     * @return boolean $success
-     */
-    public function setUserNotificationRead(User $user, $notificationType)
-    {
-        $notificationRow = $this->notificationsTable->getNotificationsRowFromUser($user, $notificationType);
-
-        if ($notificationRow instanceof NotificationsRow)
-            $this->userNotificationsRows[$notificationType] = $notificationRow;
-
-        if (isset($this->userNotificationsRows[$notificationType])) {
-
-            $this->userNotificationsRows[$notificationType]->read = 1;
-            $this->userNotificationsRows[$notificationType]->save();
-
-            return true;
-        }
-
-        return false;
+        return $notifications;
     }
 
     /**
@@ -224,17 +177,17 @@ class NotificationsHandler
 
         if (! $notificationsRow instanceof NotificationsRow) {
 
-            $notificationsParsed = [
-                $notificationType => $showNotification
-            ];
+                $notificationsParsed = [
+                        $notificationType => $showNotification
+                        ];
 
-            $notificationsRow = $this->notificationsTable->createUserNotificationsRows($user, $notificationsParsed)[$notificationType];
-        } else {
+                $notificationsRow = $this->notificationsTable->createUserNotificationsRows($user, $notificationsParsed)[$notificationType];
+            } else {
 
-            if (boolval($showNotification) !== boolval($notificationsRow->shows)) {
-                $notificationsRow->shows = ($showNotification) ? 1 : 0;
-                $notificationsRow->save();
-            }
+                if (boolval($showNotification) !== boolval($notificationsRow->shows)) {
+                        $notificationsRow->shows = ($showNotification) ? 1 : 0;
+                        $notificationsRow->save();
+                    }
         }
 
         $this->userNotificationsRows[$notificationType] = $notificationsRow;
@@ -262,38 +215,6 @@ class NotificationsHandler
             // They have been fetched some time ago, check if it was more than REFETCH_INTERVAL_SECS
             $this->fetchUserCardApiRelevantNotifications($cat_username, $source);
         }
-    }
-
-    /**
-     * Gets all UserCard API nonrelevant Notifications identified by user_card's cat_username
-     *
-     * @param string $cat_username
-     */
-    protected function getUserCardApiNonrelevantNotifications($cat_username, $source)
-    {
-        /*
-         * Here should come the logic for getting the UserCard scoped Notifications which
-         * are not API relevant (doesn't need ILS API to work)
-         *
-         * The result should be appended to array of Notifications Row in this class variable:
-         * $this->userCardNotificationsRows
-         */
-    }
-
-    /**
-     * Gets all User API relevant Notifications identified by provided User Row
-     *
-     * @param User $user
-     */
-    protected function getUserApiRelevantNotifications(User $user)
-    {
-        /*
-         * Here should come the logic for getting the User scoped Notifications which
-         * are API relevant (does need ILS API to work)
-         *
-         * The result should be appended to array of Notifications Row in this class variable:
-         * $this->userNotificationsRows
-         */
     }
 
     /**
@@ -427,22 +348,21 @@ class NotificationsHandler
         ]);
 
         if (is_array($profile) && count($profile) === 0) {
+            throw new ILSException('Error fetching profile in "' . $source . '": ' .
+                $this->translate('profile_fetch_problem'));
+        }
 
-            throw new ILSException('Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
-        } else
-            if (count($profile['blocks'])) {
+        if (!empty($profile['blocks'])) {
+            $notificationType = NotificationTypes::BLOCKS;
+            return [[
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ]];
+        }
 
-                $controlHash = md5(json_encode($profile['blocks']));
-
-                return [
-                    'shows' => true,
-                    'hash' => $controlHash
-                ];
-            }
-
-        return [
-            'shows' => false
-        ];
+        return [];
     }
 
     /**
@@ -460,19 +380,17 @@ class NotificationsHandler
 
         unset($fines['source']);
 
-        if ((count($fines)) && (end($fines)['balance'] < 0)) {
-
-                $controlHash = md5(json_encode($fines));
-
-                return [
-                    'shows' => true,
-                    'hash' => $controlHash
-                ];
+        if ((!empty($fines)) && (end($fines)['balance'] < 0)) {
+            $notificationType = NotificationTypes::FINES;
+            return [[
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ]];
         }
 
-        return [
-            'shows' => false
-        ];
+        return [];
     }
 
     /**
@@ -491,24 +409,21 @@ class NotificationsHandler
         $overduedIds = [];
 
         foreach ($result as $current) {
-
             if (isset($current['dueStatus']) && $current['dueStatus'] === "overdue")
                 array_push($overduedIds, $current['id']);
         }
 
-        if (count($overduedIds)) {
-
-            $controlHash = md5(json_encode($overduedIds));
-
-            return [
-                'shows' => true,
-                'hash' => $controlHash
-            ];
+        if (!empty($overduedIds)) {
+            $notificationType = NotificationTypes::OVERDUES;
+            return [[
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ]];
         }
 
-        return [
-            'shows' => false
-        ];
+        return [];
     }
 
     /**

@@ -905,7 +905,8 @@ class AjaxController extends AjaxControllerBase
         return $this->output($userNotifications, self::STATUS_OK);
     }
 
-    public function getAllNotificationsForUserAjax() {
+    public function getAllNotificationsForUserAjax()
+    {
 
         // Check user's logged in
         if (! $user = $this->getAuthManager()->isLoggedIn()) {
@@ -918,6 +919,7 @@ class AjaxController extends AjaxControllerBase
         foreach ($user->getLibraryCards() as $libCard) {
             $notifications[$libCard->home_library] = $notifHandler->getUserCardNotifications($libCard->cat_username);
         }
+        $notifications['cpk'] = $notifHandler->getUserNotifications($user);
         return $this->output($notifications, self::STATUS_OK);
     }
 
@@ -936,9 +938,7 @@ class AjaxController extends AjaxControllerBase
         }
 
         // Set DbTableManager ..
-        $this->setDbTableManager(
-            $this->getServiceLocator()->get('VuFind\DbTablePluginManager')
-        );
+        $this->setDbTableManager($this->getServiceLocator()->get('VuFind\DbTablePluginManager'));
 
         $table = $this->getDbTable('UserList');
 
@@ -978,48 +978,6 @@ class AjaxController extends AjaxControllerBase
         }
 
         return $this->output($results, self::STATUS_OK);
-    }
-
-    /**
-     * Updates read notifications related to user's identity
-     *
-     * @return \Zend\Http\Response
-     */
-    public function notificationReadAjax()
-    {
-        // Check user is logged in ..
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
-            return $this->output('You are not logged in.', self::STATUS_ERROR);
-        }
-
-        $notificationType = $this->params()->fromPost('notificationType');
-        $source = $this->params()->fromPost('source');
-
-        $notifHandler = $this->getNotificationsHandler();
-
-        if ($notifHandler instanceof \Zend\Http\Response)
-            return $notifHandler;
-
-        try {
-            if ($source === 'user') {
-
-                $notifHandler->setUserNotificationRead($user, $notificationType);
-
-            } else {
-
-                $notifHandler->setUserCardNotificationRead($user, $notificationType, $source);
-
-            }
-        } catch (\Exception $e) {
-
-            return $this->output([
-                'errors' => [
-                    $e->getMessage()
-                ]
-            ], self::STATUS_ERROR);
-        }
-
-        return $this->output(null, self::STATUS_OK);
     }
 
     /**
