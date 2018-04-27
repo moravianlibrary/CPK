@@ -367,8 +367,6 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $this->setUserName($currentUser);
 
-        $this->handleDummyNotification($currentUser);
-
         return $currentUser;
     }
 
@@ -1009,18 +1007,4 @@ class ShibbolethIdentityManager extends Shibboleth
         return $userRow;
     }
 
-    /**
-     * Sets User a notification of having just a Dummy account if has no library connected
-     *
-     * @param UserRow $currentUser
-     */
-    protected function handleDummyNotification(UserRow $currentUser)
-    {
-        if (! isset($_ENV['isDummy']) || $_ENV['isDummy']) {
-
-            $isDummy = $currentUser->home_library === 'Dummy';
-
-            $this->notificationsHandler->setUserNotificationShows($currentUser, NotificationTypes::USER_DUMMY, $isDummy);
-        }
-    }
 }
