@@ -1,19 +1,28 @@
-(function ( $, document ) {
+var cpkNotificationsModule = (function() {
 	"use strict";
 
 	let STORAGE_KEY = "cpk.notifications";
 
-	function init( user ) {
-		let notifications = localStorage.getItem( STORAGE_KEY );
-		if ( notifications == null ) {
+	return {
+
+		init: function( user ) {
+			 initialize( user );
+		},
+
+	}
+
+	function initialize( user ) {
+		let notifications = JSON.parse( localStorage.getItem( STORAGE_KEY ) );
+		if ( notifications == null || notifications.user !== user ) {
 			$.getJSON( "/AJAX/JSON?method=getAllNotificationsForUser", {}, function ( data ) {
 				if ( data.status == 'OK' ) {
+					data.user = user;
 					localStorage.setItem( STORAGE_KEY, JSON.stringify( data ) );
 					show( data );
 				}
 			} );
 		} else {
-			show( JSON.parse( notifications ) );
+			show( notifications );
 		}
 	}
 
@@ -44,10 +53,4 @@
 		return elm;
 	}
 
-	$( document ).ready( function () {
-		init();
-	} );
-
-	return this;
-
-}( jQuery, document ));
+}());

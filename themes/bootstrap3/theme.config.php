@@ -36,7 +36,7 @@ $toRet = array(
 		'obalkyknih.js',
         'vendor/jquery.visible.min.js',
         'vendor/jquery.bootstrap-growl.js',
-        'jquery.notifications.js',
+        'notifications.module.js',
     ),
     'less' => array(
         'active' => false,
