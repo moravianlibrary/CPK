@@ -738,9 +738,9 @@ jQuery( document ).ready( function( $ ) {
             var title = 'New search query';
             var url = '/Search/Results/?' + jQuery.param(data)
             window.history.pushState(stateObject, title, url);
-            //console.log( 'Pushing and replacing state: ' );
-            //console.log( stateObject );
             window.history.replaceState(stateObject, title, url);
+
+            ADVSEARCH.updateDependencies();
         },
 
         /**
@@ -754,8 +754,51 @@ jQuery( document ).ready( function( $ ) {
             var title = 'New search query';
             var url = '/Search/Results/?' + jQuery.param(data)
             window.history.replaceState(stateObject, title, url);
-            ////console.log( 'Replacing state: ' );
-            ////console.log( stateObject );
+
+            ADVSEARCH.updateDependencies();
+        },
+
+        /**
+         * Update dependencies
+         */
+        updateDependencies: function() {
+            // Update Shibboleth's targets in Login IDP links like Angular's Federative Login controller does
+            let newTarget = location.pathname + location.search;
+
+            $( '#loginModal .last-idps a, #loginModal .idp-record a' ).each(function( index, element ) {
+                $( element ).attr( 'href', ADVSEARCH.shibbolethizedUrl($(element).attr('href')) );
+            });
+
+            // Update also last used IDPs in local storage
+            if (null !== localStorage.getItem('__luidps')) {
+                let lastUsedIdps = JSON.parse(localStorage.getItem('__luidps'));
+                for (let i = 0; i < lastUsedIdps.length; i++) {
+                    lastUsedIdps[i].href = ADVSEARCH.shibbolethizedUrl(lastUsedIdps[i].href);
+                }
+                localStorage.setItem('__luidps', JSON.stringify(lastUsedIdps));
+            }
+        },
+
+        /**
+         * Update url with current target location and add auth_method param for Shibboleth
+         * @param   {string} url
+         * @returns {string}
+         */
+        shibbolethizedUrl: function(url) {
+            let oldHref = url;
+            let oldQuery = oldHref.split('?', 2)[1];
+            let newQuery = new URLSearchParams(oldQuery);
+            newQuery.delete('target');
+
+            let newTarget = new URLSearchParams(location.search);
+            newTarget.append('auth_method', 'Shibboleth');
+            newTarget = location.protocol + '//' + location.hostname + location.pathname + '?' + newTarget.toString();
+
+            newQuery.append('target', newTarget);
+
+            let newHref = oldHref.split('?', 2)[0] + '?' + newQuery.toString();
+
+            return newHref;
         },
 
         /**
