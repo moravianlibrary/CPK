@@ -84,8 +84,10 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
 
             if (isset($facets[$this->facetField]['list'])) {
                 $queryWithoutDiacritic = $this->removeDiacritic($query);
+                $queryParts = explode(' ', $queryWithoutDiacritic);
                 foreach ($facets[$this->facetField]['list'] as $filter) {
-                    if (stripos($this->removeDiacritic($filter['value']), $queryWithoutDiacritic) !== false) {
+                  foreach($queryParts as $queryPart)
+                    if (stripos($this->removeDiacritic($filter['value']), $queryPart) !== false) {
                         array_push($results, $filter['value']);
                     }
                 }
