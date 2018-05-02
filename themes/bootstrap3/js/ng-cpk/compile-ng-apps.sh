@@ -15,9 +15,6 @@ favorites/search.controller.js
 federative-login/module.js
 federative-login/login.controller.js
 
-notifications/module.js
-notifications/notif.controller.js
-
 admin/module.js
 admin/configurations/conf.controller.js
 
