@@ -3,6 +3,8 @@ var cpkNotificationsModule = (function() {
 
 	let STORAGE_KEY = "cpk.notifications";
 
+	let CACHE_TIME_LIMIT = 60 * 60 * 1000;
+
 	return {
 
 		init: function( user ) {
@@ -13,39 +15,49 @@ var cpkNotificationsModule = (function() {
 
 	function initialize( user ) {
 		let notifications = JSON.parse( localStorage.getItem( STORAGE_KEY ) );
+		let now = Date.now();
 		if ( notifications == null || notifications.user !== user ) {
-			$.getJSON( "/AJAX/JSON?method=getAllNotificationsForUser", {}, function ( data ) {
-				if ( data.status == 'OK' ) {
-					data.user = user;
-					localStorage.setItem( STORAGE_KEY, JSON.stringify( data ) );
-					show( data );
-				}
-			} );
+			refresh ( user );
+		} else if ( now - notifications.timestamp >= CACHE_TIME_LIMIT ) {
+			show( notifications );
+			refresh ( user );
 		} else {
 			show( notifications );
 		}
 	}
 
+	function refresh( user ) {
+		$.getJSON( "/AJAX/JSON?method=getAllNotificationsForUser", {}, function ( data ) {
+			if ( data.status == 'OK' ) {
+				data.user = user;
+				data.timestamp = Date.now();
+				localStorage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+				show( data );
+			}
+		} );
+	}
+
 	function show( notifications ) {
-		for ( var source in notifications['data'] ) {
+		var totalNotifications = 0;
+		for ( var source in notifications[ 'data' ] ) {
 			var noOfNotifs = 0;
-			for ( var i in notifications['data'][source]['notifications'] ) {
-				let notif = notifications['data'][source]['notifications'][i];
+			for ( var i in notifications[ 'data' ][ source ][ 'notifications' ] ) {
+				let notif = notifications[ 'data' ][ source ][ 'notifications' ][ i ];
 				let placeholder = $( "#cpk-notifications-" + source );
+				placeholder.find( ".notif" ).remove();
 				$( createNotification( notif ) ).appendTo( placeholder );
 				noOfNotifs++;
+				totalNotifications++;
 			}
 			$( "#cpk-notifications-" + source + " .notif-default" ).hide();
-			if ( noOfNotifs == 0 ) {
-				$( "#cpk-notifications-" + source + " .notif-header" ).hide();
-			}
+			$( "#cpk-notifications-" + source + " .notif-header" ).toggle( noOfNotifs > 0 );
 		}
-		$( "#cpk-notifications-warning" ).show();
+		$( "#cpk-notifications-warning" ).toggle( totalNotifications > 0 );
 	}
 
 	function createNotification( notif ) {
 		let elm = document.createElement( 'div' );
-		elm.setAttribute( 'class', 'notif-' + notif.clazz );
+		elm.setAttribute( 'class', 'notif notif-' + notif.clazz );
 		let link = document.createElement( 'a' );
 		link.setAttribute( 'href', notif.href );
 		link.textContent = notif['message'];
