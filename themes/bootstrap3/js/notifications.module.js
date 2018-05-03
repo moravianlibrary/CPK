@@ -43,10 +43,10 @@ var cpkNotificationsModule = (function() {
 		var totalNotifications = 0;
 		for ( var source in notifications[ 'data' ] ) {
 			var noOfNotifs = 0;
+			let placeholder = $( "#cpk-notifications-" + source );
+			placeholder.find( ".notif" ).remove();
 			for ( var i in notifications[ 'data' ][ source ][ 'notifications' ] ) {
 				let notif = notifications[ 'data' ][ source ][ 'notifications' ][ i ];
-				let placeholder = $( "#cpk-notifications-" + source );
-				placeholder.find( ".notif" ).remove();
 				$( createNotification( notif ) ).appendTo( placeholder );
 				noOfNotifs++;
 				totalNotifications++;
