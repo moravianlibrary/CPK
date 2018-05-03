@@ -24,9 +24,11 @@ var cpkNotificationsModule = (function() {
 		} else {
 			show( notifications );
 		}
+		$( "#cpk-notifications-warning" ).click( function() { refresh( user ); } );
 	}
 
 	function refresh( user ) {
+		$( "#cpk-notifications-list .notif-default" ).show();
 		$.getJSON( "/AJAX/JSON?method=getAllNotificationsForUser", {}, function ( data ) {
 			if ( data.status == 'OK' ) {
 				data.user = user;
