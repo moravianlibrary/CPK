@@ -146,17 +146,33 @@ class NotificationsHandler
                 $this->translate('profile_fetch_problem'));
         }
 
+        $notifs = [];
         if (!empty($profile['blocks'])) {
             $notificationType = NotificationTypes::BLOCKS;
-            return [[
+            $notifs[] = [
                 'message' => $this->translate("notif_you_have_$notificationType"),
                 'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
                 'type' => $notificationType,
                 'clazz' => 'warning',
-            ]];
+            ];
         }
 
-        return [];
+        $expire = date_create_from_format('d. m. Y', $profile['expire']);
+        $dateDiff = date_diff($expire, date_create());
+        $invalidRegistration = ($dateDiff->days < 31 && $dateDiff->invert != 0)
+            || ($dateDiff->invert == 0 && $dateDiff->days > 0);
+
+        if ($invalidRegistration) {
+            $notificationType = NotificationTypes::EXPIRED_REGISTRATION;
+            $notifs[] = [
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ];
+        }
+
+        return $notifs;
     }
 
     /**
