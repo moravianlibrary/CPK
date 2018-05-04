@@ -54,6 +54,7 @@ var cpkNotificationsModule = (function() {
 			$( "#cpk-notifications-" + source + " .notif-default" ).hide();
 			$( "#cpk-notifications-" + source + " .notif-header" ).toggle( noOfNotifs > 0 );
 		}
+		$( "#cpk-notifications" ).toggle( totalNotifications > 0 );
 		$( "#cpk-notifications-warning" ).toggle( totalNotifications > 0 );
 	}
 
