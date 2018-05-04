@@ -126,6 +126,9 @@ class Manager extends BaseManager
 
         $_ENV['justLoggedIn'] = true;
 
+        // Update user object
+        $this->updateUser($user);
+
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
 
