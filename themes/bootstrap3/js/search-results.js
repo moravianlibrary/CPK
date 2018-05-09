@@ -633,9 +633,13 @@ jQuery( document ).ready( function( $ ) {
                         if (data['database'] == 'Solr') {
                             $("#ci-autocomplete-help").attr('class', 'hidden')
                             $("#autocomplete-help").removeAttr('class')
+                            $("#ci-search-results-rss-help").attr('class', 'hidden')
+                            $("#search-results-rss-help").removeAttr('class')
                         } else if (data['database'] == "EDS") {
                             $("#autocomplete-help").attr('class', 'hidden');
                             $("#ci-autocomplete-help").removeAttr('class');
+                            $("#search-results-rss-help").attr('class', 'hidden')
+                            $("#ci-search-results-rss-help").removeAttr('class')
                         }
                     },
                     error: function (xmlHttpRequest, status, error) {

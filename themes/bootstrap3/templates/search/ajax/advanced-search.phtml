@@ -9,7 +9,11 @@
 
         <div class='row'>
           <div class='col-md-12 scrollable-search-panel-options'>
-            <?= $this->help()->getQuestionMarkHelp('advanced-search') ?>
+            <? if ($this->searchClassId == 'Solr'): ?>
+              <?= $this->help()->getQuestionMarkHelp('advanced-search') ?>
+            <? else: ?>
+              <?= $this->help()->getQuestionMarkHelp('ci-advanced-search') ?>
+            <? endif; ?>
     	    <a href="#" class='search-type-template-switch'><?=$this->translate("Basic Search")?></a>
     	    <? if($this->searchResults): ?>
               <span class="save-advanced-search-results">
