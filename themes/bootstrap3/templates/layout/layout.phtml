@@ -399,29 +399,5 @@
       </div>
     </div>
     <? endif; ?>
-    <? if (! $user && isset($_GET['AcceptTermsOfUse'])):
-      $agreeUrl = $this->url('myresearch-home').'?auth_method=Shibboleth&terms_of_use_accepted=yes'?>
-    <!-- Modal for terms of use -->
-    <script type="text/javascript">$(function(){$('#termsOfUseModal').modal('show').unbind('click');});</script>
-    <div class="modal fade" id="termsOfUseModal" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title"><?=$this->translate('terms_of_use')?></h4>
-          </div>
-          <div class="modal-body">
-          	<? $termsOfUsePage = $this->portalPages()->getPage('terms-of-use', explode("-", $this->layout()->userLang)[0]);?>
-          	<?=isset($termsOfUsePage['content']) ? $termsOfUsePage['content'] : 'Terms of use are unavailable, please contact the administrator at cpk-dev@mzk.cz' ?>
-		  </div>
-          <div class="modal-footer">
-            <div class="btn-group">
-              <button type="button" title="<?=$this->translate('terms_of_use_agree') ?>" class="btn btn-default" onclick="location='<?=$agreeUrl?>'"><?=$this->translate('i_agree')?></button>
-              <button type="button" title="<?=$this->translate('terms_of_use_disagree') ?>" class="btn btn-default" onclick="$('#termsOfUseModal').modal('hide');"><?=$this->translate('i_disagree')?></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <? endif; ?>
   </body>
 </html>
