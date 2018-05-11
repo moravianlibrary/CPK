@@ -355,8 +355,6 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $this->createConsolidationCookie($currentUser->id);
 
-        $this->setUserName($currentUser);
-
         $this->handleDummyNotification($currentUser);
 
         return $currentUser;
@@ -747,36 +745,6 @@ class ShibbolethIdentityManager extends Shibboleth
     protected function fetchCurrentEntityId()
     {
         return isset($_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV]) ? $_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV] : null;
-    }
-
-    /**
-     * Sets up user's givenName & surname if present in SAML message.
-     *
-     * Once set firstname or lastname, there are no changes made to the user's name anymore.
-     *
-     * @param UserRow $user
-     */
-    protected function setUserName(UserRow &$user)
-    {
-        if (empty($user->firstnme) && empty($user->lastname)) {
-
-            $changed = false;
-
-            if (isset($_SERVER['givenName'])) {
-                $changed = true;
-
-                $user->firstname = $_SERVER['givenName'];
-            }
-
-            if (isset($_SERVER['sn'])) {
-                $changed = true;
-
-                $user->lastname = $_SERVER['sn'];
-            }
-
-            if ($changed)
-                $user->save();
-        }
     }
 
     /**
