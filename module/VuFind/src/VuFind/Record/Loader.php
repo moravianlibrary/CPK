@@ -100,7 +100,14 @@ class Loader
             $results = $this->recordCache->lookup($id, $source);
         }
         if (empty($results)) {
-            $results = $this->searchService->retrieve($source, $id)->getRecords();
+            try {
+                $results = $this->searchService->retrieve($source, $id)->getRecords();
+            } catch (\EbscoEdsApiException $e) {
+                // Allow records from EDS databases that are not enabled for our EDS Profile
+                if ($e->getApiErrorCode() == '135') { // DbId Not In Profile
+                    throw new RecordMissingException('Record ' . $source . ':' . $id . ' is not available anymore.');
+                }
+            }
         }
         if (empty($results) && null !== $this->recordCache
             && $this->recordCache->isFallback($source)

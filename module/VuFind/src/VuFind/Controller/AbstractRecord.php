@@ -27,7 +27,8 @@
  */
 namespace VuFind\Controller;
 use VuFind\Exception\Mail as MailException,
-    VuFind\RecordDriver\AbstractBase as AbstractRecordDriver;
+    VuFind\RecordDriver\AbstractBase as AbstractRecordDriver,
+    VuFind\Exception\RecordMissing as RecordMissingException;
 
 /**
  * VuFind Record Controller
@@ -235,10 +236,13 @@ class AbstractRecord extends AbstractBase
      */
     public function homeAction()
     {
-        // Save statistics:
-        if ($this->logStatistics) {
-            $this->getServiceLocator()->get('VuFind\RecordStats')
-                ->log($this->loadRecord(), $this->getRequest());
+        try {
+            // Save statistics:
+            if ($this->logStatistics) {
+                $this->getServiceLocator()->get('VuFind\RecordStats')->log($this->loadRecord(), $this->getRequest());
+            }
+        } catch (RecordMissingException $e) {
+            return $this->notFoundAction();
         }
 
         return $this->showTab(
