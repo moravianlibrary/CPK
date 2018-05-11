@@ -150,15 +150,19 @@ class Loader
         // Try to load the uncached records from the original $source
         $genuineRecords = [];
         if (!empty($ids)) {
-            $genuineRecords = $this->searchService->retrieveBatch($source, $ids)
-                ->getRecords();
+            $recordsBatch = $this->searchService->retrieveBatch($source, $ids);
 
-            foreach ($genuineRecords as $genuineRecord) {
-                $key = array_search($genuineRecord->getUniqueId(), $ids);
-                if ($key !== false) {
-                    unset($ids[$key]);
+            if ($recordsBatch) {
+                $genuineRecords = $recordsBatch->getRecords();
+
+                foreach ($genuineRecords as $genuineRecord) {
+                    $key = array_search($genuineRecord->getUniqueId(), $ids);
+                    if ($key !== false) {
+                        unset($ids[$key]);
+                    }
                 }
             }
+
         }
 
         if (!empty($ids) && null !== $this->recordCache

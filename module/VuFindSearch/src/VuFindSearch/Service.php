@@ -195,6 +195,12 @@ class Service
                     $this->triggerError($e, $args);
                     throw $e;
                 }
+                catch(\EbscoEdsApiException $e) {
+                    // Allow records from EDS databases that are not enabled for our EDS Profile
+                    if ($e->getApiErrorCode() == '135') { // DbId Not In Profile
+                        continue;
+                    }
+                }
                 if (!$response) {
                     $response = $next;
                 } else if ($record = $next->first()) {
