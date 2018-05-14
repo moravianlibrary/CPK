@@ -891,9 +891,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $item_id = $this->useXPath($holdingSet,
                     'ItemInformation/ItemId/ItemIdentifierValue');
-            if ($this->agency === 'ULG001') {
-                $item_id[0] = str_replace('31480', '', $item_id[0]);
-            }
 
             $status = $this->useXPath($holdingSet,
                     'ItemInformation/ItemOptionalFields/CirculationStatus');
