@@ -426,6 +426,12 @@ class Manager implements \ZfcRbac\Identity\IdentityProviderInterface
                 $this->currentUser = false;
             }
         }
+        // modification for GDPR - do not store last name and first name in DB
+        if (isset($this->session->userInfo)) {
+            $userInfo = $this->session->userInfo;
+            $this->currentUser->lastname = $userInfo['lastname'];
+            $this->currentUser->firstname = $userInfo['firstname'];
+        }
         return $this->currentUser;
     }
 

@@ -247,6 +247,16 @@ class ShibbolethIdentityManager extends Shibboleth
         // EID for connecting identities
         $this->session->eidLoggedInWith = $entityId;
 
+        // modification for GDPR - do not store last name and first name in DB
+        $userInfo = [];
+        if (isset($_SERVER['givenName'])) {
+            $userInfo['firstname'] = $_SERVER['givenName'];
+        }
+        if (isset($_SERVER['sn'])) {
+            $userInfo['lastname'] = $_SERVER['sn'];
+        }
+        $this->session->userInfo = $userInfo;
+
         // Get UserRow by checking for known eppn
         $currentUser = $this->userTableGateway->getUserRowByEppn($eppn);
 
