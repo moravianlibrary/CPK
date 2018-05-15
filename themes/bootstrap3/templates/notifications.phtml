@@ -33,6 +33,6 @@
 </li>
 <? if ($user): ?>
   <script>
-    $( document ).ready( function () { cpkNotificationsModule.init(<?= json_encode($user->cat_username); ?>); } );
+    jQuery( document ).ready( function ( $ ) { cpkNotificationsModule.init(<?= json_encode($user->cat_username); ?>); } );
   </script>
 <? endif; ?>
