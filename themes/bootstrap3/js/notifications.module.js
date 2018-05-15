@@ -1,4 +1,4 @@
-var cpkNotificationsModule = (function() {
+let cpkNotificationsModule = (function() {
 	"use strict";
 
 	let STORAGE_KEY = "cpk.notifications";
@@ -40,12 +40,12 @@ var cpkNotificationsModule = (function() {
 	}
 
 	function show( notifications ) {
-		var totalNotifications = 0;
-		for ( var source in notifications[ 'data' ] ) {
-			var noOfNotifs = 0;
+		let totalNotifications = 0;
+		for ( let source in notifications[ 'data' ] ) {
+			let noOfNotifs = 0;
 			let placeholder = $( "#cpk-notifications-" + source );
 			placeholder.find( ".notif" ).remove();
-			for ( var i in notifications[ 'data' ][ source ][ 'notifications' ] ) {
+			for ( let i in notifications[ 'data' ][ source ][ 'notifications' ] ) {
 				let notif = notifications[ 'data' ][ source ][ 'notifications' ][ i ];
 				$( createNotification( notif ) ).appendTo( placeholder );
 				noOfNotifs++;
