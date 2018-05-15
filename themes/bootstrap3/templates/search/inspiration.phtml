@@ -5,6 +5,13 @@
   $this->layout()->title = $title;
   $this->headTitle($title);
   $this->layout()->headerType = "inspiration";
+  // Set canonical link
+  $this->headLink(
+      [
+          'href' => $this->canonicalUrl,
+          'rel' => 'canonical'
+      ]
+  );
 
 ?>
 <div class="row">

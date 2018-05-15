@@ -163,7 +163,6 @@ class RecordController extends RecordControllerBase
         $view->selectedCitationStyle = $selectedCitationStyle;
 
         $view->availableCitationStyles = $availableCitationStyles;
-        //
 
         $config = $this->getConfig();
         $view->config = $config;
@@ -217,6 +216,11 @@ class RecordController extends RecordControllerBase
             $this->layout()->limit = $searchesConfig->General->default_limit;
             $this->layout()->sort = $searchesConfig->General->default_sort;
         }
+
+        // Set up canonical url
+        $urlParts = parse_url($this->getRequest()->getUriString());
+        $constructedUrl = sprintf('%s://%s%s', $urlParts['scheme'], $urlParts['host'], $urlParts['path']);
+        $this->layout()->canonicalUrl = $constructedUrl;
 
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;

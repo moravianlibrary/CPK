@@ -1,6 +1,13 @@
 <?
   // Set page title.
   $this->headTitle($this->translate('Knihovny.cz'));
+  // Set canonical link
+  $this->headLink(
+      [
+          'href' => "https://$_SERVER[HTTP_HOST]",
+          'rel' => 'canonical'
+      ]
+  );
 
   // Disable top search box -- this page has a special layout.
   $this->layout()->searchbox = false;

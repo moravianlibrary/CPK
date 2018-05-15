@@ -36,6 +36,14 @@ $this->headScript()->appendFile("markerclusterer.js");
 
   $this->headLink()->appendStylesheet('vendor/prism.css');
   $this->headLink()->appendStylesheet('vendor/chosen.css');
+  // Set canonical link
+  $this->headLink(
+      [
+          'href' => $this->canonicalUrl,
+          'rel' => 'canonical'
+      ]
+  );
+
   if ($this->librarySearch == true) {
     $this->layout()->headerType = "newlibraries";
   }

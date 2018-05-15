@@ -82,6 +82,14 @@ class EdsrecordController extends EdsrecordControllerBase
         }
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
+
+        // Set up canonical url
+        $urlParts = parse_url($this->getRequest()->getUriString());
+        $constructedUrl = sprintf('%s://%s%s', $urlParts['scheme'], $urlParts['host'], $urlParts['path']);
+        $this->layout()->canonicalUrl = $constructedUrl;
+
+        $this->layout()->edsRecordView = true;
+
         return $view;
     }
 }

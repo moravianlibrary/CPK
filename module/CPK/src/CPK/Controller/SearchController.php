@@ -854,6 +854,12 @@ class SearchController extends SearchControllerBase
     	    ? $facetConfig->DigitalLibrarieForLibraries->toArray()
     	    : [];
 
+        // Set up canonical url
+        $urlParts = parse_url($this->getRequest()->getUriString());
+        $constructedUrl = sprintf('%s://%s%s', $urlParts['scheme'], $urlParts['host'], $urlParts['path']);
+
+        $view->canonicalUrl = $constructedUrl;
+
 	    return $view;
 	}
 
@@ -1572,6 +1578,11 @@ class SearchController extends SearchControllerBase
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
+        // Set up canonical url
+        $urlParts = parse_url($this->getRequest()->getUriString());
+        $constructedUrl = sprintf('%s://%s%s', $urlParts['scheme'], $urlParts['host'], $urlParts['path']);
+
+        $view->canonicalUrl = $constructedUrl;
 
         return $view;
     }
