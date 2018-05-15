@@ -153,7 +153,6 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected $attribsToCheck = array(
         'cat_username',
-        'email',
         'college',
         'major'
     );
@@ -255,6 +254,9 @@ class ShibbolethIdentityManager extends Shibboleth
         if (isset($_SERVER['sn'])) {
             $userInfo['lastname'] = $_SERVER['sn'];
         }
+        if (isset($_SERVER['email'])) {
+            $userInfo['email'] = $_SERVER['email'];
+        }
         $this->session->userInfo = $userInfo;
 
         // Get UserRow by checking for known eppn
@@ -288,7 +290,7 @@ class ShibbolethIdentityManager extends Shibboleth
                     $attributes['email'] = null;
 
                     // We now detected user has no entry with current eppn in our DB, thus append new libCard
-                $userToConnectWith->createLibraryCard($attributes['cat_username'], $homeLibrary, $eppn, $attributes['email'], $this->canConsolidateMoreTimes);
+                $userToConnectWith->createLibraryCard($attributes['cat_username'], $homeLibrary, $eppn, null, $this->canConsolidateMoreTimes);
             } else {
                 // We now detected user has two entries in our user table, thus we need to merge those
 
@@ -674,7 +676,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow = $this->updateUserRow($userRow, $attributes);
 
         // Assign the user new library card
-        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, $userRow->email, $this->canConsolidateMoreTimes);
+        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, null, $this->canConsolidateMoreTimes);
 
         return $userRow;
     }

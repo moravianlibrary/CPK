@@ -431,6 +431,7 @@ class Manager implements \ZfcRbac\Identity\IdentityProviderInterface
             $userInfo = $this->session->userInfo;
             $this->currentUser->lastname = $userInfo['lastname'];
             $this->currentUser->firstname = $userInfo['firstname'];
+            $this->currentUser->email = $userInfo['email'];
         }
         return $this->currentUser;
     }
