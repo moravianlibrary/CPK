@@ -427,10 +427,10 @@ class SearchController extends SearchControllerBase
 
 	    return $this->createViewModel(
 	        [
-	                        'fundList' => $this->newItems()->getFundList(),
-	                        'ranges' => $this->newItems()->getRanges()
-	        ]
-	        );
+                'fundList' => $this->newItems()->getFundList(),
+                'ranges' => $this->newItems()->getRanges()
+            ]
+        );
 	}
 
 	/**
@@ -855,10 +855,7 @@ class SearchController extends SearchControllerBase
     	    : [];
 
         // Set up canonical url
-        $urlParts = parse_url($this->getRequest()->getUriString());
-        $constructedUrl = sprintf('%s://%s%s', $urlParts['scheme'], $urlParts['host'], $urlParts['path']);
-
-        $view->canonicalUrl = $constructedUrl;
+        $view->canonicalUrl = $this->getCanonicalUrl();
 
 	    return $view;
 	}
@@ -1579,15 +1576,12 @@ class SearchController extends SearchControllerBase
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
         // Set up canonical url
-        $urlParts = parse_url($this->getRequest()->getUriString());
-        $constructedUrl = sprintf('%s://%s%s', $urlParts['scheme'], $urlParts['host'], $urlParts['path']);
-
-        $view->canonicalUrl = $constructedUrl;
+        $view->canonicalUrl = $this->getCanonicalUrl();
 
         return $view;
     }
 
-    /* Get content for widget
+    /** Get content for widget
      *
      * @param string $widgetName
      * @param int    $limit
@@ -1648,5 +1642,16 @@ class SearchController extends SearchControllerBase
         }
 
         return $searchTerms;
+    }
+
+    /**
+     * Get url without query string
+     * 
+     * @return string Url for canonical link
+     */
+    protected function getCanonicalUrl()
+    {
+        $urlParts = parse_url($this->getRequest()->getUriString());
+        return sprintf('%s://%s%s', $urlParts['scheme'], $urlParts['host'], $urlParts['path']);
     }
 }
