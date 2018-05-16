@@ -32,13 +32,13 @@ use Zend\Config\Config;
 use VuFind\View\Helper\Root\TransEsc;
 
 /**
- * Global Notifications view Helper
+ * Notifications view Helper
  *
  * @category VuFind2
- * @package View_Helpers
- * @author Jiří Kozlovský <mail@jkozlovsky.cz>
- * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @package  View_Helpers
+ * @author   Václav Rosecký <xrosecky@mzk.cz>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 class Notifications extends \Zend\View\Helper\AbstractHelper {
 
