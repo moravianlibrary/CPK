@@ -182,8 +182,6 @@
         $authManager = $this->auth()->getManager();
         $user = $authManager->isLoggedIn();
 
-        $libraryCards = [];
-
         //variables for purposes of google analytics
         $hashedUserId = null;
         $listOfIdentityProviders = null;
@@ -197,7 +195,6 @@
 
         if ($user) {
             $loggedIn = "Ano";
-            $libraryCards = $user->getLibraryCards(false);
             $hashedUserId = $user->getHashedId();
             $listOfIdentityProviders = $user->getStringOfConnectedInstitutions();
         }
@@ -205,7 +202,6 @@
         $headerParams = [
             'account' => $authManager,
             'user' => $user,
-            'libraryCards' => $libraryCards,
             'notificationsEnabled' => $notificationsEnabled,
         ];
     ?>
