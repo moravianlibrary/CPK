@@ -1,20 +1,10 @@
-<?
-    $sources = [];
-    if ($user) {
-        $sources['cpk'] = 'Knihovny.cz';
-        foreach ($libraryCards as $libraryCard) {
-           $libraryCode = explode('.', $libraryCard['cat_username'])[0];
-           $sources[$libraryCode] = $libraryCode;
-        }
-    }
-?>
 <li class="dropdown" id="cpk-notifications">
   <a id="cpk-notifications-warning" style="display: none;" href="#" class="dropdown-toggle" data-toggle="dropdown" id="notif_icon">
     <i style="font-size: 20px;" class="pr-web-warningwarnalert"></i>
     <span global-notif="unreadNotifsCount" class="notificationWarning"></span>
   </a>
   <ul id='cpk-notifications-list' class="dropdown-menu">
-    <? foreach ($sources as $source => $text): ?>
+    <? foreach ($this->notifications()->getSources() as $source => $text): ?>
 	    <li id='cpk-notifications-<?=$source?>'>
 	       <div class="notif-header"> <?=$this->translate('source_' . $source, null, $text)?>
            <? if ($source == 'cpk') : ?>

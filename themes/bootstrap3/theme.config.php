@@ -54,7 +54,8 @@ $toRet = array(
             'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
             'identityProviders' => 'CPK\View\Helper\CPK\Factory::getIdentityProviders',
             'help' => 'CPK\View\Helper\CPK\Factory::getHelp',
-            'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih'
+            'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih',
+            'notifications' => 'CPK\View\Helper\CPK\Factory::getNotifications',
         ),
         'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',
