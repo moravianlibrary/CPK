@@ -119,18 +119,11 @@ class LibrariesController extends AbstractBase
 
             $url = $this->config->Index->url."/".$this->config->Index->default_core."/select?";
 
-            /*$url .= "q=$query";
-            $url .= "&fq=NOT+recordtype%3Alibrary+AND+NOT+recordtype%3Asfx";*/
-            
-            //$url .= "q=recordtype:library";
-
             $url .= "q=recordtype:library";
             $url .= "%0A";
             $url .= "merged_boolean:(true)";
 
             if ($query != '*') {
-
-                //$url .= "allLibraryFields_txt_mv:($query)";
 
                 $reader = $this->getServiceLocator()->get('VuFind\SearchSpecsReader');
                 $specs = $reader->get('searchspecs.yaml');
