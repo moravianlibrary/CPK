@@ -226,8 +226,15 @@
               <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
                   <i class="fa fa-feed pointer"></i> <?=$this->translate('RSS')?>
               </a>
-              &nbsp;
-              <?= $this->help()->getQuestionMarkHelp('search-results-rss') ?>
+              <? if($this->searchClassId == 'EDS'): ?>
+                <span id="search-results-rss-help" class="hidden"><?= $this->help()->getQuestionMarkHelp('search-results-rss') ?></span>
+                <span id="ci-search-results-rss-help"><?= $this->help()->getQuestionMarkHelp('ci-search-results-rss') ?></span>
+              <? elseif($this->librarySearch): ?>
+                  <?= $this->help()->getQuestionMarkHelp('adr-search-results-rss') ?>
+              <? else: ?>
+                <span id="search-results-rss-help"><?= $this->help()->getQuestionMarkHelp('search-results-rss') ?></span>
+                <span id="ci-search-results-rss-help" class="hidden"><?= $this->help()->getQuestionMarkHelp('ci-search-results-rss') ?></span>
+              <? endif; ?>
           </div>
       </div>
     </div>
