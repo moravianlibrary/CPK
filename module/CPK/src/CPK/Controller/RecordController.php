@@ -163,7 +163,6 @@ class RecordController extends RecordControllerBase
         $view->selectedCitationStyle = $selectedCitationStyle;
 
         $view->availableCitationStyles = $availableCitationStyles;
-        //
 
         $config = $this->getConfig();
         $view->config = $config;
@@ -175,6 +174,15 @@ class RecordController extends RecordControllerBase
 	    } else {
 	        $view->searchTypeTemplate = 'basic';
 	    }
+
+        //set username for comments if user have come from social network and don`t have firstname and lastname
+        if($this->getUser()
+            && $this->getUser()->isSocialUser()
+            && !$this->getUser()->firstname
+            && !$this->getUser()->lastname
+        ) {
+            $view->socialUser = $this->getUser()->getSource().'_user';
+        }
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 
