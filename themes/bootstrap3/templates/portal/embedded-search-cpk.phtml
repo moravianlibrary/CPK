@@ -1,10 +1,10 @@
 <?
-$position = ($_GET['position'] == "top") ? "top" : "left";
+$position = ($_GET['position'] == 'top') ? 'top' : 'left';
 
 if(empty($_GET['lang'])) {
     $lang = $this->layout()->userLang;
 } else {
-    $lang = ($_GET['lang'] == "en") ? "en" : "cs";
+    $lang = ($_GET['lang'] == 'en') ? 'en' : 'cs';
     $this->layout()->userLang=$lang;
     setcookie('language',$lang);
 }
@@ -16,55 +16,55 @@ if(empty($_GET['lang'])) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" media="all" rel="stylesheet" type="text/css">
   <style>
-      form {
-          width: 100% !important;
-          white-space: nowrap;
-          display: inline-block;
-          vertical-align: middle;
-          padding-top: 6px;
-          padding-bottom: 6px;
-      }
-      .lookfor {
-          border-radius: 50px 0 0 50px;
-          padding-left: 20px;
-          display: inline;
-          max-width: 80% !important;
-          border: 2px solid #ccc;
-      }
-      .find-button {
-          border-radius: 0 50px 50px 0;
-          border: 2px solid #b71b4b;
-          margin-left: -6px;
-          margin-bottom: 2px;
-          padding: 0 22px 0 12px;
-          color: #fff;
-          background-color: #e5004b;
-          width: auto;
-          max-width: 20%;
-          vertical-align: middle;
-      }
-      .find-button:hover {
-          color: #fff;
-          background-color: #b2003a;
-          border: 2px solid #b71b4b;
-      }
-      .lookfor-left {
-          max-width: 60% !important;
-      }
-      .logo-left {
-          margin-right: 8px;
-      }
+    form {
+      width: 100% !important;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: middle;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+    .lookfor {
+      border-radius: 50px 0 0 50px;
+      padding-left: 20px;
+      display: inline;
+      max-width: 80% !important;
+      border: 2px solid #ccc;
+    }
+    .find-button {
+      border-radius: 0 50px 50px 0;
+      border: 2px solid #b71b4b;
+      margin-left: -6px;
+      margin-bottom: 2px;
+      padding: 0 22px 0 12px;
+      color: #fff;
+      background-color: #e5004b;
+      width: auto;
+      max-width: 20%;
+      vertical-align: middle;
+    }
+    .find-button:hover {
+      color: #fff;
+      background-color: #b2003a;
+      border: 2px solid #b71b4b;
+    }
+    .lookfor-left {
+      max-width: 60% !important;
+    }
+    .logo-left {
+      margin-right: 8px;
+    }
   </style>
 </head>
 <body>
-<? if ($position == "left"){ ?>
+<? if ($position == 'left'): ?>
 <form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
   <div class='row'>
     <div class='col-sm-12 text-center'>
       <a href="https://knihovny.cz" title="Knihovny.cz"></a>
         <img src='https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png' alt='Knihovny.cz' height='47' class='logo-left'>
       </a>
-<? } else { ?>
+<? else: ?>
 <div class='row'>
   <div class='col-sm-12 text-center'>
     <a href="https://knihovny.cz" title="Knihovny.cz"></a>
@@ -74,12 +74,12 @@ if(empty($_GET['lang'])) {
 </div>
 
 <form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
-<? } ?>
+<? endif; ?>
 
   <input class="form-control lookfor <?= ($position == 'left')? 'lookfor-left' : ''; ?>" type="text" name="lookfor0[]" value=""
          placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
   <input type="hidden" name="searchTypeTemplate" value="basic">
-  <input type="hidden" name="database" value="<? if (strtoupper($_GET['database']) == "EDS") echo "EDS"; else echo ""; ?>">
+  <input type="hidden" name="database" value="<?= (strtoupper($_GET['database']) == 'EDS')? 'EDS' : ''; ?>">
   <input type="hidden" name="type0[]" value="AllFields">
   <input type="hidden" name="join" value="AND">
   <input type="hidden" name="bool0[]" value="AND">
@@ -87,29 +87,12 @@ if(empty($_GET['lang'])) {
   <input type="hidden" name="keepEnabledFilters" value="true">
   <input class="form-control btn btn-primary find-button" type="submit" value="<?= $this->translate('Find'); ?>">
 
-<? if ($position == "left"){ ?>
+<? if ($position == "left"): ?>
     </div>
   </div>
-<? } ?>
+<? endif; ?>
 </form>
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 </html>
-
-<!--
-<iframe
-    allowfullscreen="true"
-    webkitallowfullscreen="true"
-    mozallowfullscreen="true"
-    allowfullscreen="true"
-    msallowfullscreen="true"
-    frameborder="0"
-    scrolling="no"
-    marginheight="0"
-    marginwidth="0"
-    width="700"
-    height="1000"
-    src="https://beta.knihovny.cz/embedded?position=top&lang=en&database=eds">
-</iframe>
--->

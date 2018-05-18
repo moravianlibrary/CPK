@@ -1,48 +1,34 @@
 <?php
-
 namespace CPK\Module\Configuration;
 
 $config = array(
     'router' => [
         'routes' => [
             'default' => [
-                'type' => 'Zend\Mvc\Router\Http\Segment',
+                'type'    => 'Zend\Mvc\Router\Http\Segment',
                 'options' => [
-                    'route' => '/[:controller[/[:action[/[:subaction[/[:param[/[:param2]]]]]]]]]',
+                    'route'    => '/[:controller[/[:action[/[:subaction[/[:param[/[:param2]]]]]]]]]',
                     'constraints' => [
                         'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'subaction' => '[a-zA-Z0-9_-]*'
-                    ],
+                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'subaction'  => '[a-zA-Z0-9_-]*'
+                     ],
                     'defaults' => [
                         'controller' => 'index',
-                        'action' => 'Home',
-                        'subaction' => 'default',
-                        'param' => 'default',
-                        'param2' => 'default'
+                        'action'     => 'Home',
+                        'subaction'  => 'default',
+                        'param'      => 'default',
+                        'param2'     => 'default'
                     ],
                 ],
             ],
-            'embedded' => array(
-                'type'    => 'Zend\Mvc\Router\Http\Segment',
-                'options' => array(
-                    'route'    => '/embedded[/:action]',
-                    'constraints' => array(
-                        'action'  => '[a-zA-Z][a-zA-Z0-9_-]*'
-                    ),
-                    'defaults' => array(
-                        'controller' => 'search',
-                        'action'     => 'embedded'
-                    ),
-                ),
-            ),
         ],
     ],
     'vufind' => array(
         'plugin_managers' => array(
             'recorddriver' => array(
                 'factories' => array(
-                    'solrdefault' => 'CPK\RecordDriver\Factory::getSolrMarc',
+					'solrdefault' => 'CPK\RecordDriver\Factory::getSolrMarc',
                     'solrmarc' => 'CPK\RecordDriver\Factory::getSolrMarc',
                     'solrcpk_mzk' => 'CPK\RecordDriver\Factory::getSolrMarcMZK',
                     'solrcpk_vkol' => 'CPK\RecordDriver\Factory::getSolrMarcVKOL',
@@ -55,14 +41,14 @@ $config = array(
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
-                'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
+				'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
                 'invokables' => array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
                     'eVersion' => 'CPK\RecordTab\EVersion',
                     'buy' => 'CPK\RecordTab\Buy',
                     'edsavailability' => 'CPK\RecordTab\EdsAvailability',
                     'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
-                    'holdingsils' => 'CPK\RecordTab\HoldingsILS',
+					'holdingsils'     => 'CPK\RecordTab\HoldingsILS',
                     'tagsandcomments' => 'CPK\RecordTab\TagsAndComments',
                     'branches' => 'CPK\RecordTab\Branches',
                     'services' => 'CPK\RecordTab\Services',
@@ -73,7 +59,7 @@ $config = array(
             'recommend' => [
                 'factories' => [
                     'sidefacets' => 'CPK\Recommend\Factory::getSideFacets',
-                    'specifiablefacets' => 'CPK\Recommend\Factory::getSpecifiableFacets'
+					'specifiablefacets' => 'CPK\Recommend\Factory::getSpecifiableFacets'
                 ], /* factories */
             ], /* recommend */
             'auth' => array(
@@ -102,7 +88,7 @@ $config = array(
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session',
-                    'recordstatus' => 'CPK\Db\Table\RecordStatus'
+					'recordstatus' => 'CPK\Db\Table\RecordStatus'
                 ]
             ], /* db_table */
             'ils_driver' => [
@@ -115,10 +101,10 @@ $config = array(
                     'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
                 ), /* factories */
             ], /* ils_driver */
-            'autocomplete' => [
-                'factories' => [
-                    'solredgefaceted' => 'CPK\Autocomplete\Factory::getSolrEdgeFaceted'
-                ],
+                'autocomplete' => [
+                    'factories' => [
+                        'solredgefaceted' => 'CPK\Autocomplete\Factory::getSolrEdgeFaceted'
+                    ],
             ],
         ), /* plugin_managers */
 
@@ -214,7 +200,7 @@ $config = array(
             'libraries' => 'CPK\Controller\Factory::getLibrariesController'
         ),
         'invokables' => array(
-            'myresearch' => 'CPK\Controller\MyResearchController',
+			'myresearch' => 'CPK\Controller\MyResearchController',
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
@@ -227,7 +213,7 @@ $config = array(
     'controller_plugins' => [
         'factories' => [
             'holds' => 'CPK\Controller\Plugin\Factory::getHolds',
-            'shortLoanRequests' => 'CPK\Controller\Plugin\Factory::getShortLoanRequests'
+			'shortLoanRequests'   => 'CPK\Controller\Plugin\Factory::getShortLoanRequests'
         ],
     ],
     'service_manager' => array(
@@ -239,7 +225,7 @@ $config = array(
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
             'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
-            'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds'
+			'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds'
         ), // Exceptions throwing system
 
         'invokables' => array(
@@ -268,13 +254,13 @@ $staticRoutes = array(
     'Admin/ConfigurationsApproval',
     'Admin/PortalPages',
     'Admin/PermissionsManager',
-    'Search/Conspectus',
-    'Search/MostSearched',
-    'Search/NewAcquisitions',
+	'Search/Conspectus',
+ 	'Search/MostSearched',
+	'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory',
-    'MyResearch/ShortLoans',
+	'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
-    'MyResearch/ProfileChange',
+	'MyResearch/ProfileChange',
     'MyResearch/ChangeTitle'
 );
 
@@ -287,7 +273,7 @@ foreach ($staticRoutes as $route) {
             'route' => '/' . $route,
             'defaults' => array(
                 'controller' => $controller,
-                'action' => (!empty($action)) ? $action : 'default'
+                'action' => (! empty($action)) ? $action : 'default'
             )
         )
     );
@@ -297,16 +283,16 @@ $nonTabRecordActions = array('ShortLoan');
 
 foreach ($nonTabRecordActions as $action) {
     $config['router']['routes']['record' . '-' . strtolower($action)] = array(
-        'type' => 'Zend\Mvc\Router\Http\Segment',
+        'type'    => 'Zend\Mvc\Router\Http\Segment',
         'options' => array(
-            'route' => '/' . 'Record' . '/[:id]/' . $action,
+            'route'    => '/' . 'Record' . '/[:id]/' . $action,
             'constraints' => array(
                 'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
             ),
             'defaults' => array(
                 'controller' => 'Record',
-                'action' => $action,
+                'action'     => $action,
             )
         )
     );
