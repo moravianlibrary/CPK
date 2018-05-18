@@ -63,6 +63,7 @@ class Related extends AbstractHelper
      * @param \VuFind\RecordDriver\AbstractBase $driver Record driver
      *
      * @return array
+     * @throws \Exception
      */
     public function getList(\VuFind\RecordDriver\AbstractBase $driver)
     {

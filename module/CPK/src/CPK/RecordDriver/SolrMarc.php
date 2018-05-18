@@ -995,4 +995,14 @@ class SolrMarc extends ParentSolrMarc
         }
         return $mpts;
     }
+
+    /**
+     * Get handler for related
+     *
+     * @return array
+     */
+    public function getFilterParamsForRelated()
+    {
+        return ['handler' => 'morelikethis'];
+    }
 }

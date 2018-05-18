@@ -209,9 +209,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             $uniqueId = $params->get('uniqueId')[0];
             $params->remove('uniqueId');
         }
-        $params
-            ->set('q', sprintf('%s:"%s"', $uniqueId, addcslashes($id, '"')));
-        $params->set('qt', 'morelikethis');
+        $params->set('q', sprintf('%s:"%s"', $uniqueId, addcslashes($id, '"')));
 
         $handler = $this->map->getHandler(__FUNCTION__);
         $this->map->prepare(__FUNCTION__, $params);

@@ -76,7 +76,8 @@ class SimilarItemsCarousel extends AbstractBase
      * Get an array of Record Driver objects representing items similar to the one
      * passed to the constructor.
      *
-     * @return array
+     * @return \VuFindSearch\Response\RecordCollectionInterface
+     * @throws \Exception
      */
     public function getResults()
     {
