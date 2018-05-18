@@ -426,6 +426,13 @@ class Manager implements \ZfcRbac\Identity\IdentityProviderInterface
                 $this->currentUser = false;
             }
         }
+        // modification for GDPR - do not store last name and first name in DB
+        if (isset($this->session->userInfo)) {
+            $userInfo = $this->session->userInfo;
+            $this->currentUser->lastname = $userInfo['lastname'];
+            $this->currentUser->firstname = $userInfo['firstname'];
+            $this->currentUser->email = $userInfo['email'];
+        }
         return $this->currentUser;
     }
 
@@ -494,6 +501,7 @@ class Manager implements \ZfcRbac\Identity\IdentityProviderInterface
     public function create($request)
     {
         $user = $this->getAuth()->create($request);
+        $this->updateUser($user);
         $this->updateSession($user);
         return $user;
     }
@@ -545,6 +553,9 @@ class Manager implements \ZfcRbac\Identity\IdentityProviderInterface
             throw new AuthException('authentication_error_technical');
         }
 
+        // Update user object
+        $this->updateUser($user);
+
         // Store the user in the session and send it back to the caller:
         $this->updateSession($user);
         return $user;
@@ -593,4 +604,18 @@ class Manager implements \ZfcRbac\Identity\IdentityProviderInterface
     {
         return $this->getAuth()->validateCredentials($request);
     }
+
+    /**
+     * Update common user attributes on login
+     *
+     * @param \VuFind\Db\Row\User $user User object
+     *
+     * @return void
+     */
+    protected function updateUser($user)
+    {
+        $user->last_login = date('Y-m-d H:i:s');
+        $user->save();
+    }
+
 }
