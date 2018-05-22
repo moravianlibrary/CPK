@@ -89,10 +89,6 @@ HKA001		= "http://aleph2.svkhk.cz/F?func=direct&doc_number="
 ABA013		= "http://aleph.techlib.cz/F?func=direct&doc_number="
 ABA008		= "http://www.medvik.cz/medvik/title_detail.do?id="
 
-[Piwik]
-url     = "https://cpk-front.mzk.cz/piwik"
-site_id = 1
-
 ; Enables facets this way
 custom_variables = true
 
@@ -102,20 +98,6 @@ track_user = true
 ; Enables ClickHeat plugin
 click_heat_plugin      = false
 click_heat_site_number = 1
-
-[PiwikStatistics]
-trust_ssl_host  =       true
-piwik_token_auth                = "8610953c16b8c1d173f05f6c8b9bc533"
-default_statistics_url  = "https://cpk-front.mzk.cz/Statistics"
-piwik_url                               = "https://cpk-front.mzk.cz/piwik"
-site_id                                 = 1
-catalog_browser_url             = "https://cpk-front.mzk.cz/Browse/"
-search_results_url              = "https://cpk-front.mzk.cz/Search/Results"
-record_url                              = "https://cpk-front.mzk.cz/Record/"
-item_reservation_url    = ""
-item_prolongation_url   = ""
-user_registration_url   = ""
-user_prolongation_url   = ""
 
 [GoogleMaps]
 apikey = AIzaSyALBfl5KwpSRjsvl4h0gzZB1fdq4Ei6DW0

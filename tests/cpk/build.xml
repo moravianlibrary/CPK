@@ -28,9 +28,6 @@
 				 codecoverage="true">
 				 
 			<batchtest>
-				<fileset dir="${srcdir}/../../module/Statistics/tests/unit-tests/src/Piwik">
-					<include name="*Test.php"/>
-				</fileset>
 				<!--<fileset dir="${srcdir}/../../module/CPK/tests/unit-tests/src/CPKTest">
 					<include name="*Test.php"/>
 				</fileset>-->
