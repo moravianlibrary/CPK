@@ -5,132 +5,132 @@
 //cookies
 /////////
 .eu-cookies, .portal-info{
-    background-color: @brand-info;
-    color: @darkbg-text;
-    padding: 4px;
+  background-color: @brand-info;
+  color: @darkbg-text;
+  padding: 4px;
 
-    //cookies are shown on bottom of browser window to avoid collision with header
-    position: fixed;
-    bottom: 0px;
-    left: 0px;
-    width: 100%;
-    z-index: 1030;
-    & > a {
-        color: @darkbg-text;
-        text-decoration: underline;
-    }
+  //cookies are shown on bottom of browser window to avoid collision with header
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  z-index: 1030;
+  & > a {
+    color: @darkbg-text;
+    text-decoration: underline;
+  }
 }
 
 //header
 ////////
 
 .header-container {
-    position: relative;
-    z-index: 2;
-    @media (min-width: 1460px) {
-        .container-fixed();
-        width: 1440px;
-    }
+  position: relative;
+  z-index: 2;
+  @media (min-width: 1460px) {
+    .container-fixed();
+    width: 1440px;
+  }
 }
 
 
 header {
-    margin-bottom: 20px;
-    background-color: @darkbg-text;
-    box-shadow: 2px 2px 2px @grey-color;
-    @media (min-width: @screen-lg-min) {
-        &.frontpage {
-            background-image: url("/themes/bootstrap3/images/book-colage-left.png"),url("/themes/bootstrap3/images/book-colage-right.png");
-            height: 492px;
-            background-position: left bottom, right bottom;
-            background-repeat: no-repeat;
-        }
+  margin-bottom: 20px;
+  background-color: @darkbg-text;
+  box-shadow: 2px 2px 2px @grey-color;
+  @media (min-width: @screen-lg-min) {
+    &.frontpage {
+      background-image: url("/themes/bootstrap3/images/book-colage-left.png"),url("/themes/bootstrap3/images/book-colage-right.png");
+      height: 492px;
+      background-position: left bottom, right bottom;
+      background-repeat: no-repeat;
     }
-    h1,h2,h3,h4 {
-        text-align: center;
+  }
+  h1,h2,h3,h4 {
+    text-align: center;
+  }
+  & > .navbar {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    #notif_icon {
+      padding-top: 14px;
+      padding-bottom: 13px;
     }
-    & > .navbar {
-        padding-top: 30px;
-        padding-bottom: 30px;
-        #notif_icon {
-            padding-top: 14px;
-            padding-bottom: 13px;
-        }
+  }
+  .arrow-link {
+    font-size: 23px;
+    font-weight: 600;
+    margin: -10px 14px 24px 0px;
+    i {
+      font-weight: 600;
     }
-    .arrow-link {
-        font-size: 23px;
-        font-weight: 600;
-        margin: -10px 14px 24px 0px;
-        i {
-            font-weight: 600;
-        }
-    }
+  }
 }
 
 
 //styling of knihovny.cz logo
 .navbar-brand {
-    padding: 0px;
-    //logo is in square, we have to set no overflow, to avoid overflowing
-    //outside the header
-    overflow: hidden;
-    div {
-        height: 50px;
-        i {
-            cursor: pointer;
-            color: inherit;
-        }
+  padding: 0px;
+  //logo is in square, we have to set no overflow, to avoid overflowing
+  //outside the header
+  overflow: hidden;
+  div {
+    height: 50px;
+    i {
+      cursor: pointer;
+      color: inherit;
     }
+  }
 }
 
 //vertical line after knihovny.cz logo
 .navbar-header{
-    border-right: 1px solid rgb(204, 204, 204);
-    padding-right: 30px;
+  border-right: 1px solid rgb(204, 204, 204);
+  padding-right: 30px;
 }
 
 .nav > li > a:hover, .nav > li > a:focus {
-    outline: none;
-    background-color: #fff;
+  outline: none;
+  background-color: #fff;
 }
 
 .navbar{
-    margin-bottom: 0px;
-    border: none;
-    transition: width 500ms, background 500ms;
+  margin-bottom: 0px;
+  border: none;
+  transition: width 500ms, background 500ms;
 }
 .navbar-brand {
-    height: auto;
+  height: auto;
 }
 
 .slogan{
-    font-family: LatoWebBold;
-    position: absolute;
-    left: 86px;
-    top: 64px;
-    color: @link-hover-color;
+  font-family: LatoWebBold;
+  position: absolute;
+  left: 86px;
+  top: 64px;
+  color: @link-hover-color;
 }
 .navbar-brand
 {
-    //smaller padding because of BETA logo
-    padding-bottom: 13px;
+  //smaller padding because of BETA logo
+  padding-bottom: 13px;
 }
 
 .full-width.navbar {
-    width:100%;
-    padding:0px;
+  width:100%;
+  padding:0px;
 }
 
 tr.link {
-    cursor: pointer;
+  cursor: pointer;
 }
 .loginOptions {
-    line-height: 21px;
-    height: 48px;
-    position: relative;
-    display: inline-block;
-    color: @brand-primary;
-    text-decoration: none;
+  line-height: 21px;
+  height: 48px;
+  position: relative;
+  display: inline-block;
+  color: @brand-primary;
+  text-decoration: none;
 }
 #login-button {
     padding: 15px 14.5px;
