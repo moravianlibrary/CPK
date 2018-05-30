@@ -7,7 +7,6 @@ jQuery( document ).ready( function( $ ) {
     if(typeof Storage == "undefined") {
         console.error( 'localStorage and sessionStorage  are NOT supported in this browser' );
     }
-    console.log(localStorage.getItem('facetsApplied'));
     localStorage.setItem("facetsApplied", parseInt('0'));
 
     /*
@@ -576,8 +575,8 @@ jQuery( document ).ready( function( $ ) {
                         }
                         $('#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort').removeAttr('selected');
 
-						/*
-						 * Opdate sort and limit selects, when moving in history back or forward.
+						/**
+						 * Update sort and limit selects, when moving in history back or forward.
 						 * We need to use this f****** stupid robust solution to prevent
 						 * incompatibility and bad displaying of options that are
 						 * in real selected
@@ -630,26 +629,27 @@ jQuery( document ).ready( function( $ ) {
                             });
                         }
 
-                        if (data['database'] == 'Solr') {
-                            $("#ci-autocomplete-help").attr('class', 'hidden')
-                            $("#autocomplete-help").removeAttr('class')
-                            $("#ci-search-results-rss-help").attr('class', 'hidden')
-                            $("#search-results-rss-help").removeAttr('class')
-                        } else if (data['database'] == "EDS") {
+                        if (data['database'] === 'Solr') {
+                            $("#ci-autocomplete-help").attr('class', 'hidden');
+                            $("#autocomplete-help").removeAttr('class');
+                            $("#ci-search-results-rss-help").attr('class', 'hidden');
+                            $("#search-results-rss-help").removeAttr('class');
+                            $("#ci-advanced-search-help").attr('class', 'hidden');
+                            $("#advanced-search-help").removeAttr('class');
+                        } else if (data['database'] === "EDS") {
                             $("#autocomplete-help").attr('class', 'hidden');
                             $("#ci-autocomplete-help").removeAttr('class');
-                            $("#search-results-rss-help").attr('class', 'hidden')
-                            $("#ci-search-results-rss-help").removeAttr('class')
+                            $("#search-results-rss-help").attr('class', 'hidden');
+                            $("#ci-search-results-rss-help").removeAttr('class');
+                            $("#advanced-search-help").attr('class', 'hidden');
+                            $("#ci-advanced-search-help").removeAttr('class');
                         }
                     },
                     error: function (xmlHttpRequest, status, error) {
                         $('#search-results-loader').remove();
                         console.error(xmlHttpRequest.responseText);
-                        //console.log(xmlHttpRequest);
                         console.error(status);
                         console.error(error);
-                        //console.log( 'Sent data: ' );
-                        //console.log( data );
                     },
                 });
             }
