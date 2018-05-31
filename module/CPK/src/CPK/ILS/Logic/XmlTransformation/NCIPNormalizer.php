@@ -244,7 +244,7 @@ class NCIPNormalizer implements LoggerAwareInterface
                     $response->setDataValue(
                         $extId,
                         'ns1:LookupUserResponse',
-                        "ns1:RequestedItem[$i]",
+                        count($requestedItems) > 1 ? "ns1:RequestedItem[$i]" : "ns1:RequestedItem",
                         "ns1:BibliographicId[$countOfBibIds]",
                         'ns1:BibliographicItemId',
                         'ns1:BibliographicItemIdentifier'
