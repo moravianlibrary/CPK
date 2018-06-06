@@ -887,7 +887,7 @@ class NCIPNormalizer implements LoggerAwareInterface
             }
         } // End of libsLikeLiberec
 
-        if ($this->agency === 'ABA008') { // NLK
+        if ($this->agency === 'ABA008' || $this->agency === 'KAG001') { // NLK
 
             $holdingSets = $response->get('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
             $response->unsetDataValue('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
@@ -922,13 +922,30 @@ class NCIPNormalizer implements LoggerAwareInterface
                         }
                     }
 
+                    //escape bad characters in Karvin`s library ItemId
+                    if ($this->agency === 'KAG001') {
+                        $response->setDataValue(
+                            preg_replace(
+                                '~[\/#]~',
+                                '',
+                                $holdingSet['ItemInformation']['ItemId']['ItemIdentifierValue']
+                            ),
+                            'ns1:LookupItemSetResponse',
+                            'ns1:BibInformation',
+                            'ns1:HoldingsSet',
+                            "ns1:ItemInformation[$i]",
+                            'ns1:ItemId',
+                            'ns1:ItemIdentifierValue'
+                        );
+                    }
+
                     if ($department !== null) {
 
                         // parse department properly
 
                         $parts = explode("@", $department);
                         $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
-                        $parts = explode(" ", $translate, 2);
+                        $parts = explode("-", $translate, 2);
                         $department = isset($parts[0]) ? $parts[0] : '';
                         $collection = isset($parts[1]) ? $parts[1] : '';
 

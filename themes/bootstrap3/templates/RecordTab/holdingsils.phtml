@@ -113,6 +113,9 @@ $this->headTitle($this->driver->getBreadcrumb());
   <?
         $rowNo ++;
 
+        //escape bad characters in item id
+        $row['item_id'] = preg_replace('~[\/#]~', '', $row['item_id']);
+
         $sigla = $row['sigla'];
 
         // Build holding ID to query ILS for status
