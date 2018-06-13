@@ -165,6 +165,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         try {
             $client = $this->httpService->createClient(
                 $this->config['Catalog']['url']);
+
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
@@ -172,40 +173,46 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'Content-Type' => 'application/xml'
             ));
 
-            if (isset($this->timeout))
-                $client->setOptions(
-                    array(
-                        'timeout' => $this->timeout
-                    ));
-
-            if ((! empty($this->config['Catalog']['username'])) &&
-                    (! empty($this->config['Catalog']['password']))) {
-
+            if (!empty($this->config['Catalog']['username']) &&
+                    !empty($this->config['Catalog']['password'])) {
                 $user = $this->config['Catalog']['username'];
                 $password = $this->config['Catalog']['password'];
                 $client->setAuth($user, $password);
             }
 
+            $options = [
+                'adapter'   => 'Zend\Http\Client\Adapter\Curl',
+            ];
+
+            if (isset($this->timeout)) {
+                $options['timeout'] = $this->timeout;
+            }
+
+            $proxyConfig = $this->config['proxy'];
+            if (isset($proxyConfig) && !empty($proxyConfig['host'])
+                && !empty($proxyConfig['port'])) {
+                $options['proxyhost'] = $proxyConfig['host'];
+                $options['proxyport'] = $proxyConfig['port'];
+                if (!empty($proxyConfig['username']) && !empty($proxyConfig['password'])) {
+                    $options['proxyuser'] = $proxyConfig['username'];
+                    $options['proxypass'] = $proxyConfig['password'];
+                }
+            }
+
             if ($this->hasUntrustedSSL) {
                 // Do not verify SSL certificate
-                $client->setOptions(
-                    array(
-                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                        'curloptions' => array(
-                            CURLOPT_SSL_VERIFYHOST => false,
-                            CURLOPT_SSL_VERIFYPEER => false
-                        )
-                    ));
+                $options['curloptions'] = [
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                ];
             } elseif (isset($this->cacert)) {
-                $client->setOptions(
-                    array(
-                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                        'curloptions' => array(
-                            CURLOPT_FOLLOWLOCATION => true,
-                            CURLOPT_CAINFO => $this->cacert
-                        )
-                    ));
+                $options['curloptions'] = [
+                    URLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_CAINFO => $this->cacert,
+                ];
             }
+
+            $client->setOptions($options);
 
             $result = $client->send();
         } catch (\Exception $e) {

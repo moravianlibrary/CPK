@@ -727,6 +727,10 @@ class MultiBackend extends MultiBackendBase
             $driver = $this->drivers[$source];
 
             $config = $this->instConfigsTable->getApprovedConfig($source);
+            $globalConfig = $this->configLoader->get('config');
+            if (isset($globalConfig['DriverProxy'])) {
+                $config['proxy'] = $globalConfig['DriverProxy']->toArray();
+            }
 
             if (! $config) {
                 $this->error("No configuration found for source '$source'");
