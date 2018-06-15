@@ -65,7 +65,6 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
                 $this->autocompleteField.':('.$this->mungeQuery($query).')'
             );
             $params = $this->searchObject->getParams();
-            $options = $this->searchObject->getOptions();
             if ($facetFilters != 'null') {
                 if (is_array($facetFilters)) {
                     foreach ($facetFilters as $facetFilter) {
@@ -77,7 +76,7 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             }
             $params->addFacet($this->facetField);
             $params->setLimit(0);
-            $params->setFacetLimit(90);
+            $params->setFacetLimit(30);
             $this->searchObject->getParams()->setSort($this->facetField);
             $results = $this->searchObject->getResults();
             $facets = $this->searchObject->getFacetList();
@@ -85,9 +84,21 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             if (isset($facets[$this->facetField]['list'])) {
                 $queryWithoutDiacritic = $this->removeDiacritic($query);
                 $queryParts = explode(' ', $queryWithoutDiacritic);
+                $queryPartsCount = count($queryParts);
                 foreach ($facets[$this->facetField]['list'] as $filter) {
-                  foreach($queryParts as $queryPart)
-                    if (stripos($this->removeDiacritic($filter['value']), $queryPart) !== false) {
+                    $matchedQueryParts = 0;
+
+                    foreach ($queryParts as $queryPart) {
+                        $foundItems = explode(' ', $this->removeDiacritic($filter['value']));
+
+                        foreach($foundItems as $foundItem) {
+                            if (stripos($foundItem, $queryPart) !== false) {
+                                $matchedQueryParts++;
+                            }
+                        }
+                    }
+
+                    if ($matchedQueryParts == $queryPartsCount) {
                         array_push($results, $filter['value']);
                     }
                 }
