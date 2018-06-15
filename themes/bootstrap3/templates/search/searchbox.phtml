@@ -4,6 +4,10 @@
         $this->searchClassId = 'Solr';
     }
 
+    $recordId = end(explode("/", strtok($_SERVER["REQUEST_URI"],'?'), 3));
+    $recordSource = explode(".", $recordId)[0];
+    $this->librarySearch = $recordSource === 'library';
+
     // Load search actions and settings (if any):
     $options = $this->searchOptions($this->searchClassId);
     $handlers = $this->searchbox()->getHandlers(
