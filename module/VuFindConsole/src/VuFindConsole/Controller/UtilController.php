@@ -43,12 +43,6 @@ use \CPK\Widgets\WidgetContent;
  */
 class UtilController extends AbstractBase
 {
-    /*public function __construct($namespace = 'VuFindConsole')
-    {
-        //dd($namespace);
-       // parent::__construct();
-    }*/
-
     /**
      * Display help for the index reserves action.
      *
