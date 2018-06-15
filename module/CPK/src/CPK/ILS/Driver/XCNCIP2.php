@@ -163,8 +163,23 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     {
         // Make the NCIP request:
         try {
+            $options = [
+                'curloptions' => []
+            ];
+            if ($this->hasUntrustedSSL) {
+                // Do not verify SSL certificate
+                $options['curloptions'] = [
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                ];
+            } elseif (isset($this->cacert)) {
+                $options['curloptions'] = [
+                    URLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_CAINFO => $this->cacert,
+                ];
+            }
             $client = $this->httpService->createClient(
-                $this->config['Catalog']['url']);
+                $this->config['Catalog']['url'], 'POST', null, $options);
 
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
@@ -179,40 +194,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 $password = $this->config['Catalog']['password'];
                 $client->setAuth($user, $password);
             }
-
-            $options = [
-                'adapter'   => 'Zend\Http\Client\Adapter\Curl',
-            ];
-
-            if (isset($this->timeout)) {
-                $options['timeout'] = $this->timeout;
-            }
-
-            $proxyConfig = $this->config['proxy'];
-            if (isset($proxyConfig) && !empty($proxyConfig['host'])
-                && !empty($proxyConfig['port'])) {
-                $options['proxyhost'] = $proxyConfig['host'];
-                $options['proxyport'] = $proxyConfig['port'];
-                if (!empty($proxyConfig['username']) && !empty($proxyConfig['password'])) {
-                    $options['proxyuser'] = $proxyConfig['username'];
-                    $options['proxypass'] = $proxyConfig['password'];
-                }
-            }
-
-            if ($this->hasUntrustedSSL) {
-                // Do not verify SSL certificate
-                $options['curloptions'] = [
-                    CURLOPT_SSL_VERIFYHOST => false,
-                    CURLOPT_SSL_VERIFYPEER => false,
-                ];
-            } elseif (isset($this->cacert)) {
-                $options['curloptions'] = [
-                    URLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_CAINFO => $this->cacert,
-                ];
-            }
-
-            $client->setOptions($options);
 
             $result = $client->send();
         } catch (\Exception $e) {

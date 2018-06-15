@@ -371,6 +371,9 @@ class Factory
             if (isset($config->Proxy->type)) {
                 $options['proxy_type'] = $config->Proxy->type;
             }
+            if (isset($config->Proxy->non_proxy_host)) {
+                $options['non_proxy_host'] = $config->Proxy->non_proxy_host->toArray();
+            }
         }
         $defaults = isset($config->Http)
             ? $config->Http->toArray() : [];
