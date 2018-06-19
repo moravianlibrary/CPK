@@ -374,6 +374,12 @@ class Factory
             if (isset($config->Proxy->non_proxy_host)) {
                 $options['non_proxy_host'] = $config->Proxy->non_proxy_host->toArray();
             }
+            if (isset($config->Proxy->username)) {
+                $options['username'] = $config->Proxy->username;
+            }
+            if (isset($config->Proxy->password)) {
+                $options['password'] = $config->Proxy->password;
+            }
         }
         $defaults = isset($config->Http)
             ? $config->Http->toArray() : [];

@@ -118,9 +118,10 @@ class HttpService implements HttpServiceInterface
 
                     if (!empty($this->proxyConfig['username'])
                         && !empty($this->proxyConfig['password'])) {
-                        $userpwd = $this->proxyConfig['username'] . ':'
-                            . $this->proxyConfig['password'];
+                        $userpwd = urlencode($this->proxyConfig['username']) . ':'
+                            . urlencode($this->proxyConfig['password']);
                         $adapter->setCurlOption(CURLOPT_PROXYUSERPWD, $userpwd);
+                        $adapter->setCurlOption(CURLOPT_PROXYAUTH, CURLAUTH_ANY);
                     }
 
                     if ($proxyType == 'socks5') {
