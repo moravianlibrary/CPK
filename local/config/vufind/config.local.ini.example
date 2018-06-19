@@ -134,6 +134,6 @@ apiUrl  = http://knihovny.cz:3000/api
 type = curl
 host = your.proxy.server
 port = 8000
-non_proxy_host[] = cache.obalkyknih.cz
 username = username
 password = password
+non_proxy_host[] = cache.obalkyknih.cz
