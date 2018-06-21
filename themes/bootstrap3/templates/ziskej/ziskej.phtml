@@ -1,0 +1,27 @@
+<?
+// Set page title.
+$this->headTitle($this->translate('Ziskej'));
+
+// Disable search box
+$this->layout()->searchbox = false;
+?>
+
+<div align="center">
+  <form name="" action="/ziskej" id="ziskejForm" method="post">
+    <label for="ziskejSelect">ZISKEJ</label>
+    <select name="ziskej" class="form-control" id="ziskejSelect">
+      <option value="off">Získej - nezobarzovat</option>
+      <option value="prod">Získej - produkce</option>
+      <option value="training">Získej - školení</option>
+      <option value="test">Získej - testování</option>
+      <option value="develop">Získej - vývoj</option>
+    </select>
+    <input class="btn btn-primary" type="submit" name="submitZiskej" title="submit" value="submit">
+  </form>
+</div>
+
+<style>
+  #ziskejSelect {
+    margin: 15px;
+  }
+</style>
