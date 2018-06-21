@@ -53,9 +53,6 @@
                       <input type="hidden" name="user_id" value="<?=
                       isset($_SERVER[$mvs->user_id_key]) ? $_SERVER[$mvs->user_id_key] : ''
                       ?>"/>
-                      <input type="hidden" name="entity_id" value="<?=
-                      isset($_SERVER[$mvs->entity_id_key]) ? $_SERVER[$mvs->entity_id_key] : ''
-                      ?>"/>
                       <input type="hidden" name="doc_id" value="<?= $id ?>"/>
                       <? $records=$tabs['DedupedRecords']->getRecordsInGroup(); foreach ($records as $record): ?>
                           <input type="hidden" name="doc_alt_ids[]" value="<?= $record['id']?>"/>

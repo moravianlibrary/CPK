@@ -6,7 +6,6 @@ enabled		= true
 url		= https://ziskej.techlib.cz/ticket_create
 source_id	= knihovny.cz
 user_id_key	= eduPersonPrincipalName
-entity_id_key   = Shib-Identity-Provider
 
 ; Activate Captcha validation on select forms
 ; VuFind will use reCaptcha validation to prevent bots from using certain actions of
