@@ -1,12 +1,6 @@
 [System]
 debug           = false
 
-[MVS]
-enabled		= true
-url		= https://ziskej.techlib.cz/ticket_create
-source_id	= knihovny.cz
-user_id_key	= eduPersonPrincipalName
-
 ; Activate Captcha validation on select forms
 ; VuFind will use reCaptcha validation to prevent bots from using certain actions of
 ; your instance. See http://www.google.com/recaptcha for more information on Captcha
