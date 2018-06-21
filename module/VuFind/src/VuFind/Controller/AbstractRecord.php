@@ -83,6 +83,13 @@ class AbstractRecord extends AbstractBase
     protected $driver = null;
 
     /**
+     * Record driver
+     *
+     * @var AbstractRecordDriver
+     */
+    protected $parentDriver = null;
+
+    /**
      * Create a new ViewModel.
      *
      * @param array $params Parameters to pass to ViewModel constructor.
@@ -622,7 +629,7 @@ class AbstractRecord extends AbstractBase
         $request = $this->getRequest();
         $rtpm = $this->getServiceLocator()->get('VuFind\RecordTabPluginManager');
         $details = $rtpm->getTabDetailsForRecord(
-            $driver, $this->getTabConfiguration(), $request,
+            $driver, $this->getParentDriver(), $this->getTabConfiguration(), $request,
             $this->fallbackDefaultTab
         );
         $this->allTabs = $details['tabs'];
@@ -710,4 +717,24 @@ class AbstractRecord extends AbstractBase
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
         return $view;
     }
+
+    protected function getParentDriver()
+    {
+        if ($this->parentDriver === false) {
+            return null;
+        }
+        $parentRecordID = $this->driver->tryMethod("getParentRecordID");
+        if ($parentRecordID == null) {
+            $this->parentDriver = false;
+            return null;
+        }
+        if ($this->recordLoader === null) {
+            $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+        }
+        if ($this->parentDriver === null) {
+            $this->parentDriver = $this->recordLoader->load($parentRecordID);
+        }
+        return $this->parentDriver;
+    }
+
 }

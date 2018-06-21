@@ -245,14 +245,7 @@ class RecordController extends RecordControllerBase
      */
     protected function get856Links()
     {
-        $parentRecordID = $this->driver->getParentRecordID();
-
-        if ($this->recordLoader === null) {
-            $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-        }
-
-        $recordDriver = $this->recordLoader->load($parentRecordID);
-        return $recordDriver->get856Links();
+        return $this->getParentDriver()->get856Links();
     }
 
     /**
@@ -262,15 +255,7 @@ class RecordController extends RecordControllerBase
      */
     protected function get866Data()
     {
-    	$parentRecordID = $this->driver->getParentRecordID();
-
-    	if ($this->recordLoader === null)
-    	    $this->recordLoader = $this->getServiceLocator()
-    	       ->get('VuFind\RecordLoader');
-
-    	$recordDriver = $this->recordLoader->load($parentRecordID);
-    	$links = $recordDriver->get866Data();
-    	return $links;
+        return $this->getParentDriver()->get866Data();
     }
 
     /**

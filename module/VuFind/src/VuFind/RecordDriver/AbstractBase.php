@@ -507,4 +507,5 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
             ? call_user_func_array([$this, $method], $params)
             : null;
     }
+
 }

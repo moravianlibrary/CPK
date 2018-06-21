@@ -59,6 +59,13 @@ abstract class AbstractBase implements TabInterface,
     protected $driver = null;
 
     /**
+     * Record driver associated with the tab
+     *
+     * @var \VuFind\RecordDriver\AbstractBase
+     */
+    protected $parentDriver;
+
+    /**
      * User request associated with the tab (false for none)
      *
      * @var \Zend\Http\Request|bool
@@ -131,6 +138,33 @@ abstract class AbstractBase implements TabInterface,
             throw new \Exception('Record driver not set.');
         }
         return $this->driver;
+    }
+
+    /**
+     * Set the record driver
+     *
+     * @param \VuFind\RecordDriver\AbstractBase $driver Record driver
+     *
+     * @return AbstractBase
+     */
+    public function setParentRecordDriver(\VuFind\RecordDriver\AbstractBase $parentDriver)
+    {
+        $this->parentDriver = $parentDriver;
+        return $this;
+    }
+
+    /**
+     * Get the record driver
+     *
+     * @return \VuFind\RecordDriver\AbstractBase
+     * @throws \Exception
+     */
+    protected function getParentRecordDriver()
+    {
+        if (null === $this->parentDriver) {
+            throw new \Exception('Parent record driver not set.');
+        }
+        return $this->parentDriver;
     }
 
     /**

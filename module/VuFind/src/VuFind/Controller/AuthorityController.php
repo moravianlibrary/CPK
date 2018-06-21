@@ -79,7 +79,7 @@ class AuthorityController extends AbstractSearch
         $request = $this->getRequest();
         $tabs = $this->getServiceLocator()
             ->get('VuFind\RecordTabPluginManager')
-            ->getTabsForRecord($driver, $tabConfig, $request);
+            ->getTabsForRecord($driver, null, $tabConfig, $request);
         return $this->createViewModel(['driver' => $driver, 'tabs' => $tabs]);
     }
 
