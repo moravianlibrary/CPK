@@ -19,7 +19,7 @@ class NCIPRequests {
     protected $sendUserId = null;
 
     protected $libsLikeTabor = [
-        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'SOG504', 'PBG001',
+        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'SOG504',
     ];
 
     protected $libsLikeLiberec = [
@@ -186,6 +186,27 @@ class NCIPRequests {
         if (! empty($nextItemToken)) {
             $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
             "</ns1:NextItemToken>";
+        }
+        $body .= $this->insertExtPatronId($patron);
+        $body .= "</ns1:LookupItemSet>";
+        return $this->header() . $body . $this->footer();
+    }
+
+    public function LUISBibItemV2($bibId, $nextItemToken = null, XCNCIP2V2 $mainClass = null, $patron = []) {
+        $body = "<ns1:LookupItemSet>";
+        $body .= $this->insertInitiationHeader($patron);
+        if ($mainClass !== null)
+            list ($bibId, $agency) = $mainClass->splitAgencyId($bibId);
+        $body .= $this->insertBibliographicItemIdTag($bibId);
+        $body .= $this->allItemElementType();
+        if (! empty($mainClass->getMaximumItemsCount())) {
+            $body .= "<ns1:MaximumItemsCount>" .
+                htmlspecialchars($mainClass->getMaximumItemsCount()) .
+                "</ns1:MaximumItemsCount>";
+        }
+        if (! empty($nextItemToken)) {
+            $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
+                "</ns1:NextItemToken>";
         }
         $body .= $this->insertExtPatronId($patron);
         $body .= "</ns1:LookupItemSet>";
