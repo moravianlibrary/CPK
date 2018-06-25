@@ -42,10 +42,9 @@ class ZiskejController extends AbstractBase
 
         // Check if it is post request
         if ($this->getRequest()->isPost()) {
-            $data = $this->getRequest()->getPost('ziskej');
-
-            // Set cookie
-            setcookie('ziskej', htmlspecialchars($data));
+            $data = htmlspecialchars($this->getRequest()->getPost('ziskej'));
+            setcookie('ziskej', $data, 0);
+            $view->setting = $data;
         }
 
         return $view;
