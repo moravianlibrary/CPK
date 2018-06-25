@@ -854,6 +854,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             $label = $this->determineLabel($status);
 
             $itemRestriction = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
+
             $addLink = $this->isLinkAllowed($status, $itemRestriction);
 
             $retVal[] = array(

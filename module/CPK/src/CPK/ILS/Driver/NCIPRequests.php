@@ -26,6 +26,10 @@ class NCIPRequests {
         'LIA001', 'CBA001', 'KLG001',
     ];
 
+    protected $libsNeedsPickUpLocation = [
+        'UOG505', 'ABG001'
+    ];
+
     public function __construct($config) {
         $this->agency = $config['Catalog']['agency'];
         $this->sendUserId = isset($config['Catalog']['sendUserId']) ? $config['Catalog']['sendUserId']: true;
@@ -249,6 +253,10 @@ class NCIPRequests {
 
     public function getLibsLikeLiberec() {
         return $this->libsLikeLiberec;
+    }
+
+    public function getLibsNeedsPickUpLocation() {
+        return $this->libsNeedsPickUpLocation;
     }
 
     protected function header($ext = '') {

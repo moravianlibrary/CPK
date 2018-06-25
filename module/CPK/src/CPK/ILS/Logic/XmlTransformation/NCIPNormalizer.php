@@ -73,6 +73,11 @@ class NCIPNormalizer implements LoggerAwareInterface
     protected $libsLikeLiberec = null;
 
     /**
+     * @var null
+     */
+    protected $libsNeedsPickUpLocation = null;
+
+    /**
      * @var Translator
      */
     protected $translator = null;
@@ -100,6 +105,7 @@ class NCIPNormalizer implements LoggerAwareInterface
         $this->ncipRequests = $ncipRequests;
         $this->libsLikeTabor = $ncipRequests->getLibsLikeTabor();
         $this->libsLikeLiberec = $ncipRequests->getLibsLikeLiberec();
+        $this->libsNeedsPickUpLocation = $ncipRequests->getLibsNeedsPickUpLocation();
         $this->translator = $translator;
     }
 
@@ -122,7 +128,7 @@ class NCIPNormalizer implements LoggerAwareInterface
             case 'getMyHolds':
                 $this->normalizeRequestedItems($jsonXml);
                 break;
-            case 'getPickupLocations':
+            case 'getPickUpLocations':
                 $this->normalizeLookupAgencyLocations($jsonXml);
                 break;
             case 'getMyHistoryPage':
@@ -455,6 +461,9 @@ class NCIPNormalizer implements LoggerAwareInterface
      */
     protected function normalizeLookupAgencyLocations(JsonXML &$response)
     {
+        if(!in_array($this->agency, $this->libsNeedsPickUpLocation)) {
+            $response->unsetDataValue('ns1:LookupAgencyResponse', 'ns1:AgencyAddressInformation');
+        }
 
         if ($this->agency === 'ABG001') { // mkp
 
@@ -708,6 +717,13 @@ class NCIPNormalizer implements LoggerAwareInterface
             || $this->agency === 'SOG504'
         ) {
             $holdingSets = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
+
+            //detect if just one item in holding set
+            $hasOneItem = false;
+            if(count($holdingSets) == 1) {
+                $hasOneItem = true;
+            }
+
             $response->unsetDataValue('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
 
             // Rewind holdingSets to ItemInformation ..
@@ -748,8 +764,19 @@ class NCIPNormalizer implements LoggerAwareInterface
                     $itemRestrictions = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
                     $isOrderable = false;
                     foreach ($itemRestrictions as $j => $item) {
-                        if ($item == 'Orderable') {
+                        $itemText = JsonXML::getElementText($item);
+                        if ($itemText == "Orderable") {
                             $isOrderable = true;
+                            $itemRestrictions[0] = JsonXML::getElementText(array_pop($itemRestrictions));
+                            $response->setDataValue(
+                                $itemRestrictions,
+                                'ns1:LookupItemSetResponse',
+                                'ns1:BibInformation',
+                                'ns1:HoldingsSet',
+                                $hasOneItem ? "ns1:ItemInformation" : "ns1:ItemInformation[$i]",
+                                'ns1:ItemOptionalFields',
+                                "ns1:ItemUseRestrictionType"
+                            );
                             break;
                         }
                     }

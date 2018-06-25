@@ -565,6 +565,18 @@ class JsonXML implements \ArrayAccess, \Iterator
     }
 
     /**
+     * @param $element
+     * @return string
+     */
+    public static function getElementText($element) {
+        if (!$element['@text'] || empty($element['@text']))  {
+            return '';
+        }
+
+        return $element['@text'];
+    }
+
+    /**
      * @param $rootElement
      * @param array ...$relativePathParts
      * @return array|mixed|null
