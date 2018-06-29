@@ -440,17 +440,7 @@ class SolrDublinCore extends ParentSolrMarc
 
     public function get856Links()
     {
-        $retVal = array();
-        if (isset($this->fields['url'])) {
-            $retVal[] = $this->fields['url'][0];
-        }
-        else {
-            $fullrecord = $this->fields['fullrecord'];
-            $dc = simplexml_load_string($fullrecord);
-            $value = $dc->isShownAt;
-            $retVal[] = 'manuscript|unknown|' . (string) $value[0];
-        }
-        return $retVal;
+        return isset($this->fields['url']) ? $this->fields['url'] : [];
     }
 
     public function getParentRecordID()
