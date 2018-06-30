@@ -2,11 +2,11 @@
 $position = ($_GET['position'] == 'top') ? 'top' : 'left';
 
 if(empty($_GET['lang'])) {
-    $lang = $this->layout()->userLang;
+  $lang = $this->layout()->userLang;
 } else {
-    $lang = ($_GET['lang'] == 'en') ? 'en' : 'cs';
-    $this->layout()->userLang=$lang;
-    setcookie('language',$lang);
+  $lang = ($_GET['lang'] == 'en') ? 'en' : 'cs';
+  $this->layout()->userLang=$lang;
+  setcookie('language',$lang);
 }
 ?>
 <!DOCTYPE html>
@@ -16,7 +16,7 @@ if(empty($_GET['lang'])) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" media="all" rel="stylesheet" type="text/css">
   <style>
-    form {
+    #embedded-search {
       width: 100% !important;
       white-space: nowrap;
       display: inline-block;
@@ -59,21 +59,21 @@ if(empty($_GET['lang'])) {
 <body>
 <? if ($position == 'left'): ?>
 <form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
-  <div class='row'>
-    <div class='col-sm-12 text-center'>
+  <div class="row">
+    <div class="col-sm-12 text-center">
       <a href="https://knihovny.cz" title="Knihovny.cz"></a>
-        <img src='https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png' alt='Knihovny.cz' height='47' class='logo-left'>
+        <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47" class="logo-left">
       </a>
 <? else: ?>
-<div class='row'>
-  <div class='col-sm-12 text-center'>
+<div class="row">
+  <div class="col-sm-12 text-center">
     <a href="https://knihovny.cz" title="Knihovny.cz"></a>
-      <img src='https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png' alt='Knihovny.cz' height='47'>
+      <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47">
     </a>
   </div>
 </div>
 
-<form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+<form id="embedded-search" class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
 <? endif; ?>
 
   <input class="form-control lookfor <?= ($position == 'left')? 'lookfor-left' : ''; ?>" type="text" name="lookfor0[]" value=""
