@@ -56,7 +56,7 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
      */
     public function getSuggestionsWithFilters($query, $facetFilters = null)
     {
-        if (!is_object($this->searchObject)) {
+        if (! is_object($this->searchObject)) {
             throw new \Exception('Please set configuration first.');
         }
         $results = array();
@@ -79,17 +79,18 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             $params->setFacetLimit(30);
             $this->searchObject->getParams()->setSort($this->facetField);
             $results = $this->searchObject->getResults();
-            $facets = $this->searchObject->getFacetList();
+            $facets  = $this->searchObject->getFacetList();
 
             if (isset($facets[$this->facetField]['list'])) {
                 $queryWithoutDiacritic = $this->removeDiacritic($query);
-                $queryParts = explode(' ', $queryWithoutDiacritic);
-                $queryPartsCount = count($queryParts);
+                $queryParts            = preg_split('/\s+/', $queryWithoutDiacritic);
+                $queryPartsCount       = count($queryParts);
+
                 foreach ($facets[$this->facetField]['list'] as $filter) {
                     $matchedQueryParts = 0;
 
                     foreach ($queryParts as $queryPart) {
-                        $foundItems = explode(' ', $this->removeDiacritic($filter['value']));
+                        $foundItems = preg_split('/\s+/', $this->removeDiacritic($filter['value']));
 
                         foreach($foundItems as $foundItem) {
                             if (stripos($foundItem, $queryPart) !== false) {
