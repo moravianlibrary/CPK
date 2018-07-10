@@ -743,27 +743,6 @@ class NCIPNormalizer implements LoggerAwareInterface
                     "ns1:ItemInformation[$i]"
                 );
 
-                if ($this->agency === 'ULG001') {
-
-                    // Replace item_id when necessary
-                    $item_id = $response->getRelative($itemInformation, 'ItemId', 'ItemIdentifierValue');
-
-                    if ($item_id !== null)
-                        $item_id = preg_replace('^31480', '', $item_id);
-
-                    if ($item_id !== null) {
-                        $response->setDataValue(
-                            $item_id,
-                            'ns1:LookupItemSetResponse',
-                            'ns1:BibInformation',
-                            'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
-                            'ns1:ItemId',
-                            'ns1:ItemIdentifierValue'
-                        );
-                    }
-                }
-
                 if (in_array($this->agency, $this->libsWithClavius)) {
 
                     // mark as not for loan if that item is not orderable ..
