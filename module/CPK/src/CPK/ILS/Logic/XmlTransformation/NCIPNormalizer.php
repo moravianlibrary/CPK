@@ -773,9 +773,9 @@ class NCIPNormalizer implements LoggerAwareInterface
                             'ns1:LookupItemSetResponse',
                             'ns1:BibInformation',
                             'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
+                            $hasOneItem ? "ns1:ItemInformation" : "ns1:ItemInformation[$i]",
                             'ns1:ItemOptionalFields',
-                            "ns1:ItemUseRestrictionType[$j]"
+                            "ns1:ItemUseRestrictionType"
                         );
                     }
                 }
