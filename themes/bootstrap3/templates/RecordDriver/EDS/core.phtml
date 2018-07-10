@@ -5,9 +5,6 @@ $format = $this->driver->getPubTypeId();
 $accessLevel = $this->driver->getAccessLevel();
 $restrictedView = empty($accessLevel) ? false : true;
 $id = $this->driver->getUniqueID();
-//var_dump($this->driver); exit();
-//var_dump($items); exit();
-//var_dump($this->driver->getPublishDate()); exit();
 ?>
 
 <div class="clearfix well border table-core" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
@@ -32,9 +29,7 @@ $id = $this->driver->getUniqueID();
         <table class="table" summary="<?=$this->transEsc('Bibliographic Details')?>">
             <? foreach ($items as $key => $item): ?>
                 <? if (!empty($item['Data'])): ?>
-                    <? if($item['Group'] !== 'Ti'):
-                        if ($item['Label'] == 'Source')
-                            $item['Label'] = 'Published in';?>
+                    <? if($item['Group'] !== 'Ti'): ?>
                     <tr>
                         <th class="col-md-3"><?=$this->transEsc($item['Label'])?>:</th>
                         <td><?=$this->driver->linkUrls($item['Data'])?></td>

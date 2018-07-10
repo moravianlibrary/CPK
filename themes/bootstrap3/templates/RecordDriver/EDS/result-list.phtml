@@ -40,9 +40,7 @@ $accessUrl = $this->driver->getAccessUrl();
             <?  $items  =  $this->driver->getItems();
             if (isset($items) && !empty($items)) :
                 foreach ($items as $item):
-                    if (!empty($item)):
-                        if ($item['Label'] == 'Source')
-                            $item['Label'] = 'Published in';?>
+                    if (!empty($item)): ?>
                         <div class="resultItemLine1">
                             <? if ('Ti' == $item['Group']): ?>
                                 <div class="root-title">
