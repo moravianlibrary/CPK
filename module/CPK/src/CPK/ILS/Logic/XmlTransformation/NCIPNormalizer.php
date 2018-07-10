@@ -65,12 +65,17 @@ class NCIPNormalizer implements LoggerAwareInterface
     /**
      * @var array
      */
-    protected $libsLikeTabor = null;
+    protected $libsWithClavius = null;
 
     /**
      * @var array
      */
-    protected $libsLikeLiberec = null;
+    protected $libsWithARL = null;
+
+    /**
+     * @var null
+     */
+    protected $libsWithVerbis = null;
 
     /**
      * @var null
@@ -103,8 +108,9 @@ class NCIPNormalizer implements LoggerAwareInterface
         $this->source = $source;
         $this->agency = $agency;
         $this->ncipRequests = $ncipRequests;
-        $this->libsLikeTabor = $ncipRequests->getLibsLikeTabor();
-        $this->libsLikeLiberec = $ncipRequests->getLibsLikeLiberec();
+        $this->libsWithClavius = $ncipRequests->getLibsWithClavius();
+        $this->libsWithARL = $ncipRequests->getLibsWithARL();
+        $this->libsWithVerbis = $ncipRequests->getLibsWithVerbis();
         $this->libsNeedsPickUpLocation = $ncipRequests->getLibsNeedsPickUpLocation();
         $this->translator = $translator;
     }
@@ -166,7 +172,7 @@ class NCIPNormalizer implements LoggerAwareInterface
             throw new ILSException('driver_no_fines');
         }
 
-        if ($this->agency == 'ZLG001') {
+        if (in_array($this->agency, $this->libsWithVerbis)) {
 
             // FiscalActionType belongs to FiscalTransactionDescription
 
@@ -292,7 +298,7 @@ class NCIPNormalizer implements LoggerAwareInterface
                 'RequestType'
             );
 
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
+            if (in_array($this->agency, $this->libsWithARL)) {
 
                 // Periodicals request cannot be returned
                 if ($type == 'w') {
@@ -354,7 +360,7 @@ class NCIPNormalizer implements LoggerAwareInterface
 
 
             $positionHidden = false;
-            if (in_array($this->agency, $this->libsLikeTabor)) {
+            if (in_array($this->agency, $this->libsWithClavius)) {
 
                 // Now we will move NeedBeforeDate to standard PickupExpiryDate if necessary
 
@@ -712,7 +718,7 @@ class NCIPNormalizer implements LoggerAwareInterface
     protected function normalizeLookupItemSetStatus(JsonXML &$response)
     {
         if (
-            in_array($this->agency, $this->libsLikeTabor)
+            in_array($this->agency, $this->libsWithClavius)
             || $this->agency === 'AAA001'
             || $this->agency === 'SOG504'
         ) {
@@ -758,7 +764,7 @@ class NCIPNormalizer implements LoggerAwareInterface
                     }
                 }
 
-                if (in_array($this->agency, $this->libsLikeTabor)) {
+                if (in_array($this->agency, $this->libsWithClavius)) {
 
                     // mark as not for loan if that item is not orderable ..
                     $itemRestrictions = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
@@ -795,9 +801,9 @@ class NCIPNormalizer implements LoggerAwareInterface
                     }
                 }
             }
-        } // End of libsLikeLiberec + AAA001 + SOG504 ...
+        } // End of libsWithARL + AAA001 + SOG504 ...
 
-        if (in_array($this->agency, $this->libsLikeLiberec)) {
+        if (in_array($this->agency, $this->libsWithARL)) {
 
             $items = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet', 'ItemInformation');
 
@@ -915,7 +921,7 @@ class NCIPNormalizer implements LoggerAwareInterface
                 }
 
             }
-        } // End of libsLikeLiberec
+        } // End of libsWithARL
 
         if ($this->agency === 'ABA008') { // NLK
 
@@ -1007,7 +1013,7 @@ class NCIPNormalizer implements LoggerAwareInterface
 
         if (
             $this->agency === 'ABG001'  // mkp
-            || $this->agency == 'ZLG001' // kfbz
+            || in_array($this->agency, $this->libsWithVerbis) // kfbz
         ) {
 
             $itemInformations = $response->getArray(

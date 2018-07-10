@@ -56,12 +56,17 @@ class NCIPDenormalizer implements LoggerAwareInterface
     /**
      * @var array
      */
-    protected $libsLikeTabor = null;
+    protected $libsWithClavius = null;
 
     /**
      * @var array
      */
-    protected $libsLikeLiberec = null;
+    protected $libsWithARL = null;
+
+    /**
+     * @var null
+     */
+    protected $libsWithVerbis = null;
 
     /**
      * @var Translator
@@ -89,8 +94,9 @@ class NCIPDenormalizer implements LoggerAwareInterface
         $this->source = $source;
         $this->agency = $agency;
         $this->ncipRequests = $ncipRequests;
-        $this->libsLikeTabor = $ncipRequests->getLibsLikeTabor();
-        $this->libsLikeLiberec = $ncipRequests->getLibsLikeLiberec();
+        $this->libsWithClavius = $ncipRequests->getLibsWithClavius();
+        $this->libsWithARL = $ncipRequests->getLibsWithARL();
+        $this->libsWithVerbis = $ncipRequests->getLibsWithVerbis();
         $this->translator = $translator;
     }
 
@@ -127,7 +133,7 @@ class NCIPDenormalizer implements LoggerAwareInterface
         $bibId = $request->get('LookupItemSet', 'BibliographicId', 'BibliographicItemId', 'BibliographicItemIdentifier');
 
         $newBibId = null;
-        if (in_array($this->agency, $this->libsLikeTabor)) {
+        if (in_array($this->agency, $this->libsWithClavius)) {
             if ($this->agency === 'SOG504') {
                 $newBibId = '00124' . sprintf('%010d', $bibId);
             }
@@ -135,9 +141,9 @@ class NCIPDenormalizer implements LoggerAwareInterface
             $newBibId = '00160' . sprintf('%010d', $bibId);
         } else if ($this->agency === 'AAA001' || $this->agency === 'SOG504') {
             $newBibId = '0002' . sprintf('%011d', $bibId);
-        } else if ($this->agency === 'ZLG001') {
+        } else if (in_array($this->agency, $this->libsWithVerbis)) {
             $newBibId = str_replace('oai:', '', $bibId);
-        } else if (in_array($this->agency, $this->libsLikeLiberec)) {
+        } else if (in_array($this->agency, $this->libsWithARL)) {
             $newBibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
             $newBibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $newBibId);
             $newBibId = str_replace('KlUsCat_', 'kl_us_cat*', $newBibId);
