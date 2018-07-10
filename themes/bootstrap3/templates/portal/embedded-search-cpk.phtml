@@ -1,16 +1,8 @@
 <?
-$position = ($_GET['position'] == 'top') ? 'top' : 'left';
-
-if(empty($_GET['lang'])) {
-  $lang = $this->layout()->userLang;
-} else {
-  $lang = ($_GET['lang'] == 'en') ? 'en' : 'cs';
-  $this->layout()->userLang=$lang;
-  setcookie('language',$lang);
-}
+ $data = (new \CPK\Controller\SearchController())->setEmbedded();
 ?>
 <!DOCTYPE html>
-<html lang="<?= $lang; ?>">
+<html lang="<?= $data['lang']; ?>">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -57,29 +49,29 @@ if(empty($_GET['lang'])) {
   </style>
 </head>
 <body>
-<? if ($position == 'left'): ?>
-<form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+<? if ($data['position'] == 'left'): ?>
+  <form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+    <div class="row">
+      <div class="col-sm-12 text-center">
+        <a href="https://knihovny.cz" title="Knihovny.cz"></a>
+          <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47" class="logo-left">
+        </a>
+<? else: ?>
   <div class="row">
     <div class="col-sm-12 text-center">
       <a href="https://knihovny.cz" title="Knihovny.cz"></a>
-        <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47" class="logo-left">
+        <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47">
       </a>
-<? else: ?>
-<div class="row">
-  <div class="col-sm-12 text-center">
-    <a href="https://knihovny.cz" title="Knihovny.cz"></a>
-      <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47">
-    </a>
+    </div>
   </div>
-</div>
 
-<form id="embedded-search" class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+  <form id="embedded-search" class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
 <? endif; ?>
 
-  <input class="form-control lookfor <?= ($position == 'left')? 'lookfor-left' : ''; ?>" type="text" name="lookfor0[]" value=""
+  <input class="form-control lookfor <?= ($data['position'] == 'left')? 'lookfor-left' : ''; ?>" type="text" name="lookfor0[]" value=""
          placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
   <input type="hidden" name="searchTypeTemplate" value="basic">
-  <input type="hidden" name="database" value="<?= (strtoupper($_GET['database']) == 'EDS')? 'EDS' : ''; ?>">
+  <input type="hidden" name="database" value="<?= $data['database'] ?>">
   <input type="hidden" name="type0[]" value="AllFields">
   <input type="hidden" name="join" value="AND">
   <input type="hidden" name="bool0[]" value="AND">
@@ -87,7 +79,7 @@ if(empty($_GET['lang'])) {
   <input type="hidden" name="keepEnabledFilters" value="true">
   <input class="form-control btn btn-primary find-button" type="submit" value="<?= $this->translate('Find'); ?>">
 
-<? if ($position == "left"): ?>
+<? if ($data['position'] == "left"): ?>
     </div>
   </div>
 <? endif; ?>

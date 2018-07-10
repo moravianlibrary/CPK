@@ -1642,4 +1642,23 @@ class SearchController extends SearchControllerBase
     public function embeddedAction() {
         $this->layout()->setTemplate('portal/embedded-search-cpk');
     }
+
+    public function setEmbedded() {
+        $position = ($_GET['position'] == 'top') ? 'top' : 'left';
+
+        if(empty($_GET['lang'])) {
+            $lang = $this->layout()->userLang;
+        } else {
+            $lang = ($_GET['lang'] == 'en') ? 'en' : 'cs';
+            $this->layout()->userLang=$lang;
+            setcookie('language',$lang);
+        }
+        $database =  ($_GET['database'] == 'EDS')? 'EDS' : '';
+
+        return array(
+            'position' => $position,
+            'lang' => $lang,
+            'database' => $database,
+        );
+    }
 }
