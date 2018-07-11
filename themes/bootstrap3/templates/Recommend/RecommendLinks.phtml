@@ -11,7 +11,7 @@
     <?=$this->transEsc('recommend_links_text')?>
       <? foreach($links as $title => $href): $randomString = md5('CPK'.date("Y-m-d H:i:s"));?>
         <p>
-        	<? if ($href === 'http://www.jib.cz') : ?>
+        	<? if ($href === 'http://www.irel.cz') : ?>
           		<a target='_blank' href="<?=$href.'/V/'.$randomString.'-'.rand(10000, 99999).'?func=quick-1-check1&mode=simple&find_request_1='.urlencode($lookFor)?>"><?=$this->transEsc($title)?></a>
           	<? elseif ($href === 'https://www.google.cz') : ?>
           		<a target='_blank' href="<?=$href.'?q='.urlencode($lookFor)?>"><?=$this->transEsc($title)?></a>
