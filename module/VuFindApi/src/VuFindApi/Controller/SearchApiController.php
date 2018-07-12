@@ -246,6 +246,11 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
             $request['sort'] = 'relevance';
         }
 
+        // Default search type for API
+        if (!isset($request['type'])) {
+            $request['type'] = 'API';
+        }
+
         $requestedFields = $this->getFieldList($request);
 
         $facetConfig = $this->getConfig('facets');
