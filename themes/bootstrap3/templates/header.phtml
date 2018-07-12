@@ -40,7 +40,7 @@
 
             <? if(!$this->themeConfiguration()->themeConfig['hide_library_search']): ?>
                 <li <? if ($this->layout()->headerType === "newlibraries"): ?>class="active"<? endif; ?> id="librariesSearchLink">
-                    <a href="/Search/Results/?lookfor0[]=&AMP;type0[]=Libraries&AMP;bool0[]=AND&AMP;filter=&AMP;daterange=&AMP;publishDatefrom=&AMP;publishDateto=&AMP;limit=10&AMP;sort=relevance&AMP;page=1&AMP;searchTypeTemplate=basic&AMP;keepFacetsEnabled=true&AMP;join=AND">
+                    <a href="/Search/Results/?lookfor0[]=&amp;type0[]=Libraries&amp;bool0[]=AND&amp;filter=&amp;daterange=&amp;publishDatefrom=&amp;publishDateto=&amp;limit=10&amp;sort=relevance&amp;page=1&amp;searchTypeTemplate=basic&amp;keepFacetsEnabled=true&amp;join=AND">
                         <? $titleHtml = $this->translate('Libraries') ?>
                         <?= $this->help()->getElementHelp('element_help_header_libraries', $titleHtml) ?>
                     </a>

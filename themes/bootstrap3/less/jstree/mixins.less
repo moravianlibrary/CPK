@@ -6,7 +6,6 @@
 	background: -o-linear-gradient(top, @color1 0%,@color2 100%);
 	background: -ms-linear-gradient(top, @color1 0%,@color2 100%);
 	background: linear-gradient(to bottom, @color1 0%,@color2 100%);
-	/*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='@color1', endColorstr='@color2',GradientType=0 );*/
 }
 
 .jstree-theme (@base-height, @image, @image-height) {
@@ -41,11 +40,6 @@
 		height:@base-height;
 	}
 
-	.jstree-node,
-	.jstree-icon {
-		//background-size: 320px 96px;
-		//background-image:url("@{image}.png");
-	}
 	.jstree-node {
 		background-position:-(@image-height * 9 + @correction) -@correction;
 		background-repeat:repeat-y;
