@@ -50,13 +50,13 @@
 
           <? if (isset($this->mvsUrl)): ?>
             <form action="<?= $this->mvsUrl ?>" id="mvs" method="post">
-              <input type="hidden" name="source_id" value="<?= $this->serverName ?>">
-              <input type="hidden" name="user_id" value="<?= isset($this->eppn) ? $this->eppn : '' ?>">
-              <input type="hidden" name="doc_id" value="<?= $id ?>">
-              <input type="hidden" name="entity_id" value="<?= isset($this->entityId) ? $this->entityId : '' ?>">
+              <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
+              <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
+              <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($id) ?>">
+              <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
               <? $records = $tabs['DedupedRecords']->getRecordsInGroup();
               foreach ($records as $record): ?>
-                <input type="hidden" name="doc_alt_ids[]" value="<?= $record['id'] ?>">
+                <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
               <? endforeach; ?>
               <div class="row">
                 <input type="submit" class='col-xs-12 col-lg-4 mvs' value="<?= $this->translate('MVS') ?>">

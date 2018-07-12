@@ -39,10 +39,14 @@ class ZiskejController extends AbstractBase
     {
         $view = $this->createViewModel();
         $view->setTemplate('ziskej/ziskej');
+        $view->ziskejConfig = array_keys($this->getConfig()->Ziskej->toArray());
 
         // Check if it is post request
         if ($this->getRequest()->isPost()) {
-            $data = htmlspecialchars($this->getRequest()->getPost('ziskej'));
+            // Check if ziskej value for cookie, which we get through post request, is exist in config
+            // Default value - disabled
+            $data = in_array($this->getRequest()->getPost('ziskej'),
+                $view->ziskejConfig) ? $this->getRequest()->getPost('ziskej') : 'disabled';
             setcookie('ziskej', $data, 0);
             $view->setting = $data;
         }

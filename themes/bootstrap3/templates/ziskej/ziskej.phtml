@@ -11,11 +11,11 @@ $this->layout()->searchbox = false;
     <div class="form-group">
       <label for="ziskejSelect">ZISKEJ</label>
       <select name="ziskej" class="form-control" id="ziskejSelect">
-        <option value="off"><?= $this->translate('Ziskej_do_not_show') ?></option>
-        <option value="prod"><?= $this->translate('Ziskej_prod') ?></option>
-        <option value="demo"><?= $this->translate('Ziskej_demo') ?></option>
-        <option value="test"><?= $this->translate('Ziskej_test') ?></option>
-        <option value="dev"><?= $this->translate('Ziskej_dev') ?></option>
+          <? foreach ($this->ziskejConfig as $type): ?>
+            <option
+                value="<?= $this->escapeHtmlAttr($type) ?>"
+                <?= $type == $this->setting ? 'selected' : '' ?>><?= $this->translate(sprintf('Ziskej_%s', $type)) ?></option>
+          <? endforeach; ?>
       </select>
     </div>
     <div class="form-group">
@@ -23,9 +23,4 @@ $this->layout()->searchbox = false;
              value="<?= $this->translate('Set') ?>">
     </div>
   </form>
-  <? if ($this->setting): ?>
-    <div>
-      <p><?= $this->translate('Configured') ?>: <strong><?= $this->setting ?></strong></p>
-    </div>
-  <? endif; ?>
 </div>

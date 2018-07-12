@@ -231,15 +231,12 @@ class RecordController extends RecordControllerBase
         // Set up MVS button
         $request = $this->getRequest();
         $mvsCookie = $request->getCookie()->ziskej;
-        if (isset($config->Ziskej)) {
-            foreach ($config->Ziskej as $type => $mvsUrl) {
-                if ($type == $mvsCookie) {
-                    $view->mvsUrl = $mvsUrl;
-                    $view->eppn = $request->getServer()->eduPersonPrincipalName;
-                    $view->serverName = $request->getServer()->SERVER_NAME;
-                    $view->entityId = $request->getServer('Shib-Identity-Provider');
-                }
-            }
+
+        if (isset($config->Ziskej, $config->Ziskej->$mvsCookie) && $mvsCookie != 'disabled') {
+            $view->mvsUrl = $config->Ziskej->$mvsCookie;
+            $view->eppn = $request->getServer()->eduPersonPrincipalName;
+            $view->serverName = $request->getServer()->SERVER_NAME;
+            $view->entityId = $request->getServer('Shib-Identity-Provider');
         }
 
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
