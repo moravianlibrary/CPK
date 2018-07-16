@@ -1649,7 +1649,7 @@ class SearchController extends SearchControllerBase
         $lang = $this->params()->fromQuery('lang', 'cs');
         if ((!isset($_COOKIE['language'])) || ($_COOKIE['language'] !== $lang)) {
             $this->layout()->userLang=$lang;
-            setcookie('language',$lang);
+            setcookie('language',$lang,null,'/');
             header("Refresh:0");
         }
 
