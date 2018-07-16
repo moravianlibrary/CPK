@@ -1,13 +1,53 @@
-<?
- $data = (new \CPK\Controller\SearchController())->setEmbedded();
-?>
-<!DOCTYPE html>
-<html lang="<?= $data['lang']; ?>">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" media="all" rel="stylesheet" type="text/css">
   <style>
+    .form-control {
+      display: block;
+      width: 100%;
+      height: 34px;
+      padding: 6px 12px;
+      font-size: 14px;
+      line-height: 1.42857143;
+      color: #555;
+      background-color: #fff;
+      background-image: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    }
+    .text-center {
+      text-align: center;
+    }
+    .row {
+      margin-right: -15px;
+      margin-left: -15px;
+    }
+    .col-sm-12 {
+      width: 100%;
+    }
+    .btn {
+      display: inline-block;
+      padding: 6px 12px;
+      margin-bottom: 0;
+      font-size: 14px;
+      font-weight: normal;
+      line-height: 1.42857143;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      -ms-touch-action: manipulation;
+      touch-action: manipulation;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      background-image: none;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+
+    .logo-left {
+      height: 35px;
+    }
     #embedded-search {
       width: 100% !important;
       white-space: nowrap;
@@ -27,13 +67,11 @@
       border-radius: 0 50px 50px 0;
       border: 2px solid #b71b4b;
       margin-left: -6px;
-      margin-bottom: 2px;
       padding: 0 22px 0 12px;
       color: #fff;
       background-color: #e5004b;
       width: auto;
       max-width: 20%;
-      vertical-align: middle;
     }
     .find-button:hover {
       color: #fff;
@@ -44,22 +82,25 @@
       max-width: 60% !important;
     }
     .logo-left {
-      margin-right: 8px;
+      float: left;
+
+    }
+    .search-body {
+      margin: 16px !important;
     }
   </style>
-</head>
-<body>
-<? if ($data['position'] == 'left'): ?>
+<body class="search-body">
+<? if ($position == 'left'): ?>
   <form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
     <div class="row">
       <div class="col-sm-12 text-center">
-        <a href="https://knihovny.cz" title="Knihovny.cz"></a>
-          <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47" class="logo-left">
+        <a href="https://knihovny.cz" title="Knihovny.cz">
+          <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" class="logo-left">
         </a>
 <? else: ?>
   <div class="row">
     <div class="col-sm-12 text-center">
-      <a href="https://knihovny.cz" title="Knihovny.cz"></a>
+      <a href="https://knihovny.cz" title="Knihovny.cz">
         <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47">
       </a>
     </div>
@@ -68,10 +109,10 @@
   <form id="embedded-search" class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
 <? endif; ?>
 
-  <input class="form-control lookfor <?= ($data['position'] == 'left')? 'lookfor-left' : ''; ?>" type="text" name="lookfor0[]" value=""
+  <input class="form-control lookfor <?= ($position == 'left')? 'lookfor-left' : ''; ?>" type="text" name="lookfor0[]" value=""
          placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
   <input type="hidden" name="searchTypeTemplate" value="basic">
-  <input type="hidden" name="database" value="<?= $data['database'] ?>">
+  <input type="hidden" name="database" value="<?= $database ?>">
   <input type="hidden" name="type0[]" value="AllFields">
   <input type="hidden" name="join" value="AND">
   <input type="hidden" name="bool0[]" value="AND">
@@ -79,12 +120,9 @@
   <input type="hidden" name="keepEnabledFilters" value="true">
   <input class="form-control btn btn-primary find-button" type="submit" value="<?= $this->translate('Find'); ?>">
 
-<? if ($data['position'] == "left"): ?>
+<? if ($position == "left"): ?>
     </div>
   </div>
 <? endif; ?>
 </form>
-
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
-</html>

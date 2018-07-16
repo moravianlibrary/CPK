@@ -1640,25 +1640,19 @@ class SearchController extends SearchControllerBase
     }
 
     public function embeddedAction() {
-        $this->layout()->setTemplate('portal/embedded-search-cpk');
-    }
+        $view = $this->createViewModel();
+        $view->setTemplate('portal/embedded-search-cpk');
+        $view->setTerminal(true);
+        $view->position = $this->params()->fromQuery('position', 'left');
+        $view->database = $this->params()->fromQuery('database', '');
 
-    public function setEmbedded() {
-        $position = ($_GET['position'] == 'top') ? 'top' : 'left';
-
-        if(empty($_GET['lang'])) {
-            $lang = $this->layout()->userLang;
-        } else {
-            $lang = ($_GET['lang'] == 'en') ? 'en' : 'cs';
+        $lang = $this->params()->fromQuery('lang', 'cs');
+        if ((!isset($_COOKIE['language'])) || ($_COOKIE['language'] !== $lang)) {
             $this->layout()->userLang=$lang;
             setcookie('language',$lang);
+            header("Refresh:0");
         }
-        $database =  ($_GET['database'] == 'EDS')? 'EDS' : '';
 
-        return array(
-            'position' => $position,
-            'lang' => $lang,
-            'database' => $database,
-        );
+        return $view;
     }
 }
