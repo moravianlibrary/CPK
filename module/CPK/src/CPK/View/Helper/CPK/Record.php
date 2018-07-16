@@ -81,48 +81,6 @@ class Record extends ParentRecord
         );
     }
 
-    /**
-     * Get "recordId" = authorityId by field 'id_authority'
-     *
-     * @param string $authorityId
-     *
-     * @return string
-     */
-    public function getRecordIdByAuthority($authorityId)
-    {
-        $mainParams = [];
-        $mainParams['limit'] = '100';
-        $mainParams['join'] = 'AND';
-        $mainParams['bool0'] = [];
-        $mainParams['bool0'][] = 'AND';
-        $mainParams['type0'] = [];
-        $mainParams['type0'][] = 'AllFields';
-        $mainParams['lookfor0'] = [];
-        $mainParams['lookfor0'][] = '';
-        $mainParams['filter'] = [];
-        $mainParams['filter'][] = 'id_authority:'.$authorityId;
-
-        $request = $mainParams;
-
-        $sm = $this->getView()->getHelperPluginManager()->getServiceLocator();
-
-        $runner = $sm->get('VuFind\SearchRunner');
-
-        $records = $runner->run(
-            $request, 'Solr', null
-        );
-
-        $results = $records->getResults();
-
-        if(! isset($results[0])) {
-            return false;
-        }
-
-        $authority = $results[0];
-
-        return $authority->getUniqueId();
-    }
-
 	public function getObalkyKnihJSON()
     {
         $bibinfo = $this->driver->tryMethod('getBibinfoForObalkyKnih');

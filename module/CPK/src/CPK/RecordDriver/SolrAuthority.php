@@ -42,10 +42,10 @@ class SolrAuthority extends ParentSolrMarc
      * @return array
      */
     public function getPseudonyms() {
-        if (! isset($this->fields['pseudonym_name_display_mv']) || ! isset($this->fields['pseudonym_ids_display_mv'])) {
+        if (! isset($this->fields['pseudonym_name_display_mv']) || ! isset($this->fields['pseudonym_record_ids_display_mv'])) {
             return [];
         }
-        return array_combine($this->fields['pseudonym_name_display_mv'], $this->fields['pseudonym_ids_display_mv']);
+        return array_combine($this->fields['pseudonym_name_display_mv'], $this->fields['pseudonym_record_ids_display_mv']);
     }
 
     /**
