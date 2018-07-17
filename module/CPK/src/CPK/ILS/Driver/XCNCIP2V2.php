@@ -855,7 +855,25 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
             $itemRestriction = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
 
-            $addLink = $this->isLinkAllowed($status, $itemRestriction);
+            $addLink = false;
+
+            if (
+                !empty($this->hideHoldLinks)
+                || $status === 'Circulation Status Undefined'
+                || $status === 'Not Available'
+                || $status === 'Lost'
+            ) {
+                $addLink = false;
+            } else {
+                foreach ($itemRestriction as $i => $item) {
+                    if ($item === 'Not For Loan') {
+                        $addLink = false;
+                    } elseif ($item === 'Orderable') {
+                        unset($itemRestriction[$i]);
+                        $addLink = true;
+                    }
+                }
+            }
 
             $retVal[] = array(
                 'id' => empty($bib_id) ? "" : $bib_id,

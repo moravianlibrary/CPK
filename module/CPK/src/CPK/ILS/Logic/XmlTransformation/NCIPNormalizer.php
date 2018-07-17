@@ -724,13 +724,7 @@ class NCIPNormalizer implements LoggerAwareInterface
         ) {
             $holdingSets = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
 
-            //detect if just one item in holding set
-            $hasOneItem = false;
-            if(count($holdingSets) == 1) {
-                $hasOneItem = true;
-            }
-
-            $response->unsetDataValue('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
+            $response->unsetDataValue('ns1:LookupItemSetResponse', 'ns1:BibInformation', 'ns1:HoldingsSet');
 
             // Rewind holdingSets to ItemInformation ..
             foreach ($holdingSets as $i => $holdingSet) {
@@ -744,39 +738,40 @@ class NCIPNormalizer implements LoggerAwareInterface
                 );
 
                 if (in_array($this->agency, $this->libsWithClavius)) {
-
-                    // mark as not for loan if that item is not orderable ..
                     $itemRestrictions = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
-                    $isOrderable = false;
-                    foreach ($itemRestrictions as $j => $item) {
-                        $itemText = JsonXML::getElementText($item);
-                        if ($itemText == "Orderable") {
-                            $isOrderable = true;
-                            $itemRestrictions[0] = JsonXML::getElementText(array_pop($itemRestrictions));
-                            $response->setDataValue(
-                                $itemRestrictions,
-                                'ns1:LookupItemSetResponse',
-                                'ns1:BibInformation',
-                                'ns1:HoldingsSet',
-                                $hasOneItem ? "ns1:ItemInformation" : "ns1:ItemInformation[$i]",
-                                'ns1:ItemOptionalFields',
-                                "ns1:ItemUseRestrictionType"
-                            );
-                            break;
-                        }
-                    }
-
-                    if (!$isOrderable) {
-                        $j = sizeof($itemRestrictions);
+                    if (!$itemRestrictions) {
                         $response->setDataValue(
                             'Not For Loan',
                             'ns1:LookupItemSetResponse',
                             'ns1:BibInformation',
                             'ns1:HoldingsSet',
-                            $hasOneItem ? "ns1:ItemInformation" : "ns1:ItemInformation[$i]",
+                            "ns1:ItemInformation[$i]",
                             'ns1:ItemOptionalFields',
                             "ns1:ItemUseRestrictionType"
                         );
+                    } elseif (count($itemRestrictions) == 1) {
+                        $response->setDataValue(
+                            $itemRestrictions[0],
+                            'ns1:LookupItemSetResponse',
+                            'ns1:BibInformation',
+                            'ns1:HoldingsSet',
+                            "ns1:ItemInformation[$i]",
+                            'ns1:ItemOptionalFields',
+                            "ns1:ItemUseRestrictionType"
+                        );
+                    } else {
+                        foreach ($itemRestrictions as $j => $item) {
+                            $itemText = JsonXML::getElementText($item);
+                            $response->setDataValue(
+                                $itemText,
+                                'ns1:LookupItemSetResponse',
+                                'ns1:BibInformation',
+                                'ns1:HoldingsSet',
+                                "ns1:ItemInformation[$i]",
+                                'ns1:ItemOptionalFields',
+                                "ns1:ItemUseRestrictionType[$j]"
+                            );
+                        }
                     }
                 }
             }
