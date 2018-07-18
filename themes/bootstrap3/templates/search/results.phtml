@@ -247,7 +247,8 @@
         	/* Save results to local storage for swithing to next/previous record of search results */
         	if ( typeof(Storage) !== 'undefined' ) {
         		var extraResults = ["<?=implode("\", \"", $this->extraResults)?>"];
-        		localStorage.setItem( '<?=$this->referer?>', JSON.stringify( extraResults ) );
+        		var extraPage = <?= $this->extraPage ?>;
+        		localStorage.setItem( '<?=$this->referer?>', JSON.stringify( {'extraResults': extraResults, 'extraPage':extraPage} ) );
             } else {
                 console.error( 'Sorry! No Web Storage support.' );
             }

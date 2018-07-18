@@ -1527,6 +1527,15 @@ class AjaxController extends AjaxControllerBase
         return $this->output($viewData, self::STATUS_OK);
     }
 
+    public function updateExtraSearchResultsAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $searchController = $this->getServiceLocator()->get('searchController');
+        $viewData = $searchController->ajaxExtraResultsAction($postParams);
+
+        return $this->output($viewData, self::STATUS_OK);
+    }
+
     /**
      * Save chosen institutions to DB
      *

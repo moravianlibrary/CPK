@@ -20,6 +20,7 @@
   <? if ($this->referer): ?>
     <div id='records-switching'>
       <script>
+        /* global VuFind */
         jQuery( document ).ready( function( $ ) {
           var id = '<?=$id?>';
           var referer = '<?=$this->referer?>';
@@ -36,35 +37,88 @@
             extraRecords = [];
           }
 
-          var extraRecordsCount = extraRecords.length;
+          var extraRecordsCount = extraRecords['extraResults'].length;
+          var currentPosition = arraySearch( extraRecords['extraResults'], id );
 
-          var currentPosition = arraySearch( extraRecords, id );
           var html = '';
           var isEdsDatabase = '<?=$this->isEdsDatabase?>';
           var recordType = isEdsDatabase ? '/EdsRecord/' : '/Record/';
 
-          if ( extraRecordsCount > 1 ) {
-
-            if ( currentPosition > 0 ) {
-              var previousRecordId = extraRecords[currentPosition-1];
+          if ( extraRecordsCount > 1  ) {
+            if ( currentPosition > 0) {
+              let previousRecordId = extraRecords['extraResults'][currentPosition - 1];
               //create link to prev record with right record type
-              html += "<a href='" + recordType + previousRecordId + "?referer=" + referer + "' title='" + previousRecordText + "'>";
+              html += `<a href='${recordType}${previousRecordId}?referer=${referer}' title='${previousRecordText}'>`;
               html += "  <i class='pr-interface-arrowleft2'></i>";
               html += "</a>";
+            } else if ( currentPosition === 0  && extraRecords['extraPage'] !== 1 ) {
+                html += "<a id='extraPrevious'>";
+                html += "  <i id='extraPreviousIcon'></i>";
+                html += "</a>";
+                getExtraResults( referer, 'previous' ).done( function ( response ) {
+                    let responseData = response.data;
+                    referer = responseData.referer;
+                    let extraResults = responseData.extraResults;
+                    let extraResultsCount = extraResults.length;
+
+                    $( '#extraPrevious' ).attr( 'href', `${recordType}${extraResults[extraResultsCount - 1]}?referer=${referer}` );
+                    $( '#extraPreviousIcon' ).attr( 'class', 'pr-interface-arrowleft2' );
+
+                    $( 'body' ).on( 'click', '#extraPrevious', function() {
+                        referer = responseData.referer;
+                        localStorage.setItem( referer,
+                            JSON.stringify( {'extraResults': extraResults, 'extraPage': responseData.extraPage} ) );
+                    }).fail(function () {
+                        console.error("Cant't load extra records")
+                    });
+                })
             }
 
-            html += "<span> "+(currentPosition+1)+". <?=$this->translate('record')?></span>";
+            html += `<span> <?= $this->translate('page')?> ${extraRecords['extraPage']}, <?=$this->translate('record')?> ${currentPosition + 1} </span>`;
 
-            if ( currentPosition < extraRecordsCount ) {
-              var nextRecordId = extraRecords[currentPosition+1];
+            if (currentPosition < extraRecordsCount - 1) {
+                let nextRecordId = extraRecords['extraResults'][currentPosition + 1];
                 //create link to next record with right record type
-              html += "<a href='" + recordType + nextRecordId + "?referer=" + referer + "' title='" + nextRecordText + "'>";
-              html += "  <i class='pr-interface-arrowright2'></i>";
-              html += "</a>";
-            }
+                html += `<a href='${recordType}${nextRecordId}?referer=${referer}' title='${nextRecordText}'>`;
+                html += "  <i class='pr-interface-arrowright2'></i>";
+                html += "</a>";
+            } else if ( currentPosition === extraRecordsCount - 1 ){
+                //create link to next record with right record type
+                html += "<a id='extraNext' >";
+                html += "  <i id='extraNextIcon' ></i>";
+                html += "</a>";
+                getExtraResults( referer, 'next' ).done( function ( response ) {
+                    let responseData = response.data;
+                    referer = responseData.referer;
+                    let extraResults = responseData.extraResults;
 
+                    $( '#extraNext' ).attr( 'href', `${recordType}${extraResults[0]}?referer=${referer}` );
+                    $( '#extraNextIcon' ).attr( 'class', 'pr-interface-arrowright2' );
+
+                    $( 'body' ).on( 'click', '#extraNext', function() {
+                        referer = responseData.referer;
+                        localStorage.setItem( referer,
+                            JSON.stringify( {'extraResults': extraResults, 'extraPage': responseData.extraPage} ) );
+                    });
+                }).fail(function () {
+                    console.error("Can't load extra records");
+                })
+            }
 
             $( '#records-switching' ).append( html );
+          }
+
+          function getExtraResults ( referer, direction ) {
+              return $.ajax({
+                  type: 'POST',
+                  cache: false,
+                  dataType: 'json',
+                  url: '/AJAX/JSON?method=updateExtraSearchResults',
+                  data: {
+                      referer: referer,
+                      direction: direction
+                  },
+              });
           }
 
           function arraySearch( arr, value ) {

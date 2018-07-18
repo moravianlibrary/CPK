@@ -499,7 +499,8 @@ jQuery( document ).ready( function( $ ) {
                             if (typeof(Storage) !== 'undefined') {
                                 var extraResults = responseData.viewData.extraResults;
                                 var referer = responseData.viewData.referer;
-                                localStorage.setItem(referer, JSON.stringify(extraResults));
+                                var extraPage = responseData.viewData.extraPage;
+                                localStorage.setItem(referer, JSON.stringify({'extraResults': extraResults, 'extraPage':extraPage}));
                             } else {
                                 console.error('Sorry! No Web Storage support.');
                             }
