@@ -99,12 +99,13 @@ jQuery( document ).ready( function( $ ) {
         },
 
         /**
-         * This function gathers data from autocomplete|advancedSearch|windowHistory.
-         * The data are sent via ajax to Solr, which returns results.
-         * These results are displayed async via jQuery UI.
+         * This function gathers data from
+         * autocomplete|advancedSearch|windowHistory. The data are sent via
+         * ajax to Solr, which returns results. These results are displayed
+         * async via jQuery UI.
          *
-         * This function also handles live url changes with window.history.pushState,
-         * popState and replaceState.
+         * This function also handles live url changes with
+         * window.history.pushState, popState and replaceState.
          *
          * @param {JSON}    dataFromWindowHistory
          * @param {JSON}    dataFromAutocomplete
@@ -497,10 +498,13 @@ jQuery( document ).ready( function( $ ) {
 
 							/* Save results to local storage for swithing to next/previous record of search results */
                             if (typeof(Storage) !== 'undefined') {
-                                var extraResults = responseData.viewData.extraResults;
-                                var referer = responseData.viewData.referer;
-                                var extraPage = responseData.viewData.extraPage;
-                                localStorage.setItem(referer, JSON.stringify({'extraResults': extraResults, 'extraPage':extraPage}));
+                                var viewData = responseData.viewData
+                                localStorage.setItem('extraRecords', JSON.stringify(
+                                    {
+                                        referer: viewData.referer,
+                                        extraResults: viewData.extraResults,
+                                        extraPage: viewData.extraPage,
+                                    }))
                             } else {
                                 console.error('Sorry! No Web Storage support.');
                             }
@@ -824,7 +828,8 @@ jQuery( document ).ready( function( $ ) {
         },
 
         /**
-         * Update lookfor inputs in both search type templates to be the same when switching templates
+         * Update lookfor inputs in both search type templates to be the same
+         * when switching templates
          *
          * @param    {Object}    data    Object with lookFor, bool, etc.
          * @return    {undefined}

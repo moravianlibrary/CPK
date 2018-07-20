@@ -831,9 +831,14 @@ class SearchController extends SearchControllerBase
 	    foreach($extraResultsForSwitching->getResults() as $record) {
 	        $extraResults[] = $record->getUniqueId();
 	    }
-	    $view->extraResults = $extraResults;
-	    $view->extraPage = $extraRequest['page'];
-	    /**/
+
+        if ( ! empty($extraResults)) {
+            $view->extraResults = json_encode([
+                'referer'      => $referer,
+                'extraResults' => $extraResults,
+                'extraPage'    => $extraRequest['page'],
+            ]);
+        }
 
 	    $user = $this->getAuthManager()->isLoggedIn();
 

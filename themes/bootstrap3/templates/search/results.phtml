@@ -244,13 +244,11 @@
 <script>
     jQuery( document ).ready( function( $ ) {
         <? if ($this->extraResults && $this->referer): ?>
-        	/* Save results to local storage for swithing to next/previous record of search results */
-        	if ( typeof(Storage) !== 'undefined' ) {
-        		var extraResults = ["<?=implode("\", \"", $this->extraResults)?>"];
-        		var extraPage = <?= $this->extraPage ?>;
-        		localStorage.setItem( '<?=$this->referer?>', JSON.stringify( {'extraResults': extraResults, 'extraPage':extraPage} ) );
+            /* Save results to local storage for switching to next/previous record of search results */
+            if (typeof(Storage) !== 'undefined') {
+                localStorage.setItem('extraRecords', '<?= $this->extraResults ?>')
             } else {
-                console.error( 'Sorry! No Web Storage support.' );
+                console.error('Sorry! No Web Storage support.')
             }
         <? endif; ?>
 
