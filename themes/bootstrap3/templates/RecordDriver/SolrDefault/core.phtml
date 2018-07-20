@@ -115,7 +115,7 @@
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Main Author')?>: </th>
                 <td property="author">
-                  <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a>
+                  <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' href="/Search/Results?sort=relevance&amp;join=AND&amp;type0[]=adv_search_author_corporation&amp;bool0[]=AND&amp;searchTypeTemplate=advanced&amp;lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a>
                   <? if (! empty($localAuthorityRecordId)): ?>
                   &nbsp;<a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityRecordId?>"><i class="pr-user-single5 author-icon"></i></a>
                   <? endif; ?>
@@ -126,7 +126,7 @@
               <? if (isset($authors['corporate']) && !empty($authors['corporate'])): ?>
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Corporate Author')?>: </th>
-                <td property="creator"><a href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
+                <td property="creator"><a href="/Search/Results?sort=relevance&amp;join=AND&amp;type0[]=adv_search_author_corporation&amp;bool0[]=AND&amp;searchTypeTemplate=advanced&amp;lookfor0[]=<?=urlencode($authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
               </tr>
               <? endif; ?>
 
@@ -134,20 +134,20 @@
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Other Authors')?>: </th>
                 <td>
-                  <? foreach ($authors['secondary'] as $key=>$field): ?>
-                  <?=($key != 0)?', ':''?>
-                  <span>
-                    <a title='<?=$this->translate('Show publications by')?> <?=$field?>'
-                       href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($field)?>">
-                      <?=$this->escapeHtml($field)?>
-                    </a>
-                    <? if (!empty($secondaryAuthoritiesRecordIds[$key])): ?>
-                      <a title="<?=$this->translate('Show person')?> <?=$authors['secondary'][$key]?>"
-                         href="/Record/<?=$secondaryAuthoritiesRecordIds[$key]?>">
-                        <i class="pr-user-single5 author-icon" ></i>
+                  <? foreach ($authors['secondary'] as $key => $name): ?>
+                    <?= ($key != 0) ? ', ' : '' ?>
+                    <span>
+                      <a title='<?= $this->translate('Show publications by') ?> <?= $name ?>'
+                         href="/Search/Results?sort=relevance&amp;join=AND&amp;type0[]=adv_search_author_corporation&amp;bool0[]=AND&amp;searchTypeTemplate=advanced&amp;lookfor0[]=<?= urlencode($name) ?>">
+                        <?= $this->escapeHtml($name) ?>
                       </a>
-                    <? endif; ?>
-                  </span>
+                      <? if (! empty($secondaryAuthoritiesRecordIds[$key])): ?>
+                        <a title="<?= $this->translate('Show person') ?> <?= $name ?>"
+                          href="/Record/<?= $secondaryAuthoritiesRecordIds[$key] ?>">
+                          <i class="pr-user-single5 author-icon"></i>
+                        </a>
+                      <? endif; ?>
+                    </span>
                   <? endforeach; ?>
                 </td>
               </tr>
