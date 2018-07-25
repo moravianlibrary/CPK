@@ -20,23 +20,6 @@
 				<exclude name="*Test.php"/>
 			</fileset>
 		</coverage-setup>
-	
-		<phpunit bootstrap="${srcdir}/../../module/Statistics/tests/bootstrap.php"
-				 printsummary="true"
-				 haltonfailure="false"
-				 haltonerror="false"
-				 codecoverage="true">
-				 
-			<batchtest>
-				<fileset dir="${srcdir}/../../module/Statistics/tests/unit-tests/src/Piwik">
-					<include name="*Test.php"/>
-				</fileset>
-				<!--<fileset dir="${srcdir}/../../module/CPK/tests/unit-tests/src/CPKTest">
-					<include name="*Test.php"/>
-				</fileset>-->
-			</batchtest>
-			<formatter type="xml" outfile="./tests/cpk/template/data/unitTestsResults.xml"/>
-		</phpunit>
 		
 		<coverage-report outfile="${srcdir}/coverage-report/coverage.xml">
 			<report styledir="/usr/share/php/data/phing/etc" todir="coverage-report"/>

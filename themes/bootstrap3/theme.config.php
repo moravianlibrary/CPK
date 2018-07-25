@@ -51,7 +51,6 @@ $toRet = array(
             'globalNotifications' => 'CPK\View\Helper\CPK\Factory::getGlobalNotifications',
             'portalpages' => 'CPK\View\Helper\CPK\Factory::getPortalPages',
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
-            'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
             'identityProviders' => 'CPK\View\Helper\CPK\Factory::getIdentityProviders',
             'help' => 'CPK\View\Helper\CPK\Factory::getHelp',
             'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih',

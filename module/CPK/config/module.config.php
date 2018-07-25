@@ -241,11 +241,6 @@ $config = array(
 );
 
 $staticRoutes = array(
-    'Statistics/Dashboard',
-    'Statistics/Visits',
-    'Statistics/Circulations',
-    'Statistics/Payments',
-    'Statistics/Searches',
     'MyResearch/UserConnect',
     'MyResearch/UserDelete',
     'MyResearch/Settings',
