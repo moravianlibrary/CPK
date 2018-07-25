@@ -215,6 +215,7 @@
     <?=$this->headScript()->appendFile("geolocation.js");?>
   </head>
   <body data-ng-app="cpk" data-ng-controller="GlobalController as ctrl" class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?>">
+
   <!-- Facebook Pixel Code -->
   <script>
       !function(f,b,e,v,n,t,s)
@@ -229,9 +230,7 @@
       fbq('track', 'PageView');
   </script>
   <noscript>
-      <img height="1" width="1"
-           src="https://www.facebook.com/tr?id=822054034585908&ev=PageView
-&noscript=1"/>
+      <img height="1" width="1" src="https://www.facebook.com/tr?id=822054034585908&amp;ev=PageView&amp;noscript=1"/>
   </noscript>
   <!-- End Facebook Pixel Code -->
 
@@ -270,36 +269,45 @@
       }
     ?>
     <header class="hidden-print header-container <?=($this->layout()->frontpage == true)?'frontpage':''?>">
-      <div class="container navbar">
-	<a class="sr-only" href="#content"><?=$this->transEsc('Skip to content') ?></a>
-        <?=$this->render('header.phtml', $headerParams)?>
-      </div>
-      <div class="container">
-          <? if ($this->layout()->frontpage == true): ?>
-            <h1><?=$this->transEsc("frontpage-header-text")?></h1>
-            <? $docCount = $this->layout()->docCount; ?>
-            <? if (empty($docCount)): ?>
-              <h4><?=$this->transEsc("frontpage-text")?></h4>
+	    <? if (!$this->themeConfiguration()->themeConfig['hide_navbar']): ?>
+		    <div class="container navbar">
+			    <a class="sr-only" href="#content"><?= $this->transEsc('Skip to content') ?></a>
+			    <?= $this->render('header.phtml', $headerParams) ?>
+		    </div>
+	    <? endif; ?>
+        <div class="container">
+            <? if ($this->layout()->frontpage == true): ?>
+                <h1><?=$this->transEsc("frontpage-header-text")?></h1>
+                <? $docCount = $this->layout()->docCount; ?>
+                <? if (empty($docCount)): ?>
+                    <h4><?=$this->transEsc("frontpage-text")?></h4>
+                <? else: ?>
+                    <h4><?=$this->transEsc("frontpage-text", ['10 000 000' => $this->localizedNumber($docCount)])?></h4>
+                <? endif; ?>
+                <div class="clearfix">
+                    <div class='container'>
+                        <?=$this->render('search/searchbox.phtml'); ?>
+                        <?=$this->render('shib-assertion.phtml')?>
+                        <? if(!$this->themeConfiguration()->themeConfig['hide_inspirations']): ?>
+                            <a href="/Search/Inspiration" class="pull-left arrow-link">
+                                <i class="pr-interface-arrowleft"></i>
+                                <?=$this->transEsc("frontpage-left-arrow-link")?>
+                            </a>
+                        <? endif; ?>
+                        <? if(!$this->themeConfiguration()->themeConfig['hide_library_search']): ?>
+                            <a href="/Search/Results/?lookfor0[]=&amp;type0[]=Libraries&amp;bool0[]=AND&amp;filter=&amp;daterange=&amp;publishDatefrom=&amp;publishDateto=&amp;limit=10&amp;sort=relevance&amp;page=1&amp;searchTypeTemplate=basic&amp;keepFacetsEnabled=true&amp;join=AND" class="pull-right arrow-link">
+                                <? $titleHtml = $this->transEsc("frontpage-right-arrow-link") ."<i class=\"pr-interface-arrowright\"></i>"; ?>
+                                <?= $this->help()->getElementHelp('element_help_frontpage_right_arrow', $titleHtml, "mzk") ?>
+                            </a>
+                        <? endif; ?>
+                    </div>
+                </div>
             <? else: ?>
-              <h4><?=$this->transEsc("frontpage-text", ['10 000 000' => $this->localizedNumber($docCount)])?></h4>
+                <? if ($this->layout()->headerType == "libraries"): ?>
+                    <?=$this->render('libraries/header.phtml')?>
+                <? endif; ?>
             <? endif; ?>
-            <div class="clearfix">
-               <div class='container'>
-                 <?=$this->render('search/searchbox.phtml'); ?>
-                 <?=$this->render('shib-assertion.phtml')?>
-                 <a href="/Search/Inspiration" class="pull-left arrow-link"><i class="pr-interface-arrowleft"></i> <?=$this->transEsc("frontpage-left-arrow-link")?></a>
-                 <a href="/Search/Results/?lookfor0[]=&type0[]=Libraries&bool0[]=AND&filter=&daterange=&publishDatefrom=&publishDateto=&limit=10&sort=relevance&page=1&searchTypeTemplate=basic&keepFacetsEnabled=true&join=AND" class="pull-right arrow-link">
-                   <? $titleHtml = $this->transEsc("frontpage-right-arrow-link") ."<i class=\"pr-interface-arrowright\"></i>"; ?>
-                   <?= $this->help()->getElementHelp('element_help_frontpage_right_arrow', $titleHtml, "mzk") ?>
-                 </a>
-               </div>
-            </div>
-          <? else: ?>
-            <? if ($this->layout()->headerType == "libraries"): ?>
-              <?=$this->render('libraries/header.phtml')?>
-            <? endif; ?>
-          <? endif; ?>
-      </div>
+        </div>
     </header>
 
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">

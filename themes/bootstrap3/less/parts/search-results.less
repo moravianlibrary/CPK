@@ -142,7 +142,7 @@
 }
 
 .pagination > li > a, .pagination > li > span {
-    color: #e5004b;
+  color: @brand-primary;
     border: none;
     background: inherit;
 }
@@ -173,7 +173,7 @@
 .records-in-libraries-title {
     font-weight: bold;
     margin-left: 4px;
-    font-color: #444;
+    color: #444;
 }
 
 .scrollable-menu {
@@ -281,11 +281,11 @@
     background-color: transparent !important;
     color: inherit !important;
     outline: none;
-    
+
     .btn.active:focus, .btn.focus, .btn.focus:active, .btn.active.focus {
         outline: none !important;
     }
-    
+
     .btn:active, .btn.active {
         box-shadow: none;
     }
@@ -297,11 +297,11 @@
     background-color: transparent !important;
     color: inherit !important;
     outline: none;
-    
+
     .btn.active:focus, .btn.focus, .btn.focus:active, .btn.active.focus {
         outline: none !important;
     }
-    
+
     .btn:active, .btn.active {
         box-shadow: none;
     }
@@ -342,8 +342,19 @@
   padding-left: 14px;
 }
 
-.eds-tabs li{
-  margin-bottom: -2px;
+.eds-tabs {
+    li {
+        margin-bottom: -2px;
+        &:hover {
+            background-color: @body-bg;
+        }
+        a:hover {
+           background-color: @body-bg;
+        }
+    }
+    .active {
+        font-weight: bold;
+    }
 }
 
 .eds-results-questionmarkhelp {

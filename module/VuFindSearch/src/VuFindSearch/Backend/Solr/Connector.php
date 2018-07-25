@@ -187,7 +187,8 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
         $handler = $this->map->getHandler(__FUNCTION__);
         $this->map->prepare(__FUNCTION__, $params);
-
+        // FIXME: find better approach to remove hidden filters when retrieving record
+        $params->remove('fq');
         return $this->query($handler, $params);
     }
 
