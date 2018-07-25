@@ -692,3 +692,120 @@ Libraries:
     - [bf, ord(library_relevance_str)^9999]
     - [bq, "inspiration:top_results^1"]
   DismaxHandler: edismax
+
+# Default configuration for API
+API:
+  DismaxFields:
+    - title_short^750
+    - title_full^400
+    - title^500
+    - title_alt^200
+    - title_new^100
+    - series^50
+    - series2^30
+    - author^500
+    - author2^400
+    - author_viz^300
+    - corporation_viz^300
+    - author_fuller^150
+    - contents^10
+    - topic^500
+    - geographic^300
+    - genre^300
+    - subject_viz^100
+    - genre_viz^100
+    - publishDate_txt_mv^50
+    - allfields
+    - fulltext
+    - toc_txt_mv^15
+    - isbn^15
+    - issn^15
+    - ismn_isn_mv^15
+    - cnb_isn_mv^15
+    - ean_isn_mv^15
+    - publisher_search_txt_mv^50
+    - placeOfPublication_txt_mv^10
+    - country_search_txt_mv
+    - language_search_txt_mv
+    - format_search_txt_mv
+    - people_search_txt_mv^650
+    - upv_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bq, "term_exact:\"@query\"^30000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
+  QueryFields:
+    0:
+      0:
+        - OR
+        - 50
+      title_short:
+        - [onephrase, 750]
+      title_full:
+        - [onephrase, 400]
+      title:
+        - [onephrase, 300]
+        - [and, 250]
+      title_alt:
+        - [and, 200]
+      title_new:
+        - [and, 100]
+    series:
+      - [and, 50]
+    series2:
+      - [and, 30]
+    author:
+      - [onephrase, 300]
+      - [and, 250]
+    author2:
+      - [onephrase, 250]
+      - [and, 200]
+    author_viz:
+      - [onephrase, 200]
+      - [and, 150]
+    corporation_viz:
+      - [onephrase, 100]
+      - [and, 50]
+    author_fuller:
+      - [onephrase, 150]
+      - [and, 125]
+    author_additional:
+      - [and, 50]
+    contents:
+      - [and, 10]
+    topic:
+      - [onephrase, 500]
+    geographic:
+      - [onephrase, 300]
+    genre:
+      - [onephrase, 300]
+    subject_viz:
+      - [onephrase, 200]
+    genre_viz:
+      - [onephrase, 200]
+    allfields:
+      - [and, ~]
+    fulltext:
+      - [and, ~]
+    toc_txt_mv:
+      - [onephrase, ~]
+    isbn:
+      - [onephrase, ~]
+    issn:
+      - [onephrase, ~]
+    publisher_search_txt_mv:
+      - [onephrase, 50]
+    placeOfPublication_txt_mv:
+      - [onephrase, 10]
+    ismn_isn_mv:
+      - [onephrase, ~]
+    cnb_isn_mv:
+      - [onephrase, ~]
+    ean_isn_mv:
+      - [onephrase, ~]
+    people_search_txt_mv:
+      - [and, 650]

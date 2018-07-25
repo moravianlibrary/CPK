@@ -189,6 +189,7 @@ $config = [
             'VuFind\Tags' => 'VuFind\Service\Factory::getTags',
             'VuFind\Translator' => 'VuFind\Service\Factory::getTranslator',
             'VuFind\WorldCatUtils' => 'VuFind\Service\Factory::getWorldCatUtils',
+            'VuFind\YamlReader' => 'VuFind\Service\Factory::getYamlReader',
         ],
         'invokables' => [
             'VuFind\HierarchicalFacetHelper' => 'VuFind\Search\Solr\HierarchicalFacetHelper',
@@ -196,6 +197,7 @@ $config = [
             'VuFind\Search'         => 'VuFindSearch\Service',
             'VuFind\SessionManager' => 'Zend\Session\SessionManager',
             'VuFind\Search\Memory'  => 'VuFind\Search\Memory',
+            'VuFind\Session\Settings' => 'VuFind\Session\Settings',
         ],
         'initializers' => [
             'VuFind\ServiceManager\Initializer::initInstance',
