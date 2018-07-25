@@ -207,6 +207,7 @@ $config = array(
             'status' => 'CPK\Controller\StatusController',
             'admin' => 'CPK\Controller\AdminController',
             'edsrecord' => 'CPK\Controller\EdsrecordController',
+            'ziskej' => 'CPK\Controller\ZiskejController'
         ), /* invokables */
     ), /* controllers */
     'controller_plugins' => [
