@@ -1642,4 +1642,21 @@ class SearchController extends SearchControllerBase
 
         return $searchTerms;
     }
+
+    public function embeddedAction() {
+        $view = $this->createViewModel();
+        $view->setTemplate('portal/embedded-search-cpk');
+        $view->setTerminal(true);
+        $view->position = $this->params()->fromQuery('position', 'left');
+        $view->database = $this->params()->fromQuery('database', '');
+
+        $lang = $this->params()->fromQuery('lang', 'cs');
+        if ((!isset($_COOKIE['language'])) || ($_COOKIE['language'] !== $lang)) {
+            $this->layout()->userLang=$lang;
+            setcookie('language',$lang,null,'/');
+            header("Refresh:0");
+        }
+
+        return $view;
+    }
 }
