@@ -56,7 +56,7 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
      */
     public function getSuggestionsWithFilters($query, $facetFilters = null, $libraries = false)
     {
-        if (!is_object($this->searchObject)) {
+        if (! is_object($this->searchObject)) {
             throw new \Exception('Please set configuration first.');
         }
         $results = array();
@@ -72,7 +72,6 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
                 );
             }
             $params = $this->searchObject->getParams();
-            $options = $this->searchObject->getOptions();
             if ($facetFilters != 'null') {
                 if (is_array($facetFilters)) {
                     foreach ($facetFilters as $facetFilter) {
@@ -87,23 +86,32 @@ class SolrEdgeFaceted extends ParentSolrEdgeFaceted
             $params->setFacetLimit(30);
             $this->searchObject->getParams()->setSort($this->facetField);
             $results = $this->searchObject->getResults();
-            $facets = $this->searchObject->getFacetList();
-            if ($this->autocompleteField !== 'author_autocomplete') {
-                if (isset($facets[$this->facetField]['list'])) {
-                    $queryWithoutDiacritic = $this->removeDiacritic($query);
-                    foreach ($facets[$this->facetField]['list'] as $filter) {
-                        if (stripos($this->removeDiacritic($filter['value']), $queryWithoutDiacritic) !== false) {
-                            array_push($results, $filter['value']);
+            $facets  = $this->searchObject->getFacetList();
+
+            if (isset($facets[$this->facetField]['list'])) {
+                $queryWithoutDiacritic = $this->removeDiacritic($query);
+                $queryParts            = preg_split('/\s+/', $queryWithoutDiacritic);
+                $queryPartsCount       = count($queryParts);
+
+                foreach ($facets[$this->facetField]['list'] as $filter) {
+                    $matchedQueryParts = 0;
+
+                    foreach ($queryParts as $queryPart) {
+                        $foundItems = preg_split('/\s+/', $this->removeDiacritic($filter['value']));
+
+                        foreach($foundItems as $foundItem) {
+                            if (stripos($foundItem, $queryPart) !== false) {
+                                $matchedQueryParts++;
+                            }
                         }
                     }
-                }
-            } else {
-                if (isset($facets[$this->facetField])) {
-                    foreach ($facets[$this->facetField]['list'] as $filter) {
+
+                    if ($matchedQueryParts == $queryPartsCount) {
                         array_push($results, $filter['value']);
                     }
                 }
             }
+
         } catch (\Exception $e) {
             // Ignore errors -- just return empty results if we must.
         }
