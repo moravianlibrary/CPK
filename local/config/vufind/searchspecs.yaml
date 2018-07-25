@@ -336,6 +336,8 @@ AllFields:
     - format_search_txt_mv
     - people_search_txt_mv^650
     - upv_txt_mv
+    - author_search_txt_mv
+    - title_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -436,6 +438,7 @@ adv_search_title_series:
     - title_new^100
     - title_old
     - titleSeries_search_txt_mv
+    - title_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -460,6 +463,7 @@ adv_search_author_corporation:
     - author_additional
     - author_find
     - authorCorporation_search_txt_mv
+    - author_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
