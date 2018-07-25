@@ -1461,6 +1461,7 @@ jQuery( document ).ready( function( $ ) {
         var database = $( this ).attr( 'data-value' );
         var isAdvancedSearch = $( '.basic-search-panel' ).hasClass( 'hidden' );
         extraData['database'] = database;
+        extraData['page'] = '1';
         if (database == 'Solr') {
             $('#searchForm_lookfor').addClass('autocomplete');
         } else {
