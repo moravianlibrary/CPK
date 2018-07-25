@@ -93,7 +93,8 @@ $config = array(
             'ils_driver' => [
                 'invokables' => [
                     'dummy' => 'CPK\ILS\Driver\Dummy',
-                    'xcncip2' => 'CPK\ILS\Driver\XCNCIP2'
+                    'xcncip2' => 'CPK\ILS\Driver\XCNCIP2',
+                    'xcncip2v2' => 'CPK\ILS\Driver\XCNCIP2V2'
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',

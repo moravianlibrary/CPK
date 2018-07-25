@@ -116,3 +116,11 @@ ReportBugRecipients   = "cpk-support@mzk.cz"
 [AdresarKnihoven]
 ;apiUrl = http://cpk-front.mzk.cz:3000/api
 apiUrl  = http://knihovny.cz:3000/api
+
+[Proxy]
+type = curl
+host = your.proxy.server
+port = 8000
+username = username
+password = password
+non_proxy_host[] = cache.obalkyknih.cz

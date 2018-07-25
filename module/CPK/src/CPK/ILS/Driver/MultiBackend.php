@@ -28,7 +28,7 @@
  */
 namespace CPK\ILS\Driver;
 
-use VuFind\Exception\ILS as ILSException, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver, CPK\ILS\Driver\Aleph, CPK\ILS\Driver\XCNCIP2;
+use VuFind\Exception\ILS as ILSException, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver, CPK\ILS\Driver\Aleph, CPK\ILS\Driver\XCNCIP2, CPK\ILS\Driver\XCNCIP2V2;
 use CPK\Mailer\Mailer;
 
 /**
@@ -488,7 +488,7 @@ class MultiBackend extends MultiBackendBase
         if ($driver === null)
             throw new ILSException("Driver is undefined!");
 
-        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
+        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph || $driver instanceof XCNCIP2V2) {
 
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
