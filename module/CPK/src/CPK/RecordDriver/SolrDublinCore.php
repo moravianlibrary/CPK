@@ -10,6 +10,8 @@ class SolrDublinCore extends ParentSolrMarc
 
     protected $ilsConfig = null;
 
+    protected $xmlCache = null;
+
     protected function getILSconfig()
     {
         if ($this->ilsConfig === null)
@@ -117,8 +119,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getAllSubjectHeadings()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:subject');
         $ret = [];
         foreach ($value as $part) {
@@ -258,8 +259,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPrimaryAuthor()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:creator');
         return empty($value) ? "" : (string) $value[0];
     }
@@ -271,8 +271,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getLanguages()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:language');
         $ret = [];
         foreach ($value as $part) {
@@ -326,8 +325,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPublishers()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:publisher');
         $ret = [];
         foreach ($value as $part) {
@@ -344,8 +342,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getHumanReadablePublicationDates()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:date');
         $ret = [];
         foreach ($value as $part) {
@@ -440,7 +437,16 @@ class SolrDublinCore extends ParentSolrMarc
 
     public function get856Links()
     {
-        return isset($this->fields['url']) ? $this->fields['url'] : [];
+        $retVal = array();
+        if (isset($this->fields['url'])) {
+            $retVal[] = $this->fields['url'][0];
+        }
+        else {
+            $dc = $this->parseXML();
+            $value = $dc->isShownAt;
+            $retVal[] = 'manuscript|unknown|' . (string) $value[0];
+        }
+        return $retVal;
     }
 
     public function getParentRecordID()
@@ -469,8 +475,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getGeneralNotes()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:description');
         $ret = [];
         foreach ($value as $part) {
@@ -497,8 +502,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getCallNumbers()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:identifier');
         $ret = [];
         foreach ($value as $part) {
@@ -543,6 +547,16 @@ class SolrDublinCore extends ParentSolrMarc
 
         // Try the parent method:
         return parent::getXML($format, $baseUrl, $recordLink);
+    }
+
+    protected function parseXML()
+    {
+        if ( ! isset($this->xmlCache)) {
+            $fullrecord     = $this->getXML('oai_dc');
+            $this->xmlCache = simplexml_load_string($fullrecord);
+        }
+
+        return $this->xmlCache;
     }
 
 }
