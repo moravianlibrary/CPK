@@ -27,6 +27,7 @@ namespace CPK\Controller;
 use VuFind\Controller\SearchController as SearchControllerBase;
 use VuFind\Exception\Mail as MailException;
 use VuFind\Exception\RecordMissing as RecordMissingException;
+use \CPK\Widgets\WidgetContent;
 
 /**
  * SearchController

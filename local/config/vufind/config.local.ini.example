@@ -61,6 +61,11 @@ url		= http://cpk-front.mzk.cz:8080/solr
 ;default_core   = index
 default_core    = beta
 
+; Set Max limit for ebooks to harvest from Solr to MySQL
+; Solr can't return all rows by default and need Limit option
+; Set this to much higher value than count of ebooks in Solr.
+harvest_ebooks_limit = 500 000
+
 [Authentication]
 ;method		= PerunShibboleth
 method		= ShibbolethIdentityManager
