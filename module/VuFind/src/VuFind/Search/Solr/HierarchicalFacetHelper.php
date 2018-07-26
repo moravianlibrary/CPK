@@ -192,14 +192,13 @@ class HierarchicalFacetHelper
             if ($item['isApplied']) {
                 $href = $urlHelper->removeFacet(
                     $facet, $item['value'], $item['operator']
-                )->getParams($escape);
+                );
             } else {
                 $href = $urlHelper->addFacet(
                     $facet, $item['value'], $item['operator']
-                )->getParams($escape);
+                );
             }
-            $exclude = $urlHelper->addFacet($facet, $item['value'], 'NOT')
-                ->getParams($escape);
+            $exclude = $urlHelper->addFacet($facet, $item['value'], 'NOT');
         }
 
         $displayText = $item['displayText'];
