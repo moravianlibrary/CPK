@@ -306,13 +306,13 @@
     		<a href="/Search/Results?searchTypeTemplate=advanced&amp;lookfor0[]=&amp;type0[]=AllFields&amp;join=AND&amp;bool0[]=AND&amp;page=1&amp;database=Solr&amp;limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
           </div>
       <? else: ?>
+        <? if (! $this->librarySearch): ?>
           <? if ($this->layout()->recordView || $this->layout()->history): ?>
-              <? if (! $this->librarySearch): ?>
-                <a href="/Search/Results?searchTypeTemplate=advanced&amp;lookfor0[]=&amp;type0[]=AllFields&amp;join=AND&amp;bool0[]=AND&amp;page=1&amp;database=Solr&amp;limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
-              <? endif; ?>
+            <a href="/Search/Results?searchTypeTemplate=advanced&amp;lookfor0[]=&amp;type0[]=AllFields&amp;join=AND&amp;bool0[]=AND&amp;page=1&amp;database=Solr&amp;limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
           <? else: ?>
             <a href="/Search/Results?searchTypeTemplate=advanced&amp;lookfor0[]=&amp;type0[]=AllFields&amp;join=AND&amp;bool0[]=AND&amp;page=1&amp;database=EDS&amp;limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
   	      <? endif; ?>
+        <? endif; ?>
       <? endif; ?>
       <? if($this->searchClassId == 'Solr'): ?>
           <span id="autocomplete-help">

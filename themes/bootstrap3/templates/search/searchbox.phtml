@@ -6,7 +6,8 @@
 
     $recordId = end(explode("/", strtok($_SERVER["REQUEST_URI"],'?'), 3));
     $recordSource = explode(".", $recordId)[0];
-    $this->librarySearch = $recordSource === 'library';
+    
+    $this->librarySearch = $recordSource == 'library' || (isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries');
 
     // Load search actions and settings (if any):
     $options = $this->searchOptions($this->searchClassId);
