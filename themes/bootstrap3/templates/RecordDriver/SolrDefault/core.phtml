@@ -174,6 +174,22 @@
                 </tr>
               <? endif; ?>
 
+              <? if ($monographicSeries = $this->driver->tryMethod('getMonographicSeries')): ?>
+                <tr>
+                  <th class="col-md-3">
+                    <?= $this->translate('Series') ?>:
+                  </th>
+                  <td>
+                    <? foreach($monographicSeries as $serie): ?>
+                      <a href='<?= $this->driver->getMonographicSeriesUrl($serie) ?>'
+                         title='<?= $this->escapeHtml($serie) ?>'>
+                        <?= $this->escapeHtml($serie) ?>
+                      </a><br>
+                    <? endforeach; ?>
+                  </td>
+                </tr>
+              <? endif; ?>
+
               <? $release = $this->driver->getRelease(); if (!empty($release) && ($release[0] != '')): ?>
                 <tr>
                   <th class="col-md-3"><?=$this->transEsc('Release')?>: </th>

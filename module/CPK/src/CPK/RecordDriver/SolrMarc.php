@@ -130,11 +130,11 @@ class SolrMarc extends ParentSolrMarc
 
     public function get866()
     {
-    	$field866 = $this->getFieldArray('866', array('s', 'x'));
-    	return $field866;
+        $field866 = $this->getFieldArray('866', array('s', 'x'));
+        return $field866;
     }
 
-	/**
+    /**
     * uses setting from config.ini => External links
     * @return array  [] => [
     *          [institution] = institution,
@@ -148,7 +148,7 @@ class SolrMarc extends ParentSolrMarc
         list($ins, $id) = explode('.' , $this->getUniqueID());
         //FIXME temporary
         if (substr($ins, 0, 4) === "vnf_") $ins = substr($ins, 4);
-	$linkBase = $this->recordConfig->ExternalLinks->$ins;
+    $linkBase = $this->recordConfig->ExternalLinks->$ins;
 
         if (empty($linkBase)) {
             return array(
@@ -187,27 +187,27 @@ class SolrMarc extends ParentSolrMarc
      * @return boolean|array
      */
     public function get7xxField($field, array $subfields = null) {
-    	$array = [];
-    	$notFalseSubfields = 0;
-    	foreach ($subfields as $subfield) {
-    		$result = $this->getFieldArray($field, array($subfield));
-    		if (count($result))
-    			++$notFalseSubfields;
+        $array = [];
+        $notFalseSubfields = 0;
+        foreach ($subfields as $subfield) {
+            $result = $this->getFieldArray($field, array($subfield));
+            if (count($result))
+                ++$notFalseSubfields;
 
-    		$array[$subfield] = $result;
-    	}
+            $array[$subfield] = $result;
+        }
 
-    	if ($notFalseSubfields === 0)
-    		return false;
+        if ($notFalseSubfields === 0)
+            return false;
 
-    	$resultArray = [];
-    	foreach ($array as $subfieldKey => $subfieldValue) {
-    		foreach ($subfieldValue as $intKey => $value) {
-    			$resultArray[$intKey][$subfieldKey] = $value;
-    		}
-    	}
+        $resultArray = [];
+        foreach ($array as $subfieldKey => $subfieldValue) {
+            foreach ($subfieldValue as $intKey => $value) {
+                $resultArray[$intKey][$subfieldKey] = $value;
+            }
+        }
 
-    	return $resultArray;
+        return $resultArray;
     }
 
     public function getF773_display()
@@ -248,11 +248,11 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getPublishers()
     {
-    	$array = $this->getFieldArray('260', array('b'));
-    	if (count($array) === 0)
-    		$array = $this->getFieldArray('264', array('b'));
+        $array = $this->getFieldArray('260', array('b'));
+        if (count($array) === 0)
+            $array = $this->getFieldArray('264', array('b'));
 
-    	return $array;
+        return $array;
     }
 
     public function getFormats()
@@ -272,12 +272,12 @@ class SolrMarc extends ParentSolrMarc
         return $this->parseHoldingsFrom996field($filters);
     }
 
-	public function getHoldingFilters()
+    public function getHoldingFilters()
     {
         return array();
     }
 
-	public function getAvailableHoldingFilters()
+    public function getAvailableHoldingFilters()
     {
         return array();
     }
@@ -591,7 +591,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function get866Data()
     {
-    	return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : [];
+        return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : [];
     }
 
     /**
@@ -601,7 +601,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getRange()
     {
-    	return $this->getFieldArray('300');
+        return $this->getFieldArray('300');
     }
 
     /**
@@ -611,7 +611,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getRelease()
     {
-    	return $this->getFieldArray('250');
+        return $this->getFieldArray('250');
     }
 
     /**
@@ -627,7 +627,7 @@ class SolrMarc extends ParentSolrMarc
         return false;
     }
 
-	public function getBibinfoForObalkyKnih()
+    public function getBibinfoForObalkyKnih()
     {
         $bibinfo = array(
             "authors" => array($this->getPrimaryAuthor()),
@@ -835,12 +835,12 @@ class SolrMarc extends ParentSolrMarc
         return false;
     }
 
-	public function getEAN()
+    public function getEAN()
     {
         return (!empty($this->fields['ean_isn_mv']) ? $this->fields['ean_isn_mv'][0] : null);
     }
 
-	protected function getCNB()
+    protected function getCNB()
     {
         return isset($this->fields['nbn']) ? $this->fields['nbn'] : null;
     }
@@ -878,7 +878,7 @@ class SolrMarc extends ParentSolrMarc
         return $name;
     }
 
-	public function getAvailabilityID() {
+    public function getAvailabilityID() {
         if (isset($this->fields['availability_id_str'])) {
             return $this->fields['availability_id_str'];
         } else {
@@ -1004,5 +1004,17 @@ class SolrMarc extends ParentSolrMarc
     public function getFilterParamsForRelated()
     {
         return ['handler' => 'morelikethis'];
+    }
+
+    public function getMonographicSeries()
+    {
+        return ['Mock serie', 'Fake serie 2'];
+        //return $this->fields['local_monographic_series_str_mv'] ?: false;
+    }
+
+    public function getMonographicSeriesUrl(string $serie)
+    {
+        return '/Search/Results?lookfor0[]=' . urlencode($serie)
+            . '&type0[]=local_monographic_series_str_mv&join=AND&searchTypeTemplate=advanced&page=1&bool0[]=AND';
     }
 }
