@@ -20,10 +20,6 @@
 <? if (!isset($this->layout()->renderingError)): ?>
     <div class="collapse navbar-collapse" id="header-collapse">
 
-        <? if ($notificationsEnabled && $user): ?>
-          <?=$this->render('notifications.phtml', [ 'user' => $user])?>
-        <? endif; ?>
-
         <!--navigation-->
         <ul class="nav navbar-nav">
             <? if(!$this->themeConfiguration()->themeConfig['hide_catalog']): ?>
