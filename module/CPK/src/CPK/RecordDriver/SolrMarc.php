@@ -1008,13 +1008,18 @@ class SolrMarc extends ParentSolrMarc
 
     public function getMonographicSeries()
     {
-        return ['Mock serie', 'Fake serie 2'];
-        //return $this->fields['local_monographic_series_str_mv'] ?: false;
+        return $this->fields['monographic_series_display_mv'] ?: false;
     }
 
     public function getMonographicSeriesUrl(string $serie)
     {
-        return '/Search/Results?lookfor0[]=' . urlencode($serie)
-            . '&type0[]=local_monographic_series_str_mv&join=AND&searchTypeTemplate=advanced&page=1&bool0[]=AND';
+        $mainSerie = explode("|", $serie)[0];
+        return '/Search/Results?lookfor0[]=' . urlencode($mainSerie)
+            . '&type0[]=monographic_series_str_mv&join=AND&searchTypeTemplate=advanced&page=1&bool0[]=AND';
+    }
+
+    public function getMonographicSeriesTitle(string $serie)
+    {
+        return implode(" | ", explode("|", $serie));
     }
 }

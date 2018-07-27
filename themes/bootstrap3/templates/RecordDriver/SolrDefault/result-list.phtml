@@ -343,12 +343,12 @@
       <? endif; ?>
 
       <? if ($monographicSeries = $this->driver->tryMethod('getMonographicSeries')): ?>
-        <?= $this->translate('Series') ?>:&nbsp;
+        <?= $this->translate('From monographic series') ?>:&nbsp;
         <? foreach($monographicSeries as $serie): ?>
           <a href='<?= $this->driver->getMonographicSeriesUrl($serie) ?>'
-             title='<?= $this->escapeHtml($serie) ?>'>
-            <?= $this->escapeHtml($serie) ?>
-          </a>
+             title='<?= $this->escapeHtml($this->driver->getMonographicSeriesTitle($serie)) ?>'>
+            <?= $this->escapeHtml($this->driver->getMonographicSeriesTitle($serie)) ?>
+          </a><br>
         <? endforeach; ?>
       <? endif; ?>
 
