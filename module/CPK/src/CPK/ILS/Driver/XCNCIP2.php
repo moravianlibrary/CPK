@@ -76,6 +76,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     protected $libsWithClavius = null;
     protected $libsWithARL = null;
+    protected $libsWithTritius = null;
 
     /**
      * Set the HTTP service to be used for HTTP requests.

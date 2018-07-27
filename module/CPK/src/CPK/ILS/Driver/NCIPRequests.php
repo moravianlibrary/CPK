@@ -19,7 +19,7 @@ class NCIPRequests {
     protected $sendUserId = null;
 
     protected $libsWithClavius = [
-        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'SOG504', 'PBG001'
+        'TAG001', 'ULG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'PBG001'
     ];
 
     protected $libsWithARL = [
@@ -28,6 +28,10 @@ class NCIPRequests {
 
     protected $libsWithVerbis = [
         'ZLG001'
+    ];
+
+    protected $libsWithTritius = [
+        'SOG504', 'KHG001'
     ];
 
     protected $libsNeedsPickUpLocation = [
@@ -261,6 +265,10 @@ class NCIPRequests {
 
     public function getLibsWithVerbis() {
         return $this->libsWithVerbis;
+    }
+
+    public function getLibsWithTritius() {
+        return $this->libsWithTritius;
     }
 
     public function getLibsNeedsPickUpLocation() {

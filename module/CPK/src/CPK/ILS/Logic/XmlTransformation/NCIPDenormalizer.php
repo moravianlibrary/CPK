@@ -69,6 +69,11 @@ class NCIPDenormalizer implements LoggerAwareInterface
     protected $libsWithVerbis = null;
 
     /**
+     * @var null
+     */
+    protected $libsWithTritius = null;
+
+    /**
      * @var Translator
      */
     protected $translator = null;
@@ -97,6 +102,7 @@ class NCIPDenormalizer implements LoggerAwareInterface
         $this->libsWithClavius = $ncipRequests->getLibsWithClavius();
         $this->libsWithARL = $ncipRequests->getLibsWithARL();
         $this->libsWithVerbis = $ncipRequests->getLibsWithVerbis();
+        $this->libsWithTritius = $ncipRequests->getLibsWithTritius();
         $this->translator = $translator;
     }
 
@@ -133,12 +139,12 @@ class NCIPDenormalizer implements LoggerAwareInterface
         $bibId = $request->get('LookupItemSet', 'BibliographicId', 'BibliographicItemId', 'BibliographicItemIdentifier');
 
         $newBibId = null;
-        if (in_array($this->agency, $this->libsWithClavius)) {
+        if (in_array($this->agency, $this->libsWithTritius)) {
             if ($this->agency === 'SOG504') {
                 $newBibId = '00124' . sprintf('%010d', $bibId);
+            } elseif ($this->agency === 'KHG001') {
+                $newBibId = '00160' . sprintf('%010d', $bibId);
             }
-        } elseif ($this->agency === 'KHG001') {
-            $newBibId = '00160' . sprintf('%010d', $bibId);
         } else if ($this->agency === 'AAA001' || $this->agency === 'SOG504') {
             $newBibId = '0002' . sprintf('%011d', $bibId);
         } else if (in_array($this->agency, $this->libsWithVerbis)) {
