@@ -3,29 +3,27 @@
   $this->headScript()->appendFile("vendor/oms.min.js");
 ?>
 
-<? if(!$this->librarySearch): ?>
-    <ul class="nav nav-tabs sources-tabs" id="set-database">
-        <li<?= empty($_GET['database']) || $_GET['database'] === 'Solr' ? ' class="active"' : '' ?>>
-            <a href="#" data-value="Solr" class="pointer">
-                <i class="pr-web-flagreport"></i>
-                <?=$this->translate('national-sources')?>
+<ul class="nav nav-tabs sources-tabs <?= ($this->librarySearch) ? ' hidden' : '' ?>" id="set-database">
+    <li<?= empty($_GET['database']) || $_GET['database'] === 'Solr' ? ' class="active"' : '' ?>>
+        <a href="#" data-value="Solr" class="pointer">
+            <i class="pr-web-flagreport"></i>
+            <?=$this->translate('national-sources')?>
+        </a>
+    </li>
+
+    <? if(!$this->themeConfiguration()->themeConfig['hide_eds_source']): ?>
+        <li<?= !empty($_GET['database']) && $_GET['database'] === 'EDS' ? ' class="active"' : '' ?>>
+            <a href="#" data-value="EDS" class="pointer">
+                <i class="pr-misc-globe"></i>
+                <?=$this->translate('foreign-sources')?>
             </a>
         </li>
+    <? endif; ?>
 
-        <? if(!$this->themeConfiguration()->themeConfig['hide_eds_source']): ?>
-            <li<?= !empty($_GET['database']) && $_GET['database'] === 'EDS' ? ' class="active"' : '' ?>>
-                <a href="#" data-value="EDS" class="pointer">
-                    <i class="pr-misc-globe"></i>
-                    <?=$this->translate('foreign-sources')?>
-                </a>
-            </li>
-        <? endif; ?>
-
-        <li class="disabled sources-tabs-question-marc">
-            <?= $this->help()->getQuestionMarkHelp('foreign-sources') ?>
-        </li>
-    </ul>
-<? endif; ?>
+    <li class="disabled sources-tabs-question-marc">
+        <?= $this->help()->getQuestionMarkHelp('foreign-sources') ?>
+    </li>
+</ul>
 
 <?
   $recordTotal = $this->results->getResultTotal();
