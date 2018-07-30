@@ -2,21 +2,39 @@
     $this->headLink()->appendStylesheet('//cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css');
     $this->headScript()->appendFile('./admin/menu.js');
     $this->headScript()->appendFile('//cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js');
+    $templateName = strtolower($this->layout()->templateName);
 ?>
 <aside class='well list-group aside-menu'>
-  <a href='/Admin/Configurations' class='list-group-item<?=strtolower($this->layout()->templateName) == 'configurations/main' ? ' active' : ''?>'><?=$this->transEsc('configurations')?></a>
+  <a href='/Admin/Configurations'
+     class='list-group-item<?=$templateName == 'configurations/main' ? ' active' : ''?>'>
+      <?=$this->transEsc('configurations')?>
+  </a>
 
   <? if ($isPortalAdmin): ?>
-    <a href='/Admin/ConfigurationsApproval' class='list-group-item<?=strtolower($this->layout()->templateName) == 'configurations/approval' ? ' active' : ''?>'><?=$this->transEsc('configurations_approval')?></a>
-    <a href='/Admin/PortalPages' class='list-group-item<?=strtolower($this->layout()->templateName) == 'portalpages' ? ' active' : ''?>'><?=$this->transEsc('Portal pages')?></a>
-    <a href='/Admin/PermissionsManager' class='list-group-item<?=strtolower($this->layout()->templateName) == 'permissions-manager' ? ' active' : ''?>'><?=$this->transEsc('Permissions manager')?></a>
-    <a href='/Admin/Widgets' class='list-group-item<?=strtolower($this->layout()->templateName) == 'widgets/main' ? ' active' : ''?>'><?=$this->transEsc('Widgets')?></a>
+    <a href='/Admin/ConfigurationsApproval'
+       class='list-group-item<?=$templateName == 'configurations/approval' ? ' active' : ''?>'>
+      <?=$this->transEsc('configurations_approval')?>
+    </a>
+    <a href='/Admin/PortalPages'
+       class='list-group-item<?=$templateName == 'portalpages' ? ' active' : ''?>'>
+      <?=$this->transEsc('Portal pages')?>
+    </a>
+    <a href='/Admin/PermissionsManager'
+       class='list-group-item<?=$templateName == 'permissions-manager' ? ' active' : ''?>'>
+      <?=$this->transEsc('Permissions manager')?>
+    </a>
+    <a href='/Admin/Widgets'
+       class='list-group-item<?=$templateName == 'widgets/main' ? ' active' : ''?>'>
+      <?=$this->transEsc('Widgets')?>
+    </a>
 
     <select id='menu-widgets-list'>
       <option value='-1'></option>
-      <?= sprintf('<option value="/Admin/Infobox">%s</option>', $this->transEsc('Infobox')); ?>
+      <option value='/Admin/Infobox'><?=$this->transEsc('Infobox')?></option>
       <?php foreach($this->widgetsForMenu as $widget): ?>
-        <?= sprintf('<option value="/Admin/Widget/%s">%s</option>', $widget->getId(), $widget->getTitleCs()); ?>
+        <option value='/Admin/Widget/<?=$widget->getId()?>'>
+          <?=$widget->getTitleCs()?>
+        </option>
       <?php endforeach; ?>
     </select>
   <? endif; ?>
