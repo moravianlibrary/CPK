@@ -95,6 +95,10 @@ class Factory
         return new GlobalNotifications($config, $lang, $sm->get('transesc'));
     }
 
+    public static function getNotifications(ServiceManager $sm) {
+        return new Notifications($sm->getServiceLocator()->get('VuFind\AuthManager'));
+    }
+
     public static function getPortalPages(ServiceManager $sm)
     {
         $portalPageTable = $sm->getServiceLocator()
@@ -152,4 +156,12 @@ class Factory
             : $config->ObalkyKnih->cacheUrl;
         return new ObalkyKnih($cacheUrl);
     }
+
+	public static function getThemeConfiguration(ServiceManager $sm) {
+		$config = $sm->getServiceLocator()
+			->get('VuFind\Config')
+			->get('config');
+
+		return new ThemeConfiguration($config);
+	}
 }

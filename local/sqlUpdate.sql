@@ -1,3 +1,5 @@
+# noinspection SqlNoDataSourceInspectionForFile
+
 /* Set longer username in user table */
 ALTER TABLE user CHANGE username username VARCHAR(64);
 
@@ -807,3 +809,13 @@ DROP `fifth_inspiration_widget`,
 DROP `sixth_inspiration_widget`;
 
 UPDATE `system` SET `value` = '60' WHERE `key`='DB_VERSION';
+
+/* feature-924 */
+ALTER TABLE `user` ADD COLUMN `last_login` timestamp NOT NULL DEFAULT '2015-01-01 00:00:01';
+
+UPDATE `system` SET `value` = '61' WHERE `key`='DB_VERSION';
+
+/* compliance with GDPR */
+UPDATE user SET firstname = '', lastname = '', email = '';
+UPDATE user_card SET card_name = '';
+UPDATE `system` SET `value` = '62' WHERE `key`='DB_VERSION';

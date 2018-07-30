@@ -26,6 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:building_a_related_record_module Wiki
  */
 namespace VuFind\Related;
+use VuFindSearch\ParamBag;
 
 /**
  * Related Records: Solr-based similarity
@@ -72,8 +73,12 @@ class Similar implements RelatedInterface
      */
     public function init($settings, $driver)
     {
+        $params = new ParamBag();
+        $paramsForRelated = $driver->getFilterParamsForRelated();
+        $params->set('qt', $paramsForRelated['handler']);
+
         $this->results = $this->searchService->similar(
-            $driver->getSourceIdentifier(), $driver->getUniqueId()
+            $driver->getSourceIdentifier(), $driver->getUniqueId(), $params
         );
     }
 

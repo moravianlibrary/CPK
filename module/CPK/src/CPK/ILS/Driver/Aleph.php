@@ -802,7 +802,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
             }
         } else
             if (! $available && ($status == "On Hold" || $status == "Requested" || $status == "Požadováno" ||
-                    $status == "Připraveno k půjčení")) {
+                    $status == "Připraveno k půjčení" || $status == "Rezervováno" || $status == "Reserved")) {
                 $duedate_status = "requested";
             }
 
@@ -873,7 +873,8 @@ class Aleph extends AlephBase implements CPKDriverInterface
             'no_of_loans' => (string) $z30->{'$no_of_loans'},
             'requested' => (string) $requested,
             // Customized from here
-            'label' => $label
+            'label' => $label,
+            'queue' => (string) $item->{'queue'}
         ];
     }
 

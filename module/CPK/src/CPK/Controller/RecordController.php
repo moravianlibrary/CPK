@@ -163,7 +163,6 @@ class RecordController extends RecordControllerBase
         $view->selectedCitationStyle = $selectedCitationStyle;
 
         $view->availableCitationStyles = $availableCitationStyles;
-        //
 
         $config = $this->getConfig();
         $view->config = $config;
@@ -175,6 +174,15 @@ class RecordController extends RecordControllerBase
 	    } else {
 	        $view->searchTypeTemplate = 'basic';
 	    }
+
+        //set username for comments if user have come from social network and don`t have firstname and lastname
+        if($this->getUser()
+            && $this->getUser()->isSocialUser()
+            && !$this->getUser()->firstname
+            && !$this->getUser()->lastname
+        ) {
+            $view->socialUser = $this->getUser()->getSource().'_user';
+        }
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 
@@ -188,10 +196,12 @@ class RecordController extends RecordControllerBase
 
         $this->layout()->recordView = true;
 
-        /* Get sigla */
+        /* Get Library ID */
         $multiBackendConfig = $this->getConfig('MultiBackend');
         $recordSource = explode(".", $this->driver->getUniqueId())[0];
-        $view->sigla = $multiBackendConfig->SiglaMapping->$recordSource;
+        try {
+            $view->libraryID = $multiBackendConfig->LibraryIDMapping->$recordSource;
+        } catch (\Exception $e){}
 
         $searchesConfig = $this->getConfig('searches');
         // If user have preferred limit and sort settings
@@ -216,6 +226,17 @@ class RecordController extends RecordControllerBase
         } else {
             $this->layout()->limit = $searchesConfig->General->default_limit;
             $this->layout()->sort = $searchesConfig->General->default_sort;
+        }
+
+        // Set up MVS button
+        $request = $this->getRequest();
+        $mvsCookie = $request->getCookie()->ziskej;
+
+        if (isset($config->Ziskej, $config->Ziskej->$mvsCookie) && $mvsCookie != 'disabled') {
+            $view->mvsUrl = $config->Ziskej->$mvsCookie;
+            $view->eppn = $request->getServer()->eduPersonPrincipalName;
+            $view->serverName = $request->getServer()->SERVER_NAME;
+            $view->entityId = $request->getServer('Shib-Identity-Provider');
         }
 
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;

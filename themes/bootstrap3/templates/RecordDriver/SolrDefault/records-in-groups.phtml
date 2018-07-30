@@ -9,6 +9,7 @@ if (isset($this->tabs['DedupedRecords'])) {
   $internalMultiplicity = $groups->getInternalMultiplicity($dedupedRecords, $currentInstitution);
   $recordSource = explode(".", $currentInstitution)[0];
   $currentInstitutionName = "source_".$recordSource;
+  $logosPostfix = '_small';
 }?>
   <? if (count($dedupedRecords) !== 1):?>
   <div class="dropdown">
@@ -19,8 +20,8 @@ if (isset($this->tabs['DedupedRecords'])) {
     <div class='single-institution' style='width: 100%;'>
       <h3 style="margin-top: 5px; margin-bottom: 5px; padding: 10px 10px 30px 10px;">
   <? endif;?>
-      <? if (file_exists(__DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.'.png')) : ?>
-        <img class='hidden-xs' height='20' src='/themes/bootstrap3/images/institutions/logos/<?=$recordSource?>/<?=$recordSource?>.png' align='left' style='margin-right: 8px;'>
+      <? if (file_exists(__DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.$logosPostfix.'.png')) : ?>
+        <img class='hidden-xs' height='20' src='/themes/bootstrap3/images/institutions/logos/<?=$recordSource?>/<?=$recordSource?><?=$logosPostfix?>.png' align='left' style='margin-right: 8px;'>
       <? endif;?>
         <span>
           <span class='pull-left' style='padding-bottom: 6px;'><?=$this->translate($currentInstitutionName)?></span>
@@ -38,8 +39,8 @@ if (isset($this->tabs['DedupedRecords'])) {
       <li>
         <a href='<?=$this->url('record', array('id' => $link))?>?referer=<?=$this->referer?>#records-in-groups' title='><?=$this->translate($source)?>'>
           <div class='record-group-list-item'>
-          <? $logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
-          $logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.'.png';
+          <? $logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.$logosPostfix.'.png';
+          $logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.$logosPostfix.'.png';
           $logoIsAvailable = file_exists($logoPath);?>
           <? if ($logoIsAvailable):?>
             <img class='hidden-xs pull-right' height='16' src='<?=$logoUrl?>'>

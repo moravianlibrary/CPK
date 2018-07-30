@@ -371,6 +371,7 @@ abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
      * settings will be loaded from config.ini.
      *
      * @return array
+     * @throws \Exception
      */
     public function getRelated(\VuFind\Related\PluginManager $factory, $types = null)
     {

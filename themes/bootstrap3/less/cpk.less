@@ -60,7 +60,7 @@ body {
 }
 
 a.list-group-item .list-group-item-heading, .infobox .list-group-item .list-group-item-heading {
-  color: @brand-primary;
+  color: @primary;
 }
 
 .widget .content {
@@ -73,7 +73,7 @@ a.list-group-item .list-group-item-heading, .infobox .list-group-item .list-grou
 }
 
 .widget .more-info {
-  color: @brand-primary;
+  color: @primary;
   font-size: 120%;
 }
 
@@ -283,10 +283,35 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
 
 #conspectus i.pr-institution-arrow:before {
     content: "\ead8";
-    color: #e5004b;
+    color: @primary;
     font-size: 17px;
 }
 
 #conspectus i.pr-institution-arrow {
     margin-top: 4px;
+}
+
+.pcolor {
+    color: @primary !important;
+}
+
+code {
+  color: @primary;
+  background: @primary-lighten;
+}
+
+.primary-darken-text {
+  color: @primary-darken !important;
+}
+
+.primary-darken-bg {
+  background-color: @primary-darken !important;
+}
+
+.primary-lighten-text {
+  color: @primary-lighten !important;
+}
+
+.primary-lighten-bg {
+  background-color: @primary-lighten !important;
 }

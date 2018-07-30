@@ -59,13 +59,6 @@ class NotificationsHandler
     protected $viewModel;
 
     /**
-     * DB access
-     *
-     * @var Notifications
-     */
-    protected $notificationsTable;
-
-    /**
      * ILS Connection
      *
      * @var \VuFind\ILS\Connection
@@ -80,35 +73,13 @@ class NotificationsHandler
     protected $newNotifClass = 'warning';
 
     /**
-     * Temporary Notifications Rows related to all non-Dummy User Cards
-     *
-     * @var NotificationsRow[]
-     */
-    protected $userCardNotificationsRows = [];
-
-    /**
-     * Temporary Notifications Rows related to User
-     *
-     * @var NotificationsRow[]
-     */
-    protected $userNotificationsRows = [];
-
-    /**
-     * Interval to wait before querying the ILS for notifications again, measured in seconds
-     *
-     * @var int
-     */
-    const REFETCH_INTERVAL_SECS = 60 * 15;
-
-    /**
      * C'tor
      *
      * @param \Zend\View\Renderer\RendererInterface $viewModel
      */
-    public function __construct(\Zend\View\Renderer\RendererInterface $viewModel, Notifications $notificationsTable, \VuFind\ILS\Connection $ils)
+    public function __construct(\Zend\View\Renderer\RendererInterface $viewModel, \VuFind\ILS\Connection $ils)
     {
         $this->viewModel = $viewModel;
-        $this->notificationsTable = $notificationsTable;
         $this->ils = $ils;
     }
 
@@ -122,11 +93,18 @@ class NotificationsHandler
     {
         $source = explode('.', $cat_username)[0];
 
-        $this->getUserCardApiRelevantNotifications($cat_username, $source);
+        $notifications = [];
+        try {
+            $notifications['notifications'] = array_merge(
+                $this->fetchBlocksDetails($cat_username, $source),
+                $this->fetchFinesDetails($cat_username, $source),
+                $this->fetchOverduesDetails($cat_username, $source)
+            );
+        } catch (\Exception $ex) {
+            // FIXME: error handling
+        }
 
-        $this->getUserCardApiNonrelevantNotifications($cat_username, $source);
-
-        return $this->prepareNotificationsRowsForOutput($this->userCardNotificationsRows, $source);
+        return $notifications;
     }
 
     /**
@@ -137,280 +115,17 @@ class NotificationsHandler
      */
     public function getUserNotifications(User $user)
     {
-        $this->getUserApiRelevantNotifications($user);
-
-        $this->getUserApiNonrelevantNotifications($user);
-
-        return $this->prepareNotificationsRowsForOutput($this->userNotificationsRows);
-    }
-
-    /**
-     * Sets an notification type as read for specific user
-     *
-     * @param User $user
-     * @param string $notificationType
-     * @param string $source
-     * @return boolean $success
-     */
-    public function setUserCardNotificationRead(User $user, $notificationType, $source)
-    {
-        NotificationTypes::assertValid($notificationType);
-
-        foreach ($user->getLibraryCards() as $libCard) {
-            if ($libCard->home_library === $source) {
-
-                $notificationRow = $this->notificationsTable->getNotificationsRowFromUserCardUsername($libCard->id, $notificationType);
-
-                if ($notificationRow instanceof NotificationsRow)
-                    $this->userCardNotificationsRows[$notificationType] = $notificationRow;
-
-                break;
-            }
-        }
-
-        if (isset($this->userCardNotificationsRows[$notificationType])) {
-
-            $this->userCardNotificationsRows[$notificationType]->read = 1;
-            $this->userCardNotificationsRows[$notificationType]->save();
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Sets an notification type as read for specific user
-     *
-     * @param User $user
-     * @param string $notificationType
-     * @return boolean $success
-     */
-    public function setUserNotificationRead(User $user, $notificationType)
-    {
-        $notificationRow = $this->notificationsTable->getNotificationsRowFromUser($user, $notificationType);
-
-        if ($notificationRow instanceof NotificationsRow)
-            $this->userNotificationsRows[$notificationType] = $notificationRow;
-
-        if (isset($this->userNotificationsRows[$notificationType])) {
-
-            $this->userNotificationsRows[$notificationType]->read = 1;
-            $this->userNotificationsRows[$notificationType]->save();
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Sets a "shows" flag to an User scoped notification.
-     *
-     * @param User $user
-     * @param string $notificationType
-     * @param boolean $showNotification
-     * @throws \Exception
-     */
-    public function setUserNotificationShows(User $user, $notificationType, $showNotification)
-    {
-        $apiNonRelevantTypes = NotificationTypes::getAllApiNonrelevantTypes();
-
-        if (array_search($notificationType, $apiNonRelevantTypes) === false) {
-            throw new \Exception($notificationType . ' is not recognized API nonrelevant NotificationType');
-        }
-
-        $notificationsRow = $this->notificationsTable->getNotificationsRowFromUser($user, $notificationType);
-
-        if (! $notificationsRow instanceof NotificationsRow) {
-
-            $notificationsParsed = [
-                $notificationType => $showNotification
+        $notifications = [ 'notifications' => [] ];
+        $isDummy = $user->home_library === 'Dummy';
+        if ($isDummy) {
+            $notifications['notifications'][] = [
+                'message' => $this->translate("notif_you_have_" . NotificationTypes::USER_DUMMY),
+                'href' => '/LibraryCards/Home?viewModal=help-with-log-in-and-registration',
+                'type' => NotificationTypes::USER_DUMMY,
+                'clazz' => 'warning',
             ];
-
-            $notificationsRow = $this->notificationsTable->createUserNotificationsRows($user, $notificationsParsed)[$notificationType];
-        } else {
-
-            if (boolval($showNotification) !== boolval($notificationsRow->shows)) {
-                $notificationsRow->shows = ($showNotification) ? 1 : 0;
-                $notificationsRow->save();
-            }
         }
-
-        $this->userNotificationsRows[$notificationType] = $notificationsRow;
-    }
-
-    /**
-     * Gets all UserCard API relevant Notifications identified by user_card's cat_username
-     *
-     * @param string $cat_username
-     */
-    protected function getUserCardApiRelevantNotifications($cat_username, $source)
-    {
-        $userCardNotifications = $this->notificationsTable->getNotificationsRowsFromUserCardUsername($cat_username);
-
-        $this->userCardNotificationsRows = array_merge($this->userCardNotificationsRows, $userCardNotifications);
-
-        $hasAllApiRelevantKeys = $this->hasAllApiRelevantKeys($this->userCardNotificationsRows);
-
-        if (! $hasAllApiRelevantKeys) {
-
-            // API relevant Notifications have never been fetched before
-            $this->createNewUserCardApiRelevantNotifications($cat_username, $source);
-        } else {
-
-            // They have been fetched some time ago, check if it was more than REFETCH_INTERVAL_SECS
-            $this->fetchUserCardApiRelevantNotifications($cat_username, $source);
-        }
-    }
-
-    /**
-     * Gets all UserCard API nonrelevant Notifications identified by user_card's cat_username
-     *
-     * @param string $cat_username
-     */
-    protected function getUserCardApiNonrelevantNotifications($cat_username, $source)
-    {
-        /*
-         * Here should come the logic for getting the UserCard scoped Notifications which
-         * are not API relevant (doesn't need ILS API to work)
-         *
-         * The result should be appended to array of Notifications Row in this class variable:
-         * $this->userCardNotificationsRows
-         */
-    }
-
-    /**
-     * Gets all User API relevant Notifications identified by provided User Row
-     *
-     * @param User $user
-     */
-    protected function getUserApiRelevantNotifications(User $user)
-    {
-        /*
-         * Here should come the logic for getting the User scoped Notifications which
-         * are API relevant (does need ILS API to work)
-         *
-         * The result should be appended to array of Notifications Row in this class variable:
-         * $this->userNotificationsRows
-         */
-    }
-
-    /**
-     * Gets all User API nonrelevant Notifications identified by provided User Row
-     *
-     * @param User $user
-     */
-    protected function getUserApiNonrelevantNotifications(User $user)
-    {
-        $notificationsRows = $this->notificationsTable->getNotificationsRowsFromUser($user);
-
-        $this->userNotificationsRows = array_merge($this->userNotificationsRows, $notificationsRows);
-    }
-
-    /**
-     * Creates new API relevant Notifications Rows in DB
-     *
-     * @param string $cat_username
-     * @param string $source
-     */
-    protected function createNewUserCardApiRelevantNotifications($cat_username, $source)
-    {
-        $blocksDetails = $this->fetchBlocksDetails($cat_username, $source);
-
-        $finesDetails = $this->fetchFinesDetails($cat_username, $source);
-
-        $overduesDetails = $this->fetchOverduesDetails($cat_username, $source);
-
-        $userNotifications = [
-            NotificationTypes::BLOCKS => $blocksDetails,
-            NotificationTypes::FINES => $finesDetails,
-            NotificationTypes::OVERDUES => $overduesDetails
-        ];
-
-        $this->userCardNotificationsRows = $this->notificationsTable->createUserCardNotificationsRows($cat_username, $userNotifications);
-    }
-
-    /**
-     * Retrieves new Notifications for a user.
-     *
-     * It also sets particular notifications as unread only if there was an notification active before & now it's not active anymore.
-     *
-     * Note that it does not update any notifications which are not fetched via API.
-     *
-     * @param string $notificationsType
-     * @param string $cat_username
-     * @param string $source
-     */
-    protected function actualizeUserCardApiRelevantNotificationsRow($notificationsType, $cat_username, $source)
-    {
-        $notificationsRow = &$this->userCardNotificationsRows[$notificationsType];
-
-        switch ($notificationsType) {
-
-            case NotificationTypes::BLOCKS:
-
-                $notificationDetails = $this->fetchBlocksDetails($cat_username, $source);
-                break;
-
-            case NotificationTypes::FINES:
-
-                $notificationDetails = $this->fetchFinesDetails($cat_username, $source);
-                break;
-
-            case NotificationTypes::OVERDUES:
-
-                $notificationDetails = $this->fetchOverduesDetails($cat_username, $source);
-                break;
-
-            default:
-                return;
-        }
-
-        $wasShownBefore = boolval($notificationsRow->shows);
-
-        $notificationShows = $notificationDetails['shows'];
-
-        $shouldSetUnread = $wasShownBefore && $notificationShows === false;
-
-        if (! $shouldSetUnread) {
-            $controlHash = $notificationDetails['hash'];
-
-            $shouldSetUnread = ($controlHash !== $notificationsRow->control_hash_md5);
-
-            $notificationsRow->control_hash_md5 = $controlHash;
-        }
-
-        if ($shouldSetUnread) {
-            $notificationsRow->read = 0;
-        }
-
-        $notificationsRow->shows = ($notificationShows) ? 1 : 0;
-
-        $notificationsRow->last_fetched = date('Y-m-d H:i:s');
-
-        $notificationsRow->save();
-    }
-
-    /**
-     * Checks whether it is needed to fetch again the notifications.
-     *
-     * It also fetches those if neccessarry.
-     *
-     * @param string $cat_username
-     * @param string $source
-     */
-    protected function fetchUserCardApiRelevantNotifications($cat_username, $source)
-    {
-        foreach ($this->userCardNotificationsRows as $notificationsType => $notificationsRow) {
-            $lastFetched = strtotime($notificationsRow->last_fetched);
-
-            $shouldFetchAgain = $lastFetched + self::REFETCH_INTERVAL_SECS <= time();
-
-            if ($shouldFetchAgain) {
-                $this->actualizeUserCardApiRelevantNotificationsRow($notificationsType, $cat_username, $source);
-            }
-        }
+        return $notifications;
     }
 
     /**
@@ -427,22 +142,37 @@ class NotificationsHandler
         ]);
 
         if (is_array($profile) && count($profile) === 0) {
+            throw new ILSException('Error fetching profile in "' . $source . '": ' .
+                $this->translate('profile_fetch_problem'));
+        }
 
-            throw new ILSException('Error fetching profile in "' . $source . '": ' . $this->translate('profile_fetch_problem'));
-        } else
-            if (count($profile['blocks'])) {
+        $notifs = [];
+        if (!empty($profile['blocks'])) {
+            $notificationType = NotificationTypes::BLOCKS;
+            $notifs[] = [
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ];
+        }
 
-                $controlHash = md5(json_encode($profile['blocks']));
+        $expire = date_create_from_format('d. m. Y', $profile['expire']);
+        $dateDiff = date_diff($expire, date_create());
+        $invalidRegistration = ($dateDiff->days < 31 && $dateDiff->invert != 0)
+            || ($dateDiff->invert == 0 && $dateDiff->days > 0);
 
-                return [
-                    'shows' => true,
-                    'hash' => $controlHash
-                ];
-            }
+        if ($invalidRegistration) {
+            $notificationType = NotificationTypes::EXPIRED_REGISTRATION;
+            $notifs[] = [
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ];
+        }
 
-        return [
-            'shows' => false
-        ];
+        return $notifs;
     }
 
     /**
@@ -460,19 +190,17 @@ class NotificationsHandler
 
         unset($fines['source']);
 
-        if ((count($fines)) && (end($fines)['balance'] < 0)) {
-
-                $controlHash = md5(json_encode($fines));
-
-                return [
-                    'shows' => true,
-                    'hash' => $controlHash
-                ];
+        if ((!empty($fines)) && (end($fines)['balance'] < 0)) {
+            $notificationType = NotificationTypes::FINES;
+            return [[
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ]];
         }
 
-        return [
-            'shows' => false
-        ];
+        return [];
     }
 
     /**
@@ -491,89 +219,21 @@ class NotificationsHandler
         $overduedIds = [];
 
         foreach ($result as $current) {
-
             if (isset($current['dueStatus']) && $current['dueStatus'] === "overdue")
                 array_push($overduedIds, $current['id']);
         }
 
-        if (count($overduedIds)) {
-
-            $controlHash = md5(json_encode($overduedIds));
-
-            return [
-                'shows' => true,
-                'hash' => $controlHash
-            ];
+        if (!empty($overduedIds)) {
+            $notificationType = NotificationTypes::OVERDUES;
+            return [[
+                'message' => $this->translate("notif_you_have_$notificationType"),
+                'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
+                'type' => $notificationType,
+                'clazz' => 'warning',
+            ]];
         }
 
-        return [
-            'shows' => false
-        ];
-    }
-
-    /**
-     * Checks if the provided array object of NotificationsRow has all the keys
-     * matching all API relevant keys.
-     *
-     * @param array $notifications
-     * @return boolean $hasAllApiRelevantKeys
-     */
-    protected function hasAllApiRelevantKeys(array $notifications)
-    {
-        $apiRelevantKeys = NotificationTypes::getAllApiRelevantTypes();
-        $presentApiRelevantKeys = array_intersect(array_keys($notifications), $apiRelevantKeys);
-
-        return empty(array_diff($apiRelevantKeys, $presentApiRelevantKeys));
-    }
-
-    /**
-     * Checks if the provided array object of NotificationsRow has all the keys
-     * matching all API nonrelevant keys.
-     *
-     * @param array $notifications
-     * @return boolean $hasAllApiNonrelevantKeys
-     */
-    protected function hasAllApiNonrelevantKeys(array $notifications)
-    {
-        $apiNonrelevantKeys = NotificationTypes::getAllApiNonrelevantTypes();
-        $presentApiNonrelevantKeys = array_intersect(array_keys($notifications), $apiNonrelevantKeys);
-
-        return empty(array_diff($apiNonrelevantKeys, $presentApiNonrelevantKeys));
-    }
-
-    /**
-     * Parses the input array of Notification Rows into on associative array
-     * being returned to AngularJS notifications controller for further process.
-     *
-     * @param \CPK\Db\Row\Notifications[] $notificationsRows
-     * @param string $source
-     * @return string[][][]
-     */
-    protected function prepareNotificationsRowsForOutput(array $notificationsRows, $source = null)
-    {
-        $data['notifications'] = [];
-        $data['source'] = $source;
-
-        foreach ($notificationsRows as $notificationType => $notificationRow) {
-
-            if ($notificationRow->shows) {
-                $clazz = $this->newNotifClass;
-
-                if (! $notificationRow->read)
-                    $clazz .= ' notif-unread';
-
-                $notification = [
-                    'clazz' => $clazz,
-                    'message' => $this->translate("notif_you_have_$notificationType"),
-                    'href' => NotificationTypes::getNotificationTypeClickUrl($notificationType, $source),
-                    'type' => $notificationType
-                ];
-
-                array_push($data['notifications'], $notification);
-            }
-        }
-
-        return $data;
+        return [];
     }
 
     /**
@@ -593,4 +253,5 @@ class NotificationsHandler
     {
         return $this->viewModel->plugin('translate')->__invoke($msg, $tokens, $default);
     }
+
 }

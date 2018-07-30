@@ -103,17 +103,35 @@ class HttpService implements HttpServiceInterface
                 $proxyType = isset($this->proxyConfig['proxy_type'])
                     ? $this->proxyConfig['proxy_type'] : 'default';
 
-                if ($proxyType == 'socks5') { 
+                if ($proxyType == 'socks5' || $proxyType == 'curl'
+                    || isset($options['curloptions'])) {
                     $adapter = new \Zend\Http\Client\Adapter\Curl();
                     $host = $this->proxyConfig['proxy_host'];
                     $port = $this->proxyConfig['proxy_port'];
 
                     $adapter->setCurlOption(CURLOPT_FOLLOWLOCATION, true);
-                    $adapter->setCurlOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
                     $adapter->setCurlOption(CURLOPT_PROXY, $host);
 
                     if (isset($port) && ! empty($port)) {
                         $adapter->setCurlOption(CURLOPT_PROXYPORT, $port);
+                    }
+
+                    if (!empty($this->proxyConfig['username'])
+                        && !empty($this->proxyConfig['password'])) {
+                        $userpwd = urlencode($this->proxyConfig['username']) . ':'
+                            . urlencode($this->proxyConfig['password']);
+                        $adapter->setCurlOption(CURLOPT_PROXYUSERPWD, $userpwd);
+                        $adapter->setCurlOption(CURLOPT_PROXYAUTH, CURLAUTH_ANY);
+                    }
+
+                    if ($proxyType == 'socks5') {
+                        $adapter->setCurlOption(CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5);
+                    }
+
+                    if (isset($options['curloptions'])) {
+                        foreach ($options['curloptions'] as $key => $value) {
+                            $adapter->setCurlOption($key, $value);
+                        }
                     }
 
                     $client->setAdapter($adapter);
@@ -221,7 +239,7 @@ class HttpService implements HttpServiceInterface
      * @return \Zend\Http\Client
      */
     public function createClient($url = null,
-        $method = \Zend\Http\Request::METHOD_GET, $timeout = null
+        $method = \Zend\Http\Request::METHOD_GET, $timeout = null, $options = array()
     ) {
         $client = new \Zend\Http\Client();
         $client->setMethod($method);
@@ -234,13 +252,18 @@ class HttpService implements HttpServiceInterface
             // Adapter cannot be null as we'd possibly encounter problems
             $client->setAdapter(new \Zend\Http\Client\Adapter\Curl());
         }
+        if (isset($options['curloptions']) && $client->getAdapter() instanceof \Zend\Http\Client\Adapter\Curl) {
+            foreach ($options['curloptions'] as $key => $value) {
+                $client->getAdapter()->setCurlOption($key, $value);
+            }
+        }
         if (null !== $url) {
             $client->setUri($url);
         }
         if ($timeout) {
             $client->setOptions(array('timeout' => $timeout));
         }
-        $this->proxify($client);
+        $this->proxify($client, $options);
         return $client;
     }
 
@@ -312,7 +335,9 @@ class HttpService implements HttpServiceInterface
      */
     protected function isLocal($host)
     {
-        return preg_match(self::LOCAL_ADDRESS_RE, $host);
+        return preg_match(self::LOCAL_ADDRESS_RE, $host)
+            || (isset($this->proxyConfig['non_proxy_host'])
+                && in_array($host, $this->proxyConfig['non_proxy_host']));
     }
 
 }

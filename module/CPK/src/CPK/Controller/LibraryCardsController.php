@@ -189,16 +189,6 @@ class LibraryCardsController extends LibraryCardsControllerBase
         return $this->redirect()->toRoute('librarycards-home');
     }
 
-    /**
-     * Only identity removal is allowed - redirect user to libcards/home
-     *
-     * @return mixed
-     */
-    public function editCardAction()
-    {
-        return $this->redirect()->toRoute('librarycards-home');
-    }
-
     protected function getRelogUrl(Manager $authManager)
     {
         $loginUrl = $authManager->getSessionInitiatorForEntityId($_SESSION['Account']->eidLoggedInWith);

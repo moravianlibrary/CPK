@@ -12,21 +12,9 @@
 
   $this->layout()->title = $this->translate('Portal pages');
 ?>
-<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+<script src="https://cdn.ckeditor.com/4.7.3/full-all/ckeditor.js"></script>
 <script>
 	jQuery( document ).ready( function( $ ) {
-		tinymce.init({
-			selector:'.editor',
-			toolbar: [
-			  	'undo redo | styleselect | bold italic underline | link image | alignleft aligncenter alignright | bullist numlist | image | link | table | preview'
-			],
-			plugins: "image imagetools link preview table",
-			menubar: "edit insert view format",
-			invalid_styles: {
-			    '*': 'font-family font-size'
-			}
-		});
-
 		if ($( '#view' ).val() == 'advanced-search') {
 			$( '.position-placeholder' ).addClass( 'hidden' );
 		}
@@ -70,7 +58,7 @@
               <? foreach($this->sources as $source): ?>
 			    <a href="#" class="list-group-item" data-toggle="collapse" data-target="#modal_for_<?=$source?>" data-parent="#sources"><?=$this->translate('source_'.$source)?></a>
                   <div id="modal_for_<?=$source?>" class="sublinks collapse">
-              	    <textarea rows='15' class='form-control editor' name='content[]'><?=isset($specificContents[$source]) ? $specificContents[$source] : ''?></textarea>
+              	    <textarea rows='15' class='form-control editor ckeditor' name='content[]'><?=isset($specificContents[$source]) ? $specificContents[$source] : ''?></textarea>
               	    <input type='hidden' name='source[]' value='<?=$source?>'>
                   </div>
               <? endforeach; ?>

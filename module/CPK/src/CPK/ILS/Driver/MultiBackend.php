@@ -28,7 +28,7 @@
  */
 namespace CPK\ILS\Driver;
 
-use VuFind\Exception\ILS as ILSException, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver, CPK\ILS\Driver\Aleph, CPK\ILS\Driver\XCNCIP2;
+use VuFind\Exception\ILS as ILSException, VuFind\ILS\Driver\MultiBackend as MultiBackendBase, CPK\ILS\Driver\SolrIdResolver as SolrIdResolver, CPK\ILS\Driver\Aleph, CPK\ILS\Driver\XCNCIP2, CPK\ILS\Driver\XCNCIP2V2;
 use CPK\Mailer\Mailer;
 
 /**
@@ -488,7 +488,7 @@ class MultiBackend extends MultiBackendBase
         if ($driver === null)
             throw new ILSException("Driver is undefined!");
 
-        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph) {
+        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph || $driver instanceof XCNCIP2V2) {
 
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
@@ -578,7 +578,20 @@ class MultiBackend extends MultiBackendBase
      */
     public function getDriverName($source)
     {
-        return $this->drivers[$source];
+        if (isset($this->drivers[$source]))
+            return $this->drivers[$source];
+        return null;
+    }
+
+    public function siglaToSource($sigla)
+    {
+        $source = null;
+        foreach ($this->config['SiglaMapping'] as $source => $paired_sigla) {
+            if ($sigla === $paired_sigla)
+                return $source;
+        }
+
+        return $source;
     }
 
     protected function getDetailsFromCurrentSource($source, $details)
@@ -599,7 +612,7 @@ class MultiBackend extends MultiBackendBase
     public function getItemStatus($id, $bibId, $patron)
     {
         if ($bibId === null)
-            return $this->getEmptyStatuses($ids);
+            return $this->getEmptyStatuses([$id]);
 
         $source = $this->getSource($bibId);
         $driver = $this->getDriver($source);

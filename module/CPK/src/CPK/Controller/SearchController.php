@@ -27,6 +27,7 @@ namespace CPK\Controller;
 use VuFind\Controller\SearchController as SearchControllerBase;
 use VuFind\Exception\Mail as MailException;
 use VuFind\Exception\RecordMissing as RecordMissingException;
+use \CPK\Widgets\WidgetContent;
 
 /**
  * SearchController
@@ -1262,7 +1263,6 @@ class SearchController extends SearchControllerBase
             $extraResults[] = $record->getUniqueId();
         }
         $viewData['extraResults'] = $extraResults;
-
         // If we received an EmptySet back, that indicates that the real search
         // failed due to some kind of syntax error, and we should display a
         // warning to the user; otherwise, we should proceed with normal post-search
@@ -1641,5 +1641,22 @@ class SearchController extends SearchControllerBase
         }
 
         return $searchTerms;
+    }
+
+    public function embeddedAction() {
+        $view = $this->createViewModel();
+        $view->setTemplate('portal/embedded-search-cpk');
+        $view->setTerminal(true);
+        $view->position = $this->params()->fromQuery('position', 'left');
+        $view->database = $this->params()->fromQuery('database', '');
+
+        $lang = $this->params()->fromQuery('lang', 'cs');
+        if ((!isset($_COOKIE['language'])) || ($_COOKIE['language'] !== $lang)) {
+            $this->layout()->userLang=$lang;
+            setcookie('language',$lang,null,'/');
+            header("Refresh:0");
+        }
+
+        return $view;
     }
 }

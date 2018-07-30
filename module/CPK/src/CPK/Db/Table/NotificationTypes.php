@@ -44,6 +44,8 @@ class NotificationTypes extends ConstantsValidator
 
     const USER_DUMMY = 'user_dummy';
 
+    const EXPIRED_REGISTRATION = 'expired_registration';
+
     /**
      *
      * @var \Zend\Config\Config
@@ -85,7 +87,8 @@ class NotificationTypes extends ConstantsValidator
         return [
             self::FINES,
             self::BLOCKS,
-            self::OVERDUES
+            self::OVERDUES,
+            self::EXPIRED_REGISTRATION
         ];
     }
 
@@ -159,6 +162,7 @@ class NotificationTypes extends ConstantsValidator
 
         switch ($notificationType) {
 
+            case static::EXPIRED_REGISTRATION:
             case static::BLOCKS:
                 $action = 'Profile';
                 break;
@@ -176,6 +180,7 @@ class NotificationTypes extends ConstantsValidator
                 $controller = '/LibraryCards/';
                 $action = 'Home?viewModal=help-with-log-in-and-registration';
                 break;
+
         }
 
         if ($source !== null)
