@@ -6,6 +6,7 @@ $config = [
         'factories' => [
             'api' => 'MZKApi\Controller\Factory::getApiController',
             'itemapi' => 'MZKApi\Controller\Factory::getItemApiController',
+            'consolidationapi' => 'MZKApi\Controller\Factory::getConsolidationApiController',
         ]
     ],
     'router' => [
@@ -20,7 +21,18 @@ $config = [
                         'action'     => 'item',
                     ]
                 ]
-            ]
+            ],
+            'consolidationApiv1' => [
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'verb' => 'get',
+                'options' => [
+                    'route'    => '/api/v1/consolidation_info',
+                    'defaults' => [
+                        'controller' => 'ConsolidationApi',
+                        'action'     => 'consolidation',
+                    ]
+                ]
+            ],
         ],
     ],
 ];
