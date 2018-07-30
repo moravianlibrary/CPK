@@ -5,8 +5,8 @@
 //cookies
 /////////
 .eu-cookies, .portal-info{
-  background-color: #666;
-  color: white;
+  background-color: @brand-info;
+  color: @darkbg-text;
   padding: 4px;
 
   //cookies are shown on bottom of browser window to avoid collision with header
@@ -16,7 +16,7 @@
   width: 100%;
   z-index: 1030;
   & > a {
-    color: white;
+    color: @darkbg-text;
     text-decoration: underline;
   }
 }
@@ -36,8 +36,8 @@
 
 header {
   margin-bottom: 20px;
-  background-color: #fff;
-  box-shadow: 2px 2px 2px #ccc;
+  background-color: @darkbg-text;
+  box-shadow: 2px 2px 2px @grey-color;
   @media (min-width: @screen-lg-min) {
     &.frontpage {
       background-image: url("/themes/bootstrap3/images/book-colage-left.png"),url("/themes/bootstrap3/images/book-colage-right.png");
@@ -102,24 +102,13 @@ header {
 .navbar-brand {
   height: auto;
 }
-.beta-logo {
-  font-family: LatoWebBold;
-  position: absolute;
-  left: 86px;
-  top: 64px;
-  color: #333;
-  &:hover {
-    text-decoration: underline;;
-  }
-  
-}
 
 .slogan{
   font-family: LatoWebBold;
   position: absolute;
   left: 86px;
   top: 64px;
-  color: #333;  
+  color: @link-hover-color;
 }
 .navbar-brand
 {
@@ -135,15 +124,26 @@ header {
 tr.link {
   cursor: pointer;
 }
-
-#loginOptions {
-  padding-top: 12px !important;
-  padding-bottom: 14.5px;
+.loginOptions {
   line-height: 21px;
+  height: 48px;
   position: relative;
-  display: block;
-  padding: 10px 15px;
-  cursor: pointer;
-  color: #e5004b;
+  display: inline-block;
+  color: @brand-primary;
   text-decoration: none;
+}
+#login-button {
+    padding: 15px 14.5px;
+    padding-right: 5px;
+    float: left;
+    cursor: pointer;
+    &:hover {
+        color: @link-hover-color;
+    }
+}
+#login-help {
+    float: right;
+    padding: 0;
+    margin-right: 15px;
+    margin-top: 11.5px;
 }

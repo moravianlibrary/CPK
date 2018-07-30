@@ -1,159 +1,213 @@
 <div class="navbar-header">
-  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#header-collapse">
-    <span class="sr-only">Toggle navigation</span>
-    <i class="fa fa-bars"></i>
-  </button>
-  <a class="navbar-brand lang-<?=$this->layout()->userLang ?>" href="/Search/Home" style="padding: 0px;">
-    <div href="#"><i class="fa knihovny-logo"></i></div>
-	</a>
-  <span class="slogan">
-    <?=$this->translate('slogan')?>
-  </span>
+	<? if (!$this->themeConfiguration()->themeConfig['logo_image']): ?>
+		<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#header-collapse">
+			<span class="sr-only">Toggle navigation</span>
+			<i class="fa fa-bars"></i>
+		</button>
+		<a class="navbar-brand lang-<?= $this->layout()->userLang ?>" href="/Search/Home">
+			<div href="#"><i class="fa knihovny-logo"></i></div>
+		</a>
+		<span class="slogan">
+			<?= $this->translate('slogan') ?>
+		</span>
+	<? else: ?>
+		<a href="/Search/Home">
+			<img src="/themes/bootstrap3/images/logos/<?= $this->themeConfiguration()->themeConfig['logo_image'] ?>"
+			     alt="">
+		</a>
+	<? endif; ?>
 </div>
 <? if (!isset($this->layout()->renderingError)): ?>
-  <div class="collapse navbar-collapse" id="header-collapse">
-    <ul class="nav navbar-nav">
-        <li <? if (($this->layout()->headerType != "newlibraries") && ($this->layout()->headerType != "inspiration")): ?>class="active"<? endif; ?> id="catalogSearchLink">
-            <a href="<?=$this->url('home')?>"><?=$this->translate('Catalog')?><span class="sr-only">(current)</span></a>
-        </li>
-        <li <? if ($this->layout()->headerType == "inspiration"): ?>class="active"<? endif; ?> >
-            <a href="/Search/Inspiration" title="<?=$this->translate('Inspiration')?>"><?=$this->translate('Inspiration')?></a>
-        </li>
-        <li <? if ($this->layout()->headerType == "newlibraries"): ?>class="active"<? endif; ?> id="librariesSearchLink">
-            <a href="/Search/Results/?lookfor0[]=&type0[]=Libraries&bool0[]=AND&filter=&daterange=&publishDatefrom=&publishDateto=&limit=10&sort=relevance&page=1&searchTypeTemplate=basic&keepFacetsEnabled=true&join=AND">
-                <? $titleHtml = $this->translate('Libraries') ?>
-                <?= $this->help()->getElementHelp('element_help_header_libraries', $titleHtml) ?>
-            </a>
-        </li>
-        <!--<li>
-            <a href="http://info.knihovny.cz/events"><?=$this->translate('Events')?></a>
-        </li>-->
-      </ul>
-    <nav>
-      <ul class="nav navbar-nav navbar-right flip">
-        <? if ($this->feedback()->tabEnabled()): ?>
-          <li>
-            <a id="feedbackLink" class="modal-link" href="<?=$this->url('feedback-home') ?>"><i class="fa fa-envelope"></i> <?=$this->transEsc("Feedback")?></a>
-          </li>
-        <? endif; ?>
-        <? $cart = $this->cart(); if ($cart->isActive()): ?>
-          <li id="cartSummary">
-            <a id="cartItems" class="modal-link" title="<?=$this->transEsc('View Book Bag')?>" href="<?=$this->url('cart-home')?>"><i class="fa fa-suitcase"></i> <strong><?=count($cart->getItems())?></strong> <?=$this->transEsc('items')?><?=$cart->isFull() ? ' (' .  $this->transEsc('bookbag_full') . ')' : ''?></a>
-          </li>
-        <? endif; ?>
+    <div class="collapse navbar-collapse" id="header-collapse">
 
-        <? if ($notificationsEnabled && $user): ?>
-          <?=$this->render('notifications.phtml', [ 'user' => $user])?>
-        <? endif; ?>
-
-        <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
-		  <? if($user): ?>
-            <li class="dropdown">
-            <? if (!empty($user->firstname) || !empty($user->lastname)) {
-                $fullname = $user->firstname . ' ' . $user->lastname;
-            } else {
-                $fullname = $this->transEsc("Your Account");
-            } ?>
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$fullname?> <b
-					class="caret"></b></a>
-				<ul class="dropdown-menu">
-					<li class="myAccountOptions"><a
-						href="<?=$this->url('myresearch-home', array(), array('query' => array('redirect' => 0)))?>"
-						class="modal-link" title="<?=$this->transEsc("Your Account")?>"><i
-							class="fa fa-home"></i> <?=$this->transEsc("Your Account")?></a>
-					</li>
-					<li class="myAccountOptions">
-					  <a href="<?=$this->url('myresearch-favorites')?>"
-		                class="modal-link" title="<?=$this->transEsc('Your Favorites')?>"><i
-		                class="icon-oblibene"></i> <?=$this->transEsc('Your Favorites')?></a>
-					</li>
-					<li>
-					  <a href="<?=$this->url('search-history')?>">
-					    <i class='pr-interface-arrowleft3'></i>
-					    <?=$this->transEsc('Search History')?>
-					  </a>
-					</li>
-					<li role="separator" class="divider"></li>
-        			<li id="logoutOptions">
-                      <a href="<?=$this->url('myresearch-logout')?>"
-                        class="modal-link" title="<?=$this->transEsc("Log Out")?>">
-                        <i class="pr-interface-logoutexit"></i> <?=$this->transEsc("Log Out")?></a>
-                    </li>
-				</ul>
-			</li>
-		  <? else: ?>
-		    <li>
-		      <a href="<?=$this->url('myresearch-favorites')?>"
-		        class="modal-link" title="<?=$this->transEsc('Your Favorites')?>"><i
-		        class="icon-oblibene"></i> <?=$this->transEsc('Your Favorites')?></a>
-		    </li>
-		  <? endif ?>
-
-        <? endif; ?>
-
-        <? if (isset($this->layout()->themeOptions) && count($this->layout()->themeOptions) > 1): ?>
-          <li class="dropdown">
-            <form method="post" name="themeForm" id="themeForm">
-              <input type="hidden" name="ui"/>
-            </form>
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?=$this->transEsc("Theme")?> <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <? foreach ($this->layout()->themeOptions as $current): ?>
-                <li<?=$current['selected'] ? ' class="active"' : ''?>><a href="#" onClick="document.themeForm.ui.value='<?=$this->escapeHtmlAttr($current['name'])?>';document.themeForm.submit()"><?=$this->transEsc($current['desc'])?></a></li>
-              <? endforeach; ?>
-            </ul>
-          </li>
-        <? endif; ?>
-
-        <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
-          <? if(! $user): ?>
-			<li id="loginOptions">
-               <?=$this->render('Auth/Shibboleth/login.phtml') ?>
-               <?= $this->help()->getQuestionMarkHelp('login') ?>
-            </li>
-          <? endif; ?>
-		<? endif; ?>
-
-        <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
-          <form method="post" name="langForm" id="langForm" style="float: left;">
-            <input type="hidden" name="mylang"/>
-          </form>
-          <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
-            <? if ($this->layout()->userLang != $langCode): ?>
-              <li<?=$this->layout()->userLang == $langCode ? ' class="active"' : ''?>><a href="#" data-lang="<?=$langCode?>" class="change-language"><?=$this->displayLanguageOption($langName)?></a></li>
+        <!--navigation-->
+        <ul class="nav navbar-nav">
+            <? if(!$this->themeConfiguration()->themeConfig['hide_catalog']): ?>
+                <li <? if (($this->layout()->headerType != "newlibraries") && ($this->layout()->headerType != "inspiration")): ?> class="active"<? endif; ?> id="catalogSearchLink">
+                    <a href="<?= $this->url('home') ?>"><?= $this->translate('Catalog') ?>
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
             <? endif; ?>
-          <? endforeach; ?>
-          <? if (($this->layout()->userLang == 'dg')): ?>
-            <span class='questionmark-help' data-target='#modal_dg' data-toggle='modal'>
-            <span class='icon'>DG</span>
-            <!-- Modal -->
-            <div class="modal fade" id="modal_dg" tabindex="-1" role="dialog" aria-labelledby="label_dg" style='z-index: 1234;'>
-              <div class="modal-dialog" role="document" style="width: 100%;">
-                <div class="modal-content">
-                  <div class="modal-body">
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal"><?=$this->translate('Close')?></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            </span>
-            <script>
-            jQuery( document ).ready( function( $ ) {
-                $( '#modal_dg' ).appendTo( 'body' );
-            });
-            </script>
-            <script>
-            function fillDebug(dg) {
-                $('#modal_dg .modal-body').append(dg);
-                $('#modal_dg .modal-body').append('<br><br>');
-            }
-            </script>
-          <? endif; ?>
-        <? endif; ?>
 
-      </ul>
-    </nav>
-  </div>
+            <? if(!$this->themeConfiguration()->themeConfig['hide_inspirations']): ?>
+                <li <? if ($this->layout()->headerType == "inspiration"): ?>class="active"<? endif; ?> >
+                    <a href="/Search/Inspiration" title="<?= $this->translate('Inspiration') ?>">
+                        <?= $this->translate('Inspiration') ?>
+                    </a>
+                </li>
+            <? endif; ?>
+
+            <? if(!$this->themeConfiguration()->themeConfig['hide_library_search']): ?>
+                <li <? if ($this->layout()->headerType === "newlibraries"): ?>class="active"<? endif; ?> id="librariesSearchLink">
+                    <a href="/Search/Results/?lookfor0[]=&amp;type0[]=Libraries&amp;bool0[]=AND&amp;filter=&amp;daterange=&amp;publishDatefrom=&amp;publishDateto=&amp;limit=10&amp;sort=relevance&amp;page=1&amp;searchTypeTemplate=basic&amp;keepFacetsEnabled=true&amp;join=AND">
+                        <? $titleHtml = $this->translate('Libraries') ?>
+                        <?= $this->help()->getElementHelp('element_help_header_libraries', $titleHtml) ?>
+                    </a>
+                </li>
+            <? endif; ?>
+        </ul>
+        <nav>
+            <ul class="nav navbar-nav navbar-right flip">
+                <? if ($this->feedback()->tabEnabled()): ?>
+                    <li>
+                        <a id="feedbackLink" class="modal-link" href="<?= $this->url('feedback-home') ?>">
+                            <i class="fa fa-envelope"></i>
+                            <?= $this->transEsc("Feedback") ?>
+                        </a>
+                    </li>
+                <? endif; ?>
+                <? $cart = $this->cart();
+                if ($cart->isActive()): ?>
+                    <li id="cartSummary">
+                        <a id="cartItems" class="modal-link" title="<?= $this->transEsc('View Book Bag') ?>"
+                           href="<?= $this->url('cart-home') ?>">
+                            <i class="fa fa-suitcase"></i>
+                            <strong><?= count($cart->getItems()) ?></strong>
+                            <?= $this->transEsc('items') ?>
+                            <?= $cart->isFull() ? ' (' . $this->transEsc('bookbag_full') . ')' : '' ?>
+                        </a>
+                    </li>
+                <? endif; ?>
+
+                <? if ($notificationsEnabled): ?>
+                    <? if ($user): ?>
+                        <?= $this->render('notifications.phtml', ['user' => $user, 'libraryCards' => $libraryCards]) ?>
+                    <? endif; ?>
+                <? endif; ?>
+
+                <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
+                    <? if($user): ?>
+                        <!--dropdown menu if authorized-->
+                        <li class="dropdown">
+                            <?
+                                if (!empty($user->firstname) || !empty($user->lastname)) {
+                                    $fullname = $user->firstname . ' ' . $user->lastname;
+                                } else {
+                                    $fullname = $this->transEsc("Your Account");
+                                }
+                            ?>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <?= $fullname ?>
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li class="myAccountOptions">
+                                    <a href="<?= $this->url('myresearch-home', [], ['query' => ['redirect' => 0]]) ?>"
+                                       class="modal-link" title="<?= $this->transEsc("Your Account") ?>">
+                                        <i class="fa fa-home"></i>
+                                        <?= $this->transEsc("Your Account") ?>
+                                    </a>
+                                </li>
+                                <li class="myAccountOptions">
+                                    <a href="<?= $this->url('myresearch-favorites') ?>"
+                                       class="modal-link" title="<?= $this->transEsc('Your Favorites') ?>">
+                                        <i class="icon-oblibene"></i>
+                                        <?= $this->transEsc('Your Favorites') ?>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="<?= $this->url('search-history') ?>">
+                                        <i class='pr-interface-arrowleft3'></i>
+                                        <?= $this->transEsc('Search History') ?>
+                                    </a>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li id="logoutOptions">
+                                    <a href="<?= $this->url('myresearch-logout') ?>"
+                                       class="modal-link" title="<?= $this->transEsc("Log Out") ?>">
+                                        <i class="pr-interface-logoutexit"></i>
+                                        <?= $this->transEsc("Log Out") ?>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li> <!--/dropdown menu-->
+                    <? else: ?>
+                        <li>
+                            <a href="<?= $this->url('myresearch-favorites') ?>"
+                               class="modal-link" title="<?= $this->transEsc('Your Favorites') ?>">
+                                <i class="icon-oblibene"></i>
+                                <?= $this->transEsc('Your Favorites') ?>
+                            </a>
+                        </li>
+                    <? endif ?>
+                <? endif; ?>
+
+                <? if (isset($this->layout()->themeOptions) && count($this->layout()->themeOptions) > 1): ?>
+                    <li class="dropdown">
+                        <form method="post" name="themeForm" id="themeForm">
+                            <input type="hidden" name="ui"/>
+                        </form>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <?=$this->transEsc("Theme")?>
+                            <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <? foreach ($this->layout()->themeOptions as $current): ?>
+                                <li <?= $current['selected'] ? ' class="active"' : '' ?>>
+                                    <a href="#" onClick="
+                                            document.themeForm.ui.value='<?= $this->escapeHtmlAttr($current['name']) ?>';
+                                            document.themeForm.submit()">
+                                        <?=$this->transEsc($current['desc'])?>
+                                    </a>
+                                </li>
+                            <? endforeach; ?>
+                        </ul>
+                    </li>
+                <? endif; ?>
+
+                <? if (is_object($account) && $account->loginEnabled()): // hide login/logout if unavailable ?>
+                    <? if (!$user): ?>
+                    <li class="loginOptions">
+                      <div id="login-button" onclick='$("div#loginModal").modal("show")'>
+                        <?=$this->render('Auth/Shibboleth/login.phtml') ?>
+                      </div>
+                      <div id='login-help'>
+                        <?= $this->help()->getQuestionMarkHelp('login') ?>
+                      </div>
+                    </li>
+                    <? endif; ?>
+                <? endif; ?>
+
+                <? if (isset($this->layout()->allLangs) && count($this->layout()->allLangs) > 1): ?>
+                    <form method="post" name="langForm" id="langForm" style="float: left;">
+                        <input type="hidden" name="mylang"/>
+                    </form>
+
+                    <? if(!$this->themeConfiguration()->themeConfig['hide_switch_language']): ?>
+                        <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
+                            <? if ($this->layout()->userLang != $langCode): ?>
+                                <li <?= $this->layout()->userLang == $langCode ? ' class="active"' : '' ?>>
+                                    <a href="#" data-lang="<?= $langCode ?>"
+                                       class="change-language">
+                                        <?= $this->displayLanguageOption($langName) ?>
+                                    </a>
+                                </li>
+                            <? endif; ?>
+                        <? endforeach; ?>
+                    <? endif; ?>
+
+                    <? if (($this->layout()->userLang == 'dg')): ?>
+                        <div class='questionmark-help' data-target='#modal_dg' data-toggle='modal'>
+                            <span class='icon'>DG</span>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="modal_dg" tabindex="-1" role="dialog" aria-labelledby="label_dg">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-body"></div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                <?=$this->translate('Close')?>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <? endif; ?>
+                <? endif; ?>
+            </ul>
+        </nav> <!--/navigation-->
+    </div>
 <? endif; ?>

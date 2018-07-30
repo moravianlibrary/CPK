@@ -11,16 +11,21 @@
     color: #333;
 }
 .advanced-find-button {
-    border-color: #e5004b;
+    border-color: @primary;
     border-radius: 50px 50px 50px 50px;
-    border: 2px solid #b71b4b;
+    border: 2px solid @primary-darken;
     padding-right: 20px;
+    &:hover, &:focus {
+        color: @darkbg-text;
+        background-color: @primary-darken;
+        border: 2px solid @primary-darken;
+    }
 }
 legend {
     margin-bottom: 10px;
 }
 .legend {
-    font-family: 'LatoWebBold';
+    font-family: LatoWebBold;
 }
 .advanced-filters {
     margin-top: 15px;
@@ -29,14 +34,14 @@ legend {
     margin-top: 25px;
 }
 
-.close, .group-close{ 
+.close, .group-close{
   i {
     color: @brand-primary;
   }
 }
 
 .search-panel  .group {
-    background-color: #f6f6f6;
+    background-color: @body-bg;
     border-color: @light-grey;
 }
 

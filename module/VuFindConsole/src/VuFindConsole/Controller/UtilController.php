@@ -30,6 +30,7 @@ use File_MARC, File_MARCXML, VuFind\Sitemap\Generator as Sitemap;
 use VuFindSearch\Backend\Solr\Document\UpdateDocument;
 use VuFindSearch\Backend\Solr\Record\SerializableRecord;
 use Zend\Console\Console;
+use \CPK\Widgets\WidgetContent;
 
 /**
  * This controller handles various command-line tools
@@ -704,5 +705,68 @@ class UtilController extends AbstractBase
         $search->delete($query);
         Console::writeLine(str_replace('%%count%%', $count, $successString));
         return $this->getSuccessResponse();
+    }
+
+    /**
+     * Harvest ebooks from Solr
+     *
+     * @return void
+     */
+    public function harvestEbooksAction()
+    {
+        $widgetName = 'eknihy_ke_stazeni';
+        $ebooks     = $this->getEbooks();
+
+        if (empty($ebooks)) {
+            die(Console::writeLine('Nothing to import.'));
+        }
+
+        $widget = $this->getTable('Widget')->getWidgetByName($widgetName);
+
+        // Remove all data first
+        $this->getTable('WidgetContent')->truncateWidgetContent($widget);
+
+        foreach ($ebooks as $ebook) {
+            $widgetContent = (new WidgetContent());
+            $widgetContent->setWidgetId($widget->getId());
+            $widgetContent->setValue(trim($ebook['id']));
+            $widgetContent->setPreferredValue(0);
+
+            $this->getTable('WidgetContent')->addWidgetContent($widgetContent);
+        }
+
+        Console::writeLine('Added ' . number_format(count($ebooks), 0, ',', ' ') . ' records.');
+    }
+
+    /**
+     * Get ebooks from Solr
+     *
+     * @return array
+     */
+    private function getEbooks()
+    {
+        $configLoader = $this->getServiceLocator()->get('VuFind\Config');
+
+        $solrUrl = $configLoader->get('config')->Index->url;
+        $solrCore = $configLoader->get('config')->Index->default_core;
+
+        $url  = "$solrUrl/$solrCore/select?";
+        $url .= "q=id:mkpe.*";
+
+        $url .= "&fl=id";
+        $url .= "&wt=json";
+        $url .= "&indent=true";
+        $url .= "&start=0";
+        $url .= '&rows=' . $configLoader->get('config')->Index->harvest_ebooks_limit;
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        $html = curl_exec($ch);
+        curl_close($ch);
+
+        $json = json_decode($html, true);
+
+        return $json['response']['docs'];
     }
 }

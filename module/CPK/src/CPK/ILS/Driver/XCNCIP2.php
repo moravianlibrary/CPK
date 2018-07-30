@@ -55,6 +55,9 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     protected $httpService = null;
 
+    /**
+     * @var NCIPRequests
+     */
     protected $requests = null;
 
     protected $cannotUseLUIS = false;
@@ -74,8 +77,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
     protected $translator = false;
 
-    protected $libsLikeTabor = null;
-    protected $libsLikeLiberec = null;
+    protected $libsWithClavius = null;
+    protected $libsWithARL = null;
 
     /**
      * Set the HTTP service to be used for HTTP requests.
@@ -142,8 +145,8 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             $this->source = $this->config['Availability']['source'];
 
         $this->requests = new NCIPRequests($this->config);
-        $this->libsLikeTabor = $this->requests->getLibsLikeTabor();
-        $this->libsLikeLiberec = $this->requests->getLibsLikeLiberec();
+        $this->libsWithClavius = $this->requests->getLibsWithClavius();
+        $this->libsWithARL = $this->requests->getLibsWithARL();
     }
 
     public function setTranslator(\Zend\I18n\Translator\TranslatorInterface $translator)
@@ -163,8 +166,24 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     {
         // Make the NCIP request:
         try {
+            $options = [
+                'curloptions' => []
+            ];
+            if ($this->hasUntrustedSSL) {
+                // Do not verify SSL certificate
+                $options['curloptions'] = [
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                ];
+            } elseif (isset($this->cacert)) {
+                $options['curloptions'] = [
+                    URLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_CAINFO => $this->cacert,
+                ];
+            }
             $client = $this->httpService->createClient(
-                $this->config['Catalog']['url']);
+                $this->config['Catalog']['url'], 'POST', null, $options);
+
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
@@ -172,39 +191,11 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 'Content-Type' => 'application/xml'
             ));
 
-            if (isset($this->timeout))
-                $client->setOptions(
-                    array(
-                        'timeout' => $this->timeout
-                    ));
-
-            if ((! empty($this->config['Catalog']['username'])) &&
-                    (! empty($this->config['Catalog']['password']))) {
-
+            if (!empty($this->config['Catalog']['username']) &&
+                    !empty($this->config['Catalog']['password'])) {
                 $user = $this->config['Catalog']['username'];
                 $password = $this->config['Catalog']['password'];
                 $client->setAuth($user, $password);
-            }
-
-            if ($this->hasUntrustedSSL) {
-                // Do not verify SSL certificate
-                $client->setOptions(
-                    array(
-                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                        'curloptions' => array(
-                            CURLOPT_SSL_VERIFYHOST => false,
-                            CURLOPT_SSL_VERIFYPEER => false
-                        )
-                    ));
-            } elseif (isset($this->cacert)) {
-                $client->setOptions(
-                    array(
-                        'adapter' => 'Zend\Http\Client\Adapter\Curl',
-                        'curloptions' => array(
-                            CURLOPT_FOLLOWLOCATION => true,
-                            CURLOPT_CAINFO => $this->cacert
-                        )
-                    ));
             }
 
             $result = $client->send();
@@ -791,6 +782,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             'department' => isset($department) ? $department : '',
             'number' => empty($numberOfPieces) ? '' : (string) $numberOfPieces[0],
             'requests_placed' => empty($holdQueue) ? "" : $holdQueue,
+            'queue' => isset($holdQueue) ? $holdQueue : '',
             'item_id' => empty($id) ? "" : $id,
             'label' => $label,
             'holdOverride' => "",
@@ -820,7 +812,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
     public function getStatuses($ids, $patron = [], $filter = [], $bibId = [], $nextItemToken = null)
     {
         if (empty($bibId)) $this->cannotUseLUIS = true;
-        if (! empty($filter) && in_array($this->agency, $this->libsLikeLiberec)) $this->cannotUseLUIS = true;
+        if (! empty($filter) && in_array($this->agency, $this->libsWithARL)) $this->cannotUseLUIS = true;
         if ($this->cannotUseLUIS) {
             // If we cannot use LUIS we will parse only the first one
             $retVal = [];
@@ -828,7 +820,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             return $retVal;
         }
         else {
-            if (in_array($this->agency, $this->libsLikeTabor)) {
+            if (in_array($this->agency, $this->libsWithClavius)) {
                 if ($this->agency === 'SOG504') {
                 $bibId = '00124' . sprintf('%010d', $bibId);
                 } elseif  ($this->agency === 'KHG001' ) {
@@ -846,7 +838,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
                 return $this->handleStutusesZlg($response);
             }
 
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
+            if (in_array($this->agency, $this->libsWithARL)) {
                 $bibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
                 $bibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $bibId);
                 $bibId = str_replace('KlUsCat_', 'kl_us_cat*', $bibId);
@@ -912,7 +904,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $label = $this->determineLabel($status);
             $addLink = $this->isLinkAllowed($status, $itemRestriction);
-            if (in_array($this->agency, $this->libsLikeTabor)) {
+            if (in_array($this->agency, $this->libsWithClavius)) {
                 if ((string) $itemRestriction[0] == 'Orderable') {
                     $addLink = true;
                     $itemRestriction = array_pop($itemRestriction);
@@ -968,7 +960,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             $item_id = $this->useXPath($itemInformation,
                     'ItemId/ItemIdentifierValue');
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
+            if (in_array($this->agency, $this->libsWithARL)) {
                 if (empty($item_id)) {
                     $item_id = $this->useXPath($itemInformation,
                             'ItemOptionalFields/BibliographicDescription/ComponentId/ComponentIdentifier');
@@ -1462,13 +1454,13 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
             // Deal with Liberec.
             if (empty($position)) $position = $this->useXPath($current,
                     'Ext/HoldQueueLength');
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
+            if (in_array($this->agency, $this->libsWithARL)) {
                 $title = $extTitle; // TODO temporary solution for periodics
                 if ((! empty($type)) && ((string) $type[0] == 'w')) $cannotCancel = true;
             }
 
             // Deal with Tabor.
-            if (in_array($this->agency, $this->libsLikeTabor)) {
+            if (in_array($this->agency, $this->libsWithClavius)) {
                 // $type == 'Hold' => rezervace; $type == 'Stack Retrieval' => objednavka
                 if (empty($expire)) $expire = $this->useXPath($current,
                         'Ext/NeedBeforeDate');
@@ -1493,7 +1485,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
 
             if (! empty($position)) if ((string) $position[0] === '0') $position = null; // hide queue position
             $bib_id = empty($id) ? null : explode('-', (string) $id[0])[0];
-            if (in_array($this->agency, $this->libsLikeLiberec)) {
+            if (in_array($this->agency, $this->libsWithARL)) {
                 $bib_id = str_replace('li_us_cat*', 'LiUsCat_', $bib_id);
                 $bib_id = str_replace('cbvk_us_cat*', 'CbvkUsCat_', $bib_id);
                 $bib_id = str_replace('kl_us_cat*', 'KlUsCat_', $bib_id);

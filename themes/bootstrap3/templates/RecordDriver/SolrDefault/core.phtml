@@ -47,11 +47,28 @@
             <h2 class='record-title' property='name'>
               <strong><?=$this->escapeHtml($this->driver->getTitle())?></strong>
             </h2>
+
+          <? if (isset($this->mvsUrl)): ?>
+            <form action="<?= $this->mvsUrl ?>" id="mvs" method="post">
+              <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
+              <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
+              <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($id) ?>">
+              <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
+              <? $records = $tabs['DedupedRecords']->getRecordsInGroup();
+              foreach ($records as $record): ?>
+                <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
+              <? endforeach; ?>
+              <div class="row">
+                <input type="submit" class='col-xs-12 col-lg-4 mvs' value="<?= $this->translate('MVS') ?>">
+              </div>
+            </form>
+          <? else: ?>
             <div class="row">
               <div class='col-xs-12 col-lg-4 want-it'>
-                  <?=$this->translate('Want it')?>
+                  <?= $this->translate('Want it') ?>
               </div>
             </div>
+          <? endif; ?>
 
             <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
               <? foreach ($summ as $field): ?>
@@ -110,14 +127,14 @@
               </tr>
               <? endif; ?>
 
-              <? $authors = $this->driver->getDeduplicatedAuthors(); $authorityId = $this->driver->getMainAuthorAuthorityId(); $secondaryAuthoritiesIds = $this->driver->getSecondaryAuthoritiesIds(); ?>
-              <? if (isset($authors['main']) && !empty($authors['main'])): $localAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($authorityId);?>
+              <? $authors = $this->driver->getDeduplicatedAuthors(); $secondaryAuthoritiesRecordIds = $this->driver->getSecondaryAuthoritiesRecordIds(); ?>
+              <? if (isset($authors['main']) && !empty($authors['main'])): $localAuthorityRecordId = $this->driver->getMainAuthorAuthorityRecordId();?>
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Main Author')?>: </th>
                 <td property="author">
-                  <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a>
-                  <? if (! empty($localAuthorityId)): ?>
-                  &nbsp;<a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityId?>"><i class="pr-user-single5 author-icon"></i></a>
+                  <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' href="/Search/Results?sort=relevance&amp;join=AND&amp;type0[]=adv_search_author_corporation&amp;bool0[]=AND&amp;searchTypeTemplate=advanced&amp;lookfor0[]=<?=urlencode($authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a>
+                  <? if (! empty($localAuthorityRecordId)): ?>
+                  &nbsp;<a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityRecordId?>"><i class="pr-user-single5 author-icon"></i></a>
                   <? endif; ?>
                 </td>
               </tr>
@@ -126,28 +143,28 @@
               <? if (isset($authors['corporate']) && !empty($authors['corporate'])): ?>
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Corporate Author')?>: </th>
-                <td property="creator"><a href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
+                <td property="creator"><a href="/Search/Results?sort=relevance&amp;join=AND&amp;type0[]=adv_search_author_corporation&amp;bool0[]=AND&amp;searchTypeTemplate=advanced&amp;lookfor0[]=<?=urlencode($authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></td>
               </tr>
               <? endif; ?>
 
-              <? if (isset($authors['secondary']) && !empty($authors['secondary'])): ?>
+              <? if (!empty($authors['secondary'])): ?>
               <tr>
                 <th class="col-md-3"><?=$this->transEsc('Other Authors')?>: </th>
                 <td>
-                  <? $i = 0; foreach ($authors['secondary'] as $field): ?>
-                    <span property="contributor">
-                      <? if (! empty($secondaryAuthoritiesIds[$i])): $secondaryAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($secondaryAuthoritiesIds[$i]);?>
-                          <? if (! empty($secondaryAuthorityId)): ?>
-                              <a title="<?=$this->translate('Show person')?> <?=$authors['secondary'][0]?>" href="/Record/<?=$secondaryAuthorityId?>"><i class="pr-user-single5 author-icon" ></i></a>
-                          <? endif; ?>
+                  <? foreach ($authors['secondary'] as $key => $name): ?>
+                    <?= ($key != 0) ? ', ' : '' ?>
+                    <span>
+                      <a title='<?= $this->translate('Show publications by') ?> <?= $name ?>'
+                         href="/Search/Results?sort=relevance&amp;join=AND&amp;type0[]=adv_search_author_corporation&amp;bool0[]=AND&amp;searchTypeTemplate=advanced&amp;lookfor0[]=<?= urlencode($name) ?>">
+                        <?= $this->escapeHtml($name) ?>
+                      </a>
+                      <? if (! empty($secondaryAuthoritiesRecordIds[$key])): ?>
+                        <a title="<?= $this->translate('Show person') ?> <?= $name ?>"
+                          href="/Record/<?= $secondaryAuthoritiesRecordIds[$key] ?>">
+                          <i class="pr-user-single5 author-icon"></i>
+                        </a>
                       <? endif; ?>
                     </span>
-                  <?=($i++ == 0)?'':', '?>
-                  <span property="contributor">
-                    <a title='<?=$this->translate('Show publications by')?> <?=$field?>' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($field)?>">
-                      <?=$this->escapeHtml($field)?>
-                    </a>
-                  </span>
                   <? endforeach; ?>
                 </td>
               </tr>

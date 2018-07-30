@@ -228,6 +228,17 @@ class RecordController extends RecordControllerBase
             $this->layout()->sort = $searchesConfig->General->default_sort;
         }
 
+        // Set up MVS button
+        $request = $this->getRequest();
+        $mvsCookie = $request->getCookie()->ziskej;
+
+        if (isset($config->Ziskej, $config->Ziskej->$mvsCookie) && $mvsCookie != 'disabled') {
+            $view->mvsUrl = $config->Ziskej->$mvsCookie;
+            $view->eppn = $request->getServer()->eduPersonPrincipalName;
+            $view->serverName = $request->getServer()->SERVER_NAME;
+            $view->entityId = $request->getServer('Shib-Identity-Provider');
+        }
+
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 

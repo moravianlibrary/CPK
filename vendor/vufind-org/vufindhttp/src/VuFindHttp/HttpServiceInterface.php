@@ -99,7 +99,7 @@ interface HttpServiceInterface
      * @return \Zend\Http\Client
      */
     public function createClient($url, $method = \Zend\Http\Request::METHOD_GET,
-        $timeout = null
+        $timeout = null, $options = array()
     );
 
 }

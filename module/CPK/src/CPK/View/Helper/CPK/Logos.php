@@ -85,12 +85,16 @@ class Logos extends \Zend\View\Helper\AbstractHelper
      * Returns URL of the institution's logo specified by the source.
      *
      * @param string $source
+     * @param string $type of image started with underscore or empty string ex: '_small', ''
+     * @return string
      */
-    public function getLogo($source)
+    public function getLogo($source, $type = '')
     {
-
-        $logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$source.'/'.$source.'.png';
-        $logoPath = __DIR__.'/../../../../../../../themes/bootstrap3/images/institutions/logos/'.$source.'/'.$source.'.png';
+        $logoUrl = sprintf('/themes/bootstrap3/images/institutions/logos/%s/%s%s.png', $source, $source, $type);
+        $logoPath = sprintf(
+            '%s/../../../../../../../themes/bootstrap3/images/institutions/logos/%s/%s%s.png',
+            __DIR__, $source, $source, $type
+        );
 
         if (file_exists($logoPath)) {
             return $logoUrl;

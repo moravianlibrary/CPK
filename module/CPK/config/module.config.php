@@ -93,7 +93,8 @@ $config = array(
             'ils_driver' => [
                 'invokables' => [
                     'dummy' => 'CPK\ILS\Driver\Dummy',
-                    'xcncip2' => 'CPK\ILS\Driver\XCNCIP2'
+                    'xcncip2' => 'CPK\ILS\Driver\XCNCIP2',
+                    'xcncip2v2' => 'CPK\ILS\Driver\XCNCIP2V2'
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
@@ -207,6 +208,7 @@ $config = array(
             'status' => 'CPK\Controller\StatusController',
             'admin' => 'CPK\Controller\AdminController',
             'edsrecord' => 'CPK\Controller\EdsrecordController',
+            'ziskej' => 'CPK\Controller\ZiskejController'
         ), /* invokables */
     ), /* controllers */
     'controller_plugins' => [
@@ -241,11 +243,6 @@ $config = array(
 );
 
 $staticRoutes = array(
-    'Statistics/Dashboard',
-    'Statistics/Visits',
-    'Statistics/Circulations',
-    'Statistics/Payments',
-    'Statistics/Searches',
     'MyResearch/UserConnect',
     'MyResearch/UserDelete',
     'MyResearch/Settings',
