@@ -248,11 +248,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getPublishers()
     {
-    	$array = $this->getFieldArray('260', array('b'));
-    	if (count($array) === 0)
-    		$array = $this->getFieldArray('264', array('b'));
-
-    	return $array;
+        return isset($this->fields['publisher_display_mv']) ? $this->fields['publisher_display_mv'] : [];
     }
 
     public function getFormats()
@@ -1001,4 +997,15 @@ class SolrMarc extends ParentSolrMarc
     {
         return ['handler' => 'morelikethis'];
     }
+
+    /**
+     * Get an array of summary strings for the record.
+     *
+     * @return array
+     */
+    public function getSummary()
+    {
+        return isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : [];
+    }
+
 }
