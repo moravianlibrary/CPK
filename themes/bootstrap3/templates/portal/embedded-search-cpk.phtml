@@ -1,8 +1,7 @@
   <style>
     .form-control {
       display: block;
-      width: 100%;
-      height: 34px;
+      height: 100%;
       padding: 6px 12px;
       font-size: 14px;
       line-height: 1.42857143;
@@ -19,9 +18,6 @@
     .row {
       margin-right: -15px;
       margin-left: -15px;
-    }
-    .col-sm-12 {
-      width: 100%;
     }
     .btn {
       display: inline-block;
@@ -44,10 +40,6 @@
       border: 1px solid transparent;
       border-radius: 4px;
     }
-
-    .logo-left {
-      height: 35px;
-    }
     #embedded-search {
       width: 100% !important;
       white-space: nowrap;
@@ -59,57 +51,72 @@
     .lookfor {
       border-radius: 50px 0 0 50px;
       padding-left: 20px;
+      height: 100%;
       display: inline;
-      max-width: 80% !important;
+      width: calc(100% - 220px);
+      min-width: 100px;
       border: 2px solid #ccc;
+    }
+    .lookfor.text-center {
+      width: calc(100% - 100px);
     }
     .find-button {
       border-radius: 0 50px 50px 0;
       border: 2px solid #b71b4b;
+      height: 100%;
       margin-left: -6px;
+      margin-top: 0;
       padding: 0 22px 0 12px;
       color: #fff;
       background-color: #e5004b;
-      width: auto;
-      max-width: 20%;
+      width: 100px;
+    }
+    @-moz-document url-prefix() {
+      .find-button {
+        margin-bottom: 2px !important;
+        margin-top: 0 !important;
+      }
     }
     .find-button:hover {
       color: #fff;
       background-color: #b2003a;
       border: 2px solid #b71b4b;
     }
-    .lookfor-left {
-      max-width: 60% !important;
+    .logo {
+      height: 44px;
     }
     .logo-left {
       float: left;
-
+      top: -4px;
+      position: relative;
     }
     .search-body {
+      height: 34px;
       margin: 16px !important;
     }
   </style>
 <body class="search-body">
+<? ($position == 'top')? $center = 'text-center':$center = ''?>
 <? if ($position == 'left'): ?>
-  <form class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+  <form class="navbar-left flip <?=$center?>" method="get" action="https://knihovny.cz/Search/Results" target="_top">
     <div class="row">
-      <div class="col-sm-12 text-center">
+      <div class="<?=$center?>">
         <a href="https://knihovny.cz" title="Knihovny.cz">
-          <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" class="logo-left">
+          <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" class="logo logo-left">
         </a>
 <? else: ?>
   <div class="row">
-    <div class="col-sm-12 text-center">
+    <div class="<?=$center?>">
       <a href="https://knihovny.cz" title="Knihovny.cz">
-        <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" height="47">
+        <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" class="logo">
       </a>
     </div>
   </div>
 
-  <form id="embedded-search" class="navbar-left flip text-center" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+  <form id="embedded-search" class="navbar-left flip <?=$center?>" method="get" action="https://knihovny.cz/Search/Results" target="_top">
 <? endif; ?>
 
-  <input class="form-control lookfor <?= ($position == 'left')? 'lookfor-left' : ''; ?>" type="text" name="lookfor0[]" value=""
+  <input class="form-control lookfor <?=$center?>" type="text" name="lookfor0[]" value=""
          placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
   <input type="hidden" name="searchTypeTemplate" value="basic">
   <input type="hidden" name="database" value="<?= $database ?>">
