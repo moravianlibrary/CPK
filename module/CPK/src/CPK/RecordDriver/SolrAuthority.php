@@ -27,6 +27,16 @@ class SolrAuthority extends ParentSolrMarc
     }
 
     /**
+     * Get the full title of the record.
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->getPersonalName();
+    }
+
+    /**
      * Get the alternatives of the full name.
      *
      * @return array of alternative names

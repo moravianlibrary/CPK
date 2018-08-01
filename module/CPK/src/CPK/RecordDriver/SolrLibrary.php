@@ -34,6 +34,16 @@ class SolrLibrary extends ParentSolrMarc
     }
 
     /**
+     * Get the full title of the record
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->getLibraryNames();
+    }
+
+    /**
      * Get an array of note about the libraryhours
      *
      * @return string
