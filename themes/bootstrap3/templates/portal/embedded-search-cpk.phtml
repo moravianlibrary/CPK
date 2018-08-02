@@ -1,34 +1,33 @@
-  <style>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<style>
     .form-control {
-      display: block;
       height: 100%;
-      padding: 6px 12px;
-      font-size: 14px;
-      line-height: 1.42857143;
-      color: #555;
-      background-color: #fff;
-      background-image: none;
-      border: 1px solid #ccc;
-      border-radius: 4px;
       box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
     }
-    .text-center {
+    .lookfor {
+      border-radius: 50px 0 0 50px;
+      width: calc(100% - 210px);
+      min-width: 100px;
+      padding: 1px 6px 1px 6px;
+      color: #555;
+      border: 2px solid #ccc;
+    }
+    .lookfor.center {
+      width: calc(100% - 100px);
       text-align: center;
     }
-    .row {
-      margin-right: -15px;
-      margin-left: -15px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 6px 12px;
-      margin-bottom: 0;
-      font-size: 14px;
+    .find-button {
+      border-radius: 0 50px 50px 0;
+      border: 2px solid #b71b4b;
+      margin-left: -6px;
+      padding-left: 2px;
+      color: #fff;
+      background-color: #e5004b;
+      width: 100px;
       font-weight: normal;
-      line-height: 1.42857143;
       text-align: center;
-      white-space: nowrap;
-      vertical-align: middle;
       -ms-touch-action: manipulation;
       touch-action: manipulation;
       cursor: pointer;
@@ -36,102 +35,42 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
-      background-image: none;
-      border: 1px solid transparent;
-      border-radius: 4px;
-    }
-    #embedded-search {
-      width: 100% !important;
-      max-width: 100% !important;
-      white-space: nowrap;
-      display: inline-block;
-      vertical-align: middle;
-      padding-top: 6px;
-      padding-bottom: 6px;
-    }
-    .lookfor {
-      border-radius: 50px 0 0 50px;
-      padding-left: 20px;
-      height: 100% !important;
-      max-height: 100% !important;
-      display: inline;
-      width: calc(100% - 220px);
-      min-width: 100px;
-      border: 2px solid #ccc;
-    }
-    .lookfor.text-center {
-      width: calc(100% - 100px);
-    }
-    .find-button {
-      border-radius: 0 50px 50px 0;
-      border: 2px solid #b71b4b;
-      height: 100% !important;
-      max-height: 100% !important;
-      margin-left: -6px;
-      padding: 1px 22px 0 12px;
-      color: #fff;
-      background-color: #e5004b;
-      width: 100px;
-    }
-    @-moz-document url-prefix() {
-      .find-button {
-        padding-bottom: 2px !important;
-        padding-top: 0 !important;
-      }
     }
     .find-button:hover {
-      color: #fff;
       background-color: #b2003a;
-      border: 2px solid #b71b4b;
     }
     .logo {
       height: 44px;
+      display: block;
+      top: -5px;
     }
-    .logo-left {
+    .logo.center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .logo:not(.center) {
       float: left;
-      top: -4px;
       position: relative;
     }
     .search-body {
       height: 34px !important;
-      margin: 16px !important;
     }
   </style>
-<body class="search-body">
-<? ($position == 'top')? $center = 'text-center':$center = ''?>
-<? if ($position == 'left'): ?>
-  <form class="navbar-left flip <?=$center?>" method="get" action="https://knihovny.cz/Search/Results" target="_top">
-    <div class="row">
-      <div class="<?=$center?>">
-        <a href="https://knihovny.cz" title="Knihovny.cz">
-          <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" class="logo logo-left">
-        </a>
-<? else: ?>
-  <div class="row">
-    <div class="<?=$center?>">
-      <a href="https://knihovny.cz" title="Knihovny.cz">
-        <img src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz" class="logo">
-      </a>
-    </div>
-  </div>
-
-  <form id="embedded-search" class="navbar-left flip <?=$center?>" method="get" action="https://knihovny.cz/Search/Results" target="_top">
-<? endif; ?>
-
-  <input class="form-control lookfor <?=$center?>" type="text" name="lookfor0[]" value=""
-         placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
-  <input type="hidden" name="searchTypeTemplate" value="basic">
-  <input type="hidden" name="database" value="<?= $database ?>">
-  <input type="hidden" name="type0[]" value="AllFields">
-  <input type="hidden" name="join" value="AND">
-  <input type="hidden" name="bool0[]" value="AND">
-  <input type="hidden" name="page" value="1">
-  <input type="hidden" name="keepEnabledFilters" value="true">
-  <input class="form-control btn btn-primary find-button" type="submit" value="<?= $this->translate('Find'); ?>">
-
-<? if ($position == "left"): ?>
-    </div>
-  </div>
-<? endif; ?>
-</form>
+<body>
+<? ($position == 'top')? $center = 'center':$center = ''?>
+  <a href="https://knihovny.cz" title="Knihovny.cz">
+    <img class="logo <?=$center?>" src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz">
+  </a>
+  <form class="search-body <?=$center?>" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+    <input class="form-control lookfor <?=$center?>" type="text" name="lookfor0[]" value=""
+           placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
+    <input type="hidden" name="searchTypeTemplate" value="basic">
+    <input type="hidden" name="database" value="<?= $database ?>">
+    <input type="hidden" name="type0[]" value="AllFields">
+    <input type="hidden" name="join" value="AND">
+    <input type="hidden" name="bool0[]" value="AND">
+    <input type="hidden" name="page" value="1">
+    <input type="hidden" name="keepEnabledFilters" value="true">
+    <input class="form-control find-button" type="submit" value="<?= $this->translate('Find'); ?>">
+  </form>
 </body>
