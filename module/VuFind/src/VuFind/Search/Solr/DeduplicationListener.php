@@ -330,6 +330,11 @@ class DeduplicationListener
         }
     }
 
+    protected function retrieveLocalRecords($event, $idList)
+    {
+        return $this->backend->retrieveBatch($idList)->getRecords();
+    }
+
     /**
      * Append fields from dedup record to the selected local record. Note: the last
      * two parameters are unused in this default method, but they may be useful for

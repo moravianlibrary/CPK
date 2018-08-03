@@ -37,6 +37,7 @@ use VuFind\Search\Solr\MultiIndexListener;
 use VuFind\Search\Solr\V3\ErrorListener as LegacyErrorListener;
 use VuFind\Search\Solr\V4\ErrorListener;
 use VuFind\Search\Solr\DeduplicationListener;
+use VuFind\Search\Solr\ChildDocDeduplicationListener;
 use VuFind\Search\Solr\MZKDeduplicationListener;
 use VuFind\Search\Solr\HierarchicalFacetListener;
 use VuFind\Search\Solr\JsonFacetListener;
@@ -437,7 +438,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
      */
     protected function getDeduplicationListener(BackendInterface $backend, $enabled)
     {
-        return new DeduplicationListener(
+        return new ChildDocDeduplicationListener(
             $backend,
             $this->serviceLocator,
             $this->searchConfig,
