@@ -133,6 +133,7 @@ class ChildDocDeduplicationListener extends DeduplicationListener
                 }
             }
         }
+        return $records;
     }
 
 }

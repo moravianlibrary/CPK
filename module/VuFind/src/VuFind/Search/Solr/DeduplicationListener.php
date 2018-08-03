@@ -290,7 +290,7 @@ class DeduplicationListener
         }
 
         // Fetch records and assign them to the result:
-        $localRecords = $this->backend->retrieveBatch($idList)->getRecords();
+        $localRecords = $this->retrieveLocalRecords($event, $idList);
         foreach ($result->getRecords() as $record) {
             $dedupRecordData = $record->getRawData();
             if (!isset($dedupRecordData['dedup_id'])) {
