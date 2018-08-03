@@ -237,7 +237,7 @@ class DeduplicationListener
             if (!isset($fields['merged_boolean'])) {
                 continue;
             }
-            $localIds = $fields['local_ids_str_mv'];
+            $localIds = $this->getLocalRecordIds($fields);
             $dedupId = $localIds[0];
             $priority = 99999;
             $undefPriority = 99999;
@@ -333,6 +333,11 @@ class DeduplicationListener
     protected function retrieveLocalRecords($event, $idList)
     {
         return $this->backend->retrieveBatch($idList)->getRecords();
+    }
+
+    protected function getLocalRecordIds($fields)
+    {
+        return $fields['local_ids_str_mv'];
     }
 
     /**
