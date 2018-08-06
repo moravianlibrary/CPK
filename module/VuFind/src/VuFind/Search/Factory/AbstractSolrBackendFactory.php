@@ -256,7 +256,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         }
         $useJsonApi = isset($facets->JSON_API) && isset($facets->JSON_API->enabled) && $facets->JSON_API->enabled;
         if (!empty($nested) || $useJsonApi) {
-            $jsonFacetListener = $this->getJsonFacetListener($backend, $facets);
+            $jsonFacetListener = $this->getJsonFacetListener($backend, $facets, $search);
             if ($this->logger) {
                 $jsonFacetListener->setLogger($this->logger);
             }
@@ -549,9 +549,10 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
      *
      * @return NestedFacetListener
      */
-    protected function getJsonFacetListener(BackendInterface $backend, \Zend\Config\Config $facetConfig)
+    protected function getJsonFacetListener(BackendInterface $backend,
+        Config $facetConfig, Config $searchConfig)
     {
-        return new JsonFacetListener($backend, $facetConfig);
+        return new JsonFacetListener($backend, $facetConfig, $searchConfig);
     }
 
 }
