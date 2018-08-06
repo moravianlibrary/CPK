@@ -102,13 +102,13 @@ class ChildDocDeduplicationListener extends DeduplicationListener
                 if ($this->enabled) {
                     $params->set('uniqueId', 'local_ids_str_mv');
                     $fq = '-merged_child_boolean:true';
-                    $childFilter = '';
                     $config = $this->serviceLocator->get('VuFind\Config');
                     $searchConfig = $config->get($this->searchConfig);
                     $childFilters = [];
                     if (isset($searchConfig->RawHiddenFilters)) {
                         $childFilters = $searchConfig->RawHiddenFilters->toArray();
                     }
+                    $childFilter = '';
                     if (!empty($childFilters)) {
                         $childFilter = 'childFilter=\'' . join(" AND ", $childFilters) . '\'';
                     }
@@ -139,6 +139,7 @@ class ChildDocDeduplicationListener extends DeduplicationListener
             foreach ($fields['_childDocuments_'] as $rawLocalRecord) {
                 $id = $rawLocalRecord['id'];
                 if (in_array($id, $idList)) {
+                    $rawLocalRecord['local_ids_str_mv'] = $this->getLocalRecordIds($fields);
                     $records[] = $this->recordFactory->getSolrRecord($rawLocalRecord);
                 }
             }
@@ -153,6 +154,12 @@ class ChildDocDeduplicationListener extends DeduplicationListener
             $ids[] = $rawLocalRecord['id'];
         }
         return $ids;
+    }
+
+    protected function appendDedupRecordFields($localRecordData, $dedupRecordData,
+        $recordSources, $sourcePriority)
+    {
+        return $localRecordData;
     }
 
 }
