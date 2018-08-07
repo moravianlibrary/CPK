@@ -443,6 +443,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
             $this->serviceLocator,
             $this->searchConfig,
             $this->facetConfig,
+            $this->getListOfFields(),
             'datasources',
             $enabled
         );

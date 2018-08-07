@@ -57,11 +57,20 @@ class ChildDocDeduplicationListener extends DeduplicationListener
     protected $recordFactory;
 
     /**
+     * Record factory
+     *
+     * @var RecordFactory
+     */
+    protected $fieldList;
+
+    /**
      * Constructor.
      *
      * @param BackendInterface        $backend          Search backend
      * @param ServiceLocatorInterface $serviceLocator   Service locator
      * @param string                  $searchConfig     Search config file id
+     * @param string                  $facetConfig      Facet config file id
+     * @param string                  $fieldList        Field list to fetch from Solr (parameter fl in Solr)
      * @param string                  $dataSourceConfig Data source file id
      * @param bool                    $enabled          Whether deduplication is
      * enabled
@@ -71,11 +80,12 @@ class ChildDocDeduplicationListener extends DeduplicationListener
     public function __construct(
         BackendInterface $backend,
         ServiceLocatorInterface $serviceLocator,
-        $searchConfig, $facetConfig, $dataSourceConfig = 'datasources', $enabled = true
+        $searchConfig, $facetConfig, $fieldList, $dataSourceConfig = 'datasources', $enabled = true
     ) {
         parent::__construct($backend, $serviceLocator, $searchConfig, $facetConfig,
             $dataSourceConfig, $enabled);
         $this->recordFactory = $this->serviceLocator->get('VuFind\RecordDriverPluginManager');
+        $this->fieldList = $fieldList;
     }
 
     /**
@@ -112,7 +122,11 @@ class ChildDocDeduplicationListener extends DeduplicationListener
                     if (!empty($childFilters)) {
                         $childFilter = 'childFilter=\'' . join(" AND ", $childFilters) . '\'';
                     }
-                    $fl = "*,[child parentFilter=merged_boolean:true $childFilter]";
+                    $fl = $params->get('fl');
+                    if (empty($fl)) {
+                        $fl = $this->fieldList;
+                    }
+                    $fl = $fl . ", [child parentFilter=merged_boolean:true $childFilter]";
                     $params->set('fl', $fl);
                 } else {
                     $fq = '-merged_boolean:true';

@@ -115,6 +115,7 @@ class DeduplicationListener
      * @param BackendInterface        $backend          Search backend
      * @param ServiceLocatorInterface $serviceLocator   Service locator
      * @param string                  $searchConfig     Search config file id
+     * @param string                  $facetConfig      Facet config file id
      * @param string                  $dataSourceConfig Data source file id
      * @param bool                    $enabled          Whether deduplication is
      * enabled
