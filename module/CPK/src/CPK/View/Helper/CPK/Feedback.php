@@ -92,7 +92,8 @@ class Feedback extends FeedbackBase
             FILTER_SANITIZE_STRING,
             FILTER_FLAG_NO_ENCODE_QUOTES
         );
-        $this->actualLink = (($protocolHttps !== null) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $this->actualLink = (($protocolHttps !== null) ? "https" : "http")
+            . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     }
 
     /**

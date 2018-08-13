@@ -16,7 +16,7 @@ $this->feedback()->hideFeedbackModalButton = true;
       ]) ?>
   </p>
 
-    <? if (explode("-", $this->layout()->userLang)[0] == 'cs'): ?>
+    <? if ($this->layout()->userLang == 'cs'): ?>
       <p><?= $this->translate('FAQ_first_for_libs', [
               '%s1' => "<a href='/Portal/Page/faq-pro-knihovny'>",
               '%s2' => "</a>"
@@ -84,7 +84,7 @@ $this->feedback()->hideFeedbackModalButton = true;
 <script>
   var CaptchaCallback = function () {
     grecaptcha.render('RecaptchaField', {
-      'sitekey': '<?=$this->feedback()->siteKey?>'
+      'sitekey': '<?=htmlspecialchars($this->feedback()->siteKey)?>'
     });
   };
 </script>
