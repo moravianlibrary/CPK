@@ -255,7 +255,7 @@ class JsonFacetListener
             if (preg_match(self::SOLR_LOCAL_PARAMS, $field, $matches)) {
                 $localParams = $matches[1];
                 $field = $matches[2];
-                $fq = $localParams . ' (' . $field . ':' . $query . ')';
+                $fq = $localParams . ' ' . $field . ':' . $query;
             }
             if (in_array($field, $this->nestedFacets)) {
                 if ($this->isOrFacet($field)) {
