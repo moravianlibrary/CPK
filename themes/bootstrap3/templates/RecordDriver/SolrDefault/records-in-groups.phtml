@@ -58,10 +58,10 @@ if (isset($this->tabs['DedupedRecords'])) {
   <span>
   <?= $this->translate('The library has another record(s) for this publication'); ?>
   <? foreach ($internalMultiplicity as $key => $recordMultiplicity): ?>
-    <?= ($key > 0) ? $this->translate('conjunction_or') : '';?>
-    <a href='/Record/<?=$recordMultiplicity?>?referer=<?=$this->referer?>#records-in-groups'
-       title='<?=$this->translate($currentInstitutionName)?>'>
-        <?=$this->translate('here_link')?>
+    <?= ($key > 0) ? $this->translate('conjunction_or') : '' ?>
+    <a href='/Record/<?= $recordMultiplicity ?>?referer=<?= $this->referer ?>#records-in-groups'
+       title='<?= $this->translate($currentInstitutionName) ?>'>
+        <?= $this->translate('here_link') ?>
     </a>
   <? endforeach;?>
   </span>
