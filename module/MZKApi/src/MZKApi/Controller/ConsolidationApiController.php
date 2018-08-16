@@ -52,6 +52,8 @@ class ConsolidationApiController extends \VuFind\Controller\AbstractSearch
 
     const USER_NOT_FOUND = 'User not found';
 
+    const USER_ID_PARAM = "user_id";
+
     /**
      * Default record fields to return if a request does not define the fields
      *
@@ -194,24 +196,16 @@ class ConsolidationApiController extends \VuFind\Controller\AbstractSearch
         $request = $this->getRequest()->getQuery()->toArray()
             + $this->getRequest()->getPost()->toArray();
 
-        $mustBeSet = ['user_id', 'entity_id'];
-
-        foreach ($mustBeSet as $paramName) {
-            if (! isset($request[$paramName])) {
-                return $this->errorResponse('Missing ' . $paramName, 400);
-            }
+        if (!isset($request[self::USER_ID_PARAM])) {
+            return $this->errorResponse('Missing ' . self::USER_ID_PARAM, 400);
         }
 
         $eppn = $request['user_id'];
-        $entityId = $request['entity_id'];
         $user = $this->userTableGateway->getUserRowByEppn($eppn);
         if (!user) {
             return $this->errorResponse(self::USER_NOT_FOUND);
         }
         $userEntityId = $this->homeLibraryToEntityId($user['home_library']);
-        if ($entityId !== $userEntityId) {
-            return $this->errorResponse(self::USER_NOT_FOUND);
-        }
 
         $consolidated_identities = [];
         $libraryCards = $user->getLibraryCards()->toArray();
@@ -219,10 +213,6 @@ class ConsolidationApiController extends \VuFind\Controller\AbstractSearch
         foreach ($libraryCards as $libraryCard) {
             $cardEntityId = $this->homeLibraryToEntityId($libraryCard['home_library']);
             $cardUserId = $libraryCard['eppn'];
-            if ($cardUserId == $eppn && $entityId == $cardEntityId) {
-                continue;
-            }
-
             $consolidated_identities[] = array(
                 'user_id' => $cardUserId,
                 'entity_id' => $cardEntityId
@@ -231,7 +221,7 @@ class ConsolidationApiController extends \VuFind\Controller\AbstractSearch
 
         $response = [
             'user_id' => $eppn,
-            'entity_id' => $request['entity_id'],
+            'entity_id' => $userEntityId,
             'consolidated_identities' => $consolidated_identities
         ];
 
