@@ -119,9 +119,7 @@ class LibrariesController extends AbstractBase
 
             $url = $this->config->Index->url."/".$this->config->Index->default_core."/select?";
 
-            $url .= "q=recordtype:library";
-            $url .= "%0A";
-            $url .= "merged_boolean:(true)";
+            $url .= "q=recordtype:library+AND+merged_boolean:true";
 
             if ($query != '*') {
 
