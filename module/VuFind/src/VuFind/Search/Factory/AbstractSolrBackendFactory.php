@@ -224,7 +224,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         // Apply deduplication if applicable:
         if (isset($search->Records->deduplication)) {
             $this->getDeduplicationListener(
-                $backend, $search->Records->deduplication
+                $backend, $search
             )->attach($events);
         }
 
@@ -436,16 +436,28 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
      *
      * @return DeduplicationListener
      */
-    protected function getDeduplicationListener(BackendInterface $backend, $enabled)
+    protected function getDeduplicationListener(BackendInterface $backend, Config $search)
     {
-        return new ChildDocDeduplicationListener(
+        $type = $search->Records->deduplication_type;
+        if (isset($type) && $type = 'child') {
+            return new ChildDocDeduplicationListener(
+                $backend,
+                $this->serviceLocator,
+                $this->searchConfig,
+                $this->facetConfig,
+                $this->getListOfFields(),
+                'datasources',
+                true
+            );
+        }
+        // default
+        return new DeduplicationListener(
             $backend,
             $this->serviceLocator,
             $this->searchConfig,
             $this->facetConfig,
-            $this->getListOfFields(),
             'datasources',
-            $enabled
+            true
         );
     }
 
