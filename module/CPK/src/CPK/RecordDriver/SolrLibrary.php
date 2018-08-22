@@ -346,7 +346,7 @@ class SolrLibrary extends ParentSolrMarc
         $library       = isset($this->fields['reg_lib_id_display_mv']) ? $this->fields['reg_lib_id_display_mv'] : [];
         $parsedLibrary = empty($library) ? [] : explode('|', $library[0]);
 
-        return ['id' => $parsedLibrary[0], 'name' => $parsedLibrary[1]];
+        return empty($parsedLibrary) ? [] : ['id' => $parsedLibrary[0], 'name' => $parsedLibrary[1]];
     }
 }
 
