@@ -823,7 +823,7 @@ class SearchController extends SearchControllerBase
 
 	    $extraRequest['limit'] = (integer)$results->getParams()->getLimit();
 	    $extraRequest['page'] = $results->getParams()->getPage();
-        $database = ! empty($request['database']) ? $request['database'] : $this->searchClassId;
+	    $database = ! empty($request['database']) ? $request['database'] : $this->searchClassId;
 	    $extraResultsForSwitching = $runner->run(
 	        $extraRequest, $database, $this->getSearchSetupCallback()
 	    );
