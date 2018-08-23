@@ -1,148 +1,132 @@
 /* global VuFind */
-jQuery( document ).ready( function ( $ ) {
-    let id = $( 'body' ).find( '.hiddenId' ).val()
-    let referer = getParameterByName( 'referer' )
-    let previousRecordText = VuFind.translate( 'Switch to previous record' )
-    let nextRecordText = VuFind.translate( 'Switch to next record' )
-
-    try {
-        if (localStorage.getItem( 'extraRecords' ) !== null) {
-            var extraRecords = JSON.parse( localStorage.getItem( 'extraRecords' ) )
-        }
-        else {
-            throw true
-        }
-    }
-    catch (e) {
+jQuery( document ).ready( function ($) {
+    let id = $( "body" ).find( ".hiddenId" ).val(),
+        referer = getParameterByName( "referer" ),
         extraRecords = []
+
+    if (typeof Storage !== "undefined") {
+        let records = localStorage.getItem( "extraRecords" )
+        if (records !== null) {
+            extraRecords = JSON.parse( records )
+        }
+    }
+    let extraResults = extraRecords.extraResults,
+        extraRecordsCount = extraResults.length,
+        currentPosition = extraResults.indexOf( id ),
+        recordsSwitching = $( "#records-switching" ),
+        database = $( "input[name='database']" ).val(),
+        recordType = "/Record/"
+
+    if (database === "EDS") {
+        recordType = "/EdsRecord/"
     }
 
-    let extraRecordsCount = extraRecords.extraResults.length
-    let currentPosition = arraySearch( extraRecords.extraResults, id )
-
-    let html = ''
-    let database = $( 'input[name=\'database\']' ).val()
-    let recordType = '/Record/'
-    if (database === 'EDS') {
-        recordType = '/EdsRecord/'
-    }
-
-    if (extraRecordsCount > 1) {
+    if (extraRecordsCount > 1 && currentPosition >= 0) {
+        recordsSwitching.removeClass( "hidden" )
         if (currentPosition > 0) {
-            let previousRecordId = extraRecords.extraResults[currentPosition - 1]
-
+            let previousRecordId = extraResults[currentPosition - 1]
             //create link to prev record with right record type
-            html += `<a href='${recordType}${previousRecordId}?referer=${referer}' title='${previousRecordText}'>`
-            html += '  <i class=\'pr-interface-arrowleft2\'></i>'
-            html += '</a>'
+            recordsSwitching.find( "#extraPrevious" ).
+                attr( "href", recordType + previousRecordId + "?referer=" + referer )
         }
         else if (currentPosition === 0 && extraRecords.extraPage !== 1) {
-            html += '<a id=\'extraPrevious\'  >'
-            html += '  <i id=\'extraPreviousIconSpiner\' class=\'fa fa-spinner fa-spin\'></i>'
-            html += '  <i id=\'extraPreviousIcon\' class=\'pr-interface-arrowleft2 hidden\'></i>'
-            html += '</a>'
+            recordsSwitching.find( "#extraPreviousIcon" ).addClass( "hidden" )
+            recordsSwitching.find( "#extraPreviousIconSpiner" ).removeClass( "hidden" )
 
-            getExtraResults( referer, 'previous' ).done( function ( response ) {
-                let responseData = response.data
-                referer = responseData.referer
-                let extraResults = responseData.extraResults
-                let extraResultsCount = extraResults.length
-
-                $( '#extraPrevious' ).
-                    attr( 'href', recordType + extraResults[extraResultsCount - 1] + '?referer=' + referer )
-                $( '#extraPreviousIconSpiner' ).attr( 'class', 'hidden' )
-                $( '#extraPreviousIcon' ).removeClass( 'hidden' )
-
-                $( 'body' ).on( 'click', '#extraPrevious', function () {
-                    localStorage.setItem( 'extraRecords', JSON.stringify(
-                        {
-                            referer: referer,
-                            extraResults: extraResults,
-                            extraPage: responseData.extraPage,
-                        } ) )
-                } )
+            getExtraResults( referer, "previous" ).done( function (response) {
+                updateAjaxRecordSwitcher( response, "Previous" )
             } ).fail( function () {
-                console.error( 'Cant\'t load extra records' )
+                console.error( "Cant't load extra records" )
             } )
         }
 
-        html += `<span> ${VuFind.translate( 'page' )} ${extraRecords.extraPage}, ${VuFind.translate(
-            'record' )} ${currentPosition + 1}</span>`
+        recordsSwitching.find( "span" ).
+            append( `${VuFind.translate( "page" )} ${extraRecords.extraPage}, ${VuFind.translate(
+                "record" )} ${currentPosition + 1}` )
 
         if (currentPosition < extraRecordsCount - 1) {
-            let nextRecordId = extraRecords.extraResults[currentPosition + 1]
-
+            let nextRecordId = extraResults[currentPosition + 1]
             //create link to next record with right record type
-            html += `<a href='${recordType}${nextRecordId}?referer=${referer}' title='${nextRecordText}'>`
-            html += '  <i class=\'pr-interface-arrowright2\'></i>'
-            html += '</a>'
+            recordsSwitching.find( "#extraNext" ).attr( "href", recordType + nextRecordId + "?referer=" + referer )
         }
         else if (currentPosition === extraRecordsCount - 1) {
-            //create link to next record with right record type
-            html += '<a id=\'extraNext\' >'
-            html += '  <i id=\'extraNextIconSpiner\' class=\'fa fa-spinner fa-spin\'></i>'
-            html += '  <i id=\'extraNextIcon\' class=\'pr-interface-arrowright2 hidden\'></i>'
-            html += '</a>'
-            getExtraResults( referer, 'next' ).done( function ( response ) {
-                let responseData = response.data
-                referer = responseData.referer
-                let extraResults = responseData.extraResults
+            recordsSwitching.find( "#extraNextIcon" ).addClass( "hidden" )
+            recordsSwitching.find( "#extraNextIconSpiner" ).removeClass( "hidden" )
 
-                $( '#extraNext' ).attr( 'href', recordType + extraResults[0] + '?referer=' + referer )
-                $( '#extraNextIconSpiner' ).attr( 'class', 'hidden' )
-                $( '#extraNextIcon' ).removeClass( 'hidden' )
-
-                $( 'body' ).on( 'click', '#extraNext', function () {
-                    localStorage.setItem( 'extraRecords', JSON.stringify(
-                        {
-                            referer: referer,
-                            extraResults: extraResults,
-                            extraPage: responseData.extraPage,
-                        } ) )
-                } )
+            getExtraResults( referer, "next" ).done( function (response) {
+                updateAjaxRecordSwitcher( response, "Next" )
             } ).fail( function () {
-                console.error( 'Can\'t load extra records' )
+                console.error( "Can't load extra records" )
             } )
         }
-
-        $( '#records-switching' ).append( html )
     }
 
-    function getExtraResults ( referer, direction ) {
-        return $.ajax( {
-            type: 'POST',
-            cache: false,
-            dataType: 'json',
-            url: '/AJAX/JSON?method=updateExtraSearchResults',
-            data: {
-                referer: referer,
-                direction: direction,
-            },
+    /**
+     * Make links, show animations and save extra results
+     * to local storage
+     *
+     * @param response Takes response from ajax
+     * @param direction Takes 'Next' or 'Previous' value
+     */
+    function updateAjaxRecordSwitcher (response, direction) {
+        let referer = response.data.referer,
+            extraResults = response.data.extraResults,
+            extraPage = response.data.extraPage
+
+        if (direction === "Previous") {
+            let extraResultsCount = extraResults.length
+            recordsSwitching.find( "#extraPrevious" ).
+                attr( "href", recordType + extraResults[extraResultsCount - 1] + "?referer=" + referer )
+        }
+        else {
+            recordsSwitching.find( "#extraNext" ).attr( "href", recordType + extraResults[0] + "?referer=" + referer )
+        }
+
+        recordsSwitching.find( "#extra" + direction + "IconSpiner" ).addClass( "hidden" )
+        recordsSwitching.find( "#extra" + direction + "Icon" ).removeClass( "hidden" )
+
+        recordsSwitching.on( "click", "#extra" + direction, function () {
+            localStorage.setItem( "extraRecords", JSON.stringify( { referer, extraResults, extraPage } ) )
         } )
     }
 
-    function arraySearch ( arr, value ) {
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i] === value) {
-                return i
-            }
-        }
-        return false
+    /**
+     * Send ajax request to get extra records
+     *
+     * @param referer link
+     * @param direction Takes 'next' or 'previous' value
+     * @returns {promise}
+     */
+    function getExtraResults (referer, direction) {
+        return $.ajax( {
+            type: "POST",
+            cache: false,
+            dataType: "json",
+            url: "/AJAX/JSON?method=updateExtraSearchResults",
+            data: { referer, direction },
+        } )
     }
 
-    function getParameterByName ( name, url ) {
+    /**
+     * Search for a parameter in url
+     *
+     * @param name Parameter's name
+     * @param url
+     * @returns {*} Parameter's value
+     */
+    function getParameterByName (name, url) {
         if (!url) {
             url = window.location.href
         }
-        name = name.replace( /[\[\]]/g, '\\$&' )
-        let regex = new RegExp( '[?&]' + name + '(=([^&#]*)|&|#|$)', 'i' ),
+        name = name.replace( /[\[\]]/g, "\\$&" )
+        let regex = new RegExp( "[?&]" + name + "(=([^&#]*)|&|#|$)", "i" ),
             results = regex.exec( url )
         if (!results) {
             return null
         }
         if (!results[2]) {
-            return ''
+            return ""
         }
-        return decodeURIComponent( results[2].replace( /\+/g, ' ' ) )
+        return decodeURIComponent( results[2].replace( /\+/g, " " ) )
     }
 } )

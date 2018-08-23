@@ -18,8 +18,17 @@
 <ul class="list-group record-toolbar">
   <li class="list-group-item">
   <? if ($this->referer): ?>
-    <div id='records-switching'>
-      <? $this->headScript()->appendFile("toolbar.js") ?>
+    <? $this->headScript()->appendFile("toolbar.js") ?>
+    <div id='records-switching' class='hidden'>
+      <a id='extraPrevious' title='<?= $this->translate("Switch to previous record") ?>'>
+        <i id='extraPreviousIconSpiner' class='fa fa-spinner fa-spin hidden'></i>
+        <i id='extraPreviousIcon' class='pr-interface-arrowleft2'></i>
+      </a>
+      <span></span>
+      <a id='extraNext' title='<?= $this->translate("Switch to next record") ?>'>
+        <i id='extraNextIconSpiner' class='fa fa-spinner fa-spin hidden'></i>
+        <i id='extraNextIcon' class='pr-interface-arrowright2'></i>
+      </a>
     </div>
   <? endif; ?>
   </li>
