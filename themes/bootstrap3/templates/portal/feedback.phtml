@@ -63,7 +63,8 @@ $this->feedback()->hideFeedbackModalButton = true;
                    value='<?= ($this->email) ? htmlspecialchars($this->email) : htmlspecialchars($this->userEmail) ?: '' ?>'
                    required>
           <? else: ?>
-            <input id="feedback_email" type='email' name='email' class='form-control' required>
+            <input id="feedback_email" type='email' name='email' class='form-control' required
+                   oninvalid="this.setCustomValidity('<?= $this->translate('feedback_email_invalid') ?>')">
           <? endif; ?>
       </fieldset>
     </div>
@@ -73,10 +74,12 @@ $this->feedback()->hideFeedbackModalButton = true;
     <input type="hidden" name="page_path" value="<?= $this->feedback()->actualLink ?>">
 
     <fieldset class="form-group">
-      <input type='submit'
+      <input id="captcha_submit"
+             type='submit'
              name="submitted"
              class='btn btn-primary'
-             value='<?= $this->translate('Send form') ?>'>
+             value='<?= $this->translate('Send form') ?>'
+             disabled>
     </fieldset>
   </form>
 </div>
@@ -84,7 +87,10 @@ $this->feedback()->hideFeedbackModalButton = true;
 <script>
   var CaptchaCallback = function () {
     grecaptcha.render('RecaptchaField', {
-      'sitekey': '<?=htmlspecialchars($this->feedback()->siteKey)?>'
+      'sitekey': '<?=htmlspecialchars($this->feedback()->siteKey)?>',
+      'callback': function () {
+        $('#captcha_submit').removeAttr('disabled');
+      }
     });
   };
 </script>
