@@ -641,6 +641,13 @@ class NCIPNormalizer implements LoggerAwareInterface
                 $department = isset($parts[0]) ? $parts[0] : '';
                 $collection = isset($parts[1]) ? $parts[1] : '';
 
+                $response->unsetDataValue(
+                    'LookupItemResponse', 'ItemOptionalFields', 'Location', 'LocationName'
+                );
+                $response->unsetDataValue(
+                    'LookupItemResponse', 'ItemOptionalFields', 'Location', 'LocationType'
+                );
+
                 $response->setDataValue(
                     array(
                         array(
@@ -876,92 +883,8 @@ class NCIPNormalizer implements LoggerAwareInterface
         } // End of libsWithARL
 
         if ($this->agency === 'ABA008') { // NLK
-
-            $holdingSets = $response->get('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
-            $response->unsetDataValue('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
-
-            // Rewind holdingSets to ItemInformation ..
-            foreach ($holdingSets as $i => $holdingSet) {
-                $itemInformation = $response->getRelative($holdingSet, 'ItemInformation');
-                $response->setDataValue(
-                    $itemInformation,
-                    'ns1:LookupItemSetResponse',
-                    'ns1:BibInformation',
-                    'ns1:HoldingsSet',
-                    "ns1:ItemInformation[$i]"
-                );
-
-                // Move locations to correct position
-
-                $locations = $response->getArrayRelative($holdingSet, 'Location');
-                if (!empty($locations)) {
-
-                    // We always need department to determine normalization, so parse it unconditionally
-                    $department = null;
-
-                    foreach ($locations as $locElement) {
-                        $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
-                        $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
-                        if (!empty($value)) {
-                            if ($level == '1') {
-                                $department = $value;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($department !== null) {
-
-                        // parse department properly
-
-                        $parts = explode("@", $department);
-                        $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
-                        $parts = explode(" ", $translate, 2);
-                        $department = isset($parts[0]) ? $parts[0] : '';
-                        $collection = isset($parts[1]) ? $parts[1] : '';
-
-                        $response->setDataValue(
-                            array(
-                                array(
-                                    'ns1:LocationName' => array(
-                                        'ns1:LocationNameInstance' => array(
-                                            'ns1:LocationNameLevel' => '1',
-                                            'ns1:LocationNameValue' => $department
-                                        )
-                                    )
-                                ),
-                                array(
-                                    'ns1:LocationName' => array(
-                                        'ns1:LocationNameInstance' => array(
-                                            'ns1:LocationNameLevel' => '2',
-                                            'ns1:LocationNameValue' => $collection
-                                        )
-                                    )
-                                )
-                            ),
-                            'ns1:LookupItemSetResponse',
-                            'ns1:BibInformation',
-                            'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
-                            'ns1:ItemOptionalFields',
-                            'ns1:Location'
-                        );
-                    } else
-                        // Just move it ..
-                        $response->setDataValue(
-                            $locations,
-                            'ns1:LookupItemSetResponse',
-                            'ns1:BibInformation',
-                            'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
-                            'ns1:ItemOptionalFields',
-                            'ns1:Location'
-                        );
-                }
-            }
-
-
-        } // End of NLK (ABA008)
+            $this->normalizeLookupItemStatus($response);
+        }
 
         if (
             $this->agency === 'ABG001'  // mkp
