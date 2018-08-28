@@ -213,10 +213,10 @@ class ConsolidationApiController extends \VuFind\Controller\AbstractSearch
         foreach ($libraryCards as $libraryCard) {
             $cardEntityId = $this->homeLibraryToEntityId($libraryCard['home_library']);
             $cardUserId = $libraryCard['eppn'];
-            $consolidated_identities[] = array(
+            $consolidated_identities[] = [
                 'user_id' => $cardUserId,
                 'entity_id' => $cardEntityId
-            );
+            ];
         }
 
         $response = [
