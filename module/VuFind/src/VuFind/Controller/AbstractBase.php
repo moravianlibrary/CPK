@@ -116,6 +116,10 @@ class AbstractBase extends AbstractActionController
      */
     protected function createViewModel($params = null)
     {
+        $recordId = end(explode("/", strtok($_SERVER["REQUEST_URI"],'?'), 3));
+        $recordSource = explode(".", $recordId)[0];
+        $this->layout()->librarySearch = $recordSource == 'library' || (isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries');
+
         return new ViewModel($params);
     }
 
