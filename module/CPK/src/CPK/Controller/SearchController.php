@@ -1644,6 +1644,10 @@ class SearchController extends SearchControllerBase
     }
 
     public function embeddedAction() {
+        $response = $this->getResponse();
+        $headers = $response->getHeaders();
+        $headers->addHeaderLine('Content-Security-Policy', 'frame-ancestors *');
+        $headers->addHeaderLine('X_FRAME_OPTIONS', 'ALLOWALL');
         $view = $this->createViewModel();
         $view->setTemplate('portal/embedded-search-cpk');
         $view->setTerminal(true);
@@ -1653,7 +1657,7 @@ class SearchController extends SearchControllerBase
         $lang = $this->params()->fromQuery('lang', 'cs');
         if ((!isset($_COOKIE['language'])) || ($_COOKIE['language'] !== $lang)) {
             $this->layout()->userLang=$lang;
-            setcookie('language',$lang,null,'/');
+            setcookie('language', $lang,null,'/');
             header("Refresh:0");
         }
 
