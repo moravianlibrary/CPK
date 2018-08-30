@@ -49,6 +49,25 @@ class SolrMarc extends ParentSolrMarc
         return $this->ilsConfig;
     }
 
+    protected $recordLoader;
+
+    /**
+     * Constructor
+     *
+     * @param \Zend\Config\Config $mainConfig     VuFind main configuration (omit for
+     * built-in defaults)
+     * @param \Zend\Config\Config $recordConfig   Record-specific configuration file
+     * (omit to use $mainConfig as $recordConfig)
+     * @param \Zend\Config\Config $searchSettings Search-specific configuration file
+     * @param \VuFind\RecordLoader
+     */
+    public function __construct($mainConfig = null, $recordConfig = null,
+        $searchSettings = null, $recordLoader
+    ) {
+        parent::__construct($mainConfig, $recordConfig, $searchSettings);
+        $this->recordLoader = $recordLoader;
+    }
+
     /**
      * Get an annotation
      *
@@ -1002,9 +1021,19 @@ class SolrMarc extends ParentSolrMarc
         return ['handler' => 'morelikethis'];
     }
 
-    public function getMonographicSeries()
+    public function getMonographicSeries($searchAlsoInParentRecord = true)
     {
-        return $this->fields['monographic_series_display_mv'] ?: false;
+        $series = $this->fields['monographic_series_display_mv'] ?: false;
+        if (! $series && $searchAlsoInParentRecord) {
+            $series = $this->getParentsMonographicSeries();
+        }
+        return $series;
+    }
+
+    public function getParentsMonographicSeries()
+    {
+        $parentRecordDriver = $this->recordLoader->load($this->getParentRecordID());
+        return $parentRecordDriver->getMonographicSeries(false);
     }
 
     public function getMonographicSeriesUrl(string $serie)
