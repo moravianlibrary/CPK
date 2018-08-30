@@ -145,6 +145,15 @@ $this->layout()->headerType = "newlibraries";
 
         <? endif; ?>
 
+        <!-- Regional library -->
+        <? $regLibrary = $this->driver->getRegLibrary();
+        if ( ! empty($regLibrary)): ?>
+          <h2><i class="pr-interface-circlerighttrue"></i><?= $this->translate('Regional library') ?></h2>
+          <a href="/Record/<?= $this->escapeHtmlAttr($regLibrary['id']) ?>">
+              <?= $this->escapeHtml($regLibrary['name']) ?>
+          </a>
+        <? endif; ?>
+
         <!-- Mvs-->
         <? $mvses = $this->driver->getMvs(); if (!empty($mvses)): ?>
             <h2><i class="pr-interface-circlerighttrue"></i><?=$this->translate('Interlibrary loan')?></h2>
