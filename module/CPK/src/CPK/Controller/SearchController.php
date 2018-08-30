@@ -330,7 +330,7 @@ class SearchController extends SearchControllerBase
 	    } else {
 	        $view->searchTypeTemplate = 'basic';
 	    }
-	    
+
         $view->results = $this->getHomePageFacets();
         $view->hierarchicalFacets = $this->getHierarchicalFacets();
         $view->hierarchicalFacetSortOptions = $this->getHierarchicalFacetSortSettings();
@@ -400,12 +400,6 @@ class SearchController extends SearchControllerBase
         } else {
             $this->layout()->limit = $searchesConfig->General->default_limit;
             $this->layout()->sort = $searchesConfig->General->default_sort;
-            
-            if (! empty($this->params()->fromQuery('loggedOut')) ){
-                $view->loggedOut = $this->params()->fromQuery('loggedOut');
-            } else if(! empty($_GET['loggedOut'])) {
-                $view->loggedOut = htmlspecialchars($_GET['loggedOut']);
-            }
         }
 
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
