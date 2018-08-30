@@ -37,6 +37,7 @@ use VuFind\Search\Solr\MultiIndexListener;
 use VuFind\Search\Solr\V3\ErrorListener as LegacyErrorListener;
 use VuFind\Search\Solr\V4\ErrorListener;
 use VuFind\Search\Solr\DeduplicationListener;
+use VuFind\Search\Solr\ChildDocDeduplicationListener;
 use VuFind\Search\Solr\MZKDeduplicationListener;
 use VuFind\Search\Solr\HierarchicalFacetListener;
 use VuFind\Search\Solr\JsonFacetListener;
@@ -223,7 +224,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         // Apply deduplication if applicable:
         if (isset($search->Records->deduplication)) {
             $this->getDeduplicationListener(
-                $backend, $search->Records->deduplication
+                $backend, $search
             )->attach($events);
         }
 
@@ -255,7 +256,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         }
         $useJsonApi = isset($facets->JSON_API) && isset($facets->JSON_API->enabled) && $facets->JSON_API->enabled;
         if (!empty($nested) || $useJsonApi) {
-            $jsonFacetListener = $this->getJsonFacetListener($backend, $facets);
+            $jsonFacetListener = $this->getJsonFacetListener($backend, $facets, $search);
             if ($this->logger) {
                 $jsonFacetListener->setLogger($this->logger);
             }
@@ -435,15 +436,28 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
      *
      * @return DeduplicationListener
      */
-    protected function getDeduplicationListener(BackendInterface $backend, $enabled)
+    protected function getDeduplicationListener(BackendInterface $backend, Config $search)
     {
+        $type = $search->Records->deduplication_type;
+        if (isset($type) && $type = 'child') {
+            return new ChildDocDeduplicationListener(
+                $backend,
+                $this->serviceLocator,
+                $this->searchConfig,
+                $this->facetConfig,
+                $this->getListOfFields(),
+                'datasources',
+                true
+            );
+        }
+        // default
         return new DeduplicationListener(
             $backend,
             $this->serviceLocator,
             $this->searchConfig,
             $this->facetConfig,
             'datasources',
-            $enabled
+            true
         );
     }
 
@@ -548,9 +562,10 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
      *
      * @return NestedFacetListener
      */
-    protected function getJsonFacetListener(BackendInterface $backend, \Zend\Config\Config $facetConfig)
+    protected function getJsonFacetListener(BackendInterface $backend,
+        Config $facetConfig, Config $searchConfig)
     {
-        return new JsonFacetListener($backend, $facetConfig);
+        return new JsonFacetListener($backend, $facetConfig, $searchConfig);
     }
 
 }
