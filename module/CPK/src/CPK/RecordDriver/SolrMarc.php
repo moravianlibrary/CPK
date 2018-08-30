@@ -1010,7 +1010,7 @@ class SolrMarc extends ParentSolrMarc
     public function getMonographicSeriesUrl(string $serie)
     {
         $mainSerie = explode("|", $serie)[0];
-        return '/Search/Results?lookfor0[]=' . urlencode($mainSerie)
+        return '/Search/Results?lookfor0[]=monographic_series_str_mv:("'. urlencode($mainSerie). '")'
             . '&type0[]=monographic_series_str_mv&join=AND&searchTypeTemplate=advanced&page=1&bool0[]=AND';
     }
 
