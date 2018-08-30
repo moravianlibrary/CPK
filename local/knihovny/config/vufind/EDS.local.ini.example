@@ -1,0 +1,5 @@
+[EBSCO_Account]
+user_name = username
+password  = password
+; Keep default
+profile   = wsapi
