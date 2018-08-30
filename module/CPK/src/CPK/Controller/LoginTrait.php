@@ -28,7 +28,6 @@
 
 namespace CPK\Controller;
 
-use CPK\Exception\TermsUnaccepted;
 use DomainException;
 use VuFind\Exception\Auth as AuthException;
 use Zend\Mvc\Controller\AbstractActionController;
@@ -82,12 +81,8 @@ trait LoginTrait
             $method = 'notFoundAction';
         }
 
-        try {
-            $this->checkShibbolethLogin();
-            $actionResponse = $this->$method();
-        } catch (TermsUnaccepted $e) {
-            return $this->redirect()->toUrl('/?' . ACCEPT_TERMS_OF_USE_QUERY);
-        }
+        $this->checkShibbolethLogin();
+        $actionResponse = $this->$method();
 
         $e->setResult($actionResponse);
 
@@ -96,32 +91,13 @@ trait LoginTrait
 
     protected function checkShibbolethLogin()
     {
-
-        $acceptingTermsOfUse = $this->params()->fromQuery(ACCEPT_TERMS_OF_USE_QUERY) !== null;
-
-        // This will effectively disallow the so called "buggy local logout" state
-        $honorServiceProviderAuthState = true;
-
-        // This is here for cases when we migrate honoring SP auth state to config .. not needed nor planned yet
-        if (!$honorServiceProviderAuthState) {
-            // Check shibboleth login
-            $honorServiceProviderAuthState =
-                $this->params()->fromPost('processLogin') ||
-                $this->params()->fromPost('auth_method') ||
-                $this->params()->fromQuery('auth_method');
-        }
-
-        // When accepting terms of use, don't honor service provider's authentication state
-        $honorServiceProviderAuthState = $honorServiceProviderAuthState && !$acceptingTermsOfUse;
-
-        if ($honorServiceProviderAuthState) {
-            try {
-                if (!$this->getAuthManager()->isLoggedIn()) {
-                    $this->getAuthManager()->login($this->getRequest());
-                }
-            } catch (AuthException $e) {
-                $this->processAuthenticationException($e);
+        try {
+            if (!$this->getAuthManager()->isLoggedIn()) {
+                $this->getAuthManager()->login($this->getRequest());
             }
+        } catch (AuthException $e) {
+            $this->processAuthenticationException($e);
         }
     }
+
 }

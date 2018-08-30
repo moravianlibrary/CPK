@@ -371,6 +371,15 @@ class Factory
             if (isset($config->Proxy->type)) {
                 $options['proxy_type'] = $config->Proxy->type;
             }
+            if (isset($config->Proxy->non_proxy_host)) {
+                $options['non_proxy_host'] = $config->Proxy->non_proxy_host->toArray();
+            }
+            if (isset($config->Proxy->username)) {
+                $options['username'] = $config->Proxy->username;
+            }
+            if (isset($config->Proxy->password)) {
+                $options['password'] = $config->Proxy->password;
+            }
         }
         $defaults = isset($config->Http)
             ? $config->Http->toArray() : [];
@@ -926,4 +935,19 @@ class Factory
             $client, true, $ip
         );
     }
+
+    /**
+     * Construct the YAML reader.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return \VuFind\Config\YamlReader
+    */
+    public static function getYamlReader(ServiceManager $sm)
+    {
+        return new \VuFind\Config\YamlReader(
+            $sm->get('VuFind\CacheManager')
+        );
+    }
+
 }

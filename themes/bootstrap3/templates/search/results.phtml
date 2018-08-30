@@ -1,23 +1,33 @@
 <?
-$this->headScript()->appendFile("markerclusterer.js");
+  $this->headScript()->appendFile("markerclusterer.js");
+  $this->headScript()->appendFile("vendor/oms.min.js");
 ?>
 
-<ul class="nav nav-tabs eds-tabs <?= ($_GET['type0'][0] == 'Libraries') ? ' hidden' : '' ?>" id="set-database">
-    <li<?= empty($_GET['database']) || $_GET['database'] == 'Solr' ? ' class="active"' : '' ?>>
-        <a href="#" data-value="Solr" class="pointer"><i class="pr-web-flagreport"></i> <?=$this->translate('national-sources')?></a>
+<ul class="nav nav-tabs sources-tabs <?= ($this->librarySearch) ? ' hidden' : '' ?>" id="set-database">
+    <li<?= empty($_GET['database']) || $_GET['database'] === 'Solr' ? ' class="active"' : '' ?>>
+        <a href="#" data-value="Solr" class="pointer">
+            <i class="pr-web-flagreport"></i>
+            <?=$this->translate('national-sources')?>
+        </a>
     </li>
-    <li<?=! empty($_GET['database']) && $_GET['database'] == 'EDS' ? ' class="active"' : '' ?>>
-        <a href="#" data-value="EDS" class="pointer"><i class="pr-misc-globe"></i> <?=$this->translate('foreign-sources')?></a>
-    </li>
-    <li class="disabled">
-        <span style="margin-left: 6px;"><?= $this->help()->getQuestionMarkHelp('foreign-sources') ?></span>
+
+    <? if(!$this->themeConfiguration()->themeConfig['hide_eds_source']): ?>
+        <li<?= !empty($_GET['database']) && $_GET['database'] === 'EDS' ? ' class="active"' : '' ?>>
+            <a href="#" data-value="EDS" class="pointer">
+                <i class="pr-misc-globe"></i>
+                <?=$this->translate('foreign-sources')?>
+            </a>
+        </li>
+    <? endif; ?>
+
+    <li class="disabled sources-tabs-question-marc">
+        <?= $this->help()->getQuestionMarkHelp('foreign-sources') ?>
     </li>
 </ul>
 
-<? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
-<? endif; ?>
-
 <?
+  $recordTotal = $this->results->getResultTotal();
+
   // Set up page title:
   $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
   if (isset($this->overrideTitle)) {
@@ -133,9 +143,7 @@ $this->headScript()->appendFile("markerclusterer.js");
 </script>
 <div id='search-result-list' class="search-result-list">
     <div class='row' id='flashedMessage' style='display: none;'>
-      <div class='col-sm-12'>
-
-      </div>
+        <div class='col-sm-12'></div>
     </div>
 
     <div class="row <?=$this->layoutClass('mainbody')?>">
@@ -225,12 +233,21 @@ $this->headScript()->appendFile("markerclusterer.js");
               <a id='rss-link' href="<?=$this->results->getUrlQuery()->setViewParam('rss')?>" title='<?=$this->translate('RSS')?>'>
                   <i class="fa fa-feed pointer"></i> <?=$this->translate('RSS')?>
               </a>
-              &nbsp;
-              <?= $this->help()->getQuestionMarkHelp('search-results-rss') ?>
+              <? if($this->searchClassId == 'EDS'): ?>
+                <span id="search-results-rss-help" class="hidden"><?= $this->help()->getQuestionMarkHelp('search-results-rss') ?></span>
+                <span id="ci-search-results-rss-help"><?= $this->help()->getQuestionMarkHelp('ci-search-results-rss') ?></span>
+              <? elseif($this->librarySearch): ?>
+                  <?= $this->help()->getQuestionMarkHelp('adr-search-results-rss') ?>
+              <? else: ?>
+                <span id="search-results-rss-help"><?= $this->help()->getQuestionMarkHelp('search-results-rss') ?></span>
+                <span id="ci-search-results-rss-help" class="hidden"><?= $this->help()->getQuestionMarkHelp('ci-search-results-rss') ?></span>
+              <? endif; ?>
           </div>
       </div>
     </div>
 </div>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?= $apikey ?>&amp;callback=getData"></script>
 <script>
     jQuery( document ).ready( function( $ ) {
         <? if ($this->extraResults && $this->referer): ?>
@@ -272,7 +289,7 @@ $this->headScript()->appendFile("markerclusterer.js");
 
     function getData(query, filter = '') {
         if (undefined != query) {
-            var url = "/Libraries/markersJson?q="+query+"&filter="+filter;
+            let url = '/Libraries/markersJson?q=' + query + '&filter=' + filter;
             $.getJSON(url, function(data) {
                 if (data.error) {
                     $( '#map-loader' ).parent().addClass( 'hidden' );
@@ -286,60 +303,61 @@ $this->headScript()->appendFile("markerclusterer.js");
         }
     }
     function initialize(libraries) {
-        console.log('###Map initialized');
-        var myLatLng = {lat: 49.78, lng: 15.39};
-        var markers = [];
-        var map = new google.maps.Map(document.getElementById('map'), {
+
+        let myLatLng = { lat: 49.78, lng: 15.39 };
+        let markers = [];
+        let map = new google.maps.Map(document.getElementById('map'), {
             zoom: 7,
             center: myLatLng
         });
-        var bounds = new google.maps.LatLngBounds();
-        var infoWindow = new google.maps.InfoWindow();
-        var info = [];
+        let bounds = new google.maps.LatLngBounds();
+        let infoWindow = new google.maps.InfoWindow();
+        let info = [];
 
-        for(var i = 0; i < libraries.length; i++) {
-            var library = libraries[i];
-            var contentString = '<div id="content" class="marker-info">'+
+        let oms = new OverlappingMarkerSpiderfier(map, {
+            markersWontMove: true,
+            markersWontHide: true,
+            basicFormatEvents: true
+        });
+
+        for (let i = 0; i < libraries.length; i++) {
+            let library = libraries[i];
+            let contentString = '<div id="content" class="marker-info">'+
                 '<div class="marker-title">' + library.name + '</div>'+
                 '<div class="marker-subtitle">' + library.address + '</div>' +
                 '<div class="marker-link"><a href="/Record/' + library.id +
                 '"><?=$this->translate('Library detail')?></a>' +
                 '</div>';
+
             info.push(contentString);
-            var marker = new google.maps.Marker({
+
+            let marker = new google.maps.Marker({
                 position: new google.maps.LatLng (library.latitude, library.longitude),
                 map: map,
                 title: library.name
             });
+
             bounds.extend(marker.getPosition());
             markers.push(marker);
-            google.maps.event.addListener(marker, 'click', (function(marker, index) {
+
+            google.maps.event.addListener(marker, 'spider_click', (function(marker, index) {
                 return function() {
                     infoWindow.setContent(info[index]);
                     infoWindow.open(map, marker);
                 }
             })(marker, i));
+
+            oms.addMarker(marker);
         }
 
-        var mcOptions = {gridSize: 75, maxZoom: 10, imagePath: "/themes/bootstrap3/images/markerclusterer/m"};
-        var mc = new MarkerClusterer(map, markers, mcOptions);
+        let mcOptions = { gridSize: 75, maxZoom: 10, imagePath: '/themes/bootstrap3/images/markerclusterer/m' };
+        let mc = new MarkerClusterer(map, markers, mcOptions);
     }
 
+    <? if(isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries'): ?>
+
+    getData("<?=$this->query?>", "<?=$_GET['filter']?>");
+
+    <? endif; ?>
+
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?=$apikey ?>&callback=getData"></script>
-
-<? if(isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries'): ?>
-    <script>
-        jQuery( document ).ready( function( $ ) {
-            console.log( "Rendering map" );
-            console.log("Query: <?=$this->query?>");
-            console.log("Filter: <?=$_GET['filter']?>");
-            console.log( 'Get Map from results.phtml' );
-            getData("<?=$this->query?>", "<?=$_GET['filter']?>");
-        });
-    </script>
-<? endif; ?>
-
-<Script>
-    console.log('results.phtml fired');
-</Script>

@@ -99,7 +99,7 @@ body .well.similar-item {
 
 .similar-items-container.list-group, .similar-items-container.list-group .list-group-item {
     background-color: inherit;
-} 
+}
 
 .similar-items-container.list-group .list-group-item {
     margin-bottom: 24px;
@@ -117,13 +117,18 @@ body .well.similar-item {
     line-height: 64px;
     vertical-align: middle;
     h3 {
-        margin-top: 10px;
+      margin-top: 10px;
     }
     .information {
-        display: inline-block;
-        padding: 4px 5px 4px 5px;
-        border: 1px solid @grey-color;
-        margin-top: 10px;
+      display: inline-block;
+      padding: 4px 4px 4px 5px;
+      margin-top: 9px;
+      background-color: @body-bg;
+      border: 1px solid @light-grey;
+      &:hover, &:focus {
+        background-color: white;
+        border: 1px solid @light-grey;
+      }
     }
     a {
         line-height: 19px;
@@ -172,10 +177,15 @@ body .well.similar-item {
     font-size: 120%;
     li.active {
         font-weight: bold;
+    background-color: white;
+    border: 1px solid @border-color;
+    border-bottom: none;
         a {
+            background-color: white;
             border: none;
         }
         a:hover{
+            background-color: white;
             border: none;
         }
     }
@@ -192,11 +202,16 @@ body .well.similar-item {
     font-size: 110%;
     cursor: pointer;
     text-align: center;
-    border: 2px solid @brand-primary;
+    border: 2px solid @primary-darken;
     padding: 7px 0px 4px 0px;
     margin: 0px 4px 10px 4px;
     text-transform: uppercase;
     font-weight: bold;
+  &:hover, &:focus {
+    color: #fff;
+    background-color: @primary-darken;
+    border: 2px solid @primary-darken;
+  }
 }
 
 @media only screen and (max-width: 768px) {
@@ -211,13 +226,6 @@ body .well.similar-item {
   .eds-want-it {
     width: 280px;
   }
-}
-
-
-
-.want-it:hover, .eds-want-it:hover {
-    background-color: #fff;
-    color: @brand-primary;
 }
 
 .eds-cover-icon {
@@ -244,3 +252,22 @@ body .well.similar-item {
   }
 }
 
+.mvs {
+  .want-it;
+
+  &:hover {
+    background-color: #fff;
+    color: @brand-primary;
+  }
+}
+
+#email-record input[type=submit], #help input[type=submit], #bugreport input[type=submit], .modal input[type=submit] {
+  background-color: @primary;
+  color: white;
+  border: 2px solid @primary-darken;
+  &:hover, &:focus {
+    color: #fff;
+    background-color: @primary-darken;
+    border: 2px solid @primary-darken;
+  }
+}

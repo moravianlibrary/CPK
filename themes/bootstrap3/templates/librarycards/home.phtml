@@ -32,7 +32,6 @@
       <tr>
         <th width="15%">&nbsp;</th>
         <th><?=$this->transEsc('Identity')?></th>
-        <th><?=$this->transEsc('Associated email')?></th>
         <th width="30%">&nbsp;</th>
       </tr>
       <? foreach ($this->libraryCards as $record):
@@ -53,7 +52,6 @@
             <img height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
           </td>
           <td><?=$this->transEsc("source_$source", null, $source) ?></td>
-          <td title="<?=$record['eppn'] ?>"><?=$record['card_name'] ?></td>
           <td>
           <? /* Do not create a choice for deletion if this is the only card */ if(count($this->libraryCards) !== 1): ?>
             <div class="btn-group">
@@ -75,7 +73,6 @@
             <img style="filter: grayscale(100%);" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
           </td>
           <td><?=$this->transEsc("source_$source", null, $source) ?></td>
-          <td title="<?=$record['eppn'] ?>"><?=$record['card_name'] ?></td>
           <td title="<?=$this->translate('identity_deleted_description')?>">
             <?=$this->translate('identity_deleted')?>
           </td>
@@ -88,7 +85,7 @@
          <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="margin-top:20px;" href="#"><?=$this->transEsc("delete-user-account")?></a>
         </a>
         <ul class="dropdown-menu">
-         <pre><?=$this->transEsc('delete-user-account-confirm') ?></pre>
+         <pre><?=$this->translate('delete-user-account-confirm') ?></pre>
          <li><a href="<?=$this->url('myresearch-userdelete') ?>?confirm=1"><?=$this->transEsc('confirm_dialog_yes') ?></a></li>
          <li><a href="#"><?=$this->transEsc('confirm_dialog_no')?></a></li>
         </ul>

@@ -67,55 +67,21 @@ class LibrariesController extends AbstractBase
 
 	public function listAction()
 	{
-		$view = $this->createViewModel();
-
-		$getParameters = $this->getRequest()->getQuery()->toArray();
-		$query = (isset($getParameters['query']) && ! empty($getParameters['query'])) ? $getParameters['query'] : null;
-		$page = (isset($getParameters['page']) && ! empty($getParameters['page'])) ? $getParameters['page'] : null;
-		if($page==null) $page = 1;
-
-		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
-
-		$searchresults = new SearchResults($query, $page, $this->config);
-		$libraries = $searchresults->getLibraries();
-		if ($libraries==null) {
-			$view->setTemplate('libraries/not-found');
-			return $view;
-		}
-		$resultsCount = $searchresults->getNumberOfResults();
-		$view->page = $page;
-		$view->resultsCount = $resultsCount;
-		$view->from = (($page-1)*10)+1;
-		$view->to = min($page * 10,$resultsCount);
-
-		$view->query = $query;
-		$view->pagination = $searchresults->GetPagination();
-		$view->libraries = $libraries;
-		$view->apikey= (isset($this->getConfig()->GoogleMaps->apikey) && ! empty($this->getConfig()->GoogleMaps->apikey)) ? $this->getConfig()->GoogleMaps->apikey : null;
-		$view->setTemplate('libraries/list');
-		return $view;
-
+        return $this->redirect()->toRoute(
+            'default',
+            array(
+                'controller' => 'Search',
+                'action' => 'Results',
+            ),
+            array('query' => array(
+                'type0[]' => 'Libraries'
+            ))
+        );
 	}
 
 	public function libraryAction()
 	{
-		$view = $this->createViewModel();
-
-		$getParameters = $this->getRequest()->getQuery()->toArray();
-		$sigla = $getParameters['sigla'];
-
-		$librariesLoader = $this->getServiceLocator()->get('CPK\Libraries');
-
-		$library = $librariesLoader->LoadLibrary($sigla);
-
-		$view->library = $library;
-
-		$view->apikey= empty($this->getConfig()->GoogleMaps) ? '' : $this->getConfig()->GoogleMaps->apikey;
-
-		$view->setTemplate('libraries/library');
-
-		return $view;
-
+	     return $this->redirect()->toRoute('default');
 	}
 
 	public function autocompleteJsonAction()
@@ -153,18 +119,11 @@ class LibrariesController extends AbstractBase
 
             $url = $this->config->Index->url."/".$this->config->Index->default_core."/select?";
 
-            /*$url .= "q=$query";
-            $url .= "&fq=NOT+recordtype%3Alibrary+AND+NOT+recordtype%3Asfx";*/
-            
-            //$url .= "q=recordtype:library";
-
             $url .= "q=recordtype:library";
             $url .= "%0A";
             $url .= "merged_boolean:(true)";
 
             if ($query != '*') {
-
-                //$url .= "allLibraryFields_txt_mv:($query)";
 
                 $reader = $this->getServiceLocator()->get('VuFind\SearchSpecsReader');
                 $specs = $reader->get('searchspecs.yaml');
@@ -212,7 +171,7 @@ class LibrariesController extends AbstractBase
                 $url = substr($url, 0, -4);
             }
 
-            $url .= "&fl=name_display,address_map_display_mv,gps_display,id";
+            $url .= "&fl=name_display,address_map_display_mv,gps_display,local_ids_str_mv";
             $url .= "&wt=json";
             $url .= "&indent=true";
             $url .= "&sort=library_relevance_str+asc";
@@ -238,7 +197,7 @@ class LibrariesController extends AbstractBase
                         $data[] = [
                             'name' => ! empty($library['name_display']) ? $library['name_display'] : '',
                             'address' => ! empty($library['address_map_display_mv'][0]) ? $library['address_map_display_mv'][0] : '',
-                            'id' => $library['id'] ? $library['id'] : '',
+                            'id' => $library['local_ids_str_mv'] ? $library['local_ids_str_mv'][0] : '',
                             'latitude' => explode(" ", $library['gps_display'])[0],
                             'longitude' => explode(" ", $library['gps_display'])[1],
                         ];

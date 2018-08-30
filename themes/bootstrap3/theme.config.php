@@ -10,7 +10,7 @@ $toRet = array(
         'vendor/bootstrap-slider.css',
         'vendor/bootstrap-select.min.css',
         'print.css:print',
-		'ol.css'
+        'ol.css'
     ),
     'js' => array(
         'vendor/base64.js:lt IE 10', // btoa polyfill
@@ -24,7 +24,7 @@ $toRet = array(
         'vendor/bootstrap-slider.js',
         'vendor/jquery.validate.min.js',
         'vendor/validation-additional-methods.js',
-		'autocomplete.js',
+        'autocomplete.js',
         'vendor/validator.min.js',
         'common.js',
         'lightbox.js',
@@ -33,9 +33,10 @@ $toRet = array(
         'vendor/jsTree/jstree.min.js',
         'facets.js',
         'lz-string.js',
-		'obalkyknih.js',
+        'obalkyknih.js',
         'vendor/jquery.visible.min.js',
-        'vendor/jquery.bootstrap-growl.js'
+        'vendor/jquery.bootstrap-growl.js',
+        'notifications.module.js',
     ),
     'less' => array(
         'active' => false,
@@ -44,16 +45,17 @@ $toRet = array(
     'favicon' => 'favicon.ico',
     'helpers' => array(
         'factories' => array(
+            'themeConfiguration' => 'CPK\View\Helper\CPK\Factory::getThemeConfiguration',
             'record' => 'CPK\View\Helper\CPK\Factory::getRecord',
             'flashmessages' => 'CPK\View\Helper\CPK\Factory::getFlashmessages',
             'logos' => 'CPK\View\Helper\CPK\Factory::getLogos',
             'globalNotifications' => 'CPK\View\Helper\CPK\Factory::getGlobalNotifications',
             'portalpages' => 'CPK\View\Helper\CPK\Factory::getPortalPages',
             'layoutclass' => 'VuFind\View\Helper\Bootstrap3\Factory::getLayoutClass',
-            'piwik' => 'Statistics\View\Helper\Root\Factory::getPiwik',
             'identityProviders' => 'CPK\View\Helper\CPK\Factory::getIdentityProviders',
             'help' => 'CPK\View\Helper\CPK\Factory::getHelp',
-            'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih'
+            'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih',
+            'notifications' => 'CPK\View\Helper\CPK\Factory::getNotifications',
         ),
         'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',
@@ -78,7 +80,7 @@ $useCompiledAngular = false;
 
 $angularForbiddenForIE = true;
 
-if (! ($angularForbiddenForIE && USES_IE)) {
+if (!($angularForbiddenForIE && USES_IE)) {
 
     if ($useCompiledAngular) {
 
@@ -102,9 +104,6 @@ if (! ($angularForbiddenForIE && USES_IE)) {
 
             'ng-cpk/federative-login/module.js',
             'ng-cpk/federative-login/login.controller.js',
-
-            'ng-cpk/notifications/module.js',
-            'ng-cpk/notifications/notif.controller.js',
 
             'ng-cpk/admin/module.js',
             'ng-cpk/admin/configurations/conf.controller.js',

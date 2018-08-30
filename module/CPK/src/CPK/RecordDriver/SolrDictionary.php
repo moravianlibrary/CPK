@@ -98,4 +98,14 @@ class SolrDictionary extends ParentSolrMarc
     {
         return isset ($this->fields ['format_display_mv']) ? $this->fields ['format_display_mv'] : [];
     }
+
+    /**
+     * Get handler for related
+     *
+     * @return array
+     */
+    public function getFilterParamsForRelated()
+    {
+        return ['handler' => 'morelikethisdictionary'];
+    }
 }

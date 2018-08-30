@@ -9,7 +9,6 @@
   padding-bottom: 10px;
 
   a {
-    //color: #8a8a8a;
     color: #333;
     &:hover {
       text-decoration: underline;
@@ -19,12 +18,6 @@
     font-weight: normal;
     color: grey;
     background-color: transparent;
-  }
-  .jstree-ocl:before {
-    margin-left: -18px;
-    font-size: 20px;
-    margin-top: -5px;
-    color: #e5004b
   }
 
   .btn-default {
@@ -47,7 +40,6 @@
     }
 
     i.pr-institution-arrow:before {
-      // pr-interface-arrowbottom4
       content: "\ead9";
       color: @brand-primary;
       font-size: 20px;
@@ -55,7 +47,6 @@
 
     &.collapsed {
       i.pr-institution-arrow:before {
-        // pr-interface-arrowright5
         content: "\ead8";
         color: @brand-primary;
         font-size: 20px;
@@ -85,12 +76,12 @@
 
   #side-panel-institution {
     background-color: @light-grey;
-    color: #111;
+    color: @lightbg-text;
   }
 
   #side-panel-eds-filters {
     background-color: @light-grey;
-    color: #111;
+    color: @lightbg-text;
     padding: 4px 10px 4px 10px;
 
     label {
@@ -102,10 +93,10 @@
       height: 16px;
     }
 
-    .jsTreeLikeCheckboxDescription {
-      margin-left: 4px;
+        .jsTreeLikeCheckboxDescription {
+            margin-left: 4px;
+        }
     }
-  }
 
 }
 
@@ -124,41 +115,79 @@ li.jstree-facet ul {
 .sidebar .list-group:not(.filters) {
   .title::after {
       content: none;
-      color: #e5004b !important;
+      color: @brand-primary !important;
   }
 
   .title.collapsed::after {
-      color: #e5004b !important;
+      color: @brand-primary !important;
       content: none;
   }
 
 }
 
-.sidebar .facet .jstree-default{
-  .jstree-ocl:before {
-    font-family: 'pr-icons' !important;
-    font-size: inherit;
-    margin-top: 0px;
-  }
-  .jstree-open > .jstree-ocl:before {
-    // pr-interface-arrowbottom4
-    content: "\ead9";
-    font-size: 20px;
-    margin-top: -3px;
-    margin-left: -20px;
-  }
-  .jstree-closed > .jstree-ocl:before {
-    // pr-interface-arrowright5
-    content: "\ead8";
-    font-size: 20px;
-    margin-top: -3px;
-  }
+.sidebar .facet .jstree-facet {
+    .jstree-icon {
+        font-family: pr-icons;
+        color: @brand-primary;
+        font-size: 18px;
+    }
+    .jstree-icon:before {
+        font-family: pr-icons;
+        color: @brand-primary;
+        font-size: 16px;
+        font-style: normal;
+    }
+    a:hover {
+        font-weight: bold;
+    }
+    .jstree-ocl:before {
+        margin-left: 5px;
+        font-size: inherit;
+        margin-top: 0;
+    }
+    .jstree-open > .jstree-ocl:before {
+        content: "\ead9";
+        margin-top: 0;
+    }
+    .jstree-closed > .jstree-ocl:before {
+        content: "\ead8";
+    }
+
+    //checkbox nezakliknut
+    .jstree-checkbox:before {
+        content: "\ebd4";
+        color: grey;
+    }
+
+    .jstree-clicked {
+        font-weight: bold;
+    }
+
+    //checkbox zakliknut
+    .jstree-clicked .jstree-checkbox:before {
+        content: "\eb06";
+        color: @brand-primary;
+    }
+
+    //checkbox castecne
+    .jstree-undetermined:before {
+        content: "\e92c";
+        color: @brand-primary;
+    }
+    span {
+        font-family: @font-family-sans-serif !important;
+    }
+    .main {
+        padding-top: 2px;
+    }
+    .badge {
+        padding-top: 4px;
+    }
 }
 
 .emptyFacet {
   color: grey;
 }
-
 
 //date visualization
 ////////////////////
@@ -185,10 +214,35 @@ li.jstree-facet ul {
 }
 
 .geo-denied {
-  display: none;
-  text-align: center;
-  color: #ca1010;
-  border: 1px solid red;
-  padding: 10px;
-  font-size: 20px;
+    display: none;
+    text-align: center;
+    color: @brand-danger;
+    border: 1px solid @brand-danger;
+    padding: 10px;
+    font-size: 20px;
+}
+
+#del-all-facets {
+    margin-top: 10px;
+    #remove-all-filters-async div {
+        border: 2px solid @primary-darken;
+        &:hover, &:focus {
+            color: #fff;
+            background-color: @primary-darken;
+            border: 2px solid @primary-darken;
+        }
+    }
+}
+
+.institution-facet-filter-button {
+    color: #fff !important;
+    background-color: @primary !important;
+    border: 2px solid @primary-darken !important;
+    font-weight: bold;
+    &:hover, &:focus {
+        color: #fff !important;;
+        background-color: @primary-darken !important;
+        border: 2px solid @primary-darken !important;
+        font-weight: bold;
+    }
 }

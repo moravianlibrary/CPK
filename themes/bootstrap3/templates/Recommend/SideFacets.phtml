@@ -91,7 +91,7 @@ $removeFilterUrl = '/Search/Results?' . http_build_query($queryParams);
                 <? endforeach; ?>
             <? endif; ?>
         <? endforeach; ?>
-        <div class='text-center'>
+      <div id="del-all-facets" class='text-center'>
             <a id='remove-all-filters-async' href='<?=$removeFilterUrl?>'><div class="btn btn-primary btn-sm"><?=$this->transEsc('Remove Filters')?></div></a>
         </div>
     </div>

@@ -153,7 +153,6 @@ class ShibbolethIdentityManager extends Shibboleth
      */
     protected $attribsToCheck = array(
         'cat_username',
-        'email',
         'college',
         'major'
     );
@@ -247,18 +246,21 @@ class ShibbolethIdentityManager extends Shibboleth
         // EID for connecting identities
         $this->session->eidLoggedInWith = $entityId;
 
+        // modification for GDPR - do not store last name and first name in DB
+        $userInfo = [];
+        if (isset($_SERVER['givenName'])) {
+            $userInfo['firstname'] = $_SERVER['givenName'];
+        }
+        if (isset($_SERVER['sn'])) {
+            $userInfo['lastname'] = $_SERVER['sn'];
+        }
+        if (isset($_SERVER['email'])) {
+            $userInfo['email'] = $_SERVER['email'];
+        }
+        $this->session->userInfo = $userInfo;
+
         // Get UserRow by checking for known eppn
         $currentUser = $this->userTableGateway->getUserRowByEppn($eppn);
-
-        if ($currentUser === false) {
-            // New user in portal
-
-            // Has the user already agreed the terms of use ?
-            $termsAgreed = isset($_GET['terms_of_use_accepted']) && $_GET['terms_of_use_accepted'] === 'yes';
-
-            if (! $termsAgreed)
-                throw new TermsUnaccepted();
-        }
 
         // Now we need to know if there is a request to connect two identities
         $connectIdentities = $userToConnectWith !== null;
@@ -288,7 +290,7 @@ class ShibbolethIdentityManager extends Shibboleth
                     $attributes['email'] = null;
 
                     // We now detected user has no entry with current eppn in our DB, thus append new libCard
-                $userToConnectWith->createLibraryCard($attributes['cat_username'], $homeLibrary, $eppn, $attributes['email'], $this->canConsolidateMoreTimes);
+                $userToConnectWith->createLibraryCard($attributes['cat_username'], $homeLibrary, $eppn, null, $this->canConsolidateMoreTimes);
             } else {
                 // We now detected user has two entries in our user table, thus we need to merge those
 
@@ -364,10 +366,6 @@ class ShibbolethIdentityManager extends Shibboleth
         }
 
         $this->createConsolidationCookie($currentUser->id);
-
-        $this->setUserName($currentUser);
-
-        $this->handleDummyNotification($currentUser);
 
         return $currentUser;
     }
@@ -532,7 +530,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $target = $hostname . 'MyResearch/UserConnect';
 
         $entityId = $this->fetchCurrentEntityId();
-        $target .= '?eid=' . urlencode($entityId) . '&terms_of_use_accepted=yes';
+        $target .= '?eid=' . urlencode($entityId);
 
         $loginRedirect = $this->config->Shibboleth->login . '?forceAuthn=1&target=' . urlencode($target);
 
@@ -676,7 +674,7 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow = $this->updateUserRow($userRow, $attributes);
 
         // Assign the user new library card
-        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, $userRow->email, $this->canConsolidateMoreTimes);
+        $userRow->createLibraryCard($userRow->cat_username, $userRow->home_library, $eppn, null, $this->canConsolidateMoreTimes);
 
         return $userRow;
     }
@@ -757,36 +755,6 @@ class ShibbolethIdentityManager extends Shibboleth
     protected function fetchCurrentEntityId()
     {
         return isset($_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV]) ? $_SERVER[static::SHIB_IDENTITY_PROVIDER_ENV] : null;
-    }
-
-    /**
-     * Sets up user's givenName & surname if present in SAML message.
-     *
-     * Once set firstname or lastname, there are no changes made to the user's name anymore.
-     *
-     * @param UserRow $user
-     */
-    protected function setUserName(UserRow &$user)
-    {
-        if (empty($user->firstnme) && empty($user->lastname)) {
-
-            $changed = false;
-
-            if (isset($_SERVER['givenName'])) {
-                $changed = true;
-
-                $user->firstname = $_SERVER['givenName'];
-            }
-
-            if (isset($_SERVER['sn'])) {
-                $changed = true;
-
-                $user->lastname = $_SERVER['sn'];
-            }
-
-            if ($changed)
-                $user->save();
-        }
     }
 
     /**
@@ -1009,18 +977,4 @@ class ShibbolethIdentityManager extends Shibboleth
         return $userRow;
     }
 
-    /**
-     * Sets User a notification of having just a Dummy account if has no library connected
-     *
-     * @param UserRow $currentUser
-     */
-    protected function handleDummyNotification(UserRow $currentUser)
-    {
-        if (! isset($_ENV['isDummy']) || $_ENV['isDummy']) {
-
-            $isDummy = $currentUser->home_library === 'Dummy';
-
-            $this->notificationsHandler->setUserNotificationShows($currentUser, NotificationTypes::USER_DUMMY, $isDummy);
-        }
-    }
 }

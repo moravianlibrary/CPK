@@ -1,0 +1,126 @@
+[System]
+debug           = false
+
+; Activate Captcha validation on select forms
+; VuFind will use reCaptcha validation to prevent bots from using certain actions of
+; your instance. See http://www.google.com/recaptcha for more information on Captcha
+; and create keys for your domain.
+; You will need to provide a sslcapath in the [Http] section for your Captcha to work.
+[Captcha]
+siteKey  = "6LceOg4TAAAAABNlNWpIH0cEjMhBOG_ec9eguSD_"
+secretKey = "6LceOg4TAAAAAMIpTAknf9opttn04gqVrB0aS0rZ"
+; Valid theme values: dark, light
+theme      = light
+; Valid forms values: changePassword, email, newAccount, passwordRecovery, sms
+; Use * for all supported forms
+forms = changePassword, email, newAccount, passwordRecovery, sms
+
+[Site]
+url             = https://cpk-front.mzk.cz/
+email           = cpk-support@mzk.cz
+defaultCurrency	= CZK
+browserDetectLanguage = false
+defaultAccountPage = CheckedOut
+theme		= bootstrap3
+
+notificationsEnabled = true
+;notificationsEnabled = false
+
+offlineFavoritesEnabled = true
+;offlineFavoritesEnabled = false
+
+[Approval]
+emailEnabled		= 0
+emailFromName		= Centrální portál knihoven
+emailFrom		= cpk-dev@mzk.cz
+emailTo			= cpk-dev@mzk.cz
+
+[Record]
+;This will build links from 7xx fiedls. Link is build from subfields x or z for searching by ISN, 
+; or t for searching by AllFields.\
+;Anchor is build from subfields t and g. Anchor in field 773 is build from all subfields.
+;It is better than ;marc_links so use this instead of ;marc_link
+fields_in_core = "773,770,772,777,780,785"
+
+; Set this to true in order to enable "next" and "previous" links to navigate
+; through the current result set from within the record view.
+next_prev_navigation = false
+
+; Set domain, where citations should work. Must be approved by CitacePro.
+citation_local_domain = cpk-front.mzk.czddddd
+
+[Catalog]
+library_cards = true
+minHoldingsToApplyFilters = 30
+
+[Index]
+engine          = Solr
+;url		= http://cpk-back.mzk.cz:8080/solr
+;default_core    = biblio
+url		= http://cpk-front.mzk.cz:8080/solr
+;default_core   = index
+default_core    = beta
+
+; Set Max limit for ebooks to harvest from Solr to MySQL
+; Solr can't return all rows by default and need Limit option
+; Set this to much higher value than count of ebooks in Solr.
+harvest_ebooks_limit = 500 000
+
+[Authentication]
+;method		= PerunShibboleth
+method		= ShibbolethIdentityManager
+;method		= ShibbolethWithWAYF
+
+[Shibboleth]
+login           = https://cpk-front.mzk.cz/Shibboleth.sso/DS
+logout          = https://cpk-front.mzk.cz/Shibboleth.sso/Logout
+
+target		= https://cpk-front-devel.mzk.cz/MyResearch/Home
+getAssertion    = 1
+
+[Database]
+database        = mysql://user:pw@localhost/dbName
+
+[Logging]
+file            = /home/vufind/git/VuFind/fatal-errors.log:alert,error
+;file            = /home/vufind/git/VuFind/fatal-errors.log:alert,error,notice,debug
+
+[ExternalLinks]
+BOA001		= "https://vufind.mzk.cz/Record/"
+BOA001_end	= "/Holdings#tabnav"
+OLA001		= "http://aleph.vkol.cz/F?func=direct&doc_number="
+ZLG001		= "http://katalog.kfbz.cz/documents/"
+HKA001		= "http://aleph2.svkhk.cz/F?func=direct&doc_number="
+ABA013		= "http://aleph.techlib.cz/F?func=direct&doc_number="
+ABA008		= "http://www.medvik.cz/medvik/title_detail.do?id="
+
+; Enables facets this way
+custom_variables = true
+
+; Enables tracking User's active Library Card & UserId
+track_user = true
+
+; Enables ClickHeat plugin
+click_heat_plugin      = false
+click_heat_site_number = 1
+
+[GoogleMaps]
+apikey = AIzaSyALBfl5KwpSRjsvl4h0gzZB1fdq4Ei6DW0
+
+;This configuration sets recipients for feedback page. Split values with comma
+;E.g. "mail@server.cz,mail2@server.cz"
+[Feedback]
+RequestHelpRecipients = "cpk-support@mzk.cz"
+ReportBugRecipients   = "cpk-support@mzk.cz"
+
+[AdresarKnihoven]
+;apiUrl = http://cpk-front.mzk.cz:3000/api
+apiUrl  = http://knihovny.cz:3000/api
+
+[Proxy]
+type = curl
+host = your.proxy.server
+port = 8000
+username = username
+password = password
+non_proxy_host[] = cache.obalkyknih.cz

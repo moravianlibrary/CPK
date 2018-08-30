@@ -326,5 +326,14 @@ class SolrLibrary extends ParentSolrMarc
         return $result;
     }
 
+    /**
+     * Get handler for related
+     *
+     * @return array
+     */
+    public function getFilterParamsForRelated()
+    {
+        return ['handler' => 'morelikethislibrary'];
+    }
 }
 
