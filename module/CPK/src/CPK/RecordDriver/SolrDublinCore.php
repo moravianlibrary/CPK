@@ -259,9 +259,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPrimaryAuthor()
     {
-        $dc = $this->parseXML();
-        $value = $dc->xpath('//dc:creator');
-        return empty($value) ? "" : (string) $value[0];
+        return isset($this->fields['author_display']) ? $this->fields['author_display'] : '';
     }
 
     /**
@@ -271,13 +269,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getLanguages()
     {
-        $dc = $this->parseXML();
-        $value = $dc->xpath('//dc:language');
-        $ret = [];
-        foreach ($value as $part) {
-            $ret[] = (string) $part;
-        }
-        return empty($value) ? [] : $ret;
+        return isset($this->fields['language_display_mv']) ? $this->fields['language_display_mv'] : [];
     }
 
     /**
@@ -325,13 +317,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPublishers()
     {
-        $dc = $this->parseXML();
-        $value = $dc->xpath('//dc:publisher');
-        $ret = [];
-        foreach ($value as $part) {
-            $ret[] = (string) $part;
-        }
-        return empty($value) ? [] : $ret;
+        return isset($this->fields['publisher_display_mv']) ? $this->fields['publisher_display_mv'] : [];
     }
 
     /**
