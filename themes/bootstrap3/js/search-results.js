@@ -7,7 +7,6 @@ jQuery( document ).ready( function( $ ) {
     if(typeof Storage == "undefined") {
         console.error( 'localStorage and sessionStorage  are NOT supported in this browser' );
     }
-    console.log(localStorage.getItem('facetsApplied'));
     localStorage.setItem("facetsApplied", parseInt('0'));
 
     /*
@@ -581,8 +580,8 @@ jQuery( document ).ready( function( $ ) {
                         }
                         $('#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort').removeAttr('selected');
 
-						/*
-						 * Opdate sort and limit selects, when moving in history back or forward.
+						/**
+						 * Update sort and limit selects, when moving in history back or forward.
 						 * We need to use this f****** stupid robust solution to prevent
 						 * incompatibility and bad displaying of options that are
 						 * in real selected
@@ -635,26 +634,27 @@ jQuery( document ).ready( function( $ ) {
                             });
                         }
 
-                        if (data['database'] == 'Solr') {
-                            $("#ci-autocomplete-help").attr('class', 'hidden')
-                            $("#autocomplete-help").removeAttr('class')
-                            $("#ci-search-results-rss-help").attr('class', 'hidden')
-                            $("#search-results-rss-help").removeAttr('class')
-                        } else if (data['database'] == "EDS") {
+                        if (data['database'] === 'Solr') {
+                            $("#ci-autocomplete-help").attr('class', 'hidden');
+                            $("#autocomplete-help").removeAttr('class');
+                            $("#ci-search-results-rss-help").attr('class', 'hidden');
+                            $("#search-results-rss-help").removeAttr('class');
+                            $("#ci-advanced-search-help").attr('class', 'hidden');
+                            $("#advanced-search-help").removeAttr('class');
+                        } else if (data['database'] === "EDS") {
                             $("#autocomplete-help").attr('class', 'hidden');
                             $("#ci-autocomplete-help").removeAttr('class');
-                            $("#search-results-rss-help").attr('class', 'hidden')
-                            $("#ci-search-results-rss-help").removeAttr('class')
+                            $("#search-results-rss-help").attr('class', 'hidden');
+                            $("#ci-search-results-rss-help").removeAttr('class');
+                            $("#advanced-search-help").attr('class', 'hidden');
+                            $("#ci-advanced-search-help").removeAttr('class');
                         }
                     },
                     error: function (xmlHttpRequest, status, error) {
                         $('#search-results-loader').remove();
                         console.error(xmlHttpRequest.responseText);
-                        //console.log(xmlHttpRequest);
                         console.error(status);
                         console.error(error);
-                        //console.log( 'Sent data: ' );
-                        //console.log( data );
                     },
                 });
             }
@@ -747,9 +747,9 @@ jQuery( document ).ready( function( $ ) {
             var title = 'New search query';
             var url = '/Search/Results/?' + jQuery.param(data)
             window.history.pushState(stateObject, title, url);
-            //console.log( 'Pushing and replacing state: ' );
-            //console.log( stateObject );
             window.history.replaceState(stateObject, title, url);
+
+            ADVSEARCH.updateDependencies();
         },
 
         /**
@@ -763,8 +763,51 @@ jQuery( document ).ready( function( $ ) {
             var title = 'New search query';
             var url = '/Search/Results/?' + jQuery.param(data)
             window.history.replaceState(stateObject, title, url);
-            ////console.log( 'Replacing state: ' );
-            ////console.log( stateObject );
+
+            ADVSEARCH.updateDependencies();
+        },
+
+        /**
+         * Update dependencies
+         */
+        updateDependencies: function() {
+            // Update Shibboleth's targets in Login IDP links like Angular's Federative Login controller does
+            let newTarget = location.pathname + location.search;
+
+            $( '#loginModal .last-idps a, #loginModal .idp-record a' ).each(function( index, element ) {
+                $( element ).attr( 'href', ADVSEARCH.shibbolethizedUrl($(element).attr('href')) );
+            });
+
+            // Update also last used IDPs in local storage
+            if (null !== localStorage.getItem('__luidps')) {
+                let lastUsedIdps = JSON.parse(localStorage.getItem('__luidps'));
+                for (let i = 0; i < lastUsedIdps.length; i++) {
+                    lastUsedIdps[i].href = ADVSEARCH.shibbolethizedUrl(lastUsedIdps[i].href);
+                }
+                localStorage.setItem('__luidps', JSON.stringify(lastUsedIdps));
+            }
+        },
+
+        /**
+         * Update url with current target location and add auth_method param for Shibboleth
+         * @param   {string} url
+         * @returns {string}
+         */
+        shibbolethizedUrl: function(url) {
+            let oldHref = url;
+            let oldQuery = oldHref.split('?', 2)[1];
+            let newQuery = new URLSearchParams(oldQuery);
+            newQuery.delete('target');
+
+            let newTarget = new URLSearchParams(location.search);
+            newTarget.append('auth_method', 'Shibboleth');
+            newTarget = location.protocol + '//' + location.hostname + location.pathname + '?' + newTarget.toString();
+
+            newQuery.append('target', newTarget);
+
+            let newHref = oldHref.split('?', 2)[0] + '?' + newQuery.toString();
+
+            return newHref;
         },
 
         /**
@@ -1467,6 +1510,7 @@ jQuery( document ).ready( function( $ ) {
         var database = $( this ).attr( 'data-value' );
         var isAdvancedSearch = $( '.basic-search-panel' ).hasClass( 'hidden' );
         extraData['database'] = database;
+        extraData['page'] = '1';
         if (database == 'Solr') {
             $('#searchForm_lookfor').addClass('autocomplete');
         } else {

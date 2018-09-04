@@ -120,7 +120,7 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
                 'name' => $this->lang === 'en' ? $institution['name_en'] : $institution['name_cs'],
                 'name_cs' => $institution['name_cs'],
                 'name_en' => $institution['name_en'],
-                'logo' => $this->logosHelper->getLogo($source),
+                'logo' => $this->logosHelper->getLogo($source, '_small'),
                 'isConsolidation' => $isConsolidation,
                 'warn_msg' => $institution['warn_msg']
             ];

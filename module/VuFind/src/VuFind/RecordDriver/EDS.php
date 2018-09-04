@@ -26,6 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
 namespace VuFind\RecordDriver;
+use DOMDocument;
 
 /**
  * Model for EDS records.
@@ -46,6 +47,13 @@ class EDS extends SolrDefault
      * @var array
      */
     protected $pdfTypes = ['ebook-pdf', 'pdflink'];
+
+    /**
+     * Allowed tags comes from EBSCO in book description
+     *
+     * @var array
+     */
+    private $allowedEbscoTags = ["p", "b", "i", "em", "strong", "a", "span"];
 
     /**
      * Return the unique identifier of this record within the Solr index;
@@ -201,7 +209,7 @@ class EDS extends SolrDefault
         if (isset($this->fields['Items']) && !empty($this->fields['Items'])) {
             foreach ($this->fields['Items'] as $item) {
                 $items[] = [
-                    'Label' => isset($item['Label']) ? $item['Label'] : '',
+                    'Label' => isset($item['Label']) ? (($item['Label'] == 'Source')? 'Published in' : $item['Label']) : '',
                     'Group' => isset($item['Group']) ? $item['Group'] : '',
                     'Data'  => isset($item['Data'])
                         ? $this->toHTML($item['Data'], $item['Group']) : ''
@@ -431,6 +439,40 @@ class EDS extends SolrDefault
     }
 
     /**
+     * Remove DOM element from string with tag content
+     *
+     * @param $str
+     * @return mixed
+     * @internal param $text
+     * @internal param string $tags
+     * @internal param bool $invert
+     */
+    function stripTagsAndAttrs($str)
+    {
+        if (!strlen($str)) {
+            return false;
+        }
+
+        $str = '<span>' . $str . '</span>';
+
+        $xml = new DOMDocument();
+
+        //Suppress warnings: proper error handling is beyond scope of example
+        libxml_use_internal_errors(true);
+        $str = mb_convert_encoding($str, 'HTML-ENTITIES', 'UTF-8');
+
+        if ($xml->loadHTML($str, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            foreach ($xml->getElementsByTagName("*") as $tag) {
+                if (!in_array($tag->tagName, $this->allowedEbscoTags)) {
+                    $tag->parentNode->removeChild($tag);
+                }
+            }
+        }
+
+        return $xml->saveHTML();
+    }
+
+    /**
      * Parse a SimpleXml element and
      * return it's inner XML as an HTML string
      *
@@ -509,10 +551,13 @@ class EDS extends SolrDefault
                 $group = strtolower($group);
                 if (in_array($group, $allowed_searchlink_groups)) {
                     $type = strtoupper($group);
+
+
+
                     $link_xml = '/<searchLink fieldCode="([^\"]*)" '
                         . 'term="%22([^\"]*)%22">/';
                     $link_html
-                        = "<a href=\"../../EDS/Search?lookfor=$2&amp;type={$type}\">";
+                        = "<a href=\"../../EDS/Search?lookfor=$2&amp;type={$type}&amp;searchTypeTemplate=advanced\">";
                     $data = preg_replace($link_xml, $link_html, $data);
                     $data = str_replace('</searchLink>', '</a>', $data);
                 }
@@ -534,6 +579,9 @@ class EDS extends SolrDefault
             $data = $this->replaceBRWithCommas($data, $group);
         }
 
+        //remove prohibited tags
+        $data = $this->stripTagsAndAttrs($data);
+
         return $data;
     }
 
@@ -550,7 +598,7 @@ class EDS extends SolrDefault
         $groupsToReplace = ['au','su'];
         if (in_array($group, $groupsToReplace)) {
             $br =  '/<br \/>/';
-            $comma = ', ';
+            $comma = '<span>, </span>';
             return preg_replace($br, $comma, $data);
         }
         return $data;

@@ -237,18 +237,15 @@
                 ? $this->highlight($summHighlightedAuthor)
                 : $this->escapeHtml($summAuthor);
 
-            $authorityId = $this->driver->getMainAuthorAuthorityId();
-            $secondaryAuthoritiesIds = $this->driver->getSecondaryAuthoritiesIds();
-
             if (isset($authors['main']) && !empty($authors['main'])) {
-                $localAuthorityId = $this->record($this->driver)->getRecordIdByAuthority($authorityId);
+                $localAuthorityRecordId = $this->driver->getMainAuthorAuthorityRecordId();
             }
           ?>
           <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['main'])?>' class='author-info' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['main'])?>">
           <?=$author?>
           </a>
-          <? if (! empty($localAuthorityId)): ?>
-              &nbsp;<a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityId?>"><i class="pr-user-single5 author-icon"></i></a>
+          <? if (! empty($localAuthorityRecordId)): ?>
+              &nbsp;<a title="<?=$this->translate('Show person')?> <?=$authors['main']?>" href="/Record/<?=$localAuthorityRecordId?>"><i class="pr-user-single5 author-icon"></i></a>
           <? endif;
              elseif (isset($authors['corporate']) && !empty($authors['corporate'])):?>
                <a title='<?=$this->translate('Show publications by')?> <?=$this->escapeHtml($authors['corporate'])?>' class='author-info' href="/Search/Results?sort=relevance&join=AND&type0[]=adv_search_author_corporation&bool0[]=AND&searchTypeTemplate=advanced&lookfor0[]=<?=urlencode($authors['corporate'])?>">

@@ -97,7 +97,27 @@
 	    if (idp.warn_msg) {
             alert(VuFind.translate('warning_safety_login'))
         }
+
+        idp.href = updateTargetLocation(idp.href);
+
         window.location.replace(idp.href);
+	}
+
+	function updateTargetLocation(url) {
+        let oldHref = url;
+        let oldQuery = oldHref.split('?', 2)[1];
+        let newQuery = new URLSearchParams(oldQuery);
+        newQuery.delete('target');
+
+        let newTarget = new URLSearchParams(location.search);
+        newTarget.append('auth_method', 'Shibboleth');
+        newTarget = location.protocol + '//' + location.hostname + location.pathname + '?' + newTarget.toString();
+
+        newQuery.append('target', newTarget);
+
+        let newHref = oldHref.split('?', 2)[0] + '?' + newQuery.toString();
+
+        return newHref;
 	}
 
 	function hasLastIdps() {

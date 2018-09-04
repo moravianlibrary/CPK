@@ -10,6 +10,8 @@ class SolrDublinCore extends ParentSolrMarc
 
     protected $ilsConfig = null;
 
+    protected $xmlCache = null;
+
     protected function getILSconfig()
     {
         if ($this->ilsConfig === null)
@@ -117,8 +119,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getAllSubjectHeadings()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:subject');
         $ret = [];
         foreach ($value as $part) {
@@ -258,10 +259,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPrimaryAuthor()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
-        $value = $dc->xpath('//dc:creator');
-        return empty($value) ? "" : (string) $value[0];
+        return isset($this->fields['author_display']) ? $this->fields['author_display'] : '';
     }
 
     /**
@@ -271,14 +269,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getLanguages()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
-        $value = $dc->xpath('//dc:language');
-        $ret = [];
-        foreach ($value as $part) {
-            $ret[] = (string) $part;
-        }
-        return empty($value) ? [] : $ret;
+        return isset($this->fields['language_display_mv']) ? $this->fields['language_display_mv'] : [];
     }
 
     /**
@@ -326,14 +317,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPublishers()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
-        $value = $dc->xpath('//dc:publisher');
-        $ret = [];
-        foreach ($value as $part) {
-            $ret[] = (string) $part;
-        }
-        return empty($value) ? [] : $ret;
+        return isset($this->fields['publisher_display_mv']) ? $this->fields['publisher_display_mv'] : [];
     }
 
     /**
@@ -344,8 +328,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getHumanReadablePublicationDates()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:date');
         $ret = [];
         foreach ($value as $part) {
@@ -440,17 +423,7 @@ class SolrDublinCore extends ParentSolrMarc
 
     public function get856Links()
     {
-        $retVal = array();
-        if (isset($this->fields['url'])) {
-            $retVal[] = $this->fields['url'][0];
-        }
-        else {
-            $fullrecord = $this->fields['fullrecord'];
-            $dc = simplexml_load_string($fullrecord);
-            $value = $dc->isShownAt;
-            $retVal[] = 'manuscript|unknown|' . (string) $value[0];
-        }
-        return $retVal;
+        return isset($this->fields['url']) ? $this->fields['url'] : [];
     }
 
     public function getParentRecordID()
@@ -479,8 +452,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getGeneralNotes()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:description');
         $ret = [];
         foreach ($value as $part) {
@@ -507,8 +479,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getCallNumbers()
     {
-        $fullrecord = $this->fields['fullrecord'];
-        $dc = simplexml_load_string($fullrecord);
+        $dc = $this->parseXML();
         $value = $dc->xpath('//dc:identifier');
         $ret = [];
         foreach ($value as $part) {
@@ -553,6 +524,16 @@ class SolrDublinCore extends ParentSolrMarc
 
         // Try the parent method:
         return parent::getXML($format, $baseUrl, $recordLink);
+    }
+
+    protected function parseXML()
+    {
+        if ( ! isset($this->xmlCache)) {
+            $fullrecord     = $this->getXML('oai_dc');
+            $this->xmlCache = simplexml_load_string($fullrecord);
+        }
+
+        return $this->xmlCache;
     }
 
 }

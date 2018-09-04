@@ -18,12 +18,24 @@ class NCIPRequests {
     protected $agency = null;
     protected $sendUserId = null;
 
-    protected $libsLikeTabor = [
-        'TAG001', 'ULG001', 'KHG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'SOG504', 'PBG001',
+    protected $libsWithClavius = [
+        'TAG001', 'ULG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'PBG001'
     ];
 
-    protected $libsLikeLiberec = [
+    protected $libsWithARL = [
         'LIA001', 'CBA001', 'KLG001',
+    ];
+
+    protected $libsWithVerbis = [
+        'ZLG001'
+    ];
+
+    protected $libsWithTritius = [
+        'SOG504', 'KHG001'
+    ];
+
+    protected $libsNeedsPickUpLocation = [
+        'UOG505', 'ABG001'
     ];
 
     public function __construct($config) {
@@ -110,7 +122,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingItemId($patron, $itemId) {
         $requestType = "Estimate";
-        if (in_array($this->agency, $this->libsLikeTabor)) $requestType = "Hold";
+        if (in_array($this->agency, $this->libsWithClavius)) $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -124,7 +136,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingRequestId($patron, $requestId) {
         $requestType = "Estimate";
-        if (in_array($this->agency, $this->libsLikeTabor)) $requestType = "Hold";
+        if (in_array($this->agency, $this->libsWithClavius)) $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -192,6 +204,27 @@ class NCIPRequests {
         return $this->header() . $body . $this->footer();
     }
 
+    public function LUISBibItemV2($bibId, $nextItemToken = null, XCNCIP2V2 $mainClass = null, $patron = []) {
+        $body = "<ns1:LookupItemSet>";
+        $body .= $this->insertInitiationHeader($patron);
+        if ($mainClass !== null)
+            list ($bibId, $agency) = $mainClass->splitAgencyId($bibId);
+        $body .= $this->insertBibliographicItemIdTag($bibId);
+        $body .= $this->allItemElementType();
+        if (! empty($mainClass->getMaximumItemsCount())) {
+            $body .= "<ns1:MaximumItemsCount>" .
+                htmlspecialchars($mainClass->getMaximumItemsCount()) .
+                "</ns1:MaximumItemsCount>";
+        }
+        if (! empty($nextItemToken)) {
+            $body .= "<ns1:NextItemToken>" . htmlspecialchars($nextItemToken) .
+                "</ns1:NextItemToken>";
+        }
+        $body .= $this->insertExtPatronId($patron);
+        $body .= "</ns1:LookupItemSet>";
+        return $this->header() . $body . $this->footer();
+    }
+
     public function lookupAgency($patron) {
         $body =
         "<ns1:LookupAgency>" .
@@ -222,12 +255,24 @@ class NCIPRequests {
         return $this->header($schemeExtension) . $body . $this->footer();
     }
 
-    public function getLibsLikeTabor() {
-        return $this->libsLikeTabor;
+    public function getLibsWithClavius() {
+        return $this->libsWithClavius;
     }
 
-    public function getLibsLikeLiberec() {
-        return $this->libsLikeLiberec;
+    public function getLibsWithARL() {
+        return $this->libsWithARL;
+    }
+
+    public function getLibsWithVerbis() {
+        return $this->libsWithVerbis;
+    }
+
+    public function getLibsWithTritius() {
+        return $this->libsWithTritius;
+    }
+
+    public function getLibsNeedsPickUpLocation() {
+        return $this->libsNeedsPickUpLocation;
     }
 
     protected function header($ext = '') {
@@ -338,7 +383,7 @@ class NCIPRequests {
     /* Allowed values are: Accession Number, Barcode. */
     protected function insertItemIdentifierType() {
         $itemIdentifierType = "Accession Number";
-        if (in_array($this->agency, $this->libsLikeLiberec)) $itemIdentifierType = "Barcode";
+        if (in_array($this->agency, $this->libsWithARL)) $itemIdentifierType = "Barcode";
         return ($this->noScheme ?
                 "<ns1:ItemIdentifierType>" :
                 "<ns1:ItemIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
@@ -382,7 +427,7 @@ class NCIPRequests {
         $this->insertUserElementType("User Privilege") .
         $this->insertUserElementType("User Id") .
         $this->insertUserElementType("Previous User Id");
-        if (in_array($this->agency, $this->libsLikeLiberec)) {
+        if (in_array($this->agency, $this->libsWithARL)) {
             $body =
             $this->insertUserElementType("Block Or Trap") .
             $this->insertUserElementType("Name Information") .

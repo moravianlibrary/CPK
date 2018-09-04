@@ -3,22 +3,31 @@
   $this->headScript()->appendFile("vendor/oms.min.js");
 ?>
 
-<ul class="nav nav-tabs eds-tabs <?= ($_GET['type0'][0] == 'Libraries') ? ' hidden' : '' ?>" id="set-database">
-    <li<?= empty($_GET['database']) || $_GET['database'] == 'Solr' ? ' class="active"' : '' ?>>
-        <a href="#" data-value="Solr" class="pointer"><i class="pr-web-flagreport"></i> <?=$this->translate('national-sources')?></a>
+<ul class="nav nav-tabs sources-tabs <?= ($this->librarySearch) ? ' hidden' : '' ?>" id="set-database">
+    <li<?= empty($_GET['database']) || $_GET['database'] === 'Solr' ? ' class="active"' : '' ?>>
+        <a href="#" data-value="Solr" class="pointer">
+            <i class="pr-web-flagreport"></i>
+            <?=$this->translate('national-sources')?>
+        </a>
     </li>
-    <li<?=! empty($_GET['database']) && $_GET['database'] == 'EDS' ? ' class="active"' : '' ?>>
-        <a href="#" data-value="EDS" class="pointer"><i class="pr-misc-globe"></i> <?=$this->translate('foreign-sources')?></a>
-    </li>
-    <li class="disabled">
-        <span style="margin-left: 6px;"><?= $this->help()->getQuestionMarkHelp('foreign-sources') ?></span>
+
+    <? if(!$this->themeConfiguration()->themeConfig['hide_eds_source']): ?>
+        <li<?= !empty($_GET['database']) && $_GET['database'] === 'EDS' ? ' class="active"' : '' ?>>
+            <a href="#" data-value="EDS" class="pointer">
+                <i class="pr-misc-globe"></i>
+                <?=$this->translate('foreign-sources')?>
+            </a>
+        </li>
+    <? endif; ?>
+
+    <li class="disabled sources-tabs-question-marc">
+        <?= $this->help()->getQuestionMarkHelp('foreign-sources') ?>
     </li>
 </ul>
 
-<? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
-<? endif; ?>
-
 <?
+  $recordTotal = $this->results->getResultTotal();
+
   // Set up page title:
   $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
   if (isset($this->overrideTitle)) {
@@ -134,9 +143,7 @@
 </script>
 <div id='search-result-list' class="search-result-list">
     <div class='row' id='flashedMessage' style='display: none;'>
-      <div class='col-sm-12'>
-
-      </div>
+        <div class='col-sm-12'></div>
     </div>
 
     <div class="row <?=$this->layoutClass('mainbody')?>">

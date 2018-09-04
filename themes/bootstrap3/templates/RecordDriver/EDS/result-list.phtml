@@ -269,7 +269,7 @@ $accessUrl = $this->driver->getAccessUrl();
 
                         if (edsLinks > maxLinksShown) {
                             ebscoHtml += '<tr><td>';
-                            ebscoHtml += '<div class="margin-bottom">';
+                            ebscoHtml += '<div class="records-in-groups-dropdown">';
                             ebscoHtml += '<div class="btn-group">';
                             ebscoHtml += '<span type="button" class="show-next-links dropdown-toggle" data-toggle="dropdown">';
                             ebscoHtml += '<?=$this->translate("Show next links")?>';
@@ -277,7 +277,7 @@ $accessUrl = $this->driver->getAccessUrl();
                             ebscoHtml += '<ul class="dropdown-menu scrollable-menu" role="menu">';
 
                             for (var i = maxLinksShown; i < edsLinks; i++) {
-                                ebscoHtml += '<li>';
+                                ebscoHtml += '<li class="show-next-links-dropdown-item">';
                                 ebscoHtml += links[i];
                                 ebscoHtml += '</li>';
                             }

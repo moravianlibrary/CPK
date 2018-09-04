@@ -1,0 +1,26 @@
+<?
+// Set page title.
+$this->headTitle('Ziskej');
+
+// Disable search box
+$this->layout()->searchbox = false;
+?>
+
+<div align="center">
+  <form action="/ziskej" id="ziskejForm" method="post" name="ziskejForm">
+    <div class="form-group">
+      <label for="ziskejSelect">ZISKEJ</label>
+      <select name="ziskej" class="form-control" id="ziskejSelect">
+          <? foreach ($this->ziskejConfig as $type): ?>
+            <option
+                value="<?= $this->escapeHtmlAttr($type) ?>"
+                <?= $type == $this->setting ? 'selected' : '' ?>><?= $this->translate(sprintf('Ziskej_%s', $type)) ?></option>
+          <? endforeach; ?>
+      </select>
+    </div>
+    <div class="form-group">
+      <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>"
+             value="<?= $this->translate('Set') ?>">
+    </div>
+  </form>
+</div>

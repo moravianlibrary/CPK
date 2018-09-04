@@ -5,9 +5,6 @@ $format = $this->driver->getPubTypeId();
 $accessLevel = $this->driver->getAccessLevel();
 $restrictedView = empty($accessLevel) ? false : true;
 $id = $this->driver->getUniqueID();
-//var_dump($this->driver); exit();
-//var_dump($items); exit();
-//var_dump($this->driver->getPublishDate()); exit();
 ?>
 
 <div class="clearfix well border table-core" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">

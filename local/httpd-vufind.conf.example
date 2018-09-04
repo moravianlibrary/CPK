@@ -21,8 +21,6 @@
 		SSLOptions +StdEnvVars
    </Directory>
 
-   Alias /piwik /var/www/piwik
-
    DocumentRoot /home/kravec/git/VuFind-2.x/public
 
    AliasMatch ^/themes/([0-9a-zA-Z-_]*)/(css|images|js)/(.*)$ /home/kravec/git/VuFind-2.x/themes/$1/$2/$3
@@ -67,10 +65,10 @@
       Require shibboleth
    </Location>
 
-   # cpk-front.mzk.cz is a config used to develop PerunShibboleth & PiwikStatistics
+   # cpk-front.mzk.cz is a config used to develop PerunShibboleth
    SetEnv VUFIND_LOCAL_DIR /home/kravec/git/VuFind-2.x/local/cpk-front.mzk.cz
 
-   SetEnv VUFIND_LOCAL_MODULES VuFindConsole,Statistics,CPK,Debug
+   SetEnv VUFIND_LOCAL_MODULES VuFindConsole,CPK,Debug
    SetEnv VUFIND_ENV development
    
    # What to show in browser output. Comment the line to hide the errors.

@@ -76,6 +76,8 @@ class JsonFacetListener
 
     protected $parentCount = true;
 
+    protected $hiddenFilters = [];
+
     /**
      * Logger.
      *
@@ -91,7 +93,8 @@ class JsonFacetListener
      *
      * @return void
      */
-    public function __construct(BackendInterface $backend, \Zend\Config\Config $facetConfig)
+    public function __construct(BackendInterface $backend, \Zend\Config\Config $facetConfig,
+        \Zend\Config\Config $searchConfig)
     {
         $this->backend = $backend;
         if (isset($facetConfig->Results_Settings->orFacets)) {
@@ -108,6 +111,9 @@ class JsonFacetListener
         }
         if (!empty($this->orFacets) && $this->orFacets[0] == "*") {
             $this->allFacetsAreOr = true;
+        }
+        if (isset($searchConfig->RawHiddenFilters)) {
+            $this->hiddenFilters = $searchConfig->RawHiddenFilters->toArray();
         }
     }
 
@@ -212,6 +218,9 @@ class JsonFacetListener
             if ($facetField != $field) {
                 $appliedFilters[] = ' ( '. $filter . ' ) ';
             }
+        }
+        foreach ($this->hiddenFilters as $hiddenFilter) {
+            $appliedFilters[] = ' ( ' . $hiddenFilter . '  ) ';
         }
         if (!empty($appliedFilters)) {
             $q .= ' AND ' . implode(' AND ', $appliedFilters);

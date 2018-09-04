@@ -1,0 +1,76 @@
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<style>
+    .form-control {
+      height: 100%;
+      box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    }
+    .lookfor {
+      border-radius: 50px 0 0 50px;
+      width: calc(100% - 210px);
+      min-width: 100px;
+      padding: 1px 6px 1px 6px;
+      color: #555;
+      border: 2px solid #ccc;
+    }
+    .lookfor.center {
+      width: calc(100% - 100px);
+      text-align: center;
+    }
+    .find-button {
+      border-radius: 0 50px 50px 0;
+      border: 2px solid #b71b4b;
+      margin-left: -6px;
+      padding-left: 2px;
+      color: #fff;
+      background-color: #e5004b;
+      width: 100px;
+      font-weight: normal;
+      text-align: center;
+      -ms-touch-action: manipulation;
+      touch-action: manipulation;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    .find-button:hover {
+      background-color: #b2003a;
+    }
+    .logo {
+      height: 44px;
+      display: block;
+      top: -5px;
+    }
+    .logo.center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .logo:not(.center) {
+      float: left;
+      position: relative;
+    }
+    .search-body {
+      height: 34px !important;
+    }
+  </style>
+<body>
+<? ($position == 'top')? $center = 'center':$center = ''?>
+  <a href="https://knihovny.cz" title="Knihovny.cz">
+    <img class="logo <?=$center?>" src="https://knihovny.cz/themes/bootstrap3/images/portalLogos/logo_knihovny.cz.png" alt="Knihovny.cz">
+  </a>
+  <form class="search-body <?=$center?>" method="get" action="https://knihovny.cz/Search/Results" target="_top">
+    <input class="form-control lookfor <?=$center?>" type="text" name="lookfor0[]" value=""
+           placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
+    <input type="hidden" name="searchTypeTemplate" value="basic">
+    <input type="hidden" name="database" value="<?= $database ?>">
+    <input type="hidden" name="type0[]" value="AllFields">
+    <input type="hidden" name="join" value="AND">
+    <input type="hidden" name="bool0[]" value="AND">
+    <input type="hidden" name="page" value="1">
+    <input type="hidden" name="keepEnabledFilters" value="true">
+    <input class="form-control find-button" type="submit" value="<?= $this->translate('Find'); ?>">
+  </form>
+</body>

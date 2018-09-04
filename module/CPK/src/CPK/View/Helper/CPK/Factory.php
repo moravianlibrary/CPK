@@ -156,4 +156,12 @@ class Factory
             : $config->ObalkyKnih->cacheUrl;
         return new ObalkyKnih($cacheUrl);
     }
+
+	public static function getThemeConfiguration(ServiceManager $sm) {
+		$config = $sm->getServiceLocator()
+			->get('VuFind\Config')
+			->get('config');
+
+		return new ThemeConfiguration($config);
+	}
 }

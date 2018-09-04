@@ -115,6 +115,7 @@ class DeduplicationListener
      * @param BackendInterface        $backend          Search backend
      * @param ServiceLocatorInterface $serviceLocator   Service locator
      * @param string                  $searchConfig     Search config file id
+     * @param string                  $facetConfig      Facet config file id
      * @param string                  $dataSourceConfig Data source file id
      * @param bool                    $enabled          Whether deduplication is
      * enabled
@@ -237,7 +238,7 @@ class DeduplicationListener
             if (!isset($fields['merged_boolean'])) {
                 continue;
             }
-            $localIds = $fields['local_ids_str_mv'];
+            $localIds = $this->getLocalRecordIds($fields);
             $dedupId = $localIds[0];
             $priority = 99999;
             $undefPriority = 99999;
@@ -290,7 +291,7 @@ class DeduplicationListener
         }
 
         // Fetch records and assign them to the result:
-        $localRecords = $this->backend->retrieveBatch($idList)->getRecords();
+        $localRecords = $this->retrieveLocalRecords($event, $idList);
         foreach ($result->getRecords() as $record) {
             $dedupRecordData = $record->getRawData();
             if (!isset($dedupRecordData['dedup_id'])) {
@@ -328,6 +329,16 @@ class DeduplicationListener
             $foundLocalRecord->setHighlightDetails($record->getHighlightDetails());
             $result->replace($record, $foundLocalRecord);
         }
+    }
+
+    protected function retrieveLocalRecords($event, $idList)
+    {
+        return $this->backend->retrieveBatch($idList)->getRecords();
+    }
+
+    protected function getLocalRecordIds($fields)
+    {
+        return $fields['local_ids_str_mv'];
     }
 
     /**

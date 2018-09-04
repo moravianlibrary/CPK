@@ -219,6 +219,22 @@ class WidgetContent extends Gateway
     }
 
     /**
+     * Truncate widget content
+     *
+     * @param \CPK\Db\Table\Widget $widget
+     *
+     * @return void
+     */
+    public function truncateWidgetContent(\CPK\Widgets\Widget $widget)
+    {
+        $this->executeAnyZendSQLDelete(
+            (new Delete($this->table))->where([
+                'widget_id' => $widget->getId()
+            ])
+        );
+    }
+
+    /**
      * Returns row by Id
      *
      * @param   \CPK\Widgets\WidgetContent  $widgetContent

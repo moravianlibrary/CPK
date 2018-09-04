@@ -100,4 +100,19 @@ trait LoginTrait
         }
     }
 
+    /**
+     * Process an authentication error.
+     *
+     * @param AuthException $e Exception to process.
+     *
+     * @return void
+     */
+    protected function processAuthenticationException(AuthException $e)
+    {
+        if ($e->getMessage() == 'authentication_error_loggedout') {
+            return;
+        }
+        $this->flashMessenger()->addMessage($e->getMessage(), 'error');
+    }
+
 }
