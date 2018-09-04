@@ -824,7 +824,7 @@ class SearchController extends SearchControllerBase
 	    );
 	    $extraResults = [];
 	    foreach($extraResultsForSwitching->getResults() as $record) {
-	        $extraResults[] = $record->getUniqueId();
+	        $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
 	    }
 
         if ( ! empty($extraResults)) {
@@ -1404,9 +1404,8 @@ class SearchController extends SearchControllerBase
 
         $extraResults = [];
         foreach ($extraResultsForSwitching->getResults() as $record) {
-            $extraResults[] = $record->getUniqueId();
+            $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
         };
-
         $parsedQuery['page'] = $extraRequest['page'];
 
         $query   = http_build_query($parsedQuery, '', '&');

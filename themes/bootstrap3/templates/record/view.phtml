@@ -99,6 +99,7 @@
     <div class="record source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>">
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
+      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getParentRecordID())?>" class="hiddenParentRecordId">
       <?=$this->flashmessages()?>
 
     <!-- Modal -->

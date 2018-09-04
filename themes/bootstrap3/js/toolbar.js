@@ -1,6 +1,6 @@
 /* global VuFind */
 jQuery( document ).ready( function ($) {
-    let id = $( 'body' ).find( '.hiddenId' ).val(),
+    let parentId = $( 'body' ).find( '.hiddenParentRecordId' ).val(),
         referer = getParameterByName( 'referer' ),
         extraRecords = [];
 
@@ -12,7 +12,7 @@ jQuery( document ).ready( function ($) {
     }
     let extraResults = extraRecords.extraResults,
         extraRecordsCount = extraResults.length,
-        currentPosition = extraResults.indexOf( id ),
+        currentPosition = getObjectKeyIndex( extraResults, parentId ),
         recordsSwitching = $( '#records-switching' ),
         database = $( 'input[name=\'database\']' ).val(),
         recordType = '/Record/';
@@ -24,7 +24,7 @@ jQuery( document ).ready( function ($) {
     if (extraRecordsCount > 1 && currentPosition >= 0) {
         recordsSwitching.removeClass( 'hidden' );
         if (currentPosition > 0) {
-            let previousRecordId = extraResults[currentPosition - 1];
+            let previousRecordId = Object.values(extraResults[currentPosition - 1]);
             //create link to prev record with right record type
             recordsSwitching.find( '#extraPrevious' ).
                 attr( 'href', recordType + previousRecordId + '?referer=' + referer );
@@ -45,7 +45,7 @@ jQuery( document ).ready( function ($) {
                 'record' )} ${currentPosition + 1}` );
 
         if (currentPosition < extraRecordsCount - 1) {
-            let nextRecordId = extraResults[currentPosition + 1];
+            let nextRecordId = Object.values(extraResults[currentPosition + 1]);
             //create link to next record with right record type
             recordsSwitching.find( '#extraNext' ).attr( 'href', recordType + nextRecordId + '?referer=' + referer );
         }
@@ -76,10 +76,12 @@ jQuery( document ).ready( function ($) {
         if (direction === 'Previous') {
             let extraResultsCount = extraResults.length;
             recordsSwitching.find( '#extraPrevious' ).
-                attr( 'href', recordType + extraResults[extraResultsCount - 1] + '?referer=' + referer );
+                attr( 'href',
+                    recordType + Object.values(extraResults[extraResultsCount - 1]) + '?referer=' + referer );
         }
         else {
-            recordsSwitching.find( '#extraNext' ).attr( 'href', recordType + extraResults[0] + '?referer=' + referer );
+            recordsSwitching.find( '#extraNext' ).
+                attr( 'href', recordType + Object.values(extraResults[0]) + '?referer=' + referer );
         }
 
         recordsSwitching.find( '#extra' + direction + 'IconSpiner' ).addClass( 'hidden' );
@@ -128,5 +130,17 @@ jQuery( document ).ready( function ($) {
             return '';
         }
         return decodeURIComponent( results[2].replace( /\+/g, ' ' ) );
+    }
+
+    function getObjectKeyIndex (object, keyToFind) {
+        let i = 0, key;
+
+        for (key in object) {
+            if (object[key].hasOwnProperty( keyToFind )) {
+                return i;
+            }
+            i++;
+        }
+        return null;
     }
 } );
