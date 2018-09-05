@@ -439,7 +439,7 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
     protected function getDeduplicationListener(BackendInterface $backend, Config $search)
     {
         $type = $search->Records->deduplication_type;
-        if (isset($type) && $type = 'child') {
+        if (isset($type) && $type == 'child') {
             return new ChildDocDeduplicationListener(
                 $backend,
                 $this->serviceLocator,
