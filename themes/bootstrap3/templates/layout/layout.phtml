@@ -6,13 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
     <?=$this->headMeta()?>
-    <meta property="og:url"                content="https://knihovny.cz/" />
-    <meta property="og:title"              content="Knihovny.cz" />
-    <meta property="og:description"        content="Knihovny pod jednou střechou. Využijte komfort a jednoduchost prohledávání fondů desítek českých knihoven současně. Využijte služeb knihoven, objednávejte, stahujte - kdykoliv a kdekoliv." />
-    <meta property="og:image"              content="https://www.knihovny.cz/themes/bootstrap3/images/screenshot_20171130.png" />
-    <meta property="og:image:secure_url"   content="https://www.knihovny.cz/themes/bootstrap3/images/screenshot_20171130.png" />
-    <meta property="og:image:type"         content="image/png" />
-    <meta name="referrer" content="unsafe-url" />
+    <?=$this->render('layout/head.phtml');?>
     <?=$this->headTitle()?>
     <?
       // Set up OpenSearch link:
