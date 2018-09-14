@@ -1256,7 +1256,7 @@ class SearchController extends SearchControllerBase
         );
         $extraResults = [];
         foreach($extraResultsForSwitching->getResults() as $record) {
-            $extraResults[] = $record->getUniqueId();
+            $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
         }
         $viewData['extraResults'] = $extraResults;
         $viewData['extraPage'] = (integer)$postParams['page'];
