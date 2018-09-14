@@ -34,6 +34,10 @@ class NCIPRequests {
         'SOG504', 'KHG001'
     ];
 
+    protected $libsWithDaVinci = [
+        'ABA008'
+    ];
+
     protected $libsNeedsPickUpLocation = [
         'UOG505', 'ABG001'
     ];
@@ -269,6 +273,10 @@ class NCIPRequests {
 
     public function getLibsWithTritius() {
         return $this->libsWithTritius;
+    }
+
+    public function getLibsWithDaVinci() {
+        return $this->libsWithDaVinci;
     }
 
     public function getLibsNeedsPickUpLocation() {
