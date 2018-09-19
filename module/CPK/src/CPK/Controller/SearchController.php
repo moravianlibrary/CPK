@@ -1388,6 +1388,10 @@ class SearchController extends SearchControllerBase
         $parsedUrl     = parse_url($decodedParams);
 
         parse_str(urldecode($parsedUrl['query']), $parsedQuery);
+        if (! empty($parsedQuery['filter'])) {
+            $decompressedFilters = \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($parsedQuery['filter']));
+            $parsedQuery['filter'] = explode("|", $decompressedFilters);
+        }
 
         $database     = ! empty($parsedQuery['database']) ? $parsedQuery['database'] : $this->searchClassId;
         $extraRequest = $parsedQuery;
