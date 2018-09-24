@@ -12,9 +12,8 @@
             <?= $this->help()->getQuestionMarkHelp('advanced-search') ?>
     	    <a href="#" class='search-type-template-switch'><?=$this->translate("Basic Search")?></a>
     	    <? if($this->searchResults): ?>
-              <? $account = $this->auth()->getManager();
-              if ($account->isLoggedIn() && $account->loginEnabled()): // hide save option if login disabled ?>
-                <span class="save-advanced-search-results">
+              <span class="save-advanced-search-results">
+              <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
                   <? if (is_numeric($this->results->getSearchId())): ?>
                       <? if ($this->results->isSavedSearch()): ?>
                           <a class="save-search-link" id='remove-from-saved-searches' data-search-id='<?=urlencode($this->results->getSearchId())?>' title='<?=$this->translate('Delete saved search')?>'>
@@ -27,8 +26,8 @@
                           </a>
                       <? endif; ?>
                   <? endif; ?>
-                </span>
               <? endif; ?>
+              </span>
          	<? endif; ?>
           </div>
         </div>

@@ -284,8 +284,7 @@
       <? if($this->searchResults): ?>
           <span class="pull-right search-box-right">
           <a href="#" class="search-type-template-switch<?=($catalog == 'catalog') ? '' : ' hidden'?>" id="advancedSearchLink" ><?=$this->translate("Advanced Search")?></a>
-              <? $account = $this->auth()->getManager();
-              if ($account->isLoggedIn() && $account->loginEnabled()): // hide save option if login disabled ?>
+          <? if (($account = $this->auth()->getManager()) && $account->loginEnabled()): // hide save option if login disabled ?>
             <span class='save-basic-search-results'>
               <? if (is_numeric($this->results->getSearchId())): ?>
                   <? if ($this->results->isSavedSearch()): ?>
