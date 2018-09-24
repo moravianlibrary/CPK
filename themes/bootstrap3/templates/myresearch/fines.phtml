@@ -93,7 +93,7 @@
               <th data-key='checkout'><?=$this->transEsc('Fine genesis date')?></th>
               <th data-key='amount'><?=$this->transEsc('Fee')?></th>
         </tr>
-        <tr style="font-weight:bold"><td colspan="3"><?=$this->transEsc('Total Balance Due')?></td><td data-type="sum"></td></tr>
+        <tr id='summary_<?=$identityFines['cat_username']?>' style="font-weight:bold"><td colspan="3"><?=$this->transEsc('Total Balance Due')?></td><td data-type="sum"></td></tr>
         </tbody>
       </table>
     <? endif; ?>

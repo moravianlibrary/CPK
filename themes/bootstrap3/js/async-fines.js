@@ -101,15 +101,21 @@ function updateFinesTable(response) {
 	    
 	    var count = $( 'table[id="' + cat_username + '"] tr.excluded' ).size();
 	    if (count > 0) {
-	    	tableBody.append( '<a id="' + cat_username + '" class="toggler">' + VuFind.translate('show_others') + '</a>' );
+            $( 'tr[id="summary_' + cat_username + '"]' )
+                .before(
+                    '<tr><td colspan="4" class="text-center">' +
+                      '<a id="' + cat_username + '" class="toggler">' +
+                    '    <i class="pr-interface-arrowbottom4" title="' + VuFind.translate("show_others") + '"> </i>' +
+                    '</a>' +
+                    '</td></tr>');
 	    }
 	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
 	    	$(this).toggleClass('more');
 	        if ($(this).is(".more")){
-	        	$(this).text(VuFind.translate('hide_others'));
+	        	$(this).html('<i class="pr-interface-arrowtop4" title="' + VuFind.translate("hide_others") + '"> </i>');
 	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).removeClass('hidden');
 	        } else {
-	        	$(this).text(VuFind.translate('show_others'));
+                $(this).html('<i class="pr-interface-arrowbottom4" title="' + VuFind.translate("show_others") + '"> </i>');
 	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).addClass('hidden');
 	        	window.location = '/MyResearch/Fines#' + parentTable.parent().attr('id');
 	        }
