@@ -80,6 +80,11 @@ class NCIPNormalizer implements LoggerAwareInterface
     /**
      * @var null
      */
+    protected $libsWithTritius = null;
+
+    /**
+     * @var null
+     */
     protected $libsNeedsPickUpLocation = null;
 
     /**
@@ -111,6 +116,7 @@ class NCIPNormalizer implements LoggerAwareInterface
         $this->libsWithClavius = $ncipRequests->getLibsWithClavius();
         $this->libsWithARL = $ncipRequests->getLibsWithARL();
         $this->libsWithVerbis = $ncipRequests->getLibsWithVerbis();
+        $this->libsWithTritius = $ncipRequests->getLibsWithTritius();
         $this->libsNeedsPickUpLocation = $ncipRequests->getLibsNeedsPickUpLocation();
         $this->translator = $translator;
     }
@@ -235,7 +241,6 @@ class NCIPNormalizer implements LoggerAwareInterface
                     foreach ($bibliographicIds as $bibliographicIdKey => $bibliographicId) {
                         $found = $response->getRelative(
                                 $bibliographicId,
-                                'BibliographicItemId',
                                 'BibliographicItemIdentifier'
                             ) !== null;
 
@@ -323,8 +328,7 @@ class NCIPNormalizer implements LoggerAwareInterface
 
                     $id = $response->getRelative(
                         $bibliographicId,
-                        'BibliographicItemId',
-                        'BibliographicItemIdentifier'
+                        'ns1:BibliographicItemIdentifier'
                     );
 
                     if ($id !== null) {
@@ -348,8 +352,8 @@ class NCIPNormalizer implements LoggerAwareInterface
                             $response->setDataValue(
                                 $id,
                                 'ns1:LookupUserResponse',
-                                "ns1:RequestedItem[$i]",
-                                "ns1:BibliographicId[$bibliographicIdKey]",
+                                count($requestedItems) > 1 ? "ns1:RequestedItem[$i]" : "ns1:RequestedItem",
+                                "ns1:BibliographicId",
                                 'ns1:BibliographicItemId',
                                 'ns1:BibliographicItemIdentifier'
                             );
@@ -468,7 +472,11 @@ class NCIPNormalizer implements LoggerAwareInterface
     protected function normalizeLookupAgencyLocations(JsonXML &$response)
     {
         if(!in_array($this->agency, $this->libsNeedsPickUpLocation)) {
-            $response->unsetDataValue('ns1:LookupAgencyResponse', 'ns1:AgencyAddressInformation');
+            if (in_array($this->agency, $this->libsWithTritius)) {
+                $response->unsetDataValue('LookupAgencyResponse', 'AgencyAddressInformation');
+            } else {
+                $response->unsetDataValue('ns1:LookupAgencyResponse', 'ns1:AgencyAddressInformation');
+            }
         }
 
         if ($this->agency === 'ABG001') { // mkp
@@ -526,7 +534,7 @@ class NCIPNormalizer implements LoggerAwareInterface
     {
 
         // Move email where it belongs
-        if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
+        if (in_array($this->agency, $this->libsWithTritius)) {
 
             $uof = $response->get(
                 'LookupUserResponse',
@@ -633,6 +641,13 @@ class NCIPNormalizer implements LoggerAwareInterface
                 $department = isset($parts[0]) ? $parts[0] : '';
                 $collection = isset($parts[1]) ? $parts[1] : '';
 
+                $response->unsetDataValue(
+                    'LookupItemResponse', 'ItemOptionalFields', 'Location', 'LocationName'
+                );
+                $response->unsetDataValue(
+                    'LookupItemResponse', 'ItemOptionalFields', 'Location', 'LocationType'
+                );
+
                 $response->setDataValue(
                     array(
                         array(
@@ -719,12 +734,16 @@ class NCIPNormalizer implements LoggerAwareInterface
     {
         if (
             in_array($this->agency, $this->libsWithClavius)
+            || in_array($this->agency, $this->libsWithTritius)
             || $this->agency === 'AAA001'
-            || $this->agency === 'SOG504'
         ) {
             $holdingSets = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
 
-            $response->unsetDataValue('ns1:LookupItemSetResponse', 'ns1:BibInformation', 'ns1:HoldingsSet');
+            if (in_array($this->agency, $this->libsWithClavius)) {
+                $response->unsetDataValue('ns1:LookupItemSetResponse', 'ns1:BibInformation', 'ns1:HoldingsSet');
+            } else {
+                $response->unsetDataValue('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
+            }
 
             // Rewind holdingSets to ItemInformation ..
             foreach ($holdingSets as $i => $holdingSet) {
@@ -737,43 +756,7 @@ class NCIPNormalizer implements LoggerAwareInterface
                     "ns1:ItemInformation[$i]"
                 );
 
-                if (in_array($this->agency, $this->libsWithClavius)) {
-                    $itemRestrictions = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
-                    if (!$itemRestrictions) {
-                        $response->setDataValue(
-                            'Not For Loan',
-                            'ns1:LookupItemSetResponse',
-                            'ns1:BibInformation',
-                            'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
-                            'ns1:ItemOptionalFields',
-                            "ns1:ItemUseRestrictionType"
-                        );
-                    } elseif (count($itemRestrictions) == 1) {
-                        $response->setDataValue(
-                            $itemRestrictions[0],
-                            'ns1:LookupItemSetResponse',
-                            'ns1:BibInformation',
-                            'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
-                            'ns1:ItemOptionalFields',
-                            "ns1:ItemUseRestrictionType"
-                        );
-                    } else {
-                        foreach ($itemRestrictions as $j => $item) {
-                            $itemText = JsonXML::getElementText($item);
-                            $response->setDataValue(
-                                $itemText,
-                                'ns1:LookupItemSetResponse',
-                                'ns1:BibInformation',
-                                'ns1:HoldingsSet',
-                                "ns1:ItemInformation[$i]",
-                                'ns1:ItemOptionalFields',
-                                "ns1:ItemUseRestrictionType[$j]"
-                            );
-                        }
-                    }
-                }
+                $this->normalizeItemRestrictionType($response, $itemInformation, $i);
             }
         } // End of libsWithARL + AAA001 + SOG504 ...
 
@@ -876,6 +859,8 @@ class NCIPNormalizer implements LoggerAwareInterface
                     }
                 }
 
+                $this->normalizeItemRestrictionType($response, $itemInformation, $i);
+
                 // This condition is very weird ... it would be nice to find out what agency it belongs, to avoid misuse
                 if ($department == 'Podlesí') {
 
@@ -898,92 +883,8 @@ class NCIPNormalizer implements LoggerAwareInterface
         } // End of libsWithARL
 
         if ($this->agency === 'ABA008') { // NLK
-
-            $holdingSets = $response->get('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
-            $response->unsetDataValue('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
-
-            // Rewind holdingSets to ItemInformation ..
-            foreach ($holdingSets as $i => $holdingSet) {
-                $itemInformation = $response->getRelative($holdingSet, 'ItemInformation');
-                $response->setDataValue(
-                    $itemInformation,
-                    'ns1:LookupItemSetResponse',
-                    'ns1:BibInformation',
-                    'ns1:HoldingsSet',
-                    "ns1:ItemInformation[$i]"
-                );
-
-                // Move locations to correct position
-
-                $locations = $response->getArrayRelative($holdingSet, 'Location');
-                if (!empty($locations)) {
-
-                    // We always need department to determine normalization, so parse it unconditionally
-                    $department = null;
-
-                    foreach ($locations as $locElement) {
-                        $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
-                        $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
-                        if (!empty($value)) {
-                            if ($level == '1') {
-                                $department = $value;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($department !== null) {
-
-                        // parse department properly
-
-                        $parts = explode("@", $department);
-                        $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
-                        $parts = explode(" ", $translate, 2);
-                        $department = isset($parts[0]) ? $parts[0] : '';
-                        $collection = isset($parts[1]) ? $parts[1] : '';
-
-                        $response->setDataValue(
-                            array(
-                                array(
-                                    'ns1:LocationName' => array(
-                                        'ns1:LocationNameInstance' => array(
-                                            'ns1:LocationNameLevel' => '1',
-                                            'ns1:LocationNameValue' => $department
-                                        )
-                                    )
-                                ),
-                                array(
-                                    'ns1:LocationName' => array(
-                                        'ns1:LocationNameInstance' => array(
-                                            'ns1:LocationNameLevel' => '2',
-                                            'ns1:LocationNameValue' => $collection
-                                        )
-                                    )
-                                )
-                            ),
-                            'ns1:LookupItemSetResponse',
-                            'ns1:BibInformation',
-                            'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
-                            'ns1:ItemOptionalFields',
-                            'ns1:Location'
-                        );
-                    } else
-                        // Just move it ..
-                        $response->setDataValue(
-                            $locations,
-                            'ns1:LookupItemSetResponse',
-                            'ns1:BibInformation',
-                            'ns1:HoldingsSet',
-                            "ns1:ItemInformation[$i]",
-                            'ns1:ItemOptionalFields',
-                            'ns1:Location'
-                        );
-                }
-            }
-
-
-        } // End of NLK (ABA008)
+            $this->normalizeLookupItemStatus($response);
+        }
 
         if (
             $this->agency === 'ABG001'  // mkp
@@ -1076,7 +977,7 @@ class NCIPNormalizer implements LoggerAwareInterface
                 continue;
             }
 
-            if ($this->agency === 'KHG001' || $this->agency === 'SOG504') {
+            if (in_array($this->agency, $this->libsWithTritius)) {
 
                 // Translate 'dateDue' element to 'DateDue' element
                 $dateDue = $response->getRelative(
@@ -1101,6 +1002,74 @@ class NCIPNormalizer implements LoggerAwareInterface
                         'DateDue'
                     );
             }
+        }
+    }
+
+    protected function normalizeItemRestrictionType(&$response, &$itemInformation, $itemId) {
+        $itemRestrictions = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
+
+        if (!$itemRestrictions) {
+            $response->setDataValue(
+                '',
+                'ns1:LookupItemSetResponse',
+                'ns1:BibInformation',
+                'ns1:HoldingsSet',
+                "ns1:ItemInformation[$itemId]",
+                'ns1:ItemOptionalFields',
+                "ns1:ItemUseRestrictionType"
+            );
+        } elseif (count($itemRestrictions) == 1) {
+            //renew element
+            $response->setDataValue(
+                "",
+                'ns1:LookupItemSetResponse',
+                'ns1:BibInformation',
+                'ns1:HoldingsSet',
+                "ns1:ItemInformation[$itemId]",
+                'ns1:ItemOptionalFields',
+                "ns1:ItemUseRestrictionType"
+            );
+            $response->setDataValue(
+                $itemRestrictions[0],
+                'ns1:LookupItemSetResponse',
+                'ns1:BibInformation',
+                'ns1:HoldingsSet',
+                "ns1:ItemInformation[$itemId]",
+                'ns1:ItemOptionalFields',
+                "ns1:ItemUseRestrictionType[0]"
+            );
+
+            $isOrderable = $itemRestrictions[0] === "Orderable";
+        } else {
+            foreach ($itemRestrictions as $j => $item) {
+                $itemText = JsonXML::getElementText($item);
+                $response->setDataValue(
+                    $itemText,
+                    'ns1:LookupItemSetResponse',
+                    'ns1:BibInformation',
+                    'ns1:HoldingsSet',
+                    "ns1:ItemInformation[$itemId]",
+                    'ns1:ItemOptionalFields',
+                    "ns1:ItemUseRestrictionType[$j]"
+                );
+
+                if ($itemText === "Orderable") {
+                    $isOrderable = true;
+                }
+            }
+        }
+
+        if (isset($isOrderable) && $isOrderable === false) {
+            $j = sizeof($itemRestrictions);
+            $response->setDataValue(
+                'Hide Link',
+                'ns1:LookupItemSetResponse',
+                'ns1:BibInformation',
+                'ns1:HoldingsSet',
+                "ns1:ItemInformation[$itemId]",
+                "ns1:ItemOptionalFields",
+                "ns1:ItemUseRestrictionType[$j]"
+            );
         }
     }
 

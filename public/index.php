@@ -160,7 +160,7 @@ set_error_handler('cpkErrorHandler');
 
 if (isset($_SERVER['SENTRY_SECRET_ID']) && isset($_SERVER['SENTRY_USER_ID'])) {
     $sentryClient = new \Raven_Client(
-        'https://'.$_SERVER['SENTRY_SECRET_ID'].'@sentry.io/'.$_SERVER['SENTRY_USER_ID']
+        'https://f2a8ccfce7ae4ad7ba3663d3aec5680d:626ef59ca39c443f87cb24dd604743be@sentry.io/228256'
     );
     $error_handler = new \Raven_ErrorHandler($sentryClient);
     $error_handler->registerExceptionHandler();

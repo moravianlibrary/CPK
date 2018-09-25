@@ -259,9 +259,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPrimaryAuthor()
     {
-        $dc = $this->parseXML();
-        $value = $dc->xpath('//dc:creator');
-        return empty($value) ? "" : (string) $value[0];
+        return isset($this->fields['author_display']) ? $this->fields['author_display'] : '';
     }
 
     /**
@@ -271,13 +269,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getLanguages()
     {
-        $dc = $this->parseXML();
-        $value = $dc->xpath('//dc:language');
-        $ret = [];
-        foreach ($value as $part) {
-            $ret[] = (string) $part;
-        }
-        return empty($value) ? [] : $ret;
+        return isset($this->fields['language_display_mv']) ? $this->fields['language_display_mv'] : [];
     }
 
     /**
@@ -325,13 +317,7 @@ class SolrDublinCore extends ParentSolrMarc
      */
     public function getPublishers()
     {
-        $dc = $this->parseXML();
-        $value = $dc->xpath('//dc:publisher');
-        $ret = [];
-        foreach ($value as $part) {
-            $ret[] = (string) $part;
-        }
-        return empty($value) ? [] : $ret;
+        return isset($this->fields['publisher_display_mv']) ? $this->fields['publisher_display_mv'] : [];
     }
 
     /**
@@ -437,16 +423,7 @@ class SolrDublinCore extends ParentSolrMarc
 
     public function get856Links()
     {
-        $retVal = array();
-        if (isset($this->fields['url'])) {
-            $retVal[] = $this->fields['url'][0];
-        }
-        else {
-            $dc = $this->parseXML();
-            $value = $dc->isShownAt;
-            $retVal[] = 'manuscript|unknown|' . (string) $value[0];
-        }
-        return $retVal;
+        return isset($this->fields['url']) ? $this->fields['url'] : [];
     }
 
     public function getParentRecordID()

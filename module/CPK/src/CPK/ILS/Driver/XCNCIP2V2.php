@@ -38,6 +38,7 @@ use VuFind\I18n\Translator\TranslatorAwareInterface;
 use VuFind\ILS\Driver\AbstractBase;
 use VuFindHttp\HttpServiceAwareInterface;
 use VuFindHttp\HttpServiceInterface;
+use WebDriver\Exception;
 use Zend\I18n\Translator\TranslatorInterface;
 use Zend\Log\LoggerAwareInterface;
 use Zend\Log\LoggerInterface;
@@ -52,7 +53,7 @@ use Zend\Log\LoggerInterface;
  *          License
  * @link http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, TranslatorAwareInterface, DriverInterface,
+class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, TranslatorAwareInterface, CPKDriverInterface,
     LoggerAwareInterface, MultiBackendInterface
 {
 
@@ -855,25 +856,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
             $itemRestriction = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
 
-            $addLink = false;
-
-            if (
-                !empty($this->hideHoldLinks)
-                || $status === 'Circulation Status Undefined'
-                || $status === 'Not Available'
-                || $status === 'Lost'
-            ) {
-                $addLink = false;
-            } else {
-                foreach ($itemRestriction as $i => $item) {
-                    if ($item === 'Not For Loan') {
-                        $addLink = false;
-                    } elseif ($item === 'Orderable') {
-                        unset($itemRestriction[$i]);
-                        $addLink = true;
-                    }
-                }
-            }
+            $addLink = $this->isLinkAllowed($status, $itemRestriction, $itemInformation);
 
             $retVal[] = array(
                 'id' => empty($bib_id) ? "" : $bib_id,
@@ -1658,22 +1641,31 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      * @param array $itemRestriction
      * @return boolean $addLink
      */
-    protected function isLinkAllowed($status, $itemRestriction)
+    protected function isLinkAllowed($status, &$itemRestriction)
     {
-        if (!empty($this->hideHoldLinks)) {
-            return false;
+        $addLink = true;
+        if (
+            !empty($this->hideHoldLinks)
+            || $status === 'Circulation Status Undefined'
+            || $status === 'Not Available'
+            || $status === 'Lost'
+            || $itemRestriction[0] === 'Not For Loan'
+        ) {
+            $addLink = false;
         }
 
-        foreach ($itemRestriction as $item) {
-            if ($item === 'Not For Loan') {
-                return false;
+        foreach ($itemRestriction as $i => $item) {
+            if ($item === 'Orderable') {
+                unset($itemRestriction[$i]);
+                //reindex array
+                $itemRestriction = array_values($itemRestriction);
+                $addLink = true;
+            } elseif ($item === "Hide Link") {
+                $addLink = false;
             }
         }
 
-        if (($status === 'Circulation Status Undefined') || ($status === 'Not Available') || ($status === 'Lost'))
-            return false;
-
-        return true;
+        return $addLink;
     }
 
     /**

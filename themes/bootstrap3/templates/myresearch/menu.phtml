@@ -46,12 +46,6 @@
 	        <span class="pull-right flip"><i class="pr-setting-gear2"></i></span>
 	      </a>
 	    <? endif; ?>
-	    <? if (! empty($user['major'])): ?>
-	      <a href="<?=$this->url('statistics-dashboard')?>" class="list-group-item<?=$this->active == 'statistics' ? ' active' : ''?>">
-	        <?=$this->transEsc('Statistics')?>
-	        <span class="pull-right flip"><i class="pr-web-trafficstatisticgraph2"></i></span>
-	      </a>
-	    <? endif; ?>
 
 	  <? endif; ?>
   <? endif; ?>
