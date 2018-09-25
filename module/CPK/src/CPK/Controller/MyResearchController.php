@@ -1094,6 +1094,8 @@ class MyResearchController extends MyResearchControllerBase
 
         $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
         $viewVars['availableCitationStyles'] = $availableCitationStyles;
+        $viewVars['institutions']            = $this->getInstitutions($user, true);
+        $viewVars['preferredInstitutions']   = array_filter($userSettingsTable->getSavedInstitutions($user));
 
         /* Records per page fieldset */
         $searchesConfig = $this->getConfig('searches');
@@ -1240,6 +1242,64 @@ class MyResearchController extends MyResearchControllerBase
             $this->getRequest()->getQuery()->set('saved', $id);
             return $this->forwardTo('Search', 'Results');
         }
+    }
+
+    /*
+     * Get institutions from Solr
+     *
+     * @param \CPK\Db\Row\User
+     * @param bool $withoutUserSavedInstitution
+     *
+     * @return array
+     */
+    public function getInstitutions(\CPK\Db\Row\User $user, $withoutUserSavedInstitution = false)
+    {
+        $results = $this->getServiceLocator()->get('VuFind\SearchResultsPluginManager')->get('Solr');
+        $params = $results->getParams();
+        $params->addFacet('local_institution_facet_str_mv', 'Institutions');
+        $params->setLimit(0);
+        $params->setFacetLimit(10000);
+        $results->getResults();
+        $facets = $results->getFacetList()['local_institution_facet_str_mv']['list'];
+        foreach ($facets as $key => $facet) {
+            if (in_array(substr($facet['value'], 0, 1), ['0', '1'])) {
+                unset($facets[$key]);
+            }
+        }
+        if ($withoutUserSavedInstitution) {
+            $savedInstitutions = $this->getTable("usersettings")->getSavedInstitutions($user);
+
+            if (! empty($savedInstitutions)) {
+                foreach ($facets as $key => $facet) {
+                    if (in_array($facet['value'], $savedInstitutions)) {
+                        unset($facets[$key]);
+                    }
+                }
+            }
+        }
+        return $facets;
+    }
+    /**
+     * Updates user's saved institution
+     *
+     * @return mixed|\Zend\Http\Response|\Zend\Http\Response
+     */
+    public function userUpdateSavedInstitutionAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+        $institution = $this->params()->fromPost('institution', $this->params()->fromQuery('institution'));
+        if ($institution) {
+            if ($this->params()->fromQuery('action') == 'removeSavedInstitution') {
+                $this->getTable("usersettings")->removeSavedInstitution($user, $institution);
+            } else {
+                $this->getTable("usersettings")->saveInstitution($user, $institution);
+            }
+        }
+        return $this->redirect()->toRoute('myresearch-settings');
     }
 
     /**

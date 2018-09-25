@@ -1570,7 +1570,6 @@ class AjaxController extends AjaxControllerBase
             return $this->forceLogin();
         }
 
-        $savedInstitutions = '';
         try {
             $userSettingsTable = $this->getTable("usersettings");
             $savedInstitutions = $userSettingsTable->getSavedInstitutions($user);
