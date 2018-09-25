@@ -1025,15 +1025,9 @@ class SolrMarc extends ParentSolrMarc
     {
         $series = $this->fields['monographic_series_display_mv'] ?: false;
         if (! $series && $searchAlsoInParentRecord) {
-            $series = $this->getParentsMonographicSeries();
+            $series = $this->getParentRecordDriver()->getMonographicSeries(false);
         }
         return $series;
-    }
-
-    public function getParentsMonographicSeries()
-    {
-        $parentRecordDriver = $this->recordLoader->load($this->getParentRecordID());
-        return $parentRecordDriver->getMonographicSeries(false);
     }
 
     public function getMonographicSeriesUrl(string $serie)

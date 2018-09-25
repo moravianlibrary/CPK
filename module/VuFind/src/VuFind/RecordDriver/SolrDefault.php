@@ -126,6 +126,8 @@ class SolrDefault extends AbstractBase
      */
     protected $containerLinking = false;
 
+    protected $parentRecordDriver = null;
+
     /**
      * Constructor
      *
@@ -1799,5 +1801,23 @@ class SolrDefault extends AbstractBase
         return $this->containerLinking
             && !empty($this->fields['hierarchy_parent_id'])
             ? $this->fields['hierarchy_parent_id'][0] : '';
+    }
+
+    /**
+     * Get parent record driver
+     *
+     * @return SolrDefault|null
+     */
+    protected function getParentRecordDriver()
+    {
+        if ($this->parentRecordDriver === null) {
+            $parentRecordID = $this->getParentRecordID();
+            if ($this->recordLoader === null) {
+                $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+            }
+            $this->parentRecordDriver = $this->recordLoader->load($parentRecordID);
+        }
+
+        return $this->parentRecordDriver;
     }
 }
