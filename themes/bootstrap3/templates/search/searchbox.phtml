@@ -4,7 +4,7 @@
         $this->searchClassId = 'Solr';
     }
 
-    $this->librarySearch = $this->layout()->librarySearch;
+    $this->librarySearch = $this->librarySearch || $this->layout()->librarySearch;
 
     // Load search actions and settings (if any):
     $options = $this->searchOptions($this->searchClassId);

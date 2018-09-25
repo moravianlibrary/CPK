@@ -58,7 +58,15 @@ class RecordController extends RecordControllerBase
      */
     protected $logStatistics = false;
 
+
     protected $parentRecordDriver = null;
+
+    protected function createViewModel($params = null)
+    {
+        $this->layout()->librarySearch = ($this->driver instanceof \CPK\RecordDriver\SolrLibrary);
+        return parent::createViewModel($params);
+    }
+
 
     /**
      * Display a particular tab.
