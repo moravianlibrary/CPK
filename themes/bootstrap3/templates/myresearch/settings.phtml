@@ -20,7 +20,8 @@
           <legend><?=$this->translate('Citations style') ?></legend>
           <select name='citation-style' id="citation-style" class="form-control">
           <? foreach ($this->availableCitationStyles as $style): ?>
-            <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected="selected"' : '' ?> value='<?=$style['id']?>'>
+            <option<?= ($this->selectedCitationStyle === $style['id']) ? ' selected="selected"' : '' ?>
+              value='<?=$style['id']?>'>
               <?=$style['description']?>
             </option>
           <? endforeach; ?>
@@ -31,7 +32,8 @@
           <legend><?=$this->translate('Records per page') ?></legend>
           <select name='records-per-page' id="records-per-page" class="form-control">
           <? foreach ($this->recordsPerPageOptions as $option): ?>
-            <option<?= ($this->selectedRecordsPerPageOption == $option) ? ' selected="selected"' : '' ?> value='<?=$option?>'>
+            <option<?= ($this->selectedRecordsPerPageOption == $option) ? ' selected="selected"' : '' ?>
+              value='<?=$option?>'>
               <?=$option?>
             </option>
           <? endforeach; ?>
@@ -79,7 +81,8 @@
                         <?=$this->translate($institution)?>
                       </td>
                       <td>
-                        <a href='/MyResearch/userUpdateSavedInstitution?action=removeSavedInstitution&institution=<?=$institution?>'
+                        <a href='/MyResearch/userUpdateSavedInstitution
+                                 ?action=removeSavedInstitution&institution=<?=$institution?>'
                            title='<?=$this->translate('Remove')?>'
                            class='pr-interface-crosscancel3 pull-right settings-preferred-institution'>
                         </a>
