@@ -1,16 +1,13 @@
 <?
     /*
-    * This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
+    * This handles Shibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
     * This part checks if ShibAssertion export is enabled if [Shibboleth] config section & if it is, it gets those assertions
     */
     $authManager = $this->auth()->getManager();
     $assertionExportEnabled = false;
     $isActiveShibbolethIdentityManager = false;
     if ($authManager instanceof \CPK\Auth\Manager) {
-        if ($authManager->getAuthMethod() === "PerunShibboleth") {
-            $authMethod = $authManager->getAuthInstance("PerunShibboleth");
-
-        } elseif($authManager->getAuthMethod() === "ShibbolethIdentityManager") {
+        if ($authManager->getAuthMethod() === "ShibbolethIdentityManager") {
             $authMethod = $authManager->getAuthInstance("ShibbolethIdentityManager");
             $isActiveShibbolethIdentityManager = true;
         }
@@ -28,7 +25,7 @@
 
 <?
 /*
-* This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
+* This handles Shibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
 * This part creates button to show/hide division containing messages, which is created later
 */
 if($assertionExportEnabled): ?>
@@ -51,7 +48,7 @@ onclick="handleShibAssertion()">Show Shib Assertions</button>
 
 <?
 /*
-* This handles PerunShibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
+* This handles Shibboleth's Assertions returned by Shibboleth SP to easily detect returned attributes
 * This part echoes messages to separate division to have it beautiful.
 */
 if($assertionExportEnabled): ?>
