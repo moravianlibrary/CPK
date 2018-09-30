@@ -10,9 +10,10 @@
     <li>
       <a title='{$this->transEsc('Your Account')}' href='/MyResearch/Home'>{$this->translate('Your Account')}</a>
     </li>
-    <li class='active'>
+    <li>
       <a title='{$this->transEsc('Administration')}' href='/Admin/Home'>{$this->translate('Administration')}</a>
-    </li>";
+    </li>
+    <li class='active'>{$this->translate('Permissions manager')}</li>";
 
   $this->headScript()->appendFile('admin/permissions-manager.js');
   $this->layout()->title = $this->translate('Permissions manager');

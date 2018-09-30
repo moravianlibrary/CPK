@@ -3,12 +3,20 @@
   $this->headTitle($this->translate('Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = 
-      '<li><a title="' . $this->transEsc('Main page') . '" href="/">' .$this->transEsc('Main page') . '</a></li>' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/PermissionsManager">'.$this->transEsc('Permissions manager').'</a></li>'.
-      '<li class="active">'.$this->translate('Add user').'</li>';
+  $this->layout()->breadcrumbs = "
+    <li>
+      <a title='{$this->transEsc('Main page')}' href='/Search'>{$this->translate('Main page')}</a>
+    </li>
+    <li>
+      <a title='{$this->transEsc('Your Account')}' href='/MyResearch/Home'>{$this->translate('Your Account')}</a>
+    </li>
+    <li>
+      <a title='{$this->transEsc('Administration')}' href='/Admin/Home'>{$this->translate('Administration')}</a>
+    </li>
+    <li class='active'>
+      <a title='{$this->transEsc('Permissions manager')}' href='/Admin/PermissionsManager'>{$this->translate('Permissions manager')}</a>
+    </li>
+    <li class='active'>{$this->translate('Add user')}</li>";
 
   $this->layout()->title = $this->translate('Add user');
   $this->headScript()->appendFile('admin/add-user-with-permissions.js');
