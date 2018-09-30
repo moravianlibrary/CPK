@@ -4,10 +4,10 @@
     $this->headScript()->appendFile('//cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js');
     $templateName = strtolower($this->layout()->templateName);
 ?>
-<aside class='well list-group aside-menu'>
+<aside class='well list-group aside-menu admin-menu'>
   <a href='/Admin/Configurations'
      class='list-group-item<?=$templateName == 'configurations/main' ? ' active' : ''?>'>
-      <?=$this->transEsc('configurations')?>
+    <?=$this->transEsc('configurations')?>
   </a>
 
   <? if ($isPortalAdmin): ?>
@@ -15,14 +15,17 @@
        class='list-group-item<?=$templateName == 'configurations/approval' ? ' active' : ''?>'>
       <?=$this->transEsc('configurations_approval')?>
     </a>
+
     <a href='/Admin/PortalPages'
        class='list-group-item<?=$templateName == 'portalpages' ? ' active' : ''?>'>
       <?=$this->transEsc('Portal pages')?>
     </a>
+
     <a href='/Admin/PermissionsManager'
        class='list-group-item<?=$templateName == 'permissions-manager' ? ' active' : ''?>'>
       <?=$this->transEsc('Permissions manager')?>
     </a>
+
     <a href='/Admin/Widgets'
        class='list-group-item<?=$templateName == 'widgets/main' ? ' active' : ''?>'>
       <?=$this->transEsc('Widgets')?>
