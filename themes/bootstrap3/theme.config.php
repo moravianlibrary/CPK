@@ -40,7 +40,8 @@ $toRet = array(
     ),
     'less' => array(
         'active' => false,
-        'compiled.less'
+        'compiled.less',
+        'embedded.less'
     ),
     'favicon' => 'favicon.ico',
     'helpers' => array(
