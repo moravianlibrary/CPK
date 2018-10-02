@@ -367,10 +367,7 @@ jQuery( document ).ready( function( $ ) {
                 if (response.status == 'OK') {
                     $('#facet_institution').jstree(true).deselect_all();
 
-                    var csvInstitutions = response.data.savedInstitutions;
-
-                    var arrayInstitutions = csvInstitutions.split(";");
-
+                    let arrayInstitutions = response.data.savedInstitutions;
 
                     $.each( arrayInstitutions, function( index, value ){
                         var institution = '~local_institution_facet_str_mv:"' + value + '"';

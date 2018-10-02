@@ -74,7 +74,7 @@ class UserSettings extends Gateway
     /**
      * Returns citation style for user from user_settings table
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      *
      * @return string
      */
@@ -97,7 +97,7 @@ class UserSettings extends Gateway
     /**
      * Returns whether user has a row in user_settings table
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      *
      * @return bool
      */
@@ -120,7 +120,7 @@ class UserSettings extends Gateway
     /**
      * Set preferred citation style into user_settings table
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      * @param string $citationStyleValue
      *
      * @return void
@@ -158,7 +158,7 @@ class UserSettings extends Gateway
     /**
      * Set preferred amount of records per page for user into user_settings table
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      * @param tinyInt $recordsPerPage
      *
      * @return void
@@ -196,7 +196,7 @@ class UserSettings extends Gateway
     /**
      * Returns records per page for user from user_settings table
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      *
      * @return tinyInt
      */
@@ -219,7 +219,7 @@ class UserSettings extends Gateway
     /**
      * Returns sorting of user settings from user_settings table
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      *
      * @return string
      */
@@ -242,7 +242,7 @@ class UserSettings extends Gateway
     /**
      * Set preferred sorting for user into user_settings table
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      * @param string $preferredSorting
      *
      * @return void
@@ -280,7 +280,7 @@ class UserSettings extends Gateway
     /**
      * Save chosen institutions to DB
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      * @param array $institutions
      *
      * @return void
@@ -324,9 +324,9 @@ class UserSettings extends Gateway
     /**
      * Get saved institutions
      *
-     * @param VuFind\Db\Row\User $user
+     * @param \VuFind\Db\Row\User $user
      *
-     * @return string
+     * @return array
      */
     public function getSavedInstitutions(\CPK\Db\Row\User $user)
     {
@@ -341,6 +341,42 @@ class UserSettings extends Gateway
         $select->where($predicate);
 
         $result = $this->executeAnyZendSQLSelect($select)->current();
-        return $result['saved_institutions'];
+        return explode(";", $result['saved_institutions']);
+    }
+
+    /**
+     * Remove saved institutions
+     *
+     * @param \VuFind\Db\Row\User $user
+     * @param string $institutionToRemove
+     *
+     * @return string
+     */
+    public function removeSavedInstitution(\CPK\Db\Row\User $user, $institutionToRemove)
+    {
+        $institutions = $this->getSavedInstitutions($user);
+        if (! empty($institutions)) {
+            foreach ($institutions as $key => $institution) {
+                if ($institution == $institutionToRemove) {
+                    unset($institutions[$key]);
+                }
+            }
+            $this->saveTheseInstitutions($user, $institutions);
+        }
+    }
+    /**
+     * Save institution
+     *
+     * @param \VuFind\Db\Row\User $user
+     * @param string $institutionToSave
+     *
+     * @return void
+     */
+    public function saveInstitution(\CPK\Db\Row\User $user, $institutionToSave)
+    {
+        $institutions = $this->getSavedInstitutions($user);
+
+        $institutions[] = $institutionToSave;
+        $this->saveTheseInstitutions($user, $institutions);
     }
 }
