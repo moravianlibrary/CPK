@@ -119,16 +119,6 @@ class HeadThemeResources extends \Zend\View\Helper\AbstractHelper
                 isset($parts[2]) ? trim($parts[2]) : false
             );
         }
-
-        // If we have a favicon, load it now:
-        $favicon = $this->container->getFavicon();
-        if (!empty($favicon)) {
-            $imageLink = $this->getView()->plugin('imagelink');
-            $headLink([
-                'href' => $imageLink($favicon),
-                'type' => 'image/x-icon', 'rel' => 'shortcut icon'
-            ]);
-        }
     }
 
     /**

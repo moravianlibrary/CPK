@@ -1,6 +1,8 @@
 <?
   // Set page title.
-  $this->headTitle($this->translate('Knihovny.cz'));
+  //$this->headTitle($this->translate('Knihovny.cz'));
+  $title = (!empty($this->themeConfiguration()->themeConfig['title'])? $this->themeConfiguration()->themeConfig['title'] : "Knihovny.cz");
+  $this->headTitle($this->translate($title));
 
   // Disable top search box -- this page has a special layout.
   $this->layout()->searchbox = false;
