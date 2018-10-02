@@ -67,7 +67,6 @@ default_core    = beta
 harvest_ebooks_limit = 500 000
 
 [Authentication]
-;method		= PerunShibboleth
 method		= ShibbolethIdentityManager
 ;method		= ShibbolethWithWAYF
 

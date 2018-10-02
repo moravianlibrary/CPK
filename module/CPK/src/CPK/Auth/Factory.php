@@ -78,21 +78,6 @@ class Factory
             $cookieManager, $userSettingsTable);
     }
 
-    /**
-     * Factory for PerunShibboleth.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return PerunShibboleth
-     */
-    public static function getPerunShibboleth(ServiceManager $sm)
-    {
-        return new \CPK\Auth\PerunShibboleth(
-                $sm->getServiceLocator()->get('VuFind\Config'),
-                $sm->getServiceLocator()->get('Perun\IdentityResolver')
-            );
-    }
-
     public static function getShibbolethIdentityManager(ServiceManager $sm) {
 
         return new ShibbolethIdentityManager($sm->getServiceLocator());

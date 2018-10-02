@@ -64,7 +64,6 @@ $config = array(
             ], /* recommend */
             'auth' => array(
                 'factories' => array(
-                    'perunShibboleth' => 'CPK\Auth\Factory::getPerunShibboleth',
                     'shibbolethIdentityManager' => 'CPK\Auth\Factory::getShibbolethIdentityManager'
                 ), /* factories */
             ), /* auth */
