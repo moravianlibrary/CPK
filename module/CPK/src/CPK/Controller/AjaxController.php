@@ -2472,6 +2472,9 @@ class AjaxController extends AjaxControllerBase
     protected function sortLinksByMyLibraries($htmlLinks)
     {
         $myLibs = $this->getUsersHomeLibraries();
+        $available = isset($this->getConfig()->Preferred_Institutions->list);
+        $preferred = ($available)? $this->getConfig()->Preferred_Institutions->list->toArray() : [];
+        $myLibs = array_merge($myLibs, $preferred);
 
         if (! empty($myLibs)) {
             $preferredLinks = [];
