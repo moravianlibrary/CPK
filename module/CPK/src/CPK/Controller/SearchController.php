@@ -807,9 +807,7 @@ class SearchController extends SearchControllerBase
 	        'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' .
 	        "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"
 	    );
-
 	    $view->referer = $referer;
-
 	    $view->searchClassId = $database;
 
 	    /* Get more results for swithing to next/previous record of search results */
@@ -818,20 +816,24 @@ class SearchController extends SearchControllerBase
 	    $extraRequest = $this->getRequest()->getQuery()->toArray()
 	    + $this->getRequest()->getPost()->toArray();
 
-	    $searchesConfig = $this->getConfig('searches');
-	    $extraRequest['limit'] = $searchesConfig->General->records_switching_limit;
-	    $extraRequest['page'] = 1;
-        $database = ! empty($request['database']) ? $request['database'] : $this->searchClassId;
+	    $extraRequest['limit'] = (integer)$results->getParams()->getLimit();
+	    $extraRequest['page'] = $results->getParams()->getPage();
+	    $database = ! empty($request['database']) ? $request['database'] : $this->searchClassId;
 	    $extraResultsForSwitching = $runner->run(
 	        $extraRequest, $database, $this->getSearchSetupCallback()
 	    );
 	    $extraResults = [];
 	    foreach($extraResultsForSwitching->getResults() as $record) {
-	        $extraResults[] = $record->getUniqueId();
+	        $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
 	    }
-	    $view->extraResults = $extraResults;
-	    $view->referer = $referer;
-	    /**/
+
+        if ( ! empty($extraResults)) {
+            $view->extraResults = json_encode([
+                'referer'      => $referer,
+                'extraResults' => $extraResults,
+                'extraPage'    => $extraRequest['page'],
+            ]);
+        }
 
 	    $user = $this->getAuthManager()->isLoggedIn();
 
@@ -1247,16 +1249,18 @@ class SearchController extends SearchControllerBase
 
         /* Get more results for swithing to next/previous record of search results */
         $extraRequest = $request;
-        $extraRequest['limit'] = $searchesConfig->General->records_switching_limit;
-        $extraRequest['page'] = 1;
+        $extraRequest['limit'] = (integer)$postParams['limit'];
+        $extraRequest['page'] = (integer)$postParams['page'];
         $extraResultsForSwitching = $runner->run(
             $extraRequest, $database, $this->getSearchSetupCallback()
         );
         $extraResults = [];
         foreach($extraResultsForSwitching->getResults() as $record) {
-            $extraResults[] = $record->getUniqueId();
+            $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
         }
         $viewData['extraResults'] = $extraResults;
+        $viewData['extraPage'] = (integer)$postParams['page'];
+
         // If we received an EmptySet back, that indicates that the real search
         // failed due to some kind of syntax error, and we should display a
         // warning to the user; otherwise, we should proceed with normal post-search
@@ -1372,6 +1376,54 @@ class SearchController extends SearchControllerBase
 	    return $data;
     }
 
+    public function ajaxExtraResultsAction(array $postParams)
+    {
+        $data   = [];
+        $runner = $this->getServiceLocator()->get('VuFind\SearchRunner');
+
+        if (empty($postParams['referer'])) {
+            return $data;
+        }
+        $decodedParams = $this->base64url_decode($postParams['referer']);
+        $parsedUrl     = parse_url($decodedParams);
+
+        parse_str(urldecode($parsedUrl['query']), $parsedQuery);
+        if (! empty($parsedQuery['filter'])) {
+            $decompressedFilters = \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($parsedQuery['filter']));
+            $parsedQuery['filter'] = explode("|", $decompressedFilters);
+        }
+
+        $database     = ! empty($parsedQuery['database']) ? $parsedQuery['database'] : $this->searchClassId;
+        $extraRequest = $parsedQuery;
+
+        $extraRequest['searchResultsUrl'] = $decodedParams;
+        $extraRequest['limit']            = isset($parsedQuery['limit']) ? (integer)$parsedQuery['limit'] : 20;
+
+        $extraPage            = isset($parsedQuery['page']) ? (integer)$parsedQuery['page'] : 1;
+        $extraRequest['page'] = $postParams['direction'] == 'previous' ? $extraPage - 1 : $extraPage + 1;
+
+        $extraResultsForSwitching = $runner->run(
+            $extraRequest, $database, $this->getSearchSetupCallback()
+        );
+
+        $extraResults = [];
+        foreach ($extraResultsForSwitching->getResults() as $record) {
+            $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
+        };
+        $parsedQuery['page'] = $extraRequest['page'];
+
+        $query   = http_build_query($parsedQuery, '', '&');
+        $query   = urlencode(preg_replace('/%5B[0-9]+%5D/simU', '%5B%5D', $query));
+        $referer = $this->base64url_encode(sprintf('%s://%s%s?%s', $parsedUrl['scheme'], $parsedUrl['host'],
+            $parsedUrl['path'], $query));
+
+        $data['extraResults'] = $extraResults;
+        $data['extraPage']    = $extraRequest['page'];
+        $data['referer']      = $referer;
+
+        return $data;
+    }
+
     /**
      * Return a list of urls for sorting, along with which option
      *    should be currently selected.
@@ -1475,8 +1527,19 @@ class SearchController extends SearchControllerBase
         return $html;
     }
 
-    protected function base64url_encode($data) {
+    protected function base64url_encode($data)
+    {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    protected function base64url_decode($data)
+    {
+        return base64_decode(str_pad(
+                strtr($data, '-_', '+/'),
+                strlen($data) % 4,
+                '=',
+                STR_PAD_RIGHT)
+        );
     }
 
     /**
