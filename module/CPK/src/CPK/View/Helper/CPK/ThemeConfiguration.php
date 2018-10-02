@@ -46,7 +46,8 @@ class ThemeConfiguration extends AbstractHelper
 		'hide_inspirations'    => false,
 		'hide_library_search'  => false,
 		'hide_switch_language' => false,
-		'hide_eds_source'      => false
+		'hide_eds_source'      => false,
+		'logo_href'            => '/Search/Home',
 	];
 
 	/**
