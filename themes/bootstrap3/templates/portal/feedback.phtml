@@ -63,8 +63,7 @@ $this->feedback()->hideFeedbackModalButton = true;
                    value='<?= ($this->email) ? htmlspecialchars($this->email) : htmlspecialchars($this->userEmail) ?: '' ?>'
                    required>
           <? else: ?>
-            <input id="feedback_email" type='email' name='email' class='form-control' required
-                   oninvalid="this.setCustomValidity('<?= $this->translate('feedback_email_invalid') ?>')">
+            <input id="feedback_email" type='email' name='email' class='form-control' required>
           <? endif; ?>
       </fieldset>
     </div>
