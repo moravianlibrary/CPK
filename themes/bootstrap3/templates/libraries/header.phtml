@@ -1,13 +1,17 @@
 <h1><?=$this->translate('Find your library')?></h1>
 <script>
-    $(function() {
-        $( "#libraries-autocomplete" ).autocomplete({
-            source: "/Libraries/autocompleteJson"
-        });
-    });
+  $(function() {
+      $( "#libraries-autocomplete" ).autocomplete({
+          source: "/Libraries/autocompleteJson"
+      });
+  });
 </script>
 <form class="find-form text-center" action="/Libraries/List/" method="get">
-    <input class="form-control find-input" name="query" id="libraries-autocomplete" placeholder="<?=$this->translate('Search by city or library name')?>" value="<?=$this->layout()->query ?>"/>
+    <input class="form-control find-input"
+           name="query"
+           id="libraries-autocomplete"
+           placeholder="<?=$this->translate('autocomplete-placeholder-libraries')?>"
+           value="<?=$this->layout()->query ?>"/>
     <button href="/Libraries/List/" class="btn btn-primary find-button"><?=$this->translate('look_for')?></button>
 </form>
 <div class="col-md-12 text-center" style="margin-top: 10px;">

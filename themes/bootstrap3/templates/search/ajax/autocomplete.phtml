@@ -243,7 +243,7 @@
 	      <input type="hidden" name="sort" value="<?=$this->escapeHtmlAttr($lastSort)?>">
 	    <? endif; ?>
 
-        <a href='<?=$searchUrl?>?lookfor=&type0[]=AllFields&searchTypeTemplate=basic&database=Solr' id='run-autocomplete' class="btn btn-primary find-button form-control" title='<?=$this->transEsc("Find")?>'>
+        <a href='<?=$searchUrl?>?lookfor=&amp;type0[]=AllFields&amp;searchTypeTemplate=basic&amp;database=Solr' id='run-autocomplete' class="btn btn-primary find-button form-control" title='<?=$this->transEsc("Find")?>'>
           <i class="pr-interface-search"></i>
           <span> <?=$this->transEsc("Find")?></span>
         </a>
@@ -303,14 +303,16 @@
           </span>
       <? elseif ($this->layout()->frontpage): ?>
           <div class='col-md-12 text-center homepage-advanced-search-link'>
-    		<a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&database=Solr&limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
+    		<a href="/Search/Results?searchTypeTemplate=advanced&amp;lookfor0[]=&amp;type0[]=AllFields&amp;join=AND&amp;bool0[]=AND&amp;page=1&amp;database=Solr&amp;limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
           </div>
       <? else: ?>
+        <? if (! $this->librarySearch): ?>
           <? if ($this->layout()->recordView || $this->layout()->history): ?>
-            <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&database=Solr&limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
+            <a href="/Search/Results?searchTypeTemplate=advanced&amp;lookfor0[]=&amp;type0[]=AllFields&amp;join=AND&amp;bool0[]=AND&amp;page=1&amp;database=Solr&amp;limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
           <? else: ?>
-            <a href="/Search/Results?searchTypeTemplate=advanced&lookfor0[]=&type0[]=AllFields&join=AND&bool0[]=AND&page=1&database=EDS&limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
+            <a href="/Search/Results?searchTypeTemplate=advanced&amp;lookfor0[]=&amp;type0[]=AllFields&amp;join=AND&amp;bool0[]=AND&amp;page=1&amp;database=EDS&amp;limit=<?=$this->layout()->limit?>"><?=$this->translate("Advanced Search")?></a>
   	      <? endif; ?>
+        <? endif; ?>
       <? endif; ?>
       <? if($this->searchClassId == 'Solr'): ?>
           <span id="autocomplete-help">
