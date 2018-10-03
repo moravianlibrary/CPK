@@ -823,9 +823,11 @@ class SearchController extends SearchControllerBase
 	        $extraRequest, $database, $this->getSearchSetupCallback()
 	    );
 	    $extraResults = [];
-	    foreach($extraResultsForSwitching->getResults() as $record) {
-	        $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
-	    }
+        foreach ($extraResultsForSwitching->getResults() as $record) {
+            $uniqueId = $record->getUniqueId();
+            $parentRecordId = $record->tryMethod('getParentRecordID') ?? $uniqueId;
+            $extraResults[] = [$parentRecordId => $uniqueId];
+        }
 
         if ( ! empty($extraResults)) {
             $view->extraResults = json_encode([
@@ -1255,8 +1257,10 @@ class SearchController extends SearchControllerBase
             $extraRequest, $database, $this->getSearchSetupCallback()
         );
         $extraResults = [];
-        foreach($extraResultsForSwitching->getResults() as $record) {
-            $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
+        foreach ($extraResultsForSwitching->getResults() as $record) {
+            $uniqueId = $record->getUniqueId();
+            $parentRecordId = $record->tryMethod('getParentRecordID') ?? $uniqueId;
+            $extraResults[] = [$parentRecordId => $uniqueId];
         }
         $viewData['extraResults'] = $extraResults;
         $viewData['extraPage'] = (integer)$postParams['page'];
@@ -1408,8 +1412,10 @@ class SearchController extends SearchControllerBase
 
         $extraResults = [];
         foreach ($extraResultsForSwitching->getResults() as $record) {
-            $extraResults[] = [$record->getParentRecordID() => $record->getUniqueId()];
-        };
+            $uniqueId = $record->getUniqueId();
+            $parentRecordId = $record->tryMethod('getParentRecordID') ?? $uniqueId;
+            $extraResults[] = [$parentRecordId => $uniqueId];
+        }
         $parsedQuery['page'] = $extraRequest['page'];
 
         $query   = http_build_query($parsedQuery, '', '&');

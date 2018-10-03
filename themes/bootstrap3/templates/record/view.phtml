@@ -1,7 +1,8 @@
 <?
-    // Get source of the record to print it to h3 header
-    $id = $this->driver->getUniqueID();
-    $source = explode(".", $id)[0];
+  // Get source of the record to print it to h3 header
+  $id = $this->driver->getUniqueID();
+  $source = explode(".", $id)[0];
+  $parentRecordId = $this->driver->tryMethod('getParentRecordID');
 
   // Set up standard record scripts:
   $this->headScript()->appendFile("record.js");
@@ -97,9 +98,9 @@
 <div class="clearfix">
   <div class="col-sm-9">
     <div class="record source<?=$this->escapeHtmlAttr($this->driver->getResourceSource())?>">
-      <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>" class="hiddenId" />
+      <input type="hidden" value="<?=$this->escapeHtmlAttr($id)?>" class="hiddenId" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getResourceSource()) ?>" class="hiddenSource" />
-      <input type="hidden" value="<?= $this->escapeHtmlAttr($this->driver->getParentRecordID()) ?>" class="hiddenParentRecordId" >
+      <input type="hidden" value="<?=$this->escapeHtmlAttr($parentRecordId ?? $id)?>" class="hiddenParentRecordId" >
       <?=$this->flashmessages()?>
 
     <!-- Modal -->
