@@ -46,7 +46,7 @@ class NCIPDenormalizerRouter
     public function route($method, $agency, NCIPRequests $requests)
     {
         $normalizer = null;
-        switch (strtolower($requests->getConfig()["Catalog"]["ils_type"])) {
+        switch ($requests->getILSType()) {
             case 'verbis':
                 $normalizer = new Denormalizers\VerbisNCIPDenormalizer($method);
                 break;

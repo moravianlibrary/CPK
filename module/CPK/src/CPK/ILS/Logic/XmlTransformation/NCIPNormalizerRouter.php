@@ -49,7 +49,7 @@ class NCIPNormalizerRouter
     public function route($method, $source, $agency, NCIPRequests $requests, Translator $translator)
     {
         $normalizer = null;
-        switch (strtolower($requests->getConfig()["Catalog"]["ils_type"])) {
+        switch ($requests->getILSType()) {
             case 'verbis':
                 $normalizer = new Normalizers\VerbisNCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;

@@ -16,16 +16,14 @@ class NCIPRequests {
 
     protected $noScheme = false;
     protected $agency = null;
+    protected $ilsType = null;
     protected $sendUserId = null;
     protected $config = null;
-
-    protected $libsNeedsPickUpLocation = [
-        'UOG505', 'ABG001'
-    ];
 
     public function __construct($config) {
         $this->config = $config;
         $this->agency = $config['Catalog']['agency'];
+        $this->ilsType = strtolower($config["Catalog"]["ils_type"]);
         $this->sendUserId = isset($config['Catalog']['sendUserId']) ? $config['Catalog']['sendUserId']: true;
     }
 
@@ -108,7 +106,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingItemId($patron, $itemId) {
         $requestType = "Estimate";
-        if (strtolower($this->config["Catalog"]["ils_type"]) === 'clavius') $requestType = "Hold";
+        if ($this->ilsType === 'clavius') $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -122,7 +120,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingRequestId($patron, $requestId) {
         $requestType = "Estimate";
-        if (strtolower($this->config["Catalog"]["ils_type"]) === 'clavius') $requestType = "Hold";
+        if ($this->ilsType === 'clavius') $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -241,12 +239,8 @@ class NCIPRequests {
         return $this->header($schemeExtension) . $body . $this->footer();
     }
 
-    public function getConfig() {
-        return $this->config;
-    }
-
-    public function getLibsNeedsPickUpLocation() {
-        return $this->libsNeedsPickUpLocation;
+    public function getILSType() {
+        return $this->ilsType;
     }
 
     protected function header($ext = '') {
@@ -357,7 +351,7 @@ class NCIPRequests {
     /* Allowed values are: Accession Number, Barcode. */
     protected function insertItemIdentifierType() {
         $itemIdentifierType = "Accession Number";
-        if (strtolower($this->config["Catalog"]["ils_type"]) === 'arl') $itemIdentifierType = "Barcode";
+        if ($this->ilsType === 'arl') $itemIdentifierType = "Barcode";
         return ($this->noScheme ?
                 "<ns1:ItemIdentifierType>" :
                 "<ns1:ItemIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
@@ -401,7 +395,7 @@ class NCIPRequests {
         $this->insertUserElementType("User Privilege") .
         $this->insertUserElementType("User Id") .
         $this->insertUserElementType("Previous User Id");
-        if (strtolower($this->config["Catalog"]["ils_type"]) === 'arl') {
+        if ($this->ilsType === 'arl') {
             $body =
             $this->insertUserElementType("Block Or Trap") .
             $this->insertUserElementType("Name Information") .

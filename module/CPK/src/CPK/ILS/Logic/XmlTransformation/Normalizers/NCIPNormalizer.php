@@ -58,11 +58,6 @@ class NCIPNormalizer implements LoggerAwareInterface, NCIPNormalizerInterface
     protected $logger;
 
     /**
-     * @var null
-     */
-    protected $libsNeedsPickUpLocation = null;
-
-    /**
      * @var Translator
      */
     protected $translator = null;
@@ -88,7 +83,6 @@ class NCIPNormalizer implements LoggerAwareInterface, NCIPNormalizerInterface
         $this->source = $source;
         $this->agency = $agency;
         $this->ncipRequests = $ncipRequests;
-        $this->libsNeedsPickUpLocation = $ncipRequests->getLibsNeedsPickUpLocation();
         $this->translator = $translator;
     }
 
@@ -257,7 +251,10 @@ class NCIPNormalizer implements LoggerAwareInterface, NCIPNormalizerInterface
 
     public function normalizeLookupAgencyLocations(JsonXML &$response)
     {
-        if(!in_array($this->agency, $this->libsNeedsPickUpLocation)) {
+        if(
+            !isset($this->ncipRequests->getConfig()["Catalog"]["pick_up_location"])
+            || !$this->ncipRequests->getConfig()["Catalog"]["pick_up_location"]
+        ) {
             $response->unsetDataValue('ns1:LookupAgencyResponse', 'ns1:AgencyAddressInformation');
         }
     }
