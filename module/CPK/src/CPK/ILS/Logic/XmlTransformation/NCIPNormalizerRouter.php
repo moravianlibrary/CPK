@@ -71,12 +71,10 @@ class NCIPNormalizerRouter
             case 'aaa001';
                 $normalizer = new Normalizers\AAANCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
+            default:
+                $normalizer = new Normalizers\NCIPNormalizer($method, $source, $agency, $requests, $translator);
         }
 
-        if ($normalizer) {
-            return $normalizer;
-        } else {
-            throw new \Exception("Something wrong with server response!");
-        }
+        return $normalizer;
     }
 }

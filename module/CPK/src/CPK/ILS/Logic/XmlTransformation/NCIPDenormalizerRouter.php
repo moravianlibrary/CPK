@@ -62,12 +62,10 @@ class NCIPDenormalizerRouter
             case 'aaa001';
                 $normalizer = new Denormalizers\AAANCIPDenormalizer($method);
                 break;
+            default:
+                $normalizer = new Denormalizers\NCIPDenormalizer($method);
         }
 
-        if ($normalizer) {
-            return $normalizer;
-        } else {
-            throw new \Exception("Something wrong with user request!");
-        }
+        return $normalizer;
     }
 }
