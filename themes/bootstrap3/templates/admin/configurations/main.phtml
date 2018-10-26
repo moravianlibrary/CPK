@@ -51,17 +51,34 @@
             <tr title='<?=($isRequired ? $this->transEsc('This field is required') . ' - ' : '')  . $this->transEsc($value) ?>'>
               <td class="col-sm-3"><?=$key . (($isRequired) ? ' *' : '') ?></td>
               <td class="col-sm-9">
-                <input class="form-control"
-                	type="<?=$defs[$section][$key] ?>"
-                	<? if( $isCheckbox ): ?>
-                	  <?=( isset($config[$section][$key]) && $config[$section][$key] ) ? 'checked="checked"' : ''; ?>
-                	<? else: ?>
-                	  value="<?=isset($config[$section][$key]) ? $config[$section][$key] : ''?>"
-                	<? endif; ?>
-                	placeholder="<?=$this->transEsc($value)?>"
-                	title="<?=$this->transEsc($value)?>"
-                	name="<?=$section . '[' . $key . ']' ?>"
-                	<?=$isRequired ? 'required' : ''?>/>
+                <? if($defs[$section][$key] == "select"):?>
+                  <select class="form-control"
+                          name="<?=$section . '[' . $key . ']' ?>"
+                          title="<?=$this->transEsc($value)?>"
+                          <?=$isRequired ? 'required' : ''?>>
+                    <option value=""></option>
+                    <? foreach ($ncipTypes['type'] as $type): ?>
+                      <option value="<?= $type ?>"
+                              <?= (isset($config[$section][$key]) && $config[$section][$key] == $type)
+                                  ? 'selected="selected"'
+                                  : ''?>>
+                          <?= $type ?>
+                      </option>
+                    <? endforeach; ?>
+                  </select>
+                <? else: ?>
+                  <input class="form-control"
+                    type="<?=$defs[$section][$key] ?>"
+                    <? if( $isCheckbox ): ?>
+                      <?=( isset($config[$section][$key]) && $config[$section][$key] ) ? 'checked="checked"' : ''; ?>
+                    <? else: ?>
+                      value="<?=isset($config[$section][$key]) ? $config[$section][$key] : ''?>"
+                    <? endif; ?>
+                    placeholder="<?=$this->transEsc($value)?>"
+                    title="<?=$this->transEsc($value)?>"
+                    name="<?=$section . '[' . $key . ']' ?>"
+                    <?=$isRequired ? 'required' : ''?>/>
+                <? endif; ?>
               </td>
             </tr>
             <? endif; endforeach; ?>
