@@ -44,26 +44,39 @@ class NCIPNormalizerRouter
      * @param Translator $translator
      *
      * @return null|...
+     * @throws \Exception
      */
     public function route($method, $source, $agency, NCIPRequests $requests, Translator $translator)
     {
         $normalizer = null;
-        if (in_array($agency, $requests->getLibsWithVerbis())) {
-            $normalizer = new Normalizers\VerbisNCIPNormalizer($method, $source, $agency, $requests, $translator);
-        } else if (in_array($agency, $requests->getLibsWithClavius())) {
-            $normalizer = new Normalizers\ClaviusNCIPNormalizer($method, $source, $agency, $requests, $translator);
-        } else if (in_array($agency, $requests->getLibsWithARL())) {
-            $normalizer = new Normalizers\ArlNCIPNormalizer($method, $source, $agency, $requests, $translator);
-        } else if (in_array($agency, $requests->getLibsWithTritius())) {
-            $normalizer = new Normalizers\TritiusNCIPNormalizer($method, $source, $agency, $requests, $translator);
-        } else if (in_array($agency, $requests->getLibsWithDaVinci())) {
-            $normalizer = new Normalizers\DaVinciNCIPNormalizer($method, $source, $agency, $requests, $translator);
-        } else if ($agency === "ABG001") {
-            $normalizer = new Normalizers\MkpNCIPNormalizer($method, $source, $agency, $requests, $translator);
-        } else if ($agency === "AAA001") { //test sigla
-            $normalizer = new Normalizers\AAANCIPNormalizer($method, $source, $agency, $requests, $translator);
+        switch (strtolower($requests->getConfig()["Catalog"]["ils_type"])) {
+            case 'verbis':
+                $normalizer = new Normalizers\VerbisNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                break;
+            case 'clavius':
+                $normalizer = new Normalizers\ClaviusNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                break;
+            case 'arl':
+                $normalizer = new Normalizers\ArlNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                break;
+            case 'tritius':
+                $normalizer = new Normalizers\TritiusNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                break;
+            case 'davinci':
+                $normalizer = new Normalizers\DaVinciNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                break;
+            case 'abg001':
+                $normalizer = new Normalizers\MkpNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                break;
+            case 'aaa001';
+                $normalizer = new Normalizers\AAANCIPNormalizer($method, $source, $agency, $requests, $translator);
+                break;
         }
 
-        return $normalizer;
+        if ($normalizer) {
+            return $normalizer;
+        } else {
+            throw new \Exception("Something wrong with server response!");
+        }
     }
 }

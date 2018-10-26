@@ -41,22 +41,33 @@ class NCIPDenormalizerRouter
      * @param NCIPRequests $requests
      *
      * @return null|...
+     * @throws \Exception
      */
     public function route($method, $agency, NCIPRequests $requests)
     {
         $normalizer = null;
-        if (in_array($agency, $requests->getLibsWithVerbis())) {
-            $normalizer = new Denormalizers\VerbisNCIPDenormalizer($method);
-        } else if (in_array($agency, $requests->getLibsWithClavius())) {
-            $normalizer = new Denormalizers\ClaviusNCIPDenormalizer($method);
-        } else if (in_array($agency, $requests->getLibsWithARL())) {
-            $normalizer = new Denormalizers\ArlNCIPDenormalizer($method);
-        } else if (in_array($agency, $requests->getLibsWithTritius())) {
-            $normalizer = new Denormalizers\TritiusNCIPDenormalizer($method, $agency);
-        } else if ($agency === "AAA001") { //test sigla
-            $normalizer = new Denormalizers\AAANCIPDenormalizer($method);
+        switch (strtolower($requests->getConfig()["Catalog"]["ils_type"])) {
+            case 'verbis':
+                $normalizer = new Denormalizers\VerbisNCIPDenormalizer($method);
+                break;
+            case 'clavius':
+                $normalizer = new Denormalizers\ClaviusNCIPDenormalizer($method);
+                break;
+            case 'arl':
+                $normalizer = new Denormalizers\ArlNCIPDenormalizer($method);
+                break;
+            case 'tritius':
+                $normalizer = new Denormalizers\TritiusNCIPDenormalizer($method, $agency);
+                break;
+            case 'aaa001';
+                $normalizer = new Denormalizers\AAANCIPDenormalizer($method);
+                break;
         }
 
-        return $normalizer;
+        if ($normalizer) {
+            return $normalizer;
+        } else {
+            throw new \Exception("Something wrong with user request!");
+        }
     }
 }

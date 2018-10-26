@@ -17,32 +17,14 @@ class NCIPRequests {
     protected $noScheme = false;
     protected $agency = null;
     protected $sendUserId = null;
-
-    protected $libsWithClavius = [
-        'TAG001', 'ULG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'PBG001'
-    ];
-
-    protected $libsWithARL = [
-        'LIA001', 'CBA001', 'KLG001',
-    ];
-
-    protected $libsWithVerbis = [
-        'ZLG001'
-    ];
-
-    protected $libsWithTritius = [
-        'SOG504', 'KHG001'
-    ];
-
-    protected $libsWithDaVinci = [
-        'ABA008'
-    ];
+    protected $config = null;
 
     protected $libsNeedsPickUpLocation = [
         'UOG505', 'ABG001'
     ];
 
     public function __construct($config) {
+        $this->config = $config;
         $this->agency = $config['Catalog']['agency'];
         $this->sendUserId = isset($config['Catalog']['sendUserId']) ? $config['Catalog']['sendUserId']: true;
     }
@@ -126,7 +108,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingItemId($patron, $itemId) {
         $requestType = "Estimate";
-        if (in_array($this->agency, $this->libsWithClavius)) $requestType = "Hold";
+        if (strtolower($this->config["Catalog"]["ils_type"]) === 'clavius') $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -140,7 +122,7 @@ class NCIPRequests {
 
     public function cancelRequestItemUsingRequestId($patron, $requestId) {
         $requestType = "Estimate";
-        if (in_array($this->agency, $this->libsWithClavius)) $requestType = "Hold";
+        if (strtolower($this->config["Catalog"]["ils_type"]) === 'clavius') $requestType = "Hold";
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -259,24 +241,8 @@ class NCIPRequests {
         return $this->header($schemeExtension) . $body . $this->footer();
     }
 
-    public function getLibsWithClavius() {
-        return $this->libsWithClavius;
-    }
-
-    public function getLibsWithARL() {
-        return $this->libsWithARL;
-    }
-
-    public function getLibsWithVerbis() {
-        return $this->libsWithVerbis;
-    }
-
-    public function getLibsWithTritius() {
-        return $this->libsWithTritius;
-    }
-
-    public function getLibsWithDaVinci() {
-        return $this->libsWithDaVinci;
+    public function getConfig() {
+        return $this->config;
     }
 
     public function getLibsNeedsPickUpLocation() {
@@ -391,7 +357,7 @@ class NCIPRequests {
     /* Allowed values are: Accession Number, Barcode. */
     protected function insertItemIdentifierType() {
         $itemIdentifierType = "Accession Number";
-        if (in_array($this->agency, $this->libsWithARL)) $itemIdentifierType = "Barcode";
+        if (strtolower($this->config["Catalog"]["ils_type"]) === 'arl') $itemIdentifierType = "Barcode";
         return ($this->noScheme ?
                 "<ns1:ItemIdentifierType>" :
                 "<ns1:ItemIdentifierType ns1:Scheme=\"http://www.niso.org/ncip/v1_0/imp1/schemes/" .
@@ -435,7 +401,7 @@ class NCIPRequests {
         $this->insertUserElementType("User Privilege") .
         $this->insertUserElementType("User Id") .
         $this->insertUserElementType("Previous User Id");
-        if (in_array($this->agency, $this->libsWithARL)) {
+        if (strtolower($this->config["Catalog"]["ils_type"]) === 'arl') {
             $body =
             $this->insertUserElementType("Block Or Trap") .
             $this->insertUserElementType("Name Information") .
