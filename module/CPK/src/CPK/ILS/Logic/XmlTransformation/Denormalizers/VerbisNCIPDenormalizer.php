@@ -35,7 +35,12 @@ class VerbisNCIPDenormalizer extends NCIPDenormalizer
 {
     public function denormalizeLookupItemSetStatus(JsonXML &$request)
     {
-        $bibId = $request->get('LookupItemSet', 'BibliographicId', 'BibliographicItemId', 'BibliographicItemIdentifier');
+        $bibId = $request->get(
+            'LookupItemSet',
+            'BibliographicId',
+            'BibliographicItemId',
+            'BibliographicItemIdentifier'
+        );
 
         $newBibId = str_replace('oai:', '', $bibId);
 

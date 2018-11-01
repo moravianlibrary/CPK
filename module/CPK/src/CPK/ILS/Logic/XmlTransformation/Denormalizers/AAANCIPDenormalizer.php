@@ -8,7 +8,12 @@ class AAANCIPDenormalizer extends NCIPDenormalizer
 {
     public function denormalizeLookupItemSetStatus(JsonXML &$request)
     {
-        $bibId = $request->get('LookupItemSet', 'BibliographicId', 'BibliographicItemId', 'BibliographicItemIdentifier');
+        $bibId = $request->get(
+            'LookupItemSet',
+            'BibliographicId',
+            'BibliographicItemId',
+            'BibliographicItemIdentifier'
+        );
 
         $newBibId = '0002' . sprintf('%011d', $bibId);
 

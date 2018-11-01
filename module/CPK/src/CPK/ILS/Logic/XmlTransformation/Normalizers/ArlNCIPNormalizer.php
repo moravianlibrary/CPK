@@ -101,10 +101,21 @@ class ArlNCIPNormalizer extends NCIPNormalizer
             $item_id = $response->getRelative($itemInformation, 'ItemId', 'ItemIdentifierValue');
 
             if ($item_id === null) {
-                $new_item_id = $response->getRelative($itemInformation, 'ItemOptionalFields', 'BibliographicDescription', 'ComponentId', 'ComponentIdentifier');
+                $new_item_id = $response->getRelative(
+                    $itemInformation,
+                    'ItemOptionalFields',
+                    'BibliographicDescription',
+                    'ComponentId',
+                    'ComponentIdentifier'
+                );
 
                 if ($new_item_id === null) { // this is for LIA's periodicals (without item_id)
-                    $new_item_id = $response->getRelative($itemInformation, 'ItemOptionalFields', 'ItemDescription', 'CopyNumber');
+                    $new_item_id = $response->getRelative(
+                        $itemInformation,
+                        'ItemOptionalFields',
+                        'ItemDescription',
+                        'CopyNumber'
+                    );
                 }
 
                 if ($new_item_id !== null) {
@@ -125,8 +136,18 @@ class ArlNCIPNormalizer extends NCIPNormalizer
 
             $locations = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'Location');
             foreach ($locations as $locElement) {
-                $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
-                $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
+                $level = $response->getRelative(
+                    $locElement,
+                    'LocationName',
+                    'LocationNameInstance',
+                    'LocationNameLevel'
+                );
+                $value = $response->getRelative(
+                    $locElement,
+                    'LocationName',
+                    'LocationNameInstance',
+                    'LocationNameValue'
+                );
                 if (!empty($value)) {
                     if ($level == '1') {
                         $department = $value;
@@ -144,7 +165,11 @@ class ArlNCIPNormalizer extends NCIPNormalizer
             if ($department == 'Podlesí') {
 
                 // Only append 'Not For Loan' to the end of item restriction
-                $itemRestrictions = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
+                $itemRestrictions = $response->getArrayRelative(
+                    $itemInformation,
+                    'ItemOptionalFields',
+                    'ItemUseRestrictionType'
+                );
                 $j = sizeof($itemRestrictions);
 
                 $response->setDataValue(

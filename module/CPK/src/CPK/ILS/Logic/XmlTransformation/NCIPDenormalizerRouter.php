@@ -29,7 +29,12 @@
 namespace CPK\ILS\Logic\XmlTransformation;
 
 use CPK\ILS\Driver\NCIPRequests;
-use CPK\ILS\Logic\XmlTransformation\Denormalizers as Denormalizers;
+use CPK\ILS\Logic\XmlTransformation\Denormalizers\VerbisNCIPDenormalizer;
+use CPK\ILS\Logic\XmlTransformation\Denormalizers\ClaviusNCIPDenormalizer;
+use CPK\ILS\Logic\XmlTransformation\Denormalizers\ArlNCIPDenormalizer;
+use CPK\ILS\Logic\XmlTransformation\Denormalizers\TritiusNCIPDenormalizer;
+use CPK\ILS\Logic\XmlTransformation\Denormalizers\AAANCIPDenormalizer;
+use CPK\ILS\Logic\XmlTransformation\Denormalizers\NCIPDenormalizer;
 
 class NCIPDenormalizerRouter
 {
@@ -48,22 +53,22 @@ class NCIPDenormalizerRouter
         $normalizer = null;
         switch ($requests->getILSType()) {
             case 'verbis':
-                $normalizer = new Denormalizers\VerbisNCIPDenormalizer($method);
+                $normalizer = new VerbisNCIPDenormalizer($method);
                 break;
             case 'clavius':
-                $normalizer = new Denormalizers\ClaviusNCIPDenormalizer($method);
+                $normalizer = new ClaviusNCIPDenormalizer($method);
                 break;
             case 'arl':
-                $normalizer = new Denormalizers\ArlNCIPDenormalizer($method);
+                $normalizer = new ArlNCIPDenormalizer($method);
                 break;
             case 'tritius':
-                $normalizer = new Denormalizers\TritiusNCIPDenormalizer($method, $agency);
+                $normalizer = new TritiusNCIPDenormalizer($method, $agency);
                 break;
             case 'aaa001';
-                $normalizer = new Denormalizers\AAANCIPDenormalizer($method);
+                $normalizer = new AAANCIPDenormalizer($method);
                 break;
             default:
-                $normalizer = new Denormalizers\NCIPDenormalizer($method);
+                $normalizer = new NCIPDenormalizer($method);
         }
 
         return $normalizer;

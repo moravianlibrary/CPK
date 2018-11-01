@@ -44,7 +44,13 @@ class MkpNCIPNormalizer extends NCIPNormalizer
 
             $id = $response->getRelative($location, 'LocationNameLevel');
             $name = $response->getRelative($location, 'LocationNameValue');
-            $address = $response->getRelative($location, 'Ext', 'PhysicalAddress', 'UnstructuredAddress', 'UnstructuredAddressData');
+            $address = $response->getRelative(
+                $location,
+                'Ext',
+                'PhysicalAddress',
+                'UnstructuredAddress',
+                'UnstructuredAddressData'
+            );
 
             if ($id === null) {
                 ++$skipped_count;
@@ -79,8 +85,18 @@ class MkpNCIPNormalizer extends NCIPNormalizer
 
         $locations = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'Location');
         foreach ($locations as $locElement) {
-            $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
-            $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
+            $level = $response->getRelative(
+                $locElement,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameLevel'
+            );
+            $value = $response->getRelative(
+                $locElement,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameValue'
+            );
             if ($value !== null) {
                 if ($level == '1') {
                     // We're only looking for the department ..
@@ -90,7 +106,11 @@ class MkpNCIPNormalizer extends NCIPNormalizer
             }
         }
 
-        $itemRestriction = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'ItemUseRestrictionType');
+        $itemRestriction = $response->getArray(
+            'LookupItemResponse',
+            'ItemOptionalFields',
+            'ItemUseRestrictionType'
+        );
 
         // Always show MKP's hold link, because it is hold for record, not item.
 
@@ -128,7 +148,11 @@ class MkpNCIPNormalizer extends NCIPNormalizer
         if ($department == 'Podlesí') {
 
             // Only append 'Not For Loan' to the end of item restriction
-            $itemRestriction = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'ItemUseRestrictionType');
+            $itemRestriction = $response->getArray(
+                'LookupItemResponse',
+                'ItemOptionalFields',
+                'ItemUseRestrictionType'
+            );
             $i = sizeof($itemRestriction);
 
             $response->setDataValue(

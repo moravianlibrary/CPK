@@ -29,7 +29,14 @@
 namespace CPK\ILS\Logic\XmlTransformation;
 
 use CPK\ILS\Driver\NCIPRequests;
-use CPK\ILS\Logic\XmlTransformation\Normalizers as Normalizers;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\VerbisNCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\ClaviusNCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\ArlNCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\TritiusNCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\DaVinciNCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\MkpNCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\AAANCIPNormalizer;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\NCIPNormalizer;
 use Zend\I18n\Translator\Translator;
 
 class NCIPNormalizerRouter
@@ -51,28 +58,28 @@ class NCIPNormalizerRouter
         $normalizer = null;
         switch ($requests->getILSType()) {
             case 'verbis':
-                $normalizer = new Normalizers\VerbisNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new VerbisNCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
             case 'clavius':
-                $normalizer = new Normalizers\ClaviusNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new ClaviusNCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
             case 'arl':
-                $normalizer = new Normalizers\ArlNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new ArlNCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
             case 'tritius':
-                $normalizer = new Normalizers\TritiusNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new TritiusNCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
             case 'davinci':
-                $normalizer = new Normalizers\DaVinciNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new DaVinciNCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
             case 'abg001':
-                $normalizer = new Normalizers\MkpNCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new MkpNCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
             case 'aaa001';
-                $normalizer = new Normalizers\AAANCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new AAANCIPNormalizer($method, $source, $agency, $requests, $translator);
                 break;
             default:
-                $normalizer = new Normalizers\NCIPNormalizer($method, $source, $agency, $requests, $translator);
+                $normalizer = new NCIPNormalizer($method, $source, $agency, $requests, $translator);
         }
 
         return $normalizer;

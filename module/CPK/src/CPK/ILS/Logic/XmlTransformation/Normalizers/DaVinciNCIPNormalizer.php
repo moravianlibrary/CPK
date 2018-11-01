@@ -51,8 +51,18 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
 
         $locations = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'Location');
         foreach ($locations as $locElement) {
-            $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
-            $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
+            $level = $response->getRelative(
+                $locElement,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameLevel'
+            );
+            $value = $response->getRelative(
+                $locElement,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameValue'
+            );
             if ($value !== null) {
                 if ($level == '1') {
                     // We're only looking for the department ..
@@ -65,7 +75,9 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
         if ($department !== null) {
 
             $parts = explode("@", $department);
-            $translate = $this->translator->translate(isset($parts[0]) ? $this->source . '_location_' . $parts[0] : '');
+            $translate = $this->translator->translate(
+                isset($parts[0]) ? $this->source . '_location_' . $parts[0] : ''
+            );
             $parts = explode(" ", $translate, 2);
             $department = isset($parts[0]) ? $parts[0] : '';
             $collection = isset($parts[1]) ? $parts[1] : '';
@@ -115,7 +127,11 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
         if ($department == 'Podlesí') {
 
             // Only append 'Not For Loan' to the end of item restriction
-            $itemRestriction = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'ItemUseRestrictionType');
+            $itemRestriction = $response->getArray(
+                'LookupItemResponse',
+                'ItemOptionalFields',
+                'ItemUseRestrictionType'
+            );
             $i = sizeof($itemRestriction);
 
             $response->setDataValue(

@@ -301,8 +301,18 @@ class NCIPNormalizer implements LoggerAwareInterface, NCIPNormalizerInterface
 
         $locations = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'Location');
         foreach ($locations as $locElement) {
-            $level = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameLevel');
-            $value = $response->getRelative($locElement, 'LocationName', 'LocationNameInstance', 'LocationNameValue');
+            $level = $response->getRelative(
+                $locElement,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameLevel'
+            );
+            $value = $response->getRelative(
+                $locElement,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameValue'
+            );
             if ($value !== null) {
                 if ($level == '1') {
                     // We're only looking for the department ..
@@ -325,7 +335,11 @@ class NCIPNormalizer implements LoggerAwareInterface, NCIPNormalizerInterface
         if ($department == 'Podlesí') {
 
             // Only append 'Not For Loan' to the end of item restriction
-            $itemRestriction = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'ItemUseRestrictionType');
+            $itemRestriction = $response->getArray(
+                'LookupItemResponse',
+                'ItemOptionalFields',
+                'ItemUseRestrictionType'
+            );
             $i = sizeof($itemRestriction);
 
             $response->setDataValue(
@@ -371,7 +385,11 @@ class NCIPNormalizer implements LoggerAwareInterface, NCIPNormalizerInterface
     }
 
     protected function normalizeItemRestrictionType(&$response, &$itemInformation, $itemId) {
-        $itemRestrictions = $response->getArrayRelative($itemInformation, 'ItemOptionalFields', 'ItemUseRestrictionType');
+        $itemRestrictions = $response->getArrayRelative(
+            $itemInformation,
+            'ItemOptionalFields',
+            'ItemUseRestrictionType'
+        );
 
         if (!$itemRestrictions) {
             $response->setDataValue(

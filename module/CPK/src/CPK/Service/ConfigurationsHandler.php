@@ -107,7 +107,8 @@ class ConfigurationsHandler
     protected $ncipTypes;
 
     /**
-     * Object holding the configuration of email to use when a configuration change is desired by some institution admin
+     * Object holding the configuration of email to use
+     * when a configuration change is desired by some institution admin
      *
      * @var array
      */

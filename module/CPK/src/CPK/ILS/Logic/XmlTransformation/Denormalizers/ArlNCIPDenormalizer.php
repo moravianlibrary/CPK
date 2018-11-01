@@ -10,7 +10,12 @@ class ArlNCIPDenormalizer extends NCIPDenormalizer
     public function denormalizeLookupItemSetStatus(JsonXML &$request)
     {
 
-        $bibId = $request->get('LookupItemSet', 'BibliographicId', 'BibliographicItemId', 'BibliographicItemIdentifier');
+        $bibId = $request->get(
+            'LookupItemSet',
+            'BibliographicId',
+            'BibliographicItemId',
+            'BibliographicItemIdentifier'
+        );
 
         $newBibId = str_replace('LiUsCat_', 'li_us_cat*', $bibId);
         $newBibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $newBibId);

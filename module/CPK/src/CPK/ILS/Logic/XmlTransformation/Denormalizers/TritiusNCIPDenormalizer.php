@@ -17,7 +17,12 @@ class TritiusNCIPDenormalizer extends NCIPDenormalizer
     public function denormalizeLookupItemSetStatus(JsonXML &$request)
     {
 
-        $bibId = $request->get('LookupItemSet', 'BibliographicId', 'BibliographicItemId', 'BibliographicItemIdentifier');
+        $bibId = $request->get(
+            'LookupItemSet',
+            'BibliographicId',
+            'BibliographicItemId',
+            'BibliographicItemIdentifier'
+        );
 
         $newBibId = null;
         if ($this->agency === 'SOG504') {
