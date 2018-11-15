@@ -29,24 +29,21 @@
               // Change lookfor to empty string
               let oldQuery, newQuery;
 
-              oldQuery = $( '#run-autocomplete' ).attr( 'href' );
-              newQuery = changeParamsInUrlString(oldQuery, {
+              let emptyLookFor = {
                   'lookfor0%5B%5D': '',
                   'lookfor0[]': '',
                   'lookfor0': '',
                   'lookfor': '',
-              });
+              };
+
+              oldQuery = $( '#run-autocomplete' ).attr( 'href' );
+              newQuery = changeParamsInUrlString(oldQuery, emptyLookFor);
               $( '#run-autocomplete' ).attr( 'href', newQuery )
 
               $( '#searchForm_lookfor' ).attr( 'value', '' );
 
               oldQuery = $( '.searchForm' ).attr( 'action' );
-              newQuery = changeParamsInUrlString(oldQuery, {
-                  'lookfor0%5B%5D': '',
-                  'lookfor0[]': '',
-                  'lookfor0': '',
-                  'lookfor': '',
-              });
+              newQuery = changeParamsInUrlString(oldQuery, emptyLookFor);
               $( '.searchForm' ).attr( 'action', newQuery )
               //
 

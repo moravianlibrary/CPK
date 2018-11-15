@@ -687,5 +687,5 @@ function changeParamsInUrlString(urlString, params, createParamsIfNotExist = fal
       searchQueryParams[key] = encodeURIComponent(params[key]);
     });
 
-    return parser.origin + parser.pathname + '?' + httpBuildQuery( searchQueryParams );
+    return parser.origin + parser.pathname + '?' + httpBuildQuery( searchQueryParams ) + parser.hash;
 };
