@@ -17,7 +17,9 @@
       <div class="search row">
         <div class="col-sm-3">
           <input type="hidden" value="AND" class="first-op">
-          <label class="help-block<?= $search > 0 ? ' hidden' : ''?>"><?=$this->transEsc("adv_search_label")?>:</label>
+          <label class="help-block<?= $search > 0 ? ' hidden' : ''?>">
+            <?=$this->transEsc("adv_search_label")?>:
+          </label>
           <select id="search_op0_<?=$search?>"
                   name="op0[]"
                   class="op col-sm-9 form-control<?= $search == 0 ? ' hidden' : ''?>">
