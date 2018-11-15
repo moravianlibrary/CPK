@@ -102,12 +102,14 @@ function updateFinesTable(response) {
 	    var count = $( 'table[id="' + cat_username + '"] tr.excluded' ).size();
 	    if (count > 0) {
             $( 'tr[id="summary_' + cat_username + '"]' )
-                .before(
-                    '<tr><td colspan="4" class="text-center">' +
-                      '<a id="' + cat_username + '" class="toggler">' +
-                    '    <i class="pr-interface-arrowbottom4" title="' + VuFind.translate("show_others") + '"> </i>' +
-                    '</a>' +
-                    '</td></tr>');
+                .before(`
+                     <tr>
+                       <td colspan='4' class='text-center'>
+                         <a id='${cat_username}' class='toggler'>
+                           <i class='pr-interface-arrowbottom4' title='${VuFind.translate("show_others")}'> </i>
+                         </a>
+                       </td>
+                     </tr>`);
 	    }
 	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
 	    	$(this).toggleClass('more');
