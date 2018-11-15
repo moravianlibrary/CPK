@@ -11,8 +11,8 @@
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
             <li>
-              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'>
-                <?=$page['title']?>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?>
               </a>
             </li>
           <? endif; ?>
@@ -29,8 +29,8 @@
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-left'): ?>
             <li>
-              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'>
-                <?=$page['title']?>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?>
               </a>
             </li>
           <? endif; ?>
@@ -46,7 +46,10 @@
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-right'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?></a>
+            </li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
@@ -71,8 +74,8 @@
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'right'): ?>
             <li>
-              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'>
-                <?=$page['title']?>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?>
               </a>
             </li>
           <? endif; ?>
