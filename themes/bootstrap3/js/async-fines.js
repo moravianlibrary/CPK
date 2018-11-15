@@ -114,7 +114,7 @@ function updateFinesTable(response) {
 	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
 	    	$(this).toggleClass('more');
 	        if ($(this).is('.more')){
-	            $(this)
+                $(this)
                     .html(`<i class='pr-interface-arrowtop4' title='${VuFind.translate("hide_others")}'> </i>`);
                 $( 'table[id="' + cat_username + '"] tr.excluded' ).removeClass('hidden');
 	        } else {
