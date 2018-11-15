@@ -114,10 +114,12 @@ function updateFinesTable(response) {
 	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
 	    	$(this).toggleClass('more');
 	        if ($(this).is(".more")){
-	        	$(this).html('<i class="pr-interface-arrowtop4" title="' + VuFind.translate("hide_others") + '"> </i>');
+	        	$(this)
+					.html(`<i class='pr-interface-arrowtop4' title='${VuFind.translate("hide_others")}'> </i>`);
 	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).removeClass('hidden');
 	        } else {
-                $(this).html('<i class="pr-interface-arrowbottom4" title="' + VuFind.translate("show_others") + '"> </i>');
+                $(this)
+					.html(`<i class='pr-interface-arrowbottom4' title='${VuFind.translate("show_others")}'> </i>`);
 	        	$( 'table[id="' + cat_username + '"] tr.excluded' ).addClass('hidden');
 	        	window.location = '/MyResearch/Fines#' + parentTable.parent().attr('id');
 	        }
