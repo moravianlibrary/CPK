@@ -646,14 +646,7 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
 
     protected function getParentRecordDriver()
     {
-        if ($this->parentRecordDriver === null) {
-            $parentRecordID = $this->driver->getParentRecordID();
-            if ($this->recordLoader === null) {
-                $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-            }
-            $this->parentRecordDriver = $this->recordLoader->load($parentRecordID);
-        }
-        return $this->parentRecordDriver;
+        return $this->driver->getParentRecordDriver();
     }
 
 }

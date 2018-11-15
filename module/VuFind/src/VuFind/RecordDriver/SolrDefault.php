@@ -1808,7 +1808,7 @@ class SolrDefault extends AbstractBase
      *
      * @return SolrDefault|null
      */
-    protected function getParentRecordDriver()
+    public function getParentRecordDriver()
     {
         if ($this->parentRecordDriver === null) {
             $parentRecordID = $this->getParentRecordID();
