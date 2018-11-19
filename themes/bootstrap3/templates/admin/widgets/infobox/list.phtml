@@ -15,7 +15,9 @@
         '</a>'.
       '</li>'.
       '<li>'.
-        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.$this->transEsc('Administration').'</a>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.
+          $this->transEsc('Administration').
+        '</a>'.
       '</li>'.
       '<li><a href="/Admin/Widgets" title="'.$this->transEsc('Widgets').'">'.$this->transEsc('Widgets').'</a></li>'.
       '<li class="active">'.$this->transEsc('Infobox').'</li>'.
@@ -52,7 +54,11 @@
                 <td align='left'><?=$this->escapeHtml($item->getTitleCs())?></td>
                 <td>
                   <div class='dropdown pull-right'>
-                    <span id='actions' class='actions' aria-expanded='true' aria-haspopup='true' data-toggle='dropdown'>
+                    <span id='actions'
+                          class='actions'
+                          aria-expanded='true'
+                          aria-haspopup='true'
+                          data-toggle='dropdown'>
                       <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
                     </span>
                     <ul class='dropdown-menu' aria-labelledby='actions'>

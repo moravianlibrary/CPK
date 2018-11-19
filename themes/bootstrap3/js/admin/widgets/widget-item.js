@@ -4,7 +4,10 @@ jQuery( document ).ready( function( $ ) {
         prevText: 'Předchozí',
         nextText: 'Další',
         currentText: 'Hoy',
-        monthNames: ['Leden','Únor','Březen','Duben','Květen','Červen', 'Červenec','Srpen','Září','Říjen','Listopad','Prosinec'],
+        monthNames: [
+            'Leden','Únor','Březen','Duben','Květen','Červen',
+            'Červenec','Srpen','Září','Říjen','Listopad','Prosinec'
+        ],
         monthNamesShort: ['Le','Ún','Bř','Du','Kv','Čn', 'Čc','Sr','Zá','Ří','Li','Pr'],
         dayNames: ['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'],
         dayNamesShort: ['Ne','Po','Út','St','Čt','Pá','So',],
