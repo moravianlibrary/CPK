@@ -3,286 +3,197 @@
   $this->headTitle($this->translate('Portal pages | Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
+  $this->layout()->breadcrumbs = '' .
+      '<li>'.
+        '<a href="/Search" title="'.$this->transEsc('Main page').'">'.
+          $this->transEsc('Main page').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.$this->transEsc('Administration').'</a>'.
+      '</li>'.
       '<li class="active">'.$this->transEsc('Widgets').'</li>';
 
-  $this->layout()->title = $this->translate('Widgets');
+  $this->layout()->title = $this->transEsc('Widgets');
 
-  $this->headStyle()->appendStyle('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css');
-  $this->headScript()->appendFile('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js');
-  //$this->headScript()->appendFile('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/i18n/defaults-*.min.js');
+  $this->headStyle()->appendStyle('vendor/bootstrap-select/1.12.4/css/bootstrap-select.min.css');
+  $this->headScript()->appendFile('vendor/bootstrap-select/1.12.4/js/bootstrap-select.min.js');
+  $this->headScript()->appendFile('admin/widgets/main.js');
 ?>
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs ?></ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9" id='homepage-widgets'>
+  <div class='col-sm-9' id='homepage-widgets'>
     <h2><?=$this->translate('Homepage widgets')?></h2>
     <div class='well'>
-	  <div class='row'>
+      <div class='row'>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('First column');?></h2>
-			<select id='first-homepage-widget' class="form-control selectpicker">
-			  <? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->homePageWidgets['first_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
-        </div>
-        <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Second column');?></h2>
-			<select id='second-homepage-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			  <option value='conspectus'<?=($this->homePageWidgets['second_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
+          <h2><?=$this->translate('First column')?></h2>
+          <select id='first-homepage-widget' class='form-control selectpicker'>
+            <? foreach($widgets as $widget): ?>
+            <option value='<?=$widget->getName()?>'
+                    <?=$widget->getName() == $this->homePageWidgets['first_homepage_widget'] ? ' selected' : ''?>>
+              <?=$this->translate($widget->getTitleCs())?>
+            </option>
+            <? endforeach; ?>
+            <option value='conspectus'
+                    <?=$this->homePageWidgets['first_homepage_widget'] == 'conspectus' ? ' selected' : ''?>>
+              <?=$this->translate('Conspectus')?>
+            </option>
+          </select>
         </div>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Third column');?></h2>
-			<select id='third-homepage-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			  <option value='conspectus'<?=($this->homePageWidgets['third_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			</select>
+          <h2><?=$this->translate('Second column')?></h2>
+          <select id='second-homepage-widget' class='form-control selectpicker'>
+            <? foreach($widgets as $widget): ?>
+              <option value='<?=$widget->getName()?>'
+                      <?=$widget->getName() == $this->homePageWidgets['second_homepage_widget'] ? ' selected' : ''?>>
+                <?=$this->translate($widget->getTitleCs())?>
+              </option>
+            <? endforeach; ?>
+            <option value='conspectus'
+                    <?=$this->homePageWidgets['second_homepage_widget'] == 'conspectus' ? ' selected' : ''?>>
+              <?=$this->translate('Conspectus')?>
+            </option>
+          </select>
         </div>
-      </div>
-	</div>
-
-  <div id="inspirations-widgets">
-
-	<h2><?=$this->translate('Inspiration widgets')?></h2>
-    <div class='well'>
-        <div class="row">
-            <div class="col-md-12">
-                <button class="btn btn-primary pull-right" id="save-inspirations-widgets" style="margin-bottom: 10px;"><?=$this->translate('Save')?></button>
-            </div>
+        <div class='col-md-4 text-center'>
+          <h2><?=$this->translate('Third column')?></h2>
+          <select id='third-homepage-widget' class='form-control selectpicker'>
+            <? foreach($widgets as $widget): ?>
+              <option value='<?=$widget->getName()?>'
+                      <?=$widget->getName() == $this->homePageWidgets['third_homepage_widget'] ? ' selected' : ''?>>
+                <?=$this->translate($widget->getTitleCs())?>
+              </option>
+            <? endforeach; ?>
+            <option value='conspectus'
+                    <?=$this->homePageWidgets['third_homepage_widget'] == 'conspectus' ? ' selected' : ''?>>
+              <?=$this->translate('Conspectus')?>
+            </option>
+          </select>
         </div>
-	  <div class='row' id="inspirations-placeholder">
-
-          <? for ($i = 1; $i <= $lastInspirationsWidgetsPosition; $i++) : $inspirationsWidget = isset($inspirationsWidgets[$i]) ? $inspirationsWidgets[$i] : false; ?>
-              <div class='col-md-4 text-center inspiration-widget' data-position="<?=$i?>">
-                  <select id='inspiration-widget-<?=$i?>' class="form-control selectpicker">
-                      <? if ($inspirationsWidget): ?>
-                          <option value=""></option>
-                          <? foreach($widgets as $widget): ?>
-                              <option value='<?=$widget->getId()?>'<?=($widget->getName()==$inspirationsWidget->getName() ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-                          <? endforeach; ?>
-                      <? else: ?>
-                          <option value="" selected> </option>
-                          <? foreach($widgets as $widget): ?>
-                              <option value='<?=$widget->getId()?>'><?=$this->translate($widget->getTitleCs())?></option>
-                          <? endforeach; ?>
-                      <? endif; ?>
-                  </select>
-              </div>
-          <? endfor; ?>
-
-          </div>
-        <div class="row">
-            <div class="col-md-12">
-                <button class="btn btn-primary pull-right" id="add-more-inspirations-widgets" style="margin-bottom: 10px;"><?=$this->translate('Add more')?></button>
-            </div>
-        </div>
-	</div>
+    </div>
   </div>
 
-	<h2><?=$this->translate('Widget list')?></h2>
+  <div id='inspirations-widgets'>
+    <h2><?=$this->translate('Inspiration widgets')?></h2>
     <div class='well'>
-	  <div class='row'>
+      <div class='row'>
+        <div class='col-md-12'>
+          <button class='btn btn-primary pull-right mb-2' id='save-inspirations-widgets'>
+            <?=$this->translate('Save')?>
+          </button>
+        </div>
+      </div>
+      <div class='row' id='inspirations-placeholder'>
+        <? for ($i = 1; $i <= $lastInspirationsWidgetsPosition; $i++) :
+            $inspirationsWidget = isset($inspirationsWidgets[$i]) ? $inspirationsWidgets[$i] : false; ?>
+          <div class='col-md-4 text-center inspiration-widget' data-position='<?=$i?>'>
+            <select id='inspiration-widget-<?=$i?>' class='form-control selectpicker'>
+              <? if ($inspirationsWidget): ?>
+                <option value=''></option>
+                <? foreach($widgets as $widget): ?>
+                  <option value='<?=$widget->getId()?>'
+                          <?=($widget->getName()==$inspirationsWidget->getName() ? ' selected' : '')?>>
+                    <?=$this->transEsc($widget->getTitleCs())?>
+                  </option>
+                <? endforeach; ?>
+              <? else: ?>
+                <option value='' selected> </option>
+                <? foreach($widgets as $widget): ?>
+                  <option value='<?=$widget->getId()?>'>
+                    <?=$this->tranEsc($widget->getTitleCs())?>
+                  </option>
+                <? endforeach; ?>
+              <? endif; ?>
+            </select>
+          </div>
+        <? endfor; ?>
+      </div>
+      <div class='row'>
+        <div class='col-md-12'>
+          <button class='btn btn-primary pull-right mb-2'
+                  id='add-more-inspirations-widgets'>
+              <?=$this->translate('Add more')?>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2><?=$this->translate('Widget list')?></h2>
+    <div class='well'>
+      <div class='row'>
         <div class='col-md-12 '>
-          <div class="admin-toolbox pull-left">
-            <a href="/Admin/Widgets/CreateWidget">
-              <button class="btn btn-lg btn-primary"><?=$this->translate('Create new widget')?></button>
+          <div class='admin-toolbox pull-left'>
+            <a href='/Admin/Widgets/CreateWidget'>
+              <button class='btn btn-lg btn-primary'><?=$this->translate('Create new widget')?></button>
             </a>
           </div>
-          <table class="table table-hover table-responsive">
-			<thead>
-			  <tr>
-			    <th class='col-md-10' align='left'><?=$this->translate('Title')?></th>
-			    <th class='col-md-2'> </th>
-			  </tr>
-			</thead>
-			<tbody>
-		    <? foreach($widgets as $widget): ?>
-			  <tr>
-			    <td><?= $widget->getTitleCs() ?></td>
-			    <td>
-    			  <div class="dropdown pull-right">
-					<span id="actions" class="actions" aria-expanded="true" aria-haspopup="true" data-toggle="dropdown">
-					  <i class="fa fa-ellipsis-v dropdown-toggle pointer"></i>
-					</span>
-					<ul class="dropdown-menu" aria-labelledby="actions">
+          <table class='table table-hover table-responsive'>
+            <thead>
+              <tr>
+                <th class='col-md-10' align='left'><?=$this->translate('Title')?></th>
+                <th class='col-md-2'> </th>
+              </tr>
+            </thead>
+            <tbody>
+              <? foreach($widgets as $widget): ?>
+              <tr>
+                <td><?= $widget->getTitleCs() ?></td>
+                <td>
+                  <div class='dropdown pull-right'>
+                    <span id='actions' class='actions' aria-expanded='true' aria-haspopup='true' data-toggle='dropdown'>
+                      <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
+                    </span>
+                    <ul class='dropdown-menu' aria-labelledby='actions'>
                       <li>
-                   	    <a href="/Admin/Widgets/EditWidget/<?=$widget->getId()?>">
-                          <i class="fa fa-edit"></i>
+                        <a href='/Admin/Widgets/EditWidget/<?=$widget->getId()?>'>
+                          <i class='fa fa-edit'></i>
                             <?=$this->translate('Edit')?>
                         </a>
-					  </li>
-                	</ul>
+                      </li>
+                    </ul>
                   </div>
                 </td>
               </tr>
-		    <? endforeach; ?>
-		    </tbody>
-		  </table>
+              <? endforeach; ?>
+            </tbody>
+          </table>
         </div>
       </div>
-	</div>
-
-  </div>
-
-</div>
-
-<script>
-	jQuery( document ).ready( function( $ ) {
-
-	    /* HomePage Widgets */
-		$( '#homepage-widgets' ).on( 'change', 'select', function( event ) {
-			event.preventDefault();
-
-			var data = {};
-
-			$( '#homepage-widgets select' ).each(function( index, element ) {
-				data[$( element ).attr( 'id' )] = $( element ).val();
-			});
-
-			$.ajax({
-	            type: 'POST',
-	            cache: false,
-	            dataType: 'json',
-	            data: data,
-	            url: VuFind.getPath() + '/Admin/Widgets/SaveFrontendWidgets',
-	            beforeSend: function() {
-	            },
-	            success: function( response ) {
-
-	                if (response.status == 'OK') {
-
-	                	$( '#save-widgets-confirmation' ).modal( 'show' );
-
-	        			setTimeout( function() {
-	        				$( '#save-widgets-confirmation' ).modal( 'hide' );
-	        			}, 1200 );
-
-	                } else {
-	                    console.error(response.data);
-	                }
-
-	            },
-	            error: function ( xmlHttpRequest, status, error ) {
-	                $( '#search-results-loader' ).remove();
-	                console.error(xmlHttpRequest.responseText);
-	                console.error(xmlHttpRequest);
-	                console.error(status);
-	                console.error(error);
-	            },
-	            complete: function ( xmlHttpRequest, textStatus ) {
-	            }
-	        });
-		});
-
-		/* Inspirations widgets */
-        nextPosition = '<?=$i?>';
-
-		var widgetSelect = "<select class=\"form-control selectpicker\">\n" +
-            "                 <option value=\"\"> </option>\n" +
-            "                 <? foreach($widgets as $widget): ?>\n" +
-            "                   <option value='<?=$widget->getId()?>'><?=$this->translate($widget->getTitleCs())?></option>\n" +
-            "                 <? endforeach; ?>\n" +
-            "               </select>";
-
-        /* Inspirations Widgets */
-        $( '#inspirations-widgets' ).on( 'change', 'select', function( event ) {
-            event.preventDefault();
-
-            var widgetName = $( this ).val();
-            var position = $( this ).parent().parent().attr( 'data-position' );
-            console.log( 'Changing inspiration widget at position ' + position + ' to widget ' + widgetName);
-        });
-
-        $( '#inspirations-widgets' ).on( 'click', '#add-more-inspirations-widgets', function( event ) {
-            console.log( 'Adding empty widget at position: ' + nextPosition );
-
-            var html = '<div class="col-md-4 text-center inspiration-widget" data-position="' + nextPosition + '">' + widgetSelect + '</div>';
-
-            $( '#inspirations-placeholder' ).append( html );
-            $( '#inspirations-placeholder' ).find( 'inspiration-widget' ).last().attr( 'id', 'inspiration-widget-' + nextPosition ).val( '' );
-
-            $('.selectpicker').selectpicker({
-                style: 'btn-info',
-                size: 8
-            });
-            nextPosition++;
-        });
-
-        $( '#inspirations-widgets' ).on( 'click', '#save-inspirations-widgets', function( event ) {
-
-            var data = {};
-            data['widgets'] = [];
-
-            $( '.inspiration-widget' ).each(function( index, element ) {
-                var position = $( element ).attr( 'data-position' );
-                var value = $( element ).find( 'select' ).val();
-
-                data['widgets'][position] = value;
-            });
-
-            $.ajax({
-                type: 'POST',
-                cache: false,
-                dataType: 'json',
-                data: data,
-                url: VuFind.getPath() + '/Admin/Widgets/SaveInspirationsWidgets',
-                beforeSend: function() {
-                },
-                success: function( response ) {
-
-                    if (response.status == 'OK') {
-
-                        $( '#save-widgets-confirmation' ).modal( 'show' );
-
-                        setTimeout( function() {
-                            $( '#save-widgets-confirmation' ).modal( 'hide' );
-                        }, 1200 );
-
-                    } else {
-                        console.error(response.data);
-                    }
-
-                },
-                error: function ( xmlHttpRequest, status, error ) {
-                    $( '#search-results-loader' ).remove();
-                    console.error(xmlHttpRequest.responseText);
-                    console.error(xmlHttpRequest);
-                    console.error(status);
-                    console.error(error);
-                },
-                complete: function ( xmlHttpRequest, textStatus ) {
-                }
-            });
-        });
-
-        $('.selectpicker').selectpicker({
-            style: 'btn-info',
-            size: 8
-        });
-	});
-
-</script>
-
-<div class="modal fade" id="save-widgets-confirmation" tabindex="-1" role="dialog" aria-labelledby="save-widgets-confirmation-label" style='margin-top: 150px;'>
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-               <?=$this->translate('Widgets saved')?>
-            </div>
-        </div>
     </div>
+  </div>
 </div>
+
+<div class='modal fade save-widgets-confirmation'
+     id='save-widgets-confirmation'
+     tabindex='-1'
+     role='dialog'
+     aria-labelledby='save-widgets-confirmation-label'>
+  <div class='modal-dialog' role='document'>
+    <div class='modal-content'>
+      <div class='modal-body'>
+       <?=$this->translate('Widgets saved')?>
+      </div>
+    </div>
+  </div>
+</div>
+
+<select class='form-control selectpicker hidden' id='widget-template'>
+   <option value=''> </option>
+   <? foreach($widgets as $widget): ?>
+     <option value='<?=$widget->getId()?>'>
+       <?=$this->translate($widget->getTitleCs())?>
+     </option>
+   <? endforeach; ?>
+ </select>
