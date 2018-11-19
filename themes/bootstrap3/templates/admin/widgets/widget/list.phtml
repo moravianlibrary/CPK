@@ -3,78 +3,90 @@
   $this->headTitle($this->translate('Widget').' | '.$this->translate('Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
-      '<li class="active">'.$this->translate($this->widgetTitle).'</li>';
+  $this->layout()->breadcrumbs = '' .
+      '<li>'.
+        '<a href="/Search" title="'.$this->transEsc('Main page').'">'.
+          $this->transEsc('Main page').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.$this->transEsc('Administration').'</a>'.
+      '</li>'.
+      '<li><a href="/Admin/Widgets" title="'.$this->transEsc('Widgets').'">'.$this->transEsc('Widgets').'</a></li>'.
+      '<li class="active">'.
+        $this->transEsc($this->widgetTitle).
+      '</li>';
 
   $this->layout()->title = $this->translate($this->widgetTitle);
 
   $i = 0;
 ?>
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs ?></ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9">
+  <div class='col-sm-9'>
     <h2><?=$this->translate($this->widgetTitle)?></h2>
     <div class='well'>
-	  <div class='row'>
+      <div class='row'>
         <div class='col-md-12 text-center'>
-          <div class="admin-toolbox pull-left">
-            <a href="/Admin/Widget/<?=$widgetId?>/CreateItem">
-              <button class="btn btn-lg btn-primary"><?=$this->translate('Create new')?></button>
+          <div class='admin-toolbox pull-left'>
+            <a href='/Admin/Widget/<?=$widgetId?>/CreateItem'>
+              <button class='btn btn-lg btn-primary'><?=$this->translate('Create new')?></button>
             </a>
-              <a href="/Admin/Widget/<?=$widgetId?>/ImportItems">
-                  <button class="btn btn-lg btn-primary"><?=$this->translate('Import')?></button>
-              </a>
+            <a href='/Admin/Widget/<?=$widgetId?>/ImportItems'>
+                <button class='btn btn-lg btn-primary'><?=$this->translate('Import')?></button>
+            </a>
           </div>
-		  <table class="table table-hover table-responsive">
-			<thead>
-			  <tr>
-			    <th class='col-md-1' align='left'> </th>
-			    <th class='col-md-7' align='left'><?=$this->translate('Title')?></th>
-			    <!--<th><?=$this->translate('Preferred record')?></th>-->
-			    <th class='col-md-2' align='left'><?=$this->translate('Preview')?></th>
-			    <th class='col-md-2'> </th>
-			  </tr>
-			</thead>
-			<tbody>
-			  <? foreach($this->widgetsContents as $content): $i++;?>
-			  <tr>
-			    <td class='col-md-1' align='left'><?=$i?></td>
-				<td class='col-md-7' align='left'><?=$content->getValue()?></td>
-				<!--<td align='left'><?=$content->getPreferredValue()?></td>-->
-				<td class='col-md-2' align='left'>
-				  <a href='/Record/<?=$content->getValue()?>' target='_blank'>
-				    <i class="fa fa-tv"></i>
-				  </a>
-				</td>
-				<td class='col-md-2'>
-				  <div class="dropdown pull-right">
-					<span id="actions" class="actions" aria-expanded="true" aria-haspopup="true" data-toggle="dropdown">
-					  <i class="fa fa-ellipsis-v dropdown-toggle pointer"></i>
-					</span>
-					<ul class="dropdown-menu" aria-labelledby="actions">
+          <table class='table table-hover table-responsive'>
+            <thead>
+              <tr>
+                <th class='col-md-1' align='left'> </th>
+                <th class='col-md-7' align='left'><?=$this->translate('Title')?></th>
+                <th class='col-md-2' align='left'><?=$this->translate('Preview')?></th>
+                <th class='col-md-2'> </th>
+              </tr>
+            </thead>
+            <tbody>
+              <? foreach($this->widgetsContents as $content): $i++;?>
+              <tr>
+                <td class='col-md-1' align='left'><?=$i?></td>
+                <td class='col-md-7' align='left'><?=$this->escapeHtml($content->getValue())?></td>
+                <td class='col-md-2' align='left'>
+                  <a href='/Record/<?=$this->escapeHtml($content->getValue())?>' target='_blank'>
+                    <i class='fa fa-tv'></i>
+                  </a>
+                </td>
+                <td class='col-md-2'>
+                  <div class='dropdown pull-right'>
+                    <span id='actions' class='actions' aria-expanded='true' aria-haspopup='true' data-toggle='dropdown'>
+                      <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
+                    </span>
+                    <ul class='dropdown-menu' aria-labelledby='actions'>
                       <li>
-                   	    <a href="/Admin/Widget/<?=$widgetId?>/EditItem/<?=$content->getId()?>">
-                          <i class="fa fa-edit"></i>
+                        <a href='/Admin/Widget/<?=$widgetId?>/EditItem/<?=$content->getId()?>'
+                           title='<?=$this->translate('Edit')?>'>
+                          <i class='fa fa-edit'></i>
                             <?=$this->translate('Edit')?>
                         </a>
-					  </li>
-                	</ul>
+                      </li>
+                    </ul>
                   </div>
-				</td>
-			  </tr>
-			  <? endforeach; ?>
-			</tbody>
-		  </table>
+                </td>
+              </tr>
+              <? endforeach; ?>
+            </tbody>
+          </table>
         </div>
       </div>
-	</div>
+    </div>
   </div>
 </div>
