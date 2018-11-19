@@ -3,120 +3,122 @@
   $this->headTitle($this->translate('Infobox').' | '.$this->translate('Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
-      '<li><a href="/Admin/Infobox">'.$this->transEsc('Infobox').'</a></li>'.
+  $this->layout()->breadcrumbs = '' .
+      '<li>'.
+        '<a href="/Search" title="'.$this->transEsc('Main page').'">'.
+          $this->transEsc('Main page').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.$this->transEsc('Administration').'</a>'.
+      '</li>'.
+      '<li><a href="/Admin/Widgets" title="'.$this->transEsc('Widgets').'">'.$this->transEsc('Widgets').'</a></li>'.
+      '<li><a href="/Admin/Infobox" title="'.$this->transEsc('Infobox').'">'.$this->transEsc('Infobox').'</a></li>'.
       '<li class="active">'.$this->transEsc('Edit item').'</li>';
 
-  $this->layout()->title = $this->translate('Infobox');
+  $this->layout()->title = $this->transEsc('Infobox');
 
-  $this->headScript()->appendFile("jquery-ui.min.js");
+  $this->headScript()->appendFile('jquery-ui.min.js');
+  $this->headScript()->appendFile('vendor/ckeditor/ckeditor.js');
+  $this->headScript()->appendFile('admin/widgets/widget-item.js');
 ?>
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs ?></ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9" id='homepage-infobox'>
+  <div class='col-sm-9' id='homepage-infobox'>
     <h2><?=$this->translate('Edit')?></h2>
     <div class='well'>
-	  <div class='row'>
-	      <div class='admin-toolbox'>
-            <div class="dropdown pull-right">
-              <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                <i class='fa fa-ellipsis-v fa-2x dropdown-toggle pointer'></i>
-              </span>
-              <ul class="dropdown-menu" aria-labelledby="actions">
-                <li>
-                  <a href='/Admin/Infobox/RemoveItem/<?= $this->item->getId() ?>'>
-                    <i class='fa fa-remove'></i>
-                    <?=$this->translate('Delete')?>
-                  </a>
-                </li>
-              </ul>
-            </div>
+      <div class='row'>
+        <div class='admin-toolbox'>
+          <div class='dropdown pull-right'>
+            <span class='actions' id='actions' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true'>
+              <i class='fa fa-ellipsis-v fa-2x dropdown-toggle pointer'></i>
+            </span>
+            <ul class='dropdown-menu' aria-labelledby='actions'>
+              <li>
+                <a href='/Admin/Infobox/RemoveItem/<?= $this->item->getId() ?>'>
+                  <i class='fa fa-remove'></i>
+                  <?=$this->translate('Delete')?>
+                </a>
+              </li>
+            </ul>
           </div>
+        </div>
         <form action='/Admin/Infobox/SaveItem' method='post'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
           <input type='hidden' name='id' value='<?=$this->item->getId()?>'>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('Cs title')?></label>
-              <input class='form-control' name='title_cs' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item->getTitleCs()?>' required>
+              <input class='form-control'
+                     name='title_cs'
+                     type='text'
+                     placeholder='<?=$this->translate('Enter title')?>'
+                     value='<?=$this->item->getTitleCs()?>'
+                     required>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('En title')?></label>
-              <input class='form-control' name='title_en' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->item->getTitleEn()?>' required>
+              <input class='form-control'
+                     name='title_en'
+                     type='text'
+                     placeholder='<?=$this->translate('Enter title')?>'
+                     value='<?=$this->item->getTitleEn()?>'
+                     required>
             </div>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <label><?=$this->translate('Cs text')?></label>
             <textarea rows='15' class='form-control editor' name='text_cs'><?=$this->item->getTextCs()?></textarea>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <label><?=$this->translate('En text')?></label>
             <textarea rows='15' class='form-control editor' name='text_en'><?=$this->item->getTextEn()?></textarea>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <label><?=$this->translate('Valid from')?></label>
-			<span class="input-group">
-			  <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-			  <input id='dateFrom' name='date_from' class="form-control" type="text" value='<?=$this->item->getDateFrom()?>' required>
-			</span>
+            <span class='input-group'>
+              <span class='input-group-addon'>
+                <i class='fa fa-calendar fa-fw'></i>
+              </span>
+              <input id='dateFrom'
+                     name='date_from'
+                     class='form-control'
+                     type='text'
+                     value='<?=$this->item->getDateFrom()?>'
+                     required>
+          </span>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <label><?=$this->translate('Valid to')?></label>
-			<span class="input-group">
-			  <span class="input-group-addon"><i class="fa fa-calendar fa-fw"></i></span>
-			  <input id='dateTo' name='date_to' class="form-control" type="text" value='<?=$this->item->getDateTo()?>' required>
-			</span>
+            <span class='input-group'>
+              <span class='input-group-addon'>
+                <i class='fa fa-calendar fa-fw'></i>
+              </span>
+              <input id='dateTo'
+                     name='date_to'
+                     class='form-control'
+                     type='text'
+                     value='<?=$this->item->getDateTo()?>'
+                     required>
+            </span>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>
       </div>
-	</div>
+    </div>
   </div>
 </div>
-<script src="https://cdn.ckeditor.com/4.7.3/full-all/ckeditor.js"></script>
-<script>
-
-	jQuery( document ).ready( function( $ ) {
-		$.datepicker.regional['cs'] = {
-            closeText: 'Cerrar',
-            prevText: 'Předchozí',
-            nextText: 'Další',
-            currentText: 'Hoy',
-            monthNames: ['Leden','Únor','Březen','Duben','Květen','Červen', 'Červenec','Srpen','Září','Říjen','Listopad','Prosinec'],
-            monthNamesShort: ['Le','Ún','Bř','Du','Kv','Čn', 'Čc','Sr','Zá','Ří','Li','Pr'],
-            dayNames: ['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'],
-            dayNamesShort: ['Ne','Po','Út','St','Čt','Pá','So',],
-            dayNamesMin: ['Ne','Po','Út','St','Čt','Pá','So'],
-            weekHeader: 'Sm',
-            dateFormat: 'dd.mm.yy',
-            firstDay: 1,
-            isRTL: false,
-            showMonthAfterYear: false,
-            yearSuffix: ''
-        };
-
-		$.datepicker.setDefaults($.datepicker.regional['cs']);
-
-		$( '#dateFrom, #dateTo' ).datepicker( {
-			changeMonth: true,
-			changeYear: true,
-			dateFormat: "yy-mm-dd"
-		});
-
-        CKEDITOR.replace( 'text_cs' );
-        CKEDITOR.replace( 'text_en' );
-	});
-
-</script>
