@@ -3,67 +3,75 @@
   $this->headTitle($this->translate('Widget').' | '.$this->translate('Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
-      '<li><a href="/Admin/Widget/'.$widgetId.'">'.$this->translate($this->widgetTitle).'</a></li>'.
+  $this->layout()->breadcrumbs = '' .
+      '<li>'.
+        '<a href="/Search" title="'.$this->transEsc('Main page').'">'.
+          $this->transEsc('Main page').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.$this->transEsc('Administration').'</a>'.
+      '</li>'.
+      '<li><a href="/Admin/Widgets" title="'.$this->transEsc('Widgets').'">'.$this->transEsc('Widgets').'</a></li>'.
+      '<li>'.
+        '<a href="/Admin/Widget/'.$widgetId.'" title="'.$this->transEsc($this->widgetTitle).'">'.
+          $this->transEsc($this->widgetTitle).
+        '</a>'.
+      '</li>'.
       '<li class="active">'.$this->transEsc('Create item').'</li>';
 
   $this->layout()->title = $this->translate('Widget');
 
-  $this->headScript()->appendFile("jquery-ui.min.js");
+  $this->headScript()->appendFile('jquery-ui.min.js');
 ?>
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs ?></ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9">
+  <div class='col-sm-9'>
     <h2><?=$this->translate('Create item')?></h2>
     <div class='well'>
-	  <div class='row'>
+      <div class='row'>
         <form action='/Admin/Widget/<?=$widgetId?>/AddItem' method='post'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
           <input type='hidden' name='widget_id' value='<?=$this->widgetId?>'>
 
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('Local Record Id')?></label>
-              <input class='form-control' name='value' type='text' value='' required>
+              <input class='form-control' name='value' type='text' required>
             </div>
           </fieldset>
-
-          <!--<fieldset class="form-group">
-            <div class="col-xs-8">
-              <label><?=$this->translate('Preferred record (show in widget?)')?></label>
-              <input class='form-control' name='preferred_value' type='checkbox' value='1'>
-            </div>
-          </fieldset>-->
 
           <? if ($widget->getDescription() == 'description'): ?>
-		  <fieldset class="form-group">
-            <div class="col-xs-8">
-              <label><?=$this->translate('Description')?> Cs</label>
-              <textarea class='form-control' name='description_cs'></textarea>
-            </div>
-          </fieldset>
+            <fieldset class='form-group'>
+              <div class='col-xs-8'>
+                <label><?=$this->translate('Description')?> Cs</label>
+                <textarea class='form-control' name='description_cs'></textarea>
+              </div>
+            </fieldset>
 
-          <fieldset class="form-group">
-            <div class="col-xs-8">
-              <label><?=$this->translate('Description')?> En</label>
-              <textarea class='form-control' name='description_en'></textarea>
-            </div>
-          </fieldset>
+            <fieldset class='form-group'>
+              <div class='col-xs-8'>
+                <label><?=$this->translate('Description')?> En</label>
+                <textarea class='form-control' name='description_en'></textarea>
+              </div>
+            </fieldset>
           <? endif; ?>
 
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>
       </div>
-	</div>
+    </div>
   </div>
 </div>
