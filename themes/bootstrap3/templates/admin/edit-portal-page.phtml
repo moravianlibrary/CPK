@@ -17,8 +17,9 @@
       '</li>'.
       '<li>'.
         '<a href="/Admin/PortalPages" title="'.$this->transEsc('Portal pages').'">'.
-         $this->transEsc('Portal pages').'</a>'.
-        '</li>'.
+          $this->transEsc('Portal pages').
+        '</a>'.
+      '</li>'.
       '<li class="active">'.$this->translate('Edit').': '.htmlspecialchars($this->page['title']).'</li>';
 
   $this->layout()->title = $this->translate('Portal pages');
@@ -28,7 +29,7 @@
 ?>
 
 <div class='row clearfix'>
-  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs ?></ul>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs?></ul>
 
   <div class='col-sm-3'>
     <?=$this->render('admin/menu.phtml')?>
