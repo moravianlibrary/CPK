@@ -24,7 +24,7 @@
   $this->layout()->title = $this->translate('Portal pages');
 
   $this->headScript()->appendFile('vendor/ckeditor/ckeditor.js');
-  $this->headScript()->appendFile('admin/portal-pages/edit-portal-page.js');
+  $this->headScript()->appendFile('admin/portal-pages/portal-page.js');
 ?>
 
 <div class='row clearfix'>
@@ -91,10 +91,10 @@
               <label><?=$this->translate('Language')?></label>
               <select class='form-control' name='language'>
                 <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
-                <option value='<?=$langCode?>'
-                        <?=($langCode == $page['language_code']) ? 'selected="selected"' : ''?>>
-                  <?=$this->translate($langName)?>
-                </option>
+                  <option value='<?=$langCode?>'
+                          <?=($langCode == $page['language_code']) ? 'selected="selected"' : ''?>>
+                    <?=$this->translate($langName)?>
+                  </option>
                 <? endforeach; ?>
               </select>
             </div>
@@ -104,10 +104,10 @@
               <label><?=$this->translate('Placement')?></label>
               <select id='view' class='form-control' name='placement'>
                 <? foreach ($this->placements as $placement): ?>
-                <option value='<?=$placement?>'
-                        <?=($this->page['placement'] == $placement) ? ' selected="selected"' : ''?>>
-                  <?=$this->translate($placement)?>
-                </option>
+                  <option value='<?=$placement?>'
+                          <?=($this->page['placement'] == $placement) ? ' selected="selected"' : ''?>>
+                    <?=$this->translate($placement)?>
+                  </option>
                 <? endforeach; ?>
               </select>
             </div>
@@ -119,10 +119,10 @@
               </label>
               <select id='view' class='form-control' name='position'>
                 <? foreach ($this->positions as $position): ?>
-                <option value='<?=$position?>'
-                        <?=($this->page['position'] == $position) ? ' selected="selected"' : ''?>>
-                  <?=$this->translate($position)?>
-                </option>
+                  <option value='<?=$position?>'
+                          <?=($this->page['position'] == $position) ? ' selected="selected"' : ''?>>
+                    <?=$this->translate($position)?>
+                  </option>
                 <? endforeach; ?>
               </select>
             </div>
