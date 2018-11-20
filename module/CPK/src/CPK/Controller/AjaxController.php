@@ -1763,9 +1763,19 @@ class AjaxController extends AjaxControllerBase
             $latitude = $coords['latitude'];
             $longitude = $coords['longitude'];
 
-            $geocode = file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&sensor=false&language=cs");
+            $lang = $this->getServiceLocator()->has('VuFind\Translator') ? $this->getServiceLocator()
+                ->get('VuFind\Translator')
+                ->getLocale() : 'en';
+
+            $geocode = file_get_contents("https://maps.googleapis.com/maps/api/geocode/json".
+                "?key=".$this->getConfig()->GoogleMaps->apikey.
+                "&latlng=$latitude,$longitude&sensor=false&language=".$lang);
 
             $geoData = json_decode($geocode, true);
+
+            if (! $geoData['results']) {
+                throw new \Exception($geocode);
+            }
 
             $region = null;
 
