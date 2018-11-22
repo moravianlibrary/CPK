@@ -42,7 +42,7 @@ function updateFinesTable(response) {
     var cat_username = data.cat_username, parentTable = {};
 
     if (cat_username) {
-	parentTable = $('table[id="' + cat_username + '"].table.table-striped');
+	parentTable = $('table[id="' + escapeHTML(cat_username) + '"].table.table-striped');
     }
 
     if (parentTable.length) {
@@ -99,28 +99,28 @@ function updateFinesTable(response) {
 		tableBody.remove();
 	    }
 	    
-	    var count = $( 'table[id="' + cat_username + '"] tr.excluded' ).size();
+	    var count = $( 'table[id="' + escapeHTML(cat_username) + '"] tr.excluded' ).size();
 	    if (count > 0) {
-            $( 'tr[id="summary_' + cat_username + '"]' )
+            $( 'tr[id="summary_' + escapeHTML(cat_username) + '"]' )
                 .before(`
                      <tr>
                        <td colspan='4' class='text-center'>
-                         <a id='${cat_username}' class='toggler'>
+                         <a id='${escapeHTML(cat_username)}' class='toggler'>
                            <i class='pr-interface-arrowbottom4' title='${VuFind.translate("show_others")}'> </i>
                          </a>
                        </td>
                      </tr>`);
 	    }
-	    $( 'a[id="' + cat_username + '"].toggler' ).click( function() {
+	    $( 'a[id="' + escapeHTML(cat_username) + '"].toggler' ).click( function() {
 	    	$(this).toggleClass('more');
 	        if ($(this).is('.more')){
                 $(this)
                     .html(`<i class='pr-interface-arrowtop4' title='${VuFind.translate("hide_others")}'> </i>`);
-                $( 'table[id="' + cat_username + '"] tr.excluded' ).removeClass('hidden');
+                $( 'table[id="' + escapeHTML(cat_username) + '"] tr.excluded' ).removeClass('hidden');
 	        } else {
                 $(this)
                     .html(`<i class='pr-interface-arrowbottom4' title='${VuFind.translate("show_others")}'> </i>`);
-                $( 'table[id="' + cat_username + '"] tr.excluded' ).addClass('hidden');
+                $( 'table[id="' + escapeHTML(cat_username) + '"] tr.excluded' ).addClass('hidden');
                 window.location = '/MyResearch/Fines#' + parentTable.parent().attr('id');
 	        }
 	    });

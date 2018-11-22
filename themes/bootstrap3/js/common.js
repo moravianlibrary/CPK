@@ -616,3 +616,12 @@ jQuery( document ).ready( function( $ ){
 
     $( '#modal_dg' ).appendTo( 'body' );
 });
+
+function escapeHTML(unsafeStr) {
+    return unsafeStr
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/\'/g, '&#39;'); // '&apos;' is not valid HTML 4
+}
