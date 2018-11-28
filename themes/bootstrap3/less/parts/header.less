@@ -147,3 +147,54 @@ tr.link {
     margin-right: 15px;
     margin-top: 11.5px;
 }
+
+.header-panel {
+  @media (min-width: 1460px) {
+    .container-fixed();
+    width: 1440px;
+  }
+  margin-top: -20px;
+  margin-right: auto;
+  margin-left: auto;
+  position: relative;
+  background: #ffffff;
+  padding: 25px 40px 15px 0px;
+  font-weight: bolder;
+  font-size: 120%;
+  color: @dark-grey;
+
+  .panel-title {
+    color: @grey-text-color;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 90%;
+    padding-top: 35px !important;
+    padding-left: 35px !important;
+  }
+
+  .panel-col {
+    padding: 30px 40px 25px 0px;
+    .icon {
+      height: 100%;
+      vertical-align: middle;
+      color: @primary;
+      font-size: 130%;
+    }
+    .text {
+      text-align: left;
+      height: 100%;
+      vertical-align: middle;
+    }
+    @media (max-width: 992px) {
+      .text {
+        text-align: center;
+        padding-top: 10px;
+      }
+    }
+  }
+  @media (max-width: 992px) {
+    .panel-col {
+      padding-top: 10px;
+    }
+  }
+}

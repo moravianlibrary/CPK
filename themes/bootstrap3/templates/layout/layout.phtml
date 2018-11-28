@@ -285,13 +285,13 @@
                     <div class='container'>
                         <?=$this->render('search/searchbox.phtml'); ?>
                         <?=$this->render('shib-assertion.phtml')?>
-                        <? if(!$this->themeConfiguration()->themeConfig['hide_inspirations']): ?>
+                        <? if(!$this->themeConfiguration()->themeConfig['hide_inspirations_arrow_link']): ?>
                             <a href="/Search/Inspiration" class="pull-left arrow-link">
                                 <i class="pr-interface-arrowleft"></i>
                                 <?=$this->transEsc("frontpage-left-arrow-link")?>
                             </a>
                         <? endif; ?>
-                        <? if(!$this->themeConfiguration()->themeConfig['hide_library_search']): ?>
+                        <? if(!$this->themeConfiguration()->themeConfig['hide_library_search_arrow_link']): ?>
                             <a href="/Search/Results/?lookfor0[]=&amp;type0[]=Libraries&amp;bool0[]=AND&amp;filter=&amp;daterange=&amp;publishDatefrom=&amp;publishDateto=&amp;limit=10&amp;sort=relevance&amp;page=1&amp;searchTypeTemplate=basic&amp;keepFacetsEnabled=true&amp;join=AND" class="pull-right arrow-link">
                                 <? $titleHtml = $this->transEsc("frontpage-right-arrow-link") ."<i class=\"pr-interface-arrowright\"></i>"; ?>
                                 <?= $this->help()->getElementHelp('element_help_frontpage_right_arrow', $titleHtml, "mzk") ?>
@@ -299,6 +299,7 @@
                         <? endif; ?>
                     </div>
                 </div>
+
             <? else: ?>
                 <? if ($this->layout()->headerType == "libraries"): ?>
                     <?=$this->render('libraries/header.phtml')?>
@@ -306,6 +307,50 @@
             <? endif; ?>
         </div>
     </header>
+
+    <? if (!$this->themeConfiguration()->themeConfig['hide_header_panel'] && $this->layout()->frontpage): ?>
+      <div class='header-panel container'>
+        <div class='row'>
+          <div class='col-md-3 text-center panel-col panel-title'>
+            <?=$this->transEsc('header_panel_first_column')?>
+          </div>
+          <div class='col-md-3 text-center panel-col'>
+            <div class='content row'>
+              <div class='icon col-md-2'>
+                <i class='pr-location-maproute'></i>
+              </div>
+              <div class='text col-md-10'>
+                <?=$this->transEsc('header_panel_second_column')?>
+              </div>
+            </div>
+          </div>
+          <div class='col-md-3 text-center panel-col'>
+            <div class='content'>
+              <div class='icon col-md-2'>
+                <i class='pr-misc-globe'></i>
+              </div>
+              <div class='text col-md-10'>
+                <?=$this->transEsc('header_panel_third_column')?>
+              </div>
+            </div>
+          </div>
+          <div class='col-md-3 text-center panel-col'>
+            <div class='content'>
+              <div class='icon col-md-2'>
+                <i class='fa fa-laptop'></i>
+              </div>
+              <div class='text col-md-10'>
+                <a href='<?=$this->layout()->header_panel_fourth_column_link?>'
+                   title='<?=$this->transEsc('header_panel_fourth_column')?>'
+                   class='link-inverse'>
+                  <?=$this->transEsc('header_panel_fourth_column')?>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <? endif; ?>
 
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
       <div class="container">

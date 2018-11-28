@@ -40,14 +40,21 @@ class ThemeConfiguration extends AbstractHelper
 	 * Default theme configuration
 	 */
 	const DEFAULT_THEME_CONFIG = [
-		'logo_image'           => false,
-		'hide_navbar'          => false,
-		'hide_catalog'         => false,
-		'hide_inspirations'    => false,
-		'hide_library_search'  => false,
-		'hide_switch_language' => false,
-		'hide_eds_source'      => false,
-		'logo_href'            => '/Search/Home',
+		'logo_image'                      => false,
+		'hide_navbar'                     => false,
+		'hide_catalog'                    => false,
+		'hide_inspirations'               => false,
+		'hide_library_search'             => false,
+		'hide_inspirations_arrow_link'    => true,
+		'hide_library_search_arrow_link'  => true,
+		'hide_switch_language'            => false,
+		'hide_eds_source'                 => false,
+		'hide_header_panel'               => false,
+		'logo_href'                       => '/Search/Home',
+		'header_panel_fourth_column_link' => 'https://www.knihovny.cz/Search/Results/?'
+			.'type0%5B%5D=AllFields&bool0%5B%5D=AND&filter=JYOwzgDsBOCGAuwD2IBcAiApgaxMAFgJ4D62mxY8sAXpnukA'
+			.'&daterange=&publishDatefrom=&publishDateto=&limit=20&sort=relevance&page=1'
+			.'&searchTypeTemplate=basic&database=Solr&keepFacetsEnabled=true&join=AND',
 	];
 
 	/**
