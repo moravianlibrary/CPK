@@ -1,14 +1,13 @@
 <? $center = $position == 'top' ? 'center' : '' ?>
-
 <head>
   <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <link rel='stylesheet' type='text/css' href='<?=__DIR__?>/themes/<?=$theme?>/css/embedded.css'>
+  <link rel='stylesheet' type='text/css' href='https://knihovny.cz/themes/<?=$theme?>/css/embedded.css'>
 </head>
 <body>
 
   <? if ($logo_path): ?>
     <a href='<?=$this->escapeHtmlAttr($link)?>' title='<?=$this->escapeHtmlAttr($title)?>'>
-      <img src='//knihovny.cz/themes/bootstrap3/images/<?=$this->escapeHtmlAttr($logo_path)?>'
+      <img src='https://knihovny.cz/themes/bootstrap3/images/<?=$this->escapeHtmlAttr($logo_path)?>'
            alt='<?=$this->escapeHtmlAttr($title)?>'
            class='logo <?=$center?>'>
     </a>
