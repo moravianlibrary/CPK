@@ -158,10 +158,9 @@ function cpkErrorHandler($err_severity, $err_msg, $err_file, $err_line, array $e
 
 set_error_handler('cpkErrorHandler');
 
-if (isset($_SERVER['SENTRY_SECRET_ID']) && isset($_SERVER['SENTRY_USER_ID'])) {
-    $sentryClient = new \Raven_Client(
-        'https://f2a8ccfce7ae4ad7ba3663d3aec5680d:626ef59ca39c443f87cb24dd604743be@sentry.io/228256'
-    );
+if (!empty($_SERVER['SENTRY_DSN'])) {
+    $dsn = $_SERVER['SENTRY_DSN'];
+    $sentryClient = new \Raven_Client($dsn);
     $error_handler = new \Raven_ErrorHandler($sentryClient);
     $error_handler->registerExceptionHandler();
     $error_handler->registerErrorHandler(true, E_ALL);
