@@ -97,7 +97,8 @@ $config = array(
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
-                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
+                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
+                    'ziskej' => 'CPK\ILS\Driver\Factory::getZiskej'
                 ), /* factories */
             ], /* ils_driver */
                 'autocomplete' => [
@@ -207,7 +208,8 @@ $config = array(
             'status' => 'CPK\Controller\StatusController',
             'admin' => 'CPK\Controller\AdminController',
             'edsrecord' => 'CPK\Controller\EdsrecordController',
-            'ziskej' => 'CPK\Controller\ZiskejController'
+            'ziskej' => 'CPK\Controller\ZiskejController',
+            'ziskejalpha' => 'CPK\Controller\ZiskejAlphaController'
         ), /* invokables */
     ), /* controllers */
     'controller_plugins' => [

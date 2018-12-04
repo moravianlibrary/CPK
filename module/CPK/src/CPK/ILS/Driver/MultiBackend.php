@@ -583,6 +583,13 @@ class MultiBackend extends MultiBackendBase
         return null;
     }
 
+    /**
+     * Takes sigla and return library source for it
+     *
+     * @param $sigla
+     *
+     * @return int|string|null
+     */
     public function siglaToSource($sigla)
     {
         $source = null;
@@ -592,6 +599,23 @@ class MultiBackend extends MultiBackendBase
         }
 
         return $source;
+    }
+
+    /**
+     * Takes source and return library id for it
+     *
+     * @param $source
+     *
+     * @return integer|null
+     */
+    public function sourceToLibraryId($source)
+    {
+        $pairedId = null;
+        foreach ($this->config['LibraryIDMapping'] as $pairedSource => $pairedId) {
+            if ($source === $pairedSource)
+                return $pairedId;
+        }
+        return $pairedId;
     }
 
     protected function getDetailsFromCurrentSource($source, $details)
