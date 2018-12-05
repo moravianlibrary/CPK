@@ -1039,7 +1039,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      * @param array $patron
      *            The patron array
      *
-     * @return array Array of arrays containing fines information.
+     * @return array|bool Array of arrays containing fines information.
      * @throws ILSException
      * @throws JsonXMLException
      */
@@ -1120,11 +1120,9 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
                 'item_id' => $item_id
             );
         }
-        if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue != 0)
-            $fines[] = array(
-                'amount' => $monetaryValue,
-                'balance' => $monetaryValue
-            );
+        if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue != 0) {
+            return false;
+        }
 
         if (!empty($fines) && !$leastOne)
             $fines[count($fines) - 1]['excluded'] = false;
