@@ -497,9 +497,7 @@ jQuery( document ).ready( function( $ ) {
     FACETS = {
     			
 		reloadInstitutionsByGeolocation: function( coords ) {
-			console.log( 'Loading position... Coords: ' );
-			console.log( coords );
-			
+
 			$.ajax({
 	            type: 'POST',
 	            cache: false,
@@ -511,10 +509,6 @@ jQuery( document ).ready( function( $ ) {
 	            success: function( response ) {
 
 	                if (response.status == 'OK') {
-		                console.log( 'STATUS: OK ' );
-		                //console.log( response );
-		                console.log( 'My region is:' );
-		                console.log( response.data.region );
 		                
 		                $('#facet_institution').jstree(true).deselect_all();
 		                

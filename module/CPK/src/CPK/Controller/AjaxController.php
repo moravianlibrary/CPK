@@ -1758,51 +1758,89 @@ class AjaxController extends AjaxControllerBase
      */
     public function getTownsByRegionAjax()
     {
-        try {
-            $coords = $this->params()->fromPost();
-            $latitude = $coords['latitude'];
-            $longitude = $coords['longitude'];
+        $coords = $this->params()->fromPost();
+        $gps = [$coords['latitude'], $coords['longitude']]; // Out location
 
-            $lang = $this->getServiceLocator()->has('VuFind\Translator') ? $this->getServiceLocator()
-                ->get('VuFind\Translator')
-                ->getLocale() : 'en';
+        $configLoader = $this->getServiceLocator()->get('VuFind\Config');
 
-            $geocode = file_get_contents("https://maps.googleapis.com/maps/api/geocode/json".
-                "?key=".$this->getConfig()->GoogleMaps->apikey.
-                "&latlng=$latitude,$longitude&sensor=false&language=".$lang);
+        $solrUrl = $configLoader->get('config')->Index->url;
+        $solrCore = $configLoader->get('config')->Index->default_core;
 
-            $geoData = json_decode($geocode, true);
+        $url  = "$solrUrl/$solrCore/select?";
+        $url .= "q=town_search_txt:*";
+        $url .= "&fl=town_search_txt%2Cgps_display%2Cname_display%2Cregion_search_txt";
+        $url .= "&wt=json";
+        $url .= "&indent=true";
+        $url .= "&facet=true";
+        $url .= "&facet.field=town_search_txt";
+        $url .= "&start=0";
+        $url .= '&rows=10000';
 
-            if (! $geoData['results']) {
-                throw new \Exception($geocode);
-            }
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        $body = curl_exec($ch);
+        curl_close($ch);
 
-            $region = null;
+        $json = json_decode($body, true);
 
-            foreach ($geoData['results'] as $index => $data) {
-                foreach ($data['address_components'] as $key => $array) {
-                    foreach ($array['types'] as $type) {
-                        if ($type == 'administrative_area_level_1') {
-                            $region = $data['address_components'][$key]['long_name'];
-                        }
-                    }
-                }
-            }
-
-            if (is_null($region)) {
-                throw new \Exception('Region not found.');
-            }
-
-            $librariesGeolocationsTable = $this->getTable("librariesgeolocations");
-            $towns = $librariesGeolocationsTable->getTownsByRegion($region);
-
-        } catch (\Exception $e) {
-            return $this->output($e->getMessage(), self::STATUS_ERROR);
+        $institutions = [];
+        foreach ($json['response']['docs'] as $row) {
+            array_push($institutions, [
+                'institution' => $row['name_display'],
+                'town'        => $row['town_search_txt'],
+                'region'      => explode(" ", $row['region_search_txt'], 2)[0],
+                'latitude'    => explode(" ", $row['gps_display'], 2)[0],
+                'longtitude'  => explode(" ", $row['gps_display'], 2)[1],
+            ]);
         }
 
-        $output = ['region' => $region, 'towns' => $towns];
+        $distances = array_map(function($institution) use($gps) {
+            $a = [$institution['latitude'], $institution['longtitude']];
+            return $this->distance($a, $gps);
+        }, $institutions);
 
-        return $this->output($output, self::STATUS_OK);
+        asort($distances);
+
+        /* Get list of town sorted by distance ascending
+        foreach($distances as $townIndex => $distance) {
+            $towns[$townIndex]['distance'] = $distance;
+        }
+
+        usort($towns, function($a, $b) {
+            return $a['distance'] <=> $b['distance'];
+        });
+        */
+
+        $nearestInstitution = $institutions[key($distances)];
+        $region = $nearestInstitution['region'];
+
+        $librariesGeolocationsTable = $this->getTable('librariesgeolocations');
+        $towns = $librariesGeolocationsTable->getTownsByRegion($region);
+
+        return $this->output(['towns' => $towns], self::STATUS_OK);
+    }
+
+    /**
+     * Calculates distance between two GPS coordinates
+     *
+     * @param array $a Point A, e.g.  ['49.252292', '16.357017499999998']
+     * @param array $b Point B, e.g.  ['49.24356388888889', '16.344575']
+     *
+     * @return float $kilometers Kilometers
+     */
+    protected function distance($a, $b)
+    {
+        list($lat1, $lon1) = $a;
+        list($lat2, $lon2) = $b;
+
+        $theta = $lon1 - $lon2;
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1))
+            * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+        $dist = acos($dist);
+        $dist = rad2deg($dist);
+        $kilometers = $dist * 60 * 1.1515 * 1.609344;
+        return $kilometers;
     }
 
     /**
