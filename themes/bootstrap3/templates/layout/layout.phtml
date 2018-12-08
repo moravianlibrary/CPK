@@ -276,11 +276,7 @@
             <? if ($this->layout()->frontpage == true): ?>
                 <h1><?=$this->transEsc("frontpage-header-text")?></h1>
                 <? $docCount = $this->layout()->docCount; ?>
-                <? if (empty($docCount)): ?>
-                    <h4><?=$this->transEsc("frontpage-text")?></h4>
-                <? else: ?>
-                    <h4><?=$this->transEsc("frontpage-text", ['10 000 000' => $this->localizedNumber($docCount)])?></h4>
-                <? endif; ?>
+                <h4><?=$this->transEsc("frontpage-text")?></h4>
                 <div class="clearfix">
                     <div class='container'>
                         <?=$this->render('search/searchbox.phtml'); ?>
@@ -317,10 +313,14 @@
           <div class='col-md-3 text-center panel-col'>
             <div class='content row'>
               <div class='icon col-md-2'>
-                <i class='pr-location-maproute'></i>
+                <i class='icon-chci-to-knihovna'></i>
               </div>
               <div class='text col-md-10'>
-                <?=$this->transEsc('header_panel_second_column')?>
+                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_second_column_link']?>'
+                   title='<?=$this->transEsc('header_panel_second_column')?>'
+                   class='panel-link'>
+                  <?=$this->transEsc('header_panel_second_column')?>
+                </a>
               </div>
             </div>
           </div>
@@ -330,7 +330,11 @@
                 <i class='pr-misc-globe'></i>
               </div>
               <div class='text col-md-10'>
-                <?=$this->transEsc('header_panel_third_column')?>
+                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_third_column_link']?>'
+                   title='<?=$this->transEsc('header_panel_third_column')?>'
+                   class='panel-link'>
+                  <?=$this->transEsc('header_panel_third_column')?>
+                </a>
               </div>
             </div>
           </div>
@@ -340,9 +344,9 @@
                 <i class='fa fa-laptop'></i>
               </div>
               <div class='text col-md-10'>
-                <a href='<?=$this->layout()->header_panel_fourth_column_link?>'
+                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_fourth_column_link']?>'
                    title='<?=$this->transEsc('header_panel_fourth_column')?>'
-                   class='link-inverse'>
+                   class='panel-link'>
                   <?=$this->transEsc('header_panel_fourth_column')?>
                 </a>
               </div>

@@ -51,7 +51,14 @@ class ThemeConfiguration extends AbstractHelper
 		'hide_eds_source'                 => false,
 		'hide_header_panel'               => false,
 		'logo_href'                       => '/Search/Home',
-		'header_panel_fourth_column_link' => 'https://www.knihovny.cz/Search/Results/?'
+		'header_panel_second_column_link' => 'https://beta.knihovny.cz/Search/Results?lookfor=&type=AllFields'
+			.'&searchTypeTemplate=basic&page=1&database=Solr&limit=20&sort=relevance',
+
+		'header_panel_third_column_link'  => '/Search/Results/?database=EDS&page=1'
+			.'&type0%5B%5D=AllFields&sort=relevance&bool0%5B%5D=AND&type0%5B%5D=AllFields&lookfor0%5B%5D=&join=AND'
+			.'&searchTypeTemplate=basic&limit=20',
+
+		'header_panel_fourth_column_link' => '/Search/Results/?'
 			.'type0%5B%5D=AllFields&bool0%5B%5D=AND&filter=JYOwzgDsBOCGAuwD2IBcAiApgaxMAFgJ4D62mxY8sAXpnukA'
 			.'&daterange=&publishDatefrom=&publishDateto=&limit=20&sort=relevance&page=1'
 			.'&searchTypeTemplate=basic&database=Solr&keepFacetsEnabled=true&join=AND',

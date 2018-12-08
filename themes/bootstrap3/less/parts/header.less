@@ -37,7 +37,7 @@
 header {
   margin-bottom: 20px;
   background-color: @darkbg-text;
-  box-shadow: 2px 2px 2px @grey-color;
+  box-shadow: 0px 1px 5px @grey-color;
   @media (min-width: @screen-lg-min) {
     &.frontpage {
       background-image: url(@frontpage_background_left), url(@frontpage_background_right);
@@ -104,11 +104,11 @@ header {
 }
 
 .slogan{
-  font-family: LatoWebBold;
+  font-family: LatoWeb;
   position: absolute;
-  left: 86px;
+  left: 72px;
   top: 64px;
-  color: @link-hover-color;
+  color: #a4a4a4;
 }
 .navbar-brand
 {
@@ -177,7 +177,7 @@ tr.link {
     .icon {
       height: 100%;
       vertical-align: middle;
-      color: @primary;
+      color: @black;
       font-size: 130%;
     }
     .text {
@@ -190,6 +190,10 @@ tr.link {
         text-align: center;
         padding-top: 10px;
       }
+    }
+    .panel-link:hover {
+      text-decoration: none;
+      color: @black;
     }
   }
   @media (max-width: 992px) {
