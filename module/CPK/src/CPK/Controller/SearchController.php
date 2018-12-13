@@ -41,6 +41,10 @@ class SearchController extends SearchControllerBase
 
     protected $conspectusField     = 'conspectus_str_mv';
     protected $conspectusFieldName = 'Conspectus';
+    protected $conspectusBaseUrl = '/Search/Results?lookfor0[]=&type0[]=AllFields&searchTypeTemplate=basic&page=1'
+                                  .'&bool0[]=AND&join=AND&limit=10&sort=relevance&keepEnabledFilters=true&filter=';
+    protected $searchWidgetBaseUrl = '/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND'
+                                    .'&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true';
 
 	/**
 	 * Handle an advanced search
@@ -365,6 +369,8 @@ class SearchController extends SearchControllerBase
         }
 
         $view->widgets = $widgets;
+        $view->conspectusBaseUrl = $this->conspectusBaseUrl;
+        $view->searchWidgetBaseUrl = $this->searchWidgetBaseUrl;
 
         if (! empty($this->params()->fromPost('mylang'))) {
             $languageCode = $this->params()->fromPost('mylang');
@@ -1612,6 +1618,8 @@ class SearchController extends SearchControllerBase
         }
 
         $view->conspectus = $conspectus;
+        $view->conspectusBaseUrl = $this->conspectusBaseUrl;
+        $view->searchWidgetBaseUrl = $this->searchWidgetBaseUrl;
 
         $searchesConfig = $this->getConfig('searches');
         // If user have preferred limit and sort settings

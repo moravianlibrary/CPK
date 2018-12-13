@@ -1,21 +1,27 @@
-<div class="col-md-4 infobox widget">
-    <div class='header'>
-    	<h2><?=$this->transEsc('You know that')?></h2>
-    </div>
-    <div class="list-group">
-      <? foreach($this->widget->getContents() as $item): ?>
-      <div class="list-group-item clearfix">
-        <div class='row'>
-          <div class="col-xs-12 content">
-            <h4 class='list-group-item-heading'>
-              <?= ($this->language == 'cs') ? $item->getTitleCs() : $item->getTitleEn() ?>
-            </h4>
-            <p class="list-group-item-text">
-              <?= ($this->language == 'cs') ? $item->getTextCs() : $item->getTextEn() ?>
-            </p>
-          </div>
+<div class='col-md-4 infobox widget'>
+
+  <div class='header'>
+    <h2><?=$this->translate('You know that')?></h2>
+  </div>
+
+  <div class='list-group'>
+    <? foreach ($this->widget->getContents() as $item): ?>
+      <div class='list-group-item clearfix'>
+      <div class='row'>
+        <div class='col-xs-12 content'>
+
+          <h4 class='list-group-item-heading'>
+            <?= ($this->language == 'cs') ? $item->getTitleCs() : $item->getTitleEn() ?>
+          </h4>
+
+          <p class='list-group-item-text'>
+            <?= ($this->language == 'cs') ? $item->getTextCs() : $item->getTextEn() ?>
+          </p>
+
         </div>
       </div>
-      <? endforeach; ?>
     </div>
+    <? endforeach; ?>
+  </div>
+
 </div>

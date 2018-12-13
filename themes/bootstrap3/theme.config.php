@@ -65,7 +65,9 @@ $toRet = array(
             'vudl' => 'VuDL\View\Helper\Bootstrap3\VuDL',
             'parseFilterOptions' => 'CPK\View\Helper\CPK\ParseFilterOptions',
             'renderarray' => 'CPK\View\Helper\CPK\RenderArray',
-            'currenturl' => 'CPK\View\Helper\CPK\CurrentURL'
+            'currenturl' => 'CPK\View\Helper\CPK\CurrentURL',
+            'compressUrlParam' => 'CPK\View\Helper\CPK\CompressUrlParam',
+            'decompressUrlParam' => 'CPK\View\Helper\CPK\DecompressUrlParam'
         )
     )
 );
