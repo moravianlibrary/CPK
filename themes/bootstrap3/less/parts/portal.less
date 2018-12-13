@@ -90,8 +90,24 @@
 .disabled .element-help {
   cursor: not-allowed;
 }
+
 @media only screen and (max-width: 768px) {
   .portal-page {
     padding: 20px 20px 20px 20px !important;
+  }
+}
+
+.feedback-form {
+  .row {
+    margin: auto;
+
+    input[type=text],
+    input[type=email] {
+      width: 40%;
+    }
+  }
+
+  #RecaptchaField {
+    margin-bottom: 15px;
   }
 }

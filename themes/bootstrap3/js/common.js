@@ -520,15 +520,14 @@ jQuery( document ).ready( function( $ ){
 	  $( this ).popover( 'hide' );
   });
 
-	$( document ).keydown( function( event ) {
-		if ( (event.keyCode == 8) || (event.keyCode == 27) ) {
-			if ($('.modal').is(':visible')) {
-				if (! $( '.modal input, .modal textarea, .modal select' ).is( ':focus' )) {
-					$('.modal').modal('hide');
-				}
-			}
-		}
-	});
+  $( document ).keydown( function (event) {
+    if ((( event.keyCode == 8 ) || ( event.keyCode == 27 ))
+        && $( '.modal' ).is( ':visible' )
+        && !$( '.modal input, .modal textarea, .modal select' ).is( ':focus' )
+    ) {
+      $( '.modal' ).modal( 'hide' );
+    }
+  });
 
     /* Change language */
 	$( 'nav' ).on( 'click', '.change-language', function( event ){
@@ -614,5 +613,14 @@ jQuery( document ).ready( function( $ ){
     }
   })
 
-    $( '#modal_dg' ).appendTo( 'body' );
+  $( '#modal_dg' ).appendTo( 'body' );
+
+  // Feedback modal window
+  var feedbackModal = document.getElementById( 'feedback-open' );
+  if ( feedbackModal ) {
+    feedbackModal.onclick = function () {
+      $( '#feedback-modal' ).modal( 'show' );
+    }
+  }
+
 });
