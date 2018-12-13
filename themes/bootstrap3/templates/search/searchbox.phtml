@@ -81,10 +81,12 @@
             $arrayOfVariablesForAdvancedSearch['hiddenAdvancedSearch'] = true;
         }
 
-        echo $this->context($this)->renderInContext(
-            "search/ajax/advanced-search.phtml",
-            $arrayOfVariablesForAdvancedSearch
-        );
+        if(!$this->librarySearch) {
+          echo $this->context($this)->renderInContext(
+              "search/ajax/advanced-search.phtml",
+              $arrayOfVariablesForAdvancedSearch
+          );
+        }
     }
 
     /* Render basic search. Decide whether hidden or not. */
@@ -134,7 +136,12 @@
       <input type="hidden" name="page" value="<?= (! empty($_GET['page']) ? $this->escapeHtmlAttr($_GET['page']) : '1') ?>">
       <!-- Set next lines just for first initial search made by PHP from lookfor. In next searches, JS will take care to put here first value from lookfor0[][0] -->
       <input type="hidden" name="last_searched_lookfor0" value="<?= (isset($_GET['lookfor']) ? $this->escapeHtmlAttr($_GET['lookfor']) : '') ?>">
-      <input type="hidden" name="last_searched_type0" value="<?= (! empty($_GET['type']) ? $this->escapeHtmlAttr($_GET['type']) : 'AllFields') ?>">
+      <input type="hidden" name="last_searched_type0"
+             value="<?= (! empty($_GET['type'])
+                 ? $this->escapeHtmlAttr($_GET['type'])
+                 : $this->librarySearch
+                     ? 'Libraries'
+                     : 'AllFields') ?>">
       <input type='hidden' name='keepFacetsEnabled' value='0'>
       <input type="hidden" name="searchTypeTemplate" value="<?= (! empty($_GET['searchTypeTemplate']) ? $this->escapeHtmlAttr($_GET['searchTypeTemplate']) : '') ?>">
       <input type="hidden" name="database" value="<?= (! empty($_GET['database']) ? $this->escapeHtmlAttr($_GET['database']) : '') ?>">
