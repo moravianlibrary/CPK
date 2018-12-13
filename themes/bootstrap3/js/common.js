@@ -427,7 +427,7 @@ function fillDebug(dg) {
     $('#modal_dg .modal-body').append('<br><br>');
 }
 
-jQuery( document ).ready( function( $ ){
+jQuery( document ).ready( function( $ ) {
   // Setup search autocomplete
   setupAutocomplete();
   // Setup highlighting of backlinks
@@ -611,7 +611,10 @@ jQuery( document ).ready( function( $ ){
         currentMenu.slideDown()
       }
     }
-  })
+  });
+
+  /* Initialize questionmark helps when available */
+  $( '.questionmark-help .modal' ).appendTo( 'body' );
 
   $( '#modal_dg' ).appendTo( 'body' );
 

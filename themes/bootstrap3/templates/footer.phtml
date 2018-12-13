@@ -1,127 +1,154 @@
 <?
-    $portalPages = $this->portalPages()->getAllPages();
+  $portalPages = $this->portalPages()->getAllPages();
 ?>
-<div class="row">
-  <!--
-  <div class="col-sm-3">
-    <h2><?=$this->transEsc('Search Options')?></h2>
-    <ul>
-      <?
-      if(isset($_SERVER['REDIRECT_URL'])) :
-          $redirectUrl = $_SERVER['REDIRECT_URL'];
-          $redirectUrlArray = explode("/", $redirectUrl);
-          $controller = $redirectUrlArray[1];
-          $action = (isset($redirectUrlArray[2])) ? $redirectUrlArray[2] : '';
-      ?>
-      <? endif; ?>
-        <li><a href="<?=$this->url('search-history')?>"><?=$this->transEsc('Search History')?></a></li>
-     <? if (count($portalPages)): ?>
-        <? foreach ($portalPages as $page): ?>
-          <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
-          <? endif; ?>
-        <? endforeach; ?>
-      <? endif; ?>
-    </ul>
-  </div>
-  -->
-  <div class="col-sm-3">
-    <h2 id='aboutPortalHeader'><?=$this->transEsc('About portal knihovny.cz')?></h2>
+<div class='row'>
+  <div class='col-sm-3 footer-column'>
+    <h2 id='aboutPortalHeader'>
+      <?= $this->transEsc('About portal knihovny.cz') ?>
+    </h2>
     <ul>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'left'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?>
+              </a>
+            </li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
     </ul>
   </div>
-  <div class="col-sm-3">
-    <h2 id='aboutPortalHeader'><?=$this->transEsc('For libraries')?></h2>
+  <div class='col-sm-3 footer-column'>
+    <h2 id='aboutPortalHeader'>
+      <?=$this->transEsc('For libraries')?>
+    </h2>
     <ul>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-left'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?>
+              </a>
+            </li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
     </ul>
   </div>
-  <div class="col-sm-3">
-    <h2 id='aboutPortalHeader'><?=$this->transEsc('About libraries')?></h2>
+  <div class='col-sm-3 footer-column'>
+    <h2 id='aboutPortalHeader'>
+      <?=$this->transEsc('About libraries')?>
+    </h2>
     <ul>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'middle-right'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?></a>
+            </li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
-      <li><a href="http://www.ptejteseknihovny.cz/" target="_blank"><?=$this->transEsc('Ask a Librarian')?></a></li>
+      <li>
+        <a href='http://www.ptejteseknihovny.cz/' target='_blank'>
+          <?=$this->transEsc('Ask a Librarian')?>
+        </a>
+      </li>
     </ul>
   </div>
-  <div class="col-sm-3">
-    <h2><?=$this->transEsc('Need Help?')?></h2>
+  <div class='col-sm-3 footer-column'>
+    <h2>
+      <?=$this->transEsc('Need Help?')?>
+    </h2>
     <ul>
-      <li><a href='/Portal/Feedback' title='<?=$this->translate('Feedback')?>'><?=$this->translate('Feedback')?></a></li>
+      <li>
+        <a href='/Portal/Feedback' title='<?=$this->translate('Feedback')?>'>
+          <?=$this->translate('Feedback')?>
+        </a>
+      </li>
       <? if (count($portalPages)): ?>
         <? foreach ($portalPages as $page): ?>
           <? if ($page['placement'] === 'footer' && $page['position'] === 'right'): ?>
-            <li><a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$page['title']?>'><?=$page['title']?></a></li>
+            <li>
+              <a href='/Portal/Page/<?=$page['pretty_url']?>' title='<?=$this->escapeHtmlAttr($page['title'])?>'>
+                <?=$this->escapeHtml($page['title'])?>
+              </a>
+            </li>
           <? endif; ?>
         <? endforeach; ?>
       <? endif; ?>
     </ul>
   </div>
 </div>
-<div class='row'>
-  <div class='col-xs-12 col-sm-12 col-md-12 col-lg-6' style='padding-right: 20px;'>
-	<h2><?=$this->translate('Footer header')?></h2>
-	<p class='info'>
-	<?=$this->translate('Footer text')?>
-	</p>
-  </div>
-  <div class='col-xs-12 col-sm-12  col-md-12  col-lg-3  footer-item'>
-    <h2><?=$this->translate('Develops')?></h2>
-      <div class="row">
-          <div class="col-xs-12">
-              <a href='http://mzk.cz/' title='<?=$this->translate('source_mzk');?>' target='_blank'>
-                  <img class='logo' height='40' style='margin-left: 20px;' src='/themes/bootstrap3/images/institutions/logos/mzk/mzk_s.png'>
-              </a>
-          </div>
 
-          <div class="col-xs-12">
-              <img class='logo' height='60' style='margin-left: 17px; margin-top: 30px;' src='/themes/bootstrap3/images/logo-mkcr-300x97.png'>
-          </div>
-      </div>
+<div class='row'>
+  <div class='col-xs-12 col-sm-12 col-md-12 col-lg-6 footer-info'>
+    <h2>
+      <?=$this->translate('Footer header')?>
+    </h2>
+    <p class='text'>
+      <?=$this->translate('Footer text')?>
+    </p>
   </div>
   <div class='col-xs-12 col-sm-12 col-md-12 col-lg-3 footer-item'>
-    <h2><?=$this->translate('Follow us')?></h2>
-	<div class='row social'>
+    <h2>
+      <?=$this->translate('Develops')?>
+    </h2>
+    <div class='row'>
+      <div class='col-xs-12'>
+        <a href='http://mzk.cz/' title='<?=$this->translate('source_mzk')?>' target='_blank'>
+          <img class='logo mzk-logo'
+               src='/themes/bootstrap3/images/institutions/logos/mzk/mzk_s.png'
+               alt='<?=$this->translate('source_mzk')?>'>
+        </a>
+      </div>
 
-        <div class="col-xs-6 col-lg-3 text-right">
-            <a href='https://www.facebook.com/Knihovny.cz/' title='Facebook - Knihovny.cz' target='_blank'>
-                <img alt='Facebook - Knihovny.cz' class='social-icon' width='64' src='/themes/bootstrap3/images/facebook-64.svg'>
-            </a>
-        </div>
+      <div class='col-xs-12'>
+        <img class='logo mkcr-logo'
+             src='/themes/bootstrap3/images/logo-mkcr-300x97.png'
+             alt='Ministerstvo kultury České republiky'>
+      </div>
+    </div>
+  </div>
+  <div class='col-xs-12 col-sm-12 col-md-12 col-lg-3 footer-item'>
+    <h2>
+      <?=$this->translate('Follow us')?>
+    </h2>
+    <div class='row social'>
 
-        <div class="col-xs-6 col-lg-3 text-left">
-            <a href='https://github.com/moravianlibrary/CPK' title='Github - Knihovny.cz' target='_blank'>
-                <img alt='Github - Knihovny.cz' class='social-icon' width='64' src='/themes/bootstrap3/images/github-light-64.png'>
-            </a>
-        </div>
+      <div class='col-xs-6 col-lg-3 text-right'>
+        <a href='https://www.facebook.com/Knihovny.cz/' title='Facebook - Knihovny.cz' target='_blank'>
+          <img class='social-icon'
+               src='/themes/bootstrap3/images/facebook-64.svg'
+               alt='Facebook - Knihovny.cz'>
+        </a>
+      </div>
+
+      <div class='col-xs-6 col-lg-3 text-left'>
+        <a href='https://github.com/moravianlibrary/CPK' title='Github - Knihovny.cz' target='_blank'>
+          <img class='social-icon'
+               src='/themes/bootstrap3/images/github-light-64.png'
+               alt='Github - Knihovny.cz'>
+        </a>
+      </div>
 
     </div>
-	<div class='copyright'>
-		<p>
-			<span>&copy; 2015 - <?=date("Y")?></span>
-			<a href='http://mzk.cz/' title='<?=$this->translate('source_mzk');?>' target='_blank'>Moravian Library</a>
-			<br>
-			<span>CPK v1.32.0</span>
-		</p>
-	</div>
+    <div class='copyright'>
+      <p>
+        <span>&copy; 2015 - <?=date('Y')?></span>
+
+        <a href='http://mzk.cz/' title='<?=$this->translate('source_mzk');?>' target='_blank'>
+          Moravian Library
+        </a>
+      </p>
+      <p>
+        CPK v1.31.0
+      </p>
+    </div>
+
   </div>
 </div>
-
