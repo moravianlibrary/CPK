@@ -624,3 +624,76 @@ jQuery( document ).ready( function( $ ){
   }
 
 });
+
+/**
+ * Parse url query into object
+ *
+ * @param {string} queryString - Query
+ *
+ * @return {Object} Parsed query
+ */
+function parseQueryString(queryString) {
+    if (queryString.charAt(0) === '?') {
+        queryString = queryString.substr(1);
+    }
+
+    let params = {}, queries, temp, i, l;
+
+    // Split into key/value pairs
+    queries = queryString.split('&');
+
+    // Convert the array of strings into an object
+    for ( i = 0, l = queries.length; i < l; i++ ) {
+        temp = queries[i].split('=');
+        params[temp[0]] = temp[1];
+    }
+    return params;
+};
+
+/**
+ * Build query string from Object params
+ *
+ * @param {Object} params
+ *
+ * @return {string} Url query
+ */
+function httpBuildQuery(params) {
+    return Object.keys(params)
+        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+        .join('&');
+};
+
+/**
+ * Change parameter in url string
+ *
+ * @param {string} urlString - Origin url to be changed
+ * @param {Object} params - Key-value pair Object.
+ *                 Object key represents the param name, Object value represents the new param value
+ *
+ * @return {string} Origin url with changed parameter value
+ */
+function changeParamsInUrlString(urlString, params, createParamsIfNotExist = false) {
+
+    let parser = document.createElement('a');
+    parser.href = urlString;
+
+    // parser.protocol; // => "http:"
+    // parser.host;     // => "example.com:3000"
+    // parser.hostname; // => "example.com"
+    // parser.port;     // => "3000"
+    // parser.pathname; // => "/pathname/"
+    // parser.hash;     // => "#hash"
+    // parser.search;   // => "?search=test"
+    // parser.origin;   // => "http://example.com:3000"
+
+    let searchQueryParams = parseQueryString( parser.search );
+
+    Object.keys(params).forEach((key) => {
+      if (! (key in searchQueryParams) && ! createParamsIfNotExist) {
+        return;
+      }
+      searchQueryParams[key] = encodeURIComponent(params[key]);
+    });
+
+    return parser.origin + parser.pathname + '?' + httpBuildQuery( searchQueryParams ) + parser.hash;
+};
