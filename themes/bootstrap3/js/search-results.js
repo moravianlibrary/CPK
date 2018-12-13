@@ -474,6 +474,11 @@ jQuery( document ).ready( function( $ ) {
                         // Let another applications know we are loading new results ..
                         var event = document.createEvent("CustomEvent");
                         event.initCustomEvent('searchResultsLoading', false, false, {});
+
+                        // Hide No results info
+                        $('#no-results-container').hide('blind', {}, 200, function () {
+                            $(this).css('display', 'none');
+                        });
                     },
                     success: function (response) {
 
