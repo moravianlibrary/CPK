@@ -51,7 +51,7 @@ class ThemeConfiguration extends AbstractHelper
 		'hide_eds_source'                 => false,
 		'hide_header_panel'               => false,
 		'logo_href'                       => '/Search/Home',
-		'header_panel_second_column_link' => 'https://beta.knihovny.cz/Search/Results?lookfor=&type=AllFields'
+		'header_panel_second_column_link' => '/Search/Results?lookfor=&type=AllFields'
 			.'&searchTypeTemplate=basic&page=1&database=Solr&limit=20&sort=relevance',
 
 		'header_panel_third_column_link'  => '/Search/Results/?database=EDS&page=1'
