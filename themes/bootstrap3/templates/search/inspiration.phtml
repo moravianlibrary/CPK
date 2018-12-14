@@ -21,7 +21,11 @@
             <? elseif ($inspirationsWidget->getName() == 'conspectus'): ?>
                 <?=$this->render('widgets/conspectus.phtml')?>
             <? else: ?>
-                <?=$this->render('widgets/widget.phtml', ['widget' => $inspirationsWidget, 'language' => $language])?>
+                <?=$this->render('widgets/widget.phtml', [
+                    'widget' => $inspirationsWidget,
+                    'language' => $language,
+                    'searchWidgetBaseUrl' => $this->searchWidgetBaseUrl
+                ])?>
             <? endif; ?>
         <? else: ?>
             <div class="col-md-4">

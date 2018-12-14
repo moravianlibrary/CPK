@@ -39,7 +39,11 @@
     <? if ($widget->getName() == 'infobox') : ?>
 	  <?=$this->render('widgets/infobox.phtml', ['widget' => $widget, 'language' => $language])?>
     <? else: ?>
-      <?=$this->render('widgets/widget.phtml', ['widget' => $widget, 'language' => $language])?>
+      <?=$this->render('widgets/widget.phtml', [
+          'widget' => $widget,
+          'language' => $language,
+          'searchWidgetBaseUrl' => $this->searchWidgetBaseUrl
+        ])?>
     <? endif; ?>
   <? endforeach; ?><? endforeach; ?>
 
