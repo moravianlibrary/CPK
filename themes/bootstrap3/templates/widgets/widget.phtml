@@ -78,7 +78,7 @@
     <? endforeach; ?>
     <? if ($this->widget->getShowAllRecordsLink()):
         $filter = $this->compressUrlParam('inspiration:"' . $this->widget->getName().'"'); ?>
-      <a href='<?= $this->searchWidgetBaseUrl ?>&filter=<?= $filter ?>'
+      <a href='<?= $searchWidgetBaseUrl ?>&filter=<?= $filter ?>'
          class='list-group-item clearfix'
          title='<?= $this->translate('Show all')?> '>
         <div class='row more-info'>
