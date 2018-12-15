@@ -413,6 +413,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
         $viewModel->setVariable('user', $user);
+
+        $config = $this->getConfig();
+        $viewModel->setVariable('documentTypesWidgetList', $config->Document_Types_Widget->list_item);
+        $viewModel->setVariable('documentTypesWidgetSorting', $config->Document_Types_Widget->list_sorting);
         $viewModel->setTemplate('admin/widgets/main');
 
         $frontendTable = $this->getTable('frontend');

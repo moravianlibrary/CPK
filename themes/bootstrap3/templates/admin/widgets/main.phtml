@@ -32,6 +32,12 @@
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
 			    <option value='conspectus'<?=($this->homePageWidgets['first_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
+			    <? if ($documentTypesWidgetList): ?>
+			      <option value='Document_Types_Widget'
+			              <?=($this->homePageWidgets['first_homepage_widget'] == 'Document_Types_Widget' ? 'selected' : '')?>>
+			        <?=$this->translate('Document_Types_Widget')?>
+			      </option>
+			    <? endif; ?>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -41,6 +47,12 @@
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
 			  <option value='conspectus'<?=($this->homePageWidgets['second_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
+			  <? if ($documentTypesWidgetList): ?>
+			    <option value='Document_Types_Widget'
+			            <?=($this->homePageWidgets['second_homepage_widget'] == 'Document_Types_Widget' ? 'selected' : '')?>>
+			      <?=$this->translate('Document_Types_Widget')?>
+			    </option>
+			  <? endif; ?>
 			</select>
         </div>
         <div class='col-md-4 text-center'>
@@ -50,6 +62,12 @@
 				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
 			  <? endforeach; ?>
 			  <option value='conspectus'<?=($this->homePageWidgets['third_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
+			  <? if ($documentTypesWidgetList): ?>
+			    <option value='Document_Types_Widget'
+			            <?=($this->homePageWidgets['third_homepage_widget'] == 'Document_Types_Widget' ? 'selected' : '')?>>
+			      <?=$this->translate('Document_Types_Widget')?>
+			    </option>
+			  <? endif; ?>
 			</select>
         </div>
       </div>
@@ -130,6 +148,12 @@
                 </td>
               </tr>
 		    <? endforeach; ?>
+		    <? if ($documentTypesWidgetList): ?>
+		      <tr>
+		        <td><?=$this->translate('Document_Types_Widget')?></td>
+		        <td></td>
+		      </tr>
+		    <? endif; ?>
 		    </tbody>
 		  </table>
         </div>
