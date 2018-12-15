@@ -142,15 +142,18 @@
 }
 
 .pagination > li > a, .pagination > li > span {
-  color: @brand-primary;
+    color: @brand-primary;
     border: none;
     background: inherit;
+    padding-top: 8px;
+    padding-bottom: 4px;
 }
 .pagination > li.disabled > span {
     background: inherit;
 }
 .pagination > li > a:hover {
-    color: @link-hover-color;
+    color: #fff;
+    background-color: @brand-primary;
 }
 .pagination > li.disabled > span:hover {
     background: inherit;
@@ -163,7 +166,12 @@
 }
 
 .result-list-toolbar a {
-    color: #444;
+    color: @brand-primary;
+    padding: 4px;
+}
+.result-list-toolbar a:hover {
+  color: #000;
+  text-decoration: none !important;
 }
 
 .search-result-container {
@@ -393,4 +401,7 @@
     display: inline !important;
     padding: 10px 0 10px 20px !important;
   }
+}
+.sources-tabs-question-marc {
+  padding-top: 6px;
 }
