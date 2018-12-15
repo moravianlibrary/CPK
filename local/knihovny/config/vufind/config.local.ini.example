@@ -123,3 +123,18 @@ port = 8000
 username = username
 password = password
 non_proxy_host[] = cache.obalkyknih.cz
+
+; This configuration handles list items in Document_Types_Widget
+[Document_Types_Widget]
+; Every list item contains semicolon separated list of folowing values:
+; Title translation key, description translation key, icon class name, facet filter
+; Eg:
+;list_item[] = 'title_translation_key;description_translation_key;icon_class_name;facet_filter'
+list_item[] = 'patents;patents_description;pr-format-patents;~cpk_detected_format_facet_str_mv:"0/PATENTS/"'
+list_item[] = 'norms;norms_description;pr-format-norms;~cpk_detected_format_facet_str_mv:"0/NORMS/"'
+list_item[] = 'legislative_laws;legislative_laws_description;pr-format-legislative;~cpk_detected_format_facet_str_mv:"1/LEGISLATIVE/LAWS/"'
+list_item[] = 'musical_scores;musical_scores_description;pr-format-musicalscores;~cpk_detected_format_facet_str_mv:"0/MUSICAL_SCORES/"'
+list_item[] = 'maps;maps_description;pr-format-maps;~cpk_detected_format_facet_str_mv:"0/MAPS/"'
+
+; List is rendered in given order, otherwise can be sorted randomly
+list_sorting = random
