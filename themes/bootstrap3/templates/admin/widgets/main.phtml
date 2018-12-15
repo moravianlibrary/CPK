@@ -34,7 +34,9 @@
 			    <option value='conspectus'<?=($this->homePageWidgets['first_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			    <? if ($documentTypesWidgetList): ?>
 			      <option value='Document_Types_Widget'
-			              <?=($this->homePageWidgets['first_homepage_widget'] == 'Document_Types_Widget' ? 'selected' : '')?>>
+			              <?=($this->homePageWidgets['first_homepage_widget'] == 'Document_Types_Widget'
+                        ? 'selected'
+                        : '')?>>
 			        <?=$this->translate('Document_Types_Widget')?>
 			      </option>
 			    <? endif; ?>
@@ -49,7 +51,9 @@
 			  <option value='conspectus'<?=($this->homePageWidgets['second_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			  <? if ($documentTypesWidgetList): ?>
 			    <option value='Document_Types_Widget'
-			            <?=($this->homePageWidgets['second_homepage_widget'] == 'Document_Types_Widget' ? 'selected' : '')?>>
+			            <?=($this->homePageWidgets['second_homepage_widget'] == 'Document_Types_Widget'
+                      ? 'selected'
+                      : '')?>>
 			      <?=$this->translate('Document_Types_Widget')?>
 			    </option>
 			  <? endif; ?>
@@ -64,7 +68,9 @@
 			  <option value='conspectus'<?=($this->homePageWidgets['third_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
 			  <? if ($documentTypesWidgetList): ?>
 			    <option value='Document_Types_Widget'
-			            <?=($this->homePageWidgets['third_homepage_widget'] == 'Document_Types_Widget' ? 'selected' : '')?>>
+			            <?=($this->homePageWidgets['third_homepage_widget'] == 'Document_Types_Widget'
+                      ? 'selected'
+                      : '')?>>
 			      <?=$this->translate('Document_Types_Widget')?>
 			    </option>
 			  <? endif; ?>
