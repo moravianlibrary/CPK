@@ -142,18 +142,15 @@
 }
 
 .pagination > li > a, .pagination > li > span {
-    color: @brand-primary;
+  color: @brand-primary;
     border: none;
     background: inherit;
-    padding-top: 8px;
-    padding-bottom: 4px;
 }
 .pagination > li.disabled > span {
     background: inherit;
 }
 .pagination > li > a:hover {
-    color: #fff;
-    background-color: @brand-primary;
+    color: @link-hover-color;
 }
 .pagination > li.disabled > span:hover {
     background: inherit;
@@ -166,12 +163,7 @@
 }
 
 .result-list-toolbar a {
-    color: @brand-primary;
-    padding: 4px;
-}
-.result-list-toolbar a:hover {
-  color: #000;
-  text-decoration: none !important;
+    color: #444;
 }
 
 .search-result-container {
@@ -401,7 +393,4 @@
     display: inline !important;
     padding: 10px 0 10px 20px !important;
   }
-}
-.sources-tabs-question-marc {
-  padding-top: 6px;
 }
