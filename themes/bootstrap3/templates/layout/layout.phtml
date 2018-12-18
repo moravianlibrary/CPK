@@ -299,10 +299,6 @@
                         <? endif; ?>
                     </div>
                 </div>
-            <? else: ?>
-                <? if ($this->layout()->headerType == "libraries"): ?>
-                    <?=$this->render('libraries/header.phtml')?>
-                <? endif; ?>
             <? endif; ?>
         </div>
     </header>
@@ -310,15 +306,13 @@
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
       <div class="container">
         <? if ($this->layout()->frontpage != true): ?>
-          <? if ($this->layout()->headerType != "libraries"): ?>
-            <div class="clearfix">
-              <div class='container'>
-                <?=$this->layout()->searchbox ?>
-                <?=$this->render('shib-assertion.phtml')?>
-              </div>
+          <div class="clearfix">
+            <div class='container'>
+              <?=$this->layout()->searchbox ?>
+              <?=$this->render('shib-assertion.phtml')?>
             </div>
-            <br/>
-          <? endif; ?>
+          </div>
+          <br/>
         <? endif; ?>
         <?=$this->layout()->content ?>
       </div>
