@@ -145,7 +145,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (isset($this->config['Availability']['source']))
             $this->source = $this->config['Availability']['source'];
 
-        $this->requests = new NCIPRequests($this->config);
+        $this->requests = new NCIPRequestsOLD($this->config);
         $this->libsWithClavius = $this->requests->getLibsWithClavius();
         $this->libsWithARL = $this->requests->getLibsWithARL();
     }
