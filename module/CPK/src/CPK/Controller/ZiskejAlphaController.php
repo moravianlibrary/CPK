@@ -42,9 +42,11 @@
         {
             $view = $this->createViewModel();
             $view->setTemplate('ziskej/ziskej-alpha');
-            $view->ziskejConfig = array_keys($this->getConfig()->Ziskej->toArray());
-            $SensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-            $this->setZiskej($SensitiveZiskejConfig);
+            $view->ziskejConfig    = array_keys($this->getConfig()->Ziskej->toArray());
+
+            $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
+            $this->ziskej          = new Ziskej($sensitiveZiskejConfig);
+
             // Check if it's post request
             if ($this->getRequest()->isPost()) {
                 // Check if ziskej value for cookie, which we get through post request, is exist in config
@@ -54,45 +56,29 @@
                 setcookie('ziskej', $data, 0);
                 $view->setting = $data;
             }
-            $libraries = $this->ziskej->getLibraries();
-            $reader = $this->ziskej->getReader('1185@mzk.cz');
-            d($libraries);
-            d($reader);
-            $libraryIds = [];
-            foreach ($libraries['items'] as $sigla) {
-                $id = $this->getLibraryId($sigla);
-                if (!empty($id)) {
-                    $libraryIds[] = $id;
-                }
-            }
-            d($libraryIds);
-            $userTickets = $this->ziskej->getUserTickets('1185@mzk.cz');
-            d($userTickets);
+
+            $request = $this->getRequest();
+
             return $view;
-        }
-
-        /**
-         * @return object ZiskejDriver
-         */
-        public function getZiskej()
-        {
-            return $this->ziskej;
-        }
-
-        /**
-         * @param $config
-         */
-        public function setZiskej($config)
-        {
-            $this->ziskej = new Ziskej($config);
         }
 
         public function getLibraryId($sigla)
         {
-            $ils = $this->getILS();
+            $ils    = $this->getILS();
             $driver = $ils->getDriver();
-            $source = $driver->siglaToSource($sigla);
-            return $driver->sourceToLibraryId($source);
+//            $source = $driver->siglaToSource($sigla);
+//            return $driver->sourceToLibraryId($source);
+            return $driver->siglaToSource($sigla);
+        }
+
+        public function getContent($response)
+        {
+            $responseContent = [];
+            if ( ! empty($response)) {
+                $responseContent = json_decode($response->getContent(), true);
+            }
+
+            return $responseContent;
         }
 
     }
