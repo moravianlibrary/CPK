@@ -48,21 +48,15 @@ class NCIPDenormalizerRouter
      * @return null|...
      * @throws \Exception
      */
-    public function route($method, $agency, NCIPRequests $requests)
+    public function route($method, NCIPRequests $requests)
     {
         $normalizer = null;
         switch ($requests->getILSType()) {
             case 'verbis':
                 $normalizer = new VerbisNCIPDenormalizer($method);
                 break;
-            case 'clavius':
-                $normalizer = new ClaviusNCIPDenormalizer($method);
-                break;
             case 'arl':
                 $normalizer = new ArlNCIPDenormalizer($method);
-                break;
-            case 'tritius':
-                $normalizer = new TritiusNCIPDenormalizer($method, $agency);
                 break;
             case 'aaa001';
                 $normalizer = new AAANCIPDenormalizer($method);

@@ -1758,7 +1758,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
     {
         $router = new NCIPDenormalizerRouter();
 
-        $normalizer = $router->route($method, $this->agency, $this->requests);
+        $normalizer = $router->route($method, $this->requests);
 
         $normalizer->setLogger($this->logger);
 
