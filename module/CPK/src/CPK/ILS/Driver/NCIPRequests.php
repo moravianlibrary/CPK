@@ -27,6 +27,10 @@ class NCIPRequests {
         $this->sendUserId = isset($config['Catalog']['sendUserId']) ? $config['Catalog']['sendUserId']: true;
     }
 
+    public function getConfig() {
+        return $this->config;
+    }
+
     public function patronLogin($username, $password) {
         $body =
         "<ns1:LookupUser>" .
