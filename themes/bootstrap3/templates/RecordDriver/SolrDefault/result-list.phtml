@@ -272,7 +272,7 @@
                     <? endif; ?>
 
                 <? $bookSearch = $this->driver->getBookSearchFilter(); if (!empty($bookSearch)): ?>
-                    <? $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('local_institution_facet_str_mv:"'.$this->driver->getBookSearchFilter().'"')); ?>
+                    <? $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('local_region_institution_facet_str_mv:"'.$this->driver->getBookSearchFilter().'"')); ?>
                     <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' title='<?=$this->translate('Search in library')?>' >
                         <?=$this->transEsc('Search in library')?>
                     </a>
