@@ -140,20 +140,23 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
         return $client->send();
     }
 
-    /**
-     * @param $eppn
-     *
-     * @todo: not ready for prod use
-     * @return array|mixed
-     * @throws \Exception
-     */
-    public function createTicket($eppn)
+  /**
+   * @param $eppn
+   *
+   * @param $docId
+   * @param array $docAltIds
+   *
+   * @return array|mixed
+   * @throws \Exception
+   * @todo: not ready for prod use
+   */
+    public function createTicket($eppn, $docId, array $docAltIds)
     {
         $params = [
             'eppn'           => $eppn,
             'ticket_type'    => 'mvs',
-            'doc_id'         => 'mzk.MZK01-001579506',
-            'doc_alt_ids'    => ['nkp.NKC01-002901834'],
+            'doc_id'         => $docId,
+            'doc_alt_ids'    => $docAltIds,
             'date_requested' => date('Y-m-d'),
         ];
         $token  = $this->getLoginToken();

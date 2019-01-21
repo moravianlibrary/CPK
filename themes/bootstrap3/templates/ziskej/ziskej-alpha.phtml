@@ -1,38 +1,178 @@
 <?
-// Set page title.
-$this->headTitle('Ziskej Alpha');
+  // Set page title.
+  $this->headTitle('Ziskej Alpha');
 
-// Disable search box
-$this->layout()->searchbox = false;
+  // Disable search box
+  $this->layout()->searchbox = false;
 ?>
 
 <div align="center">
-  <form action="/ziskejalpha" id="ziskejForm" method="post" name="ziskejForm">
-    <div class="form-group">
-      <label for="ziskejSelect">ZISKEJ</label>
-      <select name="ziskej" class="form-control" id="ziskejSelect">
-          <? foreach ($this->ziskejConfig as $type): ?>
-            <option
-                value="<?= $this->escapeHtmlAttr($type) ?>"
-                <?= $type == $this->setting ? 'selected' : '' ?>><?= $this->translate(sprintf('Ziskej_%s', $type)) ?></option>
-          <? endforeach; ?>
-      </select>
-    </div>
-    <div class="form-group">
-      <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>"
-             value="<?= $this->translate('Set') ?>">
-    </div>
-    <div>
-<!--      --><?// if($this->redirect): ?>
-<!--        <p>Your library is not registered in Ziskej or you not logged in<p>-->
-<!--        <a href="--><?//=$this->redirect?><!--">-->
-<!--            --><?//= $this->translate('Please register via this link or log in') ?>
-<!--        </a>-->
-<!--      --><?// endif; ?>
-<!--      <p>--><?//= $this->messages ?><!--</p>-->
-    </div>
-  </form>
-  <div>
-    <p></p>
+  <div class="row">
+    <div class="col-md-6"
+    <form action="/ziskejalpha" id="ziskejForm" method="post" name="ziskejForm">
+      <div class="form-group">
+        <label for="ziskejSelect">ZISKEJ</label>
+        <select name="ziskej" class="form-control" id="ziskejSelect">
+            <? foreach ($this->ziskejConfig as $type): ?>
+              <option value="<?= $this->escapeHtmlAttr($type) ?>" <?= $type == $this->setting ? 'selected' : '' ?>>
+                <?= $this->translate(sprintf('Ziskej_%s', $type)) ?>
+              </option>
+            <? endforeach; ?>
+        </select>
+      </div>
+      <div class="form-group">
+        <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>"
+               value="<?= $this->translate('Set') ?>">
+      </div>
+
+    </form>
   </div>
+  <div class="col-md-6">
+    <form action="/ziskejalpha" id="createZiskejTicket" method="post" name="createZiskejTicket">
+      <div class="form-group">
+        <label for="recordId">Record ID</label>
+        <input type="text" id="recordId" class="form-control">
+      </div>
+      <div class="form-group">
+        <input class="btn btn-primary" type="submit" name="submitTicket" title="<?= $this->translate('Create') ?>"
+               value="<?= $this->translate('Create') ?>">
+      </div>
+    </form>
+  </div>
+  </div>
+
+    <div class="row">
+      <div class="clearfix well border table-core">
+        <div class="col-sm-12">
+          <? if ($this->reader): ?>
+          <table class="table">
+              <tbody>
+                <tr>
+                  <th class="col-md-3">First Name</th>
+                  <td><?= $this->escapeHtml($this->reader['first_name']) ?></td>
+                </tr>
+                <tr>
+                  <th class="col-md-3">Last Name</th>
+                  <td><?= $this->escapeHtml($this->reader['last_name']) ?></td>
+                </tr>
+                <tr>
+                  <th class="col-md-3">Email</th>
+                  <td><?= $this->escapeHtml($this->reader['email']) ?></td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </div>
+      <? foreach ($this->ticketDetails as $ticketDetail): ?>
+        <div class="row">
+          <div class="col-md-4" id="myList">
+            <div class="list-group">
+              <a href="#tab_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
+                 id="<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
+                 class="list-group-item"><?= $this->escapeHtml($ticketDetail['doc_id']) ?></a>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="tab-content" id="nav-tabContent">
+              <div class="tab1 hidden" id="tab_<?= $ticketDetail['ticket_id'] ?>">
+                <div class="clearfix well border table-core">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <th class="col-md-3">sigla</th>
+                        <td><?= $this->escapeHtml($ticketDetail['sigla']) ?></td>
+                      </tr>
+                      <tr>
+                        <th class="col-md-3">is open</th>
+                        <td><?= $this->escapeHtml($ticketDetail['is_open']) ?></td>
+                      </tr>
+                      <tr>
+                        <th class="col-md-3">date requested</th>
+                        <td><?= $this->escapeHtml($ticketDetail['date_requested']) ?></td>
+                      </tr>
+                      <tr>
+                        <th class="col-md-3">date created</th>
+                        <td><?= $this->escapeHtml($ticketDetail['date_created']) ?></td>
+                      </tr>
+                      <tr>
+                        <th class="col-md-3">ticket id</th>
+                        <td><?= $this->escapeHtml($ticketDetail['ticket_id']) ?></td>
+                      </tr>
+                      <tr>
+                        <th class="col-md-3">count messages</th>
+                        <td><?= $this->escapeHtml($ticketDetail['count_messages']) ?></td>
+                      </tr>
+                      <tr>
+                        <th class="col-md-3">status</th>
+                        <td><?= $this->escapeHtml($ticketDetail['status_label']) ?></td>
+                      </tr>
+                      <tr>
+                        <th class="col-md-3">Write comment</th>
+                        <td>
+                          <form action="/ziskejalpha" method="post" name="ziskejComments" id="ziskejComments">
+                            <div class="form-group">
+                              <label for="ziskejComment"></label>
+                              <input type="text" class="form-control" id="ziskejComment">
+                              <div align="center">
+                                <input class="btn btn-primary" type="submit" name="submitComment" title="<?= $this->translate('Send') ?>"
+                                       value="<?= $this->translate('Send') ?>">
+                              </div>
+                            </div>
+
+                          </form>
+                        </td>
+                      </tr>
+                      <? if ($ticketDetail['count_messages'] > 0): ?>
+                        <tr>
+                          <th class="col-md-3">comments</th>
+                          <td>
+                            <ul class="list-group">
+                              <? foreach ($this->messages as $message): ?>
+                                <li class="list-group-item"><?= $this->escapeHtml($message['text']) ?></li>
+                              <? endforeach; ?>
+                            </ul>
+                          </td>
+                        </tr>
+                      <? endif; ?>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <? endforeach; ?>
+
+      <? elseif ($this->redirect): ?>
+        <p>Vase knihovna nejsou v seznamu knihoven Ziskej, nebo jste ne zaregestrovany v Ziskej</p>
+        <a href="<?= $this->redirect ?>">Registrace v Ziskej</a>
+      <? else: ?>
+        <p>Pro testivani je nutne se prihlasit</p>
+      <? endif; ?>
+    </div>
 </div>
+
+<style>
+  #nav-tabContent {
+    position: absolute;
+    z-index: 999;
+  }
+  #ziskejComment {
+    height: 100px;
+  }
+</style>
+
+<script>
+  $( '#myList a' ).on( 'click', function (e) {
+    e.preventDefault();
+    let aElem = $( '#myList a.active' );
+    aElem.toggleClass( 'active' );
+    let aId = aElem.attr( 'id' );
+    $( '#tab_' + aId ).toggleClass( 'hidden' );
+    $( this ).toggleClass( 'active' );
+    let id = $( this ).attr( 'id' );
+    $( '#tab_' + id ).toggleClass( 'hidden' );
+  } );
+
+
+</script>
