@@ -104,7 +104,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
             'ncipTemplate' => $configHandler->getNcipTemplate(),
             'alephTemplate' => $configHandler->getAlephTemplate(),
-            'configs' => $configHandler->getAdminConfigs()
+            'configs' => $configHandler->getAdminConfigs(),
+            'ncipTypes' => $configHandler->getNCIPTypes()
         ], 'admin/configurations/main.phtml');
     }
 

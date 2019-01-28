@@ -100,7 +100,15 @@ class ConfigurationsHandler
     protected $alephTemplate;
 
     /**
-     * Object holding the configuration of email to use when a configuration change is desired by some institution admin
+     * Object containing NCIP types such as Verbis, Clavius etc.
+     *
+     * @var
+     */
+    protected $ncipTypes;
+
+    /**
+     * Object holding the configuration of email to use
+     * when a configuration change is desired by some institution admin
      *
      * @var array
      */
@@ -179,6 +187,7 @@ class ConfigurationsHandler
         $this->institutionsBeingAdminAt = $this->ctrl->getAccessManager()->getInstitutionsWithAdminRights();
 
         $this->sourceTypes = $this->configLocator->get('MultiBackend')->toArray()['Drivers'];
+        $this->ncipTypes = $this->configLocator->get('MultiBackend')->toArray()['NCIPTypes'];
 
         if ($this->ctrl->getAccessManager()->isPortalAdmin()) {
             foreach ($this->sourceTypes as $key => $value) {
@@ -302,6 +311,16 @@ class ConfigurationsHandler
     public function getAlephTemplate()
     {
         return $this->alephTemplate;
+    }
+
+    /**
+     * Returns collection of existing NCIP types
+     *
+     * @return mixed
+     */
+    public function getNCIPTypes()
+    {
+        return $this->ncipTypes;
     }
 
     /**
