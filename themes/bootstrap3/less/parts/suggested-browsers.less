@@ -1,0 +1,63 @@
+
+#microsoft_browser_warning {
+    background: #eaebff;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+
+    .tryBrowser {
+        color: #696969;
+        font-size: 28px;
+    }
+
+    .browsersFree {
+        color: #afaaaa;
+        font-size: 17px;
+        margin-bottom: 25px;
+        margin-top: 10px;
+    }
+
+    label {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    input[type=checkbox] {
+        display: none;
+
+        & + #suggest_browser {
+            display: none;
+        }
+
+        &:checked + #suggest_browser {
+            display: block;
+        }
+    }
+}
+
+#suggest_browser {
+    position: absolute;
+    width: 100%;
+    background: #eaebff;
+    left: 0;
+    z-index: 1000;
+    padding: 20px 0 10px 0;
+
+    ul {
+        margin: 0 auto;
+        overflow: hidden;
+        width: 50%;
+    }
+
+    li {
+        display: inline-block;
+
+        a {
+            display: block;
+
+            img {
+                margin-bottom: 10px;
+            }
+        }
+    }
+}

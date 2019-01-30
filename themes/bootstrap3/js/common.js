@@ -626,6 +626,9 @@ jQuery( document ).ready( function( $ ) {
     }
   }
 
+  if ( /(MSIE|Trident\/|Edge\/)/i.test( navigator.userAgent ) ) {
+    document.getElementById( 'microsoft_browser_warning' ).classList.remove( 'hidden' );
+  }
 });
 
 /**
