@@ -27,6 +27,7 @@
  */
 namespace CPK\Controller;
 
+use CPK\ILS\Driver\Ziskej;
 use VuFind\Controller\AjaxController as AjaxControllerBase;
 
 /**
@@ -2529,5 +2530,20 @@ class AjaxController extends AjaxControllerBase
         $intersection = array_intersect_key($htmlLinks, array_flip($allowed));
 
         return (! empty($intersection)) ? $intersection : $htmlLinks;
+    }
+
+    public function createZiskejTicketAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $doc_id = $postParams['doc_id'];
+
+        $user = $this->getUser();
+//        $eppn = $request->getServer()->eduPersonPrincipalName;
+        $eppn    = '1185@mzk.cz';
+        $ziskej = Ziskej::getZiskej();
+        $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
+        $ziskej->setConfig($sensitiveZiskejConfig);
+        $resp = $ziskej->createTicket($eppn, $doc_id, []);
+        return $resp;
     }
 }

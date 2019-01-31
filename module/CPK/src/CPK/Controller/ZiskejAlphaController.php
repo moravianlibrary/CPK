@@ -35,6 +35,11 @@ class ZiskejAlphaController extends AbstractBase
 
     protected $ziskej;
 
+    public function __construct()
+    {
+        $this->ziskej = Ziskej::getZiskej();
+    }
+
     /**
      * Home Action
      *
@@ -47,7 +52,7 @@ class ZiskejAlphaController extends AbstractBase
         $view->ziskejConfig = array_keys($this->getConfig()->Ziskej->toArray());
 
         $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-        $this->ziskej          = new Ziskej($sensitiveZiskejConfig);
+        $this->ziskej->setConfig($sensitiveZiskejConfig);
 
         // Check if it's post request
         if ($this->getRequest()->isPost()) {
@@ -63,6 +68,7 @@ class ZiskejAlphaController extends AbstractBase
 
         $request = $this->getRequest();
         $eppn = $request->getServer()->eduPersonPrincipalName;
+        $eppn    = '1185@mzk.cz';
         $libraries        = $this->ziskej->getLibraries();
         $librariesContent = $this->getContent($libraries);
         $librarySources   = [];
@@ -116,5 +122,4 @@ class ZiskejAlphaController extends AbstractBase
 //            return $driver->sourceToLibraryId($source);
         return $driver->siglaToSource($sigla);
     }
-
 }

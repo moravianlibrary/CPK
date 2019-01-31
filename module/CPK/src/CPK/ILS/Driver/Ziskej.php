@@ -35,17 +35,28 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
 
     protected $apiUrl;
     protected $config;
-
+    static private $ziskej;
     /**
      * Ziskej constructor.
      *
-     * @param $config
      */
-    public function __construct($config)
+    private function __construct()
+    {
+        $this->setHttpService(new HttpService());
+    }
+
+    public function setConfig($config)
     {
         $this->config = $config;
         $this->apiUrl = $this->config['apiUrl'];
-        $this->setHttpService(new HttpService());
+    }
+
+    static public function getZiskej()
+    {
+        if (!isset(Ziskej::$ziskej)) {
+            Ziskej::$ziskej = new Ziskej();
+        }
+        return Ziskej::$ziskej;
     }
 
     /**
@@ -76,9 +87,6 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      */
     protected function getClient($path, $method)
     {
-//            if (null === $this->httpService) {
-//                throw new \Exception('HTTP service missing.');
-//            }
         $url    = "$this->apiUrl/$path";
         $client = $this->httpService->createClient($url, $method);
 
@@ -99,7 +107,6 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
         $client->setParameterGet($params);
         $client->setHeaders(['Authorization' => "bearer $token"]);
 
-//            $client->getRequest()->getHeaders()->addHeaderLine();
         return $client->send();
     }
 
