@@ -120,12 +120,12 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
             'username' => $this->config['username'],
             'password' => $this->config['password'],
         ];
-        $client     = $this->getClient('login', 'POST');
+        $client = $this->getClient('login', 'POST');
         $client->setParameterPost($postParams);
         $response = $client->send();
         $token    = '';
         if ( ! empty($response) && $response->getStatusCode() == 200) {
-            $token = json_decode($response->getContent(), true)['token'];
+            $token = Json::decode($response->getContent(), true)['token'];
         }
 
         return $token;
@@ -147,22 +147,22 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
         return $client->send();
     }
 
-  /**
-   * @param $eppn
-   *
-   * @param $docId
-   * @param array $docAltIds
-   *
-   * @return array|mixed
-   * @throws \Exception
-   * @todo: not ready for prod use
-   */
-    public function createTicket($eppn, $docId, array $docAltIds)
+    /**
+     * @param       $eppn
+     *
+     * @param       $documentId
+     * @param array $docAltIds
+     *
+     * @return array|mixed
+     * @throws \Exception
+     * @todo: not ready for prod use
+     */
+    public function createTicket($eppn, $documentId, array $docAltIds)
     {
         $params = [
             'eppn'           => $eppn,
             'ticket_type'    => 'mvs',
-            'doc_id'         => $docId,
+            'doc_id'         => $documentId,
             'doc_alt_ids'    => $docAltIds,
             'date_requested' => date('Y-m-d'),
         ];
@@ -241,7 +241,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
         return $client->send();
     }
 
-    public function makeMessageRead($id)
+    public function makeMessageRead($id, $text)
     {
 
     }

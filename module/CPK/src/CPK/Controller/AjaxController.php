@@ -2535,7 +2535,7 @@ class AjaxController extends AjaxControllerBase
     public function createZiskejTicketAjax()
     {
         $postParams = $this->params()->fromPost();
-        $doc_id = $postParams['doc_id'];
+        $documentId = $postParams['documentId'];
 
         $user = $this->getUser();
 //        $eppn = $request->getServer()->eduPersonPrincipalName;
@@ -2543,7 +2543,23 @@ class AjaxController extends AjaxControllerBase
         $ziskej = Ziskej::getZiskej();
         $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
         $ziskej->setConfig($sensitiveZiskejConfig);
-        $resp = $ziskej->createTicket($eppn, $doc_id, []);
+        $resp = $ziskej->createTicket($eppn, $documentId, []);
+        return $resp;
+    }
+
+    public function createZiskejMessageAjax()
+    {
+        $postParams = $this->params()->fromPost();
+        $message = $postParams['message'];
+        $id = $postParams['id'];
+
+        $user = $this->getUser();
+//        $eppn = $request->getServer()->eduPersonPrincipalName;
+        $eppn    = '1185@mzk.cz';
+        $ziskej = Ziskej::getZiskej();
+        $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
+        $ziskej->setConfig($sensitiveZiskejConfig);
+        $resp = $ziskej->createMessage($id, $eppn, $message);
         return $resp;
     }
 }

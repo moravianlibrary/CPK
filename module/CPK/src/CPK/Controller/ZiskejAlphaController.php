@@ -28,6 +28,7 @@ namespace CPK\Controller;
 
 use CPK\ILS\Driver\Ziskej;
 use VuFind\Controller\AbstractBase;
+use Zend\Json\Json;
 
 class ZiskejAlphaController extends AbstractBase
 {
@@ -37,6 +38,7 @@ class ZiskejAlphaController extends AbstractBase
 
     public function __construct()
     {
+        parent::__construct();
         $this->ziskej = Ziskej::getZiskej();
     }
 
@@ -90,17 +92,21 @@ class ZiskejAlphaController extends AbstractBase
 
                 foreach ($view->userTickets as $userTicket) {
                     $ticketDetail    = $this->ziskej->getTicketDetail($userTicket, $eppn);
-                    $ticketDetails[] = $this->getContent($ticketDetail);
+                    $ticketDetailContent = $this->getContent($ticketDetail);
+                    if  ($ticketDetailContent['count_messages'] > 0) {
+                        $messages       = $this->ziskej->getTicketMessages($userTicket, $eppn);
+                        $messagesContent = $this->getContent($messages)['items'];
+                        $ticketDetailContent['messages'] = $messagesContent;
+                    }
+                    $ticketDetails[] = $ticketDetailContent;
                 }
                 $view->ticketDetails = $ticketDetails;
 
-                $messages       = $this->ziskej->getTicketMessages($view->userTickets[0], $eppn);
-                $view->messages = $this->getContent($messages)['items'];
             } else {
                 $view->redirect = 'https://ziskej-test.techlib.cz/';
             }
-        } else {
         }
+
         return $view;
     }
 
@@ -108,7 +114,7 @@ class ZiskejAlphaController extends AbstractBase
     {
         $responseContent = [];
         if ( ! empty($response)) {
-            $responseContent = json_decode($response->getContent(), true);
+            $responseContent = Json::decode($response->getContent(), true);
         }
 
         return $responseContent;
@@ -118,8 +124,6 @@ class ZiskejAlphaController extends AbstractBase
     {
         $ils    = $this->getILS();
         $driver = $ils->getDriver();
-//            $source = $driver->siglaToSource($sigla);
-//            return $driver->sourceToLibraryId($source);
         return $driver->siglaToSource($sigla);
     }
 }

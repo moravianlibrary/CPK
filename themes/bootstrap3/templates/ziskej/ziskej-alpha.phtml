@@ -64,7 +64,7 @@
             </table>
         </div>
       </div>
-      <? if(!empty($this->ticketDetails)): ?>
+      <? if ( ! empty($this->ticketDetails)): ?>
         <? foreach ($this->ticketDetails as $ticketDetail): ?>
           <div class="row">
             <div class="col-md-4" id="myList">
@@ -76,7 +76,7 @@
             </div>
             <div class="col-md-8">
               <div class="tab-content" id="nav-tabContent">
-                <div class="tab1 hidden" id="tab_<?= $ticketDetail['ticket_id'] ?>">
+                <div class="tab hidden" id="tab_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
                   <div class="clearfix well border table-core">
                     <table class="table">
                       <tbody>
@@ -86,11 +86,11 @@
                         </tr>
                         <tr>
                           <th class="col-md-3">link</th>
-                          <td><a href="/Record/<?=$ticketDetail['doc_id']?>"><?= $ticketDetail['doc_id'] ?></a></td>
+                          <td><a href="/Record/<?= $ticketDetail['doc_id'] ?>"><?= $ticketDetail['doc_id'] ?></a></td>
                         </tr>
                         <tr>
                           <th class="col-md-3">is open</th>
-                          <td><?= $this->escapeHtml($ticketDetail['is_open']) ?></td>
+                          <td><? if ($ticketDetail['is_open']): ?>Yes<? else: ?>No<? endif; ?></td>
                         </tr>
                         <tr>
                           <th class="col-md-3">date requested</th>
@@ -113,24 +113,25 @@
                           <td><?= $this->escapeHtml($ticketDetail['status_label']) ?></td>
                         </tr>
                         <tr>
-                          <th class="col-md-3">Write comment</th>
+                          <th class="col-md-3">Write message</th>
                           <td>
-                            <form action="/ziskejalpha" method="post" name="ziskejComments" id="ziskejComments">
+                            <form action=""
+                                  method="post"
+                                  name="ticketMessages"
+                                  id="ticketMessages_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
                               <div class="form-group">
-                                <label for="ziskejComment"></label>
+                                <label for="ticketMessage_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"></label>
                                 <textarea class="form-control"
-                                          id="ziskejComment"
+                                          id="ticketMessage_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
                                           rows="3"
-                                          name="ziskejComment"
-                                          required
-                                          disabled>
-                                </textarea>
+                                          name="ticketMessage"
+                                          required></textarea>
                                 <div align="center">
                                   <input class="btn btn-primary"
                                          type="submit"
-                                         name="submitComment"
-                                         title="<?= $this->translate('Send') ?>"
-                                         value="<?= $this->translate('Send') ?>">
+                                         name="submitMessage"
+                                         title="<?= $this->translate('Send Message') ?>"
+                                         value="<?= $this->translate('Send Message') ?>">
                                 </div>
                               </div>
                             </form>
@@ -138,10 +139,10 @@
                         </tr>
                         <? if ($ticketDetail['count_messages'] > 0): ?>
                           <tr>
-                            <th class="col-md-3">comments</th>
+                            <th class="col-md-3">Messages</th>
                             <td>
-                              <ul class="list-group">
-                                <? foreach ($this->messages as $message): ?>
+                              <ul class="list-group" id="messages_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
+                                <? foreach ($ticketDetail['messages'] as $message): ?>
                                   <li class="list-group-item"><?= $this->escapeHtml($message['text']) ?></li>
                                 <? endforeach; ?>
                               </ul>
@@ -180,33 +181,70 @@
     e.preventDefault();
     let activeElem = $( '#myList a.active' );
     activeElem.toggleClass( 'active' );
-    let aId = activeElem.attr( 'id' );
-    $( '#tab_' + aId ).toggleClass( 'hidden' );
+    let activeId = activeElem.attr( 'id' );
+    $( '#tab_' + activeId ).toggleClass( 'hidden' );
     $( this ).toggleClass( 'active' );
     let id = $( this ).attr( 'id' );
     $( '#tab_' + id ).toggleClass( 'hidden' );
   } );
 
-  function createTicket (doc_id) {
+  function createTicket (documentId) {
     return $.ajax( {
       dataType: 'json',
       async: true,
       method: 'POST',
       url: '/AJAX/JSON?method=createZiskejTicket',
       data: {
-        doc_id: doc_id,
+        documentId: documentId,
+      },
+    } );
+  }
+
+  function createZiskejMessage (message, id) {
+    return $.ajax( {
+      dataType: 'json',
+      async: true,
+      method: 'POST',
+      url: '/AJAX/JSON?method=createZiskejMessage',
+      data: {
+        message: message.trim(),
+        id: id,
       },
     } );
   }
 
   $( '#createZiskejTicket' ).submit( function (e) {
     e.preventDefault();
-    let recordId = $( 'input#recordId' ).val();
-    createTicket( recordId ).done( function (data) {
+    let documentId = $( 'input#recordId' ).val();
+    createTicket( documentId ).done( function (data) {
+
     } ).error( function (data) {
       if (data.responseJSON.error !== undefined) {
         $( '#ziskejErrMsg' ).html( '<p>' + data.responseJSON.error + '</p>' );
       }
     } );
   } );
+
+  $( 'form[name=ticketMessages]' ).submit( function (e) {
+    e.preventDefault();
+    let id = $( '#myList a.active' ).attr( 'id' );
+    let message = $( 'textarea#ticketMessage_' + id ).val();
+    createZiskejMessage( message, id ).done( function (data) {
+      $( 'textarea#ticketMessage_' + id ).val( '' );
+      let messagesList = $( '#messages_' + id + ' li:first' );
+      if (messagesList.length !== 0) {
+        messagesList.before( '<li class="list-group-item">' + data.items[0].text + '</li>' );
+      }
+      else {
+        $( 'div#tab_' + id + ' table.table tbody' ).append(
+          '<tr>' +
+          '<th class="col-md-3">Messages</th>' +
+          '<td><ul class="list-group" id="messages_' + id + '">' +
+          '<li class="list-group-item">' + data.items[0].text + '</li></ul></td></tr>',
+        );
+      }
+    } ).error( function (data) {
+    } );
+  } );
+
 </script>
