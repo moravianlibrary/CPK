@@ -155,7 +155,6 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      *
      * @return array|mixed
      * @throws \Exception
-     * @todo: not ready for prod use
      */
     public function createTicket($eppn, $documentId, array $docAltIds)
     {
