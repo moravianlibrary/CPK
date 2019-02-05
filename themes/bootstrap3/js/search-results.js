@@ -469,9 +469,16 @@ jQuery( document ).ready( function( $ ) {
                         // Disable submit button until ajax finishes
                         $('#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort').attr('disabled', true);
 
+                        document.querySelector('.result-list-toolbar').classList.add('hidden');
+
                         // Let another applications know we are loading new results ..
                         var event = document.createEvent("CustomEvent");
                         event.initCustomEvent('searchResultsLoading', false, false, {});
+
+                        // Hide No results info
+                        $('#no-results-container').hide('blind', {}, 200, function () {
+                            $(this).css('display', 'none');
+                        });
                     },
                     success: function (response) {
 
@@ -573,6 +580,8 @@ jQuery( document ).ready( function( $ ) {
                             if (data['type0'] == "Libraries") {
                                 $( '#map' ).show('blind', {}, 200);
                             }
+
+                            document.querySelector('.result-list-toolbar').classList.remove('hidden');
 
                         } else {
                             console.error(response.data);

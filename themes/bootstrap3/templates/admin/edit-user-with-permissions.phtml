@@ -3,45 +3,59 @@
   $this->headTitle($this->translate('Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/PermissionsManager">'.$this->transEsc('Permissions manager').'</a></li>'.
-      '<li class="active">'.$this->translate('Edit users permissions').'</li>';
+  $this->layout()->breadcrumbs = ''.
+      '<li><a href="/Search" title="'.$this->transEsc('Main page').'">'.$this->transEsc('Main page').'</a></li> '.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.
+          $this->transEsc('Administration').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/PermissionsManager" title="'.$this->transEsc('Permissions manager').'">'.
+          $this->transEsc('Permissions manager').
+        '</a>'.
+      '</li>'.
+      '<li class="active">'.$this->transEsc('Edit users permissions').'</li>';
 
-  $this->layout()->title = $this->translate('Edit users permissions');
+  $this->layout()->title = $this->transEsc('Edit users permissions');
+
+  $this->headScript()->appendFile('admin/permissions.js');
 ?>
-<script>
-jQuery( document ).ready( function( $ ) {
-	$('[data-toggle="tooltip"]').tooltip();
-});
-</script>
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs?></ul>
+
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9">
+  <div class='col-sm-9'>
     <h2><?=$this->translate('Edit users permissions')?></h2>
     <div class='well'>
       <div>
         <form action='/Admin/PermissionsManager/Save' method='post'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
-              <label><?=$this->translate('User')?> <span style='cursor: help;' data-toggle="tooltip" title="EduPersonPrincipalName">(eppn)</span></label>
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
+              <label>
+                <?=$this->translate('User')?>
+                <span class='cursor-help' data-toggle='tooltip' title='EduPersonPrincipalName'>(eppn)</span>
+              </label>
               <input class='form-control' name='eppn' type='text' readonly='readonly' value='<?=$this->eppn?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Major permission')?></label>
               <input type='text' class='form-control' name='major' value='<?=$this->major?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>

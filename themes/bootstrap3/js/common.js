@@ -427,7 +427,7 @@ function fillDebug(dg) {
     $('#modal_dg .modal-body').append('<br><br>');
 }
 
-jQuery( document ).ready( function( $ ){
+jQuery( document ).ready( function( $ ) {
   // Setup search autocomplete
   setupAutocomplete();
   // Setup highlighting of backlinks
@@ -520,15 +520,14 @@ jQuery( document ).ready( function( $ ){
 	  $( this ).popover( 'hide' );
   });
 
-	$( document ).keydown( function( event ) {
-		if ( (event.keyCode == 8) || (event.keyCode == 27) ) {
-			if ($('.modal').is(':visible')) {
-				if (! $( '.modal input, .modal textarea, .modal select' ).is( ':focus' )) {
-					$('.modal').modal('hide');
-				}
-			}
-		}
-	});
+  $( document ).keydown( function (event) {
+    if ((( event.keyCode == 8 ) || ( event.keyCode == 27 ))
+        && $( '.modal' ).is( ':visible' )
+        && !$( '.modal input, .modal textarea, .modal select' ).is( ':focus' )
+    ) {
+      $( '.modal' ).modal( 'hide' );
+    }
+  });
 
     /* Change language */
 	$( 'nav' ).on( 'click', '.change-language', function( event ){
@@ -612,7 +611,92 @@ jQuery( document ).ready( function( $ ){
         currentMenu.slideDown()
       }
     }
-  })
+  });
 
-    $( '#modal_dg' ).appendTo( 'body' );
+  /* Initialize questionmark helps when available */
+  $( '.questionmark-help .modal' ).appendTo( 'body' );
+
+  $( '#modal_dg' ).appendTo( 'body' );
+
+  // Feedback modal window
+  var feedbackModal = document.getElementById( 'feedback-open' );
+  if ( feedbackModal ) {
+    feedbackModal.onclick = function () {
+      $( '#feedback-modal' ).modal( 'show' );
+    }
+  }
+
 });
+
+/**
+ * Parse url query into object
+ *
+ * @param {string} queryString - Query
+ *
+ * @return {Object} Parsed query
+ */
+function parseQueryString(queryString) {
+    if (queryString.charAt(0) === '?') {
+        queryString = queryString.substr(1);
+    }
+
+    let params = {}, queries, temp, i, l;
+
+    // Split into key/value pairs
+    queries = queryString.split('&');
+
+    // Convert the array of strings into an object
+    for ( i = 0, l = queries.length; i < l; i++ ) {
+        temp = queries[i].split('=');
+        params[temp[0]] = temp[1];
+    }
+    return params;
+};
+
+/**
+ * Build query string from Object params
+ *
+ * @param {Object} params
+ *
+ * @return {string} Url query
+ */
+function httpBuildQuery(params) {
+    return Object.keys(params)
+        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+        .join('&');
+};
+
+/**
+ * Change parameter in url string
+ *
+ * @param {string} urlString - Origin url to be changed
+ * @param {Object} params - Key-value pair Object.
+ *                 Object key represents the param name, Object value represents the new param value
+ *
+ * @return {string} Origin url with changed parameter value
+ */
+function changeParamsInUrlString(urlString, params, createParamsIfNotExist = false) {
+
+    let parser = document.createElement('a');
+    parser.href = urlString;
+
+    // parser.protocol; // => "http:"
+    // parser.host;     // => "example.com:3000"
+    // parser.hostname; // => "example.com"
+    // parser.port;     // => "3000"
+    // parser.pathname; // => "/pathname/"
+    // parser.hash;     // => "#hash"
+    // parser.search;   // => "?search=test"
+    // parser.origin;   // => "http://example.com:3000"
+
+    let searchQueryParams = parseQueryString( parser.search );
+
+    Object.keys(params).forEach((key) => {
+      if (! (key in searchQueryParams) && ! createParamsIfNotExist) {
+        return;
+      }
+      searchQueryParams[key] = encodeURIComponent(params[key]);
+    });
+
+    return parser.origin + parser.pathname + '?' + httpBuildQuery( searchQueryParams ) + parser.hash;
+};

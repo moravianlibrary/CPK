@@ -31,14 +31,15 @@ namespace CPK\ILS\Driver;
 
 use CPK\ILS\Logic\XmlTransformation\JsonXML;
 use CPK\ILS\Logic\XmlTransformation\JsonXMLException;
+use CPK\ILS\Logic\XmlTransformation\NCIPDenormalizerRouter;
 use CPK\ILS\Logic\XmlTransformation\NCIPNormalizer;
 use CPK\ILS\Logic\XmlTransformation\NCIPDenormalizer;
+use CPK\ILS\Logic\XmlTransformation\NCIPNormalizerRouter;
 use VuFind\Exception\ILS as ILSException;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
 use VuFind\ILS\Driver\AbstractBase;
 use VuFindHttp\HttpServiceAwareInterface;
 use VuFindHttp\HttpServiceInterface;
-use WebDriver\Exception;
 use Zend\I18n\Translator\TranslatorInterface;
 use Zend\Log\LoggerAwareInterface;
 use Zend\Log\LoggerInterface;
@@ -127,6 +128,11 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      * @var LoggerInterface
      */
     protected $logger = null;
+
+    const NAMESPACES = array(
+        'ns2' => 'https://ncip.knihovny.cz/ILSDI/ncip/2015/extensions',
+        'ns1' => 'http://www.niso.org/2008/ncip',
+    );
 
     /**
      * Set the HTTP service to be used for HTTP requests.
@@ -1039,7 +1045,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      * @param array $patron
      *            The patron array
      *
-     * @return array Array of arrays containing fines information.
+     * @return array|bool Array of arrays containing fines information.
      * @throws ILSException
      * @throws JsonXMLException
      */
@@ -1120,11 +1126,9 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
                 'item_id' => $item_id
             );
         }
-        if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue != 0)
-            $fines[] = array(
-                'amount' => $monetaryValue,
-                'balance' => $monetaryValue
-            );
+        if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue != 0) {
+            return false;
+        }
 
         if (!empty($fines) && !$leastOne)
             $fines[count($fines) - 1]['excluded'] = false;
@@ -1726,9 +1730,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
     {
         try {
             $method = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4)[3]['function'];
-
             $normalizedJsonXmlResponse = $this->getNewNCIPNormalizer($method)->normalize($inboundResponse);
-
             return $normalizedJsonXmlResponse;
 
         } catch (JsonXMLException $e) {
@@ -1752,20 +1754,24 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      */
     private function getNewNCIPDenormalizer($method)
     {
-        $denormalizer = new NCIPDenormalizer($method, $this->source, $this->agency, $this->requests, $this->translator);
+        $router = new NCIPDenormalizerRouter();
 
-        $denormalizer->setLogger($this->logger);
+        $normalizer = $router->route($method, $this->requests);
 
-        return $denormalizer;
+        $normalizer->setLogger($this->logger);
+
+        return $normalizer;
     }
 
     /**
-     * @param $method
-     * @return NCIPNormalizer
+     * @return bool|NCIPNormalizer|\CPK\ILS\Logic\XmlTransformation\VerbisNCIPNormalizer
+     * @internal param $method
      */
     private function getNewNCIPNormalizer($method)
     {
-        $normalizer = new NCIPNormalizer($method, $this->source, $this->agency, $this->requests, $this->translator);
+        $router = new NCIPNormalizerRouter();
+
+        $normalizer = $router->route($method, $this->source, $this->agency, $this->requests, $this->translator);
 
         $normalizer->setLogger($this->logger);
 

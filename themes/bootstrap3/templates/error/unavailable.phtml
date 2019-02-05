@@ -6,14 +6,10 @@
   $this->layout()->searchbox = false;
 
   $this->layout()->breadcrumbs = '<li class="active">Error</li>';
+
+  $this->headScript()->appendFile('errors.js');
 ?>
-<script>
-  dataLayer.push({
-    'page': {
-      'category': 'error'
-    }
-  });
-</script>
+
 <div class="alert alert-danger">
   <h2><?=$this->transEsc('System Unavailable')?></h2>
   <p>
@@ -22,7 +18,7 @@
   </p>
   <p>
     <?=$this->transEsc('Please contact the Library Reference Department for assistance')?>
-    <br/>
+    <br>
     <? $supportEmail = $this->escapeHtmlAttr($this->systemEmail()); ?>
     <a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a>
   </p>

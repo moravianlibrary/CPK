@@ -50,6 +50,10 @@
 @import "parts/portal";
 //contain styling for advanced search
 @import "parts/advanced-search";
+//contain styling for errors
+@import "parts/errors";
+//contain styling for widgets
+@import "parts/components/widgets";
 
 body {
   font-weight: 300;
@@ -61,25 +65,6 @@ body {
 
 a.list-group-item .list-group-item-heading, .infobox .list-group-item .list-group-item-heading {
   color: @primary;
-}
-
-.widget .content {
-  padding-top: 10px;
-}
-
-.widget h2 {
-    font-size: 180%;
-    font-weight: 600;
-}
-
-.widget .more-info {
-  color: @primary;
-  font-size: 120%;
-}
-
-.widget .header {
-    text-align: center;
-    padding-bottom: 10px;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -253,15 +238,7 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
     transform: rotate(-90deg);
 }
 
-#conspectus i.pr-institution-arrow.expanded:hover {
-    -webkit-transform: rotate(0deg);
-    -moz-transform: rotate(0deg);
-    -ms-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-}
-
-.jstree-ocl:hover, #conspectus i.pr-institution-arrow.expanded {
+.jstree-ocl:hover {
    -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
@@ -275,16 +252,6 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
     -ms-transform: rotate(-90deg);
     -o-transform: rotate(-90deg);
     transform: rotate(-90deg);
-}
-
-#conspectus i.pr-institution-arrow:before {
-    content: "\ead8";
-    color: @primary;
-    font-size: 17px;
-}
-
-#conspectus i.pr-institution-arrow {
-    margin-top: 4px;
 }
 
 .pcolor {
@@ -329,4 +296,52 @@ h1, .h1 {
 
 .form-control {
   border: 2px solid @input-border;
+}
+
+//Styling feedback button which opens feedback modal
+.feedback-link {
+  bottom: 100px;
+  height: 50px;
+  position: fixed;
+  right: 30px;
+  width: 50px;
+  opacity: 0.4;
+  transition: 0.3s;
+  z-index: 100;
+}
+
+.feedback-link:hover {
+  opacity: 1;
+}
+
+.feedback-link span {
+  cursor: pointer;
+  display: block;
+  color: @brand-primary;
+}
+
+.feedback-link span.pr-communication-bubblehelpquestionsupport2:before {
+  font-size: 50px;
+}
+
+//Styling rendered feedback page into modal window (common styling in portal.less)
+#feedback-modal .feedback-form {
+  input[type=text],
+  input[type=email] {
+    width: 100%;
+  }
+
+  textarea {
+    height: 100px;
+  }
+}
+
+.cursor-help {
+  cursor: help;
+}
+
+.questionmark-help {
+  .modal {
+    z-index: 1234;
+  }
 }

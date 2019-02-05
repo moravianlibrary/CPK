@@ -27,8 +27,7 @@
  */
 namespace CPK\View\Helper\CPK;
 
-use Zend\ServiceManager\ServiceManager,
-    CPK\Db\Table\PortalPage as PortalPageTable;
+use Zend\ServiceManager\ServiceManager;
 
 /**
  * Factory for Bootstrap view helpers.
@@ -157,11 +156,27 @@ class Factory
         return new ObalkyKnih($cacheUrl);
     }
 
-	public static function getThemeConfiguration(ServiceManager $sm) {
-		$config = $sm->getServiceLocator()
-			->get('VuFind\Config')
-			->get('config');
+    public static function getThemeConfiguration(ServiceManager $sm) {
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config');
 
-		return new ThemeConfiguration($config);
-	}
+        return new ThemeConfiguration($config);
+    }
+
+    /**
+     * Get Feedback view helper
+     *
+     * @param ServiceManager $sm
+     * @return Feedback
+     */
+    public static function getFeedback(ServiceManager $sm)
+    {
+        $config = $sm->getServiceLocator()
+            ->get('VuFind\Config')
+            ->get('config');
+
+        return new Feedback($config);
+    }
+
 }

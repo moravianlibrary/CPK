@@ -3,34 +3,47 @@
   $this->headTitle($this->translate('Portal pages | Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
+  $this->layout()->breadcrumbs = '' .
+      '<li>'.
+        '<a href="/Search" title="'.$this->transEsc('Main page').'">'.
+          $this->transEsc('Main page').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.
+          $this->transEsc('Administration').
+        '</a>'.
+      '</li>'.
+      '<li><a href="/Admin/Widgets" title="'.$this->transEsc('Widgets').'">'.$this->transEsc('Widgets').'</a></li>'.
       '<li class="active">'.$this->translate('Edit widget').'</li>';
 
   $this->layout()->title = $this->translate('Edit widget');
 ?>
 
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs ?></ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9">
+  <div class='col-sm-9'>
     <h2><?=$this->translate('Edit widget')?></h2>
     <div class='well'>
       <div>
         <div class='admin-toolbox'>
-            <div class="dropdown pull-right">
-              <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <div class='dropdown pull-right'>
+              <span class='actions' id='actions' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true'>
                 <i class='fa fa-ellipsis-v fa-2x dropdown-toggle pointer'></i>
               </span>
-              <ul class="dropdown-menu" aria-labelledby="actions">
+              <ul class='dropdown-menu' aria-labelledby='actions'>
                 <li>
-                  <a href='/Admin/Widgets/RemoveWidget/<?= $this->widget->getId() ?>'>
+                  <a href='/Admin/Widgets/RemoveWidget/<?=$this->widget->getId()?>'>
                     <i class='fa fa-remove'></i>
                     <?=$this->translate('Delete')?>
                   </a>
@@ -40,56 +53,85 @@
           </div>
         <form action='/Admin/Widgets/SaveWidget' method='post'>
           <input type='hidden' name='id' value='<?=$this->widget->getId()?>'>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('Title')?> Cs</label>
-              <input class='form-control' name='title_cs' type='text' placeholder='<?=$this->translate('Enter title')?>' value='<?=$this->widget->getTitleCs()?>'>
+              <input class='form-control'
+                     name='title_cs'
+                     type='text'
+                     placeholder='<?=$this->translate('Enter title')?>'
+                     value='<?=$this->widget->getTitleCs()?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
-              <label><?=$this->translate('Solr field')?> <?=$this->translate('E.g.')?> (widget_name_with_underscores)</label>
-              <input class='form-control' name='name' type='text' placeholder='<?=$this->translate('')?>' value='<?=$this->widget->getName()?>'>
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
+              <label>
+                <?=$this->translate('Solr field')?> <?=$this->translate('E.g.')?> (widget_name_with_underscores)
+              </label>
+              <input class='form-control'
+                     name='name'
+                     type='text'
+                     value='<?=$this->widget->getName()?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('Shown records number')?></label>
-              <input class='form-control' name='shown_records_number' type='number' placeholder='<?=$this->translate('Enter number')?>' value='<?=$this->widget->getShownRecordsNumber()?>'>
+              <input class='form-control'
+                     name='shown_records_number'
+                     type='number'
+                     placeholder='<?=$this->translate('Enter number')?>'
+                     value='<?=$this->widget->getShownRecordsNumber()?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Display')?></label>
               <select class='form-control' name='display'>
-                <option value='random'<?=($this->widget->getDisplay() == 'display') ? ' selected' : ''?>><?=$this->translate('Random')?></option>
-                <option value='default'<?=($this->widget->getDisplay() == 'default') ? ' selected' : ''?>><?=$this->translate('Default')?></option>
-                <option value='priority'<?=($this->widget->getDisplay() == 'priority') ? ' selected' : ''?>><?=$this->translate('Priority')?></option>
+                <option value='random'<?=($this->widget->getDisplay() == 'display') ? ' selected' : ''?>>
+                  <?=$this->translate('Random')?>
+                </option>
+                <option value='default'<?=($this->widget->getDisplay() == 'default') ? ' selected' : ''?>>
+                  <?=$this->translate('Default')?>
+                </option>
+                <option value='priority'<?=($this->widget->getDisplay() == 'priority') ? ' selected' : ''?>>
+                  <?=$this->translate('Priority')?>
+                </option>
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Description')?></label>
               <select class='form-control' name='description'>
-                <option value='author'<?=($this->widget->getDescription() == 'author') ? ' selected' : ''?>><?=$this->translate('Author')?></option>
-                <option value='description'<?=($this->widget->getDescription() == 'description') ? ' selected' : ''?>><?=$this->translate('Description')?></option>
+                <option value='author'<?=($this->widget->getDescription() == 'author') ? ' selected' : ''?>>
+                  <?=$this->translate('Author')?>
+                </option>
+                <option value='description'<?=($this->widget->getDescription() == 'description') ? ' selected' : ''?>>
+                  <?=$this->translate('Description')?>
+                </option>
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-1">
+          <fieldset class='form-group'>
+            <div class='col-xs-1'>
               <label><?=$this->translate('Show all records link')?></label>
-              <input type='checkbox' class='form-control' name='show_all_records_link' value='1'<?=($this->widget->getShowAllRecordsLink() == 1) ? ' checked' : ''?>>
+              <input type='checkbox'
+                     class='form-control'
+                     name='show_all_records_link'
+                     value='1'<?=($this->widget->getShowAllRecordsLink() == 1) ? ' checked' : ''?>>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-1">
+          <fieldset class='form-group'>
+            <div class='col-xs-1'>
               <label><?=$this->translate('Show cover')?></label>
-              <input type='checkbox' class='form-control' name='show_cover' value='1'<?=($this->widget->getShowCover() == 1) ? ' checked' : ''?>>
+              <input type='checkbox'
+                     class='form-control'
+                     name='show_cover'
+                     value='1'<?=($this->widget->getShowCover() == 1) ? ' checked' : ''?>>
             </div>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>

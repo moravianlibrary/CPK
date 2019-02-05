@@ -67,4 +67,17 @@ class Factory
     {
         return new ItemApiController($sm);
     }
+
+    /**
+     * Construct the ConsolidationApiController.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return ConsolidationApiController
+     */
+    public static function getConsolidationApiController(ServiceManager $sm)
+    {
+        return new ConsolidationApiController($sm);
+    }
+
 }

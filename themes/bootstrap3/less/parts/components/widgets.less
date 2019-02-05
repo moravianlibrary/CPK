@@ -1,0 +1,48 @@
+#conspectus {
+  .category {
+    .expanded-category {
+      padding-left: 40px;
+    }
+  }
+  i.pr-institution-arrow:before {
+    content: "\ead8";
+    color: #e5004b;
+    font-size: 17px;
+  }
+  i.pr-institution-arrow {
+    margin-top: 4px;
+    .expanded {
+      -webkit-transform: rotate(90deg);
+
+      -moz-transform: rotate(90deg);
+      -ms-transform: rotate(90deg);
+      -o-transform: rotate(90deg);
+      transform: rotate(90deg);
+    }
+  }
+  i.pr-institution-arrow.expanded:hover {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+.widget {
+  .content {
+    padding-top: 10px;
+  }
+  h2 {
+    font-size: 180%;
+    font-weight: 600;
+    color: @black;
+  }
+  .more-info {
+    color: @brand-primary;
+    font-size: 120%;
+  }
+  .header {
+    text-align: center;
+    padding-bottom: 10px;
+  }
+}

@@ -3,101 +3,102 @@
   $this->headTitle($this->translate('Portal pages | Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/PortalPages">'.$this->transEsc('Portal pages').'</a></li>'.
-      '<li class="active">'.$this->translate('Create page').'</li>';
+  $this->layout()->breadcrumbs = ''.
+      '<li><a href="/Search" title="'.$this->transEsc('Main page').'">'.$this->transEsc('Main page').'</a></li> '.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.
+          $this->transEsc('Administration').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/PortalPages" title="'.$this->transEsc('Portal pages').'">'.
+          $this->transEsc('Portal pages').
+        '</a>'.
+      '</li>'.
+      '<li class="active">'.$this->transEsc('Create page').'</li>';
 
-  $this->layout()->title = $this->translate('Portal page');
+  $this->layout()->title = $this->transEsc('Portal page');
+
+  $this->headScript()->appendFile('vendor/ckeditor/ckeditor.js');
+  $this->headScript()->appendFile('admin/portal-pages/portal-page.js');
 ?>
 
-<script src="https://cdn.ckeditor.com/4.7.3/full-all/ckeditor.js"></script>
-<script>
-	jQuery( document ).ready( function( $ ) {
-        CKEDITOR.replace( 'content', {
-            entities_latin: false,
-        } );
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs?></ul>
 
-		if ($( '#view' ).val() == 'advanced-search') {
-			$( '.position-placeholder' ).addClass( 'hidden' );
-		}
-		$( '#view' ).on( 'change', function() {
-			if( $( this ).val() == 'advanced-search' ) {
-				$( '.position-placeholder' ).addClass( 'hidden' );
-			} else {
-				$( '.position-placeholder' ).removeClass( 'hidden' );
-			}
-		});
-
-	});
-</script>
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
-
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9">
+  <div class='col-sm-9'>
     <h2><?=$this->translate('Create page')?></h2>
     <div class='well'>
       <div>
         <form action='/Admin/PortalPages/Insert' method='post'>
           <input type='hidden' name='userId' value='<?=$this->user['id']?>'>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('Site title')?></label>
               <input class='form-control' name='title' type='text' placeholder='<?=$this->translate('Enter title')?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Language')?></label>
               <select class='form-control' name='language'>
-                <? foreach($this->layout()->allLangs as $langCode => $langName): ?>
-                <option value='<?=$langCode?>'><?=$this->translate($langName)?></option>
+                <? foreach ($this->layout()->allLangs as $langCode => $langName): ?>
+                  <option value='<?=$langCode?>'><?=$this->translate($langName)?></option>
                 <? endforeach; ?>
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Placement')?></label>
               <select id='view' class='form-control' name='placement'>
-                <? foreach($this->placements as $placement): ?>
-                <option value='<?=$placement?>'><?=$this->translate($placement)?></option>
+                <? foreach ($this->placements as $placement): ?>
+                  <option value='<?=$placement?>'><?=$this->translate($placement)?></option>
                 <? endforeach; ?>
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group position-placeholder">
-            <div class="col-xs-3">
-              <label><?=$this->translate('Position')?> (<?=$this->translate('No need to set, when placement is modal')?>)</label>
+          <fieldset class='form-group position-placeholder'>
+            <div class='col-xs-3'>
+              <label>
+                <?=$this->translate('Position')?> (<?=$this->translate('No need to set, when placement is modal')?>)
+              </label>
               <select id='view' class='form-control' name='position'>
-                <? foreach($this->positions as $position): ?>
-                <option value='<?=$position?>'><?=$this->translate($position)?></option>
+                <? foreach ($this->positions as $position): ?>
+                  <option value='<?=$position?>'><?=$this->translate($position)?></option>
                 <? endforeach; ?>
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-1">
+          <fieldset class='form-group'>
+            <div class='col-xs-1'>
               <label><?=$this->translate('Published')?></label>
               <input type='checkbox' class='form-control' name='published' value='1'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Order priority')?></label>
-              <input type='number' class='form-control' name='orderPriority' placeholder='<?=$this->translate('Enter number')?>'>
+              <input type='number'
+                     class='form-control'
+                     name='orderPriority'
+                     placeholder='<?=$this->translate('Enter number')?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <label><?=$this->translate('Content')?></label>
             <textarea rows='15' class='form-control editor' name='content'></textarea>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>

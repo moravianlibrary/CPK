@@ -82,7 +82,7 @@
               <div class='col-md-4 text-right'>
                 <select class='form-control query-type' name='type<?=$groups?>[]'>
                   <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
-                  <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
+                  <option value="<?=$this->escapeHtmlAttr($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
                     <?=$this->transEsc($description)?>
                   </option>
                   <? endforeach; ?>
@@ -135,9 +135,9 @@
               <div class='col-md-4 text-right'>
                 <select class='form-control query-type' name='type<?=$groups?>[]'>
                   <? foreach ($options->getAdvancedHandlers() as $value => $description): ?>
-                  <option value="<?=$this->escapeHtml($value)?>"<?= ($value == $queryHandler) ? ' selected="selected"' : ''?>>
-                    <?=$this->transEsc($description)?>
-                  </option>
+                    <option value="<?=$this->escapeHtmlAttr($value)?>"<?=($value == $queryHandler) ? ' selected="selected"' : ''?>>
+                      <?=$this->transEsc($description)?>
+                    </option>
                   <? endforeach; ?>
                 </select>
               </div>

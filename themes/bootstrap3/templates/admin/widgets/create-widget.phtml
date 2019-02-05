@@ -3,47 +3,68 @@
   $this->headTitle($this->translate('Portal pages | Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li>'.
-      '<li><a href="/Admin/Widgets">'.$this->transEsc('Widgets').'</a></li>'.
+  $this->layout()->breadcrumbs = '' .
+      '<li>'.
+        '<a href="/Search" title="'.$this->transEsc('Main page').'">'.
+          $this->transEsc('Main page').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="'.$this->url('myresearch-home').'" title="'.$this->transEsc('Your Account').'">'.
+          $this->transEsc('Your Account').
+        '</a>'.
+      '</li>'.
+      '<li>'.
+        '<a href="/Admin/Home" title="'.$this->transEsc('Administration').'">'.
+          $this->transEsc('Administration').
+        '</a>'.
+      '</li>'.
+      '<li><a href="/Admin/Widgets" title="'.$this->transEsc('Widgets').'">'.$this->transEsc('Widgets').'</a></li>'.
       '<li class="active">'.$this->translate('Create new widget').'</li>';
 
   $this->layout()->title = $this->translate('Create new widget');
 ?>
 
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<div class='row clearfix'>
+  <ul class='breadcrumb hidden-print'><?=$this->layout()->breadcrumbs ?></ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <div class="col-sm-9">
+  <div class='col-sm-9'>
     <h2><?=$this->translate('Create new widget')?></h2>
     <div class='well'>
       <div>
         <form action='/Admin/Widgets/InsertWidget' method='post'>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('Title')?> Cs</label>
-              <input class='form-control' name='title_cs' type='text' placeholder='<?=$this->translate('Enter title')?>'>
+              <input class='form-control'
+                     name='title_cs' type='text'
+                     placeholder='<?=$this->translate('Enter title')?>'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
-              <label><?=$this->translate('Solr field')?> <?=$this->translate('E.g.')?> (widget_name_with_underscores)</label>
-              <input class='form-control' name='name' type='text' placeholder='<?=$this->translate('')?>'>
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
+              <label>
+                <?=$this->translate('Solr field')?> <?=$this->translate('E.g.')?> (widget_name_with_underscores)
+              </label>
+              <input class='form-control' name='name' type='text'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-8">
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label><?=$this->translate('Shown records number')?></label>
-              <input class='form-control' name='shown_records_number' type='number' placeholder='<?=$this->translate('Enter number')?>' value='5'>
+              <input class='form-control'
+                     name='shown_records_number'
+                     type='number'
+                     placeholder='<?=$this->translate('Enter number')?>'
+                     value='5'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Display')?></label>
               <select class='form-control' name='display'>
                 <option value='random'><?=$this->translate('Random')?></option>
@@ -52,8 +73,8 @@
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-3">
+          <fieldset class='form-group'>
+            <div class='col-xs-3'>
               <label><?=$this->translate('Description')?></label>
               <select class='form-control' name='description'>
                 <option value='author'><?=$this->translate('Author')?></option>
@@ -61,19 +82,19 @@
               </select>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-1">
+          <fieldset class='form-group'>
+            <div class='col-xs-1'>
               <label><?=$this->translate('Show all records link')?></label>
               <input type='checkbox' class='form-control' name='show_all_records_link' value='1'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
-            <div class="col-xs-1">
+          <fieldset class='form-group'>
+            <div class='col-xs-1'>
               <label><?=$this->translate('Show cover')?></label>
               <input type='checkbox' class='form-control' name='show_cover' value='1'>
             </div>
           </fieldset>
-          <fieldset class="form-group">
+          <fieldset class='form-group'>
             <input type='submit' class='btn btn-lg btn-primary pull-right' value='<?=$this->translate('Save')?>'>
           </fieldset>
         </form>

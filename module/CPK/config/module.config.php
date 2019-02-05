@@ -209,7 +209,8 @@ $config = array(
             'admin' => 'CPK\Controller\AdminController',
             'edsrecord' => 'CPK\Controller\EdsrecordController',
             'ziskej' => 'CPK\Controller\ZiskejController',
-            'ziskejalpha' => 'CPK\Controller\ZiskejAlphaController'
+            'ziskejalpha' => 'CPK\Controller\ZiskejAlphaController',
+            'inspiration' => 'CPK\Controller\InspirationController',
         ), /* invokables */
     ), /* controllers */
     'controller_plugins' => [
@@ -294,5 +295,20 @@ foreach ($nonTabRecordActions as $action) {
         )
     );
 }
+
+$config['router']['routes']['inspiration-show'] = array(
+    'type'    => 'Zend\Mvc\Router\Http\Segment',
+    'options' => array(
+        'route'    => '/' . 'Inspiration' . '/[:tag]',
+        'constraints' => array(
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'tag'        => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ),
+        'defaults' => array(
+            'controller' => 'Inspiration',
+            'action'     => 'show',
+        )
+    )
+);
 
 return $config;

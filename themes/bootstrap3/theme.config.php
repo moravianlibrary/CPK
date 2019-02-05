@@ -57,6 +57,7 @@ $toRet = array(
             'help' => 'CPK\View\Helper\CPK\Factory::getHelp',
             'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih',
             'notifications' => 'CPK\View\Helper\CPK\Factory::getNotifications',
+            'feedback' => 'CPK\View\Helper\CPK\Factory::getFeedback',
         ),
         'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',
@@ -64,7 +65,9 @@ $toRet = array(
             'vudl' => 'VuDL\View\Helper\Bootstrap3\VuDL',
             'parseFilterOptions' => 'CPK\View\Helper\CPK\ParseFilterOptions',
             'renderarray' => 'CPK\View\Helper\CPK\RenderArray',
-            'currenturl' => 'CPK\View\Helper\CPK\CurrentURL'
+            'currenturl' => 'CPK\View\Helper\CPK\CurrentURL',
+            'compressUrlParam' => 'CPK\View\Helper\CPK\CompressUrlParam',
+            'decompressUrlParam' => 'CPK\View\Helper\CPK\DecompressUrlParam'
         )
     )
 );
