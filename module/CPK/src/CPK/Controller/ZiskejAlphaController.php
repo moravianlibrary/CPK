@@ -70,7 +70,6 @@ class ZiskejAlphaController extends AbstractBase
 
         $request = $this->getRequest();
         $eppn = $request->getServer()->eduPersonPrincipalName;
-        $eppn    = '1185@mzk.cz';
         $libraries        = $this->ziskej->getLibraries();
         $librariesContent = $this->getContent($libraries);
         $librarySources   = [];
@@ -81,7 +80,6 @@ class ZiskejAlphaController extends AbstractBase
             }
         }
 
-        $view->user = $this->getUser();
         if ($user = $this->getUser()) {
             $reader = $this->ziskej->getReader($eppn);
             if (in_array($user->getSource(), $librarySources) && $reader->getStatusCode() == 200) {
