@@ -9,15 +9,15 @@
 <div align="center">
   <div class="row">
     <div class="<? if ($this->reader): ?>col-md-6<? else: ?> col-md-12 <? endif; ?>">
-      <form action="/ziskejalpha" id="ziskejForm" method="post" name="ziskejForm">
+      <form action="<?= $this->url('ziskejalpha') ?>" id="ziskejForm" method="post" name="ziskejForm">
         <div class="form-group">
           <label for="ziskejSelect">ZISKEJ</label>
           <select name="ziskej" class="form-control" id="ziskejSelect">
-              <? foreach ($this->ziskejConfig as $type): ?>
-                <option value="<?= $this->escapeHtmlAttr($type) ?>" <?= $type == $this->setting ? 'selected' : '' ?>>
-                  <?= $this->translate(sprintf('Ziskej_%s', $type)) ?>
-                </option>
-              <? endforeach; ?>
+            <? foreach ($this->ziskejConfig as $type): ?>
+              <option value="<?= $this->escapeHtmlAttr($type) ?>"
+                      <? if ($type == $this->setting): ?>selected="selected"<? endif; ?>><?= $this->translate(sprintf('Ziskej_%s',
+                  $type)) ?></option>
+            <? endforeach; ?>
           </select>
         </div>
         <div class="form-group">
@@ -26,148 +26,187 @@
         </div>
       </form>
     </div>
-    <? if ($this->reader): ?>
-      <div class="col-md-6">
-        <form id="createZiskejTicket" method="post" name="createZiskejTicket">
-          <div class="form-group" id="createTicketZiskejForm">
-            <label for="recordId">Record ID</label>
-            <input type="text" id="recordId" class="form-control" name="recordId" required>
-          </div>
-          <div class="form-group">
-            <div id="ziskejErrMsg"></div>
-            <input class="btn btn-primary" type="submit" name="submitTicket" title="<?= $this->translate('Create') ?>"
-                   value="<?= $this->translate('Create') ?>">
-          </div>
-        </form>
-      </div>
-    <? endif; ?>
-  </div>
-  <div class="row">
-    <? if ($this->reader): ?>
-      <div class="clearfix well border table-core">
-        <div class="col-sm-12">
-          <table class="table">
-              <tbody>
-                <tr>
-                  <th class="col-md-3">First Name</th>
-                  <td><?= $this->escapeHtml($this->reader['first_name']) ?></td>
-                </tr>
-                <tr>
-                  <th class="col-md-3">Last Name</th>
-                  <td><?= $this->escapeHtml($this->reader['last_name']) ?></td>
-                </tr>
-                <tr>
-                  <th class="col-md-3">Email</th>
-                  <td><?= $this->escapeHtml($this->reader['email']) ?></td>
-                </tr>
-              </tbody>
-            </table>
-        </div>
-      </div>
-      <? if ( ! empty($this->ticketDetails)): ?>
-        <? foreach ($this->ticketDetails as $ticketDetail): ?>
-          <div class="row">
-            <div class="col-md-4" id="myList">
-              <div class="list-group">
-                <a href="#tab_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
-                   id="<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
-                   class="list-group-item"><?= $this->escapeHtml($ticketDetail['doc_id']) ?></a>
-              </div>
+    <? if ( ! $this->disabled): ?>
+      <? if ($this->reader): ?>
+        <div class="col-md-6">
+          <form id="createZiskejTicket" method="post" name="createZiskejTicket">
+            <div class="form-group" id="createTicketZiskejForm">
+              <label for="recordId">Record ID</label>
+              <input type="text" id="recordId" class="form-control" name="recordId" required>
             </div>
-            <div class="col-md-8">
-              <div class="tab-content" id="nav-tabContent">
-                <div class="tab hidden" id="tab_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
-                  <div class="clearfix well border table-core">
-                    <table class="table">
-                      <tbody>
-                        <tr>
-                          <th class="col-md-3">sigla</th>
-                          <td><?= $this->escapeHtml($ticketDetail['sigla']) ?></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">link</th>
-                          <td><a href="/Record/<?= $ticketDetail['doc_id'] ?>"><?= $ticketDetail['doc_id'] ?></a></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">is open</th>
-                          <td><? if ($ticketDetail['is_open']): ?>Yes<? else: ?>No<? endif; ?></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">date requested</th>
-                          <td><?= $this->escapeHtml($ticketDetail['date_requested']) ?></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">date created</th>
-                          <td><?= $this->escapeHtml($ticketDetail['date_created']) ?></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">ticket id</th>
-                          <td><?= $this->escapeHtml($ticketDetail['ticket_id']) ?></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">count messages</th>
-                          <td><?= $this->escapeHtml($ticketDetail['count_messages']) ?></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">status</th>
-                          <td><?= $this->escapeHtml($ticketDetail['status_label']) ?></td>
-                        </tr>
-                        <tr>
-                          <th class="col-md-3">Write message</th>
-                          <td>
-                            <form action=""
-                                  method="post"
-                                  name="ticketMessages"
-                                  id="ticketMessages_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
-                              <div class="form-group">
-                                <label for="ticketMessage_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"></label>
-                                <textarea class="form-control"
-                                          id="ticketMessage_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
-                                          rows="3"
-                                          name="ticketMessage"
-                                          required></textarea>
-                                <div align="center">
-                                  <input class="btn btn-primary"
-                                         type="submit"
-                                         name="submitMessage"
-                                         title="<?= $this->translate('Send Message') ?>"
-                                         value="<?= $this->translate('Send Message') ?>">
-                                </div>
-                              </div>
-                            </form>
-                          </td>
-                        </tr>
-                        <? if ($ticketDetail['count_messages'] > 0): ?>
-                          <tr>
-                            <th class="col-md-3">Messages</th>
-                            <td>
-                              <ul class="list-group" id="messages_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
-                                <? foreach ($ticketDetail['messages'] as $message): ?>
-                                  <li class="list-group-item"><?= $this->escapeHtml($message['text']) ?></li>
-                                <? endforeach; ?>
-                              </ul>
-                            </td>
-                          </tr>
-                        <? endif; ?>
-                      </tbody>
-                    </table>
+            <div class="form-group">
+              <div id="ziskejErrMsg"></div>
+              <input class="btn btn-primary"
+                     type="submit"
+                     name="submitTicket"
+                     title="<?= $this->translate('Create') ?>"
+                     value="<?= $this->translate('Create') ?>">
+            </div>
+          </form>
+        </div>
+        </div>
+        <div class="row">
+          <div class="clearfix well border table-core">
+            <div class="col-sm-12">
+              <table class="table">
+                  <tbody>
+                    <tr>
+                      <th class="col-md-3">First Name</th>
+                      <td><?= $this->escapeHtml($this->reader['first_name']) ?></td>
+                    </tr>
+                    <tr>
+                      <th class="col-md-3">Last Name</th>
+                      <td><?= $this->escapeHtml($this->reader['last_name']) ?></td>
+                    </tr>
+                    <tr>
+                      <th class="col-md-3">Email</th>
+                      <td><?= $this->escapeHtml($this->reader['email']) ?></td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+          </div>
+        <? if ( ! empty($this->ticketDetails)): ?>
+          <? foreach ($this->ticketDetails as $ticketDetail): ?>
+            <div class="row">
+                <div class="col-md-4" id="myList">
+                  <div class="list-group">
+                    <a href="#tab_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
+                       id="<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
+                       class="list-group-item"><?= $this->escapeHtml($ticketDetail['doc_id']) ?></a>
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="tab-content" id="nav-tabContent">
+                    <div class="tab hidden" id="tab_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
+                      <div class="clearfix well border table-core">
+                        <table class="table">
+                          <tbody>
+                            <tr>
+                              <th class="col-md-3">sigla</th>
+                              <td><?= $this->escapeHtml($ticketDetail['sigla']) ?></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">link</th>
+                              <td><a href="/Record/<?= $ticketDetail['doc_id'] ?>"><?= $ticketDetail['doc_id'] ?></a></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">is open</th>
+                              <td><? if ($ticketDetail['is_open']): ?>Yes<? else: ?>No<? endif; ?></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">date requested</th>
+                              <td><?= $this->escapeHtml($ticketDetail['date_requested']) ?></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">date created</th>
+                              <td><?= $this->escapeHtml($ticketDetail['date_created']) ?></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">ticket id</th>
+                              <td><?= $this->escapeHtml($ticketDetail['ticket_id']) ?></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">count messages</th>
+                              <td><?= $this->escapeHtml($ticketDetail['count_messages']) ?></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">status</th>
+                              <td><?= $this->escapeHtml($ticketDetail['status_label']) ?></td>
+                            </tr>
+                            <tr>
+                              <th class="col-md-3">Write message</th>
+                              <td>
+                                <form action=""
+                                      method="post"
+                                      name="ticketMessages"
+                                      id="ticketMessages_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
+                                  <div class="form-group">
+                                    <label for="ticketMessage_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"></label>
+                                    <textarea class="form-control"
+                                              id="ticketMessage_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
+                                              rows="3"
+                                              name="ticketMessage"
+                                              required></textarea>
+                                    <div align="center">
+                                      <input class="btn btn-primary"
+                                             type="submit"
+                                             name="submitMessage"
+                                             title="<?= $this->translate('Send Message') ?>"
+                                             value="<?= $this->translate('Send Message') ?>">
+                                    </div>
+                                  </div>
+                                </form>
+                              </td>
+                            </tr>
+                            <? if ($ticketDetail['count_messages'] > 0): ?>
+                              <tr>
+                                <th class="col-md-3">Messages</th>
+                                <td>
+                                  <ul class="list-group"
+                                      id="messages_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>">
+                                    <? foreach ($ticketDetail['messages'] as $message): ?>
+                                      <li class="list-group-item"><?= $this->escapeHtml($message['text']) ?></li>
+                                    <? endforeach; ?>
+                                  </ul>
+                                </td>
+                              </tr>
+                            <? endif; ?>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+          <? endforeach; ?>
+        <? else: ?>
+          <p>Nejsou zadne objednavky</p>
+        <? endif; ?>
+      <? elseif ($this->redirect): ?>
+        <p>Jste ne zaregestrovany v Ziskej</p>
+        <?= $this->flashmessages() ?>
+        <div class="col-md-12">
+          <form action="<?= $this->url('ziskejalpha-registration') ?>"
+                id="registrationZiskej"
+                name="registrationZiskej"
+                method="post">
+            <div class="control-group">
+              <div class="checkbox">
+                <label>
+                <input type="checkbox" name="is_gdpr_reg" id="souhlasReg">
+                  Souhlas s registraci
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                <input type="checkbox" name="is_gdpr_data" id="souhlasDat">
+                  Souhlas s ulozenim dat
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                <input type="checkbox" name="notification_enabled" id="notification">
+                  Posilat notifikace?
+                </label>
+              </div>
+              <input class="btn btn-primary"
+                     type="submit"
+                     name="submit"
+                     title="<?= $this->translate('Registration') ?>"
+                     value="<?= $this->translate('Registration') ?>">
             </div>
-          </div>
-        <? endforeach; ?>
+          </form>
+        </div>
+      <? elseif ($this->libNotInZiskej): ?>
+        <p>Vase knihovna nejsou v seznamu knihoven Ziskej</p>
       <? else: ?>
-        <p>Nejsou zadne objednavky</p>
+        <p>Pro testivani je nutne se prihlasit</p>
       <? endif; ?>
-
-    <? elseif ($this->redirect): ?>
-      <p>Vase knihovna nejsou v seznamu knihoven Ziskej, nebo jste ne zaregestrovany v Ziskej</p>
-      <a href="<?= $this->redirect ?>">Registrace v Ziskej</a>
+      </div>
     <? else: ?>
-      <p>Pro testivani je nutne se prihlasit</p>
+      <p>Zsikej disabled</p>
     <? endif; ?>
-  </div>
 </div>
 <style>
   #nav-tabContent {
@@ -188,6 +227,22 @@
     $( '#tab_' + id ).toggleClass( 'hidden' );
   } );
 
+  function getCookie (cname) {
+    let name = cname + '=';
+    let decodedCookie = decodeURIComponent( document.cookie );
+    let ca = decodedCookie.split( ';' );
+    for (let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt( 0 ) === ' ') {
+        c = c.substring( 1 );
+      }
+      if (c.indexOf( name ) === 0) {
+        return c.substring( name.length, c.length );
+      }
+    }
+    return 'disabled';
+  }
+
   function createTicket (documentId) {
     return $.ajax( {
       dataType: 'json',
@@ -196,6 +251,7 @@
       url: '/AJAX/JSON?method=createZiskejTicket',
       data: {
         documentId: documentId,
+        ziskejCookie: getCookie( 'ziskej' ),
       },
     } );
   }
@@ -208,7 +264,8 @@
       url: '/AJAX/JSON?method=createZiskejMessage',
       data: {
         message: message.trim(),
-        id: id,
+        ticketId: id,
+        ziskejCookie: getCookie( 'ziskej' ),
       },
     } );
   }
@@ -217,6 +274,7 @@
     e.preventDefault();
     let documentId = $( 'input#recordId' ).val();
     createTicket( documentId ).done( function (data) {
+      console.log( getCookie( 'ziskej' ) );
 
     } ).error( function (data) {
       if (data.responseJSON.error !== undefined) {

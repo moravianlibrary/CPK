@@ -11,9 +11,9 @@ interface ZiskejInterface
 {
     public function getLibraries();
 
-    public function getReader($eppn, array $params);
+    public function getReader($eppn, $expand);
 
-    public function getUserTickets(array $params);
+    public function getUserTickets($expand);
 
     public function getTicketDetail($id, $eppn);
 

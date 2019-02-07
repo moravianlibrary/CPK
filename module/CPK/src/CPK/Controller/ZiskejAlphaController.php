@@ -34,14 +34,6 @@ class ZiskejAlphaController extends AbstractBase
 {
     use LoginTrait;
 
-    protected $ziskej;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->ziskej = Ziskej::getZiskej();
-    }
-
     /**
      * Home Action
      *
@@ -52,54 +44,66 @@ class ZiskejAlphaController extends AbstractBase
         $view = $this->createViewModel();
         $view->setTemplate('ziskej/ziskej-alpha');
         $view->ziskejConfig = array_keys($this->getConfig()->Ziskej->toArray());
-
-        $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-        $this->ziskej->setConfig($sensitiveZiskejConfig);
-
         // Check if it's post request
         if ($this->getRequest()->isPost()) {
             // Check if ziskej value for cookie, which we get through post request, is exist in config
             // Default value - disabled
-            $data = in_array(
-                $this->getRequest()->getPost('ziskej'),
-                $view->ziskejConfig
-            ) ? $this->getRequest()->getPost('ziskej') : 'disabled';
+            $data = in_array($this->getRequest()->getPost('ziskej'), $view->ziskejConfig) ? $this->getRequest()
+                ->getPost('ziskej') : 'disabled';
             setcookie('ziskej', $data, 0);
-            $view->setting = $data;
+            $this->redirect()->refresh();
+        }
+        if ( ! isset($this->getRequest()->getCookie()->ziskej)
+            || $this->getRequest()->getCookie()->ziskej == 'disabled'
+        ) {
+            $view->disabled = true;
+            $view->setting  = 'disabled';
+
+            return $view;
         }
 
-        $request = $this->getRequest();
-        $eppn = $request->getServer()->eduPersonPrincipalName;
-        $libraries        = $this->ziskej->getLibraries();
-        $librariesContent = $this->getContent($libraries);
-        $librarySources   = [];
-        foreach ($librariesContent['items'] as $sigla) {
-            $id = $this->getLibraryId($sigla);
-            if ( ! empty($id)) {
-                $librarySources[] = $id;
+        $ziskej       = $this->getZiskej();
+        $request      = $this->getRequest();
+        $eppn         = $request->getServer()->eduPersonPrincipalName;
+        $ziskejCookie = $request->getCookie()->ziskej;
+        if (isset($ziskejCookie) && $ziskejCookie != 'disabled') {
+            $view->setting    = $ziskejCookie;
+            $view->disabled   = false;
+            $libraries        = $ziskej->getLibraries();
+            $librariesContent = $this->getContent($libraries);
+            $librarySources   = [];
+            foreach ($librariesContent['items'] as $sigla) {
+                $id = $this->getLibraryId($sigla);
+                if ( ! empty($id)) {
+                    $librarySources[] = $id;
+                }
             }
         }
 
-        if ($user = $this->getUser()) {
-            $reader = $this->ziskej->getReader($eppn);
-            if (in_array($user->getSource(), $librarySources) && $reader->getStatusCode() == 200) {
-                $view->reader = $this->getContent($reader);
+        $user = $this->getUser();
+        if ($user && $ziskejCookie != 'disabled') {
+            $reader = $ziskej->getReader($eppn);
+            if ($reader->getStatusCode() == 200) {
+                if (in_array($user->home_library, $librarySources)) {
+                    $view->reader = $this->getContent($reader);
 
-                $userTickets       = $this->ziskej->getUserTickets(['eppn' => $eppn]);
-                $view->userTickets = $this->getContent($userTickets)['items'];
+                    $userTickets       = $ziskej->getUserTickets($eppn);
+                    $view->userTickets = $this->getContent($userTickets)['items'];
 
-                foreach ($view->userTickets as $userTicket) {
-                    $ticketDetail    = $this->ziskej->getTicketDetail($userTicket, $eppn);
-                    $ticketDetailContent = $this->getContent($ticketDetail);
-                    if  ($ticketDetailContent['count_messages'] > 0) {
-                        $messages       = $this->ziskej->getTicketMessages($userTicket, $eppn);
-                        $messagesContent = $this->getContent($messages)['items'];
-                        $ticketDetailContent['messages'] = $messagesContent;
+                    foreach ($view->userTickets as $userTicket) {
+                        $ticketDetail        = $ziskej->getTicketDetail($userTicket, $eppn);
+                        $ticketDetailContent = $this->getContent($ticketDetail);
+                        if ($ticketDetailContent['count_messages'] > 0) {
+                            $messages                        = $ziskej->getTicketMessages($userTicket, $eppn);
+                            $messagesContent                 = $this->getContent($messages)['items'];
+                            $ticketDetailContent['messages'] = $messagesContent;
+                        }
+                        $ticketDetails[] = $ticketDetailContent;
                     }
-                    $ticketDetails[] = $ticketDetailContent;
+                    $view->ticketDetails = $ticketDetails;
+                } else {
+                    $view->libNotInZiskej = true;
                 }
-                $view->ticketDetails = $ticketDetails;
-
             } else {
                 $view->redirect = 'https://ziskej-test.techlib.cz/';
             }
@@ -122,6 +126,64 @@ class ZiskejAlphaController extends AbstractBase
     {
         $ils    = $this->getILS();
         $driver = $ils->getDriver();
+
         return $driver->siglaToSource($sigla);
+    }
+
+    public function getLibrarySigla($source)
+    {
+        $ils    = $this->getILS();
+        $driver = $ils->getDriver();
+
+        return $driver->sourceToSigla($source);
+    }
+
+    protected function getZiskej()
+    {
+        $cookie           = $this->getRequest()->getCookie()->ziskej;
+        $url              = $this->getConfig()->Ziskej->$cookie;
+        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
+
+        $ziskej = Ziskej::getZiskej();
+        $ziskej->setConfig($sensZiskejConfig);
+        $ziskej->setApiUrl($url);
+
+        return $ziskej;
+    }
+
+    public function registrationAction()
+    {
+        $user    = $this->getUser();
+        $ziskej  = $this->getZiskej();
+        $request = $this->getRequest();
+
+        if ($request->isPost()) {
+            $gdprReg      = $request->getPost('is_gdpr_reg');
+            $gdprData     = $request->getPost('is_gdpr_data');
+            $notification = $request->getPost('notification_enabled');
+            $eppn         = $request->getServer()->eduPersonPrincipalName;
+            $sigla        = $this->getLibrarySigla($user->home_library);
+            if ($sigla) {
+                $params = [
+                    'first_name'           => $user->firstname,
+                    'last_name'            => $user->lastname,
+                    'email'                => $user->email ?: 'test',
+                    'notification_enabled' => $notification ? true : false,
+                    'sigla'                => $sigla,
+                    'is_gdpr_reg'          => $gdprReg ? true : false,
+                    'is_gdpr_data'         => $gdprData ? true : false,
+                ];
+                $resp   = $ziskej->regOrUpdateReader($eppn, $params);
+                if ($resp->getStatusCode() == 200 || $resp->getStatusCode() == 201) {
+                    $this->flashMessenger()->addMessage('You were registered', 'success');
+                } else {
+                    $this->flashMessenger()->addMessage($this->getContent($resp)['error'], 'error');
+                }
+            } else {
+                $this->flashMessenger()->addMessage('Ziskej do not support your library ', 'error');
+            }
+        }
+
+        return $this->redirect()->toRoute('ziskejalpha');
     }
 }

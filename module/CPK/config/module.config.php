@@ -252,14 +252,15 @@ $staticRoutes = array(
     'Admin/ConfigurationsApproval',
     'Admin/PortalPages',
     'Admin/PermissionsManager',
-	'Search/Conspectus',
- 	'Search/MostSearched',
-	'Search/NewAcquisitions',
+    'Search/Conspectus',
+    'Search/MostSearched',
+    'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory',
-	'MyResearch/ShortLoans',
+    'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
-	'MyResearch/ProfileChange',
-    'MyResearch/ChangeTitle'
+    'MyResearch/ProfileChange',
+    'MyResearch/ChangeTitle',
+    'ziskejalpha/registration'
 );
 
 foreach ($staticRoutes as $route) {
@@ -309,6 +310,21 @@ $config['router']['routes']['inspiration-show'] = array(
             'action'     => 'show',
         )
     )
+);
+
+$config['router']['routes']['ziskejalpha'] = array(
+    'type'    => 'Zend\Mvc\Router\Http\Segment',
+    'options' => array(
+        'route'       => '/'.'ziskejalpha'.'/[:action]',
+        'constraints' => array(
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ),
+        'defaults'    => array(
+            'controller' => 'ziskejalpha',
+            'action'     => 'Home',
+        ),
+    ),
 );
 
 return $config;

@@ -36,9 +36,12 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
     protected $apiUrl;
     protected $config;
     static private $ziskej;
+
     /**
      * Ziskej constructor.
      *
+     * @param $apiUrl string from cookie
+     * @param $config
      */
     private function __construct()
     {
@@ -48,7 +51,6 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
     public function setConfig($config)
     {
         $this->config = $config;
-        $this->apiUrl = $this->config['apiUrl'];
     }
 
     static public function getZiskej()
@@ -95,16 +97,19 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
 
     /**
      * @param       $eppn
-     * @param array $params
+     * @param       $expand
      *
      * @return array|mixed
      * @throws \Exception
      */
-    public function getReader($eppn, array $params = [])
+    public function getReader($eppn, $expand = false)
     {
         $token  = $this->getLoginToken();
         $client = $this->getClient("readers/$eppn", 'GET');
-        $client->setParameterGet($params);
+        if ($expand) {
+            $params = ['expand' => 'status'];
+            $client->setParameterGet($params);
+        }
         $client->setHeaders(['Authorization' => "bearer $token"]);
 
         return $client->send();
@@ -132,15 +137,20 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
     }
 
     /**
-     * @param array $params eppn required
+     * @param      $eppn
+     * @param bool $expand
      *
      * @return array|mixed
      * @throws \Exception
      */
-    public function getUserTickets(array $params = [])
+    public function getUserTickets($eppn, $expand = false)
     {
         $token  = $this->getLoginToken();
         $client = $this->getClient('tickets', 'GET');
+        $params = ['eppn' => $eppn];
+        if ($expand) {
+            $params['expand'] = 'detail';
+        }
         $client->setParameterGet($params);
         $client->setHeaders(['Authorization' => "bearer $token"]);
 
@@ -243,5 +253,26 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
     public function makeMessageRead($id, $text)
     {
 
+    }
+
+    /**
+     * @param $eppn
+     * @param $params
+     *
+     * @return \Zend\Http\Response
+     * @throws \Exception
+     */
+    public function regOrUpdateReader($eppn, $params)
+    {
+        $token  = $this->getLoginToken();
+        $client = $this->getClient("readers/$eppn", 'PUT');
+        $client->setHeaders(
+            [
+                'Content-Type'  => 'application/json',
+                'Authorization' => "bearer $token",
+            ]
+        );
+        $client->setRawBody(Json::encode($params));
+        return $client->send();
     }
 }

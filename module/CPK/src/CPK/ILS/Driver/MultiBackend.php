@@ -601,6 +601,17 @@ class MultiBackend extends MultiBackendBase
         return $source;
     }
 
+    public function sourceToSigla($source)
+    {
+        $tmpSigla = null;
+        foreach ($this->config['SiglaMapping'] as $paired_source => $sigla) {
+            if ($source === $paired_source)
+                $tmpSigla = $sigla;
+        }
+
+        return $tmpSigla;
+    }
+
     /**
      * Takes source and return library id for it
      *

@@ -2532,16 +2532,26 @@ class AjaxController extends AjaxControllerBase
         return (! empty($intersection)) ? $intersection : $htmlLinks;
     }
 
+    protected function getZiskej($cookie)
+    {
+        $url              = $this->getConfig()->Ziskej->$cookie;
+        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
+        
+        $ziskej = Ziskej::getZiskej();
+        $ziskej->setConfig($sensZiskejConfig);
+        $ziskej->setApiUrl($url);
+        return $ziskej;
+    }
+
     public function createZiskejTicketAjax()
     {
         $postParams = $this->params()->fromPost();
         $documentId = $postParams['documentId'];
+        $ziskejCookie = $postParams['ziskejCookie'];
         $request = $this->getRequest();
         $eppn = $request->getServer()->eduPersonPrincipalName;
 
-        $ziskej = Ziskej::getZiskej();
-        $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-        $ziskej->setConfig($sensitiveZiskejConfig);
+        $ziskej = $this->getZiskej($ziskejCookie);
 
         $resp = $ziskej->createTicket($eppn, $documentId, []);
         return $resp;
@@ -2551,13 +2561,12 @@ class AjaxController extends AjaxControllerBase
     {
         $postParams = $this->params()->fromPost();
         $message = $postParams['message'];
-        $id = $postParams['id'];
+        $id = $postParams['ticketId'];
+        $ziskejCookie = $postParams['ziskejCookie'];
         $request = $this->getRequest();
         $eppn = $request->getServer()->eduPersonPrincipalName;
 
-        $ziskej = Ziskej::getZiskej();
-        $sensitiveZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-        $ziskej->setConfig($sensitiveZiskejConfig);
+        $ziskej = $this->getZiskej($ziskejCookie);
 
         $resp = $ziskej->createMessage($id, $eppn, $message);
         return $resp;
