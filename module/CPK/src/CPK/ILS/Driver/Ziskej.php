@@ -40,8 +40,6 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
     /**
      * Ziskej constructor.
      *
-     * @param $apiUrl string from cookie
-     * @param $config
      */
     private function __construct()
     {
@@ -250,9 +248,26 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
         return $client->send();
     }
 
-    public function makeMessageRead($id, $text)
+    /**
+     * @param $id
+     * @param $eppn
+     *
+     * @return \Zend\Http\Response
+     * @throws \Exception
+     */
+    public function readMessage($id, $eppn)
     {
+        $token  = $this->getLoginToken();
+        $client = $this->getClient("messages/$id/read", 'PUT');
+        $client->setHeaders(
+            [
+                'Content-Type'  => 'application/json',
+                'Authorization' => "bearer $token",
+            ]
+        );
+        $client->setRawBody(Json::encode(['eppn' => $eppn]));
 
+        return $client->send();
     }
 
     /**
