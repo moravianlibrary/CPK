@@ -260,7 +260,8 @@ $staticRoutes = array(
     'MyResearch/FavoritesImport',
     'MyResearch/ProfileChange',
     'MyResearch/ChangeTitle',
-    'ziskejalpha/registration'
+    'ziskejalpha/registration',
+    'ziskejalpha/createTicket'
 );
 
 foreach ($staticRoutes as $route) {

@@ -2536,25 +2536,11 @@ class AjaxController extends AjaxControllerBase
     {
         $url              = $this->getConfig()->Ziskej->$cookie;
         $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-        
+
         $ziskej = Ziskej::getZiskej();
         $ziskej->setConfig($sensZiskejConfig);
         $ziskej->setApiUrl($url);
         return $ziskej;
-    }
-
-    public function createZiskejTicketAjax()
-    {
-        $postParams = $this->params()->fromPost();
-        $documentId = $postParams['documentId'];
-        $ziskejCookie = $postParams['ziskejCookie'];
-        $request = $this->getRequest();
-        $eppn = $request->getServer()->eduPersonPrincipalName;
-
-        $ziskej = $this->getZiskej($ziskejCookie);
-
-        $resp = $ziskej->createTicket($eppn, $documentId, []);
-        return $resp;
     }
 
     public function createZiskejMessageAjax()

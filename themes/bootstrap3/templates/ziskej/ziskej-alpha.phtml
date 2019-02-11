@@ -26,10 +26,13 @@
         </div>
       </form>
     </div>
-    <? if ( ! $this->disabled): ?>
+    <? if ($this->setting != 'disabled'): ?>
       <? if ($this->reader): ?>
         <div class="col-md-6">
-          <form id="createZiskejTicket" method="post" name="createZiskejTicket">
+          <form action="<?= $this->url('ziskejalpha-createticket') ?>"
+                id="createZiskejTicket"
+                method="post"
+                name="createZiskejTicket">
             <div class="form-group" id="createTicketZiskejForm">
               <label for="recordId">Record ID</label>
               <input type="text" id="recordId" class="form-control" name="recordId" required>
@@ -43,6 +46,7 @@
                      value="<?= $this->translate('Create') ?>">
             </div>
           </form>
+          <?= $this->flashmessages() ?>
         </div>
         </div>
         <div class="row">
@@ -50,6 +54,7 @@
             <div class="col-sm-12">
               <table class="table">
                   <tbody>
+                  <? if ($this->reader['is_gdpr_data']): ?>
                     <tr>
                       <th class="col-md-3">First Name</th>
                       <td><?= $this->escapeHtml($this->reader['first_name']) ?></td>
@@ -62,13 +67,18 @@
                       <th class="col-md-3">Email</th>
                       <td><?= $this->escapeHtml($this->reader['email']) ?></td>
                     </tr>
+                  <? else: ?>
+                    <tr>
+                      <th>NEJSOU SOUHLASY S ULOZENIM DAT</th>
+                    </tr>
+                  <? endif; ?>
                   </tbody>
                 </table>
             </div>
           </div>
-        <? if ( ! empty($this->ticketDetails)): ?>
-          <? foreach ($this->ticketDetails as $ticketDetail): ?>
-            <div class="row">
+          <? if ( ! empty($this->ticketDetails)): ?>
+            <? foreach ($this->ticketDetails as $ticketDetail): ?>
+              <div class="row">
                 <div class="col-md-4" id="myList">
                   <div class="list-group">
                     <a href="#tab_<?= $this->escapeHtmlAttr($ticketDetail['ticket_id']) ?>"
@@ -159,14 +169,14 @@
                   </div>
                 </div>
               </div>
-          <? endforeach; ?>
-        <? else: ?>
-          <p>Nejsou zadne objednavky</p>
-        <? endif; ?>
+            <? endforeach; ?>
+          <? else: ?>
+            <p>Nejsou zadne objednavky</p>
+          <? endif; ?>
       <? elseif ($this->redirect): ?>
         <p>Jste ne zaregestrovany v Ziskej</p>
-        <?= $this->flashmessages() ?>
         <div class="col-md-12">
+          <?= $this->flashmessages() ?>
           <form action="<?= $this->url('ziskejalpha-registration') ?>"
                 id="registrationZiskej"
                 name="registrationZiskej"
@@ -174,7 +184,7 @@
             <div class="control-group">
               <div class="checkbox">
                 <label>
-                <input type="checkbox" name="is_gdpr_reg" id="souhlasReg">
+                <input type="checkbox" name="is_gdpr_reg" id="souhlasReg" required>
                   Souhlas s registraci
                 </label>
               </div>
@@ -199,9 +209,9 @@
           </form>
         </div>
       <? elseif ($this->libNotInZiskej): ?>
-        <p>Vase knihovna nejsou v seznamu knihoven Ziskej</p>
+            <p>Vase knihovna nejsou v seznamu knihoven Ziskej</p>
       <? else: ?>
-        <p>Pro testivani je nutne se prihlasit</p>
+            <p>Pro testivani je nutne se prihlasit</p>
       <? endif; ?>
       </div>
     <? else: ?>
@@ -219,11 +229,15 @@
   $( '#myList a' ).on( 'click', function (e) {
     e.preventDefault();
     let activeElem = $( '#myList a.active' );
-    activeElem.toggleClass( 'active' );
     let activeId = activeElem.attr( 'id' );
-    $( '#tab_' + activeId ).toggleClass( 'hidden' );
-    $( this ).toggleClass( 'active' );
     let id = $( this ).attr( 'id' );
+
+    if (!$( this ).hasClass( 'active' )) {
+      activeElem.toggleClass( 'active' );
+      $( '#tab_' + activeId ).toggleClass( 'hidden' );
+    }
+
+    $( this ).toggleClass( 'active' );
     $( '#tab_' + id ).toggleClass( 'hidden' );
   } );
 
@@ -243,66 +257,46 @@
     return 'disabled';
   }
 
-  function createTicket (documentId) {
-    return $.ajax( {
-      dataType: 'json',
-      async: true,
-      method: 'POST',
-      url: '/AJAX/JSON?method=createZiskejTicket',
-      data: {
-        documentId: documentId,
-        ziskejCookie: getCookie( 'ziskej' ),
-      },
-    } );
-  }
-
-  function createZiskejMessage (message, id) {
+  function createZiskejMessage (message, id, cookie) {
     return $.ajax( {
       dataType: 'json',
       async: true,
       method: 'POST',
       url: '/AJAX/JSON?method=createZiskejMessage',
       data: {
-        message: message.trim(),
+        message: message,
         ticketId: id,
-        ziskejCookie: getCookie( 'ziskej' ),
+        ziskejCookie: cookie,
       },
     } );
   }
 
-  $( '#createZiskejTicket' ).submit( function (e) {
-    e.preventDefault();
-    let documentId = $( 'input#recordId' ).val();
-    createTicket( documentId ).done( function (data) {
-      console.log( getCookie( 'ziskej' ) );
-
-    } ).error( function (data) {
-      if (data.responseJSON.error !== undefined) {
-        $( '#ziskejErrMsg' ).html( '<p>' + data.responseJSON.error + '</p>' );
-      }
-    } );
-  } );
-
   $( 'form[name=ticketMessages]' ).submit( function (e) {
     e.preventDefault();
     let id = $( '#myList a.active' ).attr( 'id' );
-    let message = $( 'textarea#ticketMessage_' + id ).val();
-    createZiskejMessage( message, id ).done( function (data) {
-      $( 'textarea#ticketMessage_' + id ).val( '' );
-      let messagesList = $( '#messages_' + id + ' li:first' );
-      if (messagesList.length !== 0) {
-        messagesList.before( '<li class="list-group-item">' + data.items[0].text + '</li>' );
-      }
-      else {
-        $( 'div#tab_' + id + ' table.table tbody' ).append(
-          '<tr>' +
-          '<th class="col-md-3">Messages</th>' +
-          '<td><ul class="list-group" id="messages_' + id + '">' +
-          '<li class="list-group-item">' + data.items[0].text + '</li></ul></td></tr>',
-        );
-      }
-    } ).error( function (data) {
-    } );
+    let message = $( 'textarea#ticketMessage_' + id ).val().trim();
+    if (message !== '') {
+      createZiskejMessage( message, id, getCookie( 'ziskej' ) ).done( function (data) {
+        $( 'textarea#ticketMessage_' + id ).val( '' );
+        let messagesList = $( '#messages_' + id + ' li:first' );
+        if (messagesList.length !== 0) {
+          messagesList.before( '<li class="list-group-item">' + data.items[0].text + '</li>' );
+        }
+        else {
+          $( 'div#tab_' + id + ' table.table tbody' ).append(
+            '<tr>' +
+            '<th class="col-md-3">Messages</th>' +
+            '<td><ul class="list-group" id="messages_' + id + '">' +
+            '<li class="list-group-item">' + data.items[0].text + '</li></ul></td></tr>',
+          );
+        }
+      } ).error( function (data) {
+      } );
+    }
+    else {
+      console.log( 'message is empty' );
+    }
+
   } );
 
 </script>

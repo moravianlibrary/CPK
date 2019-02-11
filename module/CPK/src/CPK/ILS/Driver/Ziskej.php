@@ -25,8 +25,8 @@
 
 namespace CPK\ILS\Driver;
 
-use VuFindHttp\HttpService;
-use VuFindHttp\HttpServiceAwareInterface;
+use VuFindHttp\{HttpService, HttpServiceAwareInterface};
+use Zend\Http\Response;
 use Zend\Json\Json;
 
 class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
@@ -120,8 +120,8 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
     private function getLoginToken()
     {
         $postParams = [
-            'username' => $this->config['username'],
-            'password' => $this->config['password'],
+            'username' => $this->config['username'] ?? '',
+            'password' => $this->config['password'] ?? '',
         ];
         $client = $this->getClient('login', 'POST');
         $client->setParameterPost($postParams);
@@ -226,7 +226,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $eppn
      * @param $text
      *
-     * @return \Zend\Http\Response
+     * @return Response
      * @throws \Exception
      */
     public function createMessage($id, $eppn, $text)
@@ -252,7 +252,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $id
      * @param $eppn
      *
-     * @return \Zend\Http\Response
+     * @return Response
      * @throws \Exception
      */
     public function readMessage($id, $eppn)
@@ -274,7 +274,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $eppn
      * @param $params
      *
-     * @return \Zend\Http\Response
+     * @return Response
      * @throws \Exception
      */
     public function regOrUpdateReader($eppn, $params)
