@@ -457,7 +457,7 @@ class DeduplicationListener
         foreach ($params->get('fq') as $fq) {
             if (preg_match(self::OR_FACETS_REGEX, $fq, $matches)) {
                 $field = $matches[2];
-                if ($field != 'institution') {
+                if ($field != 'region_institution') {
                     continue;
                 }
                 $filters = explode('OR', $matches[3]);
@@ -472,7 +472,7 @@ class DeduplicationListener
                 }
             } else if (preg_match(self::FILTER_REGEX, $fq, $matches)) {
                 $field = $matches[1];
-                if ($field != 'institution') {
+                if ($field != 'region_institution') {
                     continue;
                 }
                 $value = $matches[2];
