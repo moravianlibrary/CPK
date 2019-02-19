@@ -162,8 +162,9 @@ if (!empty($_SERVER['SENTRY_DSN'])) {
     $dsn = $_SERVER['SENTRY_DSN'];
     $sentryClient = new \Raven_Client($dsn);
     $error_handler = new \Raven_ErrorHandler($sentryClient);
-    $error_handler->registerExceptionHandler();
-    $error_handler->registerErrorHandler(true, E_ALL);
+    $error_handler->registerExceptionHandler();   
+    $error_types = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_STRICT | E_RECOVERABLE_ERROR | E_DEPRECATED;
+    $error_handler->registerErrorHandler(true, $errorTypes);    
     $error_handler->registerShutdownFunction();
 }
 
