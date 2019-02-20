@@ -271,9 +271,9 @@
 		    <div class="container navbar">
 			    <a class="sr-only" href="#content"><?= $this->transEsc('Skip to content') ?></a>
 			    <?= $this->render('header.phtml', $headerParams) ?>
-			    <?= $this->render('SuggestedBrowsers/suggested-browsers.phtml')?>
 		    </div>
 	    <? endif; ?>
+        <?= $this->render('SuggestedBrowsers/suggested-browsers.phtml')?>
         <div class="container">
             <? if ($this->layout()->frontpage == true): ?>
                 <h1><?=$this->transEsc("frontpage-header-text")?></h1>

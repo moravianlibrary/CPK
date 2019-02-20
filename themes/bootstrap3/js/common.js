@@ -626,8 +626,14 @@ jQuery( document ).ready( function( $ ) {
     }
   }
 
-  if ( /(MSIE|Trident\/|Edge\/)/i.test( navigator.userAgent ) ) {
-    document.getElementById( 'microsoft_browser_warning' ).classList.remove( 'hidden' );
+  /* Work with browser suggest lightbox */
+  var browserSuggest = document.getElementById( 'microsoft_browser_warning' );
+  document.getElementById( 'close_browser_suggest' ).onclick = function () {
+    browserSuggest.classList.add( 'hidden' );
+    localStorage.setItem( 'browserSuggestClosed', true );
+  };
+  if ( /(MSIE|Trident\/)/i.test( navigator.userAgent ) && !localStorage.getItem( 'browserSuggestClosed' ) ) {
+    browserSuggest.classList.remove( 'hidden' );
   }
 });
 
