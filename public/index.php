@@ -158,16 +158,6 @@ function cpkErrorHandler($err_severity, $err_msg, $err_file, $err_line, array $e
 
 set_error_handler('cpkErrorHandler');
 
-if (!empty($_SERVER['SENTRY_DSN'])) {
-    $dsn = $_SERVER['SENTRY_DSN'];
-    $sentryClient = new \Raven_Client($dsn);
-    $error_handler = new \Raven_ErrorHandler($sentryClient);
-    $error_handler->registerExceptionHandler();
-    $error_types = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_COMPILE_WARNING | E_STRICT | E_RECOVERABLE_ERROR | E_DEPRECATED;
-    $error_handler->registerErrorHandler(true, $errorTypes);
-    $error_handler->registerShutdownFunction();
-}
-
 // Run the application!
 Zend\Mvc\Application::init(require 'config/application.config.php')->run();
 

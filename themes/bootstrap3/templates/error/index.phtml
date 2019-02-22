@@ -1,3 +1,8 @@
+<?
+  // log exception to Sentry
+  \Vufind\Sentry\Sentry::handleErrorException($this->exception);
+?>
+
 <? if ($_SERVER['VUFIND_ENV'] && $_SERVER['VUFIND_ENV'] == 'production'): ?>
   <script>
     window.location.replace(window.location.origin + '/error.php');

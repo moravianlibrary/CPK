@@ -87,6 +87,11 @@ class Bootstrapper
         }
     }
 
+    protected function initSentry()
+    {
+        Sentry\Sentry::initialize();
+    }
+
     /**
      * Set up configuration manager.
      *
