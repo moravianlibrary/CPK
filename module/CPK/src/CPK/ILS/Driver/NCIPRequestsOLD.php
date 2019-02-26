@@ -19,8 +19,7 @@ class NCIPRequestsOLD {
     protected $sendUserId = null;
 
     protected $libsWithClavius = [
-        'TAG001', 'ULG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'PBG001', 'PIG001', 'CKG001'
-, 'PEG001', 'OPG503'
+        'TAG001', 'ULG001', 'ABC016', 'HBG001', 'PRG001', 'OPG001', 'PBG001', 'PIG001', 'CKG001', 'PEG001', 'OPG503'
     ];
 
     protected $libsWithARL = [
