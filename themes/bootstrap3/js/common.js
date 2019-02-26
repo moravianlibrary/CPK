@@ -625,16 +625,6 @@ jQuery( document ).ready( function( $ ) {
       $( '#feedback-modal' ).modal( 'show' );
     }
   }
-
-  /* Work with browser suggest lightbox */
-  var browserSuggest = document.getElementById( 'microsoft_browser_warning' );
-  document.getElementById( 'close_browser_suggest' ).onclick = function () {
-    browserSuggest.classList.add( 'hidden' );
-    localStorage.setItem( 'browserSuggestClosed', true );
-  };
-  if ( /(MSIE|Trident\/)/i.test( navigator.userAgent ) && !localStorage.getItem( 'browserSuggestClosed' ) ) {
-    browserSuggest.classList.remove( 'hidden' );
-  }
 });
 
 /**
