@@ -9,6 +9,12 @@
 
 <? endif; ?>
 
+<script>
+	jQuery( document ).ready( function( $ ) {
+	  getCitation( '<?=$this->driver->getUniqueID()?>', false, insertCitation );
+  });
+</script>
+
 <div class="well">
 <div class="row" vocab="http://schema.org/" resource="#record" typeof="<?=$this->driver->getSchemaOrgFormats()?> Product">
   <div class="col-xs-12 col-xs-offset-3 col-sm-12 col-sm-offset-3 col-md-3 col-md-offset-0">
