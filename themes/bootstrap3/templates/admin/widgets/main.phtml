@@ -24,61 +24,36 @@
   <div class="col-sm-9" id='homepage-widgets'>
     <h2><?=$this->translate('Homepage widgets')?></h2>
     <div class='well'>
-	  <div class='row'>
+      <div class='row'>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('First column');?></h2>
-			<select id='first-homepage-widget' class="form-control selectpicker">
-			  <? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['first_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			    <option value='conspectus'<?=($this->homePageWidgets['first_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			    <? if ($documentTypesWidgetList): ?>
-			      <option value='Document_Types_Widget'
-			              <?=($this->homePageWidgets['first_homepage_widget'] == 'Document_Types_Widget'
-			                  ? 'selected'
-			                  : '')?>>
-			        <?=$this->translate('Document_Types_Widget')?>
-			      </option>
-			    <? endif; ?>
-			</select>
+          <h2><?= $this->translate('First column'); ?></h2>
+            <?= $this->render('admin/widgets/widget-help.phtml', [
+                'homePageWidgets' => $this->homePageWidgets,
+                'widgets' => $this->widgets,
+                'name' => 'first-homepage-widget',
+                'documentTypesWidgetList' => $this->documentTypesWidgetList
+            ]) ?>
         </div>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Second column');?></h2>
-			<select id='second-homepage-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['second_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			  <option value='conspectus'<?=($this->homePageWidgets['second_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			  <? if ($documentTypesWidgetList): ?>
-			    <option value='Document_Types_Widget'
-			            <?=($this->homePageWidgets['second_homepage_widget'] == 'Document_Types_Widget'
-			                ? 'selected'
-			                : '')?>>
-			      <?=$this->translate('Document_Types_Widget')?>
-			    </option>
-			  <? endif; ?>
-			</select>
+          <h2><?= $this->translate('Second column'); ?></h2>
+            <?= $this->render('admin/widgets/widget-help.phtml', [
+                'homePageWidgets' => $this->homePageWidgets,
+                'widgets' => $this->widgets,
+                'name' => 'second-homepage-widget',
+                'documentTypesWidgetList' => $this->documentTypesWidgetList
+            ]) ?>
         </div>
         <div class='col-md-4 text-center'>
-        	<h2><?=$this->translate('Third column');?></h2>
-			<select id='third-homepage-widget' class="form-control selectpicker">
-				<? foreach($widgets as $widget): ?>
-				<option value='<?=$widget->getName()?>'<?=($widget->getName()==$this->homePageWidgets['third_homepage_widget'] ? ' selected' : '')?>><?=$this->translate($widget->getTitleCs())?></option>
-			  <? endforeach; ?>
-			  <option value='conspectus'<?=($this->homePageWidgets['third_homepage_widget']=='conspectus' ? ' selected' : '')?>><?=$this->translate('Conspectus')?></option>
-			  <? if ($documentTypesWidgetList): ?>
-			    <option value='Document_Types_Widget'
-			            <?=($this->homePageWidgets['third_homepage_widget'] == 'Document_Types_Widget'
-			                ? 'selected'
-			                : '')?>>
-			      <?=$this->translate('Document_Types_Widget')?>
-			    </option>
-			  <? endif; ?>
-			</select>
+          <h2><?= $this->translate('Third column'); ?></h2>
+            <?= $this->render('admin/widgets/widget-help.phtml', [
+                'homePageWidgets' => $this->homePageWidgets,
+                'widgets' => $this->widgets,
+                'name' => 'third-homepage-widget',
+                'documentTypesWidgetList' => $this->documentTypesWidgetList
+            ]) ?>
         </div>
       </div>
-	</div>
-
+    </div>
   <div id="inspirations-widgets">
 
 	<h2><?=$this->translate('Inspiration widgets')?></h2>
