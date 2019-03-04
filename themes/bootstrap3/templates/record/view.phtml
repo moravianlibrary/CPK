@@ -398,8 +398,6 @@
                 var recordID = '<?= $this->driver->getUniqueID() ?>';
                 var parentRecordID = '<?= method_exists($this->driver, "getParentRecordID") ? $this->driver->getParentRecordID() : null ?>';
 
-            	var buyLinks = getBuyLinks( recordID, parentRecordID, disableBuyTab );
-
             	var source = "<?= $source ?>";
 
             	// select default record group
