@@ -12,11 +12,11 @@ class SolrDictionary extends ParentSolrMarc
     private $searchRunner = null;
 
     public function __construct($mainConfig = null, $recordConfig = null,
-            $searchSettings = null, $searchController = null, $searchRunner = null
+            $searchSettings = null, $searchController = null, $searchRunner = null, $recordLoader = null
     ) {
         $this->searchController = $searchController;
         $this->searchRunner = $searchRunner;
-        parent::__construct($mainConfig, $recordConfig, $searchSettings);
+        parent::__construct($mainConfig, $recordConfig, $searchSettings, $recordLoader);
     }
 
     /**

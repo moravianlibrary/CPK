@@ -9,13 +9,14 @@ class SolrLibrary extends ParentSolrMarc
     private $searchRunner = null;
     protected $facetsConfig = null;
 
-    public function __construct($mainConfig = null, $recordConfig = null,
-                                $searchSettings = null, $searchController = null, $searchRunner = null, $facetsConfig = null
+    public function __construct($mainConfig = null, $recordConfig = null, $searchSettings = null,
+                                $searchController = null, $searchRunner = null, $facetsConfig = null,
+                                $recordLoader = null
     ) {
         $this->searchController = $searchController;
         $this->searchRunner = $searchRunner;
         $this->facetsConfig = $facetsConfig;
-        parent::__construct($mainConfig, $recordConfig, $searchSettings);
+        parent::__construct($mainConfig, $recordConfig, $searchSettings, $recordLoader);
     }
 
     public function getParentRecordID()

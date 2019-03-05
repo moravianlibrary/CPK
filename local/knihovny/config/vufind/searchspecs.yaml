@@ -689,3 +689,17 @@ Libraries:
     - [bf, ord(library_relevance_str)^9999]
     - [bq, "inspiration:top_results^1"]
   DismaxHandler: edismax
+
+adv_search_monographic_series:
+  Dismaxfields:
+    - monographic_series_txt_mv
+  DismaxParams:
+    - [bq, "inspiration:top_results^1"]
+    - [bf, "if(exists(merged_records_boolean),10000,0)" ]
+    - [bq, "author_exact:\"@query\"^20000"]
+    - [bq, "title_exact:\"@query\"^10000"]
+    - [bf, ord(publishDateSort)^1]
+  DismaxHandler: edismax
+  QueryFields:
+    monographic_series_txt_mv:
+      - [onephrase, 1]

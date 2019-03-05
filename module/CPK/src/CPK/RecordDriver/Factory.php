@@ -17,7 +17,8 @@ class Factory
         $driver = new \CPK\RecordDriver\SolrMarc(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
             null,
-            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+            $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+            $sm->getServiceLocator()->get('VuFind\RecordLoader')
         );
         $driver->attachILS(
             $sm->getServiceLocator()->get('VuFind\ILSConnection'),
@@ -32,7 +33,8 @@ class Factory
         $driver = new \CPK\RecordDriver\SolrMarcMZK(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
             null,
-            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+            $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+            $sm->getServiceLocator()->get('VuFind\RecordLoader')
         );
         $driver->attachILS(
             $sm->getServiceLocator()->get('VuFind\ILSConnection'),
@@ -47,7 +49,8 @@ class Factory
         $driver = new \CPK\RecordDriver\SolrMarcVKOL(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
             null,
-            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+            $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+            $sm->getServiceLocator()->get('VuFind\RecordLoader')
         );
         $driver->attachILS(
             $sm->getServiceLocator()->get('VuFind\ILSConnection'),
@@ -62,7 +65,8 @@ class Factory
         $driver = new \CPK\RecordDriver\SolrMarcNLK(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
             null,
-            $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+            $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+            $sm->getServiceLocator()->get('VuFind\RecordLoader')
         );
         $driver->attachILS(
             $sm->getServiceLocator()->get('VuFind\ILSConnection'),
@@ -77,7 +81,8 @@ class Factory
         $driver = new \CPK\RecordDriver\SolrMarcLocal(
                         $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
                         null,
-                        $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+                        $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+                        $sm->getServiceLocator()->get('VuFind\RecordLoader')
         );
         $driver->attachILS(
                         $sm->getServiceLocator()->get('VuFind\ILSConnection'),
@@ -92,7 +97,8 @@ class Factory
         $driver = new \CPK\RecordDriver\SolrDublinCore(
                 $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
                 null,
-                $sm->getServiceLocator()->get('VuFind\Config')->get('searches')
+                $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
+                $sm->getServiceLocator()->get('VuFind\RecordLoader')
         );
         $driver->attachILS(
                 $sm->getServiceLocator()->get('VuFind\ILSConnection'),
@@ -109,7 +115,8 @@ class Factory
                 null,
                 $sm->getServiceLocator()->get('VuFind\Config')->get('searches'),
                 $sm->getServiceLocator()->get('searchController'),
-                $sm->getServiceLocator()->get('VuFind\SearchRunner')
+                $sm->getServiceLocator()->get('VuFind\SearchRunner'),
+                $sm->getServiceLocator()->get('VuFind\RecordLoader')
         );
         $driver->attachILS(
                 $sm->getServiceLocator()->get('VuFind\ILSConnection'),
