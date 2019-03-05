@@ -8,17 +8,21 @@
 ?>
 <div id="new_group_template">
   <div class="group well clearfix">
-    <input type="hidden" name="join" value="AND"/>
-    <input type="hidden" name="bool0[]" value="AND"/>
-    <? for ($search=0;$search<3;$search++): ?>
+    <input type="hidden" name="join" value="AND">
+    <input type="hidden" name="bool0[]" value="AND">
+    <? for ($search = 0; $search < 3; $search++): ?>
       <? if ($search == 0): ?>
         <div id="new_search_template">
       <? endif; ?>
       <div class="search row">
         <div class="col-sm-3">
-          <input type="hidden" value="AND" class="first-op"/>
-          <label class="help-block<? if ($search > 0): ?> hidden<?endif;?>"><?=$this->transEsc("adv_search_label")?>:</label>
-          <select id="search_op0_<?=$search ?>" name="op0[]" class="op col-sm-9 form-control<? if ($search == 0): ?> hidden<?endif;?>">
+          <input type="hidden" value="AND" class="first-op">
+          <label class="help-block<?= $search > 0 ? ' hidden' : ''?>">
+            <?=$this->transEsc("adv_search_label")?>:
+          </label>
+          <select id="search_op0_<?=$search?>"
+                  name="op0[]"
+                  class="op col-sm-9 form-control<?= $search == 0 ? ' hidden' : ''?>">
             <option value="AND"><?=$this->transEsc("AND")?></option>
             <option value="OR"><?=$this->transEsc("OR")?></option>
             <option value="NOT"><?=$this->transEsc("NOT")?></option>
@@ -27,11 +31,11 @@
         <div class="col-sm-9">
           <div class="row">
             <div class="col-sm-6">
-              <input id="search_lookfor0_<?=$search ?>" name="lookfor0[]" class="form-control" type="text" value=""/>
+              <input id="search_lookfor0_<?=$search?>" name="lookfor0[]" class="form-control" type="text" value="">
             </div>
             <span class="col-sm-1 help-block hidden-xs"><?=$this->transEsc("in")?></span>
             <div class="col-sm-4 middle">
-              <select id="search_type0_<?=$search ?>" name="type0[]" class="type form-control">
+              <select id="search_type0_<?=$search?>" name="type0[]" class="type form-control">
                 <? foreach ($this->options->getAdvancedHandlers() as $searchVal => $searchDesc): ?>
                   <option value="<?=$this->escapeHtml($searchVal)?>"><?=$this->transEsc($searchDesc)?></option>
                 <? endforeach; ?>
@@ -42,13 +46,14 @@
             </div>
           </div>
         </div>
-        <br class="hidden-lg"/>
+        <br class="hidden-lg">
       </div>
       <? if ($search == 0): ?>
         </div>
       <? endif; ?>
     <? endfor; ?>
-    <i class="fa fa-plus-circle search_place_holder hidden"></i> <a href="#" class="add_search_link hidden"><?=$this->transEsc("add_search")?></a>
+    <i class="fa fa-plus-circle search_place_holder hidden"></i>
+    <a href="#" class="add_search_link hidden"><?=$this->transEsc("add_search")?></a>
   </div>
 </div>
 <?
