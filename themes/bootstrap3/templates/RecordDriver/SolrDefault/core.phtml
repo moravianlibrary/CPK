@@ -24,6 +24,13 @@
         <script type="text/javascript">
             obalky.display_cover_without_links("#cover", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert("record"))?>);
         </script>
+
+        <script>
+            jQuery( document ).ready( function( $ ) {
+	              getCitation( '<?=$this->driver->getUniqueID()?>', false, insertCitation );
+            });
+        </script>
+
           <? /* Display qrcode if appropriate: */ ?>
 
           <? $QRCode = $this->record($this->driver)->getQRCode("core"); ?>
