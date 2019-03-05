@@ -150,7 +150,6 @@ function initFacetTree(treeNode, inSidebar)
   var excludeTitle = treeNode.data('exclude-title');
   var sort = treeNode.data('sort');
   var query = window.location.href.split('?')[1];
-
   if (inSidebar) {
     treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
   } else {
@@ -217,6 +216,12 @@ function initFacetOrTree(treeNode, inSidebar)
                 treeNode.find('.fa-spinner').parent().remove();
                 if (inSidebar) {
                     treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
+
+                        // Open online in availability facet
+                        if (facet == 'local_statuses_facet_str_mv') {
+                            treeNode.jstree('open_node', $('#\\~local_statuses_facet_str_mv\\:\\"0\\/online\\/\\"'));
+                        }
+
                         treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
                         treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
                     });
