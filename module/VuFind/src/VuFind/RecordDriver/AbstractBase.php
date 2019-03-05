@@ -44,11 +44,13 @@ use VuFind\Record\Cache;
 abstract class AbstractBase implements \VuFind\Db\Table\DbTableAwareInterface,
     \VuFind\I18n\Translator\TranslatorAwareInterface,
     \VuFindSearch\Response\RecordInterface,
-    \VuFind\Record\Cache\RecordCacheAwareInterface
+    \VuFind\Record\Cache\RecordCacheAwareInterface,
+    \Zend\ServiceManager\ServiceLocatorAwareInterface
 {
     use \VuFind\Db\Table\DbTableAwareTrait;
     use \VuFind\I18n\Translator\TranslatorAwareTrait;
     use \VuFind\Record\Cache\RecordCacheAwareTrait;
+    use \Zend\ServiceManager\ServiceLocatorAwareTrait;
 
     /**
      * Used for identifying search backends

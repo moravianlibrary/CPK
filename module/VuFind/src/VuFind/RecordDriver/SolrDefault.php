@@ -1813,7 +1813,8 @@ class SolrDefault extends AbstractBase
         if ($this->parentRecordDriver === null) {
             $parentRecordID = $this->getParentRecordID();
             if ($this->recordLoader === null) {
-                $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
+                $this->recordLoader = $this->getServiceLocator()
+                    ->getServiceLocator()->get('VuFind\RecordLoader');
             }
             $this->parentRecordDriver = $this->recordLoader->load($parentRecordID);
         }
