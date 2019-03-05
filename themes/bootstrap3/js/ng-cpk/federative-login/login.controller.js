@@ -111,7 +111,8 @@
 
         let newTarget = new URLSearchParams(location.search);
         newTarget.append('auth_method', 'Shibboleth');
-        newTarget = location.protocol + '//' + location.hostname + location.pathname + '?' + newTarget.toString();
+        newTarget = location.protocol + '//' + location.hostname + ':' + location.port
+			+ location.pathname + '?' + newTarget.toString();
 
         newQuery.append('target', newTarget);
 
