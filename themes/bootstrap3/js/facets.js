@@ -38,7 +38,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     url.replace("'", "\\'");
     html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "");
 
-    if (facetName == "local_institution_facet_str_mv" ) {
+    if (facetName == "local_region_institution_facet_str_mv") {
         html +="";
     }
     else {
@@ -375,7 +375,7 @@ jQuery( document ).ready( function( $ ) {
                     let arrayInstitutions = response.data.savedInstitutions;
 
                     $.each( arrayInstitutions, function( index, value ){
-                        var institution = '~local_institution_facet_str_mv:"' + value + '"';
+                        var institution = '~local_region_institution_facet_str_mv:"' + value + '"';
                         $('#facet_institution').jstree(true).select_node(institution);
 
                     });
@@ -428,7 +428,7 @@ jQuery( document ).ready( function( $ ) {
         var arrayInstitutions = data.split(";");
 
         $.each( arrayInstitutions, function( index, value ){
-            var institution = '~local_institution_facet_str_mv:"' + value + '"';
+            var institution = '~local_region_institution_facet_str_mv:"' + value + '"';
             $('#facet_institution').jstree(true).select_node(institution);
 
         });
@@ -524,7 +524,7 @@ jQuery( document ).ready( function( $ ) {
 		                $('#facet_institution').jstree(true).deselect_all();
 		                
 		                $.each( response.data.towns, function( key, value ) {
-		                	var townFacet = '~local_institution_facet_str_mv:"1/Library/'+value.town.toLowerCase()+'/"';
+		                var townFacet = '~local_region_institution_facet_str_mv:"1/Library/' + value.town.toLowerCase() + '/"';
 		                	$('#facet_institution').jstree(true).select_node(townFacet);
 	                	});
 		                

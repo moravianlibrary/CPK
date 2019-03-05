@@ -1256,11 +1256,11 @@ class MyResearchController extends MyResearchControllerBase
     {
         $results = $this->getServiceLocator()->get('VuFind\SearchResultsPluginManager')->get('Solr');
         $params = $results->getParams();
-        $params->addFacet('local_institution_facet_str_mv', 'Institutions');
+        $params->addFacet('local_region_institution_facet_str_mv', 'Institutions');
         $params->setLimit(0);
         $params->setFacetLimit(10000);
         $results->getResults();
-        $facets = $results->getFacetList()['local_institution_facet_str_mv']['list'];
+        $facets = $results->getFacetList()['local_region_institution_facet_str_mv']['list'];
         foreach ($facets as $key => $facet) {
             if (in_array(substr($facet['value'], 0, 1), ['0', '1'])) {
                 unset($facets[$key]);

@@ -87,7 +87,7 @@ class MZKDeduplicationListener
      *
      * @var string
      */
-    protected $institutionField = 'institution';
+    protected $institutionField = 'region_institution';
 
     /**
      * Whether deduplication is enabled.
