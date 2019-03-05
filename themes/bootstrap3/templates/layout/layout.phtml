@@ -266,6 +266,7 @@
         $this->layout()->searchbox = $this->render('search/searchbox.phtml');
       }
     ?>
+    <?= $this->render('SuggestedBrowsers/suggested-browsers.phtml')?>
     <header class="hidden-print header-container <?=($this->layout()->frontpage == true)?'frontpage':''?>">
 	    <? if (!$this->themeConfiguration()->themeConfig['hide_navbar']): ?>
 		    <div class="container navbar">
@@ -273,7 +274,6 @@
 			    <?= $this->render('header.phtml', $headerParams) ?>
 		    </div>
 	    <? endif; ?>
-        <?= $this->render('SuggestedBrowsers/suggested-browsers.phtml')?>
         <div class="container">
             <? if ($this->layout()->frontpage == true): ?>
                 <h1><?=$this->transEsc("frontpage-header-text")?></h1>
@@ -434,17 +434,5 @@
       </div>
     </div>
     <? endif; ?>
-
-  <script>
-    /* Work with browser suggest lightbox */
-    var browserSuggest = document.getElementById( 'microsoft_browser_warning' );
-    document.getElementById( 'close_browser_suggest' ).onclick = function () {
-      browserSuggest.classList.add( 'hidden' );
-      localStorage.setItem( 'browserSuggestClosed', true );
-    };
-    if ( /(MSIE|Trident\/)/i.test( navigator.userAgent ) && !localStorage.getItem( 'browserSuggestClosed' ) ) {
-      browserSuggest.classList.remove( 'hidden' );
-    }
-  </script>
   </body>
 </html>

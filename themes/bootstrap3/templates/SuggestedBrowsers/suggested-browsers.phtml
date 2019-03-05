@@ -7,19 +7,19 @@
         <p class="tryBrowser"><?=$this->translate("try_browser")?></p><br>
         <ul>
             <li class="col-xs-3">
-                <a href="https://www.google.com/chrome/" target="_blank">
+                <a href="https://www.google.com/intl/cs/chrome/" target="_blank">
                     <img src="/themes/bootstrap3/images/suggestedBrowsers/chrome.png" alt="Google Chrome">
                     <p><?=$this->translate("google_chrome")?></p>
                 </a>
             </li>
             <li class="col-xs-3">
-                <a href="https://www.opera.com/" target="_blank">
+                <a href="https://www.opera.com/cs" target="_blank">
                     <img src="/themes/bootstrap3/images/suggestedBrowsers/opera.png" alt="Opera">
                     <p><?=$this->translate("opera")?></p>
                 </a>
             </li>
             <li class="col-xs-3">
-                <a href="https://www.mozilla.org/en-US/firefox/new/" target="_blank">
+                <a href="https://www.mozilla.org/cs/firefox/new/" target="_blank">
                     <img src="/themes/bootstrap3/images/suggestedBrowsers/mozilla.png" alt="Mozilla Firefox">
                     <p><?=$this->translate("firefox")?></p>
                 </a>
@@ -34,3 +34,14 @@
         <p class="browsersFree"><?=$this->translate("browsers_free")?></p>
     </div>
 </div>
+<script>
+  /* Work with browser suggest lightbox */
+  var browserSuggest = document.getElementById( 'microsoft_browser_warning' );
+  document.getElementById( 'close_browser_suggest' ).onclick = function () {
+    browserSuggest.classList.add( 'hidden' );
+    localStorage.setItem( 'browserSuggestClosed', true );
+  };
+  if ( /(MSIE|Trident\/)/i.test( navigator.userAgent ) && !localStorage.getItem( 'browserSuggestClosed' ) ) {
+    browserSuggest.classList.remove( 'hidden' );
+  }
+</script>
