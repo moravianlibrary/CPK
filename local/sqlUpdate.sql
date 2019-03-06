@@ -819,3 +819,6 @@ UPDATE `system` SET `value` = '61' WHERE `key`='DB_VERSION';
 UPDATE user SET firstname = '', lastname = '', email = '';
 UPDATE user_card SET card_name = '';
 UPDATE `system` SET `value` = '62' WHERE `key`='DB_VERSION';
+
+/* feature-1101 */
+UPDATE frontend SET third_homepage_widget = 'Document_Types_Widget';
