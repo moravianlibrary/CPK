@@ -200,7 +200,7 @@ $config = array(
             'libraries' => 'CPK\Controller\Factory::getLibrariesController'
         ),
         'invokables' => array(
-			'myresearch' => 'CPK\Controller\MyResearchController',
+            'myresearch' => 'CPK\Controller\MyResearchController',
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
@@ -209,7 +209,6 @@ $config = array(
             'admin' => 'CPK\Controller\AdminController',
             'edsrecord' => 'CPK\Controller\EdsrecordController',
             'ziskej' => 'CPK\Controller\ZiskejController',
-            'ziskejalpha' => 'CPK\Controller\ZiskejAlphaController',
             'inspiration' => 'CPK\Controller\InspirationController',
         ), /* invokables */
     ), /* controllers */
@@ -260,8 +259,8 @@ $staticRoutes = array(
     'MyResearch/FavoritesImport',
     'MyResearch/ProfileChange',
     'MyResearch/ChangeTitle',
-    'ziskejalpha/registration',
-    'ziskejalpha/createTicket'
+    'ziskej/registration',
+    'ziskej/createTicket'
 );
 
 foreach ($staticRoutes as $route) {
@@ -313,16 +312,16 @@ $config['router']['routes']['inspiration-show'] = array(
     )
 );
 
-$config['router']['routes']['ziskejalpha'] = array(
+$config['router']['routes']['ziskej'] = array(
     'type'    => 'Zend\Mvc\Router\Http\Segment',
     'options' => array(
-        'route'       => '/'.'ziskejalpha'.'/[:action]',
+        'route'       => '/'.'ziskej'.'/[:action]',
         'constraints' => array(
             'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
             'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
         ),
         'defaults'    => array(
-            'controller' => 'ziskejalpha',
+            'controller' => 'ziskej',
             'action'     => 'Home',
         ),
     ),
