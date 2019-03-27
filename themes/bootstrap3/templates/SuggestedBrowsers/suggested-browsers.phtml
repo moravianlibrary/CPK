@@ -41,7 +41,7 @@
     browserSuggest.classList.add( 'hidden' );
     localStorage.setItem( 'browserSuggestClosed', true );
   };
-  if ( /(MSIE|Trident\/)/i.test( navigator.userAgent ) && !localStorage.getItem( 'browserSuggestClosed' ) ) {
+  if ( !localStorage.getItem( 'browserSuggestClosed' ) ) {
     browserSuggest.classList.remove( 'hidden' );
   }
 </script>
