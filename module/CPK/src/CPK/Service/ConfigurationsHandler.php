@@ -28,14 +28,11 @@
 namespace CPK\Service;
 
 use CPK\Controller\AdminController;
-use Zend\Config\Writer\Ini as IniWriter;
-use Zend\Config\Config;
 use VuFind\Mailer\Mailer;
+use \Zend\Mail\Address;
 
 /**
- * An handler for handling requests from institutions admins
- * to change their configurations & approval of those configurations
- * by portal admin.
+ * An handler for change institution configurations by portal admin.
  *
  * @author Jiří Kozlovský <mail@jkozlovsky.cz>
  *
@@ -72,43 +69,7 @@ class ConfigurationsHandler
     protected $configLocator;
 
     /**
-     * Relative path to institutions configurations
-     *
-     * @var array
-     */
-    protected $driversPath;
-
-    /**
-     * Absolute path to institutions configurations
-     *
-     * @var array
-     */
-    protected $driversAbsolutePath;
-
-    /**
-     * Object containing NCIP driver config template
-     *
-     * @var array
-     */
-    protected $ncipTemplate;
-
-    /**
-     * Object containing Aleph driver config template
-     *
-     * @var array
-     */
-    protected $alephTemplate;
-
-    /**
-     * Object containing NCIP types such as Verbis, Clavius etc.
-     *
-     * @var
-     */
-    protected $ncipTypes;
-
-    /**
-     * Object holding the configuration of email to use
-     * when a configuration change is desired by some institution admin
+     * Object holding the configuration of email to use when a configuration change is desired by some institution admin
      *
      * @var array
      */
@@ -122,23 +83,44 @@ class ConfigurationsHandler
     protected $mailer;
 
     /**
-     * Array of institution sources where is current user an admin
-     *
-     * @var array
-     */
-    protected $institutionsBeingAdminAt;
-
-    /**
      * Array of source driver type definitions
      *
-     * @var string[]
+     * @var array
      */
     protected $sourceTypes;
 
     /**
+     * Array of multibackend configurations.
+     *
+     * @var array
+     */
+    private $multiBackend = [];
+
+    /**
+     * Template configuration for each drivers.
+     *
+     * @var
+     */
+    private $driversTemplate;
+
+    /**
+     * Default driver template. Sets if source have driver whit do not have template
+     *
+     * @var string
+     */
+    private $defaultDriverTemplate = 'xcncip2_template';
+
+    /**
+     * Object containing NCIP types such as Verbis, Clavius etc.
+     *
+     * @var
+     */
+    protected $ncipTypes;
+
+    /**
      * C'tor
      *
-     * @param \VuFind\Controller\AbstractBase $controller
+     * @param AdminController|\VuFind\Controller\AbstractBase $controller
      */
     public function __construct(AdminController $controller)
     {
@@ -147,30 +129,23 @@ class ConfigurationsHandler
         $this->serviceLocator = $this->ctrl->getServiceLocator();
 
         $this->instConfigsTable = $this->serviceLocator->get('VuFind\DbTablePluginManager')->get('inst_configs');
+        $this->configLocator = $this->serviceLocator->get('VuFind\Config');
 
         $this->initConfigs();
     }
 
     /**
      * Initialize configurations
-     *
      * @return void
+     * @throws \Exception
      */
     protected function initConfigs()
     {
-        $this->configLocator = $this->serviceLocator->get('VuFind\Config');
+        $this->multiBackend = $this->configLocator->get('MultiBackend')->toArray();
+        $this->ncipTypes = $this->multiBackend['NCIPTypes'];
+        $this->multiBackend['Drivers'] = $this->excludeNotNeededSources();
 
-        $multibackend = $this->configLocator->get('MultiBackend')->toArray();
-
-        // get the drivers path
-        $this->driversPath = empty($multibackend['General']['drivers_path']) ? '.' : $multibackend['General']['drivers_path'];
-
-        // we need it to be an absolute path ..
-        $this->driversAbsolutePath = $_SERVER['VUFIND_LOCAL_DIR'] . '/config/vufind/' . $this->driversPath . '/';
-
-        // get the templates
-        $this->ncipTemplate = $this->configLocator->get('xcncip2_template')->toArray();
-        $this->alephTemplate = $this->configLocator->get('aleph_template')->toArray();
+        $this->initDriverTemplatesConfigs();
 
         // setup email
         $this->approvalConfig = $this->configLocator->get('config')['Approval']->toArray();
@@ -184,133 +159,39 @@ class ConfigurationsHandler
 
         $this->mailer = $this->serviceLocator->get('VuFind\Mailer');
 
-        $this->institutionsBeingAdminAt = $this->ctrl->getAccessManager()->getInstitutionsWithAdminRights();
-
-        $this->sourceTypes = $this->configLocator->get('MultiBackend')->toArray()['Drivers'];
-        $this->ncipTypes = $this->configLocator->get('MultiBackend')->toArray()['NCIPTypes'];
+        $this->sourceTypes = [];
 
         if ($this->ctrl->getAccessManager()->isPortalAdmin()) {
-            foreach ($this->sourceTypes as $key => $value) {
-                if ($key == "Dummy") continue;
-                $this->institutionsBeingAdminAt[] = $key;
+            foreach ($this->multiBackend['Drivers'] as $key => $driver) {
+                $this->sourceTypes[$key]['template'] = $this->driversTemplate[$driver];
             }
-            $this->institutionsBeingAdminAt = array_unique($this->institutionsBeingAdminAt);
         }
     }
 
     /**
-     * Handles POST request from a home action
-     *
-     * It basically processess any config change desired
-     *
-     * @param array $post
-     */
-    public function handlePostRequestFromHome()
-    {
-        // Do we have some POST?
-        if (! empty($post = $this->ctrl->params()->fromPost())) {
-
-            // Is there a query for a config modification?
-            if (isset($post['requestChange'])) {
-
-                unset($post['requestChange']);
-
-                $this->processChangeRequest($post);
-            } else
-                if (isset($post['requestChangeCancel'])) {
-                    // Or there is query for cancelling a config modification?
-
-                    unset($post['requestChangeCancel']);
-
-                    $this->processCancelChangeRequest($post);
-                }
-        }
-    }
-
-    /**
-     * Handles POST request from an approval action
-     */
-    public function handlePostRequestFromApproval()
-    {
-        // Do we have some POST?
-        if (! empty($post = $this->ctrl->params()->fromPost())) {
-
-            if (! isset($post['source']))
-                return;
-
-            $source = $post['source'];
-
-            $contactPerson = $post['Catalog']['contactPerson'];
-
-            // Is there a query for a config modification?
-            if (isset($post['approved'])) {
-
-                unset($post['approved']);
-
-                $result = $this->approveRequest($post);
-
-                if ($result) {
-
-                    $this->sendRequestApprovedMail($source, $post['message'], $contactPerson);
-
-                    $msg = $this->translate('approval_succeeded');
-                    $this->flashMessenger()->addSuccessMessage($msg);
-
-                    $this->commitNewConfig($source);
-                } else {
-
-                    $msg = $this->translate('approval_failed');
-                    $this->flashMessenger()->addErrorMessage($msg);
-                }
-            } else
-                if (isset($post['denied'])) {
-
-                    $this->deleteRequestConfig($source);
-
-                    $this->sendRequestDeniedMail($source, $post['message'], $contactPerson);
-
-                    $msg = $this->translate('request_successfully_denied');
-                    $this->flashMessenger()->addSuccessMessage($msg);
-                }
-        }
-    }
-
-    /**
-     * Returns all configs associated with current admin
+     * Exclude sources which do not need configuration in admin panel.
      *
      * @return array
      */
-    public function getAdminConfigs()
-    {
-        $configs = [];
+    public function excludeNotNeededSources() {
+        return array_diff_assoc($this->multiBackend['Drivers'], $this->multiBackend['SourcesNotNeedConfiguration']);
+    }
 
-        // Fetch all configs
-        foreach ($this->institutionsBeingAdminAt as $adminSource) {
+    /**
+     * Init all templates for each drivers
+     */
+    public function initDriverTemplatesConfigs() {
+        $existDrivers = array_unique(array_values($this->multiBackend['Drivers']));
 
-            $configs[$adminSource] = $this->getInstitutionConfig($adminSource);
+        foreach ($existDrivers as $driver) {
+            if (!$this->multiBackend['DriversTemplate'][$driver]) {
+                $this->driversTemplate[$driver] = $this->defaultDriverTemplate;
+                continue;
+            }
+            $this->driversTemplate[$driver] = $this->driversTemplate[$driver] = $this->configLocator
+                ->get($this->multiBackend['DriversTemplate'][$driver])
+                ->toArray();
         }
-
-        return $configs;
-    }
-
-    /**
-     * Returns an NCIP template configuration file
-     *
-     * @return array
-     */
-    public function getNcipTemplate()
-    {
-        return $this->ncipTemplate;
-    }
-
-    /**
-     * Returns an Aleph template configuration file
-     *
-     * @return array
-     */
-    public function getAlephTemplate()
-    {
-        return $this->alephTemplate;
     }
 
     /**
@@ -324,13 +205,39 @@ class ConfigurationsHandler
     }
 
     /**
-     * Returns all configs being requested
+     * Handles POST request from a home action
+     *
+     * It basically processess any config change desired
+     *
+     * @internal param array $post
+     */
+    public function handlePostRequestFromHome()
+    {
+        // Do we have some POST?
+        if (! empty($post = $this->ctrl->params()->fromPost())) {
+
+            // Is there a query for a config modification?
+            if (isset($post['requestChange'])) {
+
+                unset($post['requestChange']);
+
+                $this->processChangeRequest($post);
+            }
+        }
+    }
+
+    /**
+     * Returns all configs associated with current admin
      *
      * @return array
      */
-    public function getAllRequestConfigsWithActive()
+    public function getAdminConfigs()
     {
-        return $this->instConfigsTable->getAllRequestConfigsWithActive();
+        foreach ($this->sourceTypes as $source => $driverName) {
+            $this->sourceTypes[$source]['data'] = $this->getInstitutionConfig($source);
+        }
+
+        return $this->sourceTypes;
     }
 
     /**
@@ -341,41 +248,23 @@ class ConfigurationsHandler
     protected function processChangeRequest($post)
     {
         if (! $this->changedSomethingComapredToActive($post)) {
-            $requestUnchanged = $this->translate('request_config_denied_unchanged');
+            $requestUnchanged = $this->translate('config_change_denied_unchanged');
             $this->flashMessenger()->addErrorMessage($requestUnchanged);
             return;
         } elseif ($this->changedHiddenConfiguration($post)) {
-            $requestUnchanged = $this->translate('request_config_denied_unauthorized');
+            $requestUnchanged = $this->translate('config_change_denied_unauthorized');
             $this->flashMessenger()->addErrorMessage($requestUnchanged);
             return;
         }
 
-        $success = $this->createNewRequestConfig($post);
+        $success = $this->createNewConfig($post);
 
         if ($success) {
 
-            $requestCreated = $this->translate('request_config_created');
+            $requestCreated = $this->translate('config_created');
             $this->flashMessenger()->addSuccessMessage($requestCreated);
 
             $this->sendNewRequestMail($post['source']);
-        }
-    }
-
-    /**
-     * Process a cancel for a configuration change
-     *
-     * @param array $post
-     */
-    protected function processCancelChangeRequest($post)
-    {
-        $success = $this->deleteRequestConfig($post['source']);
-
-        if ($success) {
-
-            $requestCancelled = $this->translate('request_config_change_cancelled');
-            $this->flashMessenger()->addSuccessMessage($requestCancelled);
-
-            $this->sendRequestCancelledMail($post['source']);
         }
     }
 
@@ -388,15 +277,14 @@ class ConfigurationsHandler
      */
     protected function changedSomethingComapredToActive($config)
     {
-        $isAleph = isset($config['Catalog']['dlfport']);
-
-        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
+        $source = $config['source'];
+        $template = $this->sourceTypes[$source]['template'];
 
         $defs = $template['Definitions'];
 
         $hidden = $defs['hidden'];
 
-        $currentActive = $this->instConfigsTable->getApprovedConfig($config['source']);
+        $currentActive = $this->instConfigsTable->getConfig($source);
 
         if (! $currentActive && ! empty($config['Catalog'])) {
 
@@ -452,11 +340,9 @@ class ConfigurationsHandler
      */
     protected function changedHiddenConfiguration($config)
     {
+        $template = $this->sourceTypes[$config['source']]['template'];
+
         unset($config['source']);
-
-        $isAleph = isset($config['Catalog']['dlfport']);
-
-        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
 
         $defs = $template['Definitions'];
 
@@ -474,59 +360,20 @@ class ConfigurationsHandler
     }
 
     /**
-     * Approves an configuration request made by institution admin
-     *
-     * @param string $source
-     *
-     * @return boolean $result
-     */
-    protected function approveRequest($post)
-    {
-        $source = $post['source'];
-
-        unset($post['source']);
-        unset($post['message']);
-
-        $succeeded = $this->instConfigsTable->approveConfig($post, $source);
-
-        return $succeeded;
-    }
-
-    /**
-     * Deletes request configuration from the requests dir
-     *
-     * @param string $source
-     * @throws \Exception
-     *
-     * @return boolean
-     */
-    protected function deleteRequestConfig($source)
-    {
-        if (empty($source))
-            return false;
-
-        if (! in_array($source, $this->institutionsBeingAdminAt) && ! $this->ctrl->getAccessManager()->isPortalAdmin()) {
-            throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
-        }
-
-        return $this->instConfigsTable->deleteLastRequestConfig($source);
-    }
-
-    /**
      * Saves new configuration
      *
      * @param array $config
+     * @return bool|int
+     * @throws \Exception
      */
-    protected function createNewRequestConfig($config)
+    protected function createNewConfig($config)
     {
         $source = $config['source'];
 
         if (empty($source))
             return false;
 
-        unset($config['source']);
-
-        if (! in_array($source, $this->institutionsBeingAdminAt)) {
+        if (! $this->ctrl->getAccessManager()->isPortalAdmin()) {
             throw new \Exception('You don\'t have permissions to change config of ' . $source . '!');
         }
 
@@ -540,19 +387,17 @@ class ConfigurationsHandler
             $config['IdResolver']['prefix'] = $source;
         }
 
-        $newConfRequest = $this->instConfigsTable->createNewConfig($source, $config);
-
-        return $newConfRequest;
+        return $this->instConfigsTable->setNewConfig($source, $config);
     }
 
     /**
      * Clean data
      * Cleanup: Remove double quotes
      *
-     * @param Array $data
+     * @param array $data
      *            Data
      *
-     * @return Array
+     * @return array
      */
     protected function cleanData(array $data)
     {
@@ -571,13 +416,12 @@ class ConfigurationsHandler
      *
      * @param array $config
      *
+     * @param $source
      * @return array $filteredConfig
      */
-    protected function filterHiddenParameters($config)
+    protected function filterHiddenParameters($config, $source)
     {
-        $isAleph = isset($config['Catalog']['dlfport']);
-
-        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
+        $template = $this->sourceTypes[$source]['template'];
 
         $hidden = $template['Definitions']['hidden'];
 
@@ -605,35 +449,17 @@ class ConfigurationsHandler
     }
 
     /**
-     * Uses db to version config changes
-     *
-     * @param string $source
-     */
-    protected function commitNewConfig($source)
-    {
-        $config = $this->instConfigsTable->getRequestedConfig($source);
-
-        if ($config === false)
-            $config = [];
-
-        return $this->instConfigsTable->createNewConfig($source, $config);
-    }
-
-    /**
      * Parses config from the POST.
      *
      * Note that it cuts out the configuration which is not included within the template.
      *
-     * FIXME: Setup the default value from template
-     *
      * @param array $config
      * @param string $source
+     * @return array
      */
     protected function parseConfigSections($config, $source)
     {
-        $isAleph = isset($config['Catalog']['dlfport']);
-
-        $template = $isAleph ? $this->alephTemplate : $this->ncipTemplate;
+        $template = $this->sourceTypes[$source]['template'];
 
         $defs = $template['Definitions'];
 
@@ -689,111 +515,42 @@ class ConfigurationsHandler
      *
      * @param string $source
      *
+     * @param bool $filterHidden
      * @return array
      */
     protected function getInstitutionConfig($source, $filterHidden = true)
     {
-        $activeCfg = $this->instConfigsTable->getApprovedConfig($source);
+        $activeCfg = $this->instConfigsTable->getConfig($source);
 
-        if ($activeCfg === false)
+        if ($activeCfg === false) {
             $activeCfg = [];
+        }
 
         if ($this->sourceTypes[$source] === 'Aleph' && ! isset($activeCfg['Catalog']['dlfport'])) {
             $activeCfg['Catalog']['dlfport'] = '';
         }
 
-        $requestCfg = $this->instConfigsTable->getRequestedConfig($source);
-
-        if ($requestCfg === false)
-            $requestCfg = [];
-
         if ($filterHidden)
-            return [
-                'active' => $this->filterHiddenParameters($activeCfg),
-                'requested' => $this->filterHiddenParameters($requestCfg)
-            ];
+            return $this->filterHiddenParameters($activeCfg, $source);
         else
-            return [
-                'active' => $activeCfg,
-                'requested' => $requestCfg
-            ];
-    }
-
-    /**
-     * Sends an information email about a configuration request change has beed cancelled
-     *
-     * @param string $source
-     */
-    protected function sendRequestCancelledMail($source)
-    {
-        if ($this->approvalConfig['emailEnabled']) {
-
-            $subject = 'Zrušení žádosti o změnu konfigurace u instituce ' . $source;
-
-            $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" zrušil žádost o změnu konfigurace.';
-
-            return $this->sendMailToPortalAdmin($subject, $message);
-        }
-
-        return false;
+            return $activeCfg;
     }
 
     /**
      * Sends an information email about a new configuration request
      *
      * @param string $source
+     * @return bool
      */
     protected function sendNewRequestMail($source)
     {
         if ($this->approvalConfig['emailEnabled']) {
 
-            $subject = 'Žádost o změnu konfigurace u instituce ' . $source;
+            $subject = 'Změna konfigurace u instituce ' . $source;
 
-            $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" vytvořil žádost o změnu konfigurace.';
+            $message = 'Administrátor č. ' . $_SESSION['Account']['userId'] . ' instituce "' . $source . '" změnil konfigurace.';
 
-            return $this->sendMailToPortalAdmin($subject, $message);
-        }
-
-        return false;
-    }
-
-    /**
-     * Sends an information email about a configuration request has been approved
-     *
-     * @param string $source
-     * @param string $message
-     * @param string $to
-     */
-    protected function sendRequestApprovedMail($source, $message, $to)
-    {
-        if ($this->approvalConfig['emailEnabled']) {
-
-            $subject = 'Schválení žádosti o změnu konfigurace u instituce ' . $source;
-
-            $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\r\n\r\n právě jsme Vám schválili Vaši žádost o změnu konfigurace v instituci ' . $source . '\r\n\r\n' . $message;
-
-            return $this->sendMailToContactPerson($subject, $message, $to);
-        }
-
-        return false;
-    }
-
-    /**
-     * Sends an information email about a configuration request has been denied
-     *
-     * @param string $source
-     * @param string $message
-     * @param string $to
-     */
-    protected function sendRequestDeniedMail($source, $message, $to)
-    {
-        if ($this->approvalConfig['emailEnabled']) {
-
-            $subject = 'Žádost o změnu konfigurace u instituce ' . $source . ' byla zamítnuta';
-
-            $message = 'Vážený administrátore č. ' . $_SESSION['Account']['userId'] . ',\r\n\r\n právě Vám byla Vaše žádost o změnu konfigurace v instituci ' . $source . ' zamítnuta.\r\n\r\n' . $message;
-
-            return $this->sendMailToContactPerson($subject, $message, $to);
+            $this->sendMailToPortalAdmin($subject, $message);
         }
 
         return false;
@@ -807,23 +564,8 @@ class ConfigurationsHandler
      */
     protected function sendMailToPortalAdmin($subject, $message)
     {
-        $from = new \Zend\Mail\Address($this->approvalConfig['emailFrom'], $this->approvalConfig['emailFromName']);
-
-        return $this->mailer->send($this->approvalConfig['emailTo'], $from, $subject, $message);
-    }
-
-    /**
-     * Sends an email to a contact person
-     *
-     * @param string $subject
-     * @param string $message
-     * @param string $to
-     */
-    protected function sendMailToContactPerson($subject, $message, $to)
-    {
-        $from = new \Zend\Mail\Address($this->approvalConfig['emailFrom'], $this->approvalConfig['emailFromName']);
-
-        return $this->mailer->send($to, $from, $subject, $message);
+        $from = new Address($this->approvalConfig['emailFrom'], $this->approvalConfig['emailFromName']);
+        $this->mailer->send($this->approvalConfig['emailTo'], $from, $subject, $message);
     }
 
     private function translate($msg, $tokens = [], $default = null)

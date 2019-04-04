@@ -819,3 +819,9 @@ UPDATE `system` SET `value` = '61' WHERE `key`='DB_VERSION';
 UPDATE user SET firstname = '', lastname = '', email = '';
 UPDATE user_card SET card_name = '';
 UPDATE `system` SET `value` = '62' WHERE `key`='DB_VERSION';
+
+ALTER TABLE `vufind`.`inst_configs`
+DROP COLUMN `user_approved`,
+DROP COLUMN `user_requested`,
+DROP COLUMN `timestamp_approved`,
+CHANGE COLUMN `timestamp_requested` `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
