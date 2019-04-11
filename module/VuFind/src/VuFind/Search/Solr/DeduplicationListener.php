@@ -359,6 +359,10 @@ class DeduplicationListener
         $recordSources, $sourcePriority
     ) {
         $localRecordData['local_ids_str_mv'] = $dedupRecordData['local_ids_str_mv'];
+        if (empty($localRecordData['monographic_series_display_mv'])
+            && ! empty($dedupRecordData['monographic_series_display_mv'])) {
+            $localRecordData['monographic_series_display_mv'] = $dedupRecordData['monographic_series_display_mv'];
+        }
         return $localRecordData;
     }
 
