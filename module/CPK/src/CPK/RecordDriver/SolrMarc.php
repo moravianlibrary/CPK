@@ -1022,9 +1022,18 @@ class SolrMarc extends ParentSolrMarc
      *
      * @return array
      */
-    public function getSummary()
+    public function getSummary($searchAlsoInParentRecord = true)
     {
-        return isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : [];
+        /**
+         * @var array   summary
+         */
+        $summary = isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : false;
+        //nothing found and allowed to search in parent
+        if ($searchAlsoInParentRecord && !$summary){
+            $summary = $this->getParentRecordDriver()->fields['summary_display_mv'];
+        }
+        //return the summary
+        return $summary;
     }
 
     public function getMonographicSeries($searchAlsoInParentRecord = true)

@@ -88,7 +88,7 @@ class SolrAuthority extends ParentSolrMarc
      *
      * @return array $field
      */
-    public function getSummary()
+    public function getSummary($searchAlsoInParentRecord = true)
     {
         return isset($this->fields['bibliographic_details_display_mv']) ? $this->fields['bibliographic_details_display_mv'] : [];
     }
