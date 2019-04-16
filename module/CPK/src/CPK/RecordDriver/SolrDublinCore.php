@@ -196,7 +196,7 @@ class SolrDublinCore extends ParentSolrMarc
      *
      * @return array
      */
-    public function getSummary()
+    public function getSummary($searchAlsoInParentRecord = true)
     {
         return [];
     }
