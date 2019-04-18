@@ -626,6 +626,36 @@ jQuery( document ).ready( function( $ ) {
     }
   }
 
+  var $mvsSubmit = $('#mvs-submit');
+
+  $mvsSubmit.one('click', function (e) {
+    e.preventDefault();
+    $( '#mvs-modal' ).modal( 'show' );
+    // get container where we will render our page
+    var $container = $('div.record-mvs-description');
+
+    var $recordInformation = $('div.record-information');
+    var $table = $recordInformation.find('table.table');
+    $table.find('tr#subjects-tr').remove();
+    // console.log(renderTable);
+    var renderObject = {
+      cover: $('div.cover_thumbnail img').attr('src'),
+      title: $recordInformation.find('h2.record-title').text(),
+      tableInformation: $table
+    };
+
+    $container.append(
+        '<div class="row"><h3>' + VuFind.translate('Informace o dokumentu') +
+        '</h3><div class="col-md-4"><img src="' + renderObject.cover + '" alt="cover"></div>' +
+        '<div class="col-md-8"><h4>'+ renderObject.title +'</h4><table class="table">' +
+        renderObject.tableInformation.html() +'</table></div></div>'
+    );
+  });
+
+  $mvsSubmit.on('click', function (e) {
+    e.preventDefault();
+    $( '#mvs-modal' ).modal( 'show' );
+  });
 });
 
 /**

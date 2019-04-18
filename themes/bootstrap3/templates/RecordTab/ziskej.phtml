@@ -1,0 +1,21 @@
+<?php
+$id = $this->driver->getUniqueID();
+?>
+<div class="row">
+  <h2><?= $this->translate('ziskej_popis_header') ?></h2>
+  <p><?= $this->translate('ziskej_popis') ?></p>
+</div>
+<div class="row">
+  <? if ($this->isLoggedIn): ?>
+    <div class="col-md-6">
+
+    </div>
+    <div class="col-md-6">
+    </div>
+  <? else: ?>
+    <div class="col-md-6">
+    </div>
+    <div class="col-md-6">
+    </div>
+  <? endif; ?>
+</div>

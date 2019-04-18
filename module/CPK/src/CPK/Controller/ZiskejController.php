@@ -28,6 +28,8 @@ namespace CPK\Controller;
 
 use CPK\ILS\Driver\Ziskej;
 use VuFind\Controller\AbstractBase;
+use Zend\Http\PhpEnvironment\Request;
+use Zend\Http\PhpEnvironment\Response;
 use Zend\Json\Json;
 
 class ZiskejController extends AbstractBase
@@ -51,7 +53,7 @@ class ZiskejController extends AbstractBase
             // Default value - disabled
             $data = in_array($this->getRequest()->getPost('ziskej'), $view->ziskejConfig) ? $this->getRequest()
                 ->getPost('ziskej') : 'disabled';
-            setcookie('ziskej', $data, 0);
+            setcookie('ziskej', $data, 0, '/');
             $this->redirect()->refresh();
         }
         $ziskejCookie  = $request->getCookie()->ziskej;
@@ -140,6 +142,7 @@ class ZiskejController extends AbstractBase
         $url              = $this->getConfig()->Ziskej->$cookie;
         $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
 
+        /* @var $ziskej Ziskej */
         $ziskej = Ziskej::getZiskej();
         $ziskej->setConfig($sensZiskejConfig);
         $ziskej->setApiUrl($url);

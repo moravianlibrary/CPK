@@ -54,6 +54,7 @@ $config = array(
                     'services' => 'CPK\RecordTab\Services',
                     'addInfo' => 'CPK\RecordTab\AddInfo',
                     'contacts' => 'CPK\RecordTab\Contacts',
+                    'Ziskej' => 'CPK\RecordTab\Ziskej'
                 ), /* invokables */
             ), /* recordtab */
             'recommend' => [
@@ -119,6 +120,7 @@ $config = array(
                 'tabs' => [
                     'Holdings' => 'HoldingsILS',
                     'EVersion' => 'EVersion',
+                    'Ziskej' => 'Ziskej',
                     'Buy' => 'Buy',
                     'TOC' => 'TOC',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
@@ -128,7 +130,7 @@ $config = array(
                     'HierarchyTree' => 'HierarchyTree',
                     'Map' => 'Map',
                     'Details' => 'StaffViewMARC',
-                    'DedupedRecords' => 'DedupedRecords'
+                    'DedupedRecords' => 'DedupedRecords',
                 ],
                 'defaultTab' => null
             ],
@@ -136,6 +138,7 @@ $config = array(
                 'tabs' => [
                     'Holdings' => 'HoldingsILS',
                     'EVersion' => 'EVersion',
+                    'Ziskej' => 'Ziskej',
                     'Buy' => 'Buy',
                     'TOC' => 'TOC',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
@@ -145,27 +148,29 @@ $config = array(
                     'HierarchyTree' => 'HierarchyTree',
                     'Map' => 'Map',
                     'Details' => 'StaffViewDublinCore',
-                    'DedupedRecords' => 'DedupedRecords'
+                    'DedupedRecords' => 'DedupedRecords',
                 ],
                 'defaultTab' => 'EVersion'
             ],
             'CPK\RecordDriver\SolrAuthority' => [
                 'tabs' => [
                     'EVersion' => 'EVersion',
+                    'Ziskej' => 'Ziskej',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews',
                     'Details' => 'StaffViewMARC',
-                    'DedupedRecords' => 'DedupedRecords'
+                    'DedupedRecords' => 'DedupedRecords',
                 ],
                 'defaultTab' => 'EVersion'
             ],
             'CPK\RecordDriver\SolrDictionary' => [
                 'tabs' => [
                     'EVersion' => 'EVersion',
+                    'Ziskej' => 'Ziskej',
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews',
                     'Details' => 'StaffViewMARC',
-                    'DedupedRecords' => 'DedupedRecords'
+                    'DedupedRecords' => 'DedupedRecords',
                 ],
                 'defaultTab' => 'EVersion'
             ],

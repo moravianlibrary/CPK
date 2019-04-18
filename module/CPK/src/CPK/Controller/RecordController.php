@@ -27,11 +27,13 @@
  */
 namespace CPK\Controller;
 
+use CPK\ILS\Driver\Ziskej;
 use VuFind\Controller\RecordController as RecordControllerBase,
     VuFind\Controller\HoldsTrait as HoldsTraitBase,
     Zend\Mail\Address,
     CPK\RecordDriver\SolrAuthority,
     VuFind\Exception\RecordMissing as RecordMissingException;
+use Zend\Http\PhpEnvironment\Request;
 
 /**
  * Redirects the user to the appropriate default VuFind action.
@@ -194,6 +196,7 @@ class RecordController extends RecordControllerBase
             $view->socialUser = $this->getUser()->getSource().'_user';
         }
 
+        $view->setVariable('user', $this->getUser());
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 
         $referer = $this->params()->fromQuery('referer', false);
@@ -238,8 +241,9 @@ class RecordController extends RecordControllerBase
             $this->layout()->sort = $searchesConfig->General->default_sort;
         }
 
-        // Set up MVS button
+        /* @var $request Request */
         $request = $this->getRequest();
+        // Set up MVS button
         $mvsCookie = $request->getCookie()->ziskej;
 
         if (isset($config->Ziskej, $config->Ziskej->$mvsCookie) && $mvsCookie != 'disabled') {
@@ -248,6 +252,10 @@ class RecordController extends RecordControllerBase
             $view->serverName = $request->getServer()->SERVER_NAME;
             $view->entityId = $request->getServer('Shib-Identity-Provider');
         }
+        $ziskej = $this->getZiskej();
+        $ziskejLibs = $ziskej->getLibraries();
+//        var_dump($this->getContent($ziskejLibs));
+//        var_dump($ziskejLibs);
 
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
@@ -662,6 +670,22 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
             $this->parentRecordDriver = $this->recordLoader->load($parentRecordID);
         }
         return $this->parentRecordDriver;
+    }
+
+    protected function getZiskej()
+    {
+        $cookie           = $this->getRequest()->getCookie()->ziskej;
+        $url              = $this->getConfig()->Ziskej->$cookie;
+        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
+//        d($url);
+//        dd($sensZiskejConfig);
+
+        /* @var $ziskej Ziskej */
+        $ziskej = Ziskej::getZiskej();
+        $ziskej->setConfig($sensZiskejConfig);
+        $ziskej->setApiUrl($url);
+
+        return $ziskej;
     }
 
 }
