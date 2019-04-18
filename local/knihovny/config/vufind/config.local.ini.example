@@ -130,9 +130,9 @@ non_proxy_host[] = cache.obalkyknih.cz
 ; Title translation key, description translation key, icon class name, facet filter
 ; Eg:
 ;list_item[] = 'title_translation_key;description_translation_key;icon_class_name;facet_filter'
-list_item[] = 'doctypes_widget_patents;doctypes_widget_patents_description;pr-format-patents;~institution:"1/Others/UPV/"'
+list_item[] = 'doctypes_widget_patents;doctypes_widget_patents_description;pr-format-patents;~region_institution:"1/Others/UPV/"'
 list_item[] = 'doctypes_widget_norms;doctypes_widget_norms_description;pr-format-norms;~cpk_detected_format_facet_str_mv:"0/NORMS/"'
-list_item[] = 'doctypes_widget_legislative_laws;doctypes_widget_legislative_laws_description;pr-format-legislative;~institution:"1/Others/ZAKONY/"'
+list_item[] = 'doctypes_widget_legislative_laws;doctypes_widget_legislative_laws_description;pr-format-legislative;~region_institution:"1/Others/ZAKONY/"'
 list_item[] = 'doctypes_widget_musical_scores;doctypes_widget_musical_scores_description;pr-format-musicalscores;~cpk_detected_format_facet_str_mv:"0/MUSICAL_SCORES/"'
 list_item[] = 'doctypes_widget_maps;doctypes_widget_maps_description;pr-format-maps;~cpk_detected_format_facet_str_mv:"0/MAPS/"'
 list_item[] = 'doctypes_widget_articles;doctypes_widget_articles_description;pr-format-articles;~cpk_detected_format_facet_str_mv:"0/ARTICLES/"'
