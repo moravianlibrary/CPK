@@ -11,11 +11,6 @@
   </a>
 
   <? if ($isPortalAdmin): ?>
-    <a href='/Admin/ConfigurationsApproval'
-       class='list-group-item<?=$templateName == 'configurations/approval' ? ' active' : ''?>'>
-      <?=$this->transEsc('configurations_approval')?>
-    </a>
-
     <a href='/Admin/PortalPages'
        class='list-group-item<?=$templateName == 'portalpages' ? ' active' : ''?>'>
       <?=$this->transEsc('Portal pages')?>

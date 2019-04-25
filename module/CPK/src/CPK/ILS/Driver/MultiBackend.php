@@ -739,7 +739,7 @@ class MultiBackend extends MultiBackendBase
         if (isset($this->drivers[$source])) {
             $driver = $this->drivers[$source];
 
-            $config = $this->instConfigsTable->getApprovedConfig($source);
+            $config = $this->instConfigsTable->getConfig($source);
 
             if (! $config) {
                 $this->error("No configuration found for source '$source'");

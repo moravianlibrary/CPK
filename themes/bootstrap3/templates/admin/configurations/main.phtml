@@ -19,28 +19,19 @@
     <h2><?=$this->transEsc('configurations')?></h2>
     <?=$this->flashmessages() ?>
     <? foreach($configs as $source => $configs):
-
-        $hasRequested = ! empty($configs['requested']);
-
-        $isAleph = isset($configs['active']['Catalog']['dlfport']);
-
-        $template = $isAleph ? $alephTemplate : $ncipTemplate;
+        $template = $configs['template'];
+        $config = $configs['data'];
 
         $defs = $template['Definitions'];
         unset($template['Definitions']);
 
         $hidden = $defs['hidden'];
-
-        $config = $hasRequested ? $configs['requested'] : $configs['active'];
-    ?>
+        ?>
       <div class='well'>
         <form action='/Admin/Configurations' method='POST'>
         <table class="table table-striped col-sm-12">
           <thead>
             <tr><td colspan="2"><h3><?=$this->transEsc('source_' . $source)?><img class="pull-right" src="<?=$this->logos()->getLogo($source) ?>" height="32"></h3></td></tr>
-            <? if ($hasRequested): ?>
-              <tr><td colspan="2"><div class="alert alert-warning"><?=$this->transEsc('request_config_change_pending') ?></div></td></tr>
-            <? endif; ?>
           </thead>
           <tbody>
          <? foreach($template as $section => $keys): if(! empty($keys) && array_search($section, $hidden) === false): ?>
@@ -86,10 +77,7 @@
           </tbody>
         </table>
         <div class="btn-group">
-          <input class="btn btn-primary" name="requestChange" type="submit" value="<?=$this->transEsc('submit_changes') ?>"/>
-          <? if ($hasRequested): ?>
-            <input class="btn btn-primary" name="requestChangeCancel" type="submit" value="<?=$this->transEsc('request_config_change_cancel') ?>" formnovalidate/>
-          <? endif; ?>
+          <input class="btn btn-primary" name="requestChange" type="submit" value="<?=$this->transEsc('submit_config_changes') ?>"/>
         </div>
         <input type='hidden' name='source' value='<?=$source ?>'/>
         </form>
