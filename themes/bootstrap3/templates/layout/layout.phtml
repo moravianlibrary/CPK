@@ -268,6 +268,9 @@
         $this->layout()->searchbox = $this->render('search/searchbox.phtml');
       }
     ?>
+    <? if($this->help()->showBrowserSuggest()): ?>
+      <?= $this->render('SuggestedBrowsers/suggested-browsers.phtml')?>
+    <? endif; ?>
     <header class="hidden-print header-container <?=($this->layout()->frontpage == true)?'frontpage':''?>">
 	    <? if (!$this->themeConfiguration()->themeConfig['hide_navbar']): ?>
 		    <div class="container navbar">
@@ -372,6 +375,7 @@
         <?=$this->layout()->content ?>
       </div>
     </div>
+
     <footer class="hidden-print header-container">
       <div class="container">
           <?=$this->render('footer.phtml', ['user' => $user])?>

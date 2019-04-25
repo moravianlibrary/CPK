@@ -625,7 +625,6 @@ jQuery( document ).ready( function( $ ) {
       $( '#feedback-modal' ).modal( 'show' );
     }
   }
-
 });
 
 /**
