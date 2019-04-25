@@ -339,7 +339,7 @@
         <? endif; ?>
       <? endif; ?>
 
-      <? if ($monographicSeries = $this->driver->tryMethod('getMonographicSeries')): ?>
+      <? if ($monographicSeries = $this->driver->tryMethod('getMonographicSeries', [false])): ?>
         <?= $this->translate('From monographic series') ?>:&nbsp;
         <? foreach($monographicSeries as $serie): ?>
           <a href='<?= $this->driver->getMonographicSeriesUrl($serie) ?>'
