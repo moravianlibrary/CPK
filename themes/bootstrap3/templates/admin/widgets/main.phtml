@@ -39,52 +39,34 @@
     <div class='well'>
       <div class='row'>
         <div class='col-md-4 text-center'>
-          <h2><?=$this->translate('First column')?></h2>
-          <select id='first-homepage-widget' class='form-control selectpicker'>
-            <? foreach($widgets as $widget): ?>
-            <option value='<?=$widget->getName()?>'
-                    <?=$widget->getName() == $this->homePageWidgets['first_homepage_widget'] ? ' selected' : ''?>>
-              <?=$this->translate($widget->getTitleCs())?>
-            </option>
-            <? endforeach; ?>
-            <option value='conspectus'
-                    <?=$this->homePageWidgets['first_homepage_widget'] == 'conspectus' ? ' selected' : ''?>>
-              <?=$this->translate('Conspectus')?>
-            </option>
-          </select>
+          <h2><?= $this->translate('First column'); ?></h2>
+            <?= $this->render('admin/widgets/widget-help.phtml', [
+                'homePageWidgets' => $this->homePageWidgets,
+                'widgets' => $this->widgets,
+                'name' => 'first-homepage-widget',
+                'documentTypesWidgetList' => $this->documentTypesWidgetList
+            ]) ?>
         </div>
         <div class='col-md-4 text-center'>
-          <h2><?=$this->translate('Second column')?></h2>
-          <select id='second-homepage-widget' class='form-control selectpicker'>
-            <? foreach($widgets as $widget): ?>
-              <option value='<?=$widget->getName()?>'
-                      <?=$widget->getName() == $this->homePageWidgets['second_homepage_widget'] ? ' selected' : ''?>>
-                <?=$this->translate($widget->getTitleCs())?>
-              </option>
-            <? endforeach; ?>
-            <option value='conspectus'
-                    <?=$this->homePageWidgets['second_homepage_widget'] == 'conspectus' ? ' selected' : ''?>>
-              <?=$this->translate('Conspectus')?>
-            </option>
-          </select>
+          <h2><?= $this->translate('Second column'); ?></h2>
+            <?= $this->render('admin/widgets/widget-help.phtml', [
+                'homePageWidgets' => $this->homePageWidgets,
+                'widgets' => $this->widgets,
+                'name' => 'second-homepage-widget',
+                'documentTypesWidgetList' => $this->documentTypesWidgetList
+            ]) ?>
         </div>
         <div class='col-md-4 text-center'>
-          <h2><?=$this->translate('Third column')?></h2>
-          <select id='third-homepage-widget' class='form-control selectpicker'>
-            <? foreach($widgets as $widget): ?>
-              <option value='<?=$widget->getName()?>'
-                      <?=$widget->getName() == $this->homePageWidgets['third_homepage_widget'] ? ' selected' : ''?>>
-                <?=$this->translate($widget->getTitleCs())?>
-              </option>
-            <? endforeach; ?>
-            <option value='conspectus'
-                    <?=$this->homePageWidgets['third_homepage_widget'] == 'conspectus' ? ' selected' : ''?>>
-              <?=$this->translate('Conspectus')?>
-            </option>
-          </select>
+          <h2><?= $this->translate('Third column'); ?></h2>
+            <?= $this->render('admin/widgets/widget-help.phtml', [
+                'homePageWidgets' => $this->homePageWidgets,
+                'widgets' => $this->widgets,
+                'name' => 'third-homepage-widget',
+                'documentTypesWidgetList' => $this->documentTypesWidgetList
+            ]) ?>
         </div>
+      </div>
     </div>
-  </div>
 
   <div id='inspirations-widgets'>
     <h2><?=$this->translate('Inspiration widgets')?></h2>
@@ -150,31 +132,37 @@
             </thead>
             <tbody>
               <? foreach($widgets as $widget): ?>
-              <tr>
-                <td><?= $widget->getTitleCs() ?></td>
-                <td>
-                  <div class='dropdown pull-right'>
-                    <span id='actions'
-                          class='actions'
-                          aria-expanded='true'
-                          aria-haspopup='true'
-                          data-toggle='dropdown'>
-                      <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
-                    </span>
-                    <ul class='dropdown-menu' aria-labelledby='actions'>
-                      <li>
-                        <a href='/Admin/Widgets/EditWidget/<?=$widget->getId()?>'>
-                          <i class='fa fa-edit'></i>
-                            <?=$this->translate('Edit')?>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-              <? endforeach; ?>
-            </tbody>
-          </table>
+                <tr>
+                  <td><?= $widget->getTitleCs() ?></td>
+                  <td>
+                    <div class='dropdown pull-right'>
+                      <span id='actions'
+                            class='actions'
+                            aria-expanded='true'
+                            aria-haspopup='true'
+                            data-toggle='dropdown'>
+                        <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
+                      </span>
+                      <ul class='dropdown-menu' aria-labelledby='actions'>
+                        <li>
+                          <a href='/Admin/Widgets/EditWidget/<?=$widget->getId()?>'>
+                            <i class='fa fa-edit'></i>
+                              <?=$this->translate('Edit')?>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+		          <? endforeach; ?>
+		          <? if ($documentTypesWidgetList): ?>
+		            <tr>
+		              <td><?=$this->translate('Document_Types_Widget')?></td>
+		              <td></td>
+		            </tr>
+		          <? endif; ?>
+		        </tbody>
+		      </table>
         </div>
       </div>
     </div>

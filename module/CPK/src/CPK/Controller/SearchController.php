@@ -24,6 +24,7 @@
  */
 namespace CPK\Controller;
 
+use CPK\Widgets\DocumentTypesWidget;
 use VuFind\Controller\SearchController as SearchControllerBase;
 use VuFind\Exception\Mail as MailException;
 use VuFind\Exception\RecordMissing as RecordMissingException;
@@ -362,6 +363,12 @@ class SearchController extends SearchControllerBase
                 // do nothing, there is view prepared for it.
                 $widget = new \CPK\Widgets\Widget();
                 $widget->setName($widgetName);
+            } else if ($widgetName == 'Document_Types_Widget') {
+                // do nothing, there is view prepared for it.
+                $widget = new \CPK\Widgets\Widget();
+                $widget->setName($widgetName);
+                $view->documentTypesWidget = new DocumentTypesWidget($this->getConfig());
+
             } else {
                 $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
             }

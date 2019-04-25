@@ -1,0 +1,26 @@
+<div class='col-md-4 widget document-type-widget'>
+  <div class='header'>
+    <h2><?=$this->transEsc($this->widget->getName())?></h2>
+  </div>
+  <div class='list-group'>
+  <? foreach ($documentTypesWidget->list as $item): ?>
+    <a href='<?=$item->link?>' class='list-group-item clearfix' title='<?=$this->transEsc($item->title)?>'>
+      <div class='row'>
+        <div class='col-xs-3 col-sm-2 col-md-2 text-center'>
+          <div class='iconlabel'>
+            <i class='widget-icon <?=$this->escapeHtml($item->iconClassName)?>'></i>
+          </div>
+        </div>
+        <div class='col-xs-9 col-sm-10 col-md-10 content'>
+          <h4 class='list-group-item-heading'>
+            <?=$this->transEsc($item->title)?>
+          </h4>
+          <p class='list-group-item-text'>
+            <?=$this->transEsc($item->description)?>
+          </p>
+        </div>
+      </div>
+    </a>
+  <? endforeach; ?>
+  </div>
+</div>
