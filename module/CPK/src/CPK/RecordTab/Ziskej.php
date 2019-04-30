@@ -35,6 +35,6 @@ class Ziskej extends AbstractBase
 
     public function getDescription()
     {
-        return 'ZISKEJ';
+        return 'Ziskej';
     }
 }
