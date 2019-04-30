@@ -1048,4 +1048,9 @@ class SolrMarc extends ParentSolrMarc
         return implode(" | ", explode("|", $serie));
     }
 
+    public function getZiskejBoolean() : bool
+    {
+
+        return $this->fields['ziskej_boolean'] ?? false;
+    }
 }

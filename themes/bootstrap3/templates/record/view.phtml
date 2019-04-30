@@ -388,6 +388,12 @@
                     disableTab($( '#branches' ));
                 }
 
+                <? if(!$this->isZiskej): ?>
+                    disableTab($( '#ziskej' ));
+                    var elem = document.querySelector('#ziskej-tab');
+                    elem.parentNode.removeChild(elem);
+                <? endif; ?>
+
                 var recordID = '<?= $this->driver->getUniqueID() ?>';
                 var parentRecordID = '<?= method_exists($this->driver, "getParentRecordID") ? $this->driver->getParentRecordID() : null ?>';
 

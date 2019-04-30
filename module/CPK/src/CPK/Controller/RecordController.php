@@ -245,6 +245,8 @@ class RecordController extends RecordControllerBase
             $view->entityId = $request->getServer('Shib-Identity-Provider');
         }
 
+        $view->setVariable('isZiskej', $this->driver->getZiskejBoolean());
+        $view->setVariable('ziskejMinUrl', $config->Ziskej_minimal->url ?? '');
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
