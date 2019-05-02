@@ -38,7 +38,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     url.replace("'", "\\'");
     html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "");
 
-    if (facetName == "local_institution_facet_str_mv" ) {
+    if (facetName == "local_region_institution_facet_str_mv") {
         html +="";
     }
     else {
@@ -150,7 +150,6 @@ function initFacetTree(treeNode, inSidebar)
   var excludeTitle = treeNode.data('exclude-title');
   var sort = treeNode.data('sort');
   var query = window.location.href.split('?')[1];
-
   if (inSidebar) {
     treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
   } else {
@@ -217,6 +216,12 @@ function initFacetOrTree(treeNode, inSidebar)
                 treeNode.find('.fa-spinner').parent().remove();
                 if (inSidebar) {
                     treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
+
+                        // Open online in availability facet
+                        if (facet == 'local_statuses_facet_str_mv') {
+                            treeNode.jstree('open_node', $('#\\~local_statuses_facet_str_mv\\:\\"0\\/online\\/\\"'));
+                        }
+
                         treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
                         treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
                     });
@@ -370,7 +375,7 @@ jQuery( document ).ready( function( $ ) {
                     let arrayInstitutions = response.data.savedInstitutions;
 
                     $.each( arrayInstitutions, function( index, value ){
-                        var institution = '~local_institution_facet_str_mv:"' + value + '"';
+                        var institution = '~local_region_institution_facet_str_mv:"' + value + '"';
                         $('#facet_institution').jstree(true).select_node(institution);
 
                     });
@@ -423,7 +428,7 @@ jQuery( document ).ready( function( $ ) {
         var arrayInstitutions = data.split(";");
 
         $.each( arrayInstitutions, function( index, value ){
-            var institution = '~local_institution_facet_str_mv:"' + value + '"';
+            var institution = '~local_region_institution_facet_str_mv:"' + value + '"';
             $('#facet_institution').jstree(true).select_node(institution);
 
         });
@@ -519,7 +524,7 @@ jQuery( document ).ready( function( $ ) {
 		                $('#facet_institution').jstree(true).deselect_all();
 		                
 		                $.each( response.data.towns, function( key, value ) {
-		                	var townFacet = '~local_institution_facet_str_mv:"1/Library/'+value.town.toLowerCase()+'/"';
+		                var townFacet = '~local_region_institution_facet_str_mv:"1/Library/' + value.town.toLowerCase() + '/"';
 		                	$('#facet_institution').jstree(true).select_node(townFacet);
 	                	});
 		                

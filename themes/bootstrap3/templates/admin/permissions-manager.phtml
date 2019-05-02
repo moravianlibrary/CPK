@@ -3,75 +3,88 @@
   $this->headTitle($this->translate('Administration'));
 
   // Set up breadcrumbs:
-  $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-      '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li>'.
-      '<li class="active"><a href="/Admin/Home">'.$this->transEsc('Administration').'</a></li> ';
+  $this->layout()->breadcrumbs = "
+    <li>
+      <a title='{$this->transEsc('Main page')}' href='/Search'>{$this->translate('Main page')}</a>
+    </li>
+    <li>
+      <a title='{$this->transEsc('Your Account')}' href='/MyResearch/Home'>{$this->translate('Your Account')}</a>
+    </li>
+    <li>
+      <a title='{$this->transEsc('Administration')}' href='/Admin/Home'>{$this->translate('Administration')}</a>
+    </li>
+    <li class='active'>{$this->translate('Permissions manager')}</li>";
+
+  $this->headScript()->appendFile('admin/permissions-manager.js');
   $this->layout()->title = $this->translate('Permissions manager');
 ?>
-<script>
-jQuery( document ).ready( function( $ ) {
-	$('[data-toggle="tooltip"]').tooltip();
 
-	$( '.remove-permissions' ).on( 'click', function( event ) {
-		event.preventDefault();
-		var url = '/Admin/PermissionsManager/RemovePermissions/' + $ ( this ).attr( 'id' );
-		if (confirm("<?=$this->translate('Do you really want to remove permissions to this user?')?>") == true) {
-			window.location.href = url;
-	    }
-	});
-});
-</script>
-<div class="row clearfix">
-  <ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>
+<div class='row clearfix permission-manager'>
+  <ul class='breadcrumb hidden-print'>
+    <?=$this->layout()->breadcrumbs ?>
+  </ul>
 
-  <div class="col-sm-3">
-    <?=$this->render("admin/menu.phtml")?>
+  <div class='col-sm-3'>
+    <?=$this->render('admin/menu.phtml')?>
   </div>
 
-  <h2><?=$this->transEsc('Permissions manager')?></h2>
-  <div class="col-sm-9 well">
-      <div class='admin-toolbox'>
-        <a href='/Admin/PermissionsManager/AddUser'><button class='btn btn-lg btn-primary'><?=$this->translate('Add user')?></button></a>
-      </div>
-      <? if (count($this->usersWithPermissions)): ?>
-        <table class='table table-hover table-responsive'>
-          <thead>
-            <tr>
-              <th width='75%'><?=$this->translate('User')?> <span style='cursor: help;' data-toggle="tooltip" title="EduPersonPrincipalName">(eppn)</span></th>
-              <th width='15%'><?=$this->translate('Major permission')?></th>
-              <th width='10%'></th>
-            </tr>
-          </thead>
-          <tbody>
-            <? foreach($this->usersWithPermissions as $userWithPermission): ?>
-            <tr class='portal-page-row'>
-              <td ><?=$userWithPermission['eppn']?></td>
-              <td><?=$userWithPermission['major']?></td>
-              <td class='portal-pages-actions'>
-                <div class="dropdown pull-right">
-                  <span class='actions' id="actions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
-                  </span>
-                  <ul class="dropdown-menu" aria-labelledby="actions">
-                    <li>
-                      <a href='/Admin/PermissionsManager/EditUser/<?= $userWithPermission['eppn'] ?>/<?= $userWithPermission['major'] ?>'>
-                        <i class='fa fa-edit'></i>
-                        <?=$this->translate('Edit')?>
-                      </a>
-                    </li>
-                    <li>
-                      <a class='remove-permissions' id='<?= $userWithPermission['eppn'] ?>'>
-                        <i class='fa fa-remove'></i>
-                        <?=$this->translate('Remove permissions')?>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-            <? endforeach; ?>
-          </tbody>
-        </table>
-      <? endif; ?>
+  <h2>
+    <?=$this->transEsc('Permissions manager')?>
+  </h2>
+  <div class='col-sm-9 well'>
+    <div class='admin-toolbox'>
+      <a href='/Admin/PermissionsManager/AddUser'>
+        <button class='btn btn-lg btn-primary'>
+          <?=$this->translate('Add user')?>
+        </button>
+      </a>
+    </div>
+    <? if (count($this->usersWithPermissions)): ?>
+      <table class='table table-hover table-responsive'>
+        <thead>
+          <tr>
+            <th width='75%'>
+              <?=$this->translate('User')?>
+              <span class='cursor-help' data-toggle='tooltip' title='EduPersonPrincipalName'>
+                (eppn)
+              </span>
+            </th>
+            <th width='15%'>
+              <?=$this->translate('Major permission')?>
+            </th>
+            <th width='10%'></th>
+          </tr>
+        </thead>
+        <tbody>
+          <? foreach($this->usersWithPermissions as $user): ?>
+          <tr class='portal-page-row'>
+            <td><?=$user['eppn']?></td>
+            <td><?=$user['major']?></td>
+            <td class='portal-pages-actions'>
+              <div class='dropdown pull-right'>
+                <span class='actions' id='actions' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true'>
+                  <i class='fa fa-ellipsis-v dropdown-toggle pointer'></i>
+                </span>
+                <ul class='dropdown-menu' aria-labelledby='actions'>
+                  <li>
+                    <a href='/Admin/PermissionsManager/EditUser/<?=$user['eppn']?>/<?=$user['major']?>'>
+                      <i class='fa fa-edit'></i>
+                      <?=$this->translate('Edit')?>
+                    </a>
+                  </li>
+                  <li>
+                    <a class='remove-permissions' id='<?=$user['eppn']?>'>
+                      <i class='fa fa-remove'></i>
+                      <?=$this->translate('Remove permissions')?>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          <? endforeach; ?>
+        </tbody>
+      </table>
+    <? endif; ?>
   </div>
 </div>

@@ -54,7 +54,7 @@ $config = array(
                     'services' => 'CPK\RecordTab\Services',
                     'addInfo' => 'CPK\RecordTab\AddInfo',
                     'contacts' => 'CPK\RecordTab\Contacts',
-                    'Ziskej' => 'CPK\RecordTab\Ziskej'
+                    'ziskej' => 'CPK\RecordTab\Ziskej'
                 ), /* invokables */
             ), /* recordtab */
             'recommend' => [
@@ -98,8 +98,7 @@ $config = array(
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
-                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
-                    'ziskej' => 'CPK\ILS\Driver\Factory::getZiskej'
+                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
                 ), /* factories */
             ], /* ils_driver */
                 'autocomplete' => [
@@ -130,7 +129,7 @@ $config = array(
                     'HierarchyTree' => 'HierarchyTree',
                     'Map' => 'Map',
                     'Details' => 'StaffViewMARC',
-                    'DedupedRecords' => 'DedupedRecords',
+                    'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => null
             ],
@@ -148,7 +147,7 @@ $config = array(
                     'HierarchyTree' => 'HierarchyTree',
                     'Map' => 'Map',
                     'Details' => 'StaffViewDublinCore',
-                    'DedupedRecords' => 'DedupedRecords',
+                    'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => 'EVersion'
             ],
@@ -159,7 +158,7 @@ $config = array(
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews',
                     'Details' => 'StaffViewMARC',
-                    'DedupedRecords' => 'DedupedRecords',
+                    'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => 'EVersion'
             ],
@@ -170,7 +169,7 @@ $config = array(
                     'UserCommentsObalkyKnih' => 'UserCommentsObalkyKnih',
                     'Reviews' => 'Reviews',
                     'Details' => 'StaffViewMARC',
-                    'DedupedRecords' => 'DedupedRecords',
+                    'DedupedRecords' => 'DedupedRecords'
                 ],
                 'defaultTab' => 'EVersion'
             ],
@@ -205,7 +204,7 @@ $config = array(
             'libraries' => 'CPK\Controller\Factory::getLibrariesController'
         ),
         'invokables' => array(
-            'myresearch' => 'CPK\Controller\MyResearchController',
+			'myresearch' => 'CPK\Controller\MyResearchController',
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
@@ -256,16 +255,14 @@ $staticRoutes = array(
     'Admin/ConfigurationsApproval',
     'Admin/PortalPages',
     'Admin/PermissionsManager',
-    'Search/Conspectus',
-    'Search/MostSearched',
-    'Search/NewAcquisitions',
+	'Search/Conspectus',
+ 	'Search/MostSearched',
+	'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory',
-    'MyResearch/ShortLoans',
+	'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
-    'MyResearch/ProfileChange',
-    'MyResearch/ChangeTitle',
-    'ziskej/registration',
-    'ziskej/createTicket'
+	'MyResearch/ProfileChange',
+    'MyResearch/ChangeTitle'
 );
 
 foreach ($staticRoutes as $route) {
@@ -315,21 +312,6 @@ $config['router']['routes']['inspiration-show'] = array(
             'action'     => 'show',
         )
     )
-);
-
-$config['router']['routes']['ziskej'] = array(
-    'type'    => 'Zend\Mvc\Router\Http\Segment',
-    'options' => array(
-        'route'       => '/'.'ziskej'.'/[:action]',
-        'constraints' => array(
-            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-            'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-        ),
-        'defaults'    => array(
-            'controller' => 'ziskej',
-            'action'     => 'Home',
-        ),
-    ),
 );
 
 return $config;

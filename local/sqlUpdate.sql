@@ -819,3 +819,15 @@ UPDATE `system` SET `value` = '61' WHERE `key`='DB_VERSION';
 UPDATE user SET firstname = '', lastname = '', email = '';
 UPDATE user_card SET card_name = '';
 UPDATE `system` SET `value` = '62' WHERE `key`='DB_VERSION';
+
+/* feature-1101 */
+UPDATE frontend SET third_homepage_widget = 'Document_Types_Widget';
+UPDATE `system` SET `value` = '63' WHERE `key`='DB_VERSION';
+
+/* feature-1149 */
+ALTER TABLE `vufind`.`inst_configs`
+DROP COLUMN `user_approved`,
+DROP COLUMN `user_requested`,
+DROP COLUMN `timestamp_approved`,
+CHANGE COLUMN `timestamp_requested` `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
+UPDATE `system` SET `value` = '64' WHERE `key`='DB_VERSION';

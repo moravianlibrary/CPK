@@ -150,6 +150,18 @@ class Help extends \Zend\View\Helper\AbstractHelper
     }
 
     /**
+     * Checks if browser is Microsoft IE
+     *
+     * @return bool
+     */
+    public function showBrowserSuggest()
+    {
+        return isset($_SERVER['HTTP_USER_AGENT'])
+            && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE')
+                || strpos($_SERVER['HTTP_USER_AGENT'], 'Trident'));
+    }
+
+    /**
      * Translate a string if a translator is available.
      *
      * @param string $msg

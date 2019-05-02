@@ -1,24 +1,34 @@
+<? $center = $position == 'top' ? 'center' : '' ?>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="<?__DIR_?>/themes/<?=$theme?>/css/embedded.css">
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' href='/themes/<?=$theme?>/css/embedded.css'>
 </head>
 <body>
-<? ($position == 'top')? $center = 'center':$center = ''?>
-  <? if(!empty($logo_path)):?>
-    <a href="<?=$link?>" title="<?=$title?>">
-      <img class="logo <?=$center?>" src="<?=htmlspecialchars("https://knihovny.cz/themes/bootstrap3/images/".$logo_path)?>" alt="<?=$title?>">
+
+  <? if ($logo_path): ?>
+    <a href='<?=$this->escapeHtmlAttr($link)?>' title='<?=$this->escapeHtmlAttr($title)?>'>
+      <img src='/themes/bootstrap3/images/<?=$this->escapeHtmlAttr($logo_path)?>'
+           alt='<?=$this->escapeHtmlAttr($title)?>'
+           class='logo <?=$center?>'>
     </a>
   <? endif;?>
-  <form class="search-body <?=$center?>" method="get" action="<?= htmlspecialchars($link)?>/Search/Results" target="_top">
-    <input class="form-control lookfor <?=$center?>" type="text" name="lookfor0[]" value=""
-           placeholder="<?= $this->translate('autocomplete-placeholder'); ?>">
-    <input type="hidden" name="searchTypeTemplate" value="basic">
-    <input type="hidden" name="database" value="<?= $database ?>">
-    <input type="hidden" name="type0[]" value="AllFields">
-    <input type="hidden" name="join" value="AND">
-    <input type="hidden" name="bool0[]" value="AND">
-    <input type="hidden" name="page" value="1">
-    <input type="hidden" name="keepEnabledFilters" value="true">
-    <input class="form-control find-button" type="submit" value="<?= $this->translate('Find'); ?>">
+
+  <form action='<?=$this->escapeHtmlAttr($link)?>/Search/Results'
+        method='get'
+        class='search-body <?=$center?>'
+        target='_top'>
+    <input class='form-control lookfor <?=$center?>'
+           type='text'
+           name='lookfor0[]'
+           value=''
+           placeholder='<?=$this->translate('autocomplete-placeholder')?>'>
+    <input type='hidden' name='searchTypeTemplate' value='basic'>
+    <input type='hidden' name='database' value='<?=$database?>'>
+    <input type='hidden' name='type0[]' value='AllFields'>
+    <input type='hidden' name='join' value='AND'>
+    <input type='hidden' name='bool0[]' value='AND'>
+    <input type='hidden' name='page' value='1'>
+    <input type='hidden' name='keepEnabledFilters' value='true'>
+    <input class='form-control find-button' type='submit' value='<?=$this->translate('Find')?>'>
   </form>
 </body>

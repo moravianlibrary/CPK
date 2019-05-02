@@ -1,0 +1,18 @@
+<select id='<?= $this->name ?>' class="form-control selectpicker">
+  <? foreach ($this->widgets as $widget): ?>
+    <option value='<?= $widget->getName() ?>'<?= ($widget->getName() == $this->homePageWidgets[$this->name]
+        ? ' selected' : '') ?>>
+        <?= $this->translate($widget->getTitleCs()) ?>
+    </option>
+  <? endforeach; ?>
+  <option value='conspectus'<?= ($this->homePageWidgets[$this->name] == 'conspectus' ? ' selected' : '') ?>>
+      <?= $this->translate('Conspectus') ?>
+  </option>
+    <? if ($this->documentTypesWidgetList): ?>
+      <option value='Document_Types_Widget'<?= ($this->homePageWidgets[$this->name] == 'Document_Types_Widget'
+          ? 'selected' : '') ?>>
+        <?= $this->translate('Document_Types_Widget') ?>
+    </option>
+    <? endif; ?>
+</select>
+

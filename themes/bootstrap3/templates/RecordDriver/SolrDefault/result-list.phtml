@@ -168,7 +168,7 @@
             <? else: ?>
             <a href='/Record/<?=$firstRecordInInstitutions['id']?>?referer=<?=$this->referer?>' title='<?=htmlspecialchars($this->driver->getTitle())?>' tabindex='-1' style='cursor: pointer;'>
             <? endif;?>
-            	<div class="coverThumbnail cover_<?=$recordId?>">
+              <div class="coverThumbnail cover_<?=$recordId?>">
 
                     <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
                         <script type="text/javascript">
@@ -252,7 +252,7 @@
                  <?=$this->escapeHtml($authors['corporate'])?>
                </a>
           <? endif; ?>
-		<span class='summDate'>
+    <span class='summDate'>
           <? $journalTitle = $this->driver->getContainerTitle(); $summDate = $this->driver->getPublicationDates(); ?>
           <? if (!empty($journalTitle)): ?>
             <?=!empty($summAuthor) ? '<br />' : ''?>
@@ -262,7 +262,7 @@
             <?=!empty($summAuthor) || !empty($authors['corporate']) ? '<br>' : ''?>
             <?='' . $this->escapeHtml($summDate[0])?>
           <? endif; ?>
-		</span>
+    </span>
             <? if ($this->driver instanceof CPK\RecordDriver\SolrLibrary): ?>
 
                     <? $addresses = $this->driver->getLibraryAddress(); if (!empty($addresses)): ?>
@@ -272,7 +272,7 @@
                     <? endif; ?>
 
                 <? $bookSearch = $this->driver->getBookSearchFilter(); if (!empty($bookSearch)): ?>
-                    <? $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('local_institution_facet_str_mv:"'.$this->driver->getBookSearchFilter().'"')); ?>
+                    <? $filter = specialUrlEncode(\LZCompressor\LZString::compressToBase64('local_region_institution_facet_str_mv:"'.$this->driver->getBookSearchFilter().'"')); ?>
                     <a href='/Search/Results?lookFor0[]=&type0[]=AllFields&bool0[]=AND&join=AND&searchTypeTemplate=basic&page=1&keepEnabledFilters=true&limit=<?=$this->layout()->limit?>&sort=<?=$this->layout()->sort?>&filter=<?=$filter?>' title='<?=$this->translate('Search in library')?>' >
                         <?=$this->transEsc('Search in library')?>
                     </a>
@@ -339,11 +339,21 @@
         <? endif; ?>
       <? endif; ?>
 
-	  <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+      <? if ($monographicSeries = $this->driver->tryMethod('getMonographicSeries', [false])): ?>
+        <?= $this->translate('From monographic series') ?>:&nbsp;
+        <? foreach($monographicSeries as $serie): ?>
+          <a href='<?= $this->driver->getMonographicSeriesUrl($serie) ?>'
+             title='<?= $this->escapeHtml($this->driver->getMonographicSeriesTitle($serie)) ?>'>
+            <?= $this->escapeHtml($this->driver->getMonographicSeriesTitle($serie)) ?>
+          </a><br>
+        <? endforeach; ?>
+      <? endif; ?>
+
+    <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
         <? if ($this->driver->hasPublications() && $recordSource !== 'osobnosti'): ?>
-		  <div>
-			<a title="<?=$this->transEsc('Show publications of this person')?>" href="<?=$this->driver->getPublicationsUrl()?>"><?=$this->translate('Show publications of this person')?></a>
-		  </div>
+      <div>
+      <a title="<?=$this->transEsc('Show publications of this person')?>" href="<?=$this->driver->getPublicationsUrl()?>"><?=$this->translate('Show publications of this person')?></a>
+      </div>
         <? endif; ?>
       <? endif; ?>
 
@@ -365,12 +375,12 @@
 
       <?=$this->record($this->driver)->getPreviews()?>
 
-		<div class='row'>
-		  <div class='col-md-8'>
-			<div class="format-list pull-left inline-block">
-        	  <?=$this->record($this->driver)->getFormatList()?>
-      		</div>
-		  </div>
+    <div class='row'>
+      <div class='col-md-8'>
+      <div class="format-list pull-left inline-block">
+            <?=$this->record($this->driver)->getFormatList()?>
+          </div>
+      </div>
             <? if (!$this->librarySearch) : ?>
               <div class='col-md-4 search-results-favorite-button hidden pull-right'>
                 <? if ($this->userlist()->getMode() !== 'disabled'):
@@ -392,7 +402,7 @@
               <? endif; ?>
               </div>
             <? endif; ?>
-		</div>
+    </div>
 
     </div>
     <? if (!($this->driver instanceof CPK\RecordDriver\SolrLibrary)): ?>

@@ -60,15 +60,11 @@ class RecordController extends RecordControllerBase
      */
     protected $logStatistics = false;
 
-
-    protected $parentRecordDriver = null;
-
     protected function createViewModel($params = null)
     {
         $this->layout()->librarySearch = ($this->driver instanceof \CPK\RecordDriver\SolrLibrary);
         return parent::createViewModel($params);
     }
-
 
     /**
      * Display a particular tab.
@@ -257,6 +253,8 @@ class RecordController extends RecordControllerBase
 //        var_dump($this->getContent($ziskejLibs));
 //        var_dump($ziskejLibs);
 
+        $view->setVariable('isZiskej', $this->driver->getZiskejBoolean());
+        $view->setVariable('ziskejMinUrl', $config->Ziskej_minimal->url ?? '');
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
@@ -662,14 +660,7 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
 
     protected function getParentRecordDriver()
     {
-        if ($this->parentRecordDriver === null) {
-            $parentRecordID = $this->driver->getParentRecordID();
-            if ($this->recordLoader === null) {
-                $this->recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
-            }
-            $this->parentRecordDriver = $this->recordLoader->load($parentRecordID);
-        }
-        return $this->parentRecordDriver;
+        return $this->driver->getParentRecordDriver();
     }
 
     protected function getZiskej()

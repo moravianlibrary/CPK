@@ -92,6 +92,8 @@
             'record' => 'record',
             'Select widget' => 'Select widget',
             'Do you really want to delete this page?' => 'Do you really want to delete this page?',
+            'Do you really want to remove permissions to this user?' =>
+                'Do you really want to remove permissions to this user?'
           )
         );
         // Add libphonenumber.js strings
@@ -266,6 +268,9 @@
         $this->layout()->searchbox = $this->render('search/searchbox.phtml');
       }
     ?>
+    <? if($this->help()->showBrowserSuggest()): ?>
+      <?= $this->render('SuggestedBrowsers/suggested-browsers.phtml')?>
+    <? endif; ?>
     <header class="hidden-print header-container <?=($this->layout()->frontpage == true)?'frontpage':''?>">
 	    <? if (!$this->themeConfiguration()->themeConfig['hide_navbar']): ?>
 		    <div class="container navbar">
@@ -277,22 +282,18 @@
             <? if ($this->layout()->frontpage == true): ?>
                 <h1><?=$this->transEsc("frontpage-header-text")?></h1>
                 <? $docCount = $this->layout()->docCount; ?>
-                <? if (empty($docCount)): ?>
-                    <h4><?=$this->transEsc("frontpage-text")?></h4>
-                <? else: ?>
-                    <h4><?=$this->transEsc("frontpage-text", ['10 000 000' => $this->localizedNumber($docCount)])?></h4>
-                <? endif; ?>
+                <h4><?=$this->transEsc("frontpage-text")?></h4>
                 <div class="clearfix">
                     <div class='container'>
                         <?=$this->render('search/searchbox.phtml'); ?>
                         <?=$this->render('shib-assertion.phtml')?>
-                        <? if(!$this->themeConfiguration()->themeConfig['hide_inspirations']): ?>
+                        <? if(!$this->themeConfiguration()->themeConfig['hide_inspirations_arrow_link']): ?>
                             <a href="/Search/Inspiration" class="pull-left arrow-link">
                                 <i class="pr-interface-arrowleft"></i>
                                 <?=$this->transEsc("frontpage-left-arrow-link")?>
                             </a>
                         <? endif; ?>
-                        <? if(!$this->themeConfiguration()->themeConfig['hide_library_search']): ?>
+                        <? if(!$this->themeConfiguration()->themeConfig['hide_library_search_arrow_link']): ?>
                             <a href="/Search/Results/?lookfor0[]=&amp;type0[]=Libraries&amp;bool0[]=AND&amp;filter=&amp;daterange=&amp;publishDatefrom=&amp;publishDateto=&amp;limit=10&amp;sort=relevance&amp;page=1&amp;searchTypeTemplate=basic&amp;keepFacetsEnabled=true&amp;join=AND" class="pull-right arrow-link">
                                 <? $titleHtml = $this->transEsc("frontpage-right-arrow-link") ."<i class=\"pr-interface-arrowright\"></i>"; ?>
                                 <?= $this->help()->getElementHelp('element_help_frontpage_right_arrow', $titleHtml, "mzk") ?>
@@ -308,22 +309,73 @@
         </div>
     </header>
 
+    <? if (!$this->themeConfiguration()->themeConfig['hide_header_panel'] && $this->layout()->frontpage): ?>
+      <div class='header-panel container'>
+        <div class='row'>
+          <div class='col-md-3 text-center panel-col panel-title'>
+            <?=$this->transEsc('header_panel_first_column')?>
+          </div>
+          <div class='col-md-3 text-center panel-col'>
+            <div class='content row'>
+              <div class='icon col-md-2'>
+                <i class='icon-chci-to-knihovna'></i>
+              </div>
+              <div class='text col-md-10'>
+                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_second_column_link']?>'
+                   title='<?=$this->transEsc('header_panel_second_column')?>'
+                   class='panel-link'>
+                  <?=$this->transEsc('header_panel_second_column')?>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class='col-md-3 text-center panel-col'>
+            <div class='content'>
+              <div class='icon col-md-2'>
+                <i class='pr-misc-globe'></i>
+              </div>
+              <div class='text col-md-10'>
+                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_third_column_link']?>'
+                   title='<?=$this->transEsc('header_panel_third_column')?>'
+                   class='panel-link'>
+                  <?=$this->transEsc('header_panel_third_column')?>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class='col-md-3 text-center panel-col'>
+            <div class='content'>
+              <div class='icon col-md-2'>
+                <i class='fa fa-laptop'></i>
+              </div>
+              <div class='text col-md-10'>
+                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_fourth_column_link']?>'
+                   title='<?=$this->transEsc('header_panel_fourth_column')?>'
+                   class='panel-link'>
+                  <?=$this->transEsc('header_panel_fourth_column')?>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <? endif; ?>
+
     <div role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?>">
       <div class="container">
         <? if ($this->layout()->frontpage != true): ?>
-          <? if ($this->layout()->headerType != "libraries"): ?>
-            <div class="clearfix">
-              <div class='container'>
-                <?=$this->layout()->searchbox ?>
-                <?=$this->render('shib-assertion.phtml')?>
-              </div>
+          <div class="clearfix">
+            <div class='container'>
+              <?=$this->layout()->searchbox ?>
+              <?=$this->render('shib-assertion.phtml')?>
             </div>
-            <br/>
-          <? endif; ?>
+          </div>
+          <br/>
         <? endif; ?>
         <?=$this->layout()->content ?>
       </div>
     </div>
+
     <footer class="hidden-print header-container">
       <div class="container">
           <?=$this->render('footer.phtml', ['user' => $user])?>

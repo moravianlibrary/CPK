@@ -86,6 +86,7 @@ class AjaxController extends AbstractBase
             } catch (\Exception $e) {
                 $debugMsg = ('development' == APPLICATION_ENV)
                     ? ': ' . $e->getMessage() : '';
+                \Vufind\Sentry\Sentry::handleErrorException($e);
                 return $this->output(
                     $this->translate('An error has occurred') . $debugMsg,
                     self::STATUS_ERROR

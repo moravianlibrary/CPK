@@ -102,36 +102,9 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         return $this->createViewModel([
             'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
-            'ncipTemplate' => $configHandler->getNcipTemplate(),
-            'alephTemplate' => $configHandler->getAlephTemplate(),
-            'configs' => $configHandler->getAdminConfigs(),
-            'ncipTypes' => $configHandler->getNCIPTypes()
+            'ncipTypes' => $configHandler->getNCIPTypes(),
+            'configs' => $configHandler->getAdminConfigs()
         ], 'admin/configurations/main.phtml');
-    }
-
-    /**
-     * Action for approval of configuration change requests
-     *
-     * @return mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
-     */
-    public function configurationsApprovalAction()
-    {
-        if (! $this->accessManager->isLoggedIn())
-            return $this->forceLogin();
-
-            // Must be an portal admin ..
-        $this->accessManager->assertIsPortalAdmin();
-
-        $configHandler = new ConfigurationsHandler($this);
-
-        $configHandler->handlePostRequestFromApproval();
-
-        return $this->createViewModel([
-            'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
-            'ncipTemplate' => $configHandler->getNcipTemplate(),
-            'alephTemplate' => $configHandler->getAlephTemplate(),
-            'configs' => $configHandler->getAllRequestConfigsWithActive()
-        ], 'admin/configurations/approval.phtml');
     }
 
     public function portalPagesAction()
@@ -414,6 +387,10 @@ class AdminController extends \VuFind\Controller\AbstractBase
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
         $viewModel->setVariable('user', $user);
+
+        $config = $this->getConfig();
+        $viewModel->setVariable('documentTypesWidgetList', $config->Document_Types_Widget->list_item);
+        $viewModel->setVariable('documentTypesWidgetSorting', $config->Document_Types_Widget->list_sorting);
         $viewModel->setTemplate('admin/widgets/main');
 
         $frontendTable = $this->getTable('frontend');

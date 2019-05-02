@@ -1,8 +1,6 @@
 <?php
 
-
 namespace CPK\RecordTab;
-
 
 use VuFind\RecordTab\AbstractBase;
 
@@ -25,8 +23,18 @@ class Ziskej extends AbstractBase
         $this->enabled = $enabled;
     }
 
+    /**
+     * Is this tab active?
+     *
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->enabled;
+    }
+
     public function getDescription()
     {
-        return 'ZISKEJ';
+        return 'Ziskej';
     }
 }

@@ -26,11 +26,12 @@
     <?=$this->flashmessages();?>
     <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
         $source = explode('.', $libraryIdentity->profile['cat_username'])[0];?>
-    <div class="well blickable" id="<?=$source?>">
-    <h3>
+    <div id="<?=$source?>">
+    <h3 class="well row blickable mb-1">
     <?=$this->transEsc("source_$source", null, $source) ?>
     <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
     </h3>
+    <div class="row well">
     <? if ($isSynchronous): ?>
 
     <table class="table">
@@ -112,6 +113,7 @@
         </tbody>
       </table>
     <? endif; ?>
+    </div>
     </div>
   <? endforeach; ?>
 

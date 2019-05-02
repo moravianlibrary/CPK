@@ -1252,6 +1252,8 @@ class AjaxController extends AjaxControllerBase
             $data['consideration'] = 'There is a chance you have missing configuration file called "' . §source . '.ini"';
         }
 
+        \Vufind\Sentry\Sentry::handleErrorException($e);
+
         return $this->output($data, self::STATUS_ERROR);
     }
 

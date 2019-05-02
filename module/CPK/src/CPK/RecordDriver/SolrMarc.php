@@ -49,6 +49,25 @@ class SolrMarc extends ParentSolrMarc
         return $this->ilsConfig;
     }
 
+    protected $recordLoader;
+
+    /**
+     * Constructor
+     *
+     * @param \Zend\Config\Config $mainConfig     VuFind main configuration (omit for
+     * built-in defaults)
+     * @param \Zend\Config\Config $recordConfig   Record-specific configuration file
+     * (omit to use $mainConfig as $recordConfig)
+     * @param \Zend\Config\Config $searchSettings Search-specific configuration file
+     * @param \VuFind\RecordLoader
+     */
+    public function __construct($mainConfig = null, $recordConfig = null,
+        $searchSettings = null, $recordLoader
+    ) {
+        parent::__construct($mainConfig, $recordConfig, $searchSettings);
+        $this->recordLoader = $recordLoader;
+    }
+
     /**
      * Get an annotation
      *
@@ -130,11 +149,11 @@ class SolrMarc extends ParentSolrMarc
 
     public function get866()
     {
-    	$field866 = $this->getFieldArray('866', array('s', 'x'));
-    	return $field866;
+        $field866 = $this->getFieldArray('866', array('s', 'x'));
+        return $field866;
     }
 
-	/**
+    /**
     * uses setting from config.ini => External links
     * @return array  [] => [
     *          [institution] = institution,
@@ -148,7 +167,7 @@ class SolrMarc extends ParentSolrMarc
         list($ins, $id) = explode('.' , $this->getUniqueID());
         //FIXME temporary
         if (substr($ins, 0, 4) === "vnf_") $ins = substr($ins, 4);
-	$linkBase = $this->recordConfig->ExternalLinks->$ins;
+    $linkBase = $this->recordConfig->ExternalLinks->$ins;
 
         if (empty($linkBase)) {
             return array(
@@ -187,27 +206,27 @@ class SolrMarc extends ParentSolrMarc
      * @return boolean|array
      */
     public function get7xxField($field, array $subfields = null) {
-    	$array = [];
-    	$notFalseSubfields = 0;
-    	foreach ($subfields as $subfield) {
-    		$result = $this->getFieldArray($field, array($subfield));
-    		if (count($result))
-    			++$notFalseSubfields;
+        $array = [];
+        $notFalseSubfields = 0;
+        foreach ($subfields as $subfield) {
+            $result = $this->getFieldArray($field, array($subfield));
+            if (count($result))
+                ++$notFalseSubfields;
 
-    		$array[$subfield] = $result;
-    	}
+            $array[$subfield] = $result;
+        }
 
-    	if ($notFalseSubfields === 0)
-    		return false;
+        if ($notFalseSubfields === 0)
+            return false;
 
-    	$resultArray = [];
-    	foreach ($array as $subfieldKey => $subfieldValue) {
-    		foreach ($subfieldValue as $intKey => $value) {
-    			$resultArray[$intKey][$subfieldKey] = $value;
-    		}
-    	}
+        $resultArray = [];
+        foreach ($array as $subfieldKey => $subfieldValue) {
+            foreach ($subfieldValue as $intKey => $value) {
+                $resultArray[$intKey][$subfieldKey] = $value;
+            }
+        }
 
-    	return $resultArray;
+        return $resultArray;
     }
 
     public function getF773_display()
@@ -268,12 +287,12 @@ class SolrMarc extends ParentSolrMarc
         return $this->parseHoldingsFrom996field($filters);
     }
 
-	public function getHoldingFilters()
+    public function getHoldingFilters()
     {
         return array();
     }
 
-	public function getAvailableHoldingFilters()
+    public function getAvailableHoldingFilters()
     {
         return array();
     }
@@ -587,7 +606,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function get866Data()
     {
-    	return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : [];
+        return isset($this->fields['sfx_links']) ? $this->fields['sfx_links'] : [];
     }
 
     /**
@@ -597,7 +616,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getRange()
     {
-    	return $this->getFieldArray('300');
+        return $this->getFieldArray('300');
     }
 
     /**
@@ -607,7 +626,7 @@ class SolrMarc extends ParentSolrMarc
      */
     public function getRelease()
     {
-    	return $this->getFieldArray('250');
+        return $this->getFieldArray('250');
     }
 
     /**
@@ -623,7 +642,7 @@ class SolrMarc extends ParentSolrMarc
         return false;
     }
 
-	public function getBibinfoForObalkyKnih()
+    public function getBibinfoForObalkyKnih()
     {
         $bibinfo = array(
             "authors" => array($this->getPrimaryAuthor()),
@@ -831,12 +850,12 @@ class SolrMarc extends ParentSolrMarc
         return false;
     }
 
-	public function getEAN()
+    public function getEAN()
     {
         return (!empty($this->fields['ean_isn_mv']) ? $this->fields['ean_isn_mv'][0] : null);
     }
 
-	protected function getCNB()
+    protected function getCNB()
     {
         return isset($this->fields['nbn']) ? $this->fields['nbn'] : null;
     }
@@ -872,7 +891,7 @@ class SolrMarc extends ParentSolrMarc
         return isset($this->fields['author_authority_id_display']) ? $this->fields['author_authority_id_display'] : false;
     }
 
-	public function getAvailabilityID() {
+    public function getAvailabilityID() {
         if (isset($this->fields['availability_id_str'])) {
             return $this->fields['availability_id_str'];
         } else {
@@ -1008,4 +1027,30 @@ class SolrMarc extends ParentSolrMarc
         return isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : [];
     }
 
+    public function getMonographicSeries($searchAlsoInParentRecord = true)
+    {
+        $series = $this->fields['monographic_series_display_mv'] ?: false;
+        if (! $series && $searchAlsoInParentRecord) {
+            $series = $this->getParentRecordDriver()->getMonographicSeries(false);
+        }
+        return $series;
+    }
+
+    public function getMonographicSeriesUrl(string $serie)
+    {
+        $mainSerie = explode("|", $serie)[0];
+        return '/Search/Results?lookfor0[]=' . urlencode($mainSerie)
+            . '&amp;type0[]=adv_search_monographic_series&amp;join=AND&amp;searchTypeTemplate=advanced&amp;page=1&amp;bool0[]=AND';
+    }
+
+    public function getMonographicSeriesTitle(string $serie)
+    {
+        return implode(" | ", explode("|", $serie));
+    }
+
+    public function getZiskejBoolean() : bool
+    {
+
+        return $this->fields['ziskej_boolean'] ?? false;
+    }
 }

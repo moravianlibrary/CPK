@@ -1,21 +1,18 @@
-<?php
-$id = $this->driver->getUniqueID();
-?>
 <div class="row">
-  <h2><?= $this->translate('ziskej_popis_header') ?></h2>
-  <p><?= $this->translate('ziskej_popis') ?></p>
+  <h2><?= $this->translate('ziskej_desc_header') ?></h2>
+  <p><?= $this->translate('ziskej_desc') ?></p>
 </div>
 <div class="row">
-  <? if ($this->isLoggedIn): ?>
-    <div class="col-md-6">
-
-    </div>
-    <div class="col-md-6">
-    </div>
-  <? else: ?>
-    <div class="col-md-6">
-    </div>
-    <div class="col-md-6">
-    </div>
-  <? endif; ?>
+  <div class="col-md-6">
+    <h4><?= $this->translate('ziskej_available_header') ?></h4>
+    <ul>
+      <li><?= $this->translate('ziskej_national_lib') ?></li>
+      <li><?= $this->translate('ziskej_national_medical_lib') ?></li>
+      <li><?= $this->translate('ziskej_moravian_lib') ?></li>
+      <li><?= $this->translate('ziskej_ceska_trebova_lib') ?></li>
+    </ul>
+  </div>
+  <div class="col-md-6 text-center" id="ziskejMinimalButton">
+    <a href="<?= $this->ziskejMinUrl ?>" class="btn"><img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>"></a>
+  </div>
 </div>

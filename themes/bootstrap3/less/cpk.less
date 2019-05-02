@@ -54,6 +54,8 @@
 @import "parts/errors";
 //contain styling for widgets
 @import "parts/components/widgets";
+//contain styling for suggested browsers block
+@import "parts/suggested-browsers";
 
 body {
   font-weight: 300;
@@ -65,6 +67,41 @@ body {
 
 a.list-group-item .list-group-item-heading, .infobox .list-group-item .list-group-item-heading {
   color: @primary;
+}
+
+.widget .content {
+  padding-top: 10px;
+}
+
+.widget h2 {
+    font-size: 180%;
+    font-weight: 600;
+}
+
+.widget .more-info {
+  color: @primary;
+  font-size: 120%;
+}
+
+.widget .header {
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.document-type-widget {
+  .iconlabel {
+    padding-top: 6px;
+  }
+
+  .widget-icon {
+    font-size: 4.5rem;
+    color: @grey-color;
+    padding-left: 10px;
+  }
+
+  .content {
+    padding-left: 20px;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +159,13 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
 }
 .link:hover {
     text-decoration: underline !important;
+}
+
+.link-inverse {
+  color: @dark-grey !important;
+}
+.link-inverse:hover {
+  color: @brand-primary !important;
 }
 
 .col-sm-3 .list-group-item {
@@ -280,6 +324,9 @@ code {
 }
 
 /* Bootstrap 4 Spacing */
+.mb-1 {
+  margin-bottom: 3px !important;
+}
 .mb-2 {
   margin-bottom: 1.5rem;
 }
@@ -344,4 +391,8 @@ h1, .h1 {
   .modal {
     z-index: 1234;
   }
+}
+
+.cursor-help {
+  cursor: help;
 }
