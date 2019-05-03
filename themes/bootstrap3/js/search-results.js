@@ -783,7 +783,7 @@ jQuery( document ).ready( function( $ ) {
             // Update Shibboleth's targets in Login IDP links like Angular's Federative Login controller does
             let newTarget = location.pathname + location.search;
 
-            $( '#loginModal .last-idps a, #loginModal .idp-record a' ).each(function( index, element ) {
+            $( '#loginModal .last-idps a, #loginModal .idp-record a, #ziskejTabLoginModal .idp-record a' ).each(function( index, element ) {
                 $( element ).attr( 'href', ADVSEARCH.shibbolethizedUrl($(element).attr('href')) );
             });
 

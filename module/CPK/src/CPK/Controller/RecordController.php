@@ -28,12 +28,14 @@
 namespace CPK\Controller;
 
 use CPK\ILS\Driver\Ziskej;
+use http\Env\Response;
 use VuFind\Controller\RecordController as RecordControllerBase,
     VuFind\Controller\HoldsTrait as HoldsTraitBase,
     Zend\Mail\Address,
     CPK\RecordDriver\SolrAuthority,
     VuFind\Exception\RecordMissing as RecordMissingException;
 use Zend\Http\PhpEnvironment\Request;
+use Zend\Json\Json;
 
 /**
  * Redirects the user to the appropriate default VuFind action.
@@ -249,9 +251,17 @@ class RecordController extends RecordControllerBase
             $view->entityId = $request->getServer('Shib-Identity-Provider');
         }
         $ziskej = $this->getZiskej();
-        $ziskejLibs = $ziskej->getLibraries();
-//        var_dump($this->getContent($ziskejLibs));
-//        var_dump($ziskejLibs);
+        $ilsDriver    = $this->getILS()->getDriver();
+        try {
+            $ziskejLibs = $this->getContent($ziskej->getLibraries());
+            $view->setVariable('ziskejLibs', $ziskejLibs['items']);
+            foreach ($ziskejLibs['items'] as $sigla) {
+                $libraryIds[] =  $ilsDriver->siglaToSource($sigla);
+            }
+            $this->layout()->ziskejLibIds = $libraryIds;
+        } catch (\Exception $e) {
+
+        }
 
         $view->setVariable('isZiskej', $this->driver->getZiskejBoolean());
         $view->setVariable('ziskejMinUrl', $config->Ziskej_minimal->url ?? '');
@@ -259,6 +269,16 @@ class RecordController extends RecordControllerBase
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
         return $view;
+    }
+
+    public function getContent(\Zend\Http\Response $response)
+    {
+        $responseContent = [];
+        if ( ! empty($response)) {
+            $responseContent = Json::decode($response->getContent(), true);
+        }
+
+        return $responseContent;
     }
 
     protected function base64url_decode($data) {
