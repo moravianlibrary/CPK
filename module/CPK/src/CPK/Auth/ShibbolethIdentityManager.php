@@ -214,6 +214,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
         $entityId = $this->fetchCurrentEntityId();
         $config = null;
+        $prefix = null;
 
         $loggedWithKnownLibraryEntityId = false;
         foreach ($this->shibbolethConfig as $name => $configuration) {
@@ -221,7 +222,7 @@ class ShibbolethIdentityManager extends Shibboleth
                 $config = $configuration;
                 $prefix = $name;
 
-                $loggedWithKnownLibraryEntityId = ! empty($config['cat_username']);
+                $loggedWithKnownLibraryEntityId = !empty($config['cat_username']);
 
                 $homeLibrary = $loggedWithKnownLibraryEntityId ? $prefix : 'Dummy';
                 break;
@@ -234,11 +235,19 @@ class ShibbolethIdentityManager extends Shibboleth
             } else
                 throw new AuthException('Recieved entityId was not found in ' . static::CONFIG_FILE_NAME . '.ini config nor default config part exists.');
         }
+        $eppn = $this->getEduPersonPrincipalName($prefix, $entityId);
         $attributes = $this->fetchAttributes($config);
 
+        if (!isset($attributes['cat_username']) && isset($config['ils_lookup']) && $config['ils_lookup']) {
+            $userInfo = [
+                'source'   => $prefix,
+                'username' => $this->unscope($eppn)
+            ];
+            $driver = $this->serviceLocator->get('VuFind\ILSConnection')->getDriver();
+            $attributes['cat_username'] = $driver->getUserLibraryIdentifier($userInfo);
+            $homeLibrary = $prefix;
+        }
         $homeLibrary = isset($attributes['cat_username']) ? $homeLibrary : 'Dummy';
-
-        $eppn = $this->getEduPersonPrincipalName($homeLibrary, $entityId);
 
         // Store eppn in session for required logging-off logic
         $this->session->eppnLoggedInWith = $eppn;
@@ -762,12 +771,13 @@ class ShibbolethIdentityManager extends Shibboleth
      *
      * Throws an exception if not provided by the IdP & sends an email to appropriate technical contact
      *
-     * @param string $homeLibrary
+     * @param string $source
      * @param string $entityId
+     *
      * @throws AuthException
      * @return string $eppn
      */
-    protected function getEduPersonPrincipalName($homeLibrary, $entityId)
+    protected function getEduPersonPrincipalName($source, $entityId)
     {
         if (isset($_SERVER['Meta-technicalContact']))
             $technicalContacts = $_SERVER['Meta-technicalContact'];
@@ -778,7 +788,7 @@ class ShibbolethIdentityManager extends Shibboleth
 
         if ($eppnExists) {
 
-            $this->clearNoEppnEmailAttempts($technicalContacts, $homeLibrary);
+            $this->clearNoEppnEmailAttempts($technicalContacts, $source);
 
             return explode(";", $_SERVER['eduPersonPrincipalName'])[0];
         } else {
@@ -796,9 +806,9 @@ class ShibbolethIdentityManager extends Shibboleth
 
             $renderer = $this->serviceLocator->get('ViewRenderer');
 
-            $mailer->sendEppnMissing($technicalContacts, $homeLibrary, $renderer, $templateVars);
+            $mailer->sendEppnMissing($technicalContacts, $source, $renderer, $templateVars);
 
-            throw new AuthException('IdP "' . $homeLibrary . '" didn\'t provide eduPersonPrincipalName attribute.');
+            throw new AuthException('IdP "' . $source . '" didn\'t provide eduPersonPrincipalName attribute.');
         }
     }
 
@@ -975,6 +985,11 @@ class ShibbolethIdentityManager extends Shibboleth
         $userRow->save();
 
         return $userRow;
+    }
+
+    protected function unscope($value)
+    {
+        return substr($value, 0, strrpos($value, "@"));
     }
 
 }

@@ -584,7 +584,7 @@ class AlephWebServices {
                 'Call to doXRequest without X-Server configuration in Aleph.ini'
             );
         }
-        $url = "http://$this->host/X?op=$op";
+        $url = "$this->host/X?op=$op";
         $url = $this->appendQueryString($url, $params);
         if ($auth) {
             $url = $this->appendQueryString(
@@ -609,7 +609,7 @@ class AlephWebServices {
 
     public function doXRequestUsingPost($op, $params, $auth=true)
     {
-        $url = "http://$this->host/X?";
+        $url = "$this->host/X?";
         $body = '';
         $sep = '';
         $params['op'] = $op;

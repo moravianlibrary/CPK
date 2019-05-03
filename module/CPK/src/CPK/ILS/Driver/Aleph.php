@@ -1251,4 +1251,18 @@ class Aleph extends AlephBase implements CPKDriverInterface
         return $retVal;
     }
 
+    public function getUserLibraryIdentifier($userInfo)
+    {
+        $params = [
+            'bor_id'  => $userInfo['username'],
+            'library' => $this->admlib
+        ];
+        $xml = $this->alephWebService->doXRequest('bor_by_key', $params, true);
+        if ($xml == NULL) {
+            return NULL;
+        }
+        $result = $xml->xpath('//internal-id');
+        return ($result != NULL) ? (string) $result[0] : NULL;
+    }
+
 }

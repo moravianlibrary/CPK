@@ -770,4 +770,15 @@ class MultiBackend extends MultiBackendBase
         }
         throw new ILSException('No suitable backend driver found');
     }
+
+    public function getUserLibraryIdentifier($userInfo)
+    {
+        $source = $userInfo['source'];
+        $driver = $this->getDriver($source);
+        if (!($driver && $this->methodSupported($driver, 'getUserLibraryIdentifier'))) {
+            throw new ILSException('getUserLibraryIdentifier not supported for source ' . $source);
+        }
+        return $driver->getUserLibraryIdentifier($userInfo);
+    }
+
 }
