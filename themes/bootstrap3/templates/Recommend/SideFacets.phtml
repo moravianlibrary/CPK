@@ -38,8 +38,10 @@ $removeFilterUrl = '/Search/Results?' . http_build_query($queryParams);
 ?>
 
 <? if ($results->getResultTotal() > 0): ?>
-    <h3 class='side-facets-header facets-questionmark-help'>
-      <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
+    <div class='side-facets-header facets-questionmark-help'>
+      <h3>
+        <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
+      </h3>
       <? if($this->librarySearch): ?>
         <?= $this->help()->getQuestionMarkHelp('adr-facets') ?>
       <? elseif($filterClass): ?>
@@ -47,7 +49,7 @@ $removeFilterUrl = '/Search/Results?' . http_build_query($queryParams);
       <? else: ?>
           <?= $this->help()->getQuestionMarkHelp('facets') ?>
       <? endif; ?>
-    </h3>
+    </div>
 <? endif; ?>
 
 <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>

@@ -1,22 +1,24 @@
 <span class='questionmark-help' data-target='#modal_<?=$this->pageName?>' data-toggle='modal'>
   <span class='icon'>?</span>
   <!-- Modal -->
-  <div class='modal fade'
-       id='modal_<?=$this->pageName?>'
-       tabindex='-1'
-       role='dialog'
-       aria-labelledby='label_<?=$this->pageName?>'>
-    <div class='modal-dialog' role='document'>
-      <div class='modal-content'>
-        <div class='modal-body'>
-          <?=$this->portalPage['content']?>
-        </div>
-        <div class='modal-footer'>
-          <button type='button' class='btn btn-default' data-dismiss='modal'>
-            <?=$this->translate('Close')?>
-          </button>
-        </div>
+</span>
+ <!-- Modal -->
+<div class='modal fade'
+     id='modal_<?=$this->pageName?>'
+     tabindex='-1'
+     role='dialog'
+     aria-labelledby='label_<?=$this->pageName?>'>
+  <div class='modal-dialog' role='document'>
+    <div class='modal-content'>
+      <div class='modal-body'>
+        <?=$this->portalPage['content']?>
+      </div>
+      <div class='modal-footer'>
+        <button type='button' class='btn btn-default' data-dismiss='modal'>
+          <?=$this->translate('Close')?>
+        </button>
       </div>
     </div>
   </div>
-</span>
+</div>
+
