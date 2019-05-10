@@ -624,12 +624,12 @@ class User extends BaseUser
         }
 
         $realCards = $this->parseRealCards($libCards);
-        foreach ($realCards as $realCard) {
-            // Allow connecting two different accounts from one institution only if those have identical cat_username
-            if ($realCard->home_library === $new_home_library &&
-                 $realCard->cat_username !== $new_cat_username) {
-                throw new AuthException(
-                    'Cannot upgrade library card from Dummy while you have active non-dummy card from the same institution');
+        if ($realCards) {
+            foreach ($realCards as $realCard) {
+                // Allow connecting two different accounts from one institution only if those have identical cat_username
+                if ($realCard->home_library === $new_home_library && $realCard->cat_username !== $new_cat_username) {
+                    throw new AuthException('Cannot upgrade library card from Dummy while you have active non-dummy card from the same institution');
+                }
             }
         }
 
