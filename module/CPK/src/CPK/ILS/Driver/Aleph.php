@@ -238,24 +238,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
 
     public function getMyProfile($user)
     {
-        try {
-            if ($this->alephWebService->isXServerEnabled()) {
-                $profile = $this->getMyProfileX($user);
-            } else {
-                $profile = $this->getMyProfileDLF($user);
-            }
-        } catch (\Exception $e) {
-
-            $msg = $e->getMessage();
-
-            /*
-             * TODO: Probably expired account ?
-             * message: XServer error: Error retrieving Patron System Key.
-             * or 2nd : ID čtenáře není platné
-             * or 3rd : The patron ID is invalid
-             */
-            throw $e;
-        }
+        $profile = $this->getMyProfileDLF($user);
 
         $blocks = [];
         $translatedBlock = '';
