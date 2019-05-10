@@ -25,6 +25,7 @@
 
 namespace CPK\ILS\Driver;
 
+use mysql_xdevapi\CrudOperationBindable;
 use VuFindHttp\{HttpService, HttpServiceAwareInterface};
 use Zend\Http\Response;
 use Zend\Json\Json;
@@ -161,18 +162,21 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param       $documentId
      * @param array $docAltIds
      *
+     * @param null $dateRequested
+     * @param null $readerNote
      * @return array|mixed
      * @throws \Exception
      */
-    public function createTicket($eppn, $documentId, array $docAltIds)
+    public function createTicket($eppn, $documentId, array $docAltIds, $dateRequested = null, $readerNote = null)
     {
         $params = [
             'eppn'           => $eppn,
             'ticket_type'    => 'mvs',
             'doc_id'         => $documentId,
             'doc_alt_ids'    => $docAltIds,
-            'date_requested' => date('Y-m-d'),
         ];
+        if (isset($date)) $params[] = ['date_requested' => $dateRequested];
+        if (isset($reader_note)) $params[] = ['reader_note' => $readerNote];
         $token  = $this->getLoginToken();
         $client = $this->getClient('tickets', 'POST');
         $client->setRawBody(Json::encode($params));

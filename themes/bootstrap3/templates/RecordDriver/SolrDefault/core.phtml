@@ -54,8 +54,7 @@
               <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
               <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($id) ?>">
               <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
-              <? $records = $this->tabs['DedupedRecords']->getRecordsInGroup();
-              foreach ($records as $record): ?>
+              <? foreach ($this->records as $record): ?>
                 <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
               <? endforeach; ?>
               <div class="row">
@@ -577,10 +576,11 @@
             <button type="button" class="close" data-dismiss="modal" >&times;</button>
             <h2><?= $this->translate('Potvrzeni objednavky') ?></h2>
           </div>
-          <div class="modal-body" >
-             <?= $this->render('ziskej/mvs-modal.phtml', ['driver' => $this->driver, 'user' => $this->user]) ?>
+          <div class="modal-body">
+              <?= $this->render('ziskej/mvs-modal.phtml',
+                  ['driver' => $this->driver, 'user' => $this->user, 'ziskejVars' => $this->ziskejVars]) ?>
           </div>
-          <div class="modal-footer" >
+          <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">
                 <?= $this->translate('Close') ?>
             </button>

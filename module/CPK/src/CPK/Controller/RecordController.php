@@ -28,11 +28,8 @@
 namespace CPK\Controller;
 
 use CPK\ILS\Driver\Ziskej;
-use http\Env\Response;
 use VuFind\Controller\RecordController as RecordControllerBase,
     VuFind\Controller\HoldsTrait as HoldsTraitBase,
-    Zend\Mail\Address,
-    CPK\RecordDriver\SolrAuthority,
     VuFind\Exception\RecordMissing as RecordMissingException;
 use Zend\Http\PhpEnvironment\Request;
 use Zend\Json\Json;
@@ -100,6 +97,7 @@ class RecordController extends RecordControllerBase
         $view->tabs = $this->getAllTabs();
         $view->activeTab = strtolower($tab);
         $view->defaultTab = strtolower($this->getDefaultTab());
+        $view->records = $view->tabs['DedupedRecords']->getRecordsInGroup();
 
         // Set up next/previous record links (if appropriate)
         if ($this->resultScrollerActive()) {
@@ -262,13 +260,37 @@ class RecordController extends RecordControllerBase
         } catch (\Exception $e) {
 
         }
-
+        $view->setVariable('ziskejVars', [
+            'records' => $view->records,
+            'serverName' => $view->serverName,
+            'entityId' => $view->entityId ?? '',
+            'eppn' => $view->eppn ?? '',
+        ]);
         $view->setVariable('isZiskej', $this->driver->getZiskejBoolean());
         $view->setVariable('ziskejMinUrl', $config->Ziskej_minimal->url ?? '');
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
         return $view;
+    }
+
+    public function mvsFormAction()
+    {
+        $params = $this->params()->fromPost();
+        /* @var $ziskej Ziskej */
+        $ziskej = $this->getZiskej();
+        try {
+            $resp = $ziskej->createTicket($params['user_id'], $params['doc_id'], $params['doc_alt_ids'], $params['date'], $params['text']);
+            if ($resp->getStatusCode == 201) {
+                $this->flashMessenger()->addMessage('Objednani bylo uspesne', 'success');
+            } else {
+                $this->flashMessenger()->addMessage('Oops! Stala se nejaka chyba', 'error');
+            }
+        } catch (\Exception $e) {
+            $this->flashMessenger()->addMessage('Oops! Stala se nejaka chyba', 'error');
+        }
+
+        return $this->redirectToRecord();
     }
 
     public function getContent(\Zend\Http\Response $response)
@@ -688,8 +710,6 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
         $cookie           = $this->getRequest()->getCookie()->ziskej;
         $url              = $this->getConfig()->Ziskej->$cookie;
         $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-//        d($url);
-//        dd($sensZiskejConfig);
 
         /* @var $ziskej Ziskej */
         $ziskej = Ziskej::getZiskej();

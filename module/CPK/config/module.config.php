@@ -280,7 +280,7 @@ foreach ($staticRoutes as $route) {
     );
 }
 
-$nonTabRecordActions = array('ShortLoan');
+$nonTabRecordActions = array('ShortLoan', 'mvsForm');
 
 foreach ($nonTabRecordActions as $action) {
     $config['router']['routes']['record' . '-' . strtolower($action)] = array(
