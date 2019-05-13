@@ -8,7 +8,7 @@
 <? foreach ($this->results->getResults() as $j => $current):
   $_ENV['currentRecordNo'] = $j;
   $recordNumber = $this->results->getStartRecord()+$i-$this->indexStart; ?>
-  <div id="result<?=$i++ ?>" class="row result clearfix">
+  <div id="<?= $current->getUniqueID() ?>" class="row result clearfix">
     <?=$this->record($current)->getSearchResult('list')?>
   </div>
 <? endforeach; ?>
