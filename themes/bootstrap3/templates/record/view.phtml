@@ -57,7 +57,7 @@
 <? endif; ?>
 
 <? if (!empty($this->refererUrl)): ?>
-    <a id="back-to-search-link-ID" class='back-to-search-link' href="<?= $this->refererUrl ?>" title='<?= $this->translate('Back to search results') ?>'>
+    <a id="back-to-search-link-ID" class='back-to-search-link' href="<?= $this->refererUrl ?>#<?= $id ?>" title='<?= $this->translate('Back to search results') ?>'>
       <i class="pr-interface-arrowleft"> </i> <?=$this->translate('Back to search results')?>
     </a>
 <? endif; ?>
