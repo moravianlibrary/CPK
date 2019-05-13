@@ -245,8 +245,7 @@
             </div>
            	<? endif; ?>
                 <div class="tab-content well border" id="record-tabs">
-                  <? if($this->activeTab == 'ziskej' && !$this->isZiskej): ?>
-                  <? else: ?>
+                  <? if($this->activeTab != 'ziskej' || $this->isZiskej): ?>
                     <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
                       <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
                     </div>
