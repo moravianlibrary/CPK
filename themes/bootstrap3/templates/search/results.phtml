@@ -97,17 +97,16 @@
           echo $jsonVarName."['$paramName{$index}'] = [];";
       }
       $fullParamName = $paramName.$index;
-      $escapeVal = function($val) { return str_replace("'", "\'", $val); };
       if (isset($_GET[$fullParamName])) {
           $paramValues = $_GET[$fullParamName];
           if (is_array($paramValues)) {
               foreach ($paramValues as $value) {
-                  $val = $escapeVal($value);
-                  echo "{$jsonVarName}['{$paramName}{$index}'].push('{$val}');\n";
+                  $val = json_encode($value);
+                  echo "{$jsonVarName}['{$paramName}{$index}'].push($val);\n";
               }
           } else {
-              $val = $escapeVal($paramValues);
-              echo "{$jsonVarName}['{$paramName}{$index}'].push('{$val}');\n";
+              $val = json_encode($paramValues);
+              echo "{$jsonVarName}['{$paramName}{$index}'].push($val);\n";
           }
       }
       $index++;
