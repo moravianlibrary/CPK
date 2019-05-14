@@ -244,11 +244,12 @@
               </div>
             </div>
            	<? endif; ?>
-
                 <div class="tab-content well border" id="record-tabs">
-                  <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
-                    <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
-                  </div>
+                  <? if($this->activeTab != 'ziskej' || $this->isZiskej): ?>
+                    <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
+                      <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
+                    </div>
+                  <? endif; ?>
                 </div>
 
                 <?=$this->driver->supportsCoinsOpenURL()?'<span class="Z3988" title="'.$this->escapeHtmlAttr($this->driver->getCoinsOpenURL()).'"></span>':''?>
@@ -390,8 +391,6 @@
 
                 <? if(!$this->isZiskej): ?>
                     disableTab($( '#ziskej' ));
-                    var elem = document.querySelector('#ziskej-tab');
-                    elem.parentNode.removeChild(elem);
                 <? endif; ?>
 
                 var recordID = '<?= $this->driver->getUniqueID() ?>';
