@@ -3,35 +3,38 @@ $id = $this->driver->getUniqueID();
 ?>
 <div class='clearfix'>
   <div class="col-md-8 record-mvs-description">
-    <div class="row">
-      <h3>Informace o uzivateli</h3>
-      <p>Jmeno a prijmeni: <?= $this->user['firstname'] ?> <?= $this->user['lastname'] ?></p>
-    </div>
+
   </div>
   <div class="col-md-4">
-    <form class="form" action="/Record/<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>/mvsForm" method="post">
-      <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->ziskejVars['serverName']) ?>">
-      <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr($this->ziskejVars['eppn']) ?>">
-      <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($id) ?>">
-      <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr($this->ziskejVars['entityId']) ?>">
-        <? foreach ($this->ziskejVars['records'] as $record): ?>
-          <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
-        <? endforeach; ?>
-      <fieldset class="form-group">
-        <label for="">Date requested</label>
-        <input type="date" class="form-control" name="date" id="" required>
-      </fieldset>
-      <fieldset class="form-group">
-        <label for=""><?= $this->translate('Describe problem') ?></label>
-        <textarea id="" name='text' class='form-control' required></textarea>
-      </fieldset>
-      <fieldset class="form-group">
-        <input id="submit"
-               type='submit'
-               name="submit"
-               class='btn btn-primary'
-               value='<?= $this->translate('Submit') ?>'>
-      </fieldset>
-    </form>
+    <div class="row">
+      <h3>Informace o uzivateli</h3>
+      <p><strong>Jmeno a prijmeni:</strong> <?= $this->escapeHtml($this->user['firstname']) ?> <?= $this->escapeHtml($this->user['lastname']) ?></p>
+    </div>
+    <div class="row">
+      <form class="form" action="/Record/<?=$this->escapeHtmlAttr($this->driver->getUniqueId())?>/mvsForm" method="post">
+        <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->ziskejVars['serverName']) ?>">
+        <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr($this->ziskejVars['eppn']) ?>">
+        <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($id) ?>">
+        <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr($this->ziskejVars['entityId']) ?>">
+          <? foreach ($this->ziskejVars['records'] as $record): ?>
+            <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
+          <? endforeach; ?>
+        <fieldset class="form-group">
+          <label for="">Date requested</label>
+          <input type="date" class="form-control" name="date" id="" required>
+        </fieldset>
+        <fieldset class="form-group">
+          <label for=""><?= $this->translate('Describe problem') ?></label>
+          <textarea id="" name='text' class='form-control' required></textarea>
+        </fieldset>
+        <fieldset class="form-group">
+          <input id="submit"
+                 type='submit'
+                 name="submit"
+                 class='btn btn-primary'
+                 value='<?= $this->translate('Submit') ?>'>
+        </fieldset>
+      </form>
+    </div>
   </div>
 </div>

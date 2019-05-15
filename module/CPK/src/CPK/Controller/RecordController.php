@@ -253,13 +253,29 @@ class RecordController extends RecordControllerBase
         try {
             $ziskejLibs = $this->getContent($ziskej->getLibraries());
             $view->setVariable('ziskejLibs', $ziskejLibs['items']);
+            $libraryIds = [];
             foreach ($ziskejLibs['items'] as $sigla) {
                 $libraryIds[] =  $ilsDriver->siglaToSource($sigla);
+            }
+            if ($user) {
+                $userSources = $user->getNonDummyInstitutions();
+                $userLibCards= $user->getAllUserLibraryCards();
+                $connectedLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
+                    return in_array($userLib, $libraryIds);
+                });
+                $sourceEppn = [];
+                foreach ($userLibCards as $userLibCard) {
+                    $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
+                }
+
+                $view->setVariable('connectedLibs', $connectedLibs);
+                $view->setVariable('$sourceEppn', $sourceEppn);
             }
             $this->layout()->ziskejLibIds = $libraryIds;
         } catch (\Exception $e) {
 
         }
+
         $view->setVariable('ziskejVars', [
             'records' => $view->records,
             'serverName' => $view->serverName,
@@ -281,13 +297,13 @@ class RecordController extends RecordControllerBase
         $ziskej = $this->getZiskej();
         try {
             $resp = $ziskej->createTicket($params['user_id'], $params['doc_id'], $params['doc_alt_ids'], $params['date'], $params['text']);
-            if ($resp->getStatusCode == 201) {
+            if ($resp->getStatusCode() == 201 || $resp->getStatusCode() == 200) {
                 $this->flashMessenger()->addMessage('Objednani bylo uspesne', 'success');
             } else {
                 $this->flashMessenger()->addMessage('Oops! Stala se nejaka chyba', 'error');
             }
         } catch (\Exception $e) {
-            $this->flashMessenger()->addMessage('Oops! Stala se nejaka chyba', 'error');
+            $this->flashMessenger()->addMessage('Oops! Stala se nejaka chyba 2', 'error');
         }
 
         return $this->redirectToRecord();

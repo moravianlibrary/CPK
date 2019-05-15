@@ -5,6 +5,19 @@
 <div class="row">
   <? if ($this->user): ?>
     <div class="col-md-6">
+      <h4><?= $this->translate('Vase knihovny') ?></h4>
+      <? if(empty($this->connectedLibs)): ?>
+          <p>Ne mate zapojene knihovny</p>
+        <? else: ?>
+          <ul class="list-group" >
+              <? foreach ($this->connectedLibs as $source): ?>
+                <li class="list-group-item" style="display: flex; justify-content: space-around">
+                  <span style="line-height: 50px"><?= $this->translate('source_'.$source) ?></span>
+                  <button class="btn btn-default ziskej-order-btn" data="" id="<?= $this->escapeHtmlAttr($source) ?>">Objednat</button>
+                </li>
+              <? endforeach; ?>
+          </ul>
+        <? endif; ?>
       <h4><?= $this->translate('ziskej_available_header') ?></h4>
       <ul>
           <? foreach ($this->ziskejLibs as $sigla): ?>

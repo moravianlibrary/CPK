@@ -57,8 +57,11 @@
               <? foreach ($this->records as $record): ?>
                 <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
               <? endforeach; ?>
+<!--              <div class="row">-->
+<!--                <input type="submit" class='col-xs-12 col-lg-4 mvs' id="mvs-submit" value="--><?//= $this->translate('MVS') ?><!--">-->
+<!--              </div>-->
               <div class="row">
-                <input type="submit" class='col-xs-12 col-lg-4 mvs' id="mvs-submit" value="<?= $this->translate('MVS') ?>">
+                <a href="" class="col-xs-12 col-lg-4 mvs"><?= $this->translate('MVS') ?></a>
               </div>
             </form>
           <? else: ?>

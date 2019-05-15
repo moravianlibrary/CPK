@@ -627,9 +627,9 @@ jQuery( document ).ready( function( $ ) {
   }
 
   var $mvsSubmit = $('#mvs-submit');
+  var $ziskejOrderButton = $('button.ziskej-order-btn');
 
-  $mvsSubmit.one('click', function (e) {
-    e.preventDefault();
+  var renderMVSModal = function () {
     $( '#mvs-modal' ).modal( 'show' );
     // get container where we will render our page
     var $container = $('div.record-mvs-description');
@@ -645,17 +645,36 @@ jQuery( document ).ready( function( $ ) {
     };
 
     $container.append(
-        '<div class="row"><h3>' + VuFind.translate('Informace o dokumentu') +
-        '</h3><div class="col-md-4"><img src="' + renderObject.cover + '" alt="cover"></div>' +
-        '<div class="col-md-8"><h4>'+ renderObject.title +'</h4><table class="table">' +
-        renderObject.tableInformation.html() +'</table></div></div>'
+      '<div class="row"><h3>' + VuFind.translate('Informace o dokumentu') +
+      '</h3><div class="col-md-4"><img src="' + renderObject.cover + '" alt="cover"></div>' +
+      '<div class="col-md-8"><h4>'+ renderObject.title +'</h4><table class="table">' +
+      renderObject.tableInformation.html() +'</table></div></div>'
     );
+  };
+
+  $mvsSubmit.one('click', function (e) {
+    e.preventDefault();
+    // renderMVSModal();
   });
 
   $mvsSubmit.on('click', function (e) {
     e.preventDefault();
-    $( '#mvs-modal' ).modal( 'show' );
+    // $( '#mvs-modal' ).modal( 'show' );
   });
+
+  $ziskejOrderButton.one('click', function (e) {
+    e.preventDefault();
+
+    renderMVSModal();
+  });
+
+  $ziskejOrderButton.on('click', function (e) {
+    e.preventDefault();
+
+    $( '#mvs-modal' ).modal( 'show' );
+  })
+
+
 });
 
 /**

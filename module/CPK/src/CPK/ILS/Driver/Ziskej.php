@@ -25,14 +25,14 @@
 
 namespace CPK\ILS\Driver;
 
-use mysql_xdevapi\CrudOperationBindable;
-use VuFindHttp\{HttpService, HttpServiceAwareInterface};
-use Zend\Http\Response;
+use Exception;
+use VuFindHttp\{HttpService, HttpServiceAwareInterface, HttpServiceAwareTrait};
+use Zend\Http\{Client, Response};
 use Zend\Json\Json;
 
 class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
 {
-    use \VuFindHttp\HttpServiceAwareTrait;
+    use HttpServiceAwareTrait;
 
     protected $apiUrl;
     protected $config;
@@ -70,7 +70,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
 
     /**
      * @return array|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getLibraries()
     {
@@ -83,8 +83,8 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $path
      * @param $method
      *
-     * @return \Zend\Http\Client
-     * @throws \Exception
+     * @return Client
+     * @throws Exception
      */
     protected function getClient($path, $method)
     {
@@ -99,7 +99,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param       $expand
      *
      * @return array|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getReader($eppn, $expand = false)
     {
@@ -116,7 +116,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
 
     /**
      * @return string token for login
-     * @throws \Exception
+     * @throws Exception
      */
     private function getLoginToken()
     {
@@ -140,7 +140,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param bool $expand
      *
      * @return array|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getUserTickets($eppn, $expand = false)
     {
@@ -165,7 +165,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param null $dateRequested
      * @param null $readerNote
      * @return array|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function createTicket($eppn, $documentId, array $docAltIds, $dateRequested = null, $readerNote = null)
     {
@@ -173,7 +173,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
             'eppn'           => $eppn,
             'ticket_type'    => 'mvs',
             'doc_id'         => $documentId,
-            'doc_alt_ids'    => $docAltIds,
+            'doc_alt_ids'    => Json::encode($docAltIds),
         ];
         if (isset($date)) $params[] = ['date_requested' => $dateRequested];
         if (isset($reader_note)) $params[] = ['reader_note' => $readerNote];
@@ -196,7 +196,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $eppn
      *
      * @return array|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getTicketDetail($id, $eppn)
     {
@@ -213,7 +213,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $eppn
      *
      * @return array|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function getTicketMessages($id, $eppn)
     {
@@ -231,7 +231,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $text
      *
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function createMessage($id, $eppn, $text)
     {
@@ -257,7 +257,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $eppn
      *
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function readMessage($id, $eppn)
     {
@@ -279,7 +279,7 @@ class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
      * @param $params
      *
      * @return Response
-     * @throws \Exception
+     * @throws Exception
      */
     public function regOrUpdateReader($eppn, $params)
     {
