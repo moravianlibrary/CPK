@@ -69,13 +69,21 @@ class DedupedRecords extends AbstractBase
     public function getRecordsInGroup()
     {
         $records = [];
-        $localIds = $this->driver->getParentRecordDriver()->getChildrenIds();
-        foreach ($localIds as $id) {
-            $source = substr($id, 0, strpos($id, '.'));
-            $records[] = [
-                'source' => 'source_' . $source,
-                'id'     => $id,
-            ];
+        $record = $this->getRecordDriver();
+        $query = new \VuFindSearch\Query\Query("local_ids_str_mv:" . '"' . addcslashes($record->getUniqueID(), '":') . '"');
+        $params = new \VuFindSearch\ParamBag();
+        $params->set('hl', 'false');
+        $params->set('spellcheck', 'false');
+        $docs = $this->searchService->search($record->getSourceIdentifier(), $query, 0, 20, $params);
+        foreach ($docs->getRecords() as $record) {
+            $fields = $record->getRawData();
+            foreach ($fields['local_ids_str_mv'] as $id) {
+                $source = substr($id, 0, strpos($id, '.'));
+                $records[] = [
+                    'source' => 'source_' . $source,
+                    'id'     => $id
+                ];
+            }
         }
         return $records;
     }
