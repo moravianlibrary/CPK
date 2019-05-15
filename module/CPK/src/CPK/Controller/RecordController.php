@@ -244,10 +244,11 @@ class RecordController extends RecordControllerBase
 
         if (isset($config->Ziskej, $config->Ziskej->$mvsCookie) && $mvsCookie != 'disabled') {
             $view->mvsUrl = $config->Ziskej->$mvsCookie;
-            $view->eppn = $request->getServer()->eduPersonPrincipalName;
-            $view->serverName = $request->getServer()->SERVER_NAME;
-            $view->entityId = $request->getServer('Shib-Identity-Provider');
         }
+        $view->eppn = $request->getServer()->eduPersonPrincipalName;
+        $view->serverName = $request->getServer()->SERVER_NAME;
+        $view->entityId = $request->getServer('Shib-Identity-Provider');
+
         $ziskej = $this->getZiskej();
         $ilsDriver    = $this->getILS()->getDriver();
         try {
@@ -269,7 +270,7 @@ class RecordController extends RecordControllerBase
                 }
 
                 $view->setVariable('connectedLibs', $connectedLibs);
-                $view->setVariable('$sourceEppn', $sourceEppn);
+                $view->setVariable('sourceEppn', $sourceEppn);
             }
             $this->layout()->ziskejLibIds = $libraryIds;
         } catch (\Exception $e) {
@@ -723,8 +724,8 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
 
     protected function getZiskej()
     {
-        $cookie           = $this->getRequest()->getCookie()->ziskej;
-        $url              = $this->getConfig()->Ziskej->$cookie;
+//        $cookie           = $this->getRequest()->getCookie()->ziskej;
+        $url              = $this->getConfig()->Ziskej->test;
         $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
 
         /* @var $ziskej Ziskej */
