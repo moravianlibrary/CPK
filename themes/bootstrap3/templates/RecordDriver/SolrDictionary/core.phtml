@@ -49,6 +49,7 @@
                 'explanation_term' => $this->driver->getExplanation(),
                 'relative_term' => $this->driver->getRelatives(),
                 'source_term' => $this->driver->getSource(),
+                'term_author' => $this->driver->getTermAuthors(),
                 'Format' => $this->record($this->driver)->getFormatList()
             );
             foreach ($items as $itemName => $itemValue):
