@@ -361,7 +361,7 @@
         <? if ($hasPublicationsAbout = $this->driver->tryMethod('hasPublicationsAbout')): ?>
           <div>
             <a title="<?=$this->transEsc('Show publications about this person')?>"
-               href="<?=$this->driver->getAboutPublicationsUrl()?>">
+               href="<?=$this->driver->getPublicationsAboutUrl()?>">
                 <?=$this->translate('Show publications about this person')?>
             </a>
           </div>

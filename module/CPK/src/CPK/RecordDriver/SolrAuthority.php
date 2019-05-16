@@ -153,7 +153,7 @@ class SolrAuthority extends ParentSolrMarc
      *
      * @return string
      */
-    public function getAboutPublicationsUrl()
+    public function getPublicationsAboutUrl()
     {
         return "/Search/Results?"
             . "sort=relevance&join=AND&type0[]=adv_search_subject_keywords"
