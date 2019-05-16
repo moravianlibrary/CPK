@@ -1769,7 +1769,7 @@ class SearchController extends SearchControllerBase
      *
      * @param string $authorityId
      *
-     * @return void
+     * @return integer
      */
     public function getPublicationsAboutAvailableCount($authorityId)
     {
