@@ -213,28 +213,6 @@ class LibraryCardsController extends LibraryCardsControllerBase
     }
 
     /**
-     * Process an authentication error.
-     *
-     * @param AuthException $e Exception to process.
-     *
-     * @return void
-     */
-    protected function processAuthenticationException(AuthException $e)
-    {
-        $msg = $e->getMessage();
-        // If a Shibboleth-style login has failed and the user just logged
-        // out, we need to override the error message with a more relevant
-        // one:
-        if ($msg == 'authentication_error_admin'
-            && $this->getAuthManager()->userHasLoggedOut()
-            && $this->getSessionInitiator()
-        ) {
-            $msg = 'authentication_error_loggedout';
-        }
-        $this->flashMessenger()->addMessage($msg, 'error');
-    }
-
-    /**
      * Convenience method to get a session initiator URL. Returns false if not
      * applicable.
      *
