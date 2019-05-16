@@ -654,12 +654,12 @@ class SearchController extends SearchControllerBase
         // Send both GET and POST variables to search class:
 	    $request = $this->getRequest()->getQuery()->toArray()
 	    + $this->getRequest()->getPost()->toArray();
-	    
+
 	    // EDS can't search with emtpy lookfor string,
 	    /* so we set it to 'FT Y OR FT N' for all results
 	    if($request['database'] == 'EDS'){
 		    if (empty($request['lookfor0'][0])){
-			$request['lookfor0'][0]='FT Y OR FT N';		
+			$request['lookfor0'][0]='FT Y OR FT N';
 		    }
 	    }*/
 
@@ -1746,5 +1746,38 @@ class SearchController extends SearchControllerBase
         }
 
         return $view;
+    }
+
+    /**
+     * Get count of authority publications
+     *
+     * @param string $authorityId
+     *
+     * @return integer
+     */
+    public function getAuthorityPublicationsCount($authorityId)
+    {
+        $results = $this->getResultsManager()->get('Solr');
+        $params = $results->getParams();
+        $params->setBasicSearch("authorCorporation_search_txt_mv:" . $authorityId);
+        $params->setLimit(0);
+        $results->getResults();
+        return $results->getResultTotal();
+    }
+    /**
+     * Get count of publications about authority
+     *
+     * @param string $authorityId
+     *
+     * @return void
+     */
+    public function getPublicationsAboutAvailable($authorityId)
+    {
+        $results = $this->getResultsManager()->get('Solr');
+        $params = $results->getParams();
+        $params->setBasicSearch("subjectKeywords_search_txt_mv:" . $authorityId);
+        $params->setLimit(0);
+        $results->getResults();
+        return $results->getResultTotal();
     }
 }
