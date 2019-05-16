@@ -1771,7 +1771,7 @@ class SearchController extends SearchControllerBase
      *
      * @return void
      */
-    public function getPublicationsAboutAvailable($authorityId)
+    public function getPublicationsAboutAvailableCount($authorityId)
     {
         $results = $this->getResultsManager()->get('Solr');
         $params = $results->getParams();
