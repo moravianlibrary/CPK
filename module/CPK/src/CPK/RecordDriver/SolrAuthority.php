@@ -129,7 +129,7 @@ class SolrAuthority extends ParentSolrMarc
      *
      * @return bool
      */
-    public function publicationsAboutAvailable()
+    public function hasPublicationsAbout()
     {
         $results = $this->searchController->getPublicationsAboutAvailableCount($this->getAuthorityId());
         return ($results > 0);

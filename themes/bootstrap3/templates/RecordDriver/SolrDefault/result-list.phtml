@@ -358,7 +358,7 @@
           </div>
         <? endif; ?>
 
-        <? if ($publicationsAboutAvailable = $this->driver->tryMethod('publicationsAboutAvailable')): ?>
+        <? if ($hasPublicationsAbout = $this->driver->tryMethod('hasPublicationsAbout')): ?>
           <div>
             <a title="<?=$this->transEsc('Show publications about this person')?>"
                href="<?=$this->driver->getAboutPublicationsUrl()?>">

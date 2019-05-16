@@ -108,7 +108,7 @@
       </tr>
 	  <? endif; ?>
 
-        <? if ($this->driver->publicationsAboutAvailable()): ?>
+        <? if ($this->driver->hasPublicationsAbout()): ?>
           <tr>
             <th><?=$this->transEsc('Publications')?>: </th>
             <td>
