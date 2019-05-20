@@ -262,7 +262,10 @@ JS;
 <!--Begin of other than Range Facet content-->
           <? if (in_array($title, $hierarchicalFacets)): ?>
 <!--Begin of hierarchical facets-->
-            <? $sort = isset($hierarchicalFacetSortOptions[$title]) ? $hierarchicalFacetSortOptions[$title] : ''; ?>
+            <?
+              $sort = isset($hierarchicalFacetSortOptions[$title]) ? $hierarchicalFacetSortOptions[$title] : '';
+              $expand = (boolean) $cluster['expand'] ?? false;
+            ?>
             <? if (!in_array($title, $collapsedFacets)): ?>
 <!--Begin of not collapsed facets-->
               <? if($cluster['label'] == 'Institution'): ?>
@@ -270,7 +273,7 @@ JS;
               <?
               $script = <<<JS
 $(document).ready(function() {
-  initInstitutionsTree($('#facet_institution'), true);
+  initInstitutionsTree($('#facet_institution'), true, $expand);
 });
 JS;
               ?>
@@ -281,7 +284,7 @@ JS;
                   <?
                   $script = <<<JS
         $(document).ready(function() {
-          initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
+          initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true, $expand);
           console.log("or" + '#facet_{$this->escapeHtml($title)}');
         });
 JS;
@@ -292,7 +295,7 @@ JS;
                   <?
                   $script = <<<JS
         $(document).ready(function() {
-          initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
+          initFacetTree($('#facet_{$this->escapeHtml($title)}'), true, $expand);
           console.log("and" + '#facet_{$this->escapeHtml($title)}');
         });
 JS;

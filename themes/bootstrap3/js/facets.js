@@ -135,7 +135,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
   return json;
 }
 
-function initFacetTree(treeNode, inSidebar)
+function initFacetTree(treeNode, inSidebar, expandAll)
 {
   var loaded = treeNode.data('loaded');
   if (loaded) {
@@ -172,17 +172,22 @@ function initFacetTree(treeNode, inSidebar)
             treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
           });
         }
-        treeNode.jstree({
+        var tree = treeNode.jstree({
           'core': {
             'data': results
           }
         });
+        if (expandAll) {
+          tree.bind( "loaded.jstree", function ( event, data ) {
+            $( this ).jstree( "open_all" );
+          });
+        }
       }
     }
   );
 }
 
-function initFacetOrTree(treeNode, inSidebar)
+function initFacetOrTree(treeNode, inSidebar, expandAll)
 {
     var loaded = treeNode.data('loaded');
     if (loaded) {
@@ -226,7 +231,7 @@ function initFacetOrTree(treeNode, inSidebar)
                         treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
                     });
                 }
-                treeNode.jstree({
+                var tree = treeNode.jstree({
                     'plugins': ["wholerow", "checkbox"],
                     'core': {
                         'data': results,
@@ -237,13 +242,18 @@ function initFacetOrTree(treeNode, inSidebar)
                         }
                     }
                 });
+                if (expandAll) {
+                    tree.bind( "loaded.jstree", function ( event, data ) {
+                        $( this ).jstree( "open_all" );
+                    });
+                }
             }
         }
     );
 }
 
 
-function initInstitutionsTree(treeNode, inSidebar)
+function initInstitutionsTree(treeNode, inSidebar, expandAll)
 {
   var loaded = treeNode.data('loaded');
   if (loaded) {
@@ -281,7 +291,7 @@ function initInstitutionsTree(treeNode, inSidebar)
             treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
           });
         }
-        treeNode.jstree({
+        var tree = treeNode.jstree({
           'plugins': ["wholerow", "checkbox"],
           'core': {
             'data': results,
@@ -292,6 +302,11 @@ function initInstitutionsTree(treeNode, inSidebar)
             }
           }
         });
+        if (expandAll) {
+          tree.bind( "loaded.jstree", function ( event, data ) {
+            $( this ).jstree( "open_all" );
+          });
+        }
       }
     }
   );
