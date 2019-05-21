@@ -172,136 +172,20 @@ function initFacetTree(treeNode, inSidebar, expandAll)
             treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
           });
         }
-        var tree = treeNode.jstree({
+        var config = {
           'core': {
             'data': results
           }
-        });
-        if (expandAll) {
-          tree.bind( "loaded.jstree", function ( event, data ) {
-            $( this ).jstree( "open_all" );
-          });
+        };
+        if (operator  == 'OR') {
+          config['plugins'] = ["wholerow", "checkbox"];
+          config['core']['themes'] = {
+            'name': 'proton',
+            'responsive': true,
+            'icons': false
+		  };
         }
-      }
-    }
-  );
-}
-
-function initFacetOrTree(treeNode, inSidebar, expandAll)
-{
-    var loaded = treeNode.data('loaded');
-    if (loaded) {
-        return;
-    }
-    treeNode.data('loaded', true);
-
-    var facet = treeNode.data('facet');
-    var operator = treeNode.data('operator');
-    var currentPath = treeNode.data('path');
-    var allowExclude = treeNode.data('exclude');
-    var excludeTitle = treeNode.data('exclude-title');
-    var sort = treeNode.data('sort');
-    var query = window.location.href.split('?')[1];
-
-    if (inSidebar) {
-        treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
-    } else {
-        treeNode.prepend('<div><i class="fa fa-spinner fa-spin"></i><div>');
-    }
-    $.getJSON(VuFind.getPath() + '/AJAX/JSON?' + query,
-        {
-            method: "getFacetData",
-            facetName: facet,
-            facetSort: sort,
-            facetOperator: operator
-        },
-        function(response, textStatus) {
-            if (response.status == "OK") {
-                var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
-                treeNode.find('.fa-spinner').parent().remove();
-                if (inSidebar) {
-                    treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
-
-                        // Open online in availability facet
-                        if (facet == 'local_statuses_facet_str_mv') {
-                            treeNode.jstree('open_node', $('#\\~local_statuses_facet_str_mv\\:\\"0\\/online\\/\\"'));
-                        }
-
-                        treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
-                        treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
-                    });
-                }
-                var tree = treeNode.jstree({
-                    'plugins': ["wholerow", "checkbox"],
-                    'core': {
-                        'data': results,
-                        'themes': {
-                            'name': 'proton',
-                            'responsive': true,
-                            "icons":false
-                        }
-                    }
-                });
-                if (expandAll) {
-                    tree.bind( "loaded.jstree", function ( event, data ) {
-                        $( this ).jstree( "open_all" );
-                    });
-                }
-            }
-        }
-    );
-}
-
-
-function initInstitutionsTree(treeNode, inSidebar, expandAll)
-{
-  var loaded = treeNode.data('loaded');
-  if (loaded) {
-    return;
-  }
-  treeNode.data('loaded', true);
-
-  var facet = treeNode.data('facet');
-  var operator = treeNode.data('operator');
-  var currentPath = treeNode.data('path');
-  var allowExclude = treeNode.data('exclude');
-  var excludeTitle = treeNode.data('exclude-title');
-  var sort = treeNode.data('sort');
-  var query = window.location.href.split('?')[1];
-
-  if (inSidebar) {
-    treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
-  } else {
-    treeNode.prepend('<div><i class="fa fa-spinner fa-spin"></i><div>');
-  }
-  $.getJSON(VuFind.getPath() + '/AJAX/JSON?' + query,
-    {
-      method: "getFacetData",
-      facetName: facet,
-      facetSort: sort,
-      facetOperator: operator
-    },
-    function(response, textStatus) {
-      if (response.status == "OK") {
-        var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
-        treeNode.find('.fa-spinner').parent().remove();
-        if (inSidebar) {
-          treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
-            treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
-            treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
-          });
-        }
-        var tree = treeNode.jstree({
-          'plugins': ["wholerow", "checkbox"],
-          'core': {
-            'data': results,
-            'themes': {
-              'name': 'proton',
-              'responsive': true,
-              "icons":false
-            }
-          }
-        });
+        var tree = treeNode.jstree( config );
         if (expandAll) {
           tree.bind( "loaded.jstree", function ( event, data ) {
             $( this ).jstree( "open_all" );

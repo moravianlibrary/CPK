@@ -273,7 +273,7 @@ JS;
               <?
               $script = <<<JS
 $(document).ready(function() {
-  initInstitutionsTree($('#facet_institution'), true, $expand);
+  initFacetTree($('#facet_institution'), true, $expand);
 });
 JS;
               ?>
@@ -284,7 +284,7 @@ JS;
                   <?
                   $script = <<<JS
         $(document).ready(function() {
-          initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true, $expand);
+          initFacetTree($('#facet_{$this->escapeHtml($title)}'), true, $expand);
           console.log("or" + '#facet_{$this->escapeHtml($title)}');
         });
 JS;
@@ -312,7 +312,7 @@ JS;
               <?
               $script = <<<JS
 $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
-  initInstitutionsTree($('#facet_institution'), true);
+  initFacetTree($('#facet_institution'), true);
 });
 JS;
               ?>
@@ -323,7 +323,7 @@ JS;
           <?
           $script = <<<JS
 $('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
-  initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
+  initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
 });
 JS;
           ?>
