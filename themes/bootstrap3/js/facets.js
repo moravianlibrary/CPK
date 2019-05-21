@@ -78,41 +78,24 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     
     //console.log( 'Compressed facetFilters:' );
     var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
-    
-      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv" || facetName == "cpk_detected_format_facet_str_mv" || facetName == "region_disctrict_facet_str_mv") {
-          json.push({
-              'id': facetFilter,
-              'text': html,
-              'children': children,
-              'applied': this.isApplied,
-              'state': {
-                  'opened': this.hasAppliedChildren,
-                  'selected': this.isApplied
-              },
-              'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
-              'a_attr': this.isApplied ? { 'class': 'active facet-filter-or' } :
-              { 'href': window.location.href + "&filter%5B%5D=" + compressedFilters ,
-                  'class' : 'facet-filter-or'
-              },
-          });
-      }
-      else {
-          json.push({
-              'id': facetFilter,
-              'text': html,
-              'children': children,
-              'applied': this.isApplied,
-              'state': {
-                  'opened': this.hasAppliedChildren,
-                  'selected': this.isApplied
-              },
-              'li_attr': (this.count == 0) ? {'class': 'emptyFacet'} : {},
-              'a_attr': this.isApplied ? {'class': 'active'} :
-              {
-                  'href': window.location.href + "&filter%5B%5D=" + compressedFilters,
-              },
-          });
-      };
+
+    var addClass = (this.operator == 'OR') ? ' facet-filter-or' : '';
+    json.push({
+      'id': facetFilter,
+      'text': html,
+      'children': children,
+      'applied': this.isApplied,
+      'state': {
+        'opened': this.hasAppliedChildren,
+        'selected': this.isApplied
+      },
+      'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
+      'a_attr': this.isApplied ? { 'class': 'active' + addClass } :
+        { 'href': window.location.href + "&filter%5B%5D=" + compressedFilters ,
+          'class' : addClass
+        },
+    });
+
   });
 
   return json;
