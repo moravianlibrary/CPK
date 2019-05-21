@@ -79,7 +79,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     //console.log( 'Compressed facetFilters:' );
     var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
 
-    var addClass = (this.operator == 'OR') ? ' facet-filter-or' : '';
+    var addClass = (facetName == 'local_region_institution_facet_str_mv') ? '' : ' facet-filter-or';
     json.push({
       'id': facetFilter,
       'text': html,
