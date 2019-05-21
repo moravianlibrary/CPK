@@ -38,23 +38,6 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     url.replace("'", "\\'");
     html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "");
 
-    if (facetName == "local_region_institution_facet_str_mv") {
-        html +="";
-    }
-    else {
-        if (facetName == "local_statuses_facet_str_mv" || facetName == "cpk_detected_format_facet_str_mv") {
-            html += "";
-        }
-        else {
-            if (facetName == "conspectus_str_mv" ) {
-                html += "";
-            }
-            else {
-                html += " facet-filter";
-            }
-        }
-    }
-
     html += "' title='" + htmlEncode(this.tooltiptext) + "'>";
     if (this.operator == 'OR') {
       if (this.isApplied) {
