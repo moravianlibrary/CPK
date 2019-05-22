@@ -1,19 +1,13 @@
 /*global htmlEncode, VuFind */
-function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
+function buildFacetNodes(data, facetName, allowExclude, excludeTitle, counts)
 {
   var json = [];
 
   $(data).each(function() {
     var html = '';
-
-    var lastFacetInString = this.exclude.split( '=' ).pop();
-    var facetName = lastFacetInString.split( '%3A' ).shift().substring(1);
-    var facetFilterBase = facetName + ':"' + this.value + '"';
-    var facetFilter;
+    var facetFilter = facetName + ':"' + this.value + '"';
     if (this.operator == 'OR') {
-      facetFilter = '~' + facetFilterBase;
-    } else {
-      facetFilter = facetFilterBase;
+      facetFilter = '~' + facetFilter;
     }
     if (!this.isApplied && counts) {
       html = "<span class='badge";
@@ -50,7 +44,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 
     var children = null;
     if (typeof this.children !== 'undefined' && this.children.length > 0) {
-      children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
+      children = buildFacetNodes(this.children, facetName, allowExclude, excludeTitle, counts);
     }
     
     var appliedFacetFilters = [];
@@ -102,7 +96,6 @@ function initFacetTree(treeNode, inSidebar, expandAll)
 
   var facet = treeNode.data('facet');
   var operator = treeNode.data('operator');
-  var currentPath = treeNode.data('path');
   var allowExclude = treeNode.data('exclude');
   var excludeTitle = treeNode.data('exclude-title');
   var sort = treeNode.data('sort');
@@ -121,7 +114,7 @@ function initFacetTree(treeNode, inSidebar, expandAll)
     },
     function(response, textStatus) {
       if (response.status == "OK") {
-        var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
+        var results = buildFacetNodes(response.data, facet, allowExclude, excludeTitle, inSidebar);
         treeNode.find('.fa-spinner').parent().remove();
         if (inSidebar) {
           treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
