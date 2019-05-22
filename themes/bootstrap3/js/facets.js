@@ -23,19 +23,12 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 
       html += "' style='float: right'>" + this.count.toString().replace(/\B(?=(\d{3})+\b)/g, VuFind.translate("number_thousands_separator"));
       if (allowExclude) {
-        var excludeURL = currentPath + this.exclude;
-        excludeURL.replace("'", "\\'");
         // Just to be safe
         html += " <a href='" + facetFilter + "' title='" + htmlEncode(excludeTitle) + "'><i class='fa fa-times'></i></a>";
       }
       html += '</span>';
     }
 
-    var institutionCategory = facetFilter.split('/')[1];
-
-    var url = currentPath + this.href;
-    // Just to be safe
-    url.replace("'", "\\'");
     html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "");
 
     html += "' title='" + htmlEncode(this.tooltiptext) + "'>";
@@ -63,9 +56,7 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     var appliedFacetFilters = [];
     
     $( '#hiddenFacetFilters .hidden-filter' ).each( function( index, element ) {
-		//if( $( element ).val() != facetFilter) {
-			appliedFacetFilters.push($( element ).val());
-		//}
+		appliedFacetFilters.push($( element ).val());
     });
     
     var filters = appliedFacetFilters;
