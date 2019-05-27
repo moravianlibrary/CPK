@@ -40,38 +40,38 @@
 
   <div class="col-sm-9">
     <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h2>
-    <?/* Display Main Details */?>
+      <? /* Display Main Details */ ?>
     <table class="table">
         <?php
-            $items = array(
-                'alternative_term' => $this->driver->getAlternatives(),
-                'english_term' => $this->driver->getEnglish(),
-                'explanation_term' => $this->driver->getExplanation(),
-                'relative_term' => $this->driver->getRelatives(),
-                'source_term' => $this->driver->getSource(),
-                'term_author' => $this->driver->getTermAuthors(),
-                'Format' => $this->record($this->driver)->getFormatList()
-            );
-            foreach ($items as $itemName => $itemValue):
-                //empty string or no array items passed, skip round
-                if (empty($itemValue))
-                    continue;
-                //is array of values
-                if (is_array($itemValue))
-                    $itemValue = implode('<br/>', $itemValue);
-                ?>
-                <tr id="row-<?= $itemName ?>">
-                    <th class="col-md-3"><?= $this->transEsc($itemName) ?>
-                        :
-                    </th>
-                    <td><?= $itemValue ?></td>
-                </tr>
-            <?
-            endforeach;
+        $items = [
+            'alternative_term' => $this->driver->getAlternatives(),
+            'english_term' => $this->driver->getEnglish(),
+            'explanation_term' => $this->driver->getExplanation(),
+            'relative_term' => $this->driver->getRelatives(),
+            'source_term' => $this->driver->getSource(),
+            'term_author' => $this->driver->getTermAuthors(),
+            'Format' => $this->record($this->driver)->getFormatList(),
+        ];
+        foreach ( $items as $itemName => $itemValue ):
+            //empty string or no array items passed, skip round
+            if ( empty($itemValue) )
+                continue;
+            //is array of values
+            if ( is_array($itemValue) )
+                $itemValue = implode('<br/>', $itemValue);
+            ?>
+          <tr id="row-<?= $itemName ?>">
+            <th class="col-md-3"><?= $this->transEsc($itemName) ?>
+              :
+            </th>
+            <td><?= $itemValue ?></td>
+          </tr>
+        <?
+        endforeach;
         ?>
 
     </table>
-    <?/* End Main Details */?>
+      <? /* End Main Details */ ?>
   </div>
 </div>
 </div>

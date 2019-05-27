@@ -34,8 +34,9 @@ class SolrDictionary extends ParentSolrMarc
      *
      * @return array Term author list or empty array
      */
-    public function getTermAuthors(){
-      return isset($this->fields['author_term_display_mv'])? $this->fields['author_term_display_mv']: [];
+    public function getTermAuthors()
+    {
+        return isset($this->fields['author_term_display_mv']) ? $this->fields['author_term_display_mv'] : [];
     }
 
     /**
