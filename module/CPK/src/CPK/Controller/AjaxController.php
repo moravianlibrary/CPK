@@ -1766,8 +1766,11 @@ class AjaxController extends AjaxControllerBase
             $longitude = $coords['longitude'];
 
             $apikey = $this->getConfig()->GoogleMaps->apikey;
-            $geocode = file_get_contents("http://maps.googleapis.com/maps/api/geocode/json" .
-                "?latlng=$latitude,$longitude&sensor=false&language=cs&key=$apikey");
+            $googleMapsUri = "https://maps.googleapis.com/maps/api/geocode/json" .
+                "?latlng=$latitude,$longitude" .
+                "&sensor=false" .
+                "&language=cs&key=$apikey";
+            $geocode = file_get_contents($googleMapsUri);
 
             $geoData = json_decode($geocode, true);
 
@@ -1784,7 +1787,8 @@ class AjaxController extends AjaxControllerBase
             }
 
             if (is_null($region)) {
-                throw new \Exception('Region not found.');
+                //throw new \Exception('Region not found.');
+                throw new \Exception($geocode);
             }
 
             $librariesGeolocationsTable = $this->getTable("librariesgeolocations");
