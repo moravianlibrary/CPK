@@ -27,20 +27,20 @@ namespace CPK\ILS\Driver;
 
 use Exception;
 use VuFind\Exception\ILS as ILSException;
-use VuFind\ILS\Driver\AbstractBase;
 use VuFindHttp\{HttpService, HttpServiceAwareInterface, HttpServiceAwareTrait};
 use Zend\Http\{Client, Response};
 use Zend\Json\Json;
 
-class Ziskej extends AbstractBase implements ZiskejInterface, HttpServiceAwareInterface
+class Ziskej implements ZiskejInterface, HttpServiceAwareInterface
 {
     use HttpServiceAwareTrait;
 
+    protected $config;
     protected $apiUrl;
 
     public function __construct($configLoader)
     {
-        $this->config = $configLoader->get('SensitiveZiskej');
+        $this->config = $configLoader->SensitiveZiskej;
         $cookie = $_COOKIE['ziskej'] ?? 'disabled';
         $this->apiUrl = $configLoader->get('Ziskej')->$cookie;
     }
@@ -367,5 +367,20 @@ class Ziskej extends AbstractBase implements ZiskejInterface, HttpServiceAwareIn
         );
         $client->setRawBody(Json::encode($params));
         return $client->send();
+    }
+
+    /**
+     * Set configuration.
+     *
+     * Set the configuration for the driver.
+     *
+     * @param array $config Configuration array (usually loaded from a VuFind .ini
+     * file whose name corresponds with the driver class name).
+     *
+     * @return void
+     */
+    public function setConfig($config)
+    {
+
     }
 }
