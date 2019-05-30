@@ -98,7 +98,8 @@ $config = array(
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
-                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
+                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
+                    'ziskej' => 'CPK\ILS\Driver\Factory::getZiskej'
                 ), /* factories */
             ], /* ils_driver */
                 'autocomplete' => [

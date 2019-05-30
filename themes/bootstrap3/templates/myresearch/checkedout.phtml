@@ -31,18 +31,25 @@
   </div>
   <?=$this->flashmessages()?>
 
-  <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-      $source = explode('.', $libraryIdentity['cat_username'])[0]; ?>
-
-  <h3 class="well row blickable" style="margin-bottom: 3px;" id="<?=$source?>">
-    <?=$this->transEsc("source_$source", null, $source) ?>
-    <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
-  </h3>
+  <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):?>
+    <? if($eppn == 'ziskej'): ?>
+      <h3 class="well row blickable" style="margin-bottom: 3px;" id="ziskej">
+        <!--        --><?//=$this->transEsc("source_$source", null, $source) ?>
+          <?= $this->translate('Ziskej') ?>
+        <img class="pull-right" height="32" src="<?=$this->logos()->getLogo('ziskej') ?>"/>
+      </h3>
+    <?else:?>
+    <? $source = explode('.', $libraryIdentity['cat_username'])[0]; ?>
+      <h3 class="well row blickable" style="margin-bottom: 3px;" id="<?=$source?>">
+        <?=$this->transEsc("source_$source", null, $source) ?>
+        <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
+      </h3>
+  <?endif;?>
 
   <? if ($isSynchronous): ?>
     <?= $this->render("myresearch/checkedout-from-identity.phtml", ['libraryIdentity' => $libraryIdentity, 'AJAX' => false]); ?>
   <? else: ?>
-    <div id="<?=$libraryIdentity['cat_username']?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
+    <div id="<?=$libraryIdentity['cat_username'] ?? 'ziskejAjaxLoad'?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
       <i class="fa fa-spinner fa-spin"></i>
       <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
     </div>

@@ -1,8 +1,8 @@
 <?
 $isAJAX = isset($AJAX) && $AJAX === true; $i = 0;
-foreach ($this->libraryIdentity['transactions'] as $resource):
+foreach ($this->tickets as $source => $ticket):
      ++$i; ?>
-  <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
+<!--  --><?// $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
   <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row well" style="margin-bottom: 2px;">
 
       <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['loan_id'])): ?>

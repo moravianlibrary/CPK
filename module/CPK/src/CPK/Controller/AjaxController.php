@@ -29,6 +29,7 @@ namespace CPK\Controller;
 
 use CPK\ILS\Driver\Ziskej;
 use VuFind\Controller\AjaxController as AjaxControllerBase;
+use Zend\Json\Json;
 
 /**
  * This controller handles global AJAX functionality
@@ -644,7 +645,52 @@ class AjaxController extends AjaxControllerBase
         $ilsDriver = $catalog->getDriver();
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
+            if ($cat_username == 'ziskejAjaxLoad') {
+                $obalky = [];
 
+                $ziskej = $ilsDriver->getZiskejDriver();
+                try {
+                    $ziskejLibs = $this->getContent($ziskej->getLibraries());
+                    $viewVars['ziskejLibs'] = $ziskejLibs['items'];
+                    $libraryIds = [];
+                    foreach ($ziskejLibs['items'] as $sigla) {
+                        $libraryIds[] = $ilsDriver->siglaToSource($sigla);
+                    }
+                    if ($user = $this->getAuthManager()->isLoggedIn()) {
+                        $userSources = $user->getNonDummyInstitutions();
+                        $userLibCards = $user->getAllUserLibraryCards();
+                        $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
+                            return in_array($userLib, $libraryIds);
+                        });
+                        $sourceEppn = $tickets = [];
+                        foreach ($userLibCards as $userLibCard) {
+                            if(in_array($userLibCard->home_library, $connectedZiskejLibs)) {
+                                $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
+                            }
+                        }
+                        $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
+
+                        foreach ($sourceEppn as $source => $eppn) {
+                            $tickets[$source] = $this->getContent($ziskej->getUserTickets($eppn, true));
+                        }
+                        $html = $renderer->render('myresearch/checkedout-from-ziskej.phtml',
+                            [
+                                'tickets' => $tickets,
+                                'AJAX' => true
+                            ]);
+                        $toRet = [
+                            'html' => $html,
+                            'obalky' => $obalky,
+                            'canRenew' => 'no',
+                            'overdue' => 'over',
+                            'cat_username' => 'ziskej',
+                            'source' => 'ziskej'
+                        ];
+
+                        return $this->output($toRet, self::STATUS_OK);
+                    }
+                } catch (\Exception $e) {}
+            }
             $patron = [
                 'cat_username' => $cat_username,
                 'id' => $cat_username
@@ -1140,7 +1186,7 @@ class AjaxController extends AjaxControllerBase
             }
         }
 
-        if (! $isOwner) {
+        if (! $isOwner && $cat_username != 'ziskejAjaxLoad') {
             // TODO: Implement incident reporting.
             return $this->output(
                 'You are not authorized to query data about this identity. This incident will be reported.',
@@ -2534,29 +2580,35 @@ class AjaxController extends AjaxControllerBase
         return (! empty($intersection)) ? $intersection : $htmlLinks;
     }
 
-    protected function getZiskej($cookie)
-    {
-        $url              = $this->getConfig()->Ziskej->$cookie;
-        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-
-        $ziskej = Ziskej::getZiskej();
-        $ziskej->setConfig($sensZiskejConfig);
-        $ziskej->setApiUrl($url);
-        return $ziskej;
-    }
-
     public function createZiskejMessageAjax()
     {
         $postParams = $this->params()->fromPost();
         $message = $postParams['message'];
         $id = $postParams['ticketId'];
         $ziskejCookie = $postParams['ziskejCookie'];
+        $url = $this->getConfig()->Ziskej->$cookie;
+        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
         $request = $this->getRequest();
         $eppn = $request->getServer()->eduPersonPrincipalName;
+        $catalog = $this->getILS();
+        $ilsDriver = $catalog->getDriver();
+        $patron = [
+            'eppn' => $eppn,
+            'id' => $id,
+            'message' => $message
+        ];
 
-        $ziskej = $this->getZiskej($ziskejCookie);
-
-        $resp = $ziskej->createMessage($id, $eppn, $message);
+        $resp = $ilsDriver->createZiskejMessage($patron);
         return $resp;
+    }
+
+    public function getContent($response)
+    {
+        $responseContent = [];
+        if ( ! empty($response)) {
+            $responseContent = Json::decode($response->getContent(), true);
+        }
+
+        return $responseContent;
     }
 }

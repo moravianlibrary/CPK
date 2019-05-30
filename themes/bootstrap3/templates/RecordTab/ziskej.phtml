@@ -13,7 +13,7 @@
               <? foreach ($this->connectedLibs as $source): ?>
                 <li class="list-group-item" style="display: flex; justify-content: space-around">
                   <span style="line-height: 50px"><?= $this->translate('source_'.$source) ?></span>
-                  <button class="btn btn-default ziskej-order-btn" data="" id="<?= $this->escapeHtmlAttr($source) ?>">Objednat</button>
+                  <button class="btn btn-default ziskej-order-btn" id="<?= $this->escapeHtmlAttr($source) ?>">Objednat</button>
                 </li>
               <? endforeach; ?>
           </ul>

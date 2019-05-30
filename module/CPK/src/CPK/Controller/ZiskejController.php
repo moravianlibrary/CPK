@@ -26,11 +26,10 @@
 namespace CPK\Controller;
 
 
-use CPK\ILS\Driver\Ziskej;
+use Exception;
 use VuFind\Controller\AbstractBase;
-use Zend\Http\PhpEnvironment\Request;
-use Zend\Http\PhpEnvironment\Response;
 use Zend\Json\Json;
+use Zend\View\Model\ViewModel;
 
 class ZiskejController extends AbstractBase
 {
@@ -39,7 +38,8 @@ class ZiskejController extends AbstractBase
     /**
      * Home Action
      *
-     * @return \Zend\View\Model\ViewModel
+     * @return ViewModel
+     * @throws Exception
      */
     public function homeAction()
     {
@@ -64,8 +64,10 @@ class ZiskejController extends AbstractBase
 
             return $view;
         }
+        $ils    = $this->getILS();
+        $driver = $ils->getDriver();
 
-        $ziskej = $this->getZiskej();
+        $ziskej = $driver->getZiskejDriver();
         $eppn   = $request->getServer()->eduPersonPrincipalName;
 
         if (isset($ziskejCookie) && $ziskejCookie != 'disabled' && $this->getUser()) {
@@ -73,7 +75,7 @@ class ZiskejController extends AbstractBase
             $librariesContent = $this->getContent($libraries);
             $librarySources   = [];
             foreach ($librariesContent['items'] as $sigla) {
-                $id = $this->getLibraryId($sigla);
+                $id = $driver->siglaToSource($sigla);
                 if ( ! empty($id)) {
                     $librarySources[] = $id;
                 }
@@ -120,39 +122,11 @@ class ZiskejController extends AbstractBase
         return $responseContent;
     }
 
-    public function getLibraryId($sigla)
-    {
-        $ils    = $this->getILS();
-        $driver = $ils->getDriver();
-
-        return $driver->siglaToSource($sigla);
-    }
-
-    public function getLibrarySigla($source)
-    {
-        $ils    = $this->getILS();
-        $driver = $ils->getDriver();
-
-        return $driver->sourceToSigla($source);
-    }
-
-    protected function getZiskej()
-    {
-        $cookie           = $this->getRequest()->getCookie()->ziskej;
-        $url              = $this->getConfig()->Ziskej->$cookie;
-        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-
-        /* @var $ziskej Ziskej */
-        $ziskej = Ziskej::getZiskej();
-        $ziskej->setConfig($sensZiskejConfig);
-        $ziskej->setApiUrl($url);
-
-        return $ziskej;
-    }
-
     public function registrationAction()
     {
-        $ziskej  = $this->getZiskej();
+        $ils    = $this->getILS();
+        $driver = $ils->getDriver();
+        $ziskej  = $driver->getZiskejDriver();
         $request = $this->getRequest();
 
         if ($request->isPost() && $this->getUser()) {
@@ -165,7 +139,7 @@ class ZiskejController extends AbstractBase
             $gdprData     = $request->getPost('is_gdpr_data');
             $notification = $request->getPost('notification_enabled');
             $eppn         = $request->getServer()->eduPersonPrincipalName;
-            $sigla        = $this->getLibrarySigla($user->home_library);
+            $sigla        = $driver->sourceToSigla($user->home_library);
             if ($sigla) {
                 $params       = [
                     'first_name'           => $user->firstname,
@@ -193,7 +167,9 @@ class ZiskejController extends AbstractBase
 
     public function createTicketAction()
     {
-        $ziskej  = $this->getZiskej();
+        $ils    = $this->getILS();
+        $driver = $ils->getDriver();
+        $ziskej  = $driver->getZiskejDriver();
         $request = $this->getRequest();
 
         if ($request->isPost() && $this->getUser()) {
@@ -202,7 +178,7 @@ class ZiskejController extends AbstractBase
             try {
                 $resp   = $ziskej->createTicket($eppn, $recordId, []);
                 $status = $resp->getStatusCode();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $status = 500;
             }
 

@@ -805,4 +805,23 @@ class MultiBackend extends MultiBackendBase
         }
         throw new ILSException('No suitable backend driver found');
     }
+
+    public function createZiskejMessage($patron)
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            $resp = $driver->createMessage($patron['id'], $patron['eppn'], $patron['message']);
+            return $resp;
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    public function getZiskejDriver()
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            return $driver;
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
 }

@@ -6,8 +6,9 @@
 
 namespace CPK\ILS\Driver;
 
+use VuFind\ILS\Driver\DriverInterface;
 
-interface ZiskejInterface
+interface ZiskejInterface extends DriverInterface
 {
     public function getLibraries();
 

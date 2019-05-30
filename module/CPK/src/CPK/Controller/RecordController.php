@@ -249,8 +249,8 @@ class RecordController extends RecordControllerBase
         $view->serverName = $request->getServer()->SERVER_NAME;
         $view->entityId = $request->getServer('Shib-Identity-Provider');
 
-        $ziskej = $this->getZiskej();
-        $ilsDriver    = $this->getILS()->getDriver();
+        $ilsDriver = $this->getILS()->getDriver();
+        $ziskej = $ilsDriver->getZiskejDriver();
         try {
             $ziskejLibs = $this->getContent($ziskej->getLibraries());
             $view->setVariable('ziskejLibs', $ziskejLibs['items']);
@@ -295,7 +295,8 @@ class RecordController extends RecordControllerBase
     {
         $params = $this->params()->fromPost();
         /* @var $ziskej Ziskej */
-        $ziskej = $this->getZiskej();
+        $ilsDriver = $this->getILS()->getDriver();
+        $ziskej = $ilsDriver->getZiskejDriver();
         try {
             $resp = $ziskej->createTicket($params['user_id'], $params['doc_id'], $params['doc_alt_ids'], $params['date'], $params['text']);
             if ($resp->getStatusCode() == 201 || $resp->getStatusCode() == 200) {
@@ -721,19 +722,4 @@ xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/
     {
         return $this->driver->getParentRecordDriver();
     }
-
-    protected function getZiskej()
-    {
-//        $cookie           = $this->getRequest()->getCookie()->ziskej;
-        $url              = $this->getConfig()->Ziskej->test;
-        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
-
-        /* @var $ziskej Ziskej */
-        $ziskej = Ziskej::getZiskej();
-        $ziskej->setConfig($sensZiskejConfig);
-        $ziskej->setApiUrl($url);
-
-        return $ziskej;
-    }
-
 }
