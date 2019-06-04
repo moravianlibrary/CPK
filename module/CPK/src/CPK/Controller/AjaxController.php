@@ -1787,8 +1787,7 @@ class AjaxController extends AjaxControllerBase
             }
 
             if (is_null($region)) {
-                //throw new \Exception('Region not found.');
-                throw new \Exception($geocode);
+                throw new \Exception('Region not found.');
             }
 
             $librariesGeolocationsTable = $this->getTable("librariesgeolocations");
