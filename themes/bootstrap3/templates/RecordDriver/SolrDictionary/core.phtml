@@ -52,13 +52,29 @@
             'term_author' => $this->driver->getTermAuthors(),
             'Format' => $this->record($this->driver)->getFormatList(),
         ];
+        $itemsNotSuitableForEscaping = ['Format'];
         foreach ( $items as $itemName => $itemValue ):
             //empty string or no array items passed, skip round
-            if ( empty($itemValue) )
+            if ( empty($itemValue) ){
                 continue;
-            //is array of values
-            if ( is_array($itemValue) )
+            }
+            //don't escape some fields listed in array of non escapable items
+            if (!in_array($itemName, $itemsNotSuitableForEscaping)){
+              //if the content is array, escape each item
+              if (is_array($itemValue) && count($itemValue) > 0){
+                foreach ($itemValue as &$value){
+                  $value = $this->escapeHtml($value);
+                }
+                //just in case
+              } elseif(is_string($itemValue)){
+                  $itemValue = $this->escapeHtml($itemValue);
+              }
+            }
+            //finally concatenate array items if content is array
+            if ( is_array($itemValue) ){
                 $itemValue = implode('<br/>', $itemValue);
+            }
+
             ?>
           <tr id="row-<?= $itemName ?>">
             <th class="col-md-3"><?= $this->transEsc($itemName) ?>
