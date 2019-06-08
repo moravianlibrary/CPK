@@ -263,7 +263,9 @@ $staticRoutes = array(
 	'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
 	'MyResearch/ProfileChange',
-    'MyResearch/ChangeTitle'
+    'MyResearch/ChangeTitle',
+    'ziskej/createticket',
+    'ziskej/registration'
 );
 
 foreach ($staticRoutes as $route) {
@@ -311,6 +313,21 @@ $config['router']['routes']['inspiration-show'] = array(
         'defaults' => array(
             'controller' => 'Inspiration',
             'action'     => 'show',
+        )
+    )
+);
+
+$config['router']['routes']['ziskej'] = array(
+    'type'    => 'Zend\Mvc\Router\Http\Segment',
+    'options' => array(
+        'route'    => '/' . 'ziskej' . '/',
+        'constraints' => array(
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'tag'        => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ),
+        'defaults' => array(
+            'controller' => 'Ziskej',
+            'action'     => 'home',
         )
     )
 );
